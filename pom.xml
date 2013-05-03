@@ -12,5 +12,7 @@
 
   <modules>
     <module>ucd</module>
+    <module>opennlp-storm-tools</module>
+    <module>storm-topo</module>
   </modules>
 </project>
