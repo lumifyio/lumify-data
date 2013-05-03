@@ -1,5 +1,6 @@
 package com.altamiracorp.redDawn.ucd.models;
 
+import org.apache.accumulo.core.client.RowIterator;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
@@ -32,39 +33,36 @@ public class Artifact {
   }
 
   public static List<Artifact> createFromScanner(Scanner scanner) {
-    Iterator<Map.Entry<Key, Value>> it = scanner.iterator();
-    if (!it.hasNext()) {
-      return null;
+    List<Artifact> results = new ArrayList<Artifact>();
+    RowIterator rowIterator = new RowIterator(scanner);
+    while (rowIterator.hasNext()) {
+      Iterator<Map.Entry<Key, Value>> artifactRow = rowIterator.next();
+      results.add(createFromRow(artifactRow));
     }
-    List<Artifact> result = new ArrayList<Artifact>();
-    Artifact currentArtifact = new Artifact();
-    Map.Entry<Key, Value> scannerEntry = it.next();
-    currentArtifact.rowId = scannerEntry.getKey().getRow().toString();
-    populateArtifactFromScannerEntry(currentArtifact, scannerEntry);
-    while (it.hasNext()) {
-      scannerEntry = it.next();
-      if (!scannerEntry.getKey().getRow().toString().equals(currentArtifact.rowId)) {
-        result.add(currentArtifact);
-        currentArtifact = new Artifact();
-      }
-      populateArtifactFromScannerEntry(currentArtifact, scannerEntry);
+    return results;
+  }
+
+  public static Artifact createFromRow(Iterator<Map.Entry<Key, Value>> artifactRow) {
+    Artifact result = new Artifact();
+    while (artifactRow.hasNext()) {
+      Map.Entry<Key, Value> column = artifactRow.next();
+      populateArtifactFromScannerEntry(result, column);
     }
-    result.add(currentArtifact);
     return result;
   }
 
-  private static void populateArtifactFromScannerEntry(Artifact result, Map.Entry<Key, Value> scannerEntry) {
+  private static void populateArtifactFromScannerEntry(Artifact artifact, Map.Entry<Key, Value> scannerEntry) {
     String columnFamily = scannerEntry.getKey().getColumnFamily().toString();
     String columnQualifier = scannerEntry.getKey().getColumnQualifier().toString();
     if (COLUMN_FAMILY_CONTENT.equals(columnFamily)) {
       if (COLUMN_CONTENT_DOC_ARTIFACT_BYTES.equals(columnQualifier)) {
-        result.data = scannerEntry.getValue().get();
+        artifact.data = scannerEntry.getValue().get();
       }
     } else if (COLUMN_FAMILY_GENERIC_METADATA.equals(columnFamily)) {
       if (COLUMN_GENERIC_METADATA_FILE_EXTENSION.equals(columnQualifier)) {
-        result.fileExtension = scannerEntry.getValue().toString();
+        artifact.fileExtension = scannerEntry.getValue().toString();
       } else if (COLUMN_GENERIC_METADATA_FILE_NAME.equals(columnQualifier)) {
-        result.fileName = scannerEntry.getValue().toString();
+        artifact.fileName = scannerEntry.getValue().toString();
       }
     }
   }
