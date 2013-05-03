@@ -1,4 +1,4 @@
-package com.altamiracorp.redDawn.ingest.storm.bolts;
+package com.altamiracorp.reddawn.ingest.storm.bolts;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;

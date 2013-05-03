@@ -1,16 +1,14 @@
-package com.altamiracorp.redDawn.ingest.storm.topologies;
+package com.altamiracorp.reddawn.ingest.storm.topologies;
 
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.topology.TopologyBuilder;
-import com.altamiracorp.redDawn.ingest.storm.bolts.FileDataToUcdArtifactBolt;
-import com.altamiracorp.redDawn.ingest.storm.bolts.RowIdStdoutPrinterBolt;
-import com.altamiracorp.redDawn.ingest.storm.bolts.SimpleTextExtractorBolt;
-import com.altamiracorp.redDawn.ingest.storm.spouts.FileReaderSpout;
+import com.altamiracorp.reddawn.ingest.storm.bolts.FileDataToUcdArtifactBolt;
+import com.altamiracorp.reddawn.ingest.storm.bolts.RowIdStdoutPrinterBolt;
+import com.altamiracorp.reddawn.ingest.storm.bolts.SimpleTextExtractorBolt;
+import com.altamiracorp.reddawn.ingest.storm.spouts.FileReaderSpout;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 public class LocalFileIngestTopology {
   private File directory = new File(System.getProperty("user.dir"));

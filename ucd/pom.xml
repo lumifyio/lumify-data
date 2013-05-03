@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
 <project>
   <parent>
-    <groupId>com.altamiracorp.redDawn</groupId>
-    <artifactId>redDawn</artifactId>
+    <groupId>com.altamiracorp.reddawn</groupId>
+    <artifactId>reddawn</artifactId>
     <version>1.0-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.altamiracorp.redDawn</groupId>
+  <groupId>com.altamiracorp.reddawn</groupId>
   <artifactId>ucd</artifactId>
   <version>1.0-SNAPSHOT</version>
 

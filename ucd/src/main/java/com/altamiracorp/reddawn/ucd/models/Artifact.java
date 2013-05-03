@@ -1,4 +1,4 @@
-package com.altamiracorp.redDawn.ucd.models;
+package com.altamiracorp.reddawn.ucd.models;
 
 import org.apache.accumulo.core.client.RowIterator;
 import org.apache.accumulo.core.client.Scanner;

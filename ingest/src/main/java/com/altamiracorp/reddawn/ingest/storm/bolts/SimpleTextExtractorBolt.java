@@ -1,6 +1,4 @@
-package com.altamiracorp.redDawn.ingest.storm.bolts;
-
-import backtype.storm.tuple.Tuple;
+package com.altamiracorp.reddawn.ingest.storm.bolts;
 
 public class SimpleTextExtractorBolt extends TextExtractorBoltBase {
   @Override

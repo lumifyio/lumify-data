@@ -1,7 +1,6 @@
-package com.altamiracorp.redDawn.ucd;
+package com.altamiracorp.reddawn.ucd;
 
-import com.altamiracorp.redDawn.ucd.UcdClient;
-import com.altamiracorp.redDawn.ucd.models.Artifact;
+import com.altamiracorp.reddawn.ucd.models.Artifact;
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.commons.codec.binary.Hex;

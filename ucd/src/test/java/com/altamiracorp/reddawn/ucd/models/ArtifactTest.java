@@ -1,6 +1,5 @@
-package com.altamiracorp.redDawn.ucd.models;
+package com.altamiracorp.reddawn.ucd.models;
 
-import com.altamiracorp.redDawn.ucd.models.Artifact;
 import org.apache.accumulo.core.data.ColumnUpdate;
 import org.apache.accumulo.core.data.Mutation;
 import org.junit.Test;
@@ -8,7 +7,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import static junit.framework.Assert.assertEquals;

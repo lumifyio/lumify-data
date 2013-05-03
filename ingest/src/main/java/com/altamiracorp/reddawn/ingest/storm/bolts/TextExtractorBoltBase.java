@@ -1,4 +1,4 @@
-package com.altamiracorp.redDawn.ingest.storm.bolts;
+package com.altamiracorp.reddawn.ingest.storm.bolts;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -7,7 +7,7 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import com.altamiracorp.redDawn.ingest.storm.spouts.FileReaderSpout;
+import com.altamiracorp.reddawn.ingest.storm.spouts.FileReaderSpout;
 
 import java.util.Map;
 

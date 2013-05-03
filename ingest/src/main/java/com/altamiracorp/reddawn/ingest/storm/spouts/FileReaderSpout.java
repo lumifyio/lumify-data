@@ -1,4 +1,4 @@
-package com.altamiracorp.redDawn.ingest.storm.spouts;
+package com.altamiracorp.reddawn.ingest.storm.spouts;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
