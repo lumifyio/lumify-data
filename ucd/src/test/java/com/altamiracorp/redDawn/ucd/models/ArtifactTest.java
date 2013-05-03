@@ -19,10 +19,14 @@ public class ArtifactTest {
     Artifact artifact = new Artifact();
     artifact.setFullFileName("testGetUpdates.txt");
     artifact.setData("testGetUpdates");
+    artifact.setExtractedText("testGetUpdatesText");
     Mutation mutation = artifact.getMutation();
 
     List<ColumnUpdate> updates = mutation.getUpdates();
     assertMutationContatins(updates, Artifact.COLUMN_FAMILY_CONTENT, Artifact.COLUMN_CONTENT_DOC_ARTIFACT_BYTES, "testGetUpdates");
+    assertMutationContatins(updates, Artifact.COLUMN_FAMILY_CONTENT, Artifact.COLUMN_CONTENT_DOC_EXTRACTED_TEXT, "testGetUpdatesText");
+    assertMutationContatins(updates, Artifact.COLUMN_FAMILY_GENERIC_METADATA, Artifact.COLUMN_GENERIC_METADATA_FILE_NAME, "testGetUpdates");
+    assertMutationContatins(updates, Artifact.COLUMN_FAMILY_GENERIC_METADATA, Artifact.COLUMN_GENERIC_METADATA_FILE_EXTENSION, "txt");
   }
 
   private void assertMutationContatins(List<ColumnUpdate> updates, String columnFamily, String columnQualifier, String value) {

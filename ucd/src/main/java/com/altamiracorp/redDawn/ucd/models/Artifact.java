@@ -19,14 +19,21 @@ public class Artifact {
   public static final String TABLE_NAME = "Artifact";
   public static final String COLUMN_FAMILY_CONTENT = "Content";
   public static final String COLUMN_CONTENT_DOC_ARTIFACT_BYTES = "doc_artifact_bytes";
+  public static final String COLUMN_CONTENT_DOC_EXTRACTED_TEXT = "doc_extracted_text";
+
   public static final String COLUMN_FAMILY_GENERIC_METADATA = "Generic_Metadata";
   public static final String COLUMN_GENERIC_METADATA_FILE_EXTENSION = "file_extension";
   public static final String COLUMN_GENERIC_METADATA_FILE_NAME = "file_name";
 
+  private String rowId;
+
+  // Content
   private byte[] data;
+  private byte[] extractedText;
+
+  // Generic Metadata
   private String fileName;
   private String fileExtension;
-  private String rowId;
 
   public Artifact() {
 
@@ -57,6 +64,8 @@ public class Artifact {
     if (COLUMN_FAMILY_CONTENT.equals(columnFamily)) {
       if (COLUMN_CONTENT_DOC_ARTIFACT_BYTES.equals(columnQualifier)) {
         artifact.data = scannerEntry.getValue().get();
+      } else if (COLUMN_CONTENT_DOC_EXTRACTED_TEXT.equals(columnQualifier)) {
+        artifact.extractedText = scannerEntry.getValue().get();
       }
     } else if (COLUMN_FAMILY_GENERIC_METADATA.equals(columnFamily)) {
       if (COLUMN_GENERIC_METADATA_FILE_EXTENSION.equals(columnQualifier)) {
@@ -79,7 +88,14 @@ public class Artifact {
 
   public Mutation getMutation() {
     Mutation mutation = new Mutation(getRowId());
+
+    // Content
     mutation.put(COLUMN_FAMILY_CONTENT, COLUMN_CONTENT_DOC_ARTIFACT_BYTES, new Value(this.data));
+    if (this.extractedText != null) {
+      mutation.put(COLUMN_FAMILY_CONTENT, COLUMN_CONTENT_DOC_EXTRACTED_TEXT, new Value(this.extractedText));
+    }
+
+    // Generic Metadata
     if (this.fileExtension != null) {
       mutation.put(COLUMN_FAMILY_GENERIC_METADATA, COLUMN_GENERIC_METADATA_FILE_EXTENSION, this.fileExtension);
     }
@@ -121,5 +137,21 @@ public class Artifact {
 
   public byte[] getData() {
     return this.data;
+  }
+
+  public byte[] getExtractedText() {
+    return extractedText;
+  }
+
+  public void setExtractedText(byte[] extractedText) {
+    this.extractedText = extractedText;
+  }
+
+  public String getExtractedTextAsString() {
+    return new String(this.extractedText);
+  }
+
+  public void setExtractedText(String extractedText) {
+    this.extractedText = extractedText.getBytes();
   }
 }

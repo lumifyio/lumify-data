@@ -45,6 +45,7 @@ public class UcdClientTests {
     Artifact artifact = new Artifact();
     artifact.setFullFileName("testWriteThenRead.txt");
     artifact.setData("testGetUpdates");
+    artifact.setExtractedText("testGetUpdatesText");
     writer.addMutation(artifact.getMutation());
     writer.close();
 
@@ -53,8 +54,11 @@ public class UcdClientTests {
     Artifact foundArtifact = this.client.getArtifactByRowId(artifact.getRowId(), auth);
     assertNotNull("Could not find artifact with id: " + artifact.getRowId(), foundArtifact);
     assertEquals(artifact.getRowId(), foundArtifact.getRowId());
+
+    assertEquals(new String(Hex.encodeHex(artifact.getData())), new String(Hex.encodeHex(foundArtifact.getData())));
+    assertEquals(artifact.getExtractedTextAsString(), foundArtifact.getExtractedTextAsString());
+
     assertEquals(artifact.getFileExtension(), foundArtifact.getFileExtension());
     assertEquals(artifact.getFileName(), foundArtifact.getFileName());
-    assertEquals(new String(Hex.encodeHex(artifact.getData())), new String(Hex.encodeHex(foundArtifact.getData())));
   }
 }
