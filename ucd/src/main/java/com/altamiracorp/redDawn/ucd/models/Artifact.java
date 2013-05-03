@@ -1,4 +1,4 @@
-package com.altamira.redDawn.ucd.models;
+package com.altamiracorp.redDawn.ucd.models;
 
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Key;
