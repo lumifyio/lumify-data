@@ -99,9 +99,13 @@ public class Artifact {
     this.fileExtension = FilenameUtils.getExtension(fullFileName);
   }
 
-  public void setData(String data) {
+  public void setData(byte[] data) {
     this.rowId = null;
-    this.data = data.getBytes();
+    this.data = data;
+  }
+
+  public void setData(String data) {
+    setData(data.getBytes());
   }
 
   public Mutation getMutation() {
