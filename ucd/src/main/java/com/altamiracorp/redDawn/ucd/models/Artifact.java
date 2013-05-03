@@ -10,10 +10,10 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class Artifact {
   public static final String TABLE_NAME = "Artifact";
@@ -22,8 +22,12 @@ public class Artifact {
   public static final String COLUMN_CONTENT_DOC_EXTRACTED_TEXT = "doc_extracted_text";
 
   public static final String COLUMN_FAMILY_GENERIC_METADATA = "Generic_Metadata";
+  public static final String COLUMN_GENERIC_METADATA_DOCUMENT_DTG = "document_dtg";
   public static final String COLUMN_GENERIC_METADATA_FILE_EXTENSION = "file_extension";
   public static final String COLUMN_GENERIC_METADATA_FILE_NAME = "file_name";
+  public static final String COLUMN_GENERIC_METADATA_SUBJECT = "subject";
+
+  private static DateFormat dtgFormat = new SimpleDateFormat("ddHHmm'Z' MMM yy");
 
   private String rowId;
 
@@ -32,14 +36,16 @@ public class Artifact {
   private byte[] extractedText;
 
   // Generic Metadata
+  private Date documentDateTime;
   private String fileName;
   private String fileExtension;
+  private String subject;
 
   public Artifact() {
 
   }
 
-  public static List<Artifact> createFromScanner(Scanner scanner) {
+  public static List<Artifact> createFromScanner(Scanner scanner) throws ParseException {
     List<Artifact> results = new ArrayList<Artifact>();
     RowIterator rowIterator = new RowIterator(scanner);
     while (rowIterator.hasNext()) {
@@ -49,7 +55,7 @@ public class Artifact {
     return results;
   }
 
-  public static Artifact createFromRow(Iterator<Map.Entry<Key, Value>> artifactRow) {
+  public static Artifact createFromRow(Iterator<Map.Entry<Key, Value>> artifactRow) throws ParseException {
     Artifact result = new Artifact();
     while (artifactRow.hasNext()) {
       Map.Entry<Key, Value> column = artifactRow.next();
@@ -58,7 +64,7 @@ public class Artifact {
     return result;
   }
 
-  private static void populateArtifactFromScannerEntry(Artifact artifact, Map.Entry<Key, Value> scannerEntry) {
+  private static void populateArtifactFromScannerEntry(Artifact artifact, Map.Entry<Key, Value> scannerEntry) throws ParseException {
     String columnFamily = scannerEntry.getKey().getColumnFamily().toString();
     String columnQualifier = scannerEntry.getKey().getColumnQualifier().toString();
     if (COLUMN_FAMILY_CONTENT.equals(columnFamily)) {
@@ -72,8 +78,20 @@ public class Artifact {
         artifact.fileExtension = scannerEntry.getValue().toString();
       } else if (COLUMN_GENERIC_METADATA_FILE_NAME.equals(columnQualifier)) {
         artifact.fileName = scannerEntry.getValue().toString();
+      } else if (COLUMN_GENERIC_METADATA_DOCUMENT_DTG.equals(columnQualifier)) {
+        artifact.documentDateTime = parseDateTimeGroupString(scannerEntry.getValue().toString());
+      } else if (COLUMN_GENERIC_METADATA_SUBJECT.equals(columnQualifier)) {
+        artifact.subject = scannerEntry.getValue().toString();
       }
     }
+  }
+
+  private static Date parseDateTimeGroupString(String dtgString) throws ParseException {
+    return dtgFormat.parse(dtgString);
+  }
+
+  private static String dateTimeGroupToString(Date date) {
+    return dtgFormat.format(date).toUpperCase();
   }
 
   public void setFullFileName(String fullFileName) {
@@ -96,11 +114,17 @@ public class Artifact {
     }
 
     // Generic Metadata
+    if (this.documentDateTime != null) {
+      mutation.put(COLUMN_FAMILY_GENERIC_METADATA, COLUMN_GENERIC_METADATA_DOCUMENT_DTG, dateTimeGroupToString(this.documentDateTime));
+    }
     if (this.fileExtension != null) {
       mutation.put(COLUMN_FAMILY_GENERIC_METADATA, COLUMN_GENERIC_METADATA_FILE_EXTENSION, this.fileExtension);
     }
     if (this.fileName != null) {
       mutation.put(COLUMN_FAMILY_GENERIC_METADATA, COLUMN_GENERIC_METADATA_FILE_NAME, this.fileName);
+    }
+    if (this.subject != null) {
+      mutation.put(COLUMN_FAMILY_GENERIC_METADATA, COLUMN_GENERIC_METADATA_SUBJECT, this.subject);
     }
     return mutation;
   }
@@ -153,5 +177,21 @@ public class Artifact {
 
   public void setExtractedText(String extractedText) {
     this.extractedText = extractedText.getBytes();
+  }
+
+  public Date getDocumentDateTime() {
+    return documentDateTime;
+  }
+
+  public void setDocumentDateTime(Date documentDateTime) {
+    this.documentDateTime = documentDateTime;
+  }
+
+  public String getSubject() {
+    return subject;
+  }
+
+  public void setSubject(String subject) {
+    this.subject = subject;
   }
 }

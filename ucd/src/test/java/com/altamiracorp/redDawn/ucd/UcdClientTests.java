@@ -11,6 +11,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.Calendar;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 
@@ -36,6 +38,9 @@ public class UcdClientTests {
 
   @Test
   public void testWriteThenRead() throws Exception {
+    Calendar cal = Calendar.getInstance();
+    cal.set(2013, 4, 3, 11, 12, 0);
+
     long memBuf = 1000000L; // bytes to store before sending a batch
     long timeout = 1000L; // milliseconds to wait before sending
     int numThreads = 10;
@@ -46,6 +51,8 @@ public class UcdClientTests {
     artifact.setFullFileName("testWriteThenRead.txt");
     artifact.setData("testGetUpdates");
     artifact.setExtractedText("testGetUpdatesText");
+    artifact.setDocumentDateTime(cal.getTime());
+    artifact.setSubject("subject");
     writer.addMutation(artifact.getMutation());
     writer.close();
 
@@ -60,5 +67,7 @@ public class UcdClientTests {
 
     assertEquals(artifact.getFileExtension(), foundArtifact.getFileExtension());
     assertEquals(artifact.getFileName(), foundArtifact.getFileName());
+    assertEquals(artifact.getDocumentDateTime().toString(), foundArtifact.getDocumentDateTime().toString());
+    assertEquals(artifact.getSubject(), foundArtifact.getSubject());
   }
 }
