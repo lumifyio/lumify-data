@@ -9,7 +9,7 @@ import org.junit.runners.JUnit4;
 import java.util.Calendar;
 import java.util.List;
 
-import static com.altamiracorp.reddawn.ucd.models.MutationTestHelpers.assertMutationContains;
+import static com.altamiracorp.reddawn.ucd.models.AccumuloTestHelpers.assertMutationContains;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
 

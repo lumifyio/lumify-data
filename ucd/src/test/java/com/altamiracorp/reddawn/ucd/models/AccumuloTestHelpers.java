@@ -7,7 +7,7 @@ import java.util.List;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
 
-public class MutationTestHelpers {
+public class AccumuloTestHelpers {
   public static void assertMutationContains(List<ColumnUpdate> updates, String columnFamily, String columnQualifier, String value) {
     for (ColumnUpdate update : updates) {
       if (new String(update.getColumnFamily()).equals(columnFamily)

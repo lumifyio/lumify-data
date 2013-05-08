@@ -8,7 +8,7 @@ import org.junit.runners.JUnit4;
 
 import java.util.List;
 
-import static com.altamiracorp.reddawn.ucd.models.MutationTestHelpers.assertMutationContains;
+import static com.altamiracorp.reddawn.ucd.models.AccumuloTestHelpers.assertMutationContains;
 
 @RunWith(JUnit4.class)
 public class TermTest {

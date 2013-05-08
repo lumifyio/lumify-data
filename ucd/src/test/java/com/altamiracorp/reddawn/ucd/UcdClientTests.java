@@ -2,7 +2,10 @@ package com.altamiracorp.reddawn.ucd;
 
 import com.altamiracorp.reddawn.ucd.models.Artifact;
 import org.apache.accumulo.core.client.*;
+import org.apache.accumulo.core.client.mock.MockConnector;
+import org.apache.accumulo.core.client.mock.MockInstance;
 import org.apache.accumulo.core.security.Authorizations;
+import org.apache.accumulo.core.security.thrift.AuthInfo;
 import org.apache.commons.codec.binary.Hex;
 import org.junit.After;
 import org.junit.Before;
@@ -21,16 +24,12 @@ public class UcdClientTests {
 
   @Before
   public void setup() throws AccumuloSecurityException, AccumuloException, TableExistsException {
-    String instanceName = "reddawn";
-    String zooServers = "192.168.211.130";
-    ZooKeeperInstance zooKeeperInstance = new ZooKeeperInstance(instanceName, zooServers);
-    Connector connection = zooKeeperInstance.getConnector("root", "reddawn");
+    MockInstance mockInstance = new MockInstance();
+    AuthInfo authInfo = new AuthInfo();
+    authInfo.setUser("root");
+    authInfo.setPassword(new byte[]{});
+    MockConnector connection = (MockConnector) mockInstance.getConnector(authInfo);
     this.client = new UcdClient(connection);
-    try {
-      this.client.deleteTables();
-    } catch (TableNotFoundException ex) {
-      // don't care we're recreating them here anyway
-    }
     this.client.initializeTables();
   }
 
