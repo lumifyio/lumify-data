@@ -112,23 +112,23 @@ public class Artifact {
     Mutation mutation = new Mutation(getRowId());
 
     // Content
-    mutation.put(COLUMN_FAMILY_CONTENT, COLUMN_CONTENT_DOC_ARTIFACT_BYTES, new Value(this.data));
-    if (this.extractedText != null) {
-      mutation.put(COLUMN_FAMILY_CONTENT, COLUMN_CONTENT_DOC_EXTRACTED_TEXT, new Value(this.extractedText));
+    mutation.put(COLUMN_FAMILY_CONTENT, COLUMN_CONTENT_DOC_ARTIFACT_BYTES, new Value(getData()));
+    if (getExtractedText() != null) {
+      mutation.put(COLUMN_FAMILY_CONTENT, COLUMN_CONTENT_DOC_EXTRACTED_TEXT, new Value(getExtractedText()));
     }
 
     // Generic Metadata
-    if (this.documentDateTime != null) {
-      mutation.put(COLUMN_FAMILY_GENERIC_METADATA, COLUMN_GENERIC_METADATA_DOCUMENT_DTG, dateTimeGroupToString(this.documentDateTime));
+    if (getDocumentDateTime() != null) {
+      mutation.put(COLUMN_FAMILY_GENERIC_METADATA, COLUMN_GENERIC_METADATA_DOCUMENT_DTG, dateTimeGroupToString(getDocumentDateTime()));
     }
-    if (this.fileExtension != null) {
-      mutation.put(COLUMN_FAMILY_GENERIC_METADATA, COLUMN_GENERIC_METADATA_FILE_EXTENSION, this.fileExtension);
+    if (getFileExtension() != null) {
+      mutation.put(COLUMN_FAMILY_GENERIC_METADATA, COLUMN_GENERIC_METADATA_FILE_EXTENSION, getFileExtension());
     }
-    if (this.fileName != null) {
-      mutation.put(COLUMN_FAMILY_GENERIC_METADATA, COLUMN_GENERIC_METADATA_FILE_NAME, this.fileName);
+    if (getFileName() != null) {
+      mutation.put(COLUMN_FAMILY_GENERIC_METADATA, COLUMN_GENERIC_METADATA_FILE_NAME, getFileName());
     }
-    if (this.subject != null) {
-      mutation.put(COLUMN_FAMILY_GENERIC_METADATA, COLUMN_GENERIC_METADATA_SUBJECT, this.subject);
+    if (getSubject() != null) {
+      mutation.put(COLUMN_FAMILY_GENERIC_METADATA, COLUMN_GENERIC_METADATA_SUBJECT, getSubject());
     }
     return mutation;
   }

@@ -9,6 +9,7 @@ import org.junit.runners.JUnit4;
 import java.util.Calendar;
 import java.util.List;
 
+import static com.altamiracorp.reddawn.ucd.models.MutationTestHelpers.assertMutationContains;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
 
@@ -28,22 +29,11 @@ public class ArtifactTest {
     Mutation mutation = artifact.getMutation();
 
     List<ColumnUpdate> updates = mutation.getUpdates();
-    assertMutationContatins(updates, Artifact.COLUMN_FAMILY_CONTENT, Artifact.COLUMN_CONTENT_DOC_ARTIFACT_BYTES, "testGetUpdates");
-    assertMutationContatins(updates, Artifact.COLUMN_FAMILY_CONTENT, Artifact.COLUMN_CONTENT_DOC_EXTRACTED_TEXT, "testGetUpdatesText");
-    assertMutationContatins(updates, Artifact.COLUMN_FAMILY_GENERIC_METADATA, Artifact.COLUMN_GENERIC_METADATA_FILE_NAME, "testGetUpdates");
-    assertMutationContatins(updates, Artifact.COLUMN_FAMILY_GENERIC_METADATA, Artifact.COLUMN_GENERIC_METADATA_FILE_EXTENSION, "txt");
-    assertMutationContatins(updates, Artifact.COLUMN_FAMILY_GENERIC_METADATA, Artifact.COLUMN_GENERIC_METADATA_DOCUMENT_DTG, "031112Z MAY 13");
-    assertMutationContatins(updates, Artifact.COLUMN_FAMILY_GENERIC_METADATA, Artifact.COLUMN_GENERIC_METADATA_SUBJECT, "subject");
-  }
-
-  private void assertMutationContatins(List<ColumnUpdate> updates, String columnFamily, String columnQualifier, String value) {
-    for (ColumnUpdate update : updates) {
-      if (new String(update.getColumnFamily()).equals(columnFamily)
-          && new String(update.getColumnQualifier()).equals(columnQualifier)) {
-        assertEquals(value, new String(update.getValue()));
-        return;
-      }
-    }
-    fail("Could not find update: " + columnFamily + ":" + columnQualifier + " = " + value);
+    assertMutationContains(updates, Artifact.COLUMN_FAMILY_CONTENT, Artifact.COLUMN_CONTENT_DOC_ARTIFACT_BYTES, "testGetUpdates");
+    assertMutationContains(updates, Artifact.COLUMN_FAMILY_CONTENT, Artifact.COLUMN_CONTENT_DOC_EXTRACTED_TEXT, "testGetUpdatesText");
+    assertMutationContains(updates, Artifact.COLUMN_FAMILY_GENERIC_METADATA, Artifact.COLUMN_GENERIC_METADATA_FILE_NAME, "testGetUpdates");
+    assertMutationContains(updates, Artifact.COLUMN_FAMILY_GENERIC_METADATA, Artifact.COLUMN_GENERIC_METADATA_FILE_EXTENSION, "txt");
+    assertMutationContains(updates, Artifact.COLUMN_FAMILY_GENERIC_METADATA, Artifact.COLUMN_GENERIC_METADATA_DOCUMENT_DTG, "031112Z MAY 13");
+    assertMutationContains(updates, Artifact.COLUMN_FAMILY_GENERIC_METADATA, Artifact.COLUMN_GENERIC_METADATA_SUBJECT, "subject");
   }
 }
