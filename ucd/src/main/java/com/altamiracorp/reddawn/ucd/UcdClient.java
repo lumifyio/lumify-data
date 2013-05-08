@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.ucd;
 
 import com.altamiracorp.reddawn.ucd.models.Artifact;
+import com.altamiracorp.reddawn.ucd.models.Term;
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.security.Authorizations;
@@ -21,6 +22,9 @@ public class UcdClient {
   public void initializeTables() throws TableExistsException, AccumuloSecurityException, AccumuloException {
     if (!getAccumuloConnector().tableOperations().exists(Artifact.TABLE_NAME)) {
       getAccumuloConnector().tableOperations().create(Artifact.TABLE_NAME);
+    }
+    if (!getAccumuloConnector().tableOperations().exists(Term.TABLE_NAME)) {
+      getAccumuloConnector().tableOperations().create(Term.TABLE_NAME);
     }
   }
 
@@ -43,5 +47,12 @@ public class UcdClient {
   }
 
   public void close() {
+  }
+
+  public List<Term> getTermsStartingWith(String str, Authorizations auths) throws Exception {
+    Scanner scan = getAccumuloConnector().createScanner(Term.TABLE_NAME, auths);
+    scan.setRange(new Range(str, true, str + "Z", true)); // TODO: how do you do an inclusive search without using + "Z"
+
+    return Term.createFromScanner(scan);
   }
 }

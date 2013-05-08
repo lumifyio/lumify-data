@@ -1,10 +1,15 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.data.Value;
 import org.apache.commons.codec.binary.Hex;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 public class TermMention {
   public static final String COLUMN_ARTIFACT_KEY = "artifactKey";
@@ -53,6 +58,23 @@ public class TermMention {
     }
     if (getMention() != null) {
       mutation.put(columnFamily, COLUMN_MENTION, getMention());
+    }
+  }
+
+  public static TermMention createFromColumns(String rowId, Collection<Map.Entry<Key, Value>> columns) {
+    TermMention termMention = new TermMention();
+    for (Map.Entry<Key, Value> column : columns) {
+      populateFromColumn(termMention, column.getKey().getColumnQualifier().toString(), column.getValue());
+    }
+    termMention.rowId = rowId;
+    return termMention;
+  }
+
+  private static void populateFromColumn(TermMention termMention, String columnQualifier, Value value) {
+    if (COLUMN_ARTIFACT_KEY.equals(columnQualifier)) {
+      termMention.artifactKey = value.toString();
+    } else if (COLUMN_MENTION.equals(columnQualifier)) {
+      termMention.mention = value.toString();
     }
   }
 }
