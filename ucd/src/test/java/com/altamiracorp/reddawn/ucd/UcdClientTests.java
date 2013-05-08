@@ -26,6 +26,11 @@ public class UcdClientTests {
     ZooKeeperInstance zooKeeperInstance = new ZooKeeperInstance(instanceName, zooServers);
     Connector connection = zooKeeperInstance.getConnector("root", "reddawn");
     this.client = new UcdClient(connection);
+    try {
+      this.client.deleteTables();
+    } catch (TableNotFoundException ex) {
+      // don't care we're recreating them here anyway
+    }
     this.client.initializeTables();
   }
 
