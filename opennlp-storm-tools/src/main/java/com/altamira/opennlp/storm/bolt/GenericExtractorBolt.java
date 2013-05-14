@@ -63,14 +63,15 @@ public class GenericExtractorBolt extends BaseRichBolt {
 
 		// "extract" the entities
 		Span[] entitySpans = extractor.find(tokenArr);
-		for (Span entitySpan : entitySpans) {
+		for (int i = 0; i < entitySpans.length; i++) {
 			// build the string value of the entity
 			// TODO: look under the hood of OpenNLP and see if their
 			// spansToStrings method does any better than this
+			Span entitySpan = entitySpans[i];
 			StringBuilder entity = new StringBuilder();
-			for (int i = entitySpan.getStart(); i < entitySpan.getEnd(); i++) {
-				entity.append(tokenArr[i]);
-				if (i + 1 < entitySpan.getEnd()) {
+			for (int j = entitySpan.getStart(); j < entitySpan.getEnd(); j++) {
+				entity.append(tokenArr[j]);
+				if (j + 1 < entitySpan.getEnd()) {
 					entity.append(" ");
 				}
 			}
@@ -78,7 +79,7 @@ public class GenericExtractorBolt extends BaseRichBolt {
 					input,
 					new Values(input.getStringByField("docId"), input
 							.getIntegerByField("docParagraphId"), input
-							.getIntegerByField("paragraphSentenceId"),
+							.getIntegerByField("paragraphSentenceId"), i,
 							entityType, entitySpan.getStart(), entitySpan
 									.getEnd(), entity.toString()));
 			collector.ack(input);
@@ -87,7 +88,8 @@ public class GenericExtractorBolt extends BaseRichBolt {
 
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
 		declarer.declare(new Fields("docId", "docParagraphId",
-				"paragraphSentenceId", "entityType", "start", "end", "entity"));
+				"paragraphSentenceId", "sentenceEntityId", "entityType",
+				"start", "end", "entity"));
 
 	}
 
