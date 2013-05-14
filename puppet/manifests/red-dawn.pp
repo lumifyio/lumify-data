@@ -81,26 +81,6 @@ define download ($dirName = $title, $url, $extension) {
   }
 }
 
-download { "${hadoopDir}" :
-  url => "${hadoopUrl}",
-  extension => 'tar.gz',
-}
-
-download { "${zookeeperDir}" :
-  url => "${zookeeperUrl}",
-  extension => 'tar.gz',
-}
-
-download { "${accumuloDir}" :
-  url => "${accumuloUrl}",
-  extension => 'tar.gz',
-}
-
-download { "${stormDir}" :
-  url => "${stormUrl}",
-  extension => 'zip',
-}
-
 define extract ($dirName = $title, $extension, $user = 'hadoop', $group = 'hadoop') {
   case $extension {
     'zip':   { $cmd = '/usr/bin/unzip -q' }
@@ -115,75 +95,62 @@ define extract ($dirName = $title, $extension, $user = 'hadoop', $group = 'hadoo
   }
 }
 
-extract { "${hadoopDir}" :
+define relocate-conf ($app = $title) {
+  exec { "relocate-conf-${app}" :
+    cwd => "/opt/${app}",
+    command => "/bin/mv conf ../${app}-conf && /bin/ln -s ../${app}-conf conf",
+    creates => '/opt/${app}-conf',
+    require => File["/opt/${app}"],
+  }
+}
+
+define install ($app = $title, $dirName, $url, $extension, $user = 'hadoop', $group = 'hadoop') {
+  download { "${dirName}" :
+    url => "${url}",
+    extension => "${extension}",
+  }
+
+  extract { "${dirName}" :
+    extension => "${extension}",
+    user => "${user}",
+    group => "${group}",
+  }
+
+  file { "/opt/${app}":
+    ensure => 'link',
+    target => "/opt/${dirName}",
+    require => Extract["${dirName}"],
+  }
+
+  relocate-conf { "${app}" :
+  }
+}
+
+install { 'hadoop' :
+  dirName => "${hadoopDir}",
+  url => "${hadoopUrl}",
   extension => 'tar.gz',
 }
 
-extract { "${zookeeperDir}" :
+install { 'zookeeper' :
+  dirName => "${zookeeperDir}",
+  url => "${zookeeperUrl}",
   extension => 'tar.gz',
   user => 'zk',
 }
 
-extract { "${accumuloDir}" :
+install { 'accumulo' :
+  dirName => "${accumuloDir}",
+  url => "${accumuloUrl}",
   extension => 'tar.gz',
   user => 'accumulo',
 }
 
-extract { "${stormDir}" :
+install { 'storm' :
+  dirName => "${stormDir}",
+  url => "${stormUrl}",
   extension => 'zip',
   user => 'storm',
-}
-
-file { '/opt/hadoop':
-  ensure => 'link',
-  target => "/opt/${hadoopDir}",
-  require => Extract["${hadoopDir}"],
-}
-
-file { '/opt/zookeeper':
-  ensure => 'link',
-  target => "/opt/${zookeeperDir}",
-  require => Extract["${zookeeperDir}"],
-}
-
-file { '/opt/accumulo':
-  ensure => 'link',
-  target => "/opt/${accumuloDir}",
-  require => Extract["${accumuloDir}"],
-}
-
-file { '/opt/storm':
-  ensure => 'link',
-  target => "/opt/${stormDir}",
-  require => Extract["${stormDir}"],
-}
-
-exec { 'move-hadoop-conf' :
-  cwd => "/opt/${hadoopDir}",
-  command => "/bin/mv conf ../hadoop-conf && /bin/ln -s ../hadoop-conf conf",
-  creates => '/opt/hadoop-conf',
-  require => File['/opt/hadoop'],
-}
-
-exec { 'move-zookeeper-conf' :
-  cwd => "/opt/${zookeeperDir}",
-  command => "/bin/mv conf ../zookeeper-conf && /bin/ln -s ../zookeeper-conf conf",
-  creates => '/opt/zookeeper-conf',
-  require => File['/opt/zookeeper'],
-}
-
-exec { 'move-accumulo-conf' :
-  cwd => "/opt/${accumuloDir}",
-  command => "/bin/mv conf ../accumulo-conf && /bin/ln -s ../accumulo-conf conf",
-  creates => '/opt/accumulo-conf',
-  require => File['/opt/accumulo'],
-}
-
-exec { 'move-storm-conf' :
-  cwd => "/opt/${stormDir}",
-  command => "/bin/mv conf ../storm-conf && /bin/ln -s ../storm-conf conf",
-  creates => '/opt/storm-conf',
-  require => File['/opt/storm'],
 }
 
 # TODO:
