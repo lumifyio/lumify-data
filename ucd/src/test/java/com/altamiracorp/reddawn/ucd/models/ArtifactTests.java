@@ -1,11 +1,11 @@
-package com.altamiracorp.reddawn.ucd;
+package com.altamiracorp.reddawn.ucd.models;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class UcdClientTests {
+public class ArtifactTests {
   @Test
   public void placeholder() {
 
