@@ -1,0 +1,160 @@
+
+$hadoopUrl    = 'http://archive.cloudera.com/cdh/3/hadoop-0.20.2-cdh3u6.tar.gz'
+$hadoopDir    = 'hadoop-0.20.2-cdh3u6'
+$zookeeperUrl = 'http://archive.cloudera.com/cdh/3/zookeeper-3.3.5-cdh3u4.tar.gz'
+$zookeeperDir = 'zookeeper-3.3.5-cdh3u4'
+
+$accumuloUrl  = 'http://www.us.apache.org/dist/accumulo/1.4.3/accumulo-1.4.3-dist.tar.gz'
+$accumuloDir  = 'accumulo-1.4.3'
+
+$stormUrl     = 'https://dl.dropbox.com/u/133901206/storm-0.8.2.zip'
+$stormDir     = 'storm-0.8.2'
+
+exec { 'yum-update' :
+  command => '/usr/bin/yum -y update',
+  logoutput => 'on_failure',
+}
+
+Package {
+  provider => 'yum',
+  require => Exec['yum-update'],
+}
+
+package { 'java-1.6.0-openjdk-devel' :
+  ensure => present,
+}
+
+package { 'unzip' :
+  ensure => present,
+}
+
+group { 'hadoop' :
+  ensure => 'present',
+}
+
+user { 'hadoop' :
+  ensure => 'present',
+  gid => 'hadoop',
+  home => '/opt/hadoop-conf',
+}
+
+user { 'hdfs' :
+  ensure => 'present',
+  gid => 'hadoop',
+  home => '/opt/hadoop-conf',
+}
+
+user { 'mapred' :
+  ensure => 'present',
+  gid => 'hadoop',
+  home => '/opt/hadoop-conf',
+}
+
+user { 'zk' :
+  ensure => 'present',
+  gid => 'hadoop',
+  home => '/opt/zookeeper-conf',
+}
+
+user { 'accumulo' :
+  ensure => 'present',
+  gid => 'hadoop',
+  home => '/opt/accumulo-conf',
+}
+
+user { 'storm' :
+  ensure => 'present',
+  gid => 'hadoop',
+  home => '/opt/storm-conf',
+}
+
+file { '/opt/downloads' :
+  ensure => 'directory',
+}
+
+define download ($dirName = $title, $url, $extension) {
+  exec { "download-${dirName}" :
+    cwd => '/opt',
+    command => "/usr/bin/curl ${url} -s -L -o downloads/${dirName}.${extension}",
+    creates => "/opt/downloads/${dirName}.${extension}",
+    require => File['/opt/downloads'],
+  }
+}
+
+define extract ($dirName = $title, $extension, $user = 'hadoop', $group = 'hadoop') {
+  case $extension {
+    'zip':   { $cmd = '/usr/bin/unzip -q' }
+    default: { $cmd = '/bin/tar xzf' }
+  }
+
+  exec { "extract-${dirName}" :
+    cwd => '/opt',
+    command => "${cmd} downloads/${dirName}.${extension} && /bin/chown -R ${user}:${group} /opt/${dirName}",
+    creates => "/opt/${dirName}",
+    require => [ Download["${dirName}"], User["${user}"] ],
+  }
+}
+
+define relocate-conf ($app = $title) {
+  exec { "relocate-conf-${app}" :
+    cwd => "/opt/${app}",
+    command => "/bin/mv conf ../${app}-conf && /bin/ln -s ../${app}-conf conf",
+    creates => '/opt/${app}-conf',
+    require => File["/opt/${app}"],
+  }
+}
+
+define install ($app = $title, $dirName, $url, $extension, $user = 'hadoop', $group = 'hadoop') {
+  download { "${dirName}" :
+    url => "${url}",
+    extension => "${extension}",
+  }
+
+  extract { "${dirName}" :
+    extension => "${extension}",
+    user => "${user}",
+    group => "${group}",
+  }
+
+  file { "/opt/${app}":
+    ensure => 'link',
+    target => "/opt/${dirName}",
+    require => Extract["${dirName}"],
+  }
+
+  relocate-conf { "${app}" :
+  }
+}
+
+install { 'hadoop' :
+  dirName => "${hadoopDir}",
+  url => "${hadoopUrl}",
+  extension => 'tar.gz',
+}
+
+install { 'zookeeper' :
+  dirName => "${zookeeperDir}",
+  url => "${zookeeperUrl}",
+  extension => 'tar.gz',
+  user => 'zk',
+}
+
+install { 'accumulo' :
+  dirName => "${accumuloDir}",
+  url => "${accumuloUrl}",
+  extension => 'tar.gz',
+  user => 'accumulo',
+}
+
+install { 'storm' :
+  dirName => "${stormDir}",
+  url => "${stormUrl}",
+  extension => 'zip',
+  user => 'storm',
+}
+
+# TODO:
+# config
+# start/stop all scripts
+# reformat script (HDFS + Accumulo)
+
