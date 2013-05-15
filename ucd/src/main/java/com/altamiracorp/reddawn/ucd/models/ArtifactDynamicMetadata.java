@@ -1,6 +1,13 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.data.Value;
+
+import java.util.Map;
+
 public class ArtifactDynamicMetadata {
+  public static final String COLUMN_FAMILY_NAME = "Dynamic_Metadata";
   private String artifactSerialNum;
   private String docSourceHash;
   private String edhGuid;
@@ -45,6 +52,10 @@ public class ArtifactDynamicMetadata {
     return new Builder();
   }
 
+  void addMutations(Mutation mutation) {
+    // TODO
+  }
+
   public static class Builder {
     private ArtifactDynamicMetadata artifactDynamicMetadata = new ArtifactDynamicMetadata();
 
@@ -82,6 +93,10 @@ public class ArtifactDynamicMetadata {
 
     public void sourceLabel(String sourceLabel) {
       this.artifactDynamicMetadata.sourceLabel = sourceLabel;
+    }
+
+    public static void populateFromColumn(ArtifactDynamicMetadata dynamicMetadata, Map.Entry<Key, Value> column) {
+      // TODO
     }
   }
 }

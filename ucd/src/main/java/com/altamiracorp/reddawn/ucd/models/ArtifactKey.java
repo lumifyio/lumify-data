@@ -25,6 +25,9 @@ public class ArtifactKey {
 
     public ArtifactKey build() {
       ArtifactKey artifactKey = new ArtifactKey();
+      if (docArtifactBytes == null) {
+        throw new RuntimeException("docArtifactBytes cannot be null");
+      }
       artifactKey.key = KeyHelpers.createSHA256Key(docArtifactBytes);
       return artifactKey;
     }

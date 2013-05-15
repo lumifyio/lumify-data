@@ -10,9 +10,9 @@ public class KeyHelpers {
 
   public static String createSHA256Key(byte[] bytes) {
     try {
-      MessageDigest digest = null;
-      digest = MessageDigest.getInstance("SHA-256");
-      return "urn" + SEPARATOR + "sha256" + SEPARATOR + Hex.encodeHexString(digest.digest(bytes));
+      MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      byte[] sha = digest.digest(bytes);
+      return "urn" + SEPARATOR + "sha256" + SEPARATOR + Hex.encodeHexString(sha);
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }

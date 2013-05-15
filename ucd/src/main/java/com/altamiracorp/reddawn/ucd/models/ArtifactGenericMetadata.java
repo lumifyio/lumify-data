@@ -1,6 +1,13 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.data.Value;
+
+import java.util.Map;
+
 public class ArtifactGenericMetadata {
+  public static final String COLUMN_FAMILY_NAME = "Generic_Metadata";
   private String author;
   private String category;
   private String charset;
@@ -110,6 +117,10 @@ public class ArtifactGenericMetadata {
     return new Builder();
   }
 
+  void addMutations(Mutation mutation) {
+    // TODO
+  }
+
   public static class Builder {
     private ArtifactGenericMetadata artifactGenericMetadata = new ArtifactGenericMetadata();
 
@@ -199,6 +210,19 @@ public class ArtifactGenericMetadata {
 
     public void subject(String subject) {
       this.artifactGenericMetadata.subject = subject;
+    }
+
+    static void populateFromColumn(ArtifactGenericMetadata genericMetadata, Map.Entry<Key, Value> column) {
+      // TODO
+//      if (COLUMN_FILE_EXTENSION.equals(columnQualifier)) {
+//        genericMetadata.fileExtension = column.getValue().toString();
+//      } else if (COLUMN_FILE_NAME.equals(columnQualifier)) {
+//        genericMetadata.fileName = column.getValue().toString();
+//      } else if (COLUMN_DOCUMENT_DTG.equals(columnQualifier)) {
+//        genericMetadata.documentDateTime = parseDateTimeGroupString(column.getValue().toString());
+//      } else if (COLUMN_SUBJECT.equals(columnQualifier)) {
+//        genericMetadata.subject = column.getValue().toString();
+//      }
     }
   }
 }
