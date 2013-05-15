@@ -78,18 +78,22 @@ public class Artifact {
     }
 
     public Artifact build() {
-      if (this.artifact.getContent() == null && this.artifact.getKey() == null) {
+      generateKey(artifact);
+      return artifact;
+    }
+
+    private static void generateKey(Artifact artifact) {
+      if (artifact.getContent() == null && artifact.getKey() == null) {
         throw new RuntimeException("Content and Key cannot be null");
       }
-      if (this.artifact.getKey() == null && this.artifact.getContent().getDocArtifactBytes() == null) {
+      if (artifact.getKey() == null && artifact.getContent().getDocArtifactBytes() == null) {
         throw new RuntimeException("Key and Content.DocArtifactBytes cannot be null");
       }
-      if (this.artifact.getKey() == null) {
-        this.artifact.key = ArtifactKey.newBuilder()
-            .docArtifactBytes(this.artifact.getContent().getDocArtifactBytes())
+      if (artifact.getKey() == null) {
+        artifact.key = ArtifactKey.newBuilder()
+            .docArtifactBytes(artifact.getContent().getDocArtifactBytes())
             .build();
       }
-      return artifact;
     }
 
     public List<Artifact> buildFromScanner(Scanner scanner) {
@@ -103,15 +107,15 @@ public class Artifact {
     }
 
     private Artifact buildFromRow(Iterator<Map.Entry<Key, Value>> columns) {
-      Artifact result = Artifact.newBuilder()
-          .artifactContent(ArtifactContent.newBuilder().build())
-          .artifactDynamicMetadata(ArtifactDynamicMetadata.newBuilder().build())
-          .artifactGenericMetadata(ArtifactGenericMetadata.newBuilder().build())
-          .build();
+      Artifact result = new Artifact();
+      result.content = ArtifactContent.newBuilder().build();
+      result.dynamicMetadata = ArtifactDynamicMetadata.newBuilder().build();
+      result.genericMetadata = ArtifactGenericMetadata.newBuilder().build();
       while (columns.hasNext()) {
         Map.Entry<Key, Value> column = columns.next();
         populateFromColumn(result, column);
       }
+      generateKey(result);
       return result;
     }
 

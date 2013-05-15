@@ -52,7 +52,7 @@ public class UcdClientTests {
 
     Artifact foundArtifact = this.client.queryArtifactByKey(artifact.getKey(), queryUser);
     assertNotNull("artifact with key " + artifact.getKey() + " was null", foundArtifact);
-    assertEquals("testArtifactBytes", foundArtifact.getKey().toString());
+    assertEquals("urn\u001Fsha256\u001Ffd3d29f773fba0fb911bc0b7012d8a103cf14fa541eb3a66450a771421bcbe61", foundArtifact.getKey().toString());
     assertEquals("testArtifactBytes", new String(foundArtifact.getContent().getDocArtifactBytes()));
     // TODO test all columns
   }
