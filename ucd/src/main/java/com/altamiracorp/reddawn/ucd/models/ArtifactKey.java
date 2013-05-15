@@ -1,11 +1,32 @@
 package com.altamiracorp.reddawn.ucd.models;
 
 public class ArtifactKey {
+  private String key;
+
+  private ArtifactKey() {
+  }
+
+  @Override
+  public String toString() {
+    return this.key;
+  }
+
   public static Builder newBuilder() {
     return new Builder();
   }
 
   public static class Builder {
+    private byte[] docArtifactBytes;
 
+    public Builder docArtifactBytes(byte[] docArtifactBytes) {
+      this.docArtifactBytes = docArtifactBytes;
+      return this;
+    }
+
+    public ArtifactKey build() {
+      ArtifactKey artifactKey = new ArtifactKey();
+      artifactKey.key = KeyHelpers.createSHA256Key(docArtifactBytes);
+      return artifactKey;
+    }
   }
 }

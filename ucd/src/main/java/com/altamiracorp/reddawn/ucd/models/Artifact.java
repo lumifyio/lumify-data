@@ -4,6 +4,7 @@ public class Artifact {
   private ArtifactContent content;
   private ArtifactGenericMetadata genericMetadata;
   private ArtifactDynamicMetadata dynamicMetadata;
+  private ArtifactKey key;
 
   private Artifact() {
 
@@ -23,6 +24,10 @@ public class Artifact {
 
   public ArtifactDynamicMetadata getDynamicMetadata() {
     return this.dynamicMetadata;
+  }
+
+  public ArtifactKey getKey() {
+    return this.key;
   }
 
   public static class Builder {
@@ -47,6 +52,7 @@ public class Artifact {
     }
 
     public Artifact build() {
+      artifact.key = ArtifactKey.newBuilder().docArtifactBytes(this.artifact.content.getDocArtifactBytes()).build();
       return artifact;
     }
   }

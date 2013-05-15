@@ -63,6 +63,7 @@ public class ArtifactTests {
         .artifactDynamicMetadata(ad.build())
         .build();
 
+    assertEquals("urn\u001Fsha256\u001Ff4544fb4c5af57bf6a823fbb623de44363cb3384928ca95360baede7b2e578c5", artifact.getKey().toString());
     assertEquals("UNCLASSIFIED", artifact.getContent().getSecurity());
     assertEquals("This is some test text", artifact.getContent().getDocExtractedText());
     assertEquals("This is some test text", new String(artifact.getContent().getDocArtifactBytes()));
