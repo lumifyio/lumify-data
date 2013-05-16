@@ -5,6 +5,7 @@ import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.util.PeekingIterator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -106,7 +107,7 @@ public class Artifact {
       return results;
     }
 
-    private Artifact buildFromRow(Iterator<Map.Entry<Key, Value>> columns) {
+    public Artifact buildFromRow(Iterator<Map.Entry<Key, Value>> columns) {
       Artifact result = new Artifact();
       result.content = ArtifactContent.newBuilder().build();
       result.dynamicMetadata = ArtifactDynamicMetadata.newBuilder().build();
