@@ -62,4 +62,8 @@ public class UcdClient<A extends AuthorizationLabel> {
       throw new UCDIOException(e);
     }
   }
+
+  public Connector getConnection() {
+    return connection;
+  }
 }
