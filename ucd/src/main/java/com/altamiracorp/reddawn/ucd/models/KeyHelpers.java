@@ -17,4 +17,15 @@ public class KeyHelpers {
       throw new RuntimeException(e);
     }
   }
+
+  public static String createCompositeKey(String... parts) {
+    StringBuilder result = new StringBuilder();
+    for (int i = 0; i < parts.length; i++) {
+      if (i != 0) {
+        result.append(SEPARATOR);
+      }
+      result.append(parts[i]);
+    }
+    return result.toString();
+  }
 }

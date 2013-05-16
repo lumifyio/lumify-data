@@ -36,15 +36,9 @@ public class ArtifactContent {
   }
 
   void addMutations(Mutation mutation) {
-    if (getDocArtifactBytes() != null) {
-      mutation.put(COLUMN_FAMILY_NAME, COLUMN_DOC_ARTIFACT_BYTES, new Value(getDocArtifactBytes()));
-    }
-    if (getDocExtractedText() != null) {
-      mutation.put(COLUMN_FAMILY_NAME, COLUMN_DOC_EXTRACTED_TEXT, getDocExtractedText());
-    }
-    if (getSecurity() != null) {
-      mutation.put(COLUMN_FAMILY_NAME, COLUMN_SECURITY, getSecurity());
-    }
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_DOC_ARTIFACT_BYTES, getDocArtifactBytes());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_DOC_EXTRACTED_TEXT, getDocExtractedText());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_SECURITY, getSecurity());
   }
 
   public static class Builder {

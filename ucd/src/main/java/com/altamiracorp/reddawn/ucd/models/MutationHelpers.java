@@ -10,6 +10,12 @@ public class MutationHelpers {
     }
   }
 
+  public static void putIfNotNull(Mutation mutation, String columnFamilyName, String columnName, byte[] value) {
+    if (value != null) {
+      mutation.put(columnFamilyName, columnName, new Value(value));
+    }
+  }
+
   public static void putIfNotNull(Mutation mutation, String columnFamilyName, String columnName, Long value) {
     if (value != null) {
       mutation.put(columnFamilyName, columnName, longToValue(value));
