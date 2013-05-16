@@ -8,6 +8,26 @@ import java.util.Map;
 
 public class ArtifactGenericMetadata {
   public static final String COLUMN_FAMILY_NAME = "Generic_Metadata";
+  private static final String COLUMN_AUTHOR = "author";
+  private static final String COLUMN_CATEGORY = "category";
+  private static final String COLUMN_CHARSET = "charset";
+  private static final String COLUMN_DOCUMENT_DTG = "document_dtg";
+  private static final String COLUMN_DOCUMENT_TYPE = "document_type";
+  private static final String COLUMN_EXTERNAL_URL = "external_url";
+  private static final String COLUMN_EXTRACTED_TEXT_HDFS_PATH = "extracted_text_hdfs_path";
+  private static final String COLUMN_FILE_EXTENSION = "file_extension";
+  private static final String COLUMN_FILE_NAME = "file_name";
+  private static final String COLUMN_FILE_SIZE = "file_size";
+  private static final String COLUMN_FILE_TIMESTAMP = "file_timestamp";
+  private static final String COLUMN_HDFS_FILE_PATH = "hdfs_file_path";
+  private static final String COLUMN_LANGUAGE = "language";
+  private static final String COLUMN_LOAD_TIMESTAMP = "load_timestamp";
+  private static final String COLUMN_LOAD_TYPE = "load_type";
+  private static final String COLUMN_MIME_TYPE = "mime_type";
+  private static final String COLUMN_SOURCE = "source";
+  private static final String COLUMN_SOURCE_SUB_TYPE = "source_sub_type";
+  private static final String COLUMN_SOURCE_TYPE = "source_type";
+  private static final String COLUMN_SUBJECT = "subject";
   private String author;
   private String category;
   private String charset;
@@ -17,11 +37,11 @@ public class ArtifactGenericMetadata {
   private String extractedTextHdfsPath;
   private String fileExtension;
   private String fileName;
-  private long fileSize;
-  private long fileTimestamp;
+  private Long fileSize;
+  private Long fileTimestamp;
   private String hdfsFilePath;
   private String language;
-  private long loadTimestamp;
+  private Long loadTimestamp;
   private String loadType;
   private String mimeType;
   private String source;
@@ -69,11 +89,11 @@ public class ArtifactGenericMetadata {
     return fileName;
   }
 
-  public long getFileSize() {
+  public Long getFileSize() {
     return fileSize;
   }
 
-  public long getFileTimestamp() {
+  public Long getFileTimestamp() {
     return fileTimestamp;
   }
 
@@ -85,7 +105,7 @@ public class ArtifactGenericMetadata {
     return language;
   }
 
-  public long getLoadTimestamp() {
+  public Long getLoadTimestamp() {
     return loadTimestamp;
   }
 
@@ -118,7 +138,26 @@ public class ArtifactGenericMetadata {
   }
 
   void addMutations(Mutation mutation) {
-    // TODO
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_AUTHOR, getAuthor());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_CATEGORY, getCategory());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_CHARSET, getCharset());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_DOCUMENT_DTG, getDocumentDtg());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_DOCUMENT_TYPE, getDocumentType());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_EXTERNAL_URL, getExternalUrl());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_EXTRACTED_TEXT_HDFS_PATH, getExtractedTextHdfsPath());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_FILE_EXTENSION, getFileExtension());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_FILE_NAME, getFileName());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_FILE_SIZE, getFileSize());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_FILE_TIMESTAMP, getFileTimestamp());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_HDFS_FILE_PATH, getHdfsFilePath());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_LANGUAGE, getLanguage());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_LOAD_TIMESTAMP, getLoadTimestamp());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_LOAD_TYPE, getLoadType());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_MIME_TYPE, getMimeType());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_SOURCE, getSource());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_SOURCE_SUB_TYPE, getSourceSubType());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_SOURCE_TYPE, getSourceType());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_SUBJECT, getSubject());
   }
 
   public static class Builder {
@@ -132,97 +171,149 @@ public class ArtifactGenericMetadata {
       return this.artifactGenericMetadata;
     }
 
-    public void author(String author) {
+    public Builder author(String author) {
       this.artifactGenericMetadata.author = author;
+      return this;
     }
 
-    public void category(String category) {
+    public Builder category(String category) {
       this.artifactGenericMetadata.category = category;
+      return this;
     }
 
-    public void charset(String charset) {
+    public Builder charset(String charset) {
       this.artifactGenericMetadata.charset = charset;
+      return this;
     }
 
-    public void documentDtg(String documentDtg) {
+    public Builder documentDtg(String documentDtg) {
       this.artifactGenericMetadata.documentDtg = documentDtg;
+      return this;
     }
 
-    public void documentType(String documentType) {
+    public Builder documentType(String documentType) {
       this.artifactGenericMetadata.documentType = documentType;
+      return this;
     }
 
-    public void externalUrl(String externalUrl) {
+    public Builder externalUrl(String externalUrl) {
       this.artifactGenericMetadata.externalUrl = externalUrl;
+      return this;
     }
 
-    public void extractedTextHdfsPath(String extractedTextHdfsPath) {
+    public Builder extractedTextHdfsPath(String extractedTextHdfsPath) {
       this.artifactGenericMetadata.extractedTextHdfsPath = extractedTextHdfsPath;
+      return this;
     }
 
-    public void fileExtension(String fileExtension) {
+    public Builder fileExtension(String fileExtension) {
       this.artifactGenericMetadata.fileExtension = fileExtension;
+      return this;
     }
 
-    public void fileName(String fileName) {
+    public Builder fileName(String fileName) {
       this.artifactGenericMetadata.fileName = fileName;
+      return this;
     }
 
-    public void fileSize(long fileSize) {
+    public Builder fileSize(long fileSize) {
       this.artifactGenericMetadata.fileSize = fileSize;
+      return this;
     }
 
-    public void fileTimestamp(long fileTimestamp) {
+    public Builder fileTimestamp(long fileTimestamp) {
       this.artifactGenericMetadata.fileTimestamp = fileTimestamp;
+      return this;
     }
 
-    public void hdfsFilePath(String hdfsFilePath) {
+    public Builder hdfsFilePath(String hdfsFilePath) {
       this.artifactGenericMetadata.hdfsFilePath = hdfsFilePath;
+      return this;
     }
 
-    public void language(String language) {
+    public Builder language(String language) {
       this.artifactGenericMetadata.language = language;
+      return this;
     }
 
-    public void loadTimestamp(long loadTimestamp) {
+    public Builder loadTimestamp(long loadTimestamp) {
       this.artifactGenericMetadata.loadTimestamp = loadTimestamp;
+      return this;
     }
 
-    public void loadType(String loadType) {
+    public Builder loadType(String loadType) {
       this.artifactGenericMetadata.loadType = loadType;
+      return this;
     }
 
-    public void mimeType(String mimeType) {
+    public Builder mimeType(String mimeType) {
       this.artifactGenericMetadata.mimeType = mimeType;
+      return this;
     }
 
-    public void source(String source) {
+    public Builder source(String source) {
       this.artifactGenericMetadata.source = source;
+      return this;
     }
 
-    public void sourceSubType(String sourceSubType) {
+    public Builder sourceSubType(String sourceSubType) {
       this.artifactGenericMetadata.sourceSubType = sourceSubType;
+      return this;
     }
 
-    public void sourceType(String sourceType) {
+    public Builder sourceType(String sourceType) {
       this.artifactGenericMetadata.sourceType = sourceType;
+      return this;
     }
 
-    public void subject(String subject) {
+    public Builder subject(String subject) {
       this.artifactGenericMetadata.subject = subject;
+      return this;
     }
 
     static void populateFromColumn(ArtifactGenericMetadata genericMetadata, Map.Entry<Key, Value> column) {
-      // TODO
-//      if (COLUMN_FILE_EXTENSION.equals(columnQualifier)) {
-//        genericMetadata.fileExtension = column.getValue().toString();
-//      } else if (COLUMN_FILE_NAME.equals(columnQualifier)) {
-//        genericMetadata.fileName = column.getValue().toString();
-//      } else if (COLUMN_DOCUMENT_DTG.equals(columnQualifier)) {
-//        genericMetadata.documentDateTime = parseDateTimeGroupString(column.getValue().toString());
-//      } else if (COLUMN_SUBJECT.equals(columnQualifier)) {
-//        genericMetadata.subject = column.getValue().toString();
-//      }
+      String columnQualifier = column.getKey().getColumnQualifier().toString();
+      if (COLUMN_AUTHOR.equals(columnQualifier)) {
+        genericMetadata.author = column.getValue().toString();
+      } else if (COLUMN_CATEGORY.equals(columnQualifier)) {
+        genericMetadata.category = column.getValue().toString();
+      } else if (COLUMN_CHARSET.equals(columnQualifier)) {
+        genericMetadata.charset = column.getValue().toString();
+      } else if (COLUMN_DOCUMENT_DTG.equals(columnQualifier)) {
+        genericMetadata.documentDtg = column.getValue().toString();
+      } else if (COLUMN_DOCUMENT_TYPE.equals(columnQualifier)) {
+        genericMetadata.documentType = column.getValue().toString();
+      } else if (COLUMN_EXTERNAL_URL.equals(columnQualifier)) {
+        genericMetadata.externalUrl = column.getValue().toString();
+      } else if (COLUMN_EXTRACTED_TEXT_HDFS_PATH.equals(columnQualifier)) {
+        genericMetadata.extractedTextHdfsPath = column.getValue().toString();
+      } else if (COLUMN_FILE_EXTENSION.equals(columnQualifier)) {
+        genericMetadata.fileExtension = column.getValue().toString();
+      } else if (COLUMN_FILE_NAME.equals(columnQualifier)) {
+        genericMetadata.fileName = column.getValue().toString();
+      } else if (COLUMN_FILE_SIZE.equals(columnQualifier)) {
+        genericMetadata.fileSize = ValueHelpers.valueToLong(column.getValue());
+      } else if (COLUMN_FILE_TIMESTAMP.equals(columnQualifier)) {
+        genericMetadata.fileTimestamp = ValueHelpers.valueToLong(column.getValue());
+      } else if (COLUMN_HDFS_FILE_PATH.equals(columnQualifier)) {
+        genericMetadata.hdfsFilePath = column.getValue().toString();
+      } else if (COLUMN_LANGUAGE.equals(columnQualifier)) {
+        genericMetadata.language = column.getValue().toString();
+      } else if (COLUMN_LOAD_TIMESTAMP.equals(columnQualifier)) {
+        genericMetadata.loadTimestamp = ValueHelpers.valueToLong(column.getValue());
+      } else if (COLUMN_LOAD_TYPE.equals(columnQualifier)) {
+        genericMetadata.loadType = column.getValue().toString();
+      } else if (COLUMN_MIME_TYPE.equals(columnQualifier)) {
+        genericMetadata.mimeType = column.getValue().toString();
+      } else if (COLUMN_SOURCE.equals(columnQualifier)) {
+        genericMetadata.source = column.getValue().toString();
+      } else if (COLUMN_SOURCE_SUB_TYPE.equals(columnQualifier)) {
+        genericMetadata.sourceSubType = column.getValue().toString();
+      } else if (COLUMN_SOURCE_TYPE.equals(columnQualifier)) {
+        genericMetadata.sourceType = column.getValue().toString();
+      } else if (COLUMN_SUBJECT.equals(columnQualifier)) {
+        genericMetadata.subject = column.getValue().toString();
+      }
     }
   }
 }

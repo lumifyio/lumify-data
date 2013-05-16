@@ -77,11 +77,11 @@ public class ArtifactTests {
     assertEquals("testExtractedTextHdfsPath", artifact.getGenericMetadata().getExtractedTextHdfsPath());
     assertEquals("testFileExtension", artifact.getGenericMetadata().getFileExtension());
     assertEquals("testFileName", artifact.getGenericMetadata().getFileName());
-    assertEquals(12L, artifact.getGenericMetadata().getFileSize());
-    assertEquals(123L, artifact.getGenericMetadata().getFileTimestamp());
+    assertEquals(12L, artifact.getGenericMetadata().getFileSize().longValue());
+    assertEquals(123L, artifact.getGenericMetadata().getFileTimestamp().longValue());
     assertEquals("testHdfsFilePath", artifact.getGenericMetadata().getHdfsFilePath());
     assertEquals("testLanguage", artifact.getGenericMetadata().getLanguage());
-    assertEquals(1234L, artifact.getGenericMetadata().getLoadTimestamp());
+    assertEquals(1234L, artifact.getGenericMetadata().getLoadTimestamp().longValue());
     assertEquals("testLoadType", artifact.getGenericMetadata().getLoadType());
     assertEquals("testMimeType", artifact.getGenericMetadata().getMimeType());
     assertEquals("testSource", artifact.getGenericMetadata().getSource());
