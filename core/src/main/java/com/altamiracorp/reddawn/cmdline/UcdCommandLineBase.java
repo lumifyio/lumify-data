@@ -113,7 +113,7 @@ public abstract class UcdCommandLineBase extends Configured implements Tool {
     return options;
   }
 
-  protected UcdClient<AuthorizationLabel> createUcdClient() throws AccumuloSecurityException, AccumuloException {
+  public UcdClient<AuthorizationLabel> createUcdClient() throws AccumuloSecurityException, AccumuloException {
     ConnectionConfiguration config = new ConnectionConfiguration();
     config.setInstanceName(getZookeeperInstanceName());
     config.setZookeepers(getZookeeperServerNames());

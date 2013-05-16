@@ -1,11 +1,11 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import com.google.gson.Gson;
 import org.apache.accumulo.core.client.RowIterator;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.util.PeekingIterator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -55,6 +55,11 @@ public class Artifact {
       getDynamicMetadata().addMutations(mutation);
     }
     return mutation;
+  }
+
+  public String toJson() {
+    Gson gson = new Gson();
+    return gson.toJson(this);
   }
 
   public static class Builder {

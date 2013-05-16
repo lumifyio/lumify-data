@@ -6,6 +6,10 @@ public class ArtifactKey {
   private ArtifactKey() {
   }
 
+  public ArtifactKey(String key) {
+    this.key = key;
+  }
+
   @Override
   public String toString() {
     return this.key;
