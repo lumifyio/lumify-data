@@ -1,6 +1,16 @@
 package com.altamiracorp.reddawn.ucd.models;
 
-public class TermMetadata {
+import org.apache.accumulo.core.data.Key;
+import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.data.Value;
+
+import java.util.Map;
+
+public class TermMetadata implements Comparable<TermMetadata> {
+  private static final String COLUMN_ARTIFACT_KEY = "artifactKey";
+  private static final String COLUMN_ARTIFACT_KEY_SIGN = "artifactKeySign";
+  private static final String COLUMN_AUTHOR = "author";
+  private static final String COLUMN_MENTION = "mention";
   private String artifactKey;
   private String artifactKeySign;
   private String author;
@@ -24,6 +34,47 @@ public class TermMetadata {
 
   public TermMention getMention() {
     return mention;
+  }
+
+  public void addMutations(Mutation mutation) {
+    String columnFamilyName = getColumnFamilyName();
+    MutationHelpers.putIfNotNull(mutation, columnFamilyName, COLUMN_ARTIFACT_KEY, getArtifactKey());
+  }
+
+  @Override
+  public int compareTo(TermMetadata termMetadataRight) {
+    int start1 = this.getMention().getStart();
+    int start2 = termMetadataRight.getMention().getStart();
+    if (start1 == start2) {
+      return 0;
+    }
+    return start1 > start2 ? 1 : -1;
+  }
+
+  public String getColumnFamilyName() {
+    String mentionString = null;
+    if (getMention() != null) {
+      mentionString = getMention().toString();
+    }
+    return KeyHelpers.createSHA256KeyFromConcatination(new String[]{
+        getArtifactKey(),
+        getArtifactKeySign(),
+        getAuthor(),
+        mentionString
+    });
+  }
+
+  public void populateFromColumn(Map.Entry<Key, Value> column) {
+    String columnQualifier = column.getKey().getColumnQualifier().toString();
+    if (COLUMN_ARTIFACT_KEY.equals(columnQualifier)) {
+      this.artifactKey = column.getValue().toString();
+    } else if (COLUMN_ARTIFACT_KEY_SIGN.equals(columnQualifier)) {
+      this.artifactKeySign = column.getValue().toString();
+    } else if (COLUMN_AUTHOR.equals(columnQualifier)) {
+      this.author = column.getValue().toString();
+    } else if (COLUMN_MENTION.equals(columnQualifier)) {
+      this.mention = new TermMention(column.getValue().toString());
+    }
   }
 
   public static class Builder {

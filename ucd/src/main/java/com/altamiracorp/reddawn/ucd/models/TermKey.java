@@ -5,6 +5,17 @@ public class TermKey {
   private String concept;
   private String model;
 
+  public TermKey(String keyString) {
+    String[] parts = KeyHelpers.splitOnSeperator(keyString);
+    this.sign = parts[0];
+    this.model = parts[1];
+    this.concept = parts[2];
+  }
+
+  public TermKey() {
+
+  }
+
   public static Builder newBuilder() {
     return new Builder();
   }

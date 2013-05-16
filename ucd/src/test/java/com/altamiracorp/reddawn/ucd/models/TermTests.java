@@ -4,6 +4,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.ArrayList;
+
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
@@ -30,9 +32,10 @@ public class TermTests {
 
     assertEquals("testSign\u001FUCD\u001FtestConcept", term.getKey().toString());
 
-    assertEquals("testArtifactKey", term.getMetadata().getArtifactKey());
-    assertEquals("testArtifactKeySign", term.getMetadata().getArtifactKeySign());
-    assertEquals("testAuthor", term.getMetadata().getAuthor());
-    assertEquals("{\"start\":0,\"end\":5}", term.getMetadata().getMention().toString());
+    TermMetadata termMetadata1 = new ArrayList<TermMetadata>(term.getMetadata()).get(0);
+    assertEquals("testArtifactKey", termMetadata1.getArtifactKey());
+    assertEquals("testArtifactKeySign", termMetadata1.getArtifactKeySign());
+    assertEquals("testAuthor", termMetadata1.getAuthor());
+    assertEquals("{\"start\":0,\"end\":5}", termMetadata1.getMention().toString());
   }
 }

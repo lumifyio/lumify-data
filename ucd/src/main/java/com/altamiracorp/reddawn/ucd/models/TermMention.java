@@ -9,6 +9,10 @@ public class TermMention {
     this.end = end;
   }
 
+  public TermMention(String str) {
+    throw new RuntimeException();
+  }
+
   public String toString() {
     return String.format("{\"start\":%d,\"end\":%d}", getStart(), getEnd());
   }
