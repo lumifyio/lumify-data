@@ -33,6 +33,7 @@ public class UcdClient<A extends AuthorizationLabel> {
 
   public void deleteTables() throws AccumuloSecurityException, AccumuloException, TableNotFoundException {
     deleteTable(Artifact.TABLE_NAME);
+    deleteTable(Term.TABLE_NAME);
   }
 
   private void deleteTable(String tableName) throws AccumuloSecurityException, AccumuloException, TableNotFoundException {
@@ -114,6 +115,18 @@ public class UcdClient<A extends AuthorizationLabel> {
         throw new UCDIOException("Multiple rows returned for term with key: " + termKey.toString());
       }
       return terms.get(0);
+    } catch (TableNotFoundException e) {
+      throw new UCDIOException(e);
+    } catch (JSONException e) {
+      throw new UCDIOException(e);
+    }
+  }
+
+  public List<Term> queryTermAll(QueryUser<A> queryUser) throws UCDIOException {
+    try {
+      Scanner scan = this.connection.createScanner(Term.TABLE_NAME, queryUser.getAuthorizations());
+
+      return Term.newBuilder().buildFromScanner(scan);
     } catch (TableNotFoundException e) {
       throw new UCDIOException(e);
     } catch (JSONException e) {

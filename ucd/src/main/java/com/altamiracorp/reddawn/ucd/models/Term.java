@@ -1,5 +1,7 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.accumulo.core.client.RowIterator;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Key;
@@ -32,6 +34,11 @@ public class Term {
       metadata.addMutations(mutation);
     }
     return mutation;
+  }
+
+  public String toJson() {
+    Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    return gson.toJson(this);
   }
 
   public static class Builder {
