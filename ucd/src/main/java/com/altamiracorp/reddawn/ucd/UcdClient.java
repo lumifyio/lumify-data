@@ -75,6 +75,16 @@ public class UcdClient<A extends AuthorizationLabel> {
     }
   }
 
+  public List<Artifact> queryArtifactAll(QueryUser<A> queryUser) throws UCDIOException {
+    try {
+      Scanner scan = this.connection.createScanner(Artifact.TABLE_NAME, queryUser.getAuthorizations());
+
+      return Artifact.newBuilder().buildFromScanner(scan);
+    } catch (TableNotFoundException e) {
+      throw new UCDIOException(e);
+    }
+  }
+
   public Connector getConnection() {
     return connection;
   }

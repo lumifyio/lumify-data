@@ -1,6 +1,9 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import com.google.gson.annotations.Expose;
+
 public class ArtifactKey {
+  @Expose
   private String key;
 
   private ArtifactKey() {
