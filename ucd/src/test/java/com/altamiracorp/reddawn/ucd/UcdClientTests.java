@@ -168,7 +168,7 @@ public class UcdClientTests {
     assertEquals("UCD", foundTerm.getKey().getModel());
     assertEquals("testConcept", foundTerm.getKey().getConcept());
 
-    ArrayList<TermMetadata> termMetadatas = new ArrayList<TermMetadata>(term.getMetadata());
+    ArrayList<TermMetadata> termMetadatas = new ArrayList<TermMetadata>(foundTerm.getMetadata());
     Collections.sort(termMetadatas);
 
     TermMetadata foundTermMetadata1 = termMetadatas.get(0);

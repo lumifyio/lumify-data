@@ -6,6 +6,7 @@ import com.altamiracorp.reddawn.ucd.models.Term;
 import com.altamiracorp.reddawn.ucd.models.TermKey;
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.data.Range;
+import org.json.JSONException;
 
 import java.util.List;
 
@@ -104,6 +105,8 @@ public class UcdClient<A extends AuthorizationLabel> {
       }
       return terms.get(0);
     } catch (TableNotFoundException e) {
+      throw new UCDIOException(e);
+    } catch (JSONException e) {
       throw new UCDIOException(e);
     }
   }

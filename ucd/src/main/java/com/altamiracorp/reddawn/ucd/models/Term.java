@@ -5,6 +5,7 @@ import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
+import org.json.JSONException;
 
 import java.util.*;
 
@@ -54,7 +55,7 @@ public class Term {
       return this.term;
     }
 
-    public List<Term> buildFromScanner(Scanner scanner) {
+    public List<Term> buildFromScanner(Scanner scanner) throws JSONException {
       List<Term> results = new ArrayList<Term>();
       RowIterator rowIterator = new RowIterator(scanner);
       while (rowIterator.hasNext()) {
@@ -64,7 +65,7 @@ public class Term {
       return results;
     }
 
-    public Term buildFromRow(Iterator<Map.Entry<Key, Value>> columns) {
+    public Term buildFromRow(Iterator<Map.Entry<Key, Value>> columns) throws JSONException {
       Term result = new Term();
       while (columns.hasNext()) {
         Map.Entry<Key, Value> column = columns.next();
@@ -76,7 +77,7 @@ public class Term {
       return result;
     }
 
-    private void populateFromColumn(Term term, Map.Entry<Key, Value> column) {
+    private void populateFromColumn(Term term, Map.Entry<Key, Value> column) throws JSONException {
       String columnFamily = column.getKey().getColumnFamily().toString();
       TermMetadata termMetadata = term.metadata.get(columnFamily);
       if (termMetadata == null) {

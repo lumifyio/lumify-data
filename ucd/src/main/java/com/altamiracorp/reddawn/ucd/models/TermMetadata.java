@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.ucd.models;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
+import org.json.JSONException;
 
 import java.util.Map;
 
@@ -39,12 +40,15 @@ public class TermMetadata implements Comparable<TermMetadata> {
   public void addMutations(Mutation mutation) {
     String columnFamilyName = getColumnFamilyName();
     MutationHelpers.putIfNotNull(mutation, columnFamilyName, COLUMN_ARTIFACT_KEY, getArtifactKey());
+    MutationHelpers.putIfNotNull(mutation, columnFamilyName, COLUMN_ARTIFACT_KEY_SIGN, getArtifactKeySign());
+    MutationHelpers.putIfNotNull(mutation, columnFamilyName, COLUMN_AUTHOR, getAuthor());
+    MutationHelpers.putIfNotNull(mutation, columnFamilyName, COLUMN_MENTION, getMention() == null ? null : getMention().toString());
   }
 
   @Override
   public int compareTo(TermMetadata termMetadataRight) {
-    int start1 = this.getMention().getStart();
-    int start2 = termMetadataRight.getMention().getStart();
+    int start1 = this.getMention() == null ? -1 : this.getMention().getStart();
+    int start2 = termMetadataRight == null ? -1 : (termMetadataRight.getMention() == null ? -1 : termMetadataRight.getMention().getStart());
     if (start1 == start2) {
       return 0;
     }
@@ -64,7 +68,7 @@ public class TermMetadata implements Comparable<TermMetadata> {
     });
   }
 
-  public void populateFromColumn(Map.Entry<Key, Value> column) {
+  public void populateFromColumn(Map.Entry<Key, Value> column) throws JSONException {
     String columnQualifier = column.getKey().getColumnQualifier().toString();
     if (COLUMN_ARTIFACT_KEY.equals(columnQualifier)) {
       this.artifactKey = column.getValue().toString();
