@@ -1,4 +1,7 @@
 
+$javaPackage  = 'java-1.6.0-openjdk-devel'
+$javaHome     = '/usr/lib/jvm/java-1.6.0-openjdk.x86_64'
+
 $hadoopUrl    = 'http://archive.cloudera.com/cdh/3/hadoop-0.20.2-cdh3u6.tar.gz'
 $hadoopDir    = 'hadoop-0.20.2-cdh3u6'
 $zookeeperUrl = 'http://archive.cloudera.com/cdh/3/zookeeper-3.3.5-cdh3u4.tar.gz'
@@ -10,6 +13,9 @@ $accumuloDir  = 'accumulo-1.4.3'
 $stormUrl     = 'https://dl.dropbox.com/u/133901206/storm-0.8.2.zip'
 $stormDir     = 'storm-0.8.2'
 
+$tomcatUrl    = 'http://www.us.apache.org/dist/tomcat/tomcat-7/v7.0.40/bin/apache-tomcat-7.0.40.tar.gz'
+$tomcatDir    = 'apache-tomcat-7.0.40'
+
 exec { 'yum-update' :
   command => '/usr/bin/yum -y update',
   logoutput => 'on_failure',
@@ -20,7 +26,7 @@ Package {
   require => Exec['yum-update'],
 }
 
-package { 'java-1.6.0-openjdk-devel' :
+package { "${javaPackage}" :
   ensure => present,
 }
 
@@ -68,6 +74,12 @@ user { 'storm' :
   home => '/opt/storm-conf',
 }
 
+user { 'tomcat' :
+  ensure => 'present',
+  gid => 'hadoop',
+  home => '/opt/tomcat-conf',
+}
+
 file { '/opt/downloads' :
   ensure => 'directory',
 }
@@ -99,7 +111,7 @@ define relocate-conf ($app = $title) {
   exec { "relocate-conf-${app}" :
     cwd => "/opt/${app}",
     command => "/bin/mv conf ../${app}-conf && /bin/ln -s ../${app}-conf conf",
-    creates => '/opt/${app}-conf',
+    unless => "/bin/readlink conf | /bin/grep -q '../${app}-conf'",
     require => File["/opt/${app}"],
   }
 }
@@ -152,6 +164,19 @@ install { 'storm' :
   extension => 'zip',
   user => 'storm',
 }
+
+install { 'tomcat' :
+  dirName => "${tomcatDir}",
+  url => "${tomcatUrl}",
+  extension => 'tar.gz',
+  user => 'tomcat',
+}
+
+#include reddawn-hadoop
+
+#hadoop::config { 'configure hadoop' :
+#  javaHome => "${javaHome}",
+#}
 
 # TODO:
 # config
