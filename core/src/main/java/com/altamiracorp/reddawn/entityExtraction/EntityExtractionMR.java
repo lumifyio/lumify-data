@@ -1,10 +1,10 @@
-package com.altamiracorp.reddawn.textExtraction;
+package com.altamiracorp.reddawn.entityExtraction;
 
 import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
+import com.altamiracorp.reddawn.textExtraction.TextExtractionMR;
 import com.altamiracorp.reddawn.ucd.inputFormats.UCDArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.models.Artifact;
-import com.altamiracorp.reddawn.ucd.models.ArtifactContent;
-import com.altamiracorp.reddawn.ucd.models.ArtifactGenericMetadata;
+import com.altamiracorp.reddawn.ucd.models.Term;
 import com.altamiracorp.reddawn.ucd.outputFormats.UCDOutputFormat;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
@@ -17,19 +17,19 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Collection;
 
-public class TextExtractionMR extends UcdCommandLineBase implements Tool {
-  public static class TextExtractorMapper extends Mapper<Text, Artifact, Text, Mutation> {
-    public static final String CONF_TEXT_EXTRACTOR_CLASS = "textExtractorClass";
-    private TextExtractor textExtractor;
+public class EntityExtractionMR extends UcdCommandLineBase implements Tool {
+  public static class EntityExtractorMapper extends Mapper<Text, Artifact, Text, Mutation> {
+    public static final String CONF_ENTITY_EXTRACTOR_CLASS = "entityExtractorClass";
+    private EntityExtractor entityExtractor;
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
       super.setup(context);
       try {
-        textExtractor = (TextExtractor) context.getConfiguration().getClass(CONF_TEXT_EXTRACTOR_CLASS, AsciiTextExtractor.class).newInstance();
+        entityExtractor = (EntityExtractor) context.getConfiguration().getClass(CONF_ENTITY_EXTRACTOR_CLASS, NullEntityExtractor.class).newInstance();
       } catch (InstantiationException e) {
         throw new IOException(e);
       } catch (IllegalAccessException e) {
@@ -39,23 +39,32 @@ public class TextExtractionMR extends UcdCommandLineBase implements Tool {
 
     public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
       try {
-        ExtractedInfo extractedInfo = textExtractor.extract(new ByteArrayInputStream(artifact.getContent().getDocArtifactBytes()));
-        Mutation mutation = new Mutation(artifact.getKey().toString());
-        mutation.put(ArtifactContent.COLUMN_FAMILY_NAME, ArtifactContent.COLUMN_DOC_EXTRACTED_TEXT, extractedInfo.getText());
-        mutation.put(ArtifactGenericMetadata.COLUMN_FAMILY_NAME, ArtifactGenericMetadata.COLUMN_SUBJECT, extractedInfo.getSubject());
-        context.write(new Text(Artifact.TABLE_NAME), mutation);
+        Collection<Term> terms = extractEntities(artifact);
+        writeEntities(context, terms);
       } catch (Exception e) {
         throw new IOException(e);
       }
     }
 
-    public static void init(Job job, Class<? extends TextExtractor> textExtractorClass) {
-      job.getConfiguration().setClass(CONF_TEXT_EXTRACTOR_CLASS, textExtractorClass, TextExtractor.class);
+    private void writeEntities(Context context, Collection<Term> terms) throws IOException, InterruptedException {
+      for (Term term : terms) {
+        context.write(new Text(Term.TABLE_NAME), term.getMutation());
+      }
+    }
+
+    private Collection<Term> extractEntities(Artifact artifact) throws Exception {
+      String artifactKey = artifact.getKey().toString();
+      String text = artifact.getContent().getDocExtractedText();
+      return entityExtractor.extract(artifactKey, text);
+    }
+
+    public static void init(Job job, Class<? extends EntityExtractor> entityExtractor) {
+      job.getConfiguration().setClass(CONF_ENTITY_EXTRACTOR_CLASS, entityExtractor, EntityExtractor.class);
     }
   }
 
   public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(CachedConfiguration.getInstance(), new TextExtractionMR(), args);
+    int res = ToolRunner.run(CachedConfiguration.getInstance(), new EntityExtractionMR(), args);
     if (res != 0) {
       System.exit(res);
     }
@@ -69,15 +78,15 @@ public class TextExtractionMR extends UcdCommandLineBase implements Tool {
     job.setInputFormatClass(UCDArtifactInputFormat.class);
     UCDArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
 
-    job.setMapperClass(TextExtractorMapper.class);
+    job.setMapperClass(EntityExtractorMapper.class);
     job.setMapOutputKeyClass(Key.class);
     job.setMapOutputValueClass(Value.class);
-    TextExtractorMapper.init(job, AsciiTextExtractor.class); // TODO change this to be configurable
+    EntityExtractorMapper.init(job, NullEntityExtractor.class); // TODO change this to be configurable
 
     job.setNumReduceTasks(0);
 
     job.setOutputFormatClass(UCDOutputFormat.class);
-    UCDOutputFormat.init(job, getUsername(), getPassword(), getZookeeperInstanceName(), getZookeeperServerNames(), null);
+    UCDOutputFormat.init(job, getUsername(), getPassword(), getZookeeperInstanceName(), getZookeeperServerNames(), Term.TABLE_NAME);
 
     job.waitForCompletion(true);
     return job.isSuccessful() ? 0 : 1;

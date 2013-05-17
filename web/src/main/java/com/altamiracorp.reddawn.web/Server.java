@@ -30,6 +30,7 @@ public class Server extends UcdCommandLineBase {
 
     // TODO refactor this
     WebUcdClientFactory.setUcdCommandLineBase(this);
+    WebUcdClientFactory.createUcdClient().initializeTables();
 
     Component component = new Component();
     component.getServers().add(Protocol.HTTP, 8888);

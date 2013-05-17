@@ -7,7 +7,9 @@ import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.*;
 
@@ -36,9 +38,21 @@ public class Term {
     return mutation;
   }
 
-  public String toJson() {
+  public String toJson() throws JSONException {
     Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-    return gson.toJson(this);
+
+    JSONObject keyJson = new JSONObject(gson.toJson(getKey()));
+
+    JSONArray metadataJson = new JSONArray();
+    for (TermMetadata termMetadata : getMetadata()) {
+      String termMetadataJson = gson.toJson(termMetadata);
+      metadataJson.put(new JSONObject(termMetadataJson));
+    }
+
+    JSONObject result = new JSONObject();
+    result.put("key", keyJson);
+    result.put("metadata", metadataJson);
+    return result.toString();
   }
 
   public static class Builder {

@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import com.google.gson.annotations.Expose;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
@@ -12,9 +13,17 @@ public class TermMetadata implements Comparable<TermMetadata> {
   private static final String COLUMN_ARTIFACT_KEY_SIGN = "artifactKeySign";
   private static final String COLUMN_AUTHOR = "author";
   private static final String COLUMN_MENTION = "mention";
+
+  @Expose
   private String artifactKey;
+
+  @Expose
   private String artifactKeySign;
+
+  @Expose
   private String author;
+
+  @Expose
   private TermMention mention;
 
   public static Builder newBuilder() {

@@ -1,8 +1,15 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import com.google.gson.annotations.Expose;
+
 public class TermKey {
+  @Expose
   private String sign;
+
+  @Expose
   private String concept;
+
+  @Expose
   private String model;
 
   public TermKey(String keyString) {
