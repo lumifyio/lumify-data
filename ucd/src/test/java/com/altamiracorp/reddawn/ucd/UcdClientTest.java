@@ -130,11 +130,6 @@ public class UcdClientTest {
   }
 
   @Test
-  public void testFail() {
-      assertEquals(1, 2);
-  }
-
-  @Test
   public void testWriteTerm() throws UCDIOException, InvalidClassificationException {
     TermKey termKey = TermKey.newBuilder()
         .sign("testSign")
