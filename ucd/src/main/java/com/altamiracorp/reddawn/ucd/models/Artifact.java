@@ -1,5 +1,8 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 import org.apache.accumulo.core.client.RowIterator;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Key;
@@ -13,9 +16,17 @@ import java.util.Map;
 
 public class Artifact {
   public static final String TABLE_NAME = "Artifact";
+
+  @Expose
   private ArtifactContent content;
+
+  @Expose
   private ArtifactGenericMetadata genericMetadata;
+
+  @Expose
   private ArtifactDynamicMetadata dynamicMetadata;
+
+  @Expose
   private ArtifactKey key;
 
   private Artifact() {
@@ -54,6 +65,11 @@ public class Artifact {
       getDynamicMetadata().addMutations(mutation);
     }
     return mutation;
+  }
+
+  public String toJson() {
+    Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    return gson.toJson(this);
   }
 
   public static class Builder {
@@ -106,16 +122,18 @@ public class Artifact {
       return results;
     }
 
-    private Artifact buildFromRow(Iterator<Map.Entry<Key, Value>> columns) {
+    public Artifact buildFromRow(Iterator<Map.Entry<Key, Value>> columns) {
       Artifact result = new Artifact();
       result.content = ArtifactContent.newBuilder().build();
       result.dynamicMetadata = ArtifactDynamicMetadata.newBuilder().build();
       result.genericMetadata = ArtifactGenericMetadata.newBuilder().build();
       while (columns.hasNext()) {
         Map.Entry<Key, Value> column = columns.next();
+        if (result.key == null) {
+          result.key = new ArtifactKey(column.getKey().getRow().toString());
+        }
         populateFromColumn(result, column);
       }
-      generateKey(result);
       return result;
     }
 

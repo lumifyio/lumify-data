@@ -1,9 +1,6 @@
 package com.altamiracorp.reddawn.ucd;
 
-import com.altamiracorp.reddawn.ucd.models.Artifact;
-import com.altamiracorp.reddawn.ucd.models.ArtifactContent;
-import com.altamiracorp.reddawn.ucd.models.ArtifactDynamicMetadata;
-import com.altamiracorp.reddawn.ucd.models.ArtifactGenericMetadata;
+import com.altamiracorp.reddawn.ucd.models.*;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableExistsException;
@@ -17,11 +14,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(JUnit4.class)
-public class UcdClientTests {
+public class UcdClientTest {
   private UcdClient<AuthorizationLabel> client;
 
   @Before
@@ -126,5 +127,59 @@ public class UcdClientTests {
     assertEquals("testProvenanceId", foundArtifact.getDynamicMetadata().getProvenanceId());
     assertEquals("testSourceHashAlgorithm", foundArtifact.getDynamicMetadata().getSourceHashAlgorithm());
     assertEquals("testSourceLabel", foundArtifact.getDynamicMetadata().getSourceLabel());
+  }
+
+  @Test
+  public void testWriteTerm() throws UCDIOException, InvalidClassificationException {
+    TermKey termKey = TermKey.newBuilder()
+        .sign("testSign")
+        .concept("testConcept")
+        .model("UCD")
+        .build();
+
+    TermMetadata termMetadata1 = TermMetadata.newBuilder()
+        .artifactKey("testArtifactKey1")
+        .artifactKeySign("testArtifactKeySign1")
+        .author("testAuthor1")
+        .mention(new TermMention(0, 5))
+        .build();
+
+    TermMetadata termMetadata2 = TermMetadata.newBuilder()
+        .artifactKey("testArtifactKey2")
+        .artifactKeySign("testArtifactKeySign2")
+        .author("testAuthor2")
+        .mention(new TermMention(10, 15))
+        .build();
+
+    Term term = Term.newBuilder()
+        .key(termKey)
+        .metadata(termMetadata1)
+        .metadata(termMetadata2)
+        .build();
+
+    QueryUser<AuthorizationLabel> queryUser = new QueryUser<AuthorizationLabel>("root", new SimpleAuthorizationLabel("U"));
+    this.client.writeTerm(term, queryUser);
+
+    Term foundTerm = this.client.queryTermByKey(term.getKey(), queryUser);
+    assertNotNull("term with key " + term.getKey() + " was null", foundTerm);
+    assertEquals("testSign\u001FUCD\u001FtestConcept", foundTerm.getKey().toString());
+    assertEquals("testSign", foundTerm.getKey().getSign());
+    assertEquals("UCD", foundTerm.getKey().getModel());
+    assertEquals("testConcept", foundTerm.getKey().getConcept());
+
+    ArrayList<TermMetadata> termMetadatas = new ArrayList<TermMetadata>(foundTerm.getMetadata());
+    Collections.sort(termMetadatas);
+
+    TermMetadata foundTermMetadata1 = termMetadatas.get(0);
+    assertEquals("testArtifactKey1", foundTermMetadata1.getArtifactKey());
+    assertEquals("testArtifactKeySign1", foundTermMetadata1.getArtifactKeySign());
+    assertEquals("testAuthor1", foundTermMetadata1.getAuthor());
+    assertEquals("{\"start\":0,\"end\":5}", foundTermMetadata1.getMention().toString());
+
+    TermMetadata foundTermMetadata2 = termMetadatas.get(1);
+    assertEquals("testArtifactKey2", foundTermMetadata2.getArtifactKey());
+    assertEquals("testArtifactKeySign2", foundTermMetadata2.getArtifactKeySign());
+    assertEquals("testAuthor2", foundTermMetadata2.getAuthor());
+    assertEquals("{\"start\":10,\"end\":15}", foundTermMetadata2.getMention().toString());
   }
 }

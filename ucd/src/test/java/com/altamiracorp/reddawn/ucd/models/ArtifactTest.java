@@ -7,7 +7,7 @@ import org.junit.runners.JUnit4;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
-public class ArtifactTests {
+public class ArtifactTest {
   @Test
   public void createAnArtifact() {
     Artifact.Builder a = Artifact.newBuilder();

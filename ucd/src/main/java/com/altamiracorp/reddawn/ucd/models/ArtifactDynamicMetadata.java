@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import com.google.gson.annotations.Expose;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
@@ -15,12 +16,26 @@ public class ArtifactDynamicMetadata {
   private static final String COLUMN_PROVENANCE_ID = "provenance_id";
   private static final String COLUMN_SOURCE_HASH_ALGORITHM = "source_hash_algorithm";
   private static final String COLUMN_SOURCE_LABEL = "source_label";
+
+  @Expose
   private String artifactSerialNum;
+
+  @Expose
   private String docSourceHash;
+
+  @Expose
   private String edhGuid;
+
+  @Expose
   private String geoLocation;
+
+  @Expose
   private String provenanceId;
+
+  @Expose
   private String sourceHashAlgorithm;
+
+  @Expose
   private String sourceLabel;
 
   private ArtifactDynamicMetadata() {

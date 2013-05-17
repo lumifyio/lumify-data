@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import com.google.gson.annotations.Expose;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
@@ -11,7 +12,10 @@ public class ArtifactContent {
   private static final String COLUMN_SECURITY = "security";
   private static final String COLUMN_DOC_ARTIFACT_BYTES = "doc_artifact_bytes";
   private static final String COLUMN_DOC_EXTRACTED_TEXT = "doc_extracted_text";
+
+  @Expose
   private String security;
+
   private String docExtractedText;
   private byte[] docArtifactBytes;
 
@@ -36,15 +40,9 @@ public class ArtifactContent {
   }
 
   void addMutations(Mutation mutation) {
-    if (getDocArtifactBytes() != null) {
-      mutation.put(COLUMN_FAMILY_NAME, COLUMN_DOC_ARTIFACT_BYTES, new Value(getDocArtifactBytes()));
-    }
-    if (getDocExtractedText() != null) {
-      mutation.put(COLUMN_FAMILY_NAME, COLUMN_DOC_EXTRACTED_TEXT, getDocExtractedText());
-    }
-    if (getSecurity() != null) {
-      mutation.put(COLUMN_FAMILY_NAME, COLUMN_SECURITY, getSecurity());
-    }
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_DOC_ARTIFACT_BYTES, getDocArtifactBytes());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_DOC_EXTRACTED_TEXT, getDocExtractedText());
+    MutationHelpers.putIfNotNull(mutation, COLUMN_FAMILY_NAME, COLUMN_SECURITY, getSecurity());
   }
 
   public static class Builder {

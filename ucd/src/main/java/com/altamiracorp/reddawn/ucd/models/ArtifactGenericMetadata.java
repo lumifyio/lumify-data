@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import com.google.gson.annotations.Expose;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
@@ -28,25 +29,65 @@ public class ArtifactGenericMetadata {
   private static final String COLUMN_SOURCE_SUB_TYPE = "source_sub_type";
   private static final String COLUMN_SOURCE_TYPE = "source_type";
   private static final String COLUMN_SUBJECT = "subject";
+
+  @Expose
   private String author;
+
+  @Expose
   private String category;
+
+  @Expose
   private String charset;
+
+  @Expose
   private String documentDtg;
+
+  @Expose
   private String documentType;
+
+  @Expose
   private String externalUrl;
+
+  @Expose
   private String extractedTextHdfsPath;
+
+  @Expose
   private String fileExtension;
+
+  @Expose
   private String fileName;
+
+  @Expose
   private Long fileSize;
+
+  @Expose
   private Long fileTimestamp;
+
+  @Expose
   private String hdfsFilePath;
+
+  @Expose
   private String language;
+
+  @Expose
   private Long loadTimestamp;
+
+  @Expose
   private String loadType;
+
+  @Expose
   private String mimeType;
+
+  @Expose
   private String source;
+
+  @Expose
   private String sourceSubType;
+
+  @Expose
   private String sourceType;
+
+  @Expose
   private String subject;
 
   private ArtifactGenericMetadata() {
