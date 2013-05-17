@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
-public class TermTests {
+public class TermTest {
   @Test
   public void createATerm() {
     TermKey termKey = TermKey.newBuilder()

@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(JUnit4.class)
-public class UcdClientTests {
+public class UcdClientTest {
   private UcdClient<AuthorizationLabel> client;
 
   @Before

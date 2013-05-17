@@ -9,7 +9,7 @@ import org.junit.runners.JUnit4;
 import java.io.IOException;
 
 @RunWith(JUnit4.class)
-public class UCDArtifactInputFormatTests {
+public class UCDArtifactInputFormatTest {
   @Test
   public void test() throws IOException {
     Job job = new Job();
