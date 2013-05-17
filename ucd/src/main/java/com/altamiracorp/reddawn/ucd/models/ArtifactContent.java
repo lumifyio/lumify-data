@@ -9,9 +9,9 @@ import java.util.Map;
 
 public class ArtifactContent {
   public static final String COLUMN_FAMILY_NAME = "Content";
-  private static final String COLUMN_SECURITY = "security";
-  private static final String COLUMN_DOC_ARTIFACT_BYTES = "doc_artifact_bytes";
-  private static final String COLUMN_DOC_EXTRACTED_TEXT = "doc_extracted_text";
+  public static final String COLUMN_SECURITY = "security";
+  public static final String COLUMN_DOC_ARTIFACT_BYTES = "doc_artifact_bytes";
+  public static final String COLUMN_DOC_EXTRACTED_TEXT = "doc_extracted_text";
 
   @Expose
   private String security;

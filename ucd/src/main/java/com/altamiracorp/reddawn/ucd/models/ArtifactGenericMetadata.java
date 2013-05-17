@@ -9,26 +9,26 @@ import java.util.Map;
 
 public class ArtifactGenericMetadata {
   public static final String COLUMN_FAMILY_NAME = "Generic_Metadata";
-  private static final String COLUMN_AUTHOR = "author";
-  private static final String COLUMN_CATEGORY = "category";
-  private static final String COLUMN_CHARSET = "charset";
-  private static final String COLUMN_DOCUMENT_DTG = "document_dtg";
-  private static final String COLUMN_DOCUMENT_TYPE = "document_type";
-  private static final String COLUMN_EXTERNAL_URL = "external_url";
-  private static final String COLUMN_EXTRACTED_TEXT_HDFS_PATH = "extracted_text_hdfs_path";
-  private static final String COLUMN_FILE_EXTENSION = "file_extension";
-  private static final String COLUMN_FILE_NAME = "file_name";
-  private static final String COLUMN_FILE_SIZE = "file_size";
-  private static final String COLUMN_FILE_TIMESTAMP = "file_timestamp";
-  private static final String COLUMN_HDFS_FILE_PATH = "hdfs_file_path";
-  private static final String COLUMN_LANGUAGE = "language";
-  private static final String COLUMN_LOAD_TIMESTAMP = "load_timestamp";
-  private static final String COLUMN_LOAD_TYPE = "load_type";
-  private static final String COLUMN_MIME_TYPE = "mime_type";
-  private static final String COLUMN_SOURCE = "source";
-  private static final String COLUMN_SOURCE_SUB_TYPE = "source_sub_type";
+  public static final String COLUMN_AUTHOR = "author";
+  public static final String COLUMN_CATEGORY = "category";
+  public static final String COLUMN_CHARSET = "charset";
+  public static final String COLUMN_DOCUMENT_DTG = "document_dtg";
+  public static final String COLUMN_DOCUMENT_TYPE = "document_type";
+  public static final String COLUMN_EXTERNAL_URL = "external_url";
+  public static final String COLUMN_EXTRACTED_TEXT_HDFS_PATH = "extracted_text_hdfs_path";
+  public static final String COLUMN_FILE_EXTENSION = "file_extension";
+  public static final String COLUMN_FILE_NAME = "file_name";
+  public static final String COLUMN_FILE_SIZE = "file_size";
+  public static final String COLUMN_FILE_TIMESTAMP = "file_timestamp";
+  public static final String COLUMN_HDFS_FILE_PATH = "hdfs_file_path";
+  public static final String COLUMN_LANGUAGE = "language";
+  public static final String COLUMN_LOAD_TIMESTAMP = "load_timestamp";
+  public static final String COLUMN_LOAD_TYPE = "load_type";
+  public static final String COLUMN_MIME_TYPE = "mime_type";
+  public static final String COLUMN_SOURCE = "source";
+  public static final String COLUMN_SOURCE_SUB_TYPE = "source_sub_type";
   private static final String COLUMN_SOURCE_TYPE = "source_type";
-  private static final String COLUMN_SUBJECT = "subject";
+  public static final String COLUMN_SUBJECT = "subject";
 
   @Expose
   private String author;

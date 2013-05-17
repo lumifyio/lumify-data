@@ -6,6 +6,7 @@ import com.altamiracorp.reddawn.ucd.UcdClient;
 import com.altamiracorp.reddawn.ucd.UcdFactory;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.security.Authorizations;
 import org.apache.commons.cli.*;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
@@ -155,5 +156,9 @@ public abstract class UcdCommandLineBase extends Configured implements Tool {
 
   public void setPassword(byte[] password) {
     this.password = password;
+  }
+
+  public Authorizations getAuthorizations() {
+    return new Authorizations(); // TODO configurable
   }
 }
