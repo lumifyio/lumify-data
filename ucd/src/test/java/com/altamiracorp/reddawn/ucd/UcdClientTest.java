@@ -16,10 +16,10 @@ import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
 public class UcdClientTest {
@@ -181,5 +181,36 @@ public class UcdClientTest {
     assertEquals("testArtifactKeySign2", foundTermMetadata2.getArtifactKeySign());
     assertEquals("testAuthor2", foundTermMetadata2.getAuthor());
     assertEquals("{\"start\":10,\"end\":15}", foundTermMetadata2.getMention().toString());
+  }
+
+  @Test
+  public void testWriteArtifactTermIndex() throws UCDIOException, InvalidClassificationException {
+    ArtifactTermIndex.Builder a = ArtifactTermIndex.newBuilder();
+
+    ArtifactKey artifactKey = new ArtifactKey("artifact1");
+
+    ArtifactTermIndex artifactTermIndex = a
+        .artifactKey(artifactKey)
+        .termMention("termRow1", "termMention1")
+        .termMention("termRow1", "termMention2")
+        .build();
+
+    QueryUser<AuthorizationLabel> queryUser = new QueryUser<AuthorizationLabel>("root", new SimpleAuthorizationLabel("U"));
+    this.client.writeArtifactTermIndex(artifactTermIndex, queryUser);
+
+    ArtifactTermIndex foundArtifactTermIndex = this.client.queryArtifactTermIndexByArtifactKey(artifactKey, queryUser);
+
+    assertEquals("artifact1", foundArtifactTermIndex.getKey().toString());
+
+    Map<String, List<String>> termMentions = foundArtifactTermIndex.getTermMentions();
+    assertEquals(1, termMentions.keySet().size());
+    assertTrue("'termRow1' not found", termMentions.containsKey("termRow1"));
+
+    List<String> mentions = termMentions.get("termRow1");
+    Collections.sort(mentions);
+
+    assertEquals(2, mentions.size());
+    assertEquals("termMention1", mentions.get(0));
+    assertEquals("termMention2", mentions.get(1));
   }
 }
