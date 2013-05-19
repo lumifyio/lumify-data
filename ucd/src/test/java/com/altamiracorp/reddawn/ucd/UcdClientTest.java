@@ -138,14 +138,14 @@ public class UcdClientTest {
         .build();
 
     TermMetadata termMetadata1 = TermMetadata.newBuilder()
-        .artifactKey("testArtifactKey1")
+        .artifactKey(new ArtifactKey("testArtifactKey1"))
         .artifactKeySign("testArtifactKeySign1")
         .author("testAuthor1")
         .mention(new TermMention(0, 5))
         .build();
 
     TermMetadata termMetadata2 = TermMetadata.newBuilder()
-        .artifactKey("testArtifactKey2")
+        .artifactKey(new ArtifactKey("testArtifactKey2"))
         .artifactKeySign("testArtifactKeySign2")
         .author("testAuthor2")
         .mention(new TermMention(10, 15))
@@ -171,16 +171,35 @@ public class UcdClientTest {
     Collections.sort(termMetadatas);
 
     TermMetadata foundTermMetadata1 = termMetadatas.get(0);
-    assertEquals("testArtifactKey1", foundTermMetadata1.getArtifactKey());
+    assertEquals("testArtifactKey1", foundTermMetadata1.getArtifactKey().toString());
     assertEquals("testArtifactKeySign1", foundTermMetadata1.getArtifactKeySign());
     assertEquals("testAuthor1", foundTermMetadata1.getAuthor());
     assertEquals("{\"start\":0,\"end\":5}", foundTermMetadata1.getMention().toString());
 
+    ArtifactTermIndex artifactTermIndex1 = this.client.queryArtifactTermIndexByArtifactKey(foundTermMetadata1.getArtifactKey(), queryUser);
+    assertNotNull("Could not find ArtifactTermIndex with ArtifactKey: " + foundTermMetadata1.getArtifactKey().toString(), artifactTermIndex1);
+    assertEquals("testArtifactKey1", artifactTermIndex1.getKey().toString());
+    Map<String, List<String>> termMentions1 = artifactTermIndex1.getTermMentions();
+    assertEquals(1, termMentions1.keySet().size());
+    assertTrue("Could not find term", termMentions1.containsKey("testSign\u001FUCD\u001FtestConcept"));
+    List<String> termMention1 = termMentions1.get("testSign\u001FUCD\u001FtestConcept");
+    assertEquals(1, termMention1.size());
+    assertEquals("urn\u001Fsha256\u001F1bceee398439c4c8d72450b29a6ae55911e326757187ccc6fb822425a2358dee", termMention1.get(0));
+
     TermMetadata foundTermMetadata2 = termMetadatas.get(1);
-    assertEquals("testArtifactKey2", foundTermMetadata2.getArtifactKey());
+    assertEquals("testArtifactKey2", foundTermMetadata2.getArtifactKey().toString());
     assertEquals("testArtifactKeySign2", foundTermMetadata2.getArtifactKeySign());
     assertEquals("testAuthor2", foundTermMetadata2.getAuthor());
     assertEquals("{\"start\":10,\"end\":15}", foundTermMetadata2.getMention().toString());
+
+    ArtifactTermIndex artifactTermIndex2 = this.client.queryArtifactTermIndexByArtifactKey(foundTermMetadata2.getArtifactKey(), queryUser);
+    assertEquals("testArtifactKey2", artifactTermIndex2.getKey().toString());
+    Map<String, List<String>> termMentions2 = artifactTermIndex2.getTermMentions();
+    assertEquals(1, termMentions2.keySet().size());
+    assertTrue("Could not find term", termMentions2.containsKey("testSign\u001FUCD\u001FtestConcept"));
+    List<String> termMention2 = termMentions2.get("testSign\u001FUCD\u001FtestConcept");
+    assertEquals(1, termMention2.size());
+    assertEquals("urn\u001Fsha256\u001Fecd6930868bc1f4f430b53cf504b9a69ee26150f3e7371975378847190fc3127", termMention2.get(0));
   }
 
   @Test

@@ -19,7 +19,7 @@ public class TermTest {
         .build();
 
     TermMetadata termMetadata = TermMetadata.newBuilder()
-        .artifactKey("testArtifactKey")
+        .artifactKey(new ArtifactKey("testArtifactKey"))
         .artifactKeySign("testArtifactKeySign")
         .author("testAuthor")
         .mention(new TermMention(0, 5))
@@ -33,7 +33,7 @@ public class TermTest {
     assertEquals("testSign\u001FUCD\u001FtestConcept", term.getKey().toString());
 
     TermMetadata termMetadata1 = new ArrayList<TermMetadata>(term.getMetadata()).get(0);
-    assertEquals("testArtifactKey", termMetadata1.getArtifactKey());
+    assertEquals("testArtifactKey", termMetadata1.getArtifactKey().toString());
     assertEquals("testArtifactKeySign", termMetadata1.getArtifactKeySign());
     assertEquals("testAuthor", termMetadata1.getAuthor());
     assertEquals("{\"start\":0,\"end\":5}", termMetadata1.getMention().toString());

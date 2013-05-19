@@ -91,9 +91,19 @@ public class UcdClient<A extends AuthorizationLabel> {
 
   public void writeTerm(Term term, QueryUser<A> queryUser) throws UCDIOException {
     try {
-      BatchWriter writer = this.connection.createBatchWriter(Term.TABLE_NAME, this.batchWriterMemBuf, this.batchWriterTimeout, this.batchWriterNumThreads);
-      writer.addMutation(term.getMutation());
-      writer.close();
+      BatchWriter termWriter = this.connection.createBatchWriter(Term.TABLE_NAME, this.batchWriterMemBuf, this.batchWriterTimeout, this.batchWriterNumThreads);
+      termWriter.addMutation(term.getMutation());
+      termWriter.close();
+
+      BatchWriter artifactTermIndexWriter = this.connection.createBatchWriter(ArtifactTermIndex.TABLE_NAME, this.batchWriterMemBuf, this.batchWriterTimeout, this.batchWriterNumThreads);
+      for (TermMetadata termMetadata : term.getMetadata()) {
+        ArtifactTermIndex artifactTermIndex = ArtifactTermIndex.newBuilder()
+            .artifactKey(termMetadata.getArtifactKey())
+            .termMention(term.getKey().toString(), termMetadata.getColumnFamilyName())
+            .build();
+        writeArtifactTermIndex(artifactTermIndexWriter, artifactTermIndex, queryUser);
+      }
+      artifactTermIndexWriter.close();
     } catch (TableNotFoundException e) {
       throw new UCDIOException(e);
     } catch (MutationsRejectedException e) {
@@ -136,13 +146,17 @@ public class UcdClient<A extends AuthorizationLabel> {
   public void writeArtifactTermIndex(ArtifactTermIndex artifactTermIndex, QueryUser<A> queryUser) throws UCDIOException {
     try {
       BatchWriter writer = this.connection.createBatchWriter(ArtifactTermIndex.TABLE_NAME, this.batchWriterMemBuf, this.batchWriterTimeout, this.batchWriterNumThreads);
-      writer.addMutation(artifactTermIndex.getMutation());
+      writeArtifactTermIndex(writer, artifactTermIndex, queryUser);
       writer.close();
     } catch (TableNotFoundException e) {
       throw new UCDIOException(e);
     } catch (MutationsRejectedException e) {
       throw new UCDIOException(e);
     }
+  }
+
+  private void writeArtifactTermIndex(BatchWriter writer, ArtifactTermIndex artifactTermIndex, QueryUser<A> queryUser) throws MutationsRejectedException {
+    writer.addMutation(artifactTermIndex.getMutation());
   }
 
   public ArtifactTermIndex queryArtifactTermIndexByArtifactKey(ArtifactKey artifactKey, QueryUser<A> queryUser) throws UCDIOException {
