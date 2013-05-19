@@ -5,6 +5,8 @@ import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.data.Range;
 import org.json.JSONException;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class UcdClient<A extends AuthorizationLabel> {
@@ -99,7 +101,7 @@ public class UcdClient<A extends AuthorizationLabel> {
       for (TermMetadata termMetadata : term.getMetadata()) {
         ArtifactTermIndex artifactTermIndex = ArtifactTermIndex.newBuilder()
             .artifactKey(termMetadata.getArtifactKey())
-            .termMention(term.getKey().toString(), termMetadata.getColumnFamilyName())
+            .termMention(term.getKey(), termMetadata.getColumnFamilyName())
             .build();
         writeArtifactTermIndex(artifactTermIndexWriter, artifactTermIndex, queryUser);
       }
@@ -175,5 +177,18 @@ public class UcdClient<A extends AuthorizationLabel> {
     } catch (TableNotFoundException e) {
       throw new UCDIOException(e);
     }
+  }
+
+  public Collection<Term> queryTermByArtifactKey(ArtifactKey artifactKey, QueryUser<A> queryUser) throws UCDIOException {
+    ArrayList<Term> terms = new ArrayList<Term>();
+    ArtifactTermIndex artifactTermIndex = queryArtifactTermIndexByArtifactKey(artifactKey, queryUser);
+    if (artifactTermIndex == null) {
+      return terms;
+    }
+    for (TermKey termRowId : artifactTermIndex.getTermMentions().keySet()) {
+      Term term = queryTermByKey(termRowId, queryUser);
+      terms.add(term);
+    }
+    return terms;
   }
 }

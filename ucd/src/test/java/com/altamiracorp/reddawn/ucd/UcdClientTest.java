@@ -179,10 +179,10 @@ public class UcdClientTest {
     ArtifactTermIndex artifactTermIndex1 = this.client.queryArtifactTermIndexByArtifactKey(foundTermMetadata1.getArtifactKey(), queryUser);
     assertNotNull("Could not find ArtifactTermIndex with ArtifactKey: " + foundTermMetadata1.getArtifactKey().toString(), artifactTermIndex1);
     assertEquals("testArtifactKey1", artifactTermIndex1.getKey().toString());
-    Map<String, List<String>> termMentions1 = artifactTermIndex1.getTermMentions();
+    Map<TermKey, List<String>> termMentions1 = artifactTermIndex1.getTermMentions();
     assertEquals(1, termMentions1.keySet().size());
-    assertTrue("Could not find term", termMentions1.containsKey("testSign\u001FUCD\u001FtestConcept"));
-    List<String> termMention1 = termMentions1.get("testSign\u001FUCD\u001FtestConcept");
+    assertTrue("Could not find term", termMentions1.containsKey(new TermKey("testSign\u001FUCD\u001FtestConcept")));
+    List<String> termMention1 = termMentions1.get(new TermKey("testSign\u001FUCD\u001FtestConcept"));
     assertEquals(1, termMention1.size());
     assertEquals("urn\u001Fsha256\u001F1bceee398439c4c8d72450b29a6ae55911e326757187ccc6fb822425a2358dee", termMention1.get(0));
 
@@ -194,10 +194,10 @@ public class UcdClientTest {
 
     ArtifactTermIndex artifactTermIndex2 = this.client.queryArtifactTermIndexByArtifactKey(foundTermMetadata2.getArtifactKey(), queryUser);
     assertEquals("testArtifactKey2", artifactTermIndex2.getKey().toString());
-    Map<String, List<String>> termMentions2 = artifactTermIndex2.getTermMentions();
+    Map<TermKey, List<String>> termMentions2 = artifactTermIndex2.getTermMentions();
     assertEquals(1, termMentions2.keySet().size());
-    assertTrue("Could not find term", termMentions2.containsKey("testSign\u001FUCD\u001FtestConcept"));
-    List<String> termMention2 = termMentions2.get("testSign\u001FUCD\u001FtestConcept");
+    assertTrue("Could not find term", termMentions2.containsKey(new TermKey("testSign\u001FUCD\u001FtestConcept")));
+    List<String> termMention2 = termMentions2.get(new TermKey("testSign\u001FUCD\u001FtestConcept"));
     assertEquals(1, termMention2.size());
     assertEquals("urn\u001Fsha256\u001Fecd6930868bc1f4f430b53cf504b9a69ee26150f3e7371975378847190fc3127", termMention2.get(0));
   }
@@ -210,8 +210,8 @@ public class UcdClientTest {
 
     ArtifactTermIndex artifactTermIndex = a
         .artifactKey(artifactKey)
-        .termMention("termRow1", "termMention1")
-        .termMention("termRow1", "termMention2")
+        .termMention(new TermKey("termRow1\u001Ftest\u001Fperson"), "termMention1")
+        .termMention(new TermKey("termRow1\u001Ftest\u001Fperson"), "termMention2")
         .build();
 
     QueryUser<AuthorizationLabel> queryUser = new QueryUser<AuthorizationLabel>("root", new SimpleAuthorizationLabel("U"));
@@ -221,11 +221,11 @@ public class UcdClientTest {
 
     assertEquals("artifact1", foundArtifactTermIndex.getKey().toString());
 
-    Map<String, List<String>> termMentions = foundArtifactTermIndex.getTermMentions();
+    Map<TermKey, List<String>> termMentions = foundArtifactTermIndex.getTermMentions();
     assertEquals(1, termMentions.keySet().size());
-    assertTrue("'termRow1' not found", termMentions.containsKey("termRow1"));
+    assertTrue("'termRow1' not found", termMentions.containsKey(new TermKey("termRow1\u001Ftest\u001Fperson")));
 
-    List<String> mentions = termMentions.get("termRow1");
+    List<String> mentions = termMentions.get(new TermKey("termRow1\u001Ftest\u001Fperson"));
     Collections.sort(mentions);
 
     assertEquals(2, mentions.size());

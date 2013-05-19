@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.web;
 
 import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
 import com.altamiracorp.reddawn.web.routes.artifact.ArtifactByRowKey;
+import com.altamiracorp.reddawn.web.routes.artifact.ArtifactTermsByRowKey;
 import com.altamiracorp.reddawn.web.routes.search.Search;
 import com.altamiracorp.reddawn.web.routes.term.TermByRowKey;
 import org.apache.accumulo.core.util.CachedConfiguration;
@@ -43,6 +44,7 @@ public class Server extends UcdCommandLineBase {
 
         router.attach("/search", Search.class);
 
+        router.attach("/artifacts/{rowKey}/terms", ArtifactTermsByRowKey.class);
         router.attach("/artifacts/{rowKey}", ArtifactByRowKey.class);
 
         router.attach("/terms/{rowKey}", TermByRowKey.class);

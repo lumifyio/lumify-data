@@ -15,7 +15,7 @@ public class ArtifactTermIndex {
   private ArtifactKey key;
 
   @Expose
-  private Map<String, List<String>> termMentions = new HashMap<String, List<String>>();
+  private Map<TermKey, List<String>> termMentions = new HashMap<TermKey, List<String>>();
 
   public static Builder newBuilder() {
     return new Builder();
@@ -25,21 +25,21 @@ public class ArtifactTermIndex {
     return this.key;
   }
 
-  public Map<String, List<String>> getTermMentions() {
+  public Map<TermKey, List<String>> getTermMentions() {
     return this.termMentions;
   }
 
   public Mutation getMutation() {
     Mutation mutation = new Mutation(getKey().toString());
-    for (String termRowId : this.termMentions.keySet()) {
+    for (TermKey termRowId : this.termMentions.keySet()) {
       for (String termTableColumnFamilyName : this.termMentions.get(termRowId)) {
-        mutation.put(termRowId, termTableColumnFamilyName, "yes"); // TODO what should the value be?
+        mutation.put(termRowId.toString(), termTableColumnFamilyName, "yes"); // TODO what should the value be?
       }
     }
     return mutation;
   }
 
-  private void findAddTermMention(String termRowId, String termTableColumnFamilyName) {
+  private void findAddTermMention(TermKey termRowId, String termTableColumnFamilyName) {
     List<String> mentions;
     if (this.termMentions.containsKey(termRowId)) {
       mentions = this.termMentions.get(termRowId);
@@ -62,7 +62,7 @@ public class ArtifactTermIndex {
       return this;
     }
 
-    public Builder termMention(String termRowId, String termTableColumnFamilyName) {
+    public Builder termMention(TermKey termRowId, String termTableColumnFamilyName) {
       this.artifactTermIndex.findAddTermMention(termRowId, termTableColumnFamilyName);
       return this;
     }
@@ -96,7 +96,7 @@ public class ArtifactTermIndex {
     private void populateFromColumn(ArtifactTermIndex artifactTermIndex, Map.Entry<Key, Value> column) {
       String columnFamily = column.getKey().getColumnFamily().toString();
       String columnQualifier = column.getKey().getColumnQualifier().toString();
-      artifactTermIndex.findAddTermMention(columnFamily, columnQualifier);
+      artifactTermIndex.findAddTermMention(new TermKey(columnFamily), columnQualifier);
     }
   }
 }

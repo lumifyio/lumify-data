@@ -21,17 +21,17 @@ public class ArtifactTermIndexTest {
 
     ArtifactTermIndex artifactTermIndex = a
         .artifactKey(artifactKey)
-        .termMention("termRow1", "termMention1")
-        .termMention("termRow1", "termMention2")
+        .termMention(new TermKey("termRow1\u001Ftest\u001Fperson"), "termMention1")
+        .termMention(new TermKey("termRow1\u001Ftest\u001Fperson"), "termMention2")
         .build();
 
     assertEquals("artifact1", artifactTermIndex.getKey().toString());
 
-    Map<String, List<String>> termMentions = artifactTermIndex.getTermMentions();
+    Map<TermKey, List<String>> termMentions = artifactTermIndex.getTermMentions();
     assertEquals(1, termMentions.keySet().size());
-    assertTrue("'termRow1' not found", termMentions.containsKey("termRow1"));
+    assertTrue("'termRow1' not found", termMentions.containsKey(new TermKey("termRow1\u001Ftest\u001Fperson")));
 
-    List<String> mentions = termMentions.get("termRow1");
+    List<String> mentions = termMentions.get(new TermKey("termRow1\u001Ftest\u001Fperson"));
     Collections.sort(mentions);
 
     assertEquals(2, mentions.size());

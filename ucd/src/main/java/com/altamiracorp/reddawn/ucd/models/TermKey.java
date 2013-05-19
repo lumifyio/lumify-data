@@ -43,6 +43,16 @@ public class TermKey {
     return KeyHelpers.createCompositeKey(getSign(), getModel(), getConcept());
   }
 
+  @Override
+  public int hashCode() {
+    return this.toString().hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return this.toString().equals(obj.toString());
+  }
+
   public static class Builder {
     private final TermKey termKey;
 
