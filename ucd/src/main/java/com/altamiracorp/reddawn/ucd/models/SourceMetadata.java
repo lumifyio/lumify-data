@@ -1,15 +1,9 @@
 package com.altamiracorp.reddawn.ucd.models;
 
-import com.google.gson.annotations.Expose;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Mutation;
-import org.apache.accumulo.core.data.Value;
-
-import java.util.Map;
-
 public class SourceMetadata {
   public static final String COLUMN_FAMILY_NAME = "Source";
   private static final String COLUMN_ACRONYM = "acronym";
+  private String acronym;
 
   private SourceMetadata() {
 
@@ -19,20 +13,22 @@ public class SourceMetadata {
     return new Builder();
   }
 
+  public String getAcronym() {
+    return acronym;
+  }
+
   public static class Builder {
-    private SourceMetadata artifactGenericMetadata = new SourceMetadata();
+    private SourceMetadata metadata = new SourceMetadata();
 
     private Builder() {
     }
 
     public SourceMetadata build() {
-      return this.artifactGenericMetadata;
+      return this.metadata;
     }
 
-    static void populateFromColumn(SourceMetadata genericMetadata, Map.Entry<Key, Value> column) {
-    }
-
-    public void acronym(String dod) {
+    public void acronym(String acronym) {
+      metadata.acronym = acronym;
     }
   }
 }

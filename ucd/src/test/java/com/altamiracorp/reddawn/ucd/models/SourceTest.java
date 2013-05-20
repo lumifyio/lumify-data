@@ -20,7 +20,7 @@ public class SourceTest {
             .sourceMetadata(sm.build())
             .build();
 
-    String uuid = source.getKey().toString();
-    assertEquals("uuid", uuid);
+    assertEquals("uuid", source.getKey().toString());
+    assertEquals("DOD", source.getMetadata().getAcronym());
   }
 }

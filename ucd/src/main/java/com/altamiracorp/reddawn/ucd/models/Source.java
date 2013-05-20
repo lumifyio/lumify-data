@@ -30,6 +30,10 @@ public class Source {
     return uuid;
   }
 
+  public SourceMetadata getMetadata() {
+    return metadata;
+  }
+
   public static class Builder {
     private Source source = new Source();
 
