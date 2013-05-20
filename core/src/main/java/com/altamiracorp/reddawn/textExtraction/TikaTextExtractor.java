@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
@@ -30,7 +31,11 @@ public class TikaTextExtractor implements TextExtractor {
 	 */
 	private List<String> dateKeys;
 
-	/**
+  @Override
+  public void setup(Mapper.Context context) {
+  }
+
+  /**
 	 * A collection of potential metadata keys for the title/subject of a
 	 * document
 	 */
@@ -57,7 +62,7 @@ public class TikaTextExtractor implements TextExtractor {
 				SUBJECT_KEYS_PROPERTY, "title,subject").split(","));
 	}
 
-	@Override
+  @Override
 	public ExtractedInfo extract(InputStream in) throws Exception {
 		ExtractedInfo result = new ExtractedInfo();
 
@@ -72,10 +77,10 @@ public class TikaTextExtractor implements TextExtractor {
 		// since we are using the AutoDetectParser, it is safe to assume that
 		// the Content-Type metadata key will always return a value
 		result.setMediaType(metadata.get(MIME_TYPE_KEY));
-		
+
 		result.setDate(extractDate(metadata));
 		result.setSubject(extractSubject(metadata));
-		
+
 		return result;
 	}
 

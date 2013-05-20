@@ -35,6 +35,7 @@ public class TextExtractionMR extends UcdCommandLineBase implements Tool {
       super.setup(context);
       try {
         textExtractor = (TextExtractor) context.getConfiguration().getClass(CONF_TEXT_EXTRACTOR_CLASS, AsciiTextExtractor.class).newInstance();
+        textExtractor.setup(context);
       } catch (InstantiationException e) {
         throw new IOException(e);
       } catch (IllegalAccessException e) {

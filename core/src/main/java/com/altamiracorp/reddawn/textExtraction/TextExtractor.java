@@ -1,8 +1,11 @@
 package com.altamiracorp.reddawn.textExtraction;
 
-import java.io.IOException;
+import org.apache.hadoop.mapreduce.Mapper;
+
 import java.io.InputStream;
 
 public interface TextExtractor {
+  void setup(Mapper.Context context);
+
   ExtractedInfo extract(InputStream in) throws Exception;
 }

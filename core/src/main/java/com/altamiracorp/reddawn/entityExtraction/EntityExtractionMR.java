@@ -33,6 +33,7 @@ public class EntityExtractionMR extends UcdCommandLineBase implements Tool {
       super.setup(context);
       try {
         entityExtractor = (EntityExtractor) context.getConfiguration().getClass(CONF_ENTITY_EXTRACTOR_CLASS, NullEntityExtractor.class).newInstance();
+        entityExtractor.setup(context);
       } catch (InstantiationException e) {
         throw new IOException(e);
       } catch (IllegalAccessException e) {
