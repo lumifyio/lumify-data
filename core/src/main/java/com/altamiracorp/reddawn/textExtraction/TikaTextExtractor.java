@@ -21,8 +21,8 @@ public class TikaTextExtractor implements TextExtractor {
 	private static final String MIME_TYPE_KEY = "Content-Type";
 
 	private static final String PROPS_FILE = "tika-extractor.properties";
-	private static final String DATE_KEYS = "tika.extraction.datekeys";
-	private static final String TITLE_KEYS = "tika.extraction.titlekeys";
+	private static final String DATE_KEYS_PROPERTY = "tika.extraction.datekeys";
+	private static final String SUBJECT_KEYS_PROPERTY = "tika.extraction.titlekeys";
 
 	/**
 	 * A collection of potential metadata keys for the publish date of a
@@ -34,7 +34,7 @@ public class TikaTextExtractor implements TextExtractor {
 	 * A collection of potential metadata keys for the title/subject of a
 	 * document
 	 */
-	private List<String> titleKeys;
+	private List<String> subjectKeys;
 
 	public TikaTextExtractor() {
 		// TODO: Create an actual properties class?
@@ -51,10 +51,10 @@ public class TikaTextExtractor implements TextExtractor {
 			e.printStackTrace();
 		}
 
-		dateKeys = Arrays.asList(tikaProperties.getProperty(DATE_KEYS,
+		dateKeys = Arrays.asList(tikaProperties.getProperty(DATE_KEYS_PROPERTY,
 				"date,published").split(","));
-		titleKeys = Arrays.asList(tikaProperties.getProperty(TITLE_KEYS,
-				"title,subject").split(","));
+		subjectKeys = Arrays.asList(tikaProperties.getProperty(
+				SUBJECT_KEYS_PROPERTY, "title,subject").split(","));
 	}
 
 	@Override
@@ -72,7 +72,14 @@ public class TikaTextExtractor implements TextExtractor {
 		// since we are using the AutoDetectParser, it is safe to assume that
 		// the Content-Type metadata key will always return a value
 		result.setMediaType(metadata.get(MIME_TYPE_KEY));
+		
+		result.setDate(extractDate(metadata));
+		result.setSubject(extractSubject(metadata));
+		
+		return result;
+	}
 
+	private Date extractDate(Metadata metadata) {
 		// find the date metadata property, if there is one
 		String dateKey = TikaMetadataUtils.findKey(dateKeys, metadata);
 		Date date = null;
@@ -84,15 +91,19 @@ public class TikaTextExtractor implements TextExtractor {
 		if (date == null) {
 			date = new Date();
 		}
-		result.setDate(date);
 
+		return date;
+	}
+
+	private String extractSubject(Metadata metadata) {
 		// find the title metadata property, if there is one
-		String titleKey = TikaMetadataUtils.findKey(titleKeys, metadata);
+		String title = "";
+		String titleKey = TikaMetadataUtils.findKey(subjectKeys, metadata);
 
 		if (titleKey != null) {
-			result.setSubject(metadata.get(titleKey));
+			title = metadata.get(titleKey);
 		}
 
-		return result;
+		return title;
 	}
 }
