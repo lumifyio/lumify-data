@@ -38,8 +38,12 @@ public class TikaTextExtractor implements TextExtractor {
 		// TODO: Create an actual properties class?
 		Properties tikaProperties = new Properties();
 		try {
-			tikaProperties.load(Thread.currentThread().getContextClassLoader()
-					.getResourceAsStream(PROPS_FILE));
+			// don't require the properties file
+			InputStream propsIn = Thread.currentThread()
+					.getContextClassLoader().getResourceAsStream(PROPS_FILE);
+			if (propsIn != null) {
+				tikaProperties.load(propsIn);
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
