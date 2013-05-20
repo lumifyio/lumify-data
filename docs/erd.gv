@@ -1,0 +1,45 @@
+digraph models_diagram {
+  graph [splines=ortho, nodesep=0.7]
+  node [shape=box, width=2, height=1]
+  rankdir = LR
+
+  "Source"
+  "ArtifactAssociation"
+  "Sentence"
+  "Artifact"
+  "ArtifactStatementIndex"
+  "Concept"
+  "Statement"
+  "ConceptAssociation"
+  "Term"
+  "ArtifactTermIndex"
+  "Predicate"
+  "PredicateAssociation"
+  "Object"
+  "ArtifactPublicationDateIndex"
+  "ArtifactMessageTypeIndex"
+
+  "Term" -> "Statement" [arrowtail=none, arrowhead=crow, dir=both]
+  "Term" -> "Statement" [arrowtail=none, arrowhead=crow, dir=both]
+  "Term" -> "Object" [arrowtail=teetee, arrowhead=crow, dir=both]
+  "Object" -> "Statement" [arrowtail=crow, arrowhead=crow, dir=both]
+  "Statement" -> "Predicate" [arrowtail=crow, arrowhead=none, dir=both]
+  "Predicate" -> "PredicateAssociation" [arrowtail=none, arrowhead=crow, dir=both]
+  "Predicate" -> "PredicateAssociation" [arrowtail=none, arrowhead=crow, dir=both]
+  "Predicate" -> "ConceptAssociation" [arrowtail=none, arrowhead=crow, dir=both]
+  "Concept" -> "ConceptAssociation" [arrowtail=none, arrowhead=crow, dir=both]
+  "Concept" -> "ConceptAssociation" [arrowtail=none, arrowhead=crow, dir=both]
+  "ArtifactTermIndex" -> "Artifact" [arrowtail=crow, arrowhead=teetee, dir=both]
+  "ArtifactTermIndex" -> "Term" [arrowtail=crow, arrowhead=crow, dir=both]
+  { rank=same; "Artifact" -> "Term" [arrowtail=crow, arrowhead=crow, dir=both]}
+  "Term" -> "Concept" [arrowtail=crow, arrowhead=tee, dir=both]
+  "ArtifactStatementIndex" -> "Statement" [arrowtail=crow, arrowhead=crow, dir=both]
+  "ArtifactStatementIndex" -> "Artifact" [arrowtail=crow, arrowhead=none, dir=both]
+  "Sentence" -> "Term" [arrowtail=crow, arrowhead=crow, dir=both]
+  "Artifact" -> "Sentence" [arrowtail=tee, arrowhead=crow, dir=both]
+  "Artifact" -> "ArtifactAssociation" [arrowtail=tee, arrowhead=crow, dir=both]
+  "Artifact" -> "ArtifactAssociation" [arrowtail=tee, arrowhead=crow, dir=both]
+  "Source" -> "Artifact" [arrowtail=none, arrowhead=crow, dir=both]
+  "ArtifactPublicationDateIndex" -> "Artifact" [arrowtail=tee, arrowhead=tee, dir=both]
+  "ArtifactMessageTypeIndex" -> "Artifact" [arrowtail=tee, arrowhead=tee, dir=both]
+}
