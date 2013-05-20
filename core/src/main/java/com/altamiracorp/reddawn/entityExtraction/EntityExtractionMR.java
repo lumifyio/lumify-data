@@ -1,7 +1,6 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
 import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
-import com.altamiracorp.reddawn.textExtraction.TextExtractionMR;
 import com.altamiracorp.reddawn.ucd.inputFormats.UCDArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.models.Artifact;
 import com.altamiracorp.reddawn.ucd.models.Term;
@@ -11,6 +10,8 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -21,6 +22,8 @@ import java.io.IOException;
 import java.util.Collection;
 
 public class EntityExtractionMR extends UcdCommandLineBase implements Tool {
+  private Class<EntityExtractor> entityExtractorClass;
+
   public static class EntityExtractorMapper extends Mapper<Text, Artifact, Text, Mutation> {
     public static final String CONF_ENTITY_EXTRACTOR_CLASS = "entityExtractorClass";
     private EntityExtractor entityExtractor;
@@ -63,6 +66,35 @@ public class EntityExtractionMR extends UcdCommandLineBase implements Tool {
     }
   }
 
+  @Override
+  protected Options getOptions() {
+    Options options = super.getOptions();
+
+    options.addOption(
+        OptionBuilder
+            .withArgName("c")
+            .withLongOpt("classname")
+            .withDescription("The class that implements EntityExtractor")
+            .withArgName("name")
+            .isRequired()
+            .hasArg()
+            .create()
+    );
+
+    return options;
+  }
+
+  @Override
+  protected void processOptions(CommandLine cmd) {
+    super.processOptions(cmd);
+
+    String textExtractorClassName = cmd.getOptionValue("classname");
+    if (textExtractorClassName == null) {
+      throw new RuntimeException("'class' parameter is required");
+    }
+    entityExtractorClass = loadClass(textExtractorClassName);
+  }
+
   public static void main(String[] args) throws Exception {
     int res = ToolRunner.run(CachedConfiguration.getInstance(), new EntityExtractionMR(), args);
     if (res != 0) {
@@ -81,7 +113,7 @@ public class EntityExtractionMR extends UcdCommandLineBase implements Tool {
     job.setMapperClass(EntityExtractorMapper.class);
     job.setMapOutputKeyClass(Key.class);
     job.setMapOutputValueClass(Value.class);
-    EntityExtractorMapper.init(job, NullEntityExtractor.class); // TODO change this to be configurable
+    EntityExtractorMapper.init(job, entityExtractorClass);
 
     job.setNumReduceTasks(0);
 

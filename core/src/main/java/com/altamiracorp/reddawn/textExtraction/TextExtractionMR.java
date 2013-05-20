@@ -11,6 +11,8 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -21,6 +23,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 public class TextExtractionMR extends UcdCommandLineBase implements Tool {
+  private Class<TextExtractor> textExtractorClass;
+
   public static class TextExtractorMapper extends Mapper<Text, Artifact, Text, Mutation> {
     public static final String CONF_TEXT_EXTRACTOR_CLASS = "textExtractorClass";
     private TextExtractor textExtractor;
@@ -62,6 +66,35 @@ public class TextExtractionMR extends UcdCommandLineBase implements Tool {
   }
 
   @Override
+  protected Options getOptions() {
+    Options options = super.getOptions();
+
+    options.addOption(
+        OptionBuilder
+            .withArgName("c")
+            .withLongOpt("classname")
+            .withDescription("The class that implements TextExtractor")
+            .withArgName("name")
+            .isRequired()
+            .hasArg()
+            .create()
+    );
+
+    return options;
+  }
+
+  @Override
+  protected void processOptions(CommandLine cmd) {
+    super.processOptions(cmd);
+
+    String textExtractorClassName = cmd.getOptionValue("classname");
+    if (textExtractorClassName == null) {
+      throw new RuntimeException("'class' parameter is required");
+    }
+    textExtractorClass = loadClass(textExtractorClassName);
+  }
+
+  @Override
   protected int run(CommandLine cmd) throws Exception {
     Job job = new Job(getConf(), this.getClass().getSimpleName());
     job.setJarByClass(this.getClass());
@@ -72,7 +105,7 @@ public class TextExtractionMR extends UcdCommandLineBase implements Tool {
     job.setMapperClass(TextExtractorMapper.class);
     job.setMapOutputKeyClass(Key.class);
     job.setMapOutputValueClass(Value.class);
-    TextExtractorMapper.init(job, AsciiTextExtractor.class); // TODO change this to be configurable
+    TextExtractorMapper.init(job, textExtractorClass);
 
     job.setNumReduceTasks(0);
 
