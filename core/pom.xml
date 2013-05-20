@@ -39,6 +39,12 @@
   	  <groupId>com.joestelmach</groupId>
   	  <artifactId>natty</artifactId>
    	  <version>0.7</version>
-	</dependency>
+	  </dependency>
+
+    <dependency>
+      <groupId>org.apache.opennlp</groupId>
+      <artifactId>opennlp-tools</artifactId>
+      <version>1.5.3</version>
+    </dependency>
   </dependencies>
 </project>

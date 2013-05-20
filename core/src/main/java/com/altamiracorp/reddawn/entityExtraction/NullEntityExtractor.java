@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
+import com.altamiracorp.reddawn.ucd.models.ArtifactKey;
 import com.altamiracorp.reddawn.ucd.models.Term;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -12,7 +13,7 @@ public class NullEntityExtractor implements EntityExtractor {
   }
 
   @Override
-  public Collection<Term> extract(String artifactKey, String text) throws Exception {
+  public Collection<Term> extract(ArtifactKey artifactKey, String text) throws Exception {
     return new ArrayList<Term>();
   }
 }

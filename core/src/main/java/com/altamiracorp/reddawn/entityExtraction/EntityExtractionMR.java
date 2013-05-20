@@ -2,8 +2,7 @@ package com.altamiracorp.reddawn.entityExtraction;
 
 import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
 import com.altamiracorp.reddawn.ucd.inputFormats.UCDArtifactInputFormat;
-import com.altamiracorp.reddawn.ucd.models.Artifact;
-import com.altamiracorp.reddawn.ucd.models.Term;
+import com.altamiracorp.reddawn.ucd.models.*;
 import com.altamiracorp.reddawn.ucd.outputFormats.UCDOutputFormat;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
@@ -23,6 +22,7 @@ import java.util.Collection;
 
 public class EntityExtractionMR extends UcdCommandLineBase implements Tool {
   private Class<EntityExtractor> entityExtractorClass;
+  private String[] config;
 
   public static class EntityExtractorMapper extends Mapper<Text, Artifact, Text, Mutation> {
     public static final String CONF_ENTITY_EXTRACTOR_CLASS = "entityExtractorClass";
@@ -53,11 +53,20 @@ public class EntityExtractionMR extends UcdCommandLineBase implements Tool {
     private void writeEntities(Context context, Collection<Term> terms) throws IOException, InterruptedException {
       for (Term term : terms) {
         context.write(new Text(Term.TABLE_NAME), term.getMutation());
+
+        // TODO these lines are copied from UcdClient#writeTerm not really sure of a good way to abstract these out
+        for (TermMetadata termMetadata : term.getMetadata()) {
+          ArtifactTermIndex artifactTermIndex = ArtifactTermIndex.newBuilder()
+              .artifactKey(termMetadata.getArtifactKey())
+              .termMention(term.getKey(), termMetadata.getColumnFamilyName())
+              .build();
+          context.write(new Text(ArtifactTermIndex.TABLE_NAME), artifactTermIndex.getMutation());
+        }
       }
     }
 
     private Collection<Term> extractEntities(Artifact artifact) throws Exception {
-      String artifactKey = artifact.getKey().toString();
+      ArtifactKey artifactKey = artifact.getKey();
       String text = artifact.getContent().getDocExtractedText();
       return entityExtractor.extract(artifactKey, text);
     }
@@ -82,6 +91,16 @@ public class EntityExtractionMR extends UcdCommandLineBase implements Tool {
             .create()
     );
 
+    options.addOption(
+        OptionBuilder
+            .withLongOpt("config")
+            .withDescription("Configuration for the extractor")
+            .withArgName("name=value")
+            .isRequired()
+            .hasArg()
+            .create()
+    );
+
     return options;
   }
 
@@ -94,6 +113,7 @@ public class EntityExtractionMR extends UcdCommandLineBase implements Tool {
       throw new RuntimeException("'class' parameter is required");
     }
     entityExtractorClass = loadClass(textExtractorClassName);
+    config = cmd.getOptionValues("config");
   }
 
   public static void main(String[] args) throws Exception {
@@ -110,6 +130,11 @@ public class EntityExtractionMR extends UcdCommandLineBase implements Tool {
 
     job.setInputFormatClass(UCDArtifactInputFormat.class);
     UCDArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+
+    for (String config : this.config) {
+      String[] parts = config.split("=", 2);
+      job.getConfiguration().set(parts[0], parts[1]);
+    }
 
     job.setMapperClass(EntityExtractorMapper.class);
     job.setMapOutputKeyClass(Key.class);

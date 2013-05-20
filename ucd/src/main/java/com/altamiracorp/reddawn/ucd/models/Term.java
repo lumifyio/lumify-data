@@ -41,7 +41,7 @@ public class Term {
   public String toJson() throws JSONException {
     Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
-    JSONObject keyJson = new JSONObject(gson.toJson(getKey()));
+    JSONObject keyJson = new JSONObject(getKey().toJson());
 
     JSONArray metadataJson = new JSONArray();
     for (TermMetadata termMetadata : getMetadata()) {
