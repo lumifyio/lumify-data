@@ -18,6 +18,8 @@ import com.altamiracorp.reddawn.textExtraction.util.TikaMetadataUtils;
 
 public class TikaTextExtractor implements TextExtractor {
 
+	private static final String MIME_TYPE_KEY = "Content-Type";
+
 	private static final String PROPS_FILE = "tika-extractor.properties";
 	private static final String DATE_KEYS = "tika.extraction.datekeys";
 	private static final String TITLE_KEYS = "tika.extraction.titlekeys";
@@ -66,6 +68,10 @@ public class TikaTextExtractor implements TextExtractor {
 		parser.parse(in, handler, metadata, ctx);
 
 		result.setText(handler.toString());
+
+		// since we are using the AutoDetectParser, it is safe to assume that
+		// the Content-Type metadata key will always return a value
+		result.setMediaType(metadata.get(MIME_TYPE_KEY));
 
 		// find the date metadata property, if there is one
 		String dateKey = TikaMetadataUtils.findKey(dateKeys, metadata);

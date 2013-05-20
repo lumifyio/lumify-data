@@ -1,11 +1,8 @@
 package com.altamiracorp.reddawn.textExtraction;
 
-import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
-import com.altamiracorp.reddawn.ucd.inputFormats.UCDArtifactInputFormat;
-import com.altamiracorp.reddawn.ucd.models.Artifact;
-import com.altamiracorp.reddawn.ucd.models.ArtifactContent;
-import com.altamiracorp.reddawn.ucd.models.ArtifactGenericMetadata;
-import com.altamiracorp.reddawn.ucd.outputFormats.UCDOutputFormat;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
@@ -19,8 +16,12 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
+import com.altamiracorp.reddawn.ucd.inputFormats.UCDArtifactInputFormat;
+import com.altamiracorp.reddawn.ucd.models.Artifact;
+import com.altamiracorp.reddawn.ucd.models.ArtifactContent;
+import com.altamiracorp.reddawn.ucd.models.ArtifactGenericMetadata;
+import com.altamiracorp.reddawn.ucd.outputFormats.UCDOutputFormat;
 
 public class TextExtractionMR extends UcdCommandLineBase implements Tool {
   private Class<TextExtractor> textExtractorClass;
@@ -47,6 +48,7 @@ public class TextExtractionMR extends UcdCommandLineBase implements Tool {
         Mutation mutation = new Mutation(artifact.getKey().toString());
         mutation.put(ArtifactContent.COLUMN_FAMILY_NAME, ArtifactContent.COLUMN_DOC_EXTRACTED_TEXT, extractedInfo.getText());
         mutation.put(ArtifactGenericMetadata.COLUMN_FAMILY_NAME, ArtifactGenericMetadata.COLUMN_SUBJECT, extractedInfo.getSubject());
+        mutation.put(ArtifactGenericMetadata.COLUMN_FAMILY_NAME, ArtifactGenericMetadata.COLUMN_MIME_TYPE, extractedInfo.getMediaType());
         context.write(new Text(Artifact.TABLE_NAME), mutation);
       } catch (Exception e) {
         throw new IOException(e);

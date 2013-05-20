@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.textExtraction;
 import java.util.Date;
 
 public class ExtractedInfo {
+	private String mediaType = "";
 	private String subject = "";
 	private String text = "";
 	private Date date;
@@ -29,5 +30,13 @@ public class ExtractedInfo {
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+
+	public String getMediaType() {
+		return mediaType;
+	}
+
+	public void setMediaType(String mediaType) {
+		this.mediaType = mediaType;
 	}
 }
