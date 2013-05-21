@@ -1,18 +1,22 @@
 package com.altamiracorp.web;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Route {
+    private Pattern componentPattern = Pattern.compile("\\{([a-zA-Z]+)\\}");
+    private String componentSplitRegex = "[/\\.]";
     private RequestHandler handler;
     private String[] routePathComponents;
 
     public Route(String path, RequestHandler handler) {
         this.handler = handler;
-        routePathComponents = path.split("/");
+        routePathComponents = path.split(componentSplitRegex);
     }
 
     public boolean isMatch(HttpServletRequest request) {
-        String[] requestPathComponents = request.getPathInfo().split("/");
+        String[] requestPathComponents = request.getPathInfo().split(componentSplitRegex);
 
         if (requestPathComponents.length != routePathComponents.length) {
             return false;
@@ -22,8 +26,9 @@ public class Route {
             String routeComponent = routePathComponents[i];
             String requestComponent = requestPathComponents[i];
 
-            if (routeComponent.startsWith(":")) {
-                request.setAttribute(routeComponent.substring(1), requestComponent);
+            Matcher matcher = componentPattern.matcher(routeComponent);
+            if (matcher.matches()) {
+                request.setAttribute(matcher.group(1), requestComponent);
             } else if (!routeComponent.equals(requestComponent)) {
                 return false;
             }

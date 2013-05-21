@@ -37,7 +37,7 @@ public class RouterTest {
 
     @Test
     public void testRouteWithComponent() throws Exception {
-        router.addRoute(Router.Method.GET, path + "/:id/text", handler);
+        router.addRoute(Router.Method.GET, path + "/{id}/text", handler);
         when(request.getMethod()).thenReturn(Router.Method.GET.toString());
         when(request.getPathInfo()).thenReturn(path + "/25/text");
         router.route(request, response);

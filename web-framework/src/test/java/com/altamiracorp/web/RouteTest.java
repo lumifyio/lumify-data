@@ -40,7 +40,7 @@ public class RouteTest {
 
     @Test
     public void testRouteMatchWithComponents() {
-        Route r = new Route(path + "/:id", handler);
+        Route r = new Route(path + "/{id}", handler);
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getPathInfo()).thenReturn(path + "/25");
         assertTrue(r.isMatch(request));
@@ -49,11 +49,20 @@ public class RouteTest {
 
     @Test
     public void testComplexComponentAttributeSetting() {
-        Route r = new Route(path + "/:model/edit/:id", handler);
+        Route r = new Route(path + "/{model}/edit/{id}", handler);
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getPathInfo()).thenReturn(path + "/person/edit/25");
         assertTrue(r.isMatch(request));
         verify(request).setAttribute("model", "person");
         verify(request).setAttribute("id", "25");
+    }
+
+    @Test
+    public void testComponentAsBaseFilename() {
+        Route r = new Route(path + "/{file}.ext", handler);
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getPathInfo()).thenReturn(path + "/less.ext");
+        assertTrue(r.isMatch(request));
+        verify(request).setAttribute("file", "less");
     }
 }
