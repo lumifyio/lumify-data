@@ -18,6 +18,7 @@ import org.restlet.resource.Directory;
 import org.restlet.routing.Router;
 
 import java.io.File;
+import java.net.MalformedURLException;
 
 public class Server extends UcdCommandLineBase {
   public static void main(String[] args) throws Exception {
@@ -29,7 +30,7 @@ public class Server extends UcdCommandLineBase {
 
   @Override
   protected int run(CommandLine cmd) throws Exception {
-    final String rootDir = new File("./web/src/main/webapp").toURI().toURL().toString();
+    final File rootDir = new File("./web/src/main/webapp");
 
     // TODO refactor this
     WebUcdClientFactory.setUcdCommandLineBase(this);
@@ -42,19 +43,26 @@ public class Server extends UcdCommandLineBase {
     Application application = new Application() {
       @Override
       public Restlet createInboundRoot() {
-        Router router = new Router(getContext());
+        try {
+          Router router = new Router(getContext());
 
-        router.attach("/search", Search.class);
+          router.attach("/search", Search.class);
 
-        router.attach("/artifacts/{rowKey}/terms", ArtifactTermsByRowKey.class);
-        router.attach("/artifacts/{rowKey}/text", ArtifactTextByRowKey.class);
-        router.attach("/artifacts/{rowKey}/raw", ArtifactRawByRowKey.class);
-        router.attach("/artifacts/{rowKey}", ArtifactByRowKey.class);
+          router.attach("/artifacts/{rowKey}/terms", ArtifactTermsByRowKey.class);
+          router.attach("/artifacts/{rowKey}/text", ArtifactTextByRowKey.class);
+          router.attach("/artifacts/{rowKey}/raw", ArtifactRawByRowKey.class);
+          router.attach("/artifacts/{rowKey}", ArtifactByRowKey.class);
 
-        router.attach("/terms/{rowKey}", TermByRowKey.class);
+          router.attach("/terms/{rowKey}", TermByRowKey.class);
 
-        router.attach("/", new Directory(getContext(), rootDir));
-        return router;
+          LessRestlet.init(rootDir);
+          router.attach("/css/{file}.css", LessRestlet.class);
+
+          router.attach("/", new Directory(getContext(), rootDir.toURI().toURL().toString()));
+          return router;
+        } catch (MalformedURLException e) {
+          throw new RuntimeException(e);
+        }
       }
     };
 
