@@ -12,6 +12,12 @@ class blur::config ($javaHome, $user = 'blur', $group = 'hadoop') {
     replace => "export HADOOP_HOME=/opt/hadoop",
   }
 
+  find-and-replace { 'blur-env.sh -XX:OnOutOfMemoryError' :
+    file => '/opt/blur-conf/blur-env.sh',
+    find => ' -XX:OnOutOfMemoryError',
+    replace => '\" # -XX:OnOutOfMemoryError',
+  }
+
   setup-passwordless-ssh { "${user}" :
   }
 
