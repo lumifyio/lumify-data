@@ -1,0 +1,12 @@
+{
+  "name": "red-dawn",
+  "version": "0.0.1",
+  "dependencies": {
+    "requirejs": "latest",
+    "jquery": "latest",
+    "flight": "latest",
+    "chai": "latest",
+    "mocha": "latest",
+    "bootstrap": "http://twitter.github.com/bootstrap/assets/bootstrap.zip"
+  }
+}
