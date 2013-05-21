@@ -41,6 +41,16 @@ class accumulo::config ($javaHome, $user = 'accumulo', $group = 'hadoop') {
     require => Exec['copy-example-config'],
   }
 
+  exec { 'vm.swappiness=10 online' :
+    command => '/sbin/sysctl -w vm.swappiness=10',
+    unless => '/usr/bin/test $(/sbin/sysctl -n vm.swappiness) -eq 10',
+  }
+
+  exec { 'vm.swappiness=10 persistant' :
+    command => '/bin/echo "vm.swappiness=10" >> /etc/sysctl.conf',
+    unless => '/bin/grep -q vm.swappiness=10 /etc/sysctl.conf',
+  }
+
   setup-passwordless-ssh { "${user}" :
   }
 
