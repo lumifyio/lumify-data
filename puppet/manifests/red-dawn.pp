@@ -100,6 +100,14 @@ define find-and-replace ($file, $find, $replace) {
   }
 }
 
+define know-our-host-key ($user, $hostname) {
+  exec { "know-our-host-key-${user}-${hostname}" :
+    command => "/bin/echo \"${hostname} $(/bin/cat /etc/ssh/ssh_host_rsa_key.pub)\" >> /opt/${user}-conf/.ssh/known_hosts",
+    user => "${user}",
+    unless => "/bin/grep -q \"${hostname} $(/bin/cat /etc/ssh/ssh_host_rsa_key.pub)\" /opt/${user}-conf/.ssh/known_hosts",
+  }
+}
+
 define setup-passwordless-ssh ($user = $title) {
   exec { "generate-ssh-keypair-${user}" :
     command => "/usr/bin/ssh-keygen -b 2048 -f /opt/${user}-conf/.ssh/id_rsa -N ''",
@@ -114,10 +122,15 @@ define setup-passwordless-ssh ($user = $title) {
     require => Exec["generate-ssh-keypair-${user}"],
   }
 
-  exec { "know-our-host-key-${user}" :
-    command => "/bin/echo \"localhost $(/bin/cat /etc/ssh/ssh_host_rsa_key.pub)\" >> /opt/${user}-conf/.ssh/known_hosts",
+  know-our-host-key { "${user}-localhost" :
     user => "${user}",
-    unless => "/bin/grep -q \"$(/bin/cat /etc/ssh/ssh_host_rsa_key.pub)\" /opt/${user}-conf/.ssh/known_hosts",
+    hostname => 'localhost',
+    require => Exec["generate-ssh-keypair-${user}"],
+  }
+
+  know-our-host-key { "${user}-${ipaddress_eth1}" :
+    user => "${user}",
+    hostname => "${ipaddress_eth1}",
     require => Exec["generate-ssh-keypair-${user}"],
   }
 }
