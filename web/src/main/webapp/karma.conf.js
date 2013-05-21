@@ -26,6 +26,7 @@ files = [
 
   // Included libs
   'libs/jquery/jquery.js',
+  'libs/jquery-ui/jquery-ui-1.10.3.custom.js',
   'libs/bootstrap/js/bootstrap.js',
 
   // Libraries
@@ -62,7 +63,7 @@ if (coverage) {
     type: coverageType,
     dir: 'build/coverage/'
   };
-}
+}container-fluid
 
 
 // web server port

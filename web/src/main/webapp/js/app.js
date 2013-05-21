@@ -1,16 +1,13 @@
 
 define([
-    'flight/lib/component',
     'search/search'
-], function(defineComponent) {
+], function(Search) {
     'use strict';
 
-    return defineComponent(App);
+    return initialize;
 
-    function App() {
-        this.defaultAttrs({
-            paneItemSelector: '.pane'
-        });
+    function initialize() {
+        Search.attachTo('#app:first-child');
     }
 });
 
