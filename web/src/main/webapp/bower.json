@@ -6,6 +6,7 @@
     "jquery": "latest",
     "flight": "latest",
     "chai": "latest",
+    "less.js": "latest",
     "mocha": "latest",
     "bootstrap": "http://twitter.github.com/bootstrap/assets/bootstrap.zip"
   }
