@@ -7,6 +7,7 @@ import com.altamiracorp.reddawn.ucd.models.Term;
 import com.altamiracorp.reddawn.web.routes.UcdServerResource;
 import com.altamiracorp.reddawn.web.routes.artifact.ArtifactByRowKey;
 import com.altamiracorp.reddawn.web.routes.term.TermByRowKey;
+import com.altamiracorp.web.RequestHandler;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,10 +15,12 @@ import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ResourceException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-public class Search extends UcdServerResource {
+public class Search extends UcdServerResource implements RequestHandler {
   public Representation get() {
     try {
       UcdClient<AuthorizationLabel> client = getUcdClient();
@@ -71,4 +74,11 @@ public class Search extends UcdServerResource {
     }
     return artifactsJson;
   }
+
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        Representation representation = get();
+        response.setContentType(representation.getMediaType().toString());
+        representation.write(response.getOutputStream());
+    }
 }

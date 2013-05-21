@@ -30,6 +30,11 @@
             <artifactId>core</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.reddawn</groupId>
+            <artifactId>web-framework</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
     <dependency>
       <groupId>org.restlet.jse</groupId>
@@ -47,5 +52,11 @@
       <artifactId>lesscss</artifactId>
       <version>1.3.3</version>
     </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>9.0.3.v20130506</version>
+        </dependency>
   </dependencies>
 </project>

@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.web;
 
+import com.altamiracorp.web.RequestHandler;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.lesscss.LessCompiler;
@@ -9,10 +10,12 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 
-public class LessRestlet extends ServerResource {
+public class LessRestlet extends ServerResource implements RequestHandler {
   private static File rootDir;
 
   public Representation get() {
@@ -36,4 +39,11 @@ public class LessRestlet extends ServerResource {
   public static void init(File rootDir) {
     LessRestlet.rootDir = rootDir;
   }
+
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        Representation representation = get();
+        response.setContentType(representation.getMediaType().toString());
+        representation.write(response.getOutputStream());
+    }
 }
