@@ -5,4 +5,39 @@
   left:0;
   bottom:0;
   right:0;
+  display: -webkit-box;
+	display: -moz-box;
+	display: box;
+  min-width: 600px;
 }
+
+.search-pane, .main-pane, .detail-pane {
+  height: 100%;
+  text-align: center;
+}
+
+
+.search-pane { 
+  width:200px;
+  background: #efefef;
+  border-right: 5px solid #ddd;
+
+  .navbar-search { width: 100%; }
+  .search-query {
+    width: 75%;
+  }
+}
+
+.main-pane { 
+  -webkit-box-flex: 1;
+	-moz-box-flex: 1;
+	box-flex: 1;
+  background: white;
+}
+
+.detail-pane { 
+  width:250px;
+  border-left: 5px solid #ddd;
+  background: #efefef;
+}
+
