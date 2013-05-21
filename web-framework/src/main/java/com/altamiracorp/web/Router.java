@@ -11,14 +11,15 @@ public class Router {
     public static enum Method { GET, POST, PUT, DELETE };
     private Map<Method, List<Route>> routes = new HashMap<Method, List<Route>>();
 
+    public Router() {
+        routes.put(Method.GET, new ArrayList<Route>());
+        routes.put(Method.POST, new ArrayList<Route>());
+        routes.put(Method.PUT, new ArrayList<Route>());
+        routes.put(Method.DELETE, new ArrayList<Route>());
+    }
+
     public void addRoute(Method method, String path, RequestHandler handler) {
         List<Route> methodRoutes = routes.get(method);
-
-        if (methodRoutes == null) {
-            methodRoutes = new ArrayList<Route>();
-            routes.put(method, methodRoutes);
-        }
-
         Route route = new Route(path, handler);
         methodRoutes.add(route);
     }

@@ -51,7 +51,15 @@ public class RouterTest {
         when(request.getMethod()).thenReturn(Router.Method.POST.toString());
         when(request.getPathInfo()).thenReturn(path);
         router.route(request, response);
-        verify(handler).handle(request, response);
-        verify(response).sendError(HttpServletResponse.SC_BAD_REQUEST);
+        verify(response).sendError(HttpServletResponse.SC_NOT_FOUND);
+    }
+
+    @Test
+    public void testRouteMissingDueToPath() throws Exception {
+        router.addRoute(Router.Method.GET, path, handler);
+        when(request.getMethod()).thenReturn(Router.Method.GET.toString());
+        when(request.getPathInfo()).thenReturn(path + "extra");
+        router.route(request, response);
+        verify(response).sendError(HttpServletResponse.SC_NOT_FOUND);
     }
 }
