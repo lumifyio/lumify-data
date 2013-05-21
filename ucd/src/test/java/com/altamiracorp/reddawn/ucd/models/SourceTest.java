@@ -12,6 +12,11 @@ import static org.junit.Assert.assertEquals;
 @RunWith(JUnit4.class)
 public class SourceTest {
   @Test
+  public void fail() {
+    assertEquals(1, 0);
+  }
+
+  @Test
   public void createASource() {
     Source.Builder sb = Source.newBuilder();
 
