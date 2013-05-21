@@ -27,4 +27,21 @@ class accumulo::config ($javaHome, $user = 'accumulo', $group = 'hadoop') {
     require => Exec['copy-example-config'],
   }
 
+  find-and-replace { 'masters' :
+    file => '/opt/accumulo-conf/masters',
+    find => 'localhost',
+    replace => "${ipaddress_eth1}",
+    require => Exec['copy-example-config'],
+  }
+
+  find-and-replace { 'slaves' :
+    file => '/opt/accumulo-conf/slaves',
+    find => 'localhost',
+    replace => "${ipaddress_eth1}",
+    require => Exec['copy-example-config'],
+  }
+
+  setup-passwordless-ssh { "${user}" :
+  }
+
 }

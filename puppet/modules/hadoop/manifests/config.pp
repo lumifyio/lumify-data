@@ -29,24 +29,7 @@ class hadoop::config ($javaHome, $user = 'hadoop', $group = 'hadoop') {
     replace => "export JAVA_HOME=${javaHome}",
   }
 
-  exec { 'generate-ssh-keypair' :
-    command => "/usr/bin/ssh-keygen -b 2048 -f /opt/hadoop-conf/.ssh/id_rsa -N ''",
-    user => "${user}",
-    creates => '/opt/hadoop-conf/.ssh/id_rsa',
-  }
-
-  exec { 'authorize-ssh-key' :
-    command => "/bin/cat /opt/hadoop-conf/.ssh/id_rsa.pub >> /opt/hadoop-conf/.ssh/authorized_keys",
-    user => "${user}",
-    unless => "/bin/grep -q \"$(/bin/cat /opt/hadoop-conf/.ssh/id_rsa.pub)\" /opt/hadoop-conf/.ssh/authorized_keys",
-    require => Exec['generate-ssh-keypair'],
-  }
-
-  exec { 'know-our-host-key' :
-    command => "/bin/echo \"localhost $(/bin/cat /etc/ssh/ssh_host_rsa_key.pub)\" >> /opt/hadoop-conf/.ssh/known_hosts",
-    user => "${user}",
-    unless => "/bin/grep -q \"$(/bin/cat /etc/ssh/ssh_host_rsa_key.pub\" /opt/hadoop-conf/.ssh/known_hosts",
-    require => Exec['generate-ssh-keypair'],
+  setup-passwordless-ssh { "${user}" :
   }
 
 }
