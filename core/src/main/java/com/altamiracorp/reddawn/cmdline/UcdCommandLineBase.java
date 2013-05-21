@@ -6,6 +6,7 @@ import com.altamiracorp.reddawn.ucd.UcdClient;
 import com.altamiracorp.reddawn.ucd.UcdFactory;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.security.Authorizations;
 import org.apache.commons.cli.*;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
@@ -28,7 +29,6 @@ public abstract class UcdCommandLineBase extends Configured implements Tool {
       if (cmd.hasOption("help")) {
         printHelp(options);
       }
-      validateOptions(cmd);
       processOptions(cmd);
     } catch (Exception ex) {
       System.err.println(ex.getMessage());
@@ -44,9 +44,6 @@ public abstract class UcdCommandLineBase extends Configured implements Tool {
   }
 
   protected abstract int run(CommandLine cmd) throws Exception;
-
-  protected void validateOptions(CommandLine cmd) {
-  }
 
   protected void processOptions(CommandLine cmd) {
     this.zookeeperInstanceName = cmd.getOptionValue("zookeeperInstanceName");
@@ -155,5 +152,17 @@ public abstract class UcdCommandLineBase extends Configured implements Tool {
 
   public void setPassword(byte[] password) {
     this.password = password;
+  }
+
+  public Authorizations getAuthorizations() {
+    return new Authorizations(); // TODO configurable
+  }
+
+  protected Class loadClass(String className) {
+    try {
+      return this.getClass().getClassLoader().loadClass(className);
+    } catch (Exception e) {
+      throw new RuntimeException("Could not find class '" + className + "'", e);
+    }
   }
 }

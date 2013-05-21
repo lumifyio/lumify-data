@@ -1,10 +1,14 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import com.google.gson.annotations.Expose;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class TermMention {
+  @Expose
   private final int start;
+
+  @Expose
   private final int end;
 
   public TermMention(int start, int end) {

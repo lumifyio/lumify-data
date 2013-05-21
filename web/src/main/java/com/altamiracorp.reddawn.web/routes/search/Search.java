@@ -42,7 +42,10 @@ public class Search extends UcdServerResource {
   private JSONObject termsToSearchResults(List<Term> terms) throws JSONException {
     JSONObject termsJson = new JSONObject();
     for (Term term : terms) {
-      JSONArray conceptJson = (JSONArray) termsJson.get(term.getKey().getConcept());
+      JSONArray conceptJson = null;
+      if (termsJson.has(term.getKey().getConcept())) {
+        conceptJson = (JSONArray) termsJson.get(term.getKey().getConcept());
+      }
       if (conceptJson == null) {
         conceptJson = new JSONArray();
         termsJson.put(term.getKey().getConcept(), conceptJson);

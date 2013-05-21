@@ -1,13 +1,12 @@
 package com.altamiracorp.reddawn.ucd;
 
-import com.altamiracorp.reddawn.ucd.models.Artifact;
-import com.altamiracorp.reddawn.ucd.models.ArtifactKey;
-import com.altamiracorp.reddawn.ucd.models.Term;
-import com.altamiracorp.reddawn.ucd.models.TermKey;
+import com.altamiracorp.reddawn.ucd.models.*;
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.data.Range;
 import org.json.JSONException;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class UcdClient<A extends AuthorizationLabel> {
@@ -23,6 +22,7 @@ public class UcdClient<A extends AuthorizationLabel> {
   public void initializeTables() throws TableExistsException, AccumuloSecurityException, AccumuloException {
     initializeTable(Artifact.TABLE_NAME);
     initializeTable(Term.TABLE_NAME);
+    initializeTable(ArtifactTermIndex.TABLE_NAME);
   }
 
   private void initializeTable(String tableName) throws TableExistsException, AccumuloSecurityException, AccumuloException {
@@ -34,6 +34,7 @@ public class UcdClient<A extends AuthorizationLabel> {
   public void deleteTables() throws AccumuloSecurityException, AccumuloException, TableNotFoundException {
     deleteTable(Artifact.TABLE_NAME);
     deleteTable(Term.TABLE_NAME);
+    deleteTable(ArtifactTermIndex.TABLE_NAME);
   }
 
   private void deleteTable(String tableName) throws AccumuloSecurityException, AccumuloException, TableNotFoundException {
@@ -92,9 +93,19 @@ public class UcdClient<A extends AuthorizationLabel> {
 
   public void writeTerm(Term term, QueryUser<A> queryUser) throws UCDIOException {
     try {
-      BatchWriter writer = this.connection.createBatchWriter(Term.TABLE_NAME, this.batchWriterMemBuf, this.batchWriterTimeout, this.batchWriterNumThreads);
-      writer.addMutation(term.getMutation());
-      writer.close();
+      BatchWriter termWriter = this.connection.createBatchWriter(Term.TABLE_NAME, this.batchWriterMemBuf, this.batchWriterTimeout, this.batchWriterNumThreads);
+      termWriter.addMutation(term.getMutation());
+      termWriter.close();
+
+      BatchWriter artifactTermIndexWriter = this.connection.createBatchWriter(ArtifactTermIndex.TABLE_NAME, this.batchWriterMemBuf, this.batchWriterTimeout, this.batchWriterNumThreads);
+      for (TermMetadata termMetadata : term.getMetadata()) {
+        ArtifactTermIndex artifactTermIndex = ArtifactTermIndex.newBuilder()
+            .artifactKey(termMetadata.getArtifactKey())
+            .termMention(term.getKey(), termMetadata.getColumnFamilyName())
+            .build();
+        writeArtifactTermIndex(artifactTermIndexWriter, artifactTermIndex, queryUser);
+      }
+      artifactTermIndexWriter.close();
     } catch (TableNotFoundException e) {
       throw new UCDIOException(e);
     } catch (MutationsRejectedException e) {
@@ -132,5 +143,52 @@ public class UcdClient<A extends AuthorizationLabel> {
     } catch (JSONException e) {
       throw new UCDIOException(e);
     }
+  }
+
+  public void writeArtifactTermIndex(ArtifactTermIndex artifactTermIndex, QueryUser<A> queryUser) throws UCDIOException {
+    try {
+      BatchWriter writer = this.connection.createBatchWriter(ArtifactTermIndex.TABLE_NAME, this.batchWriterMemBuf, this.batchWriterTimeout, this.batchWriterNumThreads);
+      writeArtifactTermIndex(writer, artifactTermIndex, queryUser);
+      writer.close();
+    } catch (TableNotFoundException e) {
+      throw new UCDIOException(e);
+    } catch (MutationsRejectedException e) {
+      throw new UCDIOException(e);
+    }
+  }
+
+  private void writeArtifactTermIndex(BatchWriter writer, ArtifactTermIndex artifactTermIndex, QueryUser<A> queryUser) throws MutationsRejectedException {
+    writer.addMutation(artifactTermIndex.getMutation());
+  }
+
+  public ArtifactTermIndex queryArtifactTermIndexByArtifactKey(ArtifactKey artifactKey, QueryUser<A> queryUser) throws UCDIOException {
+    try {
+      Scanner scan = this.connection.createScanner(ArtifactTermIndex.TABLE_NAME, queryUser.getAuthorizations());
+      scan.setRange(new Range(artifactKey.toString()));
+
+      List<ArtifactTermIndex> artifactTermIndexes = ArtifactTermIndex.newBuilder().buildFromScanner(scan);
+      if (artifactTermIndexes.isEmpty()) {
+        return null;
+      }
+      if (artifactTermIndexes.size() != 1) {
+        throw new UCDIOException("Multiple rows returned for artifact term index with key: " + artifactKey.toString());
+      }
+      return artifactTermIndexes.get(0);
+    } catch (TableNotFoundException e) {
+      throw new UCDIOException(e);
+    }
+  }
+
+  public Collection<Term> queryTermByArtifactKey(ArtifactKey artifactKey, QueryUser<A> queryUser) throws UCDIOException {
+    ArrayList<Term> terms = new ArrayList<Term>();
+    ArtifactTermIndex artifactTermIndex = queryArtifactTermIndexByArtifactKey(artifactKey, queryUser);
+    if (artifactTermIndex == null) {
+      return terms;
+    }
+    for (TermKey termRowId : artifactTermIndex.getTermMentions().keySet()) {
+      Term term = queryTermByKey(termRowId, queryUser);
+      terms.add(term);
+    }
+    return terms;
   }
 }

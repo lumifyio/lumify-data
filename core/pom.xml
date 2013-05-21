@@ -21,5 +21,30 @@
       <artifactId>commons-cli</artifactId>
       <version>1.2</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.tika</groupId>
+      <artifactId>tika-core</artifactId>
+      <version>1.3</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.tika</groupId>
+      <artifactId>tika-parsers</artifactId>
+      <version>1.3</version>
+      <scope>runtime</scope>
+    </dependency>
+    
+    <dependency> 
+  	  <groupId>com.joestelmach</groupId>
+  	  <artifactId>natty</artifactId>
+   	  <version>0.7</version>
+	  </dependency>
+
+    <dependency>
+      <groupId>org.apache.opennlp</groupId>
+      <artifactId>opennlp-tools</artifactId>
+      <version>1.5.3</version>
+    </dependency>
   </dependencies>
 </project>

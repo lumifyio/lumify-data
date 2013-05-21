@@ -1,8 +1,19 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class TermKey {
+  @Expose
   private String sign;
+
+  @Expose
   private String concept;
+
+  @Expose
   private String model;
 
   public TermKey(String keyString) {
@@ -34,6 +45,21 @@ public class TermKey {
 
   public String toString() {
     return KeyHelpers.createCompositeKey(getSign(), getModel(), getConcept());
+  }
+
+  @Override
+  public int hashCode() {
+    return this.toString().hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return this.toString().equals(obj.toString());
+  }
+
+  public String toJson() throws JSONException {
+    Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    return new JSONObject(gson.toJson(this)).toString();
   }
 
   public static class Builder {

@@ -22,6 +22,14 @@ public class ArtifactKey {
     return new Builder();
   }
 
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof ArtifactKey) {
+      return key.equals(((ArtifactKey) obj).key);
+    }
+    return false;
+  }
+
   public static class Builder {
     private byte[] docArtifactBytes;
 

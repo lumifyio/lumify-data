@@ -31,9 +31,9 @@ public class UCDArtifactInputFormat extends InputFormatBase<Text, Artifact> {
       @Override
       public void initialize(InputSplit inSplit, TaskAttemptContext attempt) throws IOException {
         super.initialize(inSplit, attempt);
-        rowIterator = new RowIterator(scannerIterator);
-        currentK = new Text();
-        currentV = null;
+        this.rowIterator = new RowIterator(scannerIterator);
+        this.currentK = new Text();
+        this.currentV = null;
       }
 
       @Override
@@ -42,10 +42,10 @@ public class UCDArtifactInputFormat extends InputFormatBase<Text, Artifact> {
           return false;
         }
         PeekingIterator<Map.Entry<Key, Value>> it = new PeekingIterator<Map.Entry<Key, Value>>(rowIterator.next());
-        currentV = Artifact.newBuilder().buildFromRow(it);
-        numKeysRead = rowIterator.getKVCount();
-        currentKey = new Key(currentV.getKey().toString());
-        currentK = new Text(currentKey.getRow());
+        this.currentV = Artifact.newBuilder().buildFromRow(it);
+        this.numKeysRead = this.rowIterator.getKVCount();
+        this.currentKey = new Key(this.currentV.getKey().toString());
+        this.currentK = new Text(this.currentKey.getRow());
         return true;
       }
     };

@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.ucd.models;
 
+import com.google.gson.annotations.Expose;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
@@ -12,16 +13,24 @@ public class TermMetadata implements Comparable<TermMetadata> {
   private static final String COLUMN_ARTIFACT_KEY_SIGN = "artifactKeySign";
   private static final String COLUMN_AUTHOR = "author";
   private static final String COLUMN_MENTION = "mention";
-  private String artifactKey;
+
+  @Expose
+  private ArtifactKey artifactKey;
+
+  @Expose
   private String artifactKeySign;
+
+  @Expose
   private String author;
+
+  @Expose
   private TermMention mention;
 
   public static Builder newBuilder() {
     return new Builder();
   }
 
-  public String getArtifactKey() {
+  public ArtifactKey getArtifactKey() {
     return artifactKey;
   }
 
@@ -39,7 +48,7 @@ public class TermMetadata implements Comparable<TermMetadata> {
 
   public void addMutations(Mutation mutation) {
     String columnFamilyName = getColumnFamilyName();
-    MutationHelpers.putIfNotNull(mutation, columnFamilyName, COLUMN_ARTIFACT_KEY, getArtifactKey());
+    MutationHelpers.putIfNotNull(mutation, columnFamilyName, COLUMN_ARTIFACT_KEY, getArtifactKey().toString());
     MutationHelpers.putIfNotNull(mutation, columnFamilyName, COLUMN_ARTIFACT_KEY_SIGN, getArtifactKeySign());
     MutationHelpers.putIfNotNull(mutation, columnFamilyName, COLUMN_AUTHOR, getAuthor());
     MutationHelpers.putIfNotNull(mutation, columnFamilyName, COLUMN_MENTION, getMention() == null ? null : getMention().toString());
@@ -61,7 +70,7 @@ public class TermMetadata implements Comparable<TermMetadata> {
       mentionString = getMention().toString();
     }
     return KeyHelpers.createSHA256KeyFromConcatination(new String[]{
-        getArtifactKey(),
+        getArtifactKey().toString(),
         getArtifactKeySign(),
         getAuthor(),
         mentionString
@@ -71,7 +80,7 @@ public class TermMetadata implements Comparable<TermMetadata> {
   public void populateFromColumn(Map.Entry<Key, Value> column) throws JSONException {
     String columnQualifier = column.getKey().getColumnQualifier().toString();
     if (COLUMN_ARTIFACT_KEY.equals(columnQualifier)) {
-      this.artifactKey = column.getValue().toString();
+      this.artifactKey = new ArtifactKey(column.getValue().toString());
     } else if (COLUMN_ARTIFACT_KEY_SIGN.equals(columnQualifier)) {
       this.artifactKeySign = column.getValue().toString();
     } else if (COLUMN_AUTHOR.equals(columnQualifier)) {
@@ -88,7 +97,7 @@ public class TermMetadata implements Comparable<TermMetadata> {
       this.termMetadata = new TermMetadata();
     }
 
-    public Builder artifactKey(String artifactKey) {
+    public Builder artifactKey(ArtifactKey artifactKey) {
       this.termMetadata.artifactKey = artifactKey;
       return this;
     }
