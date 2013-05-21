@@ -25,8 +25,7 @@ public class LessRestlet extends ServerResource {
       String fileNameWithoutExtension = file.toString().substring(0, file.toString().length() - (FilenameUtils.getExtension(file.toString()).length() + 1));
       file = new File(fileNameWithoutExtension + ".less");
 
-      String less = IOUtils.toString(new FileInputStream(file));
-      String css = lessCompiler.compile(less);
+      String css = lessCompiler.compile(file);
 
       return new StringRepresentation(css, MediaType.TEXT_CSS);
     } catch (Exception ex) {
