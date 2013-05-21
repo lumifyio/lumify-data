@@ -103,7 +103,7 @@ define extract ($dirName = $title, $extension, $user = 'hadoop', $group = 'hadoo
     cwd => '/opt',
     command => "${cmd} downloads/${dirName}.${extension} && /bin/chown -R ${user}:${group} /opt/${dirName}",
     creates => "/opt/${dirName}",
-    require => [ Download["${dirName}"], User["${user}"] ],
+    require => [ Download["${dirName}"], User["${user}"], Group["${group}"] ],
   }
 }
 
@@ -172,11 +172,10 @@ install { 'tomcat' :
   user => 'tomcat',
 }
 
-#include reddawn-hadoop
-
-#hadoop::config { 'configure hadoop' :
-#  javaHome => "${javaHome}",
-#}
+class { hadoop::config :
+  javaHome => "${javaHome}",
+  require => Install['hadoop'],
+}
 
 # TODO:
 # config
