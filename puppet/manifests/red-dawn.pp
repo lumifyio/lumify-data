@@ -23,7 +23,7 @@ exec { 'yum-update' :
 
 Package {
   provider => 'yum',
-  # require => Exec['yum-update'],
+  require => Exec['yum-update'],
 }
 
 package { "${javaPackage}" :
@@ -82,6 +82,13 @@ user { 'tomcat' :
 
 file { '/opt/downloads' :
   ensure => 'directory',
+}
+
+define find-and-replace ($file, $find, $replace) {
+  exec { "find-and-replace-${title}" :
+    command => "/bin/sed -i.DIST -e 's|${find}|${replace}|' ${file}",
+    unless => "/bin/grep -q '${replace}' ${file}",
+  }
 }
 
 define download ($dirName = $title, $url, $extension) {
@@ -180,6 +187,19 @@ class { hadoop::config :
 class { zookeeper::config :
   require => Install['zookeeper'],
 }
+
+class { accumulo::config :
+  javaHome => "${javaHome}",
+  require => Install['accumulo'],
+}
+
+#class { storm::config :
+#  require => Install['storm'],
+#}
+
+#class { tomcat::config :
+#  require => Install['tomcat'],
+#}
 
 class { reddawn::config :
   require => [ Install['hadoop'], Install['zookeeper'], Install['storm'], Install['tomcat'] ],

@@ -23,14 +23,8 @@ class hadoop::config ($javaHome, $user = 'hadoop', $group = 'hadoop') {
     backup => '.DIST',
   }
 
-  define find-and-replace ($file = $title, $find, $replace) {
-    exec { "find-and-replace-${file}-${find}" :
-      command => "/bin/sed -i.DIST -e 's|${find}|${replace}|' ${file}",
-      unless => "/bin/grep -q '${replace}' ${file}",
-    }
-  }
-
-  find-and-replace { '/opt/hadoop-conf/hadoop-env.sh' :
+  find-and-replace { 'hadoop-env.sh JAVA_HOME' :
+    file => '/opt/hadoop-conf/hadoop-env.sh',
     find => '# export JAVA_HOME=/usr/lib/j2sdk1.6-sun',
     replace => "export JAVA_HOME=${javaHome}",
   }
