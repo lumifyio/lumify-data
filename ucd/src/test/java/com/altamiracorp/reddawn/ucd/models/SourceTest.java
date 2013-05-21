@@ -13,6 +13,11 @@ import static org.junit.Assert.assertEquals;
 public class SourceTest {
   @Test
   public void createASource() {
+    assertEquals(1, 0);
+  }
+
+  @Test
+  public void createASource() {
     Source.Builder sb = Source.newBuilder();
 
     SourceMetadata.Builder sm = SourceMetadata.newBuilder();
