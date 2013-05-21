@@ -23,7 +23,7 @@ exec { 'yum-update' :
 
 Package {
   provider => 'yum',
-  require => Exec['yum-update'],
+  # require => Exec['yum-update'],
 }
 
 package { "${javaPackage}" :
@@ -175,6 +175,14 @@ install { 'tomcat' :
 class { hadoop::config :
   javaHome => "${javaHome}",
   require => Install['hadoop'],
+}
+
+class { zookeeper::config :
+  require => Install['zookeeper'],
+}
+
+class { reddawn::config :
+  require => [ Install['hadoop'], Install['zookeeper'], Install['storm'], Install['tomcat'] ],
 }
 
 # TODO:
