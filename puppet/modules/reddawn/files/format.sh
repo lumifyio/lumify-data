@@ -1,6 +1,8 @@
 #!/bin/bash -eu
 
-# TODO: check to see if HDFS is already formatted!
+/opt/stop.sh
+
+sudo rm -rf /var/lib/hadoop-0.20/cache/hadoop
 
 sudo -u hadoop /opt/hadoop/bin/hadoop namenode -format
 sudo -u hadoop /opt/hadoop/bin/start-all.sh
