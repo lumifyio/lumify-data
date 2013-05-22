@@ -63,7 +63,7 @@ if (coverage) {
     type: coverageType,
     dir: 'build/coverage/'
   };
-}container-fluid
+}
 
 
 // web server port
