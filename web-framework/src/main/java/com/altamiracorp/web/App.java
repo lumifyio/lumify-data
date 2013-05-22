@@ -1,35 +1,23 @@
 package com.altamiracorp.web;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 import com.altamiracorp.web.Route.Method;
 
-public abstract class App extends HttpServlet {
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
+
+public class App {
     private Router router;
+    private Map<String, Object> config;
 
-    @Override
-    public void init(ServletConfig servletConfig) throws ServletException {
-        this.router = new Router();
-        setup(servletConfig);
-    }
-
-    @Override
-    public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
-        try {
-            router.route((HttpServletRequest)servletRequest, (HttpServletResponse)servletResponse);
-        } catch (Throwable e) {
-            throw new ServletException(e);
-        }
+    public App() {
+        router = new Router();
+        config = new HashMap<String, Object>();
     }
 
     public void get(String path, Handler... handlers) {
+        setApp(handlers);
         router.addRoute(Method.GET, path, handlers);
     }
 
@@ -43,6 +31,7 @@ public abstract class App extends HttpServlet {
     }
 
     public void post(String path, Handler... handlers) {
+        setApp(handlers);
         router.addRoute(Method.POST, path, handlers);
     }
 
@@ -56,6 +45,7 @@ public abstract class App extends HttpServlet {
     }
 
     public void put(String path, Handler... handlers) {
+        setApp(handlers);
         router.addRoute(Method.PUT, path, handlers);
     }
 
@@ -69,6 +59,7 @@ public abstract class App extends HttpServlet {
     }
 
     public void delete(String path, Handler... handlers) {
+        setApp(handlers);
         router.addRoute(Method.DELETE, path, handlers);
     }
 
@@ -81,6 +72,38 @@ public abstract class App extends HttpServlet {
         }
     }
 
+    public Object get(String name) {
+        return config.get(name);
+    }
+
+    public void set(String name, Object value) {
+        config.put(name, value);
+    }
+
+    public void enable(String name) {
+        config.put(name, true);
+    }
+
+    public void disable(String name) {
+        config.put(name, false);
+    }
+
+    public boolean isEnabled(String name) {
+        Object value = config.get(name);
+        if (value != null && value instanceof Boolean) {
+            return (Boolean)value;
+        }
+        return false;
+    }
+
+    public boolean isDisabled(String name) {
+        return !isEnabled(name);
+    }
+
+    public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        router.route(request, response);
+    }
+
     private Handler[] instantiateHandlers(Class<? extends Handler>[] handlerClasses) throws Exception {
         Handler[] handlers = new Handler[handlerClasses.length];
         for (int i = 0; i < handlerClasses.length; i++) {
@@ -89,5 +112,10 @@ public abstract class App extends HttpServlet {
         return handlers;
     }
 
-    public abstract void setup(ServletConfig config);
+    private void setApp(Handler[] handlers) {
+        for (Handler handler : handlers) {
+            handler.setApp(this);
+        }
+    }
+
 }

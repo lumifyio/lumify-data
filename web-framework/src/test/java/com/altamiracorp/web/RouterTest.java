@@ -1,5 +1,6 @@
 package com.altamiracorp.web;
 
+import com.altamiracorp.web.Route.Method;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,8 +8,6 @@ import org.junit.runners.JUnit4;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.altamiracorp.web.Route.Method;
 
 import static org.mockito.Mockito.*;
 
@@ -63,5 +62,15 @@ public class RouterTest {
         when(request.getPathInfo()).thenReturn(path + "extra");
         router.route(request, response);
         verify(response).sendError(HttpServletResponse.SC_NOT_FOUND);
+    }
+
+    @Test
+    public void testMultipleRouteHandlers() throws Exception {
+        Handler h2 = new TestHandler();
+        router.addRoute(Method.GET, path, h2, handler);
+        when(request.getMethod()).thenReturn(Method.GET.toString());
+        when(request.getPathInfo()).thenReturn(path);
+        router.route(request, response);
+        verify(handler).handle(eq(request), eq(response), any(HandlerChain.class));
     }
 }

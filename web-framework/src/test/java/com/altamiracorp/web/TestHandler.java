@@ -9,4 +9,7 @@ public class TestHandler implements Handler {
         request.setAttribute("handled", "true");
         chain.next(request, response);
     }
+
+    @Override
+    public void setApp(App app) {}
 }
