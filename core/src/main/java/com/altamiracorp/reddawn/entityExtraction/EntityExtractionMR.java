@@ -1,153 +1,81 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
-import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
-import com.altamiracorp.reddawn.ucd.inputFormats.UCDArtifactInputFormat;
+import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.ucd.models.*;
-import com.altamiracorp.reddawn.ucd.outputFormats.UCDOutputFormat;
-import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
-import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.util.CachedConfiguration;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
 import java.util.Collection;
 
-public class EntityExtractionMR extends UcdCommandLineBase implements Tool {
-  private Class<EntityExtractor> entityExtractorClass;
-  private String[] config;
-
-  public static class EntityExtractorMapper extends Mapper<Text, Artifact, Text, Mutation> {
-    public static final String CONF_ENTITY_EXTRACTOR_CLASS = "entityExtractorClass";
-    private EntityExtractor entityExtractor;
-
+public class EntityExtractionMR extends ConfigurableMapJobBase {
     @Override
-    protected void setup(Context context) throws IOException, InterruptedException {
-      super.setup(context);
-      try {
-        entityExtractor = (EntityExtractor) context.getConfiguration().getClass(CONF_ENTITY_EXTRACTOR_CLASS, NullEntityExtractor.class).newInstance();
-        entityExtractor.setup(context);
-      } catch (InstantiationException e) {
-        throw new IOException(e);
-      } catch (IllegalAccessException e) {
-        throw new IOException(e);
-      }
+    protected Class getMapperClass(Job job, Class clazz) {
+        EntityExtractorMapper.init(job, clazz);
+        return EntityExtractorMapper.class;
     }
 
-    public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
-      try {
-        Collection<Term> terms = extractEntities(artifact);
-        writeEntities(context, terms);
-      } catch (Exception e) {
-        throw new IOException(e);
-      }
-    }
+    public static class EntityExtractorMapper extends Mapper<Text, Artifact, Text, Mutation> {
+        public static final String CONF_ENTITY_EXTRACTOR_CLASS = "entityExtractorClass";
+        private EntityExtractor entityExtractor;
 
-    private void writeEntities(Context context, Collection<Term> terms) throws IOException, InterruptedException {
-      for (Term term : terms) {
-        context.write(new Text(Term.TABLE_NAME), term.getMutation());
-
-        // TODO these lines are copied from UcdClient#writeTerm not really sure of a good way to abstract these out
-        for (TermMetadata termMetadata : term.getMetadata()) {
-          ArtifactTermIndex artifactTermIndex = ArtifactTermIndex.newBuilder()
-              .artifactKey(termMetadata.getArtifactKey())
-              .termMention(term.getKey(), termMetadata.getColumnFamilyName())
-              .build();
-          context.write(new Text(ArtifactTermIndex.TABLE_NAME), artifactTermIndex.getMutation());
+        @Override
+        protected void setup(Context context) throws IOException, InterruptedException {
+            super.setup(context);
+            try {
+                entityExtractor = (EntityExtractor) context.getConfiguration().getClass(CONF_ENTITY_EXTRACTOR_CLASS, NullEntityExtractor.class).newInstance();
+                entityExtractor.setup(context);
+            } catch (InstantiationException e) {
+                throw new IOException(e);
+            } catch (IllegalAccessException e) {
+                throw new IOException(e);
+            }
         }
-      }
+
+        public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
+            try {
+                Collection<Term> terms = extractEntities(artifact);
+                writeEntities(context, terms);
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
+        }
+
+        private void writeEntities(Context context, Collection<Term> terms) throws IOException, InterruptedException {
+            for (Term term : terms) {
+                context.write(new Text(Term.TABLE_NAME), term.getMutation());
+
+                // TODO these lines are copied from UcdClient#writeTerm not really sure of a good way to abstract these out
+                for (TermMetadata termMetadata : term.getMetadata()) {
+                    ArtifactTermIndex artifactTermIndex = ArtifactTermIndex.newBuilder()
+                            .artifactKey(termMetadata.getArtifactKey())
+                            .termMention(term.getKey(), termMetadata.getColumnFamilyName())
+                            .build();
+                    context.write(new Text(ArtifactTermIndex.TABLE_NAME), artifactTermIndex.getMutation());
+                }
+            }
+        }
+
+        private Collection<Term> extractEntities(Artifact artifact) throws Exception {
+            ArtifactKey artifactKey = artifact.getKey();
+            String text = artifact.getContent().getDocExtractedText();
+            return entityExtractor.extract(artifactKey, text);
+        }
+
+        public static void init(Job job, Class<? extends EntityExtractor> entityExtractor) {
+            job.getConfiguration().setClass(CONF_ENTITY_EXTRACTOR_CLASS, entityExtractor, EntityExtractor.class);
+        }
     }
 
-    private Collection<Term> extractEntities(Artifact artifact) throws Exception {
-      ArtifactKey artifactKey = artifact.getKey();
-      String text = artifact.getContent().getDocExtractedText();
-      return entityExtractor.extract(artifactKey, text);
+    public static void main(String[] args) throws Exception {
+        int res = ToolRunner.run(CachedConfiguration.getInstance(), new EntityExtractionMR(), args);
+        if (res != 0) {
+            System.exit(res);
+        }
     }
-
-    public static void init(Job job, Class<? extends EntityExtractor> entityExtractor) {
-      job.getConfiguration().setClass(CONF_ENTITY_EXTRACTOR_CLASS, entityExtractor, EntityExtractor.class);
-    }
-  }
-
-  @Override
-  protected Options getOptions() {
-    Options options = super.getOptions();
-
-    options.addOption(
-        OptionBuilder
-            .withArgName("c")
-            .withLongOpt("classname")
-            .withDescription("The class that implements EntityExtractor")
-            .withArgName("name")
-            .isRequired()
-            .hasArg()
-            .create()
-    );
-
-    options.addOption(
-        OptionBuilder
-            .withLongOpt("config")
-            .withDescription("Configuration for the extractor")
-            .withArgName("name=value")
-            .isRequired()
-            .hasArg()
-            .create()
-    );
-
-    return options;
-  }
-
-  @Override
-  protected void processOptions(CommandLine cmd) {
-    super.processOptions(cmd);
-
-    String textExtractorClassName = cmd.getOptionValue("classname");
-    if (textExtractorClassName == null) {
-      throw new RuntimeException("'class' parameter is required");
-    }
-    entityExtractorClass = loadClass(textExtractorClassName);
-    config = cmd.getOptionValues("config");
-  }
-
-  public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(CachedConfiguration.getInstance(), new EntityExtractionMR(), args);
-    if (res != 0) {
-      System.exit(res);
-    }
-  }
-
-  @Override
-  protected int run(CommandLine cmd) throws Exception {
-    Job job = new Job(getConf(), this.getClass().getSimpleName());
-    job.setJarByClass(this.getClass());
-
-    job.setInputFormatClass(UCDArtifactInputFormat.class);
-    UCDArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
-
-    for (String config : this.config) {
-      String[] parts = config.split("=", 2);
-      job.getConfiguration().set(parts[0], parts[1]);
-    }
-
-    job.setMapperClass(EntityExtractorMapper.class);
-    job.setMapOutputKeyClass(Key.class);
-    job.setMapOutputValueClass(Value.class);
-    EntityExtractorMapper.init(job, entityExtractorClass);
-
-    job.setNumReduceTasks(0);
-
-    job.setOutputFormatClass(UCDOutputFormat.class);
-    UCDOutputFormat.init(job, getUsername(), getPassword(), getZookeeperInstanceName(), getZookeeperServerNames(), Term.TABLE_NAME);
-
-    job.waitForCompletion(true);
-    return job.isSuccessful() ? 0 : 1;
-  }
 }
 
