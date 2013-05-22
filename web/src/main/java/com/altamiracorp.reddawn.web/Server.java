@@ -23,11 +23,12 @@ public class Server extends UcdCommandLineBase {
 
         org.mortbay.jetty.Server server = new org.mortbay.jetty.Server(8080);
         ServletHandler handler = new ServletHandler();
-        handler.addServletWithMapping(App.class, "/*");
+        handler.addServletWithMapping(Router.class, "/*");
         server.setHandler(handler);
         server.start();
         server.join();
 
         return 0;
     }
+
 }

@@ -4,45 +4,26 @@ import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
 import com.altamiracorp.reddawn.ucd.UcdClient;
 import com.altamiracorp.reddawn.ucd.models.Artifact;
 import com.altamiracorp.reddawn.ucd.models.Term;
-import com.altamiracorp.reddawn.web.routes.UcdServerResource;
+import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.reddawn.web.routes.artifact.ArtifactByRowKey;
 import com.altamiracorp.reddawn.web.routes.term.TermByRowKey;
-import com.altamiracorp.web.RequestHandler;
+import com.altamiracorp.web.App;
+import com.altamiracorp.web.AppAware;
+import com.altamiracorp.web.Handler;
+import com.altamiracorp.web.HandlerChain;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.restlet.ext.json.JsonRepresentation;
-import org.restlet.representation.Representation;
-import org.restlet.resource.ResourceException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
-public class Search extends UcdServerResource implements RequestHandler {
-  public Representation get() {
-    try {
-      UcdClient<AuthorizationLabel> client = getUcdClient();
-      // TODO write me
-      List<Artifact> artifacts = client.queryArtifactAll(getQueryUser());
-      List<Term> terms = client.queryTermAll(getQueryUser());
+public class Search implements Handler, AppAware {
+    private WebApp app;
 
-      JSONObject result = new JSONObject();
-
-      JSONObject termsJson = termsToSearchResults(terms);
-      result.put("terms", termsJson);
-
-      JSONArray artifactsJson = artifactsToSearchResults(artifacts);
-      result.put("artifacts", artifactsJson);
-
-      return new JsonRepresentation(result);
-    } catch (Exception ex) {
-      throw new ResourceException(ex);
-    }
-  }
-
-  private JSONObject termsToSearchResults(List<Term> terms) throws JSONException {
+  private JSONObject termsToSearchResults(List<Term> terms, HttpServletRequest request) throws JSONException {
     JSONObject termsJson = new JSONObject();
     for (Term term : terms) {
       JSONArray conceptJson = null;
@@ -54,7 +35,7 @@ public class Search extends UcdServerResource implements RequestHandler {
         termsJson.put(term.getKey().getConcept(), conceptJson);
       }
       JSONObject termJson = new JSONObject();
-      termJson.put("url", TermByRowKey.getUrl(getRequest(), term.getKey()));
+      termJson.put("url", TermByRowKey.getUrl(request, term.getKey()));
       termJson.put("rowKey", term.getKey().toString());
       termJson.put("sign", term.getKey().getSign());
       termJson.put("model", term.getKey().getModel());
@@ -63,11 +44,11 @@ public class Search extends UcdServerResource implements RequestHandler {
     return termsJson;
   }
 
-  private JSONArray artifactsToSearchResults(List<Artifact> artifacts) throws JSONException, UnsupportedEncodingException {
+  private JSONArray artifactsToSearchResults(List<Artifact> artifacts, HttpServletRequest request) throws JSONException, UnsupportedEncodingException {
     JSONArray artifactsJson = new JSONArray();
     for (Artifact artifact : artifacts) {
       JSONObject artifactJson = new JSONObject();
-      artifactJson.put("url", ArtifactByRowKey.getUrl(getRequest(), artifact.getKey()));
+      artifactJson.put("url", ArtifactByRowKey.getUrl(request, artifact.getKey()));
       artifactJson.put("rowKey", artifact.getKey().toString());
       artifactJson.put("subject", artifact.getGenericMetadata().getSubject());
       artifactsJson.put(artifactJson);
@@ -76,9 +57,26 @@ public class Search extends UcdServerResource implements RequestHandler {
   }
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Representation representation = get();
-        response.setContentType(representation.getMediaType().toString());
-        representation.write(response.getOutputStream());
+    public void setApp(App app) {
+        this.app = (WebApp)app;
+    }
+
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
+        UcdClient<AuthorizationLabel> client = app.getUcdClient();
+        // TODO write me
+        List<Artifact> artifacts = client.queryArtifactAll(app.getQueryUser());
+        List<Term> terms = client.queryTermAll(app.getQueryUser());
+
+        JSONObject result = new JSONObject();
+
+        JSONObject termsJson = termsToSearchResults(terms, request);
+        result.put("terms", termsJson);
+
+        JSONArray artifactsJson = artifactsToSearchResults(artifacts, request);
+        result.put("artifacts", artifactsJson);
+
+        response.setContentType("application/json");
+        response.getWriter().write(result.toString());
     }
 }
