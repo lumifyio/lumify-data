@@ -1,5 +1,6 @@
 package com.altamiracorp.web;
 
+import com.altamiracorp.web.Route.Method;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,34 +15,37 @@ import static org.mockito.Mockito.*;
 @RunWith(JUnit4.class)
 public class RouteTest {
     private String path;
-    private RequestHandler handler;
+    private Handler handler;
 
     @Before
     public void before() {
-        handler = mock(RequestHandler.class);
+        handler = mock(Handler.class);
         path = "/test";
     }
 
     @Test
     public void testRouteMiss() {
-        Route r = new Route(path, handler);
+        Route r = new Route(Method.GET, path, handler);
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getMethod()).thenReturn("GET");
         when(request.getPathInfo()).thenReturn("/foo");
         assertFalse(r.isMatch(request));
     }
 
     @Test
     public void testExactRouteMatch() {
-        Route r = new Route(path, handler);
+        Route r = new Route(Method.GET, path, handler);
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getMethod()).thenReturn("GET");
         when(request.getPathInfo()).thenReturn(path);
         assertTrue(r.isMatch(request));
     }
 
     @Test
     public void testRouteMatchWithComponents() {
-        Route r = new Route(path + "/{id}", handler);
+        Route r = new Route(Method.GET, path + "/{id}", handler);
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getMethod()).thenReturn("GET");
         when(request.getPathInfo()).thenReturn(path + "/25");
         assertTrue(r.isMatch(request));
         verify(request).setAttribute("id", "25");
@@ -49,8 +53,9 @@ public class RouteTest {
 
     @Test
     public void testComplexComponentAttributeSetting() {
-        Route r = new Route(path + "/{model}/edit/{id}", handler);
+        Route r = new Route(Method.GET, path + "/{model}/edit/{id}", handler);
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getMethod()).thenReturn("GET");
         when(request.getPathInfo()).thenReturn(path + "/person/edit/25");
         assertTrue(r.isMatch(request));
         verify(request).setAttribute("model", "person");
@@ -59,8 +64,9 @@ public class RouteTest {
 
     @Test
     public void testComponentAsBaseFilename() {
-        Route r = new Route(path + "/{file}.ext", handler);
+        Route r = new Route(Method.GET, path + "/{file}.ext", handler);
         HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getMethod()).thenReturn("GET");
         when(request.getPathInfo()).thenReturn(path + "/less.ext");
         assertTrue(r.isMatch(request));
         verify(request).setAttribute("file", "less");

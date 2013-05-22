@@ -15,16 +15,16 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 @RunWith(JUnit4.class)
-public class WebAppTest {
+public class AppTest {
     private String path = "/foo";
-    private RequestHandler handler;
+    private Handler handler;
     private HttpServletRequest request;
     private HttpServletResponse response;
     private ServletConfig servletConfig;
 
     @Before
     public void before() {
-        handler = mock(RequestHandler.class);
+        handler = mock(Handler.class);
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         servletConfig = mock(ServletConfig.class);
@@ -32,7 +32,7 @@ public class WebAppTest {
 
     @Test
     public void testRouteMatch() throws Exception {
-        WebApp app = new WebApp() {
+        App app = new App() {
             @Override
             public void setup(ServletConfig config) {
                 get(path, handler);
@@ -42,12 +42,12 @@ public class WebAppTest {
         when(request.getPathInfo()).thenReturn(path);
         app.init(servletConfig);
         app.service(request, response);
-        verify(handler).handle(request, response);
+        verify(handler).handle(eq(request), eq(response), any(HandlerChain.class));
     }
 
     @Test
     public void testRouteMiss() throws Exception {
-        WebApp app = new WebApp() {
+        App app = new App() {
             @Override
             public void setup(ServletConfig config) {
                 get(path, handler);
@@ -62,15 +62,15 @@ public class WebAppTest {
 
     @Test
     public void testExceptionInHandler() throws Exception {
-        WebApp app = new WebApp() {
+        App app = new App() {
             @Override
             public void setup(ServletConfig config) {
                 post(path, handler);
             }
         };
-        handler = new RequestHandler() {
+        handler = new Handler() {
             @Override
-            public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
+            public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
                 throw new Exception("boom");
             }
         };
@@ -87,10 +87,10 @@ public class WebAppTest {
 
     @Test
     public void testRouteSetupByClass() throws Exception {
-        WebApp app = new WebApp() {
+        App app = new App() {
             @Override
             public void setup(ServletConfig config) {
-                delete(path, TestRequestHandler.class);
+                delete(path, TestHandler.class);
             }
         };
         when(request.getMethod()).thenReturn("DELETE");

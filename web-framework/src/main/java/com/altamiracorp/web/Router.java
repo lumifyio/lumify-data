@@ -7,8 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.altamiracorp.web.Route.Method;
+
 public class Router {
-    public static enum Method { GET, POST, PUT, DELETE };
     private Map<Method, List<Route>> routes = new HashMap<Method, List<Route>>();
 
     public Router() {
@@ -18,9 +19,9 @@ public class Router {
         routes.put(Method.DELETE, new ArrayList<Route>());
     }
 
-    public void addRoute(Method method, String path, RequestHandler handler) {
+    public void addRoute(Method method, String path, Handler... handlers) {
         List<Route> methodRoutes = routes.get(method);
-        Route route = new Route(path, handler);
+        Route route = new Route(method, path, handlers);
         methodRoutes.add(route);
     }
 
@@ -39,8 +40,9 @@ public class Router {
             return;
         }
 
-        RequestHandler handler = route.getHandler();
-        handler.handle(request, response);
+        Handler[] handlers = route.getHandlers();
+        HandlerChain chain = new HandlerChain(handlers);
+        chain.next(request, response);
     }
 
     private Route findRoute(Method method, HttpServletRequest request) {

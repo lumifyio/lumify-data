@@ -5,19 +5,30 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Route {
+    public static enum Method { GET, POST, PUT, DELETE };
+
+    private Method method;
+    private String path;
+    private Handler[] handlers;
+
     private Pattern componentPattern = Pattern.compile("\\{([a-zA-Z]+)\\}");
     private String componentSplitRegex = "[/\\.]";
-    private RequestHandler handler;
     private String[] routePathComponents;
 
-    public Route(String path, RequestHandler handler) {
-        this.handler = handler;
+    public Route(Method method, String path, Handler... handlers) {
+        this.method = method;
+        this.path = path;
+        this.handlers = handlers;
         routePathComponents = path.split(componentSplitRegex);
     }
 
     public boolean isMatch(HttpServletRequest request) {
-        String[] requestPathComponents = request.getPathInfo().split(componentSplitRegex);
+        Method requestMethod = Method.valueOf(request.getMethod().toUpperCase());
+        if (!requestMethod.equals(method)) {
+            return false;
+        }
 
+        String[] requestPathComponents = request.getPathInfo().split(componentSplitRegex);
         if (requestPathComponents.length != routePathComponents.length) {
             return false;
         }
@@ -37,7 +48,15 @@ public class Route {
         return true;
     }
 
-    public RequestHandler getHandler() {
-        return handler;
+    public Handler[] getHandlers() {
+        return handlers;
+    }
+
+    public Method getMethod() {
+        return method;
+    }
+
+    public String getPath() {
+        return path;
     }
 }
