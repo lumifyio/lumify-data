@@ -11,7 +11,7 @@ import com.altamiracorp.web.WebApp;
 import javax.servlet.ServletConfig;
 import java.io.File;
 
-public class App extends WebApp {
+public class WebApp extends WebApp {
     final File rootDir = new File("./web/src/main/webapp");
 
     @Override

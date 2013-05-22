@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
@@ -54,9 +55,6 @@ public class AppTest {
             public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
                 throw new Exception("boom");
             }
-
-            @Override
-            public void setApp(App app) { }
         };
         app.post(path, handler);
         when(request.getMethod()).thenReturn("POST");
@@ -98,5 +96,13 @@ public class AppTest {
         when(request.getPathInfo()).thenReturn(path);
         app.handle(request, response);
         verify(request, times(2)).setAttribute("handled", "true");
+    }
+
+    @Test
+    public void testSettingOfAppInstance() throws Exception {
+        App app = new App();
+        TestAppAwareHandler handler = new TestAppAwareHandler();
+        app.get(path, handler);
+        assertNotNull(handler.getApp());
     }
 }

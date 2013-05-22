@@ -114,7 +114,9 @@ public class App {
 
     private void setApp(Handler[] handlers) {
         for (Handler handler : handlers) {
-            handler.setApp(this);
+            if (handler instanceof AppAware) {
+                ((AppAware)handler).setApp(this);
+            }
         }
     }
 
