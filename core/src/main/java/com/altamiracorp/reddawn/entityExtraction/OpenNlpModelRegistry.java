@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.tokenize.TokenizerModel;
@@ -18,7 +19,7 @@ public class OpenNlpModelRegistry {
 	public static final String PATH_PREFIX = "nlpConfPathPrefix";
 	public static final String DEFAULT_PATH_PREFIX = "hdfs://";
 
-	private Map<String, List<BaseModel>> modelMap;
+	private Map<String, List<BaseModel>> modelMap = new HashMap<String, List<BaseModel>>();
 	private String pathPrefix;
 
 	public void loadRegistry(Context context) throws IOException {
