@@ -19,12 +19,13 @@ import java.io.File;
 import java.io.IOException;
 
 public class Router extends HttpServlet {
-    private App app = new WebApp();
+    private App app;
     final File rootDir = new File("./web/src/main/webapp");
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
+        app = new WebApp(config);
 
         app.get("/search", Search.class);
 

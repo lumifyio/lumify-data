@@ -1,18 +1,23 @@
 package com.altamiracorp.web;
 
+import com.altamiracorp.web.Route.Method;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.altamiracorp.web.Route.Method;
-
 public class Router {
+    private ServletConfig servletConfig;
     private Map<Method, List<Route>> routes = new HashMap<Method, List<Route>>();
 
-    public Router() {
+    public Router(ServletConfig servletConfig) {
+        this.servletConfig = servletConfig;
         routes.put(Method.GET, new ArrayList<Route>());
         routes.put(Method.POST, new ArrayList<Route>());
         routes.put(Method.PUT, new ArrayList<Route>());
@@ -36,13 +41,16 @@ public class Router {
         Route route = findRoute(method, request);
 
         if (route == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
+            RequestDispatcher rd = servletConfig.getServletContext().getNamedDispatcher("default");
+            HttpServletRequest wrapped = new HttpServletRequestWrapper(request) {
+                public String getServletPath() { return ""; }
+            };
+            rd.forward(wrapped, response);
+        } else {
+            Handler[] handlers = route.getHandlers();
+            HandlerChain chain = new HandlerChain(handlers);
+            chain.next(request, response);
         }
-
-        Handler[] handlers = route.getHandlers();
-        HandlerChain chain = new HandlerChain(handlers);
-        chain.next(request, response);
     }
 
     private Route findRoute(Method method, HttpServletRequest request) {

@@ -2,17 +2,20 @@ package com.altamiracorp.web;
 
 import com.altamiracorp.web.Route.Method;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
 public class App {
+    private ServletConfig servletConfig;
     private Router router;
     private Map<String, Object> config;
 
-    public App() {
-        router = new Router();
+    public App(ServletConfig servletConfig) {
+        this.servletConfig = servletConfig;
+        router = new Router(servletConfig);
         config = new HashMap<String, Object>();
     }
 

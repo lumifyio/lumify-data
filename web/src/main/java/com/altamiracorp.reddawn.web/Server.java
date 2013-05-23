@@ -4,7 +4,11 @@ import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.hadoop.util.ToolRunner;
+import org.mortbay.jetty.Handler;
+import org.mortbay.jetty.handler.HandlerList;
+import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.servlet.ServletHandler;
+import org.mortbay.jetty.webapp.WebAppContext;
 
 public class Server extends UcdCommandLineBase {
 
@@ -21,10 +25,23 @@ public class Server extends UcdCommandLineBase {
         WebUcdClientFactory.setUcdCommandLineBase(this);
         WebUcdClientFactory.createUcdClient().initializeTables();
 
-        org.mortbay.jetty.Server server = new org.mortbay.jetty.Server(8080);
-        ServletHandler handler = new ServletHandler();
-        handler.addServletWithMapping(Router.class, "/*");
-        server.setHandler(handler);
+        org.mortbay.jetty.Server server = new org.mortbay.jetty.Server();
+        SelectChannelConnector connector = new SelectChannelConnector();
+        connector.setHost("127.0.0.1");
+        connector.setPort(8080);
+        server.addConnector(connector);
+
+        WebAppContext webAppContext = new WebAppContext();
+        webAppContext.setContextPath("/");
+        webAppContext.setResourceBase("./web/src/main/webapp/");
+
+        ServletHandler servletHandler = new ServletHandler();
+        servletHandler.addServletWithMapping(Router.class, "/*");
+
+        HandlerList handlers = new HandlerList();
+        handlers.setHandlers(new Handler[]{webAppContext, servletHandler});
+
+        server.setHandler(handlers);
         server.start();
         server.join();
 

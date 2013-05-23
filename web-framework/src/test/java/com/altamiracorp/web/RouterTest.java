@@ -6,8 +6,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletConfig;
 
 import static org.mockito.Mockito.*;
 
@@ -17,14 +20,22 @@ public class RouterTest {
     private Handler handler;
     private HttpServletRequest request;
     private HttpServletResponse response;
+    private ServletConfig servletConfig;
+    private RequestDispatcher requestDispatcher;
+    private ServletContext servletContext;
     private String path = "/foo";
 
     @Before
     public void before() {
-        router = new Router();
+        servletConfig = mock(ServletConfig.class);
+        router = new Router(servletConfig);
         handler = mock(Handler.class);
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
+        requestDispatcher = mock(RequestDispatcher.class);
+        servletContext = mock(ServletContext.class);
+
+        when(servletConfig.getServletContext()).thenReturn(servletContext);
     }
 
     @Test
@@ -51,8 +62,9 @@ public class RouterTest {
         router.addRoute(Method.GET, path, handler);
         when(request.getMethod()).thenReturn(Method.POST.toString());
         when(request.getPathInfo()).thenReturn(path);
+        when(servletContext.getNamedDispatcher(anyString())).thenReturn(requestDispatcher);
         router.route(request, response);
-        verify(response).sendError(HttpServletResponse.SC_NOT_FOUND);
+        verify(requestDispatcher).forward(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
     @Test
@@ -60,8 +72,9 @@ public class RouterTest {
         router.addRoute(Method.GET, path, handler);
         when(request.getMethod()).thenReturn(Method.GET.toString());
         when(request.getPathInfo()).thenReturn(path + "extra");
+        when(servletContext.getNamedDispatcher(anyString())).thenReturn(requestDispatcher);
         router.route(request, response);
-        verify(response).sendError(HttpServletResponse.SC_NOT_FOUND);
+        verify(requestDispatcher).forward(any(HttpServletRequest.class), any(HttpServletResponse.class));
     }
 
     @Test
