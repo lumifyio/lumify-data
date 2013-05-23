@@ -1,27 +1,46 @@
 
 define([
-    'search/search'
-], function(Search) {
+    'tpl!app',
+    'flight/lib/component',
+    'search/search',
+    'graph/graph',
+    'detail/detail'
+], function(appTemplate, defineComponent, Search, Graph, Detail) {
     'use strict';
 
-    return initialize;
+    return defineComponent(App);
 
-    function initialize() {
-        var searchPane = $('.search-pane').resizable({
-            handles: 'e',
-            autoHide: true,
-            minWidth: 150,
-            maxWidth: 300
+    function App() {
+
+        this.after('initialize', function() {
+            var content = $(appTemplate({})),
+                searchPane = content.filter('.search-pane'),
+                graphPane = content.filter('.graph-pane'),
+                detailPane = content.filter('.detail-pane');
+
+            Search.attachTo(searchPane);
+            Graph.attachTo(graphPane);
+            Detail.attachTo(detailPane);
+
+            // Configure splitpane resizing
+            resizable(searchPane, 'e');
+            resizable(detailPane, 'w');
+
+            this.$node.html(content);
         });
-        Search.attachTo(searchPane);
 
-        var detailPane = $('.detail-pane').resizable({
-            handles: 'w',
-            autoHide: true,
-            minWidth: 150,
-            maxWidth: 300
+    }
+
+
+    function resizable( el, handles ) {
+        return el.resizable({
+            handles: handles,
+               autoHide: true,
+               minWidth: 150,
+               maxWidth: 300
         });
     }
+
 });
 
 

@@ -1,22 +1,19 @@
 
-
 define([
     'flight/lib/component',
-    'tpl!./graph'
+    'tpl!./detail'
 ], function(defineComponent, template) {
     'use strict';
 
-    return defineComponent(Graph);
+    return defineComponent(Detail);
 
-    function Graph() {
+    function Detail() {
         this.after('initialize', function() {
 
             this.$node.html(template({
-                text: 'Graph pane'
+                text: 'Detail pane'
             }));
 
         });
     }
-
 });
-
