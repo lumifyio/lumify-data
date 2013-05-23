@@ -1,7 +1,7 @@
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
     <servlet>
         <servlet-name>red-dawn</servlet-name>
-        <servlet-class>com.altamiracorp.reddawn.web.RedDawnWebApp</servlet-class>
+        <servlet-class>com.altamiracorp.reddawn.web.Router</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>red-dawn</servlet-name>
