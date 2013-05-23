@@ -1,0 +1,53 @@
+/artifact/search
+    Parameters:
+        q=<text>
+
+    Results:
+        artifacts grouped by type (video, image, etc)
+        
+/artifact/{artifactId}
+    Results:
+        metadata about the artifact including text
+        
+/artifact/{artifactId}/raw
+    Results:
+        The raw data of the artifact
+
+/artifact/{artifactId}/relationships
+    Parameters:
+        artifactIds
+        entityIds
+        
+    Results:
+        all relationship
+
+/entity/search
+    Parameters:
+        q=<text>
+        
+    Results:
+        entities grouped by concept (person, location, org.)
+        
+/entity/{entityId}
+    Results:
+        number of artifact mentions
+        type of concept (person, location, org.)
+        list of supporting statements
+
+/entity/{entityId}/relationships
+    Parameters:
+        artifactIds
+        entityIds
+        
+    Results:
+        all relationship
+
+/entity/relationship
+    Parameters:
+        entityId1
+        entityId2
+        
+    Results:
+        all artifacts to support this relationship
+        all statements to support this relationship
+
