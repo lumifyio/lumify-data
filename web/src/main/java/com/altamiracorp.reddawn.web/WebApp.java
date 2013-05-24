@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.web;
 
+import com.altamiracorp.reddawn.search.SearchProvider;
 import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
 import com.altamiracorp.reddawn.ucd.QueryUser;
 import com.altamiracorp.reddawn.ucd.UcdClient;
@@ -23,5 +24,10 @@ public class WebApp extends App {
     public QueryUser<AuthorizationLabel> getQueryUser() {
         // TODO this needs configuring
         return new QueryUser<AuthorizationLabel>("U", new AuthorizationLabel());
+    }
+
+    public SearchProvider getSearchProvider() throws Exception {
+        // TODO this needs configuring
+        return WebUcdClientFactory.createSearchProvider();
     }
 }

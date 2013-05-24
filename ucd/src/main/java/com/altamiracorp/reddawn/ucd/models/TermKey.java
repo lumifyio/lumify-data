@@ -18,7 +18,7 @@ public class TermKey {
 
   public TermKey(String keyString) {
     String[] parts = KeyHelpers.splitOnSeperator(keyString);
-    this.sign = parts[0];
+    this.sign = parts[0].toLowerCase();
     this.model = parts[1];
     this.concept = parts[2];
   }
@@ -32,7 +32,7 @@ public class TermKey {
   }
 
   public String getSign() {
-    return sign;
+    return sign.toLowerCase();
   }
 
   public String getConcept() {
@@ -70,7 +70,7 @@ public class TermKey {
     }
 
     public Builder sign(String sign) {
-      this.termKey.sign = sign;
+      this.termKey.sign = sign.toLowerCase();
       return this;
     }
 
