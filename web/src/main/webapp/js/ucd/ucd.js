@@ -108,7 +108,7 @@ define(function () {
 				
 				_resolveDataType: function () {
 					return this.options.jsonp ? "jsonp" : "json";
-				}
+				},
 				
 				_search: function (resource, query, callback) {
 					//maybe it's an object for future options stuff?

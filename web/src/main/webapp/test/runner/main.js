@@ -3,7 +3,7 @@ var tests = Object.keys(window.__karma__.files).filter(function (file) {
 });
 
 // TODO: This duplicates index.html 'require' variable. Load that and override baseUrl
-requirejs.config({
+require.config({
 
     // Karma serves files from '/base'
     baseUrl: '/base/js',

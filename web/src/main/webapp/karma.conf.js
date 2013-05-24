@@ -21,7 +21,11 @@ preprocessors = { };
 
 // list of files / patterns to load in the browser
 files = [
-
+MOCHA,
+MOCHA_ADAPTER,
+REQUIRE,
+REQUIRE_ADAPTER,
+  
   // Source 
   {pattern: 'js/**/*.js', included: false},
 
