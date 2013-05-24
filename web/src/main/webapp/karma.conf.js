@@ -21,8 +21,12 @@ preprocessors = { };
 
 // list of files / patterns to load in the browser
 files = [
+
   // Source 
   {pattern: 'js/**/*.js', included: false},
+
+  // Templates
+  {pattern: 'js/**/*.ejs', included: false},
 
   // Included libs
   'libs/jquery/jquery.js',

@@ -1,0 +1,19 @@
+{
+  "name": "requirejs-ejs-plugin",
+  "version": "0.0.0",
+  "dependencies": {
+    "requirejs": "2.1.5",
+    "requirejs-text": "2.0.4",
+    "ejs": "~0.8.3"
+  },
+  "gitHead": "b0adb639da245405e15ada6c6e52c12d9ef3d709",
+  "readme": "# RequireJS EJS Plug-in\n\nUse EJS templates with RequireJS. \n\n## Versions\n\nrejs     : `0.3`\n\nDependencies (tested with, may work with newer versions):\n\nejs \t  : `0.8.3` ([github](https://github.com/visionmedia/ejs))  \nrequirejs : `2.1.5` ([github](https://github.com/jrburke/requirejs))  \ntext\t  : `2.0.5` ([github](https://github.com/requirejs/text))\n\nFor Demo:\n\nbower     : `0.8.5` ([github](https://github.com/twitter/bower))\n\n## Demos\n\nIn order to view the demos, you'll need to install bower and have bower install the required libs.\n\n    $ (sudo) npm install -g bower\n    $ bower install\n    $ npm install\n    $ npm start\n\nGo to http://localhost:4567/demo/index.html in your browser.\n\n## TODO\n\n+ (high priority) Add support for nested includes.\n+ Add support for mixing in custom ejs filters.\n\n## Tests\n\nComing soon.\n\n## Inspiration\n\nInspired by and borrowed code from requirejs-hogan-plugin ([github](https://github.com/millermedeiros/requirejs-hogan-plugin)).\n",
+  "readmeFilename": "README.md",
+  "_id": "requirejs-ejs-plugin@0.0.3",
+  "description": "Use EJS templates with RequireJS.",
+  "commit": "b0adb639da245405e15ada6c6e52c12d9ef3d709",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/whitcomb/requirejs-ejs"
+  }
+}
