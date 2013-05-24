@@ -24,6 +24,7 @@ digraph models_diagram {
   "Term" -> "Object" [arrowtail=teetee, arrowhead=crow, dir=both]
   "Object" -> "Statement" [arrowtail=crow, arrowhead=crow, dir=both]
   "Statement" -> "Predicate" [arrowtail=crow, arrowhead=none, dir=both]
+  "Statement" -> "Sentence" [arrowtail=crow, arrowhead=none, dir=both]
   "Predicate" -> "PredicateAssociation" [arrowtail=none, arrowhead=crow, dir=both]
   "Predicate" -> "PredicateAssociation" [arrowtail=none, arrowhead=crow, dir=both]
   "Predicate" -> "ConceptAssociation" [arrowtail=none, arrowhead=crow, dir=both]
