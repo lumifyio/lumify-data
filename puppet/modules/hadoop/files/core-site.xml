@@ -4,7 +4,7 @@
 <configuration>
   <property>
     <name>fs.default.name</name>
-    <value>hdfs://localhost:8020</value>
+    <value>hdfs://0.0.0.0:8020</value>
   </property>
 
   <property>

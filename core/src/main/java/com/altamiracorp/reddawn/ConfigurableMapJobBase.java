@@ -10,6 +10,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.Tool;
 
 public abstract class ConfigurableMapJobBase extends UcdCommandLineBase implements Tool {
@@ -78,12 +80,19 @@ public abstract class ConfigurableMapJobBase extends UcdCommandLineBase implemen
 
         job.setNumReduceTasks(0);
 
-        job.setOutputFormatClass(UCDOutputFormat.class);
+        Class<? extends OutputFormat> outputFormatClass = getOutputFormatClass();
+        if (outputFormatClass != null) {
+            job.setOutputFormatClass(outputFormatClass);
+        }
         UCDOutputFormat.init(job, getUsername(), getPassword(), getZookeeperInstanceName(), getZookeeperServerNames(), Term.TABLE_NAME);
 
         job.waitForCompletion(true);
         return job.isSuccessful() ? 0 : 1;
     }
 
-    protected abstract Class getMapperClass(Job job, Class clazz);
+    protected Class<? extends OutputFormat> getOutputFormatClass() {
+        return UCDOutputFormat.class;
+    }
+
+    protected abstract Class<? extends Mapper> getMapperClass(Job job, Class clazz);
 }
