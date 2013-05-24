@@ -3,6 +3,8 @@ package com.altamiracorp.reddawn.web;
 import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
 import org.apache.hadoop.util.ToolRunner;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.handler.HandlerList;
@@ -12,10 +14,41 @@ import org.mortbay.jetty.webapp.WebAppContext;
 
 public class Server extends UcdCommandLineBase {
 
+    private int port;
+
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new Server(), args);
         if (res != 0) {
             System.exit(res);
+        }
+    }
+
+    @Override
+    protected Options getOptions() {
+        Options options = super.getOptions();
+
+        options.addOption(
+                OptionBuilder
+                        .withArgName("p")
+                        .withLongOpt("port")
+                        .withDescription("The port to run the server on")
+                        .withArgName("port")
+                        .hasArg()
+                        .create()
+        );
+
+        return options;
+    }
+
+    @Override
+    protected void processOptions(CommandLine cmd) {
+        super.processOptions(cmd);
+
+        String port = cmd.getOptionValue("port");
+        if (port == null) {
+            this.port = 8080;
+        } else {
+            this.port = Integer.parseInt(port);
         }
     }
 
@@ -28,7 +61,7 @@ public class Server extends UcdCommandLineBase {
         org.mortbay.jetty.Server server = new org.mortbay.jetty.Server();
         SelectChannelConnector connector = new SelectChannelConnector();
         connector.setHost("127.0.0.1");
-        connector.setPort(8080);
+        connector.setPort(this.port);
         server.addConnector(connector);
 
         WebAppContext webAppContext = new WebAppContext();
