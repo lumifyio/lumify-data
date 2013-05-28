@@ -1,7 +1,7 @@
 
 define([
     'flight/lib/component',
-    '/js/ucd/ucd.js',
+    'ucd/ucd',
     'tpl!search/search',
     'tpl!search/searchResultsSummary',
     'tpl!search/searchResults'
