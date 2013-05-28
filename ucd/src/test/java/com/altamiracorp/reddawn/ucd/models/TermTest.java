@@ -30,7 +30,7 @@ public class TermTest {
         .metadata(termMetadata)
         .build();
 
-    assertEquals("testSign\u001FUCD\u001FtestConcept", term.getKey().toString());
+    assertEquals("testsign\u001FUCD\u001FtestConcept", term.getKey().toString());
 
     TermMetadata termMetadata1 = new ArrayList<TermMetadata>(term.getMetadata()).get(0);
     assertEquals("testArtifactKey", termMetadata1.getArtifactKey().toString());

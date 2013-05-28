@@ -87,13 +87,13 @@ public class OpenNlpMEEntityExtractorTest {
 
 	private void validateOutput(List<String> terms) {
 		assertTrue("A person wasn't found",
-				terms.contains("Bob Robertson-person"));
+				terms.contains("bob robertson-person"));
 		assertTrue("A date wasn't found", terms.contains("a year-date"));
 		assertTrue("Money wasn't found", terms.contains("2 million-money"));
 		assertTrue("A location wasn't found",
-				terms.contains("Benghazi-location"));
+				terms.contains("benghazi-location"));
 		assertTrue("An organization wasn't found",
-				terms.contains("CNN-organization"));
+				terms.contains("cnn-organization"));
 		assertTrue("A percentage wasn't found", terms.contains("47-percentage"));
 		assertTrue("A time wasn't found", terms.contains("1:30-time"));
 
