@@ -16,6 +16,7 @@ public class ArtifactContent {
   @Expose
   private String security;
 
+  @Expose
   private String docExtractedText;
   private byte[] docArtifactBytes;
 
