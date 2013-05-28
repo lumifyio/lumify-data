@@ -49,16 +49,14 @@ require.config({
             global.chai = chai;
             global.sinon = sinon;
 
-
             // Globals for assertions
             assert = chai.assert;
             should = chai.should();
             expect = chai.expect;
 
-
             // Use the twitter flight interface to mocha
+            //mocha.ui('bdd');
             mocha.ui('flight-mocha');
-
 
             // Run tests after loading
             if (tests.length) {
