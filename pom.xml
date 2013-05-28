@@ -22,6 +22,20 @@
             <id>com.cloudera</id>
             <url>https://repository.cloudera.com/content/repositories/releases/</url>
         </repository>
+		<repository>
+			<id>red-dawn-releases</id>
+			<!--Please do not change this. Using this value allows connections froum outside Invertix without having to use the VPN -->
+			<url>http://nic-mvnproxy:8081/artifactory/libs-release/</url>
+		</repository>
+		<repository>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+			<id>red-dawn-snapshots</id>
+			<url>http://nic-mvnproxy:8081/artifactory/libs-release/</url>
+		</repository>
     </repositories>
 
     <dependencies>
@@ -42,53 +56,39 @@
         </dependency>
 
         <dependency>
-            <groupId>com.nearinfinity.blur</groupId>
+            <groupId>org.apache.blur</groupId>
             <artifactId>blur-core</artifactId>
             <version>0.1.5</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/blur-core-0.1.5.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>com.nearinfinity.blur</groupId>
+            <groupId>org.apache.blur</groupId>
             <artifactId>blur-mapred</artifactId>
             <version>0.1.5</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/blur-mapred-0.1.5.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>com.nearinfinity.blur</groupId>
+            <groupId>org.apache.blur</groupId>
             <artifactId>blur-query</artifactId>
             <version>0.1.5</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/blur-query-0.1.5.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>com.nearinfinity.blur</groupId>
+            <groupId>org.apache.blur</groupId>
             <artifactId>blur-shell</artifactId>
             <version>0.1.5</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/blur-shell-0.1.5.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>com.nearinfinity.blur</groupId>
+            <groupId>org.apache.blur</groupId>
             <artifactId>blur-store</artifactId>
             <version>0.1.5</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/blur-store-0.1.5.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>com.nearinfinity.blur</groupId>
+            <groupId>org.apache.blur</groupId>
             <artifactId>blur-thrift</artifactId>
             <version>0.1.5</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/blur-thrift-0.1.5.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>com.nearinfinity.blur</groupId>
+            <groupId>org.apache.blur</groupId>
             <artifactId>blur-util</artifactId>
             <version>0.1.5</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/blur-util-0.1.5.jar</systemPath>
         </dependency>
 
         <dependency>
