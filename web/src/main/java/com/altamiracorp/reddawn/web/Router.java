@@ -1,11 +1,8 @@
 package com.altamiracorp.reddawn.web;
 
-import com.altamiracorp.reddawn.web.routes.artifact.ArtifactByRowKey;
-import com.altamiracorp.reddawn.web.routes.artifact.ArtifactRawByRowKey;
-import com.altamiracorp.reddawn.web.routes.artifact.ArtifactTermsByRowKey;
-import com.altamiracorp.reddawn.web.routes.artifact.ArtifactTextByRowKey;
-import com.altamiracorp.reddawn.web.routes.search.Search;
-import com.altamiracorp.reddawn.web.routes.term.TermByRowKey;
+import com.altamiracorp.reddawn.web.routes.artifact.*;
+import com.altamiracorp.reddawn.web.routes.entity.EntityByRowKey;
+import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
 import com.altamiracorp.web.App;
 
 import javax.servlet.ServletConfig;
@@ -27,14 +24,14 @@ public class Router extends HttpServlet {
         super.init(config);
         app = new WebApp(config);
 
-        app.get("/search", Search.class);
+        app.get("/artifact/search", ArtifactSearch.class);
+        app.get("/artifact/{rowKey}/terms", ArtifactTermsByRowKey.class);
+        app.get("/artifact/{rowKey}/text", ArtifactTextByRowKey.class);
+        app.get("/artifact/{rowKey}/raw", ArtifactRawByRowKey.class);
+        app.get("/artifact/{rowKey}", ArtifactByRowKey.class);
 
-        app.get("/artifacts/{rowKey}/terms", ArtifactTermsByRowKey.class);
-        app.get("/artifacts/{rowKey}/text", ArtifactTextByRowKey.class);
-        app.get("/artifacts/{rowKey}/raw", ArtifactRawByRowKey.class);
-        app.get("/artifacts/{rowKey}", ArtifactByRowKey.class);
-
-        app.get("/terms/{rowKey}", TermByRowKey.class);
+        app.get("/entity/search", EntitySearch.class);
+        app.get("/entity/{rowKey}", EntityByRowKey.class);
 
         LessRestlet.init(rootDir);
         app.get("/css/{file}.css", LessRestlet.class);
@@ -43,7 +40,7 @@ public class Router extends HttpServlet {
     @Override
     public void service(ServletRequest req, ServletResponse resp) throws ServletException, IOException {
         try {
-            app.handle((HttpServletRequest)req, (HttpServletResponse)resp);
+            app.handle((HttpServletRequest) req, (HttpServletResponse) resp);
         } catch (Exception e) {
             throw new ServletException(e);
         }

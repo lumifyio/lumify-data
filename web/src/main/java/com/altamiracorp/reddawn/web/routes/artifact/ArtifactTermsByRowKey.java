@@ -41,7 +41,7 @@ public class ArtifactTermsByRowKey implements Handler, AppAware {
   }
 
   public static String getUrl(HttpServletRequest request, ArtifactKey artifactKey) {
-    return UrlUtils.getRootRef(request) + "/artifacts/" + UrlUtils.urlEncode(artifactKey.toString());
+    return UrlUtils.getRootRef(request) + "/artifact/" + UrlUtils.urlEncode(artifactKey.toString());
   }
 
     @Override

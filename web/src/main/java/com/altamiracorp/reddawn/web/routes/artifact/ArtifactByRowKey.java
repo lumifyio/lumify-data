@@ -14,11 +14,11 @@ import com.altamiracorp.web.HandlerChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class ArtifactRawByRowKey implements Handler, AppAware {
+public class ArtifactByRowKey implements Handler, AppAware {
     private WebApp app;
 
     public static String getUrl(HttpServletRequest request, ArtifactKey artifactKey) {
-        return UrlUtils.getRootRef(request) + "/artifacts/" + UrlUtils.urlEncode(artifactKey.toString());
+        return UrlUtils.getRootRef(request) + "/artifact/" + UrlUtils.urlEncode(artifactKey.toString());
     }
 
     @Override
@@ -29,32 +29,16 @@ public class ArtifactRawByRowKey implements Handler, AppAware {
 
         if (artifact == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            chain.next(request, response);
-            return;
+        } else {
+            response.setContentType("application/json");
+            response.getWriter().write(artifact.toJson());
         }
 
-        String mimeType = getMimeType(artifact);
-        String fileName = getFileName(artifact);
-        response.setContentType(mimeType);
-        response.addHeader("Content-Disposition", "attachment; filename=" + fileName);
-        response.getOutputStream().write(artifact.getContent().getDocArtifactBytes());
         chain.next(request, response);
     }
 
     @Override
     public void setApp(App app) {
-        this.app = (WebApp) app;
-    }
-
-    private String getFileName(Artifact artifact) {
-        return artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension();
-    }
-
-    private String getMimeType(Artifact artifact) {
-        String mimeType = artifact.getGenericMetadata().getMimeType();
-        if (mimeType == null || mimeType.isEmpty()) {
-            mimeType = "application/octet-stream";
-        }
-        return mimeType;
+        this.app = (WebApp)app;
     }
 }

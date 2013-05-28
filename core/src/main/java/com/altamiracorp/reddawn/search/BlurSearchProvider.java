@@ -32,7 +32,7 @@ public class BlurSearchProvider implements SearchProvider {
     @Override
     public void setup(Mapper.Context context) throws Exception {
         String blurControllerLocation = context.getConfiguration().get(BLUR_CONTROLLER_LOCATION, "192.168.33.10");
-        int blurControllerPort = context.getConfiguration().getInt(BLUR_CONTROLLER_PORT, 40010);
+        int blurControllerPort = context.getConfiguration().getInt(BLUR_CONTROLLER_PORT, 40020);
         String blurPath = context.getConfiguration().get(BLUR_PATH, "hdfs://192.168.33.10/blur");
 
         init(blurControllerLocation, blurControllerPort, blurPath);
@@ -40,13 +40,14 @@ public class BlurSearchProvider implements SearchProvider {
 
     public void setup(Properties props) throws Exception {
         String blurControllerLocation = props.getProperty(BLUR_CONTROLLER_LOCATION, "192.168.33.10");
-        int blurControllerPort = Integer.parseInt(props.getProperty(BLUR_CONTROLLER_PORT, "40010"));
+        int blurControllerPort = Integer.parseInt(props.getProperty(BLUR_CONTROLLER_PORT, "40020"));
         String blurPath = props.getProperty(BLUR_PATH, "hdfs://192.168.33.10/blur");
 
         init(blurControllerLocation, blurControllerPort, blurPath);
     }
 
     private void init(String blurControllerLocation, int blurControllerPort, String blurPath) throws TException {
+        LOGGER.info("Connecting to blur: blurControllerLocation=" + blurControllerLocation + ", blurControllerPort=" + blurControllerPort + ", blurPath=" + blurPath);
         TTransport trans = new TSocket(blurControllerLocation, blurControllerPort);
         trans.open();
         TProtocol proto = new TBinaryProtocol(new TFramedTransport(trans));

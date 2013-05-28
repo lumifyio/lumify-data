@@ -11,7 +11,7 @@ define(function () {
 					serviceBaseUrl: "/",
 					
 					//the context of the UCD service
-					serviceContext: "red-dawn-web/",
+					serviceContext: "",
 					
 					//an overall error handler, maybe break this out later?
 					errorHandler: this._defaultErrorHandler,
@@ -112,15 +112,25 @@ define(function () {
 				
 				_search: function (resource, query, callback) {
 					//maybe it's an object for future options stuff?
-					var q = typeof query == "object" ? query.q : q;
-					
+					var q = typeof query == "object" ? query.query : query;
+					var url = this._resolveUrl(resource + "/search");
+
 					$.ajax({
-						url: this._resolveUrl(resource + "/search"),
+						url: url,
 						dataType: this._resolveDataType(),
 						data: {
 							'q' : q
 						},
-						success: callback
+						success: function(results) {
+						    return callback(null, results);
+						},
+						error: function(xhr, textStatus, errorThrown) {
+						    var err = new Error("Failed in request: " + url);
+						    err.xhr = xhr;
+						    err.textStatus = textStatus;
+						    err.errorThrown = err.errorThrown;
+						    return callback(err);
+						}
 					});
 				},
 				
