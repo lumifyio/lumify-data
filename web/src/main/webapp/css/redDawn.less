@@ -1,43 +1,35 @@
+@import "util/splitbar";
+@import "util/positioning";
+@import "util/flexbox";
+
 #app {
   background-color: #ddd;
-  position: absolute;
-  top: 0;
-  left:0;
-  bottom:0;
-  right:0;
-  display: -webkit-box;
-	display: -moz-box;
-	display: box;
   min-width: 600px;
+
+  .fullscreen;
+  .flexbox;
 }
 
 .search-pane, .graph-pane, .detail-pane {
   height: 100%;
   text-align: center;
+
+  .ui-resizable-handle {
+    .splitbar;
+  }
 }
 
 
 .search-pane { 
-  width:200px;
-  background: #efefef;
-  border-right: 5px solid #ddd;
-
-  .navbar-search { width: 100%; }
-  .search-query {
-    width: 75%;
-  }
+  @import "search/search";
 }
 
 .graph-pane { 
-  -webkit-box-flex: 1;
-	-moz-box-flex: 1;
-	box-flex: 1;
-  background: white;
+  .flexbox-flex(1);
+  @import "graph/graph";
 }
 
 .detail-pane { 
-  width:250px;
-  border-left: 5px solid #ddd;
-  background: #efefef;
+  @import "detail/detail";
 }
 

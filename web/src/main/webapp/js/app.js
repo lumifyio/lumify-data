@@ -41,7 +41,6 @@ define([
     function resizable( el, handles ) {
         return el.resizable({
             handles: handles,
-               autoHide: true,
                minWidth: 150,
                maxWidth: 300
         });
