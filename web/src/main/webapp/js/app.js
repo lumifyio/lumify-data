@@ -12,7 +12,13 @@ define([
 
     function App() {
 
+        this.onError = function(evt, err) {
+            alert("Error: " + err.message); // TODO better error handling
+        };
+
         this.after('initialize', function() {
+            this.on(document, 'error', this.onError);
+
             var content = $(appTemplate({})),
                 searchPane = content.filter('.search-pane'),
                 graphPane = content.filter('.graph-pane'),
