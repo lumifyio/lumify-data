@@ -162,8 +162,8 @@ public class UcdClientTest {
 
     Term foundTerm = this.client.queryTermByKey(term.getKey(), queryUser);
     assertNotNull("term with key " + term.getKey() + " was null", foundTerm);
-    assertEquals("testSign\u001FUCD\u001FtestConcept", foundTerm.getKey().toString());
-    assertEquals("testSign", foundTerm.getKey().getSign());
+    assertEquals("testsign\u001FUCD\u001FtestConcept", foundTerm.getKey().toString());
+    assertEquals("testsign", foundTerm.getKey().getSign());
     assertEquals("UCD", foundTerm.getKey().getModel());
     assertEquals("testConcept", foundTerm.getKey().getConcept());
 
