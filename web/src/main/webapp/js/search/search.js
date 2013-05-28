@@ -14,6 +14,7 @@ define([
         this.defaultAttrs({
             searchFormSelector: '#search-form',
             searchQuerySelector: '#search-form .search-query',
+            searchQueryValidationSelector: '#search-form .search-query-validation',
             searchResultsSummarySelector: '#search-results-summary',
             searchSummaryResultItemSelector: '#search-results-summary li li',
             searchResultsSelector: '#search-results'
@@ -38,7 +39,13 @@ define([
         this.onFormSearch = function(evt) {
             evt.preventDefault();
             this.searchResults = {};
+            var $searchQueryValidation = this.select('searchQueryValidationSelector');
+            $searchQueryValidation.html('');
+
             var query = this.select('searchQuerySelector').val();
+            if(!query) {
+                return $searchQueryValidation.html('Query cannot be empty.');
+            }
             this.trigger('search', { query: query });
             return false;
         };
@@ -52,14 +59,16 @@ define([
             $searchResultsSummary.html(summaryTemplate({}));
             new UCD().artifactSearch(query, function(err, artifacts) {
                 if(err) {
-                    return alert("TODO: show some error dialog? " + err);
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
                 }
                 self.searchResults.artifacts = artifacts;
                 self.trigger('artifactSearchResults', artifacts);
             });
             new UCD().entitySearch(query, function(err, entities) {
                 if(err) {
-                    return alert("TODO: show some error dialog? " + err);
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
                 }
                 self.searchResults.entities = entities;
                 self.trigger('entitySearchResults', entities);
