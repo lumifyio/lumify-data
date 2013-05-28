@@ -17,7 +17,8 @@ define([
             searchQueryValidationSelector: '#search-form .search-query-validation',
             searchResultsSummarySelector: '#search-results-summary',
             searchSummaryResultItemSelector: '#search-results-summary li li',
-            searchResultsSelector: '#search-results'
+            searchResultsSelector: '#search-results',
+            searchResultItemLinkSelector: '#search-results li a'
         });
 
         this.searchResults = null;
@@ -110,6 +111,24 @@ define([
             $searchResults.show();
         };
 
+        this.onSearchResultItemClick = function(evt) {
+            evt.preventDefault();
+
+            var $target = $(evt.target);
+            if(!$target.attr('row-key')) {
+                $target = $target.parent('li');
+            }
+
+            var rowKey = $target.attr('row-key');
+            var type = $target.attr('type');
+            var subType = $target.attr('sub-type');
+            this.trigger(document, 'searchResultSelected', {
+                rowKey: rowKey,
+                type: type,
+                subType: subType
+            });
+        };
+
         this.after('initialize', function() {
             this.$node.html(template({}));
             this.on('search', this.doSearch);
@@ -120,8 +139,9 @@ define([
                 searchFormSelector: this.onFormSearch
             });
             this.on('click', {
-                searchSummaryResultItemSelector: this.onSummaryResultItemClick
-            })
+                searchSummaryResultItemSelector: this.onSummaryResultItemClick,
+                searchResultItemLinkSelector: this.onSearchResultItemClick
+            });
         });
     }
 

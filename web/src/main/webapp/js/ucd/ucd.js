@@ -81,7 +81,16 @@ define(function () {
 					$.ajax({
 						url: this._resolveUrl(resource + "/" + i),
 						dataType: this._resolveDataType(),
-						success: callback
+                        success: function(results) {
+                            return callback(null, results);
+                        },
+                        error: function(xhr, textStatus, errorThrown) {
+                            var err = new Error("Failed in request: " + url);
+                            err.xhr = xhr;
+                            err.textStatus = textStatus;
+                            err.errorThrown = err.errorThrown;
+                            return callback(err);
+                        }
 					});
 				},
 				
