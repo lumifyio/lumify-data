@@ -10,6 +10,7 @@ import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
+import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,7 +32,9 @@ public class ArtifactByRowKey implements Handler, AppAware {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             response.setContentType("application/json");
-            response.getWriter().write(artifact.toJson());
+            JSONObject artifactJson = new JSONObject(artifact.toJson());
+            artifactJson.put("rawUrl", ArtifactRawByRowKey.getUrl(request, artifact.getKey()));
+            response.getWriter().write(artifactJson.toString());
         }
 
         chain.next(request, response);
@@ -39,6 +42,6 @@ public class ArtifactByRowKey implements Handler, AppAware {
 
     @Override
     public void setApp(App app) {
-        this.app = (WebApp)app;
+        this.app = (WebApp) app;
     }
 }
