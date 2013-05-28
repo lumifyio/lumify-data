@@ -96,4 +96,24 @@
             <version>20090211</version>
         </dependency>
     </dependencies>
+    <build>
+      <plugins>
+        <plugin>
+          <groupId>com.kelveden</groupId>
+          <artifactId>maven-karma-plugin</artifactId>
+          <version>1.2</version>
+          <executions>
+              <execution>
+                  <goals>
+                      <goal>start</goal>
+                  </goals>
+              </execution>
+          </executions>
+          <configuration>
+              <browsers>Chrome</browsers>
+              <configFile>${basedir}/src/main/webapp/karma.conf.js</configFile>
+          </configuration>
+        </plugin>
+      </plugins>
+    </build>
 </project>
