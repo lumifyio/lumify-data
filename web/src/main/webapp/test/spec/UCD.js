@@ -18,7 +18,7 @@ define(['ucd/ucd'], function(UCD) {
 			expect(ucd.entitySearch).to.be.a("function");
 			expect(ucd.getArtifactById).to.be.a("function");
 			expect(ucd.getEntityById).to.be.a("function");
-			assert.equal(ucd._resolveUrl("entity/search"),"/red-dawn-web/entity/search");
+			assert.equal(ucd._resolveUrl("entity/search"),"/entity/search");
 		})
 
     });
