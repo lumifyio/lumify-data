@@ -8,5 +8,4 @@ define(['app'], function(app) {
         });
 
     });
-
 });

@@ -1,3 +1,5 @@
+
+
 define(['ucd/ucd'], function(UCD) {
 
     describe('UCD', function() {
@@ -19,7 +21,7 @@ define(['ucd/ucd'], function(UCD) {
 			expect(ucd.getArtifactById).to.be.a("function");
 			expect(ucd.getEntityById).to.be.a("function");
 			assert.equal(ucd._resolveUrl("entity/search"),"/entity/search");
-		})
+		});
 
     });
 

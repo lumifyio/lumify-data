@@ -1,14 +1,18 @@
 
 describeComponent('search/search', function(Search) {
+
     beforeEach(function() {
-        setupComponent("test");
+        setupComponent();
     });
 
     describe('#onFormSearch', function() {
+
         it("should trigger 'search'", function() {
 
             var triggerSpy = sinon.spy( this.component, 'trigger'),
                 evt = new sinon.Event();
+
+            this.component.select('searchQuerySelector').val('query');
 
             this.component.onFormSearch(evt);
 
