@@ -18,11 +18,13 @@ public class ArtifactRawByRowKey implements Handler, AppAware {
     private WebApp app;
 
     public static String getUrl(HttpServletRequest request, ArtifactKey artifactKey) {
-        return UrlUtils.getRootRef(request) + "/artifact/" + UrlUtils.urlEncode(artifactKey.toString());
+        return UrlUtils.getRootRef(request) + "/artifact/" + UrlUtils.urlEncode(artifactKey.toString()) + "/raw";
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
+        boolean download = request.getParameter("download") != null;
+
         UcdClient<AuthorizationLabel> client = app.getUcdClient();
         ArtifactKey artifactKey = new ArtifactKey(UrlUtils.urlDecode((String) request.getAttribute("rowKey")));
         Artifact artifact = client.queryArtifactByKey(artifactKey, app.getQueryUser());
@@ -36,7 +38,11 @@ public class ArtifactRawByRowKey implements Handler, AppAware {
         String mimeType = getMimeType(artifact);
         String fileName = getFileName(artifact);
         response.setContentType(mimeType);
-        response.addHeader("Content-Disposition", "attachment; filename=" + fileName);
+        if (download) {
+            response.addHeader("Content-Disposition", "attachment; filename=" + fileName);
+        } else {
+            response.addHeader("Content-Disposition", "inline; filename=" + fileName);
+        }
         response.getOutputStream().write(artifact.getContent().getDocArtifactBytes());
         chain.next(request, response);
     }
