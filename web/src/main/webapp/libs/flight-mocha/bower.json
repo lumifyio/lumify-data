@@ -1,0 +1,34 @@
+{
+  "name": "flight-mocha",
+  "version": "0.0.0",
+  "repo": "naoina/flight-mocha",
+  "description": "Extensions to the Mocha test framework for use with Flight",
+  "keywords": [
+    "flight",
+    "mocha",
+    "test"
+  ],
+  "main": "lib/flight-mocha.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components",
+    "test",
+    "package.json",
+    "testem.yml",
+    ".gitignore",
+    ".travis.yml"
+  ],
+  "devDependencies": {
+    "mocha": "~1.9.0"
+  },
+  "gitHead": "ea2d808320305706229f14900cf14c0e44123bb2",
+  "readme": "# flight-mocha [![Build Status](https://travis-ci.org/naoina/flight-mocha.png?branch=master)](https://travis-ci.org/naoina/flight-mocha)\n\nExtensions to the Mocha test framework for use with [Flight](https://github.com/twitter/flight)\n\nflight-mocha is based on [flight-jasmine](https://github.com/twitter/flight-jasmine)\nbut assertion and Test Double libraries aren't included.\n\n## Installation\n\nRecommend using [Bower](https://github.com/twitter/bower)\n\n```bash\n% bower install --save-dev flight-mocha\n```\n\nflight-mocha depends on [mocha](https://github.com/visionmedia/mocha)\n\n## Usage\n\nIn this examples, assertion library uses the [expect.js](https://github.com/LearnBoost/expect.js)\n\n### Components\n\n```javascript\ndescribeComponent('path/to/component', function() {\n  beforeEach(function() {\n    setupComponent();\n  });\n\n  it(\"should do x\", function() {\n    // a component instance is now accessible as this.component\n    // the component root node is attached to the DOM\n    // the component root node is also available as this.$node\n  });\n});\n```\n\n### Mixins\n\n```javascript\ndescribeMixin('path/to/mixin', function() {\n  // initialize the component and attach it to the DOM\n  beforeEach(function() {\n    setupComponent();\n  });\n\n  it(\"should do x\", function() {\n    expect(this.component.doSomething()).to.be(expected);\n  });\n});\n```\n\n### Event spy\n\nPlease use the [sinon.js](https://github.com/cjohansen/Sinon.JS) or other similar library.\n\n### setupComponent\n\n```javascript\nsetupComponent(optionalFixture, optionalOptions);\n```\n\nCalling `setupComponent` twice will create an instance, tear it down and create a new one.\n\n#### HTML Fixtures\n\n```javascript\ndescribeComponent('ui/twitter_profile', function() {\n  // is the component attached to the fixture?\n  it(\"this.component.$node has class 'foo'\", function() {\n    setupComponent('<span class=\"foo\">Test</span>');\n    expect(this.component.$node.find('span').hasClass('foo')).to.be.ok();\n  });\n});\n```\n\n#### Component Options\n\n```javascript\ndescribeComponent('data/twitter_profile', function() {\n  // is the option set correctly?\n  it(\"this.component.attr.baseUrl is set\", function() {\n    setupComponent({\n      baseUrl: 'http://twitter.com/1.1/'\n    });\n    expect(this.component.attr.baseUrl).to.be('http://twitter.com/1.1/');\n  });\n});\n```\n\n## Teardown\n\nComponents are automatically torn down after each test.\n\n## License\n\nCopyright (c) 2013 Naoya Inada <naoina@kuune.org>\n\nLicensed under the MIT License\n",
+  "readmeFilename": "README.md",
+  "_id": "flight-mocha@0.1.0",
+  "commit": "ea2d808320305706229f14900cf14c0e44123bb2",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/naoina/flight-mocha.git"
+  }
+}
