@@ -6,10 +6,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.util.ToolRunner;
-import org.mortbay.jetty.Handler;
-import org.mortbay.jetty.handler.HandlerList;
 import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.jetty.webapp.WebAppContext;
 
 public class Server extends UcdCommandLineBase {
@@ -66,15 +63,9 @@ public class Server extends UcdCommandLineBase {
 
         WebAppContext webAppContext = new WebAppContext();
         webAppContext.setContextPath("/");
-        webAppContext.setResourceBase("./web/src/main/webapp/");
+        webAppContext.setWar("./web/src/main/webapp/");
 
-        ServletHandler servletHandler = new ServletHandler();
-        servletHandler.addServletWithMapping(Router.class, "/*");
-
-        HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[]{webAppContext, servletHandler});
-
-        server.setHandler(handlers);
+        server.addHandler(webAppContext);
         server.start();
         server.join();
 

@@ -9,11 +9,18 @@ import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 
 import javax.servlet.ServletConfig;
+import java.util.Enumeration;
 
 
 public class WebApp extends App {
     public WebApp(ServletConfig servletConfig) {
         super(servletConfig);
+
+        Enumeration initParamNames = servletConfig.getInitParameterNames();
+        while (initParamNames.hasMoreElements()) {
+            String initParam = (String) initParamNames.nextElement();
+            set(initParam, servletConfig.getInitParameter(initParam));
+        }
     }
 
     public UcdClient<AuthorizationLabel> getUcdClient() throws AccumuloSecurityException, AccumuloException {

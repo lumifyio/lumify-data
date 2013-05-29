@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.web.routes.artifact.*;
 import com.altamiracorp.reddawn.web.routes.entity.EntityByRowKey;
 import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
 import com.altamiracorp.web.App;
+import com.altamiracorp.web.Handler;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -24,14 +25,19 @@ public class Router extends HttpServlet {
         super.init(config);
         app = new WebApp(config);
 
-        app.get("/artifact/search", ArtifactSearch.class);
-        app.get("/artifact/{rowKey}/terms", ArtifactTermsByRowKey.class);
-        app.get("/artifact/{rowKey}/text", ArtifactTextByRowKey.class);
-        app.get("/artifact/{rowKey}/raw", ArtifactRawByRowKey.class);
-        app.get("/artifact/{rowKey}", ArtifactByRowKey.class);
+        Class<? extends Handler> authenticator = X509Authenticator.class;
+        if (app.get("env").equals("dev")) {
+            authenticator = DevBasicAuthenticator.class;
+        }
 
-        app.get("/entity/search", EntitySearch.class);
-        app.get("/entity/{rowKey}", EntityByRowKey.class);
+        app.get("/artifact/search", authenticator, ArtifactSearch.class);
+        app.get("/artifact/{rowKey}/terms", authenticator, ArtifactTermsByRowKey.class);
+        app.get("/artifact/{rowKey}/text", authenticator, ArtifactTextByRowKey.class);
+        app.get("/artifact/{rowKey}/raw", authenticator, ArtifactRawByRowKey.class);
+        app.get("/artifact/{rowKey}", authenticator, ArtifactByRowKey.class);
+
+        app.get("/entity/search", authenticator, EntitySearch.class);
+        app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);
 
         LessRestlet.init(rootDir);
         app.get("/css/{file}.css", LessRestlet.class);
