@@ -1,5 +1,5 @@
 var tests = Object.keys(window.__karma__.files).filter(function (file) {
-    return (/^\/base\/test\/.*\.js$/).test(file);
+    return (/^\/base\/test\/spec\/.*\.js$/).test(file);
 });
 
 // TODO: This duplicates index.html 'require' variable. Load that and override baseUrl
