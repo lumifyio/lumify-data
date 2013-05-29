@@ -67,7 +67,7 @@ define(function () {
 							entity2: e2
 						},
 						success: callback
-					})
+					});
 				},
 				
 				entityRelationships: function (id, options,callback) {
@@ -131,14 +131,14 @@ define(function () {
 							'q' : q
 						},
 						success: function(results) {
-						    return callback(null, results);
+                            return callback(null, results);
 						},
 						error: function(xhr, textStatus, errorThrown) {
-						    var err = new Error("Failed in request: " + url);
-						    err.xhr = xhr;
-						    err.textStatus = textStatus;
-						    err.errorThrown = err.errorThrown;
-						    return callback(err);
+                            var err = new Error("Failed in request: " + url);
+                            err.xhr = xhr;
+                            err.textStatus = textStatus;
+                            err.errorThrown = err.errorThrown;
+                            return callback(err);
 						}
 					});
 				},
@@ -148,9 +148,9 @@ define(function () {
 					console.error(message);
 				}
 				
-			}
+			};
 		
 
-        	return UCD;
+        return UCD;
     }
-)
+);

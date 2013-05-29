@@ -17,7 +17,8 @@
     "karma-phantomjs-launcher": "0.0.2",
     "karma-safari-launcher": "0.0.2",
     "karma-requirejs": "0.0.1",
-    "karma-script-launcher": "~0.0.1"
+    "karma-script-launcher": "~0.0.1",
+    "jshint": "~2.1.2"
   },
   "devDependencies": {},
   "scripts": {
