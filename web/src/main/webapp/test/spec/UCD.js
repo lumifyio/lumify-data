@@ -10,17 +10,17 @@ define(['ucd/ucd'], function(UCD) {
 
 		it('should have some defaults', function () {
 			var ucd = new UCD({});
-			assert.isFalse(ucd.options.jsonp);
-			assert.equal(ucd.options.serviceBaseUrl,"/");
+            expect(ucd.options.jsonp).to.be.false;
+            expect(ucd.options.serviceBaseUrl).to.be.equal('/');
 		});
-		
+
 		it('should have some functions', function () {
 			var ucd = new UCD({});
 			expect(ucd.artifactSearch).to.be.a("function");
 			expect(ucd.entitySearch).to.be.a("function");
 			expect(ucd.getArtifactById).to.be.a("function");
 			expect(ucd.getEntityById).to.be.a("function");
-			assert.equal(ucd._resolveUrl("entity/search"),"/entity/search");
+            expect(ucd._resolveUrl("entity/search")).to.be.equal("/entity/search");
 		});
 
     });
