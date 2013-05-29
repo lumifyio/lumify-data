@@ -96,6 +96,7 @@
             <version>20090211</version>
         </dependency>
     </dependencies>
+    <!--
     <build>
       <plugins>
         <plugin>
@@ -114,6 +115,28 @@
               <configFile>${basedir}/src/main/webapp/karma.conf.js</configFile>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>1.2.1</version>
+          <executions>
+            <execution>
+              <id>npm-install</id>
+              <phase>generate-test-resources</phase>
+              <goals>
+                <goal>exec</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <executable>npm</executable>
+            <workingDirectory>${basedir}/src/main/webapp</workingDirectory>
+            <arguments>
+              <argument>install</argument>
+            </arguments>
+          </configuration>
+        </plugin>
       </plugins>
     </build>
+    -->
 </project>
