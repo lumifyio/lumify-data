@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 public class ArtifactByRowKey implements Handler, AppAware {
     private WebApp app;
 
-    public static String getUrl(HttpServletRequest request, ArtifactKey artifactKey) {
+    public static String getUrl(HttpServletRequest request, String artifactKey) {
         return UrlUtils.getRootRef(request) + "/artifact/" + UrlUtils.urlEncode(artifactKey.toString());
     }
 
