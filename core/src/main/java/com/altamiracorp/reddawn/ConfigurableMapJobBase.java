@@ -27,7 +27,7 @@ public abstract class ConfigurableMapJobBase extends UcdCommandLineBase implemen
                 OptionBuilder
                         .withArgName("c")
                         .withLongOpt("classname")
-                        .withDescription("The class that implements EntityExtractor")
+                        .withDescription("The class to run")
                         .withArgName("name")
                         .isRequired()
                         .hasArg()
@@ -38,7 +38,7 @@ public abstract class ConfigurableMapJobBase extends UcdCommandLineBase implemen
                 OptionBuilder
                         .withArgName("D")
                         .withLongOpt("config")
-                        .withDescription("Configuration for the extractor")
+                        .withDescription("Configuration for the class")
                         .withArgName("name=value")
                         .hasArg()
                         .create()
