@@ -51,11 +51,11 @@ public abstract class ConfigurableMapJobBase extends UcdCommandLineBase implemen
     protected void processOptions(CommandLine cmd) {
         super.processOptions(cmd);
 
-        String textExtractorClassName = cmd.getOptionValue("classname");
-        if (textExtractorClassName == null) {
+        String pluginClassName = cmd.getOptionValue("classname");
+        if (pluginClassName == null) {
             throw new RuntimeException("'class' parameter is required");
         }
-        clazz = loadClass(textExtractorClassName);
+        clazz = loadClass(pluginClassName);
         config = cmd.getOptionValues("config");
     }
 
