@@ -4,6 +4,16 @@ red-dawn
 open analytic platform
 
 
+Initial Setup
+-------------
+This project contains git submodules. Please run the following commands after cloning the repository.
+
+```
+> git submodule init
+> git submodule update
+```
+
+
 Vagrant
 -------
 Setup and usage instructions are [in the wiki](https://github.com/nearinfinity/red-dawn/wiki/Vagrant).
