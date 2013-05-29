@@ -1,7 +1,6 @@
 package com.altamiracorp.reddawn.search;
 
 import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
-import com.altamiracorp.reddawn.ucd.models.ArtifactKey;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -91,9 +90,9 @@ public class BlurSearchCommandLine extends UcdCommandLineBase {
         }
         blurSearch.setup(props);
 
-        Collection<ArtifactKey> artifactKeys = blurSearch.searchArtifacts(query);
-        for (ArtifactKey artifactKey : artifactKeys) {
-            System.out.println(artifactKey.toString());
+        Collection<ArtifactSearchResult> searchResults = blurSearch.searchArtifacts(query);
+        for (ArtifactSearchResult searchResult : searchResults) {
+            System.out.println(searchResult.getRowKey());
         }
         return 0;
     }
