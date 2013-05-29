@@ -22,14 +22,14 @@ public class SearchIndexBuilderMR extends ConfigurableMapJobBase {
 
     public static class SearchMapper extends Mapper<Text, Artifact, Text, Mutation> {
         private static final String CONF_SEARCH_INDEX_BUILDER_CLASS = "searchIndexBuilderClass";
-        private SearchProvider searchIndexBuilder;
+        private SearchProvider searchProvider;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
             super.setup(context);
             try {
-                searchIndexBuilder = (SearchProvider) context.getConfiguration().getClass(CONF_SEARCH_INDEX_BUILDER_CLASS, NullSearchProvider.class).newInstance();
-                searchIndexBuilder.setup(context);
+                searchProvider = (SearchProvider) context.getConfiguration().getClass(CONF_SEARCH_INDEX_BUILDER_CLASS, NullSearchProvider.class).newInstance();
+                searchProvider.setup(context);
             } catch (InstantiationException e) {
                 throw new IOException(e);
             } catch (IllegalAccessException e) {
@@ -42,7 +42,7 @@ public class SearchIndexBuilderMR extends ConfigurableMapJobBase {
         @Override
         protected void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
             try {
-                searchIndexBuilder.add(artifact);
+                searchProvider.add(artifact);
             } catch (Exception ex) {
                 throw new IOException(ex);
             }
