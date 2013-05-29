@@ -24,8 +24,7 @@
         </repository>
 		<repository>
 			<id>red-dawn-releases</id>
-			<!--Please do not change this. Using this value allows connections froum outside Invertix without having to use the VPN -->
-			<url>http://nic-mvnproxy:8081/artifactory/libs-release/</url>
+			<url>http://nic-mvnproxy:8080/artifactory/libs-release/</url>
 		</repository>
 		<repository>
 			<snapshots>
@@ -34,7 +33,7 @@
 				<checksumPolicy>fail</checksumPolicy>
 			</snapshots>
 			<id>red-dawn-snapshots</id>
-			<url>http://nic-mvnproxy:8081/artifactory/libs-release/</url>
+			<url>http://nic-mvnproxy:8080/artifactory/libs-release/</url>
 		</repository>
     </repositories>
 
