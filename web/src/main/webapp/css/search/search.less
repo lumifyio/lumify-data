@@ -35,11 +35,13 @@ background: @background-color;
   ul {
     overflow: auto;
     text-align: left;
+    box-sizing: border-box;
     height: 100%;
   }
 
   button.close {
-    float: none;
-    margin-right: 10px;
+    position: absolute;
+    right: 6px;
+    top: 0;
   }
 }
