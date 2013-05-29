@@ -9,7 +9,10 @@ done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 classpath=$(${DIR}/classpath.sh core)
-[ $? -eq 0 ] || echo "${classpath}" && exit
+if [ $? -ne 0 ]; then
+  echo "${classpath}"
+  exit
+fi
 
 java \
 -Dfile.encoding=UTF-8 \

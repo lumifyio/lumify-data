@@ -8,14 +8,24 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh web)
-[ $? -eq 0 ] || echo "${classpath}" && exit
+classpath=$(${DIR}/classpath.sh core)
+if [ $? -ne 0 ]; then
+  echo "${classpath}"
+  exit
+fi
+
+if [ "$1" != '' ]; then
+  dir=$1
+else
+  dir=${DIR}/../data
+fi
 
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.web.Server \
+com.altamiracorp.reddawn.cmdline.FileImport \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=192.168.33.10 \
 --username=root \
 --password=password \
+--directory=${dir}

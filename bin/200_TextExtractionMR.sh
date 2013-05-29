@@ -9,14 +9,17 @@ done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 classpath=$(${DIR}/classpath.sh core)
-[ $? -eq 0 ] || echo "${classpath}" && exit
+if [ $? -ne 0 ]; then
+  echo "${classpath}"
+  exit
+fi
 
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.cmdline.FileImport \
+com.altamiracorp.reddawn.textExtraction.TextExtractionMR \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=192.168.33.10 \
 --username=root \
 --password=password \
---directory=$1
+--classname=com.altamiracorp.reddawn.textExtraction.TikaTextExtractor
