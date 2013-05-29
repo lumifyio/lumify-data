@@ -2,39 +2,41 @@
 define([
     'flight/lib/component',
     'ucd/ucd',
-    'tpl!search/search',
-    'tpl!search/searchResultsSummary',
-    'tpl!search/searchResults'
-], function(defineComponent, UCD, template, summaryTemplate, resultsTemplate) {
+    'tpl!./search',
+    'tpl!./searchResultsSummary',
+    'tpl!./searchResults',
+    'tpl!util/alert'
+], function(defineComponent, UCD, template, summaryTemplate, resultsTemplate, alertTemplate) {
     'use strict';
 
     return defineComponent(Search);
 
     function Search() {
         this.defaultAttrs({
-            searchFormSelector: '#search-form',
-            searchQuerySelector: '#search-form .search-query',
-            searchQueryValidationSelector: '#search-form .search-query-validation',
-            searchResultsSummarySelector: '#search-results-summary',
-            searchSummaryResultItemSelector: '#search-results-summary li li',
-            searchResultsSelector: '#search-results',
-            searchResultItemLinkSelector: '#search-results li a'
+            searchFormSelector: '.navbar-search',
+            searchQuerySelector: '.navbar-search .search-query',
+            searchQueryValidationSelector: '.search-query-validation',
+            searchResultsSummarySelector: '.search-results-summary',
+            searchSummaryResultItemSelector: '.search-results-summary li',
+            searchResultsSelector: '.search-results',
+            closeResultsSelector: '.search-results .close',
+            searchResultItemLinkSelector: '.search-results li a'
         });
 
         this.searchResults = null;
 
         this.onArtifactSearchResults = function(evt, artifacts) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            $searchResultsSummary.find('.artifacts .documents .count').html(artifacts.document.length);
-            $searchResultsSummary.find('.artifacts .images .count').html('0'); // TODO
-            $searchResultsSummary.find('.artifacts .videos .count').html('0'); // TODO
+            $searchResultsSummary.find('.documents .badge').text(artifacts.document.length);
+            $searchResultsSummary.find('.images .badge').text('0'); // TODO
+            $searchResultsSummary.find('.videos .badge').text('0'); // TODO
         };
 
         this.onEntitySearchResults = function(evt, entities) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            $searchResultsSummary.find('.entities .people .count').html((entities.person || []).length);
-            $searchResultsSummary.find('.entities .locations .count').html((entities.location || []).length);
-            $searchResultsSummary.find('.entities .organizations .count').html('0'); // TODO
+            $searchResultsSummary.find('.people .badge').text((entities.person || []).length);
+            $searchResultsSummary.find('.locations .badge').text((entities.location || []).length);
+            $searchResultsSummary.find('.organizations .badge').text('0'); // TODO
         };
 
         this.onFormSearch = function(evt) {
@@ -45,7 +47,8 @@ define([
 
             var query = this.select('searchQuerySelector').val();
             if(!query) {
-                return $searchQueryValidation.html('Query cannot be empty.');
+                this.select('searchResultsSummarySelector').empty();
+                return $searchQueryValidation.html(alertTemplate({ error: 'Query cannot be empty' }));
             }
             this.trigger('search', { query: query });
             return false;
@@ -77,10 +80,10 @@ define([
         };
 
         this.onSummaryResultItemClick = function(evt) {
-            var $target = $(evt.target);
-            if($target.hasClass('count')) {
-                $target = $target.parent('li');
-            }
+            var $target = $(evt.target).parents('li');
+
+            this.$node.find('.search-results-summary .active').removeClass('active');
+            $target.addClass('active');
 
             var itemPath = $target.attr('item-path').split('.');
             var type = itemPath[0];
@@ -88,13 +91,15 @@ define([
             this.trigger('showSearchResults', {
                 type: type,
                 subType: subType,
-                results: this.searchResults[type][subType]
+                results: this.searchResults[type][subType] || []
             });
         };
 
         this.onShowSearchResults = function(evt, data) {
             console.log("Showing search results: ", data);
+
             var $searchResults = this.select('searchResultsSelector');
+
 
             data.results.forEach(function(result) {
                 if(data.type == 'artifacts') {
@@ -107,17 +112,30 @@ define([
             });
 
             var html = resultsTemplate(data);
-            $searchResults.html(html);
-            $searchResults.show();
+            $searchResults.resizable({
+                handles: 'e',
+                minWidth: 50
+            }).find('ul').html(html);
+
+            if (data.results.length) {
+                $searchResults.show();
+            } else {
+                $searchResults.hide();
+            }
+        };
+
+        this.close = function(e) {
+            this.select('searchResultsSelector').hide();
+            this.$node.find('.search-results-summary .active').removeClass('active');
         };
 
         this.onSearchResultItemClick = function(evt) {
             evt.preventDefault();
 
-            var $target = $(evt.target);
-            if(!$target.attr('row-key')) {
-                $target = $target.parent('li');
-            }
+            var $target = $(evt.target).parents('li');
+
+            this.$node.find('.search-results .active').removeClass('active');
+            $target.addClass('active');
 
             var rowKey = $target.attr('row-key');
             var type = $target.attr('type');
@@ -131,6 +149,9 @@ define([
 
         this.after('initialize', function() {
             this.$node.html(template({}));
+
+            this.select('searchResultsSelector').hide();
+
             this.on('search', this.doSearch);
             this.on('artifactSearchResults', this.onArtifactSearchResults);
             this.on('entitySearchResults', this.onEntitySearchResults);
@@ -140,8 +161,10 @@ define([
             });
             this.on('click', {
                 searchSummaryResultItemSelector: this.onSummaryResultItemClick,
-                searchResultItemLinkSelector: this.onSearchResultItemClick
+                searchResultItemLinkSelector: this.onSearchResultItemClick,
+                closeResultsSelector: this.close
             });
+            
         });
     }
 

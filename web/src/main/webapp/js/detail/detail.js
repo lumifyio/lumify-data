@@ -10,6 +10,7 @@ define([
     return defineComponent(Detail);
 
     function Detail() {
+        
         this.onSearchResultSelected = function(evt, data) {
             if(data.type == 'artifacts') {
                 this.onArtifactSelected(evt, data);

@@ -24,13 +24,14 @@ define([
                 graphPane = content.filter('.graph-pane'),
                 detailPane = content.filter('.detail-pane');
 
-            Search.attachTo(searchPane);
-            Graph.attachTo(graphPane);
-            Detail.attachTo(detailPane);
+
+            Search.attachTo(searchPane.find('.content'));
+            Graph.attachTo(graphPane.find('.content'));
+            Detail.attachTo(detailPane.find('.content'));
 
             // Configure splitpane resizing
             resizable(searchPane, 'e');
-            resizable(detailPane, 'w');
+            resizable(detailPane, 'w', 500);
 
             this.$node.html(content);
         });
@@ -38,14 +39,13 @@ define([
     }
 
 
-    function resizable( el, handles ) {
+    function resizable( el, handles, maxWidth ) {
         return el.resizable({
             handles: handles,
-               minWidth: 150,
-               maxWidth: 300
+            minWidth: 150,
+            maxWidth: maxWidth || 300
         });
     }
 
 });
-
 

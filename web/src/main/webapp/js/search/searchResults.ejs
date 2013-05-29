@@ -1,7 +1,5 @@
-<ul>
-    <% results.forEach(function(result) { %>
-        <li row-key="<%= result.rowKey %>" type="<%= type %>" sub-type="<%= subType %>">
-            <a href="<%= result.url %>"><%= result.title %></a>
-        </li>
-    <% }); %>
-</ul>
+<% results.forEach(function(result) { %>
+    <li row-key="<%= result.rowKey %>" type="<%= type %>" sub-type="<%= subType %>">
+        <a href="<%= result.url %>"><%= result.title %></a>
+    </li>
+<% }); %>

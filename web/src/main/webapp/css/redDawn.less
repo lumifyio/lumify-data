@@ -2,6 +2,9 @@
 @import "util/positioning";
 @import "util/flexbox";
 
+@import "/libs/bootstrap/less/bootstrap.less";
+
+
 #app {
   background-color: #ddd;
   min-width: 600px;
@@ -12,12 +15,22 @@
 
 .search-pane, .graph-pane, .detail-pane {
   height: 100%;
-  text-align: center;
+
+  .content {
+    overflow: auto;
+    height: 100%;
+  }
 
   .ui-resizable-handle {
     .splitbar;
   }
 }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
 
 
 .search-pane { 
