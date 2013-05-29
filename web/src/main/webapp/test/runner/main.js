@@ -32,6 +32,7 @@ require.config({
     deps: ['chai', 'sinon', 'flight-mocha'],
 
     callback: function(chai, sinon) {
+        sinon.spy = sinon.spy || {};
 
         require([
                 'sinon-chai', 

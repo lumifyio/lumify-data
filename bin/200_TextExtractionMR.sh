@@ -17,4 +17,9 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.search.BlurSearchCommandLine --query="$*"
+com.altamiracorp.reddawn.textExtraction.TextExtractionMR \
+--zookeeperInstanceName=reddawn \
+--zookeeperServerNames=192.168.33.10 \
+--username=root \
+--password=password \
+--classname=com.altamiracorp.reddawn.textExtraction.TikaTextExtractor

@@ -8,7 +8,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh core)
+classpath=$(${DIR}/classpath.sh web)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
@@ -17,4 +17,8 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.search.BlurSearchCommandLine --query="$*"
+com.altamiracorp.reddawn.web.Server \
+--zookeeperInstanceName=reddawn \
+--zookeeperServerNames=192.168.33.10 \
+--username=root \
+--password=password \

@@ -8,13 +8,8 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh core)
-if [ $? -ne 0 ]; then
-  echo "${classpath}"
-  exit
-fi
-
-java \
--Dfile.encoding=UTF-8 \
--classpath ${classpath} \
-com.altamiracorp.reddawn.search.BlurSearchCommandLine --query="$*"
+for step in $(ls ${DIR}/[0-9][0-9][0-9]_*.sh); do
+  echo $(basename ${step})
+  ${step}
+  [ $? -eq 0 ] || exit
+done

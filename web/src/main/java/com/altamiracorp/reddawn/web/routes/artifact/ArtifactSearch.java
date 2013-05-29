@@ -1,10 +1,7 @@
 package com.altamiracorp.reddawn.web.routes.artifact;
 
+import com.altamiracorp.reddawn.search.ArtifactSearchResult;
 import com.altamiracorp.reddawn.search.SearchProvider;
-import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
-import com.altamiracorp.reddawn.ucd.UcdClient;
-import com.altamiracorp.reddawn.ucd.models.Artifact;
-import com.altamiracorp.reddawn.ucd.models.ArtifactKey;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
@@ -17,9 +14,7 @@ import org.json.JSONObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class ArtifactSearch implements Handler, AppAware {
     private WebApp app;
@@ -32,38 +27,27 @@ public class ArtifactSearch implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         String query = request.getParameter("q");
-
-        UcdClient<AuthorizationLabel> client = app.getUcdClient();
         SearchProvider SearchProvider = app.getSearchProvider();
-
-        ArrayList<Artifact> artifacts = queryArtifacts(client, SearchProvider, query);
-
+        Collection<ArtifactSearchResult> artifactSearchResults = queryArtifacts(SearchProvider, query);
         JSONObject results = new JSONObject();
-
-        JSONArray artifactsJson = artifactsToSearchResults(artifacts, request);
+        JSONArray artifactsJson = artifactsToSearchResults(artifactSearchResults, request);
         results.put("document", artifactsJson); // TODO also include video and images
 
         response.setContentType("application/json");
         response.getWriter().write(results.toString());
     }
 
-    private ArrayList<Artifact> queryArtifacts(UcdClient<AuthorizationLabel> client, SearchProvider searchProvider, String query) throws Exception {
-        Collection<ArtifactKey> artifactKeys = searchProvider.searchArtifacts(query);
-        ArrayList<Artifact> artifacts = new ArrayList<Artifact>();
-        for (ArtifactKey artifactKey : artifactKeys) {
-            Artifact artifact = client.queryArtifactByKey(artifactKey, app.getQueryUser());
-            artifacts.add(artifact);
-        }
-        return artifacts;
+    private Collection<ArtifactSearchResult> queryArtifacts(SearchProvider searchProvider, String query) throws Exception {
+        return searchProvider.searchArtifacts(query);
     }
 
-    private JSONArray artifactsToSearchResults(List<Artifact> artifacts, HttpServletRequest request) throws JSONException, UnsupportedEncodingException {
+    private JSONArray artifactsToSearchResults(Collection<ArtifactSearchResult> artifacts, HttpServletRequest request) throws JSONException, UnsupportedEncodingException {
         JSONArray artifactsJson = new JSONArray();
-        for (Artifact artifact : artifacts) {
+        for (ArtifactSearchResult artifactSearchResult : artifacts) {
             JSONObject artifactJson = new JSONObject();
-            artifactJson.put("url", ArtifactByRowKey.getUrl(request, artifact.getKey()));
-            artifactJson.put("rowKey", artifact.getKey().toString());
-            artifactJson.put("subject", artifact.getGenericMetadata().getSubject());
+            artifactJson.put("url", ArtifactByRowKey.getUrl(request, artifactSearchResult.getRowKey()));
+            artifactJson.put("rowKey", artifactSearchResult.getRowKey());
+            artifactJson.put("subject", artifactSearchResult.getSubject());
             artifactsJson.put(artifactJson);
         }
         return artifactsJson;

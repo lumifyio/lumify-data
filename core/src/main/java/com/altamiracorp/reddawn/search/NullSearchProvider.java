@@ -1,7 +1,6 @@
 package com.altamiracorp.reddawn.search;
 
 import com.altamiracorp.reddawn.ucd.models.Artifact;
-import com.altamiracorp.reddawn.ucd.models.ArtifactKey;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.util.ArrayList;
@@ -17,7 +16,7 @@ public class NullSearchProvider implements SearchProvider {
     }
 
     @Override
-    public Collection<ArtifactKey> searchArtifacts(String query) throws Exception {
-        return new ArrayList<ArtifactKey>();
+    public Collection<ArtifactSearchResult> searchArtifacts(String query) throws Exception {
+        return new ArrayList<ArtifactSearchResult>();
     }
 }

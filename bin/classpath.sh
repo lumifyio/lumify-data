@@ -11,11 +11,26 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 dir=$1
 
 if [ -d ${DIR}/../${dir} ]; then
-  mvn_output=$(cd ${DIR}/.. && mvn clean package)
-  mvn_exit=$?
-  if [ ${mvn_exit} -ne 0 ]; then
-    echo ${mvn_output}
-    exit ${mvn_exit}
+  if [ "${RUN_MVN}" != '' ]; then
+    run_mvn='true'
+  elif [ ! -f ${DIR}/../${dir}/target/.classpath ]; then
+    run_mvn='true'
+  else
+    for pom in $(find ${DIR}/.. -name 'pom.xml'); do
+      if [ ${pom} -nt ${DIR}/../${dir}/target/.classpath ]; then
+        run_mvn='true'
+        break
+      fi
+    done
+  fi
+
+  if [ "${run_mvn}" == 'true' ]; then
+    mvn_output="$(cd ${DIR}/.. && mvn clean package)"
+    mvn_exit=$?
+    if [ ${mvn_exit} -ne 0 ]; then
+      echo "${mvn_output}"
+      exit ${mvn_exit}
+    fi
   fi
 
   if [ -f ${DIR}/../${dir}/target/.classpath ]; then

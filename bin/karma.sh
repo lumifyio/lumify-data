@@ -8,13 +8,5 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh core)
-if [ $? -ne 0 ]; then
-  echo "${classpath}"
-  exit
-fi
-
-java \
--Dfile.encoding=UTF-8 \
--classpath ${classpath} \
-com.altamiracorp.reddawn.search.BlurSearchCommandLine --query="$*"
+cd $DIR/../web/src/main/webapp
+./node_modules/.bin/karma $*

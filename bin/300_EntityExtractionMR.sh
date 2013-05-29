@@ -17,4 +17,11 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.search.BlurSearchCommandLine --query="$*"
+-Xmx1024M \
+com.altamiracorp.reddawn.entityExtraction.EntityExtractionMR \
+--zookeeperInstanceName=reddawn \
+--zookeeperServerNames=192.168.33.10 \
+--username=root \
+--password=password \
+--classname=com.altamiracorp.reddawn.entityExtraction.OpenNlpMaximumEntropyEntityExtractor \
+--config=nlpConfPathPrefix=file://$(cd ${DIR}/.. && pwd)

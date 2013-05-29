@@ -14,7 +14,18 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
+if [ "$1" != '' ]; then
+  dir=$1
+else
+  dir=${DIR}/../data
+fi
+
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.search.BlurSearchCommandLine --query="$*"
+com.altamiracorp.reddawn.cmdline.FileImport \
+--zookeeperInstanceName=reddawn \
+--zookeeperServerNames=192.168.33.10 \
+--username=root \
+--password=password \
+--directory=${dir}
