@@ -9,6 +9,7 @@ done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 classpath=$(${DIR}/classpath.sh web)
+[ $? -eq 0 ] || echo "${classpath}" && exit
 
 java \
 -Dfile.encoding=UTF-8 \
