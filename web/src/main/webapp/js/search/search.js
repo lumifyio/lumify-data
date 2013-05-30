@@ -125,6 +125,7 @@ define([
             $searchResults.find('ul').html(resultsTemplate(data));
 
             // Allow search results to be draggable
+            var selected;
             $searchResults.find('li a').draggable({
                 helper:'clone',
                 appendTo: 'body',
@@ -135,6 +136,32 @@ define([
 
                     // Make clone the same width
                     ui.helper.css({width: $(this).width()});
+
+                    $(this).is(".ui-selected") || $(".ui-selected").removeClass("ui-selected");
+                    selected = $("a.ui-selected").each(function() {
+                        $(this).addClass("dragging");
+                    });
+                    console.log(selected);
+                },
+                drag: function(ev, ui) {
+                    var dt = ui.position.top, dl = ui.position.left;
+                    selected.not(this).each(function() {
+                        var el = $(this);
+                        el.css({top: dt, left: dl});
+                    });
+                },
+                stop: function(ev, ui){
+                    selected.each(function() {
+                        $(this).removeClass("dragging");
+                    });
+                    selected = null;
+                }
+            });
+            
+            $searchResults.find('ul').selectable({
+                filter: 'a',
+                selected: function(event, ui) {
+                    console.log(ui.selected);
                 }
             });
 

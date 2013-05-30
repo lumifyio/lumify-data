@@ -1,5 +1,6 @@
 @import "../util/lists.less";
 @import "../util/positioning.less";
+@import "../util/selection.less";
 
 @background-color: #f9f9f9;
 
@@ -49,6 +50,10 @@ background: @background-color;
     text-align: left;
     box-sizing: border-box;
     height: 100%;
+  }
+
+  a.ui-selecting, a.ui-selected {
+    .active-selection;
   }
 
   button.close {
