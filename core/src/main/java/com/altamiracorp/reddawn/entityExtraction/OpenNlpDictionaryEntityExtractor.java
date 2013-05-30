@@ -20,10 +20,9 @@ public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
 	private OpenNlpDictionaryRegistry dictionaryRegistry;
 
 	@Override
-	protected List<TokenNameFinder> getFinders(Context context)
-			throws IOException {
+	protected List<TokenNameFinder> loadFinders() throws IOException {
 		List<TokenNameFinder> finders = new ArrayList<TokenNameFinder>();
-		for (Dictionary dictionary : getDictionaryRegistry(context)
+		for (Dictionary dictionary : getDictionaryRegistry()
 				.getAllDictionaries()) {
 			finders.add(new DictionaryNameFinder(dictionary));
 		}
@@ -35,7 +34,7 @@ public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
 		return MODEL;
 	}
 
-	private OpenNlpDictionaryRegistry getDictionaryRegistry(Context context)
+	private OpenNlpDictionaryRegistry getDictionaryRegistry()
 			throws IOException {
 		if (dictionaryRegistry == null) {
 			dictionaryRegistry = new OpenNlpDictionaryRegistry();

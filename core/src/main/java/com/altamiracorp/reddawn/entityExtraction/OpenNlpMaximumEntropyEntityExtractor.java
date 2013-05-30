@@ -22,7 +22,7 @@ public class OpenNlpMaximumEntropyEntityExtractor extends
 	private static final String MODEL = "OpenNlpMaximumEntropy";
 
 	@Override
-	protected List<TokenNameFinder> getFinders(Context context)
+	protected List<TokenNameFinder> loadFinders()
 			throws IOException {
 		Path finderHdfsPaths[] = {
 				new Path(getPathPrefix() + "/conf/opennlp/en-ner-date.bin"),

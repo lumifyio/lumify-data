@@ -43,8 +43,8 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
 				DEFAULT_PATH_PREFIX);
 		this.fs = FileSystem.get(context.getConfiguration());
 
-		tokenizer = getTokenizer(context);
-		finders = getFinders(context);
+		setTokenizer(loadTokenizer());
+		setFinders(loadFinders());
 	}
 
 	@Override
@@ -87,20 +87,19 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
 		return terms;
 	}
 
-	protected abstract List<TokenNameFinder> getFinders(Context context)
-			throws IOException;
+	protected abstract List<TokenNameFinder> loadFinders() throws IOException;
 
 	protected abstract String getModelName();
 
 	protected String getPathPrefix() {
 		return this.pathPrefix;
 	}
-	
-	protected FileSystem getFS () {
+
+	protected FileSystem getFS() {
 		return this.fs;
 	}
 
-	protected Tokenizer getTokenizer(Context context) throws IOException {
+	protected Tokenizer loadTokenizer() throws IOException {
 		Path tokenizerHdfsPath = new Path(pathPrefix
 				+ "/conf/opennlp/en-token.bin");
 
@@ -113,6 +112,15 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
 		}
 
 		return new TokenizerME(tokenizerModel);
+	}
+
+	protected void setFinders(List<TokenNameFinder> finders) {
+		this.finders = finders;
+
+	}
+
+	protected void setTokenizer(Tokenizer tokenizer) {
+		this.tokenizer = tokenizer;
 	}
 
 	private String openNlpTypeToConcept(String type) {
