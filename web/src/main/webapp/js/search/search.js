@@ -114,11 +114,29 @@ define([
                 }
             });
 
-            var html = resultsTemplate(data);
+
+            // Add splitbar to search results
             $searchResults.resizable({
                 handles: 'e',
                 minWidth: 50
-            }).find('ul').html(html);
+            });
+            
+            // Update content
+            $searchResults.find('ul').html(resultsTemplate(data));
+
+            // Allow search results to be draggable
+            $searchResults.find('li a').draggable({
+                helper:'clone',
+                appendTo: 'body',
+                revert: 'invalid',
+                containment: 'window',
+                zIndex: 100,
+                start: function(e, ui) {
+
+                    // Make clone the same width
+                    ui.helper.css({width: $(this).width()});
+                }
+            });
 
             if (data.results.length) {
                 $searchResults.show();

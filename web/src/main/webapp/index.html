@@ -28,11 +28,15 @@
         flight: '../libs/flight',
         text: '../libs/requirejs-text/text',
         ejs:  '../libs/ejs/ejs',
-        tpl: '../libs/requirejs-ejs-plugin/rejs'
+        tpl: '../libs/requirejs-ejs-plugin/rejs',
+        cytoscape: '../libs/cytoscape/cytoscape'
       },
       shim: {
         ejs: {
           exports: 'ejs'
+        },
+        cytoscape: {
+          exports: 'cytoscape'
         }
       },
       deps : ['reddawn']
