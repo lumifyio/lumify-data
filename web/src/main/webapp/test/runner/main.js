@@ -29,7 +29,12 @@ require.config({
         }
     },
 
-    deps: ['chai', 'sinon', 'flight-mocha'],
+    deps: [ 
+        'chai', 
+        'sinon', 
+        '../libs/es5-shim/es5-shim',
+        '../libs/es5-shim/es5-sham'  
+    ],
 
     callback: function(chai, sinon) {
         sinon.spy = sinon.spy || {};
@@ -40,7 +45,8 @@ require.config({
                 'sinon/call',
                 'sinon/stub',
                 'sinon/spy',
-                'sinon/mock'
+                'sinon/mock',
+                'flight-mocha'
         ], function(sinonChai) {
 
             // Use sinon as mocking framework
