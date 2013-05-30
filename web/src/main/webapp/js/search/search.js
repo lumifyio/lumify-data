@@ -12,6 +12,8 @@ define([
     return defineComponent(Search);
 
     function Search() {
+        this.ucd = new UCD();
+
         this.defaultAttrs({
             searchFormSelector: '.navbar-search',
             searchQuerySelector: '.navbar-search .search-query',
@@ -61,7 +63,7 @@ define([
 
             $searchResults.hide();
             $searchResultsSummary.html(summaryTemplate({}));
-            new UCD().artifactSearch(query, function(err, artifacts) {
+            this.ucd.artifactSearch(query, function(err, artifacts) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
@@ -69,7 +71,7 @@ define([
                 self.searchResults.artifacts = artifacts;
                 self.trigger('artifactSearchResults', artifacts);
             });
-            new UCD().entitySearch(query, function(err, entities) {
+            this.ucd.entitySearch(query, function(err, entities) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
