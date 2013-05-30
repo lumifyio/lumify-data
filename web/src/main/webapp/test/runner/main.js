@@ -52,7 +52,6 @@ require.config({
 
             // Globals for assertions
             assert = chai.assert;
-            should = chai.should();
             expect = chai.expect;
 
             // Use the twitter flight interface to mocha
