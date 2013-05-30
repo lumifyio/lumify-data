@@ -29,16 +29,16 @@ define([
 
         this.onArtifactSearchResults = function(evt, artifacts) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            $searchResultsSummary.find('.documents .badge').text(artifacts.document.length);
-            $searchResultsSummary.find('.images .badge').text('0'); // TODO
-            $searchResultsSummary.find('.videos .badge').text('0'); // TODO
+            $searchResultsSummary.find('.documents .badge').removeClass('loading').text(artifacts.document.length);
+            $searchResultsSummary.find('.images .badge').removeClass('loading').text('0'); // TODO
+            $searchResultsSummary.find('.videos .badge').removeClass('loading').text('0'); // TODO
         };
 
         this.onEntitySearchResults = function(evt, entities) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            $searchResultsSummary.find('.people .badge').text((entities.person || []).length);
-            $searchResultsSummary.find('.locations .badge').text((entities.location || []).length);
-            $searchResultsSummary.find('.organizations .badge').text('0'); // TODO
+            $searchResultsSummary.find('.people .badge').removeClass('loading').text((entities.person || []).length);
+            $searchResultsSummary.find('.locations .badge').removeClass('loading').text((entities.location || []).length);
+            $searchResultsSummary.find('.organizations .badge').removeClass('loading').text('0'); // TODO
         };
 
         this.onFormSearch = function(evt) {
@@ -63,6 +63,7 @@ define([
 
             $searchResults.hide();
             $searchResultsSummary.html(summaryTemplate({}));
+            $('.badge', $searchResultsSummary).addClass('loading');
             this.ucd.artifactSearch(query, function(err, artifacts) {
                 if(err) {
                     console.error('Error', err);
