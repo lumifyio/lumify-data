@@ -158,14 +158,8 @@ define([
             this.$node.find('.search-results .active').removeClass('active');
             $target.addClass('active');
 
-            var rowKey = $target.attr('row-key');
-            var type = $target.attr('type');
-            var subType = $target.attr('sub-type');
-            this.trigger(document, 'searchResultSelected', {
-                rowKey: rowKey,
-                type: type,
-                subType: subType
-            });
+            var info = $target.data('info');
+            this.trigger(document, 'searchResultSelected', info);
         };
 
         this.after('initialize', function() {

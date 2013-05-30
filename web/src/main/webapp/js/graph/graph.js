@@ -17,18 +17,27 @@ define([
             emptyGraphSelector: '.empty-graph'
         });
 
-        this.addNode = function(title, position) {
+        this.addNode = function(title, info, position) {
             var node = {
                 group:'nodes',
-                data: {
-                    title: title
-                },
                 position: position,
             };
+
+            node.data = info;
+            node.data.id = info.rowKey;
+            node.data.title = title;
 
             cy.add(node);
 
             this.select('emptyGraphSelector').hide();
+        };
+
+        this.graphSelect = function(event) {
+            // TODO: multiple selection is two different events
+            this.trigger(document, 'searchResultSelected', event.cyTarget.data());
+        };
+        this.graphUnselect = function(event) {
+            // TODO: send empty event? needs detail to support
         };
 
         this.after('initialize', function() {
@@ -44,13 +53,14 @@ define([
                         text = text.substring(0, 10) + "...";
                     }
 
-                    this.addNode(text, {
+                    this.addNode(text, draggable.parents('li').data('info'), {
                         x: event.clientX - droppableOffset.left,
                         y: event.clientY - droppableOffset.top
                     });
                 }.bind(this)
             });
 
+            var that = this;
             cytoscape({
                 showOverlay: false,
                 minZoom: 0.5,
@@ -84,7 +94,12 @@ define([
                     }),
 
                 ready: function(){
-                  cy = this;
+                    cy = this;
+
+                    cy.on({
+                        select: that.graphSelect.bind(that),
+                        unselect: that.graphUnselect.bind(that)
+                    });
                 }
             });
         });

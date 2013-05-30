@@ -1,5 +1,7 @@
 <% results.forEach(function(result) { %>
-    <li row-key="<%= result.rowKey %>" type="<%= type %>" sub-type="<%= subType %>">
-        <a href="<%= result.url %>"><%= result.title %></a>
-    </li>
+    <li data-info="<%= JSON.stringify({
+      'rowKey': result.rowKey,
+      'type': type,
+      'subType': subType
+    }) %>"><a href="<%= result.url %>"><%= result.title || "No title available" %></a></li>
 <% }); %>
