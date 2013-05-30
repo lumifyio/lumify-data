@@ -40,6 +40,26 @@ define([
             // TODO: send empty event? needs detail to support
         };
 
+        this.graphDrag = function(event) { };
+
+        this.graphGrab = function(event) {
+            var p = event.cyTarget.position();
+            this.grabPosition = {x:p.x, y:p.y};
+        };
+
+        this.graphFree = function(event) {
+            var p = event.cyTarget.position(),
+                dx = p.x - this.grabPosition.x,
+                dy = p.y - this.grabPosition.y,
+                distance = Math.sqrt(dx * dx + dy * dy);
+
+            // If the user didn't drag more than a few pixels, select the
+            // object, it could be an accidental mouse move
+            if (distance < 5) {
+                event.cyTarget.select();
+            }
+        };
+
         this.after('initialize', function() {
             this.$node.html(template({}));
 
@@ -98,7 +118,10 @@ define([
 
                     cy.on({
                         select: that.graphSelect.bind(that),
-                        unselect: that.graphUnselect.bind(that)
+                        unselect: that.graphUnselect.bind(that),
+                        grab: that.graphGrab.bind(that),
+                        free: that.graphFree.bind(that),
+                        drag: that.graphDrag.bind(that)
                     });
                 }
             });
