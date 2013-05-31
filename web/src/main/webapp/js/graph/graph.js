@@ -104,7 +104,7 @@ define([
                       'content': 'data(title)',
                       'font-family': 'helvetica',
                       'font-size': 14,
-                      'text-outline-width': 1,
+                      'text-outline-width': 2,
                       'text-outline-color': 'white',
                       'text-valign': 'bottom',
                       'color': '#999'
