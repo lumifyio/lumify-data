@@ -36,7 +36,7 @@ define([
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
             $searchResultsSummary.find('.people .badge').text((entities.person || []).length);
             $searchResultsSummary.find('.locations .badge').text((entities.location || []).length);
-            $searchResultsSummary.find('.organizations .badge').text('0'); // TODO
+            $searchResultsSummary.find('.organizations .badge').text((entities.organization || []).length);
         };
 
         this.onFormSearch = function(evt) {
