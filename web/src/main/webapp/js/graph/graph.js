@@ -103,20 +103,16 @@ define([
                       'content': 'data(title)',
                       'font-family': 'helvetica',
                       'font-size': 14,
-                      'text-outline-width': 3,
-                      'text-outline-color': '#888',
-                      'text-valign': 'center',
-                      'color': '#fff',
-                      'width': 'mapData(weight, 30, 80, 20, 50)',
-                      'height': 'mapData(height, 0, 200, 10, 45)',
-                      'border-color': '#fff'
+                      'text-outline-width': 1,
+                      'text-outline-color': 'white',
+                      'text-valign': 'bottom',
+                      'color': '#999'
                     })
                   .selector(':selected')
                     .css({
-                      'background-color': '#000',
+                      'background-color': '#0088cc',
                       'line-color': '#000',
-                      'target-arrow-color': '#000',
-                      'text-outline-color': '#000'
+                      'color': '#0088cc'
                     })
                   .selector('edge')
                     .css({
