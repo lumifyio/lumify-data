@@ -37,11 +37,12 @@ define([
         };
 
         this.onAddToGraph = function(event, data) {
-            var p = $(event.target).offset(),
+            var el = $(event.target),
+                p = el.offset(),
                 c = this.$node.offset(),
                 position = {
-                    x: p.left - c.left, 
-                    y: p.top - c.top
+                    x: p.left - c.left + el.width() / 2.0, 
+                    y: p.top - c.top + el.height() / 2.0
                 };
 
             this.addNode(data.text, data.info, position); 
