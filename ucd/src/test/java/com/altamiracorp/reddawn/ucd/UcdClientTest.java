@@ -1,6 +1,6 @@
 package com.altamiracorp.reddawn.ucd;
 
-import com.altamiracorp.reddawn.ucd.models.*;
+import com.altamiracorp.reddawn.ucd.model.*;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableExistsException;

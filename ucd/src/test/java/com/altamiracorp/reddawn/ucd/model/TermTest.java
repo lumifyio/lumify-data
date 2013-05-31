@@ -1,4 +1,4 @@
-package com.altamiracorp.reddawn.ucd.models;
+package com.altamiracorp.reddawn.ucd.model;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -1,6 +1,6 @@
 package com.altamiracorp.reddawn.ucd.inputFormats;
 
-import com.altamiracorp.reddawn.ucd.models.Artifact;
+import com.altamiracorp.reddawn.ucd.model.Artifact;
 import org.apache.accumulo.core.client.RowIterator;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.mapreduce.InputFormatBase;

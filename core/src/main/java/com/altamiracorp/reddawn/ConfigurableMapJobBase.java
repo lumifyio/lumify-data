@@ -2,7 +2,7 @@ package com.altamiracorp.reddawn;
 
 import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
 import com.altamiracorp.reddawn.ucd.inputFormats.UCDArtifactInputFormat;
-import com.altamiracorp.reddawn.ucd.models.Term;
+import com.altamiracorp.reddawn.ucd.model.Term;
 import com.altamiracorp.reddawn.ucd.outputFormats.UCDOutputFormat;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;

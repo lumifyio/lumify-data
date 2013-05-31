@@ -1,9 +1,9 @@
 package com.altamiracorp.reddawn.textExtraction;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
-import com.altamiracorp.reddawn.ucd.models.Artifact;
-import com.altamiracorp.reddawn.ucd.models.ArtifactContent;
-import com.altamiracorp.reddawn.ucd.models.ArtifactGenericMetadata;
+import com.altamiracorp.reddawn.ucd.model.Artifact;
+import com.altamiracorp.reddawn.ucd.model.ArtifactContent;
+import com.altamiracorp.reddawn.ucd.model.ArtifactGenericMetadata;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;

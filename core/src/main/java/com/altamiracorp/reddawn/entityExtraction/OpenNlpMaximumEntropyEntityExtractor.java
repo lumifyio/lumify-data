@@ -18,11 +18,11 @@ import opennlp.tools.util.model.BaseModel;
 
 import org.apache.hadoop.mapreduce.Mapper.Context;
 
-import com.altamiracorp.reddawn.ucd.models.ArtifactKey;
-import com.altamiracorp.reddawn.ucd.models.Term;
-import com.altamiracorp.reddawn.ucd.models.TermKey;
-import com.altamiracorp.reddawn.ucd.models.TermMention;
-import com.altamiracorp.reddawn.ucd.models.TermMetadata;
+import com.altamiracorp.reddawn.ucd.model.ArtifactKey;
+import com.altamiracorp.reddawn.ucd.model.Term;
+import com.altamiracorp.reddawn.ucd.model.TermKey;
+import com.altamiracorp.reddawn.ucd.model.TermMention;
+import com.altamiracorp.reddawn.ucd.model.TermMetadata;
 
 public class OpenNlpMaximumEntropyEntityExtractor implements EntityExtractor {
 	private static final String MODEL = "OpenNlpMaximumEntropy";
