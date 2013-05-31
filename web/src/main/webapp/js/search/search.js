@@ -12,6 +12,8 @@ define([
     return defineComponent(Search);
 
     function Search() {
+        this.ucd = new UCD();
+
         this.defaultAttrs({
             searchFormSelector: '.navbar-search',
             searchQuerySelector: '.navbar-search .search-query',
@@ -27,16 +29,16 @@ define([
 
         this.onArtifactSearchResults = function(evt, artifacts) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            $searchResultsSummary.find('.documents .badge').text(artifacts.document.length);
-            $searchResultsSummary.find('.images .badge').text('0'); // TODO
-            $searchResultsSummary.find('.videos .badge').text('0'); // TODO
+            $searchResultsSummary.find('.documents .badge').removeClass('loading').text(artifacts.document.length);
+            $searchResultsSummary.find('.images .badge').removeClass('loading').text('0'); // TODO
+            $searchResultsSummary.find('.videos .badge').removeClass('loading').text('0'); // TODO
         };
 
         this.onEntitySearchResults = function(evt, entities) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            $searchResultsSummary.find('.people .badge').text((entities.person || []).length);
-            $searchResultsSummary.find('.locations .badge').text((entities.location || []).length);
-            $searchResultsSummary.find('.organizations .badge').text((entities.organization || []).length);
+            $searchResultsSummary.find('.people .badge').removeClass('loading').text((entities.person || []).length);
+            $searchResultsSummary.find('.locations .badge').removeClass('loading').text((entities.location || []).length);
+            $searchResultsSummary.find('.organizations .badge').removeClass('loading').text((entities.organization || []).length);
         };
 
         this.onFormSearch = function(evt) {
@@ -61,7 +63,8 @@ define([
 
             $searchResults.hide();
             $searchResultsSummary.html(summaryTemplate({}));
-            new UCD().artifactSearch(query, function(err, artifacts) {
+            $('.badge', $searchResultsSummary).addClass('loading');
+            this.ucd.artifactSearch(query, function(err, artifacts) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
@@ -69,7 +72,7 @@ define([
                 self.searchResults.artifacts = artifacts;
                 self.trigger('artifactSearchResults', artifacts);
             });
-            new UCD().entitySearch(query, function(err, entities) {
+            this.ucd.entitySearch(query, function(err, entities) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
@@ -111,11 +114,29 @@ define([
                 }
             });
 
-            var html = resultsTemplate(data);
+
+            // Add splitbar to search results
             $searchResults.resizable({
                 handles: 'e',
                 minWidth: 50
-            }).find('ul').html(html);
+            });
+            
+            // Update content
+            $searchResults.find('ul').html(resultsTemplate(data));
+
+            // Allow search results to be draggable
+            $searchResults.find('li a').draggable({
+                helper:'clone',
+                appendTo: 'body',
+                revert: 'invalid',
+                containment: 'window',
+                zIndex: 100,
+                start: function(e, ui) {
+
+                    // Make clone the same width
+                    ui.helper.css({width: $(this).width()});
+                }
+            });
 
             if (data.results.length) {
                 $searchResults.show();
@@ -137,14 +158,8 @@ define([
             this.$node.find('.search-results .active').removeClass('active');
             $target.addClass('active');
 
-            var rowKey = $target.attr('row-key');
-            var type = $target.attr('type');
-            var subType = $target.attr('sub-type');
-            this.trigger(document, 'searchResultSelected', {
-                rowKey: rowKey,
-                type: type,
-                subType: subType
-            });
+            var info = $target.data('info');
+            this.trigger(document, 'searchResultSelected', info);
         };
 
         this.after('initialize', function() {
@@ -169,5 +184,3 @@ define([
     }
 
 });
-
-
