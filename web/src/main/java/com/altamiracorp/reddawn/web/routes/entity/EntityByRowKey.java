@@ -18,13 +18,13 @@ import javax.servlet.http.HttpServletResponse;
 public class EntityByRowKey implements Handler, AppAware {
     private WebApp app;
 
-  public static String getUrl(HttpServletRequest request, TermKey termKey) {
-    return UrlUtils.getRootRef(request) + "/term/" + UrlUtils.urlEncode(termKey.toString());
-  }
+    public static String getUrl(HttpServletRequest request, TermKey termKey) {
+        return UrlUtils.getRootRef(request) + "/term/" + UrlUtils.urlEncode(termKey.toString());
+    }
 
     @Override
     public void setApp(App app) {
-        this.app = (WebApp)app;
+        this.app = (WebApp) app;
     }
 
     @Override
