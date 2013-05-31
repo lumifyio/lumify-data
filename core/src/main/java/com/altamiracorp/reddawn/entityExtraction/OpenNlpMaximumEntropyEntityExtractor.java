@@ -8,13 +8,8 @@ import java.util.List;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.namefind.TokenNameFinderModel;
-import opennlp.tools.tokenize.Tokenizer;
-import opennlp.tools.tokenize.TokenizerME;
-import opennlp.tools.tokenize.TokenizerModel;
-import opennlp.tools.util.model.BaseModel;
 
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 
 public class OpenNlpMaximumEntropyEntityExtractor extends
 		OpenNlpEntityExtractor {
