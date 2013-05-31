@@ -25,8 +25,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import com.altamiracorp.reddawn.ucd.model.Term;
-import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
+import com.altamiracorp.reddawn.ucd.models.ArtifactKey;
+import com.altamiracorp.reddawn.ucd.models.Term;
 
 @RunWith(JUnit4.class)
 public class OpenNlpDictionaryEntityExtractorTest {

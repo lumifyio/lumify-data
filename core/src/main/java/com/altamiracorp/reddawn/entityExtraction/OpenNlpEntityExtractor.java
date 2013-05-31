@@ -14,16 +14,17 @@ import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
+import opennlp.tools.util.model.BaseModel;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 
-import com.altamiracorp.reddawn.ucd.model.Term;
-import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
-import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
-import com.altamiracorp.reddawn.ucd.model.terms.TermMention;
-import com.altamiracorp.reddawn.ucd.model.terms.TermMetadata;
+import com.altamiracorp.reddawn.ucd.models.ArtifactKey;
+import com.altamiracorp.reddawn.ucd.models.Term;
+import com.altamiracorp.reddawn.ucd.models.TermKey;
+import com.altamiracorp.reddawn.ucd.models.TermMention;
+import com.altamiracorp.reddawn.ucd.models.TermMetadata;
 
 public abstract class OpenNlpEntityExtractor implements EntityExtractor {
 
