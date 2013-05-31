@@ -116,6 +116,9 @@ define([
                 ready: function(){
                     cy = this;
 
+                    // Fix render bug that clears canvas on resize
+                    $(document.body).on( "resize", function() { cy.zoom(cy.zoom()); }); 
+
                     cy.on({
                         select: that.graphSelect.bind(that),
                         unselect: that.graphUnselect.bind(that),
