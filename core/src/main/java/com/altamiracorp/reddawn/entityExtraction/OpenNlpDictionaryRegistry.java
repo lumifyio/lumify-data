@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 
 import opennlp.tools.dictionary.Dictionary;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
@@ -22,9 +24,6 @@ import org.apache.hadoop.fs.Path;
  */
 public class OpenNlpDictionaryRegistry {
 
-	// TODO: We should probably make this configurable/not hard-coded
-	private Map<String, String> dictionaryPaths = new HashMap<String, String>();
-
 	private Map<String, Dictionary> dictionaries = new HashMap<String, Dictionary>();
 
 	public void loadRegistry(String pathPrefix, FileSystem fs)
@@ -34,12 +33,13 @@ public class OpenNlpDictionaryRegistry {
 
 	public void loadDictionaries(String pathPrefix, FileSystem fs)
 			throws IOException {
-		for (Entry<String, String> entry : dictionaryPaths.entrySet()) {
-			Path hdfsPath = new Path(pathPrefix + entry.getValue());
+		Path hdfsDirectory = new Path(pathPrefix + "/conf/opennlp/dictionaries");
+		for (FileStatus dictionaryFileStatus : fs.listStatus(hdfsDirectory)) {
+			Path hdfsPath = dictionaryFileStatus.getPath();
 			InputStream dictionaryInputStream = fs.open(hdfsPath);
+			String type = FilenameUtils.getBaseName(hdfsPath.getName());
 			try {
-				dictionaries.put(entry.getKey(), new Dictionary(
-						dictionaryInputStream));
+				dictionaries.put(type, new Dictionary(dictionaryInputStream));
 			} finally {
 				dictionaryInputStream.close();
 			}
@@ -50,16 +50,8 @@ public class OpenNlpDictionaryRegistry {
 		return dictionaries.get(key);
 	}
 
-	public Collection<Dictionary> getAllDictionaries() {
-		return dictionaries.values();
-	}
-
-	private void initPaths() {
-		dictionaryPaths.put("ner-location",
-				"/conf/opennlp/en-ner-location.dict");
-		dictionaryPaths.put("ner-organization",
-				"/conf/opennlp/en-ner-organization.dict");
-		dictionaryPaths.put("ner-person", "/conf/opennlp/en-ner-person.dict");
+	public Collection<Entry<String, Dictionary>> getAllDictionaries() {
+		return dictionaries.entrySet();
 	}
 
 }

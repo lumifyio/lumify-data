@@ -3,15 +3,11 @@ package com.altamiracorp.reddawn.entityExtraction;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.namefind.DictionaryNameFinder;
 import opennlp.tools.namefind.TokenNameFinder;
-import opennlp.tools.tokenize.Tokenizer;
-import opennlp.tools.tokenize.TokenizerME;
-import opennlp.tools.tokenize.TokenizerModel;
-
-import org.apache.hadoop.mapreduce.Mapper.Context;
 
 public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
 
@@ -22,9 +18,10 @@ public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
 	@Override
 	protected List<TokenNameFinder> loadFinders() throws IOException {
 		List<TokenNameFinder> finders = new ArrayList<TokenNameFinder>();
-		for (Dictionary dictionary : getDictionaryRegistry()
+		for (Entry<String, Dictionary> dictionaryEntry : getDictionaryRegistry()
 				.getAllDictionaries()) {
-			finders.add(new DictionaryNameFinder(dictionary));
+			finders.add(new DictionaryNameFinder(dictionaryEntry.getValue(),
+					dictionaryEntry.getKey()));
 		}
 		return finders;
 	}
