@@ -104,7 +104,8 @@ define( [], function() {
                         var $this = $(this),
                             style = $this.offset(),
                             cloned = $this.clone().removeAttr('id href').data('original', $this);
-                        
+
+                        cloned.addClass('ui-draggable-dragging');
                         style.width = width;
                         style.position = 'absolute';
                         style.zIndex = 100;
@@ -127,7 +128,6 @@ define( [], function() {
             var helper = $(ui.helper),
                 currentLoc = helper.offset(),
                 prevLoc = helper.data('prevLoc') || ui.originalPosition,
-                offsetLeft = currentLoc.left-prevLoc.left,
                 offsetTop = currentLoc.top-prevLoc.top;
 
             instance.reverted = false;
@@ -135,7 +135,7 @@ define( [], function() {
                 var p = this.offset();
 
                 this.css({
-                    left: p.left + offsetLeft,
+                    left: currentLoc.left,
                     top: p.top + offsetTop
                 });
             });
