@@ -5,7 +5,8 @@ define([
     'tpl!./search',
     'tpl!./searchResultsSummary',
     'tpl!./searchResults',
-    'tpl!util/alert'
+    'tpl!util/alert',
+    'util/jquery.ui.draggable.multiselect',
 ], function(defineComponent, UCD, template, summaryTemplate, resultsTemplate, alertTemplate) {
     'use strict';
 
@@ -20,9 +21,9 @@ define([
             searchQueryValidationSelector: '.search-query-validation',
             searchResultsSummarySelector: '.search-results-summary',
             searchSummaryResultItemSelector: '.search-results-summary li',
+            searchResultItemLinkSelector: '.search-results li a',
             searchResultsSelector: '.search-results',
-            closeResultsSelector: '.search-results .close',
-            searchResultItemLinkSelector: '.search-results li a'
+            closeResultsSelector: '.search-results .close'
         });
 
         this.searchResults = null;
@@ -124,47 +125,9 @@ define([
             // Update content
             $searchResults.find('ul').html(resultsTemplate(data));
 
-            // Allow search results to be draggable
-            var selected;
-            $searchResults.find('li a').draggable({
-                helper:'clone',
-                appendTo: 'body',
-                revert: 'invalid',
-                containment: 'window',
-                zIndex: 100,
-                start: function(e, ui) {
-
-                    // Make clone the same width
-                    ui.helper.css({width: $(this).width()});
-
-                    $(this).is(".ui-selected") || $(".ui-selected").removeClass("ui-selected");
-                    selected = $("a.ui-selected").each(function() {
-                        $(this).addClass("dragging");
-                    });
-                    console.log(selected);
-                },
-                drag: function(ev, ui) {
-                    var dt = ui.position.top, dl = ui.position.left;
-                    selected.not(this).each(function() {
-                        var el = $(this);
-                        el.css({top: dt, left: dl});
-                    });
-                },
-                stop: function(ev, ui){
-                    selected.each(function() {
-                        $(this).removeClass("dragging");
-                    });
-                    selected = null;
-                }
-            });
+            // Allow search results to be draggable, selectable
+            this.applyDraggable( $searchResults.find('li a') );
             
-            $searchResults.find('ul').selectable({
-                filter: 'a',
-                selected: function(event, ui) {
-                    console.log(ui.selected);
-                }
-            });
-
             if (data.results.length) {
                 $searchResults.show();
             } else {
@@ -177,17 +140,6 @@ define([
             this.$node.find('.search-results-summary .active').removeClass('active');
         };
 
-        this.onSearchResultItemClick = function(evt) {
-            evt.preventDefault();
-
-            var $target = $(evt.target).parents('li');
-
-            this.$node.find('.search-results .active').removeClass('active');
-            $target.addClass('active');
-
-            var info = $target.data('info');
-            this.trigger(document, 'searchResultSelected', info);
-        };
 
         this.after('initialize', function() {
             this.$node.html(template({}));
@@ -203,11 +155,42 @@ define([
             });
             this.on('click', {
                 searchSummaryResultItemSelector: this.onSummaryResultItemClick,
-                searchResultItemLinkSelector: this.onSearchResultItemClick,
                 closeResultsSelector: this.close
             });
-            
         });
+
+
+        this.applyDraggable = function(el) {
+
+            var $this = this;
+            el.draggable({
+                helper:'clone',
+                appendTo: 'body',
+                revert: 'invalid',
+                revertDuration: 250,
+                addClass: false,
+                scroll: false,
+                zIndex: 100,
+                multi: true,
+                otherDraggables: function(ev, ui){
+
+                    ui.otherDraggables.each(function(){
+                        var info = this.data('original').parent().data('info');
+
+                        $this.trigger(this, 'addToGraph', {
+                            text: this.text(), 
+                            info:info
+                        });
+                    });
+                },
+                selection: function(ev, ui) {
+                    var selected = ui.selected,
+                        info = selected.data('info');
+
+                    $this.trigger(document, 'searchResultSelected', info);
+                }
+            });
+        };
     }
 
 });

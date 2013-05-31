@@ -25,11 +25,26 @@ define([
 
             node.data = info;
             node.data.id = info.rowKey;
+
+            if (title.length > 10) {
+                title = title.substring(0, 10) + "...";
+            }
             node.data.title = title;
 
             cy.add(node);
 
             this.select('emptyGraphSelector').hide();
+        };
+
+        this.onAddToGraph = function(event, data) {
+            var p = $(event.target).offset(),
+                c = this.$node.offset(),
+                position = {
+                    x: p.left - c.left, 
+                    y: p.top - c.top
+                };
+
+            this.addNode(data.text, data.info, position); 
         };
 
         this.graphSelect = function(event) {
@@ -69,10 +84,6 @@ define([
                         droppableOffset = $(event.target).offset(),
                         text = draggable.text();
 
-                    if (text.length > 10) {
-                        text = text.substring(0, 10) + "...";
-                    }
-
                     this.addNode(text, draggable.parents('li').data('info'), {
                         x: event.clientX - droppableOffset.left,
                         y: event.clientY - droppableOffset.top
@@ -80,7 +91,7 @@ define([
                 }.bind(this)
             });
 
-            var that = this;
+            var $this = this;
             cytoscape({
                 showOverlay: false,
                 minZoom: 0.5,
@@ -119,12 +130,14 @@ define([
                     // Fix render bug that clears canvas on resize
                     $(document.body).on( "resize", function() { cy.zoom(cy.zoom()); }); 
 
+                    $this.on(document, 'addToGraph', $this.onAddToGraph);
+
                     cy.on({
-                        select: that.graphSelect.bind(that),
-                        unselect: that.graphUnselect.bind(that),
-                        grab: that.graphGrab.bind(that),
-                        free: that.graphFree.bind(that),
-                        drag: that.graphDrag.bind(that)
+                        select: $this.graphSelect.bind($this),
+                        unselect: $this.graphUnselect.bind($this),
+                        grab: $this.graphGrab.bind($this),
+                        free: $this.graphFree.bind($this),
+                        drag: $this.graphDrag.bind($this)
                     });
                 }
             });
