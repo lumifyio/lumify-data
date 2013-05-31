@@ -1,5 +1,6 @@
-package com.altamiracorp.reddawn.ucd.model;
+package com.altamiracorp.reddawn.ucd.model.artifact;
 
+import com.altamiracorp.reddawn.ucd.model.KeyHelpers;
 import com.google.gson.annotations.Expose;
 
 public class ArtifactKey {

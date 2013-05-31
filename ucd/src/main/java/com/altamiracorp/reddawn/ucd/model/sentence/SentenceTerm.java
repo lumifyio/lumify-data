@@ -1,6 +1,6 @@
 package com.altamiracorp.reddawn.ucd.model.sentence;
 
-import com.altamiracorp.reddawn.ucd.model.TermKey;
+import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
 import com.google.gson.annotations.Expose;
 
 public class SentenceTerm {

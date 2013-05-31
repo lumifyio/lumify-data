@@ -1,6 +1,6 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
-import com.altamiracorp.reddawn.ucd.model.ArtifactKey;
+import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
 import com.altamiracorp.reddawn.ucd.model.Term;
 import org.apache.hadoop.mapreduce.Mapper;
 

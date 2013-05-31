@@ -1,5 +1,6 @@
-package com.altamiracorp.reddawn.ucd.model;
+package com.altamiracorp.reddawn.ucd.model.terms;
 
+import com.altamiracorp.reddawn.ucd.model.KeyHelpers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;

@@ -1,6 +1,10 @@
 package com.altamiracorp.reddawn.ucd;
 
 import com.altamiracorp.reddawn.ucd.model.*;
+import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
+import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
+import com.altamiracorp.reddawn.ucd.model.terms.TermMention;
+import com.altamiracorp.reddawn.ucd.model.terms.TermMetadata;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.TableExistsException;

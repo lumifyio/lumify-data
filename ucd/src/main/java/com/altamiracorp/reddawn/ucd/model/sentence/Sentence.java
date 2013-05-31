@@ -1,6 +1,6 @@
 package com.altamiracorp.reddawn.ucd.model.sentence;
 
-import com.altamiracorp.reddawn.ucd.model.ArtifactKey;
+import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
 import com.google.gson.annotations.Expose;
 
 import java.util.Collection;

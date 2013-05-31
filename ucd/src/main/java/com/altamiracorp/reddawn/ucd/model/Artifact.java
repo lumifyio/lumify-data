@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.ucd.model;
 
+import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;

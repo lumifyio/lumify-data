@@ -1,5 +1,8 @@
-package com.altamiracorp.reddawn.ucd.model;
+package com.altamiracorp.reddawn.ucd.model.terms;
 
+import com.altamiracorp.reddawn.ucd.model.KeyHelpers;
+import com.altamiracorp.reddawn.ucd.model.MutationHelpers;
+import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
 import com.google.gson.annotations.Expose;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
@@ -70,10 +73,10 @@ public class TermMetadata implements Comparable<TermMetadata> {
       mentionString = getMention().toString();
     }
     return KeyHelpers.createSHA256KeyFromConcatination(new String[]{
-        getArtifactKey().toString(),
-        getArtifactKeySign(),
-        getAuthor(),
-        mentionString
+            getArtifactKey().toString(),
+            getArtifactKeySign(),
+            getAuthor(),
+            mentionString
     });
   }
 

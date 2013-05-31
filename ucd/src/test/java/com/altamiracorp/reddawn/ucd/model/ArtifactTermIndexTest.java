@@ -1,5 +1,7 @@
 package com.altamiracorp.reddawn.ucd.model;
 
+import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
+import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

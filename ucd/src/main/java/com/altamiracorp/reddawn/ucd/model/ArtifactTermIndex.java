@@ -1,5 +1,7 @@
 package com.altamiracorp.reddawn.ucd.model;
 
+import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
+import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
 import com.google.gson.annotations.Expose;
 import org.apache.accumulo.core.client.RowIterator;
 import org.apache.accumulo.core.client.Scanner;

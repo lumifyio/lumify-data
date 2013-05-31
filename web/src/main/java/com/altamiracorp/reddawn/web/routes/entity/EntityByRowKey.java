@@ -3,7 +3,7 @@ package com.altamiracorp.reddawn.web.routes.entity;
 import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
 import com.altamiracorp.reddawn.ucd.UcdClient;
 import com.altamiracorp.reddawn.ucd.model.Term;
-import com.altamiracorp.reddawn.ucd.model.TermKey;
+import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.web.App;

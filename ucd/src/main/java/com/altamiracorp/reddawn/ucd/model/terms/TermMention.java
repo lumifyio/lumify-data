@@ -1,4 +1,4 @@
-package com.altamiracorp.reddawn.ucd.model;
+package com.altamiracorp.reddawn.ucd.model.terms;
 
 import com.google.gson.annotations.Expose;
 import org.json.JSONException;
