@@ -1,13 +1,18 @@
 package com.altamiracorp.reddawn.ucd.model.terms;
 
 import com.altamiracorp.reddawn.ucd.model.KeyHelpers;
+import com.altamiracorp.reddawn.ucd.model.base.BaseDTO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.hadoop.thirdparty.guava.common.collect.ComparisonChain;
+import org.apache.hadoop.thirdparty.guava.common.collect.Ordering;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class TermKey {
+public class TermKey implements BaseDTO<TermKey> {
   @Expose
   private String sign;
 
@@ -49,13 +54,41 @@ public class TermKey {
   }
 
   @Override
+  public TermKey clone() {
+    TermKey other = new TermKey();
+    other.sign = this.sign;
+    other.model = this.model;
+    other.concept = this.concept;
+
+    return other;
+  }
+
+  @Override
+  public int compareTo(TermKey rhs) {
+    return ComparisonChain.start()
+            .compare(sign, rhs.sign, Ordering.natural().nullsFirst())
+            .compare(concept, rhs.concept, Ordering.natural().nullsFirst())
+            .compare(model, rhs.model, Ordering.natural().nullsFirst())
+            .result();
+  }
+
+  @Override
   public int hashCode() {
-    return this.toString().hashCode();
+    return new HashCodeBuilder().append(this.concept).append(this.model)
+            .append(this.sign).toHashCode();
   }
 
   @Override
   public boolean equals(Object obj) {
-    return this.toString().equals(obj.toString());
+    if (!(obj instanceof TermKey)) {
+      return false;
+    }
+
+    TermKey other = (TermKey) obj;
+
+    return new EqualsBuilder().append(this.concept, other.concept)
+            .append(this.sign, other.sign).append(this.model, other.model)
+            .isEquals();
   }
 
   public String toJson() throws JSONException {

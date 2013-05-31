@@ -1,15 +1,12 @@
 package com.altamiracorp.reddawn.ucd.model.sentence;
 
-import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
 import com.google.gson.annotations.Expose;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 public class Sentence {
   @Expose
-  private ArtifactKey artifactKey;
+  private SentenceKey sentenceKey;
 
   @Expose
   private SentenceData sentenceData;
@@ -18,41 +15,55 @@ public class Sentence {
   private SentenceMetadata sentenceMetadata;
 
   @Expose
-  private Map<String, SentenceTerm> sentenceTerm = new HashMap<String, SentenceTerm>();
+  private List<SentenceTermId> termIds;
+
+  Sentence(Builder builder) {
+    this.sentenceKey = builder.sentenceKey;
+    this.sentenceData = builder.sentenceData;
+    this.sentenceMetadata = builder.sentenceMetadata;
+    this.termIds = builder.termIds;
+  }
 
   public static Builder newBuilder() {
     return new Builder();
   }
 
-  public Collection<SentenceTerm> getSentenceTerm() {
-    return sentenceTerm.values();
+  public List<SentenceTermId> getTermIds() {
+    return termIds;
+  }
+
+  public SentenceKey getSentenceKey() {
+    return sentenceKey;
   }
 
   public static class Builder {
-    private final Sentence sentence = new Sentence();
+    private SentenceKey sentenceKey;
+    private SentenceData sentenceData;
+    private SentenceMetadata sentenceMetadata;
+    private List<SentenceTermId> termIds;
 
-    public Builder artifactKey(ArtifactKey artifactKey) {
-      this.sentence.artifactKey = artifactKey;
+    public Builder sentenceKey(SentenceKey sentenceKey) {
+      this.sentenceKey = sentenceKey;
       return this;
     }
 
     public Builder sentenceData(SentenceData sentenceData) {
-      this.sentence.sentenceData = sentenceData;
+      this.sentenceData = sentenceData;
       return this;
     }
 
     public Builder sentenceMetadata(SentenceMetadata sentenceMetadata) {
-      this.sentence.sentenceMetadata = sentenceMetadata;
+      this.sentenceMetadata = sentenceMetadata;
       return this;
     }
 
-    public Builder sentenceTerm(SentenceTerm sentenceTerm) {
-      this.sentence.sentenceTerm.put(sentenceTerm.getFamilyName(), sentenceTerm);
+    public Builder termIds(List<SentenceTermId> termIds) {
+      this.termIds = termIds;
       return this;
     }
 
     public Sentence build() {
-      return sentence;
+      return new Sentence(this);
     }
   }
 }

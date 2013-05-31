@@ -1,22 +1,20 @@
 package com.altamiracorp.reddawn.ucd.model.artifact;
 
 import com.altamiracorp.reddawn.ucd.model.KeyHelpers;
+import com.altamiracorp.reddawn.ucd.model.base.BaseDTO;
 import com.google.gson.annotations.Expose;
+import org.apache.hadoop.thirdparty.guava.common.collect.ComparisonChain;
+import org.apache.hadoop.thirdparty.guava.common.collect.Ordering;
 
-public class ArtifactKey {
+public class ArtifactKey implements BaseDTO<ArtifactKey> {
   @Expose
-  private String key;
+  private String artifactKey;
 
   private ArtifactKey() {
   }
 
   public ArtifactKey(String key) {
-    this.key = key;
-  }
-
-  @Override
-  public String toString() {
-    return this.key;
+    this.artifactKey = key;
   }
 
   public static Builder newBuilder() {
@@ -24,11 +22,42 @@ public class ArtifactKey {
   }
 
   @Override
+  public int compareTo(ArtifactKey rhs) {
+    return ComparisonChain
+            .start()
+            .compare(artifactKey, rhs.artifactKey,
+                    Ordering.natural().nullsFirst()).result();
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result
+            + ((artifactKey == null) ? 0 : artifactKey.hashCode());
+    return result;
+  }
+
+  @Override
   public boolean equals(Object obj) {
-    if (obj instanceof ArtifactKey) {
-      return key.equals(((ArtifactKey) obj).key);
-    }
-    return false;
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ArtifactKey other = (ArtifactKey) obj;
+    if (artifactKey == null) {
+      if (other.artifactKey != null)
+        return false;
+    } else if (!artifactKey.equals(other.artifactKey))
+      return false;
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return this.artifactKey;
   }
 
   public static class Builder {
@@ -44,7 +73,7 @@ public class ArtifactKey {
       if (docArtifactBytes == null) {
         throw new RuntimeException("docArtifactBytes cannot be null");
       }
-      artifactKey.key = KeyHelpers.createSHA256Key(docArtifactBytes);
+      artifactKey.artifactKey = KeyHelpers.createSHA256Key(docArtifactBytes);
       return artifactKey;
     }
   }

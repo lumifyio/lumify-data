@@ -1,16 +1,19 @@
 package com.altamiracorp.reddawn.ucd.model.Sentence;
 
 import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
-import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
 import com.altamiracorp.reddawn.ucd.model.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.model.sentence.SentenceData;
 import com.altamiracorp.reddawn.ucd.model.sentence.SentenceMetadata;
 import com.altamiracorp.reddawn.ucd.model.sentence.SentenceTerm;
+import com.altamiracorp.reddawn.ucd.model.sentence.SentenceKey;
+import com.altamiracorp.reddawn.ucd.model.sentence.SentenceTermId;
+import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -35,15 +38,30 @@ public class SentenceTest {
 
     stb.termKey(termKey);
 
-    Sentence sentence = sb
-            .artifactKey(new ArtifactKey("testArtifactKey"))
-            .sentenceData(sdb.build())
-            .sentenceMetadata(smb.build())
-            .sentenceTerm(stb.build())
+    SentenceKey sentenceKey = SentenceKey
+            .Builder
+            .newBuilder()
+            .artifactKey(new ArtifactKey("urn:sha256:007d14d3"))
+            .start(271)
+            .end(553)
             .build();
 
-    SentenceTerm sentenceTerm = new ArrayList<SentenceTerm>(sentence.getSentenceTerm()).get(0);
-    assertEquals("a q khan\u001FCTA\u001FPERSON", sentenceTerm.getFamilyName());
+    SentenceTermId termId = SentenceTermId.Builder.newBuilder().termId(termKey).termColumnFamilyHash("X1X1").build();
+    List<SentenceTermId> termIds = new ArrayList<SentenceTermId>();
+    termIds.add(termId);
+
+    Sentence sentence = sb
+            .sentenceKey(sentenceKey)
+            .sentenceData(sdb.build())
+            .sentenceMetadata(smb.build())
+            .termIds(termIds)
+            .build();
+
+    assertEquals("urn:sha256:007d14d3:271:553", sentence.getSentenceKey().toString());
+
+    SentenceTermId sentenceTermId = sentence.getTermIds().get(0);
+    assertEquals("a q khan\u001FCTA\u001FPERSON", sentenceTermId.getTermId().toString());
+    assertEquals("X1X1", sentenceTermId.getTermColumnFamilyHash());
 
     // todo: assert more fields are equal
   }
