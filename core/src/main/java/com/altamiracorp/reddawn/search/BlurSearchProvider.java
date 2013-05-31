@@ -1,6 +1,6 @@
 package com.altamiracorp.reddawn.search;
 
-import com.altamiracorp.reddawn.ucd.models.Artifact;
+import com.altamiracorp.reddawn.ucd.model.Artifact;
 import org.apache.blur.thirdparty.thrift_0_9_0.TException;
 import org.apache.blur.thirdparty.thrift_0_9_0.protocol.TBinaryProtocol;
 import org.apache.blur.thirdparty.thrift_0_9_0.protocol.TProtocol;

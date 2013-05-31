@@ -1,6 +1,6 @@
 package com.altamiracorp.reddawn.search;
 
-import com.altamiracorp.reddawn.ucd.models.Artifact;
+import com.altamiracorp.reddawn.ucd.model.Artifact;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.util.ArrayList;

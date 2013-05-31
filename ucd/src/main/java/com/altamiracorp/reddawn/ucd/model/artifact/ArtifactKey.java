@@ -1,0 +1,51 @@
+package com.altamiracorp.reddawn.ucd.model.artifact;
+
+import com.altamiracorp.reddawn.ucd.model.KeyHelpers;
+import com.google.gson.annotations.Expose;
+
+public class ArtifactKey {
+  @Expose
+  private String key;
+
+  private ArtifactKey() {
+  }
+
+  public ArtifactKey(String key) {
+    this.key = key;
+  }
+
+  @Override
+  public String toString() {
+    return this.key;
+  }
+
+  public static Builder newBuilder() {
+    return new Builder();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof ArtifactKey) {
+      return key.equals(((ArtifactKey) obj).key);
+    }
+    return false;
+  }
+
+  public static class Builder {
+    private byte[] docArtifactBytes;
+
+    public Builder docArtifactBytes(byte[] docArtifactBytes) {
+      this.docArtifactBytes = docArtifactBytes;
+      return this;
+    }
+
+    public ArtifactKey build() {
+      ArtifactKey artifactKey = new ArtifactKey();
+      if (docArtifactBytes == null) {
+        throw new RuntimeException("docArtifactBytes cannot be null");
+      }
+      artifactKey.key = KeyHelpers.createSHA256Key(docArtifactBytes);
+      return artifactKey;
+    }
+  }
+}

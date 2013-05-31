@@ -10,7 +10,7 @@ define(['ucd/ucd'], function(UCD) {
 
 		it('should have some defaults', function () {
 			var ucd = new UCD({});
-            expect(ucd.options.jsonp).to.be.false;
+            expect(ucd.options.jsonp).to.equal(false);
             expect(ucd.options.serviceBaseUrl).to.be.equal('/');
 		});
 
