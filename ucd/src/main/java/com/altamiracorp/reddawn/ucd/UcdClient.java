@@ -1,6 +1,9 @@
 package com.altamiracorp.reddawn.ucd;
 
-import com.altamiracorp.reddawn.ucd.models.*;
+import com.altamiracorp.reddawn.ucd.model.*;
+import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
+import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
+import com.altamiracorp.reddawn.ucd.model.terms.TermMetadata;
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.data.Range;
 import org.json.JSONException;

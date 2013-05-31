@@ -9,9 +9,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.namefind.TokenNameFinderModel;
+import opennlp.tools.tokenize.Tokenizer;
+import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
-import opennlp.tools.util.model.BaseModel;
 
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.junit.Before;
@@ -19,8 +22,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import com.altamiracorp.reddawn.ucd.models.ArtifactKey;
-import com.altamiracorp.reddawn.ucd.models.Term;
+import com.altamiracorp.reddawn.ucd.model.Term;
+import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
 
 @RunWith(JUnit4.class)
 public class OpenNlpMEEntityExtractorTest {
@@ -40,33 +43,36 @@ public class OpenNlpMEEntityExtractorTest {
 	public void setUp() throws IOException {
 		context = mock(Context.class);
 		extractor = new OpenNlpMaximumEntropyEntityExtractor() {
+			
 			@Override
 			public void setup(Context context) throws IOException {
-				buildTokenizer(loadTokenizer());
-				buildFinders(loadFinders());
+				setFinders(loadFinders());
+				setTokenizer(loadTokenizer());
 			}
 
-			private List<BaseModel> loadFinders() throws IOException {
-				List<BaseModel> finderModels = new ArrayList<BaseModel>();
+			@Override
+			protected List<TokenNameFinder> loadFinders() throws IOException {
+				List<TokenNameFinder> finders = new ArrayList<TokenNameFinder>();
 				for (String finderModelFile : finderModelFiles) {
 					InputStream finderModelIn = Thread.currentThread()
 							.getContextClassLoader()
 							.getResourceAsStream(finderModelFile);
 					TokenNameFinderModel finderModel = new TokenNameFinderModel(
 							finderModelIn);
-					finderModels.add(finderModel);
+					finders.add(new NameFinderME(finderModel));
 				}
 
-				return finderModels;
+				return finders;
 			}
 
-			private BaseModel loadTokenizer() throws IOException {
+			@Override
+			protected Tokenizer loadTokenizer() throws IOException {
 				InputStream tokenizerModelIn = Thread.currentThread()
 						.getContextClassLoader()
 						.getResourceAsStream(tokenizerModelFile);
 				TokenizerModel tokenizerModel = new TokenizerModel(
 						tokenizerModelIn);
-				return tokenizerModel;
+				return new TokenizerME(tokenizerModel);
 			}
 		};
 	}

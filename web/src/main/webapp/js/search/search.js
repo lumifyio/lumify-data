@@ -39,7 +39,7 @@ define([
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
             $searchResultsSummary.find('.people .badge').removeClass('loading').text((entities.person || []).length);
             $searchResultsSummary.find('.locations .badge').removeClass('loading').text((entities.location || []).length);
-            $searchResultsSummary.find('.organizations .badge').removeClass('loading').text('0'); // TODO
+            $searchResultsSummary.find('.organizations .badge').removeClass('loading').text((entities.organization || []).length);
         };
 
         this.onFormSearch = function(evt) {
@@ -194,5 +194,3 @@ define([
     }
 
 });
-
-

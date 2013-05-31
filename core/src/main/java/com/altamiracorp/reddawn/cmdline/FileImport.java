@@ -2,9 +2,9 @@ package com.altamiracorp.reddawn.cmdline;
 
 import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
 import com.altamiracorp.reddawn.ucd.UcdClient;
-import com.altamiracorp.reddawn.ucd.models.Artifact;
-import com.altamiracorp.reddawn.ucd.models.ArtifactContent;
-import com.altamiracorp.reddawn.ucd.models.ArtifactGenericMetadata;
+import com.altamiracorp.reddawn.ucd.model.Artifact;
+import com.altamiracorp.reddawn.ucd.model.ArtifactContent;
+import com.altamiracorp.reddawn.ucd.model.ArtifactGenericMetadata;
 import org.apache.accumulo.core.client.BatchWriter;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.util.CachedConfiguration;

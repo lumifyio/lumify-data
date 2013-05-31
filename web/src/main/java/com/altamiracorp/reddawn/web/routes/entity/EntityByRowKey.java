@@ -2,8 +2,8 @@ package com.altamiracorp.reddawn.web.routes.entity;
 
 import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
 import com.altamiracorp.reddawn.ucd.UcdClient;
-import com.altamiracorp.reddawn.ucd.models.Term;
-import com.altamiracorp.reddawn.ucd.models.TermKey;
+import com.altamiracorp.reddawn.ucd.model.Term;
+import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.web.App;
@@ -18,13 +18,13 @@ import javax.servlet.http.HttpServletResponse;
 public class EntityByRowKey implements Handler, AppAware {
     private WebApp app;
 
-  public static String getUrl(HttpServletRequest request, TermKey termKey) {
-    return UrlUtils.getRootRef(request) + "/term/" + UrlUtils.urlEncode(termKey.toString());
-  }
+    public static String getUrl(HttpServletRequest request, TermKey termKey) {
+        return UrlUtils.getRootRef(request) + "/term/" + UrlUtils.urlEncode(termKey.toString());
+    }
 
     @Override
     public void setApp(App app) {
-        this.app = (WebApp)app;
+        this.app = (WebApp) app;
     }
 
     @Override

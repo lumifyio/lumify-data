@@ -62,6 +62,12 @@
             <groupId>org.apache.blur</groupId>
             <artifactId>blur-util</artifactId>
             <version>0.1.5</version>
+	      	<exclusions>
+				<exclusion>  <!-- declare the exclusion here -->
+			   		<groupId>org.slf4j</groupId>
+			   		<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
         </dependency>
 
         <dependency>

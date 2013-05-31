@@ -1,8 +1,11 @@
 package com.altamiracorp.reddawn.web;
 
 import com.altamiracorp.reddawn.web.routes.artifact.*;
+import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
+import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
 import com.altamiracorp.reddawn.web.routes.entity.EntityByRowKey;
 import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
+import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.Handler;
 
@@ -38,6 +41,11 @@ public class Router extends HttpServlet {
 
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);
+
+        app.get("/user/messages", authenticator, MessagesGet.class);
+
+        app.post("/chat/new", authenticator, ChatNew.class);
+        app.post("/chat/{chatId}/post", authenticator, ChatPostMessage.class);
 
         LessRestlet.init(rootDir);
         app.get("/css/{file}.css", LessRestlet.class);

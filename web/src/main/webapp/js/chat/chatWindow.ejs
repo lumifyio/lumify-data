@@ -1,0 +1,10 @@
+<div class="chat-window" id="chat-window-<%= chat.id %>" chat-id="<%= chat.id %>">
+    <div class="to"><%= chat.users.map(function(user) { return user.username; }).join(', ') %></div>
+    <div class="chat-messages">
+
+    </div>
+    <form class="new-message">
+        <input class="message">
+        <button class="send">Send</button>
+    </form>
+</div>

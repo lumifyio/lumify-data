@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
-import com.altamiracorp.reddawn.ucd.models.ArtifactKey;
-import com.altamiracorp.reddawn.ucd.models.Term;
+import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
+import com.altamiracorp.reddawn.ucd.model.Term;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;

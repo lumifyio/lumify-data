@@ -21,7 +21,7 @@ public class DevBasicAuthenticator implements Handler {
             if (username == null) {
                 requestAuthorization(response);
             } else {
-                request.setAttribute("user.current", username);
+                User.setUser(request, new User(username));
                 chain.next(request, response);
             }
         } else {
