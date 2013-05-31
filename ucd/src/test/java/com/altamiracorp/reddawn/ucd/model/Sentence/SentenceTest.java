@@ -1,5 +1,11 @@
-package com.altamiracorp.reddawn.ucd.model;
+package com.altamiracorp.reddawn.ucd.model.Sentence;
 
+import com.altamiracorp.reddawn.ucd.model.ArtifactKey;
+import com.altamiracorp.reddawn.ucd.model.TermKey;
+import com.altamiracorp.reddawn.ucd.model.sentence.Sentence;
+import com.altamiracorp.reddawn.ucd.model.sentence.SentenceData;
+import com.altamiracorp.reddawn.ucd.model.sentence.SentenceMetadata;
+import com.altamiracorp.reddawn.ucd.model.sentence.SentenceTerm;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

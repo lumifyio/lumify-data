@@ -1,4 +1,4 @@
-package com.altamiracorp.reddawn.ucd.model;
+package com.altamiracorp.reddawn.ucd.model.sentence;
 
 public class SentenceMetadata {
   public static Builder newBuilder() {
