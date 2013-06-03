@@ -1,0 +1,19 @@
+
+background: white;
+position: relative;
+
+.empty-graph {
+  .fullscreen;
+  background: url(../img/drop-items.png) no-repeat center;
+}
+
+.cytoscape-container {
+  position: relative;
+
+  // Cytoscape hardcodes 1000 here, breaks resizing
+  div { z-index: 50 !important; }
+}
+
+canvas {
+  left: 0;
+}

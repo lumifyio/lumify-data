@@ -1,0 +1,5 @@
+<div class="chat-message <%= message.tempId ? 'submitting' : '' %>" <%- message.tempId ? ('id="' + message.tempId + '"') : '' %> style="border: 1px solid black;">
+    <div class="from"><%= message.from.username %></div>
+    <div class="message"><%= message.message %></div>
+    <div class="date"><%= message.postDate || 'Pending' %></div>
+</div>

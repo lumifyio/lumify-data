@@ -1,58 +1,210 @@
 package com.altamiracorp.reddawn.ucd;
 
-import com.altamiracorp.reddawn.ucd.models.Artifact;
-import com.altamiracorp.reddawn.ucd.models.Term;
+import com.altamiracorp.reddawn.ucd.model.*;
+import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
+import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
+import com.altamiracorp.reddawn.ucd.model.terms.TermMetadata;
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.data.Range;
-import org.apache.accumulo.core.security.Authorizations;
+import org.json.JSONException;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-public class UcdClient {
-  private final Connector accumuloConnector;
+public class UcdClient<A extends AuthorizationLabel> {
+    protected final Connector connection;
+    private long batchWriterMemBuf = 1000000L;
+    private long batchWriterTimeout = 1000L;
+    private int batchWriterNumThreads = 10;
 
-  public UcdClient(Connector accumuloConnector) {
-    this.accumuloConnector = accumuloConnector;
-  }
-
-  public Connector getAccumuloConnector() {
-    return accumuloConnector;
-  }
-
-  public void initializeTables() throws TableExistsException, AccumuloSecurityException, AccumuloException {
-    if (!getAccumuloConnector().tableOperations().exists(Artifact.TABLE_NAME)) {
-      getAccumuloConnector().tableOperations().create(Artifact.TABLE_NAME);
+    UcdClient(Connector connection) {
+        this.connection = connection;
     }
-    if (!getAccumuloConnector().tableOperations().exists(Term.TABLE_NAME)) {
-      getAccumuloConnector().tableOperations().create(Term.TABLE_NAME);
+
+    public void initializeTables() throws TableExistsException, AccumuloSecurityException, AccumuloException {
+        initializeTable(Artifact.TABLE_NAME);
+        initializeTable(Term.TABLE_NAME);
+        initializeTable(ArtifactTermIndex.TABLE_NAME);
     }
-  }
 
-  public void deleteTables() throws AccumuloSecurityException, AccumuloException, TableNotFoundException {
-    getAccumuloConnector().tableOperations().delete(Artifact.TABLE_NAME);
-  }
-
-  public Artifact getArtifactByRowId(String rowId, Authorizations auths) throws Exception {
-    Scanner scan = getAccumuloConnector().createScanner(Artifact.TABLE_NAME, auths);
-    scan.setRange(new Range(rowId));
-
-    List<Artifact> artifacts = Artifact.createFromScanner(scan);
-    if (artifacts.isEmpty()) {
-      return null;
+    private void initializeTable(String tableName) throws TableExistsException, AccumuloSecurityException, AccumuloException {
+        if (!connection.tableOperations().exists(tableName)) {
+            connection.tableOperations().create(tableName);
+        }
     }
-    if (artifacts.size() != 1) {
-      throw new Exception("Multiple rows returned for rowId: " + rowId); // TODO create custom exception for multiple rows
+
+    public void deleteTables() throws AccumuloSecurityException, AccumuloException, TableNotFoundException {
+        deleteTable(Artifact.TABLE_NAME);
+        deleteTable(Term.TABLE_NAME);
+        deleteTable(ArtifactTermIndex.TABLE_NAME);
     }
-    return artifacts.get(0);
-  }
 
-  public void close() {
-  }
+    private void deleteTable(String tableName) throws AccumuloSecurityException, AccumuloException, TableNotFoundException {
+        if (connection.tableOperations().exists(tableName)) {
+            connection.tableOperations().delete(tableName);
+        }
+    }
 
-  public List<Term> getTermsStartingWith(String str, Authorizations auths) throws Exception {
-    Scanner scan = getAccumuloConnector().createScanner(Term.TABLE_NAME, auths);
-    scan.setRange(new Range(str, true, str + "Z", true)); // TODO: how do you do an inclusive search without using + "Z"
+    public void close() {
 
-    return Term.createFromScanner(scan);
-  }
+    }
+
+    public void writeArtifact(Artifact artifact, QueryUser<A> queryUser) throws UCDIOException, InvalidClassificationException {
+        try {
+            BatchWriter writer = this.connection.createBatchWriter(Artifact.TABLE_NAME, this.batchWriterMemBuf, this.batchWriterTimeout, this.batchWriterNumThreads);
+            writer.addMutation(artifact.getMutation());
+            writer.close();
+        } catch (TableNotFoundException e) {
+            throw new UCDIOException(e);
+        } catch (MutationsRejectedException e) {
+            throw new UCDIOException(e);
+        }
+    }
+
+    public Artifact queryArtifactByKey(ArtifactKey artifactKey, QueryUser<A> queryUser) throws UCDIOException {
+        try {
+            Scanner scan = this.connection.createScanner(Artifact.TABLE_NAME, queryUser.getAuthorizations());
+            scan.setRange(new Range(artifactKey.toString()));
+
+            List<Artifact> artifacts = Artifact.newBuilder().buildFromScanner(scan);
+            if (artifacts.isEmpty()) {
+                return null;
+            }
+            if (artifacts.size() != 1) {
+                throw new UCDIOException("Multiple rows returned for artifact with key: " + artifactKey.toString());
+            }
+            return artifacts.get(0);
+        } catch (TableNotFoundException e) {
+            throw new UCDIOException(e);
+        }
+    }
+
+    public List<Artifact> queryArtifactAll(QueryUser<A> queryUser) throws UCDIOException {
+        try {
+            Scanner scan = this.connection.createScanner(Artifact.TABLE_NAME, queryUser.getAuthorizations());
+
+            return Artifact.newBuilder().buildFromScanner(scan);
+        } catch (TableNotFoundException e) {
+            throw new UCDIOException(e);
+        }
+    }
+
+    public Connector getConnection() {
+        return connection;
+    }
+
+    public void writeTerm(Term term, QueryUser<A> queryUser) throws UCDIOException {
+        try {
+            BatchWriter termWriter = this.connection.createBatchWriter(Term.TABLE_NAME, this.batchWriterMemBuf, this.batchWriterTimeout, this.batchWriterNumThreads);
+            termWriter.addMutation(term.getMutation());
+            termWriter.close();
+
+            BatchWriter artifactTermIndexWriter = this.connection.createBatchWriter(ArtifactTermIndex.TABLE_NAME, this.batchWriterMemBuf, this.batchWriterTimeout, this.batchWriterNumThreads);
+            for (TermMetadata termMetadata : term.getMetadata()) {
+                ArtifactTermIndex artifactTermIndex = ArtifactTermIndex.newBuilder()
+                        .artifactKey(termMetadata.getArtifactKey())
+                        .termMention(term.getKey(), termMetadata.getColumnFamilyName())
+                        .build();
+                writeArtifactTermIndex(artifactTermIndexWriter, artifactTermIndex, queryUser);
+            }
+            artifactTermIndexWriter.close();
+        } catch (TableNotFoundException e) {
+            throw new UCDIOException(e);
+        } catch (MutationsRejectedException e) {
+            throw new UCDIOException(e);
+        }
+    }
+
+    public Term queryTermByKey(TermKey termKey, QueryUser<A> queryUser) throws UCDIOException {
+        try {
+            Scanner scan = this.connection.createScanner(Term.TABLE_NAME, queryUser.getAuthorizations());
+            scan.setRange(new Range(termKey.toString()));
+
+            List<Term> terms = Term.newBuilder().buildFromScanner(scan);
+            if (terms.isEmpty()) {
+                return null;
+            }
+            if (terms.size() != 1) {
+                throw new UCDIOException("Multiple rows returned for term with key: " + termKey.toString());
+            }
+            return terms.get(0);
+        } catch (TableNotFoundException e) {
+            throw new UCDIOException(e);
+        } catch (JSONException e) {
+            throw new UCDIOException(e);
+        }
+    }
+
+    public List<Term> queryTermAll(QueryUser<A> queryUser) throws UCDIOException {
+        try {
+            Scanner scan = this.connection.createScanner(Term.TABLE_NAME, queryUser.getAuthorizations());
+
+            return Term.newBuilder().buildFromScanner(scan);
+        } catch (TableNotFoundException e) {
+            throw new UCDIOException(e);
+        } catch (JSONException e) {
+            throw new UCDIOException(e);
+        }
+    }
+
+    public List<Term> queryTermStartsWith(String query, QueryUser<A> queryUser) throws UCDIOException {
+        try {
+            Scanner scan = this.connection.createScanner(Term.TABLE_NAME, queryUser.getAuthorizations());
+            scan.setRange(new Range(query, query.toLowerCase() + "Z"));
+
+            return Term.newBuilder().buildFromScanner(scan);
+        } catch (TableNotFoundException e) {
+            throw new UCDIOException(e);
+        } catch (JSONException e) {
+            throw new UCDIOException(e);
+        }
+    }
+
+    public void writeArtifactTermIndex(ArtifactTermIndex artifactTermIndex, QueryUser<A> queryUser) throws UCDIOException {
+        try {
+            BatchWriter writer = this.connection.createBatchWriter(ArtifactTermIndex.TABLE_NAME, this.batchWriterMemBuf, this.batchWriterTimeout, this.batchWriterNumThreads);
+            writeArtifactTermIndex(writer, artifactTermIndex, queryUser);
+            writer.close();
+        } catch (TableNotFoundException e) {
+            throw new UCDIOException(e);
+        } catch (MutationsRejectedException e) {
+            throw new UCDIOException(e);
+        }
+    }
+
+    private void writeArtifactTermIndex(BatchWriter writer, ArtifactTermIndex artifactTermIndex, QueryUser<A> queryUser) throws MutationsRejectedException {
+        writer.addMutation(artifactTermIndex.getMutation());
+    }
+
+    public ArtifactTermIndex queryArtifactTermIndexByArtifactKey(ArtifactKey artifactKey, QueryUser<A> queryUser) throws UCDIOException {
+        try {
+            Scanner scan = this.connection.createScanner(ArtifactTermIndex.TABLE_NAME, queryUser.getAuthorizations());
+            scan.setRange(new Range(artifactKey.toString()));
+
+            List<ArtifactTermIndex> artifactTermIndexes = ArtifactTermIndex.newBuilder().buildFromScanner(scan);
+            if (artifactTermIndexes.isEmpty()) {
+                return null;
+            }
+            if (artifactTermIndexes.size() != 1) {
+                throw new UCDIOException("Multiple rows returned for artifact term index with key: " + artifactKey.toString());
+            }
+            return artifactTermIndexes.get(0);
+        } catch (TableNotFoundException e) {
+            throw new UCDIOException(e);
+        }
+    }
+
+    public Collection<Term> queryTermByArtifactKey(ArtifactKey artifactKey, QueryUser<A> queryUser) throws UCDIOException {
+        ArrayList<Term> terms = new ArrayList<Term>();
+        ArtifactTermIndex artifactTermIndex = queryArtifactTermIndexByArtifactKey(artifactKey, queryUser);
+        if (artifactTermIndex == null) {
+            return terms;
+        }
+        for (TermKey termRowId : artifactTermIndex.getTermMentions().keySet()) {
+            Term term = queryTermByKey(termRowId, queryUser);
+            terms.add(term);
+        }
+        return terms;
+    }
 }

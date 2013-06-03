@@ -1,0 +1,32 @@
+@import "gradient";
+
+.splitbar(@color: #efefef) {
+  @border: darken(@color, 10%);
+  @percent: 2%;
+
+  .gradient(left, lighten(@color, @percent), darken(@color, @percent));
+  border-width: 0 1px;
+  border-style: solid;
+  border-color: @border;
+
+  &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    height: 10px;
+    width: 2px;
+    background: @border;
+    left: 1px;
+    top: 50%;
+  }
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    height: 10px;
+    width: 2px;
+    background: @border;
+    left: 4px;
+    top: 50%;
+  }
+}

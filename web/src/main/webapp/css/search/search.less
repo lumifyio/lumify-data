@@ -1,0 +1,64 @@
+@import "../util/lists.less";
+@import "../util/positioning.less";
+@import "../util/selection.less";
+
+@background-color: #f9f9f9;
+
+width: 225px;
+background: @background-color;
+
+.navbar-search { 
+  text-align: center;
+  width: 100%; 
+}
+
+.search-query {
+  width: 75%;
+  margin-bottom: 0.5em;
+}
+
+.badge { 
+  float:right; 
+}
+
+.badge.loading {
+  background-image: url('/img/loading.gif');
+  background-repeat: no-repeat;
+  background-color: transparent;
+  width: 0px;
+  height: 16px;
+  display: inline-block;
+  opacity: 0.4;
+  position: relative;
+  left: -2px;
+}
+
+.search-results-summary {
+}
+
+.search-results {
+  .pin-left-split;
+
+  z-index: 100;  // so it floats above graph
+  word-wrap: break-word;
+  width: 200px;
+  background: @background-color; 
+  text-align: right;
+
+  ul {
+    overflow: auto;
+    text-align: left;
+    box-sizing: border-box;
+    height: 100%;
+  }
+
+  a.ui-selecting, a.ui-selected {
+    .active-selection;
+  }
+
+  button.close {
+    position: absolute;
+    right: 6px;
+    top: 0;
+  }
+}

@@ -1,4 +1,10 @@
+data/
 target/
 .idea
 *.iml
 .vagrant
+.settings/
+.project
+.classpath
+.DS_Store
+node_modules/

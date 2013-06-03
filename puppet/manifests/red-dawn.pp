@@ -16,6 +16,9 @@ $stormDir     = 'storm-0.8.2'
 $tomcatUrl    = 'http://www.us.apache.org/dist/tomcat/tomcat-7/v7.0.40/bin/apache-tomcat-7.0.40.tar.gz'
 $tomcatDir    = 'apache-tomcat-7.0.40'
 
+$blurSource   = 'puppet:///modules/blur/apache-blur-0.1.5-bin.tar.gz'
+$blurDir      = 'apache-blur-0.1.5'
+
 exec { 'yum-update' :
   command => '/usr/bin/yum -y update',
   logoutput => 'on_failure',
@@ -80,8 +83,56 @@ user { 'tomcat' :
   home => '/opt/tomcat-conf',
 }
 
+user { 'blur' :
+  ensure => 'present',
+  gid => 'hadoop',
+  home => '/opt/blur-conf',
+}
+
 file { '/opt/downloads' :
   ensure => 'directory',
+}
+
+define find-and-replace ($file, $find, $replace) {
+  exec { "find-and-replace-${title}" :
+    command => "/bin/sed -i.DIST -e 's|${find}|${replace}|' ${file}",
+    unless => "/bin/grep -q '${replace}' ${file}",
+  }
+}
+
+define know-our-host-key ($user, $hostname) {
+  exec { "know-our-host-key-${user}-${hostname}" :
+    command => "/bin/echo \"${hostname} $(/bin/cat /etc/ssh/ssh_host_rsa_key.pub)\" >> /opt/${user}-conf/.ssh/known_hosts",
+    user => "${user}",
+    unless => "/bin/grep -q \"${hostname} $(/bin/cat /etc/ssh/ssh_host_rsa_key.pub)\" /opt/${user}-conf/.ssh/known_hosts",
+  }
+}
+
+define setup-passwordless-ssh ($user = $title) {
+  exec { "generate-ssh-keypair-${user}" :
+    command => "/usr/bin/ssh-keygen -b 2048 -f /opt/${user}-conf/.ssh/id_rsa -N ''",
+    user => "${user}",
+    creates => "/opt/${user}-conf/.ssh/id_rsa",
+  }
+
+  exec { "authorize-ssh-key-${user}" :
+    command => "/bin/cat /opt/${user}-conf/.ssh/id_rsa.pub >> /opt/${user}-conf/.ssh/authorized_keys",
+    user => "${user}",
+    unless => "/bin/grep -q \"$(/bin/cat /opt/${user}-conf/.ssh/id_rsa.pub)\" /opt/${user}-conf/.ssh/authorized_keys",
+    require => Exec["generate-ssh-keypair-${user}"],
+  }
+
+  know-our-host-key { "${user}-localhost" :
+    user => "${user}",
+    hostname => 'localhost',
+    require => Exec["generate-ssh-keypair-${user}"],
+  }
+
+  know-our-host-key { "${user}-${ipaddress_eth1}" :
+    user => "${user}",
+    hostname => "${ipaddress_eth1}",
+    require => Exec["generate-ssh-keypair-${user}"],
+  }
 }
 
 define download ($dirName = $title, $url, $extension) {
@@ -103,7 +154,7 @@ define extract ($dirName = $title, $extension, $user = 'hadoop', $group = 'hadoo
     cwd => '/opt',
     command => "${cmd} downloads/${dirName}.${extension} && /bin/chown -R ${user}:${group} /opt/${dirName}",
     creates => "/opt/${dirName}",
-    require => [ Download["${dirName}"], User["${user}"] ],
+    require => [ User["${user}"], Group["${group}"] ],
   }
 }
 
@@ -116,12 +167,7 @@ define relocate-conf ($app = $title) {
   }
 }
 
-define install ($app = $title, $dirName, $url, $extension, $user = 'hadoop', $group = 'hadoop') {
-  download { "${dirName}" :
-    url => "${url}",
-    extension => "${extension}",
-  }
-
+define install ($app = $title, $dirName, $extension, $user = 'hadoop', $group = 'hadoop') {
   extract { "${dirName}" :
     extension => "${extension}",
     user => "${user}",
@@ -138,48 +184,113 @@ define install ($app = $title, $dirName, $url, $extension, $user = 'hadoop', $gr
   }
 }
 
-install { 'hadoop' :
+define download-and-install ($app = $title, $dirName, $url, $extension, $user = 'hadoop', $group = 'hadoop') {
+  download { "${dirName}" :
+    url => "${url}",
+    extension => "${extension}",
+  }
+
+  install { "${app}" :
+    app => "${app}",
+    dirName => "${dirName}",
+    extension => "${extension}",
+    user => "${user}",
+    group => "${group}",
+    require => Download["${dirName}"],
+  }
+}
+
+define local-install ($app = $title, $dirName, $source, $extension, $user = 'hadoop', $group = 'hadoop') {
+  file { "/opt/downloads/${dirName}.${extension}" :
+    source => "${source}",
+    require => File['/opt/downloads'],
+  }
+
+  install { "${app}" :
+    app => "${app}",
+    dirName => "${dirName}",
+    extension => "${extension}",
+    user => "${user}",
+    group => "${group}",
+    require => File["/opt/downloads/${dirName}.${extension}"],
+  }
+}
+
+download-and-install { 'hadoop' :
   dirName => "${hadoopDir}",
   url => "${hadoopUrl}",
   extension => 'tar.gz',
 }
 
-install { 'zookeeper' :
+download-and-install { 'zookeeper' :
   dirName => "${zookeeperDir}",
   url => "${zookeeperUrl}",
   extension => 'tar.gz',
   user => 'zk',
 }
 
-install { 'accumulo' :
+download-and-install { 'accumulo' :
   dirName => "${accumuloDir}",
   url => "${accumuloUrl}",
   extension => 'tar.gz',
   user => 'accumulo',
 }
 
-install { 'storm' :
+download-and-install { 'storm' :
   dirName => "${stormDir}",
   url => "${stormUrl}",
   extension => 'zip',
   user => 'storm',
 }
 
-install { 'tomcat' :
+download-and-install { 'tomcat' :
   dirName => "${tomcatDir}",
   url => "${tomcatUrl}",
   extension => 'tar.gz',
   user => 'tomcat',
 }
 
-#include reddawn-hadoop
+local-install { 'blur' :
+  dirName => "${blurDir}",
+  source => "${blurSource}",
+  extension => 'tar.gz',
+  user => 'blur',
+}
 
-#hadoop::config { 'configure hadoop' :
-#  javaHome => "${javaHome}",
+class { hadoop::config :
+  javaHome => "${javaHome}",
+  require => Install['hadoop'],
+}
+
+class { zookeeper::config :
+  require => Install['zookeeper'],
+}
+
+class { accumulo::config :
+  javaHome => "${javaHome}",
+  require => Install['accumulo'],
+}
+
+#class { storm::config :
+#  require => Install['storm'],
 #}
 
-# TODO:
-# config
-# start/stop all scripts
-# reformat script (HDFS + Accumulo)
+#class { tomcat::config :
+#  require => Install['tomcat'],
+#}
+
+class { blur::config :
+  javaHome => "${javaHome}",
+  require => Install['blur'],
+}
+
+class { reddawn::config :
+  require => [ Install['hadoop'], Install['zookeeper'], Install['storm'], Install['tomcat'], Install['blur'] ],
+}
+
+# TODO: configure firewall rules
+service { 'iptables' :
+  enable => false,
+  ensure => 'stopped',
+}
 

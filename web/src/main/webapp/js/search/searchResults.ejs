@@ -1,0 +1,7 @@
+<% results.forEach(function(result) { %>
+    <li data-info="<%= JSON.stringify({
+      'rowKey': result.rowKey,
+      'type': type,
+      'subType': subType
+    }) %>"><a href="<%= result.url %>"><%= result.title || "No title available" %></a></li>
+<% }); %>
