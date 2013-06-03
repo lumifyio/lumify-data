@@ -23,7 +23,12 @@ public class SentenceTest {
   public void createASource() {
     Sentence.Builder sb = Sentence.newBuilder();
 
-    SentenceData.Builder sdb = SentenceData.newBuilder();
+    SentenceData.Builder sdb = SentenceData.Builder.newBuilder();
+
+    sdb.artifactId("artifactId");
+    sdb.start(5L);
+    sdb.end(25L);
+    sdb.text("The quick brown fox.");
 
     SentenceMetadata.Builder smb = SentenceMetadata.newBuilder();
 
@@ -46,7 +51,7 @@ public class SentenceTest {
             .end(553)
             .build();
 
-    SentenceTermId termId = SentenceTermId.Builder.newBuilder().termId(termKey).termColumnFamilyHash("X1X1").build();
+    SentenceTermId termId = SentenceTermId.Builder.newBuilder().termId(termKey).termColumnFamilyHash("ColumnFamily").build();
     List<SentenceTermId> termIds = new ArrayList<SentenceTermId>();
     termIds.add(termId);
 
@@ -61,8 +66,11 @@ public class SentenceTest {
 
     SentenceTermId sentenceTermId = sentence.getTermIds().get(0);
     assertEquals("a q khan\u001FCTA\u001FPERSON", sentenceTermId.getTermId().toString());
-    assertEquals("X1X1", sentenceTermId.getTermColumnFamilyHash());
+    assertEquals("ColumnFamily", sentenceTermId.getTermColumnFamilyHash());
 
-    // todo: assert more fields are equal
+    assertEquals("artifactId", sentence.getSentenceData().getArtifactId());
+    assertEquals((Object) 5L, sentence.getSentenceData().getStart());
+    assertEquals((Object) 25L, sentence.getSentenceData().getEnd());
+    assertEquals("The quick brown fox.", sentence.getSentenceData().getText());
   }
 }

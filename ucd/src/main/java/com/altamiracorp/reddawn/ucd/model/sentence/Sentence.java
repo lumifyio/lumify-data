@@ -36,6 +36,10 @@ public class Sentence {
     return sentenceKey;
   }
 
+  public SentenceData getSentenceData() {
+    return sentenceData;
+  }
+
   public static class Builder {
     private SentenceKey sentenceKey;
     private SentenceData sentenceData;
