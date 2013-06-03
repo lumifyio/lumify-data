@@ -1,16 +1,16 @@
 
 define([
     'flight/lib/component',
-    'service/user',
+    'service/chat',
     'tpl!./chatWindow',
     'tpl!./chatMessage'
-], function(defineComponent, UsersService, chatWindowTemplate, chatMessageTemplate) {
+], function(defineComponent, ChatService, chatWindowTemplate, chatMessageTemplate) {
     'use strict';
 
     return defineComponent(Chat);
 
     function Chat() {
-        this.usersService = new UsersService();
+        this.chatService = new ChatService();
         this.openChats = {};
         this.currentUser = null;
 
@@ -45,7 +45,7 @@ define([
         this.onCreateChatWindow = function(evt, user) {
             var self = this;
             var userId = user.userId;
-            this.usersService.createChat(userId, function(err, chat) {
+            this.chatService.createChat(userId, function(err, chat) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
@@ -101,7 +101,7 @@ define([
                 postDate: null
             });
 
-            this.usersService.sendChatMessage(chatId, message, function(err, message) {
+            this.chatService.sendChatMessage(chatId, message, function(err, message) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
