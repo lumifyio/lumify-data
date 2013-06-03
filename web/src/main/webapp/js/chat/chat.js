@@ -1,7 +1,7 @@
 
 define([
     'flight/lib/component',
-    'users/service',
+    'service/user',
     'tpl!./chatWindow',
     'tpl!./chatMessage'
 ], function(defineComponent, UsersService, chatWindowTemplate, chatMessageTemplate) {

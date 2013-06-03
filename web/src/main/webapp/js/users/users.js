@@ -1,7 +1,7 @@
 
 define([
     'flight/lib/component',
-    'users/service',
+    'service/user',
     'tpl!./users',
     'tpl!./userListItem'
 ], function(defineComponent, UsersService, usersTemplate, userListItemTemplate) {

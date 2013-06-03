@@ -1,0 +1,95 @@
+define(
+[
+    'service/serviceBase'
+],
+function(ServiceBase) {
+    function Ucd() {
+        ServiceBase.call(this);
+
+        return this;
+    }
+
+    Ucd.prototype = Object.create(ServiceBase.prototype);
+
+    Ucd.prototype.artifactSearch = function(query, callback) {
+        this._search("artifact", query, callback);
+    };
+
+    Ucd.prototype.getArtifactById = function (id, callback) {
+        this._get("artifact", id, callback);
+    };
+
+    Ucd.prototype.getRawArtifactById = function (id, callback) {
+        //maybe it's an object for future options stuff?
+        var i = typeof id == "object" ? id.id : id;
+
+        return this._ajaxGet({
+            url: "artifact/" + i + "/raw",
+        }, callback);
+    },
+
+    Ucd.prototype.artifactRelationships = function (id, options, callback) {
+        this._relationships("artifact", id, options, callback);
+    };
+
+    Ucd.prototype.entitySearch = function (query, callback) {
+        this._search("entity", query, callback);
+    };
+
+    Ucd.prototype.getEntityById = function (id, callback) {
+        this._get("entity", id, callback);
+    };
+
+    Ucd.prototype.getSpecificEntityRelationship = function (e1, e2, callback) {
+        return this._ajaxGet({
+            url: 'entity/relationship',
+            data: {
+                entity1: e1,
+                entity2: e2
+            }
+        }, callback);
+    };
+
+    Ucd.prototype.entityRelationships = function (id, options, callback) {
+        return this._relationships("entity", id, options, callback);
+    };
+
+    Ucd.prototype._relationship = function (resource, id, options, callback) {
+        var data = {};
+        var success = callback;
+        if (callback && $.isFunction(callback)) {
+            data = options;
+        } else if (options && $.isFunction(options)) {
+            success = options;
+        }
+
+        return this._ajaxGet({
+            url: resource + id + "/relationships",
+            data: data
+        }, success);
+    };
+
+    Ucd.prototype._search = function (resource, query, callback) {
+        //maybe it's an object for future options stuff?
+        var q = typeof query == "object" ? query.query : query;
+        var url = resource + "/search";
+
+        return this._ajaxGet({
+            url: url,
+            data: {
+                'q' : q
+            }
+        }, callback);
+    };
+
+    Ucd.prototype._get = function (resource, id, callback) {
+        //maybe it's an object for future options stuff?
+        var i = typeof id == "object" ? id.id : id;
+
+        return this._ajaxGet({
+            url: resource + "/" + i,
+        }, callback);
+    };
+
+    return Ucd;
+});
