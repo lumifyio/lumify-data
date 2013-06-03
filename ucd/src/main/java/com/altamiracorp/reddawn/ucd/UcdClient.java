@@ -150,8 +150,9 @@ public class UcdClient<A extends AuthorizationLabel> {
 
     public List<Term> queryTermStartsWith(String query, QueryUser<A> queryUser) throws UCDIOException {
         try {
+            query = query.toLowerCase();
             Scanner scan = this.connection.createScanner(Term.TABLE_NAME, queryUser.getAuthorizations());
-            scan.setRange(new Range(query, query.toLowerCase() + "Z"));
+            scan.setRange(new Range(query, query + "Z"));
 
             return Term.newBuilder().buildFromScanner(scan);
         } catch (TableNotFoundException e) {
