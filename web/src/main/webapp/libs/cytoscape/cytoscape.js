@@ -10404,7 +10404,6 @@ var cytoscape;
 			
 			if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
 				
-                console.log(' setting width', i, canvasWidth, canvasHeight, canvas.width, canvas.height);
 				canvas.width = canvasWidth;
 				canvas.height = canvasHeight;
 
