@@ -141,10 +141,13 @@ define([
                 }
                 cy.edges().remove();
                 relationships.forEach(function(relationship) {
-                    cy.add({ group: "edges", data: {
+                    cy.add({
+                        group: "edges",
+                        data: {
                             id: relationship.from + "->" + relationship.to,
                             source: relationship.from,
-                            target: relationship.to
+                            target: relationship.to,
+                            type: 'relationship'
                         }
                     });
                 });
