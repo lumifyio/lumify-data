@@ -1,10 +1,11 @@
 
 define([
     'flight/lib/component',
-    'users/service',
+    'service/user',
+    'chat/chat',
     'tpl!./users',
     'tpl!./userListItem'
-], function(defineComponent, UsersService, usersTemplate, userListItemTemplate) {
+], function(defineComponent, UsersService, Chat, usersTemplate, userListItemTemplate) {
     'use strict';
 
     return defineComponent(Users);
@@ -15,14 +16,20 @@ define([
         this.onlineUsers = [];
 
         this.defaultAttrs({
-            usersListSelector: '#users-list',
-            userListItemSelector: '#users-list .user'
+            usersListSelector: '.users-list',
+            userListItemSelector: '.users-list .user',
+            chatSelector: '.active-chat',
         });
 
         this.after('initialize', function() {
             this.$node.html(usersTemplate({}));
+
+            Chat.attachTo(this.select('chatSelector'));
+
             this.on(document, 'newUserOnline', this.onNewUserOnline);
             this.on(document, 'userOnlineStatusChanged', this.onUserOnlineStatusChanged);
+            this.on(document, 'userSelected', this.onUserSelected);
+            this.on(document, 'message', this.onMessage);
             this.on('click', {
                 userListItemSelector: this.onUserListItemClicked
             });
@@ -32,11 +39,16 @@ define([
         });
 
         this.onUserListItemClicked = function(evt) {
-            var $target = $(evt.target);
-            if(!$target.attr('user-id')) {
-                $target = $target.parents('.user');
+            evt.preventDefault();
+
+            var $target = $(evt.target).parents('li');
+            var userId = $target.data('userid');
+
+            $target.find('.badge').text('');
+            
+            if ($target.hasClass('offline')) {
+                return;
             }
-            var userId = $target.attr('user-id');
 
             this.trigger(document, 'userSelected', { userId: userId });
         };
@@ -44,17 +56,62 @@ define([
         this.onNewUserOnline = function(evt, userData) {
             var $usersList = this.select('usersListSelector');
             var html = userListItemTemplate({ user: userData });
-            $usersList.append(html);
+            $usersList.find('li.status-' + userData.status).after(html);
         };
+
+        this.onUserSelected = function(evt, userData) {
+            this.createOrActivateConversation(userData.userId, { activate: true });
+        };
+
+        this.createOrActivateConversation = function(userId, options) {
+            var $usersList = this.select('usersListSelector');
+            var activeChat = $usersList.find('li.conversation-' + userId);
+
+            if (!activeChat.length) {
+                activeChat = $usersList.find('li.online.user-' + userId).clone();
+                if (!activeChat.length) {
+                    return;
+                }
+                activeChat.addClass('conversation-' + userId);
+                $usersList.find('li.conversations').after(activeChat);
+            }
+
+            if (options && options.activate) {
+                $usersList.find('.active').removeClass('active');
+                activeChat.addClass('active');
+            }
+        };
+
+        this.onMessage = function(evt, message) {
+            var id;
+
+            if (message.type == 'chat') {
+
+                var user = message.chat.users[0] === this.currentUserId ? message.chat.users[1] : message.chat.users[0];
+                id = user.id;
+                this.createOrActivateConversation(id);
+
+            } else if(message.type == 'chatMessage') {
+
+                id = message.message.from.id;
+                this.createOrActivateConversation(id);
+
+                var badge = this.select('usersListSelector').find('li.conversation-' + id + ':not(.active) .badge');
+                badge.text( +badge.text() + 1 );
+
+            }
+        };
+
 
         this.onUserOnlineStatusChanged = function(evt, userData) {
             var $usersList = this.select('usersListSelector');
             var $user = $('.user-' + userData.id, $usersList);
-            if($user.length == 0) {
-                this.onNewUserOnline(evt, userData);
-            } else {
+            if ($user.length) {
+                $user.remove();
                 var html = userListItemTemplate({ user: userData });
-                $user.replaceWith(html);
+                $usersList.find('li.status-' + userData.status).after(html);
+            } else {
+                this.onNewUserOnline(evt, userData);
             }
         };
 
@@ -80,7 +137,7 @@ define([
 
                 data.users.forEach(function(user) {
                     var currentOnlineUsers = self.onlineUsers.filter(function(u) { return u.id == user.id; });
-                    var currentOnlineUser = currentOnlineUsers.length == 0 ? null : currentOnlineUsers[0];
+                    var currentOnlineUser = currentOnlineUsers.length ? currentOnlineUsers[0] : null;
 
                     if(!currentOnlineUser) {
                         self.trigger(document, 'newUserOnline', user);

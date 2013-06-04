@@ -13,6 +13,7 @@ require.config({
         text: '../libs/requirejs-text/text',
         ejs:  '../libs/ejs/ejs',
         tpl: '../libs/requirejs-ejs-plugin/rejs',
+        cytoscape: '../libs/cytoscape/cytoscape',
 
         chai: '../libs/chai/chai',
         sinon: '../libs/sinon/lib/sinon',

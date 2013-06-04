@@ -1,7 +1,37 @@
+@import "../util/lists.less";
 
-width: 300px;
+width: 4px;
 background: #efefef;
 
 .content {
   padding: 1em;
+}
+
+.content .entity {
+  background-color: #ff0000;
+}
+
+.content .entity.date,
+.content .entity.time {
+  background-color: #8a56e2;
+}
+
+.content .entity.location {
+  background-color: #cf56e2;
+}
+
+.content .entity.money {
+  background-color: #e256ae;
+}
+
+.content .entity.organization {
+  background-color: #e25668;
+}
+
+.content .entity.percentage {
+  background-color: #e28956;
+}
+
+.content .entity.person {
+  background-color: #e2cf56;
 }

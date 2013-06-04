@@ -1,7 +1,7 @@
 
 define([
     'flight/lib/component',
-    'ucd/ucd',
+    'service/ucd',
     'tpl!./artifactDetails',
     'tpl!./entityDetails'
 ], function(defineComponent, UCD, artifactDetailsTemplate, entityDetailsTemplate) {

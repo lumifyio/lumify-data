@@ -1,7 +1,7 @@
 
 define([
     'flight/lib/component',
-    'ucd/ucd',
+    'service/ucd',
     'tpl!./search',
     'tpl!./searchResultsSummary',
     'tpl!./searchResults',

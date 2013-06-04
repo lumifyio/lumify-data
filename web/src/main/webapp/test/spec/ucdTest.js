@@ -1,6 +1,6 @@
 
 
-define(['ucd/ucd'], function(UCD) {
+define(['service/ucd'], function(UCD) {
 
     describe('UCD', function() {
 

@@ -54,11 +54,15 @@ public class BlurSearchProvider implements SearchProvider {
     }
 
     private void createTables(String blurPath) throws TException {
+        LOGGER.info("Creating blur tables");
         AnalyzerDefinition ad = new AnalyzerDefinition();
         List<String> tableList = this.client.tableList();
 
         if (!tableList.contains(ARTIFACT_BLUR_TABLE_NAME)) {
+            LOGGER.info("Creating blur table: " + ARTIFACT_BLUR_TABLE_NAME);
             createTable(client, blurPath, ad, ARTIFACT_BLUR_TABLE_NAME);
+        } else {
+            LOGGER.info("Skipping create blur table '" + ARTIFACT_BLUR_TABLE_NAME + "' already exists.");
         }
     }
 
