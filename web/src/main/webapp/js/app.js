@@ -53,7 +53,6 @@ define([
 
             // Open search when the page is loaded
             this.trigger(document, 'menubarToggleDisplay', {name:'search'});
-            this.trigger(document, 'menubarToggleDisplay', {name:'users'});
         });
 
 
