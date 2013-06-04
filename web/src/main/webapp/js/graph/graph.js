@@ -3,13 +3,16 @@
 define([
     'flight/lib/component',
     'cytoscape',
+    'service/workspace',
     'tpl!./graph'
-], function(defineComponent, cytoscape, template) {
+], function(defineComponent, cytoscape, WorkspaceService, template) {
     'use strict';
 
     return defineComponent(Graph);
 
     function Graph() {
+        var WORKSPACE_SAVE_TIMEOUT = 1000;
+        this.workspaceService = new WorkspaceService();
         var cy = null;
 
         this.defaultAttrs({
@@ -34,6 +37,7 @@ define([
             cy.add(node);
 
             this.select('emptyGraphSelector').hide();
+            this.setWorkspaceDirty();
         };
 
         this.onAddToGraph = function(event, data) {
@@ -74,9 +78,44 @@ define([
             if (distance < 5) {
                 event.cyTarget.select();
             }
+
+            this.setWorkspaceDirty();
+        };
+
+        this.setWorkspaceDirty = function() {
+            if(this.saveWorkspaceTimeout) {
+                clearTimeout(this.saveWorkspaceTimeout);
+            }
+            this.saveWorkspaceTimeout = setTimeout(this.saveWorkspace.bind(this), WORKSPACE_SAVE_TIMEOUT);
+        };
+
+        this.saveWorkspace = function() {
+            var $this = this;
+            var saveFn;
+            var data = this.getGraphData();
+            if($this.workspaceRowKey) {
+                saveFn = $this.workspaceService.save.bind($this.workspaceService, $this.workspaceRowKey);
+            } else {
+                saveFn = $this.workspaceService.saveNew.bind($this.workspaceService);
+            }
+            $this.trigger(document, 'workspaceSaving', data);
+            saveFn(data, function(err, data) {
+                if(err) {
+                    console.error('Error', err);
+                    return $this.trigger(document, 'error', { message: err.toString() });
+                }
+                $this.trigger(document, 'workspaceSaved', data);
+            });
+        };
+
+        this.getGraphData = function() {
+            return {
+                nodes: cy.json().elements.nodes
+            };
         };
 
         this.after('initialize', function() {
+            var $this = this;
             this.$node.html(template({}));
 
             this.$node.droppable({
@@ -92,7 +131,6 @@ define([
                 }.bind(this)
             });
 
-            var $this = this;
             cytoscape({
                 showOverlay: false,
                 minZoom: 0.5,
@@ -132,6 +170,31 @@ define([
                         grab: $this.graphGrab.bind($this),
                         free: $this.graphFree.bind($this),
                         drag: $this.graphDrag.bind($this)
+                    });
+
+                    $this.workspaceService.getIds(function(err, ids) {
+                        if(err) {
+                            console.error('Error', err);
+                            return $this.trigger(document, 'error', { message: err.toString() });
+                        }
+                        if(ids.length == 0) {
+                            $this.workspaceRowKey = null;
+                        } else {
+                            $this.workspaceRowKey = ids[0]; // TODO handle more workspaces
+                            $this.workspaceService.getByRowKey($this.workspaceRowKey, function(err, data) {
+                                if(err) {
+                                    console.error('Error', err);
+                                    return $this.trigger(document, 'error', { message: err.toString() });
+                                }
+                                console.log('cy.load', data.data.nodes);
+                                $this.select('emptyGraphSelector').hide();
+
+                                // TODO for some reason cy.load doesn't work here.
+                                data.data.nodes.forEach(function(node) {
+                                    cy.add(node);
+                                });
+                            });
+                        }
                     });
                 }
             });
