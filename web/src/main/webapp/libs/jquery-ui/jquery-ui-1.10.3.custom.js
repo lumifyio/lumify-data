@@ -3102,8 +3102,7 @@ $.widget("ui.resizable", $.ui.mouse, {
 			props.top = this.position.top + "px";
 		}
 		if (this.position.left !== prevLeft) {
-			//props.left = this.position.left + "px";
-            //Fix right resize
+			props.left = this.position.left + "px";
 			props.width = this.size.width + this.position.left + "px";
 		}
 		if (this.size.width !== prevWidth) {
