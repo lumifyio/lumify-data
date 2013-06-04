@@ -15,7 +15,8 @@ define([
         this.currentUser = null;
 
         this.defaultAttrs({
-            newMessageFormSelector: 'form.new-message'
+            newMessageFormSelector: 'form.new-message',
+            chatWindowSelector: '.chat-window'
         });
 
         this.after('initialize', function() {
@@ -59,8 +60,9 @@ define([
                 this.openChats[chat.id] = chat;
                 this.$node.append(chatWindowTemplate({ chat: chat }));
             }
-            var $message = $('#chat-window-' + chat.id + ' .message');
-            return $message.focus();
+            this.select('chatWindowSelector').hide();
+            
+            $('#chat-window-' + chat.id).show().find('.message').focus();
         };
 
         this.addMessage = function(chatId, message) {

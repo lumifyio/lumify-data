@@ -2,12 +2,12 @@
 define([
     'tpl!app',
     'flight/lib/component',
+    'menubar/menubar',
     'search/search',
     'users/users',
-    'chat/chat',
     'graph/graph',
     'detail/detail'
-], function(appTemplate, defineComponent, Search, Users, Chat, Graph, Detail) {
+], function(appTemplate, defineComponent, Menubar, Search, Users, Graph, Detail) {
     'use strict';
 
     return defineComponent(App);
@@ -18,37 +18,55 @@ define([
             alert("Error: " + err.message); // TODO better error handling
         };
 
+        this.defaultAttrs({
+            menubarSelector: '.menubar-pane',
+            searchSelector: '.search-pane',
+            usersSelector: '.users-pane',
+            graphPaneSelector: '.graph-pane',
+            detailPaneSelector: '.detail-pane'
+        });
+
         this.after('initialize', function() {
             this.on(document, 'error', this.onError);
+            this.on(document, 'menubarToggleDisplay', this.toggleDisplay);
 
             var content = $(appTemplate({})),
+                menubarPane = content.filter('.menubar-pane'),
                 searchPane = content.filter('.search-pane'),
                 usersPane = content.filter('.users-pane'),
-                chatPane = content.filter('.chat-pane'),
                 graphPane = content.filter('.graph-pane'),
                 detailPane = content.filter('.detail-pane');
 
 
+            Menubar.attachTo(menubarPane.find('.content'));
             Search.attachTo(searchPane.find('.content'));
             Users.attachTo(usersPane.find('.content'));
-            Chat.attachTo(chatPane.find('.content'));
-            Graph.attachTo(graphPane.find('.content'));
+            Graph.attachTo(graphPane);
             Detail.attachTo(detailPane.find('.content'));
 
             // Configure splitpane resizing
             resizable(searchPane, 'e');
-            resizable(detailPane, 'w', 500);
+            resizable(detailPane, 'w', 4, 500);
 
             this.$node.html(content);
+
+
+            // Open search when the page is loaded
+            this.trigger(document, 'menubarToggleDisplay', {name:'search'});
+            this.trigger(document, 'menubarToggleDisplay', {name:'users'});
         });
 
+
+        this.toggleDisplay = function(e, data) {
+            this.select(data.name + 'Selector').toggleClass('visible');
+        };
     }
 
 
-    function resizable( el, handles, maxWidth ) {
+    function resizable( el, handles, minWidth, maxWidth ) {
         return el.resizable({
             handles: handles,
-            minWidth: 150,
+            minWidth: minWidth || 150,
             maxWidth: maxWidth || 300
         });
     }

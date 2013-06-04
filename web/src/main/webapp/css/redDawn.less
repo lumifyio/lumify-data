@@ -1,49 +1,110 @@
+@import "util/constants";
 @import "util/splitbar";
 @import "util/positioning";
 @import "util/flexbox";
 
 @import "/libs/bootstrap/less/bootstrap.less";
 
-
-#app {
-  background-color: #ddd;
-  min-width: 600px;
-
-  .fullscreen;
-  .flexbox;
+html, body {
+  height: 100%;
+  overflow: hidden;
 }
 
-.search-pane, .graph-pane, .detail-pane {
-  height: 100%;
+#app {
+  .fullscreen;
+}
+
+
+.above-graph(@extra:1) {
+  z-index: @graph-zIndex + @extra;
+}
+
+.left-pane(@left-padding: 0) {
+  left: @pane-animation-distance * -1;
+  .transition(~"left ease-in-out 0.2s, visibility 0.2s");
+
+  &.visible {
+    left: @menubar-width + @left-padding;
+  }
+}
+.right-pane {
+  .fullscreen;
+  left: auto;
+  right: @pane-animation-distance * -1;
+
+  .transition(right 0.2s ease-in-out);
+
+  &.visible {
+    right: 0;
+  }
+}
+
+.users-pane, 
+.search-pane, 
+.detail-pane {
+  .above-graph;
+  position: absolute;
+
+  // Animation of panes
+  visibility: hidden;
+  &.visible { visibility: visible; }
 
   .content {
     overflow: auto;
     height: 100%;
     box-sizing: border-box;
   }
+}
+
+.search-pane, 
+.detail-pane {
+  height: 100%;
 
   .ui-resizable-handle {
     .splitbar;
   }
 }
 
-html, body {
-  height: 100%;
-  overflow: hidden;
+
+.menubar-pane {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: @menubar-width;
+  .above-graph(10);
+
+  @import "menubar/menubar";
 }
 
+.search-pane {
+  .left-pane;
 
-
-.search-pane { 
   @import "search/search";
 }
 
+.users-pane {
+  @padding: 10px;
+  .above-graph(2);
+  .left-pane(@padding);
+
+  bottom: @padding;
+  height: 200px;
+
+  @import "users/users";
+}
+
 .graph-pane { 
-  .flexbox-flex(1);
+  .fullscreen;
+  left: @menubar-width;
+
   @import "graph/graph";
 }
 
 .detail-pane { 
+  .right-pane;
+
   @import "detail/detail";
 }
+
 

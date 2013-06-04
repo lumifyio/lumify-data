@@ -1,0 +1,37 @@
+@import "../util/lists.less";
+
+background: @menubar-background;
+
+.menu-top, .menu-bottom {
+  .reset-list;
+
+  a {
+    opacity: 0.5;
+    font-size: 0;
+    display: block;
+    height: 40px;
+    background: transparent;
+    background-size: 70%;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  li.active a {
+    opacity: 0.9;
+  }
+}
+
+.menu-top {
+  .search a { background-image: url(/img/glyphicons/white/glyphicons_027_search@2x.png); }
+}
+
+.menu-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  .users a { background-image: url(/img/glyphicons/white/glyphicons_244_conversation@2x.png); }
+  .metrics a { background-image: url(/img/glyphicons/white/glyphicons_041_charts@2x.png); }
+  .prefs a { background-image: url(/img/glyphicons/white/glyphicons_280_settings@2x.png); }
+}

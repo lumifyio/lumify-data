@@ -1,6 +1,6 @@
+@import "../util/constants.less";
 
 background: white;
-position: relative;
 
 .empty-graph {
   .fullscreen;
@@ -11,7 +11,7 @@ position: relative;
   position: relative;
 
   // Cytoscape hardcodes 1000 here, breaks resizing
-  div { z-index: 50 !important; }
+  div { z-index: @graph-zIndex !important; }
 }
 
 canvas {
