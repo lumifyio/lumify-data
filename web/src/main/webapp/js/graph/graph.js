@@ -4,8 +4,9 @@ define([
     'flight/lib/component',
     'cytoscape',
     'service/workspace',
+    'service/ucd',
     'tpl!./graph'
-], function(defineComponent, cytoscape, WorkspaceService, template) {
+], function(defineComponent, cytoscape, WorkspaceService, UcdService, template) {
     'use strict';
 
     return defineComponent(Graph);
@@ -13,6 +14,7 @@ define([
     function Graph() {
         var WORKSPACE_SAVE_TIMEOUT = 1000;
         this.workspaceService = new WorkspaceService();
+        this.ucdService = new UcdService();
         var cy = null;
 
         this.defaultAttrs({
@@ -38,6 +40,7 @@ define([
 
             this.select('emptyGraphSelector').hide();
             this.setWorkspaceDirty();
+            this.refreshRelationships();
         };
 
         this.onAddToGraph = function(event, data) {
@@ -105,6 +108,46 @@ define([
                     return $this.trigger(document, 'error', { message: err.toString() });
                 }
                 $this.trigger(document, 'workspaceSaved', data);
+            });
+        };
+
+        this.getEntityIds = function() {
+            return this.getGraphData().nodes
+                .filter(function(node) {
+                    return node.data.type == 'entities';
+                })
+                .map(function(node) {
+                    return node.data.rowKey
+                });
+        };
+
+        this.getArtifactIds = function() {
+            return this.getGraphData().nodes
+                .filter(function(node) {
+                    return node.data.type == 'artifacts';
+                })
+                .map(function(node) {
+                    return node.data.rowKey
+                });
+        };
+
+        this.refreshRelationships = function() {
+            var entityIds = this.getEntityIds();
+            var artifactIds = this.getArtifactIds();
+            this.ucdService.getRelationships(entityIds, artifactIds, function(err, relationships) {
+                if(err) {
+                    console.error('Error', err);
+                    return $this.trigger(document, 'error', { message: err.toString() });
+                }
+                cy.edges().remove();
+                relationships.forEach(function(relationship) {
+                    cy.add({ group: "edges", data: {
+                            id: relationship.from + "->" + relationship.to,
+                            source: relationship.from,
+                            target: relationship.to
+                        }
+                    });
+                });
             });
         };
 
@@ -193,6 +236,7 @@ define([
                                 data.data.nodes.forEach(function(node) {
                                     cy.add(node);
                                 });
+                                $this.refreshRelationships();
                             });
                         }
                     });
