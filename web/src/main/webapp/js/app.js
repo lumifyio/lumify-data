@@ -29,6 +29,7 @@ define([
         this.after('initialize', function() {
             this.on(document, 'error', this.onError);
             this.on(document, 'menubarToggleDisplay', this.toggleDisplay);
+            this.on(document, 'message', this.onMessage);
 
             var content = $(appTemplate({})),
                 menubarPane = content.filter('.menubar-pane'),
@@ -58,6 +59,12 @@ define([
 
         this.toggleDisplay = function(e, data) {
             this.select(data.name + 'Selector').toggleClass('visible');
+        };
+
+        this.onMessage = function(e, data) {
+            if (!this.select('usersSelector').hasClass('visible')) {
+                this.trigger(document, 'menubarToggleDisplay', {name:'users'});
+            }
         };
     }
 

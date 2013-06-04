@@ -39,8 +39,12 @@ define([
         });
 
         this.onUserListItemClicked = function(evt) {
+            evt.preventDefault();
+
             var $target = $(evt.target).parents('li');
             var userId = $target.data('userid');
+
+            $target.find('.badge').text('');
             
             if ($target.hasClass('offline')) {
                 return;
@@ -56,10 +60,10 @@ define([
         };
 
         this.onUserSelected = function(evt, userData) {
-            this.createOrActivateConverstation(userData.userId, { activate: true });
+            this.createOrActivateConversation(userData.userId, { activate: true });
         };
 
-        this.createOrActivateConverstation = function(userId, options) {
+        this.createOrActivateConversation = function(userId, options) {
             var $usersList = this.select('usersListSelector');
             var activeChat = $usersList.find('li.conversation-' + userId);
 
@@ -76,14 +80,25 @@ define([
                 $usersList.find('.active').removeClass('active');
                 activeChat.addClass('active');
             }
-        }
+        };
 
         this.onMessage = function(evt, message) {
-            if(message.type == 'chat') {
+            var id;
+
+            if (message.type == 'chat') {
+
                 var user = message.chat.users[0] === this.currentUserId ? message.chat.users[1] : message.chat.users[0];
-                this.createOrActivateConverstation(user.id);
+                id = user.id;
+                this.createOrActivateConversation(id);
+
             } else if(message.type == 'chatMessage') {
-                // TODO: add badge number
+
+                id = message.message.from.id;
+                this.createOrActivateConversation(id);
+
+                var badge = this.select('usersListSelector').find('li.conversation-' + id + ':not(.active) .badge');
+                badge.text( +badge.text() + 1 );
+
             }
         };
 

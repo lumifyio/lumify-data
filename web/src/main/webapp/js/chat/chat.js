@@ -36,10 +36,11 @@ define([
         this.onUserSelected = function(evt, data) {
             var chat = this.findChatByToUserId(data.userId);
             if(chat) {
-                var $message = $('#chat-window-' + chat.id + ' .message');
-                return $message.focus();
+                this.select('chatWindowSelector').hide();
+                return $('#chat-window-' + chat.id).show().find('.message').focus();
             }
 
+            data.activate = true;
             this.trigger('createChatWindow', data);
         };
 
@@ -51,18 +52,21 @@ define([
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
-                return self.createOrFocusChat(chat);
+                return self.createOrFocusChat(chat, { activate: user.activate });
             });
         };
 
-        this.createOrFocusChat = function(chat) {
+        this.createOrFocusChat = function(chat, options) {
             if(!this.openChats[chat.id]) {
                 this.openChats[chat.id] = chat;
-                this.$node.append(chatWindowTemplate({ chat: chat }));
+                var dom = $(chatWindowTemplate({ chat: chat }));
+                dom.hide().appendTo(this.$node);
             }
-            this.select('chatWindowSelector').hide();
-            
-            $('#chat-window-' + chat.id).show().find('.message').focus();
+
+            if (options && options.activate) {
+                this.select('chatWindowSelector').hide();
+                $('#chat-window-' + chat.id).show().find('.message').focus();
+            }
         };
 
         this.addMessage = function(chatId, message) {
