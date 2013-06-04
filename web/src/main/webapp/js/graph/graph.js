@@ -117,7 +117,7 @@ define([
                     return node.data.type == 'entities';
                 })
                 .map(function(node) {
-                    return node.data.rowKey
+                    return node.data.rowKey;
                 });
         };
 
@@ -127,7 +127,7 @@ define([
                     return node.data.type == 'artifacts';
                 })
                 .map(function(node) {
-                    return node.data.rowKey
+                    return node.data.rowKey;
                 });
         };
 
@@ -223,7 +223,7 @@ define([
                             console.error('Error', err);
                             return $this.trigger(document, 'error', { message: err.toString() });
                         }
-                        if(ids.length == 0) {
+                        if(ids.length === 0) {
                             $this.workspaceRowKey = null;
                         } else {
                             $this.workspaceRowKey = ids[0]; // TODO handle more workspaces
