@@ -10376,7 +10376,15 @@ var cytoscape;
 	{
 	
 	// Resize canvas
+    var resizeTimeout; 
 	CanvasRenderer.prototype.matchCanvasSize = function(container) {
+        clearTimeout(resizeTimeout);
+        var $this = this;
+        resizeTimeout = setTimeout(function() {
+            $this._matchCanvasSize(container);
+        }, 500);
+    };
+	CanvasRenderer.prototype._matchCanvasSize = function(container) {
 		var data = this.data; var width = container.clientWidth; var height = container.clientHeight;
 		
 		var canvas;

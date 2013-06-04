@@ -15,6 +15,8 @@ import opennlp.tools.util.Span;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 
 public abstract class OpenNlpEntityExtractor implements EntityExtractor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenNlpEntityExtractor.class.getName());
 
     private FileSystem fs;
     private String pathPrefix;
@@ -47,6 +50,7 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
     @Override
     public Collection<Term> extract(ArtifactKey artifactKey, String text)
             throws Exception {
+        LOGGER.info("Extracting entities from artifact: " + artifactKey.toString());
         ArrayList<Term> terms = new ArrayList<Term>();
         ObjectStream<String> untokenizedLineStream = new PlainTextByLineStream(new StringReader(text));
         String line;
@@ -54,7 +58,7 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         while ((line = untokenizedLineStream.read()) != null) {
             ArrayList<Term> newTerms = processLine(artifactKey, line, charOffset);
             terms.addAll(newTerms);
-            charOffset += line.length();
+            charOffset += line.length() + 1; // + 1 for new line character
         }
         return terms;
     }
