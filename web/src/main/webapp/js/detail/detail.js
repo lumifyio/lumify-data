@@ -32,6 +32,8 @@ define([
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
                 console.log('Showing artifact:', artifact);
+                artifact.contentHtml = artifact.content.docHighlightedText || artifact.content.docExtractedText;
+                artifact.contentHtml = artifact.contentHtml.replace(/[\n]+/g, "<br><br>\n");
                 self.$node.html(artifactDetailsTemplate(artifact));
             });
         };
