@@ -2,7 +2,7 @@
 /* cytoscape.js */
 
 /**
- * This file is part of cytoscape.js 2.0.1-github-snapshot-2013.06.04-10.15.53.
+ * This file is part of cytoscape.js 2.0.1-github-snapshot-2013.06.04-10.52.18.
  * 
  * Cytoscape.js is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by the Free
@@ -4697,8 +4697,8 @@ var cytoscape;
 			var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
 			this._private.position = {
-				x: (rpos.x - pan.x)/zoom * scale,
-				y: (rpos.y - pan.y)/zoom * scale
+				x: (rpos.x * scale - pan.x)/zoom,
+				y: (rpos.y * scale - pan.y)/zoom
 			};
 		}
 		
