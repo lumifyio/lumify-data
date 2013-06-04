@@ -8346,8 +8346,7 @@ var cytoscape;
 		r.registerBinding(window, "resize", function(e) { 
 			r.data.canvasNeedsRedraw[NODE] = true;
 			r.data.canvasNeedsRedraw[OVERLAY] = true;
-			r.matchCanvasSize( r.data.container );
-			r.redraw();
+			r.matchCanvasSize( r.data.container, { redraw: true } );
 		}, true);
 
 		// stop right click menu from appearing on cy
@@ -10382,17 +10381,17 @@ var cytoscape;
 	
 	// Resize canvas
 	var resizeTimeout;
-	CanvasRenderer.prototype.matchCanvasSize = function(container) {
+	CanvasRenderer.prototype.matchCanvasSize = function(container, options) {
 		clearTimeout(resizeTimeout);
 		var $this = this;
 		resizeTimeout = setTimeout(function() {
-			$this._matchCanvasSize(container);
+			$this._matchCanvasSize(container, options);
 		}, 250);
 	};
-	CanvasRenderer.prototype._matchCanvasSize = function(container) {
+	CanvasRenderer.prototype._matchCanvasSize = function(container, options) {
 		var data = this.data; var width = container.clientWidth; var height = container.clientHeight;
 		
-		var canvas, canvasWidth = width, canvasHeight = height;
+		var canvas, canvasWidth = width, canvasHeight = height, redraw = options && options.redraw;
 
 		if ('devicePixelRatio' in window) {
 			canvasWidth *= devicePixelRatio;
@@ -10405,11 +10404,14 @@ var cytoscape;
 			
 			if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
 				
+                console.log(' setting width', i, canvasWidth, canvasHeight, canvas.width, canvas.height);
 				canvas.width = canvasWidth;
 				canvas.height = canvasHeight;
 
 				canvas.style.width = width + 'px';
 				canvas.style.height = height + 'px';
+
+                redraw = true;
 			}
 		}
 		
@@ -10421,11 +10423,17 @@ var cytoscape;
 				
 				canvas.width = canvasWidth;
 				canvas.height = canvasHeight;
+
+                redraw = true;
 			}
 		}
 
 		this.data.overlay.style.width = width + 'px';
 		this.data.overlay.style.height = height + 'px';
+
+        if ( redraw ) {
+            this.redraw( undefined, true );
+        }
 	}
 
 
