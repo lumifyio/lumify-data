@@ -29,13 +29,17 @@ html, body {
 }
 .right-pane {
   .fullscreen;
-  left: auto;
-  right: @pane-animation-distance * -1;
-
-  .transition(right 0.2s ease-in-out);
+  left: auto !important;
+  width: 4px;
 
   &.visible {
-    right: 0;
+    width: 25%;
+    max-width: 500px;
+  }
+
+  &.collapsed {
+    width: 4px !important;
+    .transition(width 0.2s ease-in-out);
   }
 }
 
