@@ -2,7 +2,7 @@
 /* cytoscape.js */
 
 /**
- * This file is part of cytoscape.js 2.0.1-github-snapshot-2013.06.03-10.57.20.
+ * This file is part of cytoscape.js 2.0.1-github-snapshot-2013.06.04-10.15.53.
  * 
  * Cytoscape.js is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by the Free
@@ -4694,10 +4694,11 @@ var cytoscape;
 			var rpos = params.renderedPosition;
 			var pan = cy.pan();
 			var zoom = cy.zoom();
+			var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
 			this._private.position = {
-				x: (rpos.x - pan.x)/zoom,
-				y: (rpos.y - pan.y)/zoom
+				x: (rpos.x - pan.x)/zoom * scale,
+				y: (rpos.y - pan.y)/zoom * scale
 			};
 		}
 		
@@ -9669,13 +9670,6 @@ var cytoscape;
 		}
 		
 		data.cache.cachedNodes = cy.nodes();
-
-        for (var i = 0; i < data.cache.cachedNodes.length; i++) {
-            var node = data.cache.cachedNodes[i];
-            var scale = window.devicePixelRatio || 1;
-            node._private.position.x *= scale;
-            node._private.position.y *= scale;
-        }
 	}
 	
 	CanvasRenderer.prototype.getCachedEdges = function() {
@@ -9707,7 +9701,7 @@ var cytoscape;
 
 	// Project mouse
 	CanvasRenderer.prototype.projectIntoViewport = function(pageX, pageY) {
-
+		
 		n = this.data.container;
 		
 		// Stop checking scroll past the level of the DOM tree containing document.body. At this point, scroll values do not have the same impact on pageX/pageY.
@@ -9717,15 +9711,16 @@ var cytoscape;
 		var offsetLeft = offsets[0];
 		var offsetTop = offsets[1];
 		
+//		console.log("calce");
+		
 		// By here, offsetLeft and offsetTop represent the "pageX/pageY" of the top-left corner of the div. So, do subtraction to find relative position.
 		x = pageX - offsetLeft; y = pageY - offsetTop;
-
-        var scale = 'devicePixelRatio' in window ? window.devicePixelRatio : 1;
-        x *= scale;
-        y *= scale;
 		
-		x -= this.data.cy.pan().x; y -= this.data.cy.pan().y; x /= this.data.cy.zoom(); y /= this.data.cy.zoom();
+		var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
+		x *= scale;
+		y *= scale;
 
+		x -= this.data.cy.pan().x; y -= this.data.cy.pan().y; x /= this.data.cy.zoom(); y /= this.data.cy.zoom();
 		return [x, y];
 	}
 	
@@ -10386,26 +10381,23 @@ var cytoscape;
 	{
 	
 	// Resize canvas
-    var resizeTimeout; 
+	var resizeTimeout;
 	CanvasRenderer.prototype.matchCanvasSize = function(container) {
-        clearTimeout(resizeTimeout);
-        var $this = this;
-        resizeTimeout = setTimeout(function() {
-            $this._matchCanvasSize(container);
-        }, 500);
-    };
+		clearTimeout(resizeTimeout);
+		var $this = this;
+		resizeTimeout = setTimeout(function() {
+			$this._matchCanvasSize(container);
+		}, 250);
+	};
 	CanvasRenderer.prototype._matchCanvasSize = function(container) {
 		var data = this.data; var width = container.clientWidth; var height = container.clientHeight;
 		
-		var canvas, ctx, canvasWidth = width, canvasHeight = height, scale = 1;
+		var canvas, canvasWidth = width, canvasHeight = height;
 
-        if ('devicePixelRatio' in window) { 
-
-            scale = window.devicePixelRatio;
-
-            canvasWidth *= scale;
-            canvasHeight *= scale;
-        }
+		if ('devicePixelRatio' in window) {
+			canvasWidth *= devicePixelRatio;
+			canvasHeight *= devicePixelRatio;
+		}
 
 		for (var i = 0; i < CANVAS_LAYERS; i++) {
 
@@ -10416,13 +10408,8 @@ var cytoscape;
 				canvas.width = canvasWidth;
 				canvas.height = canvasHeight;
 
-                canvas.style.width = width + 'px';
-                canvas.style.height = height + 'px';
-			
-                //ctx = canvas.getContext('2d');
-                //if ( ctx.webkitBackingStoreRatio < 2 ) {
-                    //ctx.scale(scale,scale);
-                //}
+				canvas.style.width = width + 'px';
+				canvas.style.height = height + 'px';
 			}
 		}
 		
@@ -10434,14 +10421,6 @@ var cytoscape;
 				
 				canvas.width = canvasWidth;
 				canvas.height = canvasHeight;
-
-                //canvas.style.width = width + 'px';
-                //canvas.style.height = height + 'px';
-
-                //ctx = canvas.getContext('2d');
-                //if ( ctx.webkitBackingStoreRatio < 2 ) {
-                    //ctx.scale(scale,scale);
-                //}
 			}
 		}
 
