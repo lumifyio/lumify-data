@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.web;
 
+import com.altamiracorp.reddawn.RedDawnClient;
 import com.altamiracorp.reddawn.search.SearchProvider;
 import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
 import com.altamiracorp.reddawn.ucd.QueryUser;
@@ -26,6 +27,11 @@ public class WebApp extends App {
     public UcdClient<AuthorizationLabel> getUcdClient() throws AccumuloSecurityException, AccumuloException {
         // TODO this needs refactoring
         return WebUcdClientFactory.createUcdClient();
+    }
+
+    public RedDawnClient getRedDawnClient() throws AccumuloSecurityException, AccumuloException {
+        // TODO this needs refactoring
+        return WebUcdClientFactory.createRedDawnClient();
     }
 
     public QueryUser<AuthorizationLabel> getQueryUser() {

@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.web;
 
+import com.altamiracorp.reddawn.RedDawnClient;
 import com.altamiracorp.reddawn.search.SearchProvider;
 import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
 import com.altamiracorp.reddawn.ucd.UcdClient;
@@ -25,5 +26,10 @@ public class WebUcdClientFactory {
     public static SearchProvider createSearchProvider() throws Exception {
         // TODO refactor this
         return ucdCommandLineBase.createSearchProvider();
+    }
+
+    public static RedDawnClient createRedDawnClient() throws AccumuloSecurityException, AccumuloException {
+        // TODO refactor this
+        return new RedDawnClient(createUcdClient().getConnection());
     }
 }
