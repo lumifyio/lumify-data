@@ -6,6 +6,9 @@ import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
 import com.altamiracorp.reddawn.web.routes.entity.EntityByRowKey;
 import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
 import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
+import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceByRowKey;
+import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceList;
+import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceSave;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.Handler;
 
@@ -42,6 +45,11 @@ public class Router extends HttpServlet {
 
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);
+
+        app.get("/workspace/", authenticator, WorkspaceList.class);
+        app.post("/workspace/save", authenticator, WorkspaceSave.class);
+        app.post("/workspace/{workspaceRowKey}/save", authenticator, WorkspaceSave.class);
+        app.get("/workspace/{workspaceRowKey}", authenticator, WorkspaceByRowKey.class);
 
         app.get("/user/messages", authenticator, MessagesGet.class);
 

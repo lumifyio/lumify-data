@@ -54,6 +54,7 @@ public class Server extends UcdCommandLineBase {
         // TODO refactor this
         WebUcdClientFactory.setUcdCommandLineBase(this);
         WebUcdClientFactory.createUcdClient().initializeTables();
+        WebUcdClientFactory.createRedDawnClient().initializeTables();
 
         org.mortbay.jetty.Server server = new org.mortbay.jetty.Server();
         SelectChannelConnector connector = new SelectChannelConnector();
