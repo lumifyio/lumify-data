@@ -20,7 +20,7 @@ define([
         this.addNode = function(title, info, position) {
             var node = {
                 group:'nodes',
-                position: position,
+                renderedPosition: position,
             };
 
             node.data = info;
