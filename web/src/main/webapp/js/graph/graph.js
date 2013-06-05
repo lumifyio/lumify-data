@@ -44,6 +44,11 @@ define([
             this.refreshRelationships();
         };
 
+        this.removeSelectedNodes = function() {
+            cy.nodes().filter(':selected').remove();
+            this.setWorkspaceDirty();
+        };
+
         this.onAddToGraph = function(event, data) {
             var el = $(event.target),
                 p = el.offset(),
@@ -62,6 +67,29 @@ define([
         };
         this.graphUnselect = function(event) {
             // TODO: send empty event? needs detail to support
+        };
+
+        this.onKeyHandler = function(event) {
+            var down = event.type === 'keydown',
+                up = !down,
+                handled = true;
+
+            switch (event.which) {
+
+                case $.ui.keyCode.BACKSPACE:
+                case $.ui.keyCode.BACKSPACE:
+                    if ( down ) {
+                        this.removeSelectedNodes();
+                    }
+                    break;
+
+                default:
+                    handled = false;
+            }
+
+            if (handled) {
+                event.preventDefault();
+            }
         };
 
         this.graphDrag = function(event) { };
@@ -209,19 +237,24 @@ define([
                 ready: function(){
                     cy = this;
 
-                    var options = cy.options();
-                    $(cy.container()).cytoscapePanzoom({
+                    var container = cy.container(),
+                        options = cy.options();
+
+                    $(container).cytoscapePanzoom({
                         minZoom: options.minZoom,
                         maxZoom: options.maxZoom
+                    }).focus().on({
+                        click: function() { this.focus(); },
+                        keydown: $this.onKeyHandler.bind($this),
+                        keyup: $this.onKeyHandler.bind($this)
                     });
-                    var panZoom = $this.select('graphToolsSelector');
 
+                    var panZoom = $this.select('graphToolsSelector');
                     $this.on(document, 'detailPaneResize', function(e, data) {
                         panZoom.css({
                             right: data.width + 'px'
                         });
                     });
-
                     $this.on(document, 'addToGraph', $this.onAddToGraph);
 
                     cy.on({
