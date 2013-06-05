@@ -2,8 +2,9 @@
 
 define([
     'flight/lib/component',
+    './activity/activity',
     'tpl!./menubar'
-], function(defineComponent, template) {
+], function(defineComponent, Activity, template) {
     'use strict';
 
     return defineComponent(Menubar);
@@ -33,13 +34,10 @@ define([
         
         this.after('initialize', function() {
             this.$node.html(template({}));
+            
+            Activity.attachTo( this.select('activityIconSelector') );
 
             this.on('click', events);
-
-            this.select('activityIconSelector').tooltip({ 
-                placement: 'right',
-                title: 'No activity' 
-            });
 
             this.on(document, 'menubarToggleDisplay', function(e, data) {
                 var icon = this.select(data.name + 'IconSelector');
@@ -55,24 +53,6 @@ define([
                     }, 200);
                 }
             });
-
-            this.on(document, 'workspaceSaving', function(e, data) {
-                this.updateActivity(true, e.type);
-                this.activities++;
-            });
-            this.on(document, 'workspaceSaved', function(e, data) {
-                if (--this.activities === 0) {
-                    this.updateActivity(false, e.type);
-                }
-            });
         });
-
-
-        this.updateActivity = function(animating, message) {
-            var activityIcon = this.select('activityIconSelector');
-            activityIcon.attr('data-original-title', message).tooltip('fixTitle');
-            activityIcon.toggleClass('animating', animating);
-        };
-
     }
 });
