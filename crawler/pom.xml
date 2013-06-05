@@ -22,5 +22,10 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+        <groupId>com.google.apis</groupId>
+        <artifactId>google-api-services-customsearch</artifactId>
+        <version>v1-rev18-1.15.0-rc</version>
+    </dependency>
   </dependencies>
 </project>
