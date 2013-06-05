@@ -19,7 +19,8 @@ define([
 
         this.defaultAttrs({
             cytoscapeContainerSelector: '.cytoscape-container',
-            emptyGraphSelector: '.empty-graph'
+            emptyGraphSelector: '.empty-graph',
+            graphToolsSelector: '.ui-cytoscape-panzoom'
         });
 
         this.addNode = function(title, info, position) {
@@ -207,6 +208,19 @@ define([
 
                 ready: function(){
                     cy = this;
+
+                    var options = cy.options();
+                    $(cy.container()).cytoscapePanzoom({
+                        minZoom: options.minZoom,
+                        maxZoom: options.maxZoom
+                    });
+                    var panZoom = $this.select('graphToolsSelector');
+
+                    $this.on(document, 'detailPaneResize', function(e, data) {
+                        panZoom.css({
+                            right: data.width + 'px'
+                        });
+                    });
 
                     $this.on(document, 'addToGraph', $this.onAddToGraph);
 
