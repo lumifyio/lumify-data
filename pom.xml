@@ -37,76 +37,63 @@
 		</repository>
     </repositories>
 
+	<properties>
+		<blur-version>0.1.5</blur-version>
+		<accumulo-version>1.4.3</accumulo-version>
+		<hadoop-version>0.20.2-cdh3u6</hadoop-version>
+		<zookeeper-version>3.3.5</zookeeper-version>
+		<jetty-version>8.1.11.v20130520</jetty-version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+		        <groupId>org.apache.accumulo</groupId>
+		        <artifactId>accumulo-core</artifactId>
+		        <version>${accumulo-version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.slf4j</groupId>
+						<artifactId>slf4j-log4j12</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>javax.servlet</groupId>
+						<artifactId>servlet-api</artifactId>
+					</exclusion>
+				</exclusions>
+	     	</dependency>
+		    <dependency>
+		        <groupId>org.apache.hadoop</groupId>
+		        <artifactId>hadoop-core</artifactId>
+		        <version>${hadoop-version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.mortbay.jetty</groupId>
+						<artifactId>jetty</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.mortbay.jetty</groupId>
+						<artifactId>jetty-util</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>javax.servlet</groupId>
+						<artifactId>servlet-api</artifactId>
+					</exclusion>
+				</exclusions>
+		    </dependency>
+		    <dependency>
+		      <groupId>org.json</groupId>
+		      <artifactId>json</artifactId>
+		      <version>20090211</version>
+		    </dependency>
+		</dependencies>
+	</dependencyManagement>
+	
     <dependencies>
-        <dependency>
-            <groupId>org.apache.accumulo</groupId>
-            <artifactId>accumulo-core</artifactId>
-            <version>1.4.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-core</artifactId>
-            <version>0.20.2-cdh3u6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
-            <version>3.3.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.blur</groupId>
-            <artifactId>blur-core</artifactId>
-            <version>0.1.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.blur</groupId>
-            <artifactId>blur-mapred</artifactId>
-            <version>0.1.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.blur</groupId>
-            <artifactId>blur-query</artifactId>
-            <version>0.1.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.blur</groupId>
-            <artifactId>blur-shell</artifactId>
-            <version>0.1.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.blur</groupId>
-            <artifactId>blur-store</artifactId>
-            <version>0.1.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.blur</groupId>
-            <artifactId>blur-thrift</artifactId>
-            <version>0.1.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.blur</groupId>
-            <artifactId>blur-util</artifactId>
-            <version>0.1.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.8</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.2.3</version>
-        </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

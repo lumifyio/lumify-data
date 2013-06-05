@@ -1,16 +1,17 @@
 package com.altamiracorp.reddawn.ucd.model.terms;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.altamiracorp.reddawn.ucd.model.KeyHelpers;
 import com.altamiracorp.reddawn.ucd.model.base.BaseDTO;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Ordering;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.hadoop.thirdparty.guava.common.collect.ComparisonChain;
-import org.apache.hadoop.thirdparty.guava.common.collect.Ordering;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class TermKey implements BaseDTO<TermKey> {
   @Expose
