@@ -2,9 +2,10 @@ package com.altamiracorp.reddawn.ucd.model.artifact;
 
 import com.altamiracorp.reddawn.ucd.model.KeyHelpers;
 import com.altamiracorp.reddawn.ucd.model.base.BaseDTO;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Ordering;
 import com.google.gson.annotations.Expose;
-import org.apache.hadoop.thirdparty.guava.common.collect.ComparisonChain;
-import org.apache.hadoop.thirdparty.guava.common.collect.Ordering;
+
 
 public class ArtifactKey implements BaseDTO<ArtifactKey> {
   @Expose

@@ -1,11 +1,13 @@
 package com.altamiracorp.reddawn.ucd.model.sentence;
 
-import com.altamiracorp.reddawn.ucd.model.base.BaseDTO;
-import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.hadoop.thirdparty.guava.common.collect.ComparisonChain;
-import org.apache.hadoop.thirdparty.guava.common.collect.Ordering;
+
+import com.altamiracorp.reddawn.ucd.model.base.BaseDTO;
+import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.Ordering;
+
 
 public class SentenceTermId implements BaseDTO<SentenceTermId> {
   private String termColumnFamilyHash;
