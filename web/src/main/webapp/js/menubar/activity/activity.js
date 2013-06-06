@@ -49,6 +49,8 @@ define([
 
 
         this.start = function(activity, event, data) {
+
+            this.activitiesCount++;
             clearTimeout(this.finishDelay);
 
             activity.startedAt = Date.now();
@@ -59,6 +61,9 @@ define([
 
         var minDurationMillis = MINIMUM_ANIMATION_DURATION_SECONDS * 1000;
         this.finish = function(activity, event, data) {
+
+            this.activitiesCount--;
+
             var duration = Date.now() - activity.startedAt,
                 updateActivity = function() {
                     this.updateActivity(false, activity.descriptions[1] || activity.eventFinished);
@@ -75,8 +80,7 @@ define([
         };
 
         this.updateActivity = function(animating, message) {
-            var firstActivity = animating && ++this.activitiesCount === 1,
-                lastActivity = !animating && --this.activitiesCount === 0;
+            var lastActivity = this.activitiesCount === 0;
 
             if ( !lastActivity ) {
                 animating = true;
