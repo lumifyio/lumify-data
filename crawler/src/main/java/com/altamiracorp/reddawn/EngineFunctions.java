@@ -1,7 +1,10 @@
 package com.altamiracorp.reddawn;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,8 +14,10 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public class EngineFunctions {
+	private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
+	private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
 
-    /**
+	/**
      * Concatenates the strings in the list, separated by the connector specified
      *
      * @param list Terms to concatenate
@@ -46,5 +51,17 @@ public class EngineFunctions {
 
         return ret;
     }
+
+	/**
+	 * Creates a clean version of a url to be used as a directory name.
+	 * @param input the url to be cleaned
+	 * @return the cleaned string
+	 */
+	public static String toSlug(String input) {
+		String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
+		String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
+		String slug = NONLATIN.matcher(normalized).replaceAll("");
+		return slug.toLowerCase(Locale.ENGLISH);
+	}
 
 }
