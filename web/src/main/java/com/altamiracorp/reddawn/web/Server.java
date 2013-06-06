@@ -1,5 +1,7 @@
 package com.altamiracorp.reddawn.web;
 
+import java.net.InetSocketAddress;
+
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
