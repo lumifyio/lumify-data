@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -57,42 +58,57 @@ public class GoogleSearchEngine implements SearchEngine {
         // Holds key-value pairs for query
         TreeMap<String, String> queryParams = new TreeMap<String, String>();
 
+        // Adds key-value pairs to the query variable map
         queryParams.put("alt", "json");
         queryParams.put("q", "boston+bombing");
-        queryParams.put("cx", )
+        queryParams.put("cx", "012249192867828703671:vknw0znfgfa");
 
-        // Creates query URL
-        URL fullURL = null;
-        try {
-            fullURL = new URL(baseURL + createQueryString(queryParams));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        }
+        // Result Links to return
+        ArrayList<String> links = new ArrayList<String>();
 
-        // Connects to the internet at the queryURL
-        URLConnection connection;
-        String line;
-        StringBuilder builder = new StringBuilder();
-        BufferedReader reader;
-        try {
-            connection = fullURL.openConnection();
-            connection.addRequestProperty("Referer", "altamiracorp.com");
-            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            while((line = reader.readLine()) != null) {
-                builder.append(line);
+        for(int searchCount = 0; searchCount*10 < maxResults; searchCount++) {
+            // Adds the result ranges to the query
+            queryParams.put("num", (maxResults - searchCount * 10 < 10 ? maxResults - searchCount * 10 : 10) + "");
+            queryParams.put("start", searchCount * 10 + 1 + "");
+
+            // Creates query URL
+            URL fullURL = null;
+            try {
+                fullURL = new URL(baseURL + createQueryString(queryParams));
+            } catch (MalformedURLException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
             }
-        } catch(IOException e) {
-            System.err.println("The connection failed");
-            e.printStackTrace();
+
+            // Connects to the internet at the queryURL
+            URLConnection connection;
+            String line;
+            StringBuilder builder = new StringBuilder();
+            BufferedReader reader;
+            try {
+                connection = fullURL.openConnection();
+                connection.addRequestProperty("Referer", "altamiracorp.com");
+                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                while((line = reader.readLine()) != null) {
+                    builder.append(line);
+                }
+            } catch(IOException e) {
+                System.err.println("The connection failed");
+                e.printStackTrace();
+            }
+
+            // Get response from page and put it in a JSON object (return type should be JSON)
+            JSONObject response = new JSONObject(builder.toString());
+            JSONArray results = response.getJSONArray("items");
+
+            for(int i = 0; i < results.length(); i++) {
+                JSONObject entry = results.getJSONObject(i);
+                links.add(entry.getString("link"));
+            }
         }
 
-        System.out.println(builder.toString());
+        System.out.println(links);
 
-        // Get response from page and put it in a JSON object (return type should be JSON)
-        //JSONObject response = new JSONObject(builder.toString());
-        //Iterator<?> keys = response.keys();
-
-        return new ArrayList<String>();
+        return links;
     }
 
     /**
