@@ -269,7 +269,7 @@ define([
 
         this.getGraphData = function() {
             return {
-                nodes: cy.json().elements.nodes
+                nodes: cy.json().elements.nodes || []
             };
         };
 
@@ -363,13 +363,10 @@ define([
                                     console.error('Error', err);
                                     return $this.trigger(document, 'error', { message: err.toString() });
                                 }
-                                console.log('cy.load', data.data.nodes);
                                 
-
-                                // TODO for some reason cy.load doesn't work here.
-                                data.data.nodes.forEach(function(node) {
-                                    cy.add(node);
-                                });
+                                if (data.data.nodes) {
+                                    cy.add(data.data.nodes);
+                                }
 
                                 $this.refreshRelationships();
                                 $this.checkEmptyGraph();
