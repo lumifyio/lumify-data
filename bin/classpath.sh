@@ -25,7 +25,7 @@ if [ -d ${DIR}/../${dir} ]; then
   fi
 
   if [ "${run_mvn}" == 'true' ]; then
-    mvn_output="$(cd ${DIR}/.. && mvn clean package)"
+    mvn_output="$(cd ${DIR}/.. && mvn clean package -Dmaven.test.skip=true)"
     mvn_exit=$?
     if [ ${mvn_exit} -ne 0 ]; then
       echo "${mvn_output}"
