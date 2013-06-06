@@ -34,10 +34,9 @@ define([
         };
 
         this.onUserSelected = function(evt, data) {
-            var chat = this.findChatByToUserId(data.userId);
-            if(chat) {
+            if(this.openChats[data.id]) {
                 this.select('chatWindowSelector').hide();
-                return $('#chat-window-' + chat.id).show().find('.message').focus();
+                return $('#chat-window-' + data.id).show().find('.message').focus();
             }
 
             data.activate = true;
@@ -58,22 +57,29 @@ define([
             if (options && options.activate) {
                 this.select('chatWindowSelector').hide();
                 $('#chat-window-' + user.id).show().find('.message').focus();
+                this.trigger(document, 'userSelected', user);
             }
         };
 
         this.addMessage = function(userId, message) {
             var $chatWindow = $('#chat-window-' + userId);
-            var $chatMessages = $('.chat-messages', $chatWindow);
-            $chatMessages.append(chatMessageTemplate({
+            if ($chatWindow.length === 0) {
+                this.trigger('createChatWindow', { id:userId, activate:true });
+                $chatWindow = $('#chat-window-' + userId);
+            }
+            $chatWindow.find('.chat-messages').append(chatMessageTemplate({
                 message: message
             }));
+
+            var bottom = $chatWindow[0].scrollHeight - $chatWindow.height();
+            $chatWindow.animate({scrollTop:bottom}, 'fast');
         };
 
         this.onMessage = function(evt, message) {
             if(message.type == 'chat') {
                 this.createOrFocusChat(message.chat);
             } else if(message.type == 'chatMessage') {
-                this.addMessage(message.message.from, message.message);
+                this.addMessage(message.from.id, message);
             }
         };
 
@@ -94,7 +100,7 @@ define([
             // add a temporary message to create the feel of responsiveness
             this.addMessage(userId, {
                 tempId: tempId,
-                from: { username: 'me' },
+                from: { id: 'me' },
                 message: message,
                 postDate: null
             });
@@ -112,14 +118,5 @@ define([
             $messageInput.focus();
         };
 
-        this.findChatByToUserId = function(userId) {
-            var self = this;
-            var filteredChats = Object.keys(this.openChats).filter(function(chatId) {
-                var chat = self.openChats[chatId];
-                var matchingUsers = chat.users.filter(function(u) { return u.id == userId; });
-                return matchingUsers.length > 0;
-            });
-            return filteredChats.length == 0 ? null : this.openChats[filteredChats[0]];
-        };
     }
 });

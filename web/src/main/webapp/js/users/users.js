@@ -60,7 +60,7 @@ define([
         };
 
         this.onUserSelected = function(evt, userData) {
-            this.createOrActivateConversation(userData.userId, { activate: true });
+            this.createOrActivateConversation(userData.id, { activate: true });
         };
 
         this.createOrActivateConversation = function(userId, options) {
@@ -93,7 +93,7 @@ define([
 
             } else if(message.type == 'chatMessage') {
 
-                id = message.message.from.id;
+                id = message.from.id;
                 this.createOrActivateConversation(id);
 
                 var badge = this.select('usersListSelector').find('li.conversation-' + id + ':not(.active) .badge');
@@ -159,7 +159,7 @@ define([
 				
 				self.usersService.subscribeToUserChangeChannel (self.currentUserId,self.handleUserChanges.bind(self));
 				self.usersService.subscribeToChatChannel(self.currentUserId,function (err, data) {
-					this.trigger(document,"message",data);
+					self.trigger(document,"message",data);
 				});
             });
         };

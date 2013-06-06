@@ -41,10 +41,12 @@ function(ServiceBase) {
 			//data: "message=" + JSON.stringify(chatMessage),
 			onError: function (response) {
 				callback(response.error,null);
-			}
+			}, 
+            onOpen: function() {
+                subSocket.push({data: "message=" + JSON.stringify(chatMessage)});
+            }
 		};
 		var subSocket = this.$socket.subscribe(chatRequest);
-		subSocket.push({data: "message=" + JSON.stringify(chatMessage)});
 		//callback(null,message);
     };
 
