@@ -1,12 +1,16 @@
 package com.altamiracorp.reddawn;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,6 +22,7 @@ import java.util.ArrayList;
 public class Crawler {
 
     private ArrayList<String> links;
+	private Timestamp timestamp;
 
     /**
      * Constructor takes in an ArrayList of urls.
@@ -26,17 +31,29 @@ public class Crawler {
     public Crawler(ArrayList<String> links_)
     {
         links = links_;
+
     }
 
     /**
-     *
-     * @return
+     * Returns the content of ONE url as a String Builder
+     * @param link the link to follow
+	 * @return the page's content
      */
-    public boolean crawl(String link) {
+    public StringBuilder crawl(String link) throws Exception {
+		int line = 0;
+		StringBuilder stringBuilder = new StringBuilder();
+		String urlName = EngineFunctions.toSlug(link);
+
+		Calendar calendar = Calendar.getInstance();
+		Date now = calendar.getTime();
+		timestamp = new Timestamp(now.getTime());
+
+		stringBuilder.append("URL: " + link + "\n");
+		stringBuilder.append("Cleaned URL: " + urlName + "\n");
+		stringBuilder.append("Timestamp: " + timestamp + "\n");
+
 		try
 		{
-			int line = 0;
-			StringBuilder stringBuilder = new StringBuilder();
 			URL url = new URL(link);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			BufferedReader in
@@ -55,15 +72,20 @@ public class Crawler {
 		}
 		catch (MalformedURLException e)
 		{
-			System.out.println("Problem with URL.");
-			return false;
+			throw new MalformedURLException("Problem with URL.");
 		}
 		catch (java.io.IOException e)
 		{
-			  System.out.println("Problem with connection.");
-			return false;
+			  throw new IOException("Problem with connection.");
 		}
-		return true;
+
+		return stringBuilder;
     }
+
+	public boolean createFile(StringBuilder sb)
+	{
+
+		return false;
+	}
 
 }

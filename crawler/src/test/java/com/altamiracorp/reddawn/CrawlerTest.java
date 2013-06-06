@@ -27,8 +27,8 @@ public class CrawlerTest extends TestCase{
     }
 
 	@Test
-	public void testCrawl()
+	public void testCrawl() throws Exception
 	{
-		assertTrue(crawler.crawl("http://www.google.com"));
+		assertNotNull(crawler.crawl("http://www.google.com"));
 	}
 }

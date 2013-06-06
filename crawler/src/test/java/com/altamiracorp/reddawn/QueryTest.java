@@ -86,7 +86,7 @@ public class QueryTest extends TestCase {
     }
 
     @Test
-    public void testSetCountry() {
+    public void testSetCountry() throws Exception {
         assertTrue(q.setCountry("af"));
         assertTrue(q.setCountry("AF"));
         assertFalse(q.setCountry("United States"));
