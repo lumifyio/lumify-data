@@ -1,17 +1,7 @@
 package com.altamiracorp.reddawn.web;
 
-import com.altamiracorp.reddawn.web.routes.artifact.*;
-import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
-import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
-import com.altamiracorp.reddawn.web.routes.entity.EntityByRowKey;
-import com.altamiracorp.reddawn.web.routes.entity.EntityRelationships;
-import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
-import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
-import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceByRowKey;
-import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceList;
-import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceSave;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.Handler;
+import java.io.File;
+import java.io.IOException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -20,8 +10,25 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
+
+import com.altamiracorp.reddawn.web.routes.artifact.ArtifactByRowKey;
+import com.altamiracorp.reddawn.web.routes.artifact.ArtifactHtmlByRowKey;
+import com.altamiracorp.reddawn.web.routes.artifact.ArtifactRawByRowKey;
+import com.altamiracorp.reddawn.web.routes.artifact.ArtifactSearch;
+import com.altamiracorp.reddawn.web.routes.artifact.ArtifactTermsByRowKey;
+import com.altamiracorp.reddawn.web.routes.artifact.ArtifactTextByRowKey;
+import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
+import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
+import com.altamiracorp.reddawn.web.routes.entity.EntityByRowKey;
+import com.altamiracorp.reddawn.web.routes.entity.EntityRelationships;
+import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
+import com.altamiracorp.reddawn.web.routes.user.MeGet;
+import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
+import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceByRowKey;
+import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceList;
+import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceSave;
+import com.altamiracorp.web.App;
+import com.altamiracorp.web.Handler;
 
 public class Router extends HttpServlet {
     private App app;
@@ -54,6 +61,7 @@ public class Router extends HttpServlet {
         app.get("/workspace/{workspaceRowKey}", authenticator, WorkspaceByRowKey.class);
 
         app.get("/user/messages", authenticator, MessagesGet.class);
+		app.get("/user/me", authenticator, MeGet.class);
 
         app.post("/chat/new", authenticator, ChatNew.class);
         app.post("/chat/{chatId}/post", authenticator, ChatPostMessage.class);

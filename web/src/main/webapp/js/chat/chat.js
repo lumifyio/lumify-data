@@ -45,32 +45,24 @@ define([
         };
 
         this.onCreateChatWindow = function(evt, user) {
-            var self = this;
-            var userId = user.userId;
-            this.chatService.createChat(userId, function(err, chat) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-                return self.createOrFocusChat(chat, { activate: user.activate });
-            });
+			this.createOrFocusChat(user,{activate: user.activate});
         };
 
-        this.createOrFocusChat = function(chat, options) {
-            if(!this.openChats[chat.id]) {
-                this.openChats[chat.id] = chat;
-                var dom = $(chatWindowTemplate({ chat: chat }));
+        this.createOrFocusChat = function(user, options) {
+            if(!this.openChats[user.id]) {
+                this.openChats[user.id] = user;
+                var dom = $(chatWindowTemplate({ user: user , users: [this.currentUser, user]}));
                 dom.hide().appendTo(this.$node);
             }
 
             if (options && options.activate) {
                 this.select('chatWindowSelector').hide();
-                $('#chat-window-' + chat.id).show().find('.message').focus();
+                $('#chat-window-' + user.id).show().find('.message').focus();
             }
         };
 
-        this.addMessage = function(chatId, message) {
-            var $chatWindow = $('#chat-window-' + chatId);
+        this.addMessage = function(userId, message) {
+            var $chatWindow = $('#chat-window-' + userId);
             var $chatMessages = $('.chat-messages', $chatWindow);
             $chatMessages.append(chatMessageTemplate({
                 message: message
@@ -81,7 +73,7 @@ define([
             if(message.type == 'chat') {
                 this.createOrFocusChat(message.chat);
             } else if(message.type == 'chatMessage') {
-                this.addMessage(message.chatId, message.message);
+                this.addMessage(message.message.from, message.message);
             }
         };
 
@@ -94,26 +86,26 @@ define([
             var $messageInput = $('.message', $target);
 
             var message = $messageInput.val();
-            var chatId = $chatWindow.attr('chat-id');
-            var chat = this.openChats[chatId];
+            var userId = $chatWindow.attr('chat-id');
+            var chat = this.openChats[userId];
 
             var tempId = 'chat-message-temp-' + Date.now();
 
             // add a temporary message to create the feel of responsiveness
-            this.addMessage(chatId, {
+            this.addMessage(userId, {
                 tempId: tempId,
                 from: { username: 'me' },
                 message: message,
                 postDate: null
             });
 
-            this.chatService.sendChatMessage(chatId, message, function(err, message) {
+            this.chatService.sendChatMessage(userId, self.currentUser.id, message, function(err, message) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
                 $('#' + tempId).remove();
-                self.addMessage(chatId, message);
+                self.addMessage(userId, message);
             });
 
             $messageInput.val('');

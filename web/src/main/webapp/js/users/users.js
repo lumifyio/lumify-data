@@ -35,7 +35,7 @@ define([
             });
 
             this.doGetOnline();
-            setInterval(this.doGetOnline.bind(this), 500); // TODO use long polling
+            //setInterval(this.doGetOnline.bind(this), 500); // TODO use long polling
         });
 
         this.onUserListItemClicked = function(evt) {
@@ -50,7 +50,7 @@ define([
                 return;
             }
 
-            this.trigger(document, 'userSelected', { userId: userId });
+            this.trigger(document, 'userSelected', { id: userId });
         };
 
         this.onNewUserOnline = function(evt, userData) {
@@ -115,14 +115,32 @@ define([
             }
         };
 
+		this.handleUserChanges = function (err, data) { // on user change
+			var self = this;
+			data.users.forEach(function(user) {
+				if (user.id == self.currentUserId) {
+					return;
+				}
+                var currentOnlineUsers = self.onlineUsers.filter(function(u) { return u.id == user.id; });
+                var currentOnlineUser = currentOnlineUsers.length ? currentOnlineUsers[0] : null;
+                if(!currentOnlineUser) {
+                    self.trigger(document, 'newUserOnline', user);
+                } else if(currentOnlineUser.status != user.status) {
+                    self.trigger(document, 'userOnlineStatusChanged', user);
+                }
+            });
+		};
+
         this.doGetOnline = function() {
             var self = this;
+			window.self = self;
             self.usersService.getOnline(function(err, data) {
                 if (err) {
                     var $usersList = self.select('usersListSelector');
                     $usersList.html('Could not get online: ' + err);
                     return;
                 }
+				
 
                 if(data.messages && data.messages.length > 0) {
                     data.messages.forEach(function(message) {
@@ -134,18 +152,15 @@ define([
                     self.currentUserId = data.user.id;
                     self.trigger(document, 'onlineStatusChanged', data);
                 }
-
-                data.users.forEach(function(user) {
-                    var currentOnlineUsers = self.onlineUsers.filter(function(u) { return u.id == user.id; });
-                    var currentOnlineUser = currentOnlineUsers.length ? currentOnlineUsers[0] : null;
-
-                    if(!currentOnlineUser) {
-                        self.trigger(document, 'newUserOnline', user);
-                    } else if(currentOnlineUser.status != user.status) {
-                        self.trigger(document, 'userOnlineStatusChanged', user);
-                    }
-                });
+				
+				self.handleUserChanges (null, data);
                 self.onlineUsers = data.users;
+				
+				
+				self.usersService.subscribeToUserChangeChannel (self.currentUserId,self.handleUserChanges.bind(self));
+				self.usersService.subscribeToChatChannel(self.currentUserId,function (err, data) {
+					this.trigger(document,"message",data);
+				});
             });
         };
     }
