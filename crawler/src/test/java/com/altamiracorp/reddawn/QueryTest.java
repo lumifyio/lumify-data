@@ -91,4 +91,16 @@ public class QueryTest extends TestCase {
         assertTrue(q.setCountry("AF"));
         assertFalse(q.setCountry("United States"));
     }
+
+    @Test
+    public void testSetLowRange()
+    {
+        assertTrue(q.setLowRange(100));
+    }
+
+    @Test
+    public void testSetHighRange()
+    {
+        assertTrue(q.setHighRange(500));
+    }
 }

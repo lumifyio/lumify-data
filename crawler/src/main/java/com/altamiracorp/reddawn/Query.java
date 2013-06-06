@@ -111,6 +111,18 @@ public class Query
         }
     }
 
+    public boolean setLowRange(int lowValue)
+    {
+        searchItems.put("lowRange", Integer.toString(lowValue));
+        return true;
+    }
+
+    public boolean setHighRange(int highValue)
+    {
+        searchItems.put("lowRange", Integer.toString(highValue));
+        return true;
+    }
+
     public void addExcludedTerm(String term)
     {
         excludedTerms.add(term);
