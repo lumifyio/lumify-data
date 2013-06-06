@@ -3,11 +3,12 @@
 define([
     'flight/lib/component',
     'cytoscape',
+    './renderer',
     'service/workspace',
     'service/ucd',
     'tpl!./graph',
     'util/undoManager'
-], function(defineComponent, cytoscape, WorkspaceService, UcdService, template, undoManager) {
+], function(defineComponent, cytoscape, Renderer, WorkspaceService, UcdService, template, undoManager) {
     'use strict';
 
     return defineComponent(Graph);
@@ -39,6 +40,9 @@ define([
             node.data.title = title;
 
             var cyNode = cy.add(node);
+
+            cyNode.addClass(info.subType);
+            cyNode.addClass(info.type);
 
             undoManager.performedAction( 'Add node: ' + title, {
                 undo: function() {
@@ -290,12 +294,40 @@ define([
                 }.bind(this)
             });
 
+            cytoscape("renderer", "red-dawn", Renderer);
             cytoscape({
                 showOverlay: false,
                 minZoom: 0.5,
                 maxZoom: 2,
                 container: this.select('cytoscapeContainerSelector').css({height:'100%'})[0],
+                renderer: {
+                    name: 'red-dawn'
+                },
                 style: cytoscape.stylesheet()
+                  .selector('node.person')
+                    .css({
+                      'background-image': '/img/glyphicons/glyphicons_003_user@2x.png'
+                    })
+                  .selector('node.location')
+                    .css({
+                      'background-image': '/img/glyphicons/glyphicons_242_google_maps@2x.png',
+                      'width': 18,
+                      'height': 30,
+                      'border-color': 'white',
+                      'border-width': 0
+                    })
+                  .selector('node.organization')
+                    .css({
+                      'background-image': '/img/glyphicons/glyphicons_263_bank@2x.png',
+                      'shape': 'roundrectangle'
+                    })
+                  .selector('node.document')
+                    .css({
+                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
+                      'shape': 'rectangle',
+                      'width': 23,
+                      'height': 30
+                    })
                   .selector('node')
                     .css({
                       'content': 'data(title)',
@@ -309,6 +341,7 @@ define([
                   .selector(':selected')
                     .css({
                       'background-color': '#0088cc',
+                      'border-color': '#0088cc',
                       'line-color': '#000',
                       'color': '#0088cc'
                     })
