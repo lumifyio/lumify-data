@@ -8,11 +8,17 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-echo "Before classpath"
 classpath=$(${DIR}/classpath.sh crawler)
-echo "${classpath}"
+if [ $? -ne 0 ]; then
+  echo "${classpath}"
+  exit
+fi
 
-echo "Did something"
+if [ "$1" != '' ]; then
+  dir=$1
+else
+  dir=${DIR}/../data
+fi
 
 java \
 -Dfile.encoding=UTF-8 \
