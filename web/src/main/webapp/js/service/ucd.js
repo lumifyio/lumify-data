@@ -11,6 +11,16 @@ function(ServiceBase) {
 
     Ucd.prototype = Object.create(ServiceBase.prototype);
 
+    Ucd.prototype.getRelationships = function(entityIds, artifactIds, callback) {
+        return this._ajaxGet({
+            url: '/entity/relationships',
+            data: {
+                entityIds: entityIds,
+                artifactIds: artifactIds
+            }
+        }, callback);
+    };
+
     Ucd.prototype.artifactSearch = function(query, callback) {
         this._search("artifact", query, callback);
     };

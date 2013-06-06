@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.cmdline;
 
+import com.altamiracorp.reddawn.RedDawnClient;
 import com.altamiracorp.reddawn.search.BlurSearchProvider;
 import com.altamiracorp.reddawn.search.SearchProvider;
 import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
@@ -125,6 +126,11 @@ public abstract class UcdCommandLineBase extends Configured implements Tool {
 
         Properties properties = new Properties();
         return UcdFactory.createUcdClient(config, properties);
+    }
+
+    public RedDawnClient createRedDawnClient() throws AccumuloSecurityException, AccumuloException {
+        // TODO refactor?
+        return new RedDawnClient(createUcdClient().getConnection());
     }
 
     public SearchProvider createSearchProvider() throws Exception {

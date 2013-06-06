@@ -2,8 +2,9 @@
 
 define([
     'flight/lib/component',
+    './activity/activity',
     'tpl!./menubar'
-], function(defineComponent, template) {
+], function(defineComponent, Activity, template) {
     'use strict';
 
     return defineComponent(Menubar);
@@ -11,7 +12,12 @@ define([
     function Menubar() {
 
         // Add class name of <li> buttons here
-        var BUTTONS = 'search users metrics prefs';
+        var BUTTONS = 'search activity users metrics prefs';
+
+        // Don't change state to highlighted on click
+        var DISABLE_ACTIVE_SWITCH = 'activity metrics prefs'.split(' ');
+
+        this.activities = 0;
 
         var attrs = {}, events = {};
         BUTTONS.split(' ').forEach(function(name) {
@@ -28,13 +34,25 @@ define([
         
         this.after('initialize', function() {
             this.$node.html(template({}));
+            
+            Activity.attachTo( this.select('activityIconSelector') );
 
             this.on('click', events);
 
             this.on(document, 'menubarToggleDisplay', function(e, data) {
-                this.select(data.name + 'IconSelector').toggleClass('active');
+                var icon = this.select(data.name + 'IconSelector');
+
+                if (DISABLE_ACTIVE_SWITCH.indexOf(data.name) === -1) {
+                    icon.toggleClass('active');
+                } else {
+
+                    // Just highlight briefly to show click worked
+                    icon.addClass('active');
+                    setTimeout(function() {
+                        icon.removeClass('active');
+                    }, 200);
+                }
             });
         });
-
     }
 });

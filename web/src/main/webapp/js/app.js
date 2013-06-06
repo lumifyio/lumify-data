@@ -30,6 +30,7 @@ define([
             this.on(document, 'error', this.onError);
             this.on(document, 'menubarToggleDisplay', this.toggleDisplay);
             this.on(document, 'message', this.onMessage);
+            this.on(document, 'searchResultSelected', this.onSearchResultSelection);
 
             var content = $(appTemplate({})),
                 menubarPane = content.filter('.menubar-pane'),
@@ -47,7 +48,7 @@ define([
 
             // Configure splitpane resizing
             resizable(searchPane, 'e');
-            resizable(detailPane, 'w', 4, 500);
+            resizable(detailPane, 'w', 4, 500, this.onDetailResize.bind(this));
 
             this.$node.html(content);
 
@@ -66,14 +67,38 @@ define([
                 this.trigger(document, 'menubarToggleDisplay', {name:'users'});
             }
         };
+
+        this.onSearchResultSelection = function(e, data) {
+            var detailPane = this.select('detailPaneSelector');
+            var minWidth = 100;
+
+            if (detailPane.width() < minWidth) {
+                detailPane[0].style.width = null;
+            }
+            detailPane.removeClass('collapsed').addClass('visible');
+
+            this.trigger(document, 'detailPaneResize', { width: detailPane.width() });
+        };
+
+        this.onDetailResize = function(e, ui) {
+            var COLLAPSE_TOLERANCE = 50,
+                width = ui.size.width,
+                shouldCollapse = width < COLLAPSE_TOLERANCE;
+
+            this.trigger(document, 'detailPaneResize', { 
+                width: shouldCollapse ? 0 : width
+            });
+            $(e.target).toggleClass('collapsed', shouldCollapse);
+        };
     }
 
 
-    function resizable( el, handles, minWidth, maxWidth ) {
+    function resizable( el, handles, minWidth, maxWidth, callback ) {
         return el.resizable({
             handles: handles,
             minWidth: minWidth || 150,
-            maxWidth: maxWidth || 300
+            maxWidth: maxWidth || 300,
+            resize: callback
         });
     }
 
