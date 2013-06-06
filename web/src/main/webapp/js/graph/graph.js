@@ -47,19 +47,16 @@ define([
                 },
                 redo: function() {
                     cyNode.restore();
-                    //node.renderedPosition = undefined;
-                    //node.position = cyNode.position();
-                    //cyNode = cy.add(node);
                     this.setWorkspaceDirty();
                     this.refreshRelationships();
                 },
                 bind: this
             });
 
-            this.select('emptyGraphSelector').hide();
             this.setWorkspaceDirty();
             this.refreshRelationships();
         };
+
 
         this.removeSelectedNodes = function() {
             var nodes = cy.nodes().filter(':selected').remove();
@@ -195,7 +192,13 @@ define([
             this.setWorkspaceDirty();
         };
 
+        this.checkEmptyGraph = function() {
+            this.select('emptyGraphSelector').toggle(cy.nodes().length === 0);
+        };
+
         this.setWorkspaceDirty = function() {
+            this.checkEmptyGraph();
+
             if(this.saveWorkspaceTimeout) {
                 clearTimeout(this.saveWorkspaceTimeout);
             }
@@ -361,13 +364,15 @@ define([
                                     return $this.trigger(document, 'error', { message: err.toString() });
                                 }
                                 console.log('cy.load', data.data.nodes);
-                                $this.select('emptyGraphSelector').hide();
+                                
 
                                 // TODO for some reason cy.load doesn't work here.
                                 data.data.nodes.forEach(function(node) {
                                     cy.add(node);
                                 });
+
                                 $this.refreshRelationships();
+                                $this.checkEmptyGraph();
                             });
                         }
                     });
