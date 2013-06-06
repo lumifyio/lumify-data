@@ -4,11 +4,11 @@ define([
     'use strict';
 
     /**
-     * Manages undo,redo stack
+     * Manages undo,redo stack, and keyboard events to trigger
      *
      * After an action:
      *
-     *  undoManager.performedAction( [action], undoFunction, redoFunction);
+     *  undoManager.performedAction( actionName, undoFunction, redoFunction);
      */
     function UndoManager() {
         var $this = this;
@@ -24,7 +24,6 @@ define([
         });
     }
 
-
     UndoManager.prototype.performedAction = function(name, options) {
         if ( name && 
              options && 
@@ -36,7 +35,22 @@ define([
                 undo: options.undo.bind(options.bind || this),
                 redo: options.redo.bind(options.bind || this)
             });
-        } else console.log('Invalid performedAction arguments');
+        } else {
+            throw new Error('Invalid performedAction arguments');
+        }
+    };
+
+    UndoManager.prototype.canUndo = function() {
+        return !! this.undos.length;
+    };
+
+    UndoManager.prototype.canRedo = function() {
+        return !! this.redos.length;
+    };
+
+    UndoManager.prototype.reset = function() {
+        this.undos = [];
+        this.redos = [];
     };
 
     UndoManager.prototype.performUndo = function() {
@@ -48,7 +62,12 @@ define([
     };
 
     UndoManager.prototype._isUndo = function(character, event) {
-        return character === 'Z' && event.metaKey && !event.shiftKey;
+        return (
+            // Windows
+            (character === 'Z' && event.ctrlKey) || 
+            // Mac
+            (character === 'Z' && event.metaKey && !event.shiftKey)
+        );
     };
 
     UndoManager.prototype._isRedo = function(character, event) {
