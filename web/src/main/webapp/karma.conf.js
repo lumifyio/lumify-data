@@ -56,10 +56,10 @@ reporters = ['progress'];
 
 
 if (coverage) {
-  preprocessors['src/!(vendor)/**.js'] = 'coverage';
+  preprocessors['js/**/*.js'] = 'coverage';
 
   // The above doesn't include the top level src items
-  preprocessors['src/*.js'] = 'coverage';
+  preprocessors['js/*.js'] = 'coverage';
 
   reporters.push('coverage');
 
