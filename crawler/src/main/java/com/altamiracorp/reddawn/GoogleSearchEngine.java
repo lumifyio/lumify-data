@@ -22,6 +22,7 @@ import java.util.*;
 public class GoogleSearchEngine implements SearchEngine {
 
     private String baseURL;
+
     private ArrayList<String> queryQueue;
     private ArrayList<Integer> maxResultQueue;
 
@@ -61,8 +62,8 @@ public class GoogleSearchEngine implements SearchEngine {
      */
     @Override
     public boolean addQueryToQueue(Query q, int maxResults) {
-        if(!queryQueue.add(createQueryString(processQuery(q)))) return false;
-        if(!maxResultQueue.add(maxResults)) {
+        if(!queryQueue.add(EngineFunctions.createQueryString(processQuery(q)))) return false;
+        if(maxResults < 0 || !maxResultQueue.add(maxResults)) {
             queryQueue.remove(queryQueue.size()-1);
             return false;
         }
@@ -95,7 +96,7 @@ public class GoogleSearchEngine implements SearchEngine {
      */
     @Override
     public ArrayList<String> runQuery(Query q, int maxResults) {
-        return search(createQueryString(processQuery(q)), maxResults);
+        return search(EngineFunctions.createQueryString(processQuery(q)), maxResults);
     }
 
     /**
@@ -120,7 +121,7 @@ public class GoogleSearchEngine implements SearchEngine {
             // Creates query URL
             URL fullURL = null;
             try {
-                fullURL = new URL(baseURL + queryString + createQueryString(extraParams));
+                fullURL = new URL(baseURL + queryString + EngineFunctions.createQueryString(extraParams));
             } catch (MalformedURLException e) {
                 System.err.println("Malformed search URL");
                 return null;
@@ -171,9 +172,9 @@ public class GoogleSearchEngine implements SearchEngine {
         TreeMap<String, String> queryParams = new TreeMap<String, String>();
 
         // Generates query strings for search terms
-        String required = concatenate(q.getRequiredTerms(), "+");
-        String excluded = concatenate(q.getExcludedTerms(), "+");
-        String optional = concatenate(q.getOptionalTerms(), "+");
+        String required = EngineFunctions.concatenate(q.getRequiredTerms(), "+");
+        String excluded = EngineFunctions.concatenate(q.getExcludedTerms(), "+");
+        String optional = EngineFunctions.concatenate(q.getOptionalTerms(), "+");
 
         // Adds query strings to the map if they aren't empty
         if(required.length() > 0) queryParams.put("exactTerms", required);
@@ -184,14 +185,14 @@ public class GoogleSearchEngine implements SearchEngine {
         for(Map.Entry<String, String> entry : q.getSearchItems().entrySet()) {
             String key = entry.getKey();
             if(entry.getValue().length() > 0) {
-                if(key.equals("country")) queryParams.put("cr", entry.getValue());
+                if(key.equals("country")) queryParams.put("cr", "country" + entry.getValue().toUpperCase());
                 else if(key.equals("startDate")) {
                     String[] dateParams = entry.getValue().split("-");
                     int daysAgo = (int) ((System.currentTimeMillis() - new Date(Integer.parseInt(dateParams[0]),
                             Integer.parseInt(dateParams[1]), Integer.parseInt(dateParams[2])).getTime())
                             / (24 * 60 * 60 * 1000));
                     queryParams.put("dateRestrict", "d[" + daysAgo + "]");
-                } else if(key.equals("geoLoc")) queryParams.put("gl", entry.getValue());
+                } else if(key.equals("geoLoc")) queryParams.put("gl", entry.getValue().toLowerCase());
                 else if(key.equals("lowRange")) queryParams.put("lowRange", entry.getValue());
                 else if(key.equals("highRange")) queryParams.put("highRange", entry.getValue());
             }
@@ -200,38 +201,11 @@ public class GoogleSearchEngine implements SearchEngine {
         return queryParams;
     }
 
-    /**
-     * Concatenates the strings in the list, separated by the connector specified
-     *
-     * @param list Terms to concatenate
-     * @param connector String to insert in between each value
-     * @return Concatenated string of terms
-     */
-    private String concatenate(ArrayList<String> list, String connector) {
-        String ret = "";
-
-        for(String entry : list) {
-            if(ret.length() > 0) ret += connector;
-            ret += entry.replace(" ", "+");
-        }
-
-        return ret;
+    public ArrayList<String> getQueryQueue() {
+        return queryQueue;
     }
 
-    /**
-     * Generates the query string parameters to be tacked on to the request URL
-     *
-     * @param params Map of Google Custom Search API keys to their values
-     * @return Query string to append to URL
-     */
-    private String createQueryString(Map<String, String> params) {
-        String ret = "";
-
-        // Adds GET variable to the query for each parameter in the map
-        for(Map.Entry<String, String> entry : params.entrySet()) {
-            ret += "&" + entry.getKey() + "=" + entry.getValue();
-        }
-
-        return ret;
+    public ArrayList<Integer> getMaxResultQueue() {
+        return maxResultQueue;
     }
 }
