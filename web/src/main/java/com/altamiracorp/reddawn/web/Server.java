@@ -1,12 +1,12 @@
 package com.altamiracorp.reddawn.web;
 
-import java.net.InetSocketAddress;
-
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.util.ToolRunner;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
@@ -67,9 +67,16 @@ public class Server extends UcdCommandLineBase {
 		webAppContext.setContextPath("/");
 		webAppContext.setWar("./web/src/main/webapp/");
 
-		server.setHandler(webAppContext);
-		server.start();
-		server.join();
+        WebAppContext messagingContext = new WebAppContext();
+        messagingContext.setContextPath("/messaging");
+        messagingContext.setWar("./messaging/src/main/webapp/");
+
+        ContextHandlerCollection contexts = new ContextHandlerCollection();
+        contexts.setHandlers(new Handler[] { webAppContext, messagingContext });
+        
+        server.setHandler(contexts);
+        server.start();
+        server.join();
 
 		return 0;
 	}
