@@ -10,10 +10,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,26 +21,69 @@ import java.util.TreeMap;
  */
 public class GoogleSearchEngine implements SearchEngine {
 
-    public static final int GOOGLE_NEWS = 1,
-                            GOOGLE_WEB = 2,
-                            GOOGLE_VIDEO = 3,
-                            GOOGLE_IMAGE = 4,
-                            GOOGLE_BLOG = 5;
-
     private String baseURL;
+    private ArrayList<String> queryQueue;
+    private ArrayList<Integer> maxResultQueue;
 
+    /**
+     * Default constructor which configures authentication automatically (limit 100 free searches per day with this configuration)
+     */
     public GoogleSearchEngine() {
-        baseURL = "https://www.googleapis.com/customsearch/v1?key=AIzaSyB4H5oZoRFCVsNoYUNI6nCNAMAusD1GpDY";
+        baseURL = "https://www.googleapis.com/customsearch/v1?key=AIzaSyB4H5oZoRFCVsNoYUNI6nCNAMAusD1GpDY" +
+                "&cx=012249192867828703671:vknw0znfgfa" +
+                "&alt=json";
+
+        queryQueue = new ArrayList<String>();
+        maxResultQueue = new ArrayList<Integer>();
     }
 
+    /**
+     * Constructor taking in search identification parameters.  Use this if you want to manually set the authentication for the query
+     *
+     * @param apiKey Google API Key
+     * @param searchEngineID Google Custom Search Engine Identifier
+     */
+    public GoogleSearchEngine(String apiKey, String searchEngineID) {
+        baseURL = "https://www.googleapis.com/customsearch/v1?key=" + apiKey +
+                "&cx=" + searchEngineID +
+                "&alt=json";
+
+        queryQueue = new ArrayList<String>();
+        maxResultQueue = new ArrayList<Integer>();
+    }
+
+    /**
+     * Adds a search job to the queue with the specified query and number of results to return
+     *
+     * @param q The query to add to the queue
+     * @param maxResults The maximum number of results that the method should return
+     * @return Whether or not the query was successfully added to the queue
+     */
     @Override
     public boolean addQueryToQueue(Query q, int maxResults) {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        if(!queryQueue.add(createQueryString(processQuery(q)))) return false;
+        if(!maxResultQueue.add(maxResults)) {
+            queryQueue.remove(queryQueue.size()-1);
+            return false;
+        }
+        return true;
     }
 
+    /**
+     * Runs all elements in the queue,returning their results
+     *
+     * @return list of lists of links for each query performed, in order
+     * @throws JSONException
+     */
     @Override
     public ArrayList<ArrayList<String>> runQueue() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        ArrayList<ArrayList<String>> results = new ArrayList<ArrayList<String>>();
+
+        for(int i = 0; i < queryQueue.size(); i++) {
+            results.add(search(queryQueue.get(i), maxResultQueue.get(i)));
+        }
+
+        return results;
     }
 
     /**
@@ -54,29 +94,36 @@ public class GoogleSearchEngine implements SearchEngine {
      * @return ArrayList of URLs found in the search
      */
     @Override
-    public ArrayList<String> runQuery(Query q, int maxResults) throws JSONException {
-        // Holds key-value pairs for query
-        TreeMap<String, String> queryParams = new TreeMap<String, String>();
+    public ArrayList<String> runQuery(Query q, int maxResults) {
+        return search(createQueryString(processQuery(q)), maxResults);
+    }
 
-        // Adds key-value pairs to the query variable map
-        queryParams.put("alt", "json");
-        queryParams.put("q", "boston+bombing");
-        queryParams.put("cx", "012249192867828703671:vknw0znfgfa");
-
+    /**
+     * Runs query on search engine
+     *
+     * @param queryString Preformatted query string to attach to URL for that query
+     * @param maxResults The maximum number of results to display
+     * @return ArrayList of links from the result set
+     * @throws JSONException
+     */
+    private ArrayList<String> search(String queryString, int maxResults) {
         // Result Links to return
         ArrayList<String> links = new ArrayList<String>();
 
+        // Loops on the number of searches it needs to run to get the desired number of results
         for(int searchCount = 0; searchCount*10 < maxResults; searchCount++) {
             // Adds the result ranges to the query
-            queryParams.put("num", (maxResults - searchCount * 10 < 10 ? maxResults - searchCount * 10 : 10) + "");
-            queryParams.put("start", searchCount * 10 + 1 + "");
+            TreeMap<String, String> extraParams = new TreeMap<String, String>();
+            extraParams.put("num", (maxResults - searchCount * 10 < 10 ? maxResults - searchCount * 10 : 10) + "");
+            extraParams.put("start", searchCount * 10 + 1 + "");
 
             // Creates query URL
             URL fullURL = null;
             try {
-                fullURL = new URL(baseURL + createQueryString(queryParams));
+                fullURL = new URL(baseURL + queryString + createQueryString(extraParams));
             } catch (MalformedURLException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                System.err.println("Malformed search URL");
+                return null;
             }
 
             // Connects to the internet at the queryURL
@@ -92,23 +139,83 @@ public class GoogleSearchEngine implements SearchEngine {
                     builder.append(line);
                 }
             } catch(IOException e) {
-                System.err.println("The connection failed");
-                e.printStackTrace();
+                System.err.println("The http connection failed");
+                return null;
             }
 
             // Get response from page and put it in a JSON object (return type should be JSON)
-            JSONObject response = new JSONObject(builder.toString());
-            JSONArray results = response.getJSONArray("items");
+            try {
+                JSONObject response = new JSONObject(builder.toString());
+                JSONArray results = response.getJSONArray("items");
 
-            for(int i = 0; i < results.length(); i++) {
-                JSONObject entry = results.getJSONObject(i);
-                links.add(entry.getString("link"));
+                for(int i = 0; i < results.length(); i++) {
+                    JSONObject entry = results.getJSONObject(i);
+                    links.add(entry.getString("link"));
+                }
+            } catch(JSONException e) {
+                System.err.println("The response from the server is not valid JSON");
+                return null;
             }
         }
 
-        System.out.println(links);
-
         return links;
+    }
+
+    /**
+     * Takes variables from the query object and constructs key-value mappings based on the Custom Search API parameters
+     *
+     * @param q Query to process
+     * @return Map containing the engine-specific key-value pairs for the query
+     */
+    private TreeMap<String, String> processQuery(Query q) {
+        TreeMap<String, String> queryParams = new TreeMap<String, String>();
+
+        // Generates query strings for search terms
+        String required = concatenate(q.getRequiredTerms(), "+");
+        String excluded = concatenate(q.getExcludedTerms(), "+");
+        String optional = concatenate(q.getOptionalTerms(), "+");
+
+        // Adds query strings to the map if they aren't empty
+        if(required.length() > 0) queryParams.put("exactTerms", required);
+        if(excluded.length() > 0) queryParams.put("excludeTerms", excluded);
+        queryParams.put("q", optional);
+
+        // Loops through the other parameters, setting key-value pairs based on the information
+        for(Map.Entry<String, String> entry : q.getSearchItems().entrySet()) {
+            String key = entry.getKey();
+            if(entry.getValue().length() > 0) {
+                if(key.equals("country")) queryParams.put("cr", entry.getValue());
+                else if(key.equals("startDate")) {
+                    String[] dateParams = entry.getValue().split("-");
+                    int daysAgo = (int) ((System.currentTimeMillis() - new Date(Integer.parseInt(dateParams[0]),
+                            Integer.parseInt(dateParams[1]), Integer.parseInt(dateParams[2])).getTime())
+                            / (24 * 60 * 60 * 1000));
+                    queryParams.put("dateRestrict", "d[" + daysAgo + "]");
+                } else if(key.equals("geoLoc")) queryParams.put("gl", entry.getValue());
+                else if(key.equals("lowRange")) queryParams.put("lowRange", entry.getValue());
+                else if(key.equals("highRange")) queryParams.put("highRange", entry.getValue());
+            }
+        }
+
+        return queryParams;
+    }
+
+    /**
+     * Concatenates the strings in the list, separated by the connector specified
+     *
+     * @param list Terms to concatenate
+     * @param connector String to insert in between each value
+     * @return Concatenated string of terms
+     */
+    private String concatenate(ArrayList<String> list, String connector) {
+        String ret = "";
+
+        for(String entry : list) {
+            if(ret.length() > 0) ret += connector;
+            ret += entry.replace(" ", "+");
+        }
+
+        return ret;
     }
 
     /**

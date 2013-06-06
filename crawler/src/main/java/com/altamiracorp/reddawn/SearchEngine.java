@@ -34,5 +34,5 @@ public interface SearchEngine {
      * @param maxResults The maximum number of results that should be returned
      * @return List of URLs retrieved from the result table
      */
-    public ArrayList<String> runQuery(Query q, int maxResults) throws JSONException;
+    public ArrayList<String> runQuery(Query q, int maxResults);
 }
