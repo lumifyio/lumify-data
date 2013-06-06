@@ -101,8 +101,7 @@ public class Query
      * @param fileName the name of the file containing the country codes
      * @return ArrayList of two letter country codes
      */
-    private ArrayList<String> getCountryCodes(String fileName)
-    {
+    private ArrayList<String> getCountryCodes(String fileName) throws InvalidCountryCodeException {
         ArrayList<String> countryCodes = new ArrayList<String>();
         File file = new File(fileName);
         String line = "";
@@ -117,7 +116,7 @@ public class Query
         }
         catch (Exception e)
         {
-            System.out.println("Problem with country code file: " + fileName);
+			throw new InvalidCountryCodeException("Problem with country code file: " + fileName);
         }
         return countryCodes;
     }
@@ -129,8 +128,7 @@ public class Query
      * @param country_ the country to be checked and added to the query
      * @return true if valid country code was added to the query, false if otherwise
      */
-    public boolean setCountry(String country_)
-    {
+    public boolean setCountry(String country_) throws InvalidCountryCodeException {
         String country = country_.toLowerCase();
         if (getCountryCodes(COUNTRY_CODE_FILE).contains(country)) {
             searchItems.put("country", country);
@@ -138,8 +136,7 @@ public class Query
         }
         else
         {
-            System.out.println("Country code incorrect: " + country);
-            return false;
+            throw new InvalidCountryCodeException("Country code incorrect: " + country);
         }
     }
 
@@ -224,4 +221,23 @@ public class Query
         return optionalTerms;
     }
 
+	class IncorrectTimeFormatException extends Exception
+	{
+		public IncorrectTimeFormatException(String message)
+		{
+			super(message);
+		}
+
+
+	}
+
+	class InvalidCountryCodeException extends Exception
+	{
+		public InvalidCountryCodeException(String message)
+		{
+			super(message);
+		}
+
+
+	}
 }
