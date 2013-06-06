@@ -62,18 +62,4 @@ public class Query
         return optionalTerms;
     }
 
-    //PRELIMINARY TESTING ONLY! REMOVE MAIN
-    //Try to convert this to JUnit testing tomorrow, or whichever kind of testing the team uses.
-    public static void main( String[] args )   throws Exception
-    {
-        System.out.println( "Starting..." );
-        Query q1 = new Query("US", "Monday", "Friday", "as;ldkfj", "100", "400");
-        System.out.println(q1.getSearchItems().toString());
-        q1.addExcludedTerm("excludedTerm1");
-        System.out.println("Excluded: " + q1.getExcludedTerms().toString());
-        q1.addOptionalTerm("optionalTerm1");
-        System.out.println("Optional: " + q1.getOptionalTerms().toString());
-        q1.addRequiredTerm("requiredTerm1");
-        System.out.println("Required:" + q1.getRequiredTerms().toString());
-    }
 }
