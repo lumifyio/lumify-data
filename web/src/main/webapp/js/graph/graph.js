@@ -126,51 +126,71 @@ define([
         this.graphDrag = function(event) { };
 
         this.graphGrab = function(event) {
-            cy.nodes().filter(':selected,:grabbed').each(function() {
+            var nodes = event.cyTarget.selected() ? cy.nodes().filter(':selected') : event.cyTarget;
+            this.grabbedNodes = nodes.each(function() {
                 var p = this.position();
                 this.data('originalPosition', { x:p.x, y:p.y });
+                this.data('freed', false );
             });
-            this.freecache = {};
         };
 
         this.graphFree = function(event) {
 
-            var pos = event.cyTarget.position(),
-                // Clone position so it doesn't change underneath us
-                p = { x:pos.x, y:pos.y },
-                target = event.cyTarget,
-                key = event.timeStamp + target.data('id') + p.x + ',' + p.y;
-
             // CY is sending multiple "free" events, prevent that...
-            if (this.freecache[key]) {
+            var dup = true,
+                nodes = this.grabbedNodes;
+
+            nodes.each(function(i, e) {
+                var p = this.position();
+                if ( !e.data('freed') ) {
+                    dup = false;
+                }
+                e.data('targetPosition', {x:p.x, y:p.y});
+                e.data('freed', true);
+            });
+
+            if (dup) {
                 return;
             }
-            this.freecache[key] = true;
 
-            var originalPosition = target.data('originalPosition'),
+
+            // If the user didn't drag more than a few pixels, select the
+            // object, it could be an accidental mouse move
+            var target = event.cyTarget, 
+                p = target.position(),
+                originalPosition = target.data('originalPosition'),
                 dx = p.x - originalPosition.x,
                 dy = p.y - originalPosition.y,
                 distance = Math.sqrt(dx * dx + dy * dy);
 
-            // If the user didn't drag more than a few pixels, select the
-            // object, it could be an accidental mouse move
             if (distance < 5) {
                 target.select();
             }
 
-            undoManager.performedAction( 'Move node: ' + target.data('title'), {
+
+            // Cache these positions since data attr could be overidden
+            // then submit to undo manager
+            var originalPositions = [], targetPositions = [];
+            nodes.each(function(i, e) {
+                originalPositions.push( e.data('originalPosition') );
+                targetPositions.push( e.data('targetPosition') );
+            });
+            undoManager.performedAction( 'Move ' + nodes.length + ' nodes', {
                 undo: function() {
-                    //console.log(target.data('title'), '->', originalPosition);
-                    target.position(originalPosition);
+                    nodes.each(function(i, e) {
+                        e.position( originalPositions[i] );
+                    });
                     this.setWorkspaceDirty();
                 },
                 redo: function() {
-                    //console.log(target.data('title'), '->', p);
-                    target.position(p);
+                    nodes.each(function(i, e) {
+                        e.position( targetPositions[i] );
+                    });
                     this.setWorkspaceDirty();
                 },
                 bind: this
             });
+
 
             this.setWorkspaceDirty();
         };
