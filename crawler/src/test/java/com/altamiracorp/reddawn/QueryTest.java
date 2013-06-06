@@ -17,18 +17,16 @@ public class QueryTest extends TestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        q = new Query("US", "Monday", "Friday", "Here", "100", "1000");
+        q = new Query();
     }
 
     @Test
     public void createQuery() throws Exception {
         assertNotNull(q);
-        assertEquals("US", q.getSearchItems().get("country"));
-        assertEquals("Monday", q.getSearchItems().get("startDate"));
-        assertEquals("Friday", q.getSearchItems().get("endDate"));
-        assertEquals("Here", q.getSearchItems().get("geoLoc"));
-        assertEquals("100", q.getSearchItems().get("lowRange"));
-        assertEquals("1000", q.getSearchItems().get("highRange"));
+        assertNotNull(q.getOptionalTerms());
+        assertNotNull(q.getRequiredTerms());
+        assertNotNull(q.getExcludedTerms());
+        assertNotNull(q.getSearchItems());
     }
 
     @Test
@@ -63,17 +61,34 @@ public class QueryTest extends TestCase {
     @Test
     public void testGetExcludedTerms() throws Exception {
         assertNotNull(q.getExcludedTerms());
-
     }
 
     @Test
     public void testGetRequiredTerms() throws Exception {
         assertNotNull(q.getRequiredTerms());
-
     }
 
     @Test
     public void testGetOptionalTerms() throws Exception {
         assertNotNull(q.getOptionalTerms());
+    }
+
+    @Test
+    public void testSetStartDate() {
+        assertFalse(q.setStartDate("Monday"));
+        assertTrue(q.setStartDate("2013-06-06"));
+    }
+    @Test
+     public void testSetEndDate() {
+        assertFalse(q.setStartDate("Friday"));
+        assertFalse(q.setStartDate("06.06.2013"));
+        assertTrue(q.setStartDate("2013-07-06"));
+    }
+
+    @Test
+    public void testSetCountry() {
+        assertTrue(q.setCountry("af"));
+        assertTrue(q.setCountry("AF"));
+        assertFalse(q.setCountry("United States"));
     }
 }
