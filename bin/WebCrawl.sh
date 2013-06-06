@@ -10,20 +10,25 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 classpath=$(${DIR}/classpath.sh crawler)
 if [ $? -ne 0 ]; then
-  echo "${classpath}"
-  exit
+    echo "${classpath}"
+    exit
 fi
 
-if [ "$1" != '' ]; then
-  dir=$1
+if [ $# -eq 3 ]
+then
+    PARAM3="$3"
+elif [ $# -eq 2 ]
+then
+    PARAM3="--directory=${DIR}/../data"
 else
-  dir=${DIR}/../data
+    echo "You must supply provider and query options with an optional directory option"
+    exit
 fi
 
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 com.altamiracorp.reddawn.WebCrawl \
---directory=${dir} \
---provider=google \
---query="boston bombing"
+$1 \
+$2 \
+"PARAM3"
