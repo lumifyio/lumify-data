@@ -46,6 +46,9 @@ public class Crawler {
 	 * Follows links of search results and writes content to files
 	 * in the specified or current (default) directoryPath under a file name created by hashing (MD5) the contents.
 	 * Iterates through all results.
+	 * Content format is:
+	 * contentSource: {[URL]}, timeOfRetrieval: {[Timestamp]}, queryInfo: {[query meta data]},
+	 * httpHeader: {[http header]}, content: {[html content]}
 	 * @param links An ArrayList of Strings of URLs of search results
 	 * @param query the query that produced the results
 	 */
@@ -102,12 +105,15 @@ public class Crawler {
 		}
 
 		stringBuilder.append("}");
-		System.out.println(stringBuilder.toString());
+		//System.out.println(stringBuilder.toString());
 		fileName = getFileName(stringBuilder);
-		//File file = new File(directoryPath + fileName);
-
-
-    }
+		File file = new File(directoryPath + fileName);
+		System.out.println("writing to: " + directoryPath + fileName);
+		fwriter = new BufferedWriter(new FileWriter(file));
+		fwriter.append(stringBuilder);
+    	fwriter.flush();
+		fwriter.close();
+	}
 
 	/**
 	 * Returns the MD5 hash of the content.
