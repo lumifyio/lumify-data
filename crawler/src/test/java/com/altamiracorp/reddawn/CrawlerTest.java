@@ -27,6 +27,7 @@ public class CrawlerTest extends TestCase{
 	{
 		ArrayList<String> links = new ArrayList<String>();
 		links.add("http://www.google.com");
+		links.add("http://www.reddit.com/");
 		Query query = new Query();
 		query.addOptionalTerm("search");
 		crawler.processSearchResults(links, query);

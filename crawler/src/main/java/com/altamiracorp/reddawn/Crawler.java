@@ -53,8 +53,10 @@ public class Crawler {
 	 * @param query the query that produced the results
 	 */
 	public void processSearchResults(ArrayList<String> links, Query query) throws Exception {
-		// for (String link : links ) { processURL(link); }
-		processURL(links.get(0));
+		for (String link : links )
+		{
+			processURL(link);
+		}
 	}
 
 	/**
@@ -105,10 +107,8 @@ public class Crawler {
 		}
 
 		stringBuilder.append("}");
-		//System.out.println(stringBuilder.toString());
 		fileName = getFileName(stringBuilder);
 		File file = new File(directoryPath + fileName);
-		System.out.println("writing to: " + directoryPath + fileName);
 		fwriter = new BufferedWriter(new FileWriter(file));
 		fwriter.append(stringBuilder);
     	fwriter.flush();
