@@ -64,6 +64,7 @@ public class Crawler {
 	 * @param link the URL to process
 	 */
     private void processURL(String link) throws Exception {
+
 		int line = 0;
 		StringBuilder stringBuilder = new StringBuilder();
 		Timestamp currentTimestamp = getCurrentTimestamp();
@@ -99,11 +100,13 @@ public class Crawler {
 		}
 		catch (MalformedURLException e)
 		{
-			throw new MalformedURLException("Problem with URL.");
+            System.err.println("[Error] Malformed URL on process job: " + link);
+            return;
 		}
 		catch (java.io.IOException e)
 		{
-			  throw new IOException("Problem with connection.");
+            System.err.println("[Error] Problem with URL connection on process job: " + link);
+            return;
 		}
 
 		stringBuilder.append("}");
@@ -113,6 +116,8 @@ public class Crawler {
 		fwriter.append(stringBuilder);
     	fwriter.flush();
 		fwriter.close();
+
+        System.out.println("Processed: " + link);
 	}
 
 	/**

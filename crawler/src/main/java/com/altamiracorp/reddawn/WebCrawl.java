@@ -15,14 +15,15 @@ public class WebCrawl {
         GnuParser parser = new GnuParser();
         CommandLine cl = parser.parse(createOptions(), args);
 
+        Crawler crawler = new Crawler(cl.getOptionValue("directory"));
         Query q = new Query(cl.getOptionValue("query"));
 
         String provider = cl.getOptionValue("provider");
         SearchEngine engine;
 
-        if(provider.equals("google")) engine = new GoogleSearchEngine();
-        else if(provider.equals("news")) engine = new GoogleNewsSearchEngine();
-        else engine = new GoogleNewsSearchEngine();
+        if(provider.equals("google")) engine = new GoogleSearchEngine(crawler);
+        else if(provider.equals("news")) engine = new GoogleNewsSearchEngine(crawler);
+        else engine = new GoogleNewsSearchEngine(crawler);
 
         int results = 10;
         try {
@@ -32,8 +33,7 @@ public class WebCrawl {
             System.exit(1);
         }
 
-        System.out.println("[WebCrawl] Search Result Links: " + engine.runQuery(q, results));
-
+        engine.runQuery(q, results);
     }
 
     public static Options createOptions() {

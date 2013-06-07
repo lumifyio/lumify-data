@@ -25,21 +25,24 @@ import java.util.TreeMap;
  */
 public class GoogleNewsSearchEngine implements SearchEngine {
 
-    String baseURL;
+    private String baseURL;
 
-    ArrayList<String> queryQueue;
-    ArrayList<Integer> maxResultQueue;
+    private ArrayList<Query> queryQueue;
+    private ArrayList<Integer> maxResultQueue;
 
-    public GoogleNewsSearchEngine() {
+    private Crawler crawler;
+
+    public GoogleNewsSearchEngine(Crawler c) {
+        crawler = c;
         baseURL = "http://news.google.com/news?output=rss";
-        queryQueue = new ArrayList<String>();
+        queryQueue = new ArrayList<Query>();
         maxResultQueue = new ArrayList<Integer>();
 
     }
 
     @Override
     public boolean addQueryToQueue(Query q, int maxResults) {
-        if(!queryQueue.add(EngineFunctions.createQueryString(processQuery(q)))) return false;
+        if(!queryQueue.add(q)) return false;
         if(maxResults < 0 || !maxResultQueue.add(maxResults)) {
             queryQueue.remove(queryQueue.size()-1);
             return false;
@@ -60,10 +63,12 @@ public class GoogleNewsSearchEngine implements SearchEngine {
 
     @Override
     public ArrayList<String> runQuery(Query q, int maxResults) {
-        return search(EngineFunctions.createQueryString(processQuery(q)), maxResults);
+        return search(q, maxResults);
     }
 
-    private ArrayList<String> search(String queryString, int maxResults) {
+    private ArrayList<String> search(Query q, int maxResults) {
+        String queryString = EngineFunctions.createQueryString(processQuery(q));
+
         // Result Links to return
         ArrayList<String> links = new ArrayList<String>();
 
@@ -79,23 +84,6 @@ public class GoogleNewsSearchEngine implements SearchEngine {
             System.err.println("Malformed search URL");
             return null;
         }
-
-        // Connects to the internet at the queryURL
-//        URLConnection connection;
-//        String line;
-//        StringBuilder builder = new StringBuilder();
-//        BufferedReader reader;
-//        try {
-//            connection = fullURL.openConnection();
-//            connection.addRequestProperty("Referer", "altamiracorp.com");
-//            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-//            while((line = reader.readLine()) != null) {
-//                builder.append(line);
-//            }
-//        } catch(IOException e) {
-//            System.err.println("The http connection failed");
-//            return null;
-//        }
 
         SAXReader saxReader = new SAXReader();
         Document xml;
@@ -124,6 +112,13 @@ public class GoogleNewsSearchEngine implements SearchEngine {
                 String[] kvPair = param.split("=");
                 if(kvPair[0].equals("url")) links.add(kvPair[1]);
             }
+        }
+
+        try {
+            crawler.processSearchResults(links, q);
+        } catch (Exception e) {
+            System.err.println("The crawler failed to crawl the result set");
+            e.printStackTrace();
         }
 
         return links;

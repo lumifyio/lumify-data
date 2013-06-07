@@ -21,7 +21,8 @@ public class GoogleSearchEngineTest extends TestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        engine = new GoogleSearchEngine();
+        Crawler c = new Crawler("sdf");
+        engine = new GoogleSearchEngine(c);
         q1 = new Query();
         q1.addOptionalTerm("boston bombing");
         q1.addOptionalTerm("2013");

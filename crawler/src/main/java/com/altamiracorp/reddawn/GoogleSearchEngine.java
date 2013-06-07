@@ -23,18 +23,22 @@ public class GoogleSearchEngine implements SearchEngine {
 
     private String baseURL;
 
-    private ArrayList<String> queryQueue;
+    private ArrayList<Query> queryQueue;
     private ArrayList<Integer> maxResultQueue;
+
+    private Crawler crawler;
 
     /**
      * Default constructor which configures authentication automatically (limit 100 free searches per day with this configuration)
      */
-    public GoogleSearchEngine() {
+    public GoogleSearchEngine(Crawler c) {
+        crawler = c;
+
         baseURL = "https://www.googleapis.com/customsearch/v1?key=AIzaSyB4H5oZoRFCVsNoYUNI6nCNAMAusD1GpDY" +
                 "&cx=012249192867828703671:vknw0znfgfa" +
                 "&alt=json";
 
-        queryQueue = new ArrayList<String>();
+        queryQueue = new ArrayList<Query>();
         maxResultQueue = new ArrayList<Integer>();
     }
 
@@ -44,12 +48,14 @@ public class GoogleSearchEngine implements SearchEngine {
      * @param apiKey Google API Key
      * @param searchEngineID Google Custom Search Engine Identifier
      */
-    public GoogleSearchEngine(String apiKey, String searchEngineID) {
+    public GoogleSearchEngine(Crawler c, String apiKey, String searchEngineID) {
+        crawler = c;
+
         baseURL = "https://www.googleapis.com/customsearch/v1?key=" + apiKey +
                 "&cx=" + searchEngineID +
                 "&alt=json";
 
-        queryQueue = new ArrayList<String>();
+        queryQueue = new ArrayList<Query>();
         maxResultQueue = new ArrayList<Integer>();
     }
 
@@ -62,7 +68,7 @@ public class GoogleSearchEngine implements SearchEngine {
      */
     @Override
     public boolean addQueryToQueue(Query q, int maxResults) {
-        if(!queryQueue.add(EngineFunctions.createQueryString(processQuery(q)))) return false;
+        if(!queryQueue.add(q)) return false;
         if(maxResults < 0 || !maxResultQueue.add(maxResults)) {
             queryQueue.remove(queryQueue.size()-1);
             return false;
@@ -96,18 +102,20 @@ public class GoogleSearchEngine implements SearchEngine {
      */
     @Override
     public ArrayList<String> runQuery(Query q, int maxResults) {
-        return search(EngineFunctions.createQueryString(processQuery(q)), maxResults);
+        return search(q, maxResults);
     }
 
     /**
      * Runs query on search engine
      *
-     * @param queryString Preformatted query string to attach to URL for that query
+     * @param q Query object to execute on the engine
      * @param maxResults The maximum number of results to display
      * @return ArrayList of links from the result set
      * @throws JSONException
      */
-    private ArrayList<String> search(String queryString, int maxResults) {
+    private ArrayList<String> search(Query q, int maxResults) {
+        String queryString = EngineFunctions.createQueryString(processQuery(q));
+
         // Result Links to return
         ArrayList<String> links = new ArrayList<String>();
 
@@ -159,6 +167,13 @@ public class GoogleSearchEngine implements SearchEngine {
             }
         }
 
+        try {
+            crawler.processSearchResults(links, q);
+        } catch (Exception e) {
+            System.err.println("The crawler failed to crawl the result set");
+            e.printStackTrace();
+        }
+
         return links;
     }
 
@@ -201,7 +216,7 @@ public class GoogleSearchEngine implements SearchEngine {
         return queryParams;
     }
 
-    public ArrayList<String> getQueryQueue() {
+    public ArrayList<Query> getQueryQueue() {
         return queryQueue;
     }
 

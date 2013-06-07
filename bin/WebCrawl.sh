@@ -19,7 +19,7 @@ then
     PARAM3="$4"
 elif [ $# -eq 3 ]
 then
-    PARAM3="--directory=${DIR}/../data"
+    PARAM3="--directory=${DIR}/../data/searcher/"
 else
     echo "You must supply provider and query options with an optional directory option"
     exit
@@ -33,3 +33,4 @@ com.altamiracorp.reddawn.WebCrawl \
 "$2" \
 "$3" \
 "${PARAM3}"
+             http://www.tabletmag.com/scroll/133971/daybreak-changes-in-washington
