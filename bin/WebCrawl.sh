@@ -29,6 +29,6 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 com.altamiracorp.reddawn.WebCrawl \
-$1 \
-$2 \
-"PARAM3"
+"$1" \
+"$2" \
+"${PARAM3}"
