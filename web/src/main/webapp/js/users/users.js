@@ -18,11 +18,13 @@ define([
         this.defaultAttrs({
             usersListSelector: '.users-list',
             userListItemSelector: '.users-list .user',
-            chatSelector: '.active-chat',
+            chatSelector: '.active-chat'
         });
 
         this.after('initialize', function() {
             this.$node.html(usersTemplate({}));
+
+            this.$node.addClass('popover');
 
             Chat.attachTo(this.select('chatSelector'));
 
