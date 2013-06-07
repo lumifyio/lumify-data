@@ -1,12 +1,11 @@
 package com.altamiracorp.reddawn;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,37 +20,56 @@ import java.util.Date;
  */
 public class Crawler {
 
-    private ArrayList<String> links;
-	private Timestamp timestamp;
+	private String directoryPath;
 
-    /**
-     * Constructor takes in an ArrayList of urls.
-     * @param links_ the links to follow and crawl
+	/**
+     *  Constructor for Crawler.
+	 *  Allows directoryPath to write files to to be specified.
+	 *  @param directory_ the directoryPath to write files to
      */
-    public Crawler(ArrayList<String> links_)
+    public Crawler(String directory_)
     {
-        links = links_;
-
+	   	directoryPath = directory_;
     }
 
-    /**
-     * Returns the content of ONE url as a String Builder
-     * @param link the link to follow
-	 * @return the page's content
-     */
-    public StringBuilder crawl(String link) throws Exception {
+	/**
+	 * Default constructor for Crawler.
+	 * Sets the directoryPath to write files to to the current directoryPath where the program is being run.
+	 */
+	public Crawler()
+	{
+		URL location = Crawler.class.getProtectionDomain().getCodeSource().getLocation();
+		directoryPath = location.getFile();
+	}
+
+	/**
+	 * Follows links of search results and writes content to files
+	 * in the specified or current (default) directoryPath under a file name created by hashing (MD5) the contents.
+	 * Iterates through all results.
+	 * @param links An ArrayList of Strings of URLs of search results
+	 * @param query the query that produced the results
+	 */
+	public void processSearchResults(ArrayList<String> links, Query query) throws Exception {
+		// for (String link : links ) { processURL(link); }
+		processURL(links.get(0));
+	}
+
+	/**
+	 * Follows ONE URL and writes contents to file in directoryPath.
+	 * @param link the URL to process
+	 */
+    private void processURL(String link) throws Exception {
 		int line = 0;
 		StringBuilder stringBuilder = new StringBuilder();
-		String urlName = EngineFunctions.toSlug(link);
+		Timestamp currentTimestamp = getCurrentTimestamp();
+		String queryInfo = "{Query.getInfo() not yet implemented.}"; //query.getInfo();
+		String httpHeader = "";
+		String fileName = "";
+		BufferedWriter fwriter = null;
 
-		Calendar calendar = Calendar.getInstance();
-		Date now = calendar.getTime();
-		timestamp = new Timestamp(now.getTime());
-
-		stringBuilder.append("URL: " + link + "\n");
-		stringBuilder.append("Cleaned URL: " + urlName + "\n");
-		stringBuilder.append("Timestamp: " + timestamp + "\n");
-
+		stringBuilder.append("contentSource: {" + link + "}, ");
+		stringBuilder.append("timeOfRetrieval: {" + currentTimestamp + "}, ");
+		stringBuilder.append("queryInfo: " + queryInfo + ", ");
 		try
 		{
 			URL url = new URL(link);
@@ -59,6 +77,11 @@ public class Crawler {
 			BufferedReader in
                 = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			BufferedReader reader = new BufferedReader(in);
+
+			httpHeader = connection.getHeaderFields().toString();
+			stringBuilder.append("httpHeader: " + httpHeader + ", ");
+			stringBuilder.append("content: {");
+
 			if (reader != null)
 			{
 				while ((line = reader.read()) != -1)
@@ -68,7 +91,6 @@ public class Crawler {
 				reader.close();
 			}
 			in.close();
-			System.out.println(stringBuilder.toString());
 		}
 		catch (MalformedURLException e)
 		{
@@ -79,13 +101,35 @@ public class Crawler {
 			  throw new IOException("Problem with connection.");
 		}
 
-		return stringBuilder;
+		stringBuilder.append("}");
+		System.out.println(stringBuilder.toString());
+		fileName = getFileName(stringBuilder);
+		//File file = new File(directoryPath + fileName);
+
+
     }
 
-	public boolean createFile(StringBuilder sb)
+	/**
+	 * Returns the MD5 hash of the content.
+	 * @param sb the content of the page as a string builder
+	 * @return the hash as a String
+	 */
+	private String getFileName(StringBuilder sb) throws NoSuchAlgorithmException, UnsupportedEncodingException
 	{
-
-		return false;
+		MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+		byte[] bytesOfMessage = sb.toString().getBytes("UTF-8");
+		byte[] hash = messageDigest.digest(bytesOfMessage);
+		return hash.toString();
 	}
 
+	/**
+	 * Helper method returns the current Timestamp
+	 * @return the current Timestamp
+	 */
+	private Timestamp getCurrentTimestamp()
+	{
+		Calendar calendar = Calendar.getInstance();
+		Date now = calendar.getTime();
+		return new Timestamp(now.getTime());
+	}
 }

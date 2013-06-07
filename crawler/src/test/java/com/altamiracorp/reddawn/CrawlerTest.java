@@ -19,16 +19,18 @@ public class CrawlerTest extends TestCase{
     @Before
     public void setUp() throws Exception {
         super.setUp();
-
-		ArrayList<String> links = new ArrayList<String>();
-		links.add("http://www.google.com");
-
-		crawler = new Crawler(links);
+		crawler = new Crawler();
     }
 
 	@Test
-	public void testCrawl() throws Exception
+	public void testProcessSearchResults() throws Exception
 	{
-		assertNotNull(crawler.crawl("http://www.google.com"));
+		ArrayList<String> links = new ArrayList<String>();
+		links.add("http://www.google.com");
+		Query query = new Query();
+		query.addOptionalTerm("search");
+		crawler.processSearchResults(links, query);
 	}
+
+
 }
