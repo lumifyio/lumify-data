@@ -89,8 +89,20 @@ public class QueryTest extends TestCase {
     public void testSetCountry() throws Exception {
         assertTrue(q.setCountry("af"));
         assertTrue(q.setCountry("AF"));
-        assertFalse(q.setCountry("United States"));
     }
+
+	@Test
+	public void testInvalideCountryCodeException()
+	{
+		try
+		{
+			q.setCountry("United States");
+		}
+		catch (Exception expected)
+		{
+			assertEquals("Country code incorrect: united states", expected.getMessage());
+		}
+	}
 
     @Test
     public void testSetLowRange()
@@ -103,4 +115,25 @@ public class QueryTest extends TestCase {
     {
         assertTrue(q.setHighRange(500));
     }
+
+
+	@Test
+	public void testGetQueryInfo() throws Exception
+	{
+		q.addOptionalTerm("optionalTerm");
+		q.addOptionalTerm("optionalTerm2");
+		q.addExcludedTerm("excludedTerm");
+		q.addRequiredTerm("requiredTerm");
+		q.setCountry("af");
+		q.setStartDate("2013-06-06");
+		q.setEndDate("2013-06-07");
+		q.setLowRange(100);
+		q.setHighRange(1000);
+		String info = q.getQueryInfo();
+		assertNotNull(info);
+		System.out.println(info);
+		assertEquals("{optional terms: {optionalTerm, optionalTerm2}, required terms: {requiredTerm}, " +
+				"excluded terms: {excludedTerm}, search options: {startDate=2013-06-06, highRange=1000, " +
+				"endDate=2013-06-07, lowRange=100, country=af}}", info);
+	}
 }

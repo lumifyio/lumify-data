@@ -164,7 +164,7 @@ public class Query
      */
     public boolean setHighRange(int highValue)
     {
-        searchItems.put("lowRange", Integer.toString(highValue));
+        searchItems.put("highRange", Integer.toString(highValue));
         return true;
     }
 
@@ -227,14 +227,55 @@ public class Query
         return optionalTerms;
     }
 
+	/**
+	 * Returns a string containing meta data about the query run.
+	 * @return a string containing the query info
+	 */
+	public String getQueryInfo()
+	{
+		StringBuilder info = new StringBuilder();
+		info.append("{");
+		info.append("optional terms: ");
+		info.append(termListToString(optionalTerms));
+		info.append(", ");
+		info.append("required terms: ");
+		info.append(termListToString(requiredTerms));
+		info.append(", ");
+		info.append("excluded terms: ");
+		info.append(termListToString(excludedTerms));
+		info.append(", ");
+		info.append("search options: " + searchItems.toString());
+		info.append("}");
+		return info.toString();
+	}
+
+	private String termListToString(ArrayList<String> listOfTerms)
+	{
+		StringBuffer theString = new StringBuffer();
+		boolean hasPrintedFirstValue = false;
+		theString.append("{");
+		for (String term : listOfTerms)
+		{
+			if(hasPrintedFirstValue)
+			{
+				theString.append(", ");
+			}
+			else
+			{
+				hasPrintedFirstValue = true;
+			}
+			theString.append(term);
+		}
+		theString.append("}");
+		return theString.toString();
+	}
+
 	class IncorrectTimeFormatException extends Exception
 	{
 		public IncorrectTimeFormatException(String message)
 		{
 			super(message);
 		}
-
-
 	}
 
 	class InvalidCountryCodeException extends Exception
@@ -243,7 +284,5 @@ public class Query
 		{
 			super(message);
 		}
-
-
 	}
 }
