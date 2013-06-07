@@ -1,7 +1,6 @@
 package com.altamiracorp.reddawn;
-import org.json.JSONException;
 
-import java.util.*;
+import java.util.ArrayList;
 
 /**
  * Created with IntelliJ IDEA.
