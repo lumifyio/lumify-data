@@ -15,11 +15,24 @@ public class WebCrawl {
         GnuParser parser = new GnuParser();
         CommandLine cl = parser.parse(createOptions(), args);
 
+        Query q = new Query(cl.getOptionValue("query"));
 
         String provider = cl.getOptionValue("provider");
         SearchEngine engine;
 
         if(provider.equals("google")) engine = new GoogleSearchEngine();
+        else if(provider.equals("news")) engine = new GoogleNewsSearchEngine();
+        else engine = new GoogleNewsSearchEngine();
+
+        int results = 10;
+        try {
+            results = Integer.parseInt(cl.getOptionValue("result-count"));
+        } catch (NumberFormatException e) {
+            System.err.println("[WebCrawl] --result-count must be a valid number");
+            System.exit(1);
+        }
+
+        System.out.println("[WebCrawl] Search Result Links: " + engine.runQuery(q, results));
 
     }
 
@@ -51,6 +64,16 @@ public class WebCrawl {
                         .withArgName("q")
                         .withLongOpt("query")
                         .withDescription("The query you want to perform")
+                        .isRequired()
+                        .hasArg(true)
+                        .create()
+        );
+
+        options.addOption(
+                OptionBuilder
+                        .withArgName("c")
+                        .withLongOpt("result-count")
+                        .withDescription("The number of results to return from the query")
                         .isRequired()
                         .hasArg(true)
                         .create()

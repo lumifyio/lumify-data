@@ -2,11 +2,9 @@ package com.altamiracorp.reddawn;
 
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -83,21 +81,21 @@ public class GoogleNewsSearchEngine implements SearchEngine {
         }
 
         // Connects to the internet at the queryURL
-        URLConnection connection;
-        String line;
-        StringBuilder builder = new StringBuilder();
-        BufferedReader reader;
-        try {
-            connection = fullURL.openConnection();
-            connection.addRequestProperty("Referer", "altamiracorp.com");
-            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            while((line = reader.readLine()) != null) {
-                builder.append(line);
-            }
-        } catch(IOException e) {
-            System.err.println("The http connection failed");
-            return null;
-        }
+//        URLConnection connection;
+//        String line;
+//        StringBuilder builder = new StringBuilder();
+//        BufferedReader reader;
+//        try {
+//            connection = fullURL.openConnection();
+//            connection.addRequestProperty("Referer", "altamiracorp.com");
+//            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+//            while((line = reader.readLine()) != null) {
+//                builder.append(line);
+//            }
+//        } catch(IOException e) {
+//            System.err.println("The http connection failed");
+//            return null;
+//        }
 
         SAXReader saxReader = new SAXReader();
         Document xml;
@@ -108,11 +106,15 @@ public class GoogleNewsSearchEngine implements SearchEngine {
             return null;
         }
 
-        for(String item : (List<String>) xml.selectNodes("//rss/channel/item/link")) {
+        List items = xml.getRootElement().element("channel").elements("item");
+        for(int i = 0; i < items.size(); i++) {
+
+            Element link = ((Element) items.get(i)).element("link");
+
             URL googleURL;
 
             try{
-                googleURL = new URL(item);
+                googleURL = new URL(link.getStringValue());
             } catch(MalformedURLException e) {
                 System.err.println("Google News provided a malformed URL. Skipping...");
                 break;
