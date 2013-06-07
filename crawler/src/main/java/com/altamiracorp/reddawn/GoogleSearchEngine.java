@@ -67,8 +67,6 @@ public class GoogleSearchEngine extends SearchEngine {
             extraParams.put("start", searchCount * 10 + 1 + "");
 			String queryURL = baseURL + queryString + EngineFunctions.createQueryString(extraParams);
 
-			//j;sdalksdjf;laskjdBOOKMARK
-
             // Get response from page and put it in a JSON object (return type should be JSON)
             try {
                 JSONObject response = new JSONObject(EngineFunctions.searchWithGetRequest(queryURL));
