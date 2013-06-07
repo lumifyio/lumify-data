@@ -14,10 +14,10 @@ if [ $? -ne 0 ]; then
     exit
 fi
 
-if [ $# -eq 3 ]
+if [ $# -eq 4 ]
 then
-    PARAM3="$3"
-elif [ $# -eq 2 ]
+    PARAM3="$4"
+elif [ $# -eq 3 ]
 then
     PARAM3="--directory=${DIR}/../data"
 else
@@ -31,4 +31,5 @@ java \
 com.altamiracorp.reddawn.WebCrawl \
 "$1" \
 "$2" \
+"$3" \
 "${PARAM3}"
