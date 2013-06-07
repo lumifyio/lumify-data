@@ -77,9 +77,9 @@ public class Crawler {
 		String fileName = "";
 		BufferedWriter fwriter = null;
 
-		stringBuilder.append("contentSource: {" + link + "}, ");
-		stringBuilder.append("timeOfRetrieval: {" + currentTimestamp + "}, ");
-		stringBuilder.append("queryInfo: " + queryInfo + ", ");
+		stringBuilder.append("contentSource: " + link + " \n");
+		stringBuilder.append("timeOfRetrieval: " + currentTimestamp + " \n");
+		stringBuilder.append("queryInfo: " + queryInfo + " \n");
 		try
 		{
 			URL url = new URL(link);
@@ -90,7 +90,7 @@ public class Crawler {
 
 			httpHeader = connection.getHeaderFields().toString();
 			stringBuilder.append("httpHeader: " + httpHeader + ", ");
-			stringBuilder.append("content: {");
+			stringBuilder.append("content: \n\n");
 
 			if (reader != null)
 			{
@@ -113,7 +113,6 @@ public class Crawler {
             return false;
 		}
 
-		stringBuilder.append("}");
 		fileName = getFileName(stringBuilder);
 		File file = new File(directoryPath + fileName);
 		fwriter = new BufferedWriter(new FileWriter(file));
