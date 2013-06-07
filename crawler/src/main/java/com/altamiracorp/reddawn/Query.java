@@ -27,6 +27,12 @@ public class Query
         optionalTerms = new ArrayList<String>();
     }
 
+    public Query(String query) {
+        this();
+
+        optionalTerms = new ArrayList(Arrays.asList(query.split(" ")));
+    }
+
     /**
      * Checks that date is formatted yyy-MM-dd
      *

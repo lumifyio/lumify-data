@@ -9,18 +9,22 @@ import org.apache.commons.cli.*;
  * Time: 1:42 PM
  * To change this template use File | Settings | File Templates.
  */
-public class WebCrawl extends GnuParser {
-    private String directory, provider, query;
-    private CommandLine cl;
+public class WebCrawl {
 
     public static void main(String[] args) throws Exception {
-        WebCrawl parser = new WebCrawl();
-        parser.parse(args);
+        GnuParser parser = new GnuParser();
+        CommandLine cl = parser.parse(createOptions(), args);
+
+
+        String provider = cl.getOptionValue("provider");
+        SearchEngine engine;
+
+        if(provider.equals("google")) engine = new GoogleSearchEngine();
 
     }
 
-    public Options getOptions() {
-        Options options = super.getOptions();
+    public static Options createOptions() {
+        Options options = new Options();
 
         options.addOption(
                 OptionBuilder
@@ -53,28 +57,6 @@ public class WebCrawl extends GnuParser {
         );
 
         return options;
-    }
-
-    public boolean parse(String[] args) {
-        try {
-            cl = super.parse(getOptions(), args);
-        } catch (ParseException e) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public String getDirectory() {
-        return cl.getOptionValue("directory");
-    }
-
-    public String getProvider() {
-        return cl.getOptionValue("provider");
-    }
-
-    public String getQuery() {
-        return cl.getOptionValue("query");
     }
 }
 
