@@ -19,27 +19,18 @@ import java.util.*;
  * Time: 3:07 PM
  * To change this template use File | Settings | File Templates.
  */
-public class GoogleSearchEngine implements SearchEngine {
+public class GoogleSearchEngine extends SearchEngine {
 
     private String baseURL;
-
-    private ArrayList<Query> queryQueue;
-    private ArrayList<Integer> maxResultQueue;
-
-    private Crawler crawler;
 
     /**
      * Default constructor which configures authentication automatically (limit 100 free searches per day with this configuration)
      */
     public GoogleSearchEngine(Crawler c) {
-        crawler = c;
-
+        super(c);
         baseURL = "https://www.googleapis.com/customsearch/v1?key=AIzaSyB4H5oZoRFCVsNoYUNI6nCNAMAusD1GpDY" +
                 "&cx=012249192867828703671:vknw0znfgfa" +
                 "&alt=json";
-
-        queryQueue = new ArrayList<Query>();
-        maxResultQueue = new ArrayList<Integer>();
     }
 
     /**
@@ -49,60 +40,10 @@ public class GoogleSearchEngine implements SearchEngine {
      * @param searchEngineID Google Custom Search Engine Identifier
      */
     public GoogleSearchEngine(Crawler c, String apiKey, String searchEngineID) {
-        crawler = c;
-
+        super(c);
         baseURL = "https://www.googleapis.com/customsearch/v1?key=" + apiKey +
                 "&cx=" + searchEngineID +
                 "&alt=json";
-
-        queryQueue = new ArrayList<Query>();
-        maxResultQueue = new ArrayList<Integer>();
-    }
-
-    /**
-     * Adds a search job to the queue with the specified query and number of results to return
-     *
-     * @param q The query to add to the queue
-     * @param maxResults The maximum number of results that the method should return
-     * @return Whether or not the query was successfully added to the queue
-     */
-    @Override
-    public boolean addQueryToQueue(Query q, int maxResults) {
-        if(!queryQueue.add(q)) return false;
-        if(maxResults < 0 || !maxResultQueue.add(maxResults)) {
-            queryQueue.remove(queryQueue.size()-1);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Runs all elements in the queue,returning their results
-     *
-     * @return list of lists of links for each query performed, in order
-     * @throws JSONException
-     */
-    @Override
-    public ArrayList<ArrayList<String>> runQueue() {
-        ArrayList<ArrayList<String>> results = new ArrayList<ArrayList<String>>();
-
-        for(int i = 0; i < queryQueue.size(); i++) {
-            results.add(search(queryQueue.get(i), maxResultQueue.get(i)));
-        }
-
-        return results;
-    }
-
-    /**
-     * Runs the passed query on the search engine, returning the results
-     *
-     * @param q The query to execute
-     * @param maxResults The maximum number of results that should be returned
-     * @return ArrayList of URLs found in the search
-     */
-    @Override
-    public ArrayList<String> runQuery(Query q, int maxResults) {
-        return search(q, maxResults);
     }
 
     /**
@@ -111,9 +52,8 @@ public class GoogleSearchEngine implements SearchEngine {
      * @param q Query object to execute on the engine
      * @param maxResults The maximum number of results to display
      * @return ArrayList of links from the result set
-     * @throws JSONException
      */
-    private ArrayList<String> search(Query q, int maxResults) {
+    protected ArrayList<String> search(Query q, int maxResults) {
         String queryString = EngineFunctions.createQueryString(processQuery(q));
 
         // Result Links to return
@@ -214,13 +154,5 @@ public class GoogleSearchEngine implements SearchEngine {
         }
 
         return queryParams;
-    }
-
-    public ArrayList<Query> getQueryQueue() {
-        return queryQueue;
-    }
-
-    public ArrayList<Integer> getMaxResultQueue() {
-        return maxResultQueue;
     }
 }

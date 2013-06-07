@@ -9,29 +9,83 @@ import java.util.ArrayList;
  * Time: 2:56 PM
  * To change this template use File | Settings | File Templates.
  */
-public interface SearchEngine {
+public abstract class SearchEngine {
+
+    protected ArrayList<Query> queryQueue;
+    protected ArrayList<Integer> maxResultQueue;
+
+    protected Crawler crawler;
+
+    public SearchEngine(Crawler c) {
+        if(c == null) {
+            System.err.println("The crawler cannot be initialized to null");
+            System.exit(1);
+        }
+        crawler = c;
+        queryQueue = new ArrayList<Query>();
+        maxResultQueue = new ArrayList<Integer>();
+    }
+
     /**
-     * Adds the specified query to a queue of queries to execute on the selected search engine
+     * Adds a query and its number of results to the queue
      *
      * @param q The query to add to the queue
      * @param maxResults The maximum number of results that the method should return
-     * @return Whether or not the query was successfully added to the queue
+     * @return Whether or not the query was successfully added
      */
-    public boolean addQueryToQueue(Query q, int maxResults);
+    public boolean addQueryToQueue(Query q, int maxResults) {
+        if(!queryQueue.add(q)) return false;
+        if(maxResults < 0 || !maxResultQueue.add(maxResults)) {
+            queryQueue.remove(queryQueue.size()-1);
+            return false;
+        }
+        return true;
+    }
 
     /**
-     * Runs every item in the queue through the search engine
+     * Runs all of the queries entered into the engine on it
      *
-     * @return ArrayList holding the list of URLs retrieved from each search in the queue
+     * @return List containing the result sets of links from the queries in the queue
      */
-    public ArrayList<ArrayList<String>> runQueue();
+    public ArrayList<ArrayList<String>> runQueue() {
+        ArrayList<ArrayList<String>> results = new ArrayList<ArrayList<String>>();
+
+        for(int i = 0; i < queryQueue.size(); i++) {
+            results.add(search(queryQueue.get(i), maxResultQueue.get(i)));
+        }
+
+        return results;
+    }
 
     /**
-     * Runs the query passed into the method on the search engine
+     * Takes a Query and runs it on the engine
      *
      * @param q The query to execute
      * @param maxResults The maximum number of results that should be returned
-     * @return List of URLs retrieved from the result table
+     * @return The links to the result pages in a list
      */
-    public ArrayList<String> runQuery(Query q, int maxResults);
+    public ArrayList<String> runQuery(Query q, int maxResults) {
+        return search(q, maxResults);
+    }
+
+    /**
+     * Performs the query requested as a search, finding the links and passing them to the crawler to fetch
+     *
+     * @param q The Query to execute
+     * @param maxResults The number of results to return
+     * @return List of links retrieved from the search
+     */
+    protected abstract ArrayList<String> search(Query q, int maxResults);
+
+    public Crawler getCrawler() {
+        return crawler;
+    }
+
+    public ArrayList<Query> getQueryQueue() {
+        return queryQueue;
+    }
+
+    public ArrayList<Integer> getMaxResultQueue() {
+        return maxResultQueue;
+    }
 }

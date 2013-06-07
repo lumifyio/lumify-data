@@ -33,4 +33,3 @@ com.altamiracorp.reddawn.WebCrawl \
 "$2" \
 "$3" \
 "${PARAM3}"
-             http://www.tabletmag.com/scroll/133971/daybreak-changes-in-washington

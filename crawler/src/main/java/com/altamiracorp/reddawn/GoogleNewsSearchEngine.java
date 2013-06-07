@@ -3,15 +3,10 @@ package com.altamiracorp.reddawn;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -23,50 +18,28 @@ import java.util.TreeMap;
  * Time: 10:11 AM
  * To change this template use File | Settings | File Templates.
  */
-public class GoogleNewsSearchEngine implements SearchEngine {
+public class GoogleNewsSearchEngine extends SearchEngine {
 
     private String baseURL;
 
-    private ArrayList<Query> queryQueue;
-    private ArrayList<Integer> maxResultQueue;
-
-    private Crawler crawler;
-
+    /**
+     * Builds the search engine so that it can process queries
+     *
+     * @param c The Crawler to employ for following the links and writing them to disk
+     */
     public GoogleNewsSearchEngine(Crawler c) {
-        crawler = c;
+        super(c);
         baseURL = "http://news.google.com/news?output=rss";
-        queryQueue = new ArrayList<Query>();
-        maxResultQueue = new ArrayList<Integer>();
-
     }
 
-    @Override
-    public boolean addQueryToQueue(Query q, int maxResults) {
-        if(!queryQueue.add(q)) return false;
-        if(maxResults < 0 || !maxResultQueue.add(maxResults)) {
-            queryQueue.remove(queryQueue.size()-1);
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public ArrayList<ArrayList<String>> runQueue() {
-        ArrayList<ArrayList<String>> results = new ArrayList<ArrayList<String>>();
-
-        for(int i = 0; i < queryQueue.size(); i++) {
-            results.add(search(queryQueue.get(i), maxResultQueue.get(i)));
-        }
-
-        return results;
-    }
-
-    @Override
-    public ArrayList<String> runQuery(Query q, int maxResults) {
-        return search(q, maxResults);
-    }
-
-    private ArrayList<String> search(Query q, int maxResults) {
+    /**
+     * Performs the query requested as a search, finding the links and passing them to the crawler to fetch
+     *
+     * @param q The Query to execute
+     * @param maxResults The number of results to return
+     * @return List of links retrieved from the search
+     */
+    protected ArrayList<String> search(Query q, int maxResults) {
         String queryString = EngineFunctions.createQueryString(processQuery(q));
 
         // Result Links to return
@@ -85,6 +58,7 @@ public class GoogleNewsSearchEngine implements SearchEngine {
             return null;
         }
 
+        // Reads the document into an XML file to parse (output should be RSS XML)
         SAXReader saxReader = new SAXReader();
         Document xml;
         try {
@@ -94,9 +68,11 @@ public class GoogleNewsSearchEngine implements SearchEngine {
             return null;
         }
 
+        // Pulls items from the RSS feed and extracts the target links out of them
         List items = xml.getRootElement().element("channel").elements("item");
         for(int i = 0; i < items.size(); i++) {
 
+            // Gets Google News link with redirect to the link we want
             Element link = ((Element) items.get(i)).element("link");
 
             URL googleURL;
@@ -108,12 +84,14 @@ public class GoogleNewsSearchEngine implements SearchEngine {
                 break;
             }
 
+            // Splits query parameters, indentifies the redirect link, and adds it to the list of links
             for(String param : googleURL.getQuery().split("&")) {
                 String[] kvPair = param.split("=");
                 if(kvPair[0].equals("url")) links.add(kvPair[1]);
             }
         }
 
+        // Runs the results into the crawler, which processes them and writes them to the file system
         try {
             crawler.processSearchResults(links, q);
         } catch (Exception e) {
@@ -124,6 +102,12 @@ public class GoogleNewsSearchEngine implements SearchEngine {
         return links;
     }
 
+    /**
+     * Takes variables from the query object and constructs key-value mappings based on the query parameters for Google News Search
+     *
+     * @param q Query to process
+     * @return Map containing the engine-specific key-value pairs for the query
+     */
     private TreeMap<String, String> processQuery(Query q) {
         TreeMap<String, String> queryParams = new TreeMap<String, String>();
         queryParams.put("q", EngineFunctions.concatenate(q.getOptionalTerms(), "+"));
