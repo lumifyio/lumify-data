@@ -3,7 +3,12 @@ var tests = Object.keys(window.__karma__.files).filter(function (file) {
 });
 
 // TODO: This duplicates index.html 'require' variable. Load that and override baseUrl
-require.config({
+
+var cytoscapePlugins = [
+  'jquery.cytoscape-panzoom'
+];
+
+var requireConfig = {
 
     // Karma serves files from '/base'
     baseUrl: '/base/js',
@@ -22,12 +27,9 @@ require.config({
     },
 
     shim: {
-        ejs: {
-            exports: 'ejs'
-        },
-        sinon: {
-            exports: 'sinon'
-        }
+        ejs: { exports: 'ejs' },
+        cytoscape: { exports: 'cytoscape', deps:[] },
+        sinon: { exports: 'sinon' }
     },
 
     deps: [ 
@@ -62,8 +64,8 @@ require.config({
             expect = chai.expect;
 
             // Use the twitter flight interface to mocha
-            //mocha.ui('bdd');
             mocha.ui('flight-mocha');
+            mocha.options.globals.push( "ejs", "cytoscape", "DEBUG" );
 
             // Run tests after loading
             if (tests.length) {
@@ -74,6 +76,14 @@ require.config({
         });
 
     }
+};
 
+cytoscapePlugins.forEach(function(plugin) {
+  requireConfig.paths[plugin] = '../libs/cytoscape/' + plugin;
+  requireConfig.shim[plugin] = { exports: 'jQuery' };
+  requireConfig.shim.cytoscape.deps = requireConfig.shim.cytoscape.deps || [];
+  requireConfig.shim.cytoscape.deps.push(plugin);
 });
+
+require.config(requireConfig);
 

@@ -76,10 +76,19 @@ define([
                 detailPane[0].style.width = null;
             }
             detailPane.removeClass('collapsed').addClass('visible');
+
+            this.trigger(document, 'detailPaneResize', { width: detailPane.width() });
         };
 
         this.onDetailResize = function(e, ui) {
-            $(e.target).toggleClass('collapsed', ui.size.width < 50);
+            var COLLAPSE_TOLERANCE = 50,
+                width = ui.size.width,
+                shouldCollapse = width < COLLAPSE_TOLERANCE;
+
+            this.trigger(document, 'detailPaneResize', { 
+                width: shouldCollapse ? 0 : width
+            });
+            $(e.target).toggleClass('collapsed', shouldCollapse);
         };
     }
 

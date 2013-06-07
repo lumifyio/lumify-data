@@ -5,8 +5,9 @@ define([
     'cytoscape',
     'service/workspace',
     'service/ucd',
-    'tpl!./graph'
-], function(defineComponent, cytoscape, WorkspaceService, UcdService, template) {
+    'tpl!./graph',
+    'util/undoManager'
+], function(defineComponent, cytoscape, WorkspaceService, UcdService, template, undoManager) {
     'use strict';
 
     return defineComponent(Graph);
@@ -19,7 +20,8 @@ define([
 
         this.defaultAttrs({
             cytoscapeContainerSelector: '.cytoscape-container',
-            emptyGraphSelector: '.empty-graph'
+            emptyGraphSelector: '.empty-graph',
+            graphToolsSelector: '.ui-cytoscape-panzoom'
         });
 
         this.addNode = function(title, info, position) {
@@ -36,11 +38,42 @@ define([
             }
             node.data.title = title;
 
-            cy.add(node);
+            var cyNode = cy.add(node);
 
-            this.select('emptyGraphSelector').hide();
+            undoManager.performedAction( 'Add node: ' + title, {
+                undo: function() {
+                    cyNode.remove();
+                    this.setWorkspaceDirty();
+                },
+                redo: function() {
+                    cyNode.restore();
+                    this.setWorkspaceDirty();
+                    this.refreshRelationships();
+                },
+                bind: this
+            });
+
             this.setWorkspaceDirty();
             this.refreshRelationships();
+        };
+
+
+        this.removeSelectedNodes = function() {
+            var nodes = cy.nodes().filter(':selected').remove();
+
+            undoManager.performedAction( 'Delete ' + nodes.length + ' nodes', {
+                undo: function() {
+                    nodes.restore();
+                    this.refreshRelationships();
+                    this.setWorkspaceDirty();
+                },
+                redo: function() {
+                    nodes.remove();
+                    this.setWorkspaceDirty();
+                },
+                bind: this
+            });
+            this.setWorkspaceDirty();
         };
 
         this.onAddToGraph = function(event, data) {
@@ -63,29 +96,109 @@ define([
             // TODO: send empty event? needs detail to support
         };
 
+        this.onKeyHandler = function(event) {
+            var down = event.type === 'keydown',
+                up = !down,
+                handled = true;
+
+            switch (event.which) {
+
+                case $.ui.keyCode.BACKSPACE:
+                case $.ui.keyCode.BACKSPACE:
+                    if ( down ) {
+                        this.removeSelectedNodes();
+                    }
+                    break;
+
+                default:
+                    handled = false;
+            }
+
+            if (handled) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        };
+
         this.graphDrag = function(event) { };
 
         this.graphGrab = function(event) {
-            var p = event.cyTarget.position();
-            this.grabPosition = {x:p.x, y:p.y};
+            var nodes = event.cyTarget.selected() ? cy.nodes().filter(':selected') : event.cyTarget;
+            this.grabbedNodes = nodes.each(function() {
+                var p = this.position();
+                this.data('originalPosition', { x:p.x, y:p.y });
+                this.data('freed', false );
+            });
         };
 
         this.graphFree = function(event) {
-            var p = event.cyTarget.position(),
-                dx = p.x - this.grabPosition.x,
-                dy = p.y - this.grabPosition.y,
-                distance = Math.sqrt(dx * dx + dy * dy);
+
+            // CY is sending multiple "free" events, prevent that...
+            var dup = true,
+                nodes = this.grabbedNodes;
+
+            nodes.each(function(i, e) {
+                var p = this.position();
+                if ( !e.data('freed') ) {
+                    dup = false;
+                }
+                e.data('targetPosition', {x:p.x, y:p.y});
+                e.data('freed', true);
+            });
+
+            if (dup) {
+                return;
+            }
+
 
             // If the user didn't drag more than a few pixels, select the
             // object, it could be an accidental mouse move
+            var target = event.cyTarget, 
+                p = target.position(),
+                originalPosition = target.data('originalPosition'),
+                dx = p.x - originalPosition.x,
+                dy = p.y - originalPosition.y,
+                distance = Math.sqrt(dx * dx + dy * dy);
+
             if (distance < 5) {
-                event.cyTarget.select();
+                target.select();
             }
+
+
+            // Cache these positions since data attr could be overidden
+            // then submit to undo manager
+            var originalPositions = [], targetPositions = [];
+            nodes.each(function(i, e) {
+                originalPositions.push( e.data('originalPosition') );
+                targetPositions.push( e.data('targetPosition') );
+            });
+            undoManager.performedAction( 'Move ' + nodes.length + ' nodes', {
+                undo: function() {
+                    nodes.each(function(i, e) {
+                        e.position( originalPositions[i] );
+                    });
+                    this.setWorkspaceDirty();
+                },
+                redo: function() {
+                    nodes.each(function(i, e) {
+                        e.position( targetPositions[i] );
+                    });
+                    this.setWorkspaceDirty();
+                },
+                bind: this
+            });
+
 
             this.setWorkspaceDirty();
         };
 
+        this.checkEmptyGraph = function() {
+            this.select('emptyGraphSelector').toggle(cy.nodes().length === 0);
+        };
+
         this.setWorkspaceDirty = function() {
+            this.checkEmptyGraph();
+
             if(this.saveWorkspaceTimeout) {
                 clearTimeout(this.saveWorkspaceTimeout);
             }
@@ -156,7 +269,7 @@ define([
 
         this.getGraphData = function() {
             return {
-                nodes: cy.json().elements.nodes
+                nodes: cy.json().elements.nodes || []
             };
         };
 
@@ -208,6 +321,24 @@ define([
                 ready: function(){
                     cy = this;
 
+                    var container = cy.container(),
+                        options = cy.options();
+
+                    $(container).cytoscapePanzoom({
+                        minZoom: options.minZoom,
+                        maxZoom: options.maxZoom
+                    }).focus().on({
+                        click: function() { this.focus(); },
+                        keydown: $this.onKeyHandler.bind($this),
+                        keyup: $this.onKeyHandler.bind($this)
+                    });
+
+                    var panZoom = $this.select('graphToolsSelector');
+                    $this.on(document, 'detailPaneResize', function(e, data) {
+                        panZoom.css({
+                            right: data.width + 'px'
+                        });
+                    });
                     $this.on(document, 'addToGraph', $this.onAddToGraph);
 
                     cy.on({
@@ -232,14 +363,13 @@ define([
                                     console.error('Error', err);
                                     return $this.trigger(document, 'error', { message: err.toString() });
                                 }
-                                console.log('cy.load', data.data.nodes);
-                                $this.select('emptyGraphSelector').hide();
+                                
+                                if (data.data.nodes) {
+                                    cy.add(data.data.nodes);
+                                }
 
-                                // TODO for some reason cy.load doesn't work here.
-                                data.data.nodes.forEach(function(node) {
-                                    cy.add(node);
-                                });
                                 $this.refreshRelationships();
+                                $this.checkEmptyGraph();
                             });
                         }
                     });
