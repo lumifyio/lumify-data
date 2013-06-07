@@ -51,7 +51,8 @@ public class RedditSearchEngine extends SearchEngine{
 			System.err.println("The crawler failed to crawl the result set");
 			e.printStackTrace();
 		}
-		return null;
+
+		return results;
 	}
 
 	/**
@@ -78,7 +79,6 @@ public class RedditSearchEngine extends SearchEngine{
 			}
 			query += term.replace(" ", "+");
 		}
-		System.out.println(query);
 		return query;
 	}
 }
