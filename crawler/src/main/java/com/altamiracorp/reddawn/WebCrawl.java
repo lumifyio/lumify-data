@@ -37,15 +37,16 @@ public class WebCrawl {
         ArrayList<String> enginesAdded = new ArrayList<String>();
         for(String s : cl.getOptionValue("provider").split(",")) {
             String trimmed = s.trim();
-            if(!enginesAdded.contains(trimmed)) {
-                if(trimmed.equals("google")) engines.add(new GoogleSearchEngine(crawler));
-                else if(trimmed.equals("news")) engines.add(new GoogleNewsSearchEngine(crawler));
+            if(!enginesAdded.contains(trimmed.toLowerCase())) {
+                if(trimmed.equalsIgnoreCase("google")) engines.add(new GoogleSearchEngine(crawler));
+                else if(trimmed.equalsIgnoreCase("news")) engines.add(new GoogleNewsSearchEngine(crawler));
+                //else if(trimmed.equalsIgnoreCase("reddit")) engines.add(new RedditSearchEngine(crawler));
 
                 // Adds the queries listed to the search engine created
                 //SearchEngine current = engines.get(engines.size() - 1);
                 //for(Query q : queries) current.addQueryToQueue(q, results);
 
-                enginesAdded.add(trimmed);
+                enginesAdded.add(trimmed.toLowerCase());
             }
         }
 
@@ -81,7 +82,7 @@ public class WebCrawl {
                 OptionBuilder
                         .withArgName("p")
                         .withLongOpt("provider")
-                        .withDescription("The search provider(s) to use for this query (separate multiple with commas)")
+                        .withDescription("The search provider(s) to use for this query (choose one or more of google, news, and reddit)")
                         .isRequired()
                         .hasArg(true)
                         .create()

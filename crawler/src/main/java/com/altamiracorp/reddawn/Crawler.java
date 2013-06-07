@@ -8,6 +8,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -77,9 +78,10 @@ public class Crawler {
 		String fileName = "";
 		BufferedWriter fwriter = null;
 
-		stringBuilder.append("contentSource: " + link + " \n");
-		stringBuilder.append("timeOfRetrieval: " + currentTimestamp + " \n");
-		stringBuilder.append("queryInfo: " + queryInfo + " \n");
+		stringBuilder.append("contentSource: " + link + "\n");
+		stringBuilder.append("timeOfRetrieval: " + currentTimestamp + "\n");
+		stringBuilder.append("queryInfo: " + queryInfo + "\n");
+
 		try
 		{
 			URL url = new URL(link);
@@ -89,8 +91,8 @@ public class Crawler {
 			BufferedReader reader = new BufferedReader(in);
 
 			httpHeader = connection.getHeaderFields().toString();
-			stringBuilder.append("httpHeader: " + httpHeader + ", ");
-			stringBuilder.append("content: \n\n");
+			stringBuilder.append(EngineFunctions.concatenate(new ArrayList<String>(
+                    Arrays.asList(httpHeader.replace("=", ": ").split(", "))), "\n") + "\n\n");
 
 			if (reader != null)
 			{
@@ -125,16 +127,16 @@ public class Crawler {
 	}
 
 	/**
-	 * Returns the MD5 hash of the content.
+	 * Returns the SHA-256 hash of the content.
 	 * @param sb the content of the page as a string builder
 	 * @return the hash as a String
 	 */
 	private String getFileName(StringBuilder sb) throws NoSuchAlgorithmException, UnsupportedEncodingException
 	{
-		MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 		byte[] bytesOfMessage = sb.toString().getBytes("UTF-8");
 		byte[] hash = messageDigest.digest(bytesOfMessage);
-		return hash.toString();
+		return bytesToHex(hash);
 	}
 
 	/**
@@ -147,4 +149,16 @@ public class Crawler {
 		Date now = calendar.getTime();
 		return new Timestamp(now.getTime());
 	}
+
+    public static String bytesToHex(byte[] bytes) {
+        final char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+        char[] hexChars = new char[bytes.length * 2];
+        int v;
+        for ( int j = 0; j < bytes.length; j++ ) {
+            v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
 }
