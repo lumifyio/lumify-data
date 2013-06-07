@@ -29,7 +29,7 @@ public class EngineFunctions {
 
         for(String entry : list) {
             if(ret.length() > 0) ret += connector;
-            ret += entry.replace(" ", "+");
+            ret += entry.replace(" ", connector);
         }
 
         return ret;

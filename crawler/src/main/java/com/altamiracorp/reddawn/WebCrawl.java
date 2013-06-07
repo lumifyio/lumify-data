@@ -2,6 +2,8 @@ package com.altamiracorp.reddawn;
 
 import org.apache.commons.cli.*;
 
+import java.util.ArrayList;
+
 /**
  * Created with IntelliJ IDEA.
  * User: jprincip
@@ -15,17 +17,15 @@ public class WebCrawl {
         GnuParser parser = new GnuParser();
         CommandLine cl = parser.parse(createOptions(), args);
 
+        ArrayList<SearchEngine> engines = new ArrayList<SearchEngine>();
+        ArrayList<Query> queries = new ArrayList<Query>();
         Crawler crawler = new Crawler(cl.getOptionValue("directory"));
-        Query q = new Query(cl.getOptionValue("query"));
 
-        String provider = cl.getOptionValue("provider");
-        SearchEngine engine;
+        for(String s : cl.getOptionValue("query").split(",")) {
+            queries.add(new Query(s.trim()));
+        }
 
-        if(provider.equals("google")) engine = new GoogleSearchEngine(crawler);
-        else if(provider.equals("news")) engine = new GoogleNewsSearchEngine(crawler);
-        else engine = new GoogleNewsSearchEngine(crawler);
-
-        int results = 10;
+        int results = 0;
         try {
             results = Integer.parseInt(cl.getOptionValue("result-count"));
         } catch (NumberFormatException e) {
@@ -33,9 +33,37 @@ public class WebCrawl {
             System.exit(1);
         }
 
-        engine.runQuery(q, results);
+        // Adds engines based on the provider option
+        ArrayList<String> enginesAdded = new ArrayList<String>();
+        for(String s : cl.getOptionValue("provider").split(",")) {
+            String trimmed = s.trim();
+            if(!enginesAdded.contains(trimmed)) {
+                if(trimmed.equals("google")) engines.add(new GoogleSearchEngine(crawler));
+                else if(trimmed.equals("news")) engines.add(new GoogleNewsSearchEngine(crawler));
+
+                // Adds the queries listed to the search engine created
+                //SearchEngine current = engines.get(engines.size() - 1);
+                //for(Query q : queries) current.addQueryToQueue(q, results);
+
+                enginesAdded.add(trimmed);
+            }
+        }
+
+        // Runs queries on the search engine
+        for(SearchEngine engine : engines) {
+            for(Query q : queries) {
+                System.out.println("\n\033[1mRunning Query " + q.getQueryString() + " on engine " + engine.getClass() + "\033[0m");
+
+                engine.runQuery(q, results);
+            }
+        }
     }
 
+    /**
+     * Generates the list of command line options for the program
+     *
+     * @return The options for the command line program
+     */
     public static Options createOptions() {
         Options options = new Options();
 
@@ -53,7 +81,7 @@ public class WebCrawl {
                 OptionBuilder
                         .withArgName("p")
                         .withLongOpt("provider")
-                        .withDescription("The search provider to use for this query")
+                        .withDescription("The search provider(s) to use for this query (separate multiple with commas)")
                         .isRequired()
                         .hasArg(true)
                         .create()
@@ -63,7 +91,7 @@ public class WebCrawl {
                 OptionBuilder
                         .withArgName("q")
                         .withLongOpt("query")
-                        .withDescription("The query you want to perform")
+                        .withDescription("The query/queries you want to perform (separate multiple with commas)")
                         .isRequired()
                         .hasArg(true)
                         .create()

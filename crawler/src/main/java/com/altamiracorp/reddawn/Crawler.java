@@ -1,7 +1,6 @@
 package com.altamiracorp.reddawn;
 
 import java.io.*;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -54,17 +53,22 @@ public class Crawler {
 	 * @param query the query that produced the results
 	 */
 	public void processSearchResults(ArrayList<String> links, Query query) throws Exception {
-		for (String link : links )
-		{
-			processURL(link, query);
+		int success = 0, error = 0;
+
+        for (String link : links ) {
+			if(processURL(link, query)) success++;
+            else error++;
 		}
+
+        System.out.println("\033[34mSearch completed: " + success + " URL(s) successfully crawled, " + error + " URL(s) unsuccessfully crawled\033[0m");
 	}
 
 	/**
 	 * Follows ONE URL and writes contents to file in directoryPath.
 	 * @param link the URL to process
+     * @return Whether or not the URL was successfully processed
 	 */
-    private void processURL(String link, Query query) throws Exception {
+    private boolean processURL(String link, Query query) throws Exception {
 		int line = 0;
 		StringBuilder stringBuilder = new StringBuilder();
 		Timestamp currentTimestamp = getCurrentTimestamp();
@@ -100,11 +104,13 @@ public class Crawler {
 		}
 		catch (MalformedURLException e)
 		{
-			throw new MalformedURLException("Problem with URL.");
+			System.err.println("\033[31m[Error] Result URL is not valid: " + link + "\033[0m");
+            return false;
 		}
 		catch (java.io.IOException e)
 		{
-			  throw new IOException("Problem with connection.");
+            System.err.println("\033[31m[Error] Could not connect to server for URL: " + link + "\033[0m");
+            return false;
 		}
 
 		stringBuilder.append("}");
@@ -114,6 +120,9 @@ public class Crawler {
 		fwriter.append(stringBuilder);
     	fwriter.flush();
 		fwriter.close();
+
+        System.out.println("Processed: " + link);
+        return true;
 	}
 
 	/**

@@ -227,6 +227,10 @@ public class Query
         return optionalTerms;
     }
 
+    public String getQueryString() {
+        return EngineFunctions.concatenate(optionalTerms, " ");
+    }
+
 	/**
 	 * Returns a string containing meta data about the query run.
 	 * @return a string containing the query info
