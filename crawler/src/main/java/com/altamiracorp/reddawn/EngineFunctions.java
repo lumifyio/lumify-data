@@ -1,5 +1,11 @@
 package com.altamiracorp.reddawn;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -62,6 +68,36 @@ public class EngineFunctions {
 		String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
 		String slug = NONLATIN.matcher(normalized).replaceAll("");
 		return slug.toLowerCase(Locale.ENGLISH);
+	}
+
+	public static String searchWithGetRequest(String queryURL)
+	{
+		// Creates query URL
+		URL fullURL = null;
+		try {
+			fullURL = new URL(queryURL);
+		} catch (MalformedURLException e) {
+			System.err.println("Malformed search URL");
+			return null;
+		}
+
+		// Connects to the internet at the queryURL
+		URLConnection connection;
+		String line;
+		StringBuilder builder = new StringBuilder();
+		BufferedReader reader;
+		try {
+			connection = fullURL.openConnection();
+			connection.addRequestProperty("Referer", "altamiracorp.com");
+			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			while((line = reader.readLine()) != null) {
+				builder.append(line);
+			}
+		} catch(IOException e) {
+			System.err.println("The http connection failed");
+			return null;
+		}
+		return builder.toString();
 	}
 
 }

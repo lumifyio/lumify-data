@@ -65,36 +65,13 @@ public class GoogleSearchEngine extends SearchEngine {
             TreeMap<String, String> extraParams = new TreeMap<String, String>();
             extraParams.put("num", (maxResults - searchCount * 10 < 10 ? maxResults - searchCount * 10 : 10) + "");
             extraParams.put("start", searchCount * 10 + 1 + "");
+			String queryURL = baseURL + queryString + EngineFunctions.createQueryString(extraParams);
 
-            // Creates query URL
-            URL fullURL = null;
-            try {
-                fullURL = new URL(baseURL + queryString + EngineFunctions.createQueryString(extraParams));
-            } catch (MalformedURLException e) {
-                System.err.println("Malformed search URL");
-                return null;
-            }
-
-            // Connects to the internet at the queryURL
-            URLConnection connection;
-            String line;
-            StringBuilder builder = new StringBuilder();
-            BufferedReader reader;
-            try {
-                connection = fullURL.openConnection();
-                connection.addRequestProperty("Referer", "altamiracorp.com");
-                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                while((line = reader.readLine()) != null) {
-                    builder.append(line);
-                }
-            } catch(IOException e) {
-                System.err.println("The http connection failed");
-                return null;
-            }
+			//j;sdalksdjf;laskjdBOOKMARK
 
             // Get response from page and put it in a JSON object (return type should be JSON)
             try {
-                JSONObject response = new JSONObject(builder.toString());
+                JSONObject response = new JSONObject(EngineFunctions.searchWithGetRequest(queryURL));
                 JSONArray results = response.getJSONArray("items");
 
                 for(int i = 0; i < results.length(); i++) {
