@@ -104,7 +104,7 @@ define([
             switch (event.which) {
 
                 case $.ui.keyCode.BACKSPACE:
-                case $.ui.keyCode.BACKSPACE:
+                case $.ui.keyCode.DELETE:
                     if ( down ) {
                         this.removeSelectedNodes();
                     }
