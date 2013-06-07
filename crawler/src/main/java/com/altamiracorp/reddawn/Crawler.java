@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
@@ -64,7 +65,6 @@ public class Crawler {
 	 * @param link the URL to process
 	 */
     private void processURL(String link) throws Exception {
-
 		int line = 0;
 		StringBuilder stringBuilder = new StringBuilder();
 		Timestamp currentTimestamp = getCurrentTimestamp();
@@ -79,7 +79,7 @@ public class Crawler {
 		try
 		{
 			URL url = new URL(link);
-			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			URLConnection connection = url.openConnection();
 			BufferedReader in
                 = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			BufferedReader reader = new BufferedReader(in);
@@ -100,13 +100,11 @@ public class Crawler {
 		}
 		catch (MalformedURLException e)
 		{
-            System.err.println("[Error] Malformed URL on process job: " + link);
-            return;
+			throw new MalformedURLException("Problem with URL.");
 		}
 		catch (java.io.IOException e)
 		{
-            System.err.println("[Error] Problem with URL connection on process job: " + link);
-            return;
+			  throw new IOException("Problem with connection.");
 		}
 
 		stringBuilder.append("}");
@@ -116,8 +114,6 @@ public class Crawler {
 		fwriter.append(stringBuilder);
     	fwriter.flush();
 		fwriter.close();
-
-        System.out.println("Processed: " + link);
 	}
 
 	/**
