@@ -52,7 +52,7 @@ public class WebCrawl {
         // Runs queries on the search engine
         for(SearchEngine engine : engines) {
             for(Query q : queries) {
-                System.out.println("\n\033[1mRunning Query " + q.getQueryString() + " on engine " + engine.getClass() + "\033[0m");
+                System.out.println("\n\033[1mRunning Query \"" + q.getQueryString() + "\" on " + engine.getClass() + "\033[0m");
 
                 engine.runQuery(q, results);
             }
