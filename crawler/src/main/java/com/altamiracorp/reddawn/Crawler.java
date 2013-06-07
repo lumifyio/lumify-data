@@ -56,7 +56,7 @@ public class Crawler {
 	public void processSearchResults(ArrayList<String> links, Query query) throws Exception {
 		for (String link : links )
 		{
-			processURL(link);
+			processURL(link, query);
 		}
 	}
 
@@ -64,11 +64,11 @@ public class Crawler {
 	 * Follows ONE URL and writes contents to file in directoryPath.
 	 * @param link the URL to process
 	 */
-    private void processURL(String link) throws Exception {
+    private void processURL(String link, Query query) throws Exception {
 		int line = 0;
 		StringBuilder stringBuilder = new StringBuilder();
 		Timestamp currentTimestamp = getCurrentTimestamp();
-		String queryInfo = "{Query.getInfo() not yet implemented.}"; //query.getInfo();
+		String queryInfo = query.getQueryInfo();
 		String httpHeader = "";
 		String fileName = "";
 		BufferedWriter fwriter = null;
