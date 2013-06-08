@@ -1,22 +1,18 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
-import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
-import com.altamiracorp.reddawn.ucd.QueryUser;
-import com.altamiracorp.reddawn.ucd.UcdClient;
-import com.altamiracorp.reddawn.ucd.model.Artifact;
-import com.altamiracorp.reddawn.ucd.model.ArtifactContent;
-import com.altamiracorp.reddawn.ucd.model.Term;
-import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
-import com.altamiracorp.reddawn.ucd.model.terms.TermMention;
-import com.altamiracorp.reddawn.ucd.model.terms.TermMetadata;
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.apache.accumulo.core.data.Mutation;
+import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
+import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.term.TermMention;
+import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,124 +28,119 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
         return EntityHighlightMapper.class;
     }
 
-    public static class EntityHighlightMapper extends Mapper<Text, Artifact, Text, Mutation> {
-        private UcdClient<AuthorizationLabel> ucdClient;
-        private QueryUser<AuthorizationLabel> queryUser;
+    @Override
+    protected Class<? extends OutputFormat> getOutputFormatClass() {
+        return AccumuloModelOutputFormat.class;
+    }
+
+    public static class EntityHighlightMapper extends Mapper<Text, Artifact, Text, Artifact> {
+        private TermRepository termRepository = new TermRepository();
+        private RedDawnSession session;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
             super.setup(context);
-
-            try {
-                ucdClient = ConfigurableMapJobBase.createUcdClient(context);
-                queryUser = ConfigurableMapJobBase.getQueryUser(context);
-            } catch (AccumuloSecurityException e) {
-                throw new IOException(e);
-            } catch (AccumuloException e) {
-                throw new IOException(e);
-            }
+            session = ConfigurableMapJobBase.createRedDawnSession(context);
         }
 
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
             try {
-                LOGGER.info("Creating highlight text for: " + artifact.getKey().toString());
-                Collection<Term> terms = ucdClient.queryTermByArtifactKey(artifact.getKey(), queryUser);
-                Mutation highlightMutation = getHighlightedTextMutation(artifact, terms);
-                if (highlightMutation != null) {
-                    context.write(new Text(Artifact.TABLE_NAME), highlightMutation);
+                LOGGER.info("Creating highlight text for: " + artifact.getRowKey().toString());
+                Collection<Term> terms = termRepository.findByArtifactRowKey(session.getModelSession(), artifact.getRowKey().toString());
+                if (populateHighlightedText(artifact, terms)) {
+                    context.write(new Text(Artifact.TABLE_NAME), artifact);
                 }
             } catch (Exception e) {
                 throw new IOException(e);
             }
         }
 
-        private Mutation getHighlightedTextMutation(Artifact artifact, Collection<Term> terms) {
-            List<TermAndTermMetadata> termAndTermMetadata = getTermAndTermMetadataForArtifact(artifact.getKey(), terms);
-            String highlightedText = getHighlightedText(artifact.getContent().getDocExtractedText(), termAndTermMetadata);
+        private boolean populateHighlightedText(Artifact artifact, Collection<Term> terms) {
+            List<TermAndTermMention> termAndTermMetadata = getTermAndTermMetadataForArtifact(artifact.getRowKey(), terms);
+            String highlightedText = getHighlightedText(artifact.getContent().getDocExtractedTextString(), termAndTermMetadata);
             if (highlightedText == null) {
-                return null;
+                return false;
             }
-            Mutation mutation = new Mutation(artifact.getKey().toString());
-            mutation.put(ArtifactContent.COLUMN_FAMILY_NAME, ArtifactContent.COLUMN_DOC_HIGHLIGHTED_TEXT, highlightedText);
-            return mutation;
+            artifact.getContent().setHighlightedText(highlightedText);
+            return true;
         }
 
-        public static List<TermAndTermMetadata> getTermAndTermMetadataForArtifact(ArtifactKey artifactKey, Collection<Term> terms) {
-            ArrayList<TermAndTermMetadata> termMetadatas = new ArrayList<TermAndTermMetadata>();
+        public static List<TermAndTermMention> getTermAndTermMetadataForArtifact(ArtifactRowKey artifactKey, Collection<Term> terms) {
+            ArrayList<TermAndTermMention> termMetadatas = new ArrayList<TermAndTermMention>();
             for (Term term : terms) {
-                for (TermMetadata termMetadata : term.getMetadata()) {
-                    if (termMetadata.getArtifactKey().equals(artifactKey)) {
-                        termMetadatas.add(new TermAndTermMetadata(term, termMetadata));
+                for (TermMention termMention : term.getTermMentions()) {
+                    if (termMention.getArtifactKey().equals(artifactKey.toString())) {
+                        termMetadatas.add(new TermAndTermMention(term, termMention));
                     }
                 }
             }
             return termMetadatas;
         }
 
-        public static String getHighlightedText(String text, List<TermAndTermMetadata> termAndTermMetadatas) {
+        public static String getHighlightedText(String text, List<TermAndTermMention> termAndTermMetadatas) {
             Collections.sort(termAndTermMetadatas, new TermAndTermMetadataComparator());
-            int start = 0;
+            long start = 0;
             StringBuilder result = new StringBuilder();
-            for (TermAndTermMetadata termAndTermMetadata : termAndTermMetadatas) {
-                TermMention mention = termAndTermMetadata.getTermMetadata().getMention();
-                String keyString = termAndTermMetadata.getTerm().getKey().toString();
+            for (TermAndTermMention termAndTermMetadata : termAndTermMetadatas) {
+                TermMention mention = termAndTermMetadata.getTermMention();
+                String keyString = termAndTermMetadata.getTerm().getRowKey().toString();
                 keyString = keyString.replaceAll("\\x1f", "\\\\x1F");
 
-                if (mention.getStart() < start) {
+                if (mention.getMentionStart() < start) {
                     continue; // TODO handle overlapping entities (see com.altamiracorp.reddawn.entityExtraction.EntityHighlightTest#testGetHighlightedTextOverlaps)
                 }
-                result.append(text.substring(start, mention.getStart()));
+                result.append(text.substring((int) start, (int) mention.getMentionStart().longValue()));
                 result.append("<span");
                 result.append(" class=\"entity ");
-                result.append(termAndTermMetadata.getTerm().getKey().getConcept());
+                result.append(termAndTermMetadata.getTerm().getRowKey().getConceptLabel());
                 result.append("\"");
                 result.append(" term-key=\"");
                 result.append(keyString);
                 result.append("\"");
                 result.append(">");
-                result.append(text.substring(mention.getStart(), mention.getEnd()));
+                result.append(text.substring((int) mention.getMentionStart().longValue(), (int) mention.getMentionEnd().longValue()));
                 result.append("</span>");
-                start = mention.getEnd();
+                start = mention.getMentionEnd();
             }
-            result.append(text.substring(start));
+            result.append(text.substring((int) start));
             return result.toString();
         }
 
-        public static class TermAndTermMetadata {
+        public static class TermAndTermMention {
             private Term term;
-            private TermMetadata termMetadata;
+            private TermMention termMention;
 
-            public TermAndTermMetadata(Term term, TermMetadata termMetadata) {
+            public TermAndTermMention(Term term, TermMention termMetadata) {
                 this.term = term;
-                this.termMetadata = termMetadata;
+                this.termMention = termMetadata;
             }
 
             public Term getTerm() {
                 return term;
             }
 
-            public TermMetadata getTermMetadata() {
-                return termMetadata;
+            public TermMention getTermMention() {
+                return termMention;
             }
 
             @Override
             public String toString() {
-                return getTerm().getKey().getSign()
+                return getTerm().getRowKey().getSign()
                         + " - "
-                        + getTermMetadata().getMention().getStart()
+                        + getTermMention().getMentionStart()
                         + "-"
-                        + getTermMetadata().getMention().getEnd();
+                        + getTermMention().getMentionEnd();
             }
         }
 
-        public static class TermAndTermMetadataComparator implements Comparator<TermAndTermMetadata> {
+        public static class TermAndTermMetadataComparator implements Comparator<TermAndTermMention> {
             @Override
-            public int compare(TermAndTermMetadata t1, TermAndTermMetadata t2) {
-                int t1Start = t1.getTermMetadata().getMention().getStart();
-                int t2Start = t2.getTermMetadata().getMention().getStart();
+            public int compare(TermAndTermMention t1, TermAndTermMention t2) {
+                long t1Start = t1.getTermMention().getMentionStart();
+                long t2Start = t2.getTermMention().getMentionStart();
                 if (t1Start == t2Start) {
-                    int t1End = t1.getTermMetadata().getMention().getEnd();
-                    int t2End = t2.getTermMetadata().getMention().getEnd();
+                    long t1End = t1.getTermMention().getMentionEnd();
+                    long t2End = t2.getTermMention().getMentionEnd();
                     if (t1End == t2End) {
                         return 0;
                     }

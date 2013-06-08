@@ -1,9 +1,8 @@
 package com.altamiracorp.reddawn.web.routes.workspace;
 
-import com.altamiracorp.reddawn.RedDawnClient;
-import com.altamiracorp.reddawn.model.Workspace;
-import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
-import com.altamiracorp.reddawn.ucd.QueryUser;
+import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.model.workspace.Workspace;
+import com.altamiracorp.reddawn.model.workspace.WorkspaceRepository;
 import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
@@ -17,19 +16,19 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 
 public class WorkspaceList implements Handler, AppAware {
+    private WorkspaceRepository workspaceRepository = new WorkspaceRepository();
     private WebApp app;
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        RedDawnClient client = app.getRedDawnClient();
+        RedDawnSession session = app.getRedDawnSession(request);
         User currentUser = User.getUser(request);
-        QueryUser<AuthorizationLabel> queryUser = app.getQueryUser();
 
-        Collection<Workspace> workspaces = client.queryWorkspaceByUserId(currentUser.getId(), queryUser);
+        Collection<Workspace> workspaces = workspaceRepository.findByUserId(session.getModelSession(), currentUser.getId());
 
         JSONArray resultsJSON = new JSONArray();
         for (Workspace workspace : workspaces) {
-            resultsJSON.put(workspace.getKey().toString());
+            resultsJSON.put(workspace.getRowKey().toString());
         }
 
         response.setContentType("application/json");

@@ -1,7 +1,5 @@
 package com.altamiracorp.reddawn.web.routes.entity;
 
-import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
-import com.altamiracorp.reddawn.ucd.UcdClient;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
@@ -23,15 +21,13 @@ public class EntityRelationships implements Handler, AppAware {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        UcdClient<AuthorizationLabel> client = app.getUcdClient();
-
         String[] entityIds = request.getParameterValues("entityIds[]");
-        if(entityIds == null) {
+        if (entityIds == null) {
             entityIds = new String[0];
         }
 
         String[] artifactIds = request.getParameterValues("artifactIds[]");
-        if(artifactIds == null) {
+        if (artifactIds == null) {
             artifactIds = new String[0];
         }
 

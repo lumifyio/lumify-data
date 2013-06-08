@@ -11,10 +11,11 @@
     <name>Red Dawn</name>
 
     <modules>
-        <module>ucd</module>
         <module>core</module>
         <module>web</module>
         <module>web-framework</module>
+        <module>model</module>
+        <module>model-accumulo</module>
     </modules>
 
     <repositories>
