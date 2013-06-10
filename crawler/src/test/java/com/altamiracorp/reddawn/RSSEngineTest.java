@@ -25,6 +25,10 @@ public class RSSEngineTest extends TestCase {
 
 	@Test
 	public void testSearch() throws Exception {
-	  git
+		Query query = new Query();
+		query.addOptionalTerm("boston bombing");
+		int maxResults = 3;
+		engine.setUrl("http://rss.cnn.com/rss/cnn_world.rss");
+		engine.search(query, maxResults);
 	}
 }

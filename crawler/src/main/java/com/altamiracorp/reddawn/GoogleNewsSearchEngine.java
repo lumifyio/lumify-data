@@ -36,7 +36,7 @@ public class GoogleNewsSearchEngine extends SearchEngine {
      * Performs the query requested as a search, finding the links and passing them to the crawler to fetch
      *
      * @param q The Query to execute
-     * @param maxResults The number of results to return
+     * @param maxResults The number of results to return; return all if -1
      * @return List of links retrieved from the search
      */
     protected ArrayList<String> search(Query q, int maxResults) {
@@ -57,9 +57,22 @@ public class GoogleNewsSearchEngine extends SearchEngine {
             System.err.println("Malformed search URL");
             return null;
         }
+		URL feedURL = null;
 
-		links = EngineFunctions.parseRSS(fullURL);
-
+		for (String googleLink : EngineFunctions.parseRSS(fullURL, maxResults))
+		{
+			try{
+				feedURL = new URL(googleLink);
+			} catch(MalformedURLException e) {
+				System.err.println("Google News provided a malformed URL. Skipping...");
+				break;
+			}
+			// Splits query parameters, identifies the redirect link, and adds it to the list of links
+			for(String param : feedURL.getQuery().split("&")) {
+				String[] kvPair = param.split("=");
+				if(kvPair[0].equals("url")) links.add(kvPair[1]);
+			}
+		}
         // Runs the results into the crawler, which processes them and writes them to the file system
         try {
             crawler.processSearchResults(links, q);

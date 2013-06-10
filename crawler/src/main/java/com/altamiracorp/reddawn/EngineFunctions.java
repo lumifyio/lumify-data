@@ -113,7 +113,7 @@ public class EngineFunctions {
 	 * @return a list of links
 	 */
 
-	public static ArrayList<String> parseRSS(URL url)
+	public static ArrayList<String> parseRSS(URL url, int maxResults)
 	{
 		// Result Links to return
 		ArrayList<String> links = new ArrayList<String>();
@@ -126,26 +126,18 @@ public class EngineFunctions {
 			return null;
 		}
 		List items = xml.getRootElement().element("channel").elements("item");
-		for(int i = 0; i < items.size(); i++) {
-
-			// Gets Google News link with redirect to the link we want
+		int loopLimit = maxResults;
+		if (maxResults > items.size())
+		{
+			loopLimit = items.size();
+		}
+		for(int i = 0; i < loopLimit; i++) {
+			// Gets Feed link with redirect to the link we want
 			Element link = ((Element) items.get(i)).element("link");
-
-			URL googleURL;
-
-			try{
-				googleURL = new URL(link.getStringValue());
-			} catch(MalformedURLException e) {
-				System.err.println("Google News provided a malformed URL. Skipping...");
-				break;
-			}
-
-			// Splits query parameters, identifies the redirect link, and adds it to the list of links
-			for(String param : googleURL.getQuery().split("&")) {
-				String[] kvPair = param.split("=");
-				if(kvPair[0].equals("url")) links.add(kvPair[1]);
-			}
+			//RSS in general
+			links.add(link.getStringValue());
 		}
 		return links;
 	}
+
 }
