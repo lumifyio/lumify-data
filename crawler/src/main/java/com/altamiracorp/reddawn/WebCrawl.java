@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn;
 import org.apache.commons.cli.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -16,11 +17,15 @@ import java.util.TreeMap;
 public class WebCrawl {
 
     public static void main(String[] args) throws Exception {
+        System.out.println(args.length);
+
         GnuParser parser = new GnuParser();
         CommandLine cl = parser.parse(createOptions(), args);
 
         ArrayList<SearchEngine> engines = new ArrayList<SearchEngine>();
         ArrayList<Query> queries = new ArrayList<Query>();
+        ArrayList<Query> rssLinks = new ArrayList<Query>();
+        ArrayList<Query> redditQueries = new ArrayList<Query>();
         Crawler crawler = new Crawler(cl.getOptionValue("directory"));
 
         for(String s : cl.getOptionValue("query").split(",")) {
@@ -36,11 +41,32 @@ public class WebCrawl {
             }
 
             queries.add(q);
+
+            // Checks for subreddits and sets information accordingly
+            String subreddits = cl.getOptionValue("subreddit");
+
+            if(subreddits != null) {
+                for(String subreddit : subreddits.split(",")) {
+                    Query redditQ = q.clone();
+                    if(subreddit.trim().equals("all"))redditQ.clearSubreddit();
+                    else redditQ.setSubreddit(subreddit);
+                    redditQueries.add(redditQ);
+                }
+            } else {
+                redditQueries.add(q);
+            }
         }
 
-        int results = 0;
+        for(String feed : cl.getOptionValue("rss").split(",")) {
+            Query rssFeed = new Query();
+            rssFeed.setRSSFeed(feed);
+            rssLinks.add(rssFeed);
+        }
+
+        int results = -1;
         try {
-            results = Integer.parseInt(cl.getOptionValue("result-count"));
+            String countParam = cl.getOptionValue("result-count");
+            if(countParam != null) results = Integer.parseInt(countParam);
         } catch (NumberFormatException e) {
             System.err.println("[WebCrawl] --result-count must be a valid number");
             System.exit(1);
@@ -51,26 +77,32 @@ public class WebCrawl {
         for(String s : cl.getOptionValue("provider").split(",")) {
             String trimmed = s.trim();
             if(!enginesAdded.contains(trimmed.toLowerCase())) {
-                if(trimmed.equalsIgnoreCase("google")) engines.add(new GoogleSearchEngine(crawler));
-                else if(trimmed.equalsIgnoreCase("news")) engines.add(new GoogleNewsSearchEngine(crawler));
-                else if(trimmed.equalsIgnoreCase("reddit")) engines.add(new RedditSearchEngine(crawler));
+                SearchEngine engine = new GoogleNewsSearchEngine(crawler);
+                ArrayList<Query> queryList = queries;
 
-                // Adds the queries listed to the search engine created
-                //SearchEngine current = engines.get(engines.size() - 1);
-                //for(Query q : queries) current.addQueryToQueue(q, results);
+                if(trimmed.equalsIgnoreCase("google")) {
+                    engine = new GoogleSearchEngine(crawler);
+                    queryList = queries;
+                } else if(trimmed.equalsIgnoreCase("news")) {
+                    engine = new GoogleNewsSearchEngine(crawler);
+                    queryList = queries;
+                } else if(trimmed.equalsIgnoreCase("reddit")) {
+                    engine = new RedditSearchEngine(crawler);
+                    queryList = redditQueries;
+                } else if(trimmed.equalsIgnoreCase("rss")) {
+                    engine = new RSSEngine(crawler);
+                    queryList = rssLinks;
+                }
+
+                for(Query q : queryList) engine.addQueryToQueue(q, results);
+                engines.add(engine);
 
                 enginesAdded.add(trimmed.toLowerCase());
             }
         }
 
         // Runs queries on the search engine
-        for(SearchEngine engine : engines) {
-            for(Query q : queries) {
-                System.out.println("\n\033[1mRunning Query \"" + q.getQueryString() + "\" on " + engine.getClass() + "\033[0m");
-
-                engine.runQuery(q, results);
-            }
-        }
+        for(SearchEngine engine : engines) engine.runQueue();
     }
 
     /**
@@ -95,7 +127,7 @@ public class WebCrawl {
                 OptionBuilder
                         .withArgName("p")
                         .withLongOpt("provider")
-                        .withDescription("The search provider(s) to use for this query (choose one or more of google, news, and reddit)")
+                        .withDescription("The search provider(s) to use for this query (choose one or more of google, news, reddit, and rss)")
                         .isRequired()
                         .hasArg(true)
                         .create()
@@ -105,8 +137,7 @@ public class WebCrawl {
                 OptionBuilder
                         .withArgName("q")
                         .withLongOpt("query")
-                        .withDescription("The query/queries you want to perform (separate multiple with commas)")
-                        .isRequired()
+                        .withDescription("The query/queries you want to perform (separate multiple with commas) - required for google and news providers, optional for reddit")
                         .hasArg(true)
                         .create()
         );
@@ -116,7 +147,24 @@ public class WebCrawl {
                         .withArgName("c")
                         .withLongOpt("result-count")
                         .withDescription("The number of results to return from the query")
-                        .isRequired()
+                        .hasArg(true)
+                        .create()
+        );
+
+        options.addOption(
+                OptionBuilder
+                        .withArgName("r")
+                        .withLongOpt("rss")
+                        .withDescription("The RSS feed URL(s) to fetch for this query (separate multiple with commas)")
+                        .hasArg(true)
+                        .create()
+        );
+
+        options.addOption(
+                OptionBuilder
+                        .withArgName("s")
+                        .withLongOpt("subreddit")
+                        .withDescription("The subreddit(s) to fetch (optionally filtered by query)")
                         .hasArg(true)
                         .create()
         );

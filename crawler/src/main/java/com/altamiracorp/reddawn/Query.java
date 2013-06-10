@@ -336,4 +336,29 @@ public class Query
 	{
 		return subreddit;
 	}
+
+    public Query clone() {
+        Query clone = new Query();
+
+        try {
+            clone.setStartDate(searchItems.get("startDate"));
+            clone.setEndDate(searchItems.get("endDate"));
+            clone.setCountry(searchItems.get("country"));
+            clone.setHighRange(Integer.parseInt(searchItems.get("highRange")));
+            clone.setLowRange(Integer.parseInt(searchItems.get("lowRange")));
+
+            for(String s : optionalTerms) clone.addOptionalTerm(s);
+            for(String s : excludedTerms) clone.addExcludedTerm(s);
+            for(String s : requiredTerms) clone.addRequiredTerm(s);
+
+            clone.setRSSFeed(rss);
+            clone.setSubreddit(subreddit);
+
+        } catch(Exception e) {
+            System.out.println("The query was not successfully copied");
+            System.exit(1);
+        }
+
+        return clone;
+    }
 }
