@@ -11,7 +11,7 @@ public class TermRowKey extends RowKey {
     }
 
     public TermRowKey(String sign, String modelKey, String conceptLabel) {
-        super(RowKeyHelper.build(sign.toLowerCase(), modelKey, conceptLabel));
+        super(RowKeyHelper.buildMinor(sign.toLowerCase(), modelKey, conceptLabel));
     }
 
     public String getSign() {

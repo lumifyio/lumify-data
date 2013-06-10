@@ -9,6 +9,6 @@ public class WorkspaceRowKey extends RowKey {
     }
 
     public WorkspaceRowKey(String userId, String workspaceId) {
-        super(RowKeyHelper.build(userId, workspaceId));
+        super(RowKeyHelper.buildMinor(userId, workspaceId));
     }
 }

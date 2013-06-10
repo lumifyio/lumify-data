@@ -1,7 +1,6 @@
 package com.altamiracorp.reddawn.model.workspace;
 
 import com.altamiracorp.reddawn.model.*;
-import com.altamiracorp.reddawn.ucd.source.SourceMetadata;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,7 +69,7 @@ public class WorkspaceRepositoryTest {
 
         assertEquals(1, session.tables.get(Workspace.TABLE_NAME).size());
         Row row = session.tables.get(Workspace.TABLE_NAME).get(0);
-        assertEquals(RowKeyHelper.build("testUser", "testWorkspace"), row.getRowKey().toString());
+        assertEquals(RowKeyHelper.buildMinor("testUser", "testWorkspace"), row.getRowKey().toString());
 
         assertEquals(2, row.getColumnFamilies().size());
 
