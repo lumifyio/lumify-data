@@ -251,7 +251,7 @@ public class Query
      * @return String representing the query performed
      */
     public String getQueryString() {
-        return EngineFunctions.concatenate(optionalTerms, " ") + ((requiredTerms.size() > 0) ? " +" + EngineFunctions.concatenate(requiredTerms, " +") : "") +
+        return ((optionalTerms.size() > 0) ? EngineFunctions.concatenate(optionalTerms, " ") : "") + ((requiredTerms.size() > 0) ? " +" + EngineFunctions.concatenate(requiredTerms, " +") : "") +
                 ((excludedTerms.size() > 0) ? " -" + EngineFunctions.concatenate(excludedTerms, " -") : "");
     }
 
@@ -341,11 +341,11 @@ public class Query
         Query clone = new Query();
 
         try {
-            clone.setStartDate(searchItems.get("startDate"));
-            clone.setEndDate(searchItems.get("endDate"));
-            clone.setCountry(searchItems.get("country"));
-            clone.setHighRange(Integer.parseInt(searchItems.get("highRange")));
-            clone.setLowRange(Integer.parseInt(searchItems.get("lowRange")));
+            if(searchItems.get("startDate") != null) clone.setStartDate(searchItems.get("startDate"));
+            if(searchItems.get("endDate") != null) clone.setEndDate(searchItems.get("endDate"));
+            if(searchItems.get("country") != null) clone.setCountry(searchItems.get("country"));
+            if(searchItems.get("highRange") != null) clone.setHighRange(Integer.parseInt(searchItems.get("highRange")));
+            if(searchItems.get("lowRange") != null) clone.setLowRange(Integer.parseInt(searchItems.get("lowRange")));
 
             for(String s : optionalTerms) clone.addOptionalTerm(s);
             for(String s : excludedTerms) clone.addExcludedTerm(s);
@@ -356,6 +356,7 @@ public class Query
 
         } catch(Exception e) {
             System.out.println("The query was not successfully copied");
+            e.printStackTrace();
             System.exit(1);
         }
 

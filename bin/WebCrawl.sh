@@ -27,7 +27,7 @@ do
             ;;
         --subreddit=* ) SUBREDDIT=`cut -d "=" -f 2 <<< "$1"`
             ;;
-        --rss-links=* ) RSS=`cut -d "=" -f 2 <<< "$1"`
+        --rss=* ) RSS=`cut -d "=" -f 2 <<< "$1"`
             ;;
     esac
     shift
@@ -49,6 +49,11 @@ for ENTRY in "${PROVIDERS[@]}"
 do
     case "$ENTRY" in
         *reddit* )
+            if [ -z "$COUNT" ]
+            then
+                echo "You must specify a result count for the reddit search engine"
+                exit
+            fi
             ;;
         *rss* )
             if [ -z "$RSS" ]

@@ -17,8 +17,6 @@ import java.util.TreeMap;
 public class WebCrawl {
 
     public static void main(String[] args) throws Exception {
-        System.out.println(args.length);
-
         GnuParser parser = new GnuParser();
         CommandLine cl = parser.parse(createOptions(), args);
 
@@ -57,10 +55,12 @@ public class WebCrawl {
             }
         }
 
-        for(String feed : cl.getOptionValue("rss").split(",")) {
-            Query rssFeed = new Query();
-            rssFeed.setRSSFeed(feed);
-            rssLinks.add(rssFeed);
+        if(cl.getOptionValue("rss") != null) {
+            for(String feed : cl.getOptionValue("rss").split(",")) {
+                Query rssFeed = new Query();
+                rssFeed.setRSSFeed(feed);
+                rssLinks.add(rssFeed);
+            }
         }
 
         int results = -1;

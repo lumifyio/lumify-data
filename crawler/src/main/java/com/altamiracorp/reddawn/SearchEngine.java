@@ -51,7 +51,7 @@ public abstract class SearchEngine {
         ArrayList<ArrayList<String>> results = new ArrayList<ArrayList<String>>();
 
         for(int i = 0; i < queryQueue.size(); i++) {
-            results.add(search(queryQueue.get(i), maxResultQueue.get(i)));
+            results.add(runQuery(queryQueue.get(i), maxResultQueue.get(i)));
         }
 
         return results;
@@ -65,6 +65,7 @@ public abstract class SearchEngine {
      * @return The links to the result pages in a list
      */
     public ArrayList<String> runQuery(Query q, int maxResults) {
+        System.out.println("\n\033[1m" + queryHeader(q) + "\033[0m");
         return search(q, maxResults);
     }
 
@@ -97,4 +98,10 @@ public abstract class SearchEngine {
 	{
 		return this.getClass().toString();
 	}
+
+    protected String queryHeader(Query q) {
+        return "Running Query" + ((q.getQueryString().length() > 0) ? " \"" + q.getQueryString() + "\"" :
+                ((q.getRss().length() > 0) ? " URL: " + q.getRss() : "" )) + " on " + getEngineName() +
+                ((q.getSubreddit().length() > 0) ? ", subreddit " + q.getSubreddit() : "");
+    }
 }
