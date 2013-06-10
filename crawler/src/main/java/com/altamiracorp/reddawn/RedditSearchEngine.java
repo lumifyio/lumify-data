@@ -54,7 +54,8 @@ public class RedditSearchEngine extends SearchEngine{
 			System.err.println("The crawler failed to crawl the result set");
 			e.printStackTrace();
 		}
-		return null;
+
+		return results;
 	}
 
 	/**
@@ -80,7 +81,6 @@ public class RedditSearchEngine extends SearchEngine{
 					+ "&limit=" + maxResults
 					+ "&restrict_sr=true";
 		}
-		System.out.println(url);
 		return url;
 	}
 

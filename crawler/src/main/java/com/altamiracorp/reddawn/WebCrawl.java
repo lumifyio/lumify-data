@@ -40,7 +40,7 @@ public class WebCrawl {
             if(!enginesAdded.contains(trimmed.toLowerCase())) {
                 if(trimmed.equalsIgnoreCase("google")) engines.add(new GoogleSearchEngine(crawler));
                 else if(trimmed.equalsIgnoreCase("news")) engines.add(new GoogleNewsSearchEngine(crawler));
-                //else if(trimmed.equalsIgnoreCase("reddit")) engines.add(new RedditSearchEngine(crawler));
+                else if(trimmed.equalsIgnoreCase("reddit")) engines.add(new RedditSearchEngine(crawler));
 
                 // Adds the queries listed to the search engine created
                 //SearchEngine current = engines.get(engines.size() - 1);
