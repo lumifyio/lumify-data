@@ -58,38 +58,7 @@ public class GoogleNewsSearchEngine extends SearchEngine {
             return null;
         }
 
-        // Reads the document into an XML file to parse (output should be RSS XML)
-        SAXReader saxReader = new SAXReader();
-        Document xml;
-        try {
-           xml = saxReader.read(fullURL);
-        } catch (DocumentException e) {
-            System.err.println("The specified URL (" + fullURL + ") does not produce a valid document");
-            return null;
-        }
-
-        // Pulls items from the RSS feed and extracts the target links out of them
-        List items = xml.getRootElement().element("channel").elements("item");
-        for(int i = 0; i < items.size(); i++) {
-
-            // Gets Google News link with redirect to the link we want
-            Element link = ((Element) items.get(i)).element("link");
-
-            URL googleURL;
-
-            try{
-                googleURL = new URL(link.getStringValue());
-            } catch(MalformedURLException e) {
-                System.err.println("Google News provided a malformed URL. Skipping...");
-                break;
-            }
-
-            // Splits query parameters, indentifies the redirect link, and adds it to the list of links
-            for(String param : googleURL.getQuery().split("&")) {
-                String[] kvPair = param.split("=");
-                if(kvPair[0].equals("url")) links.add(kvPair[1]);
-            }
-        }
+		links = EngineFunctions.parseRSS(fullURL);
 
         // Runs the results into the crawler, which processes them and writes them to the file system
         try {

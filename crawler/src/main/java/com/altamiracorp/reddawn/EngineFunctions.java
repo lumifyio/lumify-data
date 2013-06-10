@@ -1,5 +1,10 @@
 package com.altamiracorp.reddawn;
 
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,6 +13,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -100,4 +106,46 @@ public class EngineFunctions {
 		return builder.toString();
 	}
 
+	/**
+	 * Reads the RSS Document into an XML file to parse (output should be RSS XML)
+	 * Parses the XML to find links, returns a list of links
+	 * @param url
+	 * @return a list of links
+	 */
+
+	public static ArrayList<String> parseRSS(URL url)
+	{
+		// Result Links to return
+		ArrayList<String> links = new ArrayList<String>();
+		SAXReader saxReader = new SAXReader();
+		Document xml;
+		try {
+			xml = saxReader.read(url);
+		} catch (DocumentException e) {
+			System.err.println("The specified URL (" + url + ") does not produce a valid document");
+			return null;
+		}
+		List items = xml.getRootElement().element("channel").elements("item");
+		for(int i = 0; i < items.size(); i++) {
+
+			// Gets Google News link with redirect to the link we want
+			Element link = ((Element) items.get(i)).element("link");
+
+			URL googleURL;
+
+			try{
+				googleURL = new URL(link.getStringValue());
+			} catch(MalformedURLException e) {
+				System.err.println("Google News provided a malformed URL. Skipping...");
+				break;
+			}
+
+			// Splits query parameters, identifies the redirect link, and adds it to the list of links
+			for(String param : googleURL.getQuery().split("&")) {
+				String[] kvPair = param.split("=");
+				if(kvPair[0].equals("url")) links.add(kvPair[1]);
+			}
+		}
+		return links;
+	}
 }
