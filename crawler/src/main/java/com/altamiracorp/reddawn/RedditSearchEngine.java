@@ -4,12 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 
 /**
@@ -21,19 +15,28 @@ import java.util.ArrayList;
  */
 public class RedditSearchEngine extends SearchEngine{
 
+	private String subreddit;
+
 	public RedditSearchEngine(Crawler crawler)
 	{
 		super(crawler);
+		subreddit = "";
 	}
 
+	/**
+	 * Performs the query requested as a search, finding the links and passing them to the crawler to fetch.
+	 * @param q The Query to execute
+	 * @param maxResults The number of results to return
+	 * @return
+	 */
 	@Override
 	protected ArrayList<String> search(Query q, int maxResults) {
 		ArrayList<String> results = new ArrayList<String>();
-		String queryString = processQuery(q); // TO DO ADD OTHER SEARCH PARAMETERS INCLUDING MAX COUNT AKA LIMIT
-		String url = "http://www.reddit.com/search.json?" + queryString;
+		String queryUrl = createQueryString(q, maxResults); // TO DO ADD OTHER SEARCH PARAMETERS INCLUDING MAX COUNT AKA LIMIT
+
 		try
 		{
-			JSONObject resultsJSON = new JSONObject(EngineFunctions.searchWithGetRequest(url));
+			JSONObject resultsJSON = new JSONObject(EngineFunctions.searchWithGetRequest(queryUrl));
 			JSONArray childrenEntries = resultsJSON.getJSONObject("data").getJSONArray("children");
 			for (int i = 0; i < maxResults; i++)
 			{
@@ -56,30 +59,47 @@ public class RedditSearchEngine extends SearchEngine{
 
 	/**
 	 * Creates a string containing the query parameters
-	 * formatted for use with an HTTP GET request.
-	 * Will return the form:
+	 * formatted as the search URL to be run.
 	 *
 	 * @param q the query to be processed
 	 * @return the string representing the query
 	 */
-	private String processQuery(Query q)
+	private String createQueryString(Query q, int maxResults)
 	{
-		String query = "q=";
-		boolean hasAddedFirstTerm = false;
-		for (String term : q.getOptionalTerms())
+		String url = "";
+		if (subreddit.equals(""))
 		{
-			if (hasAddedFirstTerm)
-			{
-				query += "+";
-			}
-			else
-			{
-				hasAddedFirstTerm = true;
-			}
-			query += term.replace(" ", "+");
+			 url =  "http://www.reddit.com/search.json?"
+			 		+ "q=" + EngineFunctions.concatenate(q.getOptionalTerms(), "+")
+			 		+ "&limit=" + maxResults;
 		}
-		System.out.println(query);
-		return query;
+		else
+		{
+			url = "http://www.reddit.com/r/" + EngineFunctions.toSlug(subreddit) + "/search.json?"
+					+ "q=" + EngineFunctions.concatenate(q.getOptionalTerms(), "+")
+					+ "&limit=" + maxResults
+					+ "&restrict_sr=true";
+		}
+		System.out.println(url);
+		return url;
+	}
+
+	/**
+	 * Specifies a subreddit to limit the search to.
+	 * @param subreddit_
+	 */
+	public void setSubreddit(String subreddit_)
+	{
+		subreddit = subreddit_;
+	}
+
+	/**
+	 * Resets the engine to search all of reddit
+	 * with no restriction to a subreddit.
+	 */
+	public void clearSubreddit()
+	{
+		subreddit = "";
 	}
 }
 

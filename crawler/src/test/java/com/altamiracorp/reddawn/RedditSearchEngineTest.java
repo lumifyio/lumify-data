@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn;
 
 import junit.framework.TestCase;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,12 +24,29 @@ public class RedditSearchEngineTest extends TestCase {
 		engine = new RedditSearchEngine(crawler);
 	}
 
+	@After
+	public void tearDown() throws Exception
+	{
+		 engine.clearSubreddit();
+	}
+
 	@Test
-	public void testSearch() throws Exception {
+	public void testGeneralSearch() throws Exception
+	{
 		Query query = new Query();
 		query.addOptionalTerm("boston bombing");
-		int maxResults = 20;
+		int maxResults = 3;
 		engine.search(query, maxResults);
 	}
 
+
+	@Test
+	public void testSubredditSearch() throws Exception
+	{
+		Query query = new Query();
+		query.addOptionalTerm("boston bombing");
+		int maxResults = 3;
+		engine.setSubreddit("inthenews");
+		engine.search(query, maxResults);
+	}
 }
