@@ -1,9 +1,9 @@
 package com.altamiracorp.reddawn.web.routes.entity;
 
-import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
-import com.altamiracorp.reddawn.ucd.UcdClient;
-import com.altamiracorp.reddawn.ucd.model.Term;
-import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
+import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.term.TermRepository;
+import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.web.App;
@@ -16,9 +16,10 @@ import javax.servlet.http.HttpServletResponse;
 
 // TODO: change this over to an Entity once entities work
 public class EntityByRowKey implements Handler, AppAware {
+    private TermRepository termRepository = new TermRepository();
     private WebApp app;
 
-    public static String getUrl(HttpServletRequest request, TermKey termKey) {
+    public static String getUrl(HttpServletRequest request, TermRowKey termKey) {
         return UrlUtils.getRootRef(request) + "/term/" + UrlUtils.urlEncode(termKey.toString());
     }
 
@@ -29,15 +30,15 @@ public class EntityByRowKey implements Handler, AppAware {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        UcdClient<AuthorizationLabel> client = app.getUcdClient();
-        TermKey termKey = new TermKey(UrlUtils.urlDecode((String) request.getAttribute("rowKey")));
-        Term term = client.queryTermByKey(termKey, app.getQueryUser());
+        RedDawnSession session = app.getRedDawnSession(request);
+        TermRowKey termKey = new TermRowKey(UrlUtils.urlDecode((String) request.getAttribute("rowKey")));
+        Term term = termRepository.findByRowKey(session.getModelSession(), termKey.toString());
 
         if (term == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             response.setContentType("application/json");
-            response.getWriter().write(term.toJson());
+            response.getWriter().write(term.toJson().toString());
         }
 
         chain.next(request, response);

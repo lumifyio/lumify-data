@@ -1,11 +1,8 @@
 package com.altamiracorp.reddawn.cmdline;
 
-import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
-import com.altamiracorp.reddawn.ucd.UcdClient;
-import com.altamiracorp.reddawn.ucd.model.Artifact;
-import com.altamiracorp.reddawn.ucd.model.ArtifactContent;
-import com.altamiracorp.reddawn.ucd.model.ArtifactGenericMetadata;
-import org.apache.accumulo.core.client.BatchWriter;
+import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
@@ -17,114 +14,109 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.hadoop.util.ToolRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 
-public class FileImport extends UcdCommandLineBase {
-  private String directory;
-  private String pattern;
+public class FileImport extends RedDawnCommandLineBase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileImport.class.getName());
+    private ArtifactRepository artifactRepository = new ArtifactRepository();
+    private String directory;
+    private String pattern;
 
-  public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(CachedConfiguration.getInstance(), new FileImport(), args);
-    if (res != 0) {
-      System.exit(res);
-    }
-  }
-
-  @Override
-  protected void processOptions(CommandLine cmd) {
-    super.processOptions(cmd);
-    this.directory = cmd.getOptionValue("directory");
-    if (cmd.hasOption("pattern")) {
-      this.pattern = cmd.getOptionValue("pattern");
-    } else {
-      this.pattern = "*";
-    }
-  }
-
-  @Override
-  protected Options getOptions() {
-    Options options = super.getOptions();
-
-    options.addOption(
-        OptionBuilder
-            .withArgName("d")
-            .withLongOpt("directory")
-            .withDescription("The directory to import")
-            .isRequired()
-            .hasArg(true)
-            .withArgName("path")
-            .create()
-    );
-
-    options.addOption(
-        OptionBuilder
-            .withArgName("p")
-            .withLongOpt("pattern")
-            .withDescription("The pattern to match files against")
-            .withArgName("pattern")
-            .create()
-    );
-
-    return options;
-  }
-
-  @Override
-  protected int run(CommandLine cmd) throws Exception {
-    long memBuf = 1000000L; // bytes to store before sending a batch
-    long timeout = 1000L; // milliseconds to wait before sending
-    int numThreads = 10;
-    File directory = new File(getDirectory());
-    String pattern = getPattern();
-
-    UcdClient<AuthorizationLabel> client = createUcdClient();
-    client.initializeTables();
-    BatchWriter writer = client.getConnection().createBatchWriter(Artifact.TABLE_NAME, memBuf, timeout, numThreads);
-
-    IOFileFilter fileFilter = new WildcardFileFilter(pattern);
-    IOFileFilter directoryFilter = TrueFileFilter.INSTANCE;
-    Iterator<File> fileIterator = FileUtils.iterateFiles(directory, fileFilter, directoryFilter);
-
-    while (fileIterator.hasNext()) {
-      File f = fileIterator.next();
-      if (f.isFile()) {
-        writeFile(writer, f);
-      }
+    public static void main(String[] args) throws Exception {
+        int res = ToolRunner.run(CachedConfiguration.getInstance(), new FileImport(), args);
+        if (res != 0) {
+            System.exit(res);
+        }
     }
 
-    writer.close();
-    client.close();
-    return 0;
-  }
+    @Override
+    protected void processOptions(CommandLine cmd) {
+        super.processOptions(cmd);
+        this.directory = cmd.getOptionValue("directory");
+        if (cmd.hasOption("pattern")) {
+            this.pattern = cmd.getOptionValue("pattern");
+        } else {
+            this.pattern = "*";
+        }
+    }
 
-  private void writeFile(BatchWriter writer, File file) throws IOException, MutationsRejectedException {
-    byte[] data = FileUtils.readFileToByteArray(file);
+    @Override
+    protected Options getOptions() {
+        Options options = super.getOptions();
 
-    ArtifactContent artifactContent = ArtifactContent.newBuilder()
-        .security("U") // TODO configurable?
-        .docArtifactBytes(data)
-        .build();
-    ArtifactGenericMetadata artifactGenericMetadata = ArtifactGenericMetadata.newBuilder()
-        .fileName(FilenameUtils.getBaseName(file.getName()))
-        .fileExtension(FilenameUtils.getExtension(file.getName()))
-        .fileSize(data.length)
-        .fileTimestamp(file.lastModified())
-        .build();
-    Artifact artifact = Artifact.newBuilder()
-        .artifactContent(artifactContent)
-        .artifactGenericMetadata(artifactGenericMetadata)
-        .build();
-    System.out.println("Writing artifact: " + artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension() + " (rowId: " + artifact.getKey().toString() + ")");
-    writer.addMutation(artifact.getMutation());
-  }
+        options.addOption(
+                OptionBuilder
+                        .withArgName("d")
+                        .withLongOpt("directory")
+                        .withDescription("The directory to import")
+                        .isRequired()
+                        .hasArg(true)
+                        .withArgName("path")
+                        .create()
+        );
 
-  public String getDirectory() {
-    return directory;
-  }
+        options.addOption(
+                OptionBuilder
+                        .withArgName("p")
+                        .withLongOpt("pattern")
+                        .withDescription("The pattern to match files against")
+                        .withArgName("pattern")
+                        .create()
+        );
 
-  public String getPattern() {
-    return pattern;
-  }
+        return options;
+    }
+
+    @Override
+    protected int run(CommandLine cmd) throws Exception {
+        File directory = new File(getDirectory());
+        String pattern = getPattern();
+
+        RedDawnSession redDawnSession = createRedDawnSession();
+        redDawnSession.getModelSession().initializeTables();
+
+        IOFileFilter fileFilter = new WildcardFileFilter(pattern);
+        IOFileFilter directoryFilter = TrueFileFilter.INSTANCE;
+        Iterator<File> fileIterator = FileUtils.iterateFiles(directory, fileFilter, directoryFilter);
+
+        while (fileIterator.hasNext()) {
+            File f = fileIterator.next();
+            if (f.isFile()) {
+                writeFile(redDawnSession, f);
+            }
+        }
+
+        redDawnSession.close();
+        return 0;
+    }
+
+    private void writeFile(RedDawnSession redDawnSession, File file) throws IOException, MutationsRejectedException {
+        byte[] data = FileUtils.readFileToByteArray(file);
+
+        Artifact artifact = new Artifact();
+        artifact.getContent()
+                .setSecurity("U") // TODO configurable?
+                .setDocArtifactBytes(data);
+        artifact.getGenericMetadata()
+                .setFileName(FilenameUtils.getBaseName(file.getName()))
+                .setFileExtension(FilenameUtils.getExtension(file.getName()))
+                .setFileSize((long) data.length)
+                .setFileTimestamp(file.lastModified());
+
+        LOGGER.info("Writing artifact: " + artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension() + " (rowId: " + artifact.getRowKey().toString() + ")");
+        artifactRepository.save(redDawnSession.getModelSession(), artifact);
+    }
+
+    public String getDirectory() {
+        return directory;
+    }
+
+    public String getPattern() {
+        return pattern;
+    }
 }

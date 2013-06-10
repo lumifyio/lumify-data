@@ -1,21 +1,26 @@
 package com.altamiracorp.reddawn;
 
-import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
-import com.altamiracorp.reddawn.ucd.inputFormats.UCDArtifactInputFormat;
-import com.altamiracorp.reddawn.ucd.model.Term;
-import com.altamiracorp.reddawn.ucd.outputFormats.UCDOutputFormat;
+import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
+import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
+import com.altamiracorp.reddawn.model.AccumuloSession;
+import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
+import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.Tool;
 
-public abstract class ConfigurableMapJobBase extends UcdCommandLineBase implements Tool {
+import java.util.Map;
+import java.util.Properties;
 
+public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase implements Tool {
     private Class clazz;
     private String[] config;
 
@@ -23,16 +28,18 @@ public abstract class ConfigurableMapJobBase extends UcdCommandLineBase implemen
     protected Options getOptions() {
         Options options = super.getOptions();
 
-        options.addOption(
-                OptionBuilder
-                        .withArgName("c")
-                        .withLongOpt("classname")
-                        .withDescription("The class to run")
-                        .withArgName("name")
-                        .isRequired()
-                        .hasArg()
-                        .create()
-        );
+        if (hasConfigurableClassname()) {
+            options.addOption(
+                    OptionBuilder
+                            .withArgName("c")
+                            .withLongOpt("classname")
+                            .withDescription("The class to run")
+                            .withArgName("name")
+                            .isRequired()
+                            .hasArg()
+                            .create()
+            );
+        }
 
         options.addOption(
                 OptionBuilder
@@ -51,21 +58,32 @@ public abstract class ConfigurableMapJobBase extends UcdCommandLineBase implemen
     protected void processOptions(CommandLine cmd) {
         super.processOptions(cmd);
 
-        String pluginClassName = cmd.getOptionValue("classname");
-        if (pluginClassName == null) {
-            throw new RuntimeException("'class' parameter is required");
+        if (hasConfigurableClassname()) {
+            String pluginClassName = cmd.getOptionValue("classname");
+            if (pluginClassName == null) {
+                throw new RuntimeException("'class' parameter is required");
+            }
+            clazz = loadClass(pluginClassName);
         }
-        clazz = loadClass(pluginClassName);
+
         config = cmd.getOptionValues("config");
+    }
+
+    protected boolean hasConfigurableClassname() {
+        return true;
     }
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
         Job job = new Job(getConf(), this.getClass().getSimpleName());
+        job.getConfiguration().set(AccumuloSession.ZOOKEEPER_INSTANCE_NAME, getZookeeperInstanceName());
+        job.getConfiguration().set(AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
+        job.getConfiguration().set(AccumuloSession.USERNAME, getUsername());
+        job.getConfiguration().set(AccumuloSession.PASSWORD, new String(getPassword()));
         job.setJarByClass(this.getClass());
 
-        job.setInputFormatClass(UCDArtifactInputFormat.class);
-        UCDArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+        job.setInputFormatClass(getInputFormatClass());
+        AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
 
         if (this.config != null) {
             for (String config : this.config) {
@@ -84,15 +102,28 @@ public abstract class ConfigurableMapJobBase extends UcdCommandLineBase implemen
         if (outputFormatClass != null) {
             job.setOutputFormatClass(outputFormatClass);
         }
-        UCDOutputFormat.init(job, getUsername(), getPassword(), getZookeeperInstanceName(), getZookeeperServerNames(), Term.TABLE_NAME);
+        AccumuloModelOutputFormat.init(job, getUsername(), getPassword(), getZookeeperInstanceName(), getZookeeperServerNames(), Term.TABLE_NAME);
 
         job.waitForCompletion(true);
         return job.isSuccessful() ? 0 : 1;
     }
 
+    protected Class<? extends InputFormat> getInputFormatClass() {
+        return AccumuloArtifactInputFormat.class;
+    }
+
     protected Class<? extends OutputFormat> getOutputFormatClass() {
-        return UCDOutputFormat.class;
+        return AccumuloModelOutputFormat.class;
     }
 
     protected abstract Class<? extends Mapper> getMapperClass(Job job, Class clazz);
+
+    public static RedDawnSession createRedDawnSession(Mapper.Context context) {
+        Configuration cfg = context.getConfiguration();
+        Properties properties = new Properties();
+        for (Map.Entry<String, String> entry : cfg) {
+            properties.setProperty(entry.getKey(), entry.getValue());
+        }
+        return RedDawnSession.create(properties);
+    }
 }

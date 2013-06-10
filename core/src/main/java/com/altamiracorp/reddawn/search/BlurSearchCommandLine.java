@@ -1,6 +1,6 @@
 package com.altamiracorp.reddawn.search;
 
-import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
+import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -10,7 +10,7 @@ import org.apache.hadoop.util.ToolRunner;
 import java.util.Collection;
 import java.util.Properties;
 
-public class BlurSearchCommandLine extends UcdCommandLineBase {
+public class BlurSearchCommandLine extends RedDawnCommandLineBase {
     private Integer blurControllerPort = null;
     private String blurControllerLocation = null;
     private String blurHdfsPath = null;

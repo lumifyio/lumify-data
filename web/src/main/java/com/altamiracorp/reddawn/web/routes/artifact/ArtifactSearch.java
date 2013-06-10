@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.web.routes.artifact;
 
+import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.search.ArtifactSearchResult;
 import com.altamiracorp.reddawn.search.SearchProvider;
 import com.altamiracorp.reddawn.web.WebApp;
@@ -27,8 +28,9 @@ public class ArtifactSearch implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         String query = request.getParameter("q");
-        SearchProvider SearchProvider = app.getSearchProvider();
-        Collection<ArtifactSearchResult> artifactSearchResults = queryArtifacts(SearchProvider, query);
+        RedDawnSession session = app.getRedDawnSession(request);
+        SearchProvider searchProvider = session.getSearchProvider();
+        Collection<ArtifactSearchResult> artifactSearchResults = queryArtifacts(searchProvider, query);
         JSONObject results = new JSONObject();
         JSONArray artifactsJson = artifactsToSearchResults(artifactSearchResults, request);
         results.put("document", artifactsJson); // TODO also include video and images

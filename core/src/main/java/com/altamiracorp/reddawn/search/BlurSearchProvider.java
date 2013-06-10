@@ -1,6 +1,6 @@
 package com.altamiracorp.reddawn.search;
 
-import com.altamiracorp.reddawn.ucd.model.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import org.apache.blur.thirdparty.thrift_0_9_0.TException;
 import org.apache.blur.thirdparty.thrift_0_9_0.protocol.TBinaryProtocol;
 import org.apache.blur.thirdparty.thrift_0_9_0.protocol.TProtocol;
@@ -35,12 +35,16 @@ public class BlurSearchProvider implements SearchProvider {
         init(blurControllerLocation, blurControllerPort, blurPath);
     }
 
-    public void setup(Properties props) throws Exception {
+    public void setup(Properties props) {
         String blurControllerLocation = props.getProperty(BLUR_CONTROLLER_LOCATION, "192.168.33.10");
         int blurControllerPort = Integer.parseInt(props.getProperty(BLUR_CONTROLLER_PORT, "40020"));
         String blurPath = props.getProperty(BLUR_PATH, "hdfs://192.168.33.10/blur");
 
-        init(blurControllerLocation, blurControllerPort, blurPath);
+        try {
+            init(blurControllerLocation, blurControllerPort, blurPath);
+        } catch (TException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void init(String blurControllerLocation, int blurControllerPort, String blurPath) throws TException {
@@ -54,11 +58,15 @@ public class BlurSearchProvider implements SearchProvider {
     }
 
     private void createTables(String blurPath) throws TException {
+        LOGGER.info("Creating blur tables");
         AnalyzerDefinition ad = new AnalyzerDefinition();
         List<String> tableList = this.client.tableList();
 
         if (!tableList.contains(ARTIFACT_BLUR_TABLE_NAME)) {
+            LOGGER.info("Creating blur table: " + ARTIFACT_BLUR_TABLE_NAME);
             createTable(client, blurPath, ad, ARTIFACT_BLUR_TABLE_NAME);
+        } else {
+            LOGGER.info("Skipping create blur table '" + ARTIFACT_BLUR_TABLE_NAME + "' already exists.");
         }
     }
 
@@ -78,10 +86,10 @@ public class BlurSearchProvider implements SearchProvider {
         if (artifact.getContent() == null) {
             return;
         }
-        LOGGER.info("Adding artifact \"" + artifact.getKey().toString() + "\" to full text search.");
-        String text = artifact.getContent().getDocExtractedText();
+        LOGGER.info("Adding artifact \"" + artifact.getRowKey().toString() + "\" to full text search.");
+        String text = artifact.getContent().getDocExtractedTextString();
         String subject = artifact.getGenericMetadata().getSubject();
-        String id = artifact.getKey().toString();
+        String id = artifact.getRowKey().toString();
 
         List<Column> columns = new ArrayList<Column>();
         columns.add(new Column(TEXT_COLUMN_NAME, text));

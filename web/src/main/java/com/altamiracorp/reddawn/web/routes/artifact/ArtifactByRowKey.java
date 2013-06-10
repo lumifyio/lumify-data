@@ -1,9 +1,9 @@
 package com.altamiracorp.reddawn.web.routes.artifact;
 
-import com.altamiracorp.reddawn.ucd.AuthorizationLabel;
-import com.altamiracorp.reddawn.ucd.UcdClient;
-import com.altamiracorp.reddawn.ucd.model.Artifact;
-import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
+import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.web.App;
@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class ArtifactByRowKey implements Handler, AppAware {
+    private ArtifactRepository artifactRepository = new ArtifactRepository();
     private WebApp app;
 
     public static String getUrl(HttpServletRequest request, String artifactKey) {
@@ -24,16 +25,16 @@ public class ArtifactByRowKey implements Handler, AppAware {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        UcdClient<AuthorizationLabel> client = app.getUcdClient();
-        ArtifactKey artifactKey = new ArtifactKey(UrlUtils.urlDecode((String) request.getAttribute("rowKey")));
-        Artifact artifact = client.queryArtifactByKey(artifactKey, app.getQueryUser());
+        RedDawnSession session = app.getRedDawnSession(request);
+        ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("rowKey")));
+        Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactKey.toString());
 
         if (artifact == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             response.setContentType("application/json");
-            JSONObject artifactJson = new JSONObject(artifact.toJson());
-            artifactJson.put("rawUrl", ArtifactRawByRowKey.getUrl(request, artifact.getKey()));
+            JSONObject artifactJson = artifact.toJson();
+            artifactJson.put("rawUrl", ArtifactRawByRowKey.getUrl(request, artifact.getRowKey()));
             response.getWriter().write(artifactJson.toString());
         }
 

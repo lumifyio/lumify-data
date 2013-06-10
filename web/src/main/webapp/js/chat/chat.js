@@ -1,21 +1,22 @@
 
 define([
     'flight/lib/component',
-    'users/service',
+    'service/chat',
     'tpl!./chatWindow',
     'tpl!./chatMessage'
-], function(defineComponent, UsersService, chatWindowTemplate, chatMessageTemplate) {
+], function(defineComponent, ChatService, chatWindowTemplate, chatMessageTemplate) {
     'use strict';
 
     return defineComponent(Chat);
 
     function Chat() {
-        this.usersService = new UsersService();
+        this.chatService = new ChatService();
         this.openChats = {};
         this.currentUser = null;
 
         this.defaultAttrs({
-            newMessageFormSelector: 'form.new-message'
+            newMessageFormSelector: 'form.new-message',
+            chatWindowSelector: '.chat-window'
         });
 
         this.after('initialize', function() {
@@ -35,32 +36,37 @@ define([
         this.onUserSelected = function(evt, data) {
             var chat = this.findChatByToUserId(data.userId);
             if(chat) {
-                var $message = $('#chat-window-' + chat.id + ' .message');
-                return $message.focus();
+                this.select('chatWindowSelector').hide();
+                return $('#chat-window-' + chat.id).show().find('.message').focus();
             }
 
+            data.activate = true;
             this.trigger('createChatWindow', data);
         };
 
         this.onCreateChatWindow = function(evt, user) {
             var self = this;
             var userId = user.userId;
-            this.usersService.createChat(userId, function(err, chat) {
+            this.chatService.createChat(userId, function(err, chat) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
-                return self.createOrFocusChat(chat);
+                return self.createOrFocusChat(chat, { activate: user.activate });
             });
         };
 
-        this.createOrFocusChat = function(chat) {
+        this.createOrFocusChat = function(chat, options) {
             if(!this.openChats[chat.id]) {
                 this.openChats[chat.id] = chat;
-                this.$node.append(chatWindowTemplate({ chat: chat }));
+                var dom = $(chatWindowTemplate({ chat: chat }));
+                dom.hide().appendTo(this.$node);
             }
-            var $message = $('#chat-window-' + chat.id + ' .message');
-            return $message.focus();
+
+            if (options && options.activate) {
+                this.select('chatWindowSelector').hide();
+                $('#chat-window-' + chat.id).show().find('.message').focus();
+            }
         };
 
         this.addMessage = function(chatId, message) {
@@ -101,7 +107,7 @@ define([
                 postDate: null
             });
 
-            this.usersService.sendChatMessage(chatId, message, function(err, message) {
+            this.chatService.sendChatMessage(chatId, message, function(err, message) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });

@@ -2,7 +2,7 @@
 /* cytoscape.js */
 
 /**
- * This file is part of cytoscape.js 2.0.1.
+ * This file is part of cytoscape.js 2.0.1-github-snapshot-2013.06.04-10.52.18.
  * 
  * Cytoscape.js is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by the Free
@@ -4694,10 +4694,11 @@ var cytoscape;
 			var rpos = params.renderedPosition;
 			var pan = cy.pan();
 			var zoom = cy.zoom();
+			var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
 			this._private.position = {
-				x: (rpos.x - pan.x)/zoom,
-				y: (rpos.y - pan.y)/zoom
+				x: (rpos.x * scale - pan.x)/zoom,
+				y: (rpos.y * scale - pan.y)/zoom
 			};
 		}
 		
@@ -8345,8 +8346,7 @@ var cytoscape;
 		r.registerBinding(window, "resize", function(e) { 
 			r.data.canvasNeedsRedraw[NODE] = true;
 			r.data.canvasNeedsRedraw[OVERLAY] = true;
-			r.matchCanvasSize( r.data.container );
-			r.redraw();
+			r.matchCanvasSize( r.data.container, { redraw: true } );
 		}, true);
 
 		// stop right click menu from appearing on cy
@@ -9715,6 +9715,10 @@ var cytoscape;
 		// By here, offsetLeft and offsetTop represent the "pageX/pageY" of the top-left corner of the div. So, do subtraction to find relative position.
 		x = pageX - offsetLeft; y = pageY - offsetTop;
 		
+		var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
+		x *= scale;
+		y *= scale;
+
 		x -= this.data.cy.pan().x; y -= this.data.cy.pan().y; x /= this.data.cy.zoom(); y /= this.data.cy.zoom();
 		return [x, y];
 	}
@@ -10376,19 +10380,37 @@ var cytoscape;
 	{
 	
 	// Resize canvas
-	CanvasRenderer.prototype.matchCanvasSize = function(container) {
+	var resizeTimeout;
+	CanvasRenderer.prototype.matchCanvasSize = function(container, options) {
+		clearTimeout(resizeTimeout);
+		var $this = this;
+		resizeTimeout = setTimeout(function() {
+			$this._matchCanvasSize(container, options);
+		}, 250);
+	};
+	CanvasRenderer.prototype._matchCanvasSize = function(container, options) {
 		var data = this.data; var width = container.clientWidth; var height = container.clientHeight;
 		
-		var canvas;
+		var canvas, canvasWidth = width, canvasHeight = height, redraw = options && options.redraw;
+
+		if ('devicePixelRatio' in window) {
+			canvasWidth *= devicePixelRatio;
+			canvasHeight *= devicePixelRatio;
+		}
+
 		for (var i = 0; i < CANVAS_LAYERS; i++) {
 
 			canvas = data.canvases[i];
 			
-			if (canvas.width !== width || canvas.height !== height) {
+			if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
 				
-				canvas.width = width;
-				canvas.height = height;
-			
+				canvas.width = canvasWidth;
+				canvas.height = canvasHeight;
+
+				canvas.style.width = width + 'px';
+				canvas.style.height = height + 'px';
+
+                redraw = true;
 			}
 		}
 		
@@ -10396,16 +10418,21 @@ var cytoscape;
 			
 			canvas = data.bufferCanvases[i];
 			
-			if (canvas.width !== width || canvas.height !== height) {
+			if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
 				
-				canvas.width = width;
-				canvas.height = height;
-				
+				canvas.width = canvasWidth;
+				canvas.height = canvasHeight;
+
+                redraw = true;
 			}
 		}
 
 		this.data.overlay.style.width = width + 'px';
 		this.data.overlay.style.height = height + 'px';
+
+        if ( redraw ) {
+            this.redraw( undefined, true );
+        }
 	}
 
 

@@ -4,12 +4,14 @@
 
 @background-color: #f9f9f9;
 
-width: 225px;
+width: 175px;
 background: @background-color;
 
 .navbar-search { 
   text-align: center;
   width: 100%; 
+  padding-right: 4px;
+  .box-sizing(border-box);
 }
 
 .search-query {
@@ -48,8 +50,8 @@ background: @background-color;
   ul {
     overflow: auto;
     text-align: left;
-    box-sizing: border-box;
     height: 100%;
+    .box-sizing(border-box);
   }
 
   a.ui-selecting, a.ui-selected {
