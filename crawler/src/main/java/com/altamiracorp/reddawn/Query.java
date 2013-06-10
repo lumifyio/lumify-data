@@ -16,8 +16,9 @@ public class Query
     private ArrayList<String> optionalTerms;
     private final String COUNTRY_CODE_FILE = "countryCodes.txt";
     private String rss;
+	private String subreddit;
 
-    /**
+	/**
      * Constructor initializes data structures
      */
     public Query()
@@ -27,11 +28,13 @@ public class Query
         requiredTerms = new ArrayList<String>();
         optionalTerms = new ArrayList<String>();
 		rss = "";
+		subreddit = "";
     }
 
     public Query(String query) {
         this();
 		rss = "";
+		subreddit = "";
         optionalTerms = new ArrayList(Arrays.asList(query.split(" ")));
     }
 
@@ -309,5 +312,28 @@ public class Query
 		{
 			super(message);
 		}
+	}
+
+	/**
+	 * Specifies a subreddit to limit the search to.
+	 * @param subreddit_
+	 */
+	public void setSubreddit(String subreddit_)
+	{
+		subreddit = subreddit_;
+	}
+
+	/**
+	 * Resets the engine to search all of reddit
+	 * with no restriction to a subreddit.
+	 */
+	public void clearSubreddit()
+	{
+		subreddit = "";
+	}
+
+	public String getSubreddit()
+	{
+		return subreddit;
 	}
 }
