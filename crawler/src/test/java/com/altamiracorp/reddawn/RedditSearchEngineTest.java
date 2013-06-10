@@ -22,12 +22,11 @@ public class RedditSearchEngineTest extends TestCase {
 		super.setUp();
 		Crawler crawler = new Crawler();
 		engine = new RedditSearchEngine(crawler);
-	}
+		System.out.println();
+		System.out.println();
 
-	@After
-	public void tearDown() throws Exception
-	{
-		 engine.clearSubreddit();
+		System.out.println();
+
 	}
 
 	@Test
@@ -46,7 +45,24 @@ public class RedditSearchEngineTest extends TestCase {
 		Query query = new Query();
 		query.addOptionalTerm("boston bombing");
 		int maxResults = 3;
-		engine.setSubreddit("inthenews");
+		query.setSubreddit("inthenews");
+		engine.search(query, maxResults);
+	}
+
+	@Test
+	public void testMainPageCrawl() throws Exception
+	{
+		Query query = new Query();
+		int maxResults = 3;
+		engine.search(query, maxResults);
+	}
+
+	@Test
+	public void testSubredditMainPageCrawl() throws Exception
+	{
+		Query query = new Query();
+		query.setSubreddit("inthenews");
+		int maxResults = 3;
 		engine.search(query, maxResults);
 	}
 }

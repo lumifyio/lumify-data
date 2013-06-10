@@ -5,6 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,12 +16,9 @@ import java.util.ArrayList;
  */
 public class RedditSearchEngine extends SearchEngine{
 
-	private String subreddit;
-
 	public RedditSearchEngine(Crawler crawler)
 	{
 		super(crawler);
-		subreddit = "";
 	}
 
 	/**
@@ -67,40 +65,44 @@ public class RedditSearchEngine extends SearchEngine{
 	 */
 	private String createQueryString(Query q, int maxResults)
 	{
-		String url = "";
-		if (subreddit.equals(""))
+		String url = "http://www.reddit.com/";
+		TreeMap<String, String> extraParams = new TreeMap<String, String>();
+		ArrayList<String> terms = new ArrayList<String>();
+		for (String s : q.getOptionalTerms())
 		{
-			 url =  "http://www.reddit.com/search.json?"
-			 		+ "q=" + EngineFunctions.concatenate(q.getOptionalTerms(), "+")
-			 		+ "&limit=" + maxResults;
+			terms.add(s);
 		}
-		else
+		for (String s : q.getRequiredTerms())
 		{
-			url = "http://www.reddit.com/r/" + EngineFunctions.toSlug(subreddit) + "/search.json?"
-					+ "q=" + EngineFunctions.concatenate(q.getOptionalTerms(), "+")
-					+ "&limit=" + maxResults
-					+ "&restrict_sr=true";
+			terms.add(s);
 		}
+
+		//new
+		if (terms.size() == 0) //no search
+		{
+			 if (!q.getSubreddit().equals("")) // subreddit specified
+			 {
+				  url += "r/" + q.getSubreddit() + "/";
+			 }
+			url += ".json?limit=" + maxResults;
+		}
+		else                                   //search terms specified
+		{
+			if (!q.getSubreddit().equals("")) // subreddit specified
+			{
+				url += "r/" + q.getSubreddit() + "/";
+			}
+			url += "search.json?limit=" + maxResults + "&q="
+					+ EngineFunctions.concatenate(terms, "+");
+			if (!q.getSubreddit().equals("")) // subreddit specified
+			{
+				url += "&restruct_sr=true";
+			}
+		}
+		System.out.println(url);
 		return url;
 	}
 
-	/**
-	 * Specifies a subreddit to limit the search to.
-	 * @param subreddit_
-	 */
-	public void setSubreddit(String subreddit_)
-	{
-		subreddit = subreddit_;
-	}
-
-	/**
-	 * Resets the engine to search all of reddit
-	 * with no restriction to a subreddit.
-	 */
-	public void clearSubreddit()
-	{
-		subreddit = "";
-	}
 
 	/**
 	 * Returns the Engine name as a string.
