@@ -110,7 +110,7 @@ public class GoogleNewsSearchEngine extends SearchEngine {
      */
     private TreeMap<String, String> processQuery(Query q) {
         TreeMap<String, String> queryParams = new TreeMap<String, String>();
-        queryParams.put("q", EngineFunctions.concatenate(q.getOptionalTerms(), "+"));
+        queryParams.put("q", EngineFunctions.concatenate(q.getOptionalTerms(), "+") + "+" + EngineFunctions.concatenate(q.getRequiredTerms(), "+"));
 
         return queryParams;
     }

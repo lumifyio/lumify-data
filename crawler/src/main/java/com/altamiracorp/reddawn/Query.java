@@ -15,6 +15,7 @@ public class Query
     private ArrayList<String> requiredTerms;
     private ArrayList<String> optionalTerms;
     private final String COUNTRY_CODE_FILE = "countryCodes.txt";
+    private String rss;
 
     /**
      * Constructor initializes data structures
@@ -195,6 +196,10 @@ public class Query
         optionalTerms.add(term);
     }
 
+    public void setRSSFeed(String url) {
+        rss = url;
+    }
+
     /**
      *  Gets the HashMap of search parameters (excluding search terms)
      * @return HashMap of search parameters
@@ -227,8 +232,14 @@ public class Query
         return optionalTerms;
     }
 
+    /**
+     * Gets the user-friendly query string to output to the console (or whatever)
+     *
+     * @return String representing the query performed
+     */
     public String getQueryString() {
-        return EngineFunctions.concatenate(optionalTerms, " ");
+        return EngineFunctions.concatenate(optionalTerms, " ") + ((requiredTerms.size() > 0) ? " +" + EngineFunctions.concatenate(requiredTerms, " +") : "") +
+                ((excludedTerms.size() > 0) ? " -" + EngineFunctions.concatenate(excludedTerms, " -") : "");
     }
 
 	/**

@@ -3,6 +3,8 @@ package com.altamiracorp.reddawn;
 import org.apache.commons.cli.*;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,7 +24,18 @@ public class WebCrawl {
         Crawler crawler = new Crawler(cl.getOptionValue("directory"));
 
         for(String s : cl.getOptionValue("query").split(",")) {
-            queries.add(new Query(s.trim()));
+            Map<String, ArrayList<String>> queryTerms = parseQuery(s.trim());
+            Query q = new Query();
+
+            for(String type : queryTerms.keySet()) {
+                for(String term : queryTerms.get(type)) {
+                    if(type.equals("optional")) q.addOptionalTerm(term);
+                    else if(type.equals("excluded")) q.addExcludedTerm(term);
+                    else if(type.equals("required")) q.addRequiredTerm(term);
+                }
+            }
+
+            queries.add(q);
         }
 
         int results = 0;
@@ -110,5 +123,26 @@ public class WebCrawl {
 
         return options;
     }
-}
 
+    /**
+     * Parses a single query for required, excluded and optional terms (mark required terms with +<term> and excluded with -<term>
+     *
+     * @param query The query string to parse
+     * @return Map of type to an ArrayList of terms that match it.  Entries are "optional", "excluded", and "required"
+     */
+    public static Map<String, ArrayList<String>> parseQuery(String query) {
+        Map<String, ArrayList<String>> params = new TreeMap<String, ArrayList<String>>();
+        params.put("optional", new ArrayList<String>());
+        params.put("required", new ArrayList<String>());
+        params.put("excluded", new ArrayList<String>());
+
+        // Gets and returns each term in the query (assumes space-separated terms)
+        for(String term : query.split(" ")) {
+            if(term.charAt(0) == '+') params.get("required").add(term.substring(1));
+            else if(term.charAt(0) == '-') params.get("excluded").add(term.substring(1));
+            else params.get("optional").add(term);
+        }
+
+        return params;
+    }
+}
