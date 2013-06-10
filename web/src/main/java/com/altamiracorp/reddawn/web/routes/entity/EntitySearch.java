@@ -32,7 +32,7 @@ public class EntitySearch implements Handler, AppAware {
 
         RedDawnSession session = app.getRedDawnSession(request);
 
-        List<Term> terms = termRepository.findByRowStartsWith(session.getModelSession(), query);
+        List<Term> terms = termRepository.findByRowStartsWith(session.getModelSession(), query.toLowerCase());
 
         JSONObject termsJson = termsToSearchResults(terms, request);
 
