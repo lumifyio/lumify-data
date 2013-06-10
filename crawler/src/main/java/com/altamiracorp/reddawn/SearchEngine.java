@@ -88,4 +88,13 @@ public abstract class SearchEngine {
     public ArrayList<Integer> getMaxResultQueue() {
         return maxResultQueue;
     }
+
+	/**
+	 * Returns the Engine name as a string.
+	 * @return engine name
+	 */
+	public String getEngineName()
+	{
+		return this.getClass().toString();
+	}
 }

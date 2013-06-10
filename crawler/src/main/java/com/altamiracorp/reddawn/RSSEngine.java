@@ -53,4 +53,14 @@ public class RSSEngine extends SearchEngine {
 		return links;
 	}
 
+	/**
+	 * Returns the Engine name as a string.
+	 * @return engine name
+	 */
+	@Override
+	public String getEngineName()
+	{
+		return "RSS Engine";
+	}
+
 }

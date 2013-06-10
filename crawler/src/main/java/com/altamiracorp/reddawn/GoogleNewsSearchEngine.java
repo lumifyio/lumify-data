@@ -97,4 +97,14 @@ public class GoogleNewsSearchEngine extends SearchEngine {
         return queryParams;
     }
 
+	/**
+	 * Returns the Engine name as a string.
+	 * @return engine name
+	 */
+	@Override
+	public String getEngineName()
+	{
+		return "Google News Search Engine";
+	}
+
 }

@@ -101,6 +101,16 @@ public class RedditSearchEngine extends SearchEngine{
 	{
 		subreddit = "";
 	}
+
+	/**
+	 * Returns the Engine name as a string.
+	 * @return engine name
+	 */
+	@Override
+	public String getEngineName()
+	{
+		return "Reddit Search Engine";
+	}
 }
 
 
