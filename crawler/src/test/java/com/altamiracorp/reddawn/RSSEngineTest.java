@@ -27,8 +27,8 @@ public class RSSEngineTest extends TestCase {
 	public void testSearch() throws Exception {
 		Query query = new Query();
 		query.addOptionalTerm("boston bombing");
+		query.setRSSFeed("http://rss.cnn.com/rss/cnn_world.rss");
 		int maxResults = 3;
-		engine.setUrl("http://rss.cnn.com/rss/cnn_world.rss");
 		engine.search(query, maxResults);
 	}
 }

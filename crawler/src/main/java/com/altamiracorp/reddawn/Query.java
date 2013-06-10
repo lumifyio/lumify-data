@@ -26,11 +26,12 @@ public class Query
         excludedTerms = new ArrayList<String>();
         requiredTerms = new ArrayList<String>();
         optionalTerms = new ArrayList<String>();
+		rss = "";
     }
 
     public Query(String query) {
         this();
-
+		rss = "";
         optionalTerms = new ArrayList(Arrays.asList(query.split(" ")));
     }
 
@@ -231,6 +232,15 @@ public class Query
     public ArrayList<String> getOptionalTerms() {
         return optionalTerms;
     }
+
+	/**
+	 * Gets the RSS feed url.
+	 * @return the RSS feed url
+	 */
+	public String getRss()
+	{
+		return rss;
+	}
 
     /**
      * Gets the user-friendly query string to output to the console (or whatever)

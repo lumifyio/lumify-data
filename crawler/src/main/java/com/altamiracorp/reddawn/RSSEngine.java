@@ -23,6 +23,7 @@ public class RSSEngine extends SearchEngine {
 	@Override
 	protected ArrayList<String> search(Query q, int maxResults)
 	{
+		url = q.getRss();
 		ArrayList<String> links = null;
 		if (url.equals(""))
 		{
@@ -52,8 +53,4 @@ public class RSSEngine extends SearchEngine {
 		return links;
 	}
 
-	public void setUrl(String url_)
-	{
-		url = url_;
-	}
 }
