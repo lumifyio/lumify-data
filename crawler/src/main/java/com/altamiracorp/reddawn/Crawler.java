@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn;
 
+import org.apache.commons.httpclient.HttpHost;
 import org.apache.http.*;
 import org.apache.http.Header;
 import org.apache.http.client.HttpClient;
@@ -20,7 +21,17 @@ import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.*;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.EntityUtils;
 
 /**
  * Created with IntelliJ IDEA.
@@ -66,11 +77,58 @@ public class Crawler {
 	public void processSearchResults(ArrayList<String> links, Query query) throws Exception {
 		int success = 0, error = 0;
 
-        for (String link : links ) {
-			if(processURL(link, query)) success++;
-            else error++;
+		// Try pooling connection manager
+
+		SchemeRegistry schemeRegistry = new SchemeRegistry();
+		schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
+		schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory()));
+		ClientConnectionManager connectionManager = new PoolingClientConnectionManager(schemeRegistry);
+//		connectionManager.setMaxTotal(200); //max total connection is increased to 200 (is there any upper bound?)
+//		connectionManager.setDefaultMaxPerRoute(20); //20 connections per route (also not sure why this number is used)
+//		HttpHost localhost = new HttpHost("localhost", 80); //increase connections for localhost:80 to 50
+//		connectionManager.setMaxPerRoute(new HttpRoute(localhost), 50);
+	   	HttpClient httpClient = new DefaultHttpClient(connectionManager);
+
+		//do stuff with it
+		String[] urls = new String[links.size()];
+		for (int i = 0; i < links.size(); i++)
+		{
+			urls[i] = links.get(i);
 		}
 
+		GetThread[] threads = new GetThread[urls.length];
+		for (int i = 0; i < threads.length; i++)
+		{
+			HttpGet httpGet = new HttpGet(urls[i]);
+			threads[i] = new GetThread(httpClient, httpGet);
+			System.out.println(urls[i]);
+		}
+
+		//start threads
+		for (int j = 0; j < threads.length; j++)
+		{
+			threads[j].start();
+			System.out.println("Starting:" + threads[j].getName());
+		}
+		//join the threads
+		for (int j = 0; j < threads.length; j++)
+		{
+			threads[j].join();
+			System.out.println("Joining:" + threads[j].getName());
+
+		}
+
+
+
+		//EntityUtils.consume(entity); occurs in processURL
+		httpClient.getConnectionManager().shutdown();
+
+		// end try pooling connection manager
+
+		for (String link : links ) {
+			if(processURL(link, query)) success++;
+			else error++;
+		}
         System.out.println("\033[34mSearch completed: " + success + " URL(s) successfully crawled, " + error + " URL(s) unsuccessfully crawled\033[0m");
 	}
 
@@ -123,6 +181,7 @@ public class Crawler {
 			}
 			finally
 			{
+				EntityUtils.consume(entity);
 				instream.close();
 			}
 		}
@@ -172,4 +231,34 @@ public class Crawler {
         }
         return new String(hexChars);
     }
+
+	static class GetThread extends Thread
+	{
+		private final HttpClient httpClient;
+		private final HttpContext context;
+		private final HttpGet httpget;
+
+		public GetThread(HttpClient httpClient, HttpGet httpget) {
+			this.httpClient = httpClient;
+			this.context = new BasicHttpContext();
+			this.httpget = httpget;
+		}
+
+		@Override
+		public void run() {
+			try {
+				HttpResponse response = this.httpClient.execute(this.httpget, this.context);
+				HttpEntity entity = response.getEntity();
+				if (entity != null) {
+					// do something useful with the entity
+					System.out.println("Processing: " + this.httpget.getURI());
+					//IMPORTANT! PUT CODE HERE
+				}
+				// ensure the connection gets released to the manager
+				EntityUtils.consume(entity);
+			} catch (Exception ex) {
+				this.httpget.abort();
+			}
+		}
+	}
 }
