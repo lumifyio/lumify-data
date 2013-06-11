@@ -16,6 +16,10 @@ public class StatementArtifact extends ColumnFamily {
         super(columnFamilyName);
     }
 
+    public StatementArtifact() {
+        super(null);
+    }
+
     @Override
     public String getColumnFamilyName() {
         if (super.getColumnFamilyName() == null) {
@@ -54,13 +58,36 @@ public class StatementArtifact extends ColumnFamily {
     public String getSentence() {
         return Value.toString(get(SENTENCE));
     }
-    
-    
-//ArtifactKey
-//Author
-//Date
-//ExtractorId
-//SecurityMarking
-//Sentence
+
+    public StatementArtifact setArtifactKey(String artifactKey) {
+        set(ARTIFACT_KEY, artifactKey);
+        return this;
+    }
+
+    public StatementArtifact setAuthor(String author) {
+        set(AUTHOR, author);
+        return this;
+    }
+
+    public StatementArtifact setDate(Long date) {
+        set(DATE, date);
+        return this;
+    }
+
+    public StatementArtifact setExtractorId(String extractorId) {
+        set(EXTRACTOR_ID, extractorId);
+        return this;
+    }
+
+    public StatementArtifact setSecurityMarking(String securityMarking) {
+        set(SECURITY_MARKING, securityMarking);
+        return this;
+    }
+
+    public StatementArtifact setSentence(String sentence) {
+        set(SENTENCE, sentence);
+        return this;
+    }
+
 
 }

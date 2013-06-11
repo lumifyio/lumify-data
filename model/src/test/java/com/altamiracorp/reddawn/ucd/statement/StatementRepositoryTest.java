@@ -1,10 +1,12 @@
 package com.altamiracorp.reddawn.ucd.statement;
 
-import com.altamiracorp.reddawn.model.ColumnFamily;
-import com.altamiracorp.reddawn.model.MockSession;
-import com.altamiracorp.reddawn.model.Row;
-import com.altamiracorp.reddawn.model.RowKey;
+import com.altamiracorp.reddawn.model.*;
+import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactContent;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactDynamicMetadata;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactGenericMetadata;
 import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
+import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +61,7 @@ public class StatementRepositoryTest {
 
     @Test
     public void testFindByRowKey() {
-        // SETUP
+        // ARRANGE
         Row<RowKey> row = new Row<RowKey>(Statement.TABLE_NAME, new RowKey("jim\u001FCTA\u001FPerson\u001Eurn:mil.army.dsc:schema:dataspace\u001Fknows\u001Etina\u001FCTA\u001FPerson"));
 
         ColumnFamily artifactColumnFamily = new ColumnFamily("urn:sha256:007d");
@@ -79,7 +81,7 @@ public class StatementRepositoryTest {
 
         session.tables.get(Statement.TABLE_NAME).add(row);
 
-        // DO IT
+        // ACT
 
         Statement statement = statementRepository.findByRowKey(session, "jim\u001FCTA\u001FPerson\u001Eurn:mil.army.dsc:schema:dataspace\u001Fknows\u001Etina\u001FCTA\u001FPerson");
 
@@ -99,5 +101,54 @@ public class StatementRepositoryTest {
         ColumnFamily foundExtraColumnFamily = statement.get("testExtraColumnFamily");
         assertNotNull("foundExtraColumnFamily", foundExtraColumnFamily);
         assertEquals("testExtraValue", foundExtraColumnFamily.get("testExtraColumn").toString());
+    }
+
+    @Test
+    public void testSave() {
+        // ARRANGE
+
+        StatementRowKey statementRowKey = new StatementRowKey(
+                new TermRowKey("Bob", "CTA", "Person"),
+                new PredicateRowKey("urn:mil.army.dsc:schema:dataspace", "knows"),
+                new TermRowKey("Tina", "CTA", "Person")
+        );
+        Statement statement = new Statement(statementRowKey);
+        StatementArtifact statementArtifact = new StatementArtifact()
+            .setArtifactKey("testArtifactKey")
+            .setAuthor("testAuthor")
+            .setDate(100L)
+            .setExtractorId("testExtractorId")
+            .setSecurityMarking("testSecurityMarking")
+            .setSentence("testSentence");
+
+        statement.addColumnFamily(
+                new ColumnFamily("testExtraColumnFamily")
+                        .set("testExtraColumn", "testExtraValue"));
+
+        statement.addStatementArtifact(statementArtifact);
+
+        // ACT
+
+        statementRepository.save(session, statement);
+
+        // ASSERT
+
+        assertEquals(1, session.tables.get(Statement.TABLE_NAME).size());
+        Row statementRow = session.tables.get(Statement.TABLE_NAME).get(0);
+        assertEquals("bob\u001FCTA\u001FPerson\u001Eurn:mil.army.dsc:schema:dataspace\u001Fknows\u001Etina\u001FCTA\u001FPerson", statementRow.getRowKey().toString());
+
+        assertEquals(2, statementRow.getColumnFamilies().size());
+        ColumnFamily firstColumnFamily = (ColumnFamily)statementRow.getColumnFamilies().iterator().next();
+        assertEquals("testArtifactKey", firstColumnFamily.get(StatementArtifact.ARTIFACT_KEY).toString());
+        assertEquals("testAuthor", firstColumnFamily.get(StatementArtifact.AUTHOR).toString());
+        assertEquals((Long)100L, firstColumnFamily.get(StatementArtifact.DATE).toLong());
+        assertEquals("testExtractorId", firstColumnFamily.get(StatementArtifact.EXTRACTOR_ID).toString());
+        assertEquals("testSecurityMarking", firstColumnFamily.get(StatementArtifact.SECURITY_MARKING).toString());
+        assertEquals("testSentence", firstColumnFamily.get(StatementArtifact.SENTENCE).toString());
+
+        ColumnFamily extraColumnFamily = statementRow.get("testExtraColumnFamily");
+        assertNotNull("extraColumnFamily", extraColumnFamily);
+        assertEquals(1, extraColumnFamily.getColumns().size());
+        assertEquals("testExtraValue", extraColumnFamily.get("testExtraColumn").toString());
     }
 }

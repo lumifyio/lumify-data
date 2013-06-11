@@ -1,9 +1,6 @@
 package com.altamiracorp.reddawn.ucd.statement;
 
-import com.altamiracorp.reddawn.model.Column;
-import com.altamiracorp.reddawn.model.ColumnFamily;
-import com.altamiracorp.reddawn.model.Repository;
-import com.altamiracorp.reddawn.model.Row;
+import com.altamiracorp.reddawn.model.*;
 
 import java.util.Collection;
 
@@ -35,5 +32,9 @@ public class StatementRepository extends Repository<Statement> {
     @Override
     public String getTableName() {
         return Statement.TABLE_NAME;
+    }
+
+    public void save(Session session, Statement statement) {
+        super.save(session, statement);
     }
 }

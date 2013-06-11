@@ -28,4 +28,8 @@ public class Statement extends Row<StatementRowKey> {
         return statementArtifacts;
     }
 
+    public Statement addStatementArtifact(StatementArtifact statementArtifact) {
+        this.addColumnFamily(statementArtifact);
+        return this;
+    }
 }

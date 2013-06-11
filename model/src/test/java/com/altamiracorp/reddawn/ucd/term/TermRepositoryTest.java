@@ -140,7 +140,7 @@ public class TermRepositoryTest {
 
         assertEquals(1, session.tables.get(Term.TABLE_NAME).size());
         Row row = session.tables.get(Term.TABLE_NAME).get(0);
-        assertEquals(RowKeyHelper.buildMinor("testsign", "testModelKey", "testConceptLabel"), row.getRowKey().toString());
+        assertEquals("testsign\u001FtestModelKey\u001FtestConceptLabel", row.getRowKey().toString());
 
         assertEquals(3, row.getColumnFamilies().size());
 
