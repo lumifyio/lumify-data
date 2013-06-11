@@ -98,14 +98,12 @@ public class Crawler {
 		String status = httpresponse.getStatusLine().toString();
 		String[] statusInfo = status.split(" ");
 		int statusNumber = Integer.parseInt(statusInfo[1]);
-		// System.out.println(statusNumber);
 		if (statusNumber >= 400 && statusNumber < 500)
 		{
 			System.err.println("\033[31m[Error] Page not found: " + link + "\033[0m");
 			return false;
 		}
 
-		httpHeader = httpresponse.getAllHeaders().toString();
 		for (Header s : httpresponse.getAllHeaders())
 		{
 			stringBuilder.append(s + "\n");
