@@ -1,6 +1,5 @@
 package com.altamiracorp.reddawn;
 
-import javax.swing.text.Document;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ public class RSSEngine extends SearchEngine {
 			links = EngineFunctions.parseRSS(theUrl, maxResults);
 			// Runs the results into the crawler, which processes them and writes them to the file system
 			try {
-				getCrawler().processSearchResults(links, q);
+				getCrawler().run(links, q);
 			} catch (Exception e) {
 				System.err.println("The crawler failed to crawl the result set");
 				e.printStackTrace();

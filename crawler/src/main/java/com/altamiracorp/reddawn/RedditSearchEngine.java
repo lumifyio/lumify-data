@@ -43,7 +43,7 @@ public class RedditSearchEngine extends SearchEngine {
 			return null;
 		}
 		try {
-			getCrawler().processSearchResults(results, q);
+			getCrawler().run(results, q);
 		} catch (Exception e) {
 			System.err.println("The crawler failed to crawl the result set");
 			e.printStackTrace();

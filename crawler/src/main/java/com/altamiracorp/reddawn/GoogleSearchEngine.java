@@ -4,12 +4,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.*;
 
 /**
@@ -83,7 +77,7 @@ public class GoogleSearchEngine extends SearchEngine {
         }
 
         try {
-            getCrawler().processSearchResults(links, q);
+            getCrawler().run(links, q);
         } catch (Exception e) {
             System.err.println("The crawler failed to crawl the result set");
             e.printStackTrace();

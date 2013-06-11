@@ -1,14 +1,8 @@
 package com.altamiracorp.reddawn;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.TreeMap;
 
 /**
@@ -60,7 +54,7 @@ public class GoogleNewsSearchEngine extends SearchEngine {
 
         // Runs the results into the crawler, which processes them and writes them to the file system
         try {
-            getCrawler().processSearchResults(links, q);
+            getCrawler().run(links, q);
         } catch (Exception e) {
             System.err.println("The crawler failed to crawl the result set");
             e.printStackTrace();

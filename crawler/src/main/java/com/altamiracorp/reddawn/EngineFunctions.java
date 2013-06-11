@@ -38,12 +38,10 @@ public class EngineFunctions {
      */
     public static String concatenate(ArrayList<String> list, String connector) {
         String ret = "";
-
         for(String entry : list) {
             if(ret.length() > 0) ret += connector;
             ret += entry.replace(" ", connector);
         }
-
         return ret;
     }
 

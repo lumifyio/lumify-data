@@ -35,7 +35,7 @@ public class CrawlerTest extends TestCase{
 
 		Query query = new Query();
 		query.addOptionalTerm("search");
-		crawler.processSearchResults(links, query);
+		crawler.run(links, query);
 	}
 	@Test
 	public void testRedirectLinkProcessSearchResults() throws Exception
@@ -44,7 +44,7 @@ public class CrawlerTest extends TestCase{
 		links.add("http://davidsimon.com/we-are-shocked-shocked/");
 		Query query = new Query();
 		query.addOptionalTerm("search");
-		crawler.processSearchResults(links, query);
+		crawler.run(links, query);
 	}
 
 	@Test
@@ -54,6 +54,6 @@ public class CrawlerTest extends TestCase{
 		links.add("http://www.reddit.com/a;sldkfj");
 		Query query = new Query();
 		query.addOptionalTerm("search");
-		crawler.processSearchResults(links, query);
+		crawler.run(links, query);
 	}
 }
