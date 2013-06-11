@@ -5,6 +5,7 @@ import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.source.Source;
+import com.altamiracorp.reddawn.ucd.statement.Statement;
 import com.altamiracorp.reddawn.ucd.term.Term;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public abstract class Session {
         initializeTable(Source.TABLE_NAME);
         initializeTable(Sentence.TABLE_NAME);
         initializeTable(ArtifactTermIndex.TABLE_NAME);
+        initializeTable(Statement.TABLE_NAME);
 
         initializeTable(Workspace.TABLE_NAME);
     }
@@ -48,6 +50,7 @@ public abstract class Session {
         deleteTable(Source.TABLE_NAME);
         deleteTable(Sentence.TABLE_NAME);
         deleteTable(ArtifactTermIndex.TABLE_NAME);
+        deleteTable(Statement.TABLE_NAME);
 
         deleteTable(Workspace.TABLE_NAME);
     }

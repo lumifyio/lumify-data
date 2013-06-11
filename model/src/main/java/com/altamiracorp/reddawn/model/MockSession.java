@@ -52,6 +52,7 @@ public class MockSession extends Session {
     @Override
     Row findByRowKey(String tableName, String rowKey, QueryUser queryUser) {
         List<Row> rows = this.tables.get(tableName);
+        if (rows == null) throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
         for (Row row : rows) {
             if (row.getRowKey().toString().equals(rowKey)) {
                 return row;

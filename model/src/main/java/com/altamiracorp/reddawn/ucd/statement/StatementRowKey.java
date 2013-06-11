@@ -6,7 +6,11 @@ import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 
 public class StatementRowKey extends RowKey {
-  public StatementRowKey(TermRowKey subjectRowKey, PredicateRowKey knows, TermRowKey objectRowKey) {
-      super(RowKeyHelper.buildMajor(subjectRowKey.toString(), knows.toString(), objectRowKey.toString()).toString());
-  }
+    public StatementRowKey(String rowKey) {
+        super(rowKey);
+    }
+
+    public StatementRowKey(TermRowKey subjectRowKey, PredicateRowKey knows, TermRowKey objectRowKey) {
+        super(RowKeyHelper.buildMajor(subjectRowKey.toString(), knows.toString(), objectRowKey.toString()).toString());
+    }
 }
