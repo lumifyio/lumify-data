@@ -1,5 +1,9 @@
 package com.altamiracorp.reddawn;
 
+import org.apache.http.*;
+import org.apache.http.Header;
+import org.apache.http.client.HttpClient;
+
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -11,6 +15,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+
+import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.methods.*;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 /**
  * Created with IntelliJ IDEA.
@@ -70,7 +80,6 @@ public class Crawler {
      * @return Whether or not the URL was successfully processed
 	 */
     private boolean processURL(String link, Query query) throws Exception {
-		int line = 0;
 		StringBuilder stringBuilder = new StringBuilder();
 		Timestamp currentTimestamp = getCurrentTimestamp();
 		String queryInfo = query.getQueryInfo();
@@ -82,41 +91,46 @@ public class Crawler {
 		stringBuilder.append("timeOfRetrieval: " + currentTimestamp + "\n");
 		stringBuilder.append("queryInfo: " + queryInfo + "\n");
 
-		try
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpget = new HttpGet(link);
+		HttpResponse httpresponse = httpclient.execute(httpget);
+
+		String status = httpresponse.getStatusLine().toString();
+		String[] statusInfo = status.split(" ");
+		int statusNumber = Integer.parseInt(statusInfo[1]);
+		System.out.println("Status: " + statusNumber);
+		if (statusNumber >= 400 && statusNumber < 500)
 		{
-			URL url = new URL(link);
-			URLConnection connection = url.openConnection();
-			BufferedReader in
-                = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			BufferedReader reader = new BufferedReader(in);
+			System.err.println("\033[31m[Error] Page not found: " + link + "\033[0m");
+			return false;
+		}
 
-			httpHeader = connection.getHeaderFields().toString();
-			stringBuilder.append(EngineFunctions.concatenate(new ArrayList<String>(
-                    Arrays.asList(httpHeader.replace("=", ": ").split(", "))), "\n") + "\n\n");
+		httpHeader = httpresponse.getAllHeaders().toString();
+		for (Header s : httpresponse.getAllHeaders())
+		{
+			stringBuilder.append(s + "\n");
+		}
 
-			if (reader != null)
-			{
-				while ((line = reader.read()) != -1)
+		HttpEntity entity = httpresponse.getEntity();
+		InputStream instream = null;
+		if (entity != null)
+		{
+			try {
+				instream = entity.getContent();
+				int line = 0;
+				while ((line = instream.read()) != -1)
 				{
-				   	stringBuilder.append((char) line);
+					stringBuilder.append((char)line);
 				}
-				reader.close();
 			}
-			in.close();
+			finally
+			{
+				instream.close();
+			}
 		}
-		catch (MalformedURLException e)
-		{
-			System.err.println("\033[31m[Error] Result URL is not valid: " + link + "\033[0m");
-            return false;
-		}
-		catch (java.io.IOException e)
-		{
-            System.err.println("\033[31m[Error] Could not connect to server for URL: " + link + "\033[0m");
-            return false;
-		}
-
 		fileName = getFileName(stringBuilder);
 		File file = new File(directoryPath + fileName);
+		System.out.println("Writing to: " + directoryPath + fileName);
 		fwriter = new BufferedWriter(new FileWriter(file));
 		fwriter.append(stringBuilder);
     	fwriter.flush();
