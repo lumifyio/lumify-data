@@ -17,7 +17,6 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import java.io.*;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Timestamp;
@@ -30,150 +29,53 @@ public class Crawler {
 
 	private String directoryPath;
 
-	/**
-	 * Constructor for Crawler.
-	 * Allows directoryPath to write files to to be specified.
-	 *
-	 * @param directory the directoryPath to write files to
-	 */
-	public Crawler(String directory) {
-		directoryPath = directory;
+	public Crawler(String directoryPath) {
+		this.directoryPath = directoryPath;
+		File file = new File(directoryPath);
+		if (!file.isDirectory()) {
+			throw new RuntimeException("Invalid directory provided: " + directoryPath);
+		}
 	}
 
-	/**
-	 * Default constructor for Crawler.
-	 * Sets the directoryPath to write files to to the current directoryPath where the program is being run.
-	 */
 	public Crawler() {
 		directoryPath = ".";
 	}
 
-	/**
-	 * Follows links of search results and writes content to files
-	 * in the specified or current (default) directoryPath under a file name created by hashing (MD5) the contents.
-	 * Iterates through all results.
-	 * Content format is:
-	 * contentSource: {[URL]}, timeOfRetrieval: {[Timestamp]}, queryInfo: {[query meta data]},
-	 * httpHeader: {[http header]}, content: {[html content]}
-	 *
-	 * @param links An ArrayList of Strings of URLs of search results
-	 * @param query the query that produced the results
-	 */
-	public void processSearchResults(ArrayList<String> links, Query query) throws Exception {
-		int success = 0, error = 0;
-
-		// Try pooling connection manager
-
+	public void run(ArrayList<String> links, Query query) throws Exception {
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
 		schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
 		schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory()));
 		ClientConnectionManager connectionManager = new PoolingClientConnectionManager(schemeRegistry);
-//		connectionManager.setMaxTotal(200); //max total connection is increased to 200 (is there any upper bound?)
-//		connectionManager.setDefaultMaxPerRoute(20); //20 connections per route (also not sure why this number is used)
-//		HttpHost localhost = new HttpHost("localhost", 80); //increase connections for localhost:80 to 50
-//		connectionManager.setMaxPerRoute(new HttpRoute(localhost), 50);
 		HttpClient httpClient = new DefaultHttpClient(connectionManager);
 
-		//do stuff with it
+		GetThread[] threads = createHttpConnectionThreads(links, httpClient, query);
+		runThreads(threads);
+
+		httpClient.getConnectionManager().shutdown();
+		System.out.println("\033[34mSearch completed.\033[0m");
+	}
+
+	private GetThread[] createHttpConnectionThreads(ArrayList<String> links, HttpClient httpClient, Query query) {
 		String[] urls = new String[links.size()];
 		for (int i = 0; i < links.size(); i++) {
 			urls[i] = links.get(i);
 		}
-
 		GetThread[] threads = new GetThread[urls.length];
 		for (int i = 0; i < threads.length; i++) {
 			HttpGet httpGet = new HttpGet(urls[i]);
 			threads[i] = new GetThread(httpClient, httpGet, query, directoryPath);
 		}
-
-		//start threads
-		for (int j = 0; j < threads.length; j++) {
-			threads[j].start();
-			//System.out.println("Starting:" + threads[j].getName());
-		}
-		//join the threads
-		for (int j = 0; j < threads.length; j++) {
-			threads[j].join();
-			//System.out.println("Joining:" + threads[j].getName());
-
-		}
-
-
-		//EntityUtils.consume(entity); occurs in processURL
-		httpClient.getConnectionManager().shutdown();
-
-		// end try pooling connection manager
-
-//		for (String link : links ) {
-//			if(processURL(link, query)) success++;
-//			else error++;
-//		}
-		System.out.println("\033[34mSearch completed.\033[0m");
+		return threads;
 	}
 
-//	/**
-//	 * Follows ONE URL and writes contents to file in directoryPath.
-//	 * @param link the URL to process
-//     * @return Whether or not the URL was successfully processed
-//	 */
-//    private boolean processURL(String link, Query query) throws Exception {
-//		StringBuilder stringBuilder = new StringBuilder();
-//		Timestamp currentTimestamp = getCurrentTimestamp();
-//		String queryInfo = query.getQueryInfo();
-//		String httpHeader = "";
-//		String fileName = "";
-//		BufferedWriter fwriter = null;
-//
-//		stringBuilder.append("contentSource: " + link + "\n");
-//		stringBuilder.append("timeOfRetrieval: " + currentTimestamp + "\n");
-//		stringBuilder.append("queryInfo: " + queryInfo + "\n");
-//
-//		HttpClient httpclient = new DefaultHttpClient();
-//		HttpGet httpget = new HttpGet(link);
-//		HttpResponse httpresponse = httpclient.execute(httpget);
-//
-//		String status = httpresponse.getStatusLine().toString();
-//		String[] statusInfo = status.split(" ");
-//		int statusNumber = Integer.parseInt(statusInfo[1]);
-//		if (statusNumber >= 400 && statusNumber < 500)
-//		{
-//			System.err.println("\033[31m[Error] Page not found: " + link + "\033[0m");
-//			return false;
-//		}
-//
-//		for (Header s : httpresponse.getAllHeaders())
-//		{
-//			stringBuilder.append(s + "\n");
-//		}
-//
-//		HttpEntity entity = httpresponse.getEntity();
-//		InputStream instream = null;
-//		if (entity != null)
-//		{
-//			try {
-//				instream = entity.getContent();
-//				int line = 0;
-//				while ((line = instream.read()) != -1)
-//				{
-//					stringBuilder.append((char)line);
-//				}
-//			}
-//			finally
-//			{
-//				EntityUtils.consume(entity);
-//				instream.close();
-//			}
-//		}
-//		fileName = getFileName(stringBuilder);
-//		File file = new File(directoryPath + fileName);
-//		fwriter = new BufferedWriter(new FileWriter(file));
-//		fwriter.append(stringBuilder);
-//    	fwriter.flush();
-//		fwriter.close();
-//
-//        System.out.println("Processed: " + link);
-//        return true;
-//	}
+	private void runThreads(GetThread[] threads) throws InterruptedException {
+		for (int j = 0; j < threads.length; j++) {
+			threads[j].start();
+		}
+		for (int j = 0; j < threads.length; j++) {
+			threads[j].join();
+		}
+	}
 
 	static class GetThread extends Thread {
 		private final HttpClient httpClient;
@@ -182,96 +84,36 @@ public class Crawler {
 		private Query query;
 		private String directoryPath;
 
-		public GetThread(HttpClient httpClient, HttpGet httpget, Query query_, String directoryPath_) {
+		public GetThread(HttpClient httpClient, HttpGet httpget, Query query, String directoryPath) {
 			this.httpClient = httpClient;
 			this.context = new BasicHttpContext();
 			this.httpget = httpget;
-			query = query_;
-			directoryPath = directoryPath_;
+			this.query = query;
+			this.directoryPath = directoryPath;
 		}
 
 		@Override
 		public void run() {
-			StringBuilder stringBuilder = new StringBuilder();
-			Timestamp currentTimestamp = getCurrentTimestamp();
-			String queryInfo = query.getQueryInfo();
-			String httpHeader = "";
-			String fileName = "";
-			BufferedWriter fwriter = null;
-
-			stringBuilder.append("contentSource: " + this.httpget.getURI() + "\n");
-			stringBuilder.append("timeOfRetrieval: " + currentTimestamp + "\n");
-			stringBuilder.append("queryInfo: " + queryInfo + "\n");
-
-
-			try {
-				HttpResponse response = this.httpClient.execute(this.httpget, this.context);
-				String status = response.getStatusLine().toString();
-				String[] statusInfo = status.split(" ");
-				int statusNumber = Integer.parseInt(statusInfo[1]);
-				if (statusNumber >= 400 && statusNumber < 500) {
-					System.err.println("\033[31m[Error] Page not found: " + this.httpget.getURI() + "\033[0m");
-//					return false;
-				}
-				for (Header s : response.getAllHeaders()) {
-					stringBuilder.append(s + "\n");
-				}
-
-
-				HttpEntity entity = response.getEntity();
-				InputStream instream = null;
-				if (entity != null) {
-					instream = entity.getContent();
-					int line = 0;
-					while ((line = instream.read()) != -1) {
-						stringBuilder.append((char) line);
-					}
-				}
-				// ensure the connection gets released to the manager
-				EntityUtils.consume(entity);
-				instream.close();
-
-			} catch (IOException ex) {
-				this.httpget.abort();
-				System.err.println("\033[31m[Error] Problem with Http Request on URL: " + this.httpget.getURI() + "\033[0m");
-			}
-			try {
-				fileName = getFileName(stringBuilder);
-				File file = new File(directoryPath + fileName);
-				fwriter = new BufferedWriter(new FileWriter(file));
-				fwriter.append(stringBuilder);
-				fwriter.flush();
-				fwriter.close();
-			} catch (Exception e) {
+			StringBuilder stringBuilder = getContent(this.context, this.httpget);
+			if (writeToFile(stringBuilder)) {
+				System.out.println("Processed: " + this.httpget.getURI());
+			} else {
 				System.err.println("\033[31m[Error] Problem writing file to: " + directoryPath + "\033[0m");
 			}
-			System.out.println("Processed: " + this.httpget.getURI());
 		}
 
-		/**
-		 * Helper method returns the current Timestamp
-		 *
-		 * @return the current Timestamp
-		 */
 		private Timestamp getCurrentTimestamp() {
 			Calendar calendar = Calendar.getInstance();
 			Date now = calendar.getTime();
 			return new Timestamp(now.getTime());
 		}
 
-		/**
-		 * Returns the SHA-256 hash of the content.
-		 *
-		 * @param sb the content of the page as a string builder
-		 * @return the hash as a String
-		 */
 		private String getFileName(StringBuilder sb) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 			MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 			byte[] bytesOfMessage = sb.toString().getBytes("UTF-8");
 			byte[] hash = messageDigest.digest(bytesOfMessage);
 			return bytesToHex(hash);
 		}
-
 
 		public static String bytesToHex(byte[] bytes) {
 			final char[] hexArray = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
@@ -283,6 +125,65 @@ public class Crawler {
 				hexChars[j * 2 + 1] = hexArray[v & 0x0F];
 			}
 			return new String(hexChars);
+		}
+
+		private boolean isSuccessfulConnection(HttpResponse response) {
+			String status = response.getStatusLine().toString();
+			String[] statusInfo = status.split(" ");
+			int statusNumber = Integer.parseInt(statusInfo[1]);
+			if (statusNumber >= 400 && statusNumber < 500) {
+				System.err.println("\033[31m[Error] Page not found: " + this.httpget.getURI() + "\033[0m");
+				return false;
+			}
+			return true;
+		}
+
+		private StringBuilder getContent(HttpContext httpContext, HttpGet httpGet) {
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append("contentSource: " + this.httpget.getURI() + "\n");
+			stringBuilder.append("timeOfRetrieval: " + getCurrentTimestamp() + "\n");
+			stringBuilder.append("queryInfo: " + query.getQueryInfo() + "\n");
+			try {
+				HttpResponse response = this.httpClient.execute(this.httpget, this.context);
+				if (!isSuccessfulConnection(response)) {
+					return stringBuilder;
+				}
+				for (Header s : response.getAllHeaders()) {
+					stringBuilder.append(s + "\n");
+				}
+				HttpEntity entity = response.getEntity();
+				InputStream instream = null;
+				if (entity != null) {
+					instream = entity.getContent();
+					int line = 0;
+					while ((line = instream.read()) != -1) {
+						stringBuilder.append((char) line);
+					}
+				}
+				EntityUtils.consume(entity);
+				instream.close();
+
+			} catch (IOException ex) {
+				this.httpget.abort();
+				System.err.println("\033[31m[Error] Problem with Http Request on URL: " + this.httpget.getURI() + "\033[0m");
+			}
+			return stringBuilder;
+		}
+
+		private boolean writeToFile(StringBuilder stringBuilder) {
+			String fileName = "";
+			BufferedWriter fwriter = null;
+			try {
+				fileName = getFileName(stringBuilder);
+				File file = new File(directoryPath + fileName);
+				fwriter = new BufferedWriter(new FileWriter(file));
+				fwriter.append(stringBuilder);
+				fwriter.flush();
+				fwriter.close();
+			} catch (Exception e) {
+				return false;
+			}
+			return true;
 		}
 
 	}
