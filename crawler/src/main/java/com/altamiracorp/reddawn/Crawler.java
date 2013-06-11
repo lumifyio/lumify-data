@@ -100,7 +100,7 @@ public class Crawler {
 		for (int i = 0; i < threads.length; i++)
 		{
 			HttpGet httpGet = new HttpGet(urls[i]);
-			threads[i] = new GetThread(httpClient, httpGet);
+			threads[i] = new GetThread(httpClient, httpGet, query, directoryPath);
 			System.out.println(urls[i]);
 		}
 
@@ -108,13 +108,13 @@ public class Crawler {
 		for (int j = 0; j < threads.length; j++)
 		{
 			threads[j].start();
-			System.out.println("Starting:" + threads[j].getName());
+			//System.out.println("Starting:" + threads[j].getName());
 		}
 		//join the threads
 		for (int j = 0; j < threads.length; j++)
 		{
 			threads[j].join();
-			System.out.println("Joining:" + threads[j].getName());
+			//System.out.println("Joining:" + threads[j].getName());
 
 		}
 
@@ -125,140 +125,192 @@ public class Crawler {
 
 		// end try pooling connection manager
 
-		for (String link : links ) {
-			if(processURL(link, query)) success++;
-			else error++;
-		}
-        System.out.println("\033[34mSearch completed: " + success + " URL(s) successfully crawled, " + error + " URL(s) unsuccessfully crawled\033[0m");
+//		for (String link : links ) {
+//			if(processURL(link, query)) success++;
+//			else error++;
+//		}
+        System.out.println("\033[34mSearch completed.\033[0m");
 	}
 
-	/**
-	 * Follows ONE URL and writes contents to file in directoryPath.
-	 * @param link the URL to process
-     * @return Whether or not the URL was successfully processed
-	 */
-    private boolean processURL(String link, Query query) throws Exception {
-		StringBuilder stringBuilder = new StringBuilder();
-		Timestamp currentTimestamp = getCurrentTimestamp();
-		String queryInfo = query.getQueryInfo();
-		String httpHeader = "";
-		String fileName = "";
-		BufferedWriter fwriter = null;
-
-		stringBuilder.append("contentSource: " + link + "\n");
-		stringBuilder.append("timeOfRetrieval: " + currentTimestamp + "\n");
-		stringBuilder.append("queryInfo: " + queryInfo + "\n");
-
-		HttpClient httpclient = new DefaultHttpClient();
-		HttpGet httpget = new HttpGet(link);
-		HttpResponse httpresponse = httpclient.execute(httpget);
-
-		String status = httpresponse.getStatusLine().toString();
-		String[] statusInfo = status.split(" ");
-		int statusNumber = Integer.parseInt(statusInfo[1]);
-		if (statusNumber >= 400 && statusNumber < 500)
-		{
-			System.err.println("\033[31m[Error] Page not found: " + link + "\033[0m");
-			return false;
-		}
-
-		for (Header s : httpresponse.getAllHeaders())
-		{
-			stringBuilder.append(s + "\n");
-		}
-
-		HttpEntity entity = httpresponse.getEntity();
-		InputStream instream = null;
-		if (entity != null)
-		{
-			try {
-				instream = entity.getContent();
-				int line = 0;
-				while ((line = instream.read()) != -1)
-				{
-					stringBuilder.append((char)line);
-				}
-			}
-			finally
-			{
-				EntityUtils.consume(entity);
-				instream.close();
-			}
-		}
-		fileName = getFileName(stringBuilder);
-		File file = new File(directoryPath + fileName);
-		fwriter = new BufferedWriter(new FileWriter(file));
-		fwriter.append(stringBuilder);
-    	fwriter.flush();
-		fwriter.close();
-
-        System.out.println("Processed: " + link);
-        return true;
-	}
-
-	/**
-	 * Returns the SHA-256 hash of the content.
-	 * @param sb the content of the page as a string builder
-	 * @return the hash as a String
-	 */
-	private String getFileName(StringBuilder sb) throws NoSuchAlgorithmException, UnsupportedEncodingException
-	{
-		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-		byte[] bytesOfMessage = sb.toString().getBytes("UTF-8");
-		byte[] hash = messageDigest.digest(bytesOfMessage);
-		return bytesToHex(hash);
-	}
-
-	/**
-	 * Helper method returns the current Timestamp
-	 * @return the current Timestamp
-	 */
-	private Timestamp getCurrentTimestamp()
-	{
-		Calendar calendar = Calendar.getInstance();
-		Date now = calendar.getTime();
-		return new Timestamp(now.getTime());
-	}
-
-    public static String bytesToHex(byte[] bytes) {
-        final char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-        char[] hexChars = new char[bytes.length * 2];
-        int v;
-        for ( int j = 0; j < bytes.length; j++ ) {
-            v = bytes[j] & 0xFF;
-            hexChars[j * 2] = hexArray[v >>> 4];
-            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-        }
-        return new String(hexChars);
-    }
+//	/**
+//	 * Follows ONE URL and writes contents to file in directoryPath.
+//	 * @param link the URL to process
+//     * @return Whether or not the URL was successfully processed
+//	 */
+//    private boolean processURL(String link, Query query) throws Exception {
+//		StringBuilder stringBuilder = new StringBuilder();
+//		Timestamp currentTimestamp = getCurrentTimestamp();
+//		String queryInfo = query.getQueryInfo();
+//		String httpHeader = "";
+//		String fileName = "";
+//		BufferedWriter fwriter = null;
+//
+//		stringBuilder.append("contentSource: " + link + "\n");
+//		stringBuilder.append("timeOfRetrieval: " + currentTimestamp + "\n");
+//		stringBuilder.append("queryInfo: " + queryInfo + "\n");
+//
+//		HttpClient httpclient = new DefaultHttpClient();
+//		HttpGet httpget = new HttpGet(link);
+//		HttpResponse httpresponse = httpclient.execute(httpget);
+//
+//		String status = httpresponse.getStatusLine().toString();
+//		String[] statusInfo = status.split(" ");
+//		int statusNumber = Integer.parseInt(statusInfo[1]);
+//		if (statusNumber >= 400 && statusNumber < 500)
+//		{
+//			System.err.println("\033[31m[Error] Page not found: " + link + "\033[0m");
+//			return false;
+//		}
+//
+//		for (Header s : httpresponse.getAllHeaders())
+//		{
+//			stringBuilder.append(s + "\n");
+//		}
+//
+//		HttpEntity entity = httpresponse.getEntity();
+//		InputStream instream = null;
+//		if (entity != null)
+//		{
+//			try {
+//				instream = entity.getContent();
+//				int line = 0;
+//				while ((line = instream.read()) != -1)
+//				{
+//					stringBuilder.append((char)line);
+//				}
+//			}
+//			finally
+//			{
+//				EntityUtils.consume(entity);
+//				instream.close();
+//			}
+//		}
+//		fileName = getFileName(stringBuilder);
+//		File file = new File(directoryPath + fileName);
+//		fwriter = new BufferedWriter(new FileWriter(file));
+//		fwriter.append(stringBuilder);
+//    	fwriter.flush();
+//		fwriter.close();
+//
+//        System.out.println("Processed: " + link);
+//        return true;
+//	}
 
 	static class GetThread extends Thread
 	{
 		private final HttpClient httpClient;
 		private final HttpContext context;
 		private final HttpGet httpget;
+		private Query query;
+		private String directoryPath;
 
-		public GetThread(HttpClient httpClient, HttpGet httpget) {
+		public GetThread(HttpClient httpClient, HttpGet httpget, Query query_, String directoryPath_) {
 			this.httpClient = httpClient;
 			this.context = new BasicHttpContext();
 			this.httpget = httpget;
+			query = query_;
+			directoryPath = directoryPath_;
 		}
 
 		@Override
 		public void run() {
+			StringBuilder stringBuilder = new StringBuilder();
+			Timestamp currentTimestamp = getCurrentTimestamp();
+			String queryInfo = query.getQueryInfo();
+			String httpHeader = "";
+			String fileName = "";
+			BufferedWriter fwriter = null;
+
+			stringBuilder.append("contentSource: " + this.httpget.getURI() + "\n");
+			stringBuilder.append("timeOfRetrieval: " + currentTimestamp + "\n");
+			stringBuilder.append("queryInfo: " + queryInfo + "\n");
+
+
 			try {
 				HttpResponse response = this.httpClient.execute(this.httpget, this.context);
+				String status = response.getStatusLine().toString();
+				String[] statusInfo = status.split(" ");
+				int statusNumber = Integer.parseInt(statusInfo[1]);
+				if (statusNumber >= 400 && statusNumber < 500)
+				{
+					System.err.println("\033[31m[Error] Page not found: " + this.httpget.getURI() + "\033[0m");
+//					return false;
+				}
+				for (Header s : response.getAllHeaders())
+				{
+					stringBuilder.append(s + "\n");
+				}
+
+
 				HttpEntity entity = response.getEntity();
+				InputStream instream = null;
 				if (entity != null) {
-					// do something useful with the entity
-					System.out.println("Processing: " + this.httpget.getURI());
-					//IMPORTANT! PUT CODE HERE
+					instream = entity.getContent();
+					int line = 0;
+					while ((line = instream.read()) != -1)
+					{
+						stringBuilder.append((char)line);
+					}
 				}
 				// ensure the connection gets released to the manager
 				EntityUtils.consume(entity);
-			} catch (Exception ex) {
+				instream.close();
+
+			} catch (IOException ex) {
 				this.httpget.abort();
+				System.err.println("Error: Problem with Http Request on URL: " + this.httpget.getURI());
 			}
+			try {
+				fileName = getFileName(stringBuilder);
+				File file = new File(directoryPath + fileName);
+				fwriter = new BufferedWriter(new FileWriter(file));
+				fwriter.append(stringBuilder);
+				fwriter.flush();
+				fwriter.close();
+			}
+			catch (Exception e)
+			{
+				 System.err.println("Error: Problem writing file to: " + directoryPath);
+			}
+			System.out.println("Processed: " + this.httpget.getURI());
 		}
+
+		/**
+		 * Helper method returns the current Timestamp
+		 * @return the current Timestamp
+		 */
+		private Timestamp getCurrentTimestamp()
+		{
+			Calendar calendar = Calendar.getInstance();
+			Date now = calendar.getTime();
+			return new Timestamp(now.getTime());
+		}
+
+		/**
+		 * Returns the SHA-256 hash of the content.
+		 * @param sb the content of the page as a string builder
+		 * @return the hash as a String
+		 */
+		private String getFileName(StringBuilder sb) throws NoSuchAlgorithmException, UnsupportedEncodingException
+		{
+			MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+			byte[] bytesOfMessage = sb.toString().getBytes("UTF-8");
+			byte[] hash = messageDigest.digest(bytesOfMessage);
+			return bytesToHex(hash);
+		}
+
+
+		public static String bytesToHex(byte[] bytes) {
+			final char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+			char[] hexChars = new char[bytes.length * 2];
+			int v;
+			for ( int j = 0; j < bytes.length; j++ ) {
+				v = bytes[j] & 0xFF;
+				hexChars[j * 2] = hexArray[v >>> 4];
+				hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+			}
+			return new String(hexChars);
+		}
+
 	}
 }
