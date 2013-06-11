@@ -99,7 +99,6 @@ public class RedditSearchEngine extends SearchEngine{
 				url += "&restruct_sr=true";
 			}
 		}
-		System.out.println(url);
 		return url;
 	}
 
