@@ -42,10 +42,8 @@ public class GoogleNewsSearchEngine extends SearchEngine {
     protected ArrayList<String> search(Query q, int maxResults) {
         String queryString = EngineFunctions.createQueryString(processQuery(q));
 
-        // Result Links to return
         ArrayList<String> links = new ArrayList<String>();
 
-        // Adds the result range to the query
         TreeMap<String, String> extraParams = new TreeMap<String, String>();
         extraParams.put("num", maxResults + "");
 
@@ -55,14 +53,14 @@ public class GoogleNewsSearchEngine extends SearchEngine {
             fullURL = new URL(baseURL + queryString + EngineFunctions.createQueryString(extraParams));
         } catch (MalformedURLException e) {
             System.err.println("Malformed search URL");
-            return null;
+            return links;
         }
 		URL feedURL = null;
 		links = EngineFunctions.parseRSS(fullURL, maxResults);
 
         // Runs the results into the crawler, which processes them and writes them to the file system
         try {
-            crawler.processSearchResults(links, q);
+            getCrawler().processSearchResults(links, q);
         } catch (Exception e) {
             System.err.println("The crawler failed to crawl the result set");
             e.printStackTrace();

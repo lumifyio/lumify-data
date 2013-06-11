@@ -83,7 +83,7 @@ public class GoogleSearchEngine extends SearchEngine {
         }
 
         try {
-            crawler.processSearchResults(links, q);
+            getCrawler().processSearchResults(links, q);
         } catch (Exception e) {
             System.err.println("The crawler failed to crawl the result set");
             e.printStackTrace();

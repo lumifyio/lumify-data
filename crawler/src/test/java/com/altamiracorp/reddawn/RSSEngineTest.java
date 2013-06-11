@@ -3,24 +3,23 @@ package com.altamiracorp.reddawn;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
-/**
- * Created with IntelliJ IDEA.
- * User: swoloszy
- * Date: 6/10/13
- * Time: 12:28 PM
- * To change this template use File | Settings | File Templates.
- */
-public class RSSEngineTest extends TestCase {
+import java.util.ArrayList;
+
+import static org.mockito.Mockito.*;
+
+@RunWith(JUnit4.class)
+public class RSSEngineTest {
 
 	RSSEngine engine;
+	Crawler mockCrawler;
 
 	@Before
-	public void setUp() throws Exception
-	{
-		super.setUp();
-		Crawler crawler = new Crawler();
-		engine = new RSSEngine(crawler);
+	public void setUp() throws Exception {
+		mockCrawler = mock(Crawler.class);
+		engine = new RSSEngine(mockCrawler);
 	}
 
 	@Test
@@ -30,5 +29,6 @@ public class RSSEngineTest extends TestCase {
 		query.setRSSFeed("http://rss.cnn.com/rss/cnn_world.rss");
 		int maxResults = 3;
 		engine.search(query, maxResults);
+		verify(mockCrawler).processSearchResults(any(ArrayList.class), any(Query.class));
 	}
 }

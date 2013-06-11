@@ -1,28 +1,11 @@
 package com.altamiracorp.reddawn;
 
-import org.apache.commons.httpclient.HttpHost;
-import org.apache.http.*;
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-
-import org.apache.commons.httpclient.*;
-import org.apache.commons.httpclient.methods.*;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -33,35 +16,36 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
-/**
- * Created with IntelliJ IDEA.
- * User: swoloszy
- * Date: 6/6/13
- * Time: 9:21 AM
- * To change this template use File | Settings | File Templates.
- */
+import java.io.*;
+import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+
+
 public class Crawler {
 
 	private String directoryPath;
 
 	/**
-     *  Constructor for Crawler.
-	 *  Allows directoryPath to write files to to be specified.
-	 *  @param directory_ the directoryPath to write files to
-     */
-    public Crawler(String directory_)
-    {
-	   	directoryPath = directory_;
-    }
+	 * Constructor for Crawler.
+	 * Allows directoryPath to write files to to be specified.
+	 *
+	 * @param directory the directoryPath to write files to
+	 */
+	public Crawler(String directory) {
+		directoryPath = directory;
+	}
 
 	/**
 	 * Default constructor for Crawler.
 	 * Sets the directoryPath to write files to to the current directoryPath where the program is being run.
 	 */
-	public Crawler()
-	{
-		URL location = Crawler.class.getProtectionDomain().getCodeSource().getLocation();
-		directoryPath = location.getFile();
+	public Crawler() {
+		directoryPath = ".";
 	}
 
 	/**
@@ -71,6 +55,7 @@ public class Crawler {
 	 * Content format is:
 	 * contentSource: {[URL]}, timeOfRetrieval: {[Timestamp]}, queryInfo: {[query meta data]},
 	 * httpHeader: {[http header]}, content: {[html content]}
+	 *
 	 * @param links An ArrayList of Strings of URLs of search results
 	 * @param query the query that produced the results
 	 */
@@ -87,37 +72,31 @@ public class Crawler {
 //		connectionManager.setDefaultMaxPerRoute(20); //20 connections per route (also not sure why this number is used)
 //		HttpHost localhost = new HttpHost("localhost", 80); //increase connections for localhost:80 to 50
 //		connectionManager.setMaxPerRoute(new HttpRoute(localhost), 50);
-	   	HttpClient httpClient = new DefaultHttpClient(connectionManager);
+		HttpClient httpClient = new DefaultHttpClient(connectionManager);
 
 		//do stuff with it
 		String[] urls = new String[links.size()];
-		for (int i = 0; i < links.size(); i++)
-		{
+		for (int i = 0; i < links.size(); i++) {
 			urls[i] = links.get(i);
 		}
 
 		GetThread[] threads = new GetThread[urls.length];
-		for (int i = 0; i < threads.length; i++)
-		{
+		for (int i = 0; i < threads.length; i++) {
 			HttpGet httpGet = new HttpGet(urls[i]);
 			threads[i] = new GetThread(httpClient, httpGet, query, directoryPath);
-			System.out.println(urls[i]);
 		}
 
 		//start threads
-		for (int j = 0; j < threads.length; j++)
-		{
+		for (int j = 0; j < threads.length; j++) {
 			threads[j].start();
 			//System.out.println("Starting:" + threads[j].getName());
 		}
 		//join the threads
-		for (int j = 0; j < threads.length; j++)
-		{
+		for (int j = 0; j < threads.length; j++) {
 			threads[j].join();
 			//System.out.println("Joining:" + threads[j].getName());
 
 		}
-
 
 
 		//EntityUtils.consume(entity); occurs in processURL
@@ -129,7 +108,7 @@ public class Crawler {
 //			if(processURL(link, query)) success++;
 //			else error++;
 //		}
-        System.out.println("\033[34mSearch completed.\033[0m");
+		System.out.println("\033[34mSearch completed.\033[0m");
 	}
 
 //	/**
@@ -196,8 +175,7 @@ public class Crawler {
 //        return true;
 //	}
 
-	static class GetThread extends Thread
-	{
+	static class GetThread extends Thread {
 		private final HttpClient httpClient;
 		private final HttpContext context;
 		private final HttpGet httpget;
@@ -231,13 +209,11 @@ public class Crawler {
 				String status = response.getStatusLine().toString();
 				String[] statusInfo = status.split(" ");
 				int statusNumber = Integer.parseInt(statusInfo[1]);
-				if (statusNumber >= 400 && statusNumber < 500)
-				{
+				if (statusNumber >= 400 && statusNumber < 500) {
 					System.err.println("\033[31m[Error] Page not found: " + this.httpget.getURI() + "\033[0m");
 //					return false;
 				}
-				for (Header s : response.getAllHeaders())
-				{
+				for (Header s : response.getAllHeaders()) {
 					stringBuilder.append(s + "\n");
 				}
 
@@ -247,9 +223,8 @@ public class Crawler {
 				if (entity != null) {
 					instream = entity.getContent();
 					int line = 0;
-					while ((line = instream.read()) != -1)
-					{
-						stringBuilder.append((char)line);
+					while ((line = instream.read()) != -1) {
+						stringBuilder.append((char) line);
 					}
 				}
 				// ensure the connection gets released to the manager
@@ -258,7 +233,7 @@ public class Crawler {
 
 			} catch (IOException ex) {
 				this.httpget.abort();
-				System.err.println("Error: Problem with Http Request on URL: " + this.httpget.getURI());
+				System.err.println("\033[31m[Error] Problem with Http Request on URL: " + this.httpget.getURI() + "\033[0m");
 			}
 			try {
 				fileName = getFileName(stringBuilder);
@@ -267,20 +242,18 @@ public class Crawler {
 				fwriter.append(stringBuilder);
 				fwriter.flush();
 				fwriter.close();
-			}
-			catch (Exception e)
-			{
-				 System.err.println("Error: Problem writing file to: " + directoryPath);
+			} catch (Exception e) {
+				System.err.println("\033[31m[Error] Problem writing file to: " + directoryPath + "\033[0m");
 			}
 			System.out.println("Processed: " + this.httpget.getURI());
 		}
 
 		/**
 		 * Helper method returns the current Timestamp
+		 *
 		 * @return the current Timestamp
 		 */
-		private Timestamp getCurrentTimestamp()
-		{
+		private Timestamp getCurrentTimestamp() {
 			Calendar calendar = Calendar.getInstance();
 			Date now = calendar.getTime();
 			return new Timestamp(now.getTime());
@@ -288,11 +261,11 @@ public class Crawler {
 
 		/**
 		 * Returns the SHA-256 hash of the content.
+		 *
 		 * @param sb the content of the page as a string builder
 		 * @return the hash as a String
 		 */
-		private String getFileName(StringBuilder sb) throws NoSuchAlgorithmException, UnsupportedEncodingException
-		{
+		private String getFileName(StringBuilder sb) throws NoSuchAlgorithmException, UnsupportedEncodingException {
 			MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 			byte[] bytesOfMessage = sb.toString().getBytes("UTF-8");
 			byte[] hash = messageDigest.digest(bytesOfMessage);
@@ -301,10 +274,10 @@ public class Crawler {
 
 
 		public static String bytesToHex(byte[] bytes) {
-			final char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+			final char[] hexArray = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 			char[] hexChars = new char[bytes.length * 2];
 			int v;
-			for ( int j = 0; j < bytes.length; j++ ) {
+			for (int j = 0; j < bytes.length; j++) {
 				v = bytes[j] & 0xFF;
 				hexChars[j * 2] = hexArray[v >>> 4];
 				hexChars[j * 2 + 1] = hexArray[v & 0x0F];
