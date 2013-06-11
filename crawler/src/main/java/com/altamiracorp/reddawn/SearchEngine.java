@@ -102,6 +102,6 @@ public abstract class SearchEngine {
     protected String queryHeader(Query q) {
         return "Running Query" + ((q.getQueryString().length() > 0) ? " \"" + q.getQueryString() + "\"" :
                 ((q.getRss().length() > 0) ? " URL: " + q.getRss() : "" )) + " on " + getEngineName() +
-                ((q.getSubreddit().length() > 0) ? ", subreddit " + q.getSubreddit() : "");
+                ((q.getSubreddit().length() > 0) ? ", subreddit: " + q.getSubreddit() : "");
     }
 }

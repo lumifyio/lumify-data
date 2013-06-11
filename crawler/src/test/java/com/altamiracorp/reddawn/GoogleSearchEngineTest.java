@@ -20,7 +20,6 @@ public class GoogleSearchEngineTest extends TestCase {
 
     @Before
     public void setUp() throws Exception {
-        super.setUp();
         Crawler c = new Crawler("sdf");
         engine = new GoogleSearchEngine(c);
         q1 = new Query();
@@ -29,28 +28,12 @@ public class GoogleSearchEngineTest extends TestCase {
     }
 
     @Test
-    public void testRunQuery() throws Exception {
-//        ArrayList<Integer> sizes = new ArrayList<Integer>(Arrays.asList(0,1,9,10,11,20));
-//        for(int maxResults : sizes) {
-//            ArrayList<String> result = engine.runQuery(q1, maxResults);
-//            assertNotNull("The query returned no results", result);
-//            assertEquals("The query returned " + result.size() + " results, when it should have returned " +
-//                    maxResults + "results", result.size(), maxResults);
-//        }
-    }
+	public void testSearch() {
 
-    @Test
-    public void testAddQueryToQueue() throws Exception {
-        // Properly formatted entry
-        boolean first = engine.addQueryToQueue(q1, 7);
-        assertTrue("Properly formatted queries are not added correctly", first);
-        assertEquals("Properly formatted queries are causing the queues to become unbalanced",
-                engine.getMaxResultQueue().size(), engine.getQueryQueue().size());
+	}
 
-        // Improperly formatted entry (negative result count)
-        boolean second = engine.addQueryToQueue(q1, -1);
-        assertFalse("Negative result counts are added when they shouldn't be", second);
-        assertEquals("Negative result counts are causing the queues to become unbalanced",
-                engine.getMaxResultQueue().size(), engine.getQueryQueue().size());
-    }
+	@Test
+	public void testProcessQuery() {
+
+	}
 }
