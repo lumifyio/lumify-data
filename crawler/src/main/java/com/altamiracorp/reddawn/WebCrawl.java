@@ -3,7 +3,6 @@ package com.altamiracorp.reddawn;
 import org.apache.commons.cli.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -16,45 +15,89 @@ import java.util.TreeMap;
  */
 public class WebCrawl {
 
-    public static void main(String[] args) throws Exception {
-        GnuParser parser = new GnuParser();
-        CommandLine cl = parser.parse(createOptions(), args);
+    private GnuParser parser;
+    private CommandLine cl;
+    private ArrayList<SearchEngine> engines;
+    private ArrayList<Query> queries, rssLinks, redditQueries;
+    private Crawler crawler;
+    private int results;
 
-        ArrayList<SearchEngine> engines = new ArrayList<SearchEngine>();
-        ArrayList<Query> queries = new ArrayList<Query>();
-        ArrayList<Query> rssLinks = new ArrayList<Query>();
-        ArrayList<Query> redditQueries = new ArrayList<Query>();
-        Crawler crawler = new Crawler(cl.getOptionValue("directory"));
+    public WebCrawl(String[] args) {
+        parser = new GnuParser();
 
-        for(String s : cl.getOptionValue("query").split(",")) {
-            Map<String, ArrayList<String>> queryTerms = parseQuery(s.trim());
-            Query q = new Query();
+        engines = new ArrayList<SearchEngine>();
+        queries = new ArrayList<Query>();
+        rssLinks = new ArrayList<Query>();
+        redditQueries = new ArrayList<Query>();
 
-            for(String type : queryTerms.keySet()) {
-                for(String term : queryTerms.get(type)) {
-                    if(type.equals("optional")) q.addOptionalTerm(term);
-                    else if(type.equals("excluded")) q.addExcludedTerm(term);
-                    else if(type.equals("required")) q.addRequiredTerm(term);
-                }
+        results = -1;
+
+        loadCommandLine(args);
+
+        if(getQueryParam() != null) {
+            for(String s : getQueryParam().split(",")) {
+                Query search = addSearchQuery(s);
+                addRedditQueries(search);
             }
+        } else {
+            addRedditQueries(new Query());
+        }
 
-            queries.add(q);
+        addRSSLinks();
+        setResultCount();
+        addEngines();
+    }
 
-            // Checks for subreddits and sets information accordingly
-            String subreddits = cl.getOptionValue("subreddit");
+    public static void main(String[] args) throws Exception {
+        WebCrawl driver = new WebCrawl(args);
+        driver.run();
+    }
 
-            if(subreddits != null) {
-                for(String subreddit : subreddits.split(",")) {
-                    Query redditQ = q.clone();
-                    if(subreddit.trim().equals("all"))redditQ.clearSubreddit();
-                    else redditQ.setSubreddit(subreddit);
-                    redditQueries.add(redditQ);
-                }
-            } else {
-                redditQueries.add(q);
+    public void loadCommandLine(String[] args) {
+        try {
+            cl = parser.parse(createOptions(), args);
+        } catch(ParseException e) {
+            System.err.println("The options could not be parsed, please try again");
+            System.exit(1);
+        }
+
+        crawler = new Crawler(cl.getOptionValue("directory"));
+    }
+
+    public Query addSearchQuery(String queryString) {
+        Map<String, ArrayList<String>> queryTerms = parseQuery(queryString.trim());
+        Query q = new Query();
+
+        for(String type : queryTerms.keySet()) {
+            for(String term : queryTerms.get(type)) {
+                if(type.equals("optional")) q.addOptionalTerm(term);
+                else if(type.equals("excluded")) q.addExcludedTerm(term);
+                else if(type.equals("required")) q.addRequiredTerm(term);
             }
         }
 
+        queries.add(q);
+
+        return q;
+    }
+
+    public void addRedditQueries(Query q) {
+        // Checks for subreddits and sets information accordingly
+        String subreddits = cl.getOptionValue("subreddit");
+
+        if(subreddits != null) {
+            for(String subreddit : subreddits.split(",")) {
+                Query redditQ = q.clone();
+                if(subreddit.trim().equals("all"))redditQ.clearSubreddit();
+                else redditQ.setSubreddit(subreddit);
+                redditQueries.add(redditQ);
+            }
+        } else {
+            redditQueries.add(q);
+        }
+    }
+
+    public void addRSSLinks() {
         if(cl.getOptionValue("rss") != null) {
             for(String feed : cl.getOptionValue("rss").split(",")) {
                 Query rssFeed = new Query();
@@ -62,16 +105,9 @@ public class WebCrawl {
                 rssLinks.add(rssFeed);
             }
         }
+    }
 
-        int results = -1;
-        try {
-            String countParam = cl.getOptionValue("result-count");
-            if(countParam != null) results = Integer.parseInt(countParam);
-        } catch (NumberFormatException e) {
-            System.err.println("[WebCrawl] --result-count must be a valid number");
-            System.exit(1);
-        }
-
+    public void addEngines() {
         // Adds engines based on the provider option
         ArrayList<String> enginesAdded = new ArrayList<String>();
         for(String s : cl.getOptionValue("provider").split(",")) {
@@ -100,9 +136,25 @@ public class WebCrawl {
                 enginesAdded.add(trimmed.toLowerCase());
             }
         }
+    }
 
+    public void setResultCount() {
+        try {
+            String countParam = cl.getOptionValue("result-count");
+            if(countParam != null) results = Integer.parseInt(countParam);
+        } catch (NumberFormatException e) {
+            System.err.println("[WebCrawl] --result-count must be a valid number");
+            System.exit(1);
+        }
+    }
+
+    public void run() {
         // Runs queries on the search engine
         for(SearchEngine engine : engines) engine.runQueue();
+    }
+
+    public String getQueryParam() {
+        return cl.getOptionValue("query");
     }
 
     /**
