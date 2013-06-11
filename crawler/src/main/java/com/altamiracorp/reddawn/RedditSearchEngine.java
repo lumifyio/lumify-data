@@ -33,7 +33,7 @@ public class RedditSearchEngine extends SearchEngine {
 		String queryUrl = createQueryString(q, maxResults); // TO DO ADD OTHER SEARCH PARAMETERS INCLUDING MAX COUNT AKA LIMIT
 
 		try {
-			JSONObject resultsJSON = new JSONObject(EngineFunctions.searchWithGetRequest(queryUrl));
+			JSONObject resultsJSON = new JSONObject(EngineFunctions.getWebpage(queryUrl));
 			JSONArray childrenEntries = resultsJSON.getJSONObject("data").getJSONArray("children");
 			for (int i = 0; i < maxResults; i++) {
 				results.add(childrenEntries.getJSONObject(i).getJSONObject("data").getString("url"));
@@ -43,7 +43,7 @@ public class RedditSearchEngine extends SearchEngine {
 			return null;
 		}
 		try {
-			getCrawler().run(results, q);
+			getCrawler().crawl(results, q);
 		} catch (Exception e) {
 			System.err.println("The crawler failed to crawl the result set");
 			e.printStackTrace();
@@ -54,7 +54,7 @@ public class RedditSearchEngine extends SearchEngine {
 
 	/**
 	 * Creates a string containing the query parameters
-	 * formatted as the search URL to be run.
+	 * formatted as the search URL to be crawl.
 	 *
 	 * @param q the query to be processed
 	 * @return the string representing the query

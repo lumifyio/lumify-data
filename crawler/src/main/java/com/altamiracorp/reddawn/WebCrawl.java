@@ -38,7 +38,7 @@ public class WebCrawl {
 	}
 
 	/**
-	 * Constructs a driver and loads in all of the necessary information. After this it is ready to run
+	 * Constructs a driver and loads in all of the necessary information. After this it is ready to crawl
 	 *
 	 * @param args command line arguments passed into the main method
 	 */

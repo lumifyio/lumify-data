@@ -1,139 +1,65 @@
 package com.altamiracorp.reddawn;
 
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
-/**
- * Created with IntelliJ IDEA.
- * User: swoloszy
- * Date: 6/5/13
- * Time: 5:20 PM
- * To change this template use File | Settings | File Templates.
- */
-public class QueryTest extends TestCase {
-    Query q;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        q = new Query();
-    }
+@RunWith(JUnit4.class)
+public class QueryTest {
+	Query q;
 
-    @Test
-    public void createQuery() throws Exception {
-        assertNotNull(q);
-        assertNotNull(q.getOptionalTerms());
-        assertNotNull(q.getRequiredTerms());
-        assertNotNull(q.getExcludedTerms());
-        assertNotNull(q.getSearchItems());
-    }
-
-    @Test
-    public void testAddExcludedTerm() throws Exception {
-        q.addExcludedTerm("excluded1");
-        q.addExcludedTerm("excluded2");
-        assertTrue(q.getExcludedTerms().contains("excluded1"));
-        assertTrue(q.getExcludedTerms().contains("excluded2"));
-    }
-
-    @Test
-    public void testAddRequiredTerm() throws Exception {
-        q.addExcludedTerm("required1");
-        q.addExcludedTerm("required2");
-        assertTrue(q.getExcludedTerms().contains("required1"));
-        assertTrue(q.getExcludedTerms().contains("required2"));
-    }
-
-    @Test
-    public void testAddOptionalTerm() throws Exception {
-        q.addExcludedTerm("optional1");
-        q.addExcludedTerm("optional2");
-        assertTrue(q.getExcludedTerms().contains("optional1"));
-        assertTrue(q.getExcludedTerms().contains("optional2"));
-    }
-
-    @Test
-    public void testGetSearchItems() throws Exception {
-        assertNotNull(q.getSearchItems());
-    }
-
-    @Test
-    public void testGetExcludedTerms() throws Exception {
-        assertNotNull(q.getExcludedTerms());
-    }
-
-    @Test
-    public void testGetRequiredTerms() throws Exception {
-        assertNotNull(q.getRequiredTerms());
-    }
-
-    @Test
-    public void testGetOptionalTerms() throws Exception {
-        assertNotNull(q.getOptionalTerms());
-    }
-
-    @Test
-    public void testSetStartDate() {
-        assertFalse(q.setStartDate("Monday"));
-        assertTrue(q.setStartDate("2013-06-06"));
-    }
-    @Test
-     public void testSetEndDate() {
-        assertFalse(q.setStartDate("Friday"));
-        assertFalse(q.setStartDate("06.06.2013"));
-        assertTrue(q.setStartDate("2013-07-06"));
-    }
-
-    @Test
-    public void testSetCountry() throws Exception {
-        assertTrue(q.setCountry("af"));
-        assertTrue(q.setCountry("AF"));
-    }
-
-	@Test
-	public void testInvalideCountryCodeException()
-	{
-		try
-		{
-			q.setCountry("United States");
-		}
-		catch (Exception expected)
-		{
-			assertEquals("Country code incorrect: united states", expected.getMessage());
-		}
+	@Before
+	public void setUp() throws Exception {
+		q = new Query();
 	}
 
-    @Test
-    public void testSetLowRange()
-    {
-        assertTrue(q.setLowRange(100));
-    }
-
-    @Test
-    public void testSetHighRange()
-    {
-        assertTrue(q.setHighRange(500));
-    }
-
+	@Test
+	public void createQuery() throws Exception {
+		assertNotNull(q);
+		assertNotNull(q.getOptionalTerms());
+		assertNotNull(q.getRequiredTerms());
+		assertNotNull(q.getExcludedTerms());
+	}
 
 	@Test
-	public void testGetQueryInfo() throws Exception
-	{
+	public void testAddExcludedTerm() throws Exception {
+		q.addExcludedTerm("excluded1");
+		q.addExcludedTerm("excluded2");
+		assertTrue(q.getExcludedTerms().contains("excluded1"));
+		assertTrue(q.getExcludedTerms().contains("excluded2"));
+	}
+
+	@Test
+	public void testAddRequiredTerm() throws Exception {
+		q.addExcludedTerm("required1");
+		q.addExcludedTerm("required2");
+		assertTrue(q.getExcludedTerms().contains("required1"));
+		assertTrue(q.getExcludedTerms().contains("required2"));
+	}
+
+	@Test
+	public void testAddOptionalTerm() throws Exception {
+		q.addExcludedTerm("optional1");
+		q.addExcludedTerm("optional2");
+		assertTrue(q.getExcludedTerms().contains("optional1"));
+		assertTrue(q.getExcludedTerms().contains("optional2"));
+	}
+
+	@Test
+	public void testGetQueryInfo() throws Exception {
 		q.addOptionalTerm("optionalTerm");
 		q.addOptionalTerm("optionalTerm2");
 		q.addExcludedTerm("excludedTerm");
 		q.addRequiredTerm("requiredTerm");
-		q.setCountry("af");
-		q.setStartDate("2013-06-06");
-		q.setEndDate("2013-06-07");
-		q.setLowRange(100);
-		q.setHighRange(1000);
 		String info = q.getQueryInfo();
 		assertNotNull(info);
 		System.out.println(info);
-		assertEquals("{optional terms: {optionalTerm, optionalTerm2}, required terms: {requiredTerm}, " +
-				"excluded terms: {excludedTerm}, search options: {startDate=2013-06-06, highRange=1000, " +
-				"endDate=2013-06-07, lowRange=100, country=af}}", info);
+		assertEquals("{optionalTerms: {optionalTerm, optionalTerm2}, requiredTerms: {requiredTerm}, " +
+				"excludedTerms: {excludedTerm}}", info);
 	}
 }

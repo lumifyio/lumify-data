@@ -1,30 +1,41 @@
 package com.altamiracorp.reddawn;
 
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
-/**
- * Created with IntelliJ IDEA.
- * User: swoloszy
- * Date: 6/6/13
- * Time: 9:24 AM
- * To change this template use File | Settings | File Templates.
- */
-public class CrawlerTest extends TestCase{
-   	Crawler crawler;
+@RunWith(JUnit4.class)
+public class CrawlerTest {
+	Crawler crawler;
 
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		crawler = new Crawler();
-    }
+	}
 
 	@Test
-	public void testProcessSearchResults() throws Exception
-	{
+	public void testCrawlerValid() {
+		Crawler c = new Crawler(".");
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void testCrawlerInvalid() {
+		Crawler c = new Crawler("laiefbnaeoir;wgji;byo;");
+	}
+
+	@Test
+	public void testCreateHttpConnectionThreadsNormal() {
+		ArrayList<String> links = new ArrayList<String>();
+		links.add("http://google.com");
+
+	}
+
+	@Test
+	public void testProcessSearchResults() throws Exception {
 		ArrayList<String> links = new ArrayList<String>();
 		links.add("http://www.google.com");
 		links.add("http://www.reddit.com/");
@@ -35,25 +46,24 @@ public class CrawlerTest extends TestCase{
 
 		Query query = new Query();
 		query.addOptionalTerm("search");
-		crawler.run(links, query);
+		crawler.crawl(links, query);
 	}
+
 	@Test
-	public void testRedirectLinkProcessSearchResults() throws Exception
-	{
+	public void testRedirectLinkProcessSearchResults() throws Exception {
 		ArrayList<String> links = new ArrayList<String>();
 		links.add("http://davidsimon.com/we-are-shocked-shocked/");
 		Query query = new Query();
 		query.addOptionalTerm("search");
-		crawler.run(links, query);
+		crawler.crawl(links, query);
 	}
 
 	@Test
-	public void testBadLink() throws Exception
-	{
+	public void testBadLink() throws Exception {
 		ArrayList<String> links = new ArrayList<String>();
 		links.add("http://www.reddit.com/a;sldkfj");
 		Query query = new Query();
 		query.addOptionalTerm("search");
-		crawler.run(links, query);
+		crawler.crawl(links, query);
 	}
 }

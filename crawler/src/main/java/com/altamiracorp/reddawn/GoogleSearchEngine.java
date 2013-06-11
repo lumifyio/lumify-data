@@ -17,9 +17,6 @@ public class GoogleSearchEngine extends SearchEngine {
 
     private String baseURL;
 
-    /**
-     * Default constructor which configures authentication automatically (limit 100 free searches per day with this configuration)
-     */
     public GoogleSearchEngine(Crawler c) {
         super(c);
         baseURL = "https://www.googleapis.com/customsearch/v1?key=AIzaSyB4H5oZoRFCVsNoYUNI6nCNAMAusD1GpDY" +
@@ -27,12 +24,6 @@ public class GoogleSearchEngine extends SearchEngine {
                 "&alt=json";
     }
 
-    /**
-     * Constructor taking in search identification parameters.  Use this if you want to manually set the authentication for the query
-     *
-     * @param apiKey Google API Key
-     * @param searchEngineID Google Custom Search Engine Identifier
-     */
     public GoogleSearchEngine(Crawler c, String apiKey, String searchEngineID) {
         super(c);
         baseURL = "https://www.googleapis.com/customsearch/v1?key=" + apiKey +
@@ -53,7 +44,7 @@ public class GoogleSearchEngine extends SearchEngine {
         // Result Links to return
         ArrayList<String> links = new ArrayList<String>();
 
-        // Loops on the number of searches it needs to run to get the desired number of results
+        // Loops on the number of searches it needs to crawl to get the desired number of results
         for(int searchCount = 0; searchCount*10 < maxResults; searchCount++) {
             // Adds the result ranges to the query
             TreeMap<String, String> extraParams = new TreeMap<String, String>();
@@ -63,7 +54,7 @@ public class GoogleSearchEngine extends SearchEngine {
 
             // Get response from page and put it in a JSON object (return type should be JSON)
             try {
-                JSONObject response = new JSONObject(EngineFunctions.searchWithGetRequest(queryURL));
+                JSONObject response = new JSONObject(EngineFunctions.getWebpage(queryURL));
                 JSONArray results = response.getJSONArray("items");
 
                 for(int i = 0; i < results.length(); i++) {
@@ -77,7 +68,7 @@ public class GoogleSearchEngine extends SearchEngine {
         }
 
         try {
-            getCrawler().run(links, q);
+            getCrawler().crawl(links, q);
         } catch (Exception e) {
             System.err.println("The crawler failed to crawl the result set");
             e.printStackTrace();
@@ -104,23 +95,6 @@ public class GoogleSearchEngine extends SearchEngine {
         if(required.length() > 0) queryParams.put("exactTerms", required);
         if(excluded.length() > 0) queryParams.put("excludeTerms", excluded);
         queryParams.put("q", optional);
-
-        // Loops through the other parameters, setting key-value pairs based on the information
-        for(Map.Entry<String, String> entry : q.getSearchItems().entrySet()) {
-            String key = entry.getKey();
-            if(entry.getValue().length() > 0) {
-                if(key.equals("country")) queryParams.put("cr", "country" + entry.getValue().toUpperCase());
-                else if(key.equals("startDate")) {
-                    String[] dateParams = entry.getValue().split("-");
-                    int daysAgo = (int) ((System.currentTimeMillis() - new Date(Integer.parseInt(dateParams[0]),
-                            Integer.parseInt(dateParams[1]), Integer.parseInt(dateParams[2])).getTime())
-                            / (24 * 60 * 60 * 1000));
-                    queryParams.put("dateRestrict", "d[" + daysAgo + "]");
-                } else if(key.equals("geoLoc")) queryParams.put("gl", entry.getValue().toLowerCase());
-                else if(key.equals("lowRange")) queryParams.put("lowRange", entry.getValue());
-                else if(key.equals("highRange")) queryParams.put("highRange", entry.getValue());
-            }
-        }
 
         return queryParams;
     }

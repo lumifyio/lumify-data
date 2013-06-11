@@ -43,7 +43,7 @@ public class RSSEngine extends SearchEngine {
 			links = EngineFunctions.parseRSS(theUrl, maxResults);
 			// Runs the results into the crawler, which processes them and writes them to the file system
 			try {
-				getCrawler().run(links, q);
+				getCrawler().crawl(links, q);
 			} catch (Exception e) {
 				System.err.println("The crawler failed to crawl the result set");
 				e.printStackTrace();

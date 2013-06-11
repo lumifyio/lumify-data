@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-
 public class Crawler {
 
 	private String directoryPath;
@@ -41,7 +40,7 @@ public class Crawler {
 		directoryPath = ".";
 	}
 
-	public void run(ArrayList<String> links, Query query) throws Exception {
+	public void crawl(ArrayList<String> links, Query query) throws Exception {
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
 		schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
 		schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory()));
@@ -55,6 +54,7 @@ public class Crawler {
 		System.out.println("\033[34mSearch completed.\033[0m");
 	}
 
+	// Talked to Ryan about making this protected so we can mock it out
 	private GetThread[] createHttpConnectionThreads(ArrayList<String> links, HttpClient httpClient, Query query) {
 		String[] urls = new String[links.size()];
 		for (int i = 0; i < links.size(); i++) {

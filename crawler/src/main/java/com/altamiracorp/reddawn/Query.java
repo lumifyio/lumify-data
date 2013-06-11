@@ -66,13 +66,13 @@ public class Query {
 	public String getQueryInfo() {
 		StringBuilder info = new StringBuilder();
 		info.append("{");
-		info.append("optional terms: ");
+		info.append("optionalTerms: ");
 		info.append("{" + EngineFunctions.concatenate(optionalTerms, ", ") + "}");
 		info.append(", ");
-		info.append("required terms: ");
+		info.append("requiredTerms: ");
 		info.append("{" + EngineFunctions.concatenate(requiredTerms, ", ") + "}");
 		info.append(", ");
-		info.append("excluded terms: ");
+		info.append("excludedTerms: ");
 		info.append("{" + EngineFunctions.concatenate(excludedTerms, ", ") + "}");
 		info.append("}");
 		return info.toString();
