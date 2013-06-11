@@ -98,7 +98,7 @@ public class Crawler {
 		String status = httpresponse.getStatusLine().toString();
 		String[] statusInfo = status.split(" ");
 		int statusNumber = Integer.parseInt(statusInfo[1]);
-		System.out.println("Status: " + statusNumber);
+		// System.out.println(statusNumber);
 		if (statusNumber >= 400 && statusNumber < 500)
 		{
 			System.err.println("\033[31m[Error] Page not found: " + link + "\033[0m");
@@ -130,7 +130,6 @@ public class Crawler {
 		}
 		fileName = getFileName(stringBuilder);
 		File file = new File(directoryPath + fileName);
-		System.out.println("Writing to: " + directoryPath + fileName);
 		fwriter = new BufferedWriter(new FileWriter(file));
 		fwriter.append(stringBuilder);
     	fwriter.flush();

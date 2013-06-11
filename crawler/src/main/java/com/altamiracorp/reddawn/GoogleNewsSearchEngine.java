@@ -58,21 +58,21 @@ public class GoogleNewsSearchEngine extends SearchEngine {
             return null;
         }
 		URL feedURL = null;
-
-		for (String googleLink : EngineFunctions.parseRSS(fullURL, maxResults))
-		{
-			try{
-				feedURL = new URL(googleLink);
-			} catch(MalformedURLException e) {
-				System.err.println("Google News provided a malformed URL. Skipping...");
-				break;
-			}
-			// Splits query parameters, identifies the redirect link, and adds it to the list of links
-			for(String param : feedURL.getQuery().split("&")) {
-				String[] kvPair = param.split("=");
-				if(kvPair[0].equals("url")) links.add(kvPair[1]);
-			}
-		}
+		links = EngineFunctions.parseRSS(fullURL, maxResults);
+//		for (String googleLink : EngineFunctions.parseRSS(fullURL, maxResults))
+//		{
+//			try{
+//				feedURL = new URL(googleLink);
+//			} catch(MalformedURLException e) {
+//				System.err.println("Google News provided a malformed URL. Skipping...");
+//				break;
+//			}
+//			// Splits query parameters, identifies the redirect link, and adds it to the list of links
+//			for(String param : feedURL.getQuery().split("&")) {
+//				String[] kvPair = param.split("=");
+//				if(kvPair[0].equals("url")) links.add(kvPair[1]);
+//			}
+//		}
         // Runs the results into the crawler, which processes them and writes them to the file system
         try {
             crawler.processSearchResults(links, q);
