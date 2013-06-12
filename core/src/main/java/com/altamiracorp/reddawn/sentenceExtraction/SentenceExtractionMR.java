@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Collection;
 
-public class SentenceExtractorMR extends ConfigurableMapJobBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SentenceExtractorMR.class.getName());
+public class SentenceExtractionMR extends ConfigurableMapJobBase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SentenceExtractionMR.class.getName());
 
     @Override
     protected Class<? extends Mapper> getMapperClass(Job job, Class clazz) {
@@ -76,7 +76,7 @@ public class SentenceExtractorMR extends ConfigurableMapJobBase {
     }
 
     public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(new SentenceExtractorMR(), args);
+        int res = ToolRunner.run(new SentenceExtractionMR(), args);
         if (res != 0) {
             System.exit(res);
         }
