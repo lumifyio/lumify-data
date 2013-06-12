@@ -5,16 +5,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
+
+import static junit.framework.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 @RunWith(JUnit4.class)
 public class CrawlerTest {
 	Crawler crawler;
-
+	Crawler crawlerSpy;
+	HttpRetrievalManager mockedManager;
 	@Before
 	public void setUp() throws Exception {
 		crawler = new Crawler();
+		crawlerSpy = spy(crawler);
+		mockedManager = mock(HttpRetrievalManager.class);
+		when(crawlerSpy.createManager()).thenReturn(mockedManager);
+
 	}
 
 	@Test
@@ -28,47 +37,47 @@ public class CrawlerTest {
 	}
 
 	@Test
-	public void testCreateHttpConnectionThreadsNormal() {
-		ArrayList<String> links = new ArrayList<String>();
-		links.add("http://google.com");
+	public void testCrawlNormal() throws Exception{
+		Query mockedQuery = mock(Query.class);
+		ArrayList<String> urls = new ArrayList<String>();
+		urls.add("a;skdfj");
+		urls.add("a;al;d");
+		urls.add("a;skdfasdfj");
+		urls.add("aasd;skdfj");
+		urls.add("a;skasdfdfj");
 
-	}
+		int expectedNumofCalls = 5;
 
-	// Old tests are below. Delete them eventually.
-	// Problems with testing: no real input or output, and only one public method.
-	// Suggestions on how to test these?
-	// Should we make createHttpConnectionThread a protected (instead of private) method?
 
-	@Test
-	public void testProcessSearchResults() throws Exception {
-		ArrayList<String> links = new ArrayList<String>();
-		links.add("http://www.google.com");
-		links.add("http://www.reddit.com/");
-		links.add("http://www.cnn.com/");
-		links.add("http://abcnews.go.com/");
-		links.add("http://news.yahoo.com/");
-		links.add("http://www.fairfaxtimes.com/");
-
-		Query query = new Query();
-		query.addOptionalTerm("search");
-		crawler.crawl(links, query);
+		crawlerSpy.crawl(urls, mockedQuery);
+		verify(mockedManager, times(expectedNumofCalls)).addJob(anyString(), anyString(), anyString());
+		verify(mockedManager).shutDownWhenFinished();
 	}
 
 	@Test
-	public void testRedirectLinkProcessSearchResults() throws Exception {
-		ArrayList<String> links = new ArrayList<String>();
-		links.add("http://davidsimon.com/we-are-shocked-shocked/");
-		Query query = new Query();
-		query.addOptionalTerm("search");
-		crawler.crawl(links, query);
+	public void testCrawlEmptyUrls() throws Exception {
+		Query mockedQuery = mock(Query.class);
+		ArrayList<String> urls = new ArrayList<String>();
+		int expectedNumofCalls = 0;
+		HttpRetrievalManager mockedManager = mock(HttpRetrievalManager.class);
+
+
+		when(crawlerSpy.createManager()).thenReturn(mockedManager);
+
+		crawlerSpy.crawl(urls, mockedQuery);
+		verify(mockedManager, times(expectedNumofCalls)).addJob(anyString(), anyString(), anyString());
+		verify(mockedManager).shutDownWhenFinished();
 	}
 
 	@Test
-	public void testBadLink() throws Exception {
-		ArrayList<String> links = new ArrayList<String>();
-		links.add("http://www.reddit.com/a;sldkfj");
-		Query query = new Query();
-		query.addOptionalTerm("search");
-		crawler.crawl(links, query);
+	public void testGetHeader() {
+		Query mockedQuery = mock(Query.class);
+		when(mockedQuery.getQueryInfo()).thenReturn("queryInfo");
+		Timestamp mockedTimestamp = mock(Timestamp.class);
+		when(mockedTimestamp.toString()).thenReturn("timestamp");
+		when(crawlerSpy.getCurrentTimestamp()).thenReturn(mockedTimestamp);
+		String result = crawlerSpy.getHeader("url", mockedQuery);
+		assertEquals("contentSource: url\ntimeOfRetrieval: timestamp\nqueryInfo: queryInfo\n", result);
 	}
+
 }

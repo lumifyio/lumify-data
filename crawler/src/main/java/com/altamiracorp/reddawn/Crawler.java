@@ -1,8 +1,10 @@
 package com.altamiracorp.reddawn;
 
-import java.io.*;
+import java.io.File;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.concurrent.ArrayBlockingQueue;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -24,29 +26,31 @@ public class Crawler {
 	}
 
 	public void crawl(ArrayList<String> links, Query query) throws Exception {
-		HttpRetrievalManager manager = new HttpRetrievalManager(10, 100, 5, TimeUnit.MINUTES, new LinkedBlockingQueue<Runnable>());
-
+		HttpRetrievalManager manager = createManager();
 		for (String url : links) {
-			String header = getHeader(url,query);
+			String header = getHeader(url, query);
 			manager.addJob(url, header, directoryPath);
 		}
-		manager.shutdown();
-		manager.awaitTermination(5, TimeUnit.MINUTES);
-
+		manager.shutDownWhenFinished();
 		System.out.println("\033[34mSearch completed.\033[0m");
 	}
 
-	private String getHeader(String url, Query query) {
+	protected String getHeader(String url, Query query) {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("contentSource: " + url + "\n");
-		stringBuilder.append("timeOfRetrieval: " + EngineFunctions.getCurrentTimestamp() + "\n");
+		stringBuilder.append("timeOfRetrieval: " + getCurrentTimestamp() + "\n");
 		stringBuilder.append("queryInfo: " + query.getQueryInfo() + "\n");
 		return stringBuilder.toString();
 	}
 
+	protected HttpRetrievalManager createManager() {
+		return new HttpRetrievalManager();
+	}
 
-
-
-
+	public Timestamp getCurrentTimestamp() {
+		Calendar calendar = Calendar.getInstance();
+		Date now = calendar.getTime();
+		return new Timestamp(now.getTime());
+	}
 
 }

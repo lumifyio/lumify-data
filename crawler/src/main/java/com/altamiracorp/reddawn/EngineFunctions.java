@@ -104,11 +104,6 @@ public class EngineFunctions {
 		return links;
 	}
 
-	public static Timestamp getCurrentTimestamp() {
-		Calendar calendar = Calendar.getInstance();
-		Date now = calendar.getTime();
-		return new Timestamp(now.getTime());
-	}
 
 
 }
