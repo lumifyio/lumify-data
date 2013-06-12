@@ -5,6 +5,8 @@ import com.altamiracorp.reddawn.model.AccumuloSession;
 import com.altamiracorp.reddawn.model.Session;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.reddawn.ucd.sentence.Sentence;
+import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
 import junit.framework.Assert;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
@@ -22,15 +24,15 @@ public class StatementExtractionTest {
     @Test
     public void DoIt() throws AccumuloSecurityException, AccumuloException {
         Session session = createModelSession();
-        ArtifactRepository artifactRepository = new ArtifactRepository();
-        List<Artifact> rows = artifactRepository.findByRowStartsWith(session, "");
+        SentenceRepository sentenceRepository = new SentenceRepository();
+        List<Sentence> rows = sentenceRepository.findByRowStartsWith(session, "urn");
         assertEquals(0, rows.size());
     }
 
     private Session createModelSession() throws AccumuloException, AccumuloSecurityException {
         String zookeeperInstanceName = "reddawn";
         String zookeeperServerName = "192.168.33.10";
-        String username = "reddawn";
+        String username = "root";
         String password = "password";
         ZooKeeperInstance zooKeeperInstance = new ZooKeeperInstance(zookeeperInstanceName, zookeeperServerName);
         Connector connector = zooKeeperInstance.getConnector(username, password);

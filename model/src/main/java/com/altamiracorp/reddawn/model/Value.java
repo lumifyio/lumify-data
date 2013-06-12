@@ -4,6 +4,9 @@ public class Value {
     private final byte[] value;
 
     public Value(Object value) {
+        if (value == null) {
+            throw new NullPointerException("Value cannot be null");
+        }
         this.value = toBytes(value);
     }
 
@@ -45,8 +48,8 @@ public class Value {
 
     public Long toLong() {
         long result = 0;
-        for (int i = 0; i < this.value.length; i++) {
-            result = (result << 8) + (this.value[i] & 0xff);
+        for (byte aValue : this.value) {
+            result = (result << 8) + (aValue & 0xff);
         }
         return result;
     }
