@@ -15,8 +15,8 @@ public class SentenceRowKey extends RowKey {
     private static String buildKey(String artifactRowKey, long startOffset, long endOffset) {
         return artifactRowKey
                 + ":"
-                + StringUtils.leftPad(Long.toString(startOffset), 16, '0')
+                + StringUtils.leftPad(Long.toString(endOffset), 16, '0')
                 + ":"
-                + StringUtils.leftPad(Long.toString(endOffset), 16, '0');
+                + StringUtils.leftPad(Long.toString(startOffset), 16, '0');
     }
 }

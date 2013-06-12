@@ -23,7 +23,7 @@ public class SentenceRepositoryTest {
 
     @Test
     public void testFindByRowKey() {
-        String rowKeyString = "testArtifactId:0000000000000111:0000000000000222";
+        String rowKeyString = "testArtifactId:0000000000000222:0000000000000111";
         Row<RowKey> row = new Row<RowKey>(Sentence.TABLE_NAME, new RowKey(rowKeyString));
 
         ColumnFamily sentenceDataColumnFamily = new ColumnFamily(SentenceData.NAME);
@@ -105,7 +105,7 @@ public class SentenceRepositoryTest {
 
         assertEquals(1, session.tables.get(Sentence.TABLE_NAME).size());
         Row row = session.tables.get(Sentence.TABLE_NAME).get(0);
-        assertEquals("testArtifactId:0000000000000001:0000000000000010", row.getRowKey().toString());
+        assertEquals("testArtifactId:0000000000000010:0000000000000001", row.getRowKey().toString());
 
         assertEquals(3, row.getColumnFamilies().size());
 

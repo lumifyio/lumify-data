@@ -47,7 +47,7 @@ public class OpenNlpSentenceExtractorTest {
 
     @Test
     public void testExtractionOfTwoSentences() {
-        Artifact artifact = new Artifact("rowKey");
+        Artifact artifact = new Artifact("urn:sha256:abcd");
         artifact.getGenericMetadata().setAuthor("author");
         artifact.getContent().setSecurity("U");
         String text = "This is some text. It has two sentences.";
@@ -59,7 +59,8 @@ public class OpenNlpSentenceExtractorTest {
         Iterator<Sentence> iterator = sentences.iterator();
 
         Sentence sentence = iterator.next();
-        assertEquals("rowKey", sentence.getData().getArtifactId());
+        assertEquals("urn:sha256:abcd:0000000000000018:0000000000000000", sentence.getRowKey().toString());
+        assertEquals("urn:sha256:abcd", sentence.getData().getArtifactId());
         assertEquals(Long.valueOf(0), sentence.getData().getStart());
         assertEquals(Long.valueOf(18), sentence.getData().getEnd());
         assertEquals("This is some text.", sentence.getData().getText());
@@ -69,7 +70,7 @@ public class OpenNlpSentenceExtractorTest {
         assertEquals("U", sentence.getMetadata().getSecurityMarking());
 
         sentence = iterator.next();
-        assertEquals("rowKey", sentence.getData().getArtifactId());
+        assertEquals("urn:sha256:abcd", sentence.getData().getArtifactId());
         assertEquals(Long.valueOf(19), sentence.getData().getStart());
         assertEquals(Long.valueOf(40), sentence.getData().getEnd());
         assertEquals("It has two sentences.", sentence.getData().getText());
