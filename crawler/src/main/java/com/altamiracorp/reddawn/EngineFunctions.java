@@ -64,7 +64,6 @@ public class EngineFunctions {
 			return null;
 		}
 
-		// Connects to the internet at the queryURL
 		URLConnection connection;
 		String line;
 		StringBuilder builder = new StringBuilder();
