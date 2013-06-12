@@ -12,7 +12,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
-import ucar.nc2.dt.RadialDatasetSweep;
 
 import java.io.IOException;
 import java.io.InputStream;
