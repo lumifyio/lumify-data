@@ -19,13 +19,6 @@ public abstract class SearchEngine {
 		maxResultQueue = new ArrayList<Integer>();
 	}
 
-	/**
-	 * Adds a query and its number of results to the queue
-	 *
-	 * @param q          The query to add to the queue
-	 * @param maxResults The maximum number of results that the method should return
-	 * @return Whether or not the query was successfully added
-	 */
 	public boolean addQueryToQueue(Query q, int maxResults) {
 		if (!queryQueue.add(q)) return false;
 		if (maxResults < 0 || !maxResultQueue.add(maxResults)) {
@@ -35,35 +28,22 @@ public abstract class SearchEngine {
 		return true;
 	}
 
-	/**
-	 * Runs all of the queries entered into the engine on it
-	 *
-	 * @return List containing the result sets of links from the queries in the queue
-	 */
 	public ArrayList<ArrayList<String>> runQueue() {
 		ArrayList<ArrayList<String>> results = new ArrayList<ArrayList<String>>();
-
 		for (int i = 0; i < queryQueue.size(); i++) {
 			results.add(runQuery(queryQueue.get(i), maxResultQueue.get(i)));
 		}
-
 		return results;
 	}
 
-	/**
-	 * Takes a Query and runs it on the engine
-	 *
-	 * @param q          The query to execute
-	 * @param maxResults The maximum number of results that should be returned
-	 * @return The links to the result pages in a list
-	 */
 	public ArrayList<String> runQuery(Query q, int maxResults) {
 		System.out.println("\n\033[1m" + queryHeader(q) + "\033[0m");
 		return search(q, maxResults);
 	}
 
 	/**
-	 * Performs the query requested as a search, finding the links and passing them to the crawler to fetch
+	 * Performs the query requested as a search,
+	 * finding the links and passing them to the crawler to fetch
 	 *
 	 * @param q          The Query to execute
 	 * @param maxResults The number of results to return
@@ -87,9 +67,17 @@ public abstract class SearchEngine {
 		return this.getClass().toString();
 	}
 
-	private String queryHeader(Query q) {
-		return "Running Query" + ((q.getQueryString().length() > 0) ? " \"" + q.getQueryString() + "\"" :
-				((q.getRss().length() > 0) ? " URL: " + q.getRss() : "")) + " on " + getEngineName() +
-				((q.getSubreddit().length() > 0) ? ", subreddit: " + q.getSubreddit() : "");
+	public String queryHeader(Query q) {
+		String queryString = "";
+		if (q.getQueryString().length() > 0) {
+			queryString += " \"" + q.getQueryString() + "\"";
+		} else if (q.getRss().length() > 0) {
+			queryString += " URL: " + q.getRss();
+		}
+		String subreddit = "";
+		if((q.getSubreddit().length() > 0) ) {
+	 		subreddit += ", subreddit: " + q.getSubreddit();
+		}
+		return "Running Query" + queryString + " on " + getEngineName() + subreddit;
 	}
 }
