@@ -34,6 +34,11 @@ public class CrawlerTest {
 
 	}
 
+	// Old tests are below. Delete them eventually.
+	// Problems with testing: no real input or output, and only one public method.
+	// Suggestions on how to test these?
+	// Should we make createHttpConnectionThread a protected (instead of private) method?
+
 	@Test
 	public void testProcessSearchResults() throws Exception {
 		ArrayList<String> links = new ArrayList<String>();

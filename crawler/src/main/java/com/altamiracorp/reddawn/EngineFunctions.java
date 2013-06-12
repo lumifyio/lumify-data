@@ -49,6 +49,13 @@ public class EngineFunctions {
 		return ret;
 	}
 
+	/**
+	 * This method is intended for use by the Search Engines
+	 * in order to get the results of a search without following the links returned.
+	 * It uses URLConnection and does not follow redirects.
+	 * @param queryURL
+	 * @return
+	 */
 	public static String getWebpage(String queryURL) {
 		// Creates query URL
 		URL fullURL = null;
@@ -66,7 +73,6 @@ public class EngineFunctions {
 		BufferedReader reader;
 		try {
 			connection = fullURL.openConnection();
-			connection.addRequestProperty("Referer", "altamiracorp.com");
 			reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			while ((line = reader.readLine()) != null) {
 				builder.append(line);
