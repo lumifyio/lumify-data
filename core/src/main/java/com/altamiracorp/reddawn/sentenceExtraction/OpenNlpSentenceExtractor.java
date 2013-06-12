@@ -12,6 +12,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import ucar.nc2.dt.RadialDatasetSweep;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +52,7 @@ public class OpenNlpSentenceExtractor implements SentenceExtractor {
 
             SentenceMetadata metaData = sentence.getMetadata();
             metaData.setContentHash("Hello World!".getBytes()); // TODO: implement
-            metaData.setDate(new Date().getTime());
+            metaData.setDate(getDate().getTime());
             metaData.setExtractorId(EXTRACTOR_ID);
 
             if (artifact.getGenericMetadata().getAuthor() != null) {
@@ -70,6 +71,10 @@ public class OpenNlpSentenceExtractor implements SentenceExtractor {
 
     protected void setSentenceDetector(SentenceDetector sentenceDetector) {
         this.sentenceDetector = sentenceDetector;
+    }
+
+    protected Date getDate() {
+        return new Date();
     }
 
     protected SentenceDetector loadSentenceDetector(FileSystem fs, String pathPrefix) throws IOException {
