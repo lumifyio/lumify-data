@@ -1,19 +1,15 @@
 package com.altamiracorp.reddawn.ucd.statement;
 
-import com.altamiracorp.reddawn.model.*;
-import com.altamiracorp.reddawn.ucd.artifact.Artifact;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactContent;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactDynamicMetadata;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactGenericMetadata;
+import com.altamiracorp.reddawn.model.ColumnFamily;
+import com.altamiracorp.reddawn.model.MockSession;
+import com.altamiracorp.reddawn.model.Row;
+import com.altamiracorp.reddawn.model.RowKey;
 import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
-import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class StatementRepositoryTest {
     private MockSession session;

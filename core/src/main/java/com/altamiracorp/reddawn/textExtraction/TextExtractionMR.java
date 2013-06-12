@@ -55,6 +55,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
             }
         }
 
+        @Override
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
             try {
                 LOGGER.info("Extracting text from artifact: " + artifact.getRowKey().toString());
