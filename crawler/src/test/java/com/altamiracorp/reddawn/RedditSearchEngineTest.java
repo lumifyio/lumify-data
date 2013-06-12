@@ -1,68 +1,83 @@
 package com.altamiracorp.reddawn;
 
-import junit.framework.TestCase;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+import org.mockito.Matchers;
 
-/**
- * Created with IntelliJ IDEA.
- * User: swoloszy
- * Date: 6/7/13
- * Time: 3:32 PM
- * To change this template use File | Settings | File Templates.
- */
-public class RedditSearchEngineTest extends TestCase {
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import static junit.framework.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.*;
+
+@RunWith(JUnit4.class)
+public class RedditSearchEngineTest {
 
 	RedditSearchEngine engine;
+	Crawler mockCrawler;
 
 	@Before
-	public void setUp() throws Exception
-	{
-		super.setUp();
-		Crawler crawler = new Crawler();
-		engine = new RedditSearchEngine(crawler);
-		System.out.println();
-		System.out.println();
-
-		System.out.println();
-
+	public void setUp() throws Exception {
+		mockCrawler = mock(Crawler.class);
+		engine = new RedditSearchEngine(mockCrawler);
 	}
 
 	@Test
-	public void testGeneralSearch() throws Exception
-	{
-		Query query = new Query();
-		query.addOptionalTerm("boston bombing");
-		int maxResults = 3;
-		engine.search(query, maxResults);
-	}
-
-
-	@Test
-	public void testSubredditSearch() throws Exception
-	{
-		Query query = new Query();
-		query.addOptionalTerm("boston bombing");
-		int maxResults = 3;
-		query.setSubreddit("inthenews");
-		engine.search(query, maxResults);
+	public void testSearchValid() throws Exception {
+		RedditSearchEngine engineSpy = spy(engine);
+		doReturn("http://www.reddit.com/.json?limit=20").when(engineSpy).createQueryString(any(Query.class), anyInt());
+		engineSpy.search(mock(Query.class), 10);
+		verify(mockCrawler).crawl(Matchers.<ArrayList<String>>any(), any(Query.class));
 	}
 
 	@Test
-	public void testMainPageCrawl() throws Exception
-	{
-		Query query = new Query();
-		int maxResults = 3;
-		engine.search(query, maxResults);
+	public void testSearchInvalid() throws Exception {
+		RedditSearchEngine engineSpy = spy(engine);
+		doReturn("http://www.google.com").when(engineSpy).createQueryString(any(Query.class), anyInt());
+		ArrayList<String> results = engineSpy.search(mock(Query.class), 10);
+		verify(mockCrawler, times(0)).crawl(Matchers.<ArrayList<String>>any(), any(Query.class));
+		assertEquals("An invalid JSON response did not return an empty link set", 0, results.size());
 	}
 
 	@Test
-	public void testSubredditMainPageCrawl() throws Exception
-	{
-		Query query = new Query();
-		query.setSubreddit("inthenews");
-		int maxResults = 3;
-		engine.search(query, maxResults);
+	public void testCreateQueryStringMain() {
+		Query mockQuery = mock(Query.class);
+		when(mockQuery.getOptionalTerms()).thenReturn(new ArrayList<String>());
+		when(mockQuery.getRequiredTerms()).thenReturn(new ArrayList<String>());
+		when(mockQuery.getSubreddit()).thenReturn("");
+		assertEquals("http://www.reddit.com/.json?limit=20", engine.createQueryString(mockQuery, 20));
+	}
+
+	@Test
+	public void testCreateQueryStringMainSearch() {
+		Query mockQuery = mock(Query.class);
+		when(mockQuery.getOptionalTerms()).thenReturn(new ArrayList<String>(Arrays.asList("term1", "term2")));
+		when(mockQuery.getRequiredTerms()).thenReturn(new ArrayList<String>(Arrays.asList("requiredTerm1", "requiredTerm2")));
+		when(mockQuery.getSubreddit()).thenReturn("");
+		assertEquals("http://www.reddit.com/search.json?limit=20&q=term1+term2+requiredTerm1+requiredTerm2",
+				engine.createQueryString(mockQuery, 20));
+	}
+
+	@Test
+	public void testCreateQueryStringSubreddit() {
+		Query mockQuery = mock(Query.class);
+		when(mockQuery.getOptionalTerms()).thenReturn(new ArrayList<String>());
+		when(mockQuery.getRequiredTerms()).thenReturn(new ArrayList<String>());
+		when(mockQuery.getSubreddit()).thenReturn("inthenews");
+		assertEquals("http://www.reddit.com/r/inthenews/.json?limit=20", engine.createQueryString(mockQuery, 20));
+	}
+
+	@Test
+	public void testCreateQueryStringSubredditSearch() {
+		Query mockQuery = mock(Query.class);
+		when(mockQuery.getOptionalTerms()).thenReturn(new ArrayList<String>(Arrays.asList("term1", "term2")));
+		when(mockQuery.getRequiredTerms()).thenReturn(new ArrayList<String>(Arrays.asList("requiredTerm1", "requiredTerm2")));
+		when(mockQuery.getSubreddit()).thenReturn("inthenews");
+		assertEquals("http://www.reddit.com/r/inthenews/search.json?limit=20&q=term1+term2+requiredTerm1+requiredTerm2&restrict_sr=true",
+				engine.createQueryString(mockQuery, 20));
 	}
 }
