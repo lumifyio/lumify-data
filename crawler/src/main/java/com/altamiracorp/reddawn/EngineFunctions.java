@@ -11,11 +11,9 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.Timestamp;
 import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class EngineFunctions {
@@ -105,5 +103,12 @@ public class EngineFunctions {
 		}
 		return links;
 	}
+
+	public static Timestamp getCurrentTimestamp() {
+		Calendar calendar = Calendar.getInstance();
+		Date now = calendar.getTime();
+		return new Timestamp(now.getTime());
+	}
+
 
 }
