@@ -2,6 +2,10 @@ package com.altamiracorp.reddawn.ucd.sentence;
 
 import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.Value;
+import org.apache.commons.codec.binary.Hex;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class SentenceMetadata extends ColumnFamily {
     public static final String NAME = "Metadata";
@@ -28,9 +32,15 @@ public class SentenceMetadata extends ColumnFamily {
         return Value.toBytes(get(CONTENT_HASH));
     }
 
-    public SentenceMetadata setContentHash(byte[] contentHash) {
-        set(CONTENT_HASH, contentHash);
-        return this;
+    public SentenceMetadata setContentHash(String text) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] md5 = digest.digest(text.getBytes());
+            set(CONTENT_HASH, md5);
+            return this;
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Long getDate() {

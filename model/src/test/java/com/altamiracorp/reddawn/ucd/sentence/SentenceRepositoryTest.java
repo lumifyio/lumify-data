@@ -91,7 +91,7 @@ public class SentenceRepositoryTest {
 
         sentence.getMetadata()
                 .setAuthor("testAuthor")
-                .setContentHash("testContentHash".getBytes())
+                .setContentHash("This is a test")
                 .setDate(111L)
                 .setExtractorId("testExtractorId")
                 .setSecurityMarking("testSecurityMarking")
@@ -120,7 +120,7 @@ public class SentenceRepositoryTest {
         ColumnFamily sentenceMetadataColumnFamily = row.get(SentenceMetadata.NAME);
         assertEquals(SentenceMetadata.NAME, sentenceMetadataColumnFamily.getColumnFamilyName());
         assertEquals("testAuthor", sentenceMetadataColumnFamily.get(SentenceMetadata.AUTHOR).toString());
-        assertEquals("testContentHash", sentenceMetadataColumnFamily.get(SentenceMetadata.CONTENT_HASH).toString());
+        assertEquals("�\u0011NE\u0001�����>\u0017�F�", sentenceMetadataColumnFamily.get(SentenceMetadata.CONTENT_HASH).toString());
         assertEquals(111L, sentenceMetadataColumnFamily.get(SentenceMetadata.DATE).toLong().longValue());
         assertEquals("testExtractorId", sentenceMetadataColumnFamily.get(SentenceMetadata.EXTRACTOR_ID).toString());
         assertEquals("testSecurityMarking", sentenceMetadataColumnFamily.get(SentenceMetadata.SECURITY_MARKING).toString());

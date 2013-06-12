@@ -17,7 +17,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
 public class OpenNlpSentenceExtractorTest {
@@ -42,6 +43,7 @@ public class OpenNlpSentenceExtractorTest {
                 return createDate;
             }
         };
+
         extractor.setup(null);
     }
 
@@ -65,9 +67,11 @@ public class OpenNlpSentenceExtractorTest {
         assertEquals(Long.valueOf(18), sentence.getData().getEnd());
         assertEquals("This is some text.", sentence.getData().getText());
         assertEquals("author", sentence.getMetadata().getAuthor());
-        assertEquals((Long)createDate.getTime(), sentence.getMetadata().getDate());
+        assertEquals((Long) createDate.getTime(), sentence.getMetadata().getDate());
         assertEquals("OpenNLP", sentence.getMetadata().getExtractorId());
         assertEquals("U", sentence.getMetadata().getSecurityMarking());
+        byte[] md5 = new byte[] { 90, 66, -31, -14, 119, -5, -58, 100, 103, 124, 45, 41, 7, 66, 23, 107 };
+        assertArrayEquals(md5, sentence.getMetadata().getContentHash());
 
         sentence = iterator.next();
         assertEquals("urn:sha256:abcd", sentence.getData().getArtifactId());
@@ -78,5 +82,7 @@ public class OpenNlpSentenceExtractorTest {
         assertEquals((Long)createDate.getTime(), sentence.getMetadata().getDate());
         assertEquals("OpenNLP", sentence.getMetadata().getExtractorId());
         assertEquals("U", sentence.getMetadata().getSecurityMarking());
+        md5 = new byte[] { 12, 80, -119, -97, 22, -3, 53, -14, 86, -44, -28, -53, 111, -32, -46, 103 };
+        assertArrayEquals(md5, sentence.getMetadata().getContentHash());
     }
 }
