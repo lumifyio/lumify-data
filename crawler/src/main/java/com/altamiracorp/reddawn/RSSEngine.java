@@ -4,13 +4,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
-/**
- * Created with IntelliJ IDEA.
- * User: swoloszy
- * Date: 6/10/13
- * Time: 12:25 PM
- * To change this template use File | Settings | File Templates.
- */
 public class RSSEngine extends SearchEngine {
 	private String url;
 
@@ -20,28 +13,22 @@ public class RSSEngine extends SearchEngine {
 	}
 
 	@Override
-	protected ArrayList<String> search(Query q, int maxResults)
-	{
+	protected ArrayList<String> search(Query q, int maxResults) {
 		url = q.getRss();
-		ArrayList<String> links = null;
-		if (url.equals(""))
-		{
-		   System.err.println("No RSS URL specified");
-		}
-		else
-		{
+		ArrayList<String> links = new ArrayList<String>();
+		if (url.equals("")) {
+			System.err.println("No RSS URL specified");
+		} else {
+
 			URL theUrl;
-			try
-			{
+			try {
 				theUrl = new URL(url);
-			}
-			catch(MalformedURLException e)
-			{
+			} catch (MalformedURLException e) {
 				System.err.println("Malformed search URL");
 				return null;
 			}
 			links = EngineFunctions.parseRSS(theUrl, maxResults);
-			// Runs the results into the crawler, which processes them and writes them to the file system
+
 			try {
 				getCrawler().crawl(links, q);
 			} catch (Exception e) {
@@ -52,14 +39,8 @@ public class RSSEngine extends SearchEngine {
 		return links;
 	}
 
-	/**
-	 * Returns the Engine name as a string.
-	 * @return engine name
-	 */
 	@Override
-	public String getEngineName()
-	{
+	public String getEngineName() {
 		return "RSS Engine";
 	}
-
 }
