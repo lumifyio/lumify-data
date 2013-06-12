@@ -15,7 +15,7 @@ public class HttpRetrievalManager {
 
 	ExecutorService executor;
 	public HttpRetrievalManager() {
-		restartExecutor();
+		executor = Executors.newFixedThreadPool(10);
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
 		schemeRegistry.register(
 				new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
@@ -25,17 +25,16 @@ public class HttpRetrievalManager {
 	}
 
 	public void addJob(String url, String header, String directoryPath) {
-		HttpRetriever httpRetriever = new HttpRetriever(httpClient, header, directoryPath,url);
+		HttpRetriever httpRetriever = createHttpRetriever(httpClient, header, directoryPath, url);
 		executor.submit(httpRetriever);
-	}
-
-	public void restartExecutor() {
-		executor = Executors.newFixedThreadPool(10);
-
 	}
 
 	public void shutDownWhenFinished() throws InterruptedException{
 		executor.shutdown();
 		executor.awaitTermination(5, TimeUnit.MINUTES);
+	}
+
+	protected HttpRetriever createHttpRetriever(HttpClient httpClient, String header, String directoryPath, String url) {
+		return new HttpRetriever(httpClient, header, directoryPath,url);
 	}
 }

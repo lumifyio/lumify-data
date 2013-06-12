@@ -6,13 +6,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- * Created with IntelliJ IDEA.
- * User: jprincip
- * Date: 6/6/13
- * Time: 1:42 PM
- * To change this template use File | Settings | File Templates.
- */
 public class WebCrawl {
 
     private GnuParser parser;
