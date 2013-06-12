@@ -19,16 +19,14 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(JUnit4.class)
 public class GoogleSearchEngineTest {
-	GoogleSearchEngine engine;
-	Query mockQuery;
-	Query mockQuery2;
-	Crawler mockCrawler;
+	private GoogleSearchEngine engine;
+	private Query mockQuery;
+	private Crawler mockCrawler;
 	final int MAX_RESULTS = 55;
 
 	@Before
 	public void setUp() throws Exception {
 		mockQuery = mock(Query.class);
-		mockQuery2  = mock(Query.class);
 		mockCrawler  = mock(Crawler.class);
 		engine = new GoogleSearchEngine(mockCrawler);
 		ArrayList<String> optionalTerms = new ArrayList<String>();
@@ -48,7 +46,9 @@ public class GoogleSearchEngineTest {
 	@Test
 	public void testSearchValid() throws Exception {
 		GoogleSearchEngine engineSpy = spy(engine);
-		doReturn("https://www.googleapis.com/customsearch/v1?key=AIzaSyB4H5oZoRFCVsNoYUNI6nCNAMAusD1GpDY&cx=012249192867828703671:vknw0znfgfa&alt=json&q=bombing").when(engineSpy).getQueryString(any(Query.class));
+		doReturn("https://www.googleapis.com/customsearch/v1?" +
+				"key=AIzaSyB4H5oZoRFCVsNoYUNI6nCNAMAusD1GpDY&cx=012249192867828703671:vknw0znfgfa&alt=json&q=bombing")
+				.when(engineSpy).getQueryString(any(Query.class));
 		engineSpy.search(mock(Query.class), 10);
 		verify(mockCrawler).crawl(Matchers.<ArrayList<String>>any(), any(Query.class));
 	}
@@ -56,11 +56,13 @@ public class GoogleSearchEngineTest {
 	@Test
 	public void testSearchInvalid() throws Exception {
 		GoogleSearchEngine engineSpy = spy(engine);
-//		doReturn("http://www.google.com").when(engineSpy).getQueryString(any(Query.class));
+		doReturn("http://www.google.com").when(engineSpy).getQueryString(any(Query.class));
 		ArrayList<String> results = engineSpy.search(mock(Query.class), 10);
 		verify(mockCrawler, times(0)).crawl(Matchers.<ArrayList<String>>any(), any(Query.class));
 		assertEquals("An invalid JSON response did not return an empty link set", 0, results.size());
 	}
+
+	// I forgot to do test getQuery - BOOKMARK
 
 	@Test
 	public void testGetResultRangeFirstSearch() {
