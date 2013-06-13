@@ -19,4 +19,17 @@ public class SentenceRowKey extends RowKey {
                 + ":"
                 + StringUtils.leftPad(Long.toString(startOffset), 16, '0');
     }
+
+    public String getArtifactRowKey() {
+        String[] keyElements = this.toString().split(":");
+        int elementsToGet = keyElements.length - 2;
+        String result = "";
+        for (int i = 0; i < elementsToGet; i++) {
+            if (i != 0) {
+                result += ":";
+            }
+            result += keyElements[i];
+        }
+        return result;
+    }
 }

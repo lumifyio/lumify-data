@@ -22,6 +22,18 @@ public class SentenceRepositoryTest {
     }
 
     @Test
+    public void sentenceRowKey_GetArtifactRowKeyWithColonInArtifactKey() {
+        SentenceRowKey sentenceRowKey = new SentenceRowKey("urn:sha256:007d1437117:0000000000000000:0000000000000000");
+        assertEquals("urn:sha256:007d1437117", sentenceRowKey.getArtifactRowKey());
+    }
+
+    @Test
+    public void sentenceRowKey_GetArtifactRowKeyWithoutColonInArtifactKey() {
+        SentenceRowKey sentenceRowKey = new SentenceRowKey("urn:sha256:007d1437117:0000000000000000:0000000000000000");
+        assertEquals("urn:sha256:007d1437117", sentenceRowKey.getArtifactRowKey());
+    }
+
+    @Test
     public void testFindByRowKey() {
         String rowKeyString = "testArtifactId:0000000000000222:0000000000000111";
         Row<RowKey> row = new Row<RowKey>(Sentence.TABLE_NAME, new RowKey(rowKeyString));

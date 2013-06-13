@@ -3,10 +3,10 @@ package com.altamiracorp.reddawn.entityExtraction;
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.Row;
-import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
-import com.altamiracorp.reddawn.ucd.artifact.Artifact;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.AccumuloSentenceInputFormat;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
+import com.altamiracorp.reddawn.ucd.sentence.Sentence;
+import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
 import org.apache.accumulo.core.util.CachedConfiguration;
@@ -29,7 +29,7 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class<? extends InputFormat> getInputFormatClass() {
-        return AccumuloArtifactInputFormat.class;
+        return AccumuloSentenceInputFormat.class;
     }
 
     @Override
@@ -37,7 +37,7 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
         return AccumuloModelOutputFormat.class;
     }
 
-    public static class EntityExtractorMapper extends Mapper<Text, Artifact, Text, Row> {
+    public static class EntityExtractorMapper extends Mapper<Text, Sentence, Text, Row> {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "entityExtractorClass";
         private EntityExtractor entityExtractor;
 
@@ -54,9 +54,9 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
             }
         }
 
-        public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
+        public void map(Text rowKey, Sentence sentence, Context context) throws IOException, InterruptedException {
             try {
-                Collection<Term> terms = extractEntities(artifact);
+                Collection<Term> terms = extractEntities(sentence);
                 writeEntities(context, terms);
             } catch (Exception e) {
                 throw new IOException(e);
@@ -76,10 +76,10 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
             }
         }
 
-        private Collection<Term> extractEntities(Artifact artifact) throws Exception {
-            ArtifactRowKey artifactKey = artifact.getRowKey();
-            String text = artifact.getContent().getDocExtractedTextString();
-            return entityExtractor.extract(artifactKey, text);
+        private Collection<Term> extractEntities(Sentence sentence) throws Exception {
+            SentenceRowKey sentenceRowKey = sentence.getRowKey();
+            String text = sentence.getData().getText();
+            return entityExtractor.extract(sentenceRowKey, text);
         }
 
         public static void init(Job job, Class<? extends EntityExtractor> entityExtractor) {
