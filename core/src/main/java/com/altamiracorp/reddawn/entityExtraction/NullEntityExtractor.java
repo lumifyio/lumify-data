@@ -1,7 +1,6 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
-import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
+import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -14,7 +13,7 @@ public class NullEntityExtractor implements EntityExtractor {
     }
 
     @Override
-    public Collection<Term> extract(SentenceRowKey sentenceRowKey, String text) throws Exception {
+    public Collection<Term> extract(Sentence sentence) throws Exception {
         return new ArrayList<Term>();
     }
 }

@@ -20,7 +20,8 @@ public class Sentence extends Row<SentenceRowKey> {
 
     @Override
     public SentenceRowKey getRowKey() {
-        return new SentenceRowKey(getData().getArtifactId(), getData().getStart(), getData().getEnd());
+        SentenceData data = getData();
+        return new SentenceRowKey(data.getArtifactId(), data.getStart(), data.getEnd());
     }
 
     public SentenceData getData() {

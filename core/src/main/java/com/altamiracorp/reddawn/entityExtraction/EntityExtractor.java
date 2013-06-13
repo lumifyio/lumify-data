@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -11,5 +12,5 @@ import java.util.Collection;
 public interface EntityExtractor {
     void setup(Mapper.Context context) throws IOException;
 
-    Collection<Term> extract(SentenceRowKey sentenceRowKey, String text) throws Exception;
+    Collection<Term> extract(Sentence sentence) throws Exception;
 }

@@ -78,9 +78,7 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
         }
 
         private Collection<Term> extractEntities(Sentence sentence) throws Exception {
-            SentenceRowKey sentenceRowKey = sentence.getRowKey();
-            String text = sentence.getData().getText();
-            return entityExtractor.extract(sentenceRowKey, text);
+            return entityExtractor.extract(sentence);
         }
 
         public static void init(Job job, Class<? extends EntityExtractor> entityExtractor) {

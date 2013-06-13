@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
+import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
@@ -47,8 +48,10 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
     }
 
     @Override
-    public Collection<Term> extract(SentenceRowKey sentenceRowKey, String text)
+    public Collection<Term> extract(Sentence sentence)
             throws Exception {
+        SentenceRowKey sentenceRowKey = sentence.getRowKey();
+        String text = sentence.getData().getText();
         LOGGER.info("Extracting entities from sentence: " + sentenceRowKey.toString());
         ArrayList<Term> terms = new ArrayList<Term>();
         ObjectStream<String> untokenizedLineStream = new PlainTextByLineStream(new StringReader(text));
