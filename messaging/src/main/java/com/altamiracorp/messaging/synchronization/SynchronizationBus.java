@@ -73,5 +73,9 @@ public class SynchronizationBus {
 	public SynchronizationRequest getSession (String id) {
 		return this.activeSessions.get(id);
 	}
+	
+	public SynchronizationRequest getRequestedSession (String id) {
+		return this.requestedSessions.get(id);
+	}
 
 }
