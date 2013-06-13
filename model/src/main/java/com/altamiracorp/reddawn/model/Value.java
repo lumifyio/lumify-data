@@ -1,7 +1,5 @@
 package com.altamiracorp.reddawn.model;
 
-import org.apache.commons.codec.binary.Hex;
-
 import java.nio.ByteBuffer;
 
 public class Value {
@@ -47,6 +45,9 @@ public class Value {
     }
 
     public Long toLong() {
+        if (this.value.length != 8) {
+            throw new RuntimeException("toLong failed. Expected 8 bytes found " + this.value.length);
+        }
         return ByteBuffer.wrap(this.value).getLong();
     }
 
