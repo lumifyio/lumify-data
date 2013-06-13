@@ -1,14 +1,20 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
-import com.altamiracorp.reddawn.ucd.model.*;
-import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
-import com.altamiracorp.reddawn.ucd.model.terms.TermMetadata;
-import org.apache.accumulo.core.data.Mutation;
+import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
+import com.altamiracorp.reddawn.model.Row;
+import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
+import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
+import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.term.TermMention;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
@@ -21,7 +27,17 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
         return EntityExtractorMapper.class;
     }
 
-    public static class EntityExtractorMapper extends Mapper<Text, Artifact, Text, Mutation> {
+    @Override
+    protected Class<? extends InputFormat> getInputFormatClass() {
+        return AccumuloArtifactInputFormat.class;
+    }
+
+    @Override
+    protected Class<? extends OutputFormat> getOutputFormatClass() {
+        return AccumuloModelOutputFormat.class;
+    }
+
+    public static class EntityExtractorMapper extends Mapper<Text, Artifact, Text, Row> {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "entityExtractorClass";
         private EntityExtractor entityExtractor;
 
@@ -49,22 +65,20 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
 
         private void writeEntities(Context context, Collection<Term> terms) throws IOException, InterruptedException {
             for (Term term : terms) {
-                context.write(new Text(Term.TABLE_NAME), term.getMutation());
+                context.write(new Text(Term.TABLE_NAME), term);
 
                 // TODO these lines are copied from UcdClient#writeTerm not really sure of a good way to abstract these out
-                for (TermMetadata termMetadata : term.getMetadata()) {
-                    ArtifactTermIndex artifactTermIndex = ArtifactTermIndex.newBuilder()
-                            .artifactKey(termMetadata.getArtifactKey())
-                            .termMention(term.getKey(), termMetadata.getColumnFamilyName())
-                            .build();
-                    context.write(new Text(ArtifactTermIndex.TABLE_NAME), artifactTermIndex.getMutation());
+                for (TermMention termMention : term.getTermMentions()) {
+                    ArtifactTermIndex artifactTermIndex = new ArtifactTermIndex(termMention.getArtifactKey());
+                    artifactTermIndex.addTermMention(term.getRowKey(), termMention);
+                    context.write(new Text(ArtifactTermIndex.TABLE_NAME), artifactTermIndex);
                 }
             }
         }
 
         private Collection<Term> extractEntities(Artifact artifact) throws Exception {
-            ArtifactKey artifactKey = artifact.getKey();
-            String text = artifact.getContent().getDocExtractedText();
+            ArtifactRowKey artifactKey = artifact.getRowKey();
+            String text = artifact.getContent().getDocExtractedTextString();
             return entityExtractor.extract(artifactKey, text);
         }
 

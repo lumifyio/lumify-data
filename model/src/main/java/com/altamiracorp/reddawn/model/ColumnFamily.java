@@ -1,0 +1,60 @@
+package com.altamiracorp.reddawn.model;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Collection;
+import java.util.HashMap;
+
+public class ColumnFamily {
+    private final String columnFamilyName;
+    private final HashMap<String, Column> columns = new HashMap<String, Column>();
+
+    public ColumnFamily(String columnFamilyName) {
+        this.columnFamilyName = columnFamilyName;
+    }
+
+    public void addColumn(Column column) {
+        this.columns.put(column.getName(), column);
+    }
+
+    public ColumnFamily addColumns(Collection<Column> columns) {
+        for (Column column : columns) {
+            addColumn(column);
+        }
+        return this;
+    }
+
+    public Value get(String columnName) {
+        Column column = this.columns.get(columnName);
+        if (column == null) {
+            return null;
+        }
+        return column.getValue();
+    }
+
+    public ColumnFamily set(String columnName, Object value) {
+        addColumn(new Column(columnName, value));
+        return this;
+    }
+
+    public String getColumnFamilyName() {
+        return this.columnFamilyName;
+    }
+
+    public Collection<Column> getColumns() {
+        return this.columns.values();
+    }
+
+    public JSONObject toJson() {
+        try {
+            JSONObject json = new JSONObject();
+            for (Column column : getColumns()) {
+                json.put(column.getName(), column.getValue().toString());
+            }
+            return json;
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}

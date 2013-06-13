@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.web;
 
-import java.net.InetSocketAddress;
-
+import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -9,23 +9,25 @@ import org.apache.commons.cli.Options;
 import org.apache.hadoop.util.ToolRunner;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-import com.altamiracorp.reddawn.cmdline.UcdCommandLineBase;
+import javax.servlet.http.HttpServletRequest;
+import java.net.InetSocketAddress;
+import java.util.Properties;
 
-public class Server extends UcdCommandLineBase {
+public class Server extends RedDawnCommandLineBase {
 
-	private int port;
+    private int port;
 
-	public static void main(String[] args) throws Exception {
-		int res = ToolRunner.run(CachedConfiguration.getInstance(),
-				new Server(), args);
-		if (res != 0) {
-			System.exit(res);
-		}
-	}
+    public static void main(String[] args) throws Exception {
+        int res = ToolRunner.run(CachedConfiguration.getInstance(),
+                new Server(), args);
+        if (res != 0) {
+            System.exit(res);
+        }
+    }
 
-	@Override
-	protected Options getOptions() {
-		Options options = super.getOptions();
+    @Override
+    protected Options getOptions() {
+        Options options = super.getOptions();
 
         options.addOption(
                 OptionBuilder
@@ -37,41 +39,43 @@ public class Server extends UcdCommandLineBase {
                         .create()
         );
 
-		return options;
-	}
+        return options;
+    }
 
-	@Override
-	protected void processOptions(CommandLine cmd) {
-		super.processOptions(cmd);
+    @Override
+    protected void processOptions(CommandLine cmd) {
+        super.processOptions(cmd);
 
-		String port = cmd.getOptionValue("port");
-		if (port == null) {
-			this.port = 8080;
-		} else {
-			this.port = Integer.parseInt(port);
-		}
-	}
+        String port = cmd.getOptionValue("port");
+        if (port == null) {
+            this.port = 8080;
+        } else {
+            this.port = Integer.parseInt(port);
+        }
+    }
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
         // TODO refactor this
-        WebUcdClientFactory.setUcdCommandLineBase(this);
-        WebUcdClientFactory.createUcdClient().initializeTables();
-        WebUcdClientFactory.createRedDawnClient().initializeTables();
+        WebSessionFactory.setServer(this);
+        WebSessionFactory.createRedDawnSession(null).getModelSession().initializeTables();
 
-		InetSocketAddress addr = new InetSocketAddress("127.0.0.1", this.port);
-		org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(
-				addr);
+        InetSocketAddress addr = new InetSocketAddress("127.0.0.1", this.port);
+        org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(addr);
 
-		WebAppContext webAppContext = new WebAppContext();
-		webAppContext.setContextPath("/");
-		webAppContext.setWar("./web/src/main/webapp/");
+        WebAppContext webAppContext = new WebAppContext();
+        webAppContext.setContextPath("/");
+        webAppContext.setWar("./web/src/main/webapp/");
 
-		server.setHandler(webAppContext);
-		server.start();
-		server.join();
+        server.setHandler(webAppContext);
+        server.start();
+        server.join();
 
-		return 0;
-	}
+        return 0;
+    }
 
+    public RedDawnSession createRedDawnSession(HttpServletRequest request) {
+        // TODO create a reddawn session based on user in request object.
+        return super.createRedDawnSession();
+    }
 }

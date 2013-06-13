@@ -10,12 +10,13 @@
     <name>Red Dawn</name>
 
     <modules>
-        <module>ucd</module>
         <module>core</module>
         <module>web</module>
         <module>web-framework</module>
-    <module>crawler</module>
-  </modules>
+        <module>model</module>
+        <module>model-accumulo</module>
+        <module>crawler</module>
+    </modules>
 
     <repositories>
         <repository>

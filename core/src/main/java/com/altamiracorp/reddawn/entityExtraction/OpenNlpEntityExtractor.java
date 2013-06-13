@@ -1,10 +1,9 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
-import com.altamiracorp.reddawn.ucd.model.Term;
-import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
-import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
-import com.altamiracorp.reddawn.ucd.model.terms.TermMention;
-import com.altamiracorp.reddawn.ucd.model.terms.TermMetadata;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.term.TermMention;
+import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
@@ -48,7 +47,7 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
     }
 
     @Override
-    public Collection<Term> extract(ArtifactKey artifactKey, String text)
+    public Collection<Term> extract(ArtifactRowKey artifactKey, String text)
             throws Exception {
         LOGGER.info("Extracting entities from artifact: " + artifactKey.toString());
         ArrayList<Term> terms = new ArrayList<Term>();
@@ -63,7 +62,7 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         return terms;
     }
 
-    private ArrayList<Term> processLine(ArtifactKey artifactKey, String line, int charOffset) {
+    private ArrayList<Term> processLine(ArtifactRowKey artifactKey, String line, int charOffset) {
         ArrayList<Term> terms = new ArrayList<Term>();
         String tokenList[] = tokenizer.tokenize(line);
         Span[] tokenListPositions = tokenizer.tokenizePos(line);
@@ -78,26 +77,21 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         return terms;
     }
 
-    private Term createTerm(ArtifactKey artifactKey, int charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
+    private Term createTerm(ArtifactRowKey artifactKey, int charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
         String sign = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
         int termMentionStart = charOffset + tokenListPositions[foundName.getStart()].getStart();
         int termMentionEnd = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
-        TermMention termMention = new TermMention(termMentionStart, termMentionEnd);
 
-        TermKey termKey = TermKey.newBuilder()
-                .sign(sign)
-                .model(getModelName())
-                .concept(openNlpTypeToConcept(foundName.getType()))
-                .build();
-        TermMetadata termMetadata = TermMetadata.newBuilder()
-                .artifactKey(artifactKey)
-                        // .artifactKeySign("testArtifactKeySign") TODO what should go here?
-                        // .author("testAuthor") TODO what should go here?
-                .mention(termMention)
-                .build();
-        Term term = Term.newBuilder()
-                .key(termKey)
-                .metadata(termMetadata).build();
+        String concept = openNlpTypeToConcept(foundName.getType());
+        TermRowKey termKey = new TermRowKey(sign, getModelName(), concept);
+        TermMention termMention = new TermMention()
+                .setArtifactKey(artifactKey.toString())
+                        // .setArtifactKeySign("testArtifactKeySign") TODO what should go here?
+                        // .setAuthor("testAuthor") TODO what should go here?
+                .setMentionStart((long) termMentionStart)
+                .setMentionEnd((long) termMentionEnd);
+        Term term = new Term(termKey)
+                .addTermMention(termMention);
         return term;
     }
 

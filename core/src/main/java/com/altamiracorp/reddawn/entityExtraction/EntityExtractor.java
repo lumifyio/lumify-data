@@ -1,14 +1,14 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
-import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
-import com.altamiracorp.reddawn.ucd.model.Term;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 import java.util.Collection;
 
 public interface EntityExtractor {
-  void setup(Mapper.Context context) throws IOException;
+    void setup(Mapper.Context context) throws IOException;
 
-  Collection<Term> extract(ArtifactKey artifactKey, String text) throws Exception;
+    Collection<Term> extract(ArtifactRowKey artifactKey, String text) throws Exception;
 }

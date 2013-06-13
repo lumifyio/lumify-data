@@ -1,10 +1,8 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
-import com.altamiracorp.reddawn.ucd.model.Term;
-import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
-import com.altamiracorp.reddawn.ucd.model.terms.TermKey;
-import com.altamiracorp.reddawn.ucd.model.terms.TermMention;
-import com.altamiracorp.reddawn.ucd.model.terms.TermMetadata;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.term.TermMention;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -19,40 +17,24 @@ public class EntityHighlightTest {
     @Test
     public void testGetHighlightedText() throws Exception {
         ArrayList<Term> terms = new ArrayList<Term>();
-        ArtifactKey artifactKey = ArtifactKey.newBuilder()
-                .docArtifactBytes("artifact1".getBytes())
-                .build();
+        ArtifactRowKey artifactKey = new ArtifactRowKey("artifact1");
         terms.add(
-                Term.newBuilder()
-                        .key(
-                                TermKey.newBuilder()
-                                        .sign("joe ferner")
-                                        .concept("person")
-                                        .model("ee")
-                                        .build())
-                        .metadata(
-                                TermMetadata.newBuilder()
-                                        .artifactKey(artifactKey)
-                                        .mention(new TermMention(18, 28))
-                                        .build()
+                new Term("joe ferner", "ee", "person")
+                        .addTermMention(new TermMention()
+                                .setArtifactKey(artifactKey.toString())
+                                .setMentionStart(18L)
+                                .setMentionEnd(28L)
                         )
-                        .build());
+        );
         terms.add(
-                Term.newBuilder()
-                        .key(
-                                TermKey.newBuilder()
-                                        .sign("jeff kunkle")
-                                        .concept("person")
-                                        .model("ee")
-                                        .build())
-                        .metadata(
-                                TermMetadata.newBuilder()
-                                        .artifactKey(artifactKey)
-                                        .mention(new TermMention(33, 44))
-                                        .build()
+                new Term("jeff kunkle", "ee", "person")
+                        .addTermMention(new TermMention()
+                                .setArtifactKey(artifactKey.toString())
+                                .setMentionStart(33L)
+                                .setMentionEnd(44L)
                         )
-                        .build());
-        List<EntityHighlightMR.EntityHighlightMapper.TermAndTermMetadata> termAndTermMetadata = EntityHighlightMR.EntityHighlightMapper.getTermAndTermMetadataForArtifact(artifactKey, terms);
+        );
+        List<EntityHighlightMR.EntityHighlightMapper.TermAndTermMention> termAndTermMetadata = EntityHighlightMR.EntityHighlightMapper.getTermAndTermMetadataForArtifact(artifactKey, terms);
         String highlightText = EntityHighlightMR.EntityHighlightMapper.getHighlightedText("Test highlight of Joe Ferner and Jeff Kunkle.", termAndTermMetadata);
         assertEquals("Test highlight of <span class=\"entity person\" term-key=\"joe ferner\\x1Fee\\x1Fperson\">Joe Ferner</span> and <span class=\"entity person\" term-key=\"jeff kunkle\\x1Fee\\x1Fperson\">Jeff Kunkle</span>.", highlightText);
     }
@@ -60,40 +42,24 @@ public class EntityHighlightTest {
     @Test(expected = AssertionError.class) // TODO handle overlapping entities
     public void testGetHighlightedTextOverlaps() throws Exception {
         ArrayList<Term> terms = new ArrayList<Term>();
-        ArtifactKey artifactKey = ArtifactKey.newBuilder()
-                .docArtifactBytes("artifact1".getBytes())
-                .build();
+        ArtifactRowKey artifactKey = ArtifactRowKey.build("artifact1".getBytes());
         terms.add(
-                Term.newBuilder()
-                        .key(
-                                TermKey.newBuilder()
-                                        .sign("joe ferner")
-                                        .concept("person")
-                                        .model("ee")
-                                        .build())
-                        .metadata(
-                                TermMetadata.newBuilder()
-                                        .artifactKey(artifactKey)
-                                        .mention(new TermMention(18, 28))
-                                        .build()
+                new Term("joe ferner", "ee", "person")
+                        .addTermMention(new TermMention()
+                                .setArtifactKey(artifactKey.toString())
+                                .setMentionStart(18L)
+                                .setMentionEnd(28L)
                         )
-                        .build());
+        );
         terms.add(
-                Term.newBuilder()
-                        .key(
-                                TermKey.newBuilder()
-                                        .sign("joe")
-                                        .concept("person")
-                                        .model("ee")
-                                        .build())
-                        .metadata(
-                                TermMetadata.newBuilder()
-                                        .artifactKey(artifactKey)
-                                        .mention(new TermMention(18, 21))
-                                        .build()
+                new Term("joe", "ee", "person")
+                        .addTermMention(new TermMention()
+                                .setArtifactKey(artifactKey.toString())
+                                .setMentionStart(18L)
+                                .setMentionEnd(21L)
                         )
-                        .build());
-        List<EntityHighlightMR.EntityHighlightMapper.TermAndTermMetadata> termAndTermMetadata = EntityHighlightMR.EntityHighlightMapper.getTermAndTermMetadataForArtifact(artifactKey, terms);
+        );
+        List<EntityHighlightMR.EntityHighlightMapper.TermAndTermMention> termAndTermMetadata = EntityHighlightMR.EntityHighlightMapper.getTermAndTermMetadataForArtifact(artifactKey, terms);
         String highlightText = EntityHighlightMR.EntityHighlightMapper.getHighlightedText("Test highlight of Joe Ferner.", termAndTermMetadata);
         assertEquals("Test highlight of <span class=\"entity person\" term-key=\"joe ferner\\x1Fee\\x1Fperson\"><span class=\"entity person\" term-key=\"joe\\x1Fee\\x1Fperson\">Joe</span> Ferner</span>.", highlightText);
     }

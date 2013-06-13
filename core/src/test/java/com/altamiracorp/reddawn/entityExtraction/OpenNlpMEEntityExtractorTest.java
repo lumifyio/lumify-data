@@ -1,8 +1,8 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
-import com.altamiracorp.reddawn.ucd.model.Term;
-import com.altamiracorp.reddawn.ucd.model.artifact.ArtifactKey;
-import com.altamiracorp.reddawn.ucd.model.terms.TermMetadata;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.term.TermMention;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.namefind.TokenNameFinderModel;
@@ -81,27 +81,26 @@ public class OpenNlpMEEntityExtractorTest {
     @Test
     public void testEntityExtraction() throws Exception {
         extractor.setup(context);
-        ArtifactKey key = ArtifactKey.newBuilder()
-                .docArtifactBytes(text.getBytes()).build();
+        ArtifactRowKey key = ArtifactRowKey.build(text.getBytes());
         Collection<Term> terms = extractor.extract(key, text);
         HashMap<String, Term> extractedTerms = new HashMap<String, Term>();
         for (Term term : terms) {
-            extractedTerms.put(term.getKey().getSign() + "-" + term.getKey().getConcept(), term);
+            extractedTerms.put(term.getRowKey().getSign() + "-" + term.getRowKey().getConceptLabel(), term);
         }
         assertTrue("A person wasn't found", extractedTerms.containsKey("bob robertson-person"));
-        ArrayList<TermMetadata> bobRobertsonMetadatas = new ArrayList<TermMetadata>(extractedTerms.get("bob robertson-person").getMetadata());
-        assertEquals(1, bobRobertsonMetadatas.size());
-        assertEquals(31, bobRobertsonMetadatas.get(0).getMention().getStart());
-        assertEquals(44, bobRobertsonMetadatas.get(0).getMention().getEnd());
+        ArrayList<TermMention> bobRobertsonMentions = new ArrayList<TermMention>(extractedTerms.get("bob robertson-person").getTermMentions());
+        assertEquals(1, bobRobertsonMentions.size());
+        assertEquals(31, bobRobertsonMentions.get(0).getMentionStart().intValue());
+        assertEquals(44, bobRobertsonMentions.get(0).getMentionEnd().intValue());
 
         assertTrue("A date wasn't found", extractedTerms.containsKey("a year-date"));
         assertTrue("Money wasn't found", extractedTerms.containsKey("2 million-money"));
 
         assertTrue("A location wasn't found", extractedTerms.containsKey("benghazi-location"));
-        ArrayList<TermMetadata> benghaziMetadatas = new ArrayList<TermMetadata>(extractedTerms.get("benghazi-location").getMetadata());
-        assertEquals(1, benghaziMetadatas.size());
-        assertEquals(189, benghaziMetadatas.get(0).getMention().getStart());
-        assertEquals(197, benghaziMetadatas.get(0).getMention().getEnd());
+        ArrayList<TermMention> benghaziMentions = new ArrayList<TermMention>(extractedTerms.get("benghazi-location").getTermMentions());
+        assertEquals(1, benghaziMentions.size());
+        assertEquals(189, benghaziMentions.get(0).getMentionStart().intValue());
+        assertEquals(197, benghaziMentions.get(0).getMentionEnd().intValue());
 
         assertTrue("An organization wasn't found", extractedTerms.containsKey("cnn-organization"));
         assertTrue("A percentage wasn't found", extractedTerms.containsKey("47-percentage"));
