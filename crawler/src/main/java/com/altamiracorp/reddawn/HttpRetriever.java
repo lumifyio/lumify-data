@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn;
 
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -30,7 +31,11 @@ public class HttpRetriever implements Runnable{
 	public void run() {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append(header);
-		stringBuilder.append(getContent());
+		StringBuilder content = getContent();
+		if (content.toString().equals("")) {
+			return;
+		}
+		stringBuilder.append(content);
 		if (writeToFile(stringBuilder)) {
 			System.out.println("Processed: " + url);
 		} else {
@@ -74,6 +79,7 @@ public class HttpRetriever implements Runnable{
 		} catch (IOException ex) {
 			httpGet.abort();
 			System.err.println("\033[31m[Error] Problem with Http Request on URL: " + httpGet.getURI() + "\033[0m");
+			return new StringBuilder();
 		}
 		return stringBuilder;
 	}

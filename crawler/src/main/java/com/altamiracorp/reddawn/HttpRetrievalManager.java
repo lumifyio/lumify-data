@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn;
 
+import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -8,6 +9,7 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 
+import javax.net.ssl.SSLSocketFactory;
 import java.util.concurrent.*;
 
 public class HttpRetrievalManager {
@@ -19,7 +21,7 @@ public class HttpRetrievalManager {
 		SchemeRegistry schemeRegistry = new SchemeRegistry();
 		schemeRegistry.register(
 				new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-
+		schemeRegistry.register(new Scheme("https", 443, org.apache.http.conn.ssl.SSLSocketFactory.getSocketFactory()));
 		ClientConnectionManager cm = new PoolingClientConnectionManager(schemeRegistry);
 		httpClient = new DefaultHttpClient(cm);
 	}

@@ -51,7 +51,6 @@ public class GoogleSearchEngine extends SearchEngine {
 			System.err.println("The crawler failed to crawl the result set");
 			e.printStackTrace();
 		}
-
 		return links;
 	}
 
