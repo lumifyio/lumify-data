@@ -3,7 +3,6 @@ package com.altamiracorp.reddawn;
 import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.AccumuloSession;
-import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -82,8 +81,7 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
         job.getConfiguration().set(AccumuloSession.PASSWORD, new String(getPassword()));
         job.setJarByClass(this.getClass());
 
-        job.setInputFormatClass(getInputFormatClass());
-        AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+        job.setInputFormatClass(getInputFormatClassAndInit(job));
 
         if (this.config != null) {
             for (String config : this.config) {
@@ -108,9 +106,7 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
         return job.isSuccessful() ? 0 : 1;
     }
 
-    protected Class<? extends InputFormat> getInputFormatClass() {
-        return AccumuloArtifactInputFormat.class;
-    }
+    protected abstract Class<? extends InputFormat> getInputFormatClassAndInit(Job job);
 
     protected Class<? extends OutputFormat> getOutputFormatClass() {
         return AccumuloModelOutputFormat.class;

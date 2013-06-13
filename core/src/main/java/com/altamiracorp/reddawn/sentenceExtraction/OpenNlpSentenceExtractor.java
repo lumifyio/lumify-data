@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.sentenceExtraction;
 
+import com.altamiracorp.reddawn.cmdline.FileImport;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceData;
@@ -12,6 +13,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +28,7 @@ public class OpenNlpSentenceExtractor implements SentenceExtractor {
     private static final String DEFAULT_PATH_PREFIX = "hdfs://";
     private static final String EXTRACTOR_ID = "OpenNLP";
     private SentenceDetector sentenceDetector;
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileImport.class.getName());
 
     @Override
     public void setup(Mapper<Text, Artifact, Text, Sentence>.Context context) throws IOException {
@@ -78,6 +82,7 @@ public class OpenNlpSentenceExtractor implements SentenceExtractor {
 
     protected SentenceDetector loadSentenceDetector(FileSystem fs, String pathPrefix) throws IOException {
         Path sentenceHdfsPath = new Path(pathPrefix + "/conf/opennlp/en-sent.bin");
+        LOGGER.debug("Using sentence detector at: " + sentenceHdfsPath);
         InputStream sentenceModelInputStream = fs.open(sentenceHdfsPath);
 
         try {

@@ -3,10 +3,12 @@ package com.altamiracorp.reddawn.statementExtraction;
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
+import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.statement.Statement;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
@@ -21,6 +23,12 @@ public class StatementExtractorMR extends ConfigurableMapJobBase {
     @Override
     protected Class<? extends Mapper> getMapperClass(Job job, Class clazz) {
         return StatementExtractorMapper.class;
+    }
+
+    @Override
+    protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
+        AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+        return AccumuloArtifactInputFormat.class;
     }
 
     @Override

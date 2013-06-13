@@ -28,7 +28,8 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
     }
 
     @Override
-    protected Class<? extends InputFormat> getInputFormatClass() {
+    protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
+        AccumuloSentenceInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
         return AccumuloSentenceInputFormat.class;
     }
 

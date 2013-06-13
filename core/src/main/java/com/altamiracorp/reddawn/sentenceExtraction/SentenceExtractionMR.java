@@ -26,7 +26,8 @@ public class SentenceExtractionMR extends ConfigurableMapJobBase {
     }
 
     @Override
-    protected Class<? extends InputFormat> getInputFormatClass() {
+    protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
+        AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
         return AccumuloArtifactInputFormat.class;
     }
 

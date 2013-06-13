@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.entityExtraction;
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
+import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
@@ -10,6 +11,7 @@ import com.altamiracorp.reddawn.ucd.term.TermMention;
 import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
@@ -26,6 +28,12 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
     @Override
     protected Class getMapperClass(Job job, Class clazz) {
         return EntityHighlightMapper.class;
+    }
+
+    @Override
+    protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
+        AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+        return AccumuloArtifactInputFormat.class;
     }
 
     @Override

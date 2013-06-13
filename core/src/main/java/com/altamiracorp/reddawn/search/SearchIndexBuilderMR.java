@@ -1,10 +1,13 @@
 package com.altamiracorp.reddawn.search;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
+import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
+import com.altamiracorp.reddawn.ucd.AccumuloSentenceInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
@@ -58,6 +61,12 @@ public class SearchIndexBuilderMR extends ConfigurableMapJobBase {
         if (res != 0) {
             System.exit(res);
         }
+    }
+
+    @Override
+    protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
+        AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+        return AccumuloArtifactInputFormat.class;
     }
 
     @Override
