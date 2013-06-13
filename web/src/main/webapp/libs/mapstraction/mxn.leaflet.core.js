@@ -304,7 +304,7 @@ Marker: {
 				shadowSize: new L.Point(me.iconShadowSize[0], me.iconShadowSize[1])
 			});
 		}
-		var iconObj = new thisIcon();
+		var iconObj = new thisIcon({ iconUrl: '/libs/leaflet/images/marker-icon.png' });
 		var marker = new L.Marker(
 			this.location.toProprietary('leaflet'),
 			{ icon: iconObj }

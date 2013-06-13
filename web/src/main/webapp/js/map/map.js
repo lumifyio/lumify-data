@@ -15,11 +15,25 @@ define([
         });
 
         this.after('initialize', function() {
-            var $this = this;
+            var self = this;
             this.$node.html(template({}));
 
             this.on(document, 'mapHide', this.onMapHide);
             this.on(document, 'mapShow', this.onMapShow);
+
+            this.on(document, 'mapEndPan', function(evt, mapCenter) {
+                if(self.lastMarker) {
+                    self.lastMarker.closeBubble();
+                    self.map.removeMarker(self.lastMarker);
+                }
+                var pt = new mxn.LatLonPoint(mapCenter.lat, mapCenter.lng);
+                self.lastMarker = new mxn.Marker(pt);
+                self.lastMarker.setInfoBubble("User");
+                self.lastMarker.click.addHandler(function() {
+                    self.lastMarker.openBubble();
+                });
+                self.map.addMarker(self.lastMarker);
+            });
         });
 
         this.onMapHide = function() {
@@ -49,6 +63,13 @@ define([
             self.map.setCenterAndZoom(latlon, 7);
             self.map.enableScrollWheelZoom();
             self.map.addSmallControls();
+            self.map.endPan.addHandler(function() {
+                var center = self.map.getCenter();
+                self.trigger(document, 'mapEndPan', {
+                    lat: center.lat,
+                    lng: center.lng
+                });
+            });
             self.mapInitialized = true;
         };
     }
