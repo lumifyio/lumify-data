@@ -37,6 +37,7 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
     private static final String PATH_PREFIX_CONFIG = "nlpConfPathPrefix";
     private static final String DEFAULT_PATH_PREFIX = "hdfs://";
     private static final int NEW_LINE_CHARACTER_LENGTH = 1;
+    private static final String EXTRACTOR_ID = "OpenNLP";
 
     @Override
     public void setup(Context context) throws IOException {
@@ -59,21 +60,21 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         String line;
         Long charOffset = sentence.getData().getStart();
         while ((line = untokenizedLineStream.read()) != null) {
-            ArrayList<Term> newTerms = processLine(sentenceRowKey, line, charOffset);
+            ArrayList<Term> newTerms = processLine(sentence, line, charOffset);
             terms.addAll(newTerms);
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
         }
         return terms;
     }
 
-    private ArrayList<Term> processLine(SentenceRowKey sentenceRowKey, String line, Long charOffset) {
+    private ArrayList<Term> processLine(Sentence sentence, String line, Long charOffset) {
         ArrayList<Term> terms = new ArrayList<Term>();
         String tokenList[] = tokenizer.tokenize(line);
         Span[] tokenListPositions = tokenizer.tokenizePos(line);
         for (TokenNameFinder finder : finders) {
             Span[] foundSpans = finder.find(tokenList);
             for (Span span : foundSpans) {
-                Term term = createTerm(sentenceRowKey, charOffset, span, tokenList, tokenListPositions);
+                Term term = createTerm(sentence, charOffset, span, tokenList, tokenListPositions);
                 terms.add(term);
             }
             finder.clearAdaptiveData();
@@ -81,7 +82,7 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         return terms;
     }
 
-    private Term createTerm(SentenceRowKey sentenceRowKey, Long charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
+    private Term createTerm(Sentence sentence, Long charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
         String sign = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
         Long termMentionStart = charOffset + tokenListPositions[foundName.getStart()].getStart();
         Long termMentionEnd = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
@@ -89,14 +90,22 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         String concept = openNlpTypeToConcept(foundName.getType());
         TermRowKey termKey = new TermRowKey(sign, getModelName(), concept);
         TermMention termMention = new TermMention()
-                .setArtifactKey(sentenceRowKey.getArtifactRowKey())
-                        // .setArtifactKeySign("testArtifactKeySign") TODO what should go here?
-                        // .setAuthor("testAuthor") TODO what should go here?
+                .setArtifactKey(sentence.getData().getArtifactId())
+                .setArtifactKeySign(sentence.getData().getArtifactId())
+                .setAuthor(EXTRACTOR_ID)
                 .setMentionStart(termMentionStart)
                 .setMentionEnd(termMentionEnd);
+        setSecurityMarking(termMention, sentence);
         Term term = new Term(termKey)
                 .addTermMention(termMention);
         return term;
+    }
+
+    private void setSecurityMarking(TermMention termMention, Sentence sentence) {
+        String securityMarking = sentence.getMetadata().getSecurityMarking();
+        if (securityMarking != null) {
+            termMention.setSecurityMarking(sentence.getMetadata().getSecurityMarking());
+        }
     }
 
     protected abstract List<TokenNameFinder> loadFinders() throws IOException;

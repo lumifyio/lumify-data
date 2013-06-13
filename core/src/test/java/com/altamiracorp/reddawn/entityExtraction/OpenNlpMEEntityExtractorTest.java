@@ -86,6 +86,7 @@ public class OpenNlpMEEntityExtractorTest {
         ArtifactRowKey artifactRowKey = ArtifactRowKey.build(text.getBytes());
         SentenceRowKey sentenceRowKey = new SentenceRowKey(artifactRowKey.toString(), 0, 100);
         Sentence sentence = new Sentence(sentenceRowKey);
+        sentence.getData().setArtifactId(artifactRowKey.toString());
         sentence.getData().setText(text);
         sentence.getData().setStart(0L);
         sentence.getData().setEnd(100L);

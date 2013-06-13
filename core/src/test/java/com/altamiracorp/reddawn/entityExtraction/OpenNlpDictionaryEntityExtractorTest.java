@@ -81,6 +81,7 @@ public class OpenNlpDictionaryEntityExtractorTest {
         ArtifactRowKey artifactRowKey = ArtifactRowKey.build(text.getBytes());
         SentenceRowKey sentenceRowKey = new SentenceRowKey(artifactRowKey.toString(), 0, 100);
         Sentence sentence = new Sentence(sentenceRowKey);
+        sentence.getData().setArtifactId(artifactRowKey.toString());
         sentence.getData().setText(text);
         sentence.getData().setStart(0L);
         sentence.getData().setEnd(100L);
@@ -98,6 +99,7 @@ public class OpenNlpDictionaryEntityExtractorTest {
         ArtifactRowKey artifactRowKey = ArtifactRowKey.build(text.getBytes());
         SentenceRowKey sentenceRowKey = new SentenceRowKey(artifactRowKey.toString(), 100, 200);
         Sentence sentence = new Sentence(sentenceRowKey);
+        sentence.getData().setArtifactId(artifactRowKey.toString());
         sentence.getData().setText(text);
         sentence.getData().setStart(100L);
         sentence.getData().setEnd(200L);
@@ -107,6 +109,24 @@ public class OpenNlpDictionaryEntityExtractorTest {
         TermMention firstTermMention = firstTerm.getTermMentions().get(0);
         assertEquals((Long)232L, firstTermMention.getMentionStart());
         assertEquals((Long)252L, firstTermMention.getMentionEnd());
+    }
+
+    @Test
+    public void testEntityExtractionSetsSecurityMarking() throws Exception {
+        extractor.setup(context);
+        ArtifactRowKey artifactRowKey = ArtifactRowKey.build(text.getBytes());
+        SentenceRowKey sentenceRowKey = new SentenceRowKey(artifactRowKey.toString(), 100, 200);
+        Sentence sentence = new Sentence(sentenceRowKey);
+        sentence.getData().setArtifactId(artifactRowKey.toString());
+        sentence.getData().setText(text);
+        sentence.getData().setStart(100L);
+        sentence.getData().setEnd(200L);
+        sentence.getMetadata().setSecurityMarking("U");
+        Collection<Term> terms = extractor.extract(sentence);
+        Term firstTerm = terms.iterator().next();
+        assertEquals("altamira corporation\u001FOpenNlpDictionary\u001Forganization", firstTerm.getRowKey().toString());
+        TermMention firstTermMention = firstTerm.getTermMentions().get(0);
+        assertEquals("U", firstTermMention.getSecurityMarking());
     }
 
     private void validateOutput(List<String> terms) {
