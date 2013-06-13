@@ -42,7 +42,9 @@ public class AccumuloSession extends Session {
     List<Row> findByRowKeyRange(String tableName, String rowKeyStart, String rowKeyEnd, QueryUser queryUser) {
         try {
             Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
-            scanner.setRange(new Range(rowKeyStart, rowKeyEnd));
+            if (rowKeyStart != null) {
+                scanner.setRange(new Range(rowKeyStart, rowKeyEnd));
+            }
             return AccumuloHelper.scannerToRows(tableName, scanner);
         } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
