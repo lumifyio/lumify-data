@@ -149,7 +149,6 @@ public class WebCrawl {
     }
 
     public void run() {
-        // Runs queries on the search engine
         for(SearchEngine engine : engines) engine.runQueue();
     }
 
