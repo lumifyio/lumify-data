@@ -53,10 +53,16 @@ public class WebCrawl {
 	}
 
     protected void loadCommandLine(String[] args) {
-        try {
+		if(args == null || args.length == 0) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("WebCrawl.sh", createOptions());
+			System.exit(0);
+		}
+
+		try {
             cl = parser.parse(createOptions(), args);
         } catch(ParseException e) {
-            System.err.println("The options could not be parsed, please try again");
+            System.err.println("The options could not be parsed, please try again or use --help for more information");
             System.exit(1);
         }
 
