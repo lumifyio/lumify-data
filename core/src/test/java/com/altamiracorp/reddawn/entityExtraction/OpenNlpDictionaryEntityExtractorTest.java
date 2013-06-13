@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.term.TermMention;
 import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.namefind.DictionaryNameFinder;
 import opennlp.tools.namefind.TokenNameFinder;
@@ -21,6 +22,7 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.Map.Entry;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -88,6 +90,23 @@ public class OpenNlpDictionaryEntityExtractorTest {
             extractedTerms.add(term.getRowKey().getSign() + "-" + term.getRowKey().getConceptLabel());
         }
         validateOutput(extractedTerms);
+    }
+
+    @Test
+    public void testEntityExtractionSetsMentionRelativeToArtifactNotSentence() throws Exception {
+        extractor.setup(context);
+        ArtifactRowKey artifactRowKey = ArtifactRowKey.build(text.getBytes());
+        SentenceRowKey sentenceRowKey = new SentenceRowKey(artifactRowKey.toString(), 100, 200);
+        Sentence sentence = new Sentence(sentenceRowKey);
+        sentence.getData().setText(text);
+        sentence.getData().setStart(100L);
+        sentence.getData().setEnd(200L);
+        Collection<Term> terms = extractor.extract(sentence);
+        Term firstTerm = terms.iterator().next();
+        assertEquals("altamira corporation\u001FOpenNlpDictionary\u001Forganization", firstTerm.getRowKey().toString());
+        TermMention firstTermMention = firstTerm.getTermMentions().get(0);
+        assertEquals((Long)232L, firstTermMention.getMentionStart());
+        assertEquals((Long)252L, firstTermMention.getMentionEnd());
     }
 
     private void validateOutput(List<String> terms) {

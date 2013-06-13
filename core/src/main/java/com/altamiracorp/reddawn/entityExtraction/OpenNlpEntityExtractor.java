@@ -36,6 +36,7 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
 
     private static final String PATH_PREFIX_CONFIG = "nlpConfPathPrefix";
     private static final String DEFAULT_PATH_PREFIX = "hdfs://";
+    private static final int NEW_LINE_CHARACTER_LENGTH = 1;
 
     @Override
     public void setup(Context context) throws IOException {
@@ -56,16 +57,16 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         ArrayList<Term> terms = new ArrayList<Term>();
         ObjectStream<String> untokenizedLineStream = new PlainTextByLineStream(new StringReader(text));
         String line;
-        int charOffset = 0;
+        Long charOffset = sentence.getData().getStart();
         while ((line = untokenizedLineStream.read()) != null) {
             ArrayList<Term> newTerms = processLine(sentenceRowKey, line, charOffset);
             terms.addAll(newTerms);
-            charOffset += line.length() + 1; // + 1 for new line character
+            charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
         }
         return terms;
     }
 
-    private ArrayList<Term> processLine(SentenceRowKey sentenceRowKey, String line, int charOffset) {
+    private ArrayList<Term> processLine(SentenceRowKey sentenceRowKey, String line, Long charOffset) {
         ArrayList<Term> terms = new ArrayList<Term>();
         String tokenList[] = tokenizer.tokenize(line);
         Span[] tokenListPositions = tokenizer.tokenizePos(line);
@@ -80,10 +81,10 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         return terms;
     }
 
-    private Term createTerm(SentenceRowKey sentenceRowKey, int charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
+    private Term createTerm(SentenceRowKey sentenceRowKey, Long charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
         String sign = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
-        int termMentionStart = charOffset + tokenListPositions[foundName.getStart()].getStart();
-        int termMentionEnd = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
+        Long termMentionStart = charOffset + tokenListPositions[foundName.getStart()].getStart();
+        Long termMentionEnd = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
 
         String concept = openNlpTypeToConcept(foundName.getType());
         TermRowKey termKey = new TermRowKey(sign, getModelName(), concept);
@@ -91,8 +92,8 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
                 .setArtifactKey(sentenceRowKey.getArtifactRowKey())
                         // .setArtifactKeySign("testArtifactKeySign") TODO what should go here?
                         // .setAuthor("testAuthor") TODO what should go here?
-                .setMentionStart((long) termMentionStart)
-                .setMentionEnd((long) termMentionEnd);
+                .setMentionStart(termMentionStart)
+                .setMentionEnd(termMentionEnd);
         Term term = new Term(termKey)
                 .addTermMention(termMention);
         return term;
