@@ -65,11 +65,8 @@ define([
         };
 
         this.addMessage = function(userId, message) {
+			this.checkChatWindow(userId);
             var $chatWindow = $('#chat-window-' + userId);
-            if ($chatWindow.length === 0) {
-                this.trigger('createChatWindow', { id:userId, activate:true });
-                $chatWindow = $('#chat-window-' + userId);
-            }
             $chatWindow.find('.chat-messages').append(chatMessageTemplate({
                 message: message
             }));
@@ -78,18 +75,29 @@ define([
             $chatWindow.animate({scrollTop:bottom}, 'fast');
         };
 
+		this.checkChatWindow = function (userId) {
+		    var $chatWindow = $('#chat-window-' + userId);
+            if ($chatWindow.length === 0) {
+                this.trigger('createChatWindow', { id:userId, activate:true });
+                $chatWindow = $('#chat-window-' + userId);
+            }	
+		}
+
         this.onMessage = function(evt, message) {
 			switch (message.type) {
 				case 'chatMessage':
 					this.addMessage(message.from.id, message);
 					break;
 				case 'syncRequest':
+					this.checkChatWindow(message.initiatorId);
 					this.trigger('incomingSyncRequest',message);
 					break;
 				case 'syncRequestAcceptance':
+					this.checkChatWindow(message.userIds[0]);
 					this.trigger('incomingSyncAccept',message);
 					break;
 				case 'syncRequestRejection':
+					this.checkChatWindow(message.userIds[0]);
 					this.trigger('incomingSyncReject',message);
 					break;
 			}
