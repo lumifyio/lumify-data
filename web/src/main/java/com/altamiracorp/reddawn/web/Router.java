@@ -6,6 +6,8 @@ import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
 import com.altamiracorp.reddawn.web.routes.entity.EntityByRowKey;
 import com.altamiracorp.reddawn.web.routes.entity.EntityRelationships;
 import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
+import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
+import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
 import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceByRowKey;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceList;
@@ -54,6 +56,9 @@ public class Router extends HttpServlet {
         app.get("/workspace/{workspaceRowKey}", authenticator, WorkspaceByRowKey.class);
 
         app.get("/user/messages", authenticator, MessagesGet.class);
+
+        app.get("/map/map-init.js", MapInitHandler.class);
+        app.get("/map/{z}/{x}/{y}.png", MapTileHandler.class);
 
         app.post("/chat/new", authenticator, ChatNew.class);
         app.post("/chat/{chatId}/post", authenticator, ChatPostMessage.class);

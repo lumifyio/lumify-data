@@ -104,8 +104,18 @@ html, body {
 .graph-pane { 
   .fullscreen;
   left: @menubar-width;
+  top: @mode-select-height;
 
   @import "graph/graph";
+}
+
+.map-pane {
+  .fullscreen;
+  left: @menubar-width;
+  top: @mode-select-height;
+  display: none;
+
+  @import "map/map";
 }
 
 .detail-pane { 
@@ -116,4 +126,6 @@ html, body {
   @import "detail/detail";
 }
 
-
+.mode-select-pane {
+    padding-left: 300px;
+}
