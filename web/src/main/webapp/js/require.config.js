@@ -12,11 +12,13 @@ var require = {
     text: '../libs/requirejs-text/text',
     ejs:  '../libs/ejs/ejs',
     tpl: '../libs/requirejs-ejs-plugin/rejs',
-    cytoscape: '../libs/cytoscape/cytoscape'
+    cytoscape: '../libs/cytoscape/cytoscape',
+	atmosphere: '../libs/jquery.atmosphere/jquery.atmosphere'
   },
   shim: {
     ejs: { exports: 'ejs' },
-    cytoscape: { exports: 'cytoscape' }
+    cytoscape: { exports: 'cytoscape' },
+	atmosphere: { exports: 'jQuery' }
   },
   deps : ['reddawn']
 };
