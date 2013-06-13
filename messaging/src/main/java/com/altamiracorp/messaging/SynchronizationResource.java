@@ -10,9 +10,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import org.atmosphere.cpr.Broadcaster;
-import org.atmosphere.cpr.BroadcasterFactory;
-
 import com.altamiracorp.messaging.synchronization.SynchronizationBus;
 import com.altamiracorp.messaging.synchronization.SynchronizationRequest;
 
