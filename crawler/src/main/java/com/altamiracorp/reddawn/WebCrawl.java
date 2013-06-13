@@ -169,7 +169,7 @@ public class WebCrawl {
                 OptionBuilder
                         .withArgName("d")
                         .withLongOpt("directory")
-                        .withDescription("The directory to import")
+                        .withDescription("The absolute path of the directory to write files to (defaults to ../data/searcher/ if none provided) - optional")
                         .isRequired()
                         .hasArg(true)
                         .create()
@@ -179,7 +179,7 @@ public class WebCrawl {
                 OptionBuilder
                         .withArgName("p")
                         .withLongOpt("provider")
-                        .withDescription("The search provider(s) to use for this query (choose one or more of google, news, reddit, and rss)")
+                        .withDescription("The search provider(s) to use for this query, separated by commas for multiple (options: google, news, reddit, rss) - required")
                         .isRequired()
                         .hasArg(true)
                         .create()
@@ -198,7 +198,7 @@ public class WebCrawl {
                 OptionBuilder
                         .withArgName("c")
                         .withLongOpt("result-count")
-                        .withDescription("The number of results to return from the query")
+                        .withDescription("The number of results to return from each query performed - required for google, news, and reddit providers, optional for rss provider")
                         .hasArg(true)
                         .create()
         );
@@ -207,7 +207,7 @@ public class WebCrawl {
                 OptionBuilder
                         .withArgName("r")
                         .withLongOpt("rss")
-                        .withDescription("The RSS feed URL(s) to fetch for this query (separate multiple with commas)")
+                        .withDescription("The RSS feed URL(s) to fetch for this query (separate multiple with commas) - required for rss provider")
                         .hasArg(true)
                         .create()
         );
