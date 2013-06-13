@@ -14,6 +14,6 @@ public class UserResource {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Users getLoggedInUsers() {
-		return UserUtil.getLoggedInUsers();
+		return UserUtil.getSessionUsers();
 	}
 }

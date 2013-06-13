@@ -1,8 +1,12 @@
 
-define(
+define(['atmosphere'],
     function() {
         function ServiceBase(options) {
             options = options || {};
+			
+			if (!document.$socket) {
+				document.$socket = $.atmosphere;
+			}
 
             //define deafault options
             var defaults = {
@@ -21,6 +25,10 @@ define(
 
             return this;
         }
+
+		ServiceBase.prototype.getSocket = function () {
+			return document.$socket;
+		}
 
         ServiceBase.prototype._ajaxPost = function(options, callback) {
             options.type = options.type || "POST";
@@ -47,6 +55,29 @@ define(
 
             return $.ajax(options);
         };
+		
+		ServiceBase.prototype._publishMessage = function (url, messageObj, callback, options) {
+			var defaults = {
+				url: url,
+				transport: "websocket",
+				contentType: "text/html;charset=ISO-8859-1",
+				onError: function (response) {
+					callback(response.error,null);
+				}, 
+	            onOpen: function() {
+	                subSocket.push({data: "message=" + JSON.stringify(messageObj)});
+					callback(null,messageObj);
+	            }
+			};
+
+			var pubRequest = $.extend({},defaults,options);
+			var subSocket = this.getSocket().subscribe(pubRequest);
+		}
+		
+		ServiceBase.prototype._unsubscribe = function (url) {
+			this.getSocket().unsubscribeUrl(url);
+		}
+		
 
         ServiceBase.prototype._resolveUrl = function (urlSuffix) {
             return this.options.serviceBaseUrl + this.options.serviceContext + urlSuffix;

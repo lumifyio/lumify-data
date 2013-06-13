@@ -84,22 +84,24 @@ define([
 
         this.onMessage = function(evt, message) {
             var id;
+ 			
+			switch (message.type) {
+				
+				case 'chatMessage':
+					id = message.from.id;
+					break;
+				case 'syncRequest':
+				case 'syncRequestAcceptance':
+				case 'syncRequestRejection':
+					id = message.initiatorId;
+					break;
+				
+			}
+			
+			this.createOrActivateConversation(id);
 
-            if (message.type == 'chat') {
-
-                var user = message.chat.users[0] === this.currentUserId ? message.chat.users[1] : message.chat.users[0];
-                id = user.id;
-                this.createOrActivateConversation(id);
-
-            } else if(message.type == 'chatMessage') {
-
-                id = message.from.id;
-                this.createOrActivateConversation(id);
-
-                var badge = this.select('usersListSelector').find('li.conversation-' + id + ':not(.active) .badge');
-                badge.text( +badge.text() + 1 );
-
-            }
+            var badge = this.select('usersListSelector').find('li.conversation-' + id + ':not(.active) .badge');
+            badge.text( +badge.text() + 1 );
         };
 
 
@@ -129,6 +131,8 @@ define([
                     self.trigger(document, 'userOnlineStatusChanged', user);
                 }
             });
+			
+			self.onlineUsers = data.users;
 		};
 
         this.doGetOnline = function() {
@@ -154,8 +158,6 @@ define([
                 }
 				
 				self.handleUserChanges (null, data);
-                self.onlineUsers = data.users;
-				
 				
 				self.usersService.subscribeToUserChangeChannel (self.currentUserId,self.handleUserChanges.bind(self));
 				self.usersService.subscribeToChatChannel(self.currentUserId,function (err, data) {

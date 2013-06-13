@@ -1,13 +1,11 @@
 
 define(
 [
-    'service/serviceBase',
-	'atmosphere'
+    'service/serviceBase'
 ],
 function(ServiceBase) {
     function ChatService() {
         ServiceBase.call(this);
-		this.$socket = $.atmosphere;
 
         return this;
     }
@@ -26,7 +24,6 @@ function(ServiceBase) {
 	*/
 
     ChatService.prototype.sendChatMessage = function(userId, myUserId, message, callback) {
-        console.log('sending chat message: chatId:', userId, 'message:', message, 'myUserId:', myUserId);
 		var chatMessage = {
             from: { id: myUserId },
             message: message,
@@ -34,21 +31,34 @@ function(ServiceBase) {
 			type: 'chatMessage'
         };
 
-		var chatRequest = {
-			url: "/messaging/pubsub/user-" + userId,
-			transport: "websocket",
-			contentType: "text/html;charset=ISO-8859-1",
-			//data: "message=" + JSON.stringify(chatMessage),
-			onError: function (response) {
-				callback(response.error,null);
-			}, 
-            onOpen: function() {
-                subSocket.push({data: "message=" + JSON.stringify(chatMessage)});
-            }
-		};
-		var subSocket = this.$socket.subscribe(chatRequest);
-		//callback(null,message);
+		this._sendMessage(userId,chatMessage,callback);
     };
+
+    ChatService.prototype.sendSyncRequest = function(syncRequest, callback) {
+		this._sendSyncMessage(syncRequest,syncRequest.userIds[0],'syncRequest',callback);
+    };
+
+    ChatService.prototype.acceptSyncRequest = function(syncRequest, callback) {
+		this._sendSyncMessage(syncRequest,syncRequest.initiatorId,'syncRequestAcceptance',callback);
+    };
+
+    ChatService.prototype.rejectSyncRequest = function(syncRequest, callback) {
+		this._sendSyncMessage(syncRequest,syncRequest.initiatorId,'syncRequestRejection',callback);
+    };
+
+	ChatService.prototype._sendSyncMessage = function (syncRequest, user, type, callback) {
+		syncRequest.type = type;
+		this._sendMessage(user,syncRequest,function (err, data) {
+			//only need to handle error case here, don't do anything else
+			if (err) {
+				callback(err,null);
+			}
+		});
+	}
+
+	ChatService.prototype._sendMessage = function (userId, messageObj, callback, options) {
+		this._publishMessage ("/messaging/pubsub/user-" + userId, messageObj, callback, options);
+	}
 
 	ChatService.prototype._formatPostDate = function () {
 		var date = new Date();

@@ -13,6 +13,7 @@ import org.atmosphere.cpr.BroadcasterFactory;
 import org.atmosphere.jersey.Broadcastable;
 import org.atmosphere.jersey.SuspendResponse;
 
+import com.altamiracorp.messaging.synchronization.SynchronizationSessionListener;
 import com.altamiracorp.messaging.users.UserChangeListener;
 
 /**
@@ -24,16 +25,20 @@ import com.altamiracorp.messaging.users.UserChangeListener;
 @Path("/pubsub/{topic}")
 public class PubSub {
 	
-	private static UserChangeListener listener;
+	private static UserChangeListener userChangeListener;
+	private static SynchronizationSessionListener syncSessionListener;
 
 	private @PathParam("topic")
 	Broadcaster topic;
 
 	@GET
 	public SuspendResponse<String> subscribe() {
-		if (topic.getID().equals("userChanges") && listener == null) {
-			listener = new UserChangeListener();
-			BroadcasterFactory.getDefault().addBroadcasterListener(listener);
+		if (topic.getID().equals("userChanges") && userChangeListener == null) {
+			userChangeListener = new UserChangeListener();
+			BroadcasterFactory.getDefault().addBroadcasterListener(userChangeListener);
+		} else if (topic.getID().startsWith("sync-") && syncSessionListener == null) {
+			syncSessionListener = new SynchronizationSessionListener();
+			BroadcasterFactory.getDefault().addBroadcasterListener(syncSessionListener);
 		}
 		return new SuspendResponse.SuspendResponseBuilder<String>()
 				.broadcaster(topic).outputComments(true).build();

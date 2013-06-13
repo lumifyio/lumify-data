@@ -2,9 +2,10 @@
 define([
     'flight/lib/component',
     'service/chat',
+	'sync/sync',
     'tpl!./chatWindow',
     'tpl!./chatMessage'
-], function(defineComponent, ChatService, chatWindowTemplate, chatMessageTemplate) {
+], function(defineComponent, ChatService, Sync, chatWindowTemplate, chatMessageTemplate) {
     'use strict';
 
     return defineComponent(Chat);
@@ -16,7 +17,8 @@ define([
 
         this.defaultAttrs({
             newMessageFormSelector: 'form.new-message',
-            chatWindowSelector: '.chat-window'
+            chatWindowSelector: '.chat-window',
+			syncRequestSelector: '.sync-request'
         });
 
         this.after('initialize', function() {
@@ -52,6 +54,7 @@ define([
                 this.openChats[user.id] = user;
                 var dom = $(chatWindowTemplate({ user: user , users: [this.currentUser, user]}));
                 dom.hide().appendTo(this.$node);
+				Sync.attachTo(this.select('syncRequestSelector'),{ chatUser : user.id, me : this.currentUser.id});
             }
 
             if (options && options.activate) {
@@ -76,11 +79,20 @@ define([
         };
 
         this.onMessage = function(evt, message) {
-            if(message.type == 'chat') {
-                this.createOrFocusChat(message.chat);
-            } else if(message.type == 'chatMessage') {
-                this.addMessage(message.from.id, message);
-            }
+			switch (message.type) {
+				case 'chatMessage':
+					this.addMessage(message.from.id, message);
+					break;
+				case 'syncRequest':
+					this.trigger('incomingSyncRequest',message);
+					break;
+				case 'syncRequestAcceptance':
+					this.trigger('incomingSyncAccept',message);
+					break;
+				case 'syncRequestRejection':
+					this.trigger('incomingSyncReject',message);
+					break;
+			}
         };
 
         this.onNewMessageFormSubmit = function(evt) {

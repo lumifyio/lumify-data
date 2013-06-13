@@ -1,13 +1,11 @@
 
 define(
 [
-    'service/serviceBase',
-	'atmosphere'
+    'service/serviceBase'
 ],
 function(ServiceBase, atmosphere) {
     function UserService() {
         ServiceBase.call(this);
- 		this.$socket = $.atmosphere;
 
         return this;
     }
@@ -49,7 +47,7 @@ function(ServiceBase, atmosphere) {
 				onmessage(response.error,null);
 			}
 		};
-		this.$socket.subscribe(chatRequest);
+		this.getSocket().subscribe(chatRequest);
 	};
 	
 	UserService.prototype.subscribeToUserChangeChannel = function (userId,onmessage) {
@@ -65,7 +63,7 @@ function(ServiceBase, atmosphere) {
 				onmessage(response.error,null);
 			}
 		};
-		this.$socket.subscribe(userChangeRequest);
+		this.getSocket().subscribe(userChangeRequest);
 	};
 	
 	UserService.prototype.getCurrentUsers = function (callback) {

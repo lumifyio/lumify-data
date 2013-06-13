@@ -20,11 +20,11 @@ public class UserChangeListener implements BroadcasterListener {
 	}
 
 	public void onPostCreate(Broadcaster b) {
-		System.out.println("Topic created! " + b.getID());
 		if (UserUtil.isUserTopic(b.getID())) {
+			UserUtil.changeUserStatus(UserUtil.createUserFromTopic(b.getID()), "online");
 			try {
-				BroadcasterFactory.getDefault().lookup(USER_CHANGE_TOPIC).broadcast(
-						UserUtil.getLoggedInUsers().toJson());
+				BroadcasterFactory.getDefault().lookup(USER_CHANGE_TOPIC)
+						.broadcast(UserUtil.getSessionUsers().toJson());
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -32,15 +32,11 @@ public class UserChangeListener implements BroadcasterListener {
 	}
 
 	public void onPreDestroy(Broadcaster b) {
-		//String userName = UserUtil.topicToUsername(b.getID());
 		if (UserUtil.isUserTopic(b.getID())) {
-			/*Users loggedInUsers = UserUtil.getLoggedInUsers();
-			CollectionUtils.filter(loggedInUsers.getUsers(), PredicateUtils
-					.notPredicate(PredicateUtils.equalPredicate(userName)));*/
-
 			try {
-				BroadcasterFactory.getDefault().lookup(USER_CHANGE_TOPIC).broadcast(
-						UserUtil.getLoggedInUsers().toJson());
+				UserUtil.changeUserStatus(UserUtil.createUserFromTopic(b.getID()), "offline");
+				BroadcasterFactory.getDefault().lookup(USER_CHANGE_TOPIC, true)
+						.broadcast(UserUtil.getSessionUsers().toJson());
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
