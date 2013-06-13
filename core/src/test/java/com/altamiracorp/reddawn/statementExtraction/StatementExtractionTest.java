@@ -24,10 +24,19 @@ import static org.junit.Assert.assertEquals;
 public class StatementExtractionTest {
     @Test
     @Ignore
-    public void DoIt() throws AccumuloSecurityException, AccumuloException {
+    public void testArtifactCounts() throws AccumuloSecurityException, AccumuloException {
+        Session session = createModelSession();
+        ArtifactRepository artifactRepository = new ArtifactRepository();
+        List<Artifact> rows = artifactRepository.findAll(session);
+        assertEquals(233, rows.size());
+    }
+
+    @Test
+    @Ignore
+    public void testSentenceCounts() throws AccumuloSecurityException, AccumuloException {
         Session session = createModelSession();
         SentenceRepository sentenceRepository = new SentenceRepository();
-        List<Sentence> rows = sentenceRepository.findByRowStartsWith(session, "urn");
+        List<Sentence> rows = sentenceRepository.findAll(session);
         assertEquals(0, rows.size());
     }
 
@@ -35,7 +44,7 @@ public class StatementExtractionTest {
         String zookeeperInstanceName = "reddawn";
         String zookeeperServerName = "192.168.33.10";
         String username = "root";
-        String password = "password";
+        String password = "reddawn";
         ZooKeeperInstance zooKeeperInstance = new ZooKeeperInstance(zookeeperInstanceName, zookeeperServerName);
         Connector connector = zooKeeperInstance.getConnector(username, password);
 

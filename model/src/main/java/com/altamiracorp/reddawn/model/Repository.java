@@ -25,6 +25,11 @@ public abstract class Repository<T> {
         return fromRows(rows);
     }
 
+    public List<T> findAll(Session session) {
+        Collection<Row> rows = session.findByRowStartsWith(getTableName(), null, session.getQueryUser());
+        return fromRows(rows);
+    }
+
     public void save(Session session, T obj) {
         Row r = toRow(obj);
         session.save(r);
