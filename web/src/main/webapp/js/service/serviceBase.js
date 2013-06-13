@@ -57,21 +57,14 @@ define(['atmosphere'],
         };
 		
 		ServiceBase.prototype._publishMessage = function (url, messageObj, callback, options) {
-			var defaults = {
+			this._ajaxPost({
+				resolvedUrl: url,
 				url: url,
-				transport: "websocket",
-				contentType: "text/html;charset=ISO-8859-1",
-				onError: function (response) {
-					callback(response.error,null);
-				}, 
-	            onOpen: function() {
-	                subSocket.push({data: "message=" + JSON.stringify(messageObj)});
-					callback(null,messageObj);
-	            }
-			};
-
-			var pubRequest = $.extend({},defaults,options);
-			var subSocket = this.getSocket().subscribe(pubRequest);
+				data: "message=" + JSON.stringify(messageObj),
+				dataType: "text"
+			},function (err, data) {
+				callback(err,messageObj);
+			});
 		}
 		
 		ServiceBase.prototype._unsubscribe = function (url) {

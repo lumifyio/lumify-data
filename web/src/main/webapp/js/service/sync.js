@@ -63,28 +63,32 @@ function(ServiceBase) {
 			payload: payload
 		};
 		
-		this._publishMessage("/messaging/pubsub/sync-" + this.getCurrentSync().sessionId, syncMessage, function (err, data) {
-			if (err) {
-				console.err("There was an error publishing a sync event! " + evt + " " + err);
-			}
-		});
+		this.getCurrentSync().subSocket.push({data : "message=" + JSON.stringify(syncMessage)});
 	};
 	
 	SyncService.prototype.startSync = function (syncRequest, onmessage, onclose) {
-		this.setCurrentSync(syncRequest);
+		var self = this;
 		var syncChannelRequest = {
 			url: "/messaging/pubsub/sync-" + syncRequest.sessionId,
 			transport: "websocket",
 			contentType: "text/html;charset=ISO-8859-1",
+			maxReconnectOnClose: 0,
 			onMessage: function (response) {
 				var data = JSON.parse(response.responseBody);
 				onmessage(null,data);
 			},
 			onError: function (response) {
 				onmessage(response.error,null);
+			},
+			onClose: function (response) {
+				self.removeCurrentSync();
+				onclose(null,response);
+			},
+			onOpen: function (response) {
+				self.setCurrentSync(syncRequest);
 			}
 		};
-		this.getSocket().subscribe(syncChannelRequest);
+		syncRequest.subSocket = this.getSocket().subscribe(syncChannelRequest);
 	};
 	
 	SyncService.prototype.initiateEndOfSync = function (initiator, syncRequest, callback) {
@@ -99,11 +103,7 @@ function(ServiceBase) {
 				syncEnd : true
 			};
 
-			self._publishMessage("/messaging/pubsub/sync-" + self.getCurrentSync().sessionId, syncEndMessage, function (err, data) {
-				if (err) {
-					console.err("There was an error publishing the sync end event! " + evt + " " + err);
-				}
-			});
+			self.getCurrentSync().subSocket.push({data : "message=" + JSON.stringify(syncEndMessage)});
 			self.removeCurrentSync();
 			callback(err,response);
 		});

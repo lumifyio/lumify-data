@@ -38,6 +38,7 @@ function(ServiceBase, atmosphere) {
 		var chatRequest = {
 			url: "/messaging/pubsub/user-" + userId,
 			transport: "websocket",
+			timeout: 3600000,
 			contentType: "text/html;charset=ISO-8859-1",
 			onMessage: function (response) {
 				var data = JSON.parse(response.responseBody);

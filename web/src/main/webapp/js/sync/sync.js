@@ -82,7 +82,9 @@ define([
 						console.error('Error accepting the sync request!: ' + err);
 					}
 				});
-				self.syncService.startSync(self.currentSyncRequest, self.onSyncMessage.bind(self));
+				self.syncService.startSync(self.currentSyncRequest, self.onSyncMessage.bind(self), function (err, data) {
+					self.trigger("syncEnded",{});
+				}.bind(self));
 			});
 		};
 		
@@ -127,7 +129,9 @@ define([
 				return;
 			}
 			
-			this.syncService.startSync(this.currentSyncRequest, this.onSyncMessage.bind(this));
+			this.syncService.startSync(this.currentSyncRequest, this.onSyncMessage.bind(this),function (err,data) {
+				this.trigger("syncEnded",{});
+			}.bind(this));
 			this._setEndButton();
 		};
 		

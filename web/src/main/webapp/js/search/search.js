@@ -58,9 +58,15 @@ define([
         };
 
         this.doSearch = function(evt, query) {
+			//added for sync effect
 			if (!this.searchResults) {
 				this.searchResults = {};
 			}
+			
+			if (this.select('searchQuerySelector').val() != query.query) {
+				this.select('searchQuerySelector').val(query.query);
+			}
+			
             var self = this;
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
             var $searchResults = this.select('searchResultsSelector');
