@@ -6,8 +6,9 @@ define([
     'search/search',
     'users/users',
     'graph/graph',
-    'detail/detail'
-], function(appTemplate, defineComponent, Menubar, Search, Users, Graph, Detail) {
+    'detail/detail',
+    'map/map'
+], function(appTemplate, defineComponent, Menubar, Search, Users, Graph, Detail, Map) {
     'use strict';
 
     return defineComponent(App);
@@ -23,7 +24,8 @@ define([
             searchSelector: '.search-pane',
             usersSelector: '.users-pane',
             graphPaneSelector: '.graph-pane',
-            detailPaneSelector: '.detail-pane'
+            detailPaneSelector: '.detail-pane',
+            modeSelectSelector: '.mode-select'
         });
 
         this.after('initialize', function() {
@@ -37,7 +39,8 @@ define([
                 searchPane = content.filter('.search-pane'),
                 usersPane = content.filter('.users-pane'),
                 graphPane = content.filter('.graph-pane'),
-                detailPane = content.filter('.detail-pane');
+                detailPane = content.filter('.detail-pane'),
+                mapPane = content.filter('.map-pane');
 
 
             Menubar.attachTo(menubarPane.find('.content'));
@@ -45,6 +48,7 @@ define([
             Users.attachTo(usersPane.find('.content'));
             Graph.attachTo(graphPane);
             Detail.attachTo(detailPane.find('.content'));
+            Map.attachTo(mapPane);
 
             // Configure splitpane resizing
             resizable(searchPane, 'e');
@@ -52,11 +56,33 @@ define([
 
             this.$node.html(content);
 
-
             // Open search when the page is loaded
             this.trigger(document, 'menubarToggleDisplay', {name:'search'});
+            this.on('click', {
+                modeSelectSelector: this.onModeSelectClick
+            });
+            this.$lastModeSelect = $('.mode-select-graph');
         });
 
+        this.onModeSelectClick = function(evt, data) {
+            var $target = $(evt.target);
+
+            if (this.$lastModeSelect) {
+                if (this.$lastModeSelect.hasClass('mode-select-graph')) {
+                    this.trigger(document, 'graphHide');
+                } else if (this.$lastModeSelect.hasClass('mode-select-map')) {
+                    this.trigger(document, 'mapHide');
+                }
+            }
+
+            if ($target.hasClass('mode-select-graph')) {
+                this.trigger(document, 'graphShow');
+            } else if ($target.hasClass('mode-select-map')) {
+                this.trigger(document, 'mapShow');
+            }
+
+            this.$lastModeSelect = $target;
+        };
 
         this.toggleDisplay = function(e, data) {
             this.select(data.name + 'Selector').toggleClass('visible');
