@@ -1,7 +1,9 @@
+//
+// !!! Also add changes to test/runner/main.js for testing !!!
+//
 
 var cytoscapePlugins = [
-  'jquery.cytoscape-panzoom',
-  'jquery.cytoscape-edgehandles',
+  'jquery.cytoscape-panzoom'
 ];
 
 var require = {
