@@ -27,7 +27,7 @@ public abstract class Session {
 
     abstract void initializeTable(String tableName);
 
-    abstract void deleteTable(String tableName);
+    public abstract void deleteTable(String tableName);
 
     public void initializeTables() {
         initializeTable(Artifact.TABLE_NAME);

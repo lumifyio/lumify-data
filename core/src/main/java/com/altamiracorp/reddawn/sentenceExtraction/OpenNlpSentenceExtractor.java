@@ -51,7 +51,8 @@ public class OpenNlpSentenceExtractor implements SentenceExtractor {
             data.setArtifactId(artifact.getRowKey().toString());
             data.setStart(Long.valueOf(span.getStart()));
             data.setEnd(Long.valueOf(span.getEnd()));
-            data.setText(text.substring(span.getStart(), span.getStart() + span.getEnd() - span.getStart()));
+            int spanLength = span.getEnd() - span.getStart();
+            data.setText(text.substring(span.getStart(), span.getStart() + spanLength));
 
             SentenceMetadata metaData = sentence.getMetadata();
             metaData.setContentHash(data.getText());

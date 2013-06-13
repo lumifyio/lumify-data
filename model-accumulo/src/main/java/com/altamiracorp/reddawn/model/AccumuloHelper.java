@@ -67,7 +67,7 @@ public class AccumuloHelper {
         return row;
     }
 
-    private static Object accumuloValueToObject(Value value) {
-        return value.toString();
+    private static byte[] accumuloValueToObject(Value value) {
+        return value.get();
     }
 }

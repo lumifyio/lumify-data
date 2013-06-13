@@ -67,7 +67,7 @@ public class MockSession extends Session {
     }
 
     @Override
-    void deleteTable(String tableName) {
+    public void deleteTable(String tableName) {
         this.tables.remove(tableName);
     }
 }

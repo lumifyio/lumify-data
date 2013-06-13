@@ -90,7 +90,7 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    void deleteTable(String tableName) {
+    public void deleteTable(String tableName) {
         try {
             if (connector.tableOperations().exists(tableName)) {
                 connector.tableOperations().delete(tableName);

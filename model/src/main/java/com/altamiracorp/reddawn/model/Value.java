@@ -1,5 +1,9 @@
 package com.altamiracorp.reddawn.model;
 
+import org.apache.commons.codec.binary.Hex;
+
+import java.nio.ByteBuffer;
+
 public class Value {
     private final byte[] value;
 
@@ -35,11 +39,7 @@ public class Value {
     }
 
     private byte[] longToBytes(Long value) {
-        byte[] b = new byte[8];
-        for (int i = 0; i < 8; ++i) {
-            b[i] = (byte) (value >> (8 - i - 1 << 3));
-        }
-        return b;
+        return ByteBuffer.allocate(8).putLong(value).array();
     }
 
     public byte[] toBytes() {
@@ -47,11 +47,7 @@ public class Value {
     }
 
     public Long toLong() {
-        long result = 0;
-        for (byte aValue : this.value) {
-            result = (result << 8) + (aValue & 0xff);
-        }
-        return result;
+        return ByteBuffer.wrap(this.value).getLong();
     }
 
     @Override
