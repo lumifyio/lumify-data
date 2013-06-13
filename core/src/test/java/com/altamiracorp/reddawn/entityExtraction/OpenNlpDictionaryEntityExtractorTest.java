@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.namefind.DictionaryNameFinder;
@@ -74,8 +75,9 @@ public class OpenNlpDictionaryEntityExtractorTest {
     @Test
     public void testEntityExtraction() throws Exception {
         extractor.setup(context);
-        ArtifactRowKey key = ArtifactRowKey.build(text.getBytes());
-        Collection<Term> terms = extractor.extract(key, text);
+        ArtifactRowKey artifactRowKey = ArtifactRowKey.build(text.getBytes());
+        SentenceRowKey sentenceRowKey = new SentenceRowKey(artifactRowKey.toString(), 0, 100);
+        Collection<Term> terms = extractor.extract(sentenceRowKey, text);
         List<String> extractedTerms = new ArrayList<String>();
         for (Term term : terms) {
             extractedTerms.add(term.getRowKey().getSign() + "-" + term.getRowKey().getConceptLabel());

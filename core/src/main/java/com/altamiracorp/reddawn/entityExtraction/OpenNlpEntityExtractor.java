@@ -1,6 +1,6 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
@@ -47,29 +47,29 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
     }
 
     @Override
-    public Collection<Term> extract(ArtifactRowKey artifactKey, String text)
+    public Collection<Term> extract(SentenceRowKey sentenceRowKey, String text)
             throws Exception {
-        LOGGER.info("Extracting entities from artifact: " + artifactKey.toString());
+        LOGGER.info("Extracting entities from sentence: " + sentenceRowKey.toString());
         ArrayList<Term> terms = new ArrayList<Term>();
         ObjectStream<String> untokenizedLineStream = new PlainTextByLineStream(new StringReader(text));
         String line;
         int charOffset = 0;
         while ((line = untokenizedLineStream.read()) != null) {
-            ArrayList<Term> newTerms = processLine(artifactKey, line, charOffset);
+            ArrayList<Term> newTerms = processLine(sentenceRowKey, line, charOffset);
             terms.addAll(newTerms);
             charOffset += line.length() + 1; // + 1 for new line character
         }
         return terms;
     }
 
-    private ArrayList<Term> processLine(ArtifactRowKey artifactKey, String line, int charOffset) {
+    private ArrayList<Term> processLine(SentenceRowKey sentenceRowKey, String line, int charOffset) {
         ArrayList<Term> terms = new ArrayList<Term>();
         String tokenList[] = tokenizer.tokenize(line);
         Span[] tokenListPositions = tokenizer.tokenizePos(line);
         for (TokenNameFinder finder : finders) {
             Span[] foundSpans = finder.find(tokenList);
             for (Span span : foundSpans) {
-                Term term = createTerm(artifactKey, charOffset, span, tokenList, tokenListPositions);
+                Term term = createTerm(sentenceRowKey, charOffset, span, tokenList, tokenListPositions);
                 terms.add(term);
             }
             finder.clearAdaptiveData();
@@ -77,7 +77,7 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         return terms;
     }
 
-    private Term createTerm(ArtifactRowKey artifactKey, int charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
+    private Term createTerm(SentenceRowKey sentenceRowKey, int charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
         String sign = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
         int termMentionStart = charOffset + tokenListPositions[foundName.getStart()].getStart();
         int termMentionEnd = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
@@ -85,7 +85,7 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         String concept = openNlpTypeToConcept(foundName.getType());
         TermRowKey termKey = new TermRowKey(sign, getModelName(), concept);
         TermMention termMention = new TermMention()
-                .setArtifactKey(artifactKey.toString())
+                .setArtifactKey(sentenceRowKey.getArtifactRowKey())
                         // .setArtifactKeySign("testArtifactKeySign") TODO what should go here?
                         // .setAuthor("testAuthor") TODO what should go here?
                 .setMentionStart((long) termMentionStart)
