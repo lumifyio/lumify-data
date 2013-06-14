@@ -58,6 +58,15 @@ define([
         };
 
         this.doSearch = function(evt, query) {
+			//added for sync effect
+			if (!this.searchResults) {
+				this.searchResults = {};
+			}
+			
+			if (this.select('searchQuerySelector').val() != query.query) {
+				this.select('searchQuerySelector').val(query.query);
+			}
+			
             var self = this;
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
             var $searchResults = this.select('searchResultsSelector');
@@ -146,7 +155,7 @@ define([
 
             this.select('searchResultsSelector').hide();
 
-            this.on('search', this.doSearch);
+            this.on(document,'search', this.doSearch);
             this.on('artifactSearchResults', this.onArtifactSearchResults);
             this.on('entitySearchResults', this.onEntitySearchResults);
             this.on('showSearchResults', this.onShowSearchResults);

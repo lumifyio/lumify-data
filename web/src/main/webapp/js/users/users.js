@@ -18,7 +18,7 @@ define([
         this.defaultAttrs({
             usersListSelector: '.users-list',
             userListItemSelector: '.users-list .user',
-            chatSelector: '.active-chat',
+            chatSelector: '.active-chat'
         });
 
         this.after('initialize', function() {
@@ -35,7 +35,7 @@ define([
             });
 
             this.doGetOnline();
-            setInterval(this.doGetOnline.bind(this), 500); // TODO use long polling
+            //setInterval(this.doGetOnline.bind(this), 500); // TODO use long polling
         });
 
         this.onUserListItemClicked = function(evt) {
@@ -50,7 +50,7 @@ define([
                 return;
             }
 
-            this.trigger(document, 'userSelected', { userId: userId });
+            this.trigger(document, 'userSelected', { id: userId });
         };
 
         this.onNewUserOnline = function(evt, userData) {
@@ -60,7 +60,7 @@ define([
         };
 
         this.onUserSelected = function(evt, userData) {
-            this.createOrActivateConversation(userData.userId, { activate: true });
+            this.createOrActivateConversation(userData.id, { activate: true });
         };
 
         this.createOrActivateConversation = function(userId, options) {
@@ -84,22 +84,24 @@ define([
 
         this.onMessage = function(evt, message) {
             var id;
+ 			
+			switch (message.type) {
+				
+				case 'chatMessage':
+					id = message.from.id;
+					break;
+				case 'syncRequest':
+				case 'syncRequestAcceptance':
+				case 'syncRequestRejection':
+					id = message.initiatorId;
+					break;
+				
+			}
+			
+			this.createOrActivateConversation(id);
 
-            if (message.type == 'chat') {
-
-                var user = message.chat.users[0] === this.currentUserId ? message.chat.users[1] : message.chat.users[0];
-                id = user.id;
-                this.createOrActivateConversation(id);
-
-            } else if(message.type == 'chatMessage') {
-
-                id = message.message.from.id;
-                this.createOrActivateConversation(id);
-
-                var badge = this.select('usersListSelector').find('li.conversation-' + id + ':not(.active) .badge');
-                badge.text( +badge.text() + 1 );
-
-            }
+            var badge = this.select('usersListSelector').find('li.conversation-' + id + ':not(.active) .badge');
+            badge.text( +badge.text() + 1 );
         };
 
 
@@ -115,14 +117,34 @@ define([
             }
         };
 
+		this.handleUserChanges = function (err, data) { // on user change
+			var self = this;
+			data.users.forEach(function(user) {
+				if (user.id == self.currentUserId) {
+					return;
+				}
+                var currentOnlineUsers = self.onlineUsers.filter(function(u) { return u.id == user.id; });
+                var currentOnlineUser = currentOnlineUsers.length ? currentOnlineUsers[0] : null;
+                if(!currentOnlineUser) {
+                    self.trigger(document, 'newUserOnline', user);
+                } else if(currentOnlineUser.status != user.status) {
+                    self.trigger(document, 'userOnlineStatusChanged', user);
+                }
+            });
+			
+			self.onlineUsers = data.users;
+		};
+
         this.doGetOnline = function() {
             var self = this;
+			window.self = self;
             self.usersService.getOnline(function(err, data) {
                 if (err) {
                     var $usersList = self.select('usersListSelector');
                     $usersList.html('Could not get online: ' + err);
                     return;
                 }
+				
 
                 if(data.messages && data.messages.length > 0) {
                     data.messages.forEach(function(message) {
@@ -134,18 +156,13 @@ define([
                     self.currentUserId = data.user.id;
                     self.trigger(document, 'onlineStatusChanged', data);
                 }
-
-                data.users.forEach(function(user) {
-                    var currentOnlineUsers = self.onlineUsers.filter(function(u) { return u.id == user.id; });
-                    var currentOnlineUser = currentOnlineUsers.length ? currentOnlineUsers[0] : null;
-
-                    if(!currentOnlineUser) {
-                        self.trigger(document, 'newUserOnline', user);
-                    } else if(currentOnlineUser.status != user.status) {
-                        self.trigger(document, 'userOnlineStatusChanged', user);
-                    }
-                });
-                self.onlineUsers = data.users;
+				
+				self.handleUserChanges (null, data);
+				
+				self.usersService.subscribeToUserChangeChannel (self.currentUserId,self.handleUserChanges.bind(self));
+				self.usersService.subscribeToChatChannel(self.currentUserId,function (err, data) {
+					self.trigger(document,"message",data);
+				});
             });
         };
     }

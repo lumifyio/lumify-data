@@ -7,6 +7,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.util.ToolRunner;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import javax.servlet.http.HttpServletRequest;
@@ -67,12 +69,19 @@ public class Server extends RedDawnCommandLineBase {
         webAppContext.setContextPath("/");
         webAppContext.setWar("./web/src/main/webapp/");
 
-        server.setHandler(webAppContext);
+        WebAppContext messagingContext = new WebAppContext();
+        messagingContext.setContextPath("/messaging");
+        messagingContext.setWar("./messaging/src/main/webapp/");
+
+        ContextHandlerCollection contexts = new ContextHandlerCollection();
+        contexts.setHandlers(new Handler[] { webAppContext, messagingContext });
+        
+        server.setHandler(contexts);
         server.start();
         server.join();
 
-        return 0;
-    }
+		return 0;
+	}
 
     public RedDawnSession createRedDawnSession(HttpServletRequest request) {
         // TODO create a reddawn session based on user in request object.
