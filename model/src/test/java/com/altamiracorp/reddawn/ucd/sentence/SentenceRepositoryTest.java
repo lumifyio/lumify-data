@@ -103,7 +103,7 @@ public class SentenceRepositoryTest {
                 .setTermId(term);
 
         // ACT
-        sentence.addSentneceTerm(sentenceTerm);
+        sentence.addSentenceTerm(sentenceTerm);
         sentenceRepository.save(session, sentence);
 
         // ASSERT

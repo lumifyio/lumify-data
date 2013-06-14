@@ -6,7 +6,7 @@ import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.ucd.AccumuloSentenceInputFormat;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
-import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
+import com.altamiracorp.reddawn.ucd.sentence.SentenceTerm;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
 import org.apache.accumulo.core.util.CachedConfiguration;
@@ -68,7 +68,6 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
             for (Term term : terms) {
                 context.write(new Text(Term.TABLE_NAME), term);
 
-                // TODO these lines are copied from UcdClient#writeTerm not really sure of a good way to abstract these out
                 for (TermMention termMention : term.getTermMentions()) {
                     AddArtifactTermIndex(context, term, termMention);
                     AddSentenceTerms(context, term, termMention, sentence);
@@ -77,8 +76,11 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
         }
 
         private void AddSentenceTerms(Context context, Term term, TermMention termMention, Sentence sentence) throws IOException, InterruptedException {
-//            sentence.addTermMention(termMention);
-//            context.write(new Text(Sentence.TABLE_NAME), sentence);
+            SentenceTerm sentenceTerm = new SentenceTerm(termMention)
+                    .setTermId(term);
+            sentence.addSentenceTerm(sentenceTerm);
+            // we might be able to speed up entity extraction by only writing the term mentions (ie construct a new sentence with only SentenceTerms rather than using the existing fully loaded Sentence)
+            context.write(new Text(Sentence.TABLE_NAME), sentence);
         }
 
         private void AddArtifactTermIndex(Context context, Term term, TermMention termMention) throws IOException, InterruptedException {
