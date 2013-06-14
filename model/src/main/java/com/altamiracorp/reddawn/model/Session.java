@@ -7,10 +7,14 @@ import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.source.Source;
 import com.altamiracorp.reddawn.ucd.statement.Statement;
 import com.altamiracorp.reddawn.ucd.term.Term;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public abstract class Session {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Session.class.getName());
+
     private QueryUser queryUser;
 
     public Session(QueryUser queryUser) {
@@ -30,6 +34,7 @@ public abstract class Session {
     public abstract void deleteTable(String tableName);
 
     public void initializeTables() {
+        LOGGER.info("initializeTables");
         initializeTable(Artifact.TABLE_NAME);
         initializeTable(Term.TABLE_NAME);
         initializeTable(Source.TABLE_NAME);
@@ -45,6 +50,7 @@ public abstract class Session {
     }
 
     public void deleteTables() {
+        LOGGER.info("deleteTables");
         deleteTable(Artifact.TABLE_NAME);
         deleteTable(Term.TABLE_NAME);
         deleteTable(Source.TABLE_NAME);

@@ -4,11 +4,15 @@ import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
 
 public class AccumuloSession extends Session {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSession.class.getName());
+
     public static final String ZOOKEEPER_INSTANCE_NAME = "zookeeperInstanceName";
     public static final String ZOOKEEPER_SERVER_NAMES = "zookeeperServerNames";
     public static final String USERNAME = "username";
@@ -76,6 +80,7 @@ public class AccumuloSession extends Session {
 
     @Override
     void initializeTable(String tableName) {
+        LOGGER.info("initializeTable: " + tableName);
         try {
             if (!connector.tableOperations().exists(tableName)) {
                 connector.tableOperations().create(tableName);
@@ -91,6 +96,7 @@ public class AccumuloSession extends Session {
 
     @Override
     public void deleteTable(String tableName) {
+        LOGGER.info("deleteTable: " + tableName);
         try {
             if (connector.tableOperations().exists(tableName)) {
                 connector.tableOperations().delete(tableName);
