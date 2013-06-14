@@ -1,7 +1,12 @@
 package com.altamiracorp.reddawn.ucd.sentence;
 
+import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.model.RowKey;
+import com.altamiracorp.reddawn.ucd.term.TermMention;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Sentence extends Row<SentenceRowKey> {
     public static final String TABLE_NAME = "Sentence";
@@ -43,5 +48,15 @@ public class Sentence extends Row<SentenceRowKey> {
     public Sentence addSentenceTerm(SentenceTerm sentenceTerm) {
         this.addColumnFamily(sentenceTerm);
         return this;
+    }
+
+    public List<SentenceTerm> getSentenceTerms() {
+        ArrayList<SentenceTerm> termMentions = new ArrayList<SentenceTerm>();
+        for (ColumnFamily columnFamily : getColumnFamilies()) {
+            if (columnFamily instanceof SentenceTerm) {
+                termMentions.add((SentenceTerm) columnFamily);
+            }
+        }
+        return termMentions;
     }
 }
