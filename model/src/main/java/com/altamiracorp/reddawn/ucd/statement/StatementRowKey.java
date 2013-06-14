@@ -10,7 +10,11 @@ public class StatementRowKey extends RowKey {
         super(rowKey);
     }
 
-    public StatementRowKey(TermRowKey subjectRowKey, PredicateRowKey knows, TermRowKey objectRowKey) {
-        super(RowKeyHelper.buildMajor(subjectRowKey.toString(), knows.toString(), objectRowKey.toString()).toString());
+    public StatementRowKey(TermRowKey subjectRowKey, PredicateRowKey predicateRowKey, TermRowKey objectRowKey) {
+        super(RowKeyHelper.buildMajor(subjectRowKey.toString(), predicateRowKey.toString(), objectRowKey.toString()).toString());
+    }
+
+    public StatementRowKey(String subjectRowKey, String predicateLabel, String objectRowKey) {
+        super(RowKeyHelper.buildMajor(subjectRowKey, predicateLabel, objectRowKey).toString());
     }
 }
