@@ -28,7 +28,8 @@ public class SentenceBasedStatementExtractor implements StatementExtractor {
     @Override
     public Collection<Statement> extractStatements(Sentence sentence) {
         ArrayList<Statement> result = new ArrayList<Statement>();
-        if (sentence.getSentenceTerms().size() <= 1) return result;
+        int sentenceTermCount = sentence.getSentenceTerms().size();
+        if (sentenceTermCount <= 1) return result;
 
         for (SentenceTerm first : sentence.getSentenceTerms()) {
             for (SentenceTerm second : sentence.getSentenceTerms()) {

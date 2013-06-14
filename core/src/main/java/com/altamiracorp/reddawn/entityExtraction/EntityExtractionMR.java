@@ -79,7 +79,7 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
             SentenceTerm sentenceTerm = new SentenceTerm(termMention)
                     .setTermId(term);
             sentence.addSentenceTerm(sentenceTerm);
-            // we might be able to speed up entity extraction by only writing the term mentions (ie construct a new sentence with only SentenceTerms rather than using the existing fully loaded Sentence)
+            // todo: we might be able to speed up entity extraction by only writing the term mentions (ie construct a new sentence with only SentenceTerms rather than using the existing fully loaded Sentence)
             context.write(new Text(Sentence.TABLE_NAME), sentence);
         }
 
