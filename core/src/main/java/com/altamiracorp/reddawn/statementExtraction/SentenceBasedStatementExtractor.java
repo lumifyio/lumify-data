@@ -10,7 +10,7 @@ import java.util.Collection;
 
 public class SentenceBasedStatementExtractor implements StatementExtractor {
     @Override
-    public Collection<Sentence> extractStatements(Sentence sentence) {
+    public Collection<Statement> extractStatements(Sentence sentence) {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 

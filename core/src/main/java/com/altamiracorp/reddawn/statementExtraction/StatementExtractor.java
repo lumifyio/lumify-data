@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 public interface StatementExtractor {
-    public Collection<Sentence> extractStatements(Sentence sentence);
+    public Collection<Statement> extractStatements(Sentence sentence);
 
     void setup(Mapper<Text,Sentence,Text,Statement>.Context context) throws IOException;
 }

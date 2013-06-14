@@ -58,8 +58,8 @@ public class SentenceExtractionMR extends ConfigurableMapJobBase {
             LOGGER.info("Extracting sentences for artifact: " + artifact.getRowKey().toString());
 
             try {
-                Collection<Sentence> terms = sentenceExtractor.extractSentences(artifact);
-                writeSentences(context, terms);
+                Collection<Sentence> sentences = sentenceExtractor.extractSentences(artifact);
+                writeSentences(context, sentences);
             } catch (Exception e) {
                 throw new IOException(e);
             }

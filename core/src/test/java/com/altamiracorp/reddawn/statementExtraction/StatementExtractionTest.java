@@ -25,60 +25,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(JUnit4.class)
-@Ignore
 public class StatementExtractionTest {
     @Test
-    public void testArtifactCounts() throws AccumuloSecurityException, AccumuloException {
-        Session session = createModelSession();
-        ArtifactRepository artifactRepository = new ArtifactRepository();
-        List<Artifact> rows = artifactRepository.findAll(session);
-        assertEquals(233, rows.size());
+    public void testDoIt() {
+        
     }
-
-    @Test
-    public void testSentenceCounts() throws AccumuloSecurityException, AccumuloException {
-        Session session = createModelSession();
-        SentenceRepository sentenceRepository = new SentenceRepository();
-        List<Sentence> rows = sentenceRepository.findAll(session);
-        assertEquals(13096, rows.size());
-        Sentence firstSentence = rows.get(0);
-        assertEquals("By Julie Christie, Parenting.com", firstSentence.getData().getText());
-        assertEquals((Long) 0L, firstSentence.getData().getStart());
-        assertEquals((Long) 32L, firstSentence.getData().getEnd());
-        assertEquals("urn\u001Fsha256\u001F0014f02ae81e32c72318b785c4f8cd3993f97d94492e30934bdc9c29f5a7a1d8:0000000000000032:0000000000000000", firstSentence.getRowKey().toString());
-        assertTrue(containsTerm(firstSentence, "julie christie\u001FOpenNlpMaximumEntropy\u001Fperson"));
-    }
-
-    private Boolean containsTerm(Sentence sentence, String term) {
-        for (ColumnFamily columnFamily : sentence.getColumnFamilies()) {
-            if (columnFamily.getColumnFamilyName().toString().startsWith("urn")) {
-                String termId = columnFamily.get(SentenceTerm.TERM_ID).toString();
-                if (term.equals(termId)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    @Test
-    public void testTermCounts() throws AccumuloSecurityException, AccumuloException {
-        Session session = createModelSession();
-        TermRepository termRepository = new TermRepository();
-        List<Term> rows = termRepository.findAll(session);
-        assertEquals(0, rows.size());
-    }
-
-    private Session createModelSession() throws AccumuloException, AccumuloSecurityException {
-        String zookeeperInstanceName = "reddawn";
-        String zookeeperServerName = "192.168.33.10";
-        String username = "root";
-        String password = "reddawn";
-        ZooKeeperInstance zooKeeperInstance = new ZooKeeperInstance(zookeeperInstanceName, zookeeperServerName);
-        Connector connector = zooKeeperInstance.getConnector(username, password);
-
-        AccumuloQueryUser queryUser = new AccumuloQueryUser();
-        return new AccumuloSession(connector, queryUser);
-    }
-
 }

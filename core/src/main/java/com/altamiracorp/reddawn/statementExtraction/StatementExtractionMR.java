@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collection;
 
 public class StatementExtractionMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(StatementExtractionMR.class.getName());
@@ -56,6 +57,19 @@ public class StatementExtractionMR extends ConfigurableMapJobBase {
         @Override
         protected void map(Text key, Sentence sentence, Context context) throws IOException, InterruptedException {
             LOGGER.info("Extracting statements for sentence: " + sentence.getRowKey().toString());
+
+            try {
+                Collection<Statement> statements = statementExtractor.extractStatements(sentence);
+                writeStatements(context, statements);
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
+        }
+
+        private void writeStatements(Context context, Collection<Statement> statements) throws IOException, InterruptedException {
+            for (Statement statement : statements) {
+                context.write(new Text(Statement.TABLE_NAME), statement);
+            }
         }
 
         public static void init(Job job, Class<? extends StatementExtractor> statementExtractor) {
