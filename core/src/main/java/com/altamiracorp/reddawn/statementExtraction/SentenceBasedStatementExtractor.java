@@ -28,26 +28,30 @@ public class SentenceBasedStatementExtractor implements StatementExtractor {
     @Override
     public Collection<Statement> extractStatements(Sentence sentence) {
         ArrayList<Statement> result = new ArrayList<Statement>();
-        List<SentenceTerm> sentenceTerms = sentence.getSentenceTerms();
-        if (sentenceTerms.size() <= 1) return result;
-        SentenceTerm first = sentenceTerms.get(0);
-        SentenceTerm second = sentenceTerms.get(1);
-        Statement statement = new Statement(
-                new StatementRowKey(new TermRowKey(first.getTermId().toString()),
-                new PredicateRowKey(MODEL_KEY, PREDICATE_LABEL),
-                new TermRowKey(second.getTermId()))
-                );
+        if (sentence.getSentenceTerms().size() <= 1) return result;
 
-        StatementArtifact statementArtifact = new StatementArtifact()
-                .setArtifactKey(sentence.getData().getArtifactId())
-                .setAuthor(AUTHOR)
-                .setDate(getNow().getTime())
-                .setExtractorId(AUTHOR)
-                .setSecurityMarking(sentence.getMetadata().getSecurityMarking())
-                .setSentence(sentence.getRowKey().toString());
-        statement.addStatementArtifact(statementArtifact);
+        for (SentenceTerm first : sentence.getSentenceTerms()) {
+            for (SentenceTerm second : sentence.getSentenceTerms()) {
+                if (first != second) {
+                    Statement statement = new Statement(
+                            new StatementRowKey(new TermRowKey(first.getTermId().toString()),
+                                    new PredicateRowKey(MODEL_KEY, PREDICATE_LABEL),
+                                    new TermRowKey(second.getTermId()))
+                    );
 
-        result.add(statement);
+                    StatementArtifact statementArtifact = new StatementArtifact()
+                            .setArtifactKey(sentence.getData().getArtifactId())
+                            .setAuthor(AUTHOR)
+                            .setDate(getNow().getTime())
+                            .setExtractorId(AUTHOR)
+                            .setSecurityMarking(sentence.getMetadata().getSecurityMarking())
+                            .setSentence(sentence.getRowKey().toString());
+                    statement.addStatementArtifact(statementArtifact);
+
+                    result.add(statement);
+                }
+            }
+        }
 
         return result;
     }
