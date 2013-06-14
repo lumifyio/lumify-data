@@ -37,7 +37,7 @@ public class StatementRepositoryTest {
     public void testStatementRowKey_Null() {
         try {
             StatementRowKey statementRowKey = new StatementRowKey(
-                    null,
+                    (TermRowKey) null,
                     null,
                     null
             );
