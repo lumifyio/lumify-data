@@ -4,14 +4,16 @@ import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.Value;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
-import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 
 public class SentenceTerm extends ColumnFamily {
     public static final String TERM_ID = "termId";
 
     public SentenceTerm(TermMention termMention) {
         super(termMention.getColumnFamilyName());
+    }
 
+    public SentenceTerm(String columnFamilyName) {
+        super(columnFamilyName);
     }
 
     public SentenceTerm setTermId(Term term) {
