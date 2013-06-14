@@ -4,6 +4,8 @@ import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.MockSession;
 import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.model.RowKey;
+import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.term.TermMention;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -88,6 +90,30 @@ public class SentenceRepositoryTest {
         ColumnFamily foundExtraColumnFamily = sentence.get("testExtraColumnFamily");
         assertNotNull("foundExtraColumnFamily", foundExtraColumnFamily);
         assertEquals("testExtraValue", foundExtraColumnFamily.get("testExtraColumn").toString());
+    }
+
+    @Test
+    public void testAddTermMention() {
+        // ARRANGE
+        Sentence sentence = new Sentence();
+        Term term = new Term("Bob Jenkins", "ONLP", "Person");
+        TermMention termMention = new TermMention().setArtifactKey("SomeArtifact");
+        term.addTermMention(termMention);
+        SentenceTerm sentenceTerm = new SentenceTerm(termMention)
+                .setTermId(term);
+
+        // ACT
+        sentence.addSentneceTerm(sentenceTerm);
+        sentenceRepository.save(session, sentence);
+
+        // ASSERT
+        assertEquals(1, session.tables.get(Sentence.TABLE_NAME).size());
+        Row row = session.tables.get(Sentence.TABLE_NAME).get(0);
+
+        assertEquals(1, row.getColumnFamilies().size());
+        ColumnFamily sentenceTermColumnFamily = (ColumnFamily)row.getColumnFamilies().iterator().next();
+        assertEquals("urn\u001Fsha256\u001Fe390d2499bc929d96066164b132f6a45dd48a6dd5187713162804bfa45b9950f", sentenceTermColumnFamily.getColumnFamilyName());
+        assertEquals("bob jenkins\u001FONLP\u001FPerson", sentenceTermColumnFamily.get(SentenceTerm.TERM_ID).toString());
     }
 
     @Test

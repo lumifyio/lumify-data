@@ -58,23 +58,33 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
         public void map(Text rowKey, Sentence sentence, Context context) throws IOException, InterruptedException {
             try {
                 Collection<Term> terms = extractEntities(sentence);
-                writeEntities(context, terms);
+                writeEntities(context, terms, sentence);
             } catch (Exception e) {
                 throw new IOException(e);
             }
         }
 
-        private void writeEntities(Context context, Collection<Term> terms) throws IOException, InterruptedException {
+        private void writeEntities(Context context, Collection<Term> terms, Sentence sentence) throws IOException, InterruptedException {
             for (Term term : terms) {
                 context.write(new Text(Term.TABLE_NAME), term);
 
                 // TODO these lines are copied from UcdClient#writeTerm not really sure of a good way to abstract these out
                 for (TermMention termMention : term.getTermMentions()) {
-                    ArtifactTermIndex artifactTermIndex = new ArtifactTermIndex(termMention.getArtifactKey());
-                    artifactTermIndex.addTermMention(term.getRowKey(), termMention);
-                    context.write(new Text(ArtifactTermIndex.TABLE_NAME), artifactTermIndex);
+                    AddArtifactTermIndex(context, term, termMention);
+                    AddSentenceTerms(context, term, termMention, sentence);
                 }
             }
+        }
+
+        private void AddSentenceTerms(Context context, Term term, TermMention termMention, Sentence sentence) throws IOException, InterruptedException {
+//            sentence.addTermMention(termMention);
+//            context.write(new Text(Sentence.TABLE_NAME), sentence);
+        }
+
+        private void AddArtifactTermIndex(Context context, Term term, TermMention termMention) throws IOException, InterruptedException {
+            ArtifactTermIndex artifactTermIndex = new ArtifactTermIndex(termMention.getArtifactKey());
+            artifactTermIndex.addTermMention(term.getRowKey(), termMention);
+            context.write(new Text(ArtifactTermIndex.TABLE_NAME), artifactTermIndex);
         }
 
         private Collection<Term> extractEntities(Sentence sentence) throws Exception {

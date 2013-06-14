@@ -39,4 +39,9 @@ public class Sentence extends Row<SentenceRowKey> {
         }
         return get(SentenceMetadata.NAME);
     }
+
+    public Sentence addSentneceTerm(SentenceTerm sentenceTerm) {
+        this.addColumnFamily(sentenceTerm);
+        return this;
+    }
 }
