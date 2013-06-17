@@ -16,7 +16,8 @@ define([
 		
 		//PUT EVENTS YOU WANT TO SYNC HERE!
 		this.events = [
-			'search'
+			'search',
+			'showSearchResults'
 		];
 		
 		this.defaultAttrs({

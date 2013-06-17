@@ -63,7 +63,7 @@ function(ServiceBase) {
 			payload: payload
 		};
 		
-		this.getCurrentSync().subSocket.push({data : "message=" + JSON.stringify(syncMessage)});
+		this.getCurrentSync().subSocket.push({data : JSON.stringify(syncMessage)});
 	};
 	
 	SyncService.prototype.startSync = function (syncRequest, onmessage, onclose) {
@@ -103,7 +103,7 @@ function(ServiceBase) {
 				syncEnd : true
 			};
 
-			self.getCurrentSync().subSocket.push({data : "message=" + JSON.stringify(syncEndMessage)});
+			self.getCurrentSync().subSocket.push({data : JSON.stringify(syncEndMessage)});
 			self.removeCurrentSync();
 			callback(err,response);
 		});

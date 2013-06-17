@@ -158,7 +158,7 @@ define([
             this.on(document,'search', this.doSearch);
             this.on('artifactSearchResults', this.onArtifactSearchResults);
             this.on('entitySearchResults', this.onEntitySearchResults);
-            this.on('showSearchResults', this.onShowSearchResults);
+            this.on(document,'showSearchResults', this.onShowSearchResults);
             this.on('submit', {
                 searchFormSelector: this.onFormSearch
             });

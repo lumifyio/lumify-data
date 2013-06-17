@@ -36,7 +36,11 @@
 		    <param-name>org.atmosphere.websocket.maxIdleTime</param-name>
       		<param-value>3600000</param-value>
 		</init-param>
-		
+      <init-param>
+          <param-name>org.atmosphere.websocket.messageContentType</param-name>
+          <param-value>application/json</param-value>
+      </init-param>
+
         <!-- Uncomment to track message size delivery
         <init-param>
             <param-name>org.atmosphere.cpr.broadcastFilterClasses</param-name>

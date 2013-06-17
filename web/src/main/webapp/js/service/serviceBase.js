@@ -60,7 +60,8 @@ define(['atmosphere'],
 			this._ajaxPost({
 				resolvedUrl: url,
 				url: url,
-				data: "message=" + JSON.stringify(messageObj),
+				data: JSON.stringify(messageObj),
+				contentType: "application/json",
 				dataType: "text"
 			},function (err, data) {
 				callback(err,messageObj);
