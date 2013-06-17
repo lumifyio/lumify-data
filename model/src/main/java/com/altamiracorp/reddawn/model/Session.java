@@ -11,6 +11,7 @@ import com.altamiracorp.reddawn.ucd.term.Term;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.List;
 
 public abstract class Session {
@@ -23,6 +24,8 @@ public abstract class Session {
     }
 
     abstract void save(Row row);
+
+    abstract void saveMany(String tableName, Collection<Row> rows);
 
     abstract List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, QueryUser queryUser);
 

@@ -13,17 +13,17 @@ define([
     function Detail() {
 
         this.defaultAttrs({
-            locationSelector: '.location',
+            mapCoordinatesSelector: '.map-coordinates',
         });
 
         this.after('initialize', function() {
             this.on('click', {
-                locationSelector: this.onLocationClicked
+                mapCoordinatesSelector: this.onMapCoordinatesClicked
             });
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
         });
 
-        this.onLocationClicked = function(evt, data) {
+        this.onMapCoordinatesClicked = function(evt, data) {
             var $target = $(evt.target);
             var data = {
                 latitude: $target.attr('latitude'),

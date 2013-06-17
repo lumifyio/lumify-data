@@ -1,7 +1,6 @@
 package com.altamiracorp.reddawn.model.geoNames;
 
 import com.altamiracorp.reddawn.model.*;
-import com.altamiracorp.reddawn.model.workspace.WorkspaceContent;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,6 +31,15 @@ public class GeoNameRepositoryTest {
                 .set(GeoNameMetadata.NAME_COLUMN, "boston")
                 .set(GeoNameMetadata.LATITUDE, 42.35)
                 .set(GeoNameMetadata.LONGITUDE, -71.06)
+                .set(GeoNameMetadata.POPULATION, 100L)
+                .set(GeoNameMetadata.ADMIN_1_CODE, "testAdmin1Code")
+                .set(GeoNameMetadata.ADMIN_2_CODE, "testAdmin2Code")
+                .set(GeoNameMetadata.ADMIN_3_CODE, "testAdmin3Code")
+                .set(GeoNameMetadata.ADMIN_4_CODE, "testAdmin4Code")
+                .set(GeoNameMetadata.FEATURE_CLASS, "testFeatureClass")
+                .set(GeoNameMetadata.FEATURE_CODE, "testFeatureCode")
+                .set(GeoNameMetadata.COUNTRY_CODE, "testCountryCode")
+                .set(GeoNameMetadata.ALTERNATE_COUNTRY_CODE, "testAlternateCountryCode")
                 .set("extra", "textExtra");
         row.addColumnFamily(geoNameMetadataColumnFamily);
 
@@ -51,6 +59,15 @@ public class GeoNameRepositoryTest {
         assertEquals("boston", geoNameMetadata.getName());
         assertEquals(42.35, geoNameMetadata.getLatitude().doubleValue(), 0.01);
         assertEquals(-71.06, geoNameMetadata.getLongitude().doubleValue(), 0.01);
+        assertEquals(100L, geoNameMetadata.getPopulation().longValue());
+        assertEquals("testAdmin1Code", geoNameMetadata.getAdmin1Code());
+        assertEquals("testAdmin2Code", geoNameMetadata.getAdmin2Code());
+        assertEquals("testAdmin3Code", geoNameMetadata.getAdmin3Code());
+        assertEquals("testAdmin4Code", geoNameMetadata.getAdmin4Code());
+        assertEquals("testFeatureClass", geoNameMetadata.getFeatureClass());
+        assertEquals("testFeatureCode", geoNameMetadata.getFeatureCode());
+        assertEquals("testCountryCode", geoNameMetadata.getCountryCode());
+        assertEquals("testAlternateCountryCode", geoNameMetadata.getAlternateCountryCodes());
         assertEquals("textExtra", geoNameMetadata.get("extra").toString());
 
         ColumnFamily foundExtraColumnFamily = geoName.get("testExtraColumnFamily");
@@ -66,6 +83,15 @@ public class GeoNameRepositoryTest {
                 .setName("Boston")
                 .setLatitude(42.35)
                 .setLongitude(-71.06)
+                .setCountryCode("testCountryCode")
+                .setAlternateCountryCodes("testAlternateCountryCodes")
+                .setAdmin1Code("testAdmin1Code")
+                .setAdmin2Code("testAdmin2Code")
+                .setAdmin3Code("testAdmin3Code")
+                .setAdmin4Code("testAdmin4Code")
+                .setPopulation(100L)
+                .setFeatureClass("testFeatureClass")
+                .setFeatureCode("testFeatureCode")
                 .set("testExtra", "testExtraValue");
 
         geoName.addColumnFamily(
@@ -85,6 +111,15 @@ public class GeoNameRepositoryTest {
         assertEquals("Boston", geoNameMetadataColumnFamily.get(GeoNameMetadata.NAME_COLUMN).toString());
         assertEquals(42.35, geoNameMetadataColumnFamily.get(GeoNameMetadata.LATITUDE).toDouble().doubleValue(), 0.01);
         assertEquals(-71.06, geoNameMetadataColumnFamily.get(GeoNameMetadata.LONGITUDE).toDouble().doubleValue(), 0.01);
+        assertEquals("testCountryCode", geoNameMetadataColumnFamily.get(GeoNameMetadata.COUNTRY_CODE).toString());
+        assertEquals("testAlternateCountryCodes", geoNameMetadataColumnFamily.get(GeoNameMetadata.ALTERNATE_COUNTRY_CODE).toString());
+        assertEquals("testAdmin1Code", geoNameMetadataColumnFamily.get(GeoNameMetadata.ADMIN_1_CODE).toString());
+        assertEquals("testAdmin2Code", geoNameMetadataColumnFamily.get(GeoNameMetadata.ADMIN_2_CODE).toString());
+        assertEquals("testAdmin3Code", geoNameMetadataColumnFamily.get(GeoNameMetadata.ADMIN_3_CODE).toString());
+        assertEquals("testAdmin4Code", geoNameMetadataColumnFamily.get(GeoNameMetadata.ADMIN_4_CODE).toString());
+        assertEquals(100L, geoNameMetadataColumnFamily.get(GeoNameMetadata.POPULATION).toLong().longValue());
+        assertEquals("testFeatureClass", geoNameMetadataColumnFamily.get(GeoNameMetadata.FEATURE_CLASS).toString());
+        assertEquals("testFeatureCode", geoNameMetadataColumnFamily.get(GeoNameMetadata.FEATURE_CODE).toString());
         assertEquals("testExtraValue", geoNameMetadataColumnFamily.get("testExtra").toString());
 
         ColumnFamily extraColumnFamily = row.get("testExtraColumnFamily");

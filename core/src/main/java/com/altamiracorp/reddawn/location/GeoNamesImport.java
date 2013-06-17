@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.location;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
 import com.altamiracorp.reddawn.model.geoNames.GeoName;
+import com.altamiracorp.reddawn.model.geoNames.GeoNameMetadata;
 import com.altamiracorp.reddawn.model.geoNames.GeoNameRepository;
 import com.altamiracorp.reddawn.model.geoNames.GeoNameRowKey;
 import org.apache.accumulo.core.client.MutationsRejectedException;
@@ -10,12 +11,15 @@ import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GeoNamesImport extends RedDawnCommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesImport.class.getName());
@@ -69,10 +73,20 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
         BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
         String line;
         int count = 0;
+        List<GeoName> geoNames = new ArrayList<GeoName>();
         while ((line = br.readLine()) != null) {
-            writeLine(redDawnSession, line, count);
+            geoNames.add(lineToGeoName(redDawnSession, line));
             count++;
+            if ((count % 1000) == 0) {
+                geoNameRepository.saveMany(redDawnSession.getModelSession(), geoNames);
+                geoNames.clear();
+                LOGGER.info("Imported " + count + " of ~8500000  items.");
+            }
         }
+        geoNameRepository.saveMany(redDawnSession.getModelSession(), geoNames);
+        geoNames.clear();
+        LOGGER.info("Imported " + count + " of ~8500000  items.");
+
         LOGGER.info("Saved " + count + " records");
     }
 
@@ -90,16 +104,16 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
      * 8  country code      : ISO-3166 2-letter country code, 2 characters
      * 9  cc2               : alternate country codes, comma separated, ISO-3166 2-letter country code, 60 characters
      * 10 admin1 code       : fipscode (subject to change to iso code), see exceptions below, see file admin1Codes.txt for display names of this code; varchar(20)
-     * 11 admin2 code       : code for the second administrative division, a county in the US, see file admin2Codes.txt; varchar(80)
-     * 12 admin3 code       : code for third level administrative division, varchar(20)
-     * 13 admin4 code       : code for fourth level administrative division, varchar(20)
+     * 11 admin2 code       : fipscode (subject to change to iso code), see exceptions below, see file admin1Codes.txt for display names of this code; varchar(20)
+     * 12 admin3 code       : fipscode (subject to change to iso code), see exceptions below, see file admin1Codes.txt for display names of this code; varchar(20)
+     * 13 admin4 code       : fipscode (subject to change to iso code), see exceptions below, see file admin1Codes.txt for display names of this code; varchar(20)
      * 14 population        : bigint (8 byte int)
      * 15 elevation         : in meters, integer
      * 16 dem               : digital elevation model, srtm3 or gtopo30, average elevation of 3''x3'' (ca 90mx90m) or 30''x30'' (ca 900mx900m) area in meters, integer. srtm processed by cgiar/ciat.
      * 17 timezone          : the timezone id (see file timeZone.txt) varchar(40)
      * 18 modification date : date of last modification in yyyy-MM-dd format
      */
-    private void writeLine(RedDawnSession redDawnSession, String line, int count) {
+    private GeoName lineToGeoName(RedDawnSession redDawnSession, String line) {
         String[] parts = line.split("\t");
         String id = parts[0];
         String name = parts[1];
@@ -123,12 +137,36 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
 
         GeoNameRowKey rowKey = new GeoNameRowKey(name, id);
         GeoName geoName = new GeoName(rowKey);
-        geoName.getMetadata()
+        GeoNameMetadata metadata = geoName.getMetadata()
                 .setName(name)
                 .setLatitude(latitude)
                 .setLongitude(longitude)
                 .setPopulation(population);
-        geoNameRepository.save(redDawnSession.getModelSession(), geoName);
-        LOGGER.info("[" + count + "] Saving " + name + " (" + latitude + "," + longitude + ")");
+
+        if (StringUtils.isNotBlank(featureClass)) {
+            metadata.setFeatureClass(featureClass);
+        }
+        if (StringUtils.isNotBlank(featureCode)) {
+            metadata.setFeatureCode(featureCode);
+        }
+        if (StringUtils.isNotBlank(countryCode)) {
+            metadata.setCountryCode(countryCode);
+        }
+        if (StringUtils.isNotBlank(alternateCountryCodes)) {
+            metadata.setAlternateCountryCodes(alternateCountryCodes);
+        }
+        if (StringUtils.isNotBlank(admin1Code)) {
+            metadata.setAdmin1Code(admin1Code);
+        }
+        if (StringUtils.isNotBlank(admin2Code)) {
+            metadata.setAdmin2Code(admin2Code);
+        }
+        if (StringUtils.isNotBlank(admin3Code)) {
+            metadata.setAdmin3Code(admin3Code);
+        }
+        if (StringUtils.isNotBlank(admin4Code)) {
+            metadata.setAdmin4Code(admin4Code);
+        }
+        return geoName;
     }
 }
