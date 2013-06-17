@@ -60,10 +60,10 @@ public class GeoNameRepositoryTest {
 
     @Test
     public void testSave() {
-        GeoName geoName = new GeoName("boston", "123");
+        GeoName geoName = new GeoName("Boston", "123");
 
         geoName.getMetadata()
-                .setName("boston")
+                .setName("Boston")
                 .setLatitude(42.35)
                 .setLongitude(-71.06)
                 .set("testExtra", "testExtraValue");
@@ -82,7 +82,7 @@ public class GeoNameRepositoryTest {
 
         ColumnFamily geoNameMetadataColumnFamily = row.get(GeoNameMetadata.NAME);
         assertEquals(GeoNameMetadata.NAME, geoNameMetadataColumnFamily.getColumnFamilyName());
-        assertEquals("boston", geoNameMetadataColumnFamily.get(GeoNameMetadata.NAME_COLUMN).toString());
+        assertEquals("Boston", geoNameMetadataColumnFamily.get(GeoNameMetadata.NAME_COLUMN).toString());
         assertEquals(42.35, geoNameMetadataColumnFamily.get(GeoNameMetadata.LATITUDE).toDouble().doubleValue(), 0.01);
         assertEquals(-71.06, geoNameMetadataColumnFamily.get(GeoNameMetadata.LONGITUDE).toDouble().doubleValue(), 0.01);
         assertEquals("testExtraValue", geoNameMetadataColumnFamily.get("testExtra").toString());
