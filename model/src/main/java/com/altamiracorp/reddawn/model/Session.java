@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.model;
 
+import com.altamiracorp.reddawn.model.geoNames.GeoName;
 import com.altamiracorp.reddawn.model.workspace.Workspace;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
@@ -43,6 +44,7 @@ public abstract class Session {
         initializeTable(Statement.TABLE_NAME);
 
         initializeTable(Workspace.TABLE_NAME);
+        initializeTable(GeoName.TABLE_NAME);
     }
 
     public QueryUser getQueryUser() {
@@ -59,5 +61,6 @@ public abstract class Session {
         deleteTable(Statement.TABLE_NAME);
 
         deleteTable(Workspace.TABLE_NAME);
+        deleteTable(GeoName.TABLE_NAME);
     }
 }

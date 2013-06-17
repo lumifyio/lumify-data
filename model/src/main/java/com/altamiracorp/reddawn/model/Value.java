@@ -25,11 +25,19 @@ public class Value {
             return longToBytes((Long) value);
         }
 
+        if (value instanceof Double) {
+            return doubleToBytes((Double) value);
+        }
+
         if (value instanceof byte[]) {
             return (byte[]) value;
         }
 
         throw new RuntimeException("Unhandled type to convert: " + value.getClass().getName());
+    }
+
+    private byte[] doubleToBytes(Double value) {
+        return ByteBuffer.allocate(8).putDouble(value).array();
     }
 
     private byte[] stringToBytes(String value) {
@@ -49,6 +57,13 @@ public class Value {
             throw new RuntimeException("toLong failed. Expected 8 bytes found " + this.value.length);
         }
         return ByteBuffer.wrap(this.value).getLong();
+    }
+
+    public Double toDouble() {
+        if (this.value.length != 8) {
+            throw new RuntimeException("toDouble failed. Expected 8 bytes found " + this.value.length);
+        }
+        return ByteBuffer.wrap(this.value).getDouble();
     }
 
     @Override
@@ -75,5 +90,12 @@ public class Value {
             return null;
         }
         return value.toLong();
+    }
+
+    public static Double toDouble(Value value) {
+        if (value == null) {
+            return null;
+        }
+        return value.toDouble();
     }
 }
