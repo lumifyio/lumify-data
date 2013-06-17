@@ -103,8 +103,7 @@ define([
             var subType = itemPath[1];
             this.trigger('showSearchResults', {
                 type: type,
-                subType: subType,
-                results: this.searchResults[type][subType] || []
+                subType: subType
             });
         };
 
@@ -112,7 +111,7 @@ define([
             console.log("Showing search results: ", data);
 
             var $searchResults = this.select('searchResultsSelector');
-
+            data.results = this.searchResults[data.type][data.subType] || [];
 
             data.results.forEach(function(result) {
                 if(data.type == 'artifacts') {
