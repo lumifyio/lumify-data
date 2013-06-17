@@ -19,6 +19,7 @@ define([
             this.$node.html(template({}));
 
             this.on(document, 'mapShow', this.onMapShow);
+            this.on(document, 'mapCenter', this.onMapCenter);
 
             this.on(document, 'mapEndPan', function(evt, mapCenter) {
                 if(self.lastMarker) {
@@ -33,9 +34,14 @@ define([
                 });
                 self.map.addMarker(self.lastMarker);
             });
-
-            this.on(window, 'resize', this.fixSize);
         });
+
+        this.onMapCenter = function(evt, data) {
+            console.log(data);
+            this.trigger(document, 'modeSelect', { mode: 'map' });
+            var latlon = new mxn.LatLonPoint(data.latitude, data.longitude);
+            this.map.setCenterAndZoom(latlon, 7);
+        };
 
         this.fixSize = function() {
             if (this.map) {

@@ -43,6 +43,22 @@ public class AccumuloSession extends Session {
     }
 
     @Override
+    void saveMany(String tableName, Collection<Row> rows) {
+        try {
+            BatchWriter writer = connector.createBatchWriter(tableName, getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
+            for (Row row : rows) {
+                AccumuloHelper.addRowToWriter(writer, row);
+            }
+            writer.flush();
+            writer.close();
+        } catch (TableNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (MutationsRejectedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     List<Row> findByRowKeyRange(String tableName, String rowKeyStart, String rowKeyEnd, QueryUser queryUser) {
         try {
             Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());

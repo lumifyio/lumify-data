@@ -1,9 +1,6 @@
 package com.altamiracorp.reddawn.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class MockSession extends Session {
     public HashMap<String, List<Row>> tables = new HashMap<String, List<Row>>();
@@ -19,6 +16,13 @@ public class MockSession extends Session {
             throw new NullPointerException("Could not find table with name: " + row.getTableName());
         }
         table.add(row);
+    }
+
+    @Override
+    void saveMany(String tableName, Collection<Row> rows) {
+        for (Row r : rows) {
+            save(r);
+        }
     }
 
     @Override
@@ -52,7 +56,8 @@ public class MockSession extends Session {
     @Override
     Row findByRowKey(String tableName, String rowKey, QueryUser queryUser) {
         List<Row> rows = this.tables.get(tableName);
-        if (rows == null) throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
+        if (rows == null)
+            throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
         for (Row row : rows) {
             if (row.getRowKey().toString().equals(rowKey)) {
                 return row;
