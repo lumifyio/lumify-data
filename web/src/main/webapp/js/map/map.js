@@ -18,7 +18,6 @@ define([
             var self = this;
             this.$node.html(template({}));
 
-            this.on(document, 'mapHide', this.onMapHide);
             this.on(document, 'mapShow', this.onMapShow);
 
             this.on(document, 'mapEndPan', function(evt, mapCenter) {
@@ -34,19 +33,28 @@ define([
                 });
                 self.map.addMarker(self.lastMarker);
             });
+
+            this.on(window, 'resize', this.fixSize);
         });
 
-        this.onMapHide = function() {
-            this.$node.hide();
+        this.fixSize = function() {
+            if (this.map) {
+                var map = this.select('mapSelector');
+                this.map.resizeTo(map.width(), map.height());
+            }
         };
 
         this.onMapShow = function() {
-            this.$node.show();
-            this.initializeMap();
+            if (!this.timeout && !this.mapInitialized) {
+                this.timeout = setTimeout(this.initializeMap.bind(this), 100);
+            }
         };
 
         this.initializeMap = function() {
+            this.fixSize();
+
             var self = this;
+
             if(self.mapInitialized) {
                 return;
             }
@@ -62,7 +70,7 @@ define([
             var latlon = new mxn.LatLonPoint(38.89,-77.03);
             self.map.setCenterAndZoom(latlon, 7);
             self.map.enableScrollWheelZoom();
-            self.map.addSmallControls();
+            //self.map.addSmallControls();
             self.map.endPan.addHandler(function() {
                 var center = self.map.getCenter();
                 self.trigger(document, 'mapEndPan', {
@@ -71,6 +79,7 @@ define([
                 });
             });
             self.mapInitialized = true;
+            self.fixSize();
         };
     }
 });

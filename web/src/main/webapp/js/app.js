@@ -23,7 +23,8 @@ define([
             menubarSelector: '.menubar-pane',
             searchSelector: '.search-pane',
             usersSelector: '.users-pane',
-            graphPaneSelector: '.graph-pane',
+            graphSelector: '.graph-pane',
+            mapSelector: '.map-pane',
             detailPaneSelector: '.detail-pane',
             modeSelectSelector: '.mode-select'
         });
@@ -58,34 +59,26 @@ define([
 
             // Open search when the page is loaded
             this.trigger(document, 'menubarToggleDisplay', {name:'search'});
-            this.on('click', {
-                modeSelectSelector: this.onModeSelectClick
-            });
-            this.$lastModeSelect = $('.mode-select-graph');
+            this.trigger(document, 'menubarToggleDisplay', {name:'graph'});
         });
 
-        this.onModeSelectClick = function(evt, data) {
-            var $target = $(evt.target);
+        this.toggleDisplay = function(e, data) {
+            var pane = this.select(data.name + 'Selector');
 
-            if (this.$lastModeSelect) {
-                if (this.$lastModeSelect.hasClass('mode-select-graph')) {
-                    this.trigger(document, 'graphHide');
-                } else if (this.$lastModeSelect.hasClass('mode-select-map')) {
-                    this.trigger(document, 'mapHide');
-                }
-            }
-
-            if ($target.hasClass('mode-select-graph')) {
+            if (data.name === 'graph' && !pane.hasClass('visible')) {
+                this.trigger(document, 'mapHide');
                 this.trigger(document, 'graphShow');
-            } else if ($target.hasClass('mode-select-map')) {
+            } else if (data.name === 'map' && !pane.hasClass('visible')) {
+                this.trigger(document, 'graphHide');
                 this.trigger(document, 'mapShow');
             }
 
-            this.$lastModeSelect = $target;
-        };
+            //if ((data.name === 'graph' || data.name === 'map') && pane.hasClass('visible')) {
+             //   return;
+            //}
 
-        this.toggleDisplay = function(e, data) {
-            this.select(data.name + 'Selector').toggleClass('visible');
+
+            pane.toggleClass('visible');
         };
 
         this.onMessage = function(e, data) {

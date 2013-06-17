@@ -12,7 +12,12 @@ define([
     function Menubar() {
 
         // Add class name of <li> buttons here
-        var BUTTONS = 'search activity users metrics prefs';
+        var BUTTONS = 'graph map search activity users metrics prefs';
+
+        // Which cannot both be active
+        var MUTALLY_EXCLUSIVE_SWITCHES = [ 
+            ['graph','map'] 
+        ];
 
         // Don't change state to highlighted on click
         var DISABLE_ACTIVE_SWITCH = 'activity metrics prefs'.split(' ');
@@ -40,10 +45,34 @@ define([
             this.on('click', events);
 
             this.on(document, 'menubarToggleDisplay', function(e, data) {
+                var $this = this;
                 var icon = this.select(data.name + 'IconSelector');
+                var active = icon.hasClass('active');
 
                 if (DISABLE_ACTIVE_SWITCH.indexOf(data.name) === -1) {
-                    icon.toggleClass('active');
+                    var isSwitch = false;
+
+                    if (!active) {
+                        MUTALLY_EXCLUSIVE_SWITCHES.forEach(function(exclusive, i) {
+                            if (exclusive.indexOf(data.name) !== -1) {
+                                isSwitch = true;
+                                exclusive.forEach(function(name) {
+                                    if (name !== data.name) {
+                                        var otherIcon = $this.select(name + 'IconSelector');
+                                        if ( otherIcon.hasClass('active') ) {
+                                            $this.trigger(document, 'menubarToggleDisplay', { name: name });
+
+                                        }
+                                    } else icon.addClass('active');
+                                });
+                            }
+                        });
+                    }
+
+                    if ( !isSwitch ) {
+                        icon.toggleClass('active');
+                    }
+
                 } else {
 
                     // Just highlight briefly to show click worked

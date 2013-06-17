@@ -277,14 +277,6 @@ define([
             };
         };
 
-        this.onGraphHide = function() {
-            this.$node.hide();
-        };
-
-        this.onGraphShow = function() {
-            this.$node.show();
-        };
-
         this.after('initialize', function() {
             var $this = this;
             this.$node.html(template({}));
@@ -301,9 +293,6 @@ define([
                     });
                 }.bind(this)
             });
-
-            this.on(document, 'graphHide', this.onGraphHide);
-            this.on(document, 'graphShow', this.onGraphShow);
 
             cytoscape("renderer", "red-dawn", Renderer);
             cytoscape({
