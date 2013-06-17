@@ -20,6 +20,7 @@ define([
 
             this.on(document, 'mapHide', this.onMapHide);
             this.on(document, 'mapShow', this.onMapShow);
+            this.on(document, 'mapCenter', this.onMapCenter);
 
             this.on(document, 'mapEndPan', function(evt, mapCenter) {
                 if(self.lastMarker) {
@@ -35,6 +36,13 @@ define([
                 self.map.addMarker(self.lastMarker);
             });
         });
+
+        this.onMapCenter = function(evt, data) {
+            console.log(data);
+            this.trigger(document, 'modeSelect', { mode: 'map' });
+            var latlon = new mxn.LatLonPoint(data.latitude, data.longitude);
+            this.map.setCenterAndZoom(latlon, 7);
+        };
 
         this.onMapHide = function() {
             this.$node.hide();

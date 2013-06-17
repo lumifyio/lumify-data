@@ -11,7 +11,27 @@ define([
     return defineComponent(Detail);
 
     function Detail() {
-        
+
+        this.defaultAttrs({
+            locationSelector: '.location',
+        });
+
+        this.after('initialize', function() {
+            this.on('click', {
+                locationSelector: this.onLocationClicked
+            });
+            this.on(document, 'searchResultSelected', this.onSearchResultSelected);
+        });
+
+        this.onLocationClicked = function(evt, data) {
+            var $target = $(evt.target);
+            var data = {
+                latitude: $target.attr('latitude'),
+                longitude: $target.attr('longitude')
+            };
+            this.trigger('mapCenter', data);
+        };
+
         this.onSearchResultSelected = function(evt, data) {
             if(data.type == 'artifacts') {
                 this.onArtifactSelected(evt, data);
@@ -45,7 +65,7 @@ define([
                 console.log('Showing artifact:', artifact);
                 artifact.contentHtml = artifact.Content.highlighted_text || artifact.Content.doc_extracted_text;
                 artifact.contentHtml = artifact.contentHtml.replace(/[\n]+/g, "<br><br>\n");
-                self.$node.html(artifactDetailsTemplate(artifact));
+                self.$node.html(artifactDetailsTemplate({ artifact: artifact }));
             });
         };
 
@@ -61,9 +81,5 @@ define([
                 self.$node.html(entityDetailsTemplate(entity));
             });
         };
-
-        this.after('initialize', function() {
-            this.on(document, 'searchResultSelected', this.onSearchResultSelected);
-        });
     }
 });

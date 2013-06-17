@@ -58,30 +58,41 @@ define([
 
             // Open search when the page is loaded
             this.trigger(document, 'menubarToggleDisplay', {name:'search'});
+
+            this.on(document, 'modeSelect', this.onModeSelect);
             this.on('click', {
                 modeSelectSelector: this.onModeSelectClick
             });
-            this.$lastModeSelect = $('.mode-select-graph');
+            this.lastModeSelect = 'graph';
         });
 
         this.onModeSelectClick = function(evt, data) {
             var $target = $(evt.target);
+            if ($target.hasClass('mode-select-graph')) {
+                this.trigger(document, 'modeSelect', { mode: 'graph' });
+            } else if ($target.hasClass('mode-select-map')) {
+                this.trigger(document, 'modeSelect', { mode: 'map' });
+            }
+        };
 
-            if (this.$lastModeSelect) {
-                if (this.$lastModeSelect.hasClass('mode-select-graph')) {
+        this.onModeSelect = function(evt, data) {
+            var mode = data.mode;
+
+            if (this.lastModeSelect) {
+                if (this.lastModeSelect == 'graph') {
                     this.trigger(document, 'graphHide');
-                } else if (this.$lastModeSelect.hasClass('mode-select-map')) {
+                } else if (this.lastModeSelect == 'map') {
                     this.trigger(document, 'mapHide');
                 }
             }
 
-            if ($target.hasClass('mode-select-graph')) {
+            if (mode == 'graph') {
                 this.trigger(document, 'graphShow');
-            } else if ($target.hasClass('mode-select-map')) {
+            } else if (mode == 'map') {
                 this.trigger(document, 'mapShow');
             }
 
-            this.$lastModeSelect = $target;
+            this.lastModeSelect = mode;
         };
 
         this.toggleDisplay = function(e, data) {
