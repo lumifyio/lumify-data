@@ -60,7 +60,7 @@ public class TikaTextExtractor implements TextExtractor {
             e.printStackTrace();
         }
 
-        dateKeys = Arrays.asList(tikaProperties.getProperty(DATE_KEYS_PROPERTY, "date,published").split(","));
+        dateKeys = Arrays.asList(tikaProperties.getProperty(DATE_KEYS_PROPERTY, "date,published,pubdate").split(","));
         subjectKeys = Arrays.asList(tikaProperties.getProperty(SUBJECT_KEYS_PROPERTY, "title,subject").split(","));
     }
 
