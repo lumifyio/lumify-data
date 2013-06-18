@@ -90,7 +90,13 @@ define([
                     y: p.top - c.top + el.height() / 2.0
                 };
 
-            this.addNode(data.text, data.info, position); 
+            this.trigger(document, 'graphAddNode', {
+                title: data.text,
+                rowKey: data.info.rowKey,
+                subType: data.info.subType,
+                type: data.info.type,
+                graphPosition: position
+            });
         };
 
         this.graphSelect = function(event) {
