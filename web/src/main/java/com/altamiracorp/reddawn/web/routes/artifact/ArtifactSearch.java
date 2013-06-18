@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.web.routes.artifact;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.search.ArtifactSearchResult;
 import com.altamiracorp.reddawn.search.SearchProvider;
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
@@ -34,9 +35,7 @@ public class ArtifactSearch implements Handler, AppAware {
         JSONObject results = new JSONObject();
         JSONArray artifactsJson = artifactsToSearchResults(artifactSearchResults, request);
         results.put("document", artifactsJson); // TODO also include video and images
-
-        response.setContentType("application/json");
-        response.getWriter().write(results.toString());
+        new Responder(response).respondWith(results);
     }
 
     private Collection<ArtifactSearchResult> queryArtifacts(SearchProvider searchProvider, String query) throws Exception {
