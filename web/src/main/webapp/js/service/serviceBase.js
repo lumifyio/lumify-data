@@ -35,6 +35,11 @@ define(['atmosphere'],
             return this._ajaxGet(options, callback);
         };
 
+        ServiceBase.prototype._ajaxDelete = function(options, callback) {
+            options.type = options.type || "DELETE";
+            return this._ajaxGet(options, callback);
+        };
+
         ServiceBase.prototype._ajaxGet = function(options, callback) {
             options.type = options.type || "GET";
             options.dataType = options.dataType || this._resolveDataType();

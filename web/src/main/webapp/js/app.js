@@ -76,10 +76,10 @@ define([
 
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'workspaceSave', this.onSaveWorkspace);
-            this.loadCurrentWorkspace();
+            this.loadActiveWorkspace();
         });
 
-        this.loadCurrentWorkspace = function() {
+        this.loadActiveWorkspace = function() {
             var self = this;
             self.workspaceService.list(function(err, workspaces) {
                 if(err) {
@@ -90,7 +90,7 @@ define([
                     self.loadWorkspace(null);
                 } else {
                     workspaces.forEach(function(workspace) {
-                        if (workspace.current) {
+                        if (workspace.active) {
                             self.loadWorkspace(workspace.rowKey);
                             return false;
                         }
@@ -109,14 +109,13 @@ define([
                 return;
             }
 
-            self.workspaceService.getByRowKey(self.workspaceRowKey, function(err, data) {
+            self.workspaceService.getByRowKey(self.workspaceRowKey, function(err, workspace) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
 
-                data.data = data.data;
-                self.trigger(document, 'workspaceLoaded', data);
+                self.trigger(document, 'workspaceLoaded', workspace.data);
             });
         };
 
@@ -130,7 +129,7 @@ define([
             }
 
             $this.trigger(document, 'workspaceSaving', data);
-            saveFn(data, function(err, data) {
+            saveFn({ data: data }, function(err, data) {
                 if(err) {
                     console.error('Error', err);
                     return $this.trigger(document, 'error', { message: err.toString() });

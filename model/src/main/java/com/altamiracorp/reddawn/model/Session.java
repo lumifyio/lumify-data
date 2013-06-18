@@ -37,6 +37,8 @@ public abstract class Session {
 
     public abstract void deleteTable(String tableName);
 
+    public abstract void deleteRow(String tableName, RowKey rowKey);
+
     public void initializeTables() {
         LOGGER.info("initializeTables");
         initializeTable(Artifact.TABLE_NAME);

@@ -27,22 +27,27 @@ public class WorkspaceSave implements Handler, AppAware {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
         User currentUser = User.getUser(request);
-        String workspaceRowKeyString = (String) request.getAttribute("workspaceRowKey");
-        WorkspaceRowKey workspaceRowKey;
 
+        String title = request.getParameter("title");
+        String data = request.getParameter("data");
+        String workspaceRowKeyString = (String) request.getAttribute("workspaceRowKey");
+
+        WorkspaceRowKey workspaceRowKey;
         if (workspaceRowKeyString == null) {
             workspaceRowKey = new WorkspaceRowKey(currentUser.getId(), String.valueOf(System.currentTimeMillis()));
         } else {
             workspaceRowKey = new WorkspaceRowKey(workspaceRowKeyString);
         }
 
-        String title = request.getParameter("title");
-        String data = request.getParameter("data");
         LOGGER.info("Saving workspace: " + workspaceRowKey + "\ntitle: " + title + "\ndata: " + data);
 
         Workspace workspace = new Workspace(workspaceRowKey);
-        workspace.getContent().setData(data);
-        workspace.getMetadata().setTitle(title);
+        if (data != null) {
+            workspace.getContent().setData(data);
+        }
+        if (title != null) {
+            workspace.getMetadata().setTitle(title);
+        }
 
         workspaceRepository.save(session.getModelSession(), workspace);
         JSONObject resultJson = new JSONObject();

@@ -25,12 +25,15 @@ define([
         };
 
         this.onAddNew = function() {
-            // TODO
+            var title = $(event.target).parents('li').children('input')[0].value;
+            if (!title) return;
+            var data = { title: title };
+            this.workspaceService.saveNew(data, this.loadWorkspaceList.bind(this));
         };
 
         this.onDelete = function( event ) {
             var rowKey = $(event.target).parents('li').data('rowkey');
-            // TODO: delete workspace
+            this.workspaceService.delete(rowKey, this.loadWorkspaceList.bind(this));
         };
 
         this.onWorkspaceSwitch = function( event, data ) {

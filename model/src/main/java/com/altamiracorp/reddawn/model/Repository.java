@@ -55,4 +55,8 @@ public abstract class Repository<T> {
         }
         return results;
     }
+
+    public void delete(Session session, RowKey rowKey) {
+        session.deleteRow(getTableName(), rowKey);
+    }
 }
