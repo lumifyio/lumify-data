@@ -7,13 +7,15 @@ define([
     'users/users',
     'graph/graph',
     'detail/detail',
-    'map/map'
-], function(appTemplate, defineComponent, Menubar, Search, Users, Graph, Detail, Map) {
+    'map/map',
+    'service/workspace',
+], function(appTemplate, defineComponent, Menubar, Search, Users, Graph, Detail, Map, WorkspaceService) {
     'use strict';
 
     return defineComponent(App);
 
     function App() {
+        this.workspaceService = new WorkspaceService();
 
         this.onError = function(evt, err) {
             alert("Error: " + err.message); // TODO better error handling
@@ -60,7 +62,62 @@ define([
             // Open search when the page is loaded
             this.trigger(document, 'menubarToggleDisplay', {name:'search'});
             this.trigger(document, 'menubarToggleDisplay', {name:'graph'});
+
+            this.on(document, 'workspaceSave', this.onSaveWorkspace);
+            this.loadCurrentWorkspace();
         });
+
+        this.loadCurrentWorkspace = function() {
+            var self = this;
+            self.workspaceService.getIds(function(err, ids) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+                if(ids.length === 0) {
+                    self.loadWorkspace(null);
+                } else {
+                    self.loadWorkspace(ids[0]); // TODO handle more workspaces
+                }
+            });
+        };
+
+        this.loadWorkspace = function(workspaceRowKey) {
+            var self = this;
+            self.workspaceRowKey = workspaceRowKey;
+            if(self.workspaceRowKey == null) {
+                self.trigger(document, 'workspaceLoaded', {});
+                return;
+            }
+
+            self.workspaceService.getByRowKey(self.workspaceRowKey, function(err, data) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+
+                self.trigger(document, 'workspaceLoaded', data);
+            });
+        };
+
+        this.onSaveWorkspace = function(evt, data) {
+            var $this = this;
+            var saveFn;
+            if($this.workspaceRowKey) {
+                saveFn = $this.workspaceService.save.bind($this.workspaceService, $this.workspaceRowKey);
+            } else {
+                saveFn = $this.workspaceService.saveNew.bind($this.workspaceService);
+            }
+
+            $this.trigger(document, 'workspaceSaving', data);
+            saveFn(data, function(err, data) {
+                if(err) {
+                    console.error('Error', err);
+                    return $this.trigger(document, 'error', { message: err.toString() });
+                }
+                $this.trigger(document, 'workspaceSaved', data);
+            });
+        };
 
         this.toggleDisplay = function(e, data) {
             var pane = this.select(data.name + 'Selector');
