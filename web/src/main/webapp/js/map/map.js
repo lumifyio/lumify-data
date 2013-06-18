@@ -47,7 +47,7 @@ define([
             if(!self.map) {
                 return;
             }
-            if(!node.location) {
+            if(!node.location && !node.locations) {
                 return;
             }
 
@@ -59,14 +59,23 @@ define([
                     self.map.removeMarker(marker);
                 });
 
-            var pt = new mxn.LatLonPoint(node.location.latitude, node.location.longitude);
-            var marker = new mxn.Marker(pt);
-            marker.setAttribute('rowKey', node.rowKey);
-            marker.setInfoBubble(node.rowKey);
-            marker.click.addHandler(function() {
-                marker.openBubble();
+            var locations;
+            if(node.locations) {
+                locations = node.locations;
+            } else {
+                locations = [ node.location ];
+            }
+
+            locations.forEach(function(location) {
+                var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
+                var marker = new mxn.Marker(pt);
+                marker.setAttribute('rowKey', node.rowKey);
+                marker.setInfoBubble(node.rowKey);
+                marker.click.addHandler(function() {
+                    marker.openBubble();
+                });
+                self.map.addMarker(marker);
             });
-            this.map.addMarker(marker);
         };
 
         this.onNodeUpdate = function(evt, node) {
