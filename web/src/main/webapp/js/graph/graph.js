@@ -247,7 +247,7 @@ define([
                         droppableOffset = $(event.target).offset(),
                         text = draggable.text();
 
-                    var info = draggable.parents('li').data('info');
+                    var info = draggable.data('info') || draggable.parents('li').data('info');
 
                     this.trigger(document, 'graphAddNode', {
                         title: text,
