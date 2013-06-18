@@ -151,6 +151,8 @@ define([
                 }
                 e.data('targetPosition', {x:p.x, y:p.y});
                 e.data('freed', true);
+
+                p = $this.pixelsToPoints(p);
                 $this.trigger(document, 'graphNodeMoved', {
                     id: e.data('id'),
                     x: p.x,
@@ -237,6 +239,15 @@ define([
             });
         };
 
+        this.pixelsToPoints = function(position) {
+            if ('devicePixelRatio' in window) {
+                return {
+                    x: position.x / devicePixelRatio,
+                    y: position.y / devicePixelRatio
+                };
+            } else return position;
+        };
+
         this.after('initialize', function() {
             var $this = this;
             this.$node.html(template({}));
@@ -266,6 +277,7 @@ define([
             this.on(document, 'graphAddNode', this.onGraphAddNode);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
 
+            var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
             cytoscape("renderer", "red-dawn", Renderer);
             cytoscape({
                 showOverlay: false,
@@ -283,8 +295,8 @@ define([
                   .selector('node.location')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_242_google_maps@2x.png',
-                      'width': 18,
-                      'height': 30,
+                      'width': 18 * scale,
+                      'height': 30 * scale,
                       'border-color': 'white',
                       'border-width': 0
                     })
@@ -297,11 +309,13 @@ define([
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'rectangle',
-                      'width': 23,
-                      'height': 30
+                      'width': 23 * scale,
+                      'height': 30 * scale 
                     })
                   .selector('node')
                     .css({
+                      'width': 25 * scale,
+                      'height': 25 * scale,
                       'content': 'data(title)',
                       'font-family': 'helvetica',
                       'font-size': 14,
