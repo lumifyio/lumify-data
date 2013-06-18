@@ -19,8 +19,8 @@ public class DictionaryEncoderTest {
 	DictionaryEncoder encoder = null;
 
 	@Before
-	public void setUp() {
-		encoder = new DictionaryEncoder();
+	public void setUp() throws Exception{
+		encoder = new DictionaryEncoder("blah");
 	}
 
 	@Test
@@ -30,21 +30,22 @@ public class DictionaryEncoderTest {
 
 	@Test
 	public void testGetEntries() {
-		String filename = "/Users/swoloszy/Documents/NIC/red-dawn/dictionary-seed/src/test/testItems.txt";
-		ArrayList<String> items = null;
+		String sampleInput = "This is a sentence.\nThis is an entry.\nApple Pie\n" +
+                "Rainy Day\nHello Goodbye\nSam Woloszynski\nJeff Principe";
+		String[] items = null;
 		try {
-			items = encoder.getEntities(filename);
+			items = encoder.getEntries(sampleInput);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		assertEquals(7, items.size());
-		assertTrue(items.get(0).equals("This is a sentence."));
-		assertTrue(items.get(1).equals("The tokenizer should break this sentence into an array of words."));
-		assertTrue(items.get(2).equals("Apple Pie"));
-		assertTrue(items.get(3).equals("Rainy Day"));
-		assertTrue(items.get(4).equals("Hello Goodbye"));
-		assertTrue(items.get(5).equals("Sam Woloszynski"));
-		assertTrue(items.get(6).equals("Jeff Principe"));
+		assertEquals(7, items.length);
+		assertTrue(items[0].equals("This is a sentence."));
+		assertTrue(items[1].equals("This is an entry."));
+		assertTrue(items[2].equals("Apple Pie"));
+		assertTrue(items[3].equals("Rainy Day"));
+		assertTrue(items[4].equals("Hello Goodbye"));
+		assertTrue(items[5].equals("Sam Woloszynski"));
+		assertTrue(items[6].equals("Jeff Principe"));
 	}
 
 	@Test
@@ -107,27 +108,32 @@ public class DictionaryEncoderTest {
 		assertEquals("\\u05E1\\u05D5\\u05D0\\u05DF", results[1]);
 	}
 
-	@Test
-	public void testGetTokenizedEntryNormal() throws IOException {
-        String sampleEntry = "Sam Woloszynski";
-        StringBuilder result = encoder.getTokenizedEntry(sampleEntry);
-        assertEquals("\t<entry>\n" +
-                "\t\t<token>Sam</token>\n" +
-                "\t\t<token>Woloszynski</token>\n" +
-                "\t</entry>", result.toString());
-	}
-
     @Test
-    public void testGetTokenizedEntryLongName() throws IOException {
-        String sampleEntry = "Dr. Patrick L. O'Malley III";
-        StringBuilder result = encoder.getTokenizedEntry(sampleEntry);
-        assertEquals("\t<entry>\n" +
-                "\t\t<token>Dr.</token>\n" +
-                "\t\t<token>Patrick</token>\n" +
-                "\t\t<token>L.</token>\n" +
-                "\t\t<token>O'Malley</token>\n" +
-                "\t\t<token>III</token>\n" +
-                "\t</entry>", result.toString());
+    public void testGetCurrentDirectory() {
+        String result = encoder.getCurrentDirectory();
+        assertEquals("/Users/swoloszy/Documents/NIC/red-dawn", result);
     }
 
+    @Test
+    public void testAddEntriesSingleEntry() throws Exception {
+        encoder.addEntries("This is a sample entry");
+
+    }
+
+    @Test
+    public void testAddEntriesNonexistentDirectory() throws Exception {
+        DictionaryEncoder encoder1 = new DictionaryEncoder("dictionaryData", "myDictionary.dict");
+        encoder1.addEntries("This is a sample entry");
+    }
+
+    @Test
+    public void testAddEntriesMultiple() throws Exception {
+        encoder.addEntries("First Entry\nSecond Entry\nThird Entry\n");
+    }
+
+    @Test
+    public void testAddEntriesMultipleTimes() throws Exception {
+        encoder.addEntries("First Entry\nSecond Entry\nThird Entry\n");
+        encoder.addEntries("Fourth Entry\nFifth Entry\nSixth Entry\n");
+    }
 }

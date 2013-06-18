@@ -1,91 +1,94 @@
 package com.altamiracorp.reddawn;
 
-import opennlp.tools.tokenize.SimpleTokenizer;
+import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
+import opennlp.tools.util.StringList;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Scanner;
 
 public class DictionaryEncoder {
 
-	public void run(String filename) throws IOException {
-		StringBuilder dictionary = new StringBuilder();
-		ArrayList<String> entities = getEntities(filename);
-		dictionary.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<dictionary>");
-        for (String entry : entities) {
-			dictionary.append(getTokenizedEntry("\n" + entry));
-			
-		}
-        dictionary.append("</dictionary>");
-        if (writeToFile(dictionary)) {
-            System.out.println("Successfully converted " + filename + " to dictionary file " + getCurrentDirectory() + filename);
+    private String filename = "newDictionary.dict";
+    private String directoryPath = getCurrentDirectory();
+    private Dictionary dictionary = new Dictionary();
+
+    public DictionaryEncoder() {
+    }
+
+    public DictionaryEncoder(String directoryPath) {
+        this();
+        File theDir = new File(directoryPath);
+        if (!theDir.exists()) {
+            boolean created = theDir.mkdir();
+            if (created) {
+                System.out.println("Directory " + directoryPath + " created");
+            }
         }
-	}
-
-    private String getCurrentDirectory() {
-        // TODO write getCurrentDirectory
-        return null;
+        this.directoryPath = directoryPath;
     }
 
-    protected boolean writeToFile(StringBuilder dictionary) {
-        //TODO write writeTOFile
-
-        return false;
+    public DictionaryEncoder(String directoryPath, String initialFilename) {
+        this(directoryPath);
+        filename = initialFilename;
     }
 
-    protected StringBuilder getTokenizedEntry(String entry) throws IOException {
+    public void setDirectoryPath(String directoryPath) {
+        this.directoryPath = directoryPath;
+    }
 
-		StringBuilder formattedEntry = new StringBuilder();
-		String[] tokens = tokenize(entry);
+    public void addEntries(String allEntries) {
+        String[] entries = getEntries(allEntries);
+        for (String entry : entries) {
+            dictionary.put(new StringList(tokenize(entry)));
+        }
+        writeToFile();
+    }
 
-		formattedEntry.append("\t<entry>");
-	    for (String token : tokens) {
-			formattedEntry.append("\n\t\t<token>" +  token + "</token>");
-		}
-		formattedEntry.append("\n\t</entry>");
-		return formattedEntry;
-	}
+    private void writeToFile() {
+        File file = new File(directoryPath + "/" + filename);
+        try {
+            FileOutputStream out = new FileOutputStream(file);
+            dictionary.serialize(out);
+        } catch (IOException e) {
+            throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
+        }
+    }
 
-	protected String[] tokenize(String entry) throws FileNotFoundException {
-		InputStream modelIn = new FileInputStream("/Users/swoloszy/Documents/NIC/red-dawn/dictionary-seed/src/test/en-token.bin");
-		TokenizerModel model = null;
-		try {
-			model = new TokenizerModel(modelIn);
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		finally {
-			if (modelIn != null) {
-				try {
-					modelIn.close();
-				}
-				catch (IOException e) {
-				}
-			}
-		}
-		Tokenizer tokenizer = new TokenizerME(model);
-		return tokenizer.tokenize(entry);
-	}
+    protected String getCurrentDirectory() {
+        return System.getProperty("user.dir");
+    }
 
-	protected ArrayList<String> getEntities(String filename) {
-		ArrayList<String> items = new ArrayList<String>();
-		File file = new File(filename);
-		String line = "";
-		try {
-			Scanner fileReader = new Scanner(file);
-			while (fileReader.hasNext()) {
-				line = fileReader.nextLine();
-				items.add(line);
-			}
-		} catch (FileNotFoundException e) {
-			System.err.println("[Error] : Problem with file " + filename);
-		}
-		return items;
-	}
+    protected String[] tokenize(String entry) {
+        InputStream modelIn = null;
+        try {
+            modelIn = new FileInputStream("/Users/swoloszy/Documents/NIC/red-dawn/dictionary-seed/src/test/en-token.bin");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("Problem reading tokenizer model.");
+        }
+        TokenizerModel model = null;
+        try {
+            model = new TokenizerModel(modelIn);
+        } catch (IOException e) {
+            throw new RuntimeException("Problem creating tokenizer with model.");
+        } finally {
+            if (modelIn != null) {
+                try {
+                    modelIn.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+        Tokenizer tokenizer = new TokenizerME(model);
+        return tokenizer.tokenize(entry);
+    }
+
+    protected String[] getEntries(String entries) {
+        String[] items = entries.split("\n");
+        return items;
+    }
 
 }
