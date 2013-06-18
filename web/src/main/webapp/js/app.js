@@ -69,15 +69,22 @@ define([
 
         this.loadCurrentWorkspace = function() {
             var self = this;
-            self.workspaceService.getIds(function(err, ids) {
+            self.workspaceService.list(function(err, workspaces) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
-                if(ids.length === 0) {
+                if(workspaces.length === 0) {
                     self.loadWorkspace(null);
                 } else {
-                    self.loadWorkspace(ids[0]); // TODO handle more workspaces
+                    workspaces.forEach(function(workspace) {
+                        if (workspace.current) {
+                            self.loadWorkspace(workspace.rowKey);
+                            return false;
+                        }
+                    });
+
+                    self.loadWorkspace(workspaces[0].rowKey); // backwards compatibility when no current workspace
                 }
             });
         };

@@ -25,4 +25,12 @@ public class Workspace extends Row<WorkspaceRowKey> {
         }
         return get(WorkspaceContent.NAME);
     }
+
+    public WorkspaceMetadata getMetadata() {
+        WorkspaceMetadata workspaceMetadata = get(WorkspaceMetadata.NAME);
+        if (workspaceMetadata == null) {
+            addColumnFamily(new WorkspaceMetadata());
+        }
+        return get(WorkspaceMetadata.NAME);
+    }
 }

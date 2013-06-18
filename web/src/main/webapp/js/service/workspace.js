@@ -12,7 +12,7 @@ function(ServiceBase) {
 
     WorkspaceService.prototype = Object.create(ServiceBase.prototype);
 
-    WorkspaceService.prototype.getIds = function (callback) {
+    WorkspaceService.prototype.list = function (callback) {
         return this._ajaxGet({
             url: 'workspace/'
         }, callback);

@@ -29,16 +29,20 @@ public class WorkspaceSave implements Handler, AppAware {
         User currentUser = User.getUser(request);
         String workspaceRowKeyString = (String) request.getAttribute("workspaceRowKey");
         WorkspaceRowKey workspaceRowKey;
+
         if (workspaceRowKeyString == null) {
-            workspaceRowKey = new WorkspaceRowKey(currentUser.getId(), "1"); // TODO currently only support one workspace
+            workspaceRowKey = new WorkspaceRowKey(currentUser.getId(), String.valueOf(System.currentTimeMillis()));
         } else {
             workspaceRowKey = new WorkspaceRowKey(workspaceRowKeyString);
         }
+
+        String title = request.getParameter("title");
         String data = request.getParameter("data");
-        LOGGER.info("Saving workspace: " + workspaceRowKey + "\ndata: " + data);
+        LOGGER.info("Saving workspace: " + workspaceRowKey + "\ntitle: " + title + "\ndata: " + data);
 
         Workspace workspace = new Workspace(workspaceRowKey);
         workspace.getContent().setData(data);
+        workspace.getMetadata().setTitle(title);
 
         workspaceRepository.save(session.getModelSession(), workspace);
         JSONObject resultJson = new JSONObject();
