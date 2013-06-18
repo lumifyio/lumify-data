@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.web.routes.user;
 
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.messageBus.Message;
 import com.altamiracorp.reddawn.web.messageBus.MessageBus;
@@ -34,8 +35,7 @@ public class MessagesGet implements Handler {
         resultsJson.put("users", userDatasToJson(users));
         resultsJson.put("messages", Message.toJson(messageBus, currentMessageBusUser.getMessagesAndClear()));
 
-        response.setContentType("application/json");
-        response.getWriter().write(resultsJson.toString());
+        new Responder(response).respondWith(resultsJson);
     }
 
     private ArrayList<MessageBusUser> getUsers(Collection<MessageBusUser> allUsers, User currentUser) {

@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.web.routes.user;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.altamiracorp.reddawn.web.Responder;
 import org.json.JSONObject;
 
 import com.altamiracorp.reddawn.web.User;
@@ -18,9 +19,7 @@ public class MeGet implements Handler {
 		JSONObject user = new JSONObject();
 		user.put("id", User.getUser(request).getId());
 		resultJson.put("user", user);
-		response.setContentType("application/json");
-		response.getWriter().write(resultJson.toString());
-
+        new Responder(response).respondWith(resultJson);
 	}
 
 }

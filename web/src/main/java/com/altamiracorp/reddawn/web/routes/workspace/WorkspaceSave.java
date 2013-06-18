@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.workspace.Workspace;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRepository;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRowKey;
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
@@ -43,8 +44,7 @@ public class WorkspaceSave implements Handler, AppAware {
         JSONObject resultJson = new JSONObject();
         resultJson.put("workspaceId", workspaceRowKey.toString());
 
-        response.setContentType("application/json");
-        response.getWriter().write(resultJson.toString());
+        new Responder(response).respondWith(resultJson);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.web.routes.chat;
 
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.messageBus.MessageBus;
 import com.altamiracorp.reddawn.web.routes.chat.models.Chat;
@@ -38,7 +39,6 @@ public class ChatPostMessage implements Handler {
             throw new Exception("No users to send to");
         }
 
-        response.setContentType("application/json");
-        response.getWriter().write(message.toJson(messageBus).toString());
+        new Responder(response).respondWith(message.toJson(messageBus));
     }
 }

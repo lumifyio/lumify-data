@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.location;
 
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.term.TermMention;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
@@ -18,7 +19,14 @@ public class SimpleArtifactLocationExtractor implements ArtifactLocationExtracto
     public Collection<Artifact> extract(Term term) throws Exception {
         ArrayList<Artifact> result = new ArrayList<Artifact>();
 
-        // to do: return artifacts
+        for (TermMention termMention : term.getTermMentions()) {
+            String geoLocation = termMention.getGeoLocation();
+            if (geoLocation != null) {
+                Artifact artifact = new Artifact(termMention.getArtifactKey());
+                artifact.getDynamicMetadata().setGeolocation(geoLocation);
+                result.add(artifact);
+            }
+        }
 
         return result;
     }

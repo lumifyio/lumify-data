@@ -6,8 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
 public class GeoNameRepositoryTest {
@@ -126,5 +125,46 @@ public class GeoNameRepositoryTest {
         assertNotNull("extraColumnFamily", extraColumnFamily);
         assertEquals(1, extraColumnFamily.getColumns().size());
         assertEquals("testExtraValue", extraColumnFamily.get("testExtraColumn").toString());
+    }
+
+    @Test
+    public void testFindBestMatch() {
+        GeoName geoName1 = new GeoName("Boston", "123");
+        geoName1.getMetadata()
+                .setName("Boston1")
+                .setPopulation(100L);
+        geoNameRepository.save(session, geoName1);
+
+        GeoName geoName2 = new GeoName("Boston", "234");
+        geoName2.getMetadata()
+                .setName("Boston2")
+                .setPopulation(300L);
+        geoNameRepository.save(session, geoName2);
+
+        GeoName match = geoNameRepository.findBestMatch(session, "boston");
+        assertEquals("Boston2", match.getMetadata().getName());
+    }
+
+    @Test
+    public void testFindBestMatchNoMatches() {
+        GeoName match = geoNameRepository.findBestMatch(session, "boston");
+        assertNull("Found a match but shouldn't", match);
+    }
+
+    @Test
+    public void testFindBestMatchWithNulls() {
+        GeoName geoName1 = new GeoName("Boston", "123");
+        geoName1.getMetadata()
+                .setName("Boston1")
+                .setPopulation(100L);
+        geoNameRepository.save(session, geoName1);
+
+        GeoName geoName2 = new GeoName("Boston", "234");
+        geoName2.getMetadata()
+                .setName("Boston2");
+        geoNameRepository.save(session, geoName2);
+
+        GeoName match = geoNameRepository.findBestMatch(session, "boston");
+        assertEquals("Boston1", match.getMetadata().getName());
     }
 }

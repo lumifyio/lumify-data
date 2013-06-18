@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.web.routes.workspace;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.workspace.Workspace;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRepository;
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
@@ -31,8 +32,7 @@ public class WorkspaceList implements Handler, AppAware {
             resultsJSON.put(workspace.getRowKey().toString());
         }
 
-        response.setContentType("application/json");
-        response.getWriter().write(resultsJSON.toString());
+        new Responder(response).respondWith(resultsJSON);
         chain.next(request, response);
     }
 

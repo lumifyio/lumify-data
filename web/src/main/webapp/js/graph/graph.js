@@ -4,18 +4,16 @@ define([
     'flight/lib/component',
     'cytoscape',
     './renderer',
-    'service/workspace',
     'service/ucd',
     'tpl!./graph',
     'util/undoManager'
-], function(defineComponent, cytoscape, Renderer, WorkspaceService, UcdService, template, undoManager) {
+], function(defineComponent, cytoscape, Renderer, UcdService, template, undoManager) {
     'use strict';
 
     return defineComponent(Graph);
 
     function Graph() {
         var WORKSPACE_SAVE_TIMEOUT = 1000;
-        this.workspaceService = new WorkspaceService();
         this.ucdService = new UcdService();
         var cy = null;
 
@@ -211,21 +209,8 @@ define([
 
         this.saveWorkspace = function() {
             var $this = this;
-            var saveFn;
             var data = this.getGraphData();
-            if($this.workspaceRowKey) {
-                saveFn = $this.workspaceService.save.bind($this.workspaceService, $this.workspaceRowKey);
-            } else {
-                saveFn = $this.workspaceService.saveNew.bind($this.workspaceService);
-            }
-            $this.trigger(document, 'workspaceSaving', data);
-            saveFn(data, function(err, data) {
-                if(err) {
-                    console.error('Error', err);
-                    return $this.trigger(document, 'error', { message: err.toString() });
-                }
-                $this.trigger(document, 'workspaceSaved', data);
-            });
+            $this.trigger(document, 'workspaceSave', data);
         };
 
         this.getEntityIds = function() {
@@ -277,6 +262,15 @@ define([
             };
         };
 
+        this.onWorkspaceLoaded = function(evt, data) {
+            if (data.data.nodes) {
+                cy.add(data.data.nodes);
+            }
+
+            this.refreshRelationships();
+            this.checkEmptyGraph();
+        };
+
         this.after('initialize', function() {
             var $this = this;
             this.$node.html(template({}));
@@ -293,6 +287,8 @@ define([
                     });
                 }.bind(this)
             });
+
+            this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
 
             cytoscape("renderer", "red-dawn", Renderer);
             cytoscape({
@@ -380,31 +376,6 @@ define([
                         grab: $this.graphGrab.bind($this),
                         free: $this.graphFree.bind($this),
                         drag: $this.graphDrag.bind($this)
-                    });
-
-                    $this.workspaceService.getIds(function(err, ids) {
-                        if(err) {
-                            console.error('Error', err);
-                            return $this.trigger(document, 'error', { message: err.toString() });
-                        }
-                        if(ids.length === 0) {
-                            $this.workspaceRowKey = null;
-                        } else {
-                            $this.workspaceRowKey = ids[0]; // TODO handle more workspaces
-                            $this.workspaceService.getByRowKey($this.workspaceRowKey, function(err, data) {
-                                if(err) {
-                                    console.error('Error', err);
-                                    return $this.trigger(document, 'error', { message: err.toString() });
-                                }
-                                
-                                if (data.data.nodes) {
-                                    cy.add(data.data.nodes);
-                                }
-
-                                $this.refreshRelationships();
-                                $this.checkEmptyGraph();
-                            });
-                        }
                     });
                 }
             });
