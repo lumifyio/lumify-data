@@ -47,6 +47,7 @@ html, body {
 
 .users-pane, 
 .search-pane, 
+.workspaces-pane, 
 .detail-pane {
   .above-graph;
   position: absolute;
@@ -63,6 +64,7 @@ html, body {
 }
 
 .search-pane, 
+.workspaces-pane,
 .detail-pane {
   height: 100%;
 
@@ -91,7 +93,8 @@ html, body {
   @import "menubar/menubar";
 }
 
-.search-pane {
+.search-pane,
+.workspaces-pane {
   .left-pane;
 
   @import "search/search";

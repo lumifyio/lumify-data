@@ -1,0 +1,9 @@
+
+<li class="nav-header">Workspaces</li>
+
+<% results.forEach(function(result) { %>
+<li class="<%= selected === result.rowKey ? 'active' : '' %>" 
+    data-rowkey="<%= result.rowKey %>"
+><a href="#"><%= result.name || result.rowKey %></a></li>
+<% }); %>
+
