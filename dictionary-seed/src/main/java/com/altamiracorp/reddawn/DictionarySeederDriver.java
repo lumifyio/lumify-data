@@ -27,22 +27,32 @@ public class DictionarySeederDriver {
 
         options.addOption(
                 OptionBuilder
-                    .withArgName("t")
-                    .withLongOpt("types")
-                    .withDescription("The types of terms to add to the dictionary (multiple separated by commas).\n" +
-                            "Leave this blank to add all types.\n" +
-                            "Valid values: place, person, organization, work, species")
-                    .hasArg(true)
-                    .create()
+                        .withArgName("t")
+                        .withLongOpt("types")
+                        .withDescription("The types of terms to add to the dictionary (multiple separated by commas).\n" +
+                                "Leave this blank to add all types.\n" +
+                                "Valid values: place, person, organization, work, species")
+                        .hasArg(true)
+                        .create()
+        );
+
+        options.addOption(
+                OptionBuilder
+                        .withArgName("d")
+                        .withLongOpt("directory")
+                        .withDescription("The relative path to the directory to search. Defaults to ../dictionary-files/")
+                        .isRequired()
+                        .hasArg(true)
+                        .create()
         );
 
         return options;
     }
 
-    private String[] getTypes(CommandLine cl) {
+    protected String[] getTypes(CommandLine cl) {
         String[] types;
         String clParams = cl.getOptionValue("types");
-        if(clParams != null) {
+        if(clParams != null && !clParams.trim().equals("")) {
             types = clParams.split(",");
             for(int i = 0; i < types.length; i++) {
                 types[i] = types[i].trim();
@@ -54,29 +64,39 @@ public class DictionarySeederDriver {
         return types;
     }
 
-    private String runSearch(String type) {
-            String searchCategory = "";
+    protected String getSearchCategory(String type) {
+        String searchCategory = "";
 
-            if(type.equalsIgnoreCase("place")) {
-                searchCategory = DictionarySearcher.PLACE;
-            } else if(type.equalsIgnoreCase("person")) {
-                searchCategory = DictionarySearcher.PERSON;
-            } else if(type.equalsIgnoreCase("organization")) {
-                searchCategory = DictionarySearcher.ORGANIZATION;
-            } else if(type.equalsIgnoreCase("work")) {
-                searchCategory = DictionarySearcher.WORK;
-            } else if(type.equalsIgnoreCase("species")) {
-                searchCategory = DictionarySearcher.SPECIES;
-            }
+        if(type.equalsIgnoreCase("place")) {
+            searchCategory = DictionarySearcher.PLACE;
+        } else if(type.equalsIgnoreCase("person")) {
+            searchCategory = DictionarySearcher.PERSON;
+        } else if(type.equalsIgnoreCase("organization")) {
+            searchCategory = DictionarySearcher.ORGANIZATION;
+        } else if(type.equalsIgnoreCase("work")) {
+            searchCategory = DictionarySearcher.WORK;
+        } else if(type.equalsIgnoreCase("species")) {
+            searchCategory = DictionarySearcher.SPECIES;
+        } else {
+            throw new RuntimeException("\"" + type + "\" is not a valid type");
+        }
 
-            return searcher.search(searchCategory);
+        return searchCategory;
     }
 
     public void run(String[] args) {
         CommandLine cl = loadCommandLine(args);
         String[] types = getTypes(cl);
+
+        DictionarySearcher searcher = new DictionarySearcher();
+        DictionaryEncoder encoder = new DictionaryEncoder();
+        //TODO:add encoder configurations here
+        searcher.addEncoder(encoder);
+
         for(String type : types) {
-            System.out.println(runSearch(type));
+            String category = getSearchCategory(type);
+            // encoder.setFilename("en-ner-" + category + ".dict");
+            searcher.search(category);
         }
     }
 
