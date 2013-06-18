@@ -265,6 +265,10 @@ define([
                         text = draggable.text();
 
                     var info = draggable.data('info') || draggable.parents('li').data('info');
+                    if ( !info ) {
+                        console.warn('No data-info attribute for draggable element found');
+                        return;
+                    }
 
                     this.trigger(document, 'graphAddNode', {
                         title: text,
