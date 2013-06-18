@@ -2,18 +2,15 @@ package com.altamiracorp.reddawn;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(JUnit4.class)
+@RunWith(JUnit4ClassRunner.class)
 public class DictionaryEncoderTest {
 
 	DictionaryEncoder encoder = null;

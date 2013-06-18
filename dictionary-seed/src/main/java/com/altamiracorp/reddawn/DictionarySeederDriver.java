@@ -89,13 +89,12 @@ public class DictionarySeederDriver {
         String[] types = getTypes(cl);
 
         DictionarySearcher searcher = new DictionarySearcher();
-        DictionaryEncoder encoder = new DictionaryEncoder();
-        //TODO:add encoder configurations here
+        DictionaryEncoder encoder = new DictionaryEncoder(cl.getOptionValue("directory"));
         searcher.addEncoder(encoder);
 
         for(String type : types) {
             String category = getSearchCategory(type);
-            // encoder.setFilename("en-ner-" + category + ".dict");
+            encoder.setFilename("en-ner-" + category + ".dict");
             searcher.search(category);
         }
     }

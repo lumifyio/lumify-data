@@ -40,6 +40,10 @@ public class DictionaryEncoder {
         this.directoryPath = directoryPath;
     }
 
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
     public void addEntries(String allEntries) {
         String[] entries = getEntries(allEntries);
         for (String entry : entries) {
@@ -65,7 +69,8 @@ public class DictionaryEncoder {
     protected String[] tokenize(String entry) {
         InputStream modelIn = null;
         try {
-            modelIn = new FileInputStream("/Users/swoloszy/Documents/NIC/red-dawn/dictionary-seed/src/test/en-token.bin");
+            // TODO: not hardcode this
+            modelIn = new FileInputStream("/Users/jprincip/Documents/nic/red-dawn/dictionary-seed/src/test/en-token.bin");
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Problem reading tokenizer model.");
         }

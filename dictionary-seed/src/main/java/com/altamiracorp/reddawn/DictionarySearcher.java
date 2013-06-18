@@ -102,7 +102,7 @@ public class DictionarySearcher {
 
     private void notifyEncoders(String terms) {
         for(DictionaryEncoder encoder : encoders) {
-            // TODO: encoder.addEntries();
+            encoder.addEntries(terms);
         }
     }
 
