@@ -1,14 +1,16 @@
 
 define([
     'flight/lib/component',
+    'service/workspace',
     'tpl!./workspaces',
     'tpl!./list'
-], function(defineComponent, workspacesTemplate, listTemplate) {
+], function(defineComponent, WorkspaceService, workspacesTemplate, listTemplate) {
     'use strict';
 
     return defineComponent(Workspaces);
 
     function Workspaces() {
+        this.workspaceService = new WorkspaceService();
 
         this.defaultAttrs({
             listSelector: 'ul.nav-list',
@@ -42,26 +44,21 @@ define([
                 });
         };
 
+        this.loadWorkspaceList = function() {
+            this.workspaceService.list(function(err, workspaces) {
+                workspaces = workspaces || [];
+                this.$node.html( workspacesTemplate({}) );
+                this.select( 'listSelector' ).html(
+                    listTemplate({
+                        results: workspaces,
+                        selected: 'chrome'
+                    })
+                );
+            }.bind(this));
+        };
 
         this.after( 'initialize', function() {
-
-            // TODO: subscribe to workspace server events instead
-            var results = [
-             { rowKey: 'chrome' },
-             { rowKey: 'chrome2' },
-             { rowKey: 'chrome3' },
-             { rowKey: 'chrome4' }
-            ];
-
-            this.$node.html( workspacesTemplate({}) );
-
-            this.select( 'listSelector' ).html( 
-                listTemplate({
-                    results:results,
-                    selected: 'chrome'
-                }) 
-            );
-
+            this.loadWorkspaceList();
             this.on( document, 'switchWorkspace', this.onWorkspaceSwitch );
             this.on( 'click', {
                 workspaceListItemSelector: this.onWorkspaceItemClick,

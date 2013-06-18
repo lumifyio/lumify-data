@@ -4,6 +4,6 @@
 <% results.forEach(function(result) { %>
 <li class="<%= selected === result.rowKey ? 'active' : '' %>" 
     data-rowkey="<%= result.rowKey %>"
-    ><a href="#"><%= result.name || result.rowKey %><button class="delete btn btn-mini btn-danger">Delete</button></a></li>
+    ><a href="#"><%= result.title || result.rowKey %><button class="delete btn btn-mini btn-danger">Delete</button></a></li>
 <% }); %>
 
