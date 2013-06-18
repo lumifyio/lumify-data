@@ -4,17 +4,14 @@ define([
     'flight/lib/component',
     'cytoscape',
     './renderer',
-    'service/ucd',
     'tpl!./graph',
     'util/undoManager'
-], function(defineComponent, cytoscape, Renderer, UcdService, template, undoManager) {
+], function(defineComponent, cytoscape, Renderer, template, undoManager) {
     'use strict';
 
     return defineComponent(Graph);
 
     function Graph() {
-        var WORKSPACE_SAVE_TIMEOUT = 1000;
-        this.ucdService = new UcdService();
         var cy = null;
 
         this.defaultAttrs({
@@ -23,24 +20,34 @@ define([
             graphToolsSelector: '.ui-cytoscape-panzoom'
         });
 
-        this.addNode = function(title, info, position) {
-            var node = {
-                group:'nodes',
-                renderedPosition: position,
-            };
+        this.onGraphAddNode = function(evt, data) {
+            this.addNode(data);
+        };
 
-            node.data = info;
-            node.data.id = info.rowKey;
+        this.addNode = function(node) {
+            var title = node.title;
+            var position = node.graphPosition;
 
             if (title.length > 10) {
                 title = title.substring(0, 10) + "...";
             }
-            node.data.title = title;
 
-            var cyNode = cy.add(node);
+            var cyNodeData = {
+                group: 'nodes',
+                renderedPosition: position,
+                data: {
+                    id: node.rowKey,
+                    rowKey: node.rowKey,
+                    subType: node.subType,
+                    type: node.type,
+                    title: title
+                }
+            };
 
-            cyNode.addClass(info.subType);
-            cyNode.addClass(info.type);
+            var cyNode = cy.add(cyNodeData);
+
+            cyNode.addClass(node.subType);
+            cyNode.addClass(node.type);
 
             undoManager.performedAction( 'Add node: ' + title, {
                 undo: function() {
@@ -50,15 +57,12 @@ define([
                 redo: function() {
                     cyNode.restore();
                     this.setWorkspaceDirty();
-                    this.refreshRelationships();
                 },
                 bind: this
             });
 
-            this.setWorkspaceDirty();
-            this.refreshRelationships();
+            this.checkEmptyGraph();
         };
-
 
         this.removeSelectedNodes = function() {
             var nodes = cy.nodes().filter(':selected').remove();
@@ -66,7 +70,6 @@ define([
             undoManager.performedAction( 'Delete ' + nodes.length + ' nodes', {
                 undo: function() {
                     nodes.restore();
-                    this.refreshRelationships();
                     this.setWorkspaceDirty();
                 },
                 redo: function() {
@@ -122,7 +125,8 @@ define([
             }
         };
 
-        this.graphDrag = function(event) { };
+        this.graphDrag = function(event) {
+        };
 
         this.graphGrab = function(event) {
             var nodes = event.cyTarget.selected() ? cy.nodes().filter(':selected') : event.cyTarget;
@@ -134,6 +138,7 @@ define([
         };
 
         this.graphFree = function(event) {
+            var $this = this;
 
             // CY is sending multiple "free" events, prevent that...
             var dup = true,
@@ -146,6 +151,11 @@ define([
                 }
                 e.data('targetPosition', {x:p.x, y:p.y});
                 e.data('freed', true);
+                $this.trigger(document, 'graphNodeMoved', {
+                    id: e.data('id'),
+                    x: p.x,
+                    y: p.y
+                });
             });
 
             if (dup) {
@@ -194,81 +204,37 @@ define([
             this.setWorkspaceDirty();
         };
 
+        this.setWorkspaceDirty = function() {
+            this.checkEmptyGraph();
+        };
+
         this.checkEmptyGraph = function() {
             this.select('emptyGraphSelector').toggle(cy.nodes().length === 0);
         };
 
-        this.setWorkspaceDirty = function() {
-            this.checkEmptyGraph();
-
-            if(this.saveWorkspaceTimeout) {
-                clearTimeout(this.saveWorkspaceTimeout);
-            }
-            this.saveWorkspaceTimeout = setTimeout(this.saveWorkspace.bind(this), WORKSPACE_SAVE_TIMEOUT);
-        };
-
-        this.saveWorkspace = function() {
-            var $this = this;
-            var data = this.getGraphData();
-            $this.trigger(document, 'workspaceSave', data);
-        };
-
-        this.getEntityIds = function() {
-            return this.getGraphData().nodes
-                .filter(function(node) {
-                    return node.data.type == 'entities';
-                })
-                .map(function(node) {
-                    return node.data.rowKey;
-                });
-        };
-
-        this.getArtifactIds = function() {
-            return this.getGraphData().nodes
-                .filter(function(node) {
-                    return node.data.type == 'artifacts';
-                })
-                .map(function(node) {
-                    return node.data.rowKey;
-                });
-        };
-
-        this.refreshRelationships = function() {
-            var entityIds = this.getEntityIds();
-            var artifactIds = this.getArtifactIds();
-            this.ucdService.getRelationships(entityIds, artifactIds, function(err, relationships) {
-                if(err) {
-                    console.error('Error', err);
-                    return $this.trigger(document, 'error', { message: err.toString() });
+        this.onWorkspaceLoaded = function(evt, workspace) {
+            if (workspace.data.nodes) {
+                for(var i=0; i<workspace.data.nodes.length; i++) {
+                    this.addNode(workspace.data.nodes[i]);
                 }
-                cy.edges().remove();
-                relationships.forEach(function(relationship) {
-                    cy.add({
-                        group: "edges",
-                        data: {
-                            id: relationship.from + "->" + relationship.to,
-                            source: relationship.from,
-                            target: relationship.to,
-                            type: 'relationship'
-                        }
-                    });
+            }
+
+            this.checkEmptyGraph();
+        };
+
+        this.onRelationshipsLoaded = function(evt, relationshipData) {
+            cy.edges().remove();
+            relationshipData.relationships.forEach(function(relationship) {
+                cy.add({
+                    group: "edges",
+                    data: {
+                        id: relationship.from + "->" + relationship.to,
+                        source: relationship.from,
+                        target: relationship.to,
+                        type: 'relationship'
+                    }
                 });
             });
-        };
-
-        this.getGraphData = function() {
-            return {
-                nodes: cy.json().elements.nodes || []
-            };
-        };
-
-        this.onWorkspaceLoaded = function(evt, data) {
-            if (data.data.nodes) {
-                cy.add(data.data.nodes);
-            }
-
-            this.refreshRelationships();
-            this.checkEmptyGraph();
         };
 
         this.after('initialize', function() {
@@ -281,14 +247,24 @@ define([
                         droppableOffset = $(event.target).offset(),
                         text = draggable.text();
 
-                    this.addNode(text, draggable.parents('li').data('info'), {
-                        x: event.clientX - droppableOffset.left,
-                        y: event.clientY - droppableOffset.top
+                    var info = draggable.parents('li').data('info');
+
+                    this.trigger(document, 'graphAddNode', {
+                        title: text,
+                        rowKey: info.rowKey,
+                        subType: info.subType,
+                        type: info.type,
+                        graphPosition: {
+                            x: event.clientX - droppableOffset.left,
+                            y: event.clientY - droppableOffset.top
+                        }
                     });
                 }.bind(this)
             });
 
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
+            this.on(document, 'graphAddNode', this.onGraphAddNode);
+            this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
 
             cytoscape("renderer", "red-dawn", Renderer);
             cytoscape({

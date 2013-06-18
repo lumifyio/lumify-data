@@ -9,13 +9,16 @@ define([
     'detail/detail',
     'map/map',
     'service/workspace',
-], function(appTemplate, defineComponent, Menubar, Search, Users, Graph, Detail, Map, WorkspaceService) {
+    'service/ucd'
+], function(appTemplate, defineComponent, Menubar, Search, Users, Graph, Detail, Map, WorkspaceService, UcdService) {
     'use strict';
 
     return defineComponent(App);
 
     function App() {
+        var WORKSPACE_SAVE_TIMEOUT = 1000;
         this.workspaceService = new WorkspaceService();
+        this.ucdService = new UcdService();
 
         this.onError = function(evt, err) {
             alert("Error: " + err.message); // TODO better error handling
@@ -63,6 +66,10 @@ define([
             this.trigger(document, 'menubarToggleDisplay', {name:'search'});
             this.trigger(document, 'menubarToggleDisplay', {name:'graph'});
 
+            this.on(document, 'graphAddNode', this.onGraphAddNode);
+            this.on(document, 'graphNodeMoved', this.onGraphNodeMoved);
+
+            this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'workspaceSave', this.onSaveWorkspace);
             this.loadCurrentWorkspace();
         });
@@ -86,7 +93,7 @@ define([
             var self = this;
             self.workspaceRowKey = workspaceRowKey;
             if(self.workspaceRowKey == null) {
-                self.trigger(document, 'workspaceLoaded', {});
+                self.trigger(document, 'workspaceLoaded', { data: { nodes: [] } });
                 return;
             }
 
@@ -96,6 +103,7 @@ define([
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
 
+                data.data = data.data;
                 self.trigger(document, 'workspaceLoaded', data);
             });
         };
@@ -117,6 +125,75 @@ define([
                 }
                 $this.trigger(document, 'workspaceSaved', data);
             });
+        };
+
+        this.onWorkspaceLoaded = function(evt, data) {
+            this.workspaceData = data;
+            this.refreshRelationships();
+        };
+
+        this.setWorkspaceDirty = function() {
+            if(this.saveWorkspaceTimeout) {
+                clearTimeout(this.saveWorkspaceTimeout);
+            }
+            this.saveWorkspaceTimeout = setTimeout(this.saveWorkspace.bind(this), WORKSPACE_SAVE_TIMEOUT);
+        };
+
+        this.saveWorkspace = function() {
+            this.trigger(document, 'workspaceSave', this.workspaceData.data);
+        };
+
+        this.onGraphAddNode = function(evt, data) {
+            this.workspaceData = this.workspaceData || {};
+            this.workspaceData.data = this.workspaceData.data || {};
+            this.workspaceData.data.nodes = this.workspaceData.data.nodes || [];
+            this.workspaceData.data.nodes.push(data);
+            this.setWorkspaceDirty();
+            this.refreshRelationships();
+        };
+
+        this.onGraphNodeMoved = function(evt, nodeMoveData) {
+            var nodes = this.workspaceData.data.nodes.filter(function(n) { return n.rowKey == nodeMoveData.id });
+            nodes.forEach(function(node) {
+                node.graphPosition = {
+                    x: nodeMoveData.x,
+                    y: nodeMoveData.y
+                };
+            });
+            this.setWorkspaceDirty();
+        };
+
+        this.refreshRelationships = function() {
+            var self = this;
+            var entityIds = this.getEntityIds();
+            var artifactIds = this.getArtifactIds();
+            this.ucdService.getRelationships(entityIds, artifactIds, function(err, relationships) {
+                if(err) {
+                    console.error('Error', err);
+                    return $this.trigger(document, 'error', { message: err.toString() });
+                }
+                self.trigger(document, 'relationshipsLoaded', { relationships: relationships });
+            });
+        };
+
+        this.getEntityIds = function() {
+            return this.workspaceData.data.nodes
+                .filter(function(node) {
+                    return node.type == 'entities';
+                })
+                .map(function(node) {
+                    return node.rowKey;
+                });
+        };
+
+        this.getArtifactIds = function() {
+            return this.workspaceData.data.nodes
+                .filter(function(node) {
+                    return node.type == 'artifacts';
+                })
+                .map(function(node) {
+                    return node.rowKey;
+                });
         };
 
         this.toggleDisplay = function(e, data) {
