@@ -28,7 +28,6 @@ function(ServiceBase, atmosphere) {
 
 			self.getCurrentUsers(function (err, users) {
 				result.users = users;
-				console.log(result);
 				return callback(err,result);
 			});
 		});

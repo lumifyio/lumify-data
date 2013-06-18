@@ -39,7 +39,7 @@ define([
         };
 
         this.onGraphAddNode = function(evt, graphNodeData) {
-            console.log('graphNodeData', graphNodeData);
+            console.log('graphNodeData', graphNodeData); // TODO handle new nodes
         };
 
         this.updateOrAddNode = function(node) {
@@ -90,7 +90,7 @@ define([
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
-                    console.log('entity', entity);
+                    console.log('entity', entity); // TODO handle entities
                 });
             } else if(node.type == 'artifacts') {
                 this.ucdService.getArtifactById(node.rowKey, function(err, artifact) {
@@ -120,7 +120,6 @@ define([
                 self.map.removeMarker(self.lastMarker);
             }
             var pt = new mxn.LatLonPoint(mapCenter.lat, mapCenter.lng);
-            console.log('onMapEndPan', pt);
             self.lastMarker = new mxn.Marker(pt);
             self.lastMarker.setInfoBubble("User");
             self.lastMarker.click.addHandler(function() {
@@ -130,7 +129,6 @@ define([
         }
 
         this.onMapCenter = function(evt, data) {
-            console.log(data);
             this.trigger(document, 'modeSelect', { mode: 'map' });
             var latlon = new mxn.LatLonPoint(data.latitude, data.longitude);
             this.map.setCenterAndZoom(latlon, 7);
