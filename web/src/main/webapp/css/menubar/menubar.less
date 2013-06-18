@@ -36,8 +36,8 @@ background: @menubar-background;
   }
 }
 
-.menu-top {
-  .search a { background-image: url(/img/glyphicons/white/glyphicons_027_search@2x.png); }
+.menu-top, .menu-bottom {
+  .workspaces a { background-image: url(/img/glyphicons/white/glyphicons_153_more_windows@2x.png); }
 
   .graph a { 
     background-image: url(/img/glyphicons/white/glyphicons_326_share@2x.png);
@@ -47,31 +47,8 @@ background: @menubar-background;
     background-image: url(/img/glyphicons/white/glyphicons_242_google_maps@2x.png);
     background-size: 50%;
   }
-}
 
-
-
-.cog(@dimension, @offsetLeft, @offsetTop) {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  margin-left: @dimension / 2 * -1px + @offsetLeft;
-  margin-top: @dimension / 2 * -1px + @offsetTop;
-  width: @dimension;
-  height: @dimension;
-  background-image: url(/img/glyphicons/white/glyphicons_019_cogwheel@2x.png); 
-  background-size: 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-
-.menu-bottom {
-  position: absolute;
-  bottom: 5px;
-  left: 0;
-  right: 0;
+  .search a { background-image: url(/img/glyphicons/white/glyphicons_027_search@2x.png); }
 
   .users a { background-image: url(/img/glyphicons/white/glyphicons_244_conversation@2x.png); }
   .metrics a { background-image: url(/img/glyphicons/white/glyphicons_041_charts@2x.png); }
@@ -98,4 +75,29 @@ background: @menubar-background;
         .animation-play-state(running);
     }
   }
+}
+
+
+
+.cog(@dimension, @offsetLeft, @offsetTop) {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: @dimension / 2 * -1px + @offsetLeft;
+  margin-top: @dimension / 2 * -1px + @offsetTop;
+  width: @dimension;
+  height: @dimension;
+  background-image: url(/img/glyphicons/white/glyphicons_019_cogwheel@2x.png); 
+  background-size: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+
+.menu-bottom {
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  right: 0;
 }

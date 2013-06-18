@@ -4,12 +4,13 @@ define([
     'flight/lib/component',
     'menubar/menubar',
     'search/search',
+    'workspaces/workspaces',
     'users/users',
     'graph/graph',
     'detail/detail',
     'map/map',
     'service/workspace',
-], function(appTemplate, defineComponent, Menubar, Search, Users, Graph, Detail, Map, WorkspaceService) {
+], function(appTemplate, defineComponent, Menubar, Search, Workspaces, Users, Graph, Detail, Map, WorkspaceService) {
     'use strict';
 
     return defineComponent(App);
@@ -24,6 +25,7 @@ define([
         this.defaultAttrs({
             menubarSelector: '.menubar-pane',
             searchSelector: '.search-pane',
+            workspacesSelector: '.workspaces-pane',
             usersSelector: '.users-pane',
             graphSelector: '.graph-pane',
             mapSelector: '.map-pane',
@@ -40,6 +42,7 @@ define([
             var content = $(appTemplate({})),
                 menubarPane = content.filter('.menubar-pane'),
                 searchPane = content.filter('.search-pane'),
+                workspacesPane = content.filter('.workspaces-pane'),
                 usersPane = content.filter('.users-pane'),
                 graphPane = content.filter('.graph-pane'),
                 detailPane = content.filter('.detail-pane'),
@@ -48,6 +51,7 @@ define([
 
             Menubar.attachTo(menubarPane.find('.content'));
             Search.attachTo(searchPane.find('.content'));
+            Workspaces.attachTo(workspacesPane.find('.content'));
             Users.attachTo(usersPane.find('.content'));
             Graph.attachTo(graphPane);
             Detail.attachTo(detailPane.find('.content'));
@@ -55,6 +59,7 @@ define([
 
             // Configure splitpane resizing
             resizable(searchPane, 'e');
+            resizable(workspacesPane, 'e');
             resizable(detailPane, 'w', 4, 500, this.onDetailResize.bind(this));
 
             this.$node.html(content);
@@ -136,11 +141,6 @@ define([
                 this.trigger(document, 'graphHide');
                 this.trigger(document, 'mapShow');
             }
-
-            //if ((data.name === 'graph' || data.name === 'map') && pane.hasClass('visible')) {
-             //   return;
-            //}
-
 
             pane.toggleClass('visible');
         };

@@ -12,11 +12,12 @@ define([
     function Menubar() {
 
         // Add class name of <li> buttons here
-        var BUTTONS = 'graph map search activity users metrics prefs';
+        var BUTTONS = 'graph map search workspaces activity users metrics prefs';
 
         // Which cannot both be active
         var MUTALLY_EXCLUSIVE_SWITCHES = [ 
-            ['graph','map'] 
+            ['graph','map'],
+            ['workspaces','search']
         ];
 
         // Don't change state to highlighted on click
