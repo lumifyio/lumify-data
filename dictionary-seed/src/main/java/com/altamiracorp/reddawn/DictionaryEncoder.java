@@ -15,6 +15,8 @@ public class DictionaryEncoder {
     private String filename = "newDictionary.dict";
     private String directoryPath = getCurrentDirectory();
     private Dictionary dictionary = new Dictionary();
+    private String tokenizerModelLocation = "/Users/swoloszy/Documents/NIC/red-dawn/dictionary-seed/src/test/en-token.bin";
+    private String tokenizerModelLocationJeff = "/Users/jprincip/Documents/nic/red-dawn/dictionary-seed/src/test/en-token.bin";
 
     public DictionaryEncoder() {
     }
@@ -38,6 +40,7 @@ public class DictionaryEncoder {
 
     public void setDirectoryPath(String directoryPath) {
         this.directoryPath = directoryPath;
+        // TODO check if exists and add if not
     }
 
     public void setFilename(String filename) {
@@ -47,6 +50,7 @@ public class DictionaryEncoder {
     public void addEntries(String allEntries) {
         String[] entries = getEntries(allEntries);
         for (String entry : entries) {
+            System.out.println("Adding...");
             dictionary.put(new StringList(tokenize(entry)));
         }
         writeToFile();
@@ -60,6 +64,7 @@ public class DictionaryEncoder {
         } catch (IOException e) {
             throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
         }
+        System.out.println("Writing to file...");
     }
 
     protected String getCurrentDirectory() {
@@ -70,7 +75,7 @@ public class DictionaryEncoder {
         InputStream modelIn = null;
         try {
             // TODO: not hardcode this
-            modelIn = new FileInputStream("/Users/jprincip/Documents/nic/red-dawn/dictionary-seed/src/test/en-token.bin");
+            modelIn = new FileInputStream(tokenizerModelLocation);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Problem reading tokenizer model.");
         }
