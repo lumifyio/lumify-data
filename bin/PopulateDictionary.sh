@@ -23,6 +23,7 @@ do
             TYPES=`cut -d "=" -f 2 <<< "$1"` ;;
         --directory=*)
             DIRECTORY=${DIR}/`cut -d "=" -f 2 <<< "$1"` ;;
+    esac
     shift
 done
 
@@ -35,5 +36,5 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.cmdline.FileImport \
-PARAMS
+com.altamiracorp.reddawn.DictionarySeederDriver \
+"${PARAMS[@]}"

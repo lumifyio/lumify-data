@@ -5,19 +5,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URLEncoder;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 @RunWith(JUnit4ClassRunner.class)
 public class DictionarySearcherTest {
