@@ -19,7 +19,7 @@ then
     java \
     -Dfile.encoding=UTF-8 \
     -classpath ${classpath} \
-    com.altamiracorp.reddawn.WebCrawl
+    com.altamiracorp.reddawn.crawler.WebCrawl
     exit
 fi
 
@@ -102,5 +102,5 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.WebCrawl \
+com.altamiracorp.reddawn.crawler.WebCrawl \
 "${JAVAPARAMS[@]}"

@@ -1,4 +1,4 @@
-package com.altamiracorp.reddawn;
+package com.altamiracorp.reddawn.crawler;
 
 import org.apache.commons.cli.*;
 
@@ -14,54 +14,54 @@ public class WebCrawl {
     private ArrayList<Query> queries, rssLinks, redditQueries;
     private Crawler crawler;
     private int results;
-	public static final int DEFAULT_RESULT_COUNT = 20;
+    public static final int DEFAULT_RESULT_COUNT = 20;
 
-	public WebCrawl() {
-		parser = new GnuParser();
+    public WebCrawl() {
+        parser = new GnuParser();
 
-		engines = new ArrayList<SearchEngine>();
-		queries = new ArrayList<Query>();
-		rssLinks = new ArrayList<Query>();
-		redditQueries = new ArrayList<Query>();
+        engines = new ArrayList<SearchEngine>();
+        queries = new ArrayList<Query>();
+        rssLinks = new ArrayList<Query>();
+        redditQueries = new ArrayList<Query>();
 
-		results = -1;
-	}
+        results = -1;
+    }
 
-	protected void setCommandLine(CommandLine cl) {
-		this.cl = cl;
-	}
+    protected void setCommandLine(CommandLine cl) {
+        this.cl = cl;
+    }
 
-	protected void setCrawler(Crawler crawler) {
-		this.crawler = crawler;
-	}
+    protected void setCrawler(Crawler crawler) {
+        this.crawler = crawler;
+    }
 
-	public void prepare(String[] args) {
-		loadCommandLine(args);
+    public void prepare(String[] args) {
+        loadCommandLine(args);
 
-		if(getQueryParam() != null) {
-			for(String s : getQueryParam().split(",")) {
-				Query search = addSearchQuery(s);
-				addRedditQueries(search);
-			}
-		} else {
-			addRedditQueries(new Query());
-		}
+        if (getQueryParam() != null) {
+            for (String s : getQueryParam().split(",")) {
+                Query search = addSearchQuery(s);
+                addRedditQueries(search);
+            }
+        } else {
+            addRedditQueries(new Query());
+        }
 
-		addRSSLinks();
-		setResultCount();
-		addEngines();
-	}
+        addRSSLinks();
+        setResultCount();
+        addEngines();
+    }
 
     protected void loadCommandLine(String[] args) {
-		if(args == null || args.length == 0) {
-			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("WebCrawl.sh", createOptions());
-			System.exit(0);
-		}
+        if (args == null || args.length == 0) {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("WebCrawl.sh", createOptions());
+            System.exit(0);
+        }
 
-		try {
+        try {
             cl = parser.parse(createOptions(), args);
-        } catch(ParseException e) {
+        } catch (ParseException e) {
             System.err.println("The options could not be parsed, please try again or use --help for more information");
             System.exit(1);
         }
@@ -73,14 +73,14 @@ public class WebCrawl {
         Map<String, ArrayList<String>> queryTerms = parseQuery(queryString.trim());
         Query q = new Query();
 
-        for(String type : queryTerms.keySet()) {
-            for(String term : queryTerms.get(type)) {
-                if(type.equals("optional")) q.addOptionalTerm(term);
-                else if(type.equals("excluded")) q.addExcludedTerm(term);
-                else if(type.equals("required")) q.addRequiredTerm(term);
+        for (String type : queryTerms.keySet()) {
+            for (String term : queryTerms.get(type)) {
+                if (type.equals("optional")) q.addOptionalTerm(term);
+                else if (type.equals("excluded")) q.addExcludedTerm(term);
+                else if (type.equals("required")) q.addRequiredTerm(term);
             }
         }
-		if(!q.getQueryString().equals("")) queries.add(q);
+        if (!q.getQueryString().equals("")) queries.add(q);
 
         return q;
     }
@@ -88,11 +88,11 @@ public class WebCrawl {
     protected void addRedditQueries(Query q) {
         String subreddits = cl.getOptionValue("subreddit");
 
-        if(subreddits != null && subreddits.trim().length() > 0) {
-            for(String subreddit : subreddits.split(",")) {
-				if(subreddit.trim().length() == 0) continue;
+        if (subreddits != null && subreddits.trim().length() > 0) {
+            for (String subreddit : subreddits.split(",")) {
+                if (subreddit.trim().length() == 0) continue;
                 Query redditQ = q.clone();
-                if(subreddit.trim().equals("all"))redditQ.clearSubreddit();
+                if (subreddit.trim().equals("all")) redditQ.clearSubreddit();
                 else redditQ.setSubreddit(subreddit);
                 redditQueries.add(redditQ);
             }
@@ -102,9 +102,9 @@ public class WebCrawl {
     }
 
     protected void addRSSLinks() {
-        if(cl.getOptionValue("rss") != null) {
-            for(String feed : cl.getOptionValue("rss").split(",")) {
-				if(feed.trim().length() == 0) continue;
+        if (cl.getOptionValue("rss") != null) {
+            for (String feed : cl.getOptionValue("rss").split(",")) {
+                if (feed.trim().length() == 0) continue;
                 Query rssFeed = new Query();
                 rssFeed.setRSSFeed(feed);
                 rssLinks.add(rssFeed);
@@ -114,27 +114,27 @@ public class WebCrawl {
 
     protected void addEngines() {
         ArrayList<String> enginesAdded = new ArrayList<String>();
-        for(String s : cl.getOptionValue("provider").split(",")) {
+        for (String s : cl.getOptionValue("provider").split(",")) {
             String trimmed = s.trim();
-            if(!enginesAdded.contains(trimmed.toLowerCase())) {
+            if (!enginesAdded.contains(trimmed.toLowerCase())) {
                 SearchEngine engine = new GoogleNewsSearchEngine(crawler);
                 ArrayList<Query> queryList = queries;
 
-                if(trimmed.equalsIgnoreCase("google")) {
+                if (trimmed.equalsIgnoreCase("google")) {
                     engine = new GoogleSearchEngine(crawler);
                     queryList = queries;
-                } else if(trimmed.equalsIgnoreCase("news")) {
+                } else if (trimmed.equalsIgnoreCase("news")) {
                     engine = new GoogleNewsSearchEngine(crawler);
                     queryList = queries;
-                } else if(trimmed.equalsIgnoreCase("reddit")) {
+                } else if (trimmed.equalsIgnoreCase("reddit")) {
                     engine = new RedditSearchEngine(crawler);
                     queryList = redditQueries;
-                } else if(trimmed.equalsIgnoreCase("rss")) {
+                } else if (trimmed.equalsIgnoreCase("rss")) {
                     engine = new RSSEngine(crawler);
                     queryList = rssLinks;
                 }
 
-                for(Query q : queryList) engine.addQueryToQueue(q, results);
+                for (Query q : queryList) engine.addQueryToQueue(q, results);
                 engines.add(engine);
 
                 enginesAdded.add(trimmed.toLowerCase());
@@ -145,17 +145,17 @@ public class WebCrawl {
     protected void setResultCount() {
         try {
             String countParam = cl.getOptionValue("result-count");
-            if(countParam != null) {
-				results = Integer.parseInt(countParam);
-				if(results < 1) results = DEFAULT_RESULT_COUNT;
-			}
+            if (countParam != null) {
+                results = Integer.parseInt(countParam);
+                if (results < 1) results = DEFAULT_RESULT_COUNT;
+            }
         } catch (NumberFormatException e) {
             results = DEFAULT_RESULT_COUNT;
         }
     }
 
     public void run() {
-        for(SearchEngine engine : engines) engine.runQueue();
+        for (SearchEngine engine : engines) engine.runQueue();
     }
 
     public String getQueryParam() {
@@ -225,45 +225,45 @@ public class WebCrawl {
     }
 
     public static Map<String, ArrayList<String>> parseQuery(String query) {
-		Map<String, ArrayList<String>> params = new TreeMap<String, ArrayList<String>>();
+        Map<String, ArrayList<String>> params = new TreeMap<String, ArrayList<String>>();
         params.put("optional", new ArrayList<String>());
         params.put("required", new ArrayList<String>());
         params.put("excluded", new ArrayList<String>());
 
         // Gets and returns each term in the query (assumes space-separated terms)
-        for(String term : query.split(" ")) {
-			if(term.trim().length() == 0) continue;
-            if(term.charAt(0) == '+') params.get("required").add(term.substring(1));
-            else if(term.charAt(0) == '-') params.get("excluded").add(term.substring(1));
+        for (String term : query.split(" ")) {
+            if (term.trim().length() == 0) continue;
+            if (term.charAt(0) == '+') params.get("required").add(term.substring(1));
+            else if (term.charAt(0) == '-') params.get("excluded").add(term.substring(1));
             else params.get("optional").add(term);
         }
 
         return params;
     }
 
-	public ArrayList<SearchEngine> getEngines() {
-		return engines;
-	}
+    public ArrayList<SearchEngine> getEngines() {
+        return engines;
+    }
 
-	public ArrayList<Query> getQueries() {
-		return queries;
-	}
+    public ArrayList<Query> getQueries() {
+        return queries;
+    }
 
-	public ArrayList<Query> getRssLinks() {
-		return rssLinks;
-	}
+    public ArrayList<Query> getRssLinks() {
+        return rssLinks;
+    }
 
-	public ArrayList<Query> getRedditQueries() {
-		return redditQueries;
-	}
+    public ArrayList<Query> getRedditQueries() {
+        return redditQueries;
+    }
 
-	public int getResults() {
-		return results;
-	}
+    public int getResults() {
+        return results;
+    }
 
-	public static void main(String[] args) {
-		WebCrawl driver = new WebCrawl();
-		driver.prepare(args);
-		driver.run();
-	}
+    public static void main(String[] args) {
+        WebCrawl driver = new WebCrawl();
+        driver.prepare(args);
+        driver.run();
+    }
 }
