@@ -61,7 +61,7 @@ define([
                 bind: this
             });
 
-            this.checkEmptyGraph();
+            this.setWorkspaceDirty();
         };
 
         this.removeSelectedNodes = function() {
