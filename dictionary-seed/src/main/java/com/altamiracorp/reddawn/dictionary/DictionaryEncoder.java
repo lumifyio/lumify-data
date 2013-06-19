@@ -12,7 +12,7 @@ public class DictionaryEncoder {
     private String filename = "newDictionary.dict";
     private String directoryPath = getCurrentDirectory();
     protected Tokenizer tokenizer;
-    private String tokenizerModelLocation = getCurrentDirectory()  + "/dictionary-seed/src/en-token.bin";
+    private String tokenizerModelLocation = getCurrentDirectory() + "/dictionary-seed/src/en-token.bin";
     private String tokenizerModelLocationSam = "/Users/swoloszy/Documents/NIC/red-dawn/dictionary-seed/src/en-token.bin";
     private String tokenizerModelLocationJeff = "/Users/jprincip/Documents/nic/red-dawn/dictionary-seed/src/en-token.bin";
     protected StringBuilder currentEntries = new StringBuilder();
@@ -74,27 +74,14 @@ public class DictionaryEncoder {
         this.filename = filename;
         System.out.print("Initializing dictionary file " + directoryPath + filename + "... ");
         File file = new File(directoryPath + "/" + filename);
+        FileWriter fout = null;
         try {
-            FileWriter fout = new FileWriter(file);
+            fout = new FileWriter(file);
             fout.write(xmlHeader);
             fout.write(dictionaryRootElementOpen);
         } catch (IOException e) {
             throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
-        }
-        System.out.println("DONE");
-    }
-
-    public void closeFile() {
-        System.out.print("Closing dictionary file " + directoryPath + filename + "... ");
-        File file = new File(directoryPath + "/" + filename);
-        FileWriter fout = null;
-        try {
-            fout = new FileWriter(file);
-            fout.write(dictionaryRootElementClose);
-        } catch (IOException e) {
-            throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
-        }
-        finally {
+        } finally {
             try {
                 fout.flush();
                 fout.close();
@@ -104,7 +91,27 @@ public class DictionaryEncoder {
 
         }
         System.out.println("DONE");
+    }
 
+    public void closeFile() {
+        System.out.print("Closing dictionary file " + directoryPath + filename + "... ");
+        File file = new File(directoryPath + "/" + filename);
+        FileWriter fout = null;
+        try {
+            fout = new FileWriter(file, true);
+            fout.write(dictionaryRootElementClose);
+        } catch (IOException e) {
+            throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
+        } finally {
+            try {
+                fout.flush();
+                fout.close();
+            } catch (IOException e) {
+                throw new RuntimeException("Problem closing file " + file.getAbsolutePath());
+            }
+        }
+        fileIsOpen = false;
+        System.out.println("DONE");
     }
 
     public void addEntries(String[] entries) {
@@ -122,7 +129,7 @@ public class DictionaryEncoder {
         appendCurrentEntriesToFile();
         long end = System.currentTimeMillis();
         System.out.println((end - middle) + "ms");
-        totalTime += (end-start);
+        totalTime += (end - start);
         System.out.println("Total time: " + totalTime + "ms");
     }
 
@@ -137,12 +144,21 @@ public class DictionaryEncoder {
     private void appendCurrentEntriesToFile() {
         System.out.print("Appending current batch to file... ");
         File file = new File(directoryPath + "/" + filename);
+        FileWriter fout = null;
         try {
-            FileWriter fout = new FileWriter(file);
+            fout = new FileWriter(file, true);
             fout.append(currentEntries);
         } catch (IOException e) {
             throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
+        } finally {
+            try {
+                fout.flush();
+                fout.close();
+            } catch (IOException e) {
+                throw new RuntimeException("Problem closing file " + file.getAbsolutePath());
+            }
         }
+
         System.out.println("DONE");
     }
 
