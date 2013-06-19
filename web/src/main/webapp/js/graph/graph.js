@@ -212,8 +212,14 @@ define([
             this.select('emptyGraphSelector').toggle(cy.nodes().length === 0);
         };
 
+        this.resetGraph = function() {
+            cy.nodes().remove();
+            undoManager.reset();
+        };
+
         this.onWorkspaceLoaded = function(evt, workspace) {
-            if (workspace.data.nodes) {
+            this.resetGraph();
+            if (workspace.data && workspace.data.nodes) {
                 for(var i=0; i<workspace.data.nodes.length; i++) {
                     this.addNode(workspace.data.nodes[i]);
                 }

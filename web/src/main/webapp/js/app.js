@@ -74,8 +74,11 @@ define([
             this.on(document, 'graphAddNode', this.onGraphAddNode);
             this.on(document, 'graphNodeMoved', this.onGraphNodeMoved);
 
+            this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
+
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'workspaceSave', this.onSaveWorkspace);
+            this.on(document, 'workspaceDeleted', this.onWorkspaceDeleted);
             this.loadActiveWorkspace();
         });
 
@@ -89,12 +92,12 @@ define([
                 if(workspaces.length === 0) {
                     self.loadWorkspace(null);
                 } else {
-                    workspaces.forEach(function(workspace) {
-                        if (workspace.active) {
-                            self.loadWorkspace(workspace.rowKey);
-                            return false;
+                    for (var i = 0; i < workspaces.length; i++) {
+                        if (workspaces[i].active) {
+                            self.loadWorkspace(workspaces[i].rowKey);
+                            return;
                         }
-                    });
+                    }
 
                     self.loadWorkspace(workspaces[0].rowKey); // backwards compatibility when no current workspace
                 }
@@ -114,33 +117,43 @@ define([
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
-
-                self.trigger(document, 'workspaceLoaded', workspace.data);
+                self.trigger(document, 'workspaceLoaded', workspace);
             });
         };
 
-        this.onSaveWorkspace = function(evt, data) {
-            var $this = this;
+        this.onSwitchWorkspace = function(evt, data) {
+            this.loadWorkspace(data.rowKey);
+        };
+
+        this.onSaveWorkspace = function(evt, workspace) {
+            var self = this;
             var saveFn;
-            if($this.workspaceRowKey) {
-                saveFn = $this.workspaceService.save.bind($this.workspaceService, $this.workspaceRowKey);
+            if(self.workspaceRowKey) {
+                saveFn = self.workspaceService.save.bind(self.workspaceService, self.workspaceRowKey);
             } else {
-                saveFn = $this.workspaceService.saveNew.bind($this.workspaceService);
+                saveFn = self.workspaceService.saveNew.bind(self.workspaceService);
             }
 
-            $this.trigger(document, 'workspaceSaving', data);
-            saveFn({ data: data }, function(err, data) {
+            self.trigger(document, 'workspaceSaving', workspace);
+            saveFn({ data: workspace }, function(err, data) {
                 if(err) {
                     console.error('Error', err);
-                    return $this.trigger(document, 'error', { message: err.toString() });
+                    return self.trigger(document, 'error', { message: err.toString() });
                 }
-                $this.trigger(document, 'workspaceSaved', data);
+                self.trigger(document, 'workspaceSaved', data);
             });
         };
 
         this.onWorkspaceLoaded = function(evt, data) {
             this.workspaceData = data;
             this.refreshRelationships();
+        };
+
+        this.onWorkspaceDeleted = function(evt, data) {
+            if (this.workspaceRowKey == data.rowKey) {
+                this.workspaceRowKey = null;
+                this.loadActiveWorkspace();
+            }
         };
 
         this.setWorkspaceDirty = function() {
@@ -188,6 +201,9 @@ define([
         };
 
         this.getEntityIds = function() {
+            if (this.workspaceData.data === undefined || this.workspaceData.data.nodes === undefined) {
+                return [];
+            }
             return this.workspaceData.data.nodes
                 .filter(function(node) {
                     return node.type == 'entities';
@@ -198,6 +214,9 @@ define([
         };
 
         this.getArtifactIds = function() {
+            if (this.workspaceData.data === undefined || this.workspaceData.data.nodes === undefined) {
+                return [];
+            }
             return this.workspaceData.data.nodes
                 .filter(function(node) {
                     return node.type == 'artifacts';

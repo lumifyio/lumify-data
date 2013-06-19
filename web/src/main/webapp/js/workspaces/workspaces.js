@@ -33,7 +33,10 @@ define([
 
         this.onDelete = function( event ) {
             var rowKey = $(event.target).parents('li').data('rowkey');
-            this.workspaceService.delete(rowKey, this.loadWorkspaceList.bind(this));
+            this.workspaceService.delete(rowKey, function() {
+                this.trigger(document, 'workspaceDeleted', { rowKey: rowKey });
+                this.loadWorkspaceList.apply(this, arguments);
+            }.bind(this));
         };
 
         this.onWorkspaceSwitch = function( event, data ) {
@@ -54,7 +57,7 @@ define([
                 this.select( 'listSelector' ).html(
                     listTemplate({
                         results: workspaces,
-                        selected: 'chrome'
+                        selected: this.workspaceRowKey
                     })
                 );
             }.bind(this));

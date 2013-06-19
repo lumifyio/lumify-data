@@ -24,11 +24,12 @@ function(ServiceBase) {
         }, callback);
     };
 
-    WorkspaceService.prototype.saveNew = function (data, callback) {
-        console.log("workspace saveNew:", data);
+    WorkspaceService.prototype.saveNew = function (workspace, callback) {
+        console.log("workspace saveNew:", workspace);
+        workspace.data = JSON.stringify(workspace.data);
         this._ajaxPost({
             url: 'workspace/save',
-            data: data
+            data: workspace
         }, callback);
     };
 

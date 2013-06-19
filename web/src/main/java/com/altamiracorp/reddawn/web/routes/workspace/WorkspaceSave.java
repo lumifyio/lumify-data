@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class WorkspaceSave implements Handler, AppAware {
+    private static final String DEFAULT_WORKSPACE_TITLE = "Default";
     private WorkspaceRepository workspaceRepository = new WorkspaceRepository();
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceSave.class.getName());
     private WebApp app;
@@ -47,6 +48,8 @@ public class WorkspaceSave implements Handler, AppAware {
         }
         if (title != null) {
             workspace.getMetadata().setTitle(title);
+        } else {
+            workspace.getMetadata().setTitle(DEFAULT_WORKSPACE_TITLE);
         }
 
         workspaceRepository.save(session.getModelSession(), workspace);
