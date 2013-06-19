@@ -96,15 +96,16 @@ public class DictionarySeederDriver {
 
         for(String type : types) {
             String category = getSearchCategory(type);
-            System.out.println("\n\033[1mSearching for dbpedia class: " + category + "\033[0m");
+
+            System.out.println("\n\033[1mSearching for dbpedia class: " + type + "\033[0m");
             encoder.initializeDictionaryFile("en-ner-" + category + ".dict");
 
             long start = System.currentTimeMillis();
             searcher.search(category);
             long end = System.currentTimeMillis();
 
-            System.out.println("\033[34mDictionary built successfully in " + (end - start) / 1000.0 + "s\033[0m");
             encoder.closeFile();
+            System.out.println("\033[34mDictionary built successfully in " + (end - start) / 1000.0 + "s\033[0m");
         }
     }
 

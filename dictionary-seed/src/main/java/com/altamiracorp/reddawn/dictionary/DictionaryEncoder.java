@@ -89,7 +89,7 @@ public class DictionaryEncoder {
         File file = new File(directoryPath + "/" + filename);
         FileWriter fout = null;
         try {
-            fout = new FileWriter(file);
+            fout = new FileWriter(file, true);
             fout.write(dictionaryRootElementClose);
         } catch (IOException e) {
             throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
@@ -103,6 +103,8 @@ public class DictionaryEncoder {
             }
 
         }
+
+        fileIsOpen = false;
         System.out.println("DONE");
 
     }
@@ -127,7 +129,7 @@ public class DictionaryEncoder {
     private void appendCurrentEntriesToFile() {
         File file = new File(directoryPath + "/" + filename);
         try {
-            FileWriter fout = new FileWriter(file);
+            FileWriter fout = new FileWriter(file, true);
             fout.append(currentEntries);
         } catch (IOException e) {
             throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());

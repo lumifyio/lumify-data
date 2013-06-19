@@ -31,7 +31,6 @@ public class DictionarySearcher {
 		int totalResultCount = 0;
 		int resultOffset = 0;
 
-
         do {
             System.out.print("Fetching results " + (resultOffset + 1) + "-" +
                     (resultOffset + MAX_RESULTS_PER_SEARCH) + "... ");
