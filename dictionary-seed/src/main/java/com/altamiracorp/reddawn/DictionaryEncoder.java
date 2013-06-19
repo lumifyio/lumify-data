@@ -69,7 +69,6 @@ public class DictionaryEncoder {
     public void addEntries(String allEntries) {
         String[] entries = getEntries(allEntries);
         for (String entry : entries) {
-            System.out.println("Adding...");
             dictionary.put(new StringList(tokenizer.tokenize(entry)));
         }
         writeToFile();
