@@ -1,8 +1,8 @@
 package com.altamiracorp.reddawn.location;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
+import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
-import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.ucd.AccumuloTermInputFormat;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.accumulo.core.util.CachedConfiguration;
@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactLocationExtractorMR.class.getName());
+public class TermLocationExtractionMR extends ConfigurableMapJobBase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TermLocationExtractionMR.class.getName());
 
     @Override
     protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
@@ -28,8 +28,7 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class<? extends Mapper> getMapperClass(Job job, Class clazz) {
-        ArtifactLocationExtractorMapper.init(job, clazz);
-        return ArtifactLocationExtractorMapper.class;
+        return TermLocationExtractorMapper.class;
     }
 
     @Override
@@ -37,28 +36,20 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
         return AccumuloModelOutputFormat.class;
     }
 
-    public static class ArtifactLocationExtractorMapper extends Mapper<Text, Term, Text, Row> {
-        public static final String CONF_ENTITY_EXTRACTOR_CLASS = "artifactLocationExtractorClass";
-        private ArtifactLocationExtractor entityExtractor;
+    public static class TermLocationExtractorMapper extends Mapper<Text, Term, Text, Term> {
+        public static final String CONF_ENTITY_EXTRACTOR_CLASS = "termLocationExtractorClass";
+        private RedDawnSession session;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
             super.setup(context);
-            try {
-                entityExtractor = (ArtifactLocationExtractor) context.getConfiguration().getClass(CONF_ENTITY_EXTRACTOR_CLASS, SimpleArtifactLocationExtractor.class).newInstance();
-                entityExtractor.setup(context);
-            } catch (InstantiationException e) {
-                throw new IOException(e);
-            } catch (IllegalAccessException e) {
-                throw new IOException(e);
-            }
+            session = ConfigurableMapJobBase.createRedDawnSession(context);
         }
 
-        public void map(Text rowKey, Term term, Context context) throws IOException, InterruptedException {
-            LOGGER.info("Extracting location from : " + term.getRowKey().toString());
-
+        @Override
+        protected void map(Text key, Term term, Context context) throws IOException, InterruptedException {
             try {
-
+                LOGGER.info("Extracting location from: " + term.getRowKey().toString());
             } catch (Exception e) {
                 throw new IOException(e);
             }
@@ -67,11 +58,10 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
         public static void init(Job job, Class<? extends ArtifactLocationExtractor> entityExtractor) {
             job.getConfiguration().setClass(CONF_ENTITY_EXTRACTOR_CLASS, entityExtractor, ArtifactLocationExtractor.class);
         }
-
     }
 
     public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(CachedConfiguration.getInstance(), new ArtifactLocationExtractorMR(), args);
+        int res = ToolRunner.run(CachedConfiguration.getInstance(), new TermLocationExtractionMR(), args);
         if (res != 0) {
             System.exit(res);
         }
