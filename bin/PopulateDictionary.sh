@@ -33,8 +33,6 @@ then
     PARAMS=("${PARAMS[@]}" "--types=${TYPES}")
 fi
 
-echo "${classpath}"
-
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
