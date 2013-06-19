@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -23,3 +23,4 @@ com.altamiracorp.reddawn.location.TermLocationExtractionMR \
 --zookeeperServerNames=192.168.33.10 \
 --username=root \
 --password=password \
+--classname=com.altamiracorp.reddawn.location.TermLocationExtractionMR
