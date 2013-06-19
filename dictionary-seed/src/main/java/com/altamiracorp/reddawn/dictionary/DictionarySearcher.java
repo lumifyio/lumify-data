@@ -22,8 +22,7 @@ public class DictionarySearcher {
                                 SPECIES = "Species",
                                 ORGANIZATION = "Organisation";
 
-    private final int MAX_RESULTS_PER_SEARCH = 50000,
-                        BUFFER_SIZE = 50000;
+    private final int MAX_RESULTS_PER_SEARCH = 50000;
 
 	private String baseURL = "http://dbpedia.org/sparql/?format=json&query=";
     private ArrayList<DictionaryEncoder> encoders = new ArrayList<DictionaryEncoder>();
@@ -75,24 +74,15 @@ public class DictionarySearcher {
 	}
 
     protected int processJson(String response) throws JSONException {
-        StringBuilder buffer = new StringBuilder();
-
         JSONObject json = new JSONObject(response);
         JSONArray results = json.getJSONObject("results").getJSONArray("bindings");
+        String[] terms = new String[results.length()];
 
-        int bufferLength = 0;
         for (int i = 0; i < results.length(); i++) {
-            String name = results.getJSONObject(i).getJSONObject("name").getString("value");
-            buffer.append(name);
-            buffer.append("\n");
-
-            if(++bufferLength == BUFFER_SIZE || i == (results.length() - 1)) {
-                notifyEncoders(buffer.toString());
-                buffer = new StringBuilder();
-                bufferLength = 0;
-            }
+            terms[i] = results.getJSONObject(i).getJSONObject("name").getString("value");
         }
 
+        notifyEncoders(terms);
         return results.length();
     }
 
@@ -100,7 +90,7 @@ public class DictionarySearcher {
         encoders.add(encoder);
     }
 
-    private void notifyEncoders(String terms) {
+    private void notifyEncoders(String[] terms) {
         for(DictionaryEncoder encoder : encoders) {
             encoder.addEntries(terms);
         }
