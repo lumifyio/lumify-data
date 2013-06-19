@@ -30,6 +30,9 @@ define([
 
         this.onWorkspaceLoaded = function(evt, workspaceData) {
             var self = this;
+            if (workspaceData.data === undefined || workspaceData.data.nodes === undefined) {
+                return;
+            }
             workspaceData.data.nodes.forEach(function(node) {
                 if(node.location || node.locations) {
                     self.updateOrAddNode(node);
