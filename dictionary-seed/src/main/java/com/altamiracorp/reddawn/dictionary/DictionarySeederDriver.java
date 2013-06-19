@@ -100,8 +100,11 @@ public class DictionarySeederDriver {
             long start = System.currentTimeMillis();
 
             searcher.search(category);
+
             long end = System.currentTimeMillis();
             System.out.println("Search completed, took " + (end - start) / 1000.0 + "s");
+
+            encoder.closeFile();
         }
     }
 
