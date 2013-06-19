@@ -1,34 +1,136 @@
 @import "../util/lists.less";
+@import "../util/constants.less";
 
 .content {
-  padding: 1em;
+
+  padding: 2.5em 1em 0 1em;
+
+  .btn-toolbar {
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+
+    .checked a {
+      background-image: url(../../img/glyphicons/glyphicons_206_ok_2@2x.png);
+      background-repeat: no-repeat;
+      background-position: 5px center;
+      background-size: 10px;
+    }
+
+    li.checked:hover a {
+      background-image: url(../../img/glyphicons/white/glyphicons_206_ok_2@2x.png);
+    }
+  }
+
+  .entity {
+    cursor: pointer;
+  }
+
+  // THEMES
+  // start class with "highlight-"
+  // add menu item in artifactDetails.ejs with a data-cls attribute set to class suffix
+
+  @sat: 1.0;
+  @val: 1.0;
+  @alpha: 0.2;
+  @hueIncrement: 360 / 7;
+
+  &.highlight-colors {
+    .entity {
+      background-color: hsva(0, @sat, @val, @alpha);
+      &.date,
+      &.time { background-color: hsva(@hueIncrement * 1, @sat, @val, @alpha); }
+      &.location { background-color: hsva(@hueIncrement * 2, @sat, @val, @alpha); }
+      &.money { background-color: hsva(@hueIncrement * 3, @sat, @val, @alpha); }
+      &.organization { background-color: hsva(@hueIncrement * 4, @sat, @val, @alpha); }
+      &.percentage { background-color: hsva(@hueIncrement * 5, @sat, @val, @alpha); }
+      &.person { background-color: hsva(@hueIncrement * 6, @sat, @val, @alpha); }
+    }
+  }
+
+  &.highlight-underline {
+    @alpha: 1.0;
+    .entity {
+      border-bottom: 2px solid hsva(0, @sat, @val, @alpha);
+      &.date,
+      &.time { border-bottom-color: hsva(@hueIncrement * 1, @sat, @val, @alpha); }
+      &.location { border-bottom-color: hsva(@hueIncrement * 2, @sat, @val, @alpha); }
+      &.money { border-bottom-color: hsva(@hueIncrement * 3, @sat, @val, @alpha); }
+      &.organization { border-bottom-color: hsva(@hueIncrement * 4, @sat, @val, @alpha); }
+      &.percentage { border-bottom-color: hsva(@hueIncrement * 5, @sat, @val, @alpha); }
+      &.person { border-bottom-color: hsva(@hueIncrement * 6, @sat, @val, @alpha); }
+    }
+  }
+
+  &.highlight-uglycolors {
+
+    .entity {
+      background-color: #ff0000;
+      &.date,
+      &.time { background-color: #8a56e2; }
+      &.location { background-color: #cf56e2; }
+      &.money { background-color: #e256ae; }
+      &.organization { background-color: #e25668; }
+      &.percentage { background-color: #e28956; }
+      &.person { background-color: #e2cf56; }
+    }
+  }
+
+
+  &.highlight-icons {
+
+    .entity {
+
+      background-color: lighten(@pane-background, 5%);
+      padding: 0 3px;
+      .border-radius(3px);
+      .box-shadow(inset 0 0 0 1px #efefef);
+
+      &:hover {
+        background-color: #efefef;
+      }
+
+      &:before {
+        .opacity(20);
+
+        content: '.';
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        font-size: 0;
+        padding-right: 3px;
+        margin-left: 2px;
+        background-image: url(../../img/glyphicons/glyphicons_194_circle_question_mark@2x.png);
+        background-repeat: no-repeat;
+        background-size: 10px;
+        background-position: center left;
+      }
+
+      &.date:before, &.time:before {
+        background-image: url(../../img/glyphicons/glyphicons_045_calendar@2x.png);
+      }
+
+      &.location:before {
+        background-image: url(../../img/glyphicons/glyphicons_242_google_maps@2x.png);
+      }
+
+      &.money:before {
+        background-image: url(../../img/glyphicons/glyphicons_323_calculator@2x.png);
+      }
+
+      &.organization:before {
+        background-image: url(../../img/glyphicons/glyphicons_263_bank@2x.png);
+      }
+
+      &.percentage:before {
+        background-image: url(../../img/glyphicons/glyphicons_042_pie_chart@2x.png);
+      }
+
+      &.person:before {
+        background-image: url(../../img/glyphicons/glyphicons_003_user@2x.png);
+      }
+    }
+
+  }
 }
 
-.content .entity {
-  background-color: #ff0000;
-}
-
-.content .entity.date,
-.content .entity.time {
-  background-color: #8a56e2;
-}
-
-.content .entity.location {
-  background-color: #cf56e2;
-}
-
-.content .entity.money {
-  background-color: #e256ae;
-}
-
-.content .entity.organization {
-  background-color: #e25668;
-}
-
-.content .entity.percentage {
-  background-color: #e28956;
-}
-
-.content .entity.person {
-  background-color: #e2cf56;
-}

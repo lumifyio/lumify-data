@@ -337,7 +337,7 @@ define([
                       'height': 25 * scale,
                       'content': 'data(title)',
                       'font-family': 'helvetica',
-                      'font-size': 14,
+                      'font-size': 14 * scale,
                       'text-outline-width': 2,
                       'text-outline-color': 'white',
                       'text-valign': 'bottom',

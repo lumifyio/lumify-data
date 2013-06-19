@@ -24,6 +24,8 @@ define([
         this.after('initialize', function() {
             this.$node.html(usersTemplate({}));
 
+            this.$node.addClass('popover');
+
             Chat.attachTo(this.select('chatSelector'));
 
             this.on(document, 'newUserOnline', this.onNewUserOnline);
