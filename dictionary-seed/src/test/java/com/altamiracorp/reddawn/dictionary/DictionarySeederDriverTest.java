@@ -1,5 +1,7 @@
-package com.altamiracorp.reddawn;
+package com.altamiracorp.reddawn.dictionary;
 
+import com.altamiracorp.reddawn.dictionary.DictionarySearcher;
+import com.altamiracorp.reddawn.dictionary.DictionarySeederDriver;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package com.altamiracorp.reddawn;
+package com.altamiracorp.reddawn.dictionary;
 
 import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.tokenize.Tokenizer;
@@ -16,12 +16,12 @@ public class DictionaryEncoder {
     protected Tokenizer tokenizer;
     private String tokenizerModelLocation = getCurrentDirectory()  + "/dictionary-seed/src/en-token.bin";
     private String tokenizerModelLocationSam = "/Users/swoloszy/Documents/NIC/red-dawn/dictionary-seed/src/en-token.bin";
-    private String tokenizerModelLocationJeff = "/Users/jprincip/Documents/nic/red-dawn/dictionary-seed/src/test/en-token.bin";
+    private String tokenizerModelLocationJeff = "/Users/jprincip/Documents/nic/red-dawn/dictionary-seed/src/en-token.bin";
 
     public DictionaryEncoder() {
         InputStream modelIn = null;
         try {
-            modelIn = new FileInputStream(tokenizerModelLocation);
+            modelIn = new FileInputStream(tokenizerModelLocationJeff);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Problem reading tokenizer model.");
         }

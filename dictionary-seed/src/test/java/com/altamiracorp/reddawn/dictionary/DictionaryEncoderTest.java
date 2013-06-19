@@ -1,5 +1,6 @@
-package com.altamiracorp.reddawn;
+package com.altamiracorp.reddawn.dictionary;
 
+import com.altamiracorp.reddawn.dictionary.DictionaryEncoder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.internal.runners.JUnit4ClassRunner;

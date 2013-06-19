@@ -16,8 +16,8 @@
         <module>web-framework</module>
         <module>model</module>
         <module>model-accumulo</module>
-    <module>dictionary-seed</module>
-  </modules>
+        <module>dictionary-seed</module>
+    </modules>
 
     <repositories>
         <repository>

@@ -1,4 +1,4 @@
-package com.altamiracorp.reddawn;
+package com.altamiracorp.reddawn.dictionary;
 
 import org.json.JSONArray;
 import org.json.JSONException;
