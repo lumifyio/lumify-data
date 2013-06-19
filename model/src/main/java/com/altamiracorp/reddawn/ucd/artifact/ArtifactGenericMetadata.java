@@ -1,15 +1,16 @@
 package com.altamiracorp.reddawn.ucd.artifact;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.Value;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class ArtifactGenericMetadata extends ColumnFamily {
-	private static final DateFormat DF = new SimpleDateFormat("ddHHmm'Z' MMM yy");
-	
+    private static final DateFormat DF = new SimpleDateFormat("ddHHmm'Z' MMM yy");
+
     public static final String NAME = "Generic_Metadata";
     public static final String AUTHOR = "author";
     public static final String CHARSET = "charset";
@@ -67,11 +68,23 @@ public class ArtifactGenericMetadata extends ColumnFamily {
         return Value.toString(get(DOCUMENT_DTG));
     }
 
+    public Date getDocumentDtgDate() {
+        String documentDtg = getDocumentDtg();
+        if (documentDtg == null) {
+            return null;
+        }
+        try {
+            return DF.parse(documentDtg);
+        } catch (ParseException e) {
+            throw new RuntimeException("Could not parse document dtg date: " + documentDtg, e);
+        }
+    }
+
     public ArtifactGenericMetadata setDocumentDtg(String documentDtg) {
         set(DOCUMENT_DTG, documentDtg);
         return this;
     }
-    
+
     public ArtifactGenericMetadata setDocumentDtg(Date documentDtg) {
         set(DOCUMENT_DTG, DF.format(documentDtg).toUpperCase());
         return this;
@@ -140,6 +153,14 @@ public class ArtifactGenericMetadata extends ColumnFamily {
         return this;
     }
 
+    public Date getFileTimestampDate() {
+        Long l = getFileTimestamp();
+        if (l == null) {
+            return null;
+        }
+        return new Date(l);
+    }
+
     public String getHdfsFilePath() {
         return Value.toString(get(HDFS_FILE_PATH));
     }
@@ -165,6 +186,14 @@ public class ArtifactGenericMetadata extends ColumnFamily {
     public ArtifactGenericMetadata setLoadTimestamp(Long loadTimestamp) {
         set(LOAD_TIMESTAMP, loadTimestamp);
         return this;
+    }
+
+    public Date getLoadTimestampDate() {
+        Long l = getLoadTimestamp();
+        if (l == null) {
+            return null;
+        }
+        return new Date(l);
     }
 
     public String getLoadType() {

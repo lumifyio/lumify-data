@@ -1,12 +1,18 @@
 package com.altamiracorp.reddawn.search;
 
-public class ArtifactSearchResult {
-    private String rowKey;
-    private String subject;
+import java.util.Date;
 
-    public ArtifactSearchResult(String rowKey, String subject) {
+public class ArtifactSearchResult {
+    private final String source;
+    private final String rowKey;
+    private final String subject;
+    private final Date publishedDate;
+
+    public ArtifactSearchResult(String rowKey, String subject, Date publishedDate, String source) {
         this.rowKey = rowKey;
         this.subject = subject;
+        this.publishedDate = publishedDate;
+        this.source = source;
     }
 
     public String getRowKey() {
@@ -15,5 +21,18 @@ public class ArtifactSearchResult {
 
     public String getSubject() {
         return subject;
+    }
+
+    public Date getPublishedDate() {
+        return this.publishedDate;
+    }
+
+    public String getSource() {
+        return this.source;
+    }
+
+    @Override
+    public String toString() {
+        return "rowKey: " + getRowKey() + ", subject: " + getSubject() + ", publishedDate: " + getPublishedDate() + ", source: " + getSource();
     }
 }

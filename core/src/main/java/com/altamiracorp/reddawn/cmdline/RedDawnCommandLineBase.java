@@ -126,9 +126,6 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
         if (getBlurControllerLocation() != null) {
             props.setProperty(BlurSearchProvider.BLUR_CONTROLLER_LOCATION, getBlurControllerLocation());
         }
-        if (getBlurControllerPort() != null) {
-            props.setProperty(BlurSearchProvider.BLUR_CONTROLLER_PORT, getBlurControllerPort().toString());
-        }
         if (getBlurHdfsPath() != null) {
             props.setProperty(BlurSearchProvider.BLUR_PATH, getBlurHdfsPath());
         }
@@ -174,14 +171,6 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
     public void setBlurControllerLocation(String blurControllerLocation) {
         this.blurControllerLocation = blurControllerLocation;
-    }
-
-    public Integer getBlurControllerPort() {
-        return blurControllerPort;
-    }
-
-    public void setBlurControllerPort(Integer blurControllerPort) {
-        this.blurControllerPort = blurControllerPort;
     }
 
     public String getBlurHdfsPath() {

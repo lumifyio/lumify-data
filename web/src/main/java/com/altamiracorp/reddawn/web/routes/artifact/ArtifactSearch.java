@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
+import java.util.Date;
 
 public class ArtifactSearch implements Handler, AppAware {
     private WebApp app;
@@ -49,6 +50,11 @@ public class ArtifactSearch implements Handler, AppAware {
             artifactJson.put("url", ArtifactByRowKey.getUrl(request, artifactSearchResult.getRowKey()));
             artifactJson.put("rowKey", artifactSearchResult.getRowKey());
             artifactJson.put("subject", artifactSearchResult.getSubject());
+            Date publishedDate = artifactSearchResult.getPublishedDate();
+            if (publishedDate != null) {
+                artifactJson.put("publishedDate", publishedDate.getTime());
+            }
+            artifactJson.put("source", artifactSearchResult.getSource());
             artifactsJson.put(artifactJson);
         }
         return artifactsJson;

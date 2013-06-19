@@ -2,57 +2,52 @@ package com.altamiracorp.reddawn.search;
 
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import org.apache.blur.thirdparty.thrift_0_9_0.TException;
-import org.apache.blur.thirdparty.thrift_0_9_0.protocol.TBinaryProtocol;
-import org.apache.blur.thirdparty.thrift_0_9_0.protocol.TProtocol;
-import org.apache.blur.thirdparty.thrift_0_9_0.transport.TFramedTransport;
-import org.apache.blur.thirdparty.thrift_0_9_0.transport.TSocket;
-import org.apache.blur.thirdparty.thrift_0_9_0.transport.TTransport;
+import org.apache.blur.thrift.BlurClient;
 import org.apache.blur.thrift.generated.*;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class BlurSearchProvider implements SearchProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(BlurSearchProvider.class.getName());
 
-    public static final String BLUR_CONTROLLER_PORT = "blurControllerPort";
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
     public static final String BLUR_CONTROLLER_LOCATION = "blurControllerLocation";
     public static final String BLUR_PATH = "blurPath";
     private static final String ARTIFACT_BLUR_TABLE_NAME = "artifact";
     private static final String GENERIC_COLUMN_FAMILY_NAME = "generic";
     private static final String TEXT_COLUMN_NAME = "text";
     private static final String SUBJECT_COLUMN_NAME = "subject";
-    private Blur.Client client;
+    private static final String PUBLISHED_DATE_COLUMN_NAME = "publishedDate";
+    private static final String SOURCE_COLUMN_NAME = "source";
+    private Blur.Iface client;
 
     @Override
     public void setup(Mapper.Context context) throws Exception {
-        String blurControllerLocation = context.getConfiguration().get(BLUR_CONTROLLER_LOCATION, "192.168.33.10");
-        int blurControllerPort = context.getConfiguration().getInt(BLUR_CONTROLLER_PORT, 40020);
-        String blurPath = context.getConfiguration().get(BLUR_PATH, "hdfs://192.168.33.10/blur");
+        String blurControllerLocation = context.getConfiguration().get(BLUR_CONTROLLER_LOCATION, "192.168.33.10:40010");
+        String blurPath = context.getConfiguration().get(BLUR_PATH, "192.168.33.10:40010");
 
-        init(blurControllerLocation, blurControllerPort, blurPath);
+        init(blurControllerLocation, blurPath);
     }
 
     public void setup(Properties props) {
-        String blurControllerLocation = props.getProperty(BLUR_CONTROLLER_LOCATION, "192.168.33.10");
-        int blurControllerPort = Integer.parseInt(props.getProperty(BLUR_CONTROLLER_PORT, "40020"));
+        String blurControllerLocation = props.getProperty(BLUR_CONTROLLER_LOCATION, "192.168.33.10:40010");
         String blurPath = props.getProperty(BLUR_PATH, "hdfs://192.168.33.10/blur");
 
         try {
-            init(blurControllerLocation, blurControllerPort, blurPath);
+            init(blurControllerLocation, blurPath);
         } catch (TException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void init(String blurControllerLocation, int blurControllerPort, String blurPath) throws TException {
-        LOGGER.info("Connecting to blur: blurControllerLocation=" + blurControllerLocation + ", blurControllerPort=" + blurControllerPort + ", blurPath=" + blurPath);
-        TTransport trans = new TSocket(blurControllerLocation, blurControllerPort);
-        trans.open();
-        TProtocol proto = new TBinaryProtocol(new TFramedTransport(trans));
-        this.client = new Blur.Client.Factory().getClient(proto);
+    private void init(String blurControllerLocation, String blurPath) throws TException {
+        LOGGER.info("Connecting to blur: blurControllerLocation=" + blurControllerLocation + ", blurPath=" + blurPath);
+
+        this.client = BlurClient.getClient(blurControllerLocation);
 
         createTables(blurPath);
     }
@@ -70,7 +65,7 @@ public class BlurSearchProvider implements SearchProvider {
         }
     }
 
-    private void createTable(Blur.Client client, String blurPath, AnalyzerDefinition ad, String tableName) throws TException {
+    private void createTable(Blur.Iface client, String blurPath, AnalyzerDefinition ad, String tableName) throws TException {
         TableDescriptor td = new TableDescriptor();
         td.setShardCount(16);
         td.setTableUri(blurPath + "/tables/" + tableName);
@@ -87,13 +82,21 @@ public class BlurSearchProvider implements SearchProvider {
             return;
         }
         LOGGER.info("Adding artifact \"" + artifact.getRowKey().toString() + "\" to full text search.");
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+
         String text = artifact.getContent().getDocExtractedTextString();
         String subject = artifact.getGenericMetadata().getSubject();
         String id = artifact.getRowKey().toString();
+        String publishedDate = dateFormat.format(artifact.getPublishedDate());
+        String source = artifact.getGenericMetadata().getSource();
 
         List<Column> columns = new ArrayList<Column>();
         columns.add(new Column(TEXT_COLUMN_NAME, text));
         columns.add(new Column(SUBJECT_COLUMN_NAME, subject));
+        columns.add(new Column(PUBLISHED_DATE_COLUMN_NAME, publishedDate));
+        if (source != null) {
+            columns.add(new Column(SOURCE_COLUMN_NAME, source));
+        }
 
         Record record = new Record();
         record.setRecordId(id);
@@ -118,6 +121,7 @@ public class BlurSearchProvider implements SearchProvider {
 
     @Override
     public Collection<ArtifactSearchResult> searchArtifacts(String query) throws Exception {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         BlurQuery blurQuery = new BlurQuery();
         SimpleQuery simpleQuery = new SimpleQuery();
         simpleQuery.setQueryStr(query);
@@ -133,17 +137,20 @@ public class BlurSearchProvider implements SearchProvider {
             assert row.getRecordCount() == 1;
             Record record = row.getRecords().get(0);
             assert record.getFamily().equals(GENERIC_COLUMN_FAMILY_NAME);
+            Date publishedDate = null;
+            String source = null;
 
-            Iterator<Column> columns = record.getColumnsIterator();
-            while (columns.hasNext()) {
-                Column column = columns.next();
+            for (Column column : record.getColumns()) {
                 if (column.getName().equals(SUBJECT_COLUMN_NAME)) {
                     subject = column.getValue();
-                    break;
+                } else if (column.getName().equals(PUBLISHED_DATE_COLUMN_NAME)) {
+                    publishedDate = dateFormat.parse(column.getValue());
+                } else if (column.getName().equals(SOURCE_COLUMN_NAME)) {
+                    source = column.getValue();
                 }
             }
 
-            ArtifactSearchResult result = new ArtifactSearchResult(rowId, subject);
+            ArtifactSearchResult result = new ArtifactSearchResult(rowId, subject, publishedDate, source);
             results.add(result);
         }
         return results;
