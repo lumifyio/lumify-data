@@ -23,7 +23,7 @@ public class DictionarySearcher {
                                 ORGANIZATION = "Organisation";
 
     private final int MAX_RESULTS_PER_SEARCH = 50000,
-                        BUFFER_SIZE = 1000;
+                        BUFFER_SIZE = 50000;
 
 	private String baseURL = "http://dbpedia.org/sparql/?format=json&query=";
     private ArrayList<DictionaryEncoder> encoders = new ArrayList<DictionaryEncoder>();

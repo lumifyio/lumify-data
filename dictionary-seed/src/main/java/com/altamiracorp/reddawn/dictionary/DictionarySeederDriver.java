@@ -95,7 +95,12 @@ public class DictionarySeederDriver {
         for(String type : types) {
             String category = getSearchCategory(type);
             encoder.setFilename("en-ner-" + category + ".dict");
+
+            System.out.println("Searching " + category + "...");
+            long start = System.currentTimeMillis();
             searcher.search(category);
+            long end = System.currentTimeMillis();
+            System.out.println("Search completed, took " + (end - start) / 1000.0 + "s");
         }
     }
 

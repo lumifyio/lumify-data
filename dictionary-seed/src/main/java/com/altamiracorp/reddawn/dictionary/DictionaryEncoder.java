@@ -7,6 +7,7 @@ import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.StringList;
 
 import java.io.*;
+import java.util.Timer;
 
 public class DictionaryEncoder {
 
@@ -68,10 +69,23 @@ public class DictionaryEncoder {
 
     public void addEntries(String allEntries) {
         String[] entries = getEntries(allEntries);
+
+        System.out.print("\t\t\t\t\t\t\tBuilding dictionary: ");
+        long start = System.currentTimeMillis();
+
         for (String entry : entries) {
             dictionary.put(new StringList(tokenizer.tokenize(entry)));
         }
+
+        long middle = System.currentTimeMillis();
+
+        System.out.print((middle - start) + "ms\t\t");
+        System.out.print("Writing dictionary: ");
+
         writeToFile();
+
+        long end = System.currentTimeMillis();
+        System.out.println((end - middle) + "ms");
     }
 
     private void writeToFile() {
@@ -82,7 +96,7 @@ public class DictionaryEncoder {
         } catch (IOException e) {
             throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
         }
-        System.out.println("Writing to file...");
+//        System.out.println("Writing to file...");
     }
 
     protected String getCurrentDirectory() {
