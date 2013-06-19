@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -18,7 +18,7 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.location.TermLocationExtractorMR \
+com.altamiracorp.reddawn.location.TermLocationExtractionMR \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=192.168.33.10 \
 --username=root \
