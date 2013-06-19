@@ -22,17 +22,8 @@ public class BlurSearchCommandLine extends RedDawnCommandLineBase {
 
         options.addOption(
                 OptionBuilder
-                        .withLongOpt(BlurSearchProvider.BLUR_CONTROLLER_PORT)
-                        .withDescription("The blur controller port")
-                        .withArgName("port")
-                        .hasArg()
-                        .create()
-        );
-
-        options.addOption(
-                OptionBuilder
                         .withLongOpt(BlurSearchProvider.BLUR_CONTROLLER_LOCATION)
-                        .withDescription("The blur controller location/ip address")
+                        .withDescription("The blur controller location/ip address and port")
                         .withArgName("address")
                         .hasArg()
                         .create()
@@ -63,9 +54,6 @@ public class BlurSearchCommandLine extends RedDawnCommandLineBase {
 
     @Override
     protected void processOptions(CommandLine cmd) {
-        if (cmd.hasOption(BlurSearchProvider.BLUR_CONTROLLER_PORT)) {
-            blurControllerPort = Integer.parseInt(cmd.getOptionValue(BlurSearchProvider.BLUR_CONTROLLER_PORT));
-        }
         if (cmd.hasOption(BlurSearchProvider.BLUR_CONTROLLER_LOCATION)) {
             blurControllerLocation = cmd.getOptionValue(BlurSearchProvider.BLUR_CONTROLLER_LOCATION);
         }
@@ -79,9 +67,6 @@ public class BlurSearchCommandLine extends RedDawnCommandLineBase {
     protected int run(CommandLine cmd) throws Exception {
         BlurSearchProvider blurSearch = new BlurSearchProvider();
         Properties props = new Properties();
-        if (blurControllerPort != null) {
-            props.setProperty(BlurSearchProvider.BLUR_CONTROLLER_PORT, "" + blurControllerPort);
-        }
         if (blurControllerLocation != null) {
             props.setProperty(BlurSearchProvider.BLUR_CONTROLLER_LOCATION, blurControllerLocation);
         }
@@ -92,7 +77,7 @@ public class BlurSearchCommandLine extends RedDawnCommandLineBase {
 
         Collection<ArtifactSearchResult> searchResults = blurSearch.searchArtifacts(query);
         for (ArtifactSearchResult searchResult : searchResults) {
-            System.out.println(searchResult.getRowKey());
+            System.out.println(searchResult.toString());
         }
         return 0;
     }

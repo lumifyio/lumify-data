@@ -3,6 +3,8 @@ package com.altamiracorp.reddawn.ucd.artifact;
 import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.model.RowKey;
 
+import java.util.Date;
+
 public class Artifact extends Row<ArtifactRowKey> {
     public static final String TABLE_NAME = "Artifact";
 
@@ -50,5 +52,24 @@ public class Artifact extends Row<ArtifactRowKey> {
             addColumnFamily(new ArtifactDynamicMetadata());
         }
         return get(ArtifactDynamicMetadata.NAME);
+    }
+
+    public Date getPublishedDate() {
+        Date date = getGenericMetadata().getDocumentDtgDate();
+        if (date != null) {
+            return date;
+        }
+
+        date = getGenericMetadata().getFileTimestampDate();
+        if (date != null) {
+            return date;
+        }
+
+        date = getGenericMetadata().getLoadTimestampDate();
+        if (date != null) {
+            return date;
+        }
+
+        return null;
     }
 }
