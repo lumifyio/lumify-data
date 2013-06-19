@@ -1,10 +1,8 @@
 package com.altamiracorp.reddawn.dictionary;
 
-import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
-import opennlp.tools.util.StringList;
 
 import java.io.*;
 
@@ -12,11 +10,15 @@ public class DictionaryEncoder {
 
     private String filename = "newDictionary.dict";
     private String directoryPath = getCurrentDirectory();
-    private Dictionary dictionary = new Dictionary();
     protected Tokenizer tokenizer;
     private String tokenizerModelLocation = getCurrentDirectory()  + "/dictionary-seed/src/en-token.bin";
     private String tokenizerModelLocationSam = "/Users/swoloszy/Documents/NIC/red-dawn/dictionary-seed/src/en-token.bin";
     private String tokenizerModelLocationJeff = "/Users/jprincip/Documents/nic/red-dawn/dictionary-seed/src/en-token.bin";
+    protected StringBuilder currentEntries = new StringBuilder();
+    private String xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    private String dictionaryRootElementOpen = "<dictionary case_sensitive=\"false\">\n";
+    private boolean fileIsOpen = false;
+    private String dictionaryRootElementClose = "</dictionary>";
 
     public DictionaryEncoder() {
         InputStream modelIn = null;
@@ -48,7 +50,7 @@ public class DictionaryEncoder {
 
     public DictionaryEncoder(String directoryPath, String initialFilename) {
         this(directoryPath);
-        filename = initialFilename;
+        initializeDictionaryFile(initialFilename);
     }
 
     public void setDirectoryPath(String directoryPath) {
@@ -62,36 +64,75 @@ public class DictionaryEncoder {
         this.directoryPath = directoryPath;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-
-    public void addEntries(String allEntries) {
-        String[] entries = getEntries(allEntries);
-        for (String entry : entries) {
-            dictionary.put(new StringList(tokenizer.tokenize(entry)));
+    public void initializeDictionaryFile(String filename) {
+        if (fileIsOpen) {
+            closeFile();
         }
-        writeToFile();
-    }
-
-    private void writeToFile() {
+        fileIsOpen = true;
+        this.filename = filename;
+        System.out.print("Initializing dictionary file " + directoryPath + filename + "... ");
         File file = new File(directoryPath + "/" + filename);
         try {
-            FileOutputStream out = new FileOutputStream(file);
-            dictionary.serialize(out);
+            FileWriter fout = new FileWriter(file);
+            fout.write(xmlHeader);
+            fout.write(dictionaryRootElementOpen);
         } catch (IOException e) {
             throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
         }
-        System.out.println("Writing to file...");
+        System.out.println("DONE");
+    }
+
+    public void closeFile() {
+        System.out.print("Closing dictionary file " + directoryPath + filename + "... ");
+        File file = new File(directoryPath + "/" + filename);
+        FileWriter fout = null;
+        try {
+            fout = new FileWriter(file);
+            fout.write(dictionaryRootElementClose);
+        } catch (IOException e) {
+            throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
+        }
+        finally {
+            try {
+                fout.flush();
+                fout.close();
+            } catch (IOException e) {
+                throw new RuntimeException("Problem closing file " + file.getAbsolutePath());
+            }
+
+        }
+        System.out.println("DONE");
+    }
+
+    public void addEntries(String[] entries) {
+        currentEntries = new StringBuilder();
+        for (String entry : entries) {
+            addTaggedTokenizedEntry(entry);
+        }
+        appendCurrentEntriesToFile();
+    }
+
+    private void addTaggedTokenizedEntry(String entry) {
+        currentEntries.append("<entry>\n");
+        for (String s : tokenizer.tokenize(entry)) {
+            currentEntries.append("<token>" + s + "</token>\n");
+        }
+        currentEntries.append("</entry>\n");
+    }
+
+    private void appendCurrentEntriesToFile() {
+        System.out.print("Appending current batch to file... ");
+        File file = new File(directoryPath + "/" + filename);
+        try {
+            FileWriter fout = new FileWriter(file);
+            fout.append(currentEntries);
+        } catch (IOException e) {
+            throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
+        }
+        System.out.println("DONE");
     }
 
     protected String getCurrentDirectory() {
         return System.getProperty("user.dir");
     }
-
-    protected String[] getEntries(String entries) {
-        String[] items = entries.split("\n");
-        return items;
-    }
-
 }

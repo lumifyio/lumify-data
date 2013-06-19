@@ -15,35 +15,13 @@ import static org.junit.Assert.assertTrue;
 public class DictionaryEncoderTest {
 
 	DictionaryEncoder encoder = null;
+    String[] sampleEntries1 = {"This is a sample entry"};
+    String[] sampleEntries2 = {"first entry", "second entry", "third entry", "fourth entry", "fifth entry", "sixth entry"};
+    String[] sampleEntries3 = {"seventh entry", "eigth entry", "ninth entry"};
 
 	@Before
 	public void setUp() throws Exception{
 		encoder = new DictionaryEncoder("dictionaryFiles");
-	}
-
-	@Test
-	public void testRun() throws Exception {
-
-	}
-
-	@Test
-	public void testGetEntries() {
-		String sampleInput = "This is a sentence.\nThis is an entry.\nApple Pie\n" +
-                "Rainy Day\nHello Goodbye\nSam Woloszynski\nJeff Principe";
-		String[] items = null;
-		try {
-			items = encoder.getEntries(sampleInput);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		assertEquals(7, items.length);
-		assertTrue(items[0].equals("This is a sentence."));
-		assertTrue(items[1].equals("This is an entry."));
-		assertTrue(items[2].equals("Apple Pie"));
-		assertTrue(items[3].equals("Rainy Day"));
-		assertTrue(items[4].equals("Hello Goodbye"));
-		assertTrue(items[5].equals("Sam Woloszynski"));
-		assertTrue(items[6].equals("Jeff Principe"));
 	}
 
 	@Test
@@ -114,24 +92,24 @@ public class DictionaryEncoderTest {
 
     @Test
     public void testAddEntriesSingleEntry() throws Exception {
-        encoder.addEntries("This is a sample entry");
+        encoder.addEntries(sampleEntries1);
 
     }
 
     @Test
     public void testAddEntriesNonexistentDirectory() throws Exception {
         DictionaryEncoder encoder1 = new DictionaryEncoder("dictionaryData", "myDictionary.dict");
-        encoder1.addEntries("This is a sample entry");
+        encoder1.addEntries(sampleEntries1);
     }
 
     @Test
     public void testAddEntriesMultiple() throws Exception {
-        encoder.addEntries("First Entry\nSecond Entry\nThird Entry\n");
+        encoder.addEntries(sampleEntries2);
     }
 
     @Test
     public void testAddEntriesMultipleTimes() throws Exception {
-        encoder.addEntries("First Entry\nSecond Entry\nThird Entry\n");
-        encoder.addEntries("Fourth Entry\nFifth Entry\nSixth Entry\n");
+        encoder.addEntries(sampleEntries2);
+        encoder.addEntries(sampleEntries3);
     }
 }

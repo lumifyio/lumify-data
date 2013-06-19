@@ -94,7 +94,7 @@ public class DictionarySeederDriver {
 
         for(String type : types) {
             String category = getSearchCategory(type);
-            encoder.setFilename("en-ner-" + category + ".dict");
+            encoder.initializeDictionaryFile("en-ner-" + category + ".dict");
             searcher.search(category);
         }
     }
