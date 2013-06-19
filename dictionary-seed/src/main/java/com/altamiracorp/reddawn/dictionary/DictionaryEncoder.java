@@ -5,6 +5,7 @@ import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 
 import java.io.*;
+import java.util.Timer;
 
 public class DictionaryEncoder {
 
@@ -105,11 +106,20 @@ public class DictionaryEncoder {
     }
 
     public void addEntries(String[] entries) {
+        System.out.print("\t\t\t\t\t\t\tBuilding dictionary: ");
+
         currentEntries = new StringBuilder();
+        long start = System.currentTimeMillis();
         for (String entry : entries) {
             addTaggedTokenizedEntry(entry);
         }
         appendCurrentEntriesToFile();
+
+        long middle = System.currentTimeMillis();
+        System.out.print((middle - start) + "ms\t\t");
+        System.out.print("Writing dictionary: ");
+        long end = System.currentTimeMillis();
+        System.out.println((end - middle) + "ms");
     }
 
     private void addTaggedTokenizedEntry(String entry) {
