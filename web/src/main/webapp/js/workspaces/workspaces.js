@@ -15,6 +15,7 @@ define([
         this.defaultAttrs({
             listSelector: 'ul.nav-list',
             workspaceListItemSelector: 'ul.nav-list li',
+            addNewInputSelector: 'input.new',
             addNewSelector: 'button.new',
             deleteSelector: 'button.delete'
         });
@@ -29,6 +30,13 @@ define([
             if (!title) return;
             var data = { title: title };
             this.workspaceService.saveNew(data, this.loadWorkspaceList.bind(this));
+        };
+
+        this.onInputKeyUp = function(event) {
+            switch (event.which) {
+                case $.ui.keyCode.ENTER:
+                    this.onAddNew(event);
+            }
         };
 
         this.onDelete = function( event ) {
@@ -67,6 +75,9 @@ define([
                 workspaceListItemSelector: this.onWorkspaceItemClick,
                 addNewSelector: this.onAddNew,
                 deleteSelector: this.onDelete
+            });
+            this.on( 'keyup', {
+                addNewInputSelector: this.onInputKeyUp
             });
         });
     }

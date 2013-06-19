@@ -4,11 +4,11 @@
 <% results.forEach(function(result) { %>
 <li class="<%= selected === result.rowKey ? 'active' : '' %>" 
     data-rowkey="<%= result.rowKey %>"
-    ><a href="#"><%= result.title || result.rowKey %><button class="delete btn btn-mini btn-danger">Delete</button></a></li>
+    ><a href="#"><button class="delete btn btn-mini btn-danger">Delete</button><span><%= result.title || result.rowKey %></span></a></li>
 <% }); %>
 
 <li>
-    <input name="title" type="text" placeholder="Workspace name" size="20"/>
+    <input class="new" name="title" type="text" placeholder="Workspace name" />
     <button class="new btn btn-mini">Add</button>
 </li>
 
