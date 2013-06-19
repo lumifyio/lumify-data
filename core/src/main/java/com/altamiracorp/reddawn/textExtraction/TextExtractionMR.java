@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat;
 
 public class TextExtractionMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(TextExtractionMR.class.getName());
-    private static final DateFormat DF = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
     protected Class getMapperClass(Job job, Class clazz) {
@@ -68,7 +67,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
                 artifact.getGenericMetadata()
                         .setSubject(extractedInfo.getSubject())
                         .setMimeType(extractedInfo.getMediaType())
-                        .setDocumentDtg(DF.format(extractedInfo.getDate()));
+                        .setDocumentDtg(extractedInfo.getDate());
                 context.write(new Text(Artifact.TABLE_NAME), artifact);
             } catch (Exception e) {
                 throw new IOException(e);
