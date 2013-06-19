@@ -8,7 +8,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh core)
+classpath=$(${DIR}/classpath.sh dictionary-seed)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
@@ -32,6 +32,8 @@ if [ -n "$TYPES" ]
 then
     PARAMS=("${PARAMS[@]}" "--types=${TYPES}")
 fi
+
+echo "${classpath}"
 
 java \
 -Dfile.encoding=UTF-8 \
