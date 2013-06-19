@@ -121,6 +121,9 @@ define([
 
         this.onMapEndPan = function(evt, mapCenter) {
             var self = this;
+            if(!mapCenter.syncEvent) {
+                return;
+            }
             if(self.lastMarker) {
                 self.lastMarker.closeBubble();
                 self.map.removeMarker(self.lastMarker);
