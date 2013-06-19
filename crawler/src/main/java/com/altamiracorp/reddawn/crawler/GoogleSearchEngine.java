@@ -40,7 +40,7 @@ public class GoogleSearchEngine extends SearchEngine {
                     JSONObject entry = results.getJSONObject(i);
                     links.add(entry.getString("link"));
                 }
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 System.err.println("The response from the server for results " + (searchCount * RESULTS_PER_SEARCH + 1) +
                         "-" + ((searchCount + 1) * RESULTS_PER_SEARCH) + " is not valid JSON (the search performed is" +
                         "likely invalid)");
