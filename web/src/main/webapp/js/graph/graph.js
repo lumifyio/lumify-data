@@ -74,6 +74,21 @@ define([
             this.setWorkspaceDirty();
         };
 
+        this.onNodesUpdate = function(evt, data) {
+            data.nodes.forEach(function(updatedNode) {
+                cy.nodes()
+                    .filter(function(idx, node) {
+                        return node.data('rowKey') == updatedNode.rowKey;
+                    })
+                    .each(function(idx, node) {
+                        node.position({
+                            x: updatedNode.graphPosition.x,
+                            y: updatedNode.graphPosition.y
+                        });
+                    });
+            });
+        };
+
         this.onAddToGraph = function(event, data) {
             var el = $(event.target),
                 p = el.offset(),
@@ -278,6 +293,7 @@ define([
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'nodesAdd', this.onNodesAdd);
             this.on(document, 'nodesDelete', this.onNodesDelete);
+            this.on(document, 'nodesUpdate', this.onNodesUpdate);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
 
             var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;

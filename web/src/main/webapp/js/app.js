@@ -172,12 +172,35 @@ define([
 
         this.onNodesUpdate = function(evt, data) {
             var self = this;
+            var undoData = {
+                noUndo: true,
+                nodes: []
+            };
+            var redoData = {
+                noUndo: true,
+                nodes: []
+            };
             data.nodes.forEach(function(node) {
                 var matchingWorkspaceNodes = self.workspaceData.data.nodes.filter(function(workspaceNode) { return workspaceNode.rowKey == node.rowKey; });
                 matchingWorkspaceNodes.forEach(function(workspaceNode) {
+                    undoData.nodes.push(JSON.parse(JSON.stringify(workspaceNode)));
                     $.extend(workspaceNode, node);
+                    redoData.nodes.push(JSON.parse(JSON.stringify(workspaceNode)));
                 });
             });
+
+            if(!data.noUndo) {
+                undoManager.performedAction( 'Update ' + undoData.nodes.length + ' nodes', {
+                    undo: function() {
+                        self.trigger(document, 'nodesUpdate', undoData);
+                    },
+                    redo: function() {
+                        self.trigger(document, 'nodesUpdate', redoData);
+                    },
+                    bind: this
+                });
+            }
+
             this.setWorkspaceDirty();
         };
 
