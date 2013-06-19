@@ -112,9 +112,10 @@ define([
 		
 		//Local event that needs to be published
 		this.onSyncedEvent = function (evt, data) {
-			if (data.syncEvent) {
+			if (data.remoteEvent) {
 				return;
 			}
+			data = $.extend({remoteEvent: true}, data);
 			this.syncService.publishSyncEvent(this.attr.me,evt.type,data);
 		};
 		
@@ -169,8 +170,7 @@ define([
 				this.trigger('syncEnded',{});
 				return;
 			}
-			
-			data.payload.syncEvent = true;
+
 			this.trigger(data.evt, data.payload);
 		};
 		
