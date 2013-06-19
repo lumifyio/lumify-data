@@ -73,6 +73,7 @@ define([
 
             this.on(document, 'graphAddNode', this.onGraphAddNode);
             this.on(document, 'graphNodeMoved', this.onGraphNodeMoved);
+            this.on(document, 'nodeUpdate', this.onNodeUpdate);
 
             this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
 
@@ -167,6 +168,13 @@ define([
             this.trigger(document, 'workspaceSave', this.workspaceData.data);
         };
 
+        this.onNodeUpdate = function(evt, nodeUpdateData) {
+            var nodes = this.workspaceData.data.nodes.filter(function(n) { return n.rowKey == nodeUpdateData.rowKey });
+            nodes.forEach(function(node) {
+                $.extend(node, nodeUpdateData);
+            });
+        };
+
         this.onGraphAddNode = function(evt, data) {
             this.workspaceData = this.workspaceData || {};
             this.workspaceData.data = this.workspaceData.data || {};
@@ -234,7 +242,7 @@ define([
                 this.trigger(document, 'graphShow');
             } else if (data.name === 'map' && !pane.hasClass('visible')) {
                 this.trigger(document, 'graphHide');
-                this.trigger(document, 'mapShow');
+                this.trigger(document, 'mapShow', this.workspaceData); // TODO this is annoying that we have to pass this. The problem is that the graph is lazily loaded.
             }
 
             pane.toggleClass('visible');
