@@ -11,6 +11,7 @@ import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +30,10 @@ public class WorkspaceList implements Handler, AppAware {
 
         JSONArray resultsJSON = new JSONArray();
         for (Workspace workspace : workspaces) {
-            resultsJSON.put(workspace.getRowKey().toString());
+            JSONObject workspaceJSON = new JSONObject();
+            workspaceJSON.put("rowKey", workspace.getRowKey());
+            workspaceJSON.put("title", workspace.getMetadata().getTitle());
+            resultsJSON.put(workspaceJSON);
         }
 
         new Responder(response).respondWith(resultsJSON);

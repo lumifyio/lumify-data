@@ -24,12 +24,15 @@ define([
             this.on(document, 'mapCenter', this.onMapCenter);
             this.on(document, 'mapEndPan', this.onMapEndPan);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
-            this.on(document, 'graphAddNode', this.onGraphAddNode);
-            this.on(document, 'nodeUpdate', this.onNodeUpdate);
+            this.on(document, 'nodesAdd', this.onNodesAdd);
+            this.on(document, 'nodesUpdate', this.onNodesUpdate);
         });
 
         this.onWorkspaceLoaded = function(evt, workspaceData) {
             var self = this;
+            if (workspaceData.data === undefined || workspaceData.data.nodes === undefined) {
+                return;
+            }
             workspaceData.data.nodes.forEach(function(node) {
                 if(node.location || node.locations) {
                     self.updateOrAddNode(node);
@@ -38,8 +41,8 @@ define([
             });
         };
 
-        this.onGraphAddNode = function(evt, graphNodeData) {
-            console.log('graphNodeData', graphNodeData); // TODO handle new nodes
+        this.onNodesAdd = function(evt, data) {
+            console.log('onNodesAdd', data); // TODO handle new nodes
         };
 
         this.updateOrAddNode = function(node) {
@@ -78,8 +81,11 @@ define([
             });
         };
 
-        this.onNodeUpdate = function(evt, node) {
-            this.updateOrAddNode(node);
+        this.onNodesUpdate = function(evt, data) {
+            var self = this;
+            data.nodes.forEach(function(node) {
+                self.updateOrAddNode(node);
+            });
         };
 
         this.updateNodeLocation = function(node) {
@@ -90,7 +96,7 @@ define([
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
-                    console.log('entity', entity); // TODO handle entities
+                    console.log('TODO: handle entities', entity); // TODO handle entities
                 });
             } else if(node.type == 'artifacts') {
                 this.ucdService.getArtifactById(node.rowKey, function(err, artifact) {

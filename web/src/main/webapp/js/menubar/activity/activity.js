@@ -15,6 +15,11 @@ define([
                 eventStarting: 'workspaceSaving',
                 eventFinished: 'workspaceSaved',
                 descriptions: ['Workspace saving', 'Workspace saved']
+            },
+            {
+                eventStarting: 'workspaceDeleting',
+                eventFinished: 'workspaceDeleted',
+                descriptions: ['Workspace deleting', 'Workspace deleted']
             }
 
         ];

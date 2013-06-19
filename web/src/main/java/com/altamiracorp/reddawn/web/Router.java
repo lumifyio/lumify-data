@@ -11,6 +11,7 @@ import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
 import com.altamiracorp.reddawn.web.routes.user.MeGet;
 import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceByRowKey;
+import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceDelete;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceList;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceSave;
 import com.altamiracorp.web.App;
@@ -55,6 +56,7 @@ public class Router extends HttpServlet {
         app.post("/workspace/save", authenticator, WorkspaceSave.class);
         app.post("/workspace/{workspaceRowKey}/save", authenticator, WorkspaceSave.class);
         app.get("/workspace/{workspaceRowKey}", authenticator, WorkspaceByRowKey.class);
+        app.delete("/workspace/{workspaceRowKey}", authenticator, WorkspaceDelete.class);
 
         app.get("/user/messages", authenticator, MessagesGet.class);
 		app.get("/user/me", authenticator, MeGet.class);

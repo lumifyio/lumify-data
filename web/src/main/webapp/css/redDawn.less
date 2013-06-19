@@ -47,9 +47,11 @@ html, body {
 
 .users-pane, 
 .search-pane, 
+.workspaces-pane, 
 .detail-pane {
   .above-graph;
   position: absolute;
+  background: @pane-background;
 
   // Animation of panes
   visibility: hidden;
@@ -63,6 +65,7 @@ html, body {
 }
 
 .search-pane, 
+.workspaces-pane,
 .detail-pane {
   height: 100%;
 
@@ -95,6 +98,11 @@ html, body {
   .left-pane;
 
   @import "search/search";
+}
+.workspaces-pane {
+  .left-pane;
+
+  @import "workspaces/workspaces";
 }
 
 .users-pane {

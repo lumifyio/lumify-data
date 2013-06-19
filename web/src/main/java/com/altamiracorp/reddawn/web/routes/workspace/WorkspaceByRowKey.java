@@ -31,7 +31,11 @@ public class WorkspaceByRowKey implements Handler, AppAware {
         } else {
             JSONObject resultJSON = new JSONObject();
             resultJSON.put("id", workspace.getRowKey().toString());
-            resultJSON.put("data", new JSONObject(workspace.getContent().getData()));
+
+            if (workspace.getContent().getData() != null) {
+                resultJSON.put("data", new JSONObject(workspace.getContent().getData()));
+            }
+
             new Responder(response).respondWith(resultJSON);
         }
 

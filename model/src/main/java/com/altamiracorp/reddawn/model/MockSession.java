@@ -75,4 +75,16 @@ public class MockSession extends Session {
     public void deleteTable(String tableName) {
         this.tables.remove(tableName);
     }
+
+    @Override
+    public void deleteRow(String tableName, RowKey rowKey) {
+        String rowKeyStr = rowKey.toString();
+        List<Row> rows = this.tables.get(tableName);
+        for (int i = 0; i < rows.size(); i++) {
+            if (rowKeyStr.equals(rows.get(i).getRowKey().toString())) {
+                rows.remove(i);
+                return;
+            }
+        }
+    }
 }

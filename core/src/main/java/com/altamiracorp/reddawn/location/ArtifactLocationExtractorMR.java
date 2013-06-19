@@ -38,7 +38,7 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
     }
 
     public static class ArtifactLocationExtractorMapper extends Mapper<Text, Term, Text, Row> {
-        public static final String CONF_ENTITY_EXTRACTOR_CLASS = "entityExtractorClass";
+        public static final String CONF_ENTITY_EXTRACTOR_CLASS = "artifactLocationExtractorClass";
         private ArtifactLocationExtractor entityExtractor;
 
         @Override

@@ -4,9 +4,8 @@ define([
     'flight/lib/component',
     'cytoscape',
     './renderer',
-    'tpl!./graph',
-    'util/undoManager'
-], function(defineComponent, cytoscape, Renderer, template, undoManager) {
+    'tpl!./graph'
+], function(defineComponent, cytoscape, Renderer, template) {
     'use strict';
 
     return defineComponent(Graph);
@@ -20,65 +19,74 @@ define([
             graphToolsSelector: '.ui-cytoscape-panzoom'
         });
 
-        this.onGraphAddNode = function(evt, data) {
-            this.addNode(data);
+        this.onNodesAdd = function(evt, data) {
+            this.addNodes(data.nodes);
         };
 
-        this.addNode = function(node) {
-            var title = node.title;
-            var position = node.graphPosition;
+        this.addNodes = function(nodes) {
+            var cyNodes = $.map(nodes, function(node) {
+                var title = node.title;
+                var position = node.graphPosition;
 
-            if (title.length > 10) {
-                title = title.substring(0, 10) + "...";
-            }
-
-            var cyNodeData = {
-                group: 'nodes',
-                renderedPosition: position,
-                data: {
-                    id: node.rowKey,
-                    rowKey: node.rowKey,
-                    subType: node.subType,
-                    type: node.type,
-                    title: title
+                if (title.length > 10) {
+                    title = title.substring(0, 10) + "...";
                 }
-            };
 
-            var cyNode = cy.add(cyNodeData);
+                var cyNodeData = {
+                    group: 'nodes',
+                    renderedPosition: position,
+                    data: {
+                        id: node.rowKey,
+                        rowKey: node.rowKey,
+                        subType: node.subType,
+                        type: node.type,
+                        title: title
+                    }
+                };
 
-            cyNode.addClass(node.subType);
-            cyNode.addClass(node.type);
+                var cyNode = cy.add(cyNodeData);
 
-            undoManager.performedAction( 'Add node: ' + title, {
-                undo: function() {
-                    cyNode.remove();
-                    this.setWorkspaceDirty();
-                },
-                redo: function() {
-                    cyNode.restore();
-                    this.setWorkspaceDirty();
-                },
-                bind: this
+                cyNode.addClass(node.subType);
+                cyNode.addClass(node.type);
+                return cyNode;
             });
 
             this.setWorkspaceDirty();
         };
 
         this.removeSelectedNodes = function() {
-            var nodes = cy.nodes().filter(':selected').remove();
-
-            undoManager.performedAction( 'Delete ' + nodes.length + ' nodes', {
-                undo: function() {
-                    nodes.restore();
-                    this.setWorkspaceDirty();
-                },
-                redo: function() {
-                    nodes.remove();
-                    this.setWorkspaceDirty();
-                },
-                bind: this
+            var nodesToDelete = $.map(cy.nodes().filter(':selected'), function(node) {
+                return {
+                    rowKey: node.data('rowKey'),
+                    type: node.data('type'),
+                    subType: node.data('subType')
+                };
             });
+
+            this.trigger(document, 'nodesDelete', { nodes: nodesToDelete });
+        };
+
+        this.onNodesDelete = function(event, data) {
+            var matchingNodes = cy.nodes().filter(function(idx, node) {
+                return data.nodes.filter(function(nodeToDelete) { return node.data('rowKey') == nodeToDelete.rowKey; }).length > 0;
+            });
+            matchingNodes.remove();
             this.setWorkspaceDirty();
+        };
+
+        this.onNodesUpdate = function(evt, data) {
+            data.nodes.forEach(function(updatedNode) {
+                cy.nodes()
+                    .filter(function(idx, node) {
+                        return node.data('rowKey') == updatedNode.rowKey;
+                    })
+                    .each(function(idx, node) {
+                        node.position({
+                            x: updatedNode.graphPosition.x,
+                            y: updatedNode.graphPosition.y
+                        });
+                    });
+            });
         };
 
         this.onAddToGraph = function(event, data) {
@@ -90,12 +98,14 @@ define([
                     y: p.top - c.top + el.height() / 2.0
                 };
 
-            this.trigger(document, 'graphAddNode', {
-                title: data.text,
-                rowKey: data.info.rowKey,
-                subType: data.info.subType,
-                type: data.info.type,
-                graphPosition: position
+            this.trigger(document, 'nodesAdd', {
+                nodes: [{
+                    title: data.text,
+                    rowKey: data.info.rowKey,
+                    subType: data.info.subType,
+                    type: data.info.type,
+                    graphPosition: position
+                }]
             });
         };
 
@@ -159,11 +169,6 @@ define([
                 e.data('freed', true);
 
                 p = $this.pixelsToPoints(p);
-                $this.trigger(document, 'graphNodeMoved', {
-                    id: e.data('id'),
-                    x: p.x,
-                    y: p.y
-                });
             });
 
             if (dup) {
@@ -192,22 +197,19 @@ define([
                 originalPositions.push( e.data('originalPosition') );
                 targetPositions.push( e.data('targetPosition') );
             });
-            undoManager.performedAction( 'Move ' + nodes.length + ' nodes', {
-                undo: function() {
-                    nodes.each(function(i, e) {
-                        e.position( originalPositions[i] );
-                    });
-                    this.setWorkspaceDirty();
-                },
-                redo: function() {
-                    nodes.each(function(i, e) {
-                        e.position( targetPositions[i] );
-                    });
-                    this.setWorkspaceDirty();
-                },
-                bind: this
-            });
 
+            var graphMovedNodesData = {
+                nodes: $.map(nodes, function(node) {
+                    return {
+                        rowKey: node.data('rowKey'),
+                        graphPosition: {
+                            x: node.data('targetPosition').x,
+                            y: node.data('targetPosition').y
+                        }
+                    };
+                })
+            };
+            $this.trigger(document, 'nodesUpdate', graphMovedNodesData);
 
             this.setWorkspaceDirty();
         };
@@ -220,11 +222,14 @@ define([
             this.select('emptyGraphSelector').toggle(cy.nodes().length === 0);
         };
 
+        this.resetGraph = function() {
+            cy.nodes().remove();
+        };
+
         this.onWorkspaceLoaded = function(evt, workspace) {
-            if (workspace.data.nodes) {
-                for(var i=0; i<workspace.data.nodes.length; i++) {
-                    this.addNode(workspace.data.nodes[i]);
-                }
+            this.resetGraph();
+            if (workspace.data && workspace.data.nodes) {
+                this.addNodes(workspace.data.nodes);
             }
 
             this.checkEmptyGraph();
@@ -270,21 +275,25 @@ define([
                         return;
                     }
 
-                    this.trigger(document, 'graphAddNode', {
-                        title: text,
-                        rowKey: info.rowKey,
-                        subType: info.subType,
-                        type: info.type,
-                        graphPosition: {
-                            x: event.clientX - droppableOffset.left,
-                            y: event.clientY - droppableOffset.top
-                        }
+                    this.trigger(document, 'nodesAdd', {
+                        nodes: [{
+                            title: text,
+                            rowKey: info.rowKey,
+                            subType: info.subType,
+                            type: info.type,
+                            graphPosition: {
+                                x: event.clientX - droppableOffset.left,
+                                y: event.clientY - droppableOffset.top
+                            }
+                        }]
                     });
                 }.bind(this)
             });
 
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
-            this.on(document, 'graphAddNode', this.onGraphAddNode);
+            this.on(document, 'nodesAdd', this.onNodesAdd);
+            this.on(document, 'nodesDelete', this.onNodesDelete);
+            this.on(document, 'nodesUpdate', this.onNodesUpdate);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
 
             var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
