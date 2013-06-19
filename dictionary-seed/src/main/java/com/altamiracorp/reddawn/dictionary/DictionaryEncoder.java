@@ -20,11 +20,12 @@ public class DictionaryEncoder {
     private String dictionaryRootElementOpen = "<dictionary case_sensitive=\"false\">\n";
     private boolean fileIsOpen = false;
     private String dictionaryRootElementClose = "</dictionary>";
+    private long totalTime = 0;
 
     public DictionaryEncoder() {
         InputStream modelIn = null;
         try {
-            modelIn = new FileInputStream(tokenizerModelLocationJeff);
+            modelIn = new FileInputStream(tokenizerModelLocationSam);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Problem reading tokenizer model.");
         }
@@ -103,23 +104,26 @@ public class DictionaryEncoder {
 
         }
         System.out.println("DONE");
+
     }
 
     public void addEntries(String[] entries) {
-        System.out.print("\t\t\t\t\t\t\tBuilding dictionary: ");
+        System.out.print("\t\t\t\tBuilding dictionary: ");
 
         currentEntries = new StringBuilder();
         long start = System.currentTimeMillis();
         for (String entry : entries) {
             addTaggedTokenizedEntry(entry);
         }
-        appendCurrentEntriesToFile();
 
         long middle = System.currentTimeMillis();
         System.out.print((middle - start) + "ms\t\t");
         System.out.print("Writing dictionary: ");
+        appendCurrentEntriesToFile();
         long end = System.currentTimeMillis();
         System.out.println((end - middle) + "ms");
+        totalTime += (end-start);
+        System.out.println("Total time: " + totalTime + "ms");
     }
 
     private void addTaggedTokenizedEntry(String entry) {
