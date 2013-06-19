@@ -1,9 +1,15 @@
 package com.altamiracorp.reddawn.ucd.artifact;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.Value;
 
 public class ArtifactGenericMetadata extends ColumnFamily {
+	private static final DateFormat DF = new SimpleDateFormat("ddHHmm'Z' MMM yy");
+	
     public static final String NAME = "Generic_Metadata";
     public static final String AUTHOR = "author";
     public static final String CHARSET = "charset";
@@ -63,6 +69,11 @@ public class ArtifactGenericMetadata extends ColumnFamily {
 
     public ArtifactGenericMetadata setDocumentDtg(String documentDtg) {
         set(DOCUMENT_DTG, documentDtg);
+        return this;
+    }
+    
+    public ArtifactGenericMetadata setDocumentDtg(Date documentDtg) {
+        set(DOCUMENT_DTG, DF.format(documentDtg).toUpperCase());
         return this;
     }
 
