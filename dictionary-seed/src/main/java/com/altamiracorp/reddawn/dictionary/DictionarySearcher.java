@@ -15,7 +15,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class DictionarySearcher {
-	public static final String ALL = "Resource",
+	public static final String RESOURCE = "Resource",
                                 PLACE = "Place",
                                 PERSON = "Person",
                                 WORK = "Work",
@@ -30,8 +30,6 @@ public class DictionarySearcher {
 	public void search(String type) {
 		int totalResultCount = 0;
 		int resultOffset = 0;
-
-        System.out.println("Searching for dbpedia class: " + type);
 
         do {
             System.out.print("Fetching results " + (resultOffset + 1) + "-" +

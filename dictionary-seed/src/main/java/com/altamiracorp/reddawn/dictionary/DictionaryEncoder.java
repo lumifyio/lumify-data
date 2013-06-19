@@ -23,9 +23,9 @@ public class DictionaryEncoder {
     private long totalTime = 0;
 
     public DictionaryEncoder() {
-        InputStream modelIn = null;
+        InputStream modelIn;
         try {
-            modelIn = new FileInputStream(tokenizerModelLocationSam);
+            modelIn = new FileInputStream(tokenizerModelLocationJeff);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Problem reading tokenizer model.");
         }
@@ -115,22 +115,11 @@ public class DictionaryEncoder {
     }
 
     public void addEntries(String[] entries) {
-        System.out.print("\t\t\t\tBuilding dictionary: ");
-
         currentEntries = new StringBuilder();
-        long start = System.currentTimeMillis();
         for (String entry : entries) {
             addTaggedTokenizedEntry(entry);
         }
-
-        long middle = System.currentTimeMillis();
-        System.out.print((middle - start) + "ms\t\t");
-        System.out.print("Writing dictionary: ");
         appendCurrentEntriesToFile();
-        long end = System.currentTimeMillis();
-        System.out.println((end - middle) + "ms");
-        totalTime += (end - start);
-        System.out.println("Total time: " + totalTime + "ms");
     }
 
     private void addTaggedTokenizedEntry(String entry) {
@@ -142,7 +131,6 @@ public class DictionaryEncoder {
     }
 
     private void appendCurrentEntriesToFile() {
-        System.out.print("Appending current batch to file... ");
         File file = new File(directoryPath + "/" + filename);
         FileWriter fout = null;
         try {
@@ -158,8 +146,8 @@ public class DictionaryEncoder {
                 throw new RuntimeException("Problem closing file " + file.getAbsolutePath());
             }
         }
+        System.out.println("Wrote entries to dictionary.");
 
-        System.out.println("DONE");
     }
 
     protected String getCurrentDirectory() {

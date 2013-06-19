@@ -31,7 +31,7 @@ public class DictionarySeederDriver {
                         .withLongOpt("types")
                         .withDescription("The types of terms to add to the dictionary (multiple separated by commas).\n" +
                                 "Leave this blank to add all types.\n" +
-                                "Valid values: place, person, organization, work, species")
+                                "Valid values: place, person, organization, work, species, resource")
                         .hasArg(true)
                         .create()
         );
@@ -77,6 +77,8 @@ public class DictionarySeederDriver {
             searchCategory = DictionarySearcher.WORK;
         } else if(type.equalsIgnoreCase("species")) {
             searchCategory = DictionarySearcher.SPECIES;
+        } else if(type.equalsIgnoreCase("resource")) {
+            searchCategory = DictionarySearcher.RESOURCE;
         } else {
             throw new RuntimeException("\"" + type + "\" is not a valid type");
         }
@@ -94,17 +96,16 @@ public class DictionarySeederDriver {
 
         for(String type : types) {
             String category = getSearchCategory(type);
+
+            System.out.println("\n\033[1mSearching for dbpedia class: " + type + "\033[0m");
             encoder.initializeDictionaryFile("en-ner-" + category + ".dict");
 
-            System.out.println("Searching " + category + "...");
             long start = System.currentTimeMillis();
-
             searcher.search(category);
-
             long end = System.currentTimeMillis();
-            System.out.println("Search completed, took " + (end - start) / 1000.0 + "s");
 
             encoder.closeFile();
+            System.out.println("\033[34mDictionary built successfully in " + (end - start) / 1000.0 + "s\033[0m");
         }
     }
 
