@@ -17,7 +17,7 @@ public class DictionaryEncoderTest {
 
 	@Before
 	public void setUp() throws Exception{
-		encoder = new DictionaryEncoder("blah");
+		encoder = new DictionaryEncoder("dictionaryFiles");
 	}
 
 	@Test
@@ -48,7 +48,7 @@ public class DictionaryEncoderTest {
 	@Test
 	public void testTokenizeNormal() throws FileNotFoundException {
 		String sampleEntry = "Sam Woloszynski";
-		String[] results = encoder.tokenize(sampleEntry);
+		String[] results = encoder.tokenizer.tokenize(sampleEntry);
 		assertEquals("Sam", results[0]);
 		assertEquals("Woloszynski", results[1]);
 	}
@@ -56,7 +56,7 @@ public class DictionaryEncoderTest {
 	@Test
 	public void testTokenizerNormal2() throws FileNotFoundException {
 		String sampleEntry = "Jeff Principe";
-		String[] results = encoder.tokenize(sampleEntry);
+		String[] results = encoder.tokenizer.tokenize(sampleEntry);
 		assertEquals("Jeff", results[0]);
 		assertEquals("Principe", results[1]);
 	}
@@ -64,7 +64,7 @@ public class DictionaryEncoderTest {
 	@Test
 	public void testTokenizeThreeNames() throws FileNotFoundException {
 		String sampleEntry = "One Two Three";
-		String[] results = encoder.tokenize(sampleEntry);
+		String[] results = encoder.tokenizer.tokenize(sampleEntry);
 		assertEquals("One", results[0]);
 		assertEquals("Two", results[1]);
 		assertEquals("Three", results[2]);
@@ -73,7 +73,7 @@ public class DictionaryEncoderTest {
 	@Test
 	public void testTokenizePunctuation() throws FileNotFoundException {
 		String sampleEntry = "Mr. Bob";
-		String[] results = encoder.tokenize(sampleEntry);
+		String[] results = encoder.tokenizer.tokenize(sampleEntry);
 		assertEquals("Mr.", results[0]);
 		assertEquals("Bob", results[1]);
 	}
@@ -81,7 +81,7 @@ public class DictionaryEncoderTest {
 	@Test
 	public void testTokenizeLongNameWithPunctuation() throws FileNotFoundException {
 		String sampleEntry = "Dr. Patrick L. O'Malley III";
-		String[] results = encoder.tokenize(sampleEntry);
+		String[] results = encoder.tokenizer.tokenize(sampleEntry);
 		assertEquals("Dr.", results[0]);
 		assertEquals("Patrick", results[1]);
 		assertEquals("L.", results[2]);
@@ -93,14 +93,14 @@ public class DictionaryEncoderTest {
 	@Test
 	public void testTokenizeJapaneseName() throws FileNotFoundException {
 		String sampleEntry = "肥後橋";
-		String[] results = encoder.tokenize(sampleEntry);
+		String[] results = encoder.tokenizer.tokenize(sampleEntry);
 		assertEquals("肥後橋", results[0]);
 	}
 
     @Test
 	public void testTokenizeJapaneseNameUnicode() throws FileNotFoundException {
 		String sampleEntry = "\\u05E2\\u05D1\\u05D0\\u05E1 \\u05E1\\u05D5\\u05D0\\u05DF";
-		String[] results = encoder.tokenize(sampleEntry);
+		String[] results = encoder.tokenizer.tokenize(sampleEntry);
 		assertEquals("\\u05E2\\u05D1\\u05D0\\u05E1", results[0]);
 		assertEquals("\\u05E1\\u05D5\\u05D0\\u05DF", results[1]);
 	}
