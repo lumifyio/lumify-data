@@ -21,8 +21,8 @@ define([
 			'nodesAdd',
 			'nodesUpdate',
 			'nodesDelete',
-			'mapEndPan',
-			'menubarToggleDisplay'
+			'menubarToggleDisplay',
+			'mapUpdateBoundingBox'
 		];
 		
 		this.defaultAttrs({
@@ -32,13 +32,14 @@ define([
 		});
 		
 		this.after('initialize',function () {
-			console.log("A new sync was created for " + this.attr.chatUser);
+			console.log("A new sync was created for ", this.attr);
+			this.me = this.attr.me;
 			this.$node.html($(syncButtonTemplate({})));
 			this.on('syncEnded',this.onSyncEnd);
 			
-			this.on(document,'incomingSyncRequest',this.onIncomingSyncRequest);
-			this.on(document,'incomingSyncAccept',this.onIncomingSyncAccept);
-			this.on(document,'incomingSyncReject',this.onIncomingSyncReject);
+			this.on(document, 'incomingSyncRequest', this.onIncomingSyncRequest);
+			this.on(document, 'incomingSyncAccept', this.onIncomingSyncAccept);
+			this.on(document, 'incomingSyncReject', this.onIncomingSyncReject);
 			if (this.syncService.isCurrentlySynced()) {
 				this.select('syncButtonSelector').addClass('disabled');
 			}
@@ -49,7 +50,7 @@ define([
 			});
 			
 			for (var i in this.events) {
-				this.on(document,this.events[i],this.onSyncedEvent);
+				this.on(document, this.events[i], this.onSyncedEvent);
 			}
 		});
 		
@@ -63,12 +64,12 @@ define([
 			}
 			
 			if (this.currentSyncRequest && syncButton.hasClass('btn-sync-end')) {
-				this.syncService.initiateEndOfSync(this.attr.me, this.currentSyncRequest,function (err, data) {
+				this.syncService.initiateEndOfSync(this.attr.me, this.currentSyncRequest, function (err, data) {
 					if (err) {
 						console.error ('There was an error attempting to close this sync session! ' + err);
 					}
 					self.syncService.endSync(self.currentSyncRequest);
-					self.trigger('syncEnded',{});
+					self.trigger('syncEnded', {});
 				});
 			} else {
 				this._initiateRequest();
@@ -83,12 +84,12 @@ define([
 				$('.active-chat').find('.btn-sync').addClass('disabled');
 				self._setEndButton();
 				response.from = self.attr.me;
-				self.chatService.acceptSyncRequest(response,function (err, callback) {
+				self.chatService.acceptSyncRequest(response, function (err, callback) {
 					if (err) {
 						console.error('Error accepting the sync request!: ' + err);
 					} else {
                         self.syncService.startSync(self.currentSyncRequest, self.onSyncMessage.bind(self), function (err, data) {
-                            self.trigger("syncEnded",{});
+                            self.trigger("syncEnded", {});
                         }.bind(self));
 					}
 				});
@@ -101,7 +102,7 @@ define([
 				$('.active-chat').find('.btn-sync').removeClass('disabled');
 				self._resetSyncButton();
 				response.from = self.attr.me;
-				self.chatService.rejectSyncRequest(response,function (err, callback) {
+				self.chatService.rejectSyncRequest(response, function (err, callback) {
 					if (err) {
 						console.error('Error rejecting the sync request!: ' + err);
 					}
@@ -116,7 +117,7 @@ define([
 				return;
 			}
 			data = $.extend({remoteEvent: true}, data);
-			this.syncService.publishSyncEvent(this.attr.me,evt.type,data);
+			this.syncService.publishSyncEvent(this.attr.me, evt.type, data);
 		};
 		
 		//Incoming sync-related msgs
@@ -137,8 +138,8 @@ define([
 				return;
 			}
 			
-			this.syncService.startSync(this.currentSyncRequest, this.onSyncMessage.bind(this),function (err,data) {
-				this.trigger("syncEnded",{});
+			this.syncService.startSync(this.currentSyncRequest, this.onSyncMessage.bind(this), function (err,data) {
+				this.trigger("syncEnded", {});
 			}.bind(this));
 			this._setEndButton();
 		};
@@ -160,14 +161,15 @@ define([
 			if (err) {
 				console.err('There was an error on the sync channel ' + err);
 			}
+
 			//if it came from me, who cares
-			if (data.sync.initiator == this.attr.me) {
+			if (data.sync.initiator == this.me) {
 				return;
 			}
 			
 			if (data.syncEnd) {
 				this.syncService.endSync(this.currentSyncRequest);
-				this.trigger('syncEnded',{});
+				this.trigger('syncEnded', {});
 				return;
 			}
 
@@ -198,7 +200,7 @@ define([
 				self.currentSyncRequest = syncResponse;
 				
 				syncResponse.from = self.attr.me;
-				self.chatService.sendSyncRequest(syncResponse,function (err,data) {
+				self.chatService.sendSyncRequest(syncResponse, function (err,data) {
 					//this callback should only cover the error case
 					if (err) {
 						console.err("Error sending the sync request to your buddy! " + err);

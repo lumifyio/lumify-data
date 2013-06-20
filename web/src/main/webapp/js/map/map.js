@@ -23,6 +23,8 @@ define([
             this.on(document, 'mapShow', this.onMapShow);
             this.on(document, 'mapCenter', this.onMapCenter);
             this.on(document, 'mapEndPan', this.onMapEndPan);
+            this.on(document, 'mapEndZoom', this.onMapEndPan);
+            this.on(document, 'mapUpdateBoundingBox', this.onMapUpdateBoundingBox);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'nodesAdd', this.onNodesAdd);
             this.on(document, 'nodesUpdate', this.onNodesUpdate);
@@ -120,27 +122,43 @@ define([
         };
 
         this.onMapEndPan = function(evt, mapCenter) {
-            var self = this;
-            if(!mapCenter.syncEvent) {
-                return;
-            }
-            if(self.lastMarker) {
-                self.lastMarker.closeBubble();
-                self.map.removeMarker(self.lastMarker);
-            }
-            var pt = new mxn.LatLonPoint(mapCenter.lat, mapCenter.lng);
-            self.lastMarker = new mxn.Marker(pt);
-            self.lastMarker.setInfoBubble("User");
-            self.lastMarker.click.addHandler(function() {
-                self.lastMarker.openBubble();
-            });
-            self.map.addMarker(self.lastMarker);
+            var boundingBox = this.map.getBounds();
+            var boundingBoxData = {
+                swlat: boundingBox.getSouthWest().lat,
+                swlon: boundingBox.getSouthWest().lon,
+                nelat: boundingBox.getNorthEast().lat,
+                nelon: boundingBox.getNorthEast().lon
+            };
+            this.trigger(document, 'mapUpdateBoundingBox', boundingBoxData);
         }
 
         this.onMapCenter = function(evt, data) {
             this.trigger(document, 'modeSelect', { mode: 'map' });
             var latlon = new mxn.LatLonPoint(data.latitude, data.longitude);
             this.map.setCenterAndZoom(latlon, 7);
+        };
+
+        this.onMapUpdateBoundingBox = function(evt, data) {
+            if (!data.remoteEvent) {
+                return;
+            }
+
+            var points = [];
+            points.push(new mxn.LatLonPoint(data.swlat, data.swlon));
+            points.push(new mxn.LatLonPoint(data.nelat, data.swlon));
+            points.push(new mxn.LatLonPoint(data.nelat, data.nelon));
+            points.push(new mxn.LatLonPoint(data.swlat, data.nelon));
+            points.push(new mxn.LatLonPoint(data.swlat, data.swlon));
+
+            var polyline = new mxn.Polyline(points);
+            polyline.setColor('#909090');
+
+            if (this.syncPolyline) {
+                this.map.removePolyline(this.syncPolyline);
+            }
+
+            this.map.addPolyline(polyline);
+            this.syncPolyline = polyline;
         };
 
         this.fixSize = function() {
@@ -188,6 +206,9 @@ define([
                     lat: center.lat,
                     lng: center.lng
                 });
+            });
+            self.map.changeZoom.addHandler(function() {
+                self.trigger(document, 'mapEndZoom');
             });
             self.mapInitialized = true;
             self.fixSize();
