@@ -15,12 +15,12 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class DictionarySearcher {
-    public static final String RESOURCE = "Resource",
-            PLACE = "Place",
-            PERSON = "Person",
-            WORK = "Work",
-            SPECIES = "Species",
-            ORGANIZATION = "Organisation";
+    public static final String RESOURCE = "Resource";
+    public static final String PLACE = "Place";
+    public static final String PERSON = "Person";
+    public static final String WORK = "Work";
+    public static final String SPECIES = "Species";
+    public static final String ORGANIZATION = "Organisation";
 
     private final int MAX_RESULTS_PER_SEARCH = 50000;
 

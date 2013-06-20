@@ -4,10 +4,7 @@ import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 public class DictionaryEncoder {
 
@@ -15,29 +12,26 @@ public class DictionaryEncoder {
     private String directoryPath;
     protected Tokenizer tokenizer;
     private StringBuilder currentEntries = new StringBuilder();
-    private String xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-    private String dictionaryRootElementOpen = "<dictionary case_sensitive=\"false\">\n";
+    private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+    private static final String DICTIONARY_ROOT_ELEMENT_OPEN = "<dictionary case_sensitive=\"false\">\n";
     private boolean fileIsOpen = false;
-    private String dictionaryRootElementClose = "</dictionary>";
+    private static final String DICTIONARY_ROOT_ELEMENT_CLOSE = "</dictionary>";
 
     public DictionaryEncoder(String directoryPath) {
-        InputStream modelIn;
+        InputStream modelIn = null;
+        TokenizerModel model = null;
 
         try {
-            modelIn = getClass().getResourceAsStream("en-token.bin");
-        } catch (Exception e) {
-            throw new RuntimeException("Problem reading tokenizer model.");
-        }
-        TokenizerModel model = null;
-        try {
+            modelIn = new FileInputStream(System.getProperty("user.dir") + "/../conf/opennlp/en-token.bin");
             model = new TokenizerModel(modelIn);
-        } catch (IOException e) {
-            throw new RuntimeException("Problem creating tokenizer with model.");
+        } catch (Exception e) {
+            throw new RuntimeException("Problem with tokenizer model.");
         } finally {
             if (modelIn != null) {
                 try {
                     modelIn.close();
                 } catch (IOException e) {
+                    System.err.println("The tokenizer model could not be closed");
                 }
             }
         }
@@ -56,6 +50,8 @@ public class DictionaryEncoder {
             boolean created = theDir.mkdir();
             if (created) {
                 System.out.println("Directory " + directoryPath + " created");
+            } else {
+                throw new RuntimeException("Problem creating directory");
             }
         }
         this.directoryPath = directoryPath;
@@ -72,8 +68,8 @@ public class DictionaryEncoder {
         FileWriter fout = null;
         try {
             fout = new FileWriter(file);
-            fout.write(xmlHeader);
-            fout.write(dictionaryRootElementOpen);
+            fout.write(XML_HEADER);
+            fout.write(DICTIONARY_ROOT_ELEMENT_OPEN);
         } catch (IOException e) {
             throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
         } finally {
@@ -94,7 +90,7 @@ public class DictionaryEncoder {
         FileWriter fout = null;
         try {
             fout = new FileWriter(file, true);
-            fout.write(dictionaryRootElementClose);
+            fout.write(DICTIONARY_ROOT_ELEMENT_CLOSE);
         } catch (IOException e) {
             throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
         } finally {
@@ -118,9 +114,9 @@ public class DictionaryEncoder {
     }
 
     private void addTaggedTokenizedEntry(String entry) {
-        currentEntries.append("<entry>\n");
+        currentEntries.append("<entry>");
         for (String s : tokenizer.tokenize(entry)) {
-            currentEntries.append("<token>" + s + "</token>\n");
+            currentEntries.append("<token>" + s + "</token>");
         }
         currentEntries.append("</entry>\n");
     }

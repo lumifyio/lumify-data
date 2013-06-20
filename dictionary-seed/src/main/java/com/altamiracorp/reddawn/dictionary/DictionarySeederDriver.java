@@ -37,7 +37,8 @@ public class DictionarySeederDriver {
                         .withLongOpt("types")
                         .withDescription("The types of terms to add to the dictionary (multiple separated by commas).\n" +
                                 "Leave this blank to add all types.\n" +
-                                "Valid values: place, person, organization, work, species, resource")
+                                "Valid values: place, person, organization, work, species, resource (all terms from the " +
+                                "other categories)")
                         .hasArg(true)
                         .create()
         );
@@ -104,7 +105,7 @@ public class DictionarySeederDriver {
             String category = getSearchCategory(type);
 
             System.out.println("\n\033[1mSearching for dbpedia class: " + type + "\033[0m");
-            encoder.initializeDictionaryFile("en-ner-" + category + ".dict");
+            encoder.initializeDictionaryFile(category.toLowerCase() + ".dict");
 
             long start = System.currentTimeMillis();
             searcher.search(category);

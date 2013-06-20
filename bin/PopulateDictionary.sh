@@ -24,7 +24,7 @@ then
   exit
 fi
 
-DIRECTORY=${DIR}/../dictionary-files/
+DIRECTORY=${DIR}/../conf/opennlp/dictionaries/
 
 while [ $# -ne 0 ]
 do
