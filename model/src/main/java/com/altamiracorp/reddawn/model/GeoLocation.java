@@ -27,4 +27,8 @@ public class GeoLocation {
         }
         return Double.parseDouble(m.group(2));
     }
+
+    public static String getGeoLocation(Double lat, Double lon) {
+        return String.format("POINT(%s,%s)", lat, lon);
+    }
 }

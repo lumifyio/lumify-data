@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.ucd.term;
 
 import com.altamiracorp.reddawn.model.ColumnFamily;
+import com.altamiracorp.reddawn.model.GeoLocation;
 import com.altamiracorp.reddawn.model.RowKeyHelper;
 import com.altamiracorp.reddawn.model.Value;
 import org.json.JSONException;
@@ -70,6 +71,10 @@ public class TermMention extends ColumnFamily {
     public TermMention setGeoLocation(String geoLocation) {
         set(GEO_LOCATION, geoLocation);
         return this;
+    }
+
+    public TermMention setGeoLocation(Double lat, Double lon) {
+        return setGeoLocation(GeoLocation.getGeoLocation(lat, lon));
     }
 
     public String getMention() {
