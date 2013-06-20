@@ -28,6 +28,7 @@ define([
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'nodesAdd', this.onNodesAdd);
             this.on(document, 'nodesUpdate', this.onNodesUpdate);
+            this.on(document, 'windowResize', this.onMapEndPan);
         });
 
         this.onWorkspaceLoaded = function(evt, workspaceData) {

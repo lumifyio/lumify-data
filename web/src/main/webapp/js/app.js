@@ -19,6 +19,8 @@ define([
 
     function App() {
         var WORKSPACE_SAVE_TIMEOUT = 1000;
+        var MAX_RESIZE_TRIGGER_INTERVAL = 250;
+
         this.workspaceService = new WorkspaceService();
         this.ucdService = new UcdService();
 
@@ -81,8 +83,21 @@ define([
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'workspaceSave', this.onSaveWorkspace);
             this.on(document, 'workspaceDeleted', this.onWorkspaceDeleted);
+
             this.loadActiveWorkspace();
+            this.setupWindowResizeTrigger();
         });
+
+        var resizeTimeout;
+        this.setupWindowResizeTrigger = function() {
+            var self = this;
+            this.on(window, 'resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function() {
+                    self.trigger(document, 'windowResize');
+                }, MAX_RESIZE_TRIGGER_INTERVAL);
+            });
+        };
 
         this.loadActiveWorkspace = function() {
             var self = this;
