@@ -48,10 +48,6 @@ define([
 				syncAcceptButtonSelector: this.onSyncAcceptClick,
 				syncRejectButtonSelector: this.onSyncRejectClick
 			});
-			
-			for (var i in this.events) {
-				this.on(document, this.events[i], this.onSyncedEvent);
-			}
 		});
 		
 		
@@ -88,8 +84,12 @@ define([
 					if (err) {
 						console.error('Error accepting the sync request!: ' + err);
 					} else {
+						for (var i in self.events) {
+							self.on(document,self.events[i],self.onSyncedEvent);
+						}
+						self.trigger("syncStarted",{});
                         self.syncService.startSync(self.currentSyncRequest, self.onSyncMessage.bind(self), function (err, data) {
-                            self.trigger("syncEnded", {});
+                            self.trigger("syncEnded",{});
                         }.bind(self));
 					}
 				});
@@ -117,7 +117,7 @@ define([
 				return;
 			}
 			data = $.extend({remoteEvent: true}, data);
-			this.syncService.publishSyncEvent(this.attr.me, evt.type, data);
+			this.syncService.publishSyncEvent(this.me, evt.type, data);
 		};
 		
 		//Incoming sync-related msgs
@@ -138,8 +138,12 @@ define([
 				return;
 			}
 			
-			this.syncService.startSync(this.currentSyncRequest, this.onSyncMessage.bind(this), function (err,data) {
-				this.trigger("syncEnded", {});
+			for (var i in this.events) {
+				this.on(document,this.events[i],this.onSyncedEvent);
+			}
+			this.trigger("syncStarted",{});
+			this.syncService.startSync(this.currentSyncRequest, this.onSyncMessage.bind(this),function (err,data) {
+				this.trigger("syncEnded",{});
 			}.bind(this));
 			this._setEndButton();
 		};
@@ -178,6 +182,9 @@ define([
 		
 		//Clean up after a sync ends
 		this.onSyncEnd = function (evt, data) {
+			for (var i in this.events) {
+				this.off(document,this.events[i],this.onSyncedEvent);
+			}
 			$('.active-chat').find('.btn-sync').removeClass('disabled');
 			this._resetSyncButton();
 			this.currentSyncRequest = null;
