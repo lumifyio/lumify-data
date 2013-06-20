@@ -2,9 +2,10 @@ define([
     'flight/lib/component',
     'service/sync',
 	'service/chat',
+    './syncCursor',
 	'tpl!./syncButton',
 	'tpl!./syncRequest'
-], function(defineComponent, SyncService, ChatService, syncButtonTemplate, syncRequestTemplate) {
+], function(defineComponent, SyncService, ChatService, SyncCursor, syncButtonTemplate, syncRequestTemplate) {
     'use strict';
 
     return defineComponent(Sync);
@@ -22,7 +23,10 @@ define([
 			'nodesUpdate',
 			'nodesDelete',
 			'menubarToggleDisplay',
-			'mapUpdateBoundingBox'
+			'mapUpdateBoundingBox',
+            'syncCursorMove',
+            'syncCursorFocus',
+            'syncCursorBlur'
 		];
 		
 		this.defaultAttrs({
@@ -35,6 +39,7 @@ define([
 			console.log("A new sync was created for ", this.attr);
 			this.me = this.attr.me;
 			this.$node.html($(syncButtonTemplate({})));
+			this.on('syncStarted',this.onSyncStart);
 			this.on('syncEnded',this.onSyncEnd);
 			
 			this.on(document, 'incomingSyncRequest', this.onIncomingSyncRequest);
@@ -188,7 +193,13 @@ define([
 			$('.active-chat').find('.btn-sync').removeClass('disabled');
 			this._resetSyncButton();
 			this.currentSyncRequest = null;
+
+            SyncCursor.teardownAll();
 		};
+
+        this.onSyncStart = function (evt, data) {
+            SyncCursor.attachTo(window, this.attr);
+        };
 		
 		this._initiateRequest = function () {
 			var self = this;
