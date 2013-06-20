@@ -26,7 +26,7 @@ yum install gcc-c++ protobuf-c-devel autoconf automake libtool
 sudo rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 sudo yum install -y geos geos-devel
 sudo yum install -y postgis
-sudo yum install -y proj proj-devel
+sudo yum install -y proj proj-devel proj-epsg
 sudo yum install -y lua lua-devel
 sudo yum install -y protobuf protobuf-devel protobuf-c protobuf-c-devel
 sudo yum install -y freetype freetype-devel
@@ -76,6 +76,7 @@ osm2pgsql --database gis --username gisuser --slim WashingtonDC.osm.pbf
 
 cd /data/red-dawn/map-tile-server/
 /opt/node/bin/npm install
+/opt/node/bin/node server.js --cachedir=/data/maptiles/
 
 # import the whole planet... this will take a long time
 osm2pgsql --database gis --username gisuser --slim planet-130606.osm.pbf
