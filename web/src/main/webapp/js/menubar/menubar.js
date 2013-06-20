@@ -57,15 +57,34 @@ define([
 
             this.on('click', events);
 
-            this.on(document, 'menubarToggleDisplay', function(e, data) {
-                var $this = this;
-                var icon = this.select(data.name + 'IconSelector');
-                var active = icon.hasClass('active');
+            this.attachSyncEventsToAnimateUsers();
 
-                if (DISABLE_ACTIVE_SWITCH.indexOf(data.name) === -1) {
-                    var isSwitch = false;
+            this.on(document, 'menubarToggleDisplay', this.onMenubarToggle);
+        });
 
-                    if (!active) {
+
+        this.attachSyncEventsToAnimateUsers = function() {
+            var self = this,
+                cls = 'synchronizing';
+
+            this.on(document, 'syncStarted', function() {
+                self.select('usersIconSelector').addClass(cls);
+            });
+            this.on(document, 'syncEnded', function() {
+                self.select('usersIconSelector').removeClass(cls);
+            });
+        };
+
+
+        this.onMenubarToggle = function(e, data) {
+            var $this = this;
+            var icon = this.select(data.name + 'IconSelector');
+            var active = icon.hasClass('active');
+
+            if (DISABLE_ACTIVE_SWITCH.indexOf(data.name) === -1) {
+                var isSwitch = false;
+
+                if (!active) {
                     MUTALLY_EXCLUSIVE_SWITCHES.forEach(function(exclusive, i) {
                         if (exclusive.names.indexOf(data.name) !== -1) {
                             isSwitch = true;
@@ -79,21 +98,20 @@ define([
                                 });
                         }
                     });
-                    }
-
-                    if ( !isSwitch || data.isSwitchButCollapse ) {
-                        icon.toggleClass('active');
-                    }
-
-                } else {
-
-                    // Just highlight briefly to show click worked
-                    icon.addClass('active');
-                    setTimeout(function() {
-                        icon.removeClass('active');
-                    }, 200);
                 }
-            });
-        });
+
+                if ( !isSwitch || data.isSwitchButCollapse ) {
+                    icon.toggleClass('active');
+                }
+
+            } else {
+
+                // Just highlight briefly to show click worked
+                icon.addClass('active');
+                setTimeout(function() {
+                    icon.removeClass('active');
+                }, 200);
+            }
+        };
     }
 });
