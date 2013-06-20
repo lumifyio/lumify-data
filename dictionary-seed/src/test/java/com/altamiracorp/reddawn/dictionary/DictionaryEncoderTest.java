@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.dictionary;
 
 import com.altamiracorp.reddawn.dictionary.DictionaryEncoder;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.internal.runners.JUnit4ClassRunner;
@@ -20,10 +21,11 @@ public class DictionaryEncoderTest {
     String[] sampleEntries1 = {"This is a sample entry"};
     String[] sampleEntries2 = {"first entry", "second entry", "third entry", "fourth entry", "fifth entry", "sixth entry"};
     String[] sampleEntries3 = {"seventh entry", "eighth entry", "ninth entry"};
+    String testDirectory = "dictionaryFiles";
 
     @Before
     public void setUp() throws Exception {
-        encoder = new DictionaryEncoder("dictionaryFiles");
+        encoder = new DictionaryEncoder(testDirectory);
     }
 
     @Test
@@ -99,7 +101,7 @@ public class DictionaryEncoderTest {
 
     @Test
     public void testAddEntriesNonexistentDirectory() throws Exception {
-        DictionaryEncoder encoder1 = new DictionaryEncoder("dictionaryData", "myDictionary.dict");
+        DictionaryEncoder encoder1 = new DictionaryEncoder(testDirectory, "testAddEntriesNonexistentDirectory.dict");
         encoder1.addEntries(sampleEntries1);
     }
 
@@ -116,7 +118,7 @@ public class DictionaryEncoderTest {
 
     @Test
     public void testInitializeDoc() {
-        DictionaryEncoder encoder2 = new DictionaryEncoder("testDictionaryDir");
+        DictionaryEncoder encoder2 = new DictionaryEncoder(testDirectory);
         String testFilename = "/testDictionaryInit.dict";
         encoder2.initializeDictionaryFile(testFilename);
         File file = new File(testFilename);
@@ -134,11 +136,10 @@ public class DictionaryEncoderTest {
 
     @Test
     public void testCloseFile() {
-        String testDirName = "testDictionaryDir";
         String testFilename = "/testDictionaryClose.dict";
 
-        DictionaryEncoder encoder2 = new DictionaryEncoder(testDirName);
-        String testPathName = encoder2.getCurrentDirectory() + "/" + testDirName + testFilename;
+        DictionaryEncoder encoder2 = new DictionaryEncoder(testDirectory);
+        String testPathName = encoder2.getCurrentDirectory() + "/" + testDirectory + testFilename;
 
         encoder2.initializeDictionaryFile(testFilename);
         encoder2.closeFile();
@@ -159,11 +160,10 @@ public class DictionaryEncoderTest {
 
     @Test
     public void testAddEntries() {
-        String testDirName = "testDictionaryDir/";
-        String testFilename = "testDictionaryAddEntries.dict";
-        DictionaryEncoder encoder3 = new DictionaryEncoder(testDirName);
+        String testFilename = "/testDictionaryAddEntries.dict";
+        DictionaryEncoder encoder3 = new DictionaryEncoder(testDirectory);
 
-        String testPathName = encoder3.getCurrentDirectory() + "/" + testDirName + testFilename;
+        String testPathName = testDirectory + testFilename;
         System.out.println(testPathName);
         encoder3.initializeDictionaryFile(testFilename);
         encoder3.addEntries(sampleEntries3);
@@ -191,8 +191,12 @@ public class DictionaryEncoderTest {
         } finally {
             fin.close();
         }
+    }
 
-
-}
+    @After
+    public void tearDown() {
+        File thingToDelete = new File(testDirectory);
+        thingToDelete.delete();
+    }
 
 }

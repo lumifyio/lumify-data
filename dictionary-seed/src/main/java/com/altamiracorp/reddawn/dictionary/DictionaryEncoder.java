@@ -12,21 +12,18 @@ public class DictionaryEncoder {
     private String filename = "newDictionary.dict";
     private String directoryPath = getCurrentDirectory();
     protected Tokenizer tokenizer;
-    private String tokenizerModelLocation = getCurrentDirectory() + "/dictionary-seed/src/en-token.bin";
-    private String tokenizerModelLocationSam = "/Users/swoloszy/Documents/NIC/red-dawn/dictionary-seed/src/en-token.bin";
-    private String tokenizerModelLocationJeff = "/Users/jprincip/Documents/nic/red-dawn/dictionary-seed/src/en-token.bin";
-    protected StringBuilder currentEntries = new StringBuilder();
+    private StringBuilder currentEntries = new StringBuilder();
     private String xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     private String dictionaryRootElementOpen = "<dictionary case_sensitive=\"false\">\n";
     private boolean fileIsOpen = false;
     private String dictionaryRootElementClose = "</dictionary>";
-    private long totalTime = 0;
 
-    public DictionaryEncoder() {
+    public DictionaryEncoder(String directoryPath) {
         InputStream modelIn;
+
         try {
-            modelIn = new FileInputStream(tokenizerModelLocationJeff);
-        } catch (FileNotFoundException e) {
+            modelIn = getClass().getResourceAsStream("en-token.bin");
+        } catch (Exception e) {
             throw new RuntimeException("Problem reading tokenizer model.");
         }
         TokenizerModel model = null;
@@ -43,10 +40,6 @@ public class DictionaryEncoder {
             }
         }
         tokenizer = new TokenizerME(model);
-    }
-
-    public DictionaryEncoder(String directoryPath) {
-        this();
         setDirectoryPath(directoryPath);
     }
 
