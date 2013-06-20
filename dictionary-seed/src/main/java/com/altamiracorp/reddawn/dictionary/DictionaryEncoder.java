@@ -4,13 +4,15 @@ import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 
-import java.io.*;
-import java.util.Timer;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class DictionaryEncoder {
 
     private String filename = "newDictionary.dict";
-    private String directoryPath = getCurrentDirectory();
+    private String directoryPath;
     protected Tokenizer tokenizer;
     private StringBuilder currentEntries = new StringBuilder();
     private String xmlHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
@@ -141,9 +143,5 @@ public class DictionaryEncoder {
         }
         System.out.println("Wrote entries to dictionary.");
 
-    }
-
-    protected String getCurrentDirectory() {
-        return System.getProperty("user.dir");
     }
 }

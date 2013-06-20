@@ -11,9 +11,15 @@ public class DictionarySeederDriver {
     private DictionarySearcher searcher = new DictionarySearcher();
 
     private CommandLine loadCommandLine(String[] args) {
+        if (args[0].equalsIgnoreCase("--help")) {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("PopulateDictionary", createOptions());
+            System.exit(0);
+        }
+
         CommandLine cl;
         try {
-             cl = new GnuParser().parse(createOptions(), args);
+            cl = new GnuParser().parse(createOptions(), args);
         } catch (ParseException e) {
             throw new RuntimeException("Could not parse your input. Please make sure your options are valid or use " +
                     "--help for more information");
@@ -52,9 +58,9 @@ public class DictionarySeederDriver {
     protected String[] getTypes(CommandLine cl) {
         String[] types;
         String clParams = cl.getOptionValue("types");
-        if(clParams != null && !clParams.trim().equals("")) {
+        if (clParams != null && !clParams.trim().equals("")) {
             types = clParams.split(",");
-            for(int i = 0; i < types.length; i++) {
+            for (int i = 0; i < types.length; i++) {
                 types[i] = types[i].trim();
             }
         } else {
@@ -67,17 +73,17 @@ public class DictionarySeederDriver {
     protected String getSearchCategory(String type) {
         String searchCategory = "";
 
-        if(type.equalsIgnoreCase("place")) {
+        if (type.equalsIgnoreCase("place")) {
             searchCategory = DictionarySearcher.PLACE;
-        } else if(type.equalsIgnoreCase("person")) {
+        } else if (type.equalsIgnoreCase("person")) {
             searchCategory = DictionarySearcher.PERSON;
-        } else if(type.equalsIgnoreCase("organization")) {
+        } else if (type.equalsIgnoreCase("organization")) {
             searchCategory = DictionarySearcher.ORGANIZATION;
-        } else if(type.equalsIgnoreCase("work")) {
+        } else if (type.equalsIgnoreCase("work")) {
             searchCategory = DictionarySearcher.WORK;
-        } else if(type.equalsIgnoreCase("species")) {
+        } else if (type.equalsIgnoreCase("species")) {
             searchCategory = DictionarySearcher.SPECIES;
-        } else if(type.equalsIgnoreCase("resource")) {
+        } else if (type.equalsIgnoreCase("resource")) {
             searchCategory = DictionarySearcher.RESOURCE;
         } else {
             throw new RuntimeException("\"" + type + "\" is not a valid type");
@@ -94,7 +100,7 @@ public class DictionarySeederDriver {
         DictionaryEncoder encoder = new DictionaryEncoder(cl.getOptionValue("directory"));
         searcher.addEncoder(encoder);
 
-        for(String type : types) {
+        for (String type : types) {
             String category = getSearchCategory(type);
 
             System.out.println("\n\033[1mSearching for dbpedia class: " + type + "\033[0m");
@@ -109,8 +115,8 @@ public class DictionarySeederDriver {
         }
     }
 
-	public static void main(String[] args) throws IOException, JSONException {
-		DictionarySeederDriver driver = new DictionarySeederDriver();
+    public static void main(String[] args) throws IOException, JSONException {
+        DictionarySeederDriver driver = new DictionarySeederDriver();
         driver.run(args);
-	}
+    }
 }

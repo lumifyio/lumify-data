@@ -1,18 +1,19 @@
 package com.altamiracorp.reddawn.dictionary;
 
-import com.altamiracorp.reddawn.dictionary.DictionaryEncoder;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(JUnit4.class)
 public class DictionaryEncoderTest {
@@ -89,12 +90,6 @@ public class DictionaryEncoderTest {
     }
 
     @Test
-    public void testGetCurrentDirectory() {
-        String result = encoder.getCurrentDirectory();
-        assertEquals("/Users/swoloszy/Documents/NIC/red-dawn", result);
-    }
-
-    @Test
     public void testAddEntriesSingleEntry() throws Exception {
         encoder.addEntries(sampleEntries1);
     }
@@ -124,13 +119,15 @@ public class DictionaryEncoderTest {
         File file = new File(testFilename);
         Scanner fin = null;
         try {
-            fin = new Scanner(new FileReader(encoder.getCurrentDirectory() + "/testDictionaryDir" + testFilename));
+            fin = new Scanner(new FileReader(testDirectory + testFilename));
             assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", fin.nextLine());
             assertEquals("<dictionary case_sensitive=\"false\">", fin.nextLine());
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Problem reading file");
         } finally {
-            fin.close();
+            try {
+                fin.close();
+            } catch(NullPointerException e) {}
         }
     }
 
@@ -139,7 +136,7 @@ public class DictionaryEncoderTest {
         String testFilename = "/testDictionaryClose.dict";
 
         DictionaryEncoder encoder2 = new DictionaryEncoder(testDirectory);
-        String testPathName = encoder2.getCurrentDirectory() + "/" + testDirectory + testFilename;
+        String testPathName = System.getProperty("user.dir") + "/" + testDirectory + testFilename;
 
         encoder2.initializeDictionaryFile(testFilename);
         encoder2.closeFile();
@@ -194,9 +191,7 @@ public class DictionaryEncoderTest {
     }
 
     @After
-    public void tearDown() {
-        File thingToDelete = new File(testDirectory);
-        thingToDelete.delete();
+    public void tearDown() throws IOException {
+        FileUtils.deleteDirectory(new File(testDirectory));
     }
-
 }

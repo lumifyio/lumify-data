@@ -1,12 +1,10 @@
 package com.altamiracorp.reddawn.dictionary;
 
-import com.altamiracorp.reddawn.dictionary.DictionaryEncoder;
-import com.altamiracorp.reddawn.dictionary.DictionarySearcher;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import java.net.URLEncoder;
 
@@ -14,14 +12,14 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-@RunWith(JUnit4ClassRunner.class)
+@RunWith(JUnit4.class)
 public class DictionarySearcherTest {
 
     private DictionaryEncoder mockEncoder;
     private DictionarySearcher searcher;
 
-	@Before
-	public void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         mockEncoder = mock(DictionaryEncoder.class);
         searcher = new DictionarySearcher();
     }
@@ -73,7 +71,7 @@ public class DictionarySearcherTest {
         String url = searcher.getUrl("Place", 0);
         assertEquals("A normal query URL was returned incorrectly encoded", "http://dbpedia.org/sparql/?format=json&query=" +
                 URLEncoder.encode("PREFIX dbo: <http://dbpedia.org/ontology/>\n" +
-                "SELECT ?name WHERE{?place a dbo:Place;foaf:name ?name.}\n" +
-                "LIMIT 50000\nOFFSET 0", "UTF-8"), url);
+                        "SELECT ?name WHERE{?place a dbo:Place;foaf:name ?name.}\n" +
+                        "LIMIT 50000\nOFFSET 0", "UTF-8"), url);
     }
 }

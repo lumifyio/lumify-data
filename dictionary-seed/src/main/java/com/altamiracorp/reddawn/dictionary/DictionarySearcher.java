@@ -15,26 +15,26 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class DictionarySearcher {
-	public static final String RESOURCE = "Resource",
-                                PLACE = "Place",
-                                PERSON = "Person",
-                                WORK = "Work",
-                                SPECIES = "Species",
-                                ORGANIZATION = "Organisation";
+    public static final String RESOURCE = "Resource",
+            PLACE = "Place",
+            PERSON = "Person",
+            WORK = "Work",
+            SPECIES = "Species",
+            ORGANIZATION = "Organisation";
 
     private final int MAX_RESULTS_PER_SEARCH = 50000;
 
-	private String baseURL = "http://dbpedia.org/sparql/?format=json&query=";
+    private String baseURL = "http://dbpedia.org/sparql/?format=json&query=";
     private ArrayList<DictionaryEncoder> encoders = new ArrayList<DictionaryEncoder>();
 
-	public void search(String type) {
-		int totalResultCount = 0;
-		int resultOffset = 0;
+    public void search(String type) {
+        int totalResultCount = 0;
+        int resultOffset = 0;
 
         do {
             System.out.print("Fetching results " + (resultOffset + 1) + "-" +
                     (resultOffset + MAX_RESULTS_PER_SEARCH) + "... ");
-			String response = httpRequest(getUrl(type, resultOffset));
+            String response = httpRequest(getUrl(type, resultOffset));
             System.out.println("DONE");
 
             try {
@@ -44,14 +44,14 @@ public class DictionarySearcher {
                         ", offset: " + resultOffset);
             }
 
-			resultOffset += MAX_RESULTS_PER_SEARCH;
+            resultOffset += MAX_RESULTS_PER_SEARCH;
 
-		} while(totalResultCount == resultOffset);
+        } while (totalResultCount == resultOffset);
 
         System.out.println("Found " + totalResultCount + " matches for \"" + type + "\"");
-	}
+    }
 
-	protected String httpRequest(String url) {
+    protected String httpRequest(String url) {
         StringBuilder response = new StringBuilder();
 
         try {
@@ -69,7 +69,7 @@ public class DictionarySearcher {
         }
 
         return response.toString();
-	}
+    }
 
     protected int processJson(String response) throws JSONException {
         JSONObject json = new JSONObject(response);
@@ -89,22 +89,22 @@ public class DictionarySearcher {
     }
 
     private void notifyEncoders(String[] terms) {
-        for(DictionaryEncoder encoder : encoders) {
+        for (DictionaryEncoder encoder : encoders) {
             encoder.addEntries(terms);
         }
     }
 
-	protected String getUrl(String type, int offset) {
-		String query = "PREFIX dbo: <http://dbpedia.org/ontology/>\n" +
-				"SELECT ?name WHERE{?place a dbo:" + type + ";foaf:name ?name.}\n" +
-				"LIMIT 50000\nOFFSET " + offset;
+    protected String getUrl(String type, int offset) {
+        String query = "PREFIX dbo: <http://dbpedia.org/ontology/>\n" +
+                "SELECT ?name WHERE{?place a dbo:" + type + ";foaf:name ?name.}\n" +
+                "LIMIT 50000\nOFFSET " + offset;
 
-		String url;
+        String url;
         try {
             url = baseURL + URLEncoder.encode(query, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("The search URL " + query + " could not be encoded properly");
         }
         return url;
-	}
+    }
 }

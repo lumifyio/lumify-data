@@ -14,6 +14,16 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
+if [ "$1" == "--help" ]
+then
+  java \
+  -Dfile.encoding=UTF-8 \
+  -classpath ${classpath} \
+  com.altamiracorp.reddawn.dictionary.DictionarySeederDriver \
+  --help
+  exit
+fi
+
 DIRECTORY=${DIR}/../dictionary-files/
 
 while [ $# -ne 0 ]

@@ -1,18 +1,16 @@
 package com.altamiracorp.reddawn.dictionary;
 
-import com.altamiracorp.reddawn.dictionary.DictionarySearcher;
-import com.altamiracorp.reddawn.dictionary.DictionarySeederDriver;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.internal.runners.JUnit4ClassRunner;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(JUnit4ClassRunner.class)
+@RunWith(JUnit4.class)
 public class DictionarySeederDriverTest {
 
     DictionarySeederDriver driver;
