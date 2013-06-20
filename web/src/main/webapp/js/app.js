@@ -4,16 +4,23 @@ define([
     'flight/lib/component',
     'menubar/menubar',
     'search/search',
+    'workspaces/workspaces',
     'users/users',
     'graph/graph',
     'detail/detail',
-    'map/map'
-], function(appTemplate, defineComponent, Menubar, Search, Users, Graph, Detail, Map) {
+    'map/map',
+    'service/workspace',
+    'service/ucd',
+    'util/undoManager'
+], function(appTemplate, defineComponent, Menubar, Search, Workspaces, Users, Graph, Detail, Map, WorkspaceService, UcdService, undoManager) {
     'use strict';
 
     return defineComponent(App);
 
     function App() {
+        var WORKSPACE_SAVE_TIMEOUT = 1000;
+        this.workspaceService = new WorkspaceService();
+        this.ucdService = new UcdService();
 
         this.onError = function(evt, err) {
             alert("Error: " + err.message); // TODO better error handling
@@ -22,8 +29,10 @@ define([
         this.defaultAttrs({
             menubarSelector: '.menubar-pane',
             searchSelector: '.search-pane',
+            workspacesSelector: '.workspaces-pane',
             usersSelector: '.users-pane',
-            graphPaneSelector: '.graph-pane',
+            graphSelector: '.graph-pane',
+            mapSelector: '.map-pane',
             detailPaneSelector: '.detail-pane',
             modeSelectSelector: '.mode-select'
         });
@@ -37,6 +46,7 @@ define([
             var content = $(appTemplate({})),
                 menubarPane = content.filter('.menubar-pane'),
                 searchPane = content.filter('.search-pane'),
+                workspacesPane = content.filter('.workspaces-pane'),
                 usersPane = content.filter('.users-pane'),
                 graphPane = content.filter('.graph-pane'),
                 detailPane = content.filter('.detail-pane'),
@@ -45,6 +55,7 @@ define([
 
             Menubar.attachTo(menubarPane.find('.content'));
             Search.attachTo(searchPane.find('.content'));
+            Workspaces.attachTo(workspacesPane.find('.content'));
             Users.attachTo(usersPane.find('.content'));
             Graph.attachTo(graphPane);
             Detail.attachTo(detailPane.find('.content'));
@@ -52,51 +63,263 @@ define([
 
             // Configure splitpane resizing
             resizable(searchPane, 'e');
+            resizable(workspacesPane, 'e');
             resizable(detailPane, 'w', 4, 500, this.onDetailResize.bind(this));
 
             this.$node.html(content);
 
             // Open search when the page is loaded
             this.trigger(document, 'menubarToggleDisplay', {name:'search'});
+            this.trigger(document, 'menubarToggleDisplay', {name:'graph'});
 
-            this.on(document, 'modeSelect', this.onModeSelect);
-            this.on('click', {
-                modeSelectSelector: this.onModeSelectClick
-            });
-            this.lastModeSelect = 'graph';
+            this.on(document, 'nodesAdd', this.onNodesAdd);
+            this.on(document, 'nodesUpdate', this.onNodesUpdate);
+            this.on(document, 'nodesDelete', this.onNodesDelete);
+
+            this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
+
+            this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
+            this.on(document, 'workspaceSave', this.onSaveWorkspace);
+            this.on(document, 'workspaceDeleted', this.onWorkspaceDeleted);
+            this.loadActiveWorkspace();
         });
 
-        this.onModeSelectClick = function(evt, data) {
-            var $target = $(evt.target);
-            if ($target.hasClass('mode-select-graph')) {
-                this.trigger(document, 'modeSelect', { mode: 'graph' });
-            } else if ($target.hasClass('mode-select-map')) {
-                this.trigger(document, 'modeSelect', { mode: 'map' });
+        this.loadActiveWorkspace = function() {
+            var self = this;
+            self.workspaceService.list(function(err, workspaces) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+                if(workspaces.length === 0) {
+                    self.loadWorkspace(null);
+                } else {
+                    for (var i = 0; i < workspaces.length; i++) {
+                        if (workspaces[i].active) {
+                            self.loadWorkspace(workspaces[i].rowKey);
+                            return;
+                        }
+                    }
+
+                    self.loadWorkspace(workspaces[0].rowKey); // backwards compatibility when no current workspace
+                }
+            });
+        };
+
+        this.loadWorkspace = function(workspaceRowKey) {
+            var self = this;
+            self.workspaceRowKey = workspaceRowKey;
+            if(self.workspaceRowKey == null) {
+                self.trigger(document, 'workspaceLoaded', { data: { nodes: [] } });
+                return;
+            }
+
+            self.workspaceService.getByRowKey(self.workspaceRowKey, function(err, workspace) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+                self.trigger(document, 'workspaceLoaded', workspace);
+            });
+        };
+
+        this.onSwitchWorkspace = function(evt, data) {
+            this.loadWorkspace(data.rowKey);
+        };
+
+        this.onSaveWorkspace = function(evt, workspace) {
+            var self = this;
+            var saveFn;
+            if(self.workspaceRowKey) {
+                saveFn = self.workspaceService.save.bind(self.workspaceService, self.workspaceRowKey);
+            } else {
+                saveFn = self.workspaceService.saveNew.bind(self.workspaceService);
+            }
+
+            self.trigger(document, 'workspaceSaving', workspace);
+            saveFn({ data: workspace }, function(err, data) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+                self.trigger(document, 'workspaceSaved', data);
+            });
+        };
+
+        this.onWorkspaceLoaded = function(evt, data) {
+            this.workspaceData = data;
+            undoManager.reset();
+            this.refreshRelationships();
+        };
+
+        this.onWorkspaceDeleted = function(evt, data) {
+            if (this.workspaceRowKey == data.rowKey) {
+                this.workspaceRowKey = null;
+                this.loadActiveWorkspace();
             }
         };
 
-        this.onModeSelect = function(evt, data) {
-            var mode = data.mode;
+        this.setWorkspaceDirty = function() {
+            if(this.saveWorkspaceTimeout) {
+                clearTimeout(this.saveWorkspaceTimeout);
+            }
+            this.saveWorkspaceTimeout = setTimeout(this.saveWorkspace.bind(this), WORKSPACE_SAVE_TIMEOUT);
+        };
 
-            if (this.lastModeSelect) {
-                if (this.lastModeSelect == 'graph') {
-                    this.trigger(document, 'graphHide');
-                } else if (this.lastModeSelect == 'map') {
-                    this.trigger(document, 'mapHide');
+        this.saveWorkspace = function() {
+            this.trigger(document, 'workspaceSave', this.workspaceData.data);
+        };
+
+        this.onNodesUpdate = function(evt, data) {
+            var self = this;
+            var undoData = {
+                noUndo: true,
+                nodes: []
+            };
+            var redoData = {
+                noUndo: true,
+                nodes: []
+            };
+            data.nodes.forEach(function(node) {
+                var matchingWorkspaceNodes = self.workspaceData.data.nodes.filter(function(workspaceNode) { return workspaceNode.rowKey == node.rowKey; });
+                matchingWorkspaceNodes.forEach(function(workspaceNode) {
+                    undoData.nodes.push(JSON.parse(JSON.stringify(workspaceNode)));
+                    $.extend(workspaceNode, node);
+                    redoData.nodes.push(JSON.parse(JSON.stringify(workspaceNode)));
+                });
+            });
+
+            if(!data.noUndo) {
+                undoManager.performedAction( 'Update ' + undoData.nodes.length + ' nodes', {
+                    undo: function() {
+                        self.trigger(document, 'nodesUpdate', undoData);
+                    },
+                    redo: function() {
+                        self.trigger(document, 'nodesUpdate', redoData);
+                    },
+                    bind: this
+                });
+            }
+
+            this.setWorkspaceDirty();
+        };
+
+        this.onNodesAdd = function(evt, data) {
+            var self = this;
+            this.workspaceData = this.workspaceData || {};
+            this.workspaceData.data = this.workspaceData.data || {};
+            this.workspaceData.data.nodes = this.workspaceData.data.nodes || [];
+            data.nodes.forEach(function(node) {
+                self.workspaceData.data.nodes.push(node);
+            });
+
+            if(!data.noUndo) {
+                var dataClone = JSON.parse(JSON.stringify(data));
+                dataClone.noUndo = true;
+                undoManager.performedAction( 'Add ' + dataClone.nodes.length + ' nodes', {
+                    undo: function() {
+                        self.trigger(document, 'nodesDelete', dataClone);
+                    },
+                    redo: function() {
+                        self.trigger(document, 'nodesAdd', dataClone);
+                    },
+                    bind: this
+                });
+            }
+
+            this.setWorkspaceDirty();
+            this.refreshRelationships();
+        };
+
+        this.onNodesDelete = function(evt, data) {
+            var self = this;
+
+            // get all the workspace nodes to delete (used by the undo manager)
+            var workspaceNodesToDelete = this.workspaceData.data.nodes
+                .filter(function(workspaceNode) {
+                    return data.nodes.filter(function(dataNode) {
+                        return workspaceNode.rowKey == dataNode.rowKey;
+                    }).length > 0;
+                });
+
+            // remove all workspace nodes from list
+            this.workspaceData.data.nodes = this.workspaceData.data.nodes
+                .filter(function(workspaceNode) {
+                    return workspaceNodesToDelete.filter(function(workspaceNodeToDelete) {
+                        return workspaceNode.rowKey == workspaceNodeToDelete.rowKey;
+                    }).length == 0;
+                });
+
+            if(!data.noUndo) {
+                var undoDataClone = JSON.parse(JSON.stringify({
+                    noUndo: true,
+                    nodes: workspaceNodesToDelete
+                }));
+                undoManager.performedAction( 'Delete ' + data.nodes.length + ' nodes', {
+                    undo: function() {
+                        self.trigger(document, 'nodesAdd', undoDataClone);
+                    },
+                    redo: function() {
+                        self.trigger(document, 'nodesDelete', undoDataClone);
+                    },
+                    bind: this
+                });
+            }
+
+            this.setWorkspaceDirty();
+        };
+
+        this.refreshRelationships = function() {
+            var self = this;
+            var entityIds = this.getEntityIds();
+            var artifactIds = this.getArtifactIds();
+            this.ucdService.getRelationships(entityIds, artifactIds, function(err, relationships) {
+                if(err) {
+                    console.error('Error', err);
+                    return $this.trigger(document, 'error', { message: err.toString() });
                 }
-            }
+                self.trigger(document, 'relationshipsLoaded', { relationships: relationships });
+            });
+        };
 
-            if (mode == 'graph') {
-                this.trigger(document, 'graphShow');
-            } else if (mode == 'map') {
-                this.trigger(document, 'mapShow');
+        this.getEntityIds = function() {
+            if (this.workspaceData.data === undefined || this.workspaceData.data.nodes === undefined) {
+                return [];
             }
+            return this.workspaceData.data.nodes
+                .filter(function(node) {
+                    return node.type == 'entities';
+                })
+                .map(function(node) {
+                    return node.rowKey;
+                });
+        };
 
-            this.lastModeSelect = mode;
+        this.getArtifactIds = function() {
+            if (this.workspaceData.data === undefined || this.workspaceData.data.nodes === undefined) {
+                return [];
+            }
+            return this.workspaceData.data.nodes
+                .filter(function(node) {
+                    return node.type == 'artifacts';
+                })
+                .map(function(node) {
+                    return node.rowKey;
+                });
         };
 
         this.toggleDisplay = function(e, data) {
-            this.select(data.name + 'Selector').toggleClass('visible');
+            var pane = this.select(data.name + 'Selector');
+
+            if (data.name === 'graph' && !pane.hasClass('visible')) {
+                this.trigger(document, 'mapHide');
+                this.trigger(document, 'graphShow');
+            } else if (data.name === 'map' && !pane.hasClass('visible')) {
+                this.trigger(document, 'graphHide');
+                this.trigger(document, 'mapShow', this.workspaceData); // TODO this is annoying that we have to pass this. The problem is that the graph is lazily loaded.
+            }
+
+            pane.toggleClass('visible');
         };
 
         this.onMessage = function(e, data) {

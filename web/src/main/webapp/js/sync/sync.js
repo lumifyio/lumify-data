@@ -17,7 +17,12 @@ define([
 		//PUT EVENTS YOU WANT TO SYNC HERE!
 		this.events = [
 			'search',
-			'showSearchResults'
+			'showSearchResults',
+			'nodesAdd',
+			'nodesUpdate',
+			'nodesDelete',
+			'mapEndPan',
+			'menubarToggleDisplay'
 		];
 		
 		this.defaultAttrs({
@@ -81,11 +86,12 @@ define([
 				self.chatService.acceptSyncRequest(response,function (err, callback) {
 					if (err) {
 						console.error('Error accepting the sync request!: ' + err);
+					} else {
+                        self.syncService.startSync(self.currentSyncRequest, self.onSyncMessage.bind(self), function (err, data) {
+                            self.trigger("syncEnded",{});
+                        }.bind(self));
 					}
 				});
-				self.syncService.startSync(self.currentSyncRequest, self.onSyncMessage.bind(self), function (err, data) {
-					self.trigger("syncEnded",{});
-				}.bind(self));
 			});
 		};
 		
@@ -106,9 +112,10 @@ define([
 		
 		//Local event that needs to be published
 		this.onSyncedEvent = function (evt, data) {
-			if (data.syncEvent) {
+			if (data.remoteEvent) {
 				return;
 			}
+			data = $.extend({remoteEvent: true}, data);
 			this.syncService.publishSyncEvent(this.attr.me,evt.type,data);
 		};
 		
@@ -163,8 +170,7 @@ define([
 				this.trigger('syncEnded',{});
 				return;
 			}
-			
-			data.payload.syncEvent = true;
+
 			this.trigger(data.evt, data.payload);
 		};
 		

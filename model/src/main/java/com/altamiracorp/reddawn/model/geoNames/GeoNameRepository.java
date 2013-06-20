@@ -1,10 +1,10 @@
 package com.altamiracorp.reddawn.model.geoNames;
 
 import com.altamiracorp.reddawn.model.*;
-import com.altamiracorp.reddawn.model.workspace.Workspace;
-import com.altamiracorp.reddawn.model.workspace.WorkspaceContent;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class GeoNameRepository extends Repository<GeoName> {
     @Override
@@ -30,5 +30,14 @@ public class GeoNameRepository extends Repository<GeoName> {
     @Override
     public String getTableName() {
         return GeoName.TABLE_NAME;
+    }
+
+    public GeoName findBestMatch(Session session, String name) {
+        List<GeoName> matches = this.findByRowStartsWith(session, name.toLowerCase() + RowKeyHelper.MINOR_FIELD_SEPARATOR);
+        if (matches.size() == 0) {
+            return null;
+        }
+        Collections.sort(matches, new GeoNamePopulationComparator());
+        return matches.get(matches.size() - 1);
     }
 }

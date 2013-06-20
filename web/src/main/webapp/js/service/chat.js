@@ -52,6 +52,8 @@ function(ServiceBase) {
 			//only need to handle error case here, don't do anything else
 			if (err) {
 				callback(err,null);
+			} else {
+			    callback(null, data);
 			}
 		});
 	}

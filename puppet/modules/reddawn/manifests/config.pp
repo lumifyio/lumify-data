@@ -15,4 +15,9 @@ class reddawn::config {
     mode => 'u=rwx,g=,o=',
   }
 
+  file { '/opt/shell.sh' :
+    source => 'puppet:///modules/reddawn/shell.sh',
+    mode => 'u=rwx,g=,o=',
+  }
+
 }

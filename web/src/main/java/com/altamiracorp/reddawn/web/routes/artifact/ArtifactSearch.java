@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.web.routes.artifact;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.search.ArtifactSearchResult;
 import com.altamiracorp.reddawn.search.SearchProvider;
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
+import java.util.Date;
 
 public class ArtifactSearch implements Handler, AppAware {
     private WebApp app;
@@ -34,9 +36,7 @@ public class ArtifactSearch implements Handler, AppAware {
         JSONObject results = new JSONObject();
         JSONArray artifactsJson = artifactsToSearchResults(artifactSearchResults, request);
         results.put("document", artifactsJson); // TODO also include video and images
-
-        response.setContentType("application/json");
-        response.getWriter().write(results.toString());
+        new Responder(response).respondWith(results);
     }
 
     private Collection<ArtifactSearchResult> queryArtifacts(SearchProvider searchProvider, String query) throws Exception {
@@ -50,6 +50,11 @@ public class ArtifactSearch implements Handler, AppAware {
             artifactJson.put("url", ArtifactByRowKey.getUrl(request, artifactSearchResult.getRowKey()));
             artifactJson.put("rowKey", artifactSearchResult.getRowKey());
             artifactJson.put("subject", artifactSearchResult.getSubject());
+            Date publishedDate = artifactSearchResult.getPublishedDate();
+            if (publishedDate != null) {
+                artifactJson.put("publishedDate", publishedDate.getTime());
+            }
+            artifactJson.put("source", artifactSearchResult.getSource());
             artifactsJson.put(artifactJson);
         }
         return artifactsJson;

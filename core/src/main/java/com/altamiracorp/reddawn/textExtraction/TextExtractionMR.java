@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 public class TextExtractionMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(TextExtractionMR.class.getName());
@@ -64,7 +66,8 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
                 artifact.getContent().setDocExtractedText(extractedInfo.getText().getBytes());
                 artifact.getGenericMetadata()
                         .setSubject(extractedInfo.getSubject())
-                        .setMimeType(extractedInfo.getMediaType());
+                        .setMimeType(extractedInfo.getMediaType())
+                        .setDocumentDtg(extractedInfo.getDate());
                 context.write(new Text(Artifact.TABLE_NAME), artifact);
             } catch (Exception e) {
                 throw new IOException(e);

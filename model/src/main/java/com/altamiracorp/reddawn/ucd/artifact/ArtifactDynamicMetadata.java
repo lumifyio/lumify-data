@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.ucd.artifact;
 
 import com.altamiracorp.reddawn.model.ColumnFamily;
+import com.altamiracorp.reddawn.model.GeoLocation;
 import com.altamiracorp.reddawn.model.Value;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,19 +69,11 @@ public class ArtifactDynamicMetadata extends ColumnFamily {
     }
 
     public Double getLatitude() {
-        String geoLocation = getGeoLocation();
-        if (geoLocation == null) {
-            return null;
-        }
-        return 1.0; // TODO parse geoLocation
+        return GeoLocation.getLatitude(getGeoLocation());
     }
 
     public Double getLongitude() {
-        String geoLocation = getGeoLocation();
-        if (geoLocation == null) {
-            return null;
-        }
-        return 1.0; // TODO parse geoLocation
+        return GeoLocation.getLongitude(getGeoLocation());
     }
 
     public String getProvenanceId() {

@@ -35,11 +35,28 @@ public abstract class Repository<T> {
         session.save(r);
     }
 
+    public void saveMany(Session session, Collection<T> objs) {
+        List<Row> rows = new ArrayList<Row>();
+        String tableName = null;
+        for (T obj : objs) {
+            Row row = toRow(obj);
+            if (tableName == null) {
+                tableName = row.getTableName();
+            }
+            rows.add(row);
+        }
+        session.saveMany(tableName, rows);
+    }
+
     public List<T> fromRows(Collection<Row> rows) {
         ArrayList<T> results = new ArrayList<T>();
         for (Row row : rows) {
             results.add(fromRow(row));
         }
         return results;
+    }
+
+    public void delete(Session session, RowKey rowKey) {
+        session.deleteRow(getTableName(), rowKey);
     }
 }

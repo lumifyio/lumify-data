@@ -9,6 +9,7 @@ import com.altamiracorp.reddawn.ucd.statement.Statement;
 import com.altamiracorp.reddawn.ucd.statement.StatementRepository;
 import com.altamiracorp.reddawn.ucd.statement.StatementRowKey;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
@@ -76,7 +77,6 @@ public class EntityRelationships implements Handler, AppAware {
             }
         }
 
-        response.setContentType("application/json");
-        response.getWriter().write(resultsJson.toString());
+        new Responder(response).respondWith(resultsJson);
     }
 }

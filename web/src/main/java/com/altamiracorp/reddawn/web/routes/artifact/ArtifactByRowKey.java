@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.web.App;
@@ -32,10 +33,9 @@ public class ArtifactByRowKey implements Handler, AppAware {
         if (artifact == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            response.setContentType("application/json");
             JSONObject artifactJson = artifact.toJson();
             artifactJson.put("rawUrl", ArtifactRawByRowKey.getUrl(request, artifact.getRowKey()));
-            response.getWriter().write(artifactJson.toString());
+            new Responder(response).respondWith(artifactJson);
         }
 
         chain.next(request, response);

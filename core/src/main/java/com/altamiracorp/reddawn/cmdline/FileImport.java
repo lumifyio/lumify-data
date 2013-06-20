@@ -26,6 +26,7 @@ public class FileImport extends RedDawnCommandLineBase {
     private ArtifactRepository artifactRepository = new ArtifactRepository();
     private String directory;
     private String pattern;
+    private String source;
 
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new FileImport(), args);
@@ -42,6 +43,11 @@ public class FileImport extends RedDawnCommandLineBase {
             this.pattern = cmd.getOptionValue("pattern");
         } else {
             this.pattern = "*";
+        }
+        if (cmd.hasOption("source")) {
+            this.source = cmd.getOptionValue("source");
+        } else {
+            this.source = "File Import";
         }
     }
 
@@ -66,6 +72,15 @@ public class FileImport extends RedDawnCommandLineBase {
                         .withLongOpt("pattern")
                         .withDescription("The pattern to match files against")
                         .withArgName("pattern")
+                        .create()
+        );
+
+        options.addOption(
+                OptionBuilder
+                        .withArgName("s")
+                        .withLongOpt("source")
+                        .withDescription("The name of the source")
+                        .withArgName("sourceName")
                         .create()
         );
 
@@ -106,7 +121,8 @@ public class FileImport extends RedDawnCommandLineBase {
                 .setFileName(FilenameUtils.getBaseName(file.getName()))
                 .setFileExtension(FilenameUtils.getExtension(file.getName()))
                 .setFileSize((long) data.length)
-                .setFileTimestamp(file.lastModified());
+                .setFileTimestamp(file.lastModified())
+                .setSource(this.source);
 
         LOGGER.info("Writing artifact: " + artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension() + " (rowId: " + artifact.getRowKey().toString() + ")");
         artifactRepository.save(redDawnSession.getModelSession(), artifact);

@@ -1,11 +1,28 @@
+<div class="btn-toolbar">
+  <div class="btn-group">
+    <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+      Highlight
+      <span class="caret"></span>
+    </a>
+    <ul class="highlight-options dropdown-menu">
+      <% styles.forEach(function(style, i) { %>
+      <li class="<%= i === activeStyle ? 'checked' : '' %>" data-cls="<%= style.cls || '' %>"><a href="#"><%= style.name %></a></li>
+      <% }); %>
+    </ul>
+  </div>
+
+  <div class="btn-group">
+    <a class="btn btn-small" href="<%= artifact.rawUrl %>" target="_blank">View</a>
+    <a class="btn btn-small" href="<%= artifact.rawUrl %>?download=true" target="_blank">Download</a>
+  </div>
+</div>
+
 <h2><%= artifact.Generic_Metadata.subject %></h2>
 <% if(artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude) { %>
     <b>Location:</b>
-    <a class="location" latitude="<%= artifact.Dynamic_Metadata.latitude %>" longitude="<%= artifact.Dynamic_Metadata.longitude %>">
+    <a class="map-coordinates" latitude="<%= artifact.Dynamic_Metadata.latitude %>" longitude="<%= artifact.Dynamic_Metadata.longitude %>">
         <%= artifact.Dynamic_Metadata.latitude %>, <%= artifact.Dynamic_Metadata.longitude %>
     </a>
     <br/>
 <% } %>
-<a href="<%= artifact.rawUrl %>" target="_blank">view</a>
-<a href="<%= artifact.rawUrl %>?download=true" target="_blank">download</a>
 <div class="text"><%- artifact.contentHtml %></div>

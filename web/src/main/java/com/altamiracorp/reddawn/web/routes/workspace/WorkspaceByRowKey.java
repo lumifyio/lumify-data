@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.workspace.Workspace;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRepository;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRowKey;
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
@@ -28,11 +29,14 @@ public class WorkspaceByRowKey implements Handler, AppAware {
         if (workspace == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            response.setContentType("application/json");
             JSONObject resultJSON = new JSONObject();
             resultJSON.put("id", workspace.getRowKey().toString());
-            resultJSON.put("data", new JSONObject(workspace.getContent().getData()));
-            response.getWriter().write(resultJSON.toString());
+
+            if (workspace.getContent().getData() != null) {
+                resultJSON.put("data", new JSONObject(workspace.getContent().getData()));
+            }
+
+            new Responder(response).respondWith(resultJSON);
         }
 
         chain.next(request, response);

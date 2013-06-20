@@ -4,6 +4,7 @@ import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
+import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,22 @@ public class AccumuloSession extends Session {
         try {
             BatchWriter writer = connector.createBatchWriter(row.getTableName(), getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
             AccumuloHelper.addRowToWriter(writer, row);
+            writer.flush();
+            writer.close();
+        } catch (TableNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (MutationsRejectedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    void saveMany(String tableName, Collection<Row> rows) {
+        try {
+            BatchWriter writer = connector.createBatchWriter(tableName, getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
+            for (Row row : rows) {
+                AccumuloHelper.addRowToWriter(writer, row);
+            }
             writer.flush();
             writer.close();
         } catch (TableNotFoundException e) {
@@ -106,6 +123,27 @@ public class AccumuloSession extends Session {
         } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
         } catch (AccumuloException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deleteRow(String tableName, RowKey rowKey) {
+        LOGGER.info("deleteRow: " + rowKey);
+        try {
+            // TODO: Find a better way to delete a single row given the row key
+            String strRowKey = rowKey.toString();
+            char lastChar = strRowKey.charAt(strRowKey.length() - 1);
+            char asciiCharBeforeLastChar = (char)(((int)lastChar) - 1);
+            String precedingRowKey = strRowKey.substring(0, strRowKey.length() - 1) + asciiCharBeforeLastChar;
+            Text startRowKey = new Text(precedingRowKey);
+            Text endRowKey = new Text(strRowKey);
+            connector.tableOperations().deleteRows(tableName, startRowKey, endRowKey);
+        } catch (AccumuloException e) {
+            throw new RuntimeException(e);
+        } catch (AccumuloSecurityException e) {
+            throw new RuntimeException(e);
+        } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

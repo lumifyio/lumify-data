@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.web.App;
@@ -37,8 +38,7 @@ public class EntityByRowKey implements Handler, AppAware {
         if (term == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            response.setContentType("application/json");
-            response.getWriter().write(term.toJson().toString());
+            new Responder(response).respondWith(term.toJson());
         }
 
         chain.next(request, response);
