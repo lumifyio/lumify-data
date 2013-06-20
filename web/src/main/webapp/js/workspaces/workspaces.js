@@ -41,6 +41,7 @@ define([
 
         this.onDelete = function( event ) {
             var rowKey = $(event.target).parents('li').data('rowkey');
+            this.trigger(document, 'workspaceDeleting', { rowKey: rowKey });
             this.workspaceService.delete(rowKey, function() {
                 this.trigger(document, 'workspaceDeleted', { rowKey: rowKey });
                 this.loadWorkspaceList.apply(this, arguments);
