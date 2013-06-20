@@ -81,9 +81,10 @@ define([
                         return node.data('rowKey') == updatedNode.rowKey;
                     })
                     .each(function(idx, node) {
+                        var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
                         node.position({
-                            x: updatedNode.graphPosition.x,
-                            y: updatedNode.graphPosition.y
+                            x: updatedNode.graphPosition.x * scale,
+                            y: updatedNode.graphPosition.y * scale
                         });
                     });
             });
@@ -202,10 +203,10 @@ define([
                 nodes: $.map(nodes, function(node) {
                     return {
                         rowKey: node.data('rowKey'),
-                        graphPosition: {
+                        graphPosition: $this.pixelsToPoints({
                             x: node.data('targetPosition').x,
                             y: node.data('targetPosition').y
-                        }
+                        })
                     };
                 })
             };
