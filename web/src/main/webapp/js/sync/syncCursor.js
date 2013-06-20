@@ -4,7 +4,7 @@ define([
 ], function(defineComponent, template) {
     'use strict';
 
-    var CURSOR_RATE_LIMIT_PER_SECOND = 0.1;
+    var CURSOR_RATE_LIMIT_PER_SECOND = 0.03;
     var SECOND = 1000;
 
     return defineComponent(SyncCursor);
