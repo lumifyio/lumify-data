@@ -14,13 +14,19 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
+if [ "${VIRTUALIZATION_DISABLED}" = 'true' ]; then
+  ip=localhost
+else
+  ip=192.168.33.10
+fi
+
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
 com.altamiracorp.reddawn.location.ArtifactLocationExtractorMR \
 --zookeeperInstanceName=reddawn \
---zookeeperServerNames=192.168.33.10 \
+--zookeeperServerNames=${ip} \
 --username=root \
 --password=password \
 --classname=com.altamiracorp.reddawn.location.SimpleArtifactLocationExtractor \

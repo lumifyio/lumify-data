@@ -20,12 +20,18 @@ else
   dir=${DIR}/../data
 fi
 
+if [ "${VIRTUALIZATION_DISABLED}" = 'true' ]; then
+  ip=localhost
+else
+  ip=192.168.33.10
+fi
+
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 com.altamiracorp.reddawn.cmdline.FileImport \
 --zookeeperInstanceName=reddawn \
---zookeeperServerNames=192.168.33.10 \
+--zookeeperServerNames=${ip} \
 --username=root \
 --password=password \
 --directory=${dir}
