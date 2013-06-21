@@ -75,19 +75,21 @@ define([
         };
 
         this.onNodesUpdate = function(evt, data) {
-            data.nodes.forEach(function(updatedNode) {
-                cy.nodes()
-                    .filter(function(idx, node) {
-                        return node.data('rowKey') == updatedNode.rowKey;
-                    })
-                    .each(function(idx, node) {
-                        var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
-                        node.position({
-                            x: updatedNode.graphPosition.x * scale,
-                            y: updatedNode.graphPosition.y * scale
+            data.nodes
+                .filter(function(updatedNode) { return updatedNode.graphPosition; })
+                .forEach(function(updatedNode) {
+                    cy.nodes()
+                        .filter(function(idx, node) {
+                            return node.data('rowKey') == updatedNode.rowKey;
+                        })
+                        .each(function(idx, node) {
+                            var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
+                            node.position({
+                                x: updatedNode.graphPosition.x * scale,
+                                y: updatedNode.graphPosition.y * scale
+                            });
                         });
-                    });
-            });
+                });
         };
 
         this.onAddToGraph = function(event, data) {

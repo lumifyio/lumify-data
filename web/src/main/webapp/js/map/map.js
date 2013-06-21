@@ -107,14 +107,18 @@ define([
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
+
                     if(artifact && artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) {
-                        self.trigger(document, 'nodeUpdate', {
-                            rowKey: node.rowKey,
-                            location: {
-                                latitude: artifact.Dynamic_Metadata.latitude,
-                                longitude: artifact.Dynamic_Metadata.longitude
-                            }
-                        });
+                        var nodesUpdateData = {
+                            nodes: [{
+                                rowKey: node.rowKey,
+                                location: {
+                                    latitude: artifact.Dynamic_Metadata.latitude,
+                                    longitude: artifact.Dynamic_Metadata.longitude
+                                }
+                            }]
+                        };
+                        self.trigger(document, 'nodesUpdate', nodesUpdateData);
                     }
                 });
             } else {
