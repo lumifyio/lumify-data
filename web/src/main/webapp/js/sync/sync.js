@@ -19,6 +19,7 @@ define([
 		this.events = [
 			'search',
 			'showSearchResults',
+			'searchQueryChanged',
 			'nodesAdd',
 			'nodesUpdate',
 			'nodesDelete',
