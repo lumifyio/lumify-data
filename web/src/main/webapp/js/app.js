@@ -115,7 +115,6 @@ define([
                             return;
                         }
                     }
-
                     self.loadWorkspace(workspaces[0].rowKey); // backwards compatibility when no current workspace
                 }
             });
@@ -157,6 +156,7 @@ define([
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
+				self.workspaceRowKey = data.workspaceId;
                 self.trigger(document, 'workspaceSaved', data);
             });
         };

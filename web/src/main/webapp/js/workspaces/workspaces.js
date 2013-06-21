@@ -21,6 +21,9 @@ define([
         });
 
         this.onWorkspaceItemClick = function( event ) {
+			if ($(event.target).is('input') || $(event.target).is('button')) {
+				return;
+			}
             var rowKey = $(event.target).parents('li').data('rowkey');
             this.trigger( document, 'switchWorkspace', { rowKey: rowKey });
         };
@@ -29,7 +32,10 @@ define([
             var title = $(event.target).parents('li').children('input')[0].value;
             if (!title) return;
             var data = { title: title };
-            this.workspaceService.saveNew(data, this.loadWorkspaceList.bind(this));
+            this.workspaceService.saveNew(data, function (err, workspace) {
+				this.loadWorkspaceList();
+				this.trigger( document, 'switchWorkspace', { rowKey: workspace.workspaceId });
+			}.bind(this));
         };
 
         this.onInputKeyUp = function(event) {
@@ -59,6 +65,10 @@ define([
                 });
         };
 
+		this.onWorkspaceSaved = function ( event, data ) {
+			this.loadWorkspaceList();
+		};
+
         this.loadWorkspaceList = function() {
             this.workspaceService.list(function(err, workspaces) {
                 workspaces = workspaces || [];
@@ -75,6 +85,7 @@ define([
         this.after( 'initialize', function() {
             this.loadWorkspaceList();
             this.on( document, 'switchWorkspace', this.onWorkspaceSwitch );
+			this.on( document, 'workspaceSaved', this.onWorkspaceSaved )
             this.on( 'click', {
                 workspaceListItemSelector: this.onWorkspaceItemClick,
                 addNewSelector: this.onAddNew,
