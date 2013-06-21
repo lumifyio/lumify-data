@@ -25,6 +25,8 @@ java \
 -classpath ${classpath} \
 com.altamiracorp.reddawn.web.Server \
 --zookeeperInstanceName=reddawn \
+--blurControllerLocation=${ip}:40010 \
+--blurPath=hdfs://${ip}/blur \
 --zookeeperServerNames=${ip} \
 --username=root \
 --password=password \

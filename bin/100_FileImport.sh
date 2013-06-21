@@ -32,6 +32,8 @@ java \
 com.altamiracorp.reddawn.cmdline.FileImport \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
+--blurControllerLocation=${ip}:40010 \
+--blurPath=hdfs://${ip}/blur \
 --username=root \
 --password=password \
 --directory=${dir}

@@ -27,6 +27,8 @@ java \
 com.altamiracorp.reddawn.location.ArtifactLocationExtractorMR \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
+--blurControllerLocation=${ip}:40010 \
+--blurPath=hdfs://${ip}/blur \
 --username=root \
 --password=password \
 --classname=com.altamiracorp.reddawn.location.SimpleArtifactLocationExtractor \

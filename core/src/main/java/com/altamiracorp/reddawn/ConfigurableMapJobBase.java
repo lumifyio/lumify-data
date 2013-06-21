@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn;
 import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.AccumuloSession;
+import com.altamiracorp.reddawn.search.BlurSearchProvider;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -79,6 +80,12 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
         job.getConfiguration().set(AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
         job.getConfiguration().set(AccumuloSession.USERNAME, getUsername());
         job.getConfiguration().set(AccumuloSession.PASSWORD, new String(getPassword()));
+        if (getBlurControllerLocation() != null) {
+            job.getConfiguration().set(BlurSearchProvider.BLUR_CONTROLLER_LOCATION, getBlurControllerLocation());
+        }
+        if (getBlurHdfsPath() != null) {
+            job.getConfiguration().set(BlurSearchProvider.BLUR_PATH, getBlurHdfsPath());
+        }
         job.setJarByClass(this.getClass());
 
         job.setInputFormatClass(getInputFormatClassAndInit(job));

@@ -27,5 +27,7 @@ java \
 com.altamiracorp.reddawn.entityExtraction.EntityHighlightMR \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
+--blurControllerLocation=${ip}:40010 \
+--blurPath=hdfs://${ip}/blur \
 --username=root \
 --password=password

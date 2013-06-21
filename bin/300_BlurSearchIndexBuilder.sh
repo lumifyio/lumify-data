@@ -26,6 +26,8 @@ java \
 com.altamiracorp.reddawn.search.SearchIndexBuilderMR \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
+--blurControllerLocation=${ip}:40010 \
+--blurPath=hdfs://${ip}/blur \
 --username=root \
 --password=password \
 --classname=com.altamiracorp.reddawn.search.BlurSearchProvider

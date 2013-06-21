@@ -25,6 +25,8 @@ java \
 -classpath ${classpath} \
 -Xmx1024M \
 com.altamiracorp.reddawn.statementExtraction.StatementExtractionMR \
+--blurControllerLocation=${ip}:40010 \
+--blurPath=hdfs://${ip}/blur \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
 --username=root \

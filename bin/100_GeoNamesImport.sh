@@ -32,6 +32,8 @@ java \
 com.altamiracorp.reddawn.location.GeoNamesImport \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
+--blurControllerLocation=${ip}:40010 \
+--blurPath=hdfs://${ip}/blur \
 --username=root \
 --password=password \
 --filename=${filename}

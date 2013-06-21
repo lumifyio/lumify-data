@@ -27,6 +27,8 @@ java \
 com.altamiracorp.reddawn.sentenceExtraction.SentenceExtractionMR \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
+--blurControllerLocation=${ip}:40010 \
+--blurPath=hdfs://${ip}/blur \
 --username=root \
 --password=password \
 --classname=com.altamiracorp.reddawn.sentenceExtraction.OpenNlpSentenceExtractor \

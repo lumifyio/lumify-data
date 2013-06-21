@@ -16,9 +16,8 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
     private String zookeeperServerNames;
     private String username;
     private byte[] password;
-    private String blurControllerLocation;
-    private Integer blurControllerPort;
     private String blurHdfsPath;
+    private String blurControllerLocation;
 
     @Override
     public int run(String[] args) throws Exception {
@@ -51,6 +50,8 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
         this.zookeeperServerNames = cmd.getOptionValue("zookeeperServerNames");
         this.username = cmd.getOptionValue("username");
         this.password = cmd.getOptionValue("password").getBytes();
+        this.blurHdfsPath = cmd.getOptionValue("blurPath");
+        this.blurControllerLocation = cmd.getOptionValue("blurControllerLocation");
     }
 
     protected Options getOptions() {
@@ -108,6 +109,30 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
                         .create()
         );
 
+        options.addOption(
+                OptionBuilder
+                        .withArgName("bp")
+                        .withLongOpt("blurPath")
+                        .withDescription("The path to blur")
+                        .isRequired()
+                        .hasArg(true)
+                        .withArgName("blurPath")
+                        .create()
+        );
+
+        options.addOption(
+                OptionBuilder
+                        .withArgName("bcl")
+                        .withLongOpt("blurControllerLocation")
+                        .withDescription("The path to blur")
+                        .isRequired()
+                        .hasArg(true)
+                        .withArgName("blurControllerLocation")
+                        .create()
+        );
+
+
+
         return options;
     }
 
@@ -117,20 +142,13 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
         properties.setProperty(AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
         properties.setProperty(AccumuloSession.USERNAME, getUsername());
         properties.setProperty(AccumuloSession.PASSWORD, new String(getPassword()));
-        return RedDawnSession.create(properties);
-    }
-
-    public SearchProvider createSearchProvider() throws Exception {
-        BlurSearchProvider provider = new BlurSearchProvider();
-        Properties props = new Properties();
         if (getBlurControllerLocation() != null) {
-            props.setProperty(BlurSearchProvider.BLUR_CONTROLLER_LOCATION, getBlurControllerLocation());
+            properties.setProperty(BlurSearchProvider.BLUR_CONTROLLER_LOCATION, getBlurControllerLocation());
         }
         if (getBlurHdfsPath() != null) {
-            props.setProperty(BlurSearchProvider.BLUR_PATH, getBlurHdfsPath());
+            properties.setProperty(BlurSearchProvider.BLUR_PATH, getBlurHdfsPath());
         }
-        provider.setup(props);
-        return provider;
+        return RedDawnSession.create(properties);
     }
 
     public String getZookeeperInstanceName() {
