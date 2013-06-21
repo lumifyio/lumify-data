@@ -20,6 +20,7 @@ define([
     function App() {
         var WORKSPACE_SAVE_TIMEOUT = 1000;
         var MAX_RESIZE_TRIGGER_INTERVAL = 250;
+        var DATA_MENUBAR_NAME = 'menubar-name';
 
         this.workspaceService = new WorkspaceService();
         this.ucdService = new UcdService();
@@ -40,20 +41,22 @@ define([
         });
 
         this.after('initialize', function() {
+            window.reddawnApp = this;
+
             this.on(document, 'error', this.onError);
             this.on(document, 'menubarToggleDisplay', this.toggleDisplay);
             this.on(document, 'message', this.onMessage);
             this.on(document, 'searchResultSelected', this.onSearchResultSelection);
+            this.on(document, 'syncStarted', this.onSyncStarted);
 
             var content = $(appTemplate({})),
                 menubarPane = content.filter('.menubar-pane'),
-                searchPane = content.filter('.search-pane'),
-                workspacesPane = content.filter('.workspaces-pane'),
-                usersPane = content.filter('.users-pane'),
-                graphPane = content.filter('.graph-pane'),
-                detailPane = content.filter('.detail-pane'),
-                mapPane = content.filter('.map-pane');
-
+                searchPane = content.filter('.search-pane').data(DATA_MENUBAR_NAME, 'search'),
+                workspacesPane = content.filter('.workspaces-pane').data(DATA_MENUBAR_NAME, 'workspaces'),
+                usersPane = content.filter('.users-pane').data(DATA_MENUBAR_NAME, 'users'),
+                graphPane = content.filter('.graph-pane').data(DATA_MENUBAR_NAME, 'graph'),
+                mapPane = content.filter('.map-pane').data(DATA_MENUBAR_NAME, 'map'),
+                detailPane = content.filter('.detail-pane');
 
             Menubar.attachTo(menubarPane.find('.content'));
             Search.attachTo(searchPane.find('.content'));
@@ -71,8 +74,8 @@ define([
             this.$node.html(content);
 
             // Open search when the page is loaded
-            this.trigger(document, 'menubarToggleDisplay', {name:'search'});
-            this.trigger(document, 'menubarToggleDisplay', {name:'graph'});
+            this.trigger(document, 'menubarToggleDisplay', { name: searchPane.data(DATA_MENUBAR_NAME) });
+            this.trigger(document, 'menubarToggleDisplay', { name: graphPane.data(DATA_MENUBAR_NAME) });
 
             this.on(document, 'nodesAdd', this.onNodesAdd);
             this.on(document, 'nodesUpdate', this.onNodesUpdate);
@@ -339,7 +342,7 @@ define([
 
         this.onMessage = function(e, data) {
             if (!this.select('usersSelector').hasClass('visible')) {
-                this.trigger(document, 'menubarToggleDisplay', {name:'users'});
+                this.trigger(document, 'menubarToggleDisplay', { name: this.select('usersSelector').data(DATA_MENUBAR_NAME) });
             }
         };
 
@@ -364,6 +367,43 @@ define([
                 width: shouldCollapse ? 0 : width
             });
             $(e.target).toggleClass('collapsed', shouldCollapse);
+        };
+
+
+        this.onSyncStarted = function() {
+            this.collapse([
+                this.select('searchSelector'),
+                this.select('workspacesSelector'),
+                this.select('detailPaneSelector')
+            ]);
+            // TODO: fix this smellyness
+            this.trigger('detailPaneResize', { width:0, syncToRemote:false });
+
+            var graph = this.select('graphSelector');
+            if ( ! graph.hasClass('visible') ) {
+                self.trigger(document, 'menubarToggleDisplay', { name:graph.data(DATA_MENUBAR_NAME), syncToRemote:false });
+            }
+        };
+
+        this.collapse = function(panes) {
+            var self = this,
+                detailPane = this.select('detailPaneSelector');
+
+            panes.forEach(function(pane) {
+                if (pane.hasClass('visible')) {
+                    var name = pane.data(DATA_MENUBAR_NAME),
+                        isDetail = pane.is(detailPane);
+
+                    if ( !name ) {
+                        if ( isDetail ) {
+                            return detailPane.addClass('collapsed').removeClass('visible');
+                        }
+                        return console.warn('No ' + DATA_MENUBAR_NAME + ' attribute, unable to collapse');
+                    }
+
+                    self.trigger(document, 'menubarToggleDisplay', { name:name, syncToRemote:false });
+                }
+            });
         };
     }
 
