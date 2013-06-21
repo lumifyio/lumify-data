@@ -55,6 +55,10 @@ function(ServiceBase) {
 	};
 	
 	SyncService.prototype.publishSyncEvent = function (initiator, evt, payload) {
+        if (payload && payload.syncToRemote === false) {
+            return;
+        }
+
 		var syncMessage = {
 			sync: {
 				initiator : initiator
@@ -62,8 +66,13 @@ function(ServiceBase) {
 			evt : evt,
 			payload: payload
 		};
-		
-		this.getCurrentSync().subSocket.push({data : JSON.stringify(syncMessage)});
+
+        var currentSync = this.getCurrentSync();
+        if (!currentSync) {
+            console.warn('Sync not ready and message triggered, dropping: ', syncMessage);
+        } else {
+            currentSync.subSocket.push({data : JSON.stringify(syncMessage)});
+        }
 	};
 	
 	SyncService.prototype.startSync = function (syncRequest, onmessage, onclose) {

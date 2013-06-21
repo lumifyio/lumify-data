@@ -10,6 +10,8 @@ define([
     return defineComponent(Map);
 
     function Map() {
+        var callbackQueue = [];
+
         this.ucdService = new UcdService();
 
         this.defaultAttrs({
@@ -17,7 +19,6 @@ define([
         });
 
         this.after('initialize', function() {
-            var self = this;
             this.$node.html(template({}));
 
             this.on(document, 'mapShow', this.onMapShow);
@@ -31,6 +32,16 @@ define([
             this.on(document, 'nodesDelete', this.onNodesDelete);
             this.on(document, 'windowResize', this.onMapEndPan);
         });
+
+        this.map = function(callback) {
+            if ( this.mapLoaded ) {
+                callback.call(this, this._map);
+                //this.drainCallbackQueue();
+            } else {
+                callbackQueue.push( callback );
+            }
+        };
+
 
         this.onWorkspaceLoaded = function(evt, workspaceData) {
             var self = this;
@@ -55,32 +66,31 @@ define([
 
         this.updateOrAddNode = function(node) {
             var self = this;
-            if(!self.map) {
-                return;
-            }
             if(!node.location && !node.locations) {
                 return;
             }
 
-            this.deleteNode(node);
+            this.map(function(map) {
+                this.deleteNode(node);
 
-            var locations;
-            if(node.locations) {
-                locations = node.locations;
-            } else {
-                locations = [ node.location ];
-            }
+                var locations;
+                if(node.locations) {
+                    locations = node.locations;
+                } else {
+                    locations = [ node.location ];
+                }
 
-            locations.forEach(function(location) {
-                var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
-                var marker = new mxn.Marker(pt);
-                marker.setAttribute('rowKey', node.rowKey);
-                marker.setInfoBubble(node.rowKey);
-                marker.click.addHandler(function() {
-                    marker.openBubble();
+                locations.forEach(function(location) {
+                    var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
+                    var marker = new mxn.Marker(pt);
+                    marker.setAttribute('rowKey', node.rowKey);
+                    // TODO: fix weird shadow and can't close
+                    //marker.setInfoBubble(node.rowKey);
+                    //marker.click.addHandler(function() {
+                        // marker.openBubble();
+                    //});
+                    map.addMarker(marker);
                 });
-                console.log('self.map.addMarker', marker);
-                self.map.addMarker(marker);
             });
         };
 
@@ -101,17 +111,15 @@ define([
         this.deleteNode = function(node) {
             var self = this;
 
-            if(!self.map) {
-                return;
-            }
-
-            this.map.markers
-                .filter(function(marker) {
-                    return marker.getAttribute('rowKey') == node.rowKey;
-                })
-                .forEach(function(marker) {
-                    self.map.removeMarker(marker);
-                });
+            this.map(function(map) {
+                map.markers
+                    .filter(function(marker) {
+                        return marker.getAttribute('rowKey') == node.rowKey;
+                    })
+                    .forEach(function(marker) {
+                        map.removeMarker(marker);
+                    });
+            });
         };
 
         this.updateNodeLocation = function(node) {
@@ -126,7 +134,6 @@ define([
 
                     Object.keys(entity).forEach(function(entityKey) {
                         var mention = entity[entityKey];
-                        console.log(mention);
                         if(mention.latitude && mention.latitude) {
                             if(locations.filter(function(l) { return (mention.latitude == l.latitude) && (mention.longitude == l.longitude); }).length == 0) {
                                 locations.push({
@@ -171,20 +178,24 @@ define([
         };
 
         this.onMapEndPan = function(evt, mapCenter) {
-            var boundingBox = this.map.getBounds();
-            var boundingBoxData = {
-                swlat: boundingBox.getSouthWest().lat,
-                swlon: boundingBox.getSouthWest().lon,
-                nelat: boundingBox.getNorthEast().lat,
-                nelon: boundingBox.getNorthEast().lon
-            };
-            this.trigger(document, 'mapUpdateBoundingBox', boundingBoxData);
-        }
+            this.map(function(map) {
+                var boundingBox = map.getBounds();
+                var boundingBoxData = {
+                    swlat: boundingBox.getSouthWest().lat,
+                    swlon: boundingBox.getSouthWest().lon,
+                    nelat: boundingBox.getNorthEast().lat,
+                    nelon: boundingBox.getNorthEast().lon
+                };
+                this.trigger(document, 'mapUpdateBoundingBox', boundingBoxData);
+            });
+        };
 
         this.onMapCenter = function(evt, data) {
-            this.trigger(document, 'modeSelect', { mode: 'map' });
-            var latlon = new mxn.LatLonPoint(data.latitude, data.longitude);
-            this.map.setCenterAndZoom(latlon, 7);
+            this.map(function(map) {
+                this.trigger(document, 'modeSelect', { mode: 'map' });
+                var latlon = new mxn.LatLonPoint(data.latitude, data.longitude);
+                map.setCenterAndZoom(latlon, 7);
+            });
         };
 
         this.onMapUpdateBoundingBox = function(evt, data) {
@@ -192,34 +203,36 @@ define([
                 return;
             }
 
-            var points = [];
-            points.push(new mxn.LatLonPoint(data.swlat, data.swlon));
-            points.push(new mxn.LatLonPoint(data.nelat, data.swlon));
-            points.push(new mxn.LatLonPoint(data.nelat, data.nelon));
-            points.push(new mxn.LatLonPoint(data.swlat, data.nelon));
-            points.push(new mxn.LatLonPoint(data.swlat, data.swlon));
+            this.map(function(map) {
+                var points = [];
+                points.push(new mxn.LatLonPoint(data.swlat, data.swlon));
+                points.push(new mxn.LatLonPoint(data.nelat, data.swlon));
+                points.push(new mxn.LatLonPoint(data.nelat, data.nelon));
+                points.push(new mxn.LatLonPoint(data.swlat, data.nelon));
+                points.push(new mxn.LatLonPoint(data.swlat, data.swlon));
 
-            var polyline = new mxn.Polyline(points);
-            polyline.setColor('#909090');
+                var polyline = new mxn.Polyline(points);
+                polyline.setColor('#909090');
 
-            if (this.syncPolyline) {
-                this.map.removePolyline(this.syncPolyline);
-            }
+                if (this.syncPolyline) {
+                    map.removePolyline(this.syncPolyline);
+                }
 
-            this.map.addPolyline(polyline);
-            this.syncPolyline = polyline;
+                map.addPolyline(polyline);
+                this.syncPolyline = polyline;
+            });
         };
 
         this.fixSize = function() {
-            if (this.map) {
-                var map = this.select('mapSelector');
-                this.map.resizeTo(map.width(), map.height());
-            }
+            this.map(function(map) {
+                var mapEl = this.select('mapSelector');
+                map.resizeTo(mapEl.width(), mapEl.height());
+            });
         };
 
         this.onMapShow = function(evt, workspaceData) {
             var self = this;
-            if (!this.timeout && !this.mapInitialized) {
+            if (!this.timeout && !this.mapLoaded) {
                 this.timeout = setTimeout(this.initializeMap.bind(this, workspaceData), 100);
             } else {
                 workspaceData.data.nodes.forEach(function(node) {
@@ -229,42 +242,53 @@ define([
         };
 
         this.initializeMap = function(workspaceData) {
-            this.fixSize();
+            delete this.initializeMap;
 
             var self = this;
+            var map = new mxn.Mapstraction('map', document.mapProvider);
 
-            if(self.mapInitialized) {
-                return;
-            }
-
-            self.map = new mxn.Mapstraction('map', document.mapProvider);
-
-            if(document.mapProvider == 'leaflet') {
-                self.map.addTileLayer("/map/{z}/{x}/{y}.png", {
-                    name: "Roads"
+            this.drainCallbackQueue = function() {
+                var self = this;
+                callbackQueue.forEach(function( callback ) {
+                    callback.call(self, map); 
                 });
-            }
+                callbackQueue.length = 0;
+            };
 
-            var latlon = new mxn.LatLonPoint(38.89,-77.03);
-            self.map.setCenterAndZoom(latlon, 7);
-            self.map.enableScrollWheelZoom();
-            //self.map.addSmallControls();
-            self.map.endPan.addHandler(function() {
-                var center = self.map.getCenter();
+            // Map Handlers
+            map.load.addHandler(function() {
+                self._map = map;
+                self.mapLoaded = true;
+                self.drainCallbackQueue();
+            });
+            map.endPan.addHandler(function() {
+                var center = map.getCenter();
                 self.trigger(document, 'mapEndPan', {
                     lat: center.lat,
                     lng: center.lng
                 });
             });
-            self.map.changeZoom.addHandler(function() {
+            map.changeZoom.addHandler(function() {
                 self.trigger(document, 'mapEndZoom');
             });
-            self.mapInitialized = true;
-            self.fixSize();
 
-            workspaceData.data.nodes.forEach(function(node) {
-                self.updateOrAddNode(node);
-            });
+
+            if(document.mapProvider == 'leaflet') {
+                map.addTileLayer("/map/{z}/{x}/{y}.png", {
+                    name: "Roads"
+                });
+            }
+
+            var latlon = new mxn.LatLonPoint(38.89,-77.03);
+            map.setCenterAndZoom(latlon, 7);
+            map.enableScrollWheelZoom();
+
+            this.fixSize();
+            // TODO: Is this necessary?
+            //var self = this;
+            //workspaceData.data.nodes.forEach(function(node) {
+                //self.updateOrAddNode(node);
+            //});
         };
     }
 });

@@ -11,7 +11,7 @@ define([
     return defineComponent(Graph);
 
     function Graph() {
-        var cy = null;
+        var callbackQueue = [];
 
         this.defaultAttrs({
             cytoscapeContainerSelector: '.cytoscape-container',
@@ -19,77 +19,91 @@ define([
             graphToolsSelector: '.ui-cytoscape-panzoom'
         });
 
+        this.cy = function(callback) {
+            if ( this.cyLoaded ) {
+                callback.call(this, this._cy);
+            } else {
+                callbackQueue.push( callback );
+            }
+        };
+
         this.onNodesAdd = function(evt, data) {
             this.addNodes(data.nodes);
         };
 
         this.addNodes = function(nodes) {
-            var cyNodes = $.map(nodes, function(node) {
-                var title = node.title;
-                var position = node.graphPosition;
+            this.cy(function(cy) {
+                nodes.forEach(function(node) {
+                    var title = node.title;
+                    var position = node.graphPosition;
 
-                if (title.length > 10) {
-                    title = title.substring(0, 10) + "...";
-                }
-
-                var cyNodeData = {
-                    group: 'nodes',
-                    renderedPosition: position,
-                    data: {
-                        id: node.rowKey,
-                        rowKey: node.rowKey,
-                        subType: node.subType,
-                        type: node.type,
-                        title: title
+                    if (title.length > 10) {
+                        title = title.substring(0, 10) + "...";
                     }
-                };
 
-                var cyNode = cy.add(cyNodeData);
+                    var cyNodeData = {
+                        group: 'nodes',
+                        renderedPosition: position,
+                        data: {
+                            id: node.rowKey,
+                            rowKey: node.rowKey,
+                            subType: node.subType,
+                            type: node.type,
+                            title: title
+                        }
+                    };
 
-                cyNode.addClass(node.subType);
-                cyNode.addClass(node.type);
-                return cyNode;
+                    var cyNode = cy.add(cyNodeData);
+                    cyNode.addClass(node.subType);
+                    cyNode.addClass(node.type);
+                });
+
+                this.setWorkspaceDirty();
             });
-
-            this.setWorkspaceDirty();
         };
 
         this.removeSelectedNodes = function() {
-            var nodesToDelete = $.map(cy.nodes().filter(':selected'), function(node) {
-                return {
-                    rowKey: node.data('rowKey'),
-                    type: node.data('type'),
-                    subType: node.data('subType')
-                };
-            });
+            this.cy(function(cy) {
+                var nodesToDelete = $.map(cy.nodes().filter(':selected'), function(node) {
+                    return {
+                        rowKey: node.data('rowKey'),
+                        type: node.data('type'),
+                        subType: node.data('subType')
+                    };
+                });
 
-            this.trigger(document, 'nodesDelete', { nodes: nodesToDelete });
+                this.trigger(document, 'nodesDelete', { nodes: nodesToDelete });
+            });
         };
 
         this.onNodesDelete = function(event, data) {
-            var matchingNodes = cy.nodes().filter(function(idx, node) {
-                return data.nodes.filter(function(nodeToDelete) { return node.data('rowKey') == nodeToDelete.rowKey; }).length > 0;
+            this.cy(function(cy) {
+                var matchingNodes = cy.nodes().filter(function(idx, node) {
+                    return data.nodes.filter(function(nodeToDelete) { return node.data('rowKey') == nodeToDelete.rowKey; }).length > 0;
+                });
+                matchingNodes.remove();
+                this.setWorkspaceDirty();
             });
-            matchingNodes.remove();
-            this.setWorkspaceDirty();
         };
 
         this.onNodesUpdate = function(evt, data) {
-            data.nodes
-                .filter(function(updatedNode) { return updatedNode.graphPosition; })
-                .forEach(function(updatedNode) {
-                    cy.nodes()
-                        .filter(function(idx, node) {
-                            return node.data('rowKey') == updatedNode.rowKey;
-                        })
-                        .each(function(idx, node) {
-                            var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
-                            node.position({
-                                x: updatedNode.graphPosition.x * scale,
-                                y: updatedNode.graphPosition.y * scale
+            this.cy(function(cy) {
+                data.nodes
+                    .filter(function(updatedNode) { return updatedNode.graphPosition; })
+                    .forEach(function(updatedNode) {
+                        cy.nodes()
+                            .filter(function(idx, node) {
+                                return node.data('rowKey') == updatedNode.rowKey;
+                            })
+                            .each(function(idx, node) {
+                                var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
+                                node.position({
+                                    x: updatedNode.graphPosition.x * scale,
+                                    y: updatedNode.graphPosition.y * scale
+                                });
                             });
-                        });
-                });
+                    });
+            });
         };
 
         this.onAddToGraph = function(event, data) {
@@ -148,16 +162,18 @@ define([
         };
 
         this.graphGrab = function(event) {
-            var nodes = event.cyTarget.selected() ? cy.nodes().filter(':selected') : event.cyTarget;
-            this.grabbedNodes = nodes.each(function() {
-                var p = this.position();
-                this.data('originalPosition', { x:p.x, y:p.y });
-                this.data('freed', false );
+            this.cy(function(cy) {
+                var nodes = event.cyTarget.selected() ? cy.nodes().filter(':selected') : event.cyTarget;
+                this.grabbedNodes = nodes.each(function() {
+                    var p = this.position();
+                    this.data('originalPosition', { x:p.x, y:p.y });
+                    this.data('freed', false );
+                });
             });
         };
 
         this.graphFree = function(event) {
-            var $this = this;
+            var self = this;
 
             // CY is sending multiple "free" events, prevent that...
             var dup = true,
@@ -171,7 +187,7 @@ define([
                 e.data('targetPosition', {x:p.x, y:p.y});
                 e.data('freed', true);
 
-                p = $this.pixelsToPoints(p);
+                p = self.pixelsToPoints(p);
             });
 
             if (dup) {
@@ -205,14 +221,14 @@ define([
                 nodes: $.map(nodes, function(node) {
                     return {
                         rowKey: node.data('rowKey'),
-                        graphPosition: $this.pixelsToPoints({
+                        graphPosition: self.pixelsToPoints({
                             x: node.data('targetPosition').x,
                             y: node.data('targetPosition').y
                         })
                     };
                 })
             };
-            $this.trigger(document, 'nodesUpdate', graphMovedNodesData);
+            self.trigger(document, 'nodesUpdate', graphMovedNodesData);
 
             this.setWorkspaceDirty();
         };
@@ -222,11 +238,15 @@ define([
         };
 
         this.checkEmptyGraph = function() {
-            this.select('emptyGraphSelector').toggle(cy.nodes().length === 0);
+            this.cy(function(cy) {
+                this.select('emptyGraphSelector').toggle(cy.nodes().length === 0);
+            });
         };
 
         this.resetGraph = function() {
-            cy.nodes().remove();
+            this.cy(function(cy) {
+                cy.nodes().remove();
+            });
         };
 
         this.onWorkspaceLoaded = function(evt, workspace) {
@@ -239,16 +259,18 @@ define([
         };
 
         this.onRelationshipsLoaded = function(evt, relationshipData) {
-            cy.edges().remove();
-            relationshipData.relationships.forEach(function(relationship) {
-                cy.add({
-                    group: "edges",
-                    data: {
-                        id: relationship.from + "->" + relationship.to,
-                        source: relationship.from,
-                        target: relationship.to,
-                        type: 'relationship'
-                    }
+            this.cy(function(cy) {
+                cy.edges().remove();
+                relationshipData.relationships.forEach(function(relationship) {
+                    cy.add({
+                        group: "edges",
+                        data: {
+                            id: relationship.from + "->" + relationship.to,
+                            source: relationship.from,
+                            target: relationship.to,
+                            type: 'relationship'
+                        }
+                    });
                 });
             });
         };
@@ -263,7 +285,7 @@ define([
         };
 
         this.after('initialize', function() {
-            var $this = this;
+            var self = this;
             this.$node.html(template({}));
 
             this.$node.droppable({
@@ -360,7 +382,16 @@ define([
                     }),
 
                 ready: function(){
-                    cy = this;
+                    var cy = this;
+
+                    self._cy = cy;
+
+                    self.drainCallbackQueue = function() {
+                        callbackQueue.forEach(function( callback ) {
+                            callback.call(self, cy); 
+                        });
+                        callbackQueue.length = 0;
+                    };
 
                     var container = cy.container(),
                         options = cy.options();
@@ -370,25 +401,28 @@ define([
                         maxZoom: options.maxZoom
                     }).focus().on({
                         click: function() { this.focus(); },
-                        keydown: $this.onKeyHandler.bind($this),
-                        keyup: $this.onKeyHandler.bind($this)
+                        keydown: self.onKeyHandler.bind(self),
+                        keyup: self.onKeyHandler.bind(self)
                     });
 
-                    var panZoom = $this.select('graphToolsSelector');
-                    $this.on(document, 'detailPaneResize', function(e, data) {
+                    var panZoom = self.select('graphToolsSelector');
+                    self.on(document, 'detailPaneResize', function(e, data) {
                         panZoom.css({
                             right: data.width + 'px'
                         });
                     });
-                    $this.on(document, 'addToGraph', $this.onAddToGraph);
+                    self.on(document, 'addToGraph', self.onAddToGraph);
 
                     cy.on({
-                        select: $this.graphSelect.bind($this),
-                        unselect: $this.graphUnselect.bind($this),
-                        grab: $this.graphGrab.bind($this),
-                        free: $this.graphFree.bind($this),
-                        drag: $this.graphDrag.bind($this)
+                        select: self.graphSelect.bind(self),
+                        unselect: self.graphUnselect.bind(self),
+                        grab: self.graphGrab.bind(self),
+                        free: self.graphFree.bind(self),
+                        drag: self.graphDrag.bind(self)
                     });
+
+                    self.cyLoaded = true;
+                    self.drainCallbackQueue();
                 }
             });
         });
