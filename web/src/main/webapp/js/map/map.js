@@ -84,10 +84,11 @@ define([
                     var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
                     var marker = new mxn.Marker(pt);
                     marker.setAttribute('rowKey', node.rowKey);
-                    marker.setInfoBubble(node.rowKey);
-                    marker.click.addHandler(function() {
-                        marker.openBubble();
-                    });
+                    // TODO: fix weird shadow and can't close
+                    //marker.setInfoBubble(node.rowKey);
+                    //marker.click.addHandler(function() {
+                        // marker.openBubble();
+                    //});
                     map.addMarker(marker);
                 });
             });
