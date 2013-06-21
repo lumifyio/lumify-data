@@ -377,6 +377,7 @@ define([
                 this.select('detailPaneSelector')
             ]);
             // TODO: fix this smellyness
+            $('.search-results').hide();
             this.trigger('detailPaneResize', { width:0, syncToRemote:false });
 
             var graph = this.select('graphSelector');
