@@ -28,6 +28,7 @@ define([
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'nodesAdd', this.onNodesAdd);
             this.on(document, 'nodesUpdate', this.onNodesUpdate);
+            this.on(document, 'nodesDelete', this.onNodesDelete);
             this.on(document, 'windowResize', this.onMapEndPan);
         });
 
@@ -45,7 +46,11 @@ define([
         };
 
         this.onNodesAdd = function(evt, data) {
-            console.log('onNodesAdd', data); // TODO handle new nodes
+            var self = this;
+            data.nodes.forEach(function(node) {
+                self.updateOrAddNode(node);
+                self.updateNodeLocation(node);
+            });
         };
 
         this.updateOrAddNode = function(node) {
@@ -57,13 +62,7 @@ define([
                 return;
             }
 
-            this.map.markers
-                .filter(function(marker) {
-                    return marker.getAttribute('rowKey') == node.rowKey;
-                })
-                .forEach(function(marker) {
-                    self.map.removeMarker(marker);
-                });
+            this.deleteNode(node);
 
             var locations;
             if(node.locations) {
@@ -80,6 +79,7 @@ define([
                 marker.click.addHandler(function() {
                     marker.openBubble();
                 });
+                console.log('self.map.addMarker', marker);
                 self.map.addMarker(marker);
             });
         };
@@ -91,6 +91,29 @@ define([
             });
         };
 
+        this.onNodesDelete = function(evt, data) {
+            var self = this;
+            data.nodes.forEach(function(node) {
+                self.deleteNode(node);
+            });
+        };
+
+        this.deleteNode = function(node) {
+            var self = this;
+
+            if(!self.map) {
+                return;
+            }
+
+            this.map.markers
+                .filter(function(marker) {
+                    return marker.getAttribute('rowKey') == node.rowKey;
+                })
+                .forEach(function(marker) {
+                    self.map.removeMarker(marker);
+                });
+        };
+
         this.updateNodeLocation = function(node) {
             var self = this;
             if(node.type == 'entities') {
@@ -99,7 +122,28 @@ define([
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
-                    console.log('TODO: handle entities', entity); // TODO handle entities
+                    var locations = [];
+
+                    Object.keys(entity).forEach(function(entityKey) {
+                        var mention = entity[entityKey];
+                        console.log(mention);
+                        if(mention.latitude && mention.latitude) {
+                            if(locations.filter(function(l) { return (mention.latitude == l.latitude) && (mention.longitude == l.longitude); }).length == 0) {
+                                locations.push({
+                                    latitude: mention.latitude,
+                                    longitude: mention.longitude
+                                });
+                            }
+                        }
+                    });
+
+                    var nodesUpdateData = {
+                        nodes: [{
+                            rowKey: node.rowKey,
+                            locations: locations
+                        }]
+                    };
+                    self.trigger(document, 'nodesUpdate', nodesUpdateData);
                 });
             } else if(node.type == 'artifacts') {
                 this.ucdService.getArtifactById(node.rowKey, function(err, artifact) {

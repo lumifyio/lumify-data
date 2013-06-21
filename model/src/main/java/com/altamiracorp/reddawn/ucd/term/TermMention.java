@@ -68,6 +68,14 @@ public class TermMention extends ColumnFamily {
         return Value.toString(get(GEO_LOCATION));
     }
 
+    public Double getLatitude() {
+        return GeoLocation.getLatitude(getGeoLocation());
+    }
+
+    public Double getLongitude() {
+        return GeoLocation.getLongitude(getGeoLocation());
+    }
+
     public TermMention setGeoLocation(String geoLocation) {
         set(GEO_LOCATION, geoLocation);
         return this;
@@ -188,5 +196,26 @@ public class TermMention extends ColumnFamily {
     public TermMention setDate(Long date) {
         set(DATE, date);
         return this;
+    }
+
+    @Override
+    public JSONObject toJson() {
+        try {
+            JSONObject json = super.toJson();
+
+            Double latitude = getLatitude();
+            if (latitude != null) {
+                json.put("latitude", latitude);
+            }
+
+            Double longitude = getLongitude();
+            if (longitude != null) {
+                json.put("longitude", longitude);
+            }
+
+            return json;
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
