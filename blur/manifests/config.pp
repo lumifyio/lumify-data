@@ -24,6 +24,16 @@ class blur::config ($javaHome, $user = 'blur', $group = 'hadoop') {
     replace => 'export BLUR_MANAGE_ZK=false',
   }
 
+  exec { 'ulimit -Sn 50000' :
+    command => '/bin/echo "* soft nofile 50000" >> /etc/security/limits.conf',
+    unless => '/bin/grep -q "* soft nofile 50000" /etc/security/limits.conf',
+  }
+
+  exec { 'ulimit -Hn 100000' :
+    command => '/bin/echo "* hard nofile 100000" >> /etc/security/limits.conf',
+    unless => '/bin/grep -q "* hard nofile 100000" /etc/security/limits.conf',
+  }
+
   setup-passwordless-ssh { "${user}" :
   }
 
