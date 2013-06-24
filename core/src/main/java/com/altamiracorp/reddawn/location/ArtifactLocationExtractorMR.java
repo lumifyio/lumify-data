@@ -4,6 +4,8 @@ import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.ucd.AccumuloTermInputFormat;
+import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
@@ -16,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collection;
 
 public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactLocationExtractorMR.class.getName());
@@ -58,9 +61,16 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
             LOGGER.info("Extracting location from : " + term.getRowKey().toString());
 
             try {
-
+                Collection<Artifact> artifacts = entityExtractor.extract(term);
+                writeArtifacts(context, artifacts);
             } catch (Exception e) {
                 throw new IOException(e);
+            }
+        }
+
+        private void writeArtifacts(Mapper.Context context, Collection<Artifact> artifacts) throws IOException, InterruptedException {
+            for (Artifact artifact : artifacts) {
+                context.write(new Text(Artifact.TABLE_NAME), artifact);
             }
         }
 

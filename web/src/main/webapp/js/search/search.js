@@ -14,6 +14,7 @@ define([
 
     function Search() {
         this.ucd = new UCD();
+		this.currentQuery = null;
 
         this.defaultAttrs({
             searchFormSelector: '.navbar-search',
@@ -143,6 +144,23 @@ define([
             }
         };
 
+		this.onKeyUp = function (evt) {
+			var query = this.select('searchQuerySelector').val();
+			if (query != this.currentQuery) {
+				this.trigger("searchQueryChanged", { query: query});
+				this.currentQuery = query;
+			}
+		};
+		
+		this.onQueryChange = function (evt, data) {
+			if (!data.remoteEvent) {
+				return;
+			}
+			
+			this.select('searchQuerySelector').val(data.query);
+			this.currentQuery = data.query;
+		}
+
         this.close = function(e) {
             this.select('searchResultsSelector').hide();
             this.$node.find('.search-results-summary .active').removeClass('active');
@@ -158,6 +176,7 @@ define([
             this.on('artifactSearchResults', this.onArtifactSearchResults);
             this.on('entitySearchResults', this.onEntitySearchResults);
             this.on(document,'showSearchResults', this.onShowSearchResults);
+			this.on(document,'searchQueryChanged',this.onQueryChange);
             this.on('submit', {
                 searchFormSelector: this.onFormSearch
             });
@@ -165,6 +184,9 @@ define([
                 searchSummaryResultItemSelector: this.onSummaryResultItemClick,
                 closeResultsSelector: this.close
             });
+			this.on('keyup', {
+				searchQuerySelector: this.onKeyUp
+			});
         });
 
 

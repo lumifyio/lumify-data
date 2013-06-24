@@ -53,9 +53,18 @@ background: @menubar-background;
     background-image: url(/img/glyphicons/white/glyphicons_027_search@2x.png); 
   }
 
-  .users a { 
-    background-image: url(/img/glyphicons/white/glyphicons_244_conversation@2x.png);
-    background-size: 68%;
+  .users { 
+
+    &.synchronizing a:before {
+      .spinning-image('glyphicons_081_refresh@2x', 10px, 1px, -22px, 4s, forward);
+      .animation-play-state(running);
+    }
+
+    a {
+      background-image: url(/img/glyphicons/white/glyphicons_245_chat@2x.png);
+      background-size: 70%;
+
+    }
   }
   .metrics a { background-image: url(/img/glyphicons/white/glyphicons_041_charts@2x.png); }
   .prefs a { background-image: url(/img/glyphicons/white/glyphicons_280_settings@2x.png); }
@@ -66,13 +75,11 @@ background: @menubar-background;
 
     a {
       &:before {
-        .cog(18px, -4px, -4px);
-        .spin(4s);
+        .spinning-image('white/glyphicons_019_cogwheel@2x', 18px, -4px, -4px, 4s, forward);
       }
 
       &:after {
-        .cog(14px, 6px, 6px);
-        .spin(4s, reverse);
+        .spinning-image('white/glyphicons_019_cogwheel@2x', 14px, 6px, 6px, 4s, reverse);
       }
     }
 
@@ -85,7 +92,7 @@ background: @menubar-background;
 
 
 
-.cog(@dimension, @offsetLeft, @offsetTop) {
+.spinning-image(@image, @dimension, @offsetLeft, @offsetTop, @spin, @direction) {
   content: '';
   position: absolute;
   left: 50%;
@@ -94,10 +101,11 @@ background: @menubar-background;
   margin-top: @dimension / 2 * -1px + @offsetTop;
   width: @dimension;
   height: @dimension;
-  background-image: url(/img/glyphicons/white/glyphicons_019_cogwheel@2x.png); 
+  background-image: url("/img/glyphicons/@{image}.png"); 
   background-size: 100%;
   background-position: center;
   background-repeat: no-repeat;
+  .spin(@spin, @direction);
 }
 
 

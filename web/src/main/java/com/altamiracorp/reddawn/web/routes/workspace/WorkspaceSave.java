@@ -19,48 +19,58 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class WorkspaceSave implements Handler, AppAware {
-    private static final String DEFAULT_WORKSPACE_TITLE = "Default";
-    private WorkspaceRepository workspaceRepository = new WorkspaceRepository();
-    private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceSave.class.getName());
-    private WebApp app;
+	private static final String DEFAULT_WORKSPACE_TITLE = "Default";
+	private WorkspaceRepository workspaceRepository = new WorkspaceRepository();
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(WorkspaceSave.class.getName());
+	private WebApp app;
 
-    @Override
+	@Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
-        User currentUser = User.getUser(request);
-
-        String title = request.getParameter("title");
         String data = request.getParameter("data");
         String workspaceRowKeyString = (String) request.getAttribute("workspaceRowKey");
 
-        WorkspaceRowKey workspaceRowKey;
+        Workspace workspace;
         if (workspaceRowKeyString == null) {
-            workspaceRowKey = new WorkspaceRowKey(currentUser.getId(), String.valueOf(System.currentTimeMillis()));
-        } else {
-            workspaceRowKey = new WorkspaceRowKey(workspaceRowKeyString);
+            workspace = handleNew (request);
+        } else { 
+            workspace  = new Workspace(new WorkspaceRowKey(workspaceRowKeyString));
         }
 
-        LOGGER.info("Saving workspace: " + workspaceRowKey + "\ntitle: " + title + "\ndata: " + data);
+        LOGGER.info("Saving workspace: " + workspace.getRowKey() + "\ntitle: " + workspace.getMetadata().getTitle() + "\ndata: " + data);
 
-        Workspace workspace = new Workspace(workspaceRowKey);
+        
         if (data != null) {
             workspace.getContent().setData(data);
         }
-        if (title != null) {
-            workspace.getMetadata().setTitle(title);
-        } else {
-            workspace.getMetadata().setTitle(DEFAULT_WORKSPACE_TITLE);
-        }
+
 
         workspaceRepository.save(session.getModelSession(), workspace);
         JSONObject resultJson = new JSONObject();
-        resultJson.put("workspaceId", workspaceRowKey.toString());
+        resultJson.put("workspaceId", workspace.getRowKey().toString());
 
         new Responder(response).respondWith(resultJson);
     }
 
-    @Override
-    public void setApp(App app) {
-        this.app = (WebApp) app;
-    }
+	public Workspace handleNew(HttpServletRequest request) {
+		User currentUser = User.getUser(request);
+		WorkspaceRowKey workspaceRowKey = new WorkspaceRowKey(
+				currentUser.getId(), String.valueOf(System.currentTimeMillis()));
+		Workspace workspace = new Workspace(workspaceRowKey);
+		String title = request.getParameter("title");
+
+		if (title != null) {
+			workspace.getMetadata().setTitle(title);
+		} else {
+			workspace.getMetadata().setTitle(DEFAULT_WORKSPACE_TITLE);
+		}
+
+		return workspace;
+	}
+
+	@Override
+	public void setApp(App app) {
+		this.app = (WebApp) app;
+	}
 }

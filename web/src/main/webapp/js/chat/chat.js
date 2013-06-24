@@ -71,17 +71,26 @@ define([
                 message: message
             }));
 
-            var bottom = $chatWindow[0].scrollHeight - $chatWindow.height();
-            $chatWindow.animate({scrollTop:bottom}, 'fast');
+            this.scrollWindowToBottom($chatWindow);
         };
 
 		this.checkChatWindow = function (userId) {
-		    var $chatWindow = $('#chat-window-' + userId);
+            var $chatWindow = $('#chat-window-' + userId);
             if ($chatWindow.length === 0) {
                 this.trigger('createChatWindow', { id:userId, activate:true });
                 $chatWindow = $('#chat-window-' + userId);
             }	
-		}
+
+            this.scrollWindowToBottom($chatWindow);
+		};
+
+        this.scrollWindowToBottom = function(chatWindow) {
+            clearTimeout(this.scrollTimeout);
+            this.scrollTimeout = setTimeout(function() {
+                var bottom = chatWindow[0].scrollHeight - chatWindow.height();
+                chatWindow.clearQueue().animate({scrollTop:bottom}, 'fast');
+            }, 100);
+        };
 
         this.onMessage = function(evt, message) {
 			switch (message.type) {

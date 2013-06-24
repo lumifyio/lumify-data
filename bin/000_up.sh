@@ -1,3 +1,3 @@
 #!/bin/bash
 
-vagrant up
+[ "${VIRTUALIZATION_DISABLED}" = 'true' ] || vagrant up
