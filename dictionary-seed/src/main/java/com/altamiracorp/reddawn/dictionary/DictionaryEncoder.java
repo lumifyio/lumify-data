@@ -12,10 +12,7 @@ public class DictionaryEncoder {
     private String directoryPath;
     protected Tokenizer tokenizer;
     private StringBuilder currentEntries = new StringBuilder();
-    private static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-    private static final String DICTIONARY_ROOT_ELEMENT_OPEN = "<dictionary case_sensitive=\"false\">\n";
     private boolean fileIsOpen = false;
-    private static final String DICTIONARY_ROOT_ELEMENT_CLOSE = "</dictionary>";
 
     public DictionaryEncoder(String directoryPath) {
         InputStream modelIn = null;
@@ -68,8 +65,6 @@ public class DictionaryEncoder {
         FileWriter fout = null;
         try {
             fout = new FileWriter(file);
-            fout.write(XML_HEADER);
-            fout.write(DICTIONARY_ROOT_ELEMENT_OPEN);
         } catch (IOException e) {
             throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
         } finally {
@@ -90,7 +85,6 @@ public class DictionaryEncoder {
         FileWriter fout = null;
         try {
             fout = new FileWriter(file, true);
-            fout.write(DICTIONARY_ROOT_ELEMENT_CLOSE);
         } catch (IOException e) {
             throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
         } finally {
@@ -114,11 +108,14 @@ public class DictionaryEncoder {
     }
 
     private void addTaggedTokenizedEntry(String entry) {
-        currentEntries.append("<entry>");
-        for (String s : tokenizer.tokenize(entry)) {
-            currentEntries.append("<token>" + s + "</token>");
+        String[] tokens = tokenizer.tokenize(entry);
+        for (int i = 0; i < tokens.length; i++) {
+            if(i != 0) {
+                currentEntries.append('\t');
+            }
+            currentEntries.append(tokens[i]);
         }
-        currentEntries.append("</entry>\n");
+        currentEntries.append("\n");
     }
 
     private void appendCurrentEntriesToFile() {
