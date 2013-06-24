@@ -45,7 +45,12 @@ done
 if [ -z "$DIR" ]
 then
     DIR="${CURRENTDIR}/../data/searcher/"
+    if [ ! -e $DIR ]
+    then 
+	    mkdir -p $DIR
+    fi
 fi
+
 
 if [ -z "$PROVIDER" ]
 then
