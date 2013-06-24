@@ -23,7 +23,7 @@ fi
 if [ "$1" != '' ]; then
   filename=$1
 else
-  filename=${DIR}/../allCountries.txt
+  filename=${DIR}/../data/allCountries.txt
 fi
 
 java \
