@@ -20,6 +20,13 @@
      <name>dfs.safemode.min.datanodes</name>
      <value>1</value>
   </property>
+
+  <property>
+     <!-- This value is changing name 0.22 and is defaulted to 4096. -->
+     <name>dfs.datanode.max.xcievers</name>
+     <value>4096</value>
+  </property>
+
   <property>
      <!-- specify this so that running 'hadoop namenode -format' formats the right dir -->
      <name>dfs.name.dir</name>
