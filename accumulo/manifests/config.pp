@@ -41,6 +41,13 @@ class accumulo::config ($javaHome, $user = 'accumulo', $group = 'hadoop') {
     require => Exec['copy-example-config'],
   }
 
+  find-and-replace { 'accumulo-site.xml' :
+    file => '/opt/accumulo-conf/accumulo-site.xml',
+    find => '<value>secret</value>',
+    replace => "<value>password</value>",
+    require => Exec['copy-example-config'],
+  }
+
   exec { 'vm.swappiness=10 online' :
     command => '/sbin/sysctl -w vm.swappiness=10',
     unless => '/usr/bin/test $(/sbin/sysctl -n vm.swappiness) -eq 10',
