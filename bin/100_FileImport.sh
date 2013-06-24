@@ -17,7 +17,7 @@ fi
 if [ "$1" != '' ]; then
   dir=$1
 else
-  dir=${DIR}/../data
+  dir=${DIR}/../data/import
 fi
 
 if [ "${VIRTUALIZATION_DISABLED}" = 'true' ]; then
