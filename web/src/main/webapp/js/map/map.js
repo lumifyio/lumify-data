@@ -31,15 +31,29 @@ define([
             this.on(document, 'nodesUpdate', this.onNodesUpdate);
             this.on(document, 'nodesDelete', this.onNodesDelete);
             this.on(document, 'windowResize', this.onMapEndPan);
+            this.on(document, 'syncEnded', this.onSyncEnded);
         });
 
         this.map = function(callback) {
             if ( this.mapLoaded ) {
                 callback.call(this, this._map);
-                //this.drainCallbackQueue();
             } else {
                 callbackQueue.push( callback );
             }
+        };
+
+
+        this.onSyncEnded = function() {
+            this.map(function(map) {
+                if (this.syncPolyline) {
+                    map.removePolyline(this.syncPolyline);
+                    this.syncPolyline = null;
+                }
+                if (this.syncNameMarker) {
+                    map.removeMarker(this.syncNameMarker);
+                    this.syncNameMarker = null;
+                }
+            });
         };
 
 
