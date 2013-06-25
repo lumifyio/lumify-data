@@ -312,11 +312,6 @@ define([
             map.enableScrollWheelZoom();
 
             this.fixSize();
-            // TODO: Is this necessary?
-            //var self = this;
-            //workspaceData.data.nodes.forEach(function(node) {
-                //self.updateOrAddNode(node);
-            //});
         };
 
 
