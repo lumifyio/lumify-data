@@ -45,10 +45,9 @@ public class Crawler {
         return new HttpRetrievalManager();
     }
 
-    public Timestamp getCurrentTimestamp() {
-        Calendar calendar = Calendar.getInstance();
-        Date now = calendar.getTime();
-        return new Timestamp(now.getTime());
+    public long getCurrentTimestamp() {
+        long unixTime = System.currentTimeMillis() / 1000L;
+        return unixTime;
     }
 
 }
