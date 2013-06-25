@@ -122,6 +122,15 @@ define([
                 } else {
                     result.title = 'Error: unknown type: ' + data.type;
                 }
+
+                // Check if this result is in the graph/map
+                var classes = [encodeURIComponent(result.rowKey)];
+                if (_currentNodes[result.rowKey]) {
+                    classes.push('graph-displayed');
+                }
+                // TODO: how to check if result has location information?
+                // classes.push('map-displayed');
+                result.className = classes.join(' ');
             });
 
 
@@ -187,7 +196,46 @@ define([
 			this.on('keyup', {
 				searchQuerySelector: this.onKeyUp
 			});
+
+            this.on(document, 'nodesAdd', this.onNodesUpdate);
+            this.on(document, 'nodesUpdate', this.onNodesUpdate);
+            this.on(document, 'nodesDelete', this.onNodesDelete);
+            this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
         });
+
+
+        // Track changes to nodes so we display the "Displayed in Graph" icon
+        // in search results
+        var _currentNodes = {};
+        this.toggleSearchResultIcon = function(rowKey, inGraph, inMap) {
+            this.$node
+                .find('li.' + encodeURIComponent(rowKey).replace(/%/g,"\\%"))
+                .toggleClass('graph-displayed', inGraph)
+                .toggleClass('map-displayed', inMap);
+        };
+
+        // Switching workspaces should clear the icon state and nodes
+        this.onSwitchWorkspace = function() {
+            this.$node.find('li.graph-displayed').removeClass('graph-displayed');
+            this.$node.find('li.map-displayed').removeClass('map-displayed');
+            _currentNodes = {};
+        };
+
+        this.onNodesUpdate = function(event, data) {
+            var self = this;
+            (data.nodes || []).forEach(function(node) {
+                _currentNodes[node.rowKey] = true;
+                self.toggleSearchResultIcon(node.rowKey, true, false);
+            });
+        };
+
+        this.onNodesDelete = function(event, data) {
+            var self = this;
+            (data.nodes || []).forEach(function(node) {
+                delete _currentNodes[node.rowKey];
+                self.toggleSearchResultIcon(node.rowKey, false, false);
+            });
+        };
 
 
         this.applyDraggable = function(el) {
@@ -198,10 +246,13 @@ define([
                 appendTo: 'body',
                 revert: 'invalid',
                 revertDuration: 250,
-                addClass: false,
                 scroll: false,
                 zIndex: 100,
                 multi: true,
+                otherDraggablesClass: 'search-result-dragging',
+                start: function(ev, ui) {
+                    $(ui.helper).addClass('search-result-dragging');
+                },
                 otherDraggables: function(ev, ui){
 
                     ui.otherDraggables.each(function(){

@@ -1,8 +1,17 @@
 <% results.forEach(function(result) { %>
-<li data-info="<%= JSON.stringify({
+<li class="<%= result.className %>" data-info="<%= JSON.stringify({
       'rowKey': result.rowKey,
       'type': type,
       'subType': subType
-    }) %>"><a href="<%= result.url %>"><%= result.title || "No title available" %><div><span class="date"><%= result.publishedDate ? new Date(result.publishedDate).toDateString() : '' %></span><span class="source"><%= result.source || '' %></span></div></a>
+    }) %>"><a href="<%= result.url %>"><%= result.title || "No title available" %>
+      <ul>
+        <li class="graph"><button title="Displayed in Graph" href="#">Graph</button></li>
+        <li class="map"><button title="Displayed in Map" href="#">Map</button></li>
+      </ul>
+      <div>
+        <span class="date"><%= result.publishedDate ? new Date(result.publishedDate).toDateString() : '' %></span>
+        <span class="source"><%= result.source || '' %></span>
+      </div>
+    </a>
 </li>
 <% }); %>

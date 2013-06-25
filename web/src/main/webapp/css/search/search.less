@@ -52,9 +52,53 @@ width: 175px;
     .box-sizing(border-box);
 
     li {
+      position: relative;
+
       &.active {
         .source, .date {
           color: #eee;
+        }
+        .graph button {
+          background-image: url(/img/glyphicons/white/glyphicons_326_share@2x.png);
+        }
+        .map button {
+          background-image: url(/img/glyphicons/white/glyphicons_242_google_maps@2x.png);
+        }
+      }
+
+      &.graph-displayed li.graph { display: block; }
+      &.map-displayed li.map { display: block; }
+
+      ul {
+        position: absolute;
+        left: -16px;
+        top: 2px;
+        margin: 0;
+        padding: 0;
+        width: 16px;
+        overflow: hidden;
+
+        li {
+          display: none;
+
+          button {
+            background-size: 48%;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            background-position: center center;
+            height: 20px;
+            width: 100%;
+            font-size: 0;
+            border: 0;
+          }
+
+          &.graph button {
+            background-image: url(/img/glyphicons/glyphicons_326_share@2x.png);
+          }
+
+          &.map button {
+            background-image: url(/img/glyphicons/glyphicons_242_google_maps@2x.png);
+          }
         }
       }
     }
