@@ -168,7 +168,7 @@ define([
 			
 			this.select('searchQuerySelector').val(data.query);
 			this.currentQuery = data.query;
-		}
+		};
 
         this.close = function(e) {
             this.select('searchResultsSelector').hide();
