@@ -125,11 +125,11 @@ define([
 
                 // Check if this result is in the graph/map
                 var classes = [encodeURIComponent(result.rowKey)];
-                if (_currentNodes[result.rowKey]) {
-                    classes.push('graph-displayed');
+                var nodeState = _currentNodes[result.rowKey];
+                if (nodeState) {
+                    if ( nodeState.inGraph ) classes.push('graph-displayed');
+                    if ( nodeState.inMap ) classes.push('map-displayed');
                 }
-                // TODO: how to check if result has location information?
-                // classes.push('map-displayed');
                 result.className = classes.join(' ');
             });
 
@@ -224,8 +224,14 @@ define([
         this.onNodesUpdate = function(event, data) {
             var self = this;
             (data.nodes || []).forEach(function(node) {
-                _currentNodes[node.rowKey] = true;
-                self.toggleSearchResultIcon(node.rowKey, true, false);
+
+                // Only care about node search results and location updates
+                if ( (node.type && node.subType) || node.location || node.locations ) {
+                    var inGraph = true;
+                    var inMap = !!(node.location || node.locations);
+                    _currentNodes[node.rowKey] = { inGraph:inGraph, inMap:inMap };
+                    self.toggleSearchResultIcon(node.rowKey, inGraph, inMap);
+                }
             });
         };
 
