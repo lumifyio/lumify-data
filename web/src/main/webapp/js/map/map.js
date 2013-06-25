@@ -217,6 +217,20 @@ define([
                 if (this.syncPolyline) {
                     map.removePolyline(this.syncPolyline);
                 }
+                if (this.syncNameMarker) {
+                    map.removeMarker(this.syncNameMarker);
+                }
+                
+                var imageSize = [0,0];
+                var imageUrl = this.cachedRenderName(data.remoteInitiator, imageSize, 
+                    polyline.color, '#fff', 'rgba(0,0,0,0.5)');
+                if ( imageUrl ) {
+                    // Place in bottom left corner and move to make even with
+                    // border
+                    this.syncNameMarker = new mxn.Marker(points[0]);
+                    this.syncNameMarker.setIcon(imageUrl, imageSize, [2,0]);
+                    map.addMarker(this.syncNameMarker);
+                } else console.warn('Unable to create name marker');
 
                 map.addPolyline(polyline);
                 this.syncPolyline = polyline;
@@ -289,6 +303,76 @@ define([
             //workspaceData.data.nodes.forEach(function(node) {
                 //self.updateOrAddNode(node);
             //});
+        };
+
+
+        this.cachedRenderName = function(name, imageSize) {
+            if ( ! this.cachedNames ) {
+                this.cachedNames = [];
+                this.cachedSizes = [];
+            }
+
+            var url = this.cachedNames[ name ];
+            if ( ! url ) {
+                url = this.renderNameToDataUrl.apply(this, arguments);
+                this.cachedNames[ name ] = url;
+                this.cachedSizes[ name ] = imageSize;
+            }
+
+            imageSize[0] = this.cachedSizes[ name ][0];
+            imageSize[1] = this.cachedSizes[ name ][1];
+
+            return url;
+        };
+
+        // Map only allows adding an image overlay, so create one
+        // using canvas and dataURL's
+        this.renderNameToDataUrl = function(name, imageSize, backgroundColor, fontColor, shadowColor) {
+
+            var FONT_SIZE = 14,
+                PADDING = 10,
+                HEIGHT = FONT_SIZE * 1.5,
+                TEXT_BASELINE = HEIGHT * 0.7,
+                canvas = document.createElement('canvas');
+
+            canvas.width = 200;
+            canvas.height = HEIGHT;
+            if ( ! canvas ) return console.warn('Unable to create canvas object for name label');
+            if ( ! canvas.toDataURL ) return console.warn('Unable to retrieve canvas contents as data url');
+
+            var ctx = canvas.getContext('2d');
+            if ( ! ctx ) return console.warn('Unable to get canvas context for name label');
+
+            function render() {
+                function setup() {
+                    ctx.clearRect(0,0,canvas.width,canvas.height);
+                    ctx.font = FONT_SIZE + 'px HelveticaNeue, Arial';
+                }
+                setup();
+                var size = ctx.measureText(name);
+                canvas.width = size.width + PADDING * 2;
+                imageSize[0] = canvas.width;
+                imageSize[1] = canvas.height;
+                setup();
+
+                // Background
+                ctx.fillStyle = backgroundColor || '#000';
+                ctx.fillRect(0,0,canvas.width, canvas.height);
+
+                // Text Shadow
+                if (shadowColor) {
+                    ctx.fillStyle = shadowColor;
+                    ctx.fillText(name, PADDING, TEXT_BASELINE - 1);
+                }
+
+                // Text
+                ctx.fillStyle = fontColor || '#fff';
+                ctx.fillText(name, PADDING, TEXT_BASELINE);
+
+                return canvas.toDataURL();
+            }
+
+            return render();
         };
     }
 });
