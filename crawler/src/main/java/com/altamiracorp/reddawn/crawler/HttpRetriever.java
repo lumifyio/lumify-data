@@ -62,10 +62,8 @@ public class HttpRetriever implements Runnable {
             if (!isSuccessfulConnection(response)) {
                 return stringBuilder;
             }
-
-            stringBuilder.append(getResponseHeaders(response));
+            stringBuilder.append(getLastModified(response));
             stringBuilder.append(getResponseContent(response));
-
         } catch (IOException ex) {
             httpGet.abort();
             System.err.println("\033[31m[Error] Problem with Http Request on URL: " + httpGet.getURI() + "\033[0m");
@@ -75,11 +73,24 @@ public class HttpRetriever implements Runnable {
     }
 
     private String getResponseHeaders(HttpResponse response) {
+        // TODO decide if we want to use this anywhere else, otherwise delete this method
         StringBuilder stringBuilder = new StringBuilder();
         for (Header s : response.getAllHeaders()) {
             stringBuilder.append(s + "\n");
         }
         return stringBuilder.toString();
+    }
+
+    public String getLastModified(HttpResponse response)
+    {
+        String tag = "";
+        for (Header s : response.getAllHeaders()) {
+            if (s.getName().contains("Last-Modified")) {
+                tag = "<meta property=\"atc:last-modified\" content=\"" + s.getValue() + "\">\n";
+                return tag;
+            }
+        }
+        return tag;
     }
 
     private String getResponseContent(HttpResponse response) throws IOException {
