@@ -16,6 +16,8 @@ import org.apache.tika.sax.BodyContentHandler;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -144,19 +146,6 @@ public class TikaTextExtractor implements TextExtractor {
         return date;
     }
 
-    // TODO: add domain extraction magic here
-    private String extractUrl(Metadata metadata) {
-        // find the title metadata property, if there is one
-        String url = "";
-        String urlKey = TikaMetadataUtils.findKey(urlKeys, metadata);
-
-        if (urlKey != null) {
-            url = metadata.get(urlKey);
-        }
-
-        return url;
-    }
-
     private Long extractRetrievalTime(Metadata metadata) {
         Long retrievalTime = 0l;
         String retrievalTimeKey = TikaMetadataUtils.findKey(retrievalTimestampKeys, metadata);
@@ -179,4 +168,25 @@ public class TikaTextExtractor implements TextExtractor {
 
         return field;
     }
+
+        private String extractUrl(Metadata metadata) {
+        // find the url metadata property, if there is one; strip down to domain name
+        String url = "";
+        String urlKey = TikaMetadataUtils.findKey(urlKeys, metadata);
+        String host = "";
+        if (urlKey != null) {
+            url = metadata.get(urlKey);
+            try {
+                URL netUrl = new URL(url);
+                host = netUrl.getHost();
+                if(host.startsWith("www")){
+                    host = host.substring("www".length()+1);
+                }
+            } catch (MalformedURLException e) {
+                throw new RuntimeException("Bad url: " + url);
+            }
+        }
+        return host;
+    }
+
 }
