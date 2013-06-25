@@ -217,6 +217,16 @@ define([
                 if (this.syncPolyline) {
                     map.removePolyline(this.syncPolyline);
                 }
+                if (this.syncNameMarker) {
+                    map.removeMarker(this.syncNameMarker);
+                }
+                
+                var imageUrl = this.renderNameToDataUrl(data.remoteInitiator);
+                if ( imageUrl ) {
+                    this.syncNameMarker = new mxn.Marker(points[0]);
+                    this.syncNameMarker.setIcon(imageUrl, [200,50], [0,0]);
+                    map.addMarker(this.syncNameMarker);
+                } else console.warn('Unable to create name marker');
 
                 map.addPolyline(polyline);
                 this.syncPolyline = polyline;
@@ -289,6 +299,46 @@ define([
             //workspaceData.data.nodes.forEach(function(node) {
                 //self.updateOrAddNode(node);
             //});
+        };
+
+
+        // Map only allows adding an image overlay, so create one
+        // using canvas and dataURL's and cache it.
+        this.renderNameToDataUrl = function(name) {
+            if ( ! this.cachedNames ) this.cachedNames = [];
+
+            var url = this.cachedNames[ name ];
+
+            if (url) return url;
+
+            var canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 50;
+            if ( ! canvas ) return;
+
+            var ctx = canvas.getContext('2d');
+            if ( ! ctx ) return;
+
+            ctx.font = '12pt Helvetica';
+            var size = ctx.measureText(name);
+
+            // TODO: lots of magic numbers here...
+
+            ctx.fillStyle = '#909090';
+            ctx.fillRect(0,0,size.width + 10, 20);
+
+            ctx.fillStyle = '#000';
+            ctx.fillText(name, 5, 15);
+
+            ctx.fillStyle = '#fff';
+            ctx.fillText(name, 5, 14);
+
+
+            var dataURL = canvas.toDataURL();
+            this.cachedNames[ name ] = dataURL;
+
+
+            return dataURL;
         };
     }
 });
