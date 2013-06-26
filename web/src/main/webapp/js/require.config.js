@@ -15,12 +15,14 @@ var require = {
     ejs:  '../libs/ejs/ejs',
     tpl: '../libs/requirejs-ejs-plugin/rejs',
     cytoscape: '../libs/cytoscape/cytoscape',
-	atmosphere: '../libs/jquery.atmosphere/jquery.atmosphere'
+	atmosphere: '../libs/jquery.atmosphere/jquery.atmosphere',
+    html2canvas: '../libs/html2canvas/html2canvas'
   },
   shim: {
     ejs: { exports: 'ejs' },
     cytoscape: { exports: 'cytoscape' },
-	atmosphere: { exports: 'jQuery' }
+	atmosphere: { exports: 'jQuery' },
+    html2canvas: { exports: 'html2canvas' }
   },
   deps : ['reddawn']
 };
