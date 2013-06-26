@@ -12,6 +12,7 @@
     "flight-mocha": "latest",
     "sinon-chai": "~2.4.0",
     "sinon": "~1.7.1",
-	"jquery.atmosphere": "latest"
+    "html2canvas": "~0.4.0",
+    "jquery.atmosphere": "latest"
   }
 }

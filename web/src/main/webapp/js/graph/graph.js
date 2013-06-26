@@ -5,8 +5,9 @@ define([
     'cytoscape',
     './renderer',
     'tpl!./graph',
-    'util/throttle'
-], function(defineComponent, cytoscape, Renderer, template, throttle) {
+    'util/throttle',
+    'util/previews'
+], function(defineComponent, cytoscape, Renderer, template, throttle, previews) {
     'use strict';
 
     return defineComponent(Graph);
@@ -58,6 +59,12 @@ define([
                     var cyNode = cy.add(cyNodeData);
                     cyNode.addClass(node.subType);
                     cyNode.addClass(node.type);
+
+                    if (node.type === 'artifacts') {
+                        previews.generatePreview(node.rowKey, { width:178 }, function(dataUri) {
+                            cyNode.css('background-image', dataUri);
+                        });
+                    }
                 });
 
                 this.setWorkspaceDirty();
@@ -351,8 +358,8 @@ define([
             cytoscape("renderer", "red-dawn", Renderer);
             cytoscape({
                 showOverlay: false,
-                minZoom: 0.5,
-                maxZoom: 2,
+                minZoom: 1 / 3,
+                maxZoom: 3,
                 container: this.select('cytoscapeContainerSelector').css({height:'100%'})[0],
                 renderer: {
                     name: 'red-dawn'
@@ -365,8 +372,8 @@ define([
                   .selector('node.location')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_242_google_maps@2x.png',
-                      'width': 18 * scale,
-                      'height': 30 * scale,
+                      'width': 30 * scale,
+                      'height': 40 * scale,
                       'border-color': 'white',
                       'border-width': 0
                     })
@@ -379,16 +386,18 @@ define([
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'rectangle',
-                      'width': 23 * scale,
-                      'height': 30 * scale 
+                      'width': 60 * scale,
+                      'height': 60 * 1.2 * scale,
+                      'border-color': '#ccc',
+                      'border-width': 1
                     })
                   .selector('node')
                     .css({
-                      'width': 25 * scale,
-                      'height': 25 * scale,
+                      'width': 30 * scale,
+                      'height': 30 * scale,
                       'content': 'data(title)',
                       'font-family': 'helvetica',
-                      'font-size': 14 * scale,
+                      'font-size': 18 * scale,
                       'text-outline-width': 2,
                       'text-outline-color': 'white',
                       'text-valign': 'bottom',
