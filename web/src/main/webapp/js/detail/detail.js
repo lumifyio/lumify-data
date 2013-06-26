@@ -4,8 +4,9 @@ define([
     'service/ucd',
     'tpl!./artifactDetails',
     'tpl!./entityDetails',
-    'tpl!./relationshipDetails'
-], function(defineComponent, UCD, artifactDetailsTemplate, entityDetailsTemplate, relationshipDetailsTemplate) {
+    'tpl!./relationshipDetails',
+    'tpl!./multipleSelection'
+], function(defineComponent, UCD, artifactDetailsTemplate, entityDetailsTemplate, relationshipDetailsTemplate, multipleSelectionTemplate) {
     'use strict';
 
     var HIGHLIGHT_STYLES = [
@@ -68,7 +69,18 @@ define([
         };
 
         this.onSearchResultSelected = function(evt, data) {
-            if(data.type == 'artifacts') {
+
+            if ($.isArray(data) && data.length === 1) {
+                data = data[0];
+            }
+
+            if ( !data || data.length === 0 ) {
+                this.$node.empty();
+                this.currentRowKey = null;
+            } else if($.isArray(data)) {
+                this.$node.html(multipleSelectionTemplate({nodes:data}));
+                this.currentRowKey = null;
+            } else if(data.type == 'artifacts') {
                 this.onArtifactSelected(evt, data);
             } else if(data.type == 'entities') {
                 this.onEntitySelected(evt, data);

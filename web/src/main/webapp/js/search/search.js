@@ -263,18 +263,19 @@ define([
 
                     ui.otherDraggables.each(function(){
                         var info = this.data('original').parent().data('info');
-
                         $this.trigger(this, 'addToGraph', {
-                            text: this.text(), 
+                            text: info.title,
                             info:info
                         });
                     });
                 },
                 selection: function(ev, ui) {
                     var selected = ui.selected,
-                        info = selected.data('info');
+                        info = selected.map(function() {
+                            return $(this).data('info');
+                        }).toArray();
 
-                    $this.trigger(document, 'searchResultSelected', info);
+                    $this.trigger(document, 'searchResultSelected', [info]);
                 }
             });
         };

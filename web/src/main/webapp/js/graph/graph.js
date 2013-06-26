@@ -4,8 +4,9 @@ define([
     'flight/lib/component',
     'cytoscape',
     './renderer',
-    'tpl!./graph'
-], function(defineComponent, cytoscape, Renderer, template) {
+    'tpl!./graph',
+    'util/throttle'
+], function(defineComponent, cytoscape, Renderer, template, throttle) {
     'use strict';
 
     return defineComponent(Graph);
@@ -49,7 +50,8 @@ define([
                             rowKey: node.rowKey,
                             subType: node.subType,
                             type: node.type,
-                            title: title
+                            title: title,
+                            originalTitle: node.title
                         }
                     };
 
@@ -83,6 +85,8 @@ define([
                 });
                 matchingNodes.remove();
                 this.setWorkspaceDirty();
+
+                this.updateNodeSelections(cy);
             });
         };
 
@@ -126,12 +130,35 @@ define([
             });
         };
 
-        this.graphSelect = function(event) {
-            // TODO: multiple selection is two different events
-            this.trigger(document, 'searchResultSelected', event.cyTarget.data());
-        };
-        this.graphUnselect = function(event) {
-            // TODO: send empty event? needs detail to support
+        this.graphTap = throttle('selection', 100, function(event) {
+            if (event.cyTarget === event.cy) {
+                this.trigger(document, 'searchResultSelected');
+            }
+        });
+
+        this.graphSelect = throttle('selection', 100, function(event) {
+            this.updateNodeSelections(event.cy);
+        });
+
+        this.graphUnselect = throttle('selection', 100, function(event) {
+            var self = this,
+                selection = event.cy.nodes().filter(':selected');
+
+            if (!selection.length) {
+                self.trigger(document, 'searchResultSelected');
+            }
+        });
+
+        this.updateNodeSelections = function(cy) {
+            var selection = cy.nodes().filter(':selected'),
+                info = [];
+
+            console.log('selections: ', selection);
+            selection.each(function(index, node) {
+                info.push(node.data());
+            });
+
+            this.trigger(document, 'searchResultSelected', [info]);
         };
 
         this.onKeyHandler = function(event) {
@@ -291,8 +318,7 @@ define([
             this.$node.droppable({
                 drop: function( event, ui ) {
                     var draggable = ui.draggable,
-                        droppableOffset = $(event.target).offset(),
-                        text = draggable.text();
+                        droppableOffset = $(event.target).offset();
 
                     var info = draggable.data('info') || draggable.parents('li').data('info');
                     if ( !info ) {
@@ -302,8 +328,8 @@ define([
 
                     this.trigger(document, 'nodesAdd', {
                         nodes: [{
-                            title: text,
-                            rowKey: info.rowKey,
+                            title: info.title || draggable.text(),
+                            rowKey: info.rowKey.replace(/\\[x](1f)/ig, '\u001f'),
                             subType: info.subType,
                             type: info.type,
                             graphPosition: {
@@ -414,6 +440,7 @@ define([
                     self.on(document, 'addToGraph', self.onAddToGraph);
 
                     cy.on({
+                        tap: self.graphTap.bind(self),
                         select: self.graphSelect.bind(self),
                         unselect: self.graphUnselect.bind(self),
                         grab: self.graphGrab.bind(self),
