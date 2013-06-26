@@ -106,6 +106,9 @@ define( [], function() {
                             cloned = $this.clone().removeAttr('id href').data('original', $this);
 
                         cloned.addClass('ui-draggable-dragging');
+                        if (instance.options.otherDraggablesClass) {
+                            cloned.addClass(instance.options.otherDraggablesClass);
+                        }
                         style.width = width;
                         style.position = 'absolute';
                         style.zIndex = 100;

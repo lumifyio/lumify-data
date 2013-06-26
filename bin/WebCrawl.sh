@@ -44,7 +44,7 @@ done
 
 if [ -z "$DIR" ]
 then
-    DIR="${CURRENTDIR}/../data/searcher/"
+    DIR="${CURRENTDIR}/../data/import/searcher/"
     if [ ! -e $DIR ]
     then 
 	    mkdir -p $DIR
