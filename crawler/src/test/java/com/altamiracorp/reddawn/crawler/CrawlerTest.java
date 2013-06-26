@@ -77,12 +77,10 @@ public class CrawlerTest {
     public void testGetHeader() {
         Query mockedQuery = mock(Query.class);
         when(mockedQuery.getQueryString()).thenReturn("queryInfo");
-        Timestamp mockedTimestamp = mock(Timestamp.class);
-        when(mockedTimestamp.toString()).thenReturn("timestamp");
-        when(crawlerSpy.getCurrentTimestamp()).thenReturn(mockedTimestamp);
+        when(crawlerSpy.getCurrentTimestamp()).thenReturn(1000000000l);
         String result = crawlerSpy.getHeader("url", mockedQuery);
         assertEquals("<meta property=\"atc:result-url\" content=\"url\">\n" +
-                    "<meta property=\"atc:retrieval-timestamp\" content=\"timestamp\">\n" +
+                    "<meta property=\"atc:retrieval-timestamp\" content=\"1000000000\">\n" +
                     "<meta property=\"atc:query-info\" content=\"queryInfo\">\n", result);
     }
 
