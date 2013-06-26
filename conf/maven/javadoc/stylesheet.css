@@ -18,5 +18,5 @@ table[border="1"] td, table[border="1"] th { border: 1px solid #DCDCDC; }
 .NavBarCell1 { background-color:#DCDCDC; }
 .NavBarCell1Rev { background-color:#6495ED; color:#FFFFFF}
 
-.FrameItemFont { font-size: 0.85em; line-height: 1.25em; }
-.FrameHeadingFont { font-size: 80%; }
+.FrameItemFont { font-size: 1em; line-height: 1.5em; }
+.FrameHeadingFont { font-size: 1.25em; }
