@@ -334,7 +334,7 @@ define([
                 this.trigger(document, 'graphShow');
             } else if (data.name === 'map' && !pane.hasClass('visible')) {
                 this.trigger(document, 'graphHide');
-                this.trigger(document, 'mapShow', this.workspaceData); // TODO this is annoying that we have to pass this. The problem is that the graph is lazily loaded.
+                this.trigger(document, 'mapShow');
             }
 
             pane.toggleClass('visible');

@@ -258,18 +258,14 @@ define([
             });
         };
 
-        this.onMapShow = function(evt, workspaceData) {
+        this.onMapShow = function(evt) {
             var self = this;
             if (!this.timeout && !this.mapLoaded) {
-                this.timeout = setTimeout(this.initializeMap.bind(this, workspaceData), 100);
-            } else {
-                workspaceData.data.nodes.forEach(function(node) {
-                    self.updateOrAddNode(node);
-                });
+                this.timeout = setTimeout(this.initializeMap.bind(this), 100);
             }
         };
 
-        this.initializeMap = function(workspaceData) {
+        this.initializeMap = function() {
             delete this.initializeMap;
 
             var self = this;
