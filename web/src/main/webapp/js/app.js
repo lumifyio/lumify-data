@@ -335,6 +335,11 @@ define([
             } else if (data.name === 'map' && !pane.hasClass('visible')) {
                 this.trigger(document, 'graphHide');
                 this.trigger(document, 'mapShow');
+                this.collapse([
+                    this.select('searchSelector'),
+                    this.select('workspacesSelector'),
+                    this.select('detailPaneSelector')
+                ]);
             }
 
             pane.toggleClass('visible');
