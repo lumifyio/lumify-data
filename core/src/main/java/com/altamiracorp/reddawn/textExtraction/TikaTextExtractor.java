@@ -16,6 +16,8 @@ import org.apache.tika.sax.BodyContentHandler;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -28,22 +30,23 @@ public class TikaTextExtractor implements TextExtractor {
     private static final String PROPS_FILE = "tika-extractor.properties";
     private static final String DATE_KEYS_PROPERTY = "tika.extraction.datekeys";
     private static final String SUBJECT_KEYS_PROPERTY = "tika.extraction.titlekeys";
+    private static final String URL_KEYS_PROPERTY = "tika.extraction.urlkeys";
+    private static final String TYPE_KEYS_PROPERTY = "tika.extraction.typekeys";
+    private static final String EXT_URL_KEYS_PROPERTY = "tika.extraction.exturlkeys";
+    private static final String SRC_TYPE_KEYS_PROPERTY = "tika.extraction.srctypekeys";
+    private static final String RETRIEVAL_TIMESTAMP_KEYS_PROPERTY = "tika.extraction.retrievaltimestampkeys";
 
-    /**
-     * A collection of potential metadata keys for the publish date of a
-     * document
-     */
     private List<String> dateKeys;
+    private List<String> subjectKeys;
+    private List<String> urlKeys;
+    private List<String> typeKeys;
+    private List<String> extUrlKeys;
+    private List<String> srcTypeKeys;
+    private List<String> retrievalTimestampKeys;
 
     @Override
     public void setup(Mapper.Context context) {
     }
-
-    /**
-     * A collection of potential metadata keys for the title/subject of a
-     * document
-     */
-    private List<String> subjectKeys;
 
     public TikaTextExtractor() {
         // TODO: Create an actual properties class?
@@ -60,8 +63,14 @@ public class TikaTextExtractor implements TextExtractor {
             e.printStackTrace();
         }
 
-        dateKeys = Arrays.asList(tikaProperties.getProperty(DATE_KEYS_PROPERTY, "date,published,pubdate").split(","));
+        dateKeys = Arrays.asList(tikaProperties.getProperty(DATE_KEYS_PROPERTY, "date,published,pubdate,publish_date,last-modified, atc:last-modified").split(","));
         subjectKeys = Arrays.asList(tikaProperties.getProperty(SUBJECT_KEYS_PROPERTY, "title,subject").split(","));
+        urlKeys = Arrays.asList(tikaProperties.getProperty(URL_KEYS_PROPERTY, "url,og:url").split(","));
+        typeKeys = Arrays.asList(tikaProperties.getProperty(TYPE_KEYS_PROPERTY, "Content-Type").split(","));
+        extUrlKeys = Arrays.asList(tikaProperties.getProperty(EXT_URL_KEYS_PROPERTY, "atc:result-url").split(","));
+        srcTypeKeys = Arrays.asList(tikaProperties.getProperty(SRC_TYPE_KEYS_PROPERTY, "og:type").split(","));
+        retrievalTimestampKeys = Arrays.asList(tikaProperties.getProperty(RETRIEVAL_TIMESTAMP_KEYS_PROPERTY, "atc:retrieval-timestamp").split(","));
+
     }
 
     @Override
@@ -95,7 +104,12 @@ public class TikaTextExtractor implements TextExtractor {
         result.setMediaType(mimeType);
 
         result.setDate(extractDate(metadata));
-        result.setSubject(extractSubject(metadata));
+        result.setSubject(extractTextField(metadata, subjectKeys));
+        result.setUrl(extractUrl(metadata));
+        result.setType(extractTextField(metadata, typeKeys));
+        result.setExtUrl(extractTextField(metadata, extUrlKeys));
+        result.setSrcType(extractTextField(metadata, srcTypeKeys));
+        result.setRetrievalTime(extractRetrievalTime(metadata));
 
         return result;
     }
@@ -132,15 +146,46 @@ public class TikaTextExtractor implements TextExtractor {
         return date;
     }
 
-    private String extractSubject(Metadata metadata) {
-        // find the title metadata property, if there is one
-        String title = "";
-        String titleKey = TikaMetadataUtils.findKey(subjectKeys, metadata);
+    private Long extractRetrievalTime(Metadata metadata) {
+        Long retrievalTime = 0l;
+        String retrievalTimeKey = TikaMetadataUtils.findKey(retrievalTimestampKeys, metadata);
 
-        if (titleKey != null) {
-            title = metadata.get(titleKey);
+        if (retrievalTimeKey != null) {
+            retrievalTime = Long.parseLong(metadata.get(retrievalTimeKey));
         }
 
-        return title;
+        return retrievalTime;
     }
+
+    private String extractTextField(Metadata metadata, List<String> keys) {
+        // find the title metadata property, if there is one
+        String field = "";
+        String fieldKey = TikaMetadataUtils.findKey(keys, metadata);
+
+        if (fieldKey != null) {
+            field = metadata.get(fieldKey);
+        }
+
+        return field;
+    }
+
+    private String extractUrl(Metadata metadata) {
+        // find the url metadata property, if there is one; strip down to domain name
+        String urlKey = TikaMetadataUtils.findKey(urlKeys, metadata);
+        String host = "";
+        if (urlKey != null) {
+            String url = metadata.get(urlKey);
+            try {
+                URL netUrl = new URL(url);
+                host = netUrl.getHost();
+                if (host.startsWith("www")) {
+                    host = host.substring("www".length() + 1);
+                }
+            } catch (MalformedURLException e) {
+                throw new RuntimeException("Bad url: " + url);
+            }
+        }
+        return host;
+    }
+
 }

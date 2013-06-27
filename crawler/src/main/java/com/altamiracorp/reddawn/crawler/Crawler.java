@@ -35,9 +35,9 @@ public class Crawler {
 
     protected String getHeader(String url, Query query) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("contentSource: " + url + "\n");
-        stringBuilder.append("timeOfRetrieval: " + getCurrentTimestamp() + "\n");
-        stringBuilder.append("queryInfo: " + query.getQueryInfo() + "\n");
+        stringBuilder.append("<meta property=\"atc:result-url\" content=\"" + url + "\">\n");
+        stringBuilder.append("<meta property=\"atc:retrieval-timestamp\" content=\"" + getCurrentTimestamp() + "\">\n");
+        stringBuilder.append("<meta property=\"atc:query-info\" content=\"" + query.getQueryString() + "\">\n");
         return stringBuilder.toString();
     }
 
@@ -45,10 +45,9 @@ public class Crawler {
         return new HttpRetrievalManager();
     }
 
-    public Timestamp getCurrentTimestamp() {
-        Calendar calendar = Calendar.getInstance();
-        Date now = calendar.getTime();
-        return new Timestamp(now.getTime());
+    public long getCurrentTimestamp() {
+        long unixTime = System.currentTimeMillis() / 1000L;
+        return unixTime;
     }
 
 }
