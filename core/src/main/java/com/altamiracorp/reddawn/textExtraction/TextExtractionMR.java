@@ -65,7 +65,13 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
                 artifact.getGenericMetadata()
                         .setSubject(extractedInfo.getSubject())
                         .setMimeType(extractedInfo.getMediaType())
-                        .setDocumentDtg(extractedInfo.getDate());
+                        .setDocumentDtg(extractedInfo.getDate())
+                        .setDocumentType(extractedInfo.getType())
+                        .setSource(extractedInfo.getUrl())
+                        .setExternalUrl(extractedInfo.getExtUrl())
+                        .setSourceType(extractedInfo.getSrcType())
+                        .setFileTimestamp(extractedInfo.getDate().getTime() / 1000)
+                        .setLoadTimestamp(extractedInfo.getRetrievalTime());
                 context.write(new Text(Artifact.TABLE_NAME), artifact);
             } catch (Exception e) {
                 throw new IOException(e);

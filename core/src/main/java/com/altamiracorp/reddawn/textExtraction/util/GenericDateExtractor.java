@@ -9,17 +9,17 @@ import java.util.List;
 
 public class GenericDateExtractor {
 
-	public static Date extractSingleDate(String dateString) {
-		Parser parser = new Parser();
-		Date extractedDate;
-		List<DateGroup> groups = parser.parse(dateString);
-		
-		// quick and dirty: assume first date of first group
-		List<Date> dates = groups.isEmpty() ? Collections.<Date> emptyList()
-				: groups.get(0).getDates();
+    public static Date extractSingleDate(String dateString) {
+        Parser parser = new Parser();
+        Date extractedDate;
+        List<DateGroup> groups = parser.parse(dateString);
 
-		extractedDate = dates.isEmpty() ? null : dates.get(0);
+        // quick and dirty: assume first date of first group
+        List<Date> dates = groups.isEmpty() ? Collections.<Date>emptyList()
+                : groups.get(0).getDates();
 
-		return extractedDate;
-	}
+        extractedDate = dates.isEmpty() ? null : dates.get(0);
+
+        return extractedDate;
+    }
 }

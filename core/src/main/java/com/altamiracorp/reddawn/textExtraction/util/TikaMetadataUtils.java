@@ -12,7 +12,6 @@ import java.util.List;
  *
  */
 public class TikaMetadataUtils {
-
 	public static String findKey(List<String> potentialKeys, Metadata metadata) {
 		String discoveredKey = null;
 		for (String key : potentialKeys) {
@@ -23,12 +22,12 @@ public class TikaMetadataUtils {
 				}
 			}
 
-			if (discoveredKey != null) {
-				break;
-			}
-		}
+            if (discoveredKey != null) {
+                break;
+            }
+        }
 
-		return discoveredKey;
-	}
+        return discoveredKey;
+    }
 
 }

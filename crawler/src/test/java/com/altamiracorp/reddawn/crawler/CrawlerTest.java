@@ -47,7 +47,7 @@ public class CrawlerTest {
         urls.add("aasd;skdfj");
         urls.add("a;skasdfdfj");
 
-        int expectedNumofCalls = 5;
+        int expectedNumofCalls = urls.size();
 
 
         crawlerSpy.crawl(urls, mockedQuery);
@@ -73,12 +73,12 @@ public class CrawlerTest {
     @Test
     public void testGetHeader() {
         Query mockedQuery = mock(Query.class);
-        when(mockedQuery.getQueryInfo()).thenReturn("queryInfo");
-        Timestamp mockedTimestamp = mock(Timestamp.class);
-        when(mockedTimestamp.toString()).thenReturn("timestamp");
-        when(crawlerSpy.getCurrentTimestamp()).thenReturn(mockedTimestamp);
+        when(mockedQuery.getQueryString()).thenReturn("queryInfo");
+        when(crawlerSpy.getCurrentTimestamp()).thenReturn(1000000000l);
         String result = crawlerSpy.getHeader("url", mockedQuery);
-        assertEquals("contentSource: url\ntimeOfRetrieval: timestamp\nqueryInfo: queryInfo\n", result);
+        assertEquals("<meta property=\"atc:result-url\" content=\"url\">\n" +
+                    "<meta property=\"atc:retrieval-timestamp\" content=\"1000000000\">\n" +
+                    "<meta property=\"atc:query-info\" content=\"queryInfo\">\n", result);
     }
 
 }
