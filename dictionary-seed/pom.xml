@@ -55,4 +55,15 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>../conf/opennlp</directory>
+                <includes>
+                    <include>*.bin</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 </project>

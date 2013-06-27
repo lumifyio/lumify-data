@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.net.URL;
 
 public class DictionaryEncoder {
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryEncoder.class.getName());
@@ -21,8 +22,7 @@ public class DictionaryEncoder {
         TokenizerModel model = null;
 
         try {
-            modelIn = new FileInputStream(System.getProperty("user.dir") +
-                    "/conf/opennlp/en-token.bin");
+            modelIn = getClass().getResourceAsStream("/en-token.bin");
             model = new TokenizerModel(modelIn);
         } catch (Exception e) {
             LOGGER.error("Tokenizer model file cannot be found.");
