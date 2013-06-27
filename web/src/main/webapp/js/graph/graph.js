@@ -62,7 +62,9 @@ define([
 
                     if (node.type === 'artifacts') {
                         previews.generatePreview(node.rowKey, { width:178 }, function(dataUri) {
-                            cyNode.css('background-image', dataUri);
+                            if (dataUri) {
+                                cyNode.css('background-image', dataUri);
+                            }
                         });
                     }
                 });
