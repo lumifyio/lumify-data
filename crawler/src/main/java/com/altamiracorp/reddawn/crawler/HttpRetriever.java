@@ -72,17 +72,7 @@ public class HttpRetriever implements Runnable {
         return stringBuilder;
     }
 
-    private String getResponseHeaders(HttpResponse response) {
-        // TODO decide if we want to use this anywhere else, otherwise delete this method
-        StringBuilder stringBuilder = new StringBuilder();
-        for (Header s : response.getAllHeaders()) {
-            stringBuilder.append(s + "\n");
-        }
-        return stringBuilder.toString();
-    }
-
-    public String getLastModified(HttpResponse response)
-    {
+    public String getLastModified(HttpResponse response) {
         String tag = "";
         for (Header s : response.getAllHeaders()) {
             if (s.getName().contains("Last-Modified")) {

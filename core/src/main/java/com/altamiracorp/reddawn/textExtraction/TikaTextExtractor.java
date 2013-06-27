@@ -30,11 +30,11 @@ public class TikaTextExtractor implements TextExtractor {
     private static final String PROPS_FILE = "tika-extractor.properties";
     private static final String DATE_KEYS_PROPERTY = "tika.extraction.datekeys";
     private static final String SUBJECT_KEYS_PROPERTY = "tika.extraction.titlekeys";
-    private static final String URL_KEYS_PROPERTY = "tike.extraction.urlkeys";
-    private static final String TYPE_KEYS_PROPERTY = "tike.extraction.typekeys";
-    private static final String EXT_URL_KEYS_PROPERTY = "tike.extraction.exturlkeys";
-    private static final String SRC_TYPE_KEYS_PROPERTY = "tike.extraction.srctypekeys";
-    private static final String RETRIEVAL_TIMESTAMP_KEYS_PROPERTY = "tike.extraction.retrievaltimestampkeys";
+    private static final String URL_KEYS_PROPERTY = "tika.extraction.urlkeys";
+    private static final String TYPE_KEYS_PROPERTY = "tika.extraction.typekeys";
+    private static final String EXT_URL_KEYS_PROPERTY = "tika.extraction.exturlkeys";
+    private static final String SRC_TYPE_KEYS_PROPERTY = "tika.extraction.srctypekeys";
+    private static final String RETRIEVAL_TIMESTAMP_KEYS_PROPERTY = "tika.extraction.retrievaltimestampkeys";
 
     private List<String> dateKeys;
     private List<String> subjectKeys;
@@ -150,7 +150,7 @@ public class TikaTextExtractor implements TextExtractor {
         Long retrievalTime = 0l;
         String retrievalTimeKey = TikaMetadataUtils.findKey(retrievalTimestampKeys, metadata);
 
-        if(retrievalTimeKey != null) {
+        if (retrievalTimeKey != null) {
             retrievalTime = Long.parseLong(metadata.get(retrievalTimeKey));
         }
 
@@ -169,18 +169,17 @@ public class TikaTextExtractor implements TextExtractor {
         return field;
     }
 
-        private String extractUrl(Metadata metadata) {
+    private String extractUrl(Metadata metadata) {
         // find the url metadata property, if there is one; strip down to domain name
-        String url = "";
         String urlKey = TikaMetadataUtils.findKey(urlKeys, metadata);
         String host = "";
         if (urlKey != null) {
-            url = metadata.get(urlKey);
+            String url = metadata.get(urlKey);
             try {
                 URL netUrl = new URL(url);
                 host = netUrl.getHost();
-                if(host.startsWith("www")){
-                    host = host.substring("www".length()+1);
+                if (host.startsWith("www")) {
+                    host = host.substring("www".length() + 1);
                 }
             } catch (MalformedURLException e) {
                 throw new RuntimeException("Bad url: " + url);
