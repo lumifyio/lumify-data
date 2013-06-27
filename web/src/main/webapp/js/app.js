@@ -334,7 +334,12 @@ define([
                 this.trigger(document, 'graphShow');
             } else if (data.name === 'map' && !pane.hasClass('visible')) {
                 this.trigger(document, 'graphHide');
-                this.trigger(document, 'mapShow', this.workspaceData); // TODO this is annoying that we have to pass this. The problem is that the graph is lazily loaded.
+                this.trigger(document, 'mapShow');
+                this.collapse([
+                    this.select('searchSelector'),
+                    this.select('workspacesSelector'),
+                    this.select('detailPaneSelector')
+                ]);
             }
 
             pane.toggleClass('visible');
@@ -349,13 +354,19 @@ define([
         this.onSearchResultSelection = function(e, data) {
             var detailPane = this.select('detailPaneSelector');
             var minWidth = 100;
+            var width = 0;
 
-            if (detailPane.width() < minWidth) {
-                detailPane[0].style.width = null;
+            if (data && data.length !== 0) {
+                if (detailPane.width() < minWidth) {
+                    detailPane[0].style.width = null;
+                }
+                width = detailPane.width();
+                detailPane.removeClass('collapsed').addClass('visible');
+            } else {
+                detailPane.removeClass('visible').addClass('collapsed');
             }
-            detailPane.removeClass('collapsed').addClass('visible');
 
-            this.trigger(document, 'detailPaneResize', { width: detailPane.width() });
+            this.trigger(document, 'detailPaneResize', { width: width });
         };
 
         this.onDetailResize = function(e, ui) {
