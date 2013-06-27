@@ -248,6 +248,7 @@
                             </configuration>
                         </plugin>
                     </reportPlugins>
+                    <port>9000</port>
                 </configuration>
             </plugin>
         </plugins>
