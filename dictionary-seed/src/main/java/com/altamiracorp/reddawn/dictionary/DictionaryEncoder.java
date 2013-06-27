@@ -3,32 +3,36 @@ package com.altamiracorp.reddawn.dictionary;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
 public class DictionaryEncoder {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryEncoder.class.getName());
 
     private String filename = "newDictionary.dict";
     private String directoryPath;
     protected Tokenizer tokenizer;
     private StringBuilder currentEntries = new StringBuilder();
-    private boolean fileIsOpen = false;
 
     public DictionaryEncoder(String directoryPath) {
         InputStream modelIn = null;
         TokenizerModel model = null;
 
         try {
-            modelIn = new FileInputStream(System.getProperty("user.dir") + "/../conf/opennlp/en-token.bin");
+            modelIn = new FileInputStream(System.getProperty("user.dir") +
+                    "/conf/opennlp/en-token.bin");
             model = new TokenizerModel(modelIn);
         } catch (Exception e) {
-            throw new RuntimeException("Problem with tokenizer model.");
+            LOGGER.error("Tokenizer model file cannot be found.");
+            throw new RuntimeException(e);
         } finally {
             if (modelIn != null) {
                 try {
                     modelIn.close();
                 } catch (IOException e) {
-                    System.err.println("The tokenizer model could not be closed");
+                    LOGGER.warn("The tokenizer model could not be closed");
                 }
             }
         }
@@ -38,7 +42,11 @@ public class DictionaryEncoder {
 
     public DictionaryEncoder(String directoryPath, String initialFilename) {
         this(directoryPath);
-        initializeDictionaryFile(initialFilename);
+        this.filename = initialFilename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     public void setDirectoryPath(String directoryPath) {
@@ -46,7 +54,7 @@ public class DictionaryEncoder {
         if (!theDir.exists()) {
             boolean created = theDir.mkdir();
             if (created) {
-                System.out.println("Directory " + directoryPath + " created");
+                LOGGER.info("Directory " + directoryPath + " created");
             } else {
                 throw new RuntimeException("Problem creating directory");
             }
@@ -54,50 +62,6 @@ public class DictionaryEncoder {
         this.directoryPath = directoryPath;
     }
 
-    public void initializeDictionaryFile(String filename) {
-        if (fileIsOpen) {
-            closeFile();
-        }
-        fileIsOpen = true;
-        this.filename = filename;
-        System.out.print("Initializing dictionary file " + directoryPath + filename + "... ");
-        File file = new File(directoryPath + "/" + filename);
-        FileWriter fout = null;
-        try {
-            fout = new FileWriter(file);
-        } catch (IOException e) {
-            throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
-        } finally {
-            try {
-                fout.flush();
-                fout.close();
-            } catch (IOException e) {
-                throw new RuntimeException("Problem closing file " + file.getAbsolutePath());
-            }
-
-        }
-        System.out.println("DONE");
-    }
-
-    public void closeFile() {
-        System.out.print("Closing dictionary file " + directoryPath + filename + "... ");
-        File file = new File(directoryPath + "/" + filename);
-        FileWriter fout = null;
-        try {
-            fout = new FileWriter(file, true);
-        } catch (IOException e) {
-            throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
-        } finally {
-            try {
-                fout.flush();
-                fout.close();
-            } catch (IOException e) {
-                throw new RuntimeException("Problem closing file " + file.getAbsolutePath());
-            }
-        }
-        fileIsOpen = false;
-        System.out.println("DONE");
-    }
 
     public void addEntries(String[] entries) {
         currentEntries = new StringBuilder();
@@ -125,16 +89,16 @@ public class DictionaryEncoder {
             fout = new FileWriter(file, true);
             fout.append(currentEntries);
         } catch (IOException e) {
-            throw new RuntimeException("Problem writing to file " + file.getAbsolutePath());
+            throw new RuntimeException(e);
         } finally {
             try {
                 fout.flush();
                 fout.close();
             } catch (IOException e) {
-                throw new RuntimeException("Problem closing file " + file.getAbsolutePath());
+                throw new RuntimeException(e);
             }
         }
-        System.out.println("Wrote entries to dictionary.");
+        LOGGER.info("Wrote entries to dictionary.");
 
     }
 }

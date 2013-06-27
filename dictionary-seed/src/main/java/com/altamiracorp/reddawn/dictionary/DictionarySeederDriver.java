@@ -3,10 +3,13 @@ package com.altamiracorp.reddawn.dictionary;
 
 import org.apache.commons.cli.*;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class DictionarySeederDriver {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySeederDriver.class.getName());
 
     private DictionarySearcher searcher = new DictionarySearcher();
 
@@ -104,15 +107,14 @@ public class DictionarySeederDriver {
         for (String type : types) {
             String category = getSearchCategory(type);
 
-            System.out.println("\n\033[1mSearching for dbpedia class: " + type + "\033[0m");
-            encoder.initializeDictionaryFile(category.toLowerCase() + ".dict");
+            LOGGER.info("\n\033[1mSearching for dbpedia class: " + type + "\033[0m");
+            encoder.setFilename(category.toLowerCase() + ".dict");
 
             long start = System.currentTimeMillis();
             searcher.search(category);
             long end = System.currentTimeMillis();
 
-            encoder.closeFile();
-            System.out.println("\033[34mDictionary built successfully in " + (end - start) / 1000.0 + "s\033[0m");
+            LOGGER.info("\033[34mDictionary built successfully in " + (end - start) / 1000.0 + "s\033[0m");
         }
     }
 

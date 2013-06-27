@@ -112,77 +112,21 @@ public class DictionaryEncoderTest {
     }
 
     @Test
-    public void testInitializeDoc() {
-        DictionaryEncoder encoder2 = new DictionaryEncoder(testDirectory);
-        String testFilename = "/testDictionaryInit.dict";
-        encoder2.initializeDictionaryFile(testFilename);
-        File file = new File(testFilename);
-        Scanner fin = null;
-        try {
-            fin = new Scanner(new FileReader(testDirectory + testFilename));
-            assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", fin.nextLine());
-            assertEquals("<dictionary case_sensitive=\"false\">", fin.nextLine());
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("Problem reading file");
-        } finally {
-            try {
-                fin.close();
-            } catch(NullPointerException e) {}
-        }
-    }
-
-    @Test
-    public void testCloseFile() {
-        String testFilename = "/testDictionaryClose.dict";
-
-        DictionaryEncoder encoder2 = new DictionaryEncoder(testDirectory);
-        String testPathName = System.getProperty("user.dir") + "/" + testDirectory + testFilename;
-
-        encoder2.initializeDictionaryFile(testFilename);
-        encoder2.closeFile();
-        File file = new File(testFilename);
-        Scanner fin = null;
-        try {
-            fin = new Scanner(new FileReader(testPathName));
-            fin.nextLine(); //burn xml header
-            fin.nextLine(); //burn dictionary open tag
-            assertEquals("</dictionary>", fin.nextLine());
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("Problem reading file");
-        } finally {
-            fin.close();
-        }
-
-    }
-
-    @Test
     public void testAddEntries() {
         String testFilename = "/testDictionaryAddEntries.dict";
-        DictionaryEncoder encoder3 = new DictionaryEncoder(testDirectory);
+        DictionaryEncoder encoder3 = new DictionaryEncoder(testDirectory, testFilename);
 
         String testPathName = testDirectory + testFilename;
         System.out.println(testPathName);
-        encoder3.initializeDictionaryFile(testFilename);
+
         encoder3.addEntries(sampleEntries3);
-        encoder3.closeFile();
         File file = new File(testFilename);
         Scanner fin = null;
         try {
             fin = new Scanner(new FileReader(testPathName));
-            fin.nextLine(); //burn xml header
-            fin.nextLine(); //burn dictionary open tag
-            assertEquals("<entry>", fin.nextLine());
-            assertEquals("<token>seventh</token>", fin.nextLine());
-            assertEquals("<token>entry</token>", fin.nextLine());
-            assertEquals("</entry>", fin.nextLine());
-            assertEquals("<entry>", fin.nextLine());
-            assertEquals("<token>eighth</token>", fin.nextLine());
-            assertEquals("<token>entry</token>", fin.nextLine());
-            assertEquals("</entry>", fin.nextLine());
-            assertEquals("<entry>", fin.nextLine());
-            assertEquals("<token>ninth</token>", fin.nextLine());
-            assertEquals("<token>entry</token>", fin.nextLine());
-            assertEquals("</entry>", fin.nextLine());
+            assertEquals("seventh\tentry", fin.nextLine());
+            assertEquals("eighth\tentry", fin.nextLine());
+            assertEquals("ninth\tentry", fin.nextLine());
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Problem reading file");
         } finally {

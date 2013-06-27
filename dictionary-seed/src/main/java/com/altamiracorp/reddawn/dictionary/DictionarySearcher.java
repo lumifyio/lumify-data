@@ -3,6 +3,8 @@ package com.altamiracorp.reddawn.dictionary;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,6 +17,8 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class DictionarySearcher {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySearcher.class.getName());
+
     public static final String RESOURCE = "Resource";
     public static final String PLACE = "Place";
     public static final String PERSON = "Person";
@@ -40,15 +44,16 @@ public class DictionarySearcher {
             try {
                 totalResultCount += processJson(response);
             } catch (JSONException e) {
-                throw new RuntimeException("Could not parse the result set for the search of " + type +
+                LOGGER.error("Could not parse the result set for the search of " + type +
                         ", offset: " + resultOffset);
+                throw new RuntimeException(e);
             }
 
             resultOffset += MAX_RESULTS_PER_SEARCH;
 
         } while (totalResultCount == resultOffset);
 
-        System.out.println("Found " + totalResultCount + " matches for \"" + type + "\"");
+        LOGGER.info("Found " + totalResultCount + " matches for \"" + type + "\"");
     }
 
     protected String httpRequest(String url) {
@@ -63,9 +68,9 @@ public class DictionarySearcher {
                 response.append(line);
             }
         } catch (MalformedURLException e) {
-            throw new RuntimeException("The search URL was malformed");
+            throw new RuntimeException(e);
         } catch (IOException e) {
-            throw new RuntimeException("Could not fetch search results from server");
+            throw new RuntimeException(e);
         }
 
         return response.toString();
@@ -103,7 +108,8 @@ public class DictionarySearcher {
         try {
             url = baseURL + URLEncoder.encode(query, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("The search URL " + query + " could not be encoded properly");
+            LOGGER.error("The search URL " + query + " could not be encoded properly");
+            throw new RuntimeException(e);
         }
         return url;
     }
