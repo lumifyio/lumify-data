@@ -139,7 +139,6 @@ define([
 
         this.doGetOnline = function() {
             var self = this;
-			window.self = self;
             self.usersService.getOnline(function(err, data) {
                 if (err) {
                     var $usersList = self.select('usersListSelector');

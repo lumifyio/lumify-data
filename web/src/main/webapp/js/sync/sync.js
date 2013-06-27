@@ -183,6 +183,9 @@ define([
 				return;
 			}
 
+            data.payload = data.payload || {};
+            data.payload.remoteInitiator = data.sync.initiator;
+
 			this.trigger(data.evt, data.payload);
 		};
 		
