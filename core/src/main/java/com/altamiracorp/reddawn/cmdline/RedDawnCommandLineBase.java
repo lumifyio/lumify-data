@@ -3,7 +3,6 @@ package com.altamiracorp.reddawn.cmdline;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloSession;
 import com.altamiracorp.reddawn.search.BlurSearchProvider;
-import com.altamiracorp.reddawn.search.SearchProvider;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.commons.cli.*;
 import org.apache.hadoop.conf.Configured;

@@ -8,7 +8,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Date;
 
 public interface SentenceExtractor {
     public Collection<Sentence> extractSentences(Artifact artifact);

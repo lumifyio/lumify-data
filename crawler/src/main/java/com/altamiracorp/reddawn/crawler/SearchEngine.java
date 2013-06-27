@@ -109,8 +109,8 @@ public abstract class SearchEngine {
      * in order to get the results of a search without following the links returned.
      * It uses URLConnection and does not follow redirects.
      *
-     * @param queryURL
-     * @return
+     * @param queryURL The url of the search result page desired
+     * @return the content of a search result page
      */
     public static String getWebpage(String queryURL) {
         // Creates query URL

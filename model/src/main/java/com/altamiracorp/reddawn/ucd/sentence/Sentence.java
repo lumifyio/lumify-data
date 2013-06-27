@@ -3,7 +3,6 @@ package com.altamiracorp.reddawn.ucd.sentence;
 import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.model.RowKey;
-import com.altamiracorp.reddawn.ucd.term.TermMention;
 
 import java.util.ArrayList;
 import java.util.List;

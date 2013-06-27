@@ -4,7 +4,6 @@ import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.MockSession;
 import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.model.RowKey;
-import com.altamiracorp.reddawn.ucd.source.SourceMetadata;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import junit.framework.Assert;

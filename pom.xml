@@ -40,6 +40,8 @@
     </repositories>
 
 	<properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<blur-version>0.1.5</blur-version>
 		<accumulo-version>1.4.3</accumulo-version>
 		<hadoop-version>0.20.2-cdh3u6</hadoop-version>

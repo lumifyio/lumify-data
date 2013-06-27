@@ -1,18 +1,17 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
+import opennlp.tools.dictionary.Dictionary;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import opennlp.tools.dictionary.Dictionary;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 
 /**
  * Keeping this code separate so that we can maybe access the dictionary files
