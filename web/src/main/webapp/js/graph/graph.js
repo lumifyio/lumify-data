@@ -220,8 +220,6 @@ define([
                     }
                 }, LAYOUT_OPTIONS[layout] || {});
 
-                // TODO: support undo
-                // TODO: save workspace state on finish
                 cy.layout(opts);
             });
         };
