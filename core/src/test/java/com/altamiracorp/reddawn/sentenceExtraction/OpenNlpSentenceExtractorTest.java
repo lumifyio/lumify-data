@@ -19,6 +19,7 @@ import java.util.Iterator;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 @RunWith(JUnit4.class)
 public class OpenNlpSentenceExtractorTest {
@@ -85,6 +86,26 @@ public class OpenNlpSentenceExtractorTest {
         assertEquals("U", sentence.getMetadata().getSecurityMarking());
         md5 = new byte[] { 12, 80, -119, -97, 22, -3, 53, -14, 86, -44, -28, -53, 111, -32, -46, 103 };
         assertArrayEquals(md5, sentence.getMetadata().getContentHash());
+    }
+
+    @Test
+    public void testExtractionOfTwoSentences_NoAuthorNoSecurity() {
+        Artifact artifact = new Artifact("urn:sha256:abcd");
+        String text = "This is some text. It has two sentences.";
+        artifact.getContent().setDocExtractedText(text.getBytes());
+
+        Collection<Sentence> sentences = extractor.extractSentences(artifact);
+        assertEquals(2, sentences.size());
+
+        Iterator<Sentence> iterator = sentences.iterator();
+
+        Sentence sentence = iterator.next();
+        assertNotSame("author", sentence.getMetadata().getAuthor());
+        assertNotSame("U", sentence.getMetadata().getSecurityMarking());
+
+        sentence = iterator.next();
+        assertNotSame("author", sentence.getMetadata().getAuthor());
+        assertNotSame("U", sentence.getMetadata().getSecurityMarking());
     }
 
     @Test
