@@ -130,8 +130,6 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
                         .create()
         );
 
-
-
         return options;
     }
 

@@ -39,6 +39,7 @@ public class FileImport extends RedDawnCommandLineBase {
     protected void processOptions(CommandLine cmd) {
         super.processOptions(cmd);
         this.directory = cmd.getOptionValue("directory");
+        if(this.directory == null) throw new RuntimeException("No directory provided to FileImport");
         if (cmd.hasOption("pattern")) {
             this.pattern = cmd.getOptionValue("pattern");
         } else {
@@ -134,5 +135,9 @@ public class FileImport extends RedDawnCommandLineBase {
 
     public String getPattern() {
         return pattern;
+    }
+
+    public String getSource() {
+        return source;
     }
 }
