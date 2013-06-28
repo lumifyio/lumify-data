@@ -176,6 +176,7 @@ define([
                 cy.zoom(level);
             });
         };
+
         this.onContextMenuFitToWindow = function() {
             this.cy(function(cy) {
                 if( cy.elements().size() === 0 ){
@@ -192,7 +193,7 @@ define([
                     level: zoom,
                     renderedPosition: {
                         x: $container.width()/2,
-                    y: $container.height()/2
+                        y: $container.height()/2
                     }
                 });
 
@@ -241,12 +242,35 @@ define([
                 //menu = this.select('nodeContextMenuSelector');
             }
             
-            var offset = this.$node.offset();
-            menu.parent('div').css({
-                position: 'absolute',
-                left: event.originalEvent.pageX - offset.left,
-                top: event.originalEvent.pageY - offset.top
-            });
+            // TODO: extract this context menu viewport fitting
+            var offset = this.$node.offset(),
+                padding = 10,
+                windowSize = { x: $(window).width(), y: $(window).height() },
+                menuSize = { x: menu.outerWidth(), y: menu.outerHeight() },
+                submenu = menu.find('li.dropdown-submenu ul'),
+                submenuSize = menuSize,// { x:submenu.outerWidth(), y:submenu.outerHeight() },
+                placement = {
+                    left: Math.min( 
+                        event.originalEvent.pageX - offset.left,
+                        windowSize.x - offset.left - menuSize.x - padding
+                    ),
+                    top: Math.min( 
+                        event.originalEvent.pageY - offset.top, 
+                        windowSize.y - offset.top - menuSize.y - padding
+                    )
+                },
+                submenuPlacement = { left:'100%', right:'auto', top:0, bottom:'auto' };
+
+            if ((placement.left + menuSize.x + submenuSize.x + padding) > windowSize.x) {
+                submenuPlacement = $.extend(submenuPlacement, { right: '100%', left:'auto' });
+            }
+            if ((placement.top + menuSize.y + (submenu.children('li').length * 26) + padding) > windowSize.y) {
+                submenuPlacement = $.extend(submenuPlacement, { top: 'auto', bottom:'0' });
+            }
+
+            menu.parent('div').css($.extend({ position:'absolute' }, placement));
+            submenu.css(submenuPlacement);
+
             menu.dropdown('toggle');
         };
 
