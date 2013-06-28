@@ -11,6 +11,7 @@ define([
     'use strict';
 
     var FIT_PADDING = 50;
+    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
     return defineComponent(Graph);
 
@@ -38,7 +39,8 @@ define([
             this.addNodes(data.nodes);
         };
 
-        this.addNodes = function(nodes) {
+        this.addNodes = function(nodes, opts) {
+            var options = $.extend({ fit:false }, opts);
             this.cy(function(cy) {
                 nodes.forEach(function(node) {
                     var title = node.title;
@@ -66,13 +68,17 @@ define([
                     cyNode.addClass(node.type);
 
                     if (node.type === 'artifacts') {
-                        previews.generatePreview(node.rowKey, { width:178 }, function(dataUri) {
+                        previews.generatePreview(node.rowKey, { width:178 * pixelScale }, function(dataUri) {
                             if (dataUri) {
                                 cyNode.css('background-image', dataUri);
                             }
                         });
                     }
                 });
+
+                if (options.fit) {
+                    cy.fit(undefined, FIT_PADDING);
+                }
 
                 this.setWorkspaceDirty();
             });
@@ -114,10 +120,9 @@ define([
                                 return node.data('rowKey') == updatedNode.rowKey;
                             })
                             .each(function(idx, node) {
-                                var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
                                 node.position({
-                                    x: updatedNode.graphPosition.x * scale,
-                                    y: updatedNode.graphPosition.y * scale
+                                    x: updatedNode.graphPosition.x * pixelScale,
+                                    y: updatedNode.graphPosition.y * pixelScale
                                 });
                             });
                     });
@@ -176,7 +181,7 @@ define([
                 if( cy.elements().size() === 0 ){
                     cy.reset();
                 } else {
-                    cy.fit();
+                    cy.fit(undefined, FIT_PADDING);
                 }
                 
                 var $container = this.select('cytoscapeContainerSelector');
@@ -194,11 +199,30 @@ define([
             });
         };
         this.onContextMenuLayout = function(layout) {
+            var self = this;
+            var LAYOUT_OPTIONS = {
+                // Customize layout options
+                random: { padding: FIT_PADDING },
+                arbor: { friction: 0.5, repulsion: 1500 * pixelScale, targetFps: 60, stiffness: 150 }
+            };
             this.cy(function(cy) {
-                window.cy = cy;
-                cy.layout({
-                    name:layout
-                });
+                var opts = $.extend({
+                    name:layout,
+                    fit: false,
+                    stop: function() {
+                        var updates = $.map(cy.nodes(), function(node) {
+                            return {
+                                rowKey: node.data('rowKey'),
+                                graphPosition: self.pixelsToPoints(node.position())
+                            };
+                        });
+                        self.trigger(document, 'nodesUpdate', { nodes:updates });
+                    }
+                }, LAYOUT_OPTIONS[layout] || {});
+
+                // TODO: support undo
+                // TODO: save workspace state on finish
+                cy.layout(opts);
             });
         };
 
@@ -371,7 +395,7 @@ define([
         this.onWorkspaceLoaded = function(evt, workspace) {
             this.resetGraph();
             if (workspace.data && workspace.data.nodes) {
-                this.addNodes(workspace.data.nodes);
+                this.addNodes(workspace.data.nodes, { fit:true });
             }
 
             this.checkEmptyGraph();
@@ -442,7 +466,6 @@ define([
             this.on(document, 'nodesUpdate', this.onNodesUpdate);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
 
-            var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
             cytoscape("renderer", "red-dawn", Renderer);
             cytoscape({
                 showOverlay: false,
@@ -460,8 +483,8 @@ define([
                   .selector('node.location')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_242_google_maps@2x.png',
-                      'width': 30 * scale,
-                      'height': 40 * scale,
+                      'width': 30 * pixelScale,
+                      'height': 40 * pixelScale,
                       'border-color': 'white',
                       'border-width': 0
                     })
@@ -474,18 +497,18 @@ define([
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'rectangle',
-                      'width': 60 * scale,
-                      'height': 60 * 1.2 * scale,
+                      'width': 60 * pixelScale,
+                      'height': 60 * 1.2 * pixelScale,
                       'border-color': '#ccc',
                       'border-width': 1
                     })
                   .selector('node')
                     .css({
-                      'width': 30 * scale,
-                      'height': 30 * scale,
+                      'width': 30 * pixelScale,
+                      'height': 30 * pixelScale,
                       'content': 'data(title)',
                       'font-family': 'helvetica',
-                      'font-size': 18 * scale,
+                      'font-size': 18 * pixelScale,
                       'text-outline-width': 2,
                       'text-outline-color': 'white',
                       'text-valign': 'bottom',
@@ -547,6 +570,8 @@ define([
                         drag: self.graphDrag.bind(self)
                     });
 
+                },
+                done: function() {
                     self.cyLoaded = true;
                     self.drainCallbackQueue();
                 }

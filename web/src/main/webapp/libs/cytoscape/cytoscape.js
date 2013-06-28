@@ -2,7 +2,7 @@
 /* cytoscape.js */
 
 /**
- * This file is part of cytoscape.js 2.0.1-github-snapshot-2013.06.04-10.52.18.
+ * This file is part of cytoscape.js 2.0.1-github-snapshot-2013.06.28-08.53.11.
  * 
  * Cytoscape.js is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by the Free
@@ -4241,6 +4241,7 @@ var cytoscape;
 
 
 ;(function($$){
+    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 	
 	$$.fn.core({
 		
@@ -4406,8 +4407,8 @@ var cytoscape;
 			var bb = elements.boundingBox();
 			var style = this.style();
 
-			var w = parseFloat( style.containerCss("width") );
-			var h = parseFloat( style.containerCss("height") );
+			var w = parseFloat( style.containerCss("width") ) * pixelScale;
+			var h = parseFloat( style.containerCss("height") ) * pixelScale;
 			var zoom;
 			padding = $$.is.number(padding) ? padding : 0;
 
@@ -4543,8 +4544,8 @@ var cytoscape;
 
 			var bb = elements.boundingBox();
 			var style = this.style();
-			var w = parseFloat( style.containerCss("width") );
-			var h = parseFloat( style.containerCss("height") );
+			var w = parseFloat( style.containerCss("width") ) * pixelScale;
+			var h = parseFloat( style.containerCss("height") ) * pixelScale;
 			var zoom = this._private.zoom;
 
 			this.pan({ // now pan to middle
@@ -8028,6 +8029,7 @@ var cytoscape;
 
 (function($$) {
 
+    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 	var isTouch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
 	var time = function() { return Date.now(); } ; 
 	var arrowShapes = {}; var nodeShapes = {}; 
@@ -8344,9 +8346,7 @@ var cytoscape;
 
 		// auto resize
 		r.registerBinding(window, "resize", function(e) { 
-			r.data.canvasNeedsRedraw[NODE] = true;
-			r.data.canvasNeedsRedraw[OVERLAY] = true;
-			r.matchCanvasSize( r.data.container, { redraw: true } );
+			r.matchCanvasSize( r.data.container );
 		}, true);
 
 		// stop right click menu from appearing on cy
@@ -8506,8 +8506,8 @@ var cytoscape;
 				
 				var containerPageCoords = r.findContainerPageCoords();
 				
-				if (e.pageX > containerPageCoords[0] && e.pageX < containerPageCoords[0] + r.data.container.clientWidth
-					&& e.pageY > containerPageCoords[1] && e.pageY < containerPageCoords[1] + r.data.container.clientHeight) {
+				if (e.pageX > containerPageCoords[0] && e.pageX < containerPageCoords[0] + r.data.container.clientWidth*pixelScale
+					&& e.pageY > containerPageCoords[1] && e.pageY < containerPageCoords[1] + r.data.container.clientHeight*pixelScale) {
 					
 				} else {
 					return;
@@ -8933,7 +8933,7 @@ var cytoscape;
 		var distance1; // initial distance between finger 1 and finger 2 for pinch-to-zoom
 		var center1, modelCenter1; // center point on start pinch to zoom
 		var offsetLeft, offsetTop;
-		var containerWidth = r.data.container.clientWidth, containerHeight = r.data.container.clientHeight;
+		var containerWidth = r.data.container.clientWidth*pixelScale, containerHeight = r.data.container.clientHeight*pixelScale;
 		var twoFingersStartInside;
 
 		function distance(x1, y1, x2, y2){
@@ -9715,9 +9715,8 @@ var cytoscape;
 		// By here, offsetLeft and offsetTop represent the "pageX/pageY" of the top-left corner of the div. So, do subtraction to find relative position.
 		x = pageX - offsetLeft; y = pageY - offsetTop;
 		
-		var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
-		x *= scale;
-		y *= scale;
+		x *= pixelScale;
+		y *= pixelScale;
 
 		x -= this.data.cy.pan().x; y -= this.data.cy.pan().y; x /= this.data.cy.zoom(); y /= this.data.cy.zoom();
 		return [x, y];
@@ -10391,12 +10390,10 @@ var cytoscape;
 	CanvasRenderer.prototype._matchCanvasSize = function(container, options) {
 		var data = this.data; var width = container.clientWidth; var height = container.clientHeight;
 		
-		var canvas, canvasWidth = width, canvasHeight = height, redraw = options && options.redraw;
+		var canvas, canvasWidth = width, canvasHeight = height, redraw = false;
 
-		if ('devicePixelRatio' in window) {
-			canvasWidth *= devicePixelRatio;
-			canvasHeight *= devicePixelRatio;
-		}
+        canvasWidth *= pixelScale;
+        canvasHeight *= pixelScale;
 
 		for (var i = 0; i < CANVAS_LAYERS; i++) {
 
@@ -10431,8 +10428,11 @@ var cytoscape;
 		this.data.overlay.style.height = height + 'px';
 
         if ( redraw ) {
-            this.redraw( undefined, true );
+            this.data.canvasNeedsRedraw[NODE] = true;
+			this.data.canvasNeedsRedraw[OVERLAY] = true;
+            this.redraw();
         }
+
 	}
 
 
@@ -14356,6 +14356,7 @@ var cytoscape;
 })(cytoscape);
 
 ;(function($$){
+    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 	
 	var defaults = {
 		ready: undefined, // callback on layoutready
@@ -14375,8 +14376,8 @@ var cytoscape;
 		var edges = cy.edges();
 		var container = cy.container();
 		
-		var width = container.clientWidth;
-		var height = container.clientHeight;
+		var width = container.clientWidth * pixelScale;
+		var height = container.clientHeight * pixelScale;
 		
 
 		nodes.positions(function(i, element){
@@ -14419,6 +14420,7 @@ var cytoscape;
 })(cytoscape);
 
 ;(function($$){
+    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 	
 	var defaults = {
 		fit: true, // whether to fit the viewport to the graph
@@ -14441,8 +14443,8 @@ var cytoscape;
 		var edges = cy.edges();
 		var container = cy.container();
 		
-		var width = container.clientWidth;
-		var height = container.clientHeight;
+		var width = container.clientWidth * pixelScale;
+		var height = container.clientHeight * pixelScale;
 
 		if( height == 0 || width == 0){
 			nodes.positions(function(){
@@ -14654,6 +14656,7 @@ var cytoscape;
 })(cytoscape);
 
 ;(function($$){
+    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 	
 	var defaults = {
 		liveUpdate: true, // whether to show the layout as it's running
@@ -14697,8 +14700,8 @@ var cytoscape;
 		var nodes = cy.nodes();
 		var edges = cy.edges();
 		var container = cy.container();
-		var width = container.clientWidth;
-		var height = container.clientHeight;
+		var width = container.clientWidth * pixelScale;
+		var height = container.clientHeight * pixelScale;
 
 		// arbor doesn't work with just 1 node
 		if( cy.nodes().size() <= 1 ){
@@ -14941,6 +14944,7 @@ var cytoscape;
 
 ;(function($$){
     
+    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
     var defaults = {
         fit: true, // whether to fit the viewport to the graph
         ready: undefined, // callback on layoutready
@@ -14964,8 +14968,8 @@ var cytoscape;
         var edges = cy.edges();
         var container = cy.container();
         
-        var width = container.clientWidth;
-        var height = container.clientHeight;
+        var width = container.clientWidth * pixelScale;
+        var height = container.clientHeight * pixelScale;
 
         var center = {
             x: width/2,
@@ -15045,6 +15049,7 @@ var cytoscape;
 })( cytoscape );
 
 ;(function($$){
+    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
     
     var defaults = {
         fit: true, // whether to fit the viewport to the graph
@@ -15069,8 +15074,8 @@ var cytoscape;
         var edges = cy.edges();
         var container = cy.container();
         
-        var width = container.clientWidth;
-        var height = container.clientHeight;
+        var width = container.clientWidth * pixelScale;
+        var height = container.clientHeight * pixelScale;
 
         var roots;
         if( $$.is.elementOrCollection(options.roots) ){
