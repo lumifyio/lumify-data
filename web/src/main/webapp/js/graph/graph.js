@@ -10,6 +10,8 @@ define([
 ], function(defineComponent, cytoscape, Renderer, template, throttle, previews) {
     'use strict';
 
+    var FIT_PADDING = 50;
+
     return defineComponent(Graph);
 
     function Graph() {
@@ -18,7 +20,10 @@ define([
         this.defaultAttrs({
             cytoscapeContainerSelector: '.cytoscape-container',
             emptyGraphSelector: '.empty-graph',
-            graphToolsSelector: '.ui-cytoscape-panzoom'
+            graphToolsSelector: '.ui-cytoscape-panzoom',
+            contextMenuSelector: '.graph-context-menu',
+            contextMenuItemSelector: '.graph-context-menu a',
+            nodeContextMenuSelector: '.node-context-menu'
         });
 
         this.cy = function(callback) {
@@ -139,11 +144,89 @@ define([
             });
         };
 
+        this.onContextMenu = function(event) {
+            var target = $(event.target),
+                name = target.data('func'),
+                functionName = name && 'onContextMenu' + name.substring(0, 1).toUpperCase() + name.substring(1),
+                func = functionName && this[functionName],
+                args = target.data('args');
+
+            if (func) {
+                if (!args) {
+                    args = [];
+                }
+                func.apply(this, args);
+            } else {
+                console.error('No function exists for context menu command: ' + functionName);
+            }
+
+            setTimeout(function() {
+                target.blur();
+                this.select('contextMenuSelector').blur().parent().removeClass('open');
+            }.bind(this), 0);
+        };
+
+        this.onContextMenuZoom = function(level) {
+            this.cy(function(cy) {
+                cy.zoom(level);
+            });
+        };
+        this.onContextMenuFitToWindow = function() {
+            this.cy(function(cy) {
+                if( cy.elements().size() === 0 ){
+                    cy.reset();
+                } else {
+                    cy.fit();
+                }
+                
+                var $container = this.select('cytoscapeContainerSelector');
+                var length = Math.max( $container.width(), $container.height() );
+                var zoom = cy.zoom() * (length - FIT_PADDING * 2)/length;
+
+                cy.zoom({
+                    level: zoom,
+                    renderedPosition: {
+                        x: $container.width()/2,
+                    y: $container.height()/2
+                    }
+                });
+
+            });
+        };
+        this.onContextMenuLayout = function(layout) {
+            this.cy(function(cy) {
+                window.cy = cy;
+                cy.layout({
+                    name:layout
+                });
+            });
+        };
+
         this.graphTap = throttle('selection', 100, function(event) {
             if (event.cyTarget === event.cy) {
                 this.trigger(document, 'searchResultSelected');
             }
         });
+
+        this.graphContextTap = function(event) {
+            var menu;
+
+            if (event.cyTarget === event.cy) {
+                menu = this.select('contextMenuSelector');
+            } else {
+                // TODO: elements
+                return;
+                //menu = this.select('nodeContextMenuSelector');
+            }
+            
+            var offset = this.$node.offset();
+            menu.parent('div').css({
+                position: 'absolute',
+                left: event.originalEvent.pageX - offset.left,
+                top: event.originalEvent.pageY - offset.top
+            });
+            menu.dropdown('toggle');
+        };
 
         this.graphSelect = throttle('selection', 100, function(event) {
             this.updateNodeSelections(event.cy);
@@ -350,6 +433,9 @@ define([
                 }.bind(this)
             });
 
+            this.select('contextMenuItemSelector').on('click', this.onContextMenu.bind(this));
+
+
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'nodesAdd', this.onNodesAdd);
             this.on(document, 'nodesDelete', this.onNodesDelete);
@@ -435,7 +521,8 @@ define([
 
                     $(container).cytoscapePanzoom({
                         minZoom: options.minZoom,
-                        maxZoom: options.maxZoom
+                        maxZoom: options.maxZoom,
+                        fitPadding: FIT_PADDING
                     }).focus().on({
                         click: function() { this.focus(); },
                         keydown: self.onKeyHandler.bind(self),
@@ -452,6 +539,7 @@ define([
 
                     cy.on({
                         tap: self.graphTap.bind(self),
+                        cxttap: self.graphContextTap.bind(self),
                         select: self.graphSelect.bind(self),
                         unselect: self.graphUnselect.bind(self),
                         grab: self.graphGrab.bind(self),
