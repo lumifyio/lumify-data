@@ -199,18 +199,29 @@ define([
 
             });
         };
-        this.onContextMenuLayout = function(layout) {
+        this.onContextMenuLayout = function(layout, opts) {
             var self = this;
+            var options = $.extend({onlySelected:false}, opts);
             var LAYOUT_OPTIONS = {
                 // Customize layout options
                 random: { padding: FIT_PADDING },
                 arbor: { friction: 0.5, repulsion: 1500 * pixelScale, targetFps: 60, stiffness: 150 }
             };
             this.cy(function(cy) {
+
+                var unselected;
+                if (options.onlySelected) {
+                    unselected = cy.nodes().filter(':unselected');
+                    unselected.lock();
+                }
+
                 var opts = $.extend({
                     name:layout,
                     fit: false,
                     stop: function() {
+                        if (unselected) {
+                            unselected.unlock();
+                        }
                         var updates = $.map(cy.nodes(), function(node) {
                             return {
                                 rowKey: node.data('rowKey'),
@@ -232,14 +243,13 @@ define([
         });
 
         this.graphContextTap = function(event) {
-            var menu;
+            var menu = this.select('contextMenuSelector');
 
-            if (event.cyTarget === event.cy) {
-                menu = this.select('contextMenuSelector');
+            // Show/Hide the layout selection menu item
+            if (event.cy.nodes().filter(':selected').length) {
+                menu.find('.layout-multi').show();
             } else {
-                // TODO: elements
-                return;
-                //menu = this.select('nodeContextMenuSelector');
+                menu.find('.layout-multi').hide();
             }
             
             // TODO: extract this context menu viewport fitting
