@@ -10,7 +10,12 @@ import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Properties;
 
 public class RedDawnSession {
@@ -27,9 +32,7 @@ public class RedDawnSession {
             session.modelSession = createModelSession(props);
             session.searchProvider = createSearchProvider(props);
             return session;
-        } catch (AccumuloSecurityException e) {
-            throw new RuntimeException(e);
-        } catch (AccumuloException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -40,7 +43,7 @@ public class RedDawnSession {
         return blurSearchProvider;
     }
 
-    private static Session createModelSession(Properties props) throws AccumuloException, AccumuloSecurityException {
+    private static Session createModelSession(Properties props) throws AccumuloException, AccumuloSecurityException, IOException, URISyntaxException, InterruptedException {
         String zookeeperInstanceName = props.getProperty(AccumuloSession.ZOOKEEPER_INSTANCE_NAME);
         String zookeeperServerName = props.getProperty(AccumuloSession.ZOOKEEPER_SERVER_NAMES);
         String username = props.getProperty(AccumuloSession.USERNAME);
@@ -49,11 +52,11 @@ public class RedDawnSession {
         Connector connector = zooKeeperInstance.getConnector(username, password);
 
         Configuration hadoopConfiguration = new Configuration();
-        System.setProperty("HADOOP_USER_NAME", "hadoop");
-        hadoopConfiguration.set("fs.default.name", props.getProperty(AccumuloSession.HADOOP_FS_DEFAULT_NAME));
+        String hdfsRootDir = props.getProperty(AccumuloSession.HADOOP_URL);
+        FileSystem hdfsFileSystem = DistributedFileSystem.get(new URI(hdfsRootDir), hadoopConfiguration, "hadoop");
 
         AccumuloQueryUser queryUser = new AccumuloQueryUser();
-        return new AccumuloSession(connector, hadoopConfiguration, queryUser);
+        return new AccumuloSession(connector, hdfsFileSystem, hdfsRootDir, queryUser);
     }
 
     public void close() {

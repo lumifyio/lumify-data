@@ -34,7 +34,7 @@ com.altamiracorp.reddawn.cmdline.FileImport \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
---hadoopFsDefaultName=hdfs://192.168.33.10:8020 \
+--hadoopUrl=hdfs://192.168.33.10:8020 \
 --username=root \
 --password=password \
 --directory=${dir}

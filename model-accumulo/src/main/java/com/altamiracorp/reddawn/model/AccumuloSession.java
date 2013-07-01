@@ -4,10 +4,11 @@ import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsAction;
+import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,17 +26,19 @@ public class AccumuloSession extends Session {
     public static final String ZOOKEEPER_SERVER_NAMES = "zookeeperServerNames";
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
-    public static final String HADOOP_FS_DEFAULT_NAME = "hadoopFsDefaultName";
+    public static final String HADOOP_URL = "hadoopUrl";
 
     private final Connector connector;
+    private final FileSystem hdfsFileSystem;
+    private final String hdfsRootDir;
     private long maxMemory = 1000000L;
     private long maxLatency = 1000L;
     private int maxWriteThreads = 10;
-    private Configuration hadoopConfiguration;
 
-    public AccumuloSession(Connector connector, Configuration hadoopConfiguration, AccumuloQueryUser queryUser) {
+    public AccumuloSession(Connector connector, FileSystem hdfsFileSystem, String hdfsRootDir, AccumuloQueryUser queryUser) {
         super(queryUser);
-        this.hadoopConfiguration = hadoopConfiguration;
+        this.hdfsFileSystem = hdfsFileSystem;
+        this.hdfsRootDir = hdfsRootDir;
         this.connector = connector;
     }
 
@@ -161,31 +164,29 @@ public class AccumuloSession extends Session {
     @Override
     public SaveFileResults saveFile(InputStream in) {
         try {
-            FileSystem fileSystem = getFileSystem();
-
-            String dataRoot = hadoopConfiguration.get("fs.default.name") + "/data/";
-            if (!fileSystem.exists(new Path(dataRoot))) {
-                fileSystem.mkdirs(new Path(dataRoot));
+            String dataRoot = hdfsRootDir + "/data/";
+            FsPermission fsPermission = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
+            if (!this.hdfsFileSystem.exists(new Path(dataRoot))) {
+                this.hdfsFileSystem.mkdirs(new Path(dataRoot), fsPermission);
             }
 
-            String tempRoot = hadoopConfiguration.get("fs.default.name") + "/temp/";
-            if (!fileSystem.exists(new Path(tempRoot))) {
-                fileSystem.mkdirs(new Path(tempRoot));
+            String tempRoot = hdfsRootDir + "/temp/";
+            if (!this.hdfsFileSystem.exists(new Path(tempRoot))) {
+                this.hdfsFileSystem.mkdirs(new Path(tempRoot), fsPermission);
             }
 
             String tempPath = tempRoot + UUID.randomUUID().toString();
-            FSDataOutputStream out = fileSystem.create(new Path(tempPath), true);
+            FSDataOutputStream out = this.hdfsFileSystem.create(new Path(tempPath));
             String rowKey;
             try {
-                int bufferSize = hadoopConfiguration.getInt("io.file.buffer.size", 4096);
-                rowKey = RowKeyHelper.buildSHA256KeyString(in, out, bufferSize);
+                rowKey = RowKeyHelper.buildSHA256KeyString(in, out);
             } finally {
                 out.close();
             }
 
             String path = dataRoot + rowKey;
-            fileSystem.rename(new Path(tempPath), new Path(path));
-            return new SaveFileResults(rowKey, path);
+            this.hdfsFileSystem.rename(new Path(tempPath), new Path(path));
+            return new SaveFileResults(rowKey, "/data/" + rowKey);
         } catch (IOException ex) {
             throw new RuntimeException("could not save file to HDFS", ex);
         }
@@ -194,15 +195,10 @@ public class AccumuloSession extends Session {
     @Override
     public InputStream loadFile(String path) {
         try {
-            FileSystem fileSystem = getFileSystem();
-            return fileSystem.open(new Path(path));
+            return this.hdfsFileSystem.open(new Path(path));
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-    }
-
-    private FileSystem getFileSystem() throws IOException {
-        return FileSystem.get(hadoopConfiguration);
     }
 
     public long getMaxMemory() {

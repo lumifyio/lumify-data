@@ -95,7 +95,7 @@ public class MockSession extends Session {
             File temp = File.createTempFile("reddawn", ".bin");
             OutputStream out = new FileOutputStream(temp);
             try {
-                String rowKey = RowKeyHelper.buildSHA256KeyString(in, out, 1024);
+                String rowKey = RowKeyHelper.buildSHA256KeyString(in, out);
                 return new SaveFileResults(rowKey, temp.getAbsolutePath());
             } finally {
                 out.close();

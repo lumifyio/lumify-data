@@ -31,9 +31,10 @@ public class RowKeyHelper {
         }
     }
 
-    public static String buildSHA256KeyString(InputStream in, OutputStream out, int bufferSize) throws IOException {
+    public static String buildSHA256KeyString(InputStream in, OutputStream out) throws IOException {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            int bufferSize = 4096;
             byte[] buffer = new byte[bufferSize];
             int read;
             while ((read = in.read(buffer, 0, buffer.length)) > 0) {

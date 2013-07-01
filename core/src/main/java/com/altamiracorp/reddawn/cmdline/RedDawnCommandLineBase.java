@@ -3,7 +3,6 @@ package com.altamiracorp.reddawn.cmdline;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloSession;
 import com.altamiracorp.reddawn.search.BlurSearchProvider;
-import com.altamiracorp.reddawn.search.SearchProvider;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.commons.cli.*;
 import org.apache.hadoop.conf.Configured;
@@ -18,7 +17,7 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
     private byte[] password;
     private String blurHdfsPath;
     private String blurControllerLocation;
-    private String hadoopFsDefaultName;
+    private String hadoopUrl;
 
     @Override
     public int run(String[] args) throws Exception {
@@ -49,7 +48,7 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
     protected void processOptions(CommandLine cmd) {
         this.zookeeperInstanceName = cmd.getOptionValue("zookeeperInstanceName");
         this.zookeeperServerNames = cmd.getOptionValue("zookeeperServerNames");
-        this.hadoopFsDefaultName = cmd.getOptionValue("hadoopFsDefaultName");
+        this.hadoopUrl = cmd.getOptionValue("hadoopUrl");
         this.username = cmd.getOptionValue("username");
         this.password = cmd.getOptionValue("password").getBytes();
         this.blurHdfsPath = cmd.getOptionValue("blurPath");
@@ -88,7 +87,7 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
         options.addOption(
                 OptionBuilder
-                        .withLongOpt("hadoopFsDefaultName")
+                        .withLongOpt("hadoopUrl")
                         .withDescription("Hadoop URL. Example: hdfs://192.168.33.10:8020")
                         .isRequired()
                         .hasArg(true)
@@ -143,7 +142,7 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
     public RedDawnSession createRedDawnSession() {
         Properties properties = new Properties();
-        properties.setProperty(AccumuloSession.HADOOP_FS_DEFAULT_NAME, getHadoopFsDefaultName());
+        properties.setProperty(AccumuloSession.HADOOP_URL, getHadoopUrl());
         properties.setProperty(AccumuloSession.ZOOKEEPER_INSTANCE_NAME, getZookeeperInstanceName());
         properties.setProperty(AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
         properties.setProperty(AccumuloSession.USERNAME, getUsername());
@@ -161,8 +160,8 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
         return zookeeperInstanceName;
     }
 
-    public String getHadoopFsDefaultName() {
-        return hadoopFsDefaultName;
+    public String getHadoopUrl() {
+        return hadoopUrl;
     }
 
     public void setZookeeperInstanceName(String zookeeperInstanceName) {
