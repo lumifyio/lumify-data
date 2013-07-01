@@ -9,6 +9,7 @@ import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
+import org.apache.hadoop.conf.Configuration;
 
 import java.util.Properties;
 
@@ -47,8 +48,12 @@ public class RedDawnSession {
         ZooKeeperInstance zooKeeperInstance = new ZooKeeperInstance(zookeeperInstanceName, zookeeperServerName);
         Connector connector = zooKeeperInstance.getConnector(username, password);
 
+        Configuration hadoopConfiguration = new Configuration();
+        System.setProperty("HADOOP_USER_NAME", "hadoop");
+        hadoopConfiguration.set("fs.default.name", props.getProperty(AccumuloSession.HADOOP_FS_DEFAULT_NAME));
+
         AccumuloQueryUser queryUser = new AccumuloQueryUser();
-        return new AccumuloSession(connector, queryUser);
+        return new AccumuloSession(connector, hadoopConfiguration, queryUser);
     }
 
     public void close() {

@@ -76,6 +76,7 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
     @Override
     protected int run(CommandLine cmd) throws Exception {
         Job job = new Job(getConf(), this.getClass().getSimpleName());
+        job.getConfiguration().set(AccumuloSession.HADOOP_FS_DEFAULT_NAME, getHadoopFsDefaultName());
         job.getConfiguration().set(AccumuloSession.ZOOKEEPER_INSTANCE_NAME, getZookeeperInstanceName());
         job.getConfiguration().set(AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
         job.getConfiguration().set(AccumuloSession.USERNAME, getUsername());

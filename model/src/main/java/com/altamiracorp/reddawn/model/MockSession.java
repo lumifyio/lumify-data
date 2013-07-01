@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.model;
 
+import java.io.*;
 import java.util.*;
 
 public class MockSession extends Session {
@@ -85,6 +86,22 @@ public class MockSession extends Session {
                 rows.remove(i);
                 return;
             }
+        }
+    }
+
+    @Override
+    public SaveFileResults saveFile(InputStream in) {
+        try {
+            File temp = File.createTempFile("reddawn", ".bin");
+            OutputStream out = new FileOutputStream(temp);
+            try {
+                String rowKey = RowKeyHelper.buildSHA256KeyString(in, out, 1024);
+                return new SaveFileResults(rowKey, temp.getAbsolutePath());
+            } finally {
+                out.close();
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException("could not save file", ex);
         }
     }
 }

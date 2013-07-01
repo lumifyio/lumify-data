@@ -1,10 +1,8 @@
 package com.altamiracorp.reddawn.ucd.artifact;
 
-import com.altamiracorp.reddawn.model.Column;
-import com.altamiracorp.reddawn.model.ColumnFamily;
-import com.altamiracorp.reddawn.model.Repository;
-import com.altamiracorp.reddawn.model.Row;
+import com.altamiracorp.reddawn.model.*;
 
+import java.io.InputStream;
 import java.util.Collection;
 
 
@@ -38,5 +36,9 @@ public class ArtifactRepository extends Repository<Artifact> {
             }
         }
         return artifact;
+    }
+
+    public SaveFileResults saveFile(Session session, InputStream in) {
+        return session.saveFile(in);
     }
 }

@@ -4,12 +4,19 @@ import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 public class AccumuloSession extends Session {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSession.class.getName());
@@ -18,14 +25,17 @@ public class AccumuloSession extends Session {
     public static final String ZOOKEEPER_SERVER_NAMES = "zookeeperServerNames";
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
+    public static final String HADOOP_FS_DEFAULT_NAME = "hadoopFsDefaultName";
 
     private final Connector connector;
     private long maxMemory = 1000000L;
     private long maxLatency = 1000L;
     private int maxWriteThreads = 10;
+    private Configuration hadoopConfiguration;
 
-    public AccumuloSession(Connector connector, AccumuloQueryUser queryUser) {
+    public AccumuloSession(Connector connector, Configuration hadoopConfiguration, AccumuloQueryUser queryUser) {
         super(queryUser);
+        this.hadoopConfiguration = hadoopConfiguration;
         this.connector = connector;
     }
 
@@ -134,7 +144,7 @@ public class AccumuloSession extends Session {
             // TODO: Find a better way to delete a single row given the row key
             String strRowKey = rowKey.toString();
             char lastChar = strRowKey.charAt(strRowKey.length() - 1);
-            char asciiCharBeforeLastChar = (char)(((int)lastChar) - 1);
+            char asciiCharBeforeLastChar = (char) (((int) lastChar) - 1);
             String precedingRowKey = strRowKey.substring(0, strRowKey.length() - 1) + asciiCharBeforeLastChar;
             Text startRowKey = new Text(precedingRowKey);
             Text endRowKey = new Text(strRowKey);
@@ -146,6 +156,43 @@ public class AccumuloSession extends Session {
         } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public SaveFileResults saveFile(InputStream in) {
+        try {
+            FileSystem fileSystem = getFileSystem();
+
+            String dataRoot = hadoopConfiguration.get("fs.default.name") + "/data/";
+            if (!fileSystem.exists(new Path(dataRoot))) {
+                fileSystem.mkdirs(new Path(dataRoot));
+            }
+
+            String tempRoot = hadoopConfiguration.get("fs.default.name") + "/temp/";
+            if (!fileSystem.exists(new Path(tempRoot))) {
+                fileSystem.mkdirs(new Path(tempRoot));
+            }
+
+            String tempPath = tempRoot + UUID.randomUUID().toString();
+            FSDataOutputStream out = fileSystem.create(new Path(tempPath), true);
+            String rowKey;
+            try {
+                int bufferSize = hadoopConfiguration.getInt("io.file.buffer.size", 4096);
+                rowKey = RowKeyHelper.buildSHA256KeyString(in, out, bufferSize);
+            } finally {
+                out.close();
+            }
+
+            String path = dataRoot + rowKey;
+            fileSystem.rename(new Path(tempPath), new Path(path));
+            return new SaveFileResults(rowKey, path);
+        } catch (IOException ex) {
+            throw new RuntimeException("could not save file to HDFS", ex);
+        }
+    }
+
+    private FileSystem getFileSystem() throws IOException {
+        return FileSystem.get(hadoopConfiguration);
     }
 
     public long getMaxMemory() {
