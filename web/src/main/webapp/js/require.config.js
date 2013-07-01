@@ -25,6 +25,7 @@ var require = {
   shim: {
     ejs: { exports: 'ejs' },
     cytoscape: { exports: 'cytoscape', deps:['arbor'] },
+	atmosphere: { exports: 'jQuery' },
     html2canvas: { exports: 'html2canvas' }
   },
   deps : ['reddawn']
