@@ -104,4 +104,13 @@ public class MockSession extends Session {
             throw new RuntimeException("could not save file", ex);
         }
     }
+
+    @Override
+    public InputStream loadFile(String path) {
+        try {
+            return new FileInputStream(path);
+        } catch (FileNotFoundException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }

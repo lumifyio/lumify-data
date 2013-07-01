@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.textExtraction;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
+import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
@@ -15,10 +16,8 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.io.InputStream;
 
 public class TextExtractionMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(TextExtractionMR.class.getName());
@@ -44,6 +43,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
         private ArtifactRepository artifactRepository = new ArtifactRepository();
         public static final String CONF_TEXT_EXTRACTOR_CLASS = "textExtractorClass";
         private TextExtractor textExtractor;
+        private RedDawnSession session;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -51,6 +51,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
             try {
                 textExtractor = (TextExtractor) context.getConfiguration().getClass(CONF_TEXT_EXTRACTOR_CLASS, AsciiTextExtractor.class).newInstance();
                 textExtractor.setup(context);
+                session = ConfigurableMapJobBase.createRedDawnSession(context);
             } catch (InstantiationException e) {
                 throw new IOException(e);
             } catch (IllegalAccessException e) {
@@ -62,7 +63,12 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
             try {
                 LOGGER.info("Extracting text from artifact: " + artifact.getRowKey().toString());
-                ExtractedInfo extractedInfo = textExtractor.extract(new ByteArrayInputStream(artifact.getContent().getDocArtifactBytes()));
+                InputStream in = artifactRepository.getRaw(session.getModelSession(), artifact);
+                if (in == null) {
+                    LOGGER.warn("No data found for artifact: " + artifact.getRowKey().toString());
+                    return;
+                }
+                ExtractedInfo extractedInfo = textExtractor.extract(in);
                 artifact.getContent().setDocExtractedText(extractedInfo.getText().getBytes());
                 artifact.getGenericMetadata()
                         .setSubject(extractedInfo.getSubject())

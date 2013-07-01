@@ -191,6 +191,16 @@ public class AccumuloSession extends Session {
         }
     }
 
+    @Override
+    public InputStream loadFile(String path) {
+        try {
+            FileSystem fileSystem = getFileSystem();
+            return fileSystem.open(new Path(path));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     private FileSystem getFileSystem() throws IOException {
         return FileSystem.get(hadoopConfiguration);
     }
