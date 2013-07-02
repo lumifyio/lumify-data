@@ -241,4 +241,15 @@ public class ArtifactRepositoryTest {
         assertEquals(1, extraColumnFamily.getColumns().size());
         assertEquals("testExtraValue", extraColumnFamily.get("testExtraColumn").toString());
     }
+
+    @Test
+    public void testArtifactTypeUsingContentType () {
+        Artifact artifact = new Artifact();
+
+        artifact.getGenericMetadata().setMimeType("video");
+        assertEquals ("VIDEO", artifact.getType().toString());
+
+        artifact.getGenericMetadata().setMimeType("text/html");
+        assertEquals ("DOCUMENT", artifact.getType().toString());
+    }
 }
