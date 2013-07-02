@@ -107,8 +107,8 @@ public class DictionarySeederDriver {
         for (String type : types) {
             String category = getSearchCategory(type);
 
-            LOGGER.info("\n\033[1mSearching for dbpedia class: " + type + "\033[0m");
-            encoder.setFilename(category.toLowerCase() + ".dict");
+            LOGGER.info("\033[1mSearching for dbpedia class: " + type + "\033[0m");
+            encoder.setFilename(getDictionaryName(category.toLowerCase()) + ".dict");
 
             long start = System.currentTimeMillis();
             searcher.search(category);
@@ -116,6 +116,16 @@ public class DictionarySeederDriver {
 
             LOGGER.info("\033[34mDictionary built successfully in " + (end - start) / 1000.0 + "s\033[0m");
         }
+    }
+
+    protected String getDictionaryName(String dbpediaType) {
+        if(dbpediaType.equals("place")) {
+            return "location";
+        } else if(dbpediaType.equals("organisation")) {
+            return "organization";
+        }
+
+        return dbpediaType;
     }
 
     public static void main(String[] args) throws IOException, JSONException {

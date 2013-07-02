@@ -75,8 +75,11 @@
             <resource>
                 <directory>../conf/opennlp</directory>
                 <includes>
-                    <include>*.bin</include>
+                    <include>*</include>
                 </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
             </resource>
         </resources>
     </build>
