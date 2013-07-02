@@ -87,11 +87,9 @@ public class Artifact extends Row<ArtifactRowKey> {
     }
 
     public ArtifactType getType() {
-        // TODO: base this off of content type.
-        if (getGenericMetadata().getFileExtension().equals("mp4")) {
-            return ArtifactType.VIDEO;
-        } else {
+        if (getGenericMetadata().getMimeType().toLowerCase().contains("text"))
             return ArtifactType.DOCUMENT;
-        }
+        else
+            return ArtifactType.VIDEO;
     }
 }
