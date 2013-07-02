@@ -3,8 +3,6 @@ package com.altamiracorp.reddawn.ucd.artifact;
 import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.model.RowKey;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.Date;
 
 public class Artifact extends Row<ArtifactRowKey> {
@@ -73,5 +71,14 @@ public class Artifact extends Row<ArtifactRowKey> {
         }
 
         return null;
+    }
+
+    public ArtifactType getType() {
+        // TODO: base this off of content type.
+        if (getGenericMetadata().getFileExtension().equals("mp4")) {
+            return ArtifactType.VIDEO;
+        } else {
+            return ArtifactType.DOCUMENT;
+        }
     }
 }

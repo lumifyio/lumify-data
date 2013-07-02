@@ -6,6 +6,7 @@ import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -62,6 +63,15 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
         @Override
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
             try {
+                if (artifact.getType() != ArtifactType.DOCUMENT) {
+                    // TODO remove me when content type is filled in
+                    String typeString = artifact.getType().toString().toLowerCase();
+                    artifact.getContent().setDocExtractedText(typeString.getBytes());
+                    artifact.getGenericMetadata()
+                            .setSubject(typeString);
+                    context.write(new Text(Artifact.TABLE_NAME), artifact);
+                    return;
+                }
                 LOGGER.info("Extracting text from artifact: " + artifact.getRowKey().toString());
                 InputStream in = artifactRepository.getRaw(session.getModelSession(), artifact);
                 if (in == null) {

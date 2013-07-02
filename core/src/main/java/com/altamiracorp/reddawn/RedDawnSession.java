@@ -16,6 +16,8 @@ import org.apache.hadoop.hdfs.DistributedFileSystem;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 
 public class RedDawnSession {
