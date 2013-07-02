@@ -1,4 +1,7 @@
 
+// Debug retina/non-retina by changing to 1/2
+// window.devicePixelRatio = 1;
+
 require([
     'flight/lib/compose',
     'flight/lib/registry',

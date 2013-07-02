@@ -17,6 +17,7 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
     private byte[] password;
     private String blurHdfsPath;
     private String blurControllerLocation;
+    private String hadoopUrl;
 
     @Override
     public int run(String[] args) throws Exception {
@@ -47,6 +48,7 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
     protected void processOptions(CommandLine cmd) {
         this.zookeeperInstanceName = cmd.getOptionValue("zookeeperInstanceName");
         this.zookeeperServerNames = cmd.getOptionValue("zookeeperServerNames");
+        this.hadoopUrl = cmd.getOptionValue("hadoopUrl");
         this.username = cmd.getOptionValue("username");
         this.password = cmd.getOptionValue("password").getBytes();
         this.blurHdfsPath = cmd.getOptionValue("blurPath");
@@ -58,7 +60,6 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
         options.addOption(
                 OptionBuilder
-                        .withArgName("h")
                         .withLongOpt("help")
                         .withDescription("Print help")
                         .create()
@@ -66,7 +67,6 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
         options.addOption(
                 OptionBuilder
-                        .withArgName("zi")
                         .withLongOpt("zookeeperInstanceName")
                         .withDescription("The name of the Zoo Keeper Instance")
                         .isRequired()
@@ -77,7 +77,6 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
         options.addOption(
                 OptionBuilder
-                        .withArgName("zs")
                         .withLongOpt("zookeeperServerNames")
                         .withDescription("Comma seperated list of Zoo Keeper servers")
                         .isRequired()
@@ -88,7 +87,16 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
         options.addOption(
                 OptionBuilder
-                        .withArgName("u")
+                        .withLongOpt("hadoopUrl")
+                        .withDescription("Hadoop URL. Example: hdfs://192.168.33.10:8020")
+                        .isRequired()
+                        .hasArg(true)
+                        .withArgName("url")
+                        .create()
+        );
+
+        options.addOption(
+                OptionBuilder
                         .withLongOpt("username")
                         .withDescription("The name of the user to connect with")
                         .isRequired()
@@ -99,7 +107,6 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
         options.addOption(
                 OptionBuilder
-                        .withArgName("p")
                         .withLongOpt("password")
                         .withDescription("The password of the user to connect with")
                         .isRequired()
@@ -110,7 +117,6 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
         options.addOption(
                 OptionBuilder
-                        .withArgName("bp")
                         .withLongOpt("blurPath")
                         .withDescription("The path to blur")
                         .isRequired()
@@ -121,7 +127,6 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
         options.addOption(
                 OptionBuilder
-                        .withArgName("bcl")
                         .withLongOpt("blurControllerLocation")
                         .withDescription("The path to blur")
                         .isRequired()
@@ -135,6 +140,7 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
     public RedDawnSession createRedDawnSession() {
         Properties properties = new Properties();
+        properties.setProperty(AccumuloSession.HADOOP_URL, getHadoopUrl());
         properties.setProperty(AccumuloSession.ZOOKEEPER_INSTANCE_NAME, getZookeeperInstanceName());
         properties.setProperty(AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
         properties.setProperty(AccumuloSession.USERNAME, getUsername());
@@ -150,6 +156,10 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
     public String getZookeeperInstanceName() {
         return zookeeperInstanceName;
+    }
+
+    public String getHadoopUrl() {
+        return hadoopUrl;
     }
 
     public void setZookeeperInstanceName(String zookeeperInstanceName) {

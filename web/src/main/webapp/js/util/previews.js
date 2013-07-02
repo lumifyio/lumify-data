@@ -1,0 +1,85 @@
+
+define([
+    'service/ucd',
+    'html2canvas',
+    'tpl!./previews'
+], 
+/**
+ * Generate preview screenshots of artifact rendering (with highlighting)
+ */
+function(UCD, html2canvas, template) {
+
+    var MAX_CONCURRENT = 1;
+
+    function Preview(rowKey, options, callback) {
+        this.options = options || {};
+        this.rowKey = rowKey;
+        this.callback = callback;
+    }
+    Preview.prototype.start = function() {
+
+        new UCD().getArtifactById(this.rowKey, function(err, artifact) {
+            if (err) {
+                callback();
+            } else {
+                // TODO: extract from detail pane and this to common function
+                var html = artifact.Content.highlighted_text || artifact.Content.doc_extracted_text;
+
+                this.callbackForContent(
+                    artifact.Generic_Metadata.subject, 
+                    html.replace(/[\n]+/g, "<br><br>\n")
+                );
+            }
+        }.bind(this));
+    };
+
+    Preview.prototype.callbackForContent = function(title, html) {
+        var callback = this.callback,
+            taskFinished = this.taskFinished,
+            width = this.options.width,
+            previewDiv = $(template({
+                width: width,
+                title: title,
+                html: html
+            })).appendTo(document.body);
+
+        html2canvas(previewDiv[0], {
+            onrendered: function(canvas) {
+
+                callback(canvas.toDataURL());
+
+                previewDiv.remove();
+
+                taskFinished();
+            }
+        });
+    };
+
+    var queue = [],
+        executing = [];
+        workQueue = function() {
+            if (queue.length === 0) return;
+
+            if (executing.length < MAX_CONCURRENT) {
+                var task = queue.shift();
+                executing.push( task );
+
+                task.taskFinished = function() {
+                    executing.splice(executing.indexOf(task), 1);
+                    workQueue();
+                };
+                task.start();
+            }
+        };
+
+    return {
+        generatePreview: function(rowKey, options, callback) {
+            if ( ! options || ! options.width ) {
+                throw new Error("Width option required for previews");
+            }
+
+            queue.push( new Preview(rowKey, options, callback) );
+            workQueue();
+        }
+    };
+});

@@ -25,4 +25,12 @@
     </a>
     <br/>
 <% } %>
+
+<% if(artifact.type == 'video') { %>
+    <video width="320" height="240" controls>
+      <source src="<%= artifact.rawUrl %>?playback=true" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+<% } %>
+
 <div class="text"><%- artifact.contentHtml %></div>

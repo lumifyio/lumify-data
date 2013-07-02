@@ -10,9 +10,11 @@ import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
+import org.apache.poi.util.IOUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
 
 public class ArtifactRawByRowKey implements Handler, AppAware {
     ArtifactRepository artifactRepository = new ArtifactRepository();
@@ -44,7 +46,12 @@ public class ArtifactRawByRowKey implements Handler, AppAware {
         } else {
             response.addHeader("Content-Disposition", "inline; filename=" + fileName);
         }
-        response.getOutputStream().write(artifact.getContent().getDocArtifactBytes());
+        InputStream in = artifactRepository.getRaw(session.getModelSession(), artifact);
+        try {
+            IOUtils.copy(in, response.getOutputStream());
+        } finally {
+            in.close();
+        }
         chain.next(request, response);
     }
 

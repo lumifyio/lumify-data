@@ -28,7 +28,7 @@ define([
             this.trigger( document, 'switchWorkspace', { rowKey: rowKey });
         };
 
-        this.onAddNew = function() {
+        this.onAddNew = function(event) {
             var title = $(event.target).parents('li').children('input')[0].value;
             if (!title) return;
             var data = { title: title };

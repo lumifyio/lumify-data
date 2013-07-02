@@ -31,9 +31,9 @@ define([
 
         this.onArtifactSearchResults = function(evt, artifacts) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            $searchResultsSummary.find('.documents .badge').removeClass('loading').text(artifacts.document.length);
-            $searchResultsSummary.find('.images .badge').removeClass('loading').text('0'); // TODO
-            $searchResultsSummary.find('.videos .badge').removeClass('loading').text('0'); // TODO
+            $searchResultsSummary.find('.documents .badge').removeClass('loading').text(artifacts.documents.length);
+            $searchResultsSummary.find('.images .badge').removeClass('loading').text(artifacts.images.length);
+            $searchResultsSummary.find('.videos .badge').removeClass('loading').text(artifacts.videos.length);
         };
 
         this.onEntitySearchResults = function(evt, entities) {
