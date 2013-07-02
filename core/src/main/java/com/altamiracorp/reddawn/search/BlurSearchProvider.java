@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.search;
 
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import org.apache.blur.thirdparty.thrift_0_9_0.TException;
 import org.apache.blur.thrift.BlurClient;
 import org.apache.blur.thrift.generated.*;
@@ -23,6 +24,7 @@ public class BlurSearchProvider implements SearchProvider {
     private static final String SUBJECT_COLUMN_NAME = "subject";
     private static final String PUBLISHED_DATE_COLUMN_NAME = "publishedDate";
     private static final String SOURCE_COLUMN_NAME = "source";
+    private static final String ARTIFACT_TYPE = "type";
     private Blur.Iface client;
 
     @Override
@@ -94,6 +96,7 @@ public class BlurSearchProvider implements SearchProvider {
         columns.add(new Column(TEXT_COLUMN_NAME, text));
         columns.add(new Column(SUBJECT_COLUMN_NAME, subject));
         columns.add(new Column(PUBLISHED_DATE_COLUMN_NAME, publishedDate));
+        columns.add(new Column(ARTIFACT_TYPE, artifact.getType().toString()));
         if (source != null) {
             columns.add(new Column(SOURCE_COLUMN_NAME, source));
         }
@@ -139,6 +142,7 @@ public class BlurSearchProvider implements SearchProvider {
             assert record.getFamily().equals(GENERIC_COLUMN_FAMILY_NAME);
             Date publishedDate = null;
             String source = null;
+            ArtifactType artifactType = ArtifactType.DOCUMENT;
 
             for (Column column : record.getColumns()) {
                 if (column.getName().equals(SUBJECT_COLUMN_NAME)) {
@@ -147,10 +151,12 @@ public class BlurSearchProvider implements SearchProvider {
                     publishedDate = dateFormat.parse(column.getValue());
                 } else if (column.getName().equals(SOURCE_COLUMN_NAME)) {
                     source = column.getValue();
+                } else if (column.getName().equals(ARTIFACT_TYPE)) {
+                    artifactType = ArtifactType.valueOf(column.getValue());
                 }
             }
 
-            ArtifactSearchResult result = new ArtifactSearchResult(rowId, subject, publishedDate, source);
+            ArtifactSearchResult result = new ArtifactSearchResult(rowId, subject, publishedDate, source, artifactType);
             results.add(result);
         }
         return results;
