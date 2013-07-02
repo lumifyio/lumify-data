@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 public class DictionarySeederDriver {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySeederDriver.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySeederDriver.class);
 
     private DictionarySearcher searcher = new DictionarySearcher();
 
