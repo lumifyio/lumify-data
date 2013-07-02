@@ -115,6 +115,9 @@ public class FileImport extends RedDawnCommandLineBase {
 
     private void writeFile(RedDawnSession redDawnSession, File file) throws IOException, MutationsRejectedException {
         Artifact artifact;
+        if (file.getName().startsWith(".")) {
+            return;
+        }
         if (file.length() > MAX_SIZE_OF_INLINE_FILE) {
             FileInputStream fileInputStreamData = new FileInputStream(file);
             try {
