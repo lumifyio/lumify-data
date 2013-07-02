@@ -251,5 +251,8 @@ public class ArtifactRepositoryTest {
 
         artifact.getGenericMetadata().setMimeType("text/html");
         assertEquals ("DOCUMENT", artifact.getType().toString());
+
+        artifact.getGenericMetadata().setMimeType("application.mp4");
+        assertEquals("VIDEO", artifact.getType().toString());
     }
 }

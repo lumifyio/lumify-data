@@ -87,9 +87,11 @@ public class Artifact extends Row<ArtifactRowKey> {
     }
 
     public ArtifactType getType() {
-        if (getGenericMetadata().getMimeType().toLowerCase().contains("text"))
-            return ArtifactType.DOCUMENT;
-        else
+        if (getGenericMetadata().getMimeType().toLowerCase().contains("video") || getGenericMetadata().getMimeType().toLowerCase().contains("mp4"))
             return ArtifactType.VIDEO;
+        else if (getGenericMetadata().getMimeType().toLowerCase().contains("image"))
+            return ArtifactType.IMAGE;
+        else
+            return ArtifactType.DOCUMENT;
     }
 }
