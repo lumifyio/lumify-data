@@ -5,9 +5,13 @@ define([
     'cytoscape',
     './renderer',
     'tpl!./graph',
-    'util/throttle'
-], function(defineComponent, cytoscape, Renderer, template, throttle) {
+    'util/throttle',
+    'util/previews'
+], function(defineComponent, cytoscape, Renderer, template, throttle, previews) {
     'use strict';
+
+    var FIT_PADDING = 50;
+    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
     return defineComponent(Graph);
 
@@ -17,7 +21,10 @@ define([
         this.defaultAttrs({
             cytoscapeContainerSelector: '.cytoscape-container',
             emptyGraphSelector: '.empty-graph',
-            graphToolsSelector: '.ui-cytoscape-panzoom'
+            graphToolsSelector: '.ui-cytoscape-panzoom',
+            contextMenuSelector: '.graph-context-menu',
+            contextMenuItemSelector: '.graph-context-menu a',
+            nodeContextMenuSelector: '.node-context-menu'
         });
 
         this.cy = function(callback) {
@@ -32,7 +39,8 @@ define([
             this.addNodes(data.nodes);
         };
 
-        this.addNodes = function(nodes) {
+        this.addNodes = function(nodes, opts) {
+            var options = $.extend({ fit:false }, opts);
             this.cy(function(cy) {
                 nodes.forEach(function(node) {
                     var title = node.title;
@@ -58,7 +66,19 @@ define([
                     var cyNode = cy.add(cyNodeData);
                     cyNode.addClass(node.subType);
                     cyNode.addClass(node.type);
+
+                    if (node.type === 'artifacts') {
+                        previews.generatePreview(node.rowKey, { width:178 * pixelScale }, function(dataUri) {
+                            if (dataUri) {
+                                cyNode.css('background-image', dataUri);
+                            }
+                        });
+                    }
                 });
+
+                if (options.fit) {
+                    cy.fit(undefined, FIT_PADDING);
+                }
 
                 this.setWorkspaceDirty();
             });
@@ -100,10 +120,9 @@ define([
                                 return node.data('rowKey') == updatedNode.rowKey;
                             })
                             .each(function(idx, node) {
-                                var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
                                 node.position({
-                                    x: updatedNode.graphPosition.x * scale,
-                                    y: updatedNode.graphPosition.y * scale
+                                    x: updatedNode.graphPosition.x * pixelScale,
+                                    y: updatedNode.graphPosition.y * pixelScale
                                 });
                             });
                     });
@@ -130,11 +149,140 @@ define([
             });
         };
 
+        this.onContextMenu = function(event) {
+            var target = $(event.target),
+                name = target.data('func'),
+                functionName = name && 'onContextMenu' + name.substring(0, 1).toUpperCase() + name.substring(1),
+                func = functionName && this[functionName],
+                args = target.data('args');
+
+            if (func) {
+                if (!args) {
+                    args = [];
+                }
+                func.apply(this, args);
+            } else {
+                console.error('No function exists for context menu command: ' + functionName);
+            }
+
+            setTimeout(function() {
+                target.blur();
+                this.select('contextMenuSelector').blur().parent().removeClass('open');
+            }.bind(this), 0);
+        };
+
+        this.onContextMenuZoom = function(level) {
+            this.cy(function(cy) {
+                cy.zoom(level);
+            });
+        };
+
+        this.onContextMenuFitToWindow = function() {
+            this.cy(function(cy) {
+                if( cy.elements().size() === 0 ){
+                    cy.reset();
+                } else {
+                    cy.fit(undefined, FIT_PADDING);
+                }
+                
+                var $container = this.select('cytoscapeContainerSelector');
+                var length = Math.max( $container.width(), $container.height() );
+                var zoom = cy.zoom() * (length - FIT_PADDING * 2)/length;
+
+                cy.zoom({
+                    level: zoom,
+                    renderedPosition: {
+                        x: $container.width()/2,
+                        y: $container.height()/2
+                    }
+                });
+
+            });
+        };
+        this.onContextMenuLayout = function(layout, opts) {
+            var self = this;
+            var options = $.extend({onlySelected:false}, opts);
+            var LAYOUT_OPTIONS = {
+                // Customize layout options
+                random: { padding: FIT_PADDING },
+                arbor: { friction: 0.5, repulsion: 1500 * pixelScale, targetFps: 60, stiffness: 150 }
+            };
+            this.cy(function(cy) {
+
+                var unselected;
+                if (options.onlySelected) {
+                    unselected = cy.nodes().filter(':unselected');
+                    unselected.lock();
+                }
+
+                var opts = $.extend({
+                    name:layout,
+                    fit: false,
+                    stop: function() {
+                        if (unselected) {
+                            unselected.unlock();
+                        }
+                        var updates = $.map(cy.nodes(), function(node) {
+                            return {
+                                rowKey: node.data('rowKey'),
+                                graphPosition: self.pixelsToPoints(node.position())
+                            };
+                        });
+                        self.trigger(document, 'nodesUpdate', { nodes:updates });
+                    }
+                }, LAYOUT_OPTIONS[layout] || {});
+
+                cy.layout(opts);
+            });
+        };
+
         this.graphTap = throttle('selection', 100, function(event) {
             if (event.cyTarget === event.cy) {
                 this.trigger(document, 'searchResultSelected');
             }
         });
+
+        this.graphContextTap = function(event) {
+            var menu = this.select('contextMenuSelector');
+
+            // Show/Hide the layout selection menu item
+            if (event.cy.nodes().filter(':selected').length) {
+                menu.find('.layout-multi').show();
+            } else {
+                menu.find('.layout-multi').hide();
+            }
+            
+            // TODO: extract this context menu viewport fitting
+            var offset = this.$node.offset(),
+                padding = 10,
+                windowSize = { x: $(window).width(), y: $(window).height() },
+                menuSize = { x: menu.outerWidth(), y: menu.outerHeight() },
+                submenu = menu.find('li.dropdown-submenu ul'),
+                submenuSize = menuSize,// { x:submenu.outerWidth(), y:submenu.outerHeight() },
+                placement = {
+                    left: Math.min( 
+                        event.originalEvent.pageX - offset.left,
+                        windowSize.x - offset.left - menuSize.x - padding
+                    ),
+                    top: Math.min( 
+                        event.originalEvent.pageY - offset.top, 
+                        windowSize.y - offset.top - menuSize.y - padding
+                    )
+                },
+                submenuPlacement = { left:'100%', right:'auto', top:0, bottom:'auto' };
+
+            if ((placement.left + menuSize.x + submenuSize.x + padding) > windowSize.x) {
+                submenuPlacement = $.extend(submenuPlacement, { right: '100%', left:'auto' });
+            }
+            if ((placement.top + menuSize.y + (submenu.children('li').length * 26) + padding) > windowSize.y) {
+                submenuPlacement = $.extend(submenuPlacement, { top: 'auto', bottom:'0' });
+            }
+
+            menu.parent('div').css($.extend({ position:'absolute' }, placement));
+            submenu.css(submenuPlacement);
+
+            menu.dropdown('toggle');
+        };
 
         this.graphSelect = throttle('selection', 100, function(event) {
             this.updateNodeSelections(event.cy);
@@ -279,7 +427,7 @@ define([
         this.onWorkspaceLoaded = function(evt, workspace) {
             this.resetGraph();
             if (workspace.data && workspace.data.nodes) {
-                this.addNodes(workspace.data.nodes);
+                this.addNodes(workspace.data.nodes, { fit:true });
             }
 
             this.checkEmptyGraph();
@@ -341,18 +489,20 @@ define([
                 }.bind(this)
             });
 
+            this.select('contextMenuItemSelector').on('click', this.onContextMenu.bind(this));
+
+
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'nodesAdd', this.onNodesAdd);
             this.on(document, 'nodesDelete', this.onNodesDelete);
             this.on(document, 'nodesUpdate', this.onNodesUpdate);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
 
-            var scale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
             cytoscape("renderer", "red-dawn", Renderer);
             cytoscape({
                 showOverlay: false,
-                minZoom: 0.5,
-                maxZoom: 2,
+                minZoom: 1 / 3,
+                maxZoom: 3,
                 container: this.select('cytoscapeContainerSelector').css({height:'100%'})[0],
                 renderer: {
                     name: 'red-dawn'
@@ -365,8 +515,8 @@ define([
                   .selector('node.location')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_242_google_maps@2x.png',
-                      'width': 18 * scale,
-                      'height': 30 * scale,
+                      'width': 30 * pixelScale,
+                      'height': 40 * pixelScale,
                       'border-color': 'white',
                       'border-width': 0
                     })
@@ -379,16 +529,18 @@ define([
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'rectangle',
-                      'width': 23 * scale,
-                      'height': 30 * scale 
+                      'width': 60 * pixelScale,
+                      'height': 60 * 1.2 * pixelScale,
+                      'border-color': '#ccc',
+                      'border-width': 1
                     })
                   .selector('node')
                     .css({
-                      'width': 25 * scale,
-                      'height': 25 * scale,
+                      'width': 30 * pixelScale,
+                      'height': 30 * pixelScale,
                       'content': 'data(title)',
                       'font-family': 'helvetica',
-                      'font-size': 14 * scale,
+                      'font-size': 18 * pixelScale,
                       'text-outline-width': 2,
                       'text-outline-color': 'white',
                       'text-valign': 'bottom',
@@ -424,7 +576,8 @@ define([
 
                     $(container).cytoscapePanzoom({
                         minZoom: options.minZoom,
-                        maxZoom: options.maxZoom
+                        maxZoom: options.maxZoom,
+                        fitPadding: FIT_PADDING
                     }).focus().on({
                         click: function() { this.focus(); },
                         keydown: self.onKeyHandler.bind(self),
@@ -441,6 +594,7 @@ define([
 
                     cy.on({
                         tap: self.graphTap.bind(self),
+                        cxttap: self.graphContextTap.bind(self),
                         select: self.graphSelect.bind(self),
                         unselect: self.graphUnselect.bind(self),
                         grab: self.graphGrab.bind(self),
@@ -448,6 +602,8 @@ define([
                         drag: self.graphDrag.bind(self)
                     });
 
+                },
+                done: function() {
                     self.cyLoaded = true;
                     self.drainCallbackQueue();
                 }
