@@ -3,7 +3,6 @@ package com.altamiracorp.reddawn.dictionary;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
@@ -17,7 +16,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class DictionarySearcher {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySearcher.class.getName());
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DictionarySearcher.class.getName());
 
     public static final String RESOURCE = "Resource";
     public static final String PLACE = "Place";
@@ -101,7 +100,7 @@ public class DictionarySearcher {
 
     protected String getUrl(String type, int offset) {
         String query = "PREFIX dbo: <http://dbpedia.org/ontology/>\n" +
-                "SELECT ?name WHERE{?place a dbo:" + type + ";foaf:name ?name.}\n" +
+                "SELECT ?name WHERE{?place a dbo:" + type + ";rdfs:label ?name.}\n" +
                 "LIMIT 50000\nOFFSET " + offset;
 
         String url;

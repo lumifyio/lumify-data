@@ -72,14 +72,26 @@ public class DictionaryEncoder {
     }
 
     private void addTaggedTokenizedEntry(String entry) {
-        String[] tokens = tokenizer.tokenize(entry);
+        String[] tokens = tokenizer.tokenize(trimEntry(entry));
         for (int i = 0; i < tokens.length; i++) {
             if(i != 0) {
-                currentEntries.append('\t');
+                currentEntries.append(' ');
             }
             currentEntries.append(tokens[i]);
         }
         currentEntries.append("\n");
+    }
+
+    private String trimEntry(String entry) {
+        if(entry.charAt(entry.length() - 1) == ')') {
+            for(int i = entry.length() - 1; i >= 0; i--) {
+                if(entry.charAt(i) == '(') {
+                    return entry.substring(0, i).trim();
+                }
+            }
+        }
+
+        return entry.trim();
     }
 
     private void appendCurrentEntriesToFile() {
