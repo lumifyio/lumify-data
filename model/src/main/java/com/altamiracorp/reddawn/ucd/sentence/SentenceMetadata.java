@@ -14,6 +14,7 @@ public class SentenceMetadata extends ColumnFamily {
     public static final String DATE = "date";
     public static final String EXTRACTOR_ID = "extractorId";
     public static final String SECURITY_MARKING = "securityMarking";
+    public static final String ARTIFACT_SUBJECT = "artifactSubject";
 
     public SentenceMetadata() {
         super(NAME);
@@ -67,6 +68,16 @@ public class SentenceMetadata extends ColumnFamily {
 
     public SentenceMetadata setSecurityMarking(String securityMarking) {
         set(SECURITY_MARKING, securityMarking);
+        return this;
+    }
+
+    public String getArtifactSubject() {
+        Value artifactSubject = get(ARTIFACT_SUBJECT);
+        return artifactSubject != null ? Value.toString(artifactSubject) : "No Artifact Subject Found";
+    }
+
+    public SentenceMetadata setArtifactSubject(String artifactSubject) {
+        set(ARTIFACT_SUBJECT, artifactSubject);
         return this;
     }
 }
