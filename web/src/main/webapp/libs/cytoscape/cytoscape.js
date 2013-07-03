@@ -4413,11 +4413,13 @@ var cytoscape;
 			padding = $$.is.number(padding) ? padding : 0;
 
 			if( !isNaN(w) && !isNaN(h) ){
-				zoom = this._private.zoom = Math.min( (w - 2*padding)/bb.w, (h - 2*padding)/bb.h );
+				zoom = Math.min( (w - 2*padding)/bb.w, (h - 2*padding)/bb.h );
 
 				// crop zoom
 				zoom = zoom > this._private.maxZoom ? this._private.maxZoom : zoom;
 				zoom = zoom < this._private.minZoom ? this._private.minZoom : zoom;
+
+                this._private.zoom = zoom;
 
 				this._private.pan = { // now pan to middle
 					x: (w - zoom*( bb.x1 + bb.x2 ))/2,
