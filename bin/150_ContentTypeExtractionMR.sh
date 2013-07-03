@@ -30,4 +30,4 @@ com.altamiracorp.reddawn.contentTypeExtraction.ContentTypeMR \
 --blurPath=hdfs://${ip}/blur \
 --username=root \
 --password=password \
---classname=com.altamiracorp.reddawn.contentTypeExtraction.TikaContentType
+--classname=com.altamiracorp.reddawn.contentTypeExtraction.TikaContentTypeExtractor
