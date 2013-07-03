@@ -45,14 +45,6 @@ public class ContentTypeMR  extends ConfigurableMapJobBase {
         private ContentTypeExtractor contentTypeExtractor;
         private RedDawnSession session;
 
-        public ContentTypeExtractor getContentTypeExtractor() {
-            return contentTypeExtractor;
-        }
-
-        public void setContentTypeExtractor(ContentTypeExtractor contentTypeExtractor) {
-            this.contentTypeExtractor = contentTypeExtractor;
-        }
-
         @Override
         protected void setup (Context context) throws IOException, InterruptedException{
             super.setup(context);
@@ -88,22 +80,6 @@ public class ContentTypeMR  extends ConfigurableMapJobBase {
 
         public static void init (Job job, Class<? extends TikaContentTypeExtractor> tikaContentTypeExtractor){
             job.getConfiguration().setClass(CONF_CONTENT_TYPE_EXTRACTOR_CLASS, tikaContentTypeExtractor, TikaContentTypeExtractor.class);
-        }
-
-        public RedDawnSession getSession() {
-            return session;
-        }
-
-        public void setSession(RedDawnSession session) {
-            this.session = session;
-        }
-
-        public ArtifactRepository getArtifactRepository() {
-            return artifactRepository;
-        }
-
-        public void setArtifactRepository(ArtifactRepository artifactRepository) {
-            this.artifactRepository = artifactRepository;
         }
     }
 
