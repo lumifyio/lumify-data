@@ -26,4 +26,11 @@ class ffmpeg::config () {
     unless => '/usr/bin/test -x /opt/ffmpeg/bin/ffmpeg',
     require => Exec['ffmpeg-clone'],
   }
+
+  exec { 'ffmpeg-qt-fast-start' :
+    cwd => '/opt/ffmpeg-source/tools',
+    command => '/usr/bin/make qt-faststart && cp /opt/ffmpeg-source/tools/qt-faststart /opt/ffmpeg/bin/qt-faststart',
+    unless => '/usr/bin/test -x /opt/ffmpeg/bin/qt-faststart',
+    require => Exec['ffmpeg-compile'],
+  }
 }
