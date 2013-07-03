@@ -39,7 +39,7 @@ public class OpenNlpDictionaryRegistry {
         for (FileStatus dictionaryFileStatus : fs.listStatus(hdfsDirectory)) {
             Path hdfsPath = dictionaryFileStatus.getPath();
             InputStream dictionaryInputStream = fs.open(hdfsPath);
-            String type = FilenameUtils.getBaseName(hdfsPath.getName());
+            String type = FilenameUtils.getBaseName(hdfsPath.getName()).split("-")[0];
             try {
                 dictionaries.put(type, buildDictionary(dictionaryInputStream, CASE_SENSITIVE));
             } finally {
