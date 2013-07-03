@@ -38,8 +38,6 @@ define([
                 highlightTypeSelector: this.onHighlightTypeClicked
             });
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
-
-            this.fixTextSelection();
         });
 
         this.onMapCoordinatesClicked = function(evt, data) {
@@ -199,37 +197,5 @@ define([
             }
         };
 
-        this.fixTextSelection = function() {
-            var mouseDown = false,
-                inside = false;
-
-            // Since we are on top of the graph, don't let mouse events get to
-            // the graph but fix case where dragging pane resizebar
-
-            this.on('mousedown', function(evt) {
-
-                // We want propagation if it's an entity in case of drag
-                mouseDown = !$(evt.target).is('.entity');
-            });
-
-            this.on('mousemove', function(evt) {
-                if ( mouseDown && inside ) {
-                    evt.stopPropagation();
-                }
-            });
-
-            this.on('mouseup', function() {
-                mouseDown = false;
-            });
-
-            this.on('mouseleave', function() {
-                inside = false;
-                mouseDown = false;
-            });
-
-            this.on('mouseenter', function() {
-                inside = true;
-            });
-        };
     }
 });
