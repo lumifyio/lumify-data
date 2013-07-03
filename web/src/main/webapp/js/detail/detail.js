@@ -133,8 +133,12 @@ define([
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
-                    console.log('Showing entity:', entity);
-                    self.$node.html(entityDetailsTemplate(entity));
+
+                    var entityDetailsData = {
+                        data: entity
+                    }
+                    console.log('Showing entity:', entityDetailsData);
+                    self.$node.html(entityDetailsTemplate(entityDetailsData));
                 });
 
             });
