@@ -8,8 +8,14 @@ class hadoop::config ($javaHome, $user = 'hadoop', $group = 'hadoop') {
     require => [ User["${user}"], Group["${group}"] ],
   }
 
+  if $ipaddress_eth1 {
+    $name_node_ipaddress = $ipaddress_eth1
+  } else {
+    $name_node_ipaddress = $ipaddress_eth0
+  }
+
   file { '/opt/hadoop-conf/core-site.xml' :
-    source => 'puppet:///modules/hadoop/core-site.xml',
+    content => template('hadoop/core-site.xml.erb'),
     backup => '.DIST',
   }
 
