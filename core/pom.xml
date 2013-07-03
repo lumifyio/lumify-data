@@ -59,6 +59,26 @@
             <groupId>org.apache.blur</groupId>
             <artifactId>blur-thrift</artifactId>
             <version>${blur-version}</version>
+            <!-- We believe that blur-gui is attempted to download because it is part of a multi-module project. maven fails to download this because it's a war. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.blur</groupId>
+                    <artifactId>blur-gui</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.blur</groupId>
+            <artifactId>blur-mapred</artifactId>
+            <version>${blur-version}</version>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.blur</groupId>
+                    <artifactId>blur-gui</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -86,13 +106,6 @@
             <groupId>org.apache.opennlp</groupId>
             <artifactId>opennlp-tools</artifactId>
             <version>1.5.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.blur</groupId>
-            <artifactId>blur-mapred</artifactId>
-            <version>${blur-version}</version>
-			<scope>runtime</scope>
         </dependency>
 
         <dependency>
