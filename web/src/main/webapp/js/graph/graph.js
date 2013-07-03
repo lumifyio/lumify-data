@@ -463,31 +463,6 @@ define([
             var self = this;
             this.$node.html(template({}));
 
-            this.$node.droppable({
-                drop: function( event, ui ) {
-                    var draggable = ui.draggable,
-                        droppableOffset = $(event.target).offset();
-
-                    var info = draggable.data('info') || draggable.parents('li').data('info');
-                    if ( !info ) {
-                        console.warn('No data-info attribute for draggable element found');
-                        return;
-                    }
-
-                    this.trigger(document, 'nodesAdd', {
-                        nodes: [{
-                            title: info.title || draggable.text(),
-                            rowKey: info.rowKey.replace(/\\[x](1f)/ig, '\u001f'),
-                            subType: info.subType,
-                            type: info.type,
-                            graphPosition: {
-                                x: event.clientX - droppableOffset.left,
-                                y: event.clientY - droppableOffset.top
-                            }
-                        }]
-                    });
-                }.bind(this)
-            });
 
             this.select('contextMenuItemSelector').on('click', this.onContextMenu.bind(this));
 

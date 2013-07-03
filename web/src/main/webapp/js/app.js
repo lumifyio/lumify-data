@@ -37,7 +37,8 @@ define([
             graphSelector: '.graph-pane',
             mapSelector: '.map-pane',
             detailPaneSelector: '.detail-pane',
-            modeSelectSelector: '.mode-select'
+            modeSelectSelector: '.mode-select',
+            droppableSelector: '.graph-pane, .map-pane'
         });
 
         this.after('initialize', function() {
@@ -73,6 +74,8 @@ define([
 
             this.$node.html(content);
 
+            this.setupDroppable();
+
             // Open search when the page is loaded
             this.trigger(document, 'menubarToggleDisplay', { name: searchPane.data(DATA_MENUBAR_NAME) });
             this.trigger(document, 'menubarToggleDisplay', { name: graphPane.data(DATA_MENUBAR_NAME) });
@@ -99,6 +102,44 @@ define([
                 resizeTimeout = setTimeout(function() {
                     self.trigger(document, 'windowResize');
                 }, MAX_RESIZE_TRIGGER_INTERVAL);
+            });
+        };
+
+        this.setupDroppable = function() {
+
+            this.select('droppableSelector').droppable({
+
+                drop: function( event, ui ) {
+                    var draggable = ui.draggable,
+                        droppable = $(event.target),
+                        droppableOffset = droppable.offset();
+
+                    var info = draggable.data('info') || draggable.parents('li').data('info');
+                    if ( !info ) {
+                        console.warn('No data-info attribute for draggable element found');
+                        return;
+                    }
+
+                    var graphPosition = $(event.target).is('.graph-pane') ?
+                        {
+                            x: event.clientX - droppableOffset.left,
+                            y: event.clientY - droppableOffset.top
+                        } : {
+                            x: parseInt(Math.random() * droppable.width(), 10),
+                            y: parseInt(Math.random() * droppable.height(), 10)
+                        };
+
+                    this.trigger(document, 'nodesAdd', {
+                        nodes: [{
+                            title: info.title || draggable.text(),
+                            rowKey: info.rowKey.replace(/\\[x](1f)/ig, '\u001f'),
+                            subType: info.subType,
+                            type: info.type,
+                            graphPosition: graphPosition
+                        }]
+                    });
+                }.bind(this)
+
             });
         };
 
