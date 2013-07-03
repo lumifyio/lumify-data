@@ -27,7 +27,7 @@
         </repository>
 		<repository>
 			<id>red-dawn-releases</id>
-			<url>http://nic-mvnproxy:8080/artifactory/libs-release/</url>
+			<url>http://nic-mvnproxy:8080/artifactory/libs-release-local/</url>
 		</repository>
 		<repository>
 			<snapshots>
@@ -36,12 +36,12 @@
 				<checksumPolicy>fail</checksumPolicy>
 			</snapshots>
 			<id>red-dawn-snapshots</id>
-			<url>http://nic-mvnproxy:8080/artifactory/libs-release/</url>
+			<url>http://nic-mvnproxy:8080/artifactory/libs-snapshot-local/</url>
 		</repository>
     </repositories>
 
 	<properties>
-		<blur-version>0.1.5</blur-version>
+		<blur-version>0.2.0-incubating-SNAPSHOT</blur-version>
 		<accumulo-version>1.4.3</accumulo-version>
 		<hadoop-version>0.20.2-cdh3u6</hadoop-version>
 		<zookeeper-version>3.3.5</zookeeper-version>

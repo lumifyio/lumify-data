@@ -16,8 +16,8 @@ $stormDir     = 'storm-0.8.2'
 $tomcatUrl    = 'http://www.us.apache.org/dist/tomcat/tomcat-7/v7.0.41/bin/apache-tomcat-7.0.41.tar.gz'
 $tomcatDir    = 'apache-tomcat-7.0.41'
 
-$blurSource   = 'puppet:///modules/blur/apache-blur-0.1.5-bin.tar.gz'
-$blurDir      = 'apache-blur-0.1.5'
+$blurSource   = 'puppet:///modules/blur/apache-blur-0.2.0-incubating-SNAPSHOT-bin.tar.gz'
+$blurDir      = 'apache-blur-0.2.0-incubating-SNAPSHOT'
 
 exec { 'yum-update' :
   command => '/usr/bin/yum -y update',
