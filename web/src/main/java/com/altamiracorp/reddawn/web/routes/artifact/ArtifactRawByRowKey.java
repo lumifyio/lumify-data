@@ -10,9 +10,11 @@ import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
+import org.apache.poi.util.IOUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
 
 public class ArtifactRawByRowKey implements Handler, AppAware {
     ArtifactRepository artifactRepository = new ArtifactRepository();
@@ -25,6 +27,8 @@ public class ArtifactRawByRowKey implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         boolean download = request.getParameter("download") != null;
+        boolean videoPlayback = request.getParameter("playback") != null;
+        String videoType = request.getParameter("type");
 
         RedDawnSession session = app.getRedDawnSession(request);
         ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("rowKey")));
@@ -36,15 +40,35 @@ public class ArtifactRawByRowKey implements Handler, AppAware {
             return;
         }
 
-        String mimeType = getMimeType(artifact);
         String fileName = getFileName(artifact);
-        response.setContentType(mimeType);
-        if (download) {
-            response.addHeader("Content-Disposition", "attachment; filename=" + fileName);
+        InputStream in;
+        if (videoPlayback) {
+            if (videoType.equals("video/mp4")) {
+                response.setContentType("video/mp4");
+                response.addHeader("Content-Disposition", "attachment; filename=" + fileName + ".mp4");
+                in = artifactRepository.getRawMp4(session.getModelSession(), artifact);
+            } else if (videoType.equals("video/webm")) {
+                response.setContentType("video/webm");
+                response.addHeader("Content-Disposition", "attachment; filename=" + fileName + ".webm");
+                in = artifactRepository.getRawWebm(session.getModelSession(), artifact);
+            } else {
+                throw new RuntimeException("Invalid video type: " + videoType);
+            }
         } else {
-            response.addHeader("Content-Disposition", "inline; filename=" + fileName);
+            String mimeType = getMimeType(artifact);
+            response.setContentType(mimeType);
+            if (download) {
+                response.addHeader("Content-Disposition", "attachment; filename=" + fileName);
+            } else {
+                response.addHeader("Content-Disposition", "inline; filename=" + fileName);
+            }
+            in = artifactRepository.getRaw(session.getModelSession(), artifact);
         }
-        response.getOutputStream().write(artifact.getContent().getDocArtifactBytes());
+        try {
+            IOUtils.copy(in, response.getOutputStream());
+        } finally {
+            in.close();
+        }
         chain.next(request, response);
     }
 

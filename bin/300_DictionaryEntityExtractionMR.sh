@@ -23,12 +23,14 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
--Xmx1024M \
+-Xmx1g \
+-XX:MaxPermSize=512m \
 com.altamiracorp.reddawn.entityExtraction.EntityExtractionMR \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
+--hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
 --classname=com.altamiracorp.reddawn.entityExtraction.OpenNlpDictionaryEntityExtractor \

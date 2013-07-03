@@ -24,6 +24,9 @@ public class ArtifactGenericMetadata extends ColumnFamily {
     public static final String FILE_SIZE = "file_size";
     public static final String FILE_TIMESTAMP = "file_timestamp";
     public static final String HDFS_FILE_PATH = "hdfs_file_path";
+    public static final String MP4_HDFS_FILE_PATH = "mp4_hdfs_file_path";
+    public static final String WEBM_HDFS_FILE_PATH = "webm_hdfs_file_path";
+    public static final String POSTER_FRAME_HDFS_FILE_PATH = "poster_frame_hdfs_file_path";
     public static final String LANGUAGE = "language";
     public static final String LOAD_TIMESTAMP = "load_timestamp";
     public static final String LOAD_TYPE = "load_type";
@@ -167,6 +170,33 @@ public class ArtifactGenericMetadata extends ColumnFamily {
 
     public ArtifactGenericMetadata setHdfsFilePath(String hdfsFilePath) {
         set(HDFS_FILE_PATH, hdfsFilePath);
+        return this;
+    }
+
+    public String getMp4HdfsFilePath() {
+        return Value.toString(get(MP4_HDFS_FILE_PATH));
+    }
+
+    public ArtifactGenericMetadata setMp4HdfsFilePath(String mp4HdfsFilePath) {
+        set(MP4_HDFS_FILE_PATH, mp4HdfsFilePath);
+        return this;
+    }
+
+    public String getWebmHdfsFilePath() {
+        return Value.toString(get(WEBM_HDFS_FILE_PATH));
+    }
+
+    public ArtifactGenericMetadata setWebmHdfsFilePath(String webmHdfsFilePath) {
+        set(WEBM_HDFS_FILE_PATH, webmHdfsFilePath);
+        return this;
+    }
+
+    public String getPosterFrameHdfsFilePath() {
+        return Value.toString(get(POSTER_FRAME_HDFS_FILE_PATH));
+    }
+
+    public ArtifactGenericMetadata setPosterFrameHdfsFilePath(String posterFrameHdfsFilePath) {
+        set(POSTER_FRAME_HDFS_FILE_PATH, posterFrameHdfsFilePath);
         return this;
     }
 

@@ -1,4 +1,6 @@
 <div class="btn-toolbar">
+
+  <% if(artifact.type != 'video') { %>
   <div class="btn-group">
     <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
       Highlight
@@ -10,6 +12,7 @@
       <% }); %>
     </ul>
   </div>
+  <% } %>
 
   <div class="btn-group">
     <a class="btn btn-small" href="<%= artifact.rawUrl %>" target="_blank">View</a>
@@ -25,4 +28,12 @@
     </a>
     <br/>
 <% } %>
+
+<% if(artifact.type == 'video') { %>
+  <video class="video-js vjs-default-skin" controls preload="auto" width="auto" height="300" poster="<%= artifact.posterFrameUrl %>">
+    <source src="<%= artifact.rawUrl %>?playback=true&type=video/mp4" type="video/mp4">
+    <source src="<%= artifact.rawUrl %>?playback=true&type=video/webm" type="video/webm">
+  </video>
+<% } %>
+
 <div class="text"><%- artifact.contentHtml %></div>

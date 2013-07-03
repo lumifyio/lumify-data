@@ -89,6 +89,6 @@ public class MrIntegrationTests {
         Connector connector = zooKeeperInstance.getConnector(username, password);
 
         AccumuloQueryUser queryUser = new AccumuloQueryUser();
-        return new AccumuloSession(connector, queryUser);
+        return new AccumuloSession(connector, null, null, queryUser);
     }
 }

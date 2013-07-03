@@ -22,20 +22,25 @@ function(UCD, html2canvas, template) {
             if (err) {
                 callback();
             } else {
-                // TODO: extract from detail pane and this to common function
-                var html = artifact.Content.highlighted_text || artifact.Content.doc_extracted_text;
+                if (artifact.type == 'video') {
+                    this.callback(artifact.posterFrameUrl);
+                    this.finished();
+                } else {
 
-                this.callbackForContent(
-                    artifact.Generic_Metadata.subject, 
-                    html.replace(/[\n]+/g, "<br><br>\n")
-                );
+                    // TODO: extract from detail pane and this to common function
+                    var html = artifact.Content.highlighted_text || artifact.Content.doc_extracted_text;
+
+                    this.callbackForContent(
+                        artifact.Generic_Metadata.subject, 
+                        html.replace(/[\n]+/g, "<br><br>\n")
+                    );
+                }
             }
         }.bind(this));
     };
 
     Preview.prototype.callbackForContent = function(title, html) {
-        var callback = this.callback,
-            taskFinished = this.taskFinished,
+        var self = this,
             width = this.options.width,
             previewDiv = $(template({
                 width: width,
@@ -46,13 +51,19 @@ function(UCD, html2canvas, template) {
         html2canvas(previewDiv[0], {
             onrendered: function(canvas) {
 
-                callback(canvas.toDataURL());
+                self.callback(canvas.toDataURL());
 
                 previewDiv.remove();
 
-                taskFinished();
+                self.finished();
             }
         });
+    };
+
+    Preview.prototype.finished = function() {
+        if (this.taskFinished) {
+            this.taskFinished();
+        }
     };
 
     var queue = [],

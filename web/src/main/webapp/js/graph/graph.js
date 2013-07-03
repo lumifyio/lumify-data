@@ -508,11 +508,12 @@ define([
                     name: 'red-dawn'
                 },
                 style: cytoscape.stylesheet()
+                  // TODO: get the list of types and subTypes
                   .selector('node.person')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_003_user@2x.png'
                     })
-                  .selector('node.location')
+                  .selector('node.location,node.place')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_242_google_maps@2x.png',
                       'width': 30 * pixelScale,
@@ -520,17 +521,26 @@ define([
                       'border-color': 'white',
                       'border-width': 0
                     })
-                  .selector('node.organization')
+                  .selector('node.organization,node.organisation')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_263_bank@2x.png',
                       'shape': 'roundrectangle'
                     })
-                  .selector('node.document')
+                  .selector('node.document,node.documents')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'rectangle',
                       'width': 60 * pixelScale,
                       'height': 60 * 1.2 * pixelScale,
+                      'border-color': '#ccc',
+                      'border-width': 1
+                    })
+                  .selector('node.videos')
+                    .css({
+                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
+                      'shape': 'rectangle',
+                      'width': 60 * 1.3 * pixelScale,
+                      'height': 60 * pixelScale,
                       'border-color': '#ccc',
                       'border-width': 1
                     })

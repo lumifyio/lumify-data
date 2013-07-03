@@ -2,12 +2,15 @@
 define([
     'flight/lib/component',
     'service/ucd',
+    'videojs',
     'tpl!./artifactDetails',
     'tpl!./entityDetails',
     'tpl!./relationshipDetails',
     'tpl!./multipleSelection'
-], function(defineComponent, UCD, artifactDetailsTemplate, entityDetailsTemplate, relationshipDetailsTemplate, multipleSelectionTemplate) {
+], function(defineComponent, UCD, videojs, artifactDetailsTemplate, entityDetailsTemplate, relationshipDetailsTemplate, multipleSelectionTemplate) {
     'use strict';
+
+    videojs.options.flash.swf = "/libs/video.js/video-js.swf";
 
     var HIGHLIGHT_STYLES = [
             { name: 'None' },
@@ -25,7 +28,8 @@ define([
         this.defaultAttrs({
             mapCoordinatesSelector: '.map-coordinates',
             highlightTypeSelector: '.highlight-options a',
-            entitiesSelector: '.entity'
+            entitiesSelector: '.entity',
+            videoSelector: 'video'
         });
 
         this.after('initialize', function() {
@@ -112,9 +116,13 @@ define([
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
                     console.log('Showing artifact:', artifact);
-                    artifact.contentHtml = artifact.Content.highlighted_text || artifact.Content.doc_extracted_text;
+                    artifact.contentHtml = artifact.Content.highlighted_text || artifact.Content.doc_extracted_text || "";
                     artifact.contentHtml = artifact.contentHtml.replace(/[\n]+/g, "<br><br>\n");
                     self.$node.html(artifactDetailsTemplate({ artifact: artifact, styles:HIGHLIGHT_STYLES, activeStyle:ACTIVE_STYLE }));
+
+                    if (artifact.type == 'video') {
+                        self.setupVideo(artifact);
+                    }
                     self.applyHighlightStyle();
 
                     self.updateEntityDraggables();
@@ -164,6 +172,24 @@ define([
                 scroll: false,
                 zIndex: 100
             });
+        };
+
+        this.setupVideo = function(artifact) {
+            var self = this,
+                video = this.select('videoSelector'),
+                players = videojs.players;
+
+            if (video.length) {
+                Object.keys(players).forEach(function(player) {
+                    if (players[player]) {
+                        players[player].dispose();
+                        delete players[player];
+                    }
+                });
+                videojs(video[0], {}, function() {
+                    self.trigger('videoReady', {artifact:artifact});
+                });
+            }
         };
 
         this.applyHighlightStyle = function() {

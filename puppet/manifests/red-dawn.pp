@@ -284,6 +284,9 @@ class { blur::config :
   require => Install['blur'],
 }
 
+class { ffmpeg::config :
+}
+
 class { reddawn::config :
   require => [ Install['hadoop'], Install['zookeeper'], Install['storm'], Install['tomcat'], Install['blur'] ],
 }

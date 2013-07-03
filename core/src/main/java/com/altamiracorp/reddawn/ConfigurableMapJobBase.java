@@ -31,7 +31,6 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
         if (hasConfigurableClassname()) {
             options.addOption(
                     OptionBuilder
-                            .withArgName("c")
                             .withLongOpt("classname")
                             .withDescription("The class to run")
                             .withArgName("name")
@@ -43,12 +42,11 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
 
         options.addOption(
                 OptionBuilder
-                        .withArgName("D")
                         .withLongOpt("config")
                         .withDescription("Configuration for the class")
                         .withArgName("name=value")
                         .hasArg()
-                        .create()
+                        .create('D')
         );
 
         return options;
@@ -76,6 +74,7 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
     @Override
     protected int run(CommandLine cmd) throws Exception {
         Job job = new Job(getConf(), this.getClass().getSimpleName());
+        job.getConfiguration().set(AccumuloSession.HADOOP_URL, getHadoopUrl());
         job.getConfiguration().set(AccumuloSession.ZOOKEEPER_INSTANCE_NAME, getZookeeperInstanceName());
         job.getConfiguration().set(AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
         job.getConfiguration().set(AccumuloSession.USERNAME, getUsername());
