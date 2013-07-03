@@ -201,8 +201,12 @@ define([
             this.on(document, 'nodesUpdate', this.onNodesUpdate);
             this.on(document, 'nodesDelete', this.onNodesDelete);
             this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
+            this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
         });
 
+        this.onWorkspaceLoaded = function(evt, workspace) {
+            this.onNodesUpdate(evt, workspace.data || {});
+        };
 
         // Track changes to nodes so we display the "Displayed in Graph" icon
         // in search results
