@@ -9,7 +9,6 @@ import org.json.JSONObject;
 
 public class TermMention extends ColumnFamily {
     public static final String ARTIFACT_KEY = "artifactKey";
-    public static final String ARTIFACT_SUBJECT = "artifactSubject";
     public static final String ARTIFACT_KEY_SIGN = "artifactKey_sign";
     public static final String AUTHOR = "author";
     public static final String GEO_LOCATION = "geoLocation";
@@ -17,8 +16,9 @@ public class TermMention extends ColumnFamily {
     public static final String PROVENANCE_ID = "provenanceID";
     public static final String SECURITY_MARKING = "securityMarking";
     public static final String DATE = "date";
-    public static final String SENTENCE_TEXT = "sentenceText";
-    public static final String SENTENCE_OFFSET = "sentenceOffset";
+    public static final String ARTIFACT_SUBJECT = "atc:artifactSubject";
+    public static final String SENTENCE_TEXT = "atc:sentenceText";
+    public static final String SENTENCE_OFFSET = "atc:sentenceOffset";
 
     public TermMention() {
         super(null);

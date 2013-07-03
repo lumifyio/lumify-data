@@ -14,7 +14,7 @@ public class SentenceMetadata extends ColumnFamily {
     public static final String DATE = "date";
     public static final String EXTRACTOR_ID = "extractorId";
     public static final String SECURITY_MARKING = "securityMarking";
-    public static final String ARTIFACT_SUBJECT = "artifactSubject";
+    public static final String ARTIFACT_SUBJECT = "atc:artifactSubject";
 
     public SentenceMetadata() {
         super(NAME);
