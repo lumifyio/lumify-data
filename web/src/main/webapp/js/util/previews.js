@@ -48,16 +48,34 @@ function(UCD, html2canvas, template) {
                 html: html
             })).appendTo(document.body);
 
-        html2canvas(previewDiv[0], {
-            onrendered: function(canvas) {
+        //previewDiv.css({position:'absolute',top:100,left:200,right:'auto',zIndex:9999});
+        
+        function finish(url) {
+            self.callback(url);
+            previewDiv.remove();
+            self.finished();
+        }
 
-                self.callback(canvas.toDataURL());
-
-                previewDiv.remove();
-
-                self.finished();
+        var times = 0;
+        function generate() {
+            if (++times > 2) {
+                return finish();
             }
-        });
+
+            html2canvas(previewDiv[0], {
+                onrendered: function(canvas) {
+                    var dataUrl = canvas.toDataURL();
+
+                    if (dataUrl.length < 5000) {
+                        return generate();
+                    }
+                    finish(dataUrl);
+                }
+            });
+
+        }
+
+        generate();
     };
 
     Preview.prototype.finished = function() {
