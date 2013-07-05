@@ -13,7 +13,6 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetSocketAddress;
-import java.util.Properties;
 
 public class Server extends RedDawnCommandLineBase {
 

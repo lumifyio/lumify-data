@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.ucd.artifact;
 
-import com.altamiracorp.reddawn.model.RowKeyHelper;
 import com.altamiracorp.reddawn.model.RowKey;
+import com.altamiracorp.reddawn.model.RowKeyHelper;
 
 public class ArtifactRowKey extends RowKey {
     public ArtifactRowKey(String rowKey) {

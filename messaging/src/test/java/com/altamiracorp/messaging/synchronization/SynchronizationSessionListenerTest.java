@@ -1,15 +1,5 @@
 package com.altamiracorp.messaging.synchronization;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Future;
-
-import javax.servlet.ServletContext;
-
 import org.atmosphere.cpr.AtmosphereConfig;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.Broadcaster;
@@ -20,6 +10,15 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import javax.servlet.ServletContext;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Future;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class)
 public class SynchronizationSessionListenerTest {

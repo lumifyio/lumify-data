@@ -1,6 +1,5 @@
 package com.altamiracorp.reddawn.crawler;
 
-import com.altamiracorp.reddawn.crawler.Utils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -10,9 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.*;
 
 @RunWith(JUnit4.class)
 

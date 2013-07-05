@@ -7,10 +7,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletConfig;
 
 import static org.mockito.Mockito.*;
 

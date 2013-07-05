@@ -1,9 +1,5 @@
 package com.altamiracorp.reddawn.crawler;
 
-import com.altamiracorp.reddawn.crawler.Crawler;
-import com.altamiracorp.reddawn.crawler.GoogleSearchEngine;
-import com.altamiracorp.reddawn.crawler.Query;
-import com.altamiracorp.reddawn.crawler.SearchEngine;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;

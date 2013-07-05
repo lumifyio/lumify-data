@@ -2,7 +2,6 @@ package com.altamiracorp.reddawn.ucd.sentence;
 
 import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.Value;
-import org.apache.commons.codec.binary.Hex;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

@@ -69,6 +69,7 @@ public class ArtifactRawByRowKey implements Handler, AppAware {
         } finally {
             in.close();
         }
+
         chain.next(request, response);
     }
 

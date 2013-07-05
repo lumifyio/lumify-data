@@ -1,9 +1,5 @@
 package com.altamiracorp.reddawn.model;
 
-import com.altamiracorp.reddawn.model.videoFrames.VideoFrame;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
-
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

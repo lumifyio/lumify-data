@@ -1,13 +1,10 @@
 package com.altamiracorp.reddawn.location;
 
-import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.Session;
 import com.altamiracorp.reddawn.model.geoNames.GeoName;
 import com.altamiracorp.reddawn.model.geoNames.GeoNameRepository;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
-
-import java.util.List;
 
 public class SimpleTermLocationExtractor {
     public Term GetTermWithLocationLookup(Session session, GeoNameRepository geoNameRepository, Term term) {

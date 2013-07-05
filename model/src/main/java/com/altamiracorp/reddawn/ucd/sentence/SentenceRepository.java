@@ -4,7 +4,6 @@ import com.altamiracorp.reddawn.model.Column;
 import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.Repository;
 import com.altamiracorp.reddawn.model.Row;
-import com.altamiracorp.reddawn.ucd.term.TermMention;
 
 import java.util.Collection;
 

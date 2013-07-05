@@ -1,14 +1,13 @@
 package com.altamiracorp.reddawn.web.routes.user;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.altamiracorp.reddawn.web.Responder;
-import org.json.JSONObject;
-
 import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class MeGet implements Handler {
 

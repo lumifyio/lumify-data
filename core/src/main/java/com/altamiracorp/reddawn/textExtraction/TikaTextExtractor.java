@@ -85,13 +85,8 @@ public class TikaTextExtractor implements TextExtractor {
         parser.parse(new ByteArrayInputStream(text.getBytes()), handler, metadata, ctx);
 
         // since we are using the AutoDetectParser, it is safe to assume that
-        // the Content-Type metadata key will always return a value
-        String mimeType = metadata.get(MIME_TYPE_KEY);
-        if (mimeType == null) {
-            mimeType = "";
-        }
-
-        if (mimeType.toLowerCase().contains("text/html")) {
+        //the Content-Type metadata key will always return a value
+        if (metadata.get(MIME_TYPE_KEY).toLowerCase().contains("text")) {
             text = extractTextFromHtml(text);
             if (text == null || text.length() == 0) {
                 text = handler.toString();
@@ -101,7 +96,6 @@ public class TikaTextExtractor implements TextExtractor {
         }
 
         result.setText(text);
-        result.setMediaType(mimeType);
 
         result.setDate(extractDate(metadata));
         result.setSubject(extractTextField(metadata, subjectKeys));

@@ -1,8 +1,5 @@
 package com.altamiracorp.reddawn.crawler;
 
-import com.altamiracorp.reddawn.crawler.Crawler;
-import com.altamiracorp.reddawn.crawler.GoogleSearchEngine;
-import com.altamiracorp.reddawn.crawler.Query;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,8 +13,6 @@ import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @RunWith(JUnit4.class)
 public class GoogleSearchEngineTest {

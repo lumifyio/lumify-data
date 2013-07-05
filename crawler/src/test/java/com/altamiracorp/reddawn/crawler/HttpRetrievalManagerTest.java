@@ -1,7 +1,5 @@
 package com.altamiracorp.reddawn.crawler;
 
-import com.altamiracorp.reddawn.crawler.HttpRetrievalManager;
-import com.altamiracorp.reddawn.crawler.HttpRetriever;
 import org.apache.commons.httpclient.HttpClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;

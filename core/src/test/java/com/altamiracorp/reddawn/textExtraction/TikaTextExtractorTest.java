@@ -31,7 +31,6 @@ public class TikaTextExtractorTest {
 		ExtractedInfo info = textExtractor.extract(new ByteArrayInputStream(
 				data.getBytes()));
 
-		assertEquals("text/html; charset=ISO-8859-1", info.getMediaType());
 		assertEquals("Test Title", info.getSubject());
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 		assertEquals("2013-01-01", df.format(info.getDate()));
