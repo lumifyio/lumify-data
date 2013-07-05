@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.search;
 
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +23,7 @@ public class ArtifactSearchResultTest {
 
     @Before
     public void setUp() throws Exception {
-        asr = new ArtifactSearchResult(sampleRowKey, sampleSubject, sampleDate, sampleSource);
+        asr = new ArtifactSearchResult(sampleRowKey, sampleSubject, sampleDate, sampleSource, ArtifactType.DOCUMENT);
     }
 
     @Test
