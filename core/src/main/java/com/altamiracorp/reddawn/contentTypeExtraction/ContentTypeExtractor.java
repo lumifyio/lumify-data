@@ -7,5 +7,5 @@ import java.io.InputStream;
 public interface ContentTypeExtractor {
     void setup(Mapper.Context context);
 
-    String extract(InputStream in) throws Exception;
+    public String extract(InputStream in) throws Exception;
 }

@@ -45,7 +45,6 @@ public class StatementExtractionMRTest {
         Mapper.Context mockContext = mock (Mapper.Context.class);
         mapper.map(mock(Text.class), mockSentence, mockContext);
         verify(mockContext, times(2)).write(any(Text.class), any(Sentence.class));
-
     }
 
 }

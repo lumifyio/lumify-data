@@ -1,7 +1,6 @@
 package com.altamiracorp.reddawn.location;
 
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import edu.emory.mathcs.backport.java.util.Arrays;
@@ -14,6 +13,7 @@ import org.junit.runners.JUnit4;
 import org.powermock.reflect.Whitebox;
 
 import java.util.ArrayList;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 

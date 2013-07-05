@@ -7,9 +7,6 @@ import java.util.List;
 /**
  * Utility to determine if any keys in a list exist in the provided metadata
  * map. Limited to ASCII at this point, and probably not optimal
- *
- * @author rlanman
- *
  */
 public class TikaMetadataUtils {
 	public static String findKey(List<String> potentialKeys, Metadata metadata) {

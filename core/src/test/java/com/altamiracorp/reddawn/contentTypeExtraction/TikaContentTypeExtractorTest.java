@@ -38,7 +38,6 @@ public class TikaContentTypeExtractorTest{
         // Testing .jpg files
         InputStream jpg = TikaContentTypeExtractor.class.getResourceAsStream("/cat.jpg");
         assertEquals("image/jpeg", tikaContentTypeExtractor.extract(jpg));
-
     }
 
 }

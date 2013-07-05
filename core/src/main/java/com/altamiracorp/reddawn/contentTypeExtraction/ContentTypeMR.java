@@ -49,7 +49,7 @@ public class ContentTypeMR  extends ConfigurableMapJobBase {
         protected void setup (Context context) throws IOException, InterruptedException{
             super.setup(context);
             try {
-                contentTypeExtractor = (ContentTypeExtractor) context.getConfiguration().getClass(CONF_CONTENT_TYPE_EXTRACTOR_CLASS,TikaContentTypeExtractor.class).newInstance();
+                contentTypeExtractor = (ContentTypeExtractor) context.getConfiguration().getClass(CONF_CONTENT_TYPE_EXTRACTOR_CLASS, TikaContentTypeExtractor.class).newInstance();
                 contentTypeExtractor.setup(context);
                 session = ConfigurableMapJobBase.createRedDawnSession(context);
             }

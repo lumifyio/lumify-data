@@ -26,8 +26,9 @@ public class TikaContentTypeExtractor implements ContentTypeExtractor{
         parser.parse (in, handler, metadata, ctx);
 
         String contentType = metadata.get(MIME_TYPE_KEY);
-        if (contentType == null)
+        if (contentType == null) {
             contentType = "";
+        }
 
         return contentType;
     }
