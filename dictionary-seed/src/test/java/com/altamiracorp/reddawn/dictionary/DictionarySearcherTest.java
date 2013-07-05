@@ -71,7 +71,7 @@ public class DictionarySearcherTest {
         String url = searcher.getUrl("Place", 0);
         assertEquals("A normal query URL was returned incorrectly encoded", "http://dbpedia.org/sparql/?format=json&query=" +
                 URLEncoder.encode("PREFIX dbo: <http://dbpedia.org/ontology/>\n" +
-                        "SELECT ?name WHERE{?place a dbo:Place;foaf:name ?name.}\n" +
+                        "SELECT ?name WHERE{?place a dbo:Place;rdfs:label ?name.}\n" +
                         "LIMIT 50000\nOFFSET 0", "UTF-8"), url);
     }
 }

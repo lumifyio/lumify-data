@@ -8,14 +8,18 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DictionaryEncoder {
     private static final Logger LOGGER = LoggerFactory.getLogger(DictionaryEncoder.class.getName());
+    private final int COMMON_WORD_LIMIT = 1000; // Sets how many of the most common words in the english language to filter out
 
     private String filename = "newDictionary.dict";
     private String directoryPath;
     protected Tokenizer tokenizer;
     private StringBuilder currentEntries = new StringBuilder();
+    private List<String> commonWords = new ArrayList<String>();
 
     public DictionaryEncoder(String directoryPath) {
         InputStream modelIn = null;
@@ -38,6 +42,22 @@ public class DictionaryEncoder {
         }
         tokenizer = new TokenizerME(model);
         setDirectoryPath(directoryPath);
+
+        buildCommonWordList();
+    }
+
+    private void buildCommonWordList() {
+        BufferedReader commonWordReader = new BufferedReader(new InputStreamReader(
+                getClass().getResourceAsStream("/most-common-words.txt")));
+        try {
+            String nextWord = commonWordReader.readLine();
+            for(int i = 0; i < COMMON_WORD_LIMIT && nextWord != null; i++) {
+                commonWords.add(nextWord.toLowerCase());
+                nextWord = commonWordReader.readLine();
+            }
+        } catch (IOException e) {
+            LOGGER.error("Could not read in common english words dictionary. Skipping...");
+        }
     }
 
     public DictionaryEncoder(String directoryPath, String initialFilename) {
@@ -72,14 +92,31 @@ public class DictionaryEncoder {
     }
 
     private void addTaggedTokenizedEntry(String entry) {
-        String[] tokens = tokenizer.tokenize(entry);
+        String trimmedEntry = trimEntry(entry);
+        if(isCommonWord(trimmedEntry) || !hasAlphabetCharacters(trimmedEntry)) {
+            return;
+        }
+
+        String[] tokens = tokenizer.tokenize(trimmedEntry);
         for (int i = 0; i < tokens.length; i++) {
             if(i != 0) {
-                currentEntries.append('\t');
+                currentEntries.append(' ');
             }
             currentEntries.append(tokens[i]);
         }
         currentEntries.append("\n");
+    }
+
+    private String trimEntry(String entry) {
+        if(entry.charAt(entry.length() - 1) == ')') {
+            for(int i = entry.length() - 1; i >= 0; i--) {
+                if(entry.charAt(i) == '(') {
+                    return entry.substring(0, i).trim();
+                }
+            }
+        }
+
+        return entry.trim();
     }
 
     private void appendCurrentEntriesToFile() {
@@ -99,6 +136,14 @@ public class DictionaryEncoder {
             }
         }
         LOGGER.info("Wrote entries to dictionary.");
+    }
 
+    private boolean isCommonWord(String dictionaryEntry) {
+        return commonWords.contains(dictionaryEntry.toLowerCase());
+
+    }
+
+    private boolean hasAlphabetCharacters(String dictionaryEntry) {
+        return !dictionaryEntry.matches("[^a-zA-Z]+");
     }
 }
