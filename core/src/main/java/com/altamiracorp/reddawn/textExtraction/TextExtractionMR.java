@@ -64,12 +64,6 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
             try {
                 if (artifact.getType() != ArtifactType.DOCUMENT) {
-                    // TODO remove me when content type is filled in
-                    String typeString = artifact.getType().toString().toLowerCase();
-                    artifact.getContent().setDocExtractedText(typeString.getBytes());
-                    artifact.getGenericMetadata()
-                            .setSubject(typeString);
-                    context.write(new Text(Artifact.TABLE_NAME), artifact);
                     return;
                 }
                 LOGGER.info("Extracting text from artifact: " + artifact.getRowKey().toString());
@@ -82,7 +76,6 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
                 artifact.getContent().setDocExtractedText(extractedInfo.getText().getBytes());
                 artifact.getGenericMetadata()
                         .setSubject(extractedInfo.getSubject())
-                        .setMimeType(extractedInfo.getMediaType())
                         .setDocumentDtg(extractedInfo.getDate())
                         .setDocumentType(extractedInfo.getType())
                         .setSource(extractedInfo.getUrl())
