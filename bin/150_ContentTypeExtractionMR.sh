@@ -23,7 +23,7 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.contentTypeExtraction.ContentTypeMR \
+com.altamiracorp.reddawn.contentTypeExtraction.ContentTypeExtractionMR \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
