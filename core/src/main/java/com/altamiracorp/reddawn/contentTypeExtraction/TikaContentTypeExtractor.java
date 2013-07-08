@@ -31,7 +31,7 @@ public class TikaContentTypeExtractor implements ContentTypeExtractor {
     @Override
     public String extract(InputStream in) throws Exception {
         Parser parser = new AutoDetectParser();
-        BodyContentHandler handler = new BodyContentHandler();
+        BodyContentHandler handler = new BodyContentHandler(10000000);
         Metadata metadata = new Metadata();
         ParseContext ctx = new ParseContext();
         parser.parse(in, handler, metadata, ctx);
