@@ -60,7 +60,7 @@ public class Router extends HttpServlet {
         app.delete("/workspace/{workspaceRowKey}", authenticator, WorkspaceDelete.class);
 
         app.get("/user/messages", authenticator, MessagesGet.class);
-		app.get("/user/me", authenticator, MeGet.class);
+        app.get("/user/me", authenticator, MeGet.class);
 
         app.get("/map/map-init.js", MapInitHandler.class);
         app.get("/map/{z}/{x}/{y}.png", MapTileHandler.class);
@@ -75,7 +75,9 @@ public class Router extends HttpServlet {
     @Override
     public void service(ServletRequest req, ServletResponse resp) throws ServletException, IOException {
         try {
-            app.handle((HttpServletRequest) req, (HttpServletResponse) resp);
+            HttpServletResponse httpResponse = (HttpServletResponse) resp;
+            httpResponse.addHeader("Accept-Ranges", "bytes");
+            app.handle((HttpServletRequest) req, httpResponse);
         } catch (Exception e) {
             throw new ServletException(e);
         }
