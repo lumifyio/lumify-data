@@ -96,7 +96,6 @@ public class FFMPEGVideoConversion {
                 "-y", // overwrite output files
                 "-i", file.getAbsolutePath(),
                 "-vcodec", "libvpx",
-                "-cpu-used", "0",
                 "-b:v", "600k",
                 "-qmin", "10",
                 "-qmax", "42",
