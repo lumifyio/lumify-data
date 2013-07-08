@@ -474,6 +474,7 @@ define([
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
 
             cytoscape("renderer", "red-dawn", Renderer);
+            cytoscape.style.types.nodeShape.enums.push('none');
             cytoscape({
                 showOverlay: false,
                 minZoom: 1 / 3,
@@ -490,10 +491,11 @@ define([
                     })
                   .selector('node.location,node.place')
                     .css({
-                      'background-image': '/img/glyphicons/glyphicons_242_google_maps@2x.png',
-                      'width': 30 * pixelScale,
-                      'height': 40 * pixelScale,
+                      'background-image': '/img/pin@2x.png',
+                      'width': 35 * pixelScale,
+                      'height': 35 * pixelScale,
                       'border-color': 'white',
+                      'shape': 'none',
                       'border-width': 0
                     })
                   .selector('node.organization,node.organisation')
