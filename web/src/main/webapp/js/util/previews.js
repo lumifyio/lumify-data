@@ -20,7 +20,9 @@ function(UCD, html2canvas, template) {
 
         new UCD().getArtifactById(this.rowKey, function(err, artifact) {
             if (err) {
+                console.error(err);
                 callback();
+                this.finished();
             } else {
                 if (artifact.type == 'video') {
                     this.callback(artifact.posterFrameUrl);
