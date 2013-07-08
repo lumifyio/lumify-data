@@ -64,6 +64,9 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
             try {
                 if (artifact.getType() != ArtifactType.DOCUMENT) {
+                    // TODO remove me when we get real text for the video
+                    artifact.getContent().setDocExtractedText("video".getBytes());
+                    context.write(new Text(Artifact.TABLE_NAME), artifact);
                     return;
                 }
                 LOGGER.info("Extracting text from artifact: " + artifact.getRowKey().toString());
