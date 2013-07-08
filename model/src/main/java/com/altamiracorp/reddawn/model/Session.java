@@ -76,4 +76,6 @@ public abstract class Session {
     public abstract SaveFileResults saveFile(InputStream in);
 
     public abstract InputStream loadFile(String path);
+
+    public abstract long getFileLength(String path);
 }

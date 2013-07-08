@@ -113,4 +113,9 @@ public class MockSession extends Session {
             throw new RuntimeException(ex);
         }
     }
+
+    @Override
+    public long getFileLength(String path) {
+        return new File(path).length();
+    }
 }

@@ -65,12 +65,28 @@ public class ArtifactRepository extends Repository<Artifact> {
         return session.loadFile(path);
     }
 
+    public long getRawMp4Length(Session session, Artifact artifact) {
+        String path = artifact.getGenericMetadata().getMp4HdfsFilePath();
+        if (path == null) {
+            throw new RuntimeException("MP4 Video file path not set.");
+        }
+        return session.getFileLength(path);
+    }
+
     public InputStream getRawWebm(Session session, Artifact artifact) {
         String path = artifact.getGenericMetadata().getWebmHdfsFilePath();
         if (path == null) {
             throw new RuntimeException("WebM Video file path not set.");
         }
         return session.loadFile(path);
+    }
+
+    public long getRawWebmLength(Session session, Artifact artifact) {
+        String path = artifact.getGenericMetadata().getWebmHdfsFilePath();
+        if (path == null) {
+            throw new RuntimeException("WebM Video file path not set.");
+        }
+        return session.getFileLength(path);
     }
 
     public InputStream getRawPosterFrame(Session session, Artifact artifact) {

@@ -204,6 +204,15 @@ public class AccumuloSession extends Session {
         }
     }
 
+    @Override
+    public long getFileLength(String path) {
+        try {
+            return this.hdfsFileSystem.getFileStatus(new Path(path)).getLen();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     public long getMaxMemory() {
         return maxMemory;
     }
