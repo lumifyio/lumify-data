@@ -96,4 +96,12 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
         return session.loadFile(path);
     }
+
+    public InputStream getVideoPreviewImage(Session session, Artifact artifact) {
+        String path = artifact.getGenericMetadata().getVideoPreviewImageHdfsFilePath();
+        if (path == null) {
+            throw new RuntimeException("Video preview image path not set.");
+        }
+        return session.loadFile(path);
+    }
 }

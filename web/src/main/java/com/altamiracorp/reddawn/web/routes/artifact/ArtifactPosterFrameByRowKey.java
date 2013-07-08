@@ -50,16 +50,4 @@ public class ArtifactPosterFrameByRowKey implements Handler, AppAware {
     public void setApp(App app) {
         this.app = (WebApp) app;
     }
-
-    private String getFileName(Artifact artifact) {
-        return artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension();
-    }
-
-    private String getMimeType(Artifact artifact) {
-        String mimeType = artifact.getGenericMetadata().getMimeType();
-        if (mimeType == null || mimeType.isEmpty()) {
-            mimeType = "application/octet-stream";
-        }
-        return mimeType;
-    }
 }

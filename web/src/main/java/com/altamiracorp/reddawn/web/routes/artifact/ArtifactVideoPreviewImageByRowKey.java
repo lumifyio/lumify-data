@@ -4,24 +4,24 @@ import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
-import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
-import org.json.JSONObject;
+import org.apache.poi.util.IOUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
 
-public class ArtifactByRowKey implements Handler, AppAware {
-    private ArtifactRepository artifactRepository = new ArtifactRepository();
+public class ArtifactVideoPreviewImageByRowKey implements Handler, AppAware {
+    ArtifactRepository artifactRepository = new ArtifactRepository();
     private WebApp app;
 
-    public static String getUrl(HttpServletRequest request, String artifactKey) {
-        return UrlUtils.getRootRef(request) + "/artifact/" + UrlUtils.urlEncode(artifactKey.toString());
+    public static String getUrl(HttpServletRequest request, ArtifactRowKey artifactKey) {
+        return UrlUtils.getRootRef(request) + "/artifact/" + UrlUtils.urlEncode(artifactKey.toString()) + "/video-preview";
     }
 
     @Override
@@ -32,14 +32,17 @@ public class ArtifactByRowKey implements Handler, AppAware {
 
         if (artifact == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
-        } else {
-            JSONObject artifactJson = artifact.toJson();
-            artifactJson.put("rawUrl", ArtifactRawByRowKey.getUrl(request, artifact.getRowKey()));
-            artifactJson.put("posterFrameUrl", ArtifactPosterFrameByRowKey.getUrl(request, artifact.getRowKey()));
-            artifactJson.put("videoPreviewImageUrl", ArtifactVideoPreviewImageByRowKey.getUrl(request, artifact.getRowKey()));
-            new Responder(response).respondWith(artifactJson);
+            chain.next(request, response);
+            return;
         }
 
+        response.setContentType("image/png");
+        InputStream in = artifactRepository.getVideoPreviewImage(session.getModelSession(), artifact);
+        try {
+            IOUtils.copy(in, response.getOutputStream());
+        } finally {
+            in.close();
+        }
         chain.next(request, response);
     }
 
