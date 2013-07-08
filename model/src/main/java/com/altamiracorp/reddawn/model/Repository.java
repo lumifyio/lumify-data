@@ -20,6 +20,12 @@ public abstract class Repository<T> {
         return fromRow(row);
     }
 
+    public List<ColumnFamily> findColFamsByRowKeyWithOffset(Session session, String rowKey, long colFamOffset,
+                                                           long colFamLimit, String colFamRegex) {
+        return session.findByRowKeyWithOffset(getTableName(), rowKey, session.getQueryUser(), colFamOffset,
+                colFamLimit, colFamRegex);
+    }
+
     public List<T> findByRowStartsWith(Session session, String rowKeyPrefix) {
         Collection<Row> rows = session.findByRowStartsWith(getTableName(), rowKeyPrefix, session.getQueryUser());
         return fromRows(rows);

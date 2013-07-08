@@ -1,5 +1,7 @@
 package com.altamiracorp.reddawn.model;
 
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
+
 import java.util.*;
 
 public class MockSession extends Session {
@@ -64,6 +66,12 @@ public class MockSession extends Session {
             }
         }
         return null;
+    }
+
+    @Override
+    List<ColumnFamily> findByRowKeyWithOffset(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
+        // TODO: Write this
+        return Lists.newArrayList();
     }
 
     @Override
