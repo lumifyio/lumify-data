@@ -165,12 +165,11 @@ public class FFMPEGVideoConversion {
         LOGGER.info("Running: " + arrayToString(ffmpegArgs));
         Process proc = procBuilder.start();
         int returnCode = proc.waitFor();
+        writeStreamToLog("qt-faststart(stdout): ", proc.getInputStream());
+        writeStreamToLog("qt-faststart(stderr): ", proc.getErrorStream());
         if (returnCode != 0) {
             throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
         }
-
-        writeStreamToLog("qt-faststart(stdout): ", proc.getInputStream());
-        writeStreamToLog("qt-faststart(stderr): ", proc.getErrorStream());
     }
 
     private void ffmpeg(String[] args) throws IOException, InterruptedException {
@@ -184,12 +183,11 @@ public class FFMPEGVideoConversion {
         LOGGER.info("Running: " + arrayToString(ffmpegArgs));
         Process proc = procBuilder.start();
         int returnCode = proc.waitFor();
+        writeStreamToLog("ffmpeg(stdout): ", proc.getInputStream());
+        writeStreamToLog("ffmpeg(stderr): ", proc.getErrorStream());
         if (returnCode != 0) {
             throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
         }
-
-        writeStreamToLog("ffmpeg(stdout): ", proc.getInputStream());
-        writeStreamToLog("ffmpeg(stderr): ", proc.getErrorStream());
     }
 
     private void writeStreamToLog(String prefix, InputStream stream) throws IOException {
