@@ -2,12 +2,14 @@
 define([
     'flight/lib/component',
     'service/ucd',
+    'util/previews',
+    'util/video/scrubber',
     'tpl!./search',
     'tpl!./searchResultsSummary',
     'tpl!./searchResults',
     'tpl!util/alert',
     'util/jquery.ui.draggable.multiselect',
-], function(defineComponent, UCD, template, summaryTemplate, resultsTemplate, alertTemplate) {
+], function(defineComponent, UCD, previews, VideoScrubber, template, summaryTemplate, resultsTemplate, alertTemplate) {
     'use strict';
 
     return defineComponent(Search);
@@ -22,6 +24,7 @@ define([
             searchQueryValidationSelector: '.search-query-validation',
             searchResultsSummarySelector: '.search-results-summary',
             searchSummaryResultItemSelector: '.search-results-summary li',
+            searchResultsScrollSelector: '.search-results ul.nav',
             searchResultItemLinkSelector: '.search-results li a',
             searchResultsSelector: '.search-results',
             closeResultsSelector: '.search-results .close'
@@ -130,6 +133,9 @@ define([
                     if ( nodeState.inGraph ) classes.push('graph-displayed');
                     if ( nodeState.inMap ) classes.push('map-displayed');
                 }
+                if (data.subType === 'videos') {
+                    classes.push('preview');
+                }
                 result.className = classes.join(' ');
             });
 
@@ -148,6 +154,8 @@ define([
             
             if (data.results.length) {
                 $searchResults.show();
+
+                this.loadVisibleResultPreviews();
             } else {
                 $searchResults.hide();
             }
@@ -175,6 +183,48 @@ define([
             this.$node.find('.search-results-summary .active').removeClass('active');
         };
 
+        var previewTimeout;
+        this.onResultsScroll = function(e) {
+            clearTimeout(previewTimeout);
+            previewTimeout = setTimeout(this.loadVisibleResultPreviews.bind(this), 1000);
+        };
+
+        this.loadVisibleResultPreviews = function() {
+            var self = this;
+
+            if ( !self.previewQueue ) {
+                self.previewQueue = previews.createQueue('searchresults', { maxConcurrent: 1 });
+            }
+
+            var ul = self.select('searchResultsScrollSelector'),
+                yMin = ul[0].offsetTop,
+                yMax = yMin + ul.height(),
+                lis = ul.children('li'),
+                lisVisible = lis
+                    .filter(function(){ 
+                        return this.offsetTop >= yMin && this.offsetTop < yMax;
+                    });
+            
+            lisVisible.each(function() {
+                var li = $(this),
+                    info = li.data('info'),
+                    rowKey = info.rowKey;
+
+                if (info.subType === 'videos' && !li.data('preview-loaded')) {
+                    li.addClass('preview-loading');
+                    previews.generatePreview(rowKey, null, function(poster, frames) {
+                        li.removeClass('preview-loading')
+                          .data('preview-loaded', true);
+
+                        VideoScrubber.attachTo(li.find('.preview'), {
+                            poster: poster,
+                            frames: frames
+                        });
+                    });
+                }
+            });
+        };
+
 
         this.after('initialize', function() {
             this.$node.html(template({}));
@@ -196,6 +246,8 @@ define([
 			this.on('keyup', {
 				searchQuerySelector: this.onKeyUp
 			});
+
+            this.select('searchResultsScrollSelector').on('scroll', this.onResultsScroll.bind(this));
 
             this.on(document, 'nodesAdd', this.onNodesUpdate);
             this.on(document, 'nodesUpdate', this.onNodesUpdate);
