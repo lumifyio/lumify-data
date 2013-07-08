@@ -6,8 +6,12 @@ import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
 import com.altamiracorp.reddawn.web.routes.entity.EntityByRowKey;
 import com.altamiracorp.reddawn.web.routes.entity.EntityRelationships;
 import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
+import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
+import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
+import com.altamiracorp.reddawn.web.routes.user.MeGet;
 import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceByRowKey;
+import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceDelete;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceList;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceSave;
 import com.altamiracorp.web.App;
@@ -42,6 +46,7 @@ public class Router extends HttpServlet {
         app.get("/artifact/{rowKey}/text", authenticator, ArtifactTextByRowKey.class);
         app.get("/artifact/{rowKey}/html", authenticator, ArtifactHtmlByRowKey.class);
         app.get("/artifact/{rowKey}/raw", authenticator, ArtifactRawByRowKey.class);
+        app.get("/artifact/{rowKey}/poster-frame", authenticator, ArtifactPosterFrameByRowKey.class);
         app.get("/artifact/{rowKey}", authenticator, ArtifactByRowKey.class);
 
         app.get("/entity/relationships", authenticator, EntityRelationships.class);
@@ -52,8 +57,13 @@ public class Router extends HttpServlet {
         app.post("/workspace/save", authenticator, WorkspaceSave.class);
         app.post("/workspace/{workspaceRowKey}/save", authenticator, WorkspaceSave.class);
         app.get("/workspace/{workspaceRowKey}", authenticator, WorkspaceByRowKey.class);
+        app.delete("/workspace/{workspaceRowKey}", authenticator, WorkspaceDelete.class);
 
         app.get("/user/messages", authenticator, MessagesGet.class);
+        app.get("/user/me", authenticator, MeGet.class);
+
+        app.get("/map/map-init.js", MapInitHandler.class);
+        app.get("/map/{z}/{x}/{y}.png", MapTileHandler.class);
 
         app.post("/chat/new", authenticator, ChatNew.class);
         app.post("/chat/{chatId}/post", authenticator, ChatPostMessage.class);
@@ -65,7 +75,9 @@ public class Router extends HttpServlet {
     @Override
     public void service(ServletRequest req, ServletResponse resp) throws ServletException, IOException {
         try {
-            app.handle((HttpServletRequest) req, (HttpServletResponse) resp);
+            HttpServletResponse httpResponse = (HttpServletResponse) resp;
+            httpResponse.addHeader("Accept-Ranges", "bytes");
+            app.handle((HttpServletRequest) req, httpResponse);
         } catch (Exception e) {
             throw new ServletException(e);
         }

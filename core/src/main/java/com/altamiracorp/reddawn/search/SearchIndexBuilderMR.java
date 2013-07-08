@@ -1,10 +1,13 @@
 package com.altamiracorp.reddawn.search;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
+import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
@@ -41,6 +44,10 @@ public class SearchIndexBuilderMR extends ConfigurableMapJobBase {
 
         @Override
         protected void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
+            if (artifact.getType() != ArtifactType.DOCUMENT) {
+                return;
+            }
+
             try {
                 searchProvider.add(artifact);
             } catch (Exception ex) {
@@ -58,6 +65,12 @@ public class SearchIndexBuilderMR extends ConfigurableMapJobBase {
         if (res != 0) {
             System.exit(res);
         }
+    }
+
+    @Override
+    protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
+        AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+        return AccumuloArtifactInputFormat.class;
     }
 
     @Override

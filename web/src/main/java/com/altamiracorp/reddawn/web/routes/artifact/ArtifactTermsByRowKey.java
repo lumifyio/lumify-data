@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermRepository;
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.web.App;
@@ -38,8 +39,7 @@ public class ArtifactTermsByRowKey implements Handler, AppAware {
             result.put(termJson);
         }
 
-        response.setContentType("application/json");
-        response.getWriter().write(result.toString());
+        new Responder(response).respondWith(result);
         chain.next(request, response);
     }
 }

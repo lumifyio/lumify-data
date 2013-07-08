@@ -1,18 +1,14 @@
 package com.altamiracorp.reddawn.textExtraction.util;
 
-import java.util.List;
-
 import org.apache.tika.metadata.Metadata;
 
-public class TikaMetadataUtils {
+import java.util.List;
 
-	/**
-	 * Utility to determine if any keys in a list exist in the provided metadata
-	 * map. Limited to ASCII at this point, and probably not optimal
-	 * 
-	 * @author rlanman
-	 * 
-	 */
+/**
+ * Utility to determine if any keys in a list exist in the provided metadata
+ * map. Limited to ASCII at this point, and probably not optimal
+ */
+public class TikaMetadataUtils {
 	public static String findKey(List<String> potentialKeys, Metadata metadata) {
 		String discoveredKey = null;
 		for (String key : potentialKeys) {
@@ -23,12 +19,12 @@ public class TikaMetadataUtils {
 				}
 			}
 
-			if (discoveredKey != null) {
-				break;
-			}
-		}
+            if (discoveredKey != null) {
+                break;
+            }
+        }
 
-		return discoveredKey;
-	}
+        return discoveredKey;
+    }
 
 }

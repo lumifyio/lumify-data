@@ -1,7 +1,10 @@
 package com.altamiracorp.reddawn.ucd.artifact;
 
 import com.altamiracorp.reddawn.model.ColumnFamily;
+import com.altamiracorp.reddawn.model.GeoLocation;
 import com.altamiracorp.reddawn.model.Value;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class ArtifactDynamicMetadata extends ColumnFamily {
     public static final String NAME = "Dynamic_Metadata";
@@ -65,6 +68,14 @@ public class ArtifactDynamicMetadata extends ColumnFamily {
         return this;
     }
 
+    public Double getLatitude() {
+        return GeoLocation.getLatitude(getGeoLocation());
+    }
+
+    public Double getLongitude() {
+        return GeoLocation.getLongitude(getGeoLocation());
+    }
+
     public String getProvenanceId() {
         return Value.toString(get(PROVENANCE_ID));
     }
@@ -108,5 +119,26 @@ public class ArtifactDynamicMetadata extends ColumnFamily {
     public ArtifactDynamicMetadata setUnstructuredAnnotationObject(String unstructuredAnnotationObject) {
         set(UNSTRUCTURED_ANNOTATION_OBJECT, unstructuredAnnotationObject);
         return this;
+    }
+
+    @Override
+    public JSONObject toJson() {
+        try {
+            JSONObject json = super.toJson();
+
+            Double latitude = getLatitude();
+            if (latitude != null) {
+                json.put("latitude", latitude);
+            }
+
+            Double longitude = getLongitude();
+            if (longitude != null) {
+                json.put("longitude", longitude);
+            }
+
+            return json;
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

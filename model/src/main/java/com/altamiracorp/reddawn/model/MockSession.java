@@ -1,9 +1,7 @@
 package com.altamiracorp.reddawn.model;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 public class MockSession extends Session {
     public HashMap<String, List<Row>> tables = new HashMap<String, List<Row>>();
@@ -19,6 +17,13 @@ public class MockSession extends Session {
             throw new NullPointerException("Could not find table with name: " + row.getTableName());
         }
         table.add(row);
+    }
+
+    @Override
+    void saveMany(String tableName, Collection<Row> rows) {
+        for (Row r : rows) {
+            save(r);
+        }
     }
 
     @Override
@@ -52,6 +57,8 @@ public class MockSession extends Session {
     @Override
     Row findByRowKey(String tableName, String rowKey, QueryUser queryUser) {
         List<Row> rows = this.tables.get(tableName);
+        if (rows == null)
+            throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
         for (Row row : rows) {
             if (row.getRowKey().toString().equals(rowKey)) {
                 return row;
@@ -66,7 +73,49 @@ public class MockSession extends Session {
     }
 
     @Override
-    void deleteTable(String tableName) {
+    public void deleteTable(String tableName) {
         this.tables.remove(tableName);
+    }
+
+    @Override
+    public void deleteRow(String tableName, RowKey rowKey) {
+        String rowKeyStr = rowKey.toString();
+        List<Row> rows = this.tables.get(tableName);
+        for (int i = 0; i < rows.size(); i++) {
+            if (rowKeyStr.equals(rows.get(i).getRowKey().toString())) {
+                rows.remove(i);
+                return;
+            }
+        }
+    }
+
+    @Override
+    public SaveFileResults saveFile(InputStream in) {
+        try {
+            File temp = File.createTempFile("reddawn", ".bin");
+            OutputStream out = new FileOutputStream(temp);
+            try {
+                String rowKey = RowKeyHelper.buildSHA256KeyString(in, out);
+                return new SaveFileResults(rowKey, temp.getAbsolutePath());
+            } finally {
+                out.close();
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException("could not save file", ex);
+        }
+    }
+
+    @Override
+    public InputStream loadFile(String path) {
+        try {
+            return new FileInputStream(path);
+        } catch (FileNotFoundException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    public long getFileLength(String path) {
+        return new File(path).length();
     }
 }

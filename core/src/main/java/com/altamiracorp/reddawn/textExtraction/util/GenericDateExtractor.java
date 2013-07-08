@@ -1,25 +1,25 @@
 package com.altamiracorp.reddawn.textExtraction.util;
 
+import com.joestelmach.natty.DateGroup;
+import com.joestelmach.natty.Parser;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import com.joestelmach.natty.DateGroup;
-import com.joestelmach.natty.Parser;
-
 public class GenericDateExtractor {
 
-	public static Date extractSingleDate(String dateString) {
-		Parser parser = new Parser();
-		Date extractedDate;
-		List<DateGroup> groups = parser.parse(dateString);
-		
-		// quick and dirty: assume first date of first group
-		List<Date> dates = groups.isEmpty() ? Collections.<Date> emptyList()
-				: groups.get(0).getDates();
+    public static Date extractSingleDate(String dateString) {
+        Parser parser = new Parser();
+        Date extractedDate;
+        List<DateGroup> groups = parser.parse(dateString);
 
-		extractedDate = dates.isEmpty() ? null : dates.get(0);
+        // quick and dirty: assume first date of first group
+        List<Date> dates = groups.isEmpty() ? Collections.<Date>emptyList()
+                : groups.get(0).getDates();
 
-		return extractedDate;
-	}
+        extractedDate = dates.isEmpty() ? null : dates.get(0);
+
+        return extractedDate;
+    }
 }

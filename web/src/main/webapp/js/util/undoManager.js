@@ -15,16 +15,17 @@ define([
 
         this.undos = [];
         this.redos = [];
-        
+
         $(function() {
             $(document).on({
                 'keydown': $this._handleKey.bind($this),
-                'keyup': $this._handleKey.bind($this)
+                //'keyup': $this._handleKey.bind($this)
             });
         });
     }
 
     UndoManager.prototype.performedAction = function(name, options) {
+        console.info('UndoManager: performedAction: ' + name, options);
         if ( name && 
              options && 
              typeof options.undo === 'function' &&
@@ -100,6 +101,7 @@ define([
             action = stack1.pop();
             undo = action.undo;
 
+            console.info('UndoManager: ' + name + ': ' + action.name);
             undo();
 
             stack2.push({
@@ -110,7 +112,7 @@ define([
 
         } else {
             // TODO: give user feedback (flash the screen) / beep
-            console.log('TODO: alert user. Nothing to ' + name);                
+            console.warn('TODO: alert user. Nothing to ' + name);                
         }
     }
 

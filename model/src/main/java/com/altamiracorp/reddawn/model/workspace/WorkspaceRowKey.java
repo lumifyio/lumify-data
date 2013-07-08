@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.model.workspace;
 
-import com.altamiracorp.reddawn.model.RowKeyHelper;
 import com.altamiracorp.reddawn.model.RowKey;
+import com.altamiracorp.reddawn.model.RowKeyHelper;
 
 public class WorkspaceRowKey extends RowKey {
     public WorkspaceRowKey(String rowKey) {
@@ -9,6 +9,6 @@ public class WorkspaceRowKey extends RowKey {
     }
 
     public WorkspaceRowKey(String userId, String workspaceId) {
-        super(RowKeyHelper.build(userId, workspaceId));
+        super(RowKeyHelper.buildMinor(userId, workspaceId));
     }
 }

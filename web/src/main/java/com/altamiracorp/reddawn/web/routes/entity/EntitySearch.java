@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.web.routes.entity;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermRepository;
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
@@ -29,16 +30,10 @@ public class EntitySearch implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         String query = request.getParameter("q");
-
         RedDawnSession session = app.getRedDawnSession(request);
-
         List<Term> terms = termRepository.findByRowStartsWith(session.getModelSession(), query.toLowerCase());
-
         JSONObject termsJson = termsToSearchResults(terms, request);
-
-        response.setContentType("application/json");
-        response.getWriter().write(termsJson.toString());
-
+        new Responder(response).respondWith(termsJson);
     }
 
     private JSONObject termsToSearchResults(List<Term> terms, HttpServletRequest request) throws JSONException {

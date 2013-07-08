@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.web.routes.chat;
 
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.messageBus.Message;
 import com.altamiracorp.reddawn.web.messageBus.MessageBus;
@@ -23,8 +24,7 @@ public class ChatNew implements Handler {
         messageBus.addChat(chat);
         messageBus.postMessage(toUserId, new ChatCreateMessage(chat));
 
-        response.setContentType("application/json");
-        response.getWriter().write(chat.toJson(messageBus).toString());
+        new Responder(response).respondWith(chat.toJson(messageBus));
     }
 
     public class ChatCreateMessage extends Message {

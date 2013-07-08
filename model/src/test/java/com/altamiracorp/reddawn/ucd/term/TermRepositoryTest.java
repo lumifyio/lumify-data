@@ -26,8 +26,14 @@ public class TermRepositoryTest {
     }
 
     @Test
+    public void testTermRowKey() {
+      TermRowKey rowKeyString = new TermRowKey("Bob", "CTA", "Person");
+      assertEquals("bob\u001FCTA\u001FPerson", rowKeyString.toString());
+    }
+
+    @Test
     public void testFindByRowKey() {
-        String rowKeyString = RowKeyHelper.build("testSign", "testModelKey", "testConceptLabel");
+        String rowKeyString = RowKeyHelper.buildMinor("testSign", "testModelKey", "testConceptLabel");
         Row<RowKey> row = new Row<RowKey>(Term.TABLE_NAME, new RowKey(rowKeyString));
 
         ColumnFamily termMentionColumnFamily1 = new ColumnFamily(RowKeyHelper.buildSHA256KeyString("mention1".getBytes()));
@@ -134,7 +140,7 @@ public class TermRepositoryTest {
 
         assertEquals(1, session.tables.get(Term.TABLE_NAME).size());
         Row row = session.tables.get(Term.TABLE_NAME).get(0);
-        assertEquals(RowKeyHelper.build("testsign", "testModelKey", "testConceptLabel"), row.getRowKey().toString());
+        assertEquals("testsign\u001FtestModelKey\u001FtestConceptLabel", row.getRowKey().toString());
 
         assertEquals(3, row.getColumnFamilies().size());
 

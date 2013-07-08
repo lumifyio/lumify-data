@@ -14,7 +14,7 @@ public class ArtifactContent extends ColumnFamily {
         super(NAME);
     }
 
-    public byte[] getDocArtifactBytes() {
+    byte[] getDocArtifactBytes() {
         return Value.toBytes(get(DOC_ARTIFACT_BYTES));
     }
 

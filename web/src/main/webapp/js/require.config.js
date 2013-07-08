@@ -2,6 +2,10 @@
 // !!! Also add changes to test/runner/main.js for testing !!!
 //
 
+var jQueryPlugins = {
+  atmosphere: '../libs/jquery.atmosphere/jquery.atmosphere'
+};
+
 var cytoscapePlugins = [
   'jquery.cytoscape-panzoom'
 ];
@@ -14,14 +18,25 @@ var require = {
     text: '../libs/requirejs-text/text',
     ejs:  '../libs/ejs/ejs',
     tpl: '../libs/requirejs-ejs-plugin/rejs',
-    cytoscape: '../libs/cytoscape/cytoscape'
+    cytoscape: '../libs/cytoscape/cytoscape',
+    arbor: '../libs/cytoscape/arbor',
+    html2canvas: '../libs/html2canvas/html2canvas',
+    videojs: '../libs/video.js/video'
   },
   shim: {
     ejs: { exports: 'ejs' },
-    cytoscape: { exports: 'cytoscape' }
+    cytoscape: { exports: 'cytoscape', deps:['arbor'] },
+    html2canvas: { exports: 'html2canvas' },
+    videojs: { exports: 'videojs' },
+	atmosphere: { exports: 'jQuery' }
   },
   deps : ['reddawn']
 };
+
+Object.keys(jQueryPlugins).forEach(function(plugin) {
+  require.paths[plugin] = jQueryPlugins[plugin];
+  require.shim[plugin] = { exports: 'jQuery' };
+});
 
 cytoscapePlugins.forEach(function(plugin) {
   require.paths[plugin] = '../libs/cytoscape/' + plugin;

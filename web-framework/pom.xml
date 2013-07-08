@@ -10,6 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>web-framework</artifactId>
+    <name>Web Framework</name>
 
     <dependencies>
         <dependency>
@@ -24,5 +25,12 @@
             <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.github.spullara.mustache.java</groupId>
+            <artifactId>compiler</artifactId>
+            <version>0.8.12</version>
+        </dependency>
+
     </dependencies>
 </project>

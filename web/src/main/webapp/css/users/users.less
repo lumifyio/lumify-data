@@ -1,12 +1,27 @@
 @import "../util/constants";
 
 background: #efefef;
-.box-shadow(~"0 0 0 1px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.5)");
+width: 340px;
+
+.content {
+  display: block;
+  max-width: none;
+  width: auto;
+  box-sizing: border-box;
+  white-space: normal;
+  overflow: visible;
+}
 
 .users-list {
   float: left;
   overflow: auto;
   height: 100%;
+
+  .user a {
+    max-width: 95px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
 
   .badge {
     float: right;

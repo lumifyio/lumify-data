@@ -25,9 +25,27 @@ public abstract class Repository<T> {
         return fromRows(rows);
     }
 
+    public List<T> findAll(Session session) {
+        Collection<Row> rows = session.findByRowStartsWith(getTableName(), null, session.getQueryUser());
+        return fromRows(rows);
+    }
+
     public void save(Session session, T obj) {
         Row r = toRow(obj);
         session.save(r);
+    }
+
+    public void saveMany(Session session, Collection<T> objs) {
+        List<Row> rows = new ArrayList<Row>();
+        String tableName = null;
+        for (T obj : objs) {
+            Row row = toRow(obj);
+            if (tableName == null) {
+                tableName = row.getTableName();
+            }
+            rows.add(row);
+        }
+        session.saveMany(tableName, rows);
     }
 
     public List<T> fromRows(Collection<Row> rows) {
@@ -36,5 +54,9 @@ public abstract class Repository<T> {
             results.add(fromRow(row));
         }
         return results;
+    }
+
+    public void delete(Session session, RowKey rowKey) {
+        session.deleteRow(getTableName(), rowKey);
     }
 }

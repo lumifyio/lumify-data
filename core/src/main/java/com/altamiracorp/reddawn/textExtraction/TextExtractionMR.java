@@ -1,10 +1,12 @@
 package com.altamiracorp.reddawn.textExtraction;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
+import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -15,8 +17,8 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class TextExtractionMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(TextExtractionMR.class.getName());
@@ -28,7 +30,8 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
     }
 
     @Override
-    protected Class<? extends InputFormat> getInputFormatClass() {
+    protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
+        AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
         return AccumuloArtifactInputFormat.class;
     }
 
@@ -41,6 +44,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
         private ArtifactRepository artifactRepository = new ArtifactRepository();
         public static final String CONF_TEXT_EXTRACTOR_CLASS = "textExtractorClass";
         private TextExtractor textExtractor;
+        private RedDawnSession session;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -48,6 +52,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
             try {
                 textExtractor = (TextExtractor) context.getConfiguration().getClass(CONF_TEXT_EXTRACTOR_CLASS, AsciiTextExtractor.class).newInstance();
                 textExtractor.setup(context);
+                session = ConfigurableMapJobBase.createRedDawnSession(context);
             } catch (InstantiationException e) {
                 throw new IOException(e);
             } catch (IllegalAccessException e) {
@@ -55,14 +60,32 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
             }
         }
 
+        @Override
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
             try {
+                if (artifact.getType() != ArtifactType.DOCUMENT) {
+                    // TODO remove me when we get real text for the video
+                    artifact.getContent().setDocExtractedText("video".getBytes());
+                    context.write(new Text(Artifact.TABLE_NAME), artifact);
+                    return;
+                }
                 LOGGER.info("Extracting text from artifact: " + artifact.getRowKey().toString());
-                ExtractedInfo extractedInfo = textExtractor.extract(new ByteArrayInputStream(artifact.getContent().getDocArtifactBytes()));
+                InputStream in = artifactRepository.getRaw(session.getModelSession(), artifact);
+                if (in == null) {
+                    LOGGER.warn("No data found for artifact: " + artifact.getRowKey().toString());
+                    return;
+                }
+                ExtractedInfo extractedInfo = textExtractor.extract(in);
                 artifact.getContent().setDocExtractedText(extractedInfo.getText().getBytes());
                 artifact.getGenericMetadata()
                         .setSubject(extractedInfo.getSubject())
-                        .setMimeType(extractedInfo.getMediaType());
+                        .setDocumentDtg(extractedInfo.getDate())
+                        .setDocumentType(extractedInfo.getType())
+                        .setSource(extractedInfo.getUrl())
+                        .setExternalUrl(extractedInfo.getExtUrl())
+                        .setSourceType(extractedInfo.getSrcType())
+                        .setFileTimestamp(extractedInfo.getDate().getTime() / 1000)
+                        .setLoadTimestamp(extractedInfo.getRetrievalTime());
                 context.write(new Text(Artifact.TABLE_NAME), artifact);
             } catch (Exception e) {
                 throw new IOException(e);

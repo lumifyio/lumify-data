@@ -1,9 +1,14 @@
 package com.altamiracorp.reddawn.model;
 
+import java.nio.ByteBuffer;
+
 public class Value {
     private final byte[] value;
 
     public Value(Object value) {
+        if (value == null) {
+            throw new NullPointerException("Value cannot be null");
+        }
         this.value = toBytes(value);
     }
 
@@ -20,6 +25,10 @@ public class Value {
             return longToBytes((Long) value);
         }
 
+        if (value instanceof Double) {
+            return doubleToBytes((Double) value);
+        }
+
         if (value instanceof byte[]) {
             return (byte[]) value;
         }
@@ -27,16 +36,16 @@ public class Value {
         throw new RuntimeException("Unhandled type to convert: " + value.getClass().getName());
     }
 
+    private byte[] doubleToBytes(Double value) {
+        return ByteBuffer.allocate(8).putDouble(value).array();
+    }
+
     private byte[] stringToBytes(String value) {
         return value.getBytes();
     }
 
     private byte[] longToBytes(Long value) {
-        byte[] b = new byte[8];
-        for (int i = 0; i < 8; ++i) {
-            b[i] = (byte) (value >> (8 - i - 1 << 3));
-        }
-        return b;
+        return ByteBuffer.allocate(8).putLong(value).array();
     }
 
     public byte[] toBytes() {
@@ -44,11 +53,17 @@ public class Value {
     }
 
     public Long toLong() {
-        long result = 0;
-        for (int i = 0; i < this.value.length; i++) {
-            result = (result << 8) + (this.value[i] & 0xff);
+        if (this.value.length != 8) {
+            throw new RuntimeException("toLong failed. Expected 8 bytes found " + this.value.length);
         }
-        return result;
+        return ByteBuffer.wrap(this.value).getLong();
+    }
+
+    public Double toDouble() {
+        if (this.value.length != 8) {
+            throw new RuntimeException("toDouble failed. Expected 8 bytes found " + this.value.length);
+        }
+        return ByteBuffer.wrap(this.value).getDouble();
     }
 
     @Override
@@ -75,5 +90,12 @@ public class Value {
             return null;
         }
         return value.toLong();
+    }
+
+    public static Double toDouble(Value value) {
+        if (value == null) {
+            return null;
+        }
+        return value.toDouble();
     }
 }

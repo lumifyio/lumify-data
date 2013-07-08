@@ -1,8 +1,12 @@
 
-define(
+define(['atmosphere'],
     function() {
         function ServiceBase(options) {
             options = options || {};
+			
+			if (!document.$socket) {
+				document.$socket = $.atmosphere;
+			}
 
             //define deafault options
             var defaults = {
@@ -22,8 +26,17 @@ define(
             return this;
         }
 
+		ServiceBase.prototype.getSocket = function () {
+			return document.$socket;
+		}
+
         ServiceBase.prototype._ajaxPost = function(options, callback) {
             options.type = options.type || "POST";
+            return this._ajaxGet(options, callback);
+        };
+
+        ServiceBase.prototype._ajaxDelete = function(options, callback) {
+            options.type = options.type || "DELETE";
             return this._ajaxGet(options, callback);
         };
 
@@ -37,7 +50,7 @@ define(
             };
 
             options.error = options.error || function(xhr, textStatus, errorThrown) {
-                var err = new Error("Failed in request: " + url);
+                var err = new Error("Failed in request: " + options.url);
                 err.xhr = xhr;
                 err.textStatus = textStatus;
                 err.errorThrown = err.errorThrown;
@@ -47,6 +60,23 @@ define(
 
             return $.ajax(options);
         };
+		
+		ServiceBase.prototype._publishMessage = function (url, messageObj, callback, options) {
+			this._ajaxPost({
+				resolvedUrl: url,
+				url: url,
+				data: JSON.stringify(messageObj),
+				contentType: "application/json",
+				dataType: "text"
+			},function (err, data) {
+				callback(err,messageObj);
+			});
+		}
+		
+		ServiceBase.prototype._unsubscribe = function (url) {
+			this.getSocket().unsubscribeUrl(url);
+		}
+		
 
         ServiceBase.prototype._resolveUrl = function (urlSuffix) {
             return this.options.serviceBaseUrl + this.options.serviceContext + urlSuffix;

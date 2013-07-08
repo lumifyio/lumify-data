@@ -14,11 +14,20 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
+if [ "${VIRTUALIZATION_DISABLED}" = 'true' ]; then
+  ip=localhost
+else
+  ip=192.168.33.10
+fi
+
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 com.altamiracorp.reddawn.web.Server \
 --zookeeperInstanceName=reddawn \
---zookeeperServerNames=192.168.33.10 \
+--blurControllerLocation=${ip}:40010 \
+--blurPath=hdfs://${ip}/blur \
+--hadoopUrl=hdfs://${ip}:8020 \
+--zookeeperServerNames=${ip} \
 --username=root \
 --password=password \

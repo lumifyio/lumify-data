@@ -4,6 +4,8 @@ import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.MockSession;
 import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.model.RowKey;
+import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.term.TermMention;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,8 +24,20 @@ public class SentenceRepositoryTest {
     }
 
     @Test
+    public void sentenceRowKey_GetArtifactRowKeyWithColonInArtifactKey() {
+        SentenceRowKey sentenceRowKey = new SentenceRowKey("urn:sha256:007d1437117:0000000000000000:0000000000000000");
+        assertEquals("urn:sha256:007d1437117", sentenceRowKey.getArtifactRowKey());
+    }
+
+    @Test
+    public void sentenceRowKey_GetArtifactRowKeyWithoutColonInArtifactKey() {
+        SentenceRowKey sentenceRowKey = new SentenceRowKey("urn:sha256:007d1437117:0000000000000000:0000000000000000");
+        assertEquals("urn:sha256:007d1437117", sentenceRowKey.getArtifactRowKey());
+    }
+
+    @Test
     public void testFindByRowKey() {
-        String rowKeyString = "testArtifactId:0000000000000111:0000000000000222";
+        String rowKeyString = "testArtifactId:0000000000000222:0000000000000111";
         Row<RowKey> row = new Row<RowKey>(Sentence.TABLE_NAME, new RowKey(rowKeyString));
 
         ColumnFamily sentenceDataColumnFamily = new ColumnFamily(SentenceData.NAME);
@@ -79,6 +93,30 @@ public class SentenceRepositoryTest {
     }
 
     @Test
+    public void testAddTermMention() {
+        // ARRANGE
+        Sentence sentence = new Sentence();
+        Term term = new Term("Bob Jenkins", "ONLP", "Person");
+        TermMention termMention = new TermMention().setArtifactKey("SomeArtifact");
+        term.addTermMention(termMention);
+        SentenceTerm sentenceTerm = new SentenceTerm(termMention)
+                .setTermId(term);
+
+        // ACT
+        sentence.addSentenceTerm(sentenceTerm);
+        sentenceRepository.save(session, sentence);
+
+        // ASSERT
+        assertEquals(1, session.tables.get(Sentence.TABLE_NAME).size());
+        Row row = session.tables.get(Sentence.TABLE_NAME).get(0);
+
+        assertEquals(1, row.getColumnFamilies().size());
+        ColumnFamily sentenceTermColumnFamily = (ColumnFamily)row.getColumnFamilies().iterator().next();
+        assertEquals("urn\u001Fsha256\u001Fe390d2499bc929d96066164b132f6a45dd48a6dd5187713162804bfa45b9950f", sentenceTermColumnFamily.getColumnFamilyName());
+        assertEquals("bob jenkins\u001FONLP\u001FPerson", sentenceTermColumnFamily.get(SentenceTerm.TERM_ID).toString());
+    }
+
+    @Test
     public void testSave() {
         Sentence sentence = new Sentence();
 
@@ -91,7 +129,7 @@ public class SentenceRepositoryTest {
 
         sentence.getMetadata()
                 .setAuthor("testAuthor")
-                .setContentHash("testContentHash".getBytes())
+                .setContentHash("This is a test")
                 .setDate(111L)
                 .setExtractorId("testExtractorId")
                 .setSecurityMarking("testSecurityMarking")
@@ -105,7 +143,7 @@ public class SentenceRepositoryTest {
 
         assertEquals(1, session.tables.get(Sentence.TABLE_NAME).size());
         Row row = session.tables.get(Sentence.TABLE_NAME).get(0);
-        assertEquals("testArtifactId:0000000000000001:0000000000000010", row.getRowKey().toString());
+        assertEquals("testArtifactId:0000000000000010:0000000000000001", row.getRowKey().toString());
 
         assertEquals(3, row.getColumnFamilies().size());
 
@@ -120,7 +158,7 @@ public class SentenceRepositoryTest {
         ColumnFamily sentenceMetadataColumnFamily = row.get(SentenceMetadata.NAME);
         assertEquals(SentenceMetadata.NAME, sentenceMetadataColumnFamily.getColumnFamilyName());
         assertEquals("testAuthor", sentenceMetadataColumnFamily.get(SentenceMetadata.AUTHOR).toString());
-        assertEquals("testContentHash", sentenceMetadataColumnFamily.get(SentenceMetadata.CONTENT_HASH).toString());
+        assertEquals(16, sentenceMetadataColumnFamily.get(SentenceMetadata.CONTENT_HASH).toBytes().length);
         assertEquals(111L, sentenceMetadataColumnFamily.get(SentenceMetadata.DATE).toLong().longValue());
         assertEquals("testExtractorId", sentenceMetadataColumnFamily.get(SentenceMetadata.EXTRACTOR_ID).toString());
         assertEquals("testSecurityMarking", sentenceMetadataColumnFamily.get(SentenceMetadata.SECURITY_MARKING).toString());

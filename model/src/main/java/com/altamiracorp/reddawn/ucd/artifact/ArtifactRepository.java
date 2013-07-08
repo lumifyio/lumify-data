@@ -1,10 +1,9 @@
 package com.altamiracorp.reddawn.ucd.artifact;
 
-import com.altamiracorp.reddawn.model.Column;
-import com.altamiracorp.reddawn.model.ColumnFamily;
-import com.altamiracorp.reddawn.model.Repository;
-import com.altamiracorp.reddawn.model.Row;
+import com.altamiracorp.reddawn.model.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Collection;
 
 
@@ -38,5 +37,63 @@ public class ArtifactRepository extends Repository<Artifact> {
             }
         }
         return artifact;
+    }
+
+    public SaveFileResults saveFile(Session session, InputStream in) {
+        return session.saveFile(in);
+    }
+
+    public InputStream getRaw(Session session, Artifact artifact) {
+        byte[] bytes = artifact.getContent().getDocArtifactBytes();
+        if (bytes != null) {
+            return new ByteArrayInputStream(bytes);
+        }
+
+        String hdfsPath = artifact.getGenericMetadata().getHdfsFilePath();
+        if (hdfsPath != null) {
+            return session.loadFile(hdfsPath);
+        }
+
+        return null;
+    }
+
+    public InputStream getRawMp4(Session session, Artifact artifact) {
+        String path = artifact.getGenericMetadata().getMp4HdfsFilePath();
+        if (path == null) {
+            throw new RuntimeException("MP4 Video file path not set.");
+        }
+        return session.loadFile(path);
+    }
+
+    public long getRawMp4Length(Session session, Artifact artifact) {
+        String path = artifact.getGenericMetadata().getMp4HdfsFilePath();
+        if (path == null) {
+            throw new RuntimeException("MP4 Video file path not set.");
+        }
+        return session.getFileLength(path);
+    }
+
+    public InputStream getRawWebm(Session session, Artifact artifact) {
+        String path = artifact.getGenericMetadata().getWebmHdfsFilePath();
+        if (path == null) {
+            throw new RuntimeException("WebM Video file path not set.");
+        }
+        return session.loadFile(path);
+    }
+
+    public long getRawWebmLength(Session session, Artifact artifact) {
+        String path = artifact.getGenericMetadata().getWebmHdfsFilePath();
+        if (path == null) {
+            throw new RuntimeException("WebM Video file path not set.");
+        }
+        return session.getFileLength(path);
+    }
+
+    public InputStream getRawPosterFrame(Session session, Artifact artifact) {
+        String path = artifact.getGenericMetadata().getPosterFrameHdfsFilePath();
+        if (path == null) {
+            throw new RuntimeException("Poster Frame file path not set.");
+        }
+        return session.loadFile(path);
     }
 }

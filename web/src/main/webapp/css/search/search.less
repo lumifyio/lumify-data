@@ -2,10 +2,7 @@
 @import "../util/positioning.less";
 @import "../util/selection.less";
 
-@background-color: #f9f9f9;
-
 width: 175px;
-background: @background-color;
 
 .navbar-search { 
   text-align: center;
@@ -44,7 +41,8 @@ background: @background-color;
   z-index: 100;  // so it floats above graph
   word-wrap: break-word;
   width: 200px;
-  background: @background-color; 
+  padding-right: 4px;
+  background: @pane-background;
   text-align: right;
 
   ul {
@@ -52,10 +50,89 @@ background: @background-color;
     text-align: left;
     height: 100%;
     .box-sizing(border-box);
+
+    li {
+      position: relative;
+
+      &.active {
+        .source, .date {
+          color: #eee;
+        }
+        .graph button {
+          background-image: url(/img/glyphicons/white/glyphicons_326_share@2x.png);
+        }
+        .map button {
+          background-image: url(/img/glyphicons/white/glyphicons_242_google_maps@2x.png);
+        }
+      }
+
+      &.graph-displayed li.graph { display: block; }
+      &.map-displayed li.map { display: block; }
+
+      ul {
+        position: absolute;
+        left: -16px;
+        top: 2px;
+        margin: 0;
+        padding: 0;
+        width: 16px;
+        overflow: hidden;
+
+        li {
+          display: none;
+
+          button {
+            background-size: 48%;
+            background-repeat: no-repeat;
+            background-color: transparent;
+            background-position: center center;
+            height: 20px;
+            width: 100%;
+            font-size: 0;
+            border: 0;
+          }
+
+          &.graph button {
+            background-image: url(/img/glyphicons/glyphicons_326_share@2x.png);
+          }
+
+          &.map button {
+            background-image: url(/img/glyphicons/glyphicons_242_google_maps@2x.png);
+          }
+        }
+      }
+    }
   }
 
-  a.ui-selecting, a.ui-selected {
-    .active-selection;
+
+  a {
+
+    &.ui-selecting, &.ui-selected {
+      .active-selection;
+    }
+
+    div {
+      .clearfix;
+    }
+    .source, .date {
+      color: #555;
+      font-size: x-small;
+
+    }
+    .source:empty:after {
+      content: 'Source unknown';
+      font-style: italic;
+    }
+    .date:empty:after {
+      content: ' ';
+    }
+    
+    .date {
+      float: right;
+    }
+    .source {
+      float: left;
+    }
   }
 
   button.close {

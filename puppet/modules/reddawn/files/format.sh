@@ -1,8 +1,9 @@
 #!/bin/bash -eu
 
-/opt/stop.sh
+/opt/stop.sh || sudo killall java
 
 sudo rm -rf /var/lib/hadoop-0.20/cache/hadoop
+sudo rm -rf /var/zookeeper/version-2
 
 sudo -u hadoop /opt/hadoop/bin/hadoop namenode -format
 sudo -u hadoop /opt/hadoop/bin/start-all.sh

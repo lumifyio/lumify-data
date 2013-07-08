@@ -3,17 +3,23 @@ package com.altamiracorp.reddawn.entityExtraction;
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
+import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
 import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import org.apache.accumulo.core.util.CachedConfiguration;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +32,12 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
     @Override
     protected Class getMapperClass(Job job, Class clazz) {
         return EntityHighlightMapper.class;
+    }
+
+    @Override
+    protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
+        AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+        return AccumuloArtifactInputFormat.class;
     }
 
     @Override
@@ -44,6 +56,10 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
         }
 
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
+            if (artifact.getType() != ArtifactType.DOCUMENT) {
+                return;
+            }
+
             try {
                 LOGGER.info("Creating highlight text for: " + artifact.getRowKey().toString());
                 Collection<Term> terms = termRepository.findByArtifactRowKey(session.getModelSession(), artifact.getRowKey().toString());
@@ -55,7 +71,7 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
             }
         }
 
-        private boolean populateHighlightedText(Artifact artifact, Collection<Term> terms) {
+        private boolean populateHighlightedText(Artifact artifact, Collection<Term> terms) throws JSONException {
             List<TermAndTermMention> termAndTermMetadata = getTermAndTermMetadataForArtifact(artifact.getRowKey(), terms);
             String highlightedText = getHighlightedText(artifact.getContent().getDocExtractedTextString(), termAndTermMetadata);
             if (highlightedText == null) {
@@ -77,7 +93,7 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
             return termMetadatas;
         }
 
-        public static String getHighlightedText(String text, List<TermAndTermMention> termAndTermMetadatas) {
+        public static String getHighlightedText(String text, List<TermAndTermMention> termAndTermMetadatas) throws JSONException {
             Collections.sort(termAndTermMetadatas, new TermAndTermMetadataComparator());
             long start = 0;
             StringBuilder result = new StringBuilder();
@@ -89,13 +105,19 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
                 if (mention.getMentionStart() < start) {
                     continue; // TODO handle overlapping entities (see com.altamiracorp.reddawn.entityExtraction.EntityHighlightTest#testGetHighlightedTextOverlaps)
                 }
+
+                JSONObject infoJson = new JSONObject();
+                infoJson.put("rowKey", keyString);
+                infoJson.put("type", "entities");
+                infoJson.put("subType", termAndTermMetadata.getTerm().getRowKey().getConceptLabel());
+
                 result.append(text.substring((int) start, (int) mention.getMentionStart().longValue()));
                 result.append("<span");
                 result.append(" class=\"entity ");
                 result.append(termAndTermMetadata.getTerm().getRowKey().getConceptLabel());
                 result.append("\"");
-                result.append(" term-key=\"");
-                result.append(keyString);
+                result.append(" data-info=\"");
+                result.append(StringEscapeUtils.escapeHtml(infoJson.toString()));
                 result.append("\"");
                 result.append(">");
                 result.append(text.substring((int) mention.getMentionStart().longValue(), (int) mention.getMentionEnd().longValue()));

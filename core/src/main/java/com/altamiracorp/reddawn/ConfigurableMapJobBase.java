@@ -3,7 +3,7 @@ package com.altamiracorp.reddawn;
 import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.AccumuloSession;
-import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
+import com.altamiracorp.reddawn.search.BlurSearchProvider;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -31,7 +31,6 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
         if (hasConfigurableClassname()) {
             options.addOption(
                     OptionBuilder
-                            .withArgName("c")
                             .withLongOpt("classname")
                             .withDescription("The class to run")
                             .withArgName("name")
@@ -43,12 +42,11 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
 
         options.addOption(
                 OptionBuilder
-                        .withArgName("D")
                         .withLongOpt("config")
                         .withDescription("Configuration for the class")
                         .withArgName("name=value")
                         .hasArg()
-                        .create()
+                        .create('D')
         );
 
         return options;
@@ -76,14 +74,20 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
     @Override
     protected int run(CommandLine cmd) throws Exception {
         Job job = new Job(getConf(), this.getClass().getSimpleName());
+        job.getConfiguration().set(AccumuloSession.HADOOP_URL, getHadoopUrl());
         job.getConfiguration().set(AccumuloSession.ZOOKEEPER_INSTANCE_NAME, getZookeeperInstanceName());
         job.getConfiguration().set(AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
         job.getConfiguration().set(AccumuloSession.USERNAME, getUsername());
         job.getConfiguration().set(AccumuloSession.PASSWORD, new String(getPassword()));
+        if (getBlurControllerLocation() != null) {
+            job.getConfiguration().set(BlurSearchProvider.BLUR_CONTROLLER_LOCATION, getBlurControllerLocation());
+        }
+        if (getBlurHdfsPath() != null) {
+            job.getConfiguration().set(BlurSearchProvider.BLUR_PATH, getBlurHdfsPath());
+        }
         job.setJarByClass(this.getClass());
 
-        job.setInputFormatClass(getInputFormatClass());
-        AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+        job.setInputFormatClass(getInputFormatClassAndInit(job));
 
         if (this.config != null) {
             for (String config : this.config) {
@@ -108,9 +112,7 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
         return job.isSuccessful() ? 0 : 1;
     }
 
-    protected Class<? extends InputFormat> getInputFormatClass() {
-        return AccumuloArtifactInputFormat.class;
-    }
+    protected abstract Class<? extends InputFormat> getInputFormatClassAndInit(Job job);
 
     protected Class<? extends OutputFormat> getOutputFormatClass() {
         return AccumuloModelOutputFormat.class;

@@ -1,4 +1,7 @@
 
+// Debug retina/non-retina by changing to 1/2
+// window.devicePixelRatio = 1;
+
 require([
     'flight/lib/compose',
     'flight/lib/registry',
@@ -10,7 +13,6 @@ function(compose, registry, advice, withLogging, debug) {
 
     debug.enable(true);
     DEBUG.events.logAll();
-    compose.mixin(registry, [advice.withAdvice, withLogging]);
 
     require(['app'], function(App) {
         App.attachTo('#app');

@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.web.routes.artifact;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.search.ArtifactSearchResult;
 import com.altamiracorp.reddawn.search.SearchProvider;
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
@@ -16,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
+import java.util.Date;
 
 public class ArtifactSearch implements Handler, AppAware {
     private WebApp app;
@@ -31,27 +33,53 @@ public class ArtifactSearch implements Handler, AppAware {
         RedDawnSession session = app.getRedDawnSession(request);
         SearchProvider searchProvider = session.getSearchProvider();
         Collection<ArtifactSearchResult> artifactSearchResults = queryArtifacts(searchProvider, query);
-        JSONObject results = new JSONObject();
-        JSONArray artifactsJson = artifactsToSearchResults(artifactSearchResults, request);
-        results.put("document", artifactsJson); // TODO also include video and images
-
-        response.setContentType("application/json");
-        response.getWriter().write(results.toString());
+        JSONObject results = artifactsToSearchResults(artifactSearchResults, request);
+        new Responder(response).respondWith(results);
     }
 
     private Collection<ArtifactSearchResult> queryArtifacts(SearchProvider searchProvider, String query) throws Exception {
         return searchProvider.searchArtifacts(query);
     }
 
-    private JSONArray artifactsToSearchResults(Collection<ArtifactSearchResult> artifacts, HttpServletRequest request) throws JSONException, UnsupportedEncodingException {
-        JSONArray artifactsJson = new JSONArray();
+    private JSONObject artifactsToSearchResults(Collection<ArtifactSearchResult> artifacts, HttpServletRequest request) throws JSONException, UnsupportedEncodingException {
+        JSONObject results = new JSONObject();
+        JSONArray documents = new JSONArray();
+        results.put("documents", documents);
+        JSONArray videos = new JSONArray();
+        results.put("videos", videos);
+        JSONArray images = new JSONArray();
+        results.put("images", images);
+
         for (ArtifactSearchResult artifactSearchResult : artifacts) {
-            JSONObject artifactJson = new JSONObject();
-            artifactJson.put("url", ArtifactByRowKey.getUrl(request, artifactSearchResult.getRowKey()));
-            artifactJson.put("rowKey", artifactSearchResult.getRowKey());
-            artifactJson.put("subject", artifactSearchResult.getSubject());
-            artifactsJson.put(artifactJson);
+            JSONObject artifactJson = artifactToSearchResult(request, artifactSearchResult);
+            switch (artifactSearchResult.getType()) {
+                case DOCUMENT:
+                    documents.put(artifactJson);
+                    break;
+                case VIDEO:
+                    videos.put(artifactJson);
+                    break;
+                case IMAGE:
+                    images.put(artifactJson);
+                    break;
+                default:
+                    throw new RuntimeException("Unhandled artifact type: " + artifactSearchResult.getType());
+            }
         }
-        return artifactsJson;
+
+        return results;
+    }
+
+    private JSONObject artifactToSearchResult(HttpServletRequest request, ArtifactSearchResult artifactSearchResult) throws JSONException {
+        JSONObject artifactJson = new JSONObject();
+        artifactJson.put("url", ArtifactByRowKey.getUrl(request, artifactSearchResult.getRowKey()));
+        artifactJson.put("rowKey", artifactSearchResult.getRowKey());
+        artifactJson.put("subject", artifactSearchResult.getSubject());
+        Date publishedDate = artifactSearchResult.getPublishedDate();
+        if (publishedDate != null) {
+            artifactJson.put("publishedDate", publishedDate.getTime());
+        }
+        artifactJson.put("source", artifactSearchResult.getSource());
+        return artifactJson;
     }
 }

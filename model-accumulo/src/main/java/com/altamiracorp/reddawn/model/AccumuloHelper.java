@@ -7,7 +7,6 @@ import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
-import org.apache.accumulo.core.util.PeekingIterator;
 
 import java.util.*;
 
@@ -67,7 +66,7 @@ public class AccumuloHelper {
         return row;
     }
 
-    private static Object accumuloValueToObject(Value value) {
-        return value.toString();
+    private static byte[] accumuloValueToObject(Value value) {
+        return value.get();
     }
 }

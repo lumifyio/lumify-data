@@ -1,36 +1,48 @@
 @import "../util/lists.less";
-
-background: #efefef;
+@import "../util/constants.less";
+@import "highlighting";
 
 .content {
-  padding: 1em;
+
+  padding: 2.5em 1em 0 1em;
+
+  .btn-toolbar {
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+
+    .checked a {
+      background-image: url(../../img/glyphicons/glyphicons_206_ok_2@2x.png);
+      background-repeat: no-repeat;
+      background-position: 5px center;
+      background-size: 10px;
+    }
+
+    li.checked:hover a {
+      background-image: url(../../img/glyphicons/white/glyphicons_206_ok_2@2x.png);
+    }
+  }
+
+  .multiple {
+    h1 {
+      font-size: 100%;
+      text-align: center;
+      font-style: italic;
+      margin-top: 0;
+      color: #555;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      li {
+        padding: 0;
+        margin: 1em 0;
+      }
+    }
+  }
+
+  .highlighting;
 }
 
-.content .entity {
-  background-color: #ff0000;
-}
-
-.content .entity.date,
-.content .entity.time {
-  background-color: #8a56e2;
-}
-
-.content .entity.location {
-  background-color: #cf56e2;
-}
-
-.content .entity.money {
-  background-color: #e256ae;
-}
-
-.content .entity.organization {
-  background-color: #e25668;
-}
-
-.content .entity.percentage {
-  background-color: #e28956;
-}
-
-.content .entity.person {
-  background-color: #e2cf56;
-}

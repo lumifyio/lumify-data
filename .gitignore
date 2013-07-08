@@ -8,3 +8,5 @@ target/
 .classpath
 .DS_Store
 node_modules/
+*.swp
+allCountries.txt

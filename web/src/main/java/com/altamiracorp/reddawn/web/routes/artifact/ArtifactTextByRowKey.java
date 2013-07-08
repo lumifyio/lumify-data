@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.web.App;
@@ -32,8 +33,7 @@ public class ArtifactTextByRowKey implements Handler, AppAware {
         if (artifact == null || artifact.getContent() == null || artifact.getContent().getDocExtractedText() == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            response.setContentType("text/plain");
-            response.getWriter().write(artifact.getContent().getDocExtractedTextString());
+            new Responder(response).respondWith(artifact.getContent().getDocExtractedTextString());
         }
 
         chain.next(request, response);

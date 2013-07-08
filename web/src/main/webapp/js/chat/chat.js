@@ -2,9 +2,10 @@
 define([
     'flight/lib/component',
     'service/chat',
+	'sync/sync',
     'tpl!./chatWindow',
     'tpl!./chatMessage'
-], function(defineComponent, ChatService, chatWindowTemplate, chatMessageTemplate) {
+], function(defineComponent, ChatService, Sync, chatWindowTemplate, chatMessageTemplate) {
     'use strict';
 
     return defineComponent(Chat);
@@ -16,7 +17,8 @@ define([
 
         this.defaultAttrs({
             newMessageFormSelector: 'form.new-message',
-            chatWindowSelector: '.chat-window'
+            chatWindowSelector: '.chat-window',
+			syncRequestSelector: '.sync-request'
         });
 
         this.after('initialize', function() {
@@ -34,10 +36,9 @@ define([
         };
 
         this.onUserSelected = function(evt, data) {
-            var chat = this.findChatByToUserId(data.userId);
-            if(chat) {
+            if(this.openChats[data.id]) {
                 this.select('chatWindowSelector').hide();
-                return $('#chat-window-' + chat.id).show().find('.message').focus();
+                return $('#chat-window-' + data.id).show().find('.message').focus();
             }
 
             data.activate = true;
@@ -45,44 +46,70 @@ define([
         };
 
         this.onCreateChatWindow = function(evt, user) {
-            var self = this;
-            var userId = user.userId;
-            this.chatService.createChat(userId, function(err, chat) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-                return self.createOrFocusChat(chat, { activate: user.activate });
-            });
+			this.createOrFocusChat(user,{activate: user.activate});
         };
 
-        this.createOrFocusChat = function(chat, options) {
-            if(!this.openChats[chat.id]) {
-                this.openChats[chat.id] = chat;
-                var dom = $(chatWindowTemplate({ chat: chat }));
+        this.createOrFocusChat = function(user, options) {
+            if(!this.openChats[user.id]) {
+                this.openChats[user.id] = user;
+                var dom = $(chatWindowTemplate({ user: user , users: [this.currentUser, user]}));
                 dom.hide().appendTo(this.$node);
+				Sync.attachTo(this.select('syncRequestSelector'),{ chatUser : user.id, me : this.currentUser.id});
             }
 
             if (options && options.activate) {
                 this.select('chatWindowSelector').hide();
-                $('#chat-window-' + chat.id).show().find('.message').focus();
+                $('#chat-window-' + user.id).show().find('.message').focus();
+                this.trigger(document, 'userSelected', user);
             }
         };
 
-        this.addMessage = function(chatId, message) {
-            var $chatWindow = $('#chat-window-' + chatId);
-            var $chatMessages = $('.chat-messages', $chatWindow);
-            $chatMessages.append(chatMessageTemplate({
+        this.addMessage = function(userId, message) {
+			this.checkChatWindow(userId);
+            var $chatWindow = $('#chat-window-' + userId);
+            $chatWindow.find('.chat-messages').append(chatMessageTemplate({
                 message: message
             }));
+
+            this.scrollWindowToBottom($chatWindow);
+        };
+
+		this.checkChatWindow = function (userId) {
+            var $chatWindow = $('#chat-window-' + userId);
+            if ($chatWindow.length === 0) {
+                this.trigger('createChatWindow', { id:userId, activate:true });
+                $chatWindow = $('#chat-window-' + userId);
+            }	
+
+            this.scrollWindowToBottom($chatWindow);
+		};
+
+        this.scrollWindowToBottom = function(chatWindow) {
+            clearTimeout(this.scrollTimeout);
+            this.scrollTimeout = setTimeout(function() {
+                var bottom = chatWindow[0].scrollHeight - chatWindow.height();
+                chatWindow.clearQueue().animate({scrollTop:bottom}, 'fast');
+            }, 100);
         };
 
         this.onMessage = function(evt, message) {
-            if(message.type == 'chat') {
-                this.createOrFocusChat(message.chat);
-            } else if(message.type == 'chatMessage') {
-                this.addMessage(message.chatId, message.message);
-            }
+			switch (message.type) {
+				case 'chatMessage':
+					this.addMessage(message.from.id, message);
+					break;
+				case 'syncRequest':
+					this.checkChatWindow(message.initiatorId);
+					this.trigger('incomingSyncRequest',message);
+					break;
+				case 'syncRequestAcceptance':
+					this.checkChatWindow(message.userIds[0]);
+					this.trigger('incomingSyncAccept',message);
+					break;
+				case 'syncRequestRejection':
+					this.checkChatWindow(message.userIds[0]);
+					this.trigger('incomingSyncReject',message);
+					break;
+			}
         };
 
         this.onNewMessageFormSubmit = function(evt) {
@@ -94,40 +121,31 @@ define([
             var $messageInput = $('.message', $target);
 
             var message = $messageInput.val();
-            var chatId = $chatWindow.attr('chat-id');
-            var chat = this.openChats[chatId];
+            var userId = $chatWindow.attr('chat-id');
+            var chat = this.openChats[userId];
 
             var tempId = 'chat-message-temp-' + Date.now();
 
             // add a temporary message to create the feel of responsiveness
-            this.addMessage(chatId, {
+            this.addMessage(userId, {
                 tempId: tempId,
-                from: { username: 'me' },
+                from: { id: 'me' },
                 message: message,
                 postDate: null
             });
 
-            this.chatService.sendChatMessage(chatId, message, function(err, message) {
+            this.chatService.sendChatMessage(userId, self.currentUser.id, message, function(err, message) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
                 $('#' + tempId).remove();
-                self.addMessage(chatId, message);
+                self.addMessage(userId, message);
             });
 
             $messageInput.val('');
             $messageInput.focus();
         };
 
-        this.findChatByToUserId = function(userId) {
-            var self = this;
-            var filteredChats = Object.keys(this.openChats).filter(function(chatId) {
-                var chat = self.openChats[chatId];
-                var matchingUsers = chat.users.filter(function(u) { return u.id == userId; });
-                return matchingUsers.length > 0;
-            });
-            return filteredChats.length == 0 ? null : this.openChats[filteredChats[0]];
-        };
     }
 });

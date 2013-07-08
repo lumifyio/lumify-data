@@ -1,6 +1,8 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.sentence.Sentence;
+import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
 import opennlp.tools.namefind.NameFinderME;
@@ -81,8 +83,14 @@ public class OpenNlpMEEntityExtractorTest {
     @Test
     public void testEntityExtraction() throws Exception {
         extractor.setup(context);
-        ArtifactRowKey key = ArtifactRowKey.build(text.getBytes());
-        Collection<Term> terms = extractor.extract(key, text);
+        ArtifactRowKey artifactRowKey = ArtifactRowKey.build(text.getBytes());
+        SentenceRowKey sentenceRowKey = new SentenceRowKey(artifactRowKey.toString(), 0, 100);
+        Sentence sentence = new Sentence(sentenceRowKey);
+        sentence.getData().setArtifactId(artifactRowKey.toString());
+        sentence.getData().setText(text);
+        sentence.getData().setStart(0L);
+        sentence.getData().setEnd(100L);
+        Collection<Term> terms = extractor.extract(sentence);
         HashMap<String, Term> extractedTerms = new HashMap<String, Term>();
         for (Term term : terms) {
             extractedTerms.put(term.getRowKey().getSign() + "-" + term.getRowKey().getConceptLabel(), term);

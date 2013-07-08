@@ -16,7 +16,7 @@ background: @menubar-background;
     height: 40px;
     cursor: pointer;
     background: transparent;
-    background-size: 70%;
+    background-size: 65%;
     background-position: center;
     background-repeat: no-repeat;
 
@@ -36,38 +36,38 @@ background: @menubar-background;
   }
 }
 
-.menu-top {
-  .search a { background-image: url(/img/glyphicons/white/glyphicons_027_search@2x.png); }
-}
+.menu-top, .menu-bottom {
+  .workspaces a { 
+    background-image: url(/img/glyphicons/white/glyphicons_153_more_windows@2x.png);
+  }
 
+  .graph a { 
+    background-image: url(/img/glyphicons/white/glyphicons_326_share@2x.png);
+  }
+  .map a { 
+    background-image: url(/img/glyphicons/white/glyphicons_242_google_maps@2x.png);
+    background-size: 51%;
+  }
 
+  .search a { 
+    background-image: url(/img/glyphicons/white/glyphicons_027_search@2x.png); 
+  }
 
-.cog(@dimension, @offsetLeft, @offsetTop) {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  margin-left: @dimension / 2 * -1px + @offsetLeft;
-  margin-top: @dimension / 2 * -1px + @offsetTop;
-  width: @dimension;
-  height: @dimension;
-  background-image: url(/img/glyphicons/white/glyphicons_019_cogwheel@2x.png); 
-  background-size: 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-}
+  .users { 
 
+    &.synchronizing a:before {
+      .spinning-image('glyphicons_081_refresh@2x', 10px, 1px, -22px, 4s, forward);
+      .animation-play-state(running);
+    }
 
-.menu-bottom {
-  position: absolute;
-  bottom: 5px;
-  left: 0;
-  right: 0;
+    a {
+      background-image: url(/img/glyphicons/white/glyphicons_245_chat@2x.png);
+      background-size: 70%;
 
-  .users a { background-image: url(/img/glyphicons/white/glyphicons_244_conversation@2x.png); }
+    }
+  }
   .metrics a { background-image: url(/img/glyphicons/white/glyphicons_041_charts@2x.png); }
   .prefs a { background-image: url(/img/glyphicons/white/glyphicons_280_settings@2x.png); }
-
 
   // Activity is special in that it animates when active
   .activity { 
@@ -75,13 +75,11 @@ background: @menubar-background;
 
     a {
       &:before {
-        .cog(18px, -4px, -4px);
-        .spin(4s);
+        .spinning-image('white/glyphicons_019_cogwheel@2x', 18px, -4px, -4px, 4s, forward);
       }
 
       &:after {
-        .cog(14px, 6px, 6px);
-        .spin(4s, reverse);
+        .spinning-image('white/glyphicons_019_cogwheel@2x', 14px, 6px, 6px, 4s, reverse);
       }
     }
 
@@ -90,4 +88,30 @@ background: @menubar-background;
         .animation-play-state(running);
     }
   }
+}
+
+
+
+.spinning-image(@image, @dimension, @offsetLeft, @offsetTop, @spin, @direction) {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin-left: @dimension / 2 * -1px + @offsetLeft;
+  margin-top: @dimension / 2 * -1px + @offsetTop;
+  width: @dimension;
+  height: @dimension;
+  background-image: url("/img/glyphicons/@{image}.png"); 
+  background-size: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  .spin(@spin, @direction);
+}
+
+
+.menu-bottom {
+  position: absolute;
+  bottom: 5px;
+  left: 0;
+  right: 0;
 }

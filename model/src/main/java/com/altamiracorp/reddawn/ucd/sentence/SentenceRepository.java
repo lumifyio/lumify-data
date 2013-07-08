@@ -10,20 +10,23 @@ import java.util.Collection;
 public class SentenceRepository extends Repository<Sentence> {
     @Override
     public Sentence fromRow(Row row) {
-        Sentence source = new Sentence(row.getRowKey());
+        Sentence sentence = new Sentence(row.getRowKey());
         Collection<ColumnFamily> families = row.getColumnFamilies();
         for (ColumnFamily columnFamily : families) {
             if (columnFamily.getColumnFamilyName().equals(SentenceData.NAME)) {
                 Collection<Column> columns = columnFamily.getColumns();
-                source.addColumnFamily(new SentenceData().addColumns(columns));
+                sentence.addColumnFamily(new SentenceData().addColumns(columns));
             } else if (columnFamily.getColumnFamilyName().equals(SentenceMetadata.NAME)) {
                 Collection<Column> columns = columnFamily.getColumns();
-                source.addColumnFamily(new SentenceMetadata().addColumns(columns));
+                sentence.addColumnFamily(new SentenceMetadata().addColumns(columns));
+            } else if (columnFamily.getColumnFamilyName().startsWith("urn")) {
+                Collection<Column> columns = columnFamily.getColumns();
+                sentence.addColumnFamily(new SentenceTerm(columnFamily.getColumnFamilyName()).addColumns(columns));
             } else {
-                source.addColumnFamily(columnFamily);
+                sentence.addColumnFamily(columnFamily);
             }
         }
-        return source;
+        return sentence;
     }
 
     @Override
