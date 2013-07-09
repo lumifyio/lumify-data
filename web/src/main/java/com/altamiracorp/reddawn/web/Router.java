@@ -6,6 +6,7 @@ import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
 import com.altamiracorp.reddawn.web.routes.entity.EntityByRowKey;
 import com.altamiracorp.reddawn.web.routes.entity.EntityRelationships;
 import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
+import com.altamiracorp.reddawn.web.routes.entity.EntityToEntityRelationship;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
 import com.altamiracorp.reddawn.web.routes.user.MeGet;
@@ -50,6 +51,7 @@ public class Router extends HttpServlet {
         app.get("/artifact/{rowKey}/video-preview", authenticator, ArtifactVideoPreviewImageByRowKey.class);
         app.get("/artifact/{rowKey}", authenticator, ArtifactByRowKey.class);
 
+        app.get("/entity/relationship", authenticator, EntityToEntityRelationship.class);
         app.get("/entity/relationships", authenticator, EntityRelationships.class);
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);

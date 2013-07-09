@@ -298,11 +298,15 @@ define([
         });
 
         this.updateNodeSelections = function(cy) {
-            var selection = cy.nodes().filter(':selected'),
-                info = [];
+            var selection = cy.nodes().filter(':selected');
+            var edgeSelection = cy.edges().filter(':selected');
+            var info = [];
 
-            console.log('selections: ', selection);
+            console.log('selections: ', selection, edgeSelection);
             selection.each(function(index, node) {
+                info.push(node.data());
+            });
+            edgeSelection.each(function(index, node) {
                 info.push(node.data());
             });
 
@@ -441,6 +445,7 @@ define([
                         group: "edges",
                         data: {
                             id: relationship.from + "->" + relationship.to,
+                            relationshipType: relationship.relationshipType,
                             source: relationship.from,
                             target: relationship.to,
                             type: 'relationship'

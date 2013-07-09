@@ -70,7 +70,7 @@ width: 175px;
       &.map-displayed li.map { display: block; }
 
       @preview-width: 100px;
-      &.preview {
+      &.has_preview {
         padding-left: @preview-width;
         .preview {
           display: block;
@@ -158,5 +158,6 @@ width: 175px;
     position: absolute;
     right: 6px;
     top: 0;
+    z-index:10;
   }
 }

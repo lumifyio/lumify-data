@@ -3,11 +3,14 @@ define([
     'flight/lib/component',
     'service/ucd',
     'videojs',
+    'util/video/scrubber',
+    'tpl!util/video/video',
     'tpl!./artifactDetails',
     'tpl!./entityDetails',
-    'tpl!./relationshipDetails',
+    'tpl!./artifactToEntityRelationshipDetails',
+    'tpl!./entityToEntityRelationshipDetails',
     'tpl!./multipleSelection'
-], function(defineComponent, UCD, videojs, artifactDetailsTemplate, entityDetailsTemplate, relationshipDetailsTemplate, multipleSelectionTemplate) {
+], function(defineComponent, UCD, videojs, VideoScrubber, videoTemplate, artifactDetailsTemplate, entityDetailsTemplate, artifactToEntityRelationshipDetails, entityToEntityRelationshipDetails, multipleSelectionTemplate) {
     'use strict';
 
     videojs.options.flash.swf = "/libs/video.js/video-js.swf";
@@ -30,14 +33,17 @@ define([
             mapCoordinatesSelector: '.map-coordinates',
             highlightTypeSelector: '.highlight-options a',
             entitiesSelector: '.entity',
+            previewSelector: '.preview',
             videoSelector: 'video'
         });
 
         this.after('initialize', function() {
             this.on('click', {
                 mapCoordinatesSelector: this.onMapCoordinatesClicked,
-                highlightTypeSelector: this.onHighlightTypeClicked
+                highlightTypeSelector: this.onHighlightTypeClicked,
+                previewSelector: this.onPreviewClicked
             });
+
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
         });
 
@@ -67,6 +73,30 @@ define([
             }
 
             this.useDefaultStyle = false;
+        };
+
+        this.onPreviewClicked = function(evt) {
+            if (this.select('videoSelector').length) {
+                return;
+            }
+
+            var self = this,
+                players = videojs.players,
+                video = $(videoTemplate({
+                    mp4Url: self.currentArtifact.rawUrl + '?playback=true&type=video/mp4',
+                    webmUrl: self.currentArtifact.rawUrl + '?playback=true&type=video/webm',
+                    posterUrl: self.currentArtifact.posterFrameUrl
+                }));
+
+
+            this.select('previewSelector').html(video);
+            Object.keys(players).forEach(function(player) {
+                if (players[player]) {
+                    players[player].dispose();
+                    delete players[player];
+                }
+            });
+            videojs(video[0], { autoplay:true }, function() { });
         };
 
 
@@ -107,6 +137,8 @@ define([
                 data = data[0];
             }
 
+            self.currentArtifact = null;
+
             if ( !data || data.length === 0 ) {
                 this.$node.empty();
                 this.currentRowKey = null;
@@ -131,7 +163,20 @@ define([
             this.$node.html("Loading...");
             // TODO show something more useful here.
             console.log('Showing relationship:', data);
-            self.$node.html(relationshipDetailsTemplate(data));
+            if(data.relationshipType == 'artifactToEntity') {
+                self.$node.html(artifactToEntityRelationshipDetails(data));
+            } else if(data.relationshipType == 'entityToEntity') {
+                new UCD().getEntityToEntityRelationshipDetails(data.source, data.target, function(err, relationshipData) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+                    console.log(relationshipData);
+                    self.$node.html(entityToEntityRelationshipDetails(relationshipData));
+                });
+            } else {
+                self.$node.html("Bad relationship type:" + data.relationshipType);
+            }
         };
 
         this.onArtifactSelected = function(evt, data) {
@@ -144,6 +189,8 @@ define([
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
+
+                    self.currentArtifact = artifact;
                     console.log('Showing artifact:', artifact);
                     artifact.contentHtml = artifact.Content.highlighted_text || artifact.Content.doc_extracted_text || "";
                     artifact.contentHtml = artifact.contentHtml.replace(/[\n]+/g, "<br><br>\n");
@@ -205,21 +252,10 @@ define([
         };
 
         this.setupVideo = function(artifact) {
-            var self = this,
-                video = this.select('videoSelector'),
-                players = videojs.players;
-
-            if (video.length) {
-                Object.keys(players).forEach(function(player) {
-                    if (players[player]) {
-                        players[player].dispose();
-                        delete players[player];
-                    }
-                });
-                videojs(video[0], {}, function() {
-                    self.trigger('videoReady', {artifact:artifact});
-                });
-            }
+            VideoScrubber.attachTo(this.select('previewSelector'), {
+                poster: artifact.posterFrameUrl,
+                frames: artifact.videoPreviewImageUrl
+            });
         };
 
         this.applyHighlightStyle = function() {
