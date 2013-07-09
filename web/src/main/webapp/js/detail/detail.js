@@ -16,14 +16,15 @@ define([
             { name: 'None' },
             { name: 'Subtle Icons', cls:'icons' },
             { name: 'Underline', cls:'underline' },
-            { name: 'Colors', cls:'colors' },
-            { name: 'Ugly Colors', cls:'uglycolors' }
+            { name: 'Colors', cls:'colors' }
         ],
-        ACTIVE_STYLE = 2;
+        DEFAULT = 2;
 
     return defineComponent(Detail);
 
     function Detail() {
+
+        this.useDefaultStyle = true;
 
         this.defaultAttrs({
             mapCoordinatesSelector: '.map-coordinates',
@@ -58,16 +59,46 @@ define([
             ul.find('.checked').not(li).removeClass('checked');
             li.addClass('checked');
 
-            $.each( content.attr('class').split(/\s+/), function(index, item) {
-                if (item.match(/^highlight-(.+)$/)) {
-                    content.removeClass(item);
-                }
-            });
+            this.removeHighlightClasses();
             
             var newClass = li.data('cls');
             if (newClass) {
                 content.addClass('highlight-' + newClass);
             }
+
+            this.useDefaultStyle = false;
+        };
+
+
+        this.getActiveStyle = function() {
+            if (this.useDefaultStyle) {
+                return DEFAULT;
+            }
+
+            var content = this.$node,
+                index = 0;
+            $.each( content.attr('class').split(/\s+/), function(_, item) {
+                var match = item.match(/^highlight-(.+)$/);
+                if (match) {
+                    return HIGHLIGHT_STYLES.forEach(function(style, i) {
+                        if (style.cls === match[1]) {
+                            index = i;
+                            return false;
+                        }
+                    });
+                }
+            });
+
+            return index;
+        };
+
+        this.removeHighlightClasses = function() {
+            var content = this.$node;
+            $.each( content.attr('class').split(/\s+/), function(index, item) {
+                if (item.match(/^highlight-(.+)$/)) {
+                    content.removeClass(item);
+                }
+            });
         };
 
         this.onSearchResultSelected = function(evt, data) {
@@ -116,7 +147,7 @@ define([
                     console.log('Showing artifact:', artifact);
                     artifact.contentHtml = artifact.Content.highlighted_text || artifact.Content.doc_extracted_text || "";
                     artifact.contentHtml = artifact.contentHtml.replace(/[\n]+/g, "<br><br>\n");
-                    self.$node.html(artifactDetailsTemplate({ artifact: artifact, styles:HIGHLIGHT_STYLES, activeStyle:ACTIVE_STYLE }));
+                    self.$node.html(artifactDetailsTemplate({ artifact: artifact, styles:HIGHLIGHT_STYLES, activeStyle:self.getActiveStyle() }));
 
                     if (artifact.type == 'video') {
                         self.setupVideo(artifact);
@@ -127,6 +158,7 @@ define([
                 });
             });
         };
+
 
         this.onEntitySelected = function(evt, data) {
             this.openUnlessAlreadyOpen(data, function(finished) {
@@ -191,8 +223,9 @@ define([
         };
 
         this.applyHighlightStyle = function() {
-            var newClass = HIGHLIGHT_STYLES[ACTIVE_STYLE].cls;
+            var newClass = HIGHLIGHT_STYLES[this.getActiveStyle()].cls;
             if (newClass) {
+                this.removeHighlightClasses();
                 this.$node.addClass('highlight-' + newClass);
             }
         };
