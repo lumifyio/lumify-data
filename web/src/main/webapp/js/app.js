@@ -401,8 +401,8 @@ define([
                 if (detailPane.width() < minWidth) {
                     detailPane[0].style.width = null;
                 }
-                width = detailPane.width();
                 detailPane.removeClass('collapsed').addClass('visible');
+                width = detailPane.width();
             } else {
                 detailPane.removeClass('visible').addClass('collapsed');
             }
