@@ -133,7 +133,7 @@ define([
                     if ( nodeState.inGraph ) classes.push('graph-displayed');
                     if ( nodeState.inMap ) classes.push('map-displayed');
                 }
-                if (data.subType === 'videos') {
+                if (data.subType === 'videos' || data.subType === 'images') {
                     classes.push('preview');
                 }
                 result.className = classes.join(' ');
@@ -210,7 +210,7 @@ define([
                     info = li.data('info'),
                     rowKey = info.rowKey;
 
-                if (info.subType === 'videos' && !li.data('preview-loaded')) {
+                if ((info.subType === 'videos' || info.subType === 'images') && !li.data('preview-loaded')) {
                     li.addClass('preview-loading');
                     previews.generatePreview(rowKey, null, function(poster, frames) {
                         li.removeClass('preview-loading')
