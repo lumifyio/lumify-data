@@ -7,7 +7,7 @@ define([
     'use strict';
 
     // TODO: get this from the server
-    var NUMBER_FRAMES = 21,
+    var NUMBER_FRAMES = 20,
         POSTER = 1,
         FRAMES = 2;
 
