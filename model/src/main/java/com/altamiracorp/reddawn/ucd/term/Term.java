@@ -32,6 +32,16 @@ public class Term extends Row<TermRowKey> {
         return termMentions;
     }
 
+    public List<TermMention> getTermMentions(long offset, long limit) {
+        ArrayList<TermMention> termMentions = new ArrayList<TermMention>();
+        for (ColumnFamily columnFamily : getColumnFamilies()) {
+            if (columnFamily instanceof TermMention) {
+                termMentions.add((TermMention) columnFamily);
+            }
+        }
+        return termMentions;
+    }
+
     public Term addTermMention(TermMention termMention) {
         this.addColumnFamily(termMention);
         return this;
@@ -49,6 +59,16 @@ public class Term extends Row<TermRowKey> {
                 }
             }
             termJson.put("metadata", metadataJson);
+            return termJson;
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public JSONObject toContentJson() {
+        try {
+            JSONObject termJson = new JSONObject();
+            termJson.put("key", getRowKey().toJson());
             return termJson;
         } catch (JSONException e) {
             throw new RuntimeException(e);

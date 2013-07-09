@@ -1,5 +1,7 @@
 package com.altamiracorp.reddawn.search;
 
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
+
 import java.util.Date;
 
 public class ArtifactSearchResult {
@@ -7,12 +9,14 @@ public class ArtifactSearchResult {
     private final String rowKey;
     private final String subject;
     private final Date publishedDate;
+    private final ArtifactType artifactType;
 
-    public ArtifactSearchResult(String rowKey, String subject, Date publishedDate, String source) {
+    public ArtifactSearchResult(String rowKey, String subject, Date publishedDate, String source, ArtifactType artifactType) {
         this.rowKey = rowKey;
         this.subject = subject;
         this.publishedDate = publishedDate;
         this.source = source;
+        this.artifactType = artifactType;
     }
 
     public String getRowKey() {
@@ -34,5 +38,9 @@ public class ArtifactSearchResult {
     @Override
     public String toString() {
         return "rowKey: " + getRowKey() + ", subject: " + getSubject() + ", publishedDate: " + getPublishedDate() + ", source: " + getSource();
+    }
+
+    public ArtifactType getType() {
+        return this.artifactType;
     }
 }

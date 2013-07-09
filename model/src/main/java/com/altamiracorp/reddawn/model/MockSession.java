@@ -1,5 +1,8 @@
 package com.altamiracorp.reddawn.model;
 
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
+
+import java.io.*;
 import java.util.*;
 
 public class MockSession extends Session {
@@ -67,6 +70,12 @@ public class MockSession extends Session {
     }
 
     @Override
+    List<ColumnFamily> findByRowKeyWithOffset(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
+        // TODO: Write this
+        return Lists.newArrayList();
+    }
+
+    @Override
     void initializeTable(String tableName) {
         this.tables.put(tableName, new ArrayList<Row>());
     }
@@ -86,5 +95,35 @@ public class MockSession extends Session {
                 return;
             }
         }
+    }
+
+    @Override
+    public SaveFileResults saveFile(InputStream in) {
+        try {
+            File temp = File.createTempFile("reddawn", ".bin");
+            OutputStream out = new FileOutputStream(temp);
+            try {
+                String rowKey = RowKeyHelper.buildSHA256KeyString(in, out);
+                return new SaveFileResults(rowKey, temp.getAbsolutePath());
+            } finally {
+                out.close();
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException("could not save file", ex);
+        }
+    }
+
+    @Override
+    public InputStream loadFile(String path) {
+        try {
+            return new FileInputStream(path);
+        } catch (FileNotFoundException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    public long getFileLength(String path) {
+        return new File(path).length();
     }
 }

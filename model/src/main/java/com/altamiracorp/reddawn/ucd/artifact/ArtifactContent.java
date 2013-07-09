@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.ucd.artifact;
 
 import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.Value;
+import org.json.JSONObject;
 
 public class ArtifactContent extends ColumnFamily {
     public static final String NAME = "Content";
@@ -9,12 +10,13 @@ public class ArtifactContent extends ColumnFamily {
     public static final String DOC_EXTRACTED_TEXT = "doc_extracted_text";
     public static final String SECURITY = "security";
     public static final String HIGHLIGHTED_TEXT = "highlighted_text";
+    public static final String VIDEO_TRANSCRIPT = "video_transcript";
 
     public ArtifactContent() {
         super(NAME);
     }
 
-    public byte[] getDocArtifactBytes() {
+    byte[] getDocArtifactBytes() {
         return Value.toBytes(get(DOC_ARTIFACT_BYTES));
     }
 
@@ -55,6 +57,19 @@ public class ArtifactContent extends ColumnFamily {
 
     public ArtifactContent setHighlightedText(String highlightedText) {
         set(HIGHLIGHTED_TEXT, highlightedText);
+        return this;
+    }
+
+    public VideoTranscript getVideoTranscript() {
+        JSONObject json = Value.toJson(get(VIDEO_TRANSCRIPT));
+        if (json == null) {
+            return null;
+        }
+        return new VideoTranscript(json);
+    }
+
+    public ArtifactContent setVideoTranscript(VideoTranscript videoTranscript) {
+        set(VIDEO_TRANSCRIPT, videoTranscript.toJson().toString());
         return this;
     }
 }

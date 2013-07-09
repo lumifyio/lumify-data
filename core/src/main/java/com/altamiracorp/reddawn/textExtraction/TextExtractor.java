@@ -1,11 +1,11 @@
 package com.altamiracorp.reddawn.textExtraction;
 
+import com.altamiracorp.reddawn.model.Session;
+import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import org.apache.hadoop.mapreduce.Mapper;
-
-import java.io.InputStream;
 
 public interface TextExtractor {
     void setup(Mapper.Context context);
 
-    ExtractedInfo extract(InputStream in) throws Exception;
+    ExtractedInfo extract(Session session, Artifact artifact) throws Exception;
 }

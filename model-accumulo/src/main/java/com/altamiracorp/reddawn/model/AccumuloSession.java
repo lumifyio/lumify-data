@@ -4,12 +4,20 @@ import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.permission.FsAction;
+import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 public class AccumuloSession extends Session {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSession.class.getName());
@@ -18,14 +26,19 @@ public class AccumuloSession extends Session {
     public static final String ZOOKEEPER_SERVER_NAMES = "zookeeperServerNames";
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
+    public static final String HADOOP_URL = "hadoopUrl";
 
     private final Connector connector;
+    private final FileSystem hdfsFileSystem;
+    private final String hdfsRootDir;
     private long maxMemory = 1000000L;
     private long maxLatency = 1000L;
     private int maxWriteThreads = 10;
 
-    public AccumuloSession(Connector connector, AccumuloQueryUser queryUser) {
+    public AccumuloSession(Connector connector, FileSystem hdfsFileSystem, String hdfsRootDir, AccumuloQueryUser queryUser) {
         super(queryUser);
+        this.hdfsFileSystem = hdfsFileSystem;
+        this.hdfsRootDir = hdfsRootDir;
         this.connector = connector;
     }
 
@@ -95,6 +108,16 @@ public class AccumuloSession extends Session {
         }
     }
 
+    List<ColumnFamily> findByRowKeyWithOffset(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
+        try {
+            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
+            scanner.setRange(new Range(rowKey));
+            return AccumuloHelper.scannerToColumnFamilies(scanner, colFamOffset, colFamLimit, colFamRegex);
+        } catch(TableNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     void initializeTable(String tableName) {
         LOGGER.info("initializeTable: " + tableName);
@@ -134,7 +157,7 @@ public class AccumuloSession extends Session {
             // TODO: Find a better way to delete a single row given the row key
             String strRowKey = rowKey.toString();
             char lastChar = strRowKey.charAt(strRowKey.length() - 1);
-            char asciiCharBeforeLastChar = (char)(((int)lastChar) - 1);
+            char asciiCharBeforeLastChar = (char) (((int) lastChar) - 1);
             String precedingRowKey = strRowKey.substring(0, strRowKey.length() - 1) + asciiCharBeforeLastChar;
             Text startRowKey = new Text(precedingRowKey);
             Text endRowKey = new Text(strRowKey);
@@ -145,6 +168,58 @@ public class AccumuloSession extends Session {
             throw new RuntimeException(e);
         } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public SaveFileResults saveFile(InputStream in) {
+        try {
+            String dataRoot = hdfsRootDir + "/data/";
+            FsPermission fsPermission = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
+            if (!this.hdfsFileSystem.exists(new Path(dataRoot))) {
+                this.hdfsFileSystem.mkdirs(new Path(dataRoot), fsPermission);
+            }
+
+            String tempRoot = hdfsRootDir + "/temp/";
+            if (!this.hdfsFileSystem.exists(new Path(tempRoot))) {
+                this.hdfsFileSystem.mkdirs(new Path(tempRoot), fsPermission);
+            }
+
+            String tempPath = tempRoot + UUID.randomUUID().toString();
+            FSDataOutputStream out = this.hdfsFileSystem.create(new Path(tempPath));
+            String rowKey;
+            try {
+                rowKey = RowKeyHelper.buildSHA256KeyString(in, out);
+            } finally {
+                out.close();
+            }
+
+            String rowKeyNoSpecialChars = rowKey.replaceAll("" + RowKeyHelper.MINOR_FIELD_SEPARATOR, "").replaceAll("\\x1F", "");
+            String path = dataRoot + rowKeyNoSpecialChars;
+            this.hdfsFileSystem.rename(new Path(tempPath), new Path(path));
+            LOGGER.info("file saved: " + path);
+            return new SaveFileResults(rowKey, "/data/" + rowKeyNoSpecialChars);
+        } catch (IOException ex) {
+            throw new RuntimeException("could not save file to HDFS", ex);
+        }
+    }
+
+    @Override
+    public InputStream loadFile(String path) {
+        try {
+            LOGGER.info("Loading file: " + path);
+            return this.hdfsFileSystem.open(new Path(path));
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @Override
+    public long getFileLength(String path) {
+        try {
+            return this.hdfsFileSystem.getFileStatus(new Path(path)).getLen();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
 

@@ -15,15 +15,15 @@ public class TermRowKey extends RowKey {
     }
 
     public String getSign() {
-        return RowKeyHelper.split(this.toString())[0];
+        return RowKeyHelper.splitOnMinorFieldSeperator(this.toString())[0];
     }
 
     public String getModelKey() {
-        return RowKeyHelper.split(this.toString())[1];
+        return RowKeyHelper.splitOnMinorFieldSeperator(this.toString())[1];
     }
 
     public String getConceptLabel() {
-        return RowKeyHelper.split(this.toString())[2];
+        return RowKeyHelper.splitOnMinorFieldSeperator(this.toString())[2];
     }
 
     @Override

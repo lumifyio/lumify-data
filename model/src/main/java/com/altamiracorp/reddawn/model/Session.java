@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.model;
 
 import com.altamiracorp.reddawn.model.geoNames.GeoName;
+import com.altamiracorp.reddawn.model.videoFrames.VideoFrame;
 import com.altamiracorp.reddawn.model.workspace.Workspace;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
@@ -11,6 +12,7 @@ import com.altamiracorp.reddawn.ucd.term.Term;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 
@@ -33,6 +35,9 @@ public abstract class Session {
 
     abstract Row findByRowKey(String tableName, String rowKey, QueryUser queryUser);
 
+    abstract List<ColumnFamily> findByRowKeyWithOffset(String tableName, String rowKey, QueryUser queryUser,
+                                                       long colFamOffset, long colFamLimit, String colFamRegex);
+
     abstract void initializeTable(String tableName);
 
     public abstract void deleteTable(String tableName);
@@ -50,6 +55,7 @@ public abstract class Session {
 
         initializeTable(Workspace.TABLE_NAME);
         initializeTable(GeoName.TABLE_NAME);
+        initializeTable(VideoFrame.TABLE_NAME);
     }
 
     public QueryUser getQueryUser() {
@@ -67,5 +73,12 @@ public abstract class Session {
 
         deleteTable(Workspace.TABLE_NAME);
         deleteTable(GeoName.TABLE_NAME);
+        deleteTable(VideoFrame.TABLE_NAME);
     }
+
+    public abstract SaveFileResults saveFile(InputStream in);
+
+    public abstract InputStream loadFile(String path);
+
+    public abstract long getFileLength(String path);
 }

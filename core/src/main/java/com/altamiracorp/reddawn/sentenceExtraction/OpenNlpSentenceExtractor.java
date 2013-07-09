@@ -55,9 +55,10 @@ public class OpenNlpSentenceExtractor implements SentenceExtractor {
             data.setText(text.substring(span.getStart(), span.getStart() + spanLength));
 
             SentenceMetadata metaData = sentence.getMetadata();
-            metaData.setContentHash(data.getText());
-            metaData.setDate(getDate().getTime());
-            metaData.setExtractorId(EXTRACTOR_ID);
+            metaData.setContentHash(data.getText())
+                    .setDate(getDate().getTime())
+                    .setExtractorId(EXTRACTOR_ID)
+                    .setArtifactSubject(artifact.getGenericMetadata().getSubject());
 
             if (artifact.getGenericMetadata().getAuthor() != null) {
                 metaData.setAuthor(artifact.getGenericMetadata().getAuthor());
@@ -93,4 +94,5 @@ public class OpenNlpSentenceExtractor implements SentenceExtractor {
             sentenceModelInputStream.close();
         }
     }
+
 }

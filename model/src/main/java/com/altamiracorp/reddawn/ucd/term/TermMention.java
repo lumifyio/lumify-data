@@ -16,6 +16,9 @@ public class TermMention extends ColumnFamily {
     public static final String PROVENANCE_ID = "provenanceID";
     public static final String SECURITY_MARKING = "securityMarking";
     public static final String DATE = "date";
+    public static final String ARTIFACT_SUBJECT = "atc:artifactSubject";
+    public static final String SENTENCE_TEXT = "atc:sentenceText";
+    public static final String SENTENCE_OFFSET = "atc:sentenceOffset";
 
     public TermMention() {
         super(null);
@@ -43,6 +46,33 @@ public class TermMention extends ColumnFamily {
 
     public TermMention setArtifactKey(String artifactKey) {
         set(ARTIFACT_KEY, artifactKey);
+        return this;
+    }
+
+    public String getArtifactSubject() {
+        return Value.toString(get(ARTIFACT_SUBJECT));
+    }
+
+    public TermMention setArtifactSubject(String artifactSubject) {
+        set(ARTIFACT_SUBJECT, artifactSubject);
+        return this;
+    }
+
+    public String getSentenceText() {
+        return Value.toString(get(SENTENCE_TEXT));
+    }
+
+    public TermMention setSentenceText(String sentenceText) {
+        set(SENTENCE_TEXT, sentenceText);
+        return this;
+    }
+
+    public String getSentenceTokenOffset() {
+        return Value.toString(get(SENTENCE_OFFSET));
+    }
+
+    public TermMention setSentenceTokenOffset(String sentenceOffset) {
+        set(SENTENCE_OFFSET, sentenceOffset);
         return this;
     }
 

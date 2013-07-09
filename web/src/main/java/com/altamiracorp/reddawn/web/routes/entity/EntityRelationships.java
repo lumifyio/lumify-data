@@ -56,6 +56,7 @@ public class EntityRelationships implements Handler, AppAware {
                 Statement statement = statementRepository.findByRowKey(session, rowKey);
                 if (statement != null) {
                     JSONObject rel = new JSONObject();
+                    rel.put("relationshipType", "entityToEntity");
                     rel.put("from", fromEntityId);
                     rel.put("to", toEntityId);
                     resultsJson.put(rel);
@@ -72,6 +73,7 @@ public class EntityRelationships implements Handler, AppAware {
                 for (TermRowKey artifactTermMentionTermRowKey : artifactTermIndex.getTermMentions()) {
                     if (artifactTermMentionTermRowKey.toString().equals(entityId)) {
                         JSONObject rel = new JSONObject();
+                        rel.put("relationshipType", "artifactToEntity");
                         rel.put("from", artifactId);
                         rel.put("to", entityId);
                         resultsJson.put(rel);

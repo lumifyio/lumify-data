@@ -1,12 +1,13 @@
 package com.altamiracorp.reddawn.model;
 
-import org.apache.accumulo.core.client.BatchWriter;
-import org.apache.accumulo.core.client.MutationsRejectedException;
-import org.apache.accumulo.core.client.RowIterator;
+import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.iterators.user.RegExFilter;
+import org.apache.accumulo.core.util.PeekingIterator;
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
 
 import java.util.*;
 
@@ -43,6 +44,62 @@ public class AccumuloHelper {
             rows.add(accumuloRowToRow(tableName, row));
         }
         return rows;
+    }
+
+    /**
+     * TODO: Write this
+     *
+     * @param scanner
+     * @param colFamOffset
+     * @param colFamLimit
+     * @param colFamRegex
+     * @return
+     */
+    public static List<ColumnFamily> scannerToColumnFamilies(Scanner scanner,
+                                                             long colFamOffset, long colFamLimit, String colFamRegex) {
+        List<ColumnFamily> colFams = Lists.newArrayList();
+        String rowKey = scanner.getRange().getStartKey().getRow().toString();
+
+        scanner.setBatchSize(100);
+        IteratorSetting iter = new IteratorSetting(15, "regExFilter", RegExFilter.class);
+        RegExFilter.setRegexs(iter, null, colFamRegex, null, null, false);
+        scanner.addScanIterator(iter);
+
+        long count = 0;
+        PeekingIterator<Map.Entry<Key, Value>> iterator = new PeekingIterator<Map.Entry<Key, Value>>(scanner.iterator());
+
+        System.out.println(rowKey);
+        System.out.println(iterator.peek().getKey().getRow().toString());
+
+        while (iterator.hasNext() && count < colFamOffset + colFamLimit &&
+                iterator.peek().getKey().getRow().toString().equals(rowKey)) {
+            ColumnFamily colFam = getNextColumnFamily(iterator);
+
+            if (count >= colFamOffset) {
+                colFams.add(colFam);
+            }
+
+            count++;
+        }
+
+        return colFams;
+    }
+
+    public static ColumnFamily getNextColumnFamily(PeekingIterator<Map.Entry<Key, Value>> iterator) {
+        String colFamName = iterator.peek().getKey().getColumnFamily().toString();
+        ColumnFamily colFam = new ColumnFamily(colFamName);
+
+        System.out.println(colFamName);
+
+        while (iterator.peek() != null && iterator.peek().getKey().getColumnFamily().toString().equals(colFamName)) {
+            System.out.println(iterator.peek());
+            Map.Entry<Key, Value> next = iterator.next();
+            colFam.addColumn(new Column(next.getKey().getColumnQualifier().toString(), next.getValue().toString()));
+        }
+
+        System.out.println();
+
+        return colFam;
     }
 
     public static Row accumuloRowToRow(String tableName, Iterator<Map.Entry<Key, Value>> accumuloRow) {

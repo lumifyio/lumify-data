@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.sentenceExtraction;
 
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import org.apache.hadoop.io.Text;
@@ -34,6 +35,7 @@ public class SentenceExtractionMRTest {
         Artifact mockArtifact = mock(Artifact.class);
         ArtifactRowKey mockArtifactRK = mock(ArtifactRowKey.class);
         when(mockArtifact.getRowKey()).thenReturn(mockArtifactRK);
+        when(mockArtifact.getType()).thenReturn(ArtifactType.DOCUMENT);
         when(mockArtifactRK.toString()).thenReturn("I don't care about this output");
 
         Sentence mockSentence1 = mock(Sentence.class);

@@ -3,10 +3,12 @@ package com.altamiracorp.reddawn.ucd.term;
 import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndexRepository;
+import org.apache.accumulo.core.client.Scanner;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 public class TermRepository extends Repository<Term> {
     private ArtifactTermIndexRepository artifactTermIndexRepository = new ArtifactTermIndexRepository();
@@ -47,6 +49,10 @@ public class TermRepository extends Repository<Term> {
             terms.add(term);
         }
         return terms;
+    }
+
+    public List<ColumnFamily> findMentions(Session session, String rowKey, long colFamOffset, long colFamLimit) {
+        return findColFamsByRowKeyWithOffset(session, rowKey, colFamOffset, colFamLimit, "urn.*");
     }
 
     @Override

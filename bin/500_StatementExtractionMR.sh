@@ -29,6 +29,7 @@ com.altamiracorp.reddawn.statementExtraction.StatementExtractionMR \
 --blurPath=hdfs://${ip}/blur \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
+--hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
 --classname=com.altamiracorp.reddawn.statementExtraction.SentenceBasedStatementExtractor \

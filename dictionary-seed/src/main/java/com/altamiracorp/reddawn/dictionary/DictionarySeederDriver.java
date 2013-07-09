@@ -108,7 +108,7 @@ public class DictionarySeederDriver {
             String category = getSearchCategory(type);
 
             LOGGER.info("\033[1mSearching for dbpedia class: " + type + "\033[0m");
-            encoder.setFilename(getDictionaryName(category.toLowerCase()) + ".dict");
+            encoder.setFilename(getDictionaryName(category.toLowerCase()) + "-dbpedia.dict");
 
             long start = System.currentTimeMillis();
             searcher.search(category);
@@ -119,9 +119,9 @@ public class DictionarySeederDriver {
     }
 
     protected String getDictionaryName(String dbpediaType) {
-        if(dbpediaType.equals("place")) {
+        if (dbpediaType.equals("place")) {
             return "location";
-        } else if(dbpediaType.equals("organisation")) {
+        } else if (dbpediaType.equals("organisation")) {
             return "organization";
         }
 

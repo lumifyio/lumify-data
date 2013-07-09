@@ -33,9 +33,7 @@ public class ArtifactSearch implements Handler, AppAware {
         RedDawnSession session = app.getRedDawnSession(request);
         SearchProvider searchProvider = session.getSearchProvider();
         Collection<ArtifactSearchResult> artifactSearchResults = queryArtifacts(searchProvider, query);
-        JSONObject results = new JSONObject();
-        JSONArray artifactsJson = artifactsToSearchResults(artifactSearchResults, request);
-        results.put("document", artifactsJson); // TODO also include video and images
+        JSONObject results = artifactsToSearchResults(artifactSearchResults, request);
         new Responder(response).respondWith(results);
     }
 
@@ -43,20 +41,45 @@ public class ArtifactSearch implements Handler, AppAware {
         return searchProvider.searchArtifacts(query);
     }
 
-    private JSONArray artifactsToSearchResults(Collection<ArtifactSearchResult> artifacts, HttpServletRequest request) throws JSONException, UnsupportedEncodingException {
-        JSONArray artifactsJson = new JSONArray();
+    private JSONObject artifactsToSearchResults(Collection<ArtifactSearchResult> artifacts, HttpServletRequest request) throws JSONException, UnsupportedEncodingException {
+        JSONObject results = new JSONObject();
+        JSONArray documents = new JSONArray();
+        results.put("documents", documents);
+        JSONArray videos = new JSONArray();
+        results.put("videos", videos);
+        JSONArray images = new JSONArray();
+        results.put("images", images);
+
         for (ArtifactSearchResult artifactSearchResult : artifacts) {
-            JSONObject artifactJson = new JSONObject();
-            artifactJson.put("url", ArtifactByRowKey.getUrl(request, artifactSearchResult.getRowKey()));
-            artifactJson.put("rowKey", artifactSearchResult.getRowKey());
-            artifactJson.put("subject", artifactSearchResult.getSubject());
-            Date publishedDate = artifactSearchResult.getPublishedDate();
-            if (publishedDate != null) {
-                artifactJson.put("publishedDate", publishedDate.getTime());
+            JSONObject artifactJson = artifactToSearchResult(request, artifactSearchResult);
+            switch (artifactSearchResult.getType()) {
+                case DOCUMENT:
+                    documents.put(artifactJson);
+                    break;
+                case VIDEO:
+                    videos.put(artifactJson);
+                    break;
+                case IMAGE:
+                    images.put(artifactJson);
+                    break;
+                default:
+                    throw new RuntimeException("Unhandled artifact type: " + artifactSearchResult.getType());
             }
-            artifactJson.put("source", artifactSearchResult.getSource());
-            artifactsJson.put(artifactJson);
         }
-        return artifactsJson;
+
+        return results;
+    }
+
+    private JSONObject artifactToSearchResult(HttpServletRequest request, ArtifactSearchResult artifactSearchResult) throws JSONException {
+        JSONObject artifactJson = new JSONObject();
+        artifactJson.put("url", ArtifactByRowKey.getUrl(request, artifactSearchResult.getRowKey()));
+        artifactJson.put("rowKey", artifactSearchResult.getRowKey());
+        artifactJson.put("subject", artifactSearchResult.getSubject());
+        Date publishedDate = artifactSearchResult.getPublishedDate();
+        if (publishedDate != null) {
+            artifactJson.put("publishedDate", publishedDate.getTime());
+        }
+        artifactJson.put("source", artifactSearchResult.getSource());
+        return artifactJson;
     }
 }

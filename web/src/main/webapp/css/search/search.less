@@ -40,7 +40,7 @@ width: 175px;
 
   z-index: 100;  // so it floats above graph
   word-wrap: break-word;
-  width: 200px;
+  width: 265px;
   padding-right: 4px;
   background: @pane-background;
   text-align: right;
@@ -68,6 +68,25 @@ width: 175px;
 
       &.graph-displayed li.graph { display: block; }
       &.map-displayed li.map { display: block; }
+
+      @preview-width: 100px;
+      &.has_preview {
+        padding-left: @preview-width;
+        .preview {
+          display: block;
+        }
+        ul { left: 83px; }
+      }
+
+      .preview {
+        display: none;
+        width: @preview-width;
+        height: 100%;
+        position: absolute;
+        left: -15px;
+        top: 0;
+        background-repeat: no-repeat;
+      }
 
       ul {
         position: absolute;
@@ -139,5 +158,6 @@ width: 175px;
     position: absolute;
     right: 6px;
     top: 0;
+    z-index:10;
   }
 }

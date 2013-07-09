@@ -26,8 +26,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class OpenNlpEntityExtractorTest {
-
-
     private OpenNlpDictionaryEntityExtractor extractor;
     private Mapper.Context context;
     private String tokenizerModelFile = "en-token.bin";
@@ -74,13 +72,6 @@ public class OpenNlpEntityExtractorTest {
         };
     }
 
-
-    @Test
-    public void testSetup() throws Exception {
-
-    }
-
-
     @Test
     public void testEntityExtraction() throws Exception {
         extractor.setup(context);
@@ -98,7 +89,6 @@ public class OpenNlpEntityExtractorTest {
         }
         validateOutput(extractedTerms);
     }
-
 
     @Test
     public void testEntityExtractionSetsMentionRelativeToArtifactNotSentence() throws Exception {
@@ -136,49 +126,16 @@ public class OpenNlpEntityExtractorTest {
         assertEquals("U", firstTermMention.getSecurityMarking());
     }
 
-
-    @Test
-    public void testLoadFinders() throws Exception {
-
-    }
-
-    @Test
-    public void testGetModelName() throws Exception {
-
-    }
-
-    @Test
-    public void testGetPathPrefix() throws Exception {
-
-    }
-
-    @Test
-    public void testGetFS() throws Exception {
-
-    }
-
     @Test
     public void testLoadTokenizer() throws Exception {
         Tokenizer mockedTokenizer = mock(Tokenizer.class);
         extractor.setTokenizer(mockedTokenizer);
         extractor.loadTokenizer();
-//        verify(mockedTokenizer).Tokenizer();
         OpenNlpEntityExtractor mockedExtractor = mock(OpenNlpEntityExtractor.class);
         mockedExtractor.loadTokenizer();
         verify(mockedExtractor).loadTokenizer();
 
     }
-
-    @Test
-    public void testSetFinders() throws Exception {
-
-    }
-
-    @Test
-    public void testSetTokenizer() throws Exception {
-
-    }
-
 
     private void validateOutput(List<String> terms) {
         assertTrue("A person wasn't found", terms.contains("bob robertson-person"));

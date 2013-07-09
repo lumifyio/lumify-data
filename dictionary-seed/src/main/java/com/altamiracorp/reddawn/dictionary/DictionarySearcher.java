@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.dictionary;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
@@ -16,7 +17,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 public class DictionarySearcher {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(DictionarySearcher.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(DictionarySearcher.class.getName());
 
     public static final String RESOURCE = "Resource";
     public static final String PLACE = "Place";

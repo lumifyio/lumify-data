@@ -1,0 +1,6 @@
+<ul>
+    <% mentions.forEach(function(mention) { %>
+        <h4><%= mention['atc:artifact_subject'] || 'No title Available' %></h4>
+        <%= mention['atc:sentence_text'] %>
+    <% }) %>
+</ul>

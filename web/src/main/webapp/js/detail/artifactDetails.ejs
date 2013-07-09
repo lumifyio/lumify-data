@@ -1,15 +1,8 @@
 <div class="btn-toolbar">
-  <div class="btn-group">
-    <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-      Highlight
-      <span class="caret"></span>
-    </a>
-    <ul class="highlight-options dropdown-menu">
-      <% styles.forEach(function(style, i) { %>
-      <li class="<%= i === activeStyle ? 'checked' : '' %>" data-cls="<%= style.cls || '' %>"><a href="#"><%= style.name %></a></li>
-      <% }); %>
-    </ul>
-  </div>
+
+  <% if(artifact.type != 'video') { %>
+    <%- styleHtml %>
+  <% } %>
 
   <div class="btn-group">
     <a class="btn btn-small" href="<%= artifact.rawUrl %>" target="_blank">View</a>
@@ -17,7 +10,7 @@
   </div>
 </div>
 
-<h2><%= artifact.Generic_Metadata.subject %></h2>
+<h2><%= artifact.Generic_Metadata.subject || 'No title available' %></h2>
 <% if(artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude) { %>
     <b>Location:</b>
     <a class="map-coordinates" latitude="<%= artifact.Dynamic_Metadata.latitude %>" longitude="<%= artifact.Dynamic_Metadata.longitude %>">
@@ -25,4 +18,12 @@
     </a>
     <br/>
 <% } %>
+
+<% if(artifact.type == 'video') { %>
+  <div class="preview"/>
+<% } %>
+<% if(artifact.type == 'image') { %>
+  <img src='<%= artifact.rawUrl %>' width="auto" height="300"/>
+<% } %>
+
 <div class="text"><%- artifact.contentHtml %></div>
