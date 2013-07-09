@@ -1,0 +1,7 @@
+<h2><%= source.sign %> -> <%= target.sign %></h2>
+<h3>Statements</h3>
+<ul>
+    <% statements.forEach(function(statement) { %>
+      <li><%= source.sign %> <%= statement.key.predicateLabel.predicateLabel %> <%= target.sign %></li>
+    <% }); %>
+</ul>

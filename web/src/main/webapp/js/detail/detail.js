@@ -7,9 +7,10 @@ define([
     'tpl!util/video/video',
     'tpl!./artifactDetails',
     'tpl!./entityDetails',
-    'tpl!./relationshipDetails',
+    'tpl!./artifactToEntityRelationshipDetails',
+    'tpl!./entityToEntityRelationshipDetails',
     'tpl!./multipleSelection'
-], function(defineComponent, UCD, videojs, VideoScrubber, videoTemplate, artifactDetailsTemplate, entityDetailsTemplate, relationshipDetailsTemplate, multipleSelectionTemplate) {
+], function(defineComponent, UCD, videojs, VideoScrubber, videoTemplate, artifactDetailsTemplate, entityDetailsTemplate, artifactToEntityRelationshipDetails, entityToEntityRelationshipDetails, multipleSelectionTemplate) {
     'use strict';
 
     videojs.options.flash.swf = "/libs/video.js/video-js.swf";
@@ -162,7 +163,20 @@ define([
             this.$node.html("Loading...");
             // TODO show something more useful here.
             console.log('Showing relationship:', data);
-            self.$node.html(relationshipDetailsTemplate(data));
+            if(data.relationshipType == 'artifactToEntity') {
+                self.$node.html(artifactToEntityRelationshipDetails(data));
+            } else if(data.relationshipType == 'entityToEntity') {
+                new UCD().getEntityToEntityRelationshipDetails(data.source, data.target, function(err, relationshipData) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+                    console.log(relationshipData);
+                    self.$node.html(entityToEntityRelationshipDetails(relationshipData));
+                });
+            } else {
+                self.$node.html("Bad relationship type:" + data.relationshipType);
+            }
         };
 
         this.onArtifactSelected = function(evt, data) {

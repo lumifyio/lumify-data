@@ -48,7 +48,11 @@ public class RowKeyHelper {
         }
     }
 
-    public static String[] split(String rowKey) {
+    public static String[] splitOnMinorFieldSeperator(String rowKey) {
         return rowKey.split("" + MINOR_FIELD_SEPARATOR);
+    }
+
+    public static String[] splitOnMajorFieldSeperator(String rowKey) {
+        return rowKey.split("" + MAJOR_FIELD_SEPARATOR);
     }
 }

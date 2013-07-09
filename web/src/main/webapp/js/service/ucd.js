@@ -21,6 +21,16 @@ function(ServiceBase) {
         }, callback);
     };
 
+    Ucd.prototype.getEntityToEntityRelationshipDetails = function(source, target, callback) {
+        return this._ajaxGet({
+            url: '/entity/relationship',
+            data: {
+                source: source,
+                target: target
+            }
+        }, callback);
+    };
+
     Ucd.prototype.artifactSearch = function(query, callback) {
         this._search("artifact", query, callback);
     };
