@@ -20,19 +20,15 @@ else
   ip=192.168.33.10
 fi
 
-ffmpegDir=$(dirname $(which ffmpeg))
-ccextractorDir=$(dirname $(which ffmpeg))
-
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.videoConversion.VideoConversionMR \
+com.altamiracorp.reddawn.textExtraction.TextExtractionMR \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
---hadoopUrl=hdfs://${ip}:8020 \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
+--hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
--Dffmpeg.bin.dir=${ffmpegDir} \
--Dccextractor.bin.dir=${ccextractorDir}
+--classname=com.altamiracorp.reddawn.textExtraction.TranscriptTextExtractor

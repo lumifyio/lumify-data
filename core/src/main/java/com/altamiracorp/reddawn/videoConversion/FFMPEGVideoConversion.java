@@ -5,8 +5,9 @@ import com.altamiracorp.reddawn.model.SaveFileResults;
 import com.altamiracorp.reddawn.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.reddawn.ucd.artifact.VideoTranscript;
 import org.apache.commons.io.FileUtils;
-import org.apache.poi.util.IOUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,18 +20,37 @@ public class FFMPEGVideoConversion {
     private static final Logger LOGGER = LoggerFactory.getLogger(FFMPEGVideoConversion.class.getName());
     public static final String DEFAULT_FFMPEG_BIN_DIR = "/opt/ffmpeg/bin/";
     public static final String DEFAULT_FFMPEG_LIB_DIR = "/opt/ffmpeg/lib/";
+    public static final String DEFAULT_CCEXTRACTOR_BIN_DIR = "/opt/ccextractor/bin/";
     private ArtifactRepository artifactRepository = new ArtifactRepository();
     private VideoFrameRepository videoFrameRepository = new VideoFrameRepository();
     private String ffmpegBinDir = DEFAULT_FFMPEG_BIN_DIR;
     private String ffmpegLibDir = DEFAULT_FFMPEG_LIB_DIR;
+    private String ccextractorBinDir = DEFAULT_CCEXTRACTOR_BIN_DIR;
 
     public void convert(RedDawnSession session, Artifact artifact) throws IOException, InterruptedException {
         File videoFile = writeFileToTemp(session, artifact);
+        extractCloseCaptioning(session, videoFile, artifact);
         encodeMp4(session, videoFile, artifact);
         encodeWebM(session, videoFile, artifact);
         extractPosterFrame(session, videoFile, artifact);
         extractFramesForAnalysis(session, videoFile, artifact);
         videoFile.delete();
+    }
+
+    private void extractCloseCaptioning(RedDawnSession session, File videoFile, Artifact artifact) throws IOException, InterruptedException {
+        File ccFile = File.createTempFile("ccextract", "txt");
+
+        LOGGER.info("Extracting close captioning from: " + videoFile.getAbsolutePath());
+        ccextractor(new String[]{
+                "-o", ccFile.getAbsolutePath(),
+                "-in=mp4",
+                videoFile.getAbsolutePath()
+        });
+
+        VideoTranscript videoTranscript = SubRip.read(ccFile);
+        artifact.getContent().setVideoTranscript(videoTranscript);
+
+        ccFile.delete();
     }
 
     private void extractFramesForAnalysis(RedDawnSession session, File videoFile, Artifact artifact) throws IOException, InterruptedException {
@@ -189,6 +209,23 @@ public class FFMPEGVideoConversion {
         }
     }
 
+    private void ccextractor(String[] args) throws IOException, InterruptedException {
+        ArrayList<String> ffmpegArgs = new ArrayList<String>();
+        ffmpegArgs.add(new File(getCCExtractorBinDir(), "ccextractor").getAbsolutePath());
+        for (String arg : args) {
+            ffmpegArgs.add(arg);
+        }
+        ProcessBuilder procBuilder = new ProcessBuilder(ffmpegArgs);
+        LOGGER.info("Running: " + arrayToString(ffmpegArgs));
+        Process proc = procBuilder.start();
+        int returnCode = proc.waitFor();
+        writeStreamToLog("ccextractor(stdout): ", proc.getInputStream());
+        writeStreamToLog("ccextractor(stderr): ", proc.getErrorStream());
+        if (returnCode != 0) {
+            throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
+        }
+    }
+
     private void writeStreamToLog(String prefix, InputStream stream) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(stream));
         String line;
@@ -259,5 +296,13 @@ public class FFMPEGVideoConversion {
 
     public void setFFMPEGLibDir(String ffmpegLibDir) {
         this.ffmpegLibDir = ffmpegLibDir;
+    }
+
+    public String getCCExtractorBinDir() {
+        return ccextractorBinDir;
+    }
+
+    public void setCCExtractorBinDir(String ccextractorBinDir) {
+        this.ccextractorBinDir = ccextractorBinDir;
     }
 }

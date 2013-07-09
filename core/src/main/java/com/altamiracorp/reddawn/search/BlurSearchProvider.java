@@ -92,6 +92,13 @@ public class BlurSearchProvider implements SearchProvider {
         String publishedDate = dateFormat.format(artifact.getPublishedDate());
         String source = artifact.getGenericMetadata().getSource();
 
+        if (text == null) {
+            text = "";
+        }
+        if (subject == null) {
+            subject = "";
+        }
+
         List<Column> columns = new ArrayList<Column>();
         columns.add(new Column(TEXT_COLUMN_NAME, text));
         columns.add(new Column(SUBJECT_COLUMN_NAME, subject));

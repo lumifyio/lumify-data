@@ -1,7 +1,11 @@
 package com.altamiracorp.reddawn.textExtraction;
 
+import com.altamiracorp.reddawn.model.Session;
 import com.altamiracorp.reddawn.textExtraction.util.GenericDateExtractor;
 import com.altamiracorp.reddawn.textExtraction.util.TikaMetadataUtils;
+import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
@@ -24,6 +28,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class TikaTextExtractor implements TextExtractor {
+    ArtifactRepository artifactRepository = new ArtifactRepository();
 
     private static final String MIME_TYPE_KEY = "Content-Type";
 
@@ -74,7 +79,16 @@ public class TikaTextExtractor implements TextExtractor {
     }
 
     @Override
-    public ExtractedInfo extract(InputStream in) throws Exception {
+    public ExtractedInfo extract(Session session, Artifact artifact) throws Exception {
+        if (artifact.getType() != ArtifactType.DOCUMENT) {
+            return null;
+        }
+
+        InputStream in = artifactRepository.getRaw(session, artifact);
+        if (in == null) {
+            return null;
+        }
+
         ExtractedInfo result = new ExtractedInfo();
 
         String text = IOUtils.toString(in);
