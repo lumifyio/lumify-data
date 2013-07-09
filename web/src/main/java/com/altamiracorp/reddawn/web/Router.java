@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.web;
 
+import com.altamiracorp.reddawn.web.routes.entity.EntityRelationshipsBySubject;
 import com.altamiracorp.reddawn.web.routes.artifact.*;
 import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
@@ -57,6 +58,7 @@ public class Router extends HttpServlet {
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);
         app.get("/entity/{rowKey}/{offset}/{limit}", authenticator, EntityMentionsByRange.class);
+        app.get("/entity/{rowKey}/relationships", authenticator, EntityRelationshipsBySubject.class);
 
         app.get("/workspace/", authenticator, WorkspaceList.class);
         app.post("/workspace/save", authenticator, WorkspaceSave.class);
