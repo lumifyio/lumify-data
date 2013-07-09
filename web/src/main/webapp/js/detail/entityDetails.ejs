@@ -19,7 +19,7 @@
 
     %>
     <li>
-        <a href="/artifact/<%= termMention.artifactKey %>/raw" target="_blank">
+        <a class="mention-artifact" href="artifact/<%= termMention.artifactKey %>" data-row-key="<%= termMention.artifactKey %>">
             <h4><%= termMention['atc:artifactSubject'] %></h4>
         </a>
         <p class="content highlight-underline">

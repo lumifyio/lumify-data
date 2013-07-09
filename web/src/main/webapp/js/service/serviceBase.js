@@ -50,7 +50,7 @@ define(['atmosphere'],
             };
 
             options.error = options.error || function(xhr, textStatus, errorThrown) {
-                var err = new Error("Failed in request: " + url);
+                var err = new Error("Failed in request: " + options.resolvedUrl);
                 err.xhr = xhr;
                 err.textStatus = textStatus;
                 err.errorThrown = err.errorThrown;

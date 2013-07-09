@@ -26,14 +26,16 @@ define([
             mapCoordinatesSelector: '.map-coordinates',
             highlightTypeSelector: '.highlight-options a',
             entitiesSelector: '.entity',
-            moreMentionsSelector: '.mention-request'
+            moreMentionsSelector: '.mention-request',
+            mentionArtifactSelector: '.mention-artifact'
         });
 
         this.after('initialize', function() {
             this.on('click', {
                 mapCoordinatesSelector: this.onMapCoordinatesClicked,
                 highlightTypeSelector: this.onHighlightTypeClicked,
-                moreMentionsSelector: this.onRequestMoreMentions
+                moreMentionsSelector: this.onRequestMoreMentions,
+                mentionArtifactSelector: this.onMentionArtifactSelected
             });
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
 
@@ -94,6 +96,16 @@ define([
                 return this.trigger(document, 'error', { message: message });
             }
         };
+
+        this.onMentionArtifactSelected = function(evt, data) {
+            var $target = $(evt.target).parents('a');
+
+            this.trigger(document, 'searchResultSelected', {
+                type: 'artifacts',
+                rowKey: $target.data("row-key")
+             });
+             evt.preventDefault();
+        }
 
         this.onRelationshipSelected = function(evt, data) {
             var self = this;
