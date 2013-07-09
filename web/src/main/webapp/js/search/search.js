@@ -284,7 +284,7 @@ define([
                 // Only care about node search results and location updates
                 if ( (node.type && node.subType) || node.location || node.locations ) {
                     var inGraph = true;
-                    var inMap = !!(node.location || node.locations);
+                    var inMap = !!(node.location || (node.locations && node.locations.length));
                     _currentNodes[node.rowKey] = { inGraph:inGraph, inMap:inMap };
                     self.toggleSearchResultIcon(node.rowKey, inGraph, inMap);
                 }
