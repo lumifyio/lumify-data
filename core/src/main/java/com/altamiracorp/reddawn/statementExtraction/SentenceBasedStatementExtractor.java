@@ -45,7 +45,9 @@ public class SentenceBasedStatementExtractor implements StatementExtractor {
                             .setDate(getNow().getTime())
                             .setExtractorId(AUTHOR)
                             .setSecurityMarking(sentence.getMetadata().getSecurityMarking())
-                            .setSentence(sentence.getRowKey().toString());
+                            .setSentence(sentence.getRowKey().toString())
+                            .setSentenceText(sentence.getData().getText())
+                            .setArtifactSubject(sentence.getMetadata().getArtifactSubject());
                     statement.addStatementArtifact(statementArtifact);
 
                     result.add(statement);
