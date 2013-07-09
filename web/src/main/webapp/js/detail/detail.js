@@ -39,10 +39,10 @@ define([
         this.after('initialize', function() {
             this.on('click', {
                 mapCoordinatesSelector: this.onMapCoordinatesClicked,
-                highlightTypeSelector: this.onHighlightTypeClicked
+                highlightTypeSelector: this.onHighlightTypeClicked,
+                previewSelector: this.onPreviewClicked
             });
 
-            this.$node.one('click', '.preview', this.onPreviewClicked.bind(this));
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
         });
 
@@ -75,6 +75,10 @@ define([
         };
 
         this.onPreviewClicked = function(evt) {
+            if (this.select('videoSelector').length) {
+                return;
+            }
+
             var self = this,
                 players = videojs.players,
                 video = $(videoTemplate({
