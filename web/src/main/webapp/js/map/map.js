@@ -59,14 +59,18 @@ define([
 
         this.onWorkspaceLoaded = function(evt, workspaceData) {
             var self = this;
-            if (workspaceData.data === undefined || workspaceData.data.nodes === undefined) {
-                return;
-            }
-            workspaceData.data.nodes.forEach(function(node) {
-                if(node.location || node.locations) {
-                    self.updateOrAddNode(node);
+
+            this.map(function(map) {
+                map.removeAllMarkers();
+
+                if (workspaceData.data === undefined || workspaceData.data.nodes === undefined) {
+                    return;
                 }
-                self.updateNodeLocation(node);
+                workspaceData.data.nodes.forEach(function(node) {
+                    if(node.location || node.locations) {
+                        self.updateOrAddNode(node);
+                    }
+                });
             });
         };
 
@@ -87,24 +91,26 @@ define([
             this.map(function(map) {
                 this.deleteNode(node);
 
-                var locations;
-                if(node.locations) {
-                    locations = node.locations;
-                } else {
-                    locations = [ node.location ];
-                }
+                var locations = $.isArray(node.locations) ? node.locations : [ node.location ];
 
                 locations.forEach(function(location) {
                     var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
                     var marker = new mxn.Marker(pt);
                     marker.setAttribute('rowKey', node.rowKey);
-                    // TODO: fix weird shadow and can't close
-                    //marker.setInfoBubble(node.rowKey);
-                    //marker.click.addHandler(function() {
-                        // marker.openBubble();
-                    //});
+                    if ('devicePixelRatio' in window && devicePixelRatio > 1) {
+                        marker.setIcon('/img/small_pin@2x.png', [26, 52], [13, 52]);
+                    } else {
+                        marker.setIcon('/img/small_pin.png', [13, 26], [6,26]);
+                    }
+                    marker.click.addHandler(function(eventType, marker) {
+                        self.trigger(document, 'searchResultSelected', [ node ]);
+                    });
                     map.addMarker(marker);
                 });
+
+                if (locations.length) {
+                    self.fit(map);
+                }
             });
         };
 
@@ -120,7 +126,25 @@ define([
             data.nodes.forEach(function(node) {
                 self.deleteNode(node);
             });
+
+            this.fit();
         };
+
+        this.fit = function(map) {
+            if (this.$node.is(':visible')) {
+
+                var _fit = function(map) {
+                    map.autoCenterAndZoom();
+                    if ( map.getZoom() > 10 ) {
+                        map.setZoom(10);
+                    }
+                }
+
+                if (map) _fit(map);
+                else this.map(_fit);
+            }
+        };
+
 
         this.deleteNode = function(node) {
             var self = this;
@@ -158,11 +182,13 @@ define([
                         }
                     });
 
+                    node.locations = locations;
+                    if (locations.length === 0) {
+                        self.invalidMap();
+                    }
+
                     var nodesUpdateData = {
-                        nodes: [{
-                            rowKey: node.rowKey,
-                            locations: locations
-                        }]
+                        nodes: [node]
                     };
                     self.trigger(document, 'nodesUpdate', nodesUpdateData);
                 });
@@ -174,20 +200,36 @@ define([
                     }
 
                     if(artifact && artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) {
+
+                        node.location = {
+                            latitude: artifact.Dynamic_Metadata.latitude,
+                            longitude: artifact.Dynamic_Metadata.longitude
+                        };
+
                         var nodesUpdateData = {
-                            nodes: [{
-                                rowKey: node.rowKey,
-                                location: {
-                                    latitude: artifact.Dynamic_Metadata.latitude,
-                                    longitude: artifact.Dynamic_Metadata.longitude
-                                }
-                            }]
+                            nodes: [node]
                         };
                         self.trigger(document, 'nodesUpdate', nodesUpdateData);
+                    } else {
+                        self.invalidMap();
                     }
                 });
             } else {
                 console.error("Unknown node type:", node.type);
+            }
+        };
+
+        this.invalidMap = function() {
+            var map = this.select('mapSelector'),
+                cls = 'invalid';
+            
+            if (map.hasClass(cls)) {
+                map.removeClass(cls);
+                setTimeout(function() {
+                    map.addClass(cls);
+                }, 100);
+            } else {
+                map.addClass(cls);
             }
         };
 

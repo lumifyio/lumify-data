@@ -21,10 +21,31 @@
   .animation-timing-function(linear);
 }
 
+.shake-keyframe() {
+    0%, 100% {.translate(0,0);}
+    10%, 30%, 50%, 70%, 90% {.translate(-10px,0);}
+    20%, 40%, 60%, 80% {.translate(10px,0);}
+}
+@-webkit-keyframes shake {.shake-keyframe;}
+@-moz-keyframes shake {.shake-keyframe;}
+@-ms-keyframes shake {.shake-keyframe;}
+@-o-keyframes shake {.shake-keyframe;}
+@keyframes shake {.shake-keyframe;}
+
+.shake(@duration:1s) {
+  .animation-duration(@duration);
+  .animation-iteration-count(1);
+  .animation-name(shake);
+  .animation-fill-mode(both);
+}
 
 .animation-play-state(@state) {
   -webkit-animation-play-state: @state;
   animation-play-state: @state;
+}
+.animation-fill-mode(@mode) {
+  -webkit-animation-fill-mode: @mode;
+  animation-fill-mode: @mode;
 }
 .animation-duration(@duration) {
   -webkit-animation-duration: @duration;
