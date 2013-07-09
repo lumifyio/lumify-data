@@ -2,7 +2,10 @@ package com.altamiracorp.reddawn.ucd.artifact;
 
 import com.altamiracorp.reddawn.model.*;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
@@ -55,6 +58,19 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
 
         return null;
+    }
+
+    public BufferedImage getRawAsImage(Session session, Artifact artifact) {
+        InputStream in = getRaw(session, artifact);
+        try {
+            try {
+                return ImageIO.read(in);
+            } finally {
+                in.close();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Could not read image", e);
+        }
     }
 
     public InputStream getRawMp4(Session session, Artifact artifact) {

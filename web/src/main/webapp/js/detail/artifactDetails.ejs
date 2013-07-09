@@ -20,7 +20,7 @@
   </div>
 </div>
 
-<h2><%= artifact.Generic_Metadata.subject %></h2>
+<h2><%= artifact.Generic_Metadata.subject || 'No title available' %></h2>
 <% if(artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude) { %>
     <b>Location:</b>
     <a class="map-coordinates" latitude="<%= artifact.Dynamic_Metadata.latitude %>" longitude="<%= artifact.Dynamic_Metadata.longitude %>">
@@ -34,6 +34,9 @@
     <source src="<%= artifact.rawUrl %>?playback=true&type=video/mp4" type="video/mp4">
     <source src="<%= artifact.rawUrl %>?playback=true&type=video/webm" type="video/webm">
   </video>
+<% } %>
+<% if(artifact.type == 'image') { %>
+  <img src='<%= artifact.rawUrl %>' width="auto" height="300"/>
 <% } %>
 
 <div class="text"><%- artifact.contentHtml %></div>
