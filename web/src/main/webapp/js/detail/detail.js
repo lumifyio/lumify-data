@@ -2,32 +2,42 @@
 define([
     'flight/lib/component',
     'service/ucd',
+    'videojs',
+    'util/video/scrubber',
+    'tpl!util/video/video',
     'tpl!./artifactDetails',
     'tpl!./entityDetails',
-    'tpl!./relationshipDetails',
-    'tpl!./multipleSelection'
-], function(defineComponent, UCD, artifactDetailsTemplate, entityDetailsTemplate, relationshipDetailsTemplate, multipleSelectionTemplate) {
+    'tpl!./artifactToEntityRelationshipDetails',
+    'tpl!./entityToEntityRelationshipDetails',
+    'tpl!./multipleSelection',
+    'tpl!./style'
+], function(defineComponent, UCD, videojs, VideoScrubber, videoTemplate, artifactDetailsTemplate, entityDetailsTemplate, artifactToEntityRelationshipDetails, entityToEntityRelationshipDetails, multipleSelectionTemplate, styleTemplate) {
     'use strict';
+
+    videojs.options.flash.swf = "/libs/video.js/video-js.swf";
 
     var HIGHLIGHT_STYLES = [
             { name: 'None' },
             { name: 'Subtle Icons', cls:'icons' },
             { name: 'Underline', cls:'underline' },
-            { name: 'Colors', cls:'colors' },
-            { name: 'Ugly Colors', cls:'uglycolors' }
+            { name: 'Colors', cls:'colors' }
         ],
-        ACTIVE_STYLE = 2;
+        DEFAULT = 2;
 
     return defineComponent(Detail);
 
     function Detail() {
+
+        this.useDefaultStyle = true;
 
         this.defaultAttrs({
             mapCoordinatesSelector: '.map-coordinates',
             highlightTypeSelector: '.highlight-options a',
             entitiesSelector: '.entity',
             moreMentionsSelector: '.mention-request',
-            mentionArtifactSelector: '.mention-artifact'
+            mentionArtifactSelector: '.mention-artifact',
+            previewSelector: '.preview',
+            videoSelector: 'video'
         });
 
         this.after('initialize', function() {
@@ -35,11 +45,11 @@ define([
                 mapCoordinatesSelector: this.onMapCoordinatesClicked,
                 highlightTypeSelector: this.onHighlightTypeClicked,
                 moreMentionsSelector: this.onRequestMoreMentions,
-                mentionArtifactSelector: this.onMentionArtifactSelected
+                mentionArtifactSelector: this.onMentionArtifactSelected,
+                previewSelector: this.onPreviewClicked
             });
-            this.on(document, 'searchResultSelected', this.onSearchResultSelected);
 
-            this.fixTextSelection();
+            this.on(document, 'searchResultSelected', this.onSearchResultSelected);
         });
 
         this.onMapCoordinatesClicked = function(evt, data) {
@@ -60,16 +70,70 @@ define([
             ul.find('.checked').not(li).removeClass('checked');
             li.addClass('checked');
 
-            $.each( content.attr('class').split(/\s+/), function(index, item) {
-                if (item.match(/^highlight-(.+)$/)) {
-                    content.removeClass(item);
-                }
-            });
+            this.removeHighlightClasses();
             
             var newClass = li.data('cls');
             if (newClass) {
                 content.addClass('highlight-' + newClass);
             }
+
+            this.useDefaultStyle = false;
+        };
+
+        this.onPreviewClicked = function(evt) {
+            if (this.select('videoSelector').length) {
+                return;
+            }
+
+            var self = this,
+                players = videojs.players,
+                video = $(videoTemplate({
+                    mp4Url: self.currentArtifact.rawUrl + '?playback=true&type=video/mp4',
+                    webmUrl: self.currentArtifact.rawUrl + '?playback=true&type=video/webm',
+                    posterUrl: self.currentArtifact.posterFrameUrl
+                }));
+
+
+            this.select('previewSelector').html(video);
+            Object.keys(players).forEach(function(player) {
+                if (players[player]) {
+                    players[player].dispose();
+                    delete players[player];
+                }
+            });
+            videojs(video[0], { autoplay:true }, function() { });
+        };
+
+
+        this.getActiveStyle = function() {
+            if (this.useDefaultStyle) {
+                return DEFAULT;
+            }
+
+            var content = this.$node,
+                index = 0;
+            $.each( content.attr('class').split(/\s+/), function(_, item) {
+                var match = item.match(/^highlight-(.+)$/);
+                if (match) {
+                    return HIGHLIGHT_STYLES.forEach(function(style, i) {
+                        if (style.cls === match[1]) {
+                            index = i;
+                            return false;
+                        }
+                    });
+                }
+            });
+
+            return index;
+        };
+
+        this.removeHighlightClasses = function() {
+            var content = this.$node;
+            $.each( content.attr('class').split(/\s+/), function(index, item) {
+                if (item.match(/^highlight-(.+)$/)) {
+                    content.removeClass(item);
+                }
+            });
         };
 
         this.onSearchResultSelected = function(evt, data) {
@@ -77,6 +141,8 @@ define([
             if ($.isArray(data) && data.length === 1) {
                 data = data[0];
             }
+
+            self.currentArtifact = null;
 
             if ( !data || data.length === 0 ) {
                 this.$node.empty();
@@ -112,7 +178,24 @@ define([
             this.$node.html("Loading...");
             // TODO show something more useful here.
             console.log('Showing relationship:', data);
-            self.$node.html(relationshipDetailsTemplate(data));
+            if(data.relationshipType == 'artifactToEntity') {
+                self.$node.html(artifactToEntityRelationshipDetails(data));
+            } else if(data.relationshipType == 'entityToEntity') {
+                new UCD().getEntityToEntityRelationshipDetails(data.source, data.target, function(err, relationshipData) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+                    console.log(relationshipData);
+                    relationshipData.styleHtml = self.getStyleHtml();
+                    self.$node.html(entityToEntityRelationshipDetails(relationshipData));
+
+                    self.applyHighlightStyle();
+                    self.updateEntityDraggables();
+                });
+            } else {
+                self.$node.html("Bad relationship type:" + data.relationshipType);
+            }
         };
 
         this.onArtifactSelected = function(evt, data) {
@@ -125,15 +208,25 @@ define([
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
-                    console.log('Showing artifact:', artifact);
-                    artifact.contentHtml = artifact.Content.highlighted_text || artifact.Content.doc_extracted_text;
-                    artifact.contentHtml = artifact.contentHtml.replace(/[\n]+/g, "<br><br>\n");
-                    self.$node.html(artifactDetailsTemplate({ artifact: artifact, styles:HIGHLIGHT_STYLES, activeStyle:ACTIVE_STYLE }));
-                    self.applyHighlightStyle();
 
+                    self.currentArtifact = artifact;
+                    console.log('Showing artifact:', artifact);
+                    artifact.contentHtml = artifact.Content.highlighted_text || artifact.Content.doc_extracted_text || "";
+                    artifact.contentHtml = artifact.contentHtml.replace(/[\n]+/g, "<br><br>\n");
+                    var styleHtml = self.getStyleHtml();
+                    self.$node.html(artifactDetailsTemplate({ artifact: artifact, styleHtml: styleHtml }));
+
+                    if (artifact.type == 'video') {
+                        self.setupVideo(artifact);
+                    }
+                    self.applyHighlightStyle();
                     self.updateEntityDraggables();
                 });
             });
+        };
+
+        this.getStyleHtml = function() {
+            return styleTemplate({ styles: HIGHLIGHT_STYLES, activeStyle: this.getActiveStyle() });
         };
 
         this.onEntitySelected = function(evt, data) {
@@ -218,44 +311,20 @@ define([
             });
         };
 
+        this.setupVideo = function(artifact) {
+            VideoScrubber.attachTo(this.select('previewSelector'), {
+                poster: artifact.posterFrameUrl,
+                frames: artifact.videoPreviewImageUrl
+            });
+        };
+
         this.applyHighlightStyle = function() {
-            var newClass = HIGHLIGHT_STYLES[ACTIVE_STYLE].cls;
+            var newClass = HIGHLIGHT_STYLES[this.getActiveStyle()].cls;
             if (newClass) {
+                this.removeHighlightClasses();
                 this.$node.addClass('highlight-' + newClass);
             }
         };
 
-        this.fixTextSelection = function() {
-            var mouseDown = false,
-                inside = false;
-
-            // Since we are on top of the graph, don't let mouse events get to
-            // the graph but fix case where dragging pane resizebar
-
-            this.on('mousedown', function(evt) {
-
-                // We want propagation if it's an entity in case of drag
-                mouseDown = !$(evt.target).is('.entity');
-            });
-
-            this.on('mousemove', function(evt) {
-                if ( mouseDown && inside ) {
-                    evt.stopPropagation();
-                }
-            });
-
-            this.on('mouseup', function() {
-                mouseDown = false;
-            });
-
-            this.on('mouseleave', function() {
-                inside = false;
-                mouseDown = false;
-            });
-
-            this.on('mouseenter', function() {
-                inside = true;
-            });
-        };
     }
 });

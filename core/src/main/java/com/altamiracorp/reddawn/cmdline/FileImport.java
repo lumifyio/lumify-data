@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.cmdline;
 
 import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.model.SaveFileResults;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import org.apache.accumulo.core.client.MutationsRejectedException;
@@ -18,11 +19,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Iterator;
 
 public class FileImport extends RedDawnCommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileImport.class.getName());
+    private static final long MAX_SIZE_OF_INLINE_FILE = 1 * 1024 * 1024; // 1MiB
     private ArtifactRepository artifactRepository = new ArtifactRepository();
     private String directory;
     private String pattern;
@@ -39,6 +42,7 @@ public class FileImport extends RedDawnCommandLineBase {
     protected void processOptions(CommandLine cmd) {
         super.processOptions(cmd);
         this.directory = cmd.getOptionValue("directory");
+        if(this.directory == null) throw new RuntimeException("No directory provided to FileImport");
         if (cmd.hasOption("pattern")) {
             this.pattern = cmd.getOptionValue("pattern");
         } else {
@@ -111,16 +115,33 @@ public class FileImport extends RedDawnCommandLineBase {
     }
 
     private void writeFile(RedDawnSession redDawnSession, File file) throws IOException, MutationsRejectedException {
-        byte[] data = FileUtils.readFileToByteArray(file);
+        Artifact artifact;
+        if (file.getName().startsWith(".")) {
+            return;
+        }
+        if (file.length() > MAX_SIZE_OF_INLINE_FILE) {
+            FileInputStream fileInputStreamData = new FileInputStream(file);
+            try {
+                SaveFileResults saveResults = artifactRepository.saveFile(redDawnSession.getModelSession(), fileInputStreamData);
+                artifact = new Artifact(saveResults.getRowKey());
+                artifact.getGenericMetadata()
+                        .setHdfsFilePath(saveResults.getFullPath())
+                        .setFileSize(file.length());
+            } finally {
+                fileInputStreamData.close();
+            }
+        } else {
+            artifact = new Artifact();
+            byte[] data = FileUtils.readFileToByteArray(file);
+            artifact.getContent().setDocArtifactBytes(data);
+            artifact.getGenericMetadata().setFileSize((long) data.length);
+        }
 
-        Artifact artifact = new Artifact();
         artifact.getContent()
-                .setSecurity("U") // TODO configurable?
-                .setDocArtifactBytes(data);
+                .setSecurity("U"); // TODO configurable?
         artifact.getGenericMetadata()
                 .setFileName(FilenameUtils.getBaseName(file.getName()))
                 .setFileExtension(FilenameUtils.getExtension(file.getName()))
-                .setFileSize((long) data.length)
                 .setFileTimestamp(file.lastModified())
                 .setSource(this.source);
 
@@ -134,5 +155,9 @@ public class FileImport extends RedDawnCommandLineBase {
 
     public String getPattern() {
         return pattern;
+    }
+
+    public String getSource() {
+        return source;
     }
 }

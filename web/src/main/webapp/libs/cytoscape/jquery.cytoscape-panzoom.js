@@ -453,7 +453,7 @@
 						if( cy.elements().size() === 0 ){
 							cy.reset();
 						} else {
-							cy.fit();
+							cy.fit(undefined, options.fitPadding);
 						}
 
 						var length = Math.max( $container.width(), $container.height() );

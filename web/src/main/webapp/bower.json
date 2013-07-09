@@ -13,6 +13,7 @@
     "sinon-chai": "~2.4.0",
     "sinon": "~1.7.1",
     "html2canvas": "~0.4.0",
-    "jquery.atmosphere": "latest"
+    "jquery.atmosphere": "latest",
+    "video.js": "~4.0.3"
   }
 }

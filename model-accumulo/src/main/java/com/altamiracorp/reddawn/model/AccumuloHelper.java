@@ -7,8 +7,6 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.user.RegExFilter;
 import org.apache.accumulo.core.util.PeekingIterator;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.thirdparty.guava.common.collect.Iterables;
 import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
 
 import java.util.*;
@@ -50,6 +48,7 @@ public class AccumuloHelper {
 
     /**
      * TODO: Write this
+     *
      * @param scanner
      * @param colFamOffset
      * @param colFamLimit
@@ -72,11 +71,11 @@ public class AccumuloHelper {
         System.out.println(rowKey);
         System.out.println(iterator.peek().getKey().getRow().toString());
 
-        while(iterator.hasNext() && count < colFamOffset + colFamLimit &&
+        while (iterator.hasNext() && count < colFamOffset + colFamLimit &&
                 iterator.peek().getKey().getRow().toString().equals(rowKey)) {
             ColumnFamily colFam = getNextColumnFamily(iterator);
 
-            if(count >= colFamOffset) {
+            if (count >= colFamOffset) {
                 colFams.add(colFam);
             }
 
@@ -92,7 +91,7 @@ public class AccumuloHelper {
 
         System.out.println(colFamName);
 
-        while(iterator.peek() != null && iterator.peek().getKey().getColumnFamily().toString().equals(colFamName)) {
+        while (iterator.peek() != null && iterator.peek().getKey().getColumnFamily().toString().equals(colFamName)) {
             System.out.println(iterator.peek());
             Map.Entry<Key, Value> next = iterator.next();
             colFam.addColumn(new Column(next.getKey().getColumnQualifier().toString(), next.getValue().toString()));

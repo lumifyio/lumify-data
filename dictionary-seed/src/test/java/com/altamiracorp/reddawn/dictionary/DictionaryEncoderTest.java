@@ -124,9 +124,9 @@ public class DictionaryEncoderTest {
         Scanner fin = null;
         try {
             fin = new Scanner(new FileReader(testPathName));
-            assertEquals("seventh\tentry", fin.nextLine());
-            assertEquals("eighth\tentry", fin.nextLine());
-            assertEquals("ninth\tentry", fin.nextLine());
+            assertEquals("seventh entry", fin.nextLine());
+            assertEquals("eighth entry", fin.nextLine());
+            assertEquals("ninth entry", fin.nextLine());
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Problem reading file");
         } finally {

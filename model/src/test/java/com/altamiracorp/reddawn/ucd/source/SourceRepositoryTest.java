@@ -1,6 +1,9 @@
 package com.altamiracorp.reddawn.ucd.source;
 
-import com.altamiracorp.reddawn.model.*;
+import com.altamiracorp.reddawn.model.ColumnFamily;
+import com.altamiracorp.reddawn.model.MockSession;
+import com.altamiracorp.reddawn.model.Row;
+import com.altamiracorp.reddawn.model.RowKey;
 import org.junit.Before;
 import org.junit.Test;
 

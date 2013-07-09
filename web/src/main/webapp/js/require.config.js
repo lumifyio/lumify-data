@@ -20,13 +20,15 @@ var require = {
     tpl: '../libs/requirejs-ejs-plugin/rejs',
     cytoscape: '../libs/cytoscape/cytoscape',
     arbor: '../libs/cytoscape/arbor',
-    html2canvas: '../libs/html2canvas/html2canvas'
+    html2canvas: '../libs/html2canvas/html2canvas',
+    videojs: '../libs/video.js/video'
   },
   shim: {
     ejs: { exports: 'ejs' },
     cytoscape: { exports: 'cytoscape', deps:['arbor'] },
-	atmosphere: { exports: 'jQuery' },
-    html2canvas: { exports: 'html2canvas' }
+    html2canvas: { exports: 'html2canvas' },
+    videojs: { exports: 'videojs' },
+	atmosphere: { exports: 'jQuery' }
   },
   deps : ['reddawn']
 };

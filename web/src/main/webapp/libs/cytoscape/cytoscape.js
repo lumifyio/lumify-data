@@ -4413,11 +4413,13 @@ var cytoscape;
 			padding = $$.is.number(padding) ? padding : 0;
 
 			if( !isNaN(w) && !isNaN(h) ){
-				zoom = this._private.zoom = Math.min( (w - 2*padding)/bb.w, (h - 2*padding)/bb.h );
+				zoom = Math.min( (w - 2*padding)/bb.w, (h - 2*padding)/bb.h );
 
 				// crop zoom
 				zoom = zoom > this._private.maxZoom ? this._private.maxZoom : zoom;
 				zoom = zoom < this._private.minZoom ? this._private.minZoom : zoom;
+
+                this._private.zoom = zoom;
 
 				this._private.pan = { // now pan to middle
 					x: (w - zoom*( bb.x1 + bb.x2 ))/2,
@@ -8351,11 +8353,14 @@ var cytoscape;
 
 		// stop right click menu from appearing on cy
 		r.registerBinding(r.data.container, "contextmenu", function(e){
+            if (!r.data.container.contains(e.target)) return;
 			e.preventDefault();
 		});
 
 		// Primary key
 		r.registerBinding(r.data.container, "mousedown", function(e) { 
+            if (!r.data.container.contains(e.target)) return;
+
 			e.preventDefault();
 			r.hoverData.capture = true;
 			r.hoverData.which = e.which;
@@ -8499,6 +8504,8 @@ var cytoscape;
 		}, false);
 		
 		r.registerBinding(window, "mousemove", function(e) {
+            if (!r.data.container.contains(e.target)) return;
+
 			var preventDefault = false;
 			var capture = r.hoverData.capture;
 
@@ -8652,6 +8659,8 @@ var cytoscape;
 		}, false);
 		
 		r.registerBinding(window, "mouseup", function(e) {
+            if (!r.data.container.contains(e.target)) return;
+
 			// console.log('--\nmouseup', e)
 
 			var capture = r.hoverData.capture; if (!capture) { return; }; r.hoverData.capture = false;

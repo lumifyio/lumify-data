@@ -1,13 +1,13 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
+import opennlp.tools.dictionary.Dictionary;
+import opennlp.tools.namefind.DictionaryNameFinder;
+import opennlp.tools.namefind.TokenNameFinder;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-
-import opennlp.tools.dictionary.Dictionary;
-import opennlp.tools.namefind.DictionaryNameFinder;
-import opennlp.tools.namefind.TokenNameFinder;
 
 public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
 

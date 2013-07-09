@@ -94,4 +94,5 @@ public class OpenNlpSentenceExtractor implements SentenceExtractor {
             sentenceModelInputStream.close();
         }
     }
+
 }

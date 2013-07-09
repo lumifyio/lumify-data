@@ -1,8 +1,5 @@
 package com.altamiracorp.reddawn.crawler;
 
-import com.altamiracorp.reddawn.crawler.Crawler;
-import com.altamiracorp.reddawn.crawler.Query;
-import com.altamiracorp.reddawn.crawler.WebCrawl;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,9 +12,7 @@ import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(JUnit4.class)
 public class WebCrawlTest {

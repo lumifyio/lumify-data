@@ -2,8 +2,8 @@ package com.altamiracorp.reddawn.search;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
-import com.altamiracorp.reddawn.ucd.AccumuloSentenceInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;

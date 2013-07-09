@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 public class SentenceBasedStatementExtractor implements StatementExtractor {
     public static final String MODEL_KEY = "urn:mil.army.dsc:schema:dataspace";

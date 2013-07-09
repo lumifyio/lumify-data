@@ -1,11 +1,11 @@
 package com.altamiracorp.reddawn.textExtraction.util;
 
+import com.joestelmach.natty.DateGroup;
+import com.joestelmach.natty.Parser;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import com.joestelmach.natty.DateGroup;
-import com.joestelmach.natty.Parser;
 
 public class GenericDateExtractor {
 

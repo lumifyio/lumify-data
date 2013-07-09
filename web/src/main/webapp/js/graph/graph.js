@@ -137,7 +137,7 @@ define([
                     x: p.left - c.left + el.width() / 2.0, 
                     y: p.top - c.top + el.height() / 2.0
                 };
-
+                
             this.trigger(document, 'nodesAdd', {
                 nodes: [{
                     title: data.text,
@@ -298,11 +298,15 @@ define([
         });
 
         this.updateNodeSelections = function(cy) {
-            var selection = cy.nodes().filter(':selected'),
-                info = [];
+            var selection = cy.nodes().filter(':selected');
+            var edgeSelection = cy.edges().filter(':selected');
+            var info = [];
 
-            console.log('selections: ', selection);
+            console.log('selections: ', selection, edgeSelection);
             selection.each(function(index, node) {
+                info.push(node.data());
+            });
+            edgeSelection.each(function(index, node) {
                 info.push(node.data());
             });
 
@@ -441,6 +445,7 @@ define([
                         group: "edges",
                         data: {
                             id: relationship.from + "->" + relationship.to,
+                            relationshipType: relationship.relationshipType,
                             source: relationship.from,
                             target: relationship.to,
                             type: 'relationship'
@@ -463,31 +468,6 @@ define([
             var self = this;
             this.$node.html(template({}));
 
-            this.$node.droppable({
-                drop: function( event, ui ) {
-                    var draggable = ui.draggable,
-                        droppableOffset = $(event.target).offset();
-
-                    var info = draggable.data('info') || draggable.parents('li').data('info');
-                    if ( !info ) {
-                        console.warn('No data-info attribute for draggable element found');
-                        return;
-                    }
-
-                    this.trigger(document, 'nodesAdd', {
-                        nodes: [{
-                            title: info.title || draggable.text(),
-                            rowKey: info.rowKey.replace(/\\[x](1f)/ig, '\u001f'),
-                            subType: info.subType,
-                            type: info.type,
-                            graphPosition: {
-                                x: event.clientX - droppableOffset.left,
-                                y: event.clientY - droppableOffset.top
-                            }
-                        }]
-                    });
-                }.bind(this)
-            });
 
             this.select('contextMenuItemSelector').on('click', this.onContextMenu.bind(this));
 
@@ -499,6 +479,7 @@ define([
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
 
             cytoscape("renderer", "red-dawn", Renderer);
+            cytoscape.style.types.nodeShape.enums.push('none');
             cytoscape({
                 showOverlay: false,
                 minZoom: 1 / 3,
@@ -508,29 +489,49 @@ define([
                     name: 'red-dawn'
                 },
                 style: cytoscape.stylesheet()
+                  // TODO: get the list of types and subTypes
                   .selector('node.person')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_003_user@2x.png'
                     })
-                  .selector('node.location')
+                  .selector('node.location,node.place')
                     .css({
-                      'background-image': '/img/glyphicons/glyphicons_242_google_maps@2x.png',
-                      'width': 30 * pixelScale,
-                      'height': 40 * pixelScale,
+                      'background-image': '/img/pin@2x.png',
+                      'width': 35 * pixelScale,
+                      'height': 35 * pixelScale,
                       'border-color': 'white',
+                      'shape': 'none',
                       'border-width': 0
                     })
-                  .selector('node.organization')
+                  .selector('node.organization,node.organisation')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_263_bank@2x.png',
                       'shape': 'roundrectangle'
                     })
-                  .selector('node.document')
+                  .selector('node.document,node.documents')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'rectangle',
                       'width': 60 * pixelScale,
                       'height': 60 * 1.2 * pixelScale,
+                      'border-color': '#ccc',
+                      'border-width': 1
+                    })
+                  .selector('node.videos')
+                    .css({
+                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
+                      'shape': 'rectangle',
+                      'width': 60 * 1.3 * pixelScale,
+                      'height': 60 * pixelScale,
+                      'border-color': '#ccc',
+                      'border-width': 1
+                    })
+                  .selector('node.images')
+                    .css({
+                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
+                      'shape': 'rectangle',
+                      'width': 60 * 1.3 * pixelScale,
+                      'height': 60 * pixelScale,
                       'border-color': '#ccc',
                       'border-width': 1
                     })

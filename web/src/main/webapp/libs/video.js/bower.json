@@ -1,0 +1,17 @@
+{
+  "name": "video.js",
+  "version": "4.0.3",
+  "main": [
+    "video.js",
+    "video.css"
+  ],
+  "gitHead": "80a42cc8183a70266c143cbd96fbdca1b6db660f",
+  "readme": "video.js-component\n==================\n\nRepo for bower and component(1) files\n",
+  "readmeFilename": "README.md",
+  "_id": "video.js@4.0.3",
+  "description": "video.js-component ==================",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/videojs/video.js-component.git"
+  }
+}

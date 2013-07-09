@@ -36,10 +36,9 @@ public class DictionarySearcher {
         int resultOffset = 0;
 
         do {
-            System.out.print("Fetching results " + (resultOffset + 1) + "-" +
+            LOGGER.info("Fetching results " + (resultOffset + 1) + "-" +
                     (resultOffset + MAX_RESULTS_PER_SEARCH) + "... ");
             String response = httpRequest(getUrl(type, resultOffset));
-            System.out.println("DONE");
 
             try {
                 totalResultCount += processJson(response);
@@ -101,7 +100,7 @@ public class DictionarySearcher {
 
     protected String getUrl(String type, int offset) {
         String query = "PREFIX dbo: <http://dbpedia.org/ontology/>\n" +
-                "SELECT ?name WHERE{?place a dbo:" + type + ";foaf:name ?name.}\n" +
+                "SELECT ?name WHERE{?place a dbo:" + type + ";rdfs:label ?name.}\n" +
                 "LIMIT 50000\nOFFSET " + offset;
 
         String url;

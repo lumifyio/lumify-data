@@ -1,7 +1,6 @@
 package com.altamiracorp.reddawn.crawler;
 
 import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

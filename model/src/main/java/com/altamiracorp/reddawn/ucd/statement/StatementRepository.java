@@ -2,7 +2,9 @@ package com.altamiracorp.reddawn.ucd.statement;
 
 import com.altamiracorp.reddawn.model.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class StatementRepository extends Repository<Statement> {
     @Override
@@ -36,5 +38,19 @@ public class StatementRepository extends Repository<Statement> {
 
     public void save(Session session, Statement statement) {
         super.save(session, statement);
+    }
+
+    public List<Statement> findBySourceAndTargetRowKey(Session session, String sourceEntityRowKey, String targetEntityRowKey) {
+        List<Statement> statements = findByRowStartsWith(session, sourceEntityRowKey);
+        ArrayList<Statement> results = new ArrayList<Statement>();
+
+        for (Statement statement : statements) {
+            StatementRowKey rowKey = statement.getRowKey();
+            if (rowKey.getSubjectRowKey().equals(sourceEntityRowKey) && rowKey.getObjectRowKey().equals(targetEntityRowKey)) {
+                results.add(statement);
+            }
+        }
+
+        return results;
     }
 }

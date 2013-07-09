@@ -1,0 +1,15 @@
+<div class="btn-toolbar">
+  <%- styleHtml %>
+</div>
+
+<h2><%= source.sign %> -> <%= target.sign %></h2>
+<h3>Statements</h3>
+<ul>
+    <% statements.forEach(function(statement) { %>
+      <li>
+        <span class="entity <%= source.conceptLabel %>" data-info='{"subType": "<%= source.conceptLabel %>", "rowKey": "<%= source.value.replace(/\x1f/g, '\\\\x1F') %>", "type": "entities"}'><%= source.sign %></span>
+        <%= statement.key.predicateLabel.predicateLabel %>
+        <span class="entity <%= target.conceptLabel %>" data-info='{"subType": "<%= target.conceptLabel %>", "rowKey": "<%= target.value.replace(/\x1f/g, '\\\\x1F') %>", "type": "entities"}'><%= target.sign %></span>
+      </li>
+    <% }); %>
+</ul>

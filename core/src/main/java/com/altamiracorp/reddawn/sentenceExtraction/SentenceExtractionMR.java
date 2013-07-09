@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -55,6 +56,10 @@ public class SentenceExtractionMR extends ConfigurableMapJobBase {
 
         @Override
         protected void map(Text key, Artifact artifact, Context context) throws IOException, InterruptedException {
+            if (artifact.getType() != ArtifactType.DOCUMENT) {
+                return;
+            }
+
             LOGGER.info("Extracting sentences for artifact: " + artifact.getRowKey().toString());
 
             try {

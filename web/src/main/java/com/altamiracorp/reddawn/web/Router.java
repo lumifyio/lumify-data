@@ -7,6 +7,7 @@ import com.altamiracorp.reddawn.web.routes.entity.EntityByRowKey;
 import com.altamiracorp.reddawn.web.routes.entity.EntityMentionsByRange;
 import com.altamiracorp.reddawn.web.routes.entity.EntityRelationships;
 import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
+import com.altamiracorp.reddawn.web.routes.entity.EntityToEntityRelationship;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
 import com.altamiracorp.reddawn.web.routes.user.MeGet;
@@ -47,8 +48,11 @@ public class Router extends HttpServlet {
         app.get("/artifact/{rowKey}/text", authenticator, ArtifactTextByRowKey.class);
         app.get("/artifact/{rowKey}/html", authenticator, ArtifactHtmlByRowKey.class);
         app.get("/artifact/{rowKey}/raw", authenticator, ArtifactRawByRowKey.class);
+        app.get("/artifact/{rowKey}/poster-frame", authenticator, ArtifactPosterFrameByRowKey.class);
+        app.get("/artifact/{rowKey}/video-preview", authenticator, ArtifactVideoPreviewImageByRowKey.class);
         app.get("/artifact/{rowKey}", authenticator, ArtifactByRowKey.class);
 
+        app.get("/entity/relationship", authenticator, EntityToEntityRelationship.class);
         app.get("/entity/relationships", authenticator, EntityRelationships.class);
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);
@@ -61,7 +65,7 @@ public class Router extends HttpServlet {
         app.delete("/workspace/{workspaceRowKey}", authenticator, WorkspaceDelete.class);
 
         app.get("/user/messages", authenticator, MessagesGet.class);
-		app.get("/user/me", authenticator, MeGet.class);
+        app.get("/user/me", authenticator, MeGet.class);
 
         app.get("/map/map-init.js", MapInitHandler.class);
         app.get("/map/{z}/{x}/{y}.png", MapTileHandler.class);
@@ -76,7 +80,9 @@ public class Router extends HttpServlet {
     @Override
     public void service(ServletRequest req, ServletResponse resp) throws ServletException, IOException {
         try {
-            app.handle((HttpServletRequest) req, (HttpServletResponse) resp);
+            HttpServletResponse httpResponse = (HttpServletResponse) resp;
+            httpResponse.addHeader("Accept-Ranges", "bytes");
+            app.handle((HttpServletRequest) req, httpResponse);
         } catch (Exception e) {
             throw new ServletException(e);
         }

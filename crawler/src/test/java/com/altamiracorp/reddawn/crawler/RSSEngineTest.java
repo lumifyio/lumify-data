@@ -1,8 +1,5 @@
 package com.altamiracorp.reddawn.crawler;
 
-import com.altamiracorp.reddawn.crawler.Crawler;
-import com.altamiracorp.reddawn.crawler.Query;
-import com.altamiracorp.reddawn.crawler.RSSEngine;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
