@@ -111,7 +111,11 @@ public class VideoTranscript {
         public int compareTo(TimedText other) {
             Time time = getTime();
             Time timeOther = other.getTime();
-            return Long.compare(time.getStart(), timeOther.getStart());
+            int result = time.getStart().compareTo(timeOther.getStart());
+            if (result != 0) {
+                return result;
+            }
+            return time.getEnd().compareTo(timeOther.getEnd());
         }
     }
 
