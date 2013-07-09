@@ -62,15 +62,14 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
             try {
                 LOGGER.info("Extracting content type from artifact: " + artifact.getRowKey().toString());
-                InputStream in;
-                if (artifact.getGenericMetadata().getHdfsFilePath() != null) {
-                    in = session.getModelSession().loadFile(artifact.getGenericMetadata().getHdfsFilePath());
-                } else
-                    in = artifactRepository.getRaw(session.getModelSession(), artifact);
+                InputStream in = artifactRepository.getRaw(session.getModelSession(), artifact);
                 if (in == null) {
                     LOGGER.warn("No data found for artifact: " + artifact.getRowKey().toString());
                 }
-                String contentType = contentTypeExtractor.extract(in);
+                String contentType = contentTypeExtractor.extract(in, artifact.getGenericMetadata().getFileExtension());
+                if (contentType == ""){
+                    LOGGER.warn ("No content type set for artifact: " + artifact.getRowKey().toString());
+                }
                 artifact.getGenericMetadata().setMimeType(contentType);
                 context.write(new Text(Artifact.TABLE_NAME), artifact);
             } catch (Exception e) {
