@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.web.routes.artifact.*;
 import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
 import com.altamiracorp.reddawn.web.routes.entity.EntityByRowKey;
+import com.altamiracorp.reddawn.web.routes.entity.EntityMentionsByRange;
 import com.altamiracorp.reddawn.web.routes.entity.EntityRelationships;
 import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
@@ -51,6 +52,7 @@ public class Router extends HttpServlet {
         app.get("/entity/relationships", authenticator, EntityRelationships.class);
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);
+        app.get("/entity/{rowKey}/{offset}/{limit}", authenticator, EntityMentionsByRange.class);
 
         app.get("/workspace/", authenticator, WorkspaceList.class);
         app.post("/workspace/save", authenticator, WorkspaceSave.class);
