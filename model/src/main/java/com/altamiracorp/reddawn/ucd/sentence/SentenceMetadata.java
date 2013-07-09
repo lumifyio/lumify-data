@@ -71,8 +71,7 @@ public class SentenceMetadata extends ColumnFamily {
     }
 
     public String getArtifactSubject() {
-        Value artifactSubject = get(ARTIFACT_SUBJECT);
-        return artifactSubject != null ? Value.toString(artifactSubject) : "No Artifact Subject Found";
+        return Value.toString(get(ARTIFACT_SUBJECT));
     }
 
     public SentenceMetadata setArtifactSubject(String artifactSubject) {

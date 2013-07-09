@@ -31,6 +31,10 @@ function(ServiceBase) {
         }, callback);
     };
 
+    Ucd.prototype.getStatementByRowKey = function(statementRowKey, callback) {
+        this._get("statement", statementRowKey, callback);
+    };
+
     Ucd.prototype.artifactSearch = function(query, callback) {
         this._search("artifact", query, callback);
     };
@@ -108,7 +112,7 @@ function(ServiceBase) {
 
     Ucd.prototype._get = function (resource, id, callback) {
         //maybe it's an object for future options stuff?
-        var i = encodeURIComponent(typeof id == "object" ? id.id : id).replace(/\./, '%252e');
+        var i = encodeURIComponent(typeof id == "object" ? id.id : id).replace(/\./g, '%252e');
 
         return this._ajaxGet({
             url: resource + "/" + i,

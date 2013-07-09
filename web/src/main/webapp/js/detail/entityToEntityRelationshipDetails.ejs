@@ -6,10 +6,11 @@
 <h3>Statements</h3>
 <ul>
     <% statements.forEach(function(statement) { %>
-      <li>
+      <li class="entity-to-entity-relationship" data-statement-row-key="<%= statement.key.value %>">
         <span class="entity <%= source.conceptLabel %>" data-info='{"subType": "<%= source.conceptLabel %>", "rowKey": "<%= source.value.replace(/\x1f/g, '\\\\x1F') %>", "type": "entities"}'><%= source.sign %></span>
         <%= statement.key.predicateLabel.predicateLabel %>
         <span class="entity <%= target.conceptLabel %>" data-info='{"subType": "<%= target.conceptLabel %>", "rowKey": "<%= target.value.replace(/\x1f/g, '\\\\x1F') %>", "type": "entities"}'><%= target.sign %></span>
+        <div class="artifact-excerpts"></div>
       </li>
     <% }); %>
 </ul>

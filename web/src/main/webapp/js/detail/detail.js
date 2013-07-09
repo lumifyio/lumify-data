@@ -9,9 +9,22 @@ define([
     'tpl!./entityDetails',
     'tpl!./artifactToEntityRelationshipDetails',
     'tpl!./entityToEntityRelationshipDetails',
+    'tpl!./entityToEntityRelationshipExcerpts',
     'tpl!./multipleSelection',
     'tpl!./style'
-], function(defineComponent, UCD, videojs, VideoScrubber, videoTemplate, artifactDetailsTemplate, entityDetailsTemplate, artifactToEntityRelationshipDetails, entityToEntityRelationshipDetails, multipleSelectionTemplate, styleTemplate) {
+], function(
+    defineComponent,
+    UCD,
+    videojs,
+    VideoScrubber,
+    videoTemplate,
+    artifactDetailsTemplate,
+    entityDetailsTemplate,
+    artifactToEntityRelationshipDetailsTemplate,
+    entityToEntityRelationshipDetailsTemplate,
+    entityToEntityRelationshipExcerptsTemplate,
+    multipleSelectionTemplate,
+    styleTemplate) {
     'use strict';
 
     videojs.options.flash.swf = "/libs/video.js/video-js.swf";
@@ -37,7 +50,8 @@ define([
             moreMentionsSelector: '.mention-request',
             mentionArtifactSelector: '.mention-artifact',
             previewSelector: '.preview',
-            videoSelector: 'video'
+            videoSelector: 'video',
+            entityToEntityRelationshipSelector: '.entity-to-entity-relationship'
         });
 
         this.after('initialize', function() {
@@ -46,11 +60,37 @@ define([
                 highlightTypeSelector: this.onHighlightTypeClicked,
                 moreMentionsSelector: this.onRequestMoreMentions,
                 mentionArtifactSelector: this.onMentionArtifactSelected,
-                previewSelector: this.onPreviewClicked
+                previewSelector: this.onPreviewClicked,
+                entityToEntityRelationshipSelector: this.onEntityToEntityRelationshipClicked
             });
 
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
         });
+
+        this.onEntityToEntityRelationshipClicked = function(evt, data) {
+            var self = this;
+            var $target = $(evt.target);
+            var statementRowKey = $target.data('statement-row-key');
+
+            new UCD().getStatementByRowKey(statementRowKey, function(err, statement) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+
+                var statementMentions = Object.keys(statement)
+                    .filter(function(key) {
+                        return key.indexOf('urn') == 0;
+                    })
+                    .map(function(key) {
+                        return statement[key];
+                    });
+                var html = entityToEntityRelationshipExcerptsTemplate({
+                    mentions: statementMentions
+                });
+                $('.artifact-excerpts', $target).html(html);
+            });
+        };
 
         this.onMapCoordinatesClicked = function(evt, data) {
             var $target = $(evt.target);
@@ -179,7 +219,7 @@ define([
             // TODO show something more useful here.
             console.log('Showing relationship:', data);
             if(data.relationshipType == 'artifactToEntity') {
-                self.$node.html(artifactToEntityRelationshipDetails(data));
+                self.$node.html(artifactToEntityRelationshipDetailsTemplate(data));
             } else if(data.relationshipType == 'entityToEntity') {
                 new UCD().getEntityToEntityRelationshipDetails(data.source, data.target, function(err, relationshipData) {
                     if(err) {
@@ -188,7 +228,7 @@ define([
                     }
                     console.log(relationshipData);
                     relationshipData.styleHtml = self.getStyleHtml();
-                    self.$node.html(entityToEntityRelationshipDetails(relationshipData));
+                    self.$node.html(entityToEntityRelationshipDetailsTemplate(relationshipData));
 
                     self.applyHighlightStyle();
                     self.updateEntityDraggables();
