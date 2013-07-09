@@ -244,11 +244,18 @@ define([
                     var offset = 0;
                     var limit = 2; // change later
                     var url = 'entity/' + data.rowKey + '/' + offset + '/' + limit;
-                    self.getMoreMentions(url, function(data){
-                        var entityDetailsData = data;
+                    self.getMoreMentions(url, function(mentions) {
+                        var entityDetailsData = mentions;
                         entityDetailsData.key = entity.key;
-                        console.log('Showing entity:', entityDetailsData);
-                        self.$node.html(entityDetailsTemplate(entityDetailsData));
+
+                        self.getRelationships(data.rowKey, function(relationships) {
+                            entityDetailsData.relationships = relationships.statements;
+                            console.log('Showing entity:', entityDetailsData);
+                            entityDetailsData.styleHtml = self.getStyleHtml();
+                            self.$node.html(entityDetailsTemplate(entityDetailsData));
+                            self.applyHighlightStyle();
+                            self.updateEntityDraggables();
+                        });
                     });
 
                 });
@@ -260,21 +267,25 @@ define([
             var self = this;
             var $target = $(evt.target);
             data = {
-                key: JSON.parse($target.attr("data-info")),
+                key: JSON.parse($target.attr("data-key")),
+                relationships: JSON.parse($target.attr("data-relationships")),
                 url: $target.attr("href")
             }
 
             this.getMoreMentions(data.url, function(mentions){
                 var entityDetailsData = mentions;
                 entityDetailsData.key = data.key;
+                entityDetailsData.relationships = data.relationships;
                 console.log('Showing entity:', entityDetailsData);
+                entityDetailsData.styleHtml = self.getStyleHtml();
                 self.$node.html(entityDetailsTemplate(entityDetailsData));
+                self.applyHighlightStyle();
+                self.updateEntityDraggables();
             });
             evt.preventDefault();
         }
 
         this.getMoreMentions = function(url, callback) {
-
             new UCD().getEntityMentionsByRange(url, function(err, mentions){
                 if(err) {
                     console.error('Error', err);
@@ -283,6 +294,19 @@ define([
                 console.log("Mentions: ", mentions);
                 callback(mentions);
             });
+        }
+
+        this.getRelationships = function(rowKey, callback) {
+            var self = this;
+            new UCD().getEntityRelationshipsBySubject(rowKey, function(err, relationships) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+
+                console.log("Relationships: ", relationships);
+                callback(relationships);
+            })
         }
 
         this.openUnlessAlreadyOpen = function(data, callback) {

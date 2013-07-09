@@ -64,6 +64,10 @@ function(ServiceBase) {
         return this._ajaxGet({ url: url }, callback);
     }
 
+    Ucd.prototype.getEntityRelationshipsBySubject = function(id, callback) {
+        return this._ajaxGet({ url: 'entity/' + id + '/relationships' }, callback);
+    }
+
     Ucd.prototype.getSpecificEntityRelationship = function (e1, e2, callback) {
         return this._ajaxGet({
             url: 'entity/relationship',

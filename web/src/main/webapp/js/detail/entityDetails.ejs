@@ -1,4 +1,10 @@
+<div class="btn-toolbar">
+  <%- styleHtml %>
+</div>
+
 <h2><%= key.sign %></h2>
+
+<h3>Mentions</h3>
 <ul>
 <% for(var subElementKey in mentions) {
     var termMention = mentions[subElementKey];
@@ -22,7 +28,7 @@
         <a class="mention-artifact" href="artifact/<%= termMention.artifactKey %>" data-row-key="<%= termMention.artifactKey %>">
             <h4><%= termMention['atc:artifactSubject'] %></h4>
         </a>
-        <p class="content highlight-underline">
+        <p>
             <%= originalSentenceTextParts.before %><span class="entity <%= key.conceptLabel
                 %>"><%= originalSentenceTextParts.term %></span><%=
             originalSentenceTextParts.after %>
@@ -31,8 +37,21 @@
 <% } %>
 </ul>
 <% if(offset >= limit && offset > 0) { %>
-    <a href="entity/<%= key.value %>/<%= parseInt(offset) - parseInt(limit) %>/<%= limit %>" class="mention-request" data-info="<%= JSON.stringify(key) %>"> Previous </a>
+    <a href="entity/<%= key.value %>/<%= parseInt(offset) - parseInt(limit) %>/<%= limit %>" class="mention-request" data-key="<%= JSON.stringify(key) %>" data-relationships="<%= JSON.stringify(relationships) %>"> Previous </a>
 <% }
 if(limit == mentions.length) { %>
-<a href="entity/<%= key.value %>/<%= parseInt(offset) + parseInt(limit) %>/<%= limit %>" class="mention-request" data-info="<%= JSON.stringify(key) %>"> Next </a>
+<a href="entity/<%= key.value %>/<%= parseInt(offset) + parseInt(limit) %>/<%= limit %>" class="mention-request" data-key="<%= JSON.stringify(key) %>" data-relationships="<%= JSON.stringify(relationships) %>"> Next </a>
 <% } %>
+
+<h3>Relationships</h3>
+<ul>
+<% for(var index in relationships) {
+    var relationship = relationships[index];
+%>
+    <li>
+        <span class="entity <%= relationship.subjectRowKey.conceptLabel %>" data-info='{"subType": "<%= relationship.subjectRowKey.conceptLabel %>", "rowKey": "<%= relationship.subjectRowKey.value.replace(/\x1f/g, '\\\\x1F') %>", "type": "entities"}'><%= relationship.subjectRowKey.sign %></span>
+        <%= relationship.predicateLabel.predicateLabel %>
+        <span class="entity <%= relationship.objectRowKey.conceptLabel %>" data-info='{"subType": "<%= relationship.objectRowKey.conceptLabel %>", "rowKey": "<%= relationship.objectRowKey.value.replace(/\x1f/g, '\\\\x1F') %>", "type": "entities"}'><%= relationship.objectRowKey.sign %></span>
+    </li>
+<% } %>
+</ul>
