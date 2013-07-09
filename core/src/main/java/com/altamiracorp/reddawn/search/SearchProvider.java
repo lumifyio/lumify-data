@@ -11,4 +11,6 @@ public interface SearchProvider {
     void add(Artifact artifact) throws Exception;
 
     Collection<ArtifactSearchResult> searchArtifacts(String query) throws Exception;
+
+    Collection<TermSearchResult> searchTerms (String query) throws Exception;
 }
