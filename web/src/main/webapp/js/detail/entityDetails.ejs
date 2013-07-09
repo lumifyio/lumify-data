@@ -1,34 +1,38 @@
-<h2><%= data.key.sign %></h2>
+<h2><%= key.sign %></h2>
 <ul>
-<% for(var subElementKey in data) {
-    if(data.hasOwnProperty(subElementKey) && subElementKey.substring(0,3) == 'urn') {
-        var termMention = data[subElementKey];
-        var originalSentenceText = termMention['atc:sentenceText'];
-        var originalSentenceTextParts = {};
+<% for(var subElementKey in mentions) {
+    var termMention = mentions[subElementKey];
+    var originalSentenceText = termMention['atc:sentenceText'];
+    var originalSentenceTextParts = {};
 
-        var artifactTermMention = JSON.parse(termMention.mention);
+    var artifactTermMention = JSON.parse(termMention.mention);
 
-        var termMentionStart = artifactTermMention.start - parseInt(termMention['atc:sentenceOffset'], 10);
-        var termMentionEnd = artifactTermMention.end - parseInt(termMention['atc:sentenceOffset'], 10);
+    var termMentionStart = artifactTermMention.start - parseInt(termMention['atc:sentenceOffset'], 10);
+    var termMentionEnd = artifactTermMention.end - parseInt(termMention['atc:sentenceOffset'], 10);
 
-        originalSentenceTextParts.before = originalSentenceText.substring(0, termMentionStart);
-        originalSentenceTextParts.term = originalSentenceText.substring(termMentionStart, termMentionEnd);
-        originalSentenceTextParts.after = originalSentenceText.substring(termMentionEnd);
+    originalSentenceTextParts.before = originalSentenceText.substring(0, termMentionStart);
+    originalSentenceTextParts.term = originalSentenceText.substring(termMentionStart, termMentionEnd);
+    originalSentenceTextParts.after = originalSentenceText.substring(termMentionEnd);
 
-        var highlightedSentenceText = originalSentenceTextParts.before + '<span class="entity ' + data.key.conceptLabel +
-                '">' + originalSentenceTextParts.term + '</span>' + originalSentenceTextParts.after;
+    var highlightedSentenceText = originalSentenceTextParts.before + '<span class="entity ' + key.conceptLabel +
+            '">' + originalSentenceTextParts.term + '</span>' + originalSentenceTextParts.after;
 
-        %>
-        <li>
-            <a href="/artifact/<%= termMention.artifactKey %>/raw" target="_blank">
-                <h4><%= termMention['atc:artifactSubject'] %></h4>
-            </a>
-            <p class="content highlight-underline">
-                <%= originalSentenceTextParts.before %><span class="entity <%= data.key.conceptLabel
-                    %>"><%= originalSentenceTextParts.term %></span><%=
-                originalSentenceTextParts.after %>
-            </p>
-        </li>
-    <% }
-} %>
+    %>
+    <li>
+        <a href="/artifact/<%= termMention.artifactKey %>/raw" target="_blank">
+            <h4><%= termMention['atc:artifactSubject'] %></h4>
+        </a>
+        <p class="content highlight-underline">
+            <%= originalSentenceTextParts.before %><span class="entity <%= key.conceptLabel
+                %>"><%= originalSentenceTextParts.term %></span><%=
+            originalSentenceTextParts.after %>
+        </p>
+    </li>
+<% } %>
 </ul>
+<% if(offset >= limit && offset > 0) { %>
+    <a href="entity/<%= key.value %>/<%= parseInt(offset) - parseInt(limit) %>/<%= limit %>" class="mention-request" data-info="<%= JSON.stringify(key) %>"> Previous </a>
+<% }
+if(limit == mentions.length) { %>
+<a href="entity/<%= key.value %>/<%= parseInt(offset) + parseInt(limit) %>/<%= limit %>" class="mention-request" data-info="<%= JSON.stringify(key) %>"> Next </a>
+<% } %>

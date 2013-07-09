@@ -50,6 +50,10 @@ function(ServiceBase) {
         this._get("entity", id, callback);
     };
 
+    Ucd.prototype.getEntityMentionsByRange = function (url, callback) {
+        return this._ajaxGet({ url: url }, callback);
+    }
+
     Ucd.prototype.getSpecificEntityRelationship = function (e1, e2, callback) {
         return this._ajaxGet({
             url: 'entity/relationship',

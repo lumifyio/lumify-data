@@ -25,13 +25,15 @@ define([
         this.defaultAttrs({
             mapCoordinatesSelector: '.map-coordinates',
             highlightTypeSelector: '.highlight-options a',
-            entitiesSelector: '.entity'
+            entitiesSelector: '.entity',
+            moreMentionsSelector: '.mention-request'
         });
 
         this.after('initialize', function() {
             this.on('click', {
                 mapCoordinatesSelector: this.onMapCoordinatesClicked,
-                highlightTypeSelector: this.onHighlightTypeClicked
+                highlightTypeSelector: this.onHighlightTypeClicked,
+                moreMentionsSelector: this.onRequestMoreMentions
             });
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
 
@@ -134,15 +136,49 @@ define([
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
 
-                    var entityDetailsData = {
-                        data: entity
-                    }
-                    console.log('Showing entity:', entityDetailsData);
-                    self.$node.html(entityDetailsTemplate(entityDetailsData));
+                    var offset = 0;
+                    var limit = 2; // change later
+                    var url = 'entity/' + data.rowKey + '/' + offset + '/' + limit;
+                    self.getMoreMentions(url, function(data){
+                        var entityDetailsData = data;
+                        entityDetailsData.key = entity.key;
+                        console.log('Showing entity:', entityDetailsData);
+                        self.$node.html(entityDetailsTemplate(entityDetailsData));
+                    });
+
                 });
 
             });
         };
+
+        this.onRequestMoreMentions = function(evt, data) {
+            var self = this;
+            var $target = $(evt.target);
+            data = {
+                key: JSON.parse($target.attr("data-info")),
+                url: $target.attr("href")
+            }
+
+            this.getMoreMentions(data.url, function(mentions){
+                var entityDetailsData = mentions;
+                entityDetailsData.key = data.key;
+                console.log('Showing entity:', entityDetailsData);
+                self.$node.html(entityDetailsTemplate(entityDetailsData));
+            });
+            evt.preventDefault();
+        }
+
+        this.getMoreMentions = function(url, callback) {
+
+            new UCD().getEntityMentionsByRange(url, function(err, mentions){
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+                console.log("Mentions: ", mentions);
+                callback(mentions);
+            });
+        }
 
         this.openUnlessAlreadyOpen = function(data, callback) {
             if (this.currentRowKey === data.rowKey) {
