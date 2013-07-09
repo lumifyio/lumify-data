@@ -94,7 +94,7 @@ function(ServiceBase) {
 
     Ucd.prototype._get = function (resource, id, callback) {
         //maybe it's an object for future options stuff?
-        var i = typeof id == "object" ? id.id : id;
+        var i = encodeURIComponent(typeof id == "object" ? id.id : id).replace(/\./, '%252e');
 
         return this._ajaxGet({
             url: resource + "/" + i,
