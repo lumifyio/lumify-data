@@ -71,6 +71,12 @@ public class ViewPreviewGenerator {
         for (double i = 0; i < videoFrames.size(); i += skip) {
             results.add(videoFrames.get((int) Math.floor(i)));
         }
+        if (results.size() < 20) {
+            results.add(videoFrames.get(videoFrames.size() - 1));
+        }
+        if (results.size() > 20) {
+            results.remove(results.size() - 1);
+        }
         return results;
     }
 }
