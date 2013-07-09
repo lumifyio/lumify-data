@@ -29,7 +29,11 @@ function(UCD, html2canvas, template) {
                 callback();
                 this.finished();
             } else {
-                if (artifact.type == 'video') {
+                if (artifact.type == 'image') {
+                    this.callback(artifact.rawUrl, artifact.rawUrl);
+                    PREVIEW_CACHE[this.rowKey] = [artifact.rawUrl, artifact.rawUrl];
+                    this.finished();
+                } else if (artifact.type == 'video') {
                     this.callback(artifact.posterFrameUrl, artifact.videoPreviewImageUrl);
                     PREVIEW_CACHE[this.rowKey] = [artifact.posterFrameUrl, artifact.videoPreviewImageUrl];
                     this.finished();

@@ -521,6 +521,15 @@ define([
                       'border-color': '#ccc',
                       'border-width': 1
                     })
+                  .selector('node.images')
+                    .css({
+                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
+                      'shape': 'rectangle',
+                      'width': 60 * 1.3 * pixelScale,
+                      'height': 60 * pixelScale,
+                      'border-color': '#ccc',
+                      'border-width': 1
+                    })
                   .selector('node')
                     .css({
                       'width': 30 * pixelScale,
