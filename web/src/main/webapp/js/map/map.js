@@ -337,6 +337,9 @@ define([
             map.changeZoom.addHandler(function() {
                 self.trigger(document, 'mapEndZoom');
             });
+            map.click.addHandler(function() {
+                self.trigger(document, 'searchResultSelected', []);
+            });
 
 
             if(document.mapProvider == 'leaflet') {
