@@ -30,10 +30,7 @@
 <% } %>
 
 <% if(artifact.type == 'video') { %>
-  <video class="video-js vjs-default-skin" controls preload="auto" width="auto" height="300" poster="<%= artifact.posterFrameUrl %>">
-    <source src="<%= artifact.rawUrl %>?playback=true&type=video/mp4" type="video/mp4">
-    <source src="<%= artifact.rawUrl %>?playback=true&type=video/webm" type="video/webm">
-  </video>
+  <div class="preview"/>
 <% } %>
 <% if(artifact.type == 'image') { %>
   <img src='<%= artifact.rawUrl %>' width="auto" height="300"/>

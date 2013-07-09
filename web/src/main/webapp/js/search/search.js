@@ -134,7 +134,7 @@ define([
                     if ( nodeState.inMap ) classes.push('map-displayed');
                 }
                 if (data.subType === 'videos' || data.subType === 'images') {
-                    classes.push('preview');
+                    classes.push('has_preview');
                 }
                 result.className = classes.join(' ');
             });

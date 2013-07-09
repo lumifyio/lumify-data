@@ -3,11 +3,13 @@ define([
     'flight/lib/component',
     'service/ucd',
     'videojs',
+    'util/video/scrubber',
+    'tpl!util/video/video',
     'tpl!./artifactDetails',
     'tpl!./entityDetails',
     'tpl!./relationshipDetails',
     'tpl!./multipleSelection'
-], function(defineComponent, UCD, videojs, artifactDetailsTemplate, entityDetailsTemplate, relationshipDetailsTemplate, multipleSelectionTemplate) {
+], function(defineComponent, UCD, videojs, VideoScrubber, videoTemplate, artifactDetailsTemplate, entityDetailsTemplate, relationshipDetailsTemplate, multipleSelectionTemplate) {
     'use strict';
 
     videojs.options.flash.swf = "/libs/video.js/video-js.swf";
@@ -30,6 +32,7 @@ define([
             mapCoordinatesSelector: '.map-coordinates',
             highlightTypeSelector: '.highlight-options a',
             entitiesSelector: '.entity',
+            previewSelector: '.preview',
             videoSelector: 'video'
         });
 
@@ -38,6 +41,8 @@ define([
                 mapCoordinatesSelector: this.onMapCoordinatesClicked,
                 highlightTypeSelector: this.onHighlightTypeClicked
             });
+
+            this.$node.one('click', '.preview', this.onPreviewClicked.bind(this));
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
         });
 
@@ -67,6 +72,26 @@ define([
             }
 
             this.useDefaultStyle = false;
+        };
+
+        this.onPreviewClicked = function(evt) {
+            var self = this,
+                players = videojs.players,
+                video = $(videoTemplate({
+                    mp4Url: self.currentArtifact.rawUrl + '?playback=true&type=video/mp4',
+                    webmUrl: self.currentArtifact.rawUrl + '?playback=true&type=video/webm',
+                    posterUrl: self.currentArtifact.posterFrameUrl
+                }));
+
+
+            this.select('previewSelector').html(video);
+            Object.keys(players).forEach(function(player) {
+                if (players[player]) {
+                    players[player].dispose();
+                    delete players[player];
+                }
+            });
+            videojs(video[0], { autoplay:true }, function() { });
         };
 
 
@@ -107,6 +132,8 @@ define([
                 data = data[0];
             }
 
+            self.currentArtifact = null;
+
             if ( !data || data.length === 0 ) {
                 this.$node.empty();
                 this.currentRowKey = null;
@@ -144,6 +171,8 @@ define([
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
+
+                    self.currentArtifact = artifact;
                     console.log('Showing artifact:', artifact);
                     artifact.contentHtml = artifact.Content.highlighted_text || artifact.Content.doc_extracted_text || "";
                     artifact.contentHtml = artifact.contentHtml.replace(/[\n]+/g, "<br><br>\n");
@@ -205,21 +234,10 @@ define([
         };
 
         this.setupVideo = function(artifact) {
-            var self = this,
-                video = this.select('videoSelector'),
-                players = videojs.players;
-
-            if (video.length) {
-                Object.keys(players).forEach(function(player) {
-                    if (players[player]) {
-                        players[player].dispose();
-                        delete players[player];
-                    }
-                });
-                videojs(video[0], {}, function() {
-                    self.trigger('videoReady', {artifact:artifact});
-                });
-            }
+            VideoScrubber.attachTo(this.select('previewSelector'), {
+                poster: artifact.posterFrameUrl,
+                frames: artifact.videoPreviewImageUrl
+            });
         };
 
         this.applyHighlightStyle = function() {
