@@ -38,7 +38,7 @@ public class EntityByRowKey implements Handler, AppAware {
         if (term == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            new Responder(response).respondWith(term.toJson());
+            new Responder(response).respondWith(term.toContentJson());
         }
 
         chain.next(request, response);
