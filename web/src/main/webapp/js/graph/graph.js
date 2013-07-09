@@ -137,7 +137,7 @@ define([
                     x: p.left - c.left + el.width() / 2.0, 
                     y: p.top - c.top + el.height() / 2.0
                 };
-
+                
             this.trigger(document, 'nodesAdd', {
                 nodes: [{
                     title: data.text,

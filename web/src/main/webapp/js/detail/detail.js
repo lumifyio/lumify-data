@@ -9,8 +9,9 @@ define([
     'tpl!./entityDetails',
     'tpl!./artifactToEntityRelationshipDetails',
     'tpl!./entityToEntityRelationshipDetails',
-    'tpl!./multipleSelection'
-], function(defineComponent, UCD, videojs, VideoScrubber, videoTemplate, artifactDetailsTemplate, entityDetailsTemplate, artifactToEntityRelationshipDetails, entityToEntityRelationshipDetails, multipleSelectionTemplate) {
+    'tpl!./multipleSelection',
+    'tpl!./style'
+], function(defineComponent, UCD, videojs, VideoScrubber, videoTemplate, artifactDetailsTemplate, entityDetailsTemplate, artifactToEntityRelationshipDetails, entityToEntityRelationshipDetails, multipleSelectionTemplate, styleTemplate) {
     'use strict';
 
     videojs.options.flash.swf = "/libs/video.js/video-js.swf";
@@ -172,7 +173,11 @@ define([
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
                     console.log(relationshipData);
+                    relationshipData.styleHtml = self.getStyleHtml();
                     self.$node.html(entityToEntityRelationshipDetails(relationshipData));
+
+                    self.applyHighlightStyle();
+                    self.updateEntityDraggables();
                 });
             } else {
                 self.$node.html("Bad relationship type:" + data.relationshipType);
@@ -194,18 +199,21 @@ define([
                     console.log('Showing artifact:', artifact);
                     artifact.contentHtml = artifact.Content.highlighted_text || artifact.Content.doc_extracted_text || "";
                     artifact.contentHtml = artifact.contentHtml.replace(/[\n]+/g, "<br><br>\n");
-                    self.$node.html(artifactDetailsTemplate({ artifact: artifact, styles:HIGHLIGHT_STYLES, activeStyle:self.getActiveStyle() }));
+                    var styleHtml = self.getStyleHtml();
+                    self.$node.html(artifactDetailsTemplate({ artifact: artifact, styleHtml: styleHtml }));
 
                     if (artifact.type == 'video') {
                         self.setupVideo(artifact);
                     }
                     self.applyHighlightStyle();
-
                     self.updateEntityDraggables();
                 });
             });
         };
 
+        this.getStyleHtml = function() {
+            return styleTemplate({ styles: HIGHLIGHT_STYLES, activeStyle: this.getActiveStyle() });
+        };
 
         this.onEntitySelected = function(evt, data) {
             this.openUnlessAlreadyOpen(data, function(finished) {

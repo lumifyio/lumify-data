@@ -1,17 +1,7 @@
 <div class="btn-toolbar">
 
   <% if(artifact.type != 'video') { %>
-  <div class="btn-group">
-    <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-      Highlight
-      <span class="caret"></span>
-    </a>
-    <ul class="highlight-options dropdown-menu">
-      <% styles.forEach(function(style, i) { %>
-      <li class="<%= i === activeStyle ? 'checked' : '' %>" data-cls="<%= style.cls || '' %>"><a href="#"><%= style.name %></a></li>
-      <% }); %>
-    </ul>
-  </div>
+    <%- styleHtml %>
   <% } %>
 
   <div class="btn-group">
