@@ -226,32 +226,31 @@ define([
         }
 
         this.onRelationshipSelected = function(evt, data) {
-            var self = this;
-            this.$node.html("Loading...");
-            // TODO show something more useful here.
-            console.log('Showing relationship:', data);
-            if(data.relationshipType == 'artifactToEntity') {
-                this.trigger(document, 'searchResultSelected', {
-                    type: 'artifact',
-                    rowKey: data.source,
-                    entityOfInterest: data.target
-                });
-            } else if(data.relationshipType == 'entityToEntity') {
-                new UCD().getEntityToEntityRelationshipDetails(data.source, data.target, function(err, relationshipData) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-                    console.log(relationshipData);
-                    relationshipData.styleHtml = self.getStyleHtml();
-                    self.$node.html(entityToEntityRelationshipDetailsTemplate(relationshipData));
+            this.openUnlessAlreadyOpen(data, function(finished) {
+                var self = this;
+                if(data.relationshipType == 'artifactToEntity') {
+                    finished(true);
+                    self.$node.html(artifactToEntityRelationshipDetailsTemplate(data));
+                } else if(data.relationshipType == 'entityToEntity') {
+                    new UCD().getEntityToEntityRelationshipDetails(data.source, data.target, function(err, relationshipData) {
+                        finished(!err);
 
-                    self.applyHighlightStyle();
-                    self.updateEntityAndArtifactDraggables();
-                });
-            } else {
-                self.$node.html("Bad relationship type:" + data.relationshipType);
-            }
+                        if(err) {
+                            console.error('Error', err);
+                            return self.trigger(document, 'error', { message: err.toString() });
+                        }
+                        console.log(relationshipData);
+                        relationshipData.styleHtml = self.getStyleHtml();
+                        self.$node.html(entityToEntityRelationshipDetailsTemplate(relationshipData));
+
+                        self.applyHighlightStyle();
+                        self.updateEntityAndArtifactDraggables();
+                    });
+                } else {
+                    finished(false);
+                    self.$node.html("Bad relationship type:" + data.relationshipType);
+                }
+            });
         };
 
         this.onArtifactSelected = function(evt, data) {
