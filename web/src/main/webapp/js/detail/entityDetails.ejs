@@ -6,35 +6,23 @@
 
 <h3>Mentions</h3>
 <ul>
-<% for(var subElementKey in mentions) {
-    var termMention = mentions[subElementKey];
-    var originalSentenceText = termMention['atc:sentenceText'];
-    var originalSentenceTextParts = {};
-
-    var artifactTermMention = JSON.parse(termMention.mention);
-
-    var termMentionStart = artifactTermMention.start - parseInt(termMention['atc:sentenceOffset'], 10);
-    var termMentionEnd = artifactTermMention.end - parseInt(termMention['atc:sentenceOffset'], 10);
-
-    originalSentenceTextParts.before = originalSentenceText.substring(0, termMentionStart);
-    originalSentenceTextParts.term = originalSentenceText.substring(termMentionStart, termMentionEnd);
-    originalSentenceTextParts.after = originalSentenceText.substring(termMentionEnd);
-
-    var highlightedSentenceText = originalSentenceTextParts.before + '<span class="entity ' + key.conceptLabel +
-            '">' + originalSentenceTextParts.term + '</span>' + originalSentenceTextParts.after;
-
-    %>
+<% mentions.forEach(function(termMention) { %>
     <li>
-        <a class="mention-artifact" href="artifact/<%= termMention.artifactKey %>" data-row-key="<%= termMention.artifactKey %>">
+        <a class="mention-artifact artifact" href="artifact/<%= termMention.artifactKey %>"
+                    data-row-key="<%= termMention.artifactKey %>"
+                    data-info="<%= JSON.stringify({
+                        'rowKey': termMention.artifactKey,
+                        'type': 'artifact',
+                        'subType': (termMention['atc:artifactType'] || '').toLowerCase(),
+                        'title': termMention['atc:artifactSubject'] || 'No title Available'
+                    })%>">
             <h4><%= termMention['atc:artifactSubject'] %></h4>
         </a>
         <p>
-            <%= originalSentenceTextParts.before %><span class="entity <%= key.conceptLabel
-                %>"><%= originalSentenceTextParts.term %></span><%=
-            originalSentenceTextParts.after %>
+            <%- termMention.highlightedSentenceText %>
         </p>
     </li>
-<% } %>
+<% }); %>
 </ul>
 <% if(offset >= limit && offset > 0) { %>
     <a href="entity/<%= key.value %>/<%= parseInt(offset) - parseInt(limit) %>/<%= limit %>" class="mention-request" data-key="<%= JSON.stringify(key) %>" data-relationships="<%= JSON.stringify(relationships) %>"> Previous </a>
@@ -45,13 +33,25 @@ if(limit == mentions.length) { %>
 
 <h3>Relationships</h3>
 <ul>
-<% for(var index in relationships) {
-    var relationship = relationships[index];
-%>
+<% relationships.forEach(function(relationship) { %>
     <li>
-        <span class="entity <%= relationship.subjectRowKey.conceptLabel %>" data-info='{"subType": "<%= relationship.subjectRowKey.conceptLabel %>", "rowKey": "<%= relationship.subjectRowKey.value.replace(/\x1f/g, '\\\\x1F') %>", "type": "entity"}'><%= relationship.subjectRowKey.sign %></span>
+        <span
+            class="entity <%= relationship.subjectRowKey.conceptLabel %>"
+            data-info="<%= JSON.stringify({
+              'rowKey': relationship.subjectRowKey.value,
+              'type': 'entity',
+              'subType': relationship.subjectRowKey.conceptLabel
+            }) %>"><%= relationship.subjectRowKey.sign %>
+        </span>
         <%= relationship.predicateLabel.predicateLabel %>
-        <span class="entity <%= relationship.objectRowKey.conceptLabel %>" data-info='{"subType": "<%= relationship.objectRowKey.conceptLabel %>", "rowKey": "<%= relationship.objectRowKey.value.replace(/\x1f/g, '\\\\x1F') %>", "type": "entity"}'><%= relationship.objectRowKey.sign %></span>
+        <span
+            class="entity <%= relationship.objectRowKey.conceptLabel %>"
+            data-info="<%= JSON.stringify({
+              'rowKey': relationship.objectRowKey.value,
+              'type': 'entity',
+              'subType': relationship.objectRowKey.conceptLabel
+            }) %>"><%= relationship.objectRowKey.sign %>
+        </span>
     </li>
-<% } %>
+<% }) %>
 </ul>

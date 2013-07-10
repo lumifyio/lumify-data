@@ -303,7 +303,15 @@ define([
                     var offset = 0;
                     var limit = 2; // change later
                     var url = 'entity/' + data.rowKey + '/' + offset + '/' + limit;
-                    self.getMoreMentions(url, function(mentions) {
+                    var dataInfo = JSON.stringify({
+                        'rowKey': entity.key.value,
+                        'type': 'entity',
+                        'subType': entity.key.conceptLabel
+                    });
+
+                    console.log(dataInfo);
+
+                    self.getMoreMentions(url, entity.key, dataInfo, function(mentions) {
                         var entityDetailsData = mentions;
                         entityDetailsData.key = entity.key;
 
@@ -331,7 +339,13 @@ define([
                 url: $target.attr("href")
             }
 
-            this.getMoreMentions(data.url, function(mentions){
+            var dataInfo = JSON.stringify({
+                'rowKey': data.key.value,
+                'type': 'entity',
+                'subType': data.key.conceptLabel
+            });
+
+            this.getMoreMentions(data.url, data.key, dataInfo, function(mentions){
                 var entityDetailsData = mentions;
                 entityDetailsData.key = data.key;
                 entityDetailsData.relationships = data.relationships;
@@ -344,12 +358,31 @@ define([
             evt.preventDefault();
         }
 
-        this.getMoreMentions = function(url, callback) {
+        this.getMoreMentions = function(url, key, dataInfo, callback) {
             new UCD().getEntityMentionsByRange(url, function(err, mentions){
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
+
+                for(var i = 0; i < mentions.mentions.length; i++) {
+                    var termMention = mentions.mentions[i];
+                    var originalSentenceText = termMention['atc:sentenceText'];
+                    var originalSentenceTextParts = {};
+
+                    var artifactTermMention = JSON.parse(termMention.mention);
+
+                    var termMentionStart = artifactTermMention.start - parseInt(termMention['atc:sentenceOffset'], 10);
+                    var termMentionEnd = artifactTermMention.end - parseInt(termMention['atc:sentenceOffset'], 10);
+
+                    originalSentenceTextParts.before = originalSentenceText.substring(0, termMentionStart);
+                    originalSentenceTextParts.term = originalSentenceText.substring(termMentionStart, termMentionEnd);
+                    originalSentenceTextParts.after = originalSentenceText.substring(termMentionEnd);
+
+                    termMention.highlightedSentenceText = originalSentenceTextParts.before + '<span class="entity ' + key.conceptLabel +
+                            '" data-info=\'' + dataInfo + '\'>' + originalSentenceTextParts.term + '</span>' + originalSentenceTextParts.after;
+                };
+
                 console.log("Mentions: ", mentions);
                 callback(mentions);
             });
