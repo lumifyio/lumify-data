@@ -44,11 +44,11 @@ public class ArtifactSearch implements Handler, AppAware {
     private JSONObject artifactsToSearchResults(Collection<ArtifactSearchResult> artifacts, HttpServletRequest request) throws JSONException, UnsupportedEncodingException {
         JSONObject results = new JSONObject();
         JSONArray documents = new JSONArray();
-        results.put("documents", documents);
+        results.put("document", documents);
         JSONArray videos = new JSONArray();
-        results.put("videos", videos);
+        results.put("video", videos);
         JSONArray images = new JSONArray();
-        results.put("images", images);
+        results.put("image", images);
 
         for (ArtifactSearchResult artifactSearchResult : artifacts) {
             JSONObject artifactJson = artifactToSearchResult(request, artifactSearchResult);

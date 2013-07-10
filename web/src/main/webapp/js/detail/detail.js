@@ -146,9 +146,9 @@ define([
             } else if($.isArray(data)) {
                 this.$node.html(multipleSelectionTemplate({nodes:data}));
                 this.currentRowKey = null;
-            } else if(data.type == 'artifacts') {
+            } else if(data.type == 'artifact') {
                 this.onArtifactSelected(evt, data);
-            } else if(data.type == 'entities') {
+            } else if(data.type == 'entity') {
                 this.onEntitySelected(evt, data);
             } else if(data.type == 'relationship') {
                 this.onRelationshipSelected(evt, data);

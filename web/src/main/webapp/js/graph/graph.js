@@ -67,7 +67,7 @@ define([
                     cyNode.addClass(node.subType);
                     cyNode.addClass(node.type);
 
-                    if (node.type === 'artifacts') {
+                    if (node.type === 'artifact') {
                         previews.generatePreview(node.rowKey, { width:178 * pixelScale }, function(dataUri) {
                             if (dataUri) {
                                 cyNode.css('background-image', dataUri);
@@ -517,7 +517,7 @@ define([
                       'border-color': '#ccc',
                       'border-width': 1
                     })
-                  .selector('node.videos')
+                  .selector('node.video')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'rectangle',
@@ -526,7 +526,7 @@ define([
                       'border-color': '#ccc',
                       'border-width': 1
                     })
-                  .selector('node.images')
+                  .selector('node.image')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'rectangle',

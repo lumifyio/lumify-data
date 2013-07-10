@@ -162,7 +162,7 @@ define([
 
         this.updateNodeLocation = function(node) {
             var self = this;
-            if(node.type == 'entities') {
+            if(node.type == 'entity') {
                 this.ucdService.getEntityById(node.rowKey, function(err, entity) {
                     if(err) {
                         console.error('Error', err);
@@ -192,7 +192,7 @@ define([
                     };
                     self.trigger(document, 'nodesUpdate', nodesUpdateData);
                 });
-            } else if(node.type == 'artifacts') {
+            } else if(node.type == 'artifact') {
                 this.ucdService.getArtifactById(node.rowKey, function(err, artifact) {
                     if(err) {
                         console.error('Error', err);

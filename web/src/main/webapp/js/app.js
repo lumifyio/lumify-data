@@ -347,7 +347,7 @@ define([
             }
             return this.workspaceData.data.nodes
                 .filter(function(node) {
-                    return node.type == 'entities';
+                    return node.type == 'entity';
                 })
                 .map(function(node) {
                     return node.rowKey;
@@ -360,7 +360,7 @@ define([
             }
             return this.workspaceData.data.nodes
                 .filter(function(node) {
-                    return node.type == 'artifacts';
+                    return node.type == 'artifact';
                 })
                 .map(function(node) {
                     return node.rowKey;

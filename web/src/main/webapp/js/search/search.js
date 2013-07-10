@@ -34,16 +34,16 @@ define([
 
         this.onArtifactSearchResults = function(evt, artifacts) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            $searchResultsSummary.find('.documents .badge').removeClass('loading').text(artifacts.documents.length);
-            $searchResultsSummary.find('.images .badge').removeClass('loading').text(artifacts.images.length);
-            $searchResultsSummary.find('.videos .badge').removeClass('loading').text(artifacts.videos.length);
+            $searchResultsSummary.find('.document .badge').removeClass('loading').text(artifacts.document.length);
+            $searchResultsSummary.find('.image .badge').removeClass('loading').text(artifacts.image.length);
+            $searchResultsSummary.find('.video .badge').removeClass('loading').text(artifacts.video.length);
         };
 
         this.onEntitySearchResults = function(evt, entities) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            $searchResultsSummary.find('.people .badge').removeClass('loading').text((entities.person || []).length);
-            $searchResultsSummary.find('.locations .badge').removeClass('loading').text((entities.location || []).length);
-            $searchResultsSummary.find('.organizations .badge').removeClass('loading').text((entities.organization || []).length);
+            $searchResultsSummary.find('.person .badge').removeClass('loading').text((entities.person || []).length);
+            $searchResultsSummary.find('.location .badge').removeClass('loading').text((entities.location || []).length);
+            $searchResultsSummary.find('.organization .badge').removeClass('loading').text((entities.organization || []).length);
         };
 
         this.onFormSearch = function(evt) {
@@ -83,7 +83,7 @@ define([
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
-                self.searchResults.artifacts = artifacts;
+                self.searchResults.artifact = artifacts;
                 self.trigger('artifactSearchResults', artifacts);
             });
             this.ucd.entitySearch(query, function(err, entities) {
@@ -91,7 +91,7 @@ define([
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
-                self.searchResults.entities = entities;
+                self.searchResults.entity = entities;
                 self.trigger('entitySearchResults', entities);
             });
         };
@@ -118,9 +118,9 @@ define([
             data.results = this.searchResults[data.type][data.subType] || [];
 
             data.results.forEach(function(result) {
-                if(data.type == 'artifacts') {
+                if(data.type == 'artifact') {
                     result.title = result.subject;
-                } else if(data.type == 'entities') {
+                } else if(data.type == 'entity') {
                     result.title = result.sign;
                 } else {
                     result.title = 'Error: unknown type: ' + data.type;
@@ -133,12 +133,11 @@ define([
                     if ( nodeState.inGraph ) classes.push('graph-displayed');
                     if ( nodeState.inMap ) classes.push('map-displayed');
                 }
-                if (data.subType === 'videos' || data.subType === 'images') {
+                if (data.subType === 'video' || data.subType === 'image') {
                     classes.push('has_preview');
                 }
                 result.className = classes.join(' ');
             });
-
 
             // Add splitbar to search results
             $searchResults.resizable({
@@ -210,16 +209,20 @@ define([
                     info = li.data('info'),
                     rowKey = info.rowKey;
 
-                if ((info.subType === 'videos' || info.subType === 'images') && !li.data('preview-loaded')) {
+                if ((info.subType === 'video' || info.subType === 'image') && !li.data('preview-loaded')) {
                     li.addClass('preview-loading');
                     previews.generatePreview(rowKey, null, function(poster, frames) {
                         li.removeClass('preview-loading')
                           .data('preview-loaded', true);
 
-                        VideoScrubber.attachTo(li.find('.preview'), {
-                            poster: poster,
-                            frames: frames
-                        });
+                        if(info.subType === 'video') {
+                            VideoScrubber.attachTo(li.find('.preview'), {
+                                poster: poster,
+                                frames: frames
+                            });
+                        } else if(info.subType === 'image') {
+                            li.find('.preview').html("<img src='" + poster + "' />");
+                        }
                     });
                 }
             });
