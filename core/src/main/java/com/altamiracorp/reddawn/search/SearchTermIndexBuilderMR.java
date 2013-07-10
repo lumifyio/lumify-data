@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.search;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
-import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
+import com.altamiracorp.reddawn.ucd.AccumuloTermInputFormat;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.util.CachedConfiguration;
@@ -19,14 +19,14 @@ public class SearchTermIndexBuilderMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class <? extends Mapper> getMapperClass (Job job, Class clazz){
-        SearchMapper.init(job, clazz);
-        return SearchMapper.class;
+        TermSearchMapper.init(job, clazz);
+        return TermSearchMapper.class;
     }
 
     @Override
     protected Class <? extends InputFormat> getInputFormatClassAndInit (Job job){
-        AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
-        return AccumuloArtifactInputFormat.class;
+        AccumuloTermInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+        return AccumuloTermInputFormat.class;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class SearchTermIndexBuilderMR extends ConfigurableMapJobBase {
         return NullOutputFormat.class;
     }
 
-    public static class SearchMapper extends Mapper<Text, Term, Text, Mutation> {
+    public static class TermSearchMapper extends Mapper<Text, Term, Text, Mutation> {
         private static final String CONF_TERM_SEARCH_INDEX_BUILDER_CLASS="searchTermIndexBuilder";
         private SearchProvider searchProvider;
 
