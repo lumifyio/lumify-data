@@ -120,6 +120,7 @@ define([
         };
 
 		this.handleUserChanges = function (err, data) { // on user change
+            if (!data) return;
 			var self = this;
 			data.users.forEach(function(user) {
 				if (user.id == self.currentUserId) {
@@ -162,7 +163,9 @@ define([
 				
 				self.usersService.subscribeToUserChangeChannel (self.currentUserId,self.handleUserChanges.bind(self));
 				self.usersService.subscribeToChatChannel(self.currentUserId,function (err, data) {
-					self.trigger(document,"message",data);
+                    if (data) {
+                        self.trigger(document,"message",data);
+                    }
 				});
             });
         };
