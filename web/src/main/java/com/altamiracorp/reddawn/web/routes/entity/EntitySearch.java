@@ -75,7 +75,7 @@ public class EntitySearch implements Handler, AppAware {
         termJson.put("url", EntityByRowKey.getUrl(request, termSearchResult.getRowKey()));
         termJson.put("rowKey", termSearchResult.getRowKey().toString());
         termJson.put("sign", termSearchResult.getSign());
-        termJson.put("model", termSearchResult.getRowKey().getModelKey());
+        termJson.put("conceptLabel", termSearchResult.getRowKey().getConceptLabel());
         return termJson;
     }
 }
