@@ -7,7 +7,6 @@ define([
     'tpl!util/video/video',
     'tpl!./artifactDetails',
     'tpl!./entityDetails',
-    'tpl!./artifactToEntityRelationshipDetails',
     'tpl!./entityToEntityRelationshipDetails',
     'tpl!./entityToEntityRelationshipExcerpts',
     'tpl!./multipleSelection',
@@ -20,7 +19,6 @@ define([
     videoTemplate,
     artifactDetailsTemplate,
     entityDetailsTemplate,
-    artifactToEntityRelationshipDetailsTemplate,
     entityToEntityRelationshipDetailsTemplate,
     entityToEntityRelationshipExcerptsTemplate,
     multipleSelectionTemplate,
@@ -221,10 +219,10 @@ define([
             var $target = $(evt.target).parents('a');
 
             this.trigger(document, 'searchResultSelected', {
-                type: 'artifacts',
+                type: 'artifact',
                 rowKey: $target.data("row-key")
-             });
-             evt.preventDefault();
+            });
+            evt.preventDefault();
         }
 
         this.onRelationshipSelected = function(evt, data) {
@@ -233,7 +231,10 @@ define([
             // TODO show something more useful here.
             console.log('Showing relationship:', data);
             if(data.relationshipType == 'artifactToEntity') {
-                self.$node.html(artifactToEntityRelationshipDetailsTemplate(data));
+                this.trigger(document, 'searchResultSelected', {
+                    type: 'artifact',
+                    rowKey: data.source
+                });
             } else if(data.relationshipType == 'entityToEntity') {
                 new UCD().getEntityToEntityRelationshipDetails(data.source, data.target, function(err, relationshipData) {
                     if(err) {
