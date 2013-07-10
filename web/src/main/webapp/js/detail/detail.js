@@ -10,6 +10,7 @@ define([
     'tpl!./entityToEntityRelationshipDetails',
     'tpl!./entityToEntityRelationshipExcerpts',
     'tpl!./multipleSelection',
+    'tpl!./entityDetailsMentions',
     'tpl!./style'
 ], function(
     defineComponent,
@@ -22,6 +23,7 @@ define([
     entityToEntityRelationshipDetailsTemplate,
     entityToEntityRelationshipExcerptsTemplate,
     multipleSelectionTemplate,
+    entityDetailsMentionsTemplate,
     styleTemplate) {
     'use strict';
 
@@ -50,7 +52,8 @@ define([
             mentionArtifactSelector: '.mention-artifact',
             previewSelector: '.preview',
             videoSelector: 'video',
-            entityToEntityRelationshipSelector: '.entity-to-entity-relationship a.relationship-summary'
+            entityToEntityRelationshipSelector: '.entity-to-entity-relationship a.relationship-summary',
+            entityDetailsMentionsSelector: '.entity-mentions'
         });
 
         this.after('initialize', function() {
@@ -313,10 +316,8 @@ define([
                         'subType': entity.key.conceptLabel
                     });
 
-                    console.log(dataInfo);
-
-                    self.getMoreMentions(url, entity.key, dataInfo, function(mentions) {
-                        var entityDetailsData = mentions;
+                    self.getMoreMentions(url, entity.key, dataInfo, function(mentionsHtml) {
+                        var entityDetailsData = {};
                         entityDetailsData.key = entity.key;
 
                         self.getRelationships(data.rowKey, function(relationships) {
@@ -324,6 +325,7 @@ define([
                             console.log('Showing entity:', entityDetailsData);
                             entityDetailsData.styleHtml = self.getStyleHtml();
                             self.$node.html(entityDetailsTemplate(entityDetailsData));
+                            $('.entity-mentions', self.$node).html(mentionsHtml);
                             self.applyHighlightStyle();
                             self.updateEntityAndArtifactDraggables();
                         });
@@ -339,7 +341,6 @@ define([
             var $target = $(evt.target);
             data = {
                 key: $target.data('key'),
-                relationships: $target.data('relationships'),
                 url: $target.attr("href")
             };
 
@@ -349,13 +350,8 @@ define([
                 'subType': data.key.conceptLabel
             });
 
-            this.getMoreMentions(data.url, data.key, dataInfo, function(mentions){
-                var entityDetailsData = mentions;
-                entityDetailsData.key = data.key;
-                entityDetailsData.relationships = data.relationships;
-                console.log('Showing entity:', entityDetailsData);
-                entityDetailsData.styleHtml = self.getStyleHtml();
-                self.$node.html(entityDetailsTemplate(entityDetailsData));
+            this.getMoreMentions(data.url, data.key, dataInfo, function(mentionsHtml){
+                $('.entity-mentions', self.$node).html(mentionsHtml);
                 self.applyHighlightStyle();
                 self.updateEntityAndArtifactDraggables();
             });
@@ -386,9 +382,14 @@ define([
                     termMention.highlightedSentenceText = originalSentenceTextParts.before + '<span class="entity ' + key.conceptLabel +
                             '" data-info=\'' + dataInfo + '\'>' + originalSentenceTextParts.term + '</span>' + originalSentenceTextParts.after;
                 };
-
+                var html = entityDetailsMentionsTemplate({
+                    mentions: mentions.mentions,
+                    limit: mentions.limit,
+                    offset: mentions.offset,
+                    key: key
+                });
                 console.log("Mentions: ", mentions);
-                callback(mentions);
+                callback(html);
             });
         };
 

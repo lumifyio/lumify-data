@@ -97,7 +97,8 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
                 .setMentionEnd(termMentionEnd)
                 .setSentenceText(sentence.getData().getText())
                 .setSentenceTokenOffset(Long.toString(sentence.getRowKey().getStartOffset()))
-                .setArtifactSubject(sentence.getMetadata().getArtifactSubject());
+                .setArtifactSubject(sentence.getMetadata().getArtifactSubject())
+                .setArtifactType(sentence.getMetadata().getArtifactType());
         setSecurityMarking(termMention, sentence);
         Term term = new Term(termKey)
                 .addTermMention(termMention);
