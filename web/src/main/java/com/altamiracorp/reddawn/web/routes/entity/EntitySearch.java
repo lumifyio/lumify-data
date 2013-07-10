@@ -61,7 +61,7 @@ public class EntitySearch implements Handler, AppAware {
                 person.put(termObject);
             }
             else if (conceptLabel.toLowerCase().contains("location")){
-                person.put(termObject);
+                location.put(termObject);
             }
             else{
                 throw new RuntimeException("Unhandled entity type: " + conceptLabel);
