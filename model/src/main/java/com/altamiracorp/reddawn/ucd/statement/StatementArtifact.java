@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.ucd.statement;
 import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.RowKeyHelper;
 import com.altamiracorp.reddawn.model.Value;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 
 public class StatementArtifact extends ColumnFamily {
     public static final String ARTIFACT_KEY = "artifactKey";
@@ -13,6 +14,7 @@ public class StatementArtifact extends ColumnFamily {
     public static final String SENTENCE = "sentence";
     public static final String SENTENCE_TEXT = "atc:sentence_text";
     public static final String ARTIFACT_SUBJECT = "atc:artifact_subject";
+    public static final String ARTIFACT_TYPE = "atc:artifact_type";
 
     public StatementArtifact(String columnFamilyName) {
         super(columnFamilyName);
@@ -106,6 +108,15 @@ public class StatementArtifact extends ColumnFamily {
 
     public StatementArtifact setArtifactSubject(String artifactSubject) {
         set(ARTIFACT_SUBJECT, artifactSubject);
+        return this;
+    }
+
+    public String getArtifactType() {
+        return Value.toString(get(ARTIFACT_TYPE));
+    }
+
+    public StatementArtifact setArtifactType(ArtifactType artifactType) {
+        set(ARTIFACT_TYPE, artifactType.toString());
         return this;
     }
 }

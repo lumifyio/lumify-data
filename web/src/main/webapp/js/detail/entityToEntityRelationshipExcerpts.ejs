@@ -1,6 +1,15 @@
 <ul>
     <% mentions.forEach(function(mention) { %>
-        <h4><%= mention['atc:artifact_subject'] || 'No title Available' %></h4>
+        <a class="mention-artifact artifact" href="artifact/<%= mention.artifactKey %>"
+           data-row-key="<%= mention.artifactKey %>"
+           data-info="<%= JSON.stringify({
+             'rowKey': mention.artifactKey,
+             'type': 'artifacts',
+             'subType': mention['atc:artifact_type'].toLowerCase() + 's',
+             'title': mention['atc:artifact_subject'] || 'No title Available'
+           }) %>">
+            <h4><%= mention['atc:artifact_subject'] || 'No title Available' %></h4>
+        </a>
         <%= mention['atc:sentence_text'] %>
     <% }) %>
 </ul>
