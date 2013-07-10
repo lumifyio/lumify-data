@@ -325,10 +325,10 @@ define([
             var self = this;
             var $target = $(evt.target);
             data = {
-                key: JSON.parse($target.attr("data-key")),
-                relationships: JSON.parse($target.attr("data-relationships")),
+                key: $target.data('key'),
+                relationships: $target.data('relationships'),
                 url: $target.attr("href")
-            }
+            };
 
             this.getMoreMentions(data.url, function(mentions){
                 var entityDetailsData = mentions;
@@ -341,7 +341,7 @@ define([
                 self.updateEntityAndArtifactDraggables();
             });
             evt.preventDefault();
-        }
+        };
 
         this.getMoreMentions = function(url, callback) {
             new UCD().getEntityMentionsByRange(url, function(err, mentions){
@@ -352,7 +352,7 @@ define([
                 console.log("Mentions: ", mentions);
                 callback(mentions);
             });
-        }
+        };
 
         this.getRelationships = function(rowKey, callback) {
             var self = this;
@@ -364,8 +364,8 @@ define([
 
                 console.log("Relationships: ", relationships);
                 callback(relationships);
-            })
-        }
+            });
+        };
 
         this.openUnlessAlreadyOpen = function(data, callback) {
             if (this.currentRowKey === data.rowKey) {
