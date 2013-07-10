@@ -56,10 +56,6 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
         }
 
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
-            if (artifact.getType() != ArtifactType.DOCUMENT) {
-                return;
-            }
-
             try {
                 LOGGER.info("Creating highlight text for: " + artifact.getRowKey().toString());
                 Collection<Term> terms = termRepository.findByArtifactRowKey(session.getModelSession(), artifact.getRowKey().toString());
