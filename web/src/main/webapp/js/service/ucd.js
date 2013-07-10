@@ -115,6 +115,10 @@ function(ServiceBase) {
     };
 
     Ucd.prototype._get = function (resource, id, callback) {
+        if(!id) {
+            return callback(new Error("Invalid or no id specified for resource '" + resource + "'"));
+        }
+
         //maybe it's an object for future options stuff?
         var i = encodeURIComponent(typeof id == "object" ? id.id : id).replace(/\./g, '%252e');
 
