@@ -49,8 +49,27 @@ public class EntitySearch implements Handler, AppAware {
 
     private JSONObject termsToSearchResults (Collection <TermSearchResult> terms, HttpServletRequest request) throws JSONException{
         JSONObject termsJson = new JSONObject();
+        JSONArray person = new JSONArray();
+        termsJson.put("person", person);
+        JSONArray location = new JSONArray();
+        termsJson.put("location", location);
+        JSONArray org = new JSONArray();
+        termsJson.put("organization", org);
         for (TermSearchResult termSearchResult : terms){
             JSONObject termObject = termToSearchResult (request, termSearchResult);
+            String conceptLabel = termSearchResult.getRowKey().getConceptLabel();
+            if (conceptLabel.toLowerCase().contains("organization")){
+                org.put(termObject);
+            }
+            else if (conceptLabel.toLowerCase().contains("person")){
+                person.put(termObject);
+            }
+            else if (conceptLabel.toLowerCase().contains("location")){
+                person.put(termObject);
+            }
+            else{
+                throw new RuntimeException("Unhandled entity type: " + conceptLabel);
+            }
         }
         return termsJson;
     }
