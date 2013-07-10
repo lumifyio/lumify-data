@@ -4,28 +4,30 @@ import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 
 public class TermSearchResult {
     private final String sign;
-    private final String rowKey;
+    private final TermRowKey rowKey;
+    private final String conceptLabel;
 
-    public TermSearchResult (String rowKey, String sign){
-        this.rowKey = rowKey;
+    public TermSearchResult (String rowKey, String sign, String conceptLabel){
+        this.rowKey = new TermRowKey(rowKey);
         this.sign = sign;
+        this.conceptLabel = conceptLabel;
     }
 
     public String getSign() {
         return sign;
     }
 
-    /*public String getRowKey() {
-        return rowKey;
-    }*/
+   public String getConceptLabel (){
+        return conceptLabel;
+    }
 
     public TermRowKey getRowKey (){
-        return new TermRowKey(sign);
+        return rowKey;
     }
 
     @Override
     public String toString () {
-        return "rowKey: " + getRowKey() + ", sign: " + getSign();
+        return "rowKey: " + getRowKey() + ", sign: " + getSign() + ", concept label: " + getConceptLabel();
     }
 
 }
