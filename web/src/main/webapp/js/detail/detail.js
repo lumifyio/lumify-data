@@ -94,6 +94,8 @@ define([
                         .map(function(key) {
                             return statement[key];
                         });
+                        console.log(statement);
+                        console.log(statementMentions);
                     var html = entityToEntityRelationshipExcerptsTemplate({
                         mentions: statementMentions
                     });
