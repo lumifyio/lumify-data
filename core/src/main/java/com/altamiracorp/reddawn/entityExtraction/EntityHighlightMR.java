@@ -104,7 +104,7 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
 
                 JSONObject infoJson = new JSONObject();
                 infoJson.put("rowKey", keyString);
-                infoJson.put("type", "entities");
+                infoJson.put("type", "entity");
                 infoJson.put("subType", termAndTermMetadata.getTerm().getRowKey().getConceptLabel());
 
                 result.append(text.substring((int) start, (int) mention.getMentionStart().longValue()));
