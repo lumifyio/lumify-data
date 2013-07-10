@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.statementExtraction;
 
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceTerm;
@@ -47,7 +48,8 @@ public class SentenceBasedStatementExtractor implements StatementExtractor {
                             .setSecurityMarking(sentence.getMetadata().getSecurityMarking())
                             .setSentence(sentence.getRowKey().toString())
                             .setSentenceText(sentence.getData().getText())
-                            .setArtifactSubject(sentence.getMetadata().getArtifactSubject());
+                            .setArtifactSubject(sentence.getMetadata().getArtifactSubject())
+                            .setArtifactType(ArtifactType.valueOf(sentence.getMetadata().getArtifactType()));
                     statement.addStatementArtifact(statementArtifact);
 
                     result.add(statement);

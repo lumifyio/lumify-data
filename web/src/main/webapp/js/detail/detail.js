@@ -47,11 +47,12 @@ define([
             mapCoordinatesSelector: '.map-coordinates',
             highlightTypeSelector: '.highlight-options a',
             entitiesSelector: '.entity',
+            artifactsSelector: '.artifact',
             moreMentionsSelector: '.mention-request',
             mentionArtifactSelector: '.mention-artifact',
             previewSelector: '.preview',
             videoSelector: 'video',
-            entityToEntityRelationshipSelector: '.entity-to-entity-relationship'
+            entityToEntityRelationshipSelector: '.entity-to-entity-relationship a.relationship-summary'
         });
 
         this.after('initialize', function() {
@@ -69,27 +70,38 @@ define([
 
         this.onEntityToEntityRelationshipClicked = function(evt, data) {
             var self = this;
-            var $target = $(evt.target);
+            var $target = $(evt.target).parents('li');
             var statementRowKey = $target.data('statement-row-key');
 
-            new UCD().getStatementByRowKey(statementRowKey, function(err, statement) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
+            if($target.hasClass('expanded')) {
+                $target.removeClass('expanded');
+                $target.addClass('collapsed');
+                $('.artifact-excerpts', $target).hide();
+            } else {
+                $target.addClass('expanded');
+                $target.removeClass('collapsed');
 
-                var statementMentions = Object.keys(statement)
-                    .filter(function(key) {
-                        return key.indexOf('urn') == 0;
-                    })
-                    .map(function(key) {
-                        return statement[key];
+                new UCD().getStatementByRowKey(statementRowKey, function(err, statement) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+
+                    var statementMentions = Object.keys(statement)
+                        .filter(function(key) {
+                            return key.indexOf('urn') == 0;
+                        })
+                        .map(function(key) {
+                            return statement[key];
+                        });
+                    var html = entityToEntityRelationshipExcerptsTemplate({
+                        mentions: statementMentions
                     });
-                var html = entityToEntityRelationshipExcerptsTemplate({
-                    mentions: statementMentions
+                    $('.artifact-excerpts', $target).html(html);
+                    $('.artifact-excerpts', $target).show();
+                    self.updateEntityAndArtifactDraggables();
                 });
-                $('.artifact-excerpts', $target).html(html);
-            });
+            }
         };
 
         this.onMapCoordinatesClicked = function(evt, data) {
@@ -231,7 +243,7 @@ define([
                     self.$node.html(entityToEntityRelationshipDetailsTemplate(relationshipData));
 
                     self.applyHighlightStyle();
-                    self.updateEntityDraggables();
+                    self.updateEntityAndArtifactDraggables();
                 });
             } else {
                 self.$node.html("Bad relationship type:" + data.relationshipType);
@@ -260,7 +272,7 @@ define([
                         self.setupVideo(artifact);
                     }
                     self.applyHighlightStyle();
-                    self.updateEntityDraggables();
+                    self.updateEntityAndArtifactDraggables();
                 });
             });
         };
@@ -294,7 +306,7 @@ define([
                             entityDetailsData.styleHtml = self.getStyleHtml();
                             self.$node.html(entityDetailsTemplate(entityDetailsData));
                             self.applyHighlightStyle();
-                            self.updateEntityDraggables();
+                            self.updateEntityAndArtifactDraggables();
                         });
                     });
 
@@ -320,7 +332,7 @@ define([
                 entityDetailsData.styleHtml = self.getStyleHtml();
                 self.$node.html(entityDetailsTemplate(entityDetailsData));
                 self.applyHighlightStyle();
-                self.updateEntityDraggables();
+                self.updateEntityAndArtifactDraggables();
             });
             evt.preventDefault();
         }
@@ -362,11 +374,19 @@ define([
         };
 
 
-        this.updateEntityDraggables = function() {
+        this.updateEntityAndArtifactDraggables = function() {
             var entities = this.select('entitiesSelector');
+            var artifacts = this.select('artifactsSelector');
 
             var $this = this;
             entities.draggable({
+                helper:'clone',
+                revert: 'invalid',
+                revertDuration: 250,
+                scroll: false,
+                zIndex: 100
+            });
+            artifacts.draggable({
                 helper:'clone',
                 revert: 'invalid',
                 revertDuration: 250,
