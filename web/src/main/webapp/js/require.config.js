@@ -3,7 +3,9 @@
 //
 
 var jQueryPlugins = {
-  atmosphere: '../libs/jquery.atmosphere/jquery.atmosphere'
+  atmosphere: '../libs/jquery.atmosphere/jquery.atmosphere',
+  withinScrollable: 'util/jquery.within-scrollable',
+  scrollStop: '../libs/jquery-scrollstop/jquery.scrollstop'
 };
 
 var cytoscapePlugins = [
@@ -21,14 +23,15 @@ var require = {
     cytoscape: '../libs/cytoscape/cytoscape',
     arbor: '../libs/cytoscape/arbor',
     html2canvas: '../libs/html2canvas/html2canvas',
-    videojs: '../libs/video.js/video'
+    videojs: '../libs/video.js/video',
+    underscore: '../libs/underscore/underscore'
   },
   shim: {
     ejs: { exports: 'ejs' },
     cytoscape: { exports: 'cytoscape', deps:['arbor'] },
     html2canvas: { exports: 'html2canvas' },
     videojs: { exports: 'videojs' },
-	atmosphere: { exports: 'jQuery' }
+	underscore: { exports: '_' }
   },
   deps : ['reddawn']
 };

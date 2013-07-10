@@ -63,6 +63,7 @@ define([
                 entityToEntityRelationshipSelector: this.onEntityToEntityRelationshipClicked
             });
 
+            this.on('scrollstop', this.updateEntityAndArtifactDraggables);
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
         });
 
@@ -226,32 +227,35 @@ define([
         }
 
         this.onRelationshipSelected = function(evt, data) {
-            var self = this;
-            this.$node.html("Loading...");
-            // TODO show something more useful here.
-            console.log('Showing relationship:', data);
-            if(data.relationshipType == 'artifactToEntity') {
-                this.trigger(document, 'searchResultSelected', {
-                    type: 'artifact',
-                    rowKey: data.source,
-                    entityOfInterest: data.target
-                });
-            } else if(data.relationshipType == 'entityToEntity') {
-                new UCD().getEntityToEntityRelationshipDetails(data.source, data.target, function(err, relationshipData) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-                    console.log(relationshipData);
-                    relationshipData.styleHtml = self.getStyleHtml();
-                    self.$node.html(entityToEntityRelationshipDetailsTemplate(relationshipData));
+            this.openUnlessAlreadyOpen(data, function(finished) {
+                var self = this;
+                if(data.relationshipType == 'artifactToEntity') {
+                    finished(true);
+                    this.trigger(document, 'searchResultSelected', {
+                        type: 'artifact',
+                        rowKey: data.source,
+                        entityOfInterest: data.target
+                    });
+                } else if(data.relationshipType == 'entityToEntity') {
+                    new UCD().getEntityToEntityRelationshipDetails(data.source, data.target, function(err, relationshipData) {
+                        finished(!err);
 
-                    self.applyHighlightStyle();
-                    self.updateEntityAndArtifactDraggables();
-                });
-            } else {
-                self.$node.html("Bad relationship type:" + data.relationshipType);
-            }
+                        if(err) {
+                            console.error('Error', err);
+                            return self.trigger(document, 'error', { message: err.toString() });
+                        }
+                        console.log(relationshipData);
+                        relationshipData.styleHtml = self.getStyleHtml();
+                        self.$node.html(entityToEntityRelationshipDetailsTemplate(relationshipData));
+
+                        self.applyHighlightStyle();
+                        self.updateEntityAndArtifactDraggables();
+                    });
+                } else {
+                    finished(false);
+                    self.$node.html("Bad relationship type:" + data.relationshipType);
+                }
+            });
         };
 
         this.onArtifactSelected = function(evt, data) {
@@ -334,10 +338,10 @@ define([
             var self = this;
             var $target = $(evt.target);
             data = {
-                key: JSON.parse($target.attr("data-key")),
-                relationships: JSON.parse($target.attr("data-relationships")),
+                key: $target.data('key'),
+                relationships: $target.data('relationships'),
                 url: $target.attr("href")
-            }
+            };
 
             var dataInfo = JSON.stringify({
                 'rowKey': data.key.value,
@@ -356,7 +360,7 @@ define([
                 self.updateEntityAndArtifactDraggables();
             });
             evt.preventDefault();
-        }
+        };
 
         this.getMoreMentions = function(url, key, dataInfo, callback) {
             new UCD().getEntityMentionsByRange(url, function(err, mentions){
@@ -386,7 +390,7 @@ define([
                 console.log("Mentions: ", mentions);
                 callback(mentions);
             });
-        }
+        };
 
         this.getRelationships = function(rowKey, callback) {
             var self = this;
@@ -398,8 +402,8 @@ define([
 
                 console.log("Relationships: ", relationships);
                 callback(relationships);
-            })
-        }
+            });
+        };
 
         this.openUnlessAlreadyOpen = function(data, callback) {
             if (this.currentRowKey === data.rowKey) {
@@ -418,15 +422,8 @@ define([
             var entities = this.select('entitiesSelector');
             var artifacts = this.select('artifactsSelector');
 
-            var $this = this;
-            entities.draggable({
-                helper:'clone',
-                revert: 'invalid',
-                revertDuration: 250,
-                scroll: false,
-                zIndex: 100
-            });
-            artifacts.draggable({
+            // Only create draggables for items in the visible scroll area
+            entities.add(artifacts).withinScrollable(this.$node).draggable({
                 helper:'clone',
                 revert: 'invalid',
                 revertDuration: 250,

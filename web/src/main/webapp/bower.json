@@ -14,6 +14,7 @@
     "sinon": "~1.7.1",
     "html2canvas": "~0.4.0",
     "jquery.atmosphere": "latest",
-    "video.js": "~4.0.3"
+    "video.js": "~4.0.3",
+    "underscore": "~1.5.1"
   }
 }
