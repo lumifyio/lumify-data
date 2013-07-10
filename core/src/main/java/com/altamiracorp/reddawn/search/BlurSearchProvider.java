@@ -26,6 +26,7 @@ public class BlurSearchProvider implements SearchProvider {
     private static final String SOURCE_COLUMN_NAME = "source";
     private static final String ARTIFACT_TYPE = "type";
     private Blur.Iface client;
+    private String blurPath;
 
     @Override
     public void setup(Mapper.Context context) throws Exception {
@@ -51,23 +52,13 @@ public class BlurSearchProvider implements SearchProvider {
 
         this.client = BlurClient.getClient(blurControllerLocation);
 
-        createTables(blurPath);
-    }
-
-    private void createTables(String blurPath) throws TException {
-        LOGGER.info("Creating blur tables");
-        AnalyzerDefinition ad = new AnalyzerDefinition();
-        List<String> tableList = this.client.tableList();
-
-        if (!tableList.contains(ARTIFACT_BLUR_TABLE_NAME)) {
-            LOGGER.info("Creating blur table: " + ARTIFACT_BLUR_TABLE_NAME);
-            createTable(client, blurPath, ad, ARTIFACT_BLUR_TABLE_NAME);
-        } else {
-            LOGGER.info("Skipping create blur table '" + ARTIFACT_BLUR_TABLE_NAME + "' already exists.");
-        }
+        this.blurPath = blurPath;
+        this.initializeTables();
     }
 
     private void createTable(Blur.Iface client, String blurPath, AnalyzerDefinition ad, String tableName) throws TException {
+        LOGGER.info("Creating blur table: " + tableName);
+
         TableDescriptor td = new TableDescriptor();
         td.setShardCount(16);
         td.setTableUri(blurPath + "/tables/" + tableName);
@@ -167,5 +158,37 @@ public class BlurSearchProvider implements SearchProvider {
             results.add(result);
         }
         return results;
+    }
+
+    @Override
+    public void deleteTables() {
+        deleteTable(ARTIFACT_BLUR_TABLE_NAME);
+    }
+
+    private void deleteTable(String tableName) {
+        try {
+            LOGGER.info("Deleting blur table: " + tableName);
+            client.disableTable(tableName);
+            client.removeTable(tableName, true);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void initializeTables() {
+        try {
+            LOGGER.info("Creating blur tables");
+            AnalyzerDefinition ad = new AnalyzerDefinition();
+            List<String> tableList = this.client.tableList();
+
+            if (!tableList.contains(ARTIFACT_BLUR_TABLE_NAME)) {
+                createTable(client, blurPath, ad, ARTIFACT_BLUR_TABLE_NAME);
+            } else {
+                LOGGER.info("Skipping create blur table '" + ARTIFACT_BLUR_TABLE_NAME + "' already exists.");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
