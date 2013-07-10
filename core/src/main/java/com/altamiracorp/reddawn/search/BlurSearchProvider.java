@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.search;
 
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
+import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.blur.thirdparty.thrift_0_9_0.TException;
 import org.apache.blur.thrift.BlurClient;
 import org.apache.blur.thrift.generated.*;
@@ -25,6 +26,10 @@ public class BlurSearchProvider implements SearchProvider {
     private static final String PUBLISHED_DATE_COLUMN_NAME = "publishedDate";
     private static final String SOURCE_COLUMN_NAME = "source";
     private static final String ARTIFACT_TYPE = "type";
+    private static final String TERM_BLUR_TABLE_NAME = "term";
+    private static final String SHA_COLUMN_FAMILY_NAME="sha";
+    private static final String SKIN_COLUMN_NAME = "skin";
+
     private Blur.Iface client;
 
     @Override
@@ -164,6 +169,67 @@ public class BlurSearchProvider implements SearchProvider {
             }
 
             ArtifactSearchResult result = new ArtifactSearchResult(rowId, subject, publishedDate, source, artifactType);
+            results.add(result);
+        }
+        return results;
+    }
+
+    @Override
+    public void add (Term term) throws Exception{
+        if (term.getRowKey().toString() == null){
+            return;
+        }
+
+        LOGGER.info("Adding term \"" + term.getRowKey().toString() + "\" to partial term search");
+        String id = term.getRowKey().toString();
+        String skin = term.getRowKey().getSign();
+
+        if (skin == null){
+            skin = "";
+        }
+
+        List<Column> columns = new ArrayList<Column>();
+        columns.add (new Column(SKIN_COLUMN_NAME, skin));
+
+        Record record = new Record ();
+        record.setRecordId(id);
+        record.setFamily(SHA_COLUMN_FAMILY_NAME);
+        record.setColumns(columns);
+
+        RecordMutation recordMutation = new RecordMutation();
+        recordMutation.setRecord(record);
+        recordMutation.setRecordMutationType(RecordMutationType.REPLACE_ENTIRE_RECORD);
+
+        List <RecordMutation> recordMutations = new ArrayList<RecordMutation>();
+        recordMutations.add (recordMutation);
+
+        RowMutation mutation = new RowMutation();
+        mutation.setTable(TERM_BLUR_TABLE_NAME);
+        mutation.setRowId(id);
+        mutation.setRowMutationType(RowMutationType.REPLACE_ROW);
+        mutation.setRecordMutations(recordMutations);
+
+        client.mutate(mutation);
+    }
+
+    @Override
+    public Collection<TermSearchResult> searchTerms (String query) throws Exception {
+        BlurQuery blurQuery = new BlurQuery ();
+        SimpleQuery simpleQuery = new SimpleQuery();
+        simpleQuery.setQueryStr(query);
+        blurQuery.setSimpleQuery(simpleQuery);
+        blurQuery.setSelector(new Selector());
+
+        BlurResults blurResults = client.query(TERM_BLUR_TABLE_NAME, blurQuery);
+        ArrayList<TermSearchResult> results = new ArrayList<TermSearchResult>();
+        for (BlurResult blurResult : blurResults.getResults()){
+            Row row = blurResult.getFetchResult().getRowResult().getRow();
+            String rowId = row.getId();
+            assert row.getRecordCount() == 1;
+            Record record = row.getRecords().get(0);
+            Column column = record.getColumns().get(0);
+            String skin = column.getValue();
+            TermSearchResult result = new TermSearchResult(rowId, skin);
             results.add(result);
         }
         return results;
