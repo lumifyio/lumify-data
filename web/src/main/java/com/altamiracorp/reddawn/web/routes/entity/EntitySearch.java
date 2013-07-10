@@ -3,7 +3,6 @@ package com.altamiracorp.reddawn.web.routes.entity;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.search.SearchProvider;
 import com.altamiracorp.reddawn.search.TermSearchResult;
-import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
@@ -17,7 +16,6 @@ import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
 
 import java.util.Collection;
 
@@ -38,8 +36,6 @@ public class EntitySearch implements Handler, AppAware {
         SearchProvider searchProvider = session.getSearchProvider();
         Collection <TermSearchResult> termSearchResults = queryTerm (searchProvider, query);
         JSONObject termsJson = termsToSearchResults(termSearchResults, request);
-        //List<Term> terms = termRepository.findByRowStartsWith(session.getModelSession(), query.toLowerCase());
-        //JSONObject termsJson = termsToSearchResults(terms, request);
         new Responder(response).respondWith(termsJson);
     }
 
@@ -82,26 +78,4 @@ public class EntitySearch implements Handler, AppAware {
         termJson.put("model", termSearchResult.getRowKey().getModelKey());
         return termJson;
     }
-
-    private JSONObject termsToSearchResults(List<Term> terms, HttpServletRequest request) throws JSONException {
-        JSONObject termsJson = new JSONObject();
-        for (Term term : terms) {
-            JSONArray conceptJson = null;
-            if (termsJson.has(term.getRowKey().getConceptLabel())) {
-                conceptJson = (JSONArray) termsJson.get(term.getRowKey().getConceptLabel());
-            }
-            if (conceptJson == null) {
-                conceptJson = new JSONArray();
-                termsJson.put(term.getRowKey().getConceptLabel(), conceptJson);
-            }
-            JSONObject termJson = new JSONObject();
-            termJson.put("url", EntityByRowKey.getUrl(request, term.getRowKey()));
-            termJson.put("rowKey", term.getRowKey().toString());
-            termJson.put("sign", term.getRowKey().getSign());
-            termJson.put("model", term.getRowKey().getModelKey());
-            conceptJson.put(termJson);
-        }
-        return termsJson;
-    }
-
 }
