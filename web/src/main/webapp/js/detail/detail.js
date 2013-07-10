@@ -233,7 +233,8 @@ define([
             if(data.relationshipType == 'artifactToEntity') {
                 this.trigger(document, 'searchResultSelected', {
                     type: 'artifact',
-                    rowKey: data.source
+                    rowKey: data.source,
+                    entityOfInterest: data.target
                 });
             } else if(data.relationshipType == 'entityToEntity') {
                 new UCD().getEntityToEntityRelationshipDetails(data.source, data.target, function(err, relationshipData) {
@@ -274,6 +275,9 @@ define([
                     if (artifact.type == 'video') {
                         self.setupVideo(artifact);
                     }
+
+                    console.log('TODO: add some extra highlighting and scroll to this entity row key', data.entityOfInterest);
+
                     self.applyHighlightStyle();
                     self.updateEntityAndArtifactDraggables();
                 });
