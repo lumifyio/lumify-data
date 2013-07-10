@@ -231,7 +231,11 @@ define([
                 var self = this;
                 if(data.relationshipType == 'artifactToEntity') {
                     finished(true);
-                    self.$node.html(artifactToEntityRelationshipDetailsTemplate(data));
+                    this.trigger(document, 'searchResultSelected', {
+                        type: 'artifact',
+                        rowKey: data.source,
+                        entityOfInterest: data.target
+                    });
                 } else if(data.relationshipType == 'entityToEntity') {
                     new UCD().getEntityToEntityRelationshipDetails(data.source, data.target, function(err, relationshipData) {
                         finished(!err);

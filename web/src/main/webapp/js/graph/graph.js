@@ -444,7 +444,7 @@ define([
                     cy.add({
                         group: "edges",
                         data: {
-                            id: relationship.from + "->" + relationship.to,
+                            rowKey: relationship.from + "->" + relationship.to,
                             relationshipType: relationship.relationshipType,
                             source: relationship.from,
                             target: relationship.to,
