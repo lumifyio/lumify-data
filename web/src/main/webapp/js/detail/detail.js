@@ -63,6 +63,7 @@ define([
                 entityToEntityRelationshipSelector: this.onEntityToEntityRelationshipClicked
             });
 
+            this.on('scrollstop', this.updateEntityAndArtifactDraggables);
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
         });
 
@@ -384,15 +385,8 @@ define([
             var entities = this.select('entitiesSelector');
             var artifacts = this.select('artifactsSelector');
 
-            var $this = this;
-            entities.draggable({
-                helper:'clone',
-                revert: 'invalid',
-                revertDuration: 250,
-                scroll: false,
-                zIndex: 100
-            });
-            artifacts.draggable({
+            // Only create draggables for items in the visible scroll area
+            entities.add(artifacts).withinScrollable(this.$node).draggable({
                 helper:'clone',
                 revert: 'invalid',
                 revertDuration: 250,

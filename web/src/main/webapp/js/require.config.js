@@ -3,7 +3,9 @@
 //
 
 var jQueryPlugins = {
-  atmosphere: '../libs/jquery.atmosphere/jquery.atmosphere'
+  atmosphere: '../libs/jquery.atmosphere/jquery.atmosphere',
+  withinScrollable: 'util/jquery.within-scrollable',
+  scrollStop: '../libs/jquery-scrollstop/jquery.scrollstop'
 };
 
 var cytoscapePlugins = [

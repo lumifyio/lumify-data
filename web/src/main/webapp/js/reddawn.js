@@ -7,7 +7,11 @@ require([
     'flight/lib/registry',
     'flight/lib/advice',
     'flight/lib/logger',
-    'flight/tools/debug/debug'
+    'flight/tools/debug/debug',
+
+    // Make jQuery plugins available
+    'withinScrollable',
+    'scrollStop'
 ],
 function(compose, registry, advice, withLogging, debug) {
 
