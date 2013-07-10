@@ -49,9 +49,9 @@ if(limit == mentions.length) { %>
     var relationship = relationships[index];
 %>
     <li>
-        <span class="entity <%= relationship.subjectRowKey.conceptLabel %>" data-info='{"subType": "<%= relationship.subjectRowKey.conceptLabel %>", "rowKey": "<%= relationship.subjectRowKey.value.replace(/\x1f/g, '\\\\x1F') %>", "type": "entities"}'><%= relationship.subjectRowKey.sign %></span>
+        <span class="entity <%= relationship.subjectRowKey.conceptLabel %>" data-info='{"subType": "<%= relationship.subjectRowKey.conceptLabel %>", "rowKey": "<%= relationship.subjectRowKey.value.replace(/\x1f/g, '\\\\x1F') %>", "type": "entity"}'><%= relationship.subjectRowKey.sign %></span>
         <%= relationship.predicateLabel.predicateLabel %>
-        <span class="entity <%= relationship.objectRowKey.conceptLabel %>" data-info='{"subType": "<%= relationship.objectRowKey.conceptLabel %>", "rowKey": "<%= relationship.objectRowKey.value.replace(/\x1f/g, '\\\\x1F') %>", "type": "entities"}'><%= relationship.objectRowKey.sign %></span>
+        <span class="entity <%= relationship.objectRowKey.conceptLabel %>" data-info='{"subType": "<%= relationship.objectRowKey.conceptLabel %>", "rowKey": "<%= relationship.objectRowKey.value.replace(/\x1f/g, '\\\\x1F') %>", "type": "entity"}'><%= relationship.objectRowKey.sign %></span>
     </li>
 <% } %>
 </ul>
