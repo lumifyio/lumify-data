@@ -28,7 +28,8 @@ public class BlurSearchProvider implements SearchProvider {
     private static final String ARTIFACT_TYPE = "type";
     private static final String TERM_BLUR_TABLE_NAME = "term";
     private static final String SHA_COLUMN_FAMILY_NAME="sha";
-    private static final String SKIN_COLUMN_NAME = "skin";
+    private static final String SIGN_COLUMN_NAME = "sign";
+    private static final String CONCEPT_LABEL_COLUMN_NAME = "conceptLabel";
 
     private Blur.Iface client;
 
@@ -64,6 +65,13 @@ public class BlurSearchProvider implements SearchProvider {
         AnalyzerDefinition ad = new AnalyzerDefinition();
         List<String> tableList = this.client.tableList();
 
+        if (!tableList.contains(TERM_BLUR_TABLE_NAME)){
+            LOGGER.info("Creating term table: " + TERM_BLUR_TABLE_NAME);
+            createTable(client, blurPath, ad, TERM_BLUR_TABLE_NAME);
+        }
+        else{
+            LOGGER.info ("Skipping create term table '" + TERM_BLUR_TABLE_NAME + "' already exist.");
+        }
         if (!tableList.contains(ARTIFACT_BLUR_TABLE_NAME)) {
             LOGGER.info("Creating blur table: " + ARTIFACT_BLUR_TABLE_NAME);
             createTable(client, blurPath, ad, ARTIFACT_BLUR_TABLE_NAME);
@@ -180,16 +188,17 @@ public class BlurSearchProvider implements SearchProvider {
             return;
         }
 
-        LOGGER.info("Adding term \"" + term.getRowKey().toString() + "\" to partial term search");
+        LOGGER.info("Adding term \"" + term.getRowKey().toString() + "\" for partial term search");
         String id = term.getRowKey().toString();
-        String skin = term.getRowKey().getSign();
-
-        if (skin == null){
-            skin = "";
+        String sign = term.getRowKey().getSign();
+        String conceptLabel = term.getRowKey().getConceptLabel();
+        if (sign == null){
+            sign = "";
         }
 
         List<Column> columns = new ArrayList<Column>();
-        columns.add (new Column(SKIN_COLUMN_NAME, skin));
+        columns.add (new Column(SIGN_COLUMN_NAME, sign));
+        columns.add (new Column(CONCEPT_LABEL_COLUMN_NAME, conceptLabel));
 
         Record record = new Record ();
         record.setRecordId(id);
@@ -227,9 +236,17 @@ public class BlurSearchProvider implements SearchProvider {
             String rowId = row.getId();
             assert row.getRecordCount() == 1;
             Record record = row.getRecords().get(0);
-            Column column = record.getColumns().get(0);
-            String skin = column.getValue();
-            TermSearchResult result = new TermSearchResult(rowId, skin);
+            String sign = "";
+            String conceptLabel = "";
+            for (Column column : record.getColumns()){
+                if (column.getName().equals(SIGN_COLUMN_NAME)){
+                    sign = column.getValue();
+                }
+                else if (column.getName().equals(CONCEPT_LABEL_COLUMN_NAME)){
+                    conceptLabel = column.getValue();
+                }
+            }
+            TermSearchResult result = new TermSearchResult(rowId, sign, conceptLabel);
             results.add(result);
         }
         return results;
