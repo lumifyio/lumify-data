@@ -12,7 +12,7 @@
                 class="entity <%= source.conceptLabel %>"
                 data-info="<%= JSON.stringify({
                   'rowKey': source.value,
-                  'type': 'entities',
+                  'type': 'entity',
                   'subType': source.conceptLabel
                 }) %>"><%= source.sign %></span>
             <%= statement.key.predicateLabel.predicateLabel %>
@@ -20,7 +20,7 @@
                 class="entity <%= target.conceptLabel %>"
                 data-info="<%= JSON.stringify({
                   'rowKey': target.value,
-                  'type': 'entities',
+                  'type': 'entity',
                   'subType': target.conceptLabel
                 }) %>"><%= target.sign %></span>
         </a>
