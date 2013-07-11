@@ -64,7 +64,7 @@ public class MockSession extends Session {
             throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
         }
 
-        List<Row> result = Lists.newArrayList();
+        List<Row> result = new ArrayList<Row>();
         for (Row row : rows) {
             if (!Pattern.matches(rowKeyRegex, row.getRowKey().toString())) {
                 result.add(row);
@@ -102,7 +102,7 @@ public class MockSession extends Session {
             }
         }
 
-        List<ColumnFamily> result = Lists.newArrayList();
+        List<ColumnFamily> result = new ArrayList<ColumnFamily>();
         long count = 0L;
         for(ColumnFamily colFam : (Collection<ColumnFamily>) matchedRow.getColumnFamilies()) {
             if(Pattern.matches(colFamRegex, colFam.getColumnFamilyName())) {

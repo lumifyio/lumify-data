@@ -3,7 +3,6 @@ package com.altamiracorp.reddawn.ucd.term;
 import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndexRepository;
-import org.apache.accumulo.core.client.Scanner;
 
 import java.util.ArrayList;
 import java.util.Collection;
