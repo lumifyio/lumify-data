@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 public class GoogleSearchEngine extends SearchEngine {
@@ -25,7 +26,7 @@ public class GoogleSearchEngine extends SearchEngine {
                 "&alt=json";
     }
 
-    protected ArrayList<String> search(Query query, int maxResults) {
+    protected List<String> search(Query query, int maxResults) {
         String queryString = getQueryString(query);
         ArrayList<String> links = new ArrayList<String>();
 

@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.crawler;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class RSSEngine extends SearchEngine {
     private String url = "";
@@ -12,7 +13,7 @@ public class RSSEngine extends SearchEngine {
     }
 
     @Override
-    protected ArrayList<String> search(Query q, int maxResults) {
+    protected List<String> search(Query q, int maxResults) {
         url = q.getRss();
         ArrayList<String> links = new ArrayList<String>();
         if (url.equals("")) {

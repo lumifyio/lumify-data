@@ -5,6 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RedditSearchEngine extends SearchEngine {
 
@@ -13,7 +14,7 @@ public class RedditSearchEngine extends SearchEngine {
     }
 
     @Override
-    protected ArrayList<String> search(Query q, int maxResults) {
+    protected List<String> search(Query q, int maxResults) {
         ArrayList<String> results = new ArrayList<String>();
         String queryUrl = createQueryString(q, maxResults);
 

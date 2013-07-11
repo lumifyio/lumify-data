@@ -3,16 +3,13 @@ package com.altamiracorp.reddawn.crawler;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -43,7 +40,7 @@ public class FlickrSearchEngine extends SearchEngine {
     }
 
     @Override
-    protected ArrayList<String> search(Query q, int numOfResults) {
+    protected List<String> search(Query q, int numOfResults) {
         ArrayList<String> results = new ArrayList<String>();
         String queryUrl = createQueryUrl(q, 1, Integer.parseInt(PER_PAGE));
         System.out.println(queryUrl + "\n");

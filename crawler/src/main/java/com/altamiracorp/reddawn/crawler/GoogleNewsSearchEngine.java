@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.crawler;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 public class GoogleNewsSearchEngine extends SearchEngine {
@@ -15,7 +16,7 @@ public class GoogleNewsSearchEngine extends SearchEngine {
     }
 
     @Override
-    protected ArrayList<String> search(Query q, int maxResults) {
+    protected List<String> search(Query q, int maxResults) {
         ArrayList<String> links = new ArrayList<String>();
         String queryUrl = createQueryUrl(q, maxResults);
         URL fullURL = null;

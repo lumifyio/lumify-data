@@ -40,15 +40,15 @@ public abstract class SearchEngine {
         return true;
     }
 
-    public ArrayList<ArrayList<String>> runQueue() {
-        ArrayList<ArrayList<String>> results = new ArrayList<ArrayList<String>>();
+    public ArrayList<List<String>> runQueue() {
+        ArrayList<List<String>> results = new ArrayList<List<String>>();
         for (int i = 0; i < queryQueue.size(); i++) {
             results.add(runQuery(queryQueue.get(i), maxResultQueue.get(i)));
         }
         return results;
     }
 
-    public ArrayList<String> runQuery(Query q, int maxResults) {
+    public List<String> runQuery(Query q, int maxResults) {
         System.out.println("\n\033[1m" + queryHeader(q) + "\033[0m");
         return search(q, maxResults);
     }
@@ -61,7 +61,7 @@ public abstract class SearchEngine {
      * @param maxResults The number of results to return
      * @return List of links retrieved from the search
      */
-    protected abstract ArrayList<String> search(Query q, int maxResults);
+    protected abstract List<String> search(Query q, int maxResults);
 
     public Crawler getCrawler() {
         return crawler;
@@ -121,7 +121,10 @@ public abstract class SearchEngine {
             System.err.println("Malformed search URL");
             return null;
         }
+        return getWebPageContent(fullURL);
+    }
 
+    public static String getWebPageContent(URL fullURL) {
         StringBuilder builder = new StringBuilder();
         try {
             URLConnection connection = fullURL.openConnection();
