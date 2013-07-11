@@ -7,7 +7,7 @@ public class TermSearchResult {
     private final TermRowKey rowKey;
     private final String conceptLabel;
 
-    public TermSearchResult (String rowKey, String sign, String conceptLabel){
+    public TermSearchResult(String rowKey, String sign, String conceptLabel) {
         this.rowKey = new TermRowKey(rowKey);
         this.sign = sign;
         this.conceptLabel = conceptLabel;
@@ -17,16 +17,16 @@ public class TermSearchResult {
         return sign;
     }
 
-   public String getConceptLabel (){
+    public String getConceptLabel() {
         return conceptLabel;
     }
 
-    public TermRowKey getRowKey (){
+    public TermRowKey getRowKey() {
         return rowKey;
     }
 
     @Override
-    public String toString () {
+    public String toString() {
         return "rowKey: " + getRowKey() + ", sign: " + getSign() + ", concept label: " + getConceptLabel();
     }
 

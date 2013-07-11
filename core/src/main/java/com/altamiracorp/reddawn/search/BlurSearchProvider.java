@@ -64,19 +64,15 @@ public class BlurSearchProvider implements SearchProvider {
         LOGGER.info("Creating blur tables");
         AnalyzerDefinition ad = new AnalyzerDefinition();
         List<String> tableList = this.client.tableList();
+        String[] blurTables = new String[] { TERM_BLUR_TABLE_NAME, ARTIFACT_BLUR_TABLE_NAME };
 
-        if (!tableList.contains(TERM_BLUR_TABLE_NAME)){
-            LOGGER.info("Creating term table: " + TERM_BLUR_TABLE_NAME);
-            createTable(client, blurPath, ad, TERM_BLUR_TABLE_NAME);
-        }
-        else{
-            LOGGER.info ("Skipping create term table '" + TERM_BLUR_TABLE_NAME + "' already exist.");
-        }
-        if (!tableList.contains(ARTIFACT_BLUR_TABLE_NAME)) {
-            LOGGER.info("Creating blur table: " + ARTIFACT_BLUR_TABLE_NAME);
-            createTable(client, blurPath, ad, ARTIFACT_BLUR_TABLE_NAME);
-        } else {
-            LOGGER.info("Skipping create blur table '" + ARTIFACT_BLUR_TABLE_NAME + "' already exists.");
+        for (String blurTable : blurTables) {
+            if (!tableList.contains(blurTable)) {
+                LOGGER.info("Creating term table: " + blurTable);
+                createTable(client, blurPath, ad, blurTable);
+            } else {
+                LOGGER.info ("Skipping create term table '" + blurTable + "' already exist.");
+            }
         }
     }
 

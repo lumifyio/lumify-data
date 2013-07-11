@@ -6,7 +6,6 @@ import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
 import com.altamiracorp.reddawn.ucd.term.TermRepository;
@@ -56,7 +55,8 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
         }
 
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
-            if (artifact.getType() != ArtifactType.DOCUMENT) {
+            byte[] docExtractedText = artifact.getContent().getDocExtractedText();
+            if (docExtractedText == null || docExtractedText.length < 1) {
                 return;
             }
 

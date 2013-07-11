@@ -18,62 +18,54 @@ import java.io.*;
 public class SearchTermIndexBuilderMR extends ConfigurableMapJobBase {
 
     @Override
-    protected Class <? extends Mapper> getMapperClass (Job job, Class clazz){
+    protected Class<? extends Mapper> getMapperClass(Job job, Class clazz) {
         TermSearchMapper.init(job, clazz);
         return TermSearchMapper.class;
     }
 
     @Override
-    protected Class <? extends InputFormat> getInputFormatClassAndInit (Job job){
+    protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
         AccumuloTermInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
         return AccumuloTermInputFormat.class;
     }
 
     @Override
-    protected  Class <? extends OutputFormat> getOutputFormatClass (){
+    protected Class<? extends OutputFormat> getOutputFormatClass() {
         return NullOutputFormat.class;
     }
 
     public static class TermSearchMapper extends Mapper<Text, Term, Text, Mutation> {
-        private static final String CONF_TERM_SEARCH_INDEX_BUILDER_CLASS="searchTermIndexBuilder";
+        private static final String CONF_TERM_SEARCH_INDEX_BUILDER_CLASS = "searchTermIndexBuilder";
         private SearchProvider searchProvider;
 
         @Override
-        protected  void setup (Context context) throws IOException, InterruptedException{
+        protected void setup(Context context) throws IOException, InterruptedException {
             super.setup(context);
-            try{
+            try {
                 searchProvider = (SearchProvider) context.getConfiguration().getClass(CONF_TERM_SEARCH_INDEX_BUILDER_CLASS, NullSearchProvider.class).newInstance();
                 searchProvider.setup(context);
-            }
-            catch (InstantiationException e){
-                throw new IOException(e);
-            }
-            catch (IllegalAccessException e){
-                throw new IOException(e);
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }
 
         @Override
-        protected void map (Text rowKey, Term term, Context context) throws IOException, InterruptedException{
-            try{
+        protected void map(Text rowKey, Term term, Context context) throws IOException, InterruptedException {
+            try {
                 searchProvider.add(term);
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }
 
-        public static void init (Job job, Class searchClass){
-            job.getConfiguration().setClass(CONF_TERM_SEARCH_INDEX_BUILDER_CLASS, searchClass,SearchProvider.class);
+        public static void init(Job job, Class searchClass) {
+            job.getConfiguration().setClass(CONF_TERM_SEARCH_INDEX_BUILDER_CLASS, searchClass, SearchProvider.class);
         }
     }
 
-    public static void main (String [] args) throws Exception {
+    public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new SearchTermIndexBuilderMR(), args);
-        if (res != 0){
+        if (res != 0) {
             System.exit(res);
         }
     }
