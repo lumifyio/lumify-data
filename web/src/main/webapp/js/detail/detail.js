@@ -365,8 +365,7 @@ define([
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
 
-                for(var i = 0; i < mentions.mentions.length; i++) {
-                    var termMention = mentions.mentions[i];
+                mentions.mentions.forEach(function(termMention) {
                     var originalSentenceText = termMention['atc:sentenceText'];
                     var originalSentenceTextParts = {};
 
@@ -381,7 +380,7 @@ define([
 
                     termMention.highlightedSentenceText = originalSentenceTextParts.before + '<span class="entity ' + key.conceptLabel +
                             '" data-info=\'' + dataInfo + '\'>' + originalSentenceTextParts.term + '</span>' + originalSentenceTextParts.after;
-                };
+                });
                 var html = entityDetailsMentionsTemplate({
                     mentions: mentions.mentions,
                     limit: mentions.limit,
