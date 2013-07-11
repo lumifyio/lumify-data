@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.search;
 
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
+import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.blur.thirdparty.thrift_0_9_0.TException;
 import org.apache.blur.thrift.BlurClient;
 import org.apache.blur.thrift.generated.*;
@@ -25,6 +26,11 @@ public class BlurSearchProvider implements SearchProvider {
     private static final String PUBLISHED_DATE_COLUMN_NAME = "publishedDate";
     private static final String SOURCE_COLUMN_NAME = "source";
     private static final String ARTIFACT_TYPE = "type";
+    private static final String TERM_BLUR_TABLE_NAME = "term";
+    private static final String SHA_COLUMN_FAMILY_NAME="sha";
+    private static final String SIGN_COLUMN_NAME = "sign";
+    private static final String CONCEPT_LABEL_COLUMN_NAME = "conceptLabel";
+
     private Blur.Iface client;
 
     @Override
@@ -58,12 +64,15 @@ public class BlurSearchProvider implements SearchProvider {
         LOGGER.info("Creating blur tables");
         AnalyzerDefinition ad = new AnalyzerDefinition();
         List<String> tableList = this.client.tableList();
+        String[] blurTables = new String[] { TERM_BLUR_TABLE_NAME, ARTIFACT_BLUR_TABLE_NAME };
 
-        if (!tableList.contains(ARTIFACT_BLUR_TABLE_NAME)) {
-            LOGGER.info("Creating blur table: " + ARTIFACT_BLUR_TABLE_NAME);
-            createTable(client, blurPath, ad, ARTIFACT_BLUR_TABLE_NAME);
-        } else {
-            LOGGER.info("Skipping create blur table '" + ARTIFACT_BLUR_TABLE_NAME + "' already exists.");
+        for (String blurTable : blurTables) {
+            if (!tableList.contains(blurTable)) {
+                LOGGER.info("Creating term table: " + blurTable);
+                createTable(client, blurPath, ad, blurTable);
+            } else {
+                LOGGER.info ("Skipping create term table '" + blurTable + "' already exist.");
+            }
         }
     }
 
@@ -164,6 +173,76 @@ public class BlurSearchProvider implements SearchProvider {
             }
 
             ArtifactSearchResult result = new ArtifactSearchResult(rowId, subject, publishedDate, source, artifactType);
+            results.add(result);
+        }
+        return results;
+    }
+
+    @Override
+    public void add (Term term) throws Exception{
+        if (term.getRowKey().toString() == null){
+            return;
+        }
+
+        LOGGER.info("Adding term \"" + term.getRowKey().toString() + "\" for partial term search");
+        String id = term.getRowKey().toString();
+        String sign = term.getRowKey().getSign();
+        String conceptLabel = term.getRowKey().getConceptLabel();
+        if (sign == null){
+            sign = "";
+        }
+
+        List<Column> columns = new ArrayList<Column>();
+        columns.add (new Column(SIGN_COLUMN_NAME, sign));
+        columns.add (new Column(CONCEPT_LABEL_COLUMN_NAME, conceptLabel));
+
+        Record record = new Record ();
+        record.setRecordId(id);
+        record.setFamily(SHA_COLUMN_FAMILY_NAME);
+        record.setColumns(columns);
+
+        RecordMutation recordMutation = new RecordMutation();
+        recordMutation.setRecord(record);
+        recordMutation.setRecordMutationType(RecordMutationType.REPLACE_ENTIRE_RECORD);
+
+        List <RecordMutation> recordMutations = new ArrayList<RecordMutation>();
+        recordMutations.add (recordMutation);
+
+        RowMutation mutation = new RowMutation();
+        mutation.setTable(TERM_BLUR_TABLE_NAME);
+        mutation.setRowId(id);
+        mutation.setRowMutationType(RowMutationType.REPLACE_ROW);
+        mutation.setRecordMutations(recordMutations);
+
+        client.mutate(mutation);
+    }
+
+    @Override
+    public Collection<TermSearchResult> searchTerms (String query) throws Exception {
+        BlurQuery blurQuery = new BlurQuery ();
+        SimpleQuery simpleQuery = new SimpleQuery();
+        simpleQuery.setQueryStr(query);
+        blurQuery.setSimpleQuery(simpleQuery);
+        blurQuery.setSelector(new Selector());
+
+        BlurResults blurResults = client.query(TERM_BLUR_TABLE_NAME, blurQuery);
+        ArrayList<TermSearchResult> results = new ArrayList<TermSearchResult>();
+        for (BlurResult blurResult : blurResults.getResults()){
+            Row row = blurResult.getFetchResult().getRowResult().getRow();
+            String rowId = row.getId();
+            assert row.getRecordCount() == 1;
+            Record record = row.getRecords().get(0);
+            String sign = "";
+            String conceptLabel = "";
+            for (Column column : record.getColumns()){
+                if (column.getName().equals(SIGN_COLUMN_NAME)){
+                    sign = column.getValue();
+                }
+                else if (column.getName().equals(CONCEPT_LABEL_COLUMN_NAME)){
+                    conceptLabel = column.getValue();
+                }
+            }
+            TermSearchResult result = new TermSearchResult(rowId, sign, conceptLabel);
             results.add(result);
         }
         return results;
