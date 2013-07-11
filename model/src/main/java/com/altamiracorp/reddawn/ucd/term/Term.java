@@ -64,14 +64,4 @@ public class Term extends Row<TermRowKey> {
             throw new RuntimeException(e);
         }
     }
-
-    public JSONObject toContentJson() {
-        try {
-            JSONObject termJson = new JSONObject();
-            termJson.put("key", getRowKey().toJson());
-            return termJson;
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
