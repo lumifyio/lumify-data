@@ -6,7 +6,6 @@
 <h3>Statements</h3>
 <ul>
     <% statements.forEach(function(statement) { %>
-<<<<<<< HEAD
       <li class="entity-to-entity-relationship collapsed" data-statement-row-key="<%= statement.key.value %>">
         <a href="javascript:" class="relationship-summary">
             <span
@@ -26,12 +25,6 @@
                 }) %>"><%= target.sign %></span>
         </a>
         <div class="artifact-excerpts"></div>
-=======
-      <li>
-        <span class="entity <%= source.conceptLabel %>" data-info='{"subType": "<%= source.conceptLabel %>", "rowKey": "<%= source.value.replace(/\x1f/g, '\\\\x1F') %>", "type": "entity"}'><%= source.sign %></span>
-        <%= statement.key.predicateLabel.predicateLabel %>
-        <span class="entity <%= target.conceptLabel %>" data-info='{"subType": "<%= target.conceptLabel %>", "rowKey": "<%= target.value.replace(/\x1f/g, '\\\\x1F') %>", "type": "entity"}'><%= target.sign %></span>
->>>>>>> develop
       </li>
     <% }); %>
 </ul>
