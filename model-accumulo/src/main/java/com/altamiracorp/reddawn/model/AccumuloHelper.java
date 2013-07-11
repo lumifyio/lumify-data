@@ -46,8 +46,8 @@ public class AccumuloHelper {
         return rows;
     }
 
-    public static List<ColumnFamily> scannerToColumnFamilies(Scanner scanner,
-                                                             long colFamOffset, long colFamLimit, String colFamRegex) {
+    public static List<ColumnFamily> scannerToColumnFamiliesFilteredByRegex(Scanner scanner,
+                                                                            long colFamOffset, long colFamLimit, String colFamRegex) {
         List<ColumnFamily> colFams = Lists.newArrayList();
         String rowKey = scanner.getRange().getStartKey().getRow().toString();
 
@@ -58,9 +58,6 @@ public class AccumuloHelper {
 
         long count = 0;
         PeekingIterator<Map.Entry<Key, Value>> iterator = new PeekingIterator<Map.Entry<Key, Value>>(scanner.iterator());
-
-        System.out.println(rowKey);
-        System.out.println(iterator.peek().getKey().getRow().toString());
 
         while (iterator.hasNext() && count < colFamOffset + colFamLimit &&
                 iterator.peek().getKey().getRow().toString().equals(rowKey)) {

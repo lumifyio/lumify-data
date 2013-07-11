@@ -130,7 +130,7 @@ public class AccumuloSession extends Session {
         try {
             Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
             scanner.setRange(new Range(rowKey));
-            return AccumuloHelper.scannerToColumnFamilies(scanner, colFamOffset, colFamLimit, colFamRegex);
+            return AccumuloHelper.scannerToColumnFamiliesFilteredByRegex(scanner, colFamOffset, colFamLimit, colFamRegex);
         } catch(TableNotFoundException e) {
             throw new RuntimeException(e);
         }
