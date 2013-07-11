@@ -4,6 +4,7 @@ import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class MockSession extends Session {
     public HashMap<String, List<Row>> tables = new HashMap<String, List<Row>>();
@@ -58,15 +59,26 @@ public class MockSession extends Session {
 
     @Override
     List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, QueryUser queryUser) {
-        // TODO: write this
-        return null;
+        List<Row> rows = this.tables.get(tableName);
+        if (rows == null) {
+            throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
+        }
+
+        List<Row> result = Lists.newArrayList();
+        for (Row row : rows) {
+            if (!Pattern.matches(rowKeyRegex, row.getRowKey().toString())) {
+                result.add(row);
+            }
+        }
+        return result;
     }
 
     @Override
     Row findByRowKey(String tableName, String rowKey, QueryUser queryUser) {
         List<Row> rows = this.tables.get(tableName);
-        if (rows == null)
+        if (rows == null) {
             throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
+        }
         for (Row row : rows) {
             if (row.getRowKey().toString().equals(rowKey)) {
                 return row;
@@ -77,8 +89,36 @@ public class MockSession extends Session {
 
     @Override
     List<ColumnFamily> findByRowKeyWithOffset(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
-        // TODO: Write this
-        return Lists.newArrayList();
+        List<Row> rows = this.tables.get(tableName);
+        if (rows == null) {
+            throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
+        }
+
+        Row matchedRow = null;
+        for (Row row : rows) {
+            if (row.getRowKey().toString().equals(rowKey)) {
+                matchedRow = row;
+                break;
+            }
+        }
+
+        List<ColumnFamily> result = Lists.newArrayList();
+        long count = 0L;
+        for(ColumnFamily colFam : (Collection<ColumnFamily>) matchedRow.getColumnFamilies()) {
+            if(Pattern.matches(colFamRegex, colFam.getColumnFamilyName())) {
+                if(count < colFamOffset + colFamLimit) {
+                    if(count >= colFamOffset) {
+                        result.add(colFam);
+                    }
+                } else {
+                    break;
+                }
+
+                count++;
+            }
+        }
+
+        return result;
     }
 
     @Override
