@@ -8,6 +8,7 @@ import org.junit.runners.JUnit4;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.TreeMap;
 
 import static junit.framework.Assert.assertEquals;
@@ -27,6 +28,20 @@ public class FlickrSearchEngineTest {
     }
 
     @Test
+    public void testSearch() {
+        String sampleQuery = "boston";
+        int sampleMaxResults = 20;
+        mockQuery = mock(Query.class);
+        when(mockQuery.getExcludedTerms()).thenReturn(new ArrayList<String>());
+        when(mockQuery.getRequiredTerms()).thenReturn(new ArrayList<String>());
+        when(mockQuery.getOptionalTerms()).thenReturn(new ArrayList<String>(Arrays.asList(sampleQuery)));
+        List<String> results = engine.search(mockQuery, sampleMaxResults);
+        for(String result : results) {
+            System.out.println(result);
+        }
+    }
+
+    @Test
     public void testCreateQueryUrl() throws Exception {
         String sampleQuery = "boston";
         int samplePageNumber = 1;
@@ -43,6 +58,7 @@ public class FlickrSearchEngineTest {
                 "&content_type=7" +
                 "&extras=description,license,date_upload,date_taken,owner_name,icon_server," +
                 "original_format,last_update,geo,tags,machine_tags,o_dims,views,media" +
+                "&format=json" +
                 "&license=7" +
                 "&page=" + samplePageNumber +
                 "&per_page=" + samplePerPage +
