@@ -20,6 +20,7 @@ import java.util.Map;
 
 import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 @RunWith(JUnit4.class)
 public class AccumuloSessionTest {
@@ -169,5 +170,54 @@ public class AccumuloSessionTest {
         Row row2 = rows.get(1);
         assertEquals("testRowKey2", row2.getRowKey().toString());
         assertEquals("testValue2", row2.get("testColumnFamily2").get("testColumn2").toString());
+    }
+
+    @Test
+    public void testFindByRowKeyRegex() throws TableNotFoundException, MutationsRejectedException {
+        BatchWriter writer = connector.createBatchWriter(TEST_TABLE_NAME, maxMemory, maxLatency, maxWriteThreads);
+
+        Mutation mutation = new Mutation("testRowKey1");
+        mutation.put("testColumnFamily1", "testColumn1", "testValue1");
+        writer.addMutation(mutation);
+
+        mutation = new Mutation("testRowKey2");
+        mutation.put("testColumnFamily2", "testColumn2", "testValue2");
+        writer.addMutation(mutation);
+
+        writer.close();
+
+        List<Row> rows = accumuloSession.findByRowKeyRegex(TEST_TABLE_NAME, ".*1", queryUser);
+        assertEquals(1, rows.size());
+
+        Row row1 = rows.get(0);
+        assertEquals("testRowKey1", row1.getRowKey().toString());
+        assertEquals("testValue1", row1.get("testColumnFamily1").get("testColumn1").toString());
+    }
+
+    @Test
+    public void testFindByRowKeyWithOffset() throws TableNotFoundException, MutationsRejectedException {
+        BatchWriter writer = connector.createBatchWriter(TEST_TABLE_NAME, maxMemory, maxLatency, maxWriteThreads);
+
+        Mutation mutation = new Mutation("testRowKey1");
+        mutation.put("testColumnFamily1", "testColumn1", "testValue1");
+        mutation.put("testColumnFamily2", "testColumn1", "testValue2");
+        mutation.put("testColumnFamily2", "testColumn2", "testValue3");
+        mutation.put("testColumnFamily3", "testColumn1", "testValue4");
+        mutation.put("testColumnFamily4", "testColumn1", "testValue5");
+        writer.addMutation(mutation);
+
+        writer.close();
+
+        List<ColumnFamily> colFams = accumuloSession.findByRowKeyWithOffset(TEST_TABLE_NAME, "testRowKey1", queryUser, 1L, 2L, "test.*");
+        assertEquals(2, colFams.size());
+
+        ColumnFamily colFam1 = colFams.get(0);
+        assertEquals("testColumnFamily2", colFam1.getColumnFamilyName());
+        assertEquals("testValue2", colFam1.get("testColumn1").toString());
+        assertEquals("testValue3", colFam1.get("testColumn2").toString());
+
+        ColumnFamily colFam2 = colFams.get(1);
+        assertEquals("testColumnFamily3", colFam2.getColumnFamilyName());
+        assertEquals("testValue4", colFam2.get("testColumn1").toString());
     }
 }
