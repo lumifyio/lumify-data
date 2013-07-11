@@ -33,6 +33,8 @@ public abstract class Session {
 
     abstract List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, QueryUser queryUser);
 
+    abstract List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, QueryUser queryUser);
+
     abstract Row findByRowKey(String tableName, String rowKey, QueryUser queryUser);
 
     abstract List<ColumnFamily> findByRowKeyWithOffset(String tableName, String rowKey, QueryUser queryUser,

@@ -4,6 +4,7 @@ import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.iterators.user.RegExFilter;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -88,6 +89,22 @@ public class AccumuloSession extends Session {
     @Override
     List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, QueryUser queryUser) {
         return findByRowKeyRange(tableName, rowKeyPrefix, rowKeyPrefix + "ZZZZ", queryUser); // TODO is this the best way?
+    }
+
+    @Override
+    List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, QueryUser queryUser) {
+        try {
+            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
+            scanner.setRange(new Range());
+
+            IteratorSetting iter = new IteratorSetting(15, "regExFilter", RegExFilter.class);
+            RegExFilter.setRegexs(iter, rowKeyRegex, null, null, null, false);
+            scanner.addScanIterator(iter);
+
+            return AccumuloHelper.scannerToRows(tableName, scanner);
+        } catch(TableNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

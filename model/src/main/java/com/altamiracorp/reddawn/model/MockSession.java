@@ -57,6 +57,12 @@ public class MockSession extends Session {
     }
 
     @Override
+    List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, QueryUser queryUser) {
+        // TODO: write this
+        return null;
+    }
+
+    @Override
     Row findByRowKey(String tableName, String rowKey, QueryUser queryUser) {
         List<Row> rows = this.tables.get(tableName);
         if (rows == null)

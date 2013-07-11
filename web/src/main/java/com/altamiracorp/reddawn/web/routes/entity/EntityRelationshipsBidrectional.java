@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class EntityRelationshipsBidrectional implements Handler, AppAware {
     private WebApp app;
@@ -32,10 +33,8 @@ public class EntityRelationshipsBidrectional implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         Session session = this.app.getRedDawnSession(request).getModelSession();
-        String rowKey = UrlUtils.urlDecode((String) request.getAttribute("rowKey"));
-//        String term = new TermRowKey(rowKey).getSign();
-//        List<Statement> statements = statementRepository.findByRowKeyRegex(session, "(^" + rowKey + ")|(" + rowKey + "$)");
-        List<Statement> statements = statementRepository.findByRowStartsWith(session, rowKey);
+        String rowKey = Pattern.quote(UrlUtils.urlDecode((String) request.getAttribute("rowKey")));
+        List<Statement> statements = statementRepository.findByRowKeyRegex(session, "(" + rowKey + ".*)|(.*" + rowKey + ")");
 
         JSONObject json = new JSONObject();
         JSONArray statementsJson = new JSONArray();

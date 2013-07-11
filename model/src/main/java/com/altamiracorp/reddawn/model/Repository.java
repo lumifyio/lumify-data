@@ -31,6 +31,11 @@ public abstract class Repository<T> {
         return fromRows(rows);
     }
 
+    public List<T> findByRowKeyRegex(Session session, String rowKeyRegex) {
+        Collection<Row> rows = session.findByRowKeyRegex(getTableName(), rowKeyRegex, session.getQueryUser());
+        return fromRows(rows);
+    }
+
     public List<T> findAll(Session session) {
         Collection<Row> rows = session.findByRowStartsWith(getTableName(), null, session.getQueryUser());
         return fromRows(rows);
