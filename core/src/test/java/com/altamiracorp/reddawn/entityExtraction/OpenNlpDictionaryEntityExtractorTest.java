@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
@@ -85,6 +86,8 @@ public class OpenNlpDictionaryEntityExtractorTest {
         sentence.getData().setText(text);
         sentence.getData().setStart(0L);
         sentence.getData().setEnd(100L);
+        sentence.getMetadata().setArtifactSubject("testSubject");
+        sentence.getMetadata().setArtifactType(ArtifactType.DOCUMENT);
         Collection<Term> terms = extractor.extract(sentence);
         List<String> extractedTerms = new ArrayList<String>();
         for (Term term : terms) {
@@ -103,6 +106,8 @@ public class OpenNlpDictionaryEntityExtractorTest {
         sentence.getData().setText(text);
         sentence.getData().setStart(100L);
         sentence.getData().setEnd(200L);
+        sentence.getMetadata().setArtifactSubject("testSubject");
+        sentence.getMetadata().setArtifactType(ArtifactType.DOCUMENT);
         Collection<Term> terms = extractor.extract(sentence);
         Term firstTerm = terms.iterator().next();
         assertEquals("altamira corporation\u001FOpenNlpDictionary\u001Forganization", firstTerm.getRowKey().toString());
@@ -122,6 +127,8 @@ public class OpenNlpDictionaryEntityExtractorTest {
         sentence.getData().setStart(100L);
         sentence.getData().setEnd(200L);
         sentence.getMetadata().setSecurityMarking("U");
+        sentence.getMetadata().setArtifactSubject("testSubject");
+        sentence.getMetadata().setArtifactType(ArtifactType.DOCUMENT);
         Collection<Term> terms = extractor.extract(sentence);
         Term firstTerm = terms.iterator().next();
         assertEquals("altamira corporation\u001FOpenNlpDictionary\u001Forganization", firstTerm.getRowKey().toString());

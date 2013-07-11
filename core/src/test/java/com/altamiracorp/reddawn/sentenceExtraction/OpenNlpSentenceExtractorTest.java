@@ -52,6 +52,7 @@ public class OpenNlpSentenceExtractorTest {
     public void testExtractionOfTwoSentences() {
         Artifact artifact = new Artifact("urn:sha256:abcd");
         artifact.getGenericMetadata().setAuthor("author").setSubject("Sample Subject");
+        artifact.getGenericMetadata().setMimeType("document");
         artifact.getContent().setSecurity("U");
         String text = "This is some text. It has two sentences.";
         artifact.getContent().setDocExtractedText(text.getBytes());
@@ -93,6 +94,8 @@ public class OpenNlpSentenceExtractorTest {
         Artifact artifact = new Artifact("urn:sha256:abcd");
         String text = "This is some text. It has two sentences.";
         artifact.getContent().setDocExtractedText(text.getBytes());
+        artifact.getGenericMetadata().setMimeType("document");
+        artifact.getGenericMetadata().setSubject("sample subject");
 
         Collection<Sentence> sentences = extractor.extractSentences(artifact);
         assertEquals(2, sentences.size());
@@ -112,6 +115,7 @@ public class OpenNlpSentenceExtractorTest {
     public void testExtractionOfTwoSentences_LongText() {
         Artifact artifact = new Artifact("urn:sha256:abcd");
         artifact.getGenericMetadata().setAuthor("author").setSubject("Sample Subject");
+        artifact.getGenericMetadata().setMimeType("document");
         artifact.getContent().setSecurity("U");
         String text = "Iraq's Baby Noor: An unfinished miracle\n" +
                 "American soldiers plucked the child from her Iraqi home at the height of the war and brought her to America for life-saving surgery. But how did she fare after her return to a war-torn nation struggling to stand on its own?\n" +
