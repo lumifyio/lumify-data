@@ -125,6 +125,7 @@ public class AccumuloSession extends Session {
         }
     }
 
+    @Override
     List<ColumnFamily> findByRowKeyWithOffset(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
         try {
             Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
