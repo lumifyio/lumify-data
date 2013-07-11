@@ -22,7 +22,7 @@ public abstract class Repository<T> {
 
     public List<ColumnFamily> findColFamsByRowKeyWithOffset(Session session, String rowKey, long colFamOffset,
                                                            long colFamLimit, String colFamRegex) {
-        return session.findByRowKeyWithOffset(getTableName(), rowKey, session.getQueryUser(), colFamOffset,
+        return session.findByRowKeyWithColumnFamilyOffsetAndLimit(getTableName(), rowKey, session.getQueryUser(), colFamOffset,
                 colFamLimit, colFamRegex);
     }
 
