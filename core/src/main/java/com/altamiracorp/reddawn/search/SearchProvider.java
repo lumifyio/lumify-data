@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.search;
 
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.util.Collection;
@@ -10,9 +11,13 @@ public interface SearchProvider {
 
     void add(Artifact artifact) throws Exception;
 
+    void add(Term term) throws Exception;
+
     Collection<ArtifactSearchResult> searchArtifacts(String query) throws Exception;
 
     void deleteTables();
 
     void initializeTables();
+
+    Collection<TermSearchResult> searchTerms (String query) throws Exception;
 }
