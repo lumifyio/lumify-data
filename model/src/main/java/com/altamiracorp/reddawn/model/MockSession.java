@@ -88,7 +88,7 @@ public class MockSession extends Session {
     }
 
     @Override
-    List<ColumnFamily> findByRowKeyWithColumnFamilyOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
+    List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
         List<Row> rows = this.tables.get(tableName);
         if (rows == null) {
             throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");

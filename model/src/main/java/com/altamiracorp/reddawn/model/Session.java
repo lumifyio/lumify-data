@@ -37,8 +37,8 @@ public abstract class Session {
 
     abstract Row findByRowKey(String tableName, String rowKey, QueryUser queryUser);
 
-    abstract List<ColumnFamily> findByRowKeyWithColumnFamilyOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser,
-                                                                           long colFamOffset, long colFamLimit, String colFamRegex);
+    abstract List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser,
+                                                                                long colFamOffset, long colFamLimit, String colFamRegex);
 
     abstract void initializeTable(String tableName);
 

@@ -20,9 +20,9 @@ public abstract class Repository<T> {
         return fromRow(row);
     }
 
-    public List<ColumnFamily> findColFamsByRowKeyWithOffset(Session session, String rowKey, long colFamOffset,
-                                                           long colFamLimit, String colFamRegex) {
-        return session.findByRowKeyWithColumnFamilyOffsetAndLimit(getTableName(), rowKey, session.getQueryUser(), colFamOffset,
+    public List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(Session session, String rowKey, long colFamOffset,
+                                                                              long colFamLimit, String colFamRegex) {
+        return session.findByRowKeyWithColumnFamilyRegexOffsetAndLimit(getTableName(), rowKey, session.getQueryUser(), colFamOffset,
                 colFamLimit, colFamRegex);
     }
 

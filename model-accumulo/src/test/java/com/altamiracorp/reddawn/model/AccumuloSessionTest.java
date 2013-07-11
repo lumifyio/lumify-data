@@ -208,7 +208,7 @@ public class AccumuloSessionTest {
 
         writer.close();
 
-        List<ColumnFamily> colFams = accumuloSession.findByRowKeyWithColumnFamilyOffsetAndLimit(TEST_TABLE_NAME, "testRowKey1", queryUser, 1L, 2L, "test.*");
+        List<ColumnFamily> colFams = accumuloSession.findByRowKeyWithColumnFamilyRegexOffsetAndLimit(TEST_TABLE_NAME, "testRowKey1", queryUser, 1L, 2L, "test.*");
         assertEquals(2, colFams.size());
 
         ColumnFamily colFam1 = colFams.get(0);

@@ -51,7 +51,7 @@ public class TermRepository extends Repository<Term> {
     }
 
     public List<ColumnFamily> findMentions(Session session, String rowKey, long colFamOffset, long colFamLimit) {
-        return findColFamsByRowKeyWithOffset(session, rowKey, colFamOffset, colFamLimit, "urn.*");
+        return findByRowKeyWithColumnFamilyRegexOffsetAndLimit(session, rowKey, colFamOffset, colFamLimit, "urn.*");
     }
 
     @Override
