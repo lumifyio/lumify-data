@@ -374,18 +374,18 @@ define([
                     var termMentionStart = artifactTermMention.start - parseInt(termMention['atc:sentenceOffset'], 10);
                     var termMentionEnd = artifactTermMention.end - parseInt(termMention['atc:sentenceOffset'], 10);
 
-                    originalSentenceTextParts.before = originalSentenceText.substring(0, termMentionStart);
-                    originalSentenceTextParts.term = originalSentenceText.substring(termMentionStart, termMentionEnd);
-                    originalSentenceTextParts.after = originalSentenceText.substring(termMentionEnd);
-
-                    termMention.highlightedSentenceText = originalSentenceTextParts.before + '<span class="entity ' + key.conceptLabel +
-                            '" data-info=\'' + dataInfo + '\'>' + originalSentenceTextParts.term + '</span>' + originalSentenceTextParts.after;
+                    termMention.sentenceTextParts = {
+                        before: originalSentenceText.substring(0, termMentionStart),
+                        term: originalSentenceText.substring(termMentionStart, termMentionEnd),
+                        after: originalSentenceText.substring(termMentionEnd)
+                    }
                 });
                 var html = entityDetailsMentionsTemplate({
                     mentions: mentions.mentions,
                     limit: mentions.limit,
                     offset: mentions.offset,
-                    key: key
+                    key: key,
+                    dataInfo: dataInfo
                 });
                 console.log("Mentions: ", mentions);
                 callback(html);

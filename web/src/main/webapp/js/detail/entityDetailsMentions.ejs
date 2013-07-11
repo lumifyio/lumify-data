@@ -12,9 +12,8 @@
                     })%>">
             <h4><%= termMention['atc:artifactSubject'] %></h4>
         </a>
-        <p>
-            <%- termMention.highlightedSentenceText %>
-        </p>
+        <p><%= termMention.sentenceTextParts.before %><span class="entity <%= key.conceptLabel %>" data-info="<%= dataInfo %>"><%=
+                termMention.sentenceTextParts.term %></span><%= termMention.sentenceTextParts.after %></p>
     </li>
 <% }); %>
 </ul>
