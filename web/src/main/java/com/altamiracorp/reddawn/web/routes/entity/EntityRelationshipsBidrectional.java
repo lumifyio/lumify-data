@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-public class EntityRelationshipsBySubject implements Handler, AppAware {
+public class EntityRelationshipsBidrectional implements Handler, AppAware {
     private WebApp app;
     private StatementRepository statementRepository = new StatementRepository();
     private ArtifactTermIndexRepository artifactTermIndexRepository = new ArtifactTermIndexRepository();
@@ -34,6 +34,7 @@ public class EntityRelationshipsBySubject implements Handler, AppAware {
         Session session = this.app.getRedDawnSession(request).getModelSession();
         String rowKey = UrlUtils.urlDecode((String) request.getAttribute("rowKey"));
 //        String term = new TermRowKey(rowKey).getSign();
+//        List<Statement> statements = statementRepository.findByRowKeyRegex(session, "(^" + rowKey + ")|(" + rowKey + "$)");
         List<Statement> statements = statementRepository.findByRowStartsWith(session, rowKey);
 
         JSONObject json = new JSONObject();
