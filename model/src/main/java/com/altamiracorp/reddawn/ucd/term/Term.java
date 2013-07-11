@@ -32,16 +32,6 @@ public class Term extends Row<TermRowKey> {
         return termMentions;
     }
 
-    public List<TermMention> getTermMentions(long offset, long limit) {
-        ArrayList<TermMention> termMentions = new ArrayList<TermMention>();
-        for (ColumnFamily columnFamily : getColumnFamilies()) {
-            if (columnFamily instanceof TermMention) {
-                termMentions.add((TermMention) columnFamily);
-            }
-        }
-        return termMentions;
-    }
-
     public Term addTermMention(TermMention termMention) {
         this.addColumnFamily(termMention);
         return this;
