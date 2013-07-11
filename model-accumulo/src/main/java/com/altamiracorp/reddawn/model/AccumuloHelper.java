@@ -46,15 +46,6 @@ public class AccumuloHelper {
         return rows;
     }
 
-    /**
-     * TODO: Write this
-     *
-     * @param scanner
-     * @param colFamOffset
-     * @param colFamLimit
-     * @param colFamRegex
-     * @return
-     */
     public static List<ColumnFamily> scannerToColumnFamilies(Scanner scanner,
                                                              long colFamOffset, long colFamLimit, String colFamRegex) {
         List<ColumnFamily> colFams = Lists.newArrayList();
