@@ -3,6 +3,7 @@
 var tablesLabel = "<<< tables >>>";
 
 var yaml = require("js-yaml");
+var builder = require("DOMBuilder");
 
 // Loads and converts to json
 var artifact = require("../yaml/artifact.yaml");
@@ -18,7 +19,7 @@ function parseTemplate(err, data) {
     var start = data.indexOf(tablesLabel);
     var end = start + tablesLabel.length;
 
-    var template = data.substring(0, start) + buildTableDot(artifact) + data.substring(end);
+    var template = data.substring(0, start) + buildTableHtml(artifact) + data.substring(end);
     fs.writeFile(__dirname + '/../build/erd.gv', template, function(err) {
         if(err) {
            console.log(err);
@@ -28,51 +29,50 @@ function parseTemplate(err, data) {
     });
 }
 
-function buildTableDot(json) {
-    var result = '"' + json.table.label + '" [label="' + json.table.label + ' | ';
+function buildTableHtml(json) {
+    var domObj =
+        ['TABLE', {'BORDER': '0', 'CELLBORDER': '0', 'CELLSPACING': '0', 'CELLPADDING': '4'},
+            ['TR',
+                ['TD', {'COLSPAN': '4', 'ALIGN': 'CENTER'},
+                    ['FONT', {'POINT-SIZE': '20'}, json.table.label]
+                ]
+            ]
+        ];
 
-    result += '{ rowKey | {';
-    var firstKey = true;
-    json.rowKey.forEach(function(keyPart) {
-        if(!firstKey) {
-            result += ' | ';
-        } else {
-            firstKey = false;
-        }
+    domObj = domObj.concat(buildColumnFamilyHtml('rowKey', json.rowKey));
 
-        result += keyPart;
-    });
-    result += '} }';
+    for(var key in json.columnFamilies) {
+        domObj = domObj.concat(buildColumnFamilyHtml(key, json.columnFamilies[key]));
+    }
 
-    json.columnFamilies.forEach(function(colFam) {
-        result += ' | ' + buildColumnFamilyDot(colFam);
-    });
-
-    result += '"];\n';
-    return result;
+    return '"' + json.table.label + '" [label=<' + builder.build(domObj, 'html').toString() + '>];\n';
 }
 
-function buildColumnFamilyDot(columnFamilyJson) {
-    var colFamKey = "";
-    for(var key in columnFamilyJson) {
-        colFamKey = key;
+function buildColumnFamilyHtml(colFamKey, json) {
+    var response = [
+        ['TR', {'CELLPADDING': '0'},
+            ['TD', {'HEIGHT': '0', 'BGCOLOR': 'BLACK', 'COLSPAN': '4'}]
+        ],
+        ['TR',
+            ['TD', {'COLSPAN': '4', 'COLOR': 'GREY', 'ALIGN': 'LEFT'},
+                ['FONT', {'COLOR': '#888888', 'POINT-SIZE': '16'}, colFamKey]
+            ]
+        ]
+    ];
+
+    for(var key in json) {
+        var columnData = json[key].split(' - ');
+        response.push(
+            ['TR',
+                ['TD', {'ALIGN': 'LEFT', 'WIDTH': '100'}, ''],
+                ['TD', {'ALIGN': 'LEFT'}, key],
+                ['TD', {'ALIGN': 'LEFT'},
+                    ['FONT', {'COLOR': '#444444'}, columnData[0].trim()]
+                ],
+                ['TD', {'ALIGN': 'LEFT'}, columnData[1].trim()]
+            ]
+        );
     }
 
-    var result = '{ ' + colFamKey + ' | { ';
-
-    var internalJson = columnFamilyJson[colFamKey];
-    var firstColumn = true;
-    for(var key in internalJson) {
-        if(!firstColumn) {
-            result += ' | ';
-        } else {
-            firstColumn = false;
-        }
-
-        var columnData = internalJson[key].split(' - ');
-        result += key + ' (' + columnData[0].trim() + ') : ' + columnData[1].trim();
-    }
-
-    result += '} } ';
-    return result;
+    return response;
 }
