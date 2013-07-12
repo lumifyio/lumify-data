@@ -26,7 +26,7 @@ function(UCD, html2canvas, template) {
 
             if (err) {
                 console.error(err);
-                callback();
+                this.callback();
                 this.finished();
             } else {
                 if (artifact.type == 'image') {
