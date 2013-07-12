@@ -83,7 +83,10 @@ define([
 				fitH);
 		
 		context.restore();
-		context.stroke();
+
+        if ( node._private.style.shape.value !== 'none' ) {
+            context.stroke();
+        }
 	};
 
 
