@@ -3,8 +3,7 @@ digraph models_diagram {
   node [shape=Mrecord]
   rankdir = LR
 
-  "Artifact" [label="Artifact | { rowKey | {sha256(doc_artifact_bytes hash)} } | { Content | { doc_artifact_bytes (byte[]) : The raw bytes of the artifact | doc_extracted_text (byte[]) : The extracted text | security (string) : The security markings | atc:highlighted_text (string) : Calculated text based on terms | atc:video_transcript (json) : See com.altamiracorp.reddawn.ucd.artifact.VideoTranscript} }  | { Generic_Metadata | { author (string) : The author of the artifact} }  | { Dynamic_Metadata | { } } "];
-
+  <<< tables >>>
 
   "Source" [label="Source | { Metadata | { acronym : string | additional_details : string } }"];
   "ArtifactAssociation"
