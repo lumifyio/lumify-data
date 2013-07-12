@@ -387,6 +387,9 @@ define([
 
             if (distance < 5) {
                 target.select();
+                if (distance < 1) {
+                    return;
+                }
             }
 
 
