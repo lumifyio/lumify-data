@@ -69,9 +69,10 @@ function(UCD, html2canvas, template) {
             self.finished();
         }
 
-        var times = 0;
+        var times = 4;
         function generate() {
-            if (++times > 2) {
+            if (times-- === 0) {
+                console.error('Timeout generating', self.rowKey);
                 return finish();
             }
 
@@ -80,7 +81,8 @@ function(UCD, html2canvas, template) {
                     var dataUrl = canvas.toDataURL();
 
                     if (dataUrl.length < 5000) {
-                        return generate();
+                        console.warn('Preview generated less than 5k (' + dataUrl.length + '), retrying');
+                        return setTimeout(generate, 100);
                     }
                     finish(dataUrl);
                 }
@@ -113,8 +115,8 @@ function(UCD, html2canvas, template) {
         } else {
             console.log('PREVIEW no cache', task.rowKey);
             this.items.push( task );
-            this.take();
         }
+        this.take();
     };
     PreviewQueue.prototype.take = function() {
         if (this.items.length === 0) return;
