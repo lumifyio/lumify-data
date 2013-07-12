@@ -28,7 +28,7 @@ define(['atmosphere'],
 
 		ServiceBase.prototype.getSocket = function () {
 			return document.$socket;
-		}
+		};
 
         ServiceBase.prototype._ajaxPost = function(options, callback) {
             options.type = options.type || "POST";
