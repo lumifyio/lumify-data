@@ -10,14 +10,24 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
+import javax.imageio.*;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataNode;
+import javax.imageio.spi.ImageReaderSpi;
+import javax.imageio.spi.ImageReaderWriterSpi;
+import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.w3c.dom.*;
+
 
 public class HttpRetriever implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpRetriever.class);
@@ -53,11 +63,33 @@ public class HttpRetriever implements Runnable {
         BufferedImage image = getImage();
         if (image != null) {
             try {
-                ImageIO.write(image, "jpg", new File(getFileName(new StringBuilder(url))));
+                IIOMetadata meta = createMetadata(image);
+
+                ImageIO.write(image, "jpg", new File(directoryPath + getFileName(new StringBuilder(url))));
             } catch (IOException e) {
                 LOGGER.error("Unable to write image to file: " + url);
             }
         }
+    }
+
+    private IIOMetadata createMetadata(BufferedImage image) {
+        ImageWriter writer = ImageIO.getImageWritersByFormatName("jpg").next();
+        ImageWriteParam writeParam = writer.getDefaultWriteParam();
+        ImageTypeSpecifier typeSpecifier = ImageTypeSpecifier.createFromBufferedImageType(image.TYPE_INT_RGB);
+        IIOMetadata metadata = writer.getDefaultImageMetadata(typeSpecifier, writeParam);
+
+        String[] names = metadata.getMetadataFormatNames();
+        int length = names.length;
+        for (int i = 0; i < length; i ++) {
+            System.out.println(names[i]);
+            displayMetadata(metadata.getAsTree(names[i]));
+        }
+
+        return null;
+    }
+
+    void displayMetadata(Node root) {
+        displayMetadata(root, 0);
     }
 
     private BufferedImage getImage() {
@@ -67,6 +99,49 @@ public class HttpRetriever implements Runnable {
             LOGGER.error("Could not retrieve image from: " + url);
             return null;
         }
+    }
+
+
+    void displayMetadata(Node node, int level) {
+        // print open tag of element
+        indent(level);
+        System.out.print("<" + node.getNodeName());
+        NamedNodeMap map = node.getAttributes();
+        if (map != null) {
+
+            // print attribute values
+            int length = map.getLength();
+            for (int i = 0; i < length; i++) {
+                Node attr = map.item(i);
+                System.out.print(" " + attr.getNodeName() +
+                        "=\"" + attr.getNodeValue() + "\"");
+            }
+        }
+
+        Node child = node.getFirstChild();
+        if (child == null) {
+            // no children, so close element and return
+            System.out.println("/>");
+            return;
+        }
+
+        // children, so close current tag
+        System.out.println(">");
+        while (child != null) {
+            // print children recursively
+            displayMetadata(child, level + 1);
+            child = child.getNextSibling();
+        }
+
+        // print close tag of element
+        indent(level);
+        System.out.println("</" + node.getNodeName() + ">");
+    }
+
+
+    void indent(int level) {
+        for (int i = 0; i < level; i++)
+            System.out.print("    ");
     }
 
     private void writeDocumentToFile() {
