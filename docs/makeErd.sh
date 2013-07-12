@@ -1,4 +1,6 @@
 #!/bin/bash
 
-rm -f erd.png && dot -Gsplines=none erd.gv | neato -n -Gsplines=ortho -Tpng -oerd.png
+mkdir -p build
+TODO build erd.gv from all *.desc
+rm -f build/erd.png && dot -Gsplines=none build/erd.gv | neato -n -Gsplines=ortho -Tpng -obuild/erd.png
 

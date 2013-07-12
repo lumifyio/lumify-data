@@ -1,9 +1,9 @@
 digraph models_diagram {
   graph [splines=ortho, nodesep=0.7]
-  node [shape=box, width=2, height=1]
+  node [shape=Mrecord]
   rankdir = LR
 
-  "Source"
+  "Source" [label="Source | { Metadata | { acronym : string | additional_details : string } }"];
   "ArtifactAssociation"
   "Sentence"
   "Artifact"
