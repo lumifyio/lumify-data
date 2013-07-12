@@ -342,7 +342,7 @@ define([
                             return $(this).data('info');
                         }).toArray();
 
-                    $this.trigger(document, 'searchResultSelected', [info]);
+                    self.trigger(document, 'searchResultSelected', [info]);
                 }
             });
         };
