@@ -28,6 +28,7 @@ public class ArtifactGenericMetadata extends ColumnFamily {
     public static final String WEBM_HDFS_FILE_PATH = "webm_hdfs_file_path";
     public static final String VIDEO_PREVIEW_IMAGE_HDFS_FILE_PATH = "video_preview_image_hdfs_file_path";
     public static final String POSTER_FRAME_HDFS_FILE_PATH = "poster_frame_hdfs_file_path";
+    public static final String AUDIO_HDFS_FILE_PATH = "audio_hdfs_file_path";
     public static final String LANGUAGE = "language";
     public static final String LOAD_TIMESTAMP = "load_timestamp";
     public static final String LOAD_TYPE = "load_type";
@@ -207,6 +208,15 @@ public class ArtifactGenericMetadata extends ColumnFamily {
 
     public ArtifactGenericMetadata setPosterFrameHdfsFilePath(String posterFrameHdfsFilePath) {
         set(POSTER_FRAME_HDFS_FILE_PATH, posterFrameHdfsFilePath);
+        return this;
+    }
+
+    public String getAudioHdfsFilePath() {
+        return Value.toString(get(AUDIO_HDFS_FILE_PATH));
+    }
+
+    public ArtifactGenericMetadata setAudioHdfsFilePath(String audioFileHdfsPath) {
+        set(AUDIO_HDFS_FILE_PATH, audioFileHdfsPath);
         return this;
     }
 
