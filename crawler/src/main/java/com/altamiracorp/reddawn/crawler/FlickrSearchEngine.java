@@ -10,27 +10,28 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FlickrSearchEngine extends SearchEngine {
     private static final Logger LOGGER = LoggerFactory.getLogger(FlickrSearchEngine.class);
 
-    private final String BASE_URL = "http://api.flickr.com/services/rest?method=flickr.photos.search";
-    private final String API_KEY = "06e4190d750d2386f81d1afde77d7b38"; // for Sam's account (sam wolo)
-    private final String NO_KNOWN_COPYRIGHT_RESTRICTIONS_LICENSE = "7";
-    private final String USGOVT_WORK_LICENSE = "8";
-    private final String PRIVACY_FILTER = "public";
-    private final String GEO_ACCURACY = "7"; // scale is 1 (world) to 16 (city / street)
-    private final String CONTENT_TYPE_ALL = "7"; // includes photos, screenshots, and other
-    private final String CONTENT_TYPE_PHOTOS_AND_SCREENSHOTS = "4";
-    private final String EXTRAS = "description,license,date_upload,date_taken,owner_name,icon_server," +
-            "original_format,last_update,geo,tags,machine_tags,o_dims,views,media";
-    private final String PER_PAGE = "15";
-    private final String FORMAT = "json";
+    private static final String BASE_URL = "http://api.flickr.com/services/rest?method=flickr.photos.search";
+    private static final String API_KEY = "06e4190d750d2386f81d1afde77d7b38"; // for Sam's account (sam wolo)
+    private static final String NO_KNOWN_COPYRIGHT_RESTRICTIONS_LICENSE = "7";
+    private static final String USGOVT_WORK_LICENSE = "8";
+    private static final String PRIVACY_FILTER = "public";
+    private static final String GEO_ACCURACY = "7"; // scale is 1 (world) to 16 (city / street)
+    private static final String CONTENT_TYPE_ALL = "7"; // includes photos, screenshots, and other
+    private static final String CONTENT_TYPE_PHOTOS_AND_SCREENSHOTS = "4";
+    private static final String EXTRAS = "description,license,date_upload,date_taken,owner_name," +
+            "original_format,last_update,geo,tags,views,media";
+    private static final List<String> METADATA_ITEMS = new ArrayList<String>(Arrays.asList("title", "description",
+            "license", "dateupload", "datetaken", "ownername", "originalformat", "lastupdate", "tags",
+            "views", "media", "latitude", "longitude", "accuracy"));
+    private static final String PER_PAGE = "15";
+    private static final String FORMAT = "json";
     private static String FILE_EXTENSION = ".jpg";  // other options are png or gif but require reformatting
                                                     // see http://www.flickr.com/services/api/misc.urls.html
 
@@ -41,6 +42,7 @@ public class FlickrSearchEngine extends SearchEngine {
 
     @Override
     protected List<String> search(Query q, int numOfResults) {
+        Map<String, TreeMap<String, String>> imageResults = new TreeMap<String, TreeMap<String, String>>();
         ArrayList<String> results = new ArrayList<String>();
         String queryUrl = createQueryUrl(q, 1, Integer.parseInt(PER_PAGE));
         System.out.println(queryUrl + "\n");
@@ -48,21 +50,45 @@ public class FlickrSearchEngine extends SearchEngine {
         URL url = getURL(queryUrl);
         JSONObject jsonObject = null;
         if (url != null) {
-            jsonObject = getJsonObject(url);
+            jsonObject = getJsonObjectFromUrl(url);
         }
         if (jsonObject != null) {
             System.out.println("JSON: \n" + jsonObject.toString());
             JSONArray photos = getPhotosJsonArray(jsonObject);
             for (int i = 0; i < photos.length(); i++) {
-                results.add(getPhotoInfo(photos, i));
+                JSONObject photo = getPhotoJsonObject(photos, i);
+                if (photo != null) {
+                     imageResults.put(getPhotoUrl(photo), (TreeMap<String, String>)getPhotoMetadata(photo));
+                }
             }
         }
         return results;
     }
 
-    private String getPhotoInfo(JSONArray photos, int i) {
+    private JSONObject getPhotoJsonObject(JSONArray photos, int i) {
         try {
-            JSONObject photo = photos.getJSONObject(i);
+            return photos.getJSONObject(i);
+        } catch (JSONException e) {
+            LOGGER.error("Could not retrieve photo information for index " + i + " on: " + photos);
+            return null;
+        }
+    }
+
+    private Map<String, String> getPhotoMetadata(JSONObject photo) {
+        try {
+            Map<String, String> photoInfo = new TreeMap<String, String>();
+            for (String tag : METADATA_ITEMS) {
+                photoInfo.put(tag, photo.get(tag).toString());
+            }
+            return photoInfo;
+        } catch (JSONException e) {
+            LOGGER.error("Could not retrieve photo metadata");
+            return null;
+        }
+    }
+
+    private String getPhotoUrl(JSONObject photo) {
+        try {
             String photoId = photo.get("id").toString();
             String farmId = photo.get("farm").toString();
             String serverId = photo.get("server").toString();
@@ -71,7 +97,6 @@ public class FlickrSearchEngine extends SearchEngine {
                     + "/" + photoId + "_" + secret + FILE_EXTENSION;
             return photoUrl;
         } catch (JSONException e) {
-            LOGGER.error("Could not retrieve photo information for index " + i + " on: " + photos);
             return null;
         }
     }
@@ -94,7 +119,7 @@ public class FlickrSearchEngine extends SearchEngine {
         }
     }
 
-    private JSONObject getJsonObject(URL url) {
+    private JSONObject getJsonObjectFromUrl(URL url) {
         try {
             String content = getContent(url);
             if (content != null) {

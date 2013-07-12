@@ -9,24 +9,21 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 
-import javax.imageio.*;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageTypeSpecifier;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
 import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.metadata.IIOMetadataNode;
-import javax.imageio.spi.ImageReaderSpi;
-import javax.imageio.spi.ImageReaderWriterSpi;
-import javax.imageio.stream.ImageInputStream;
-import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.w3c.dom.*;
 
 
 public class HttpRetriever implements Runnable {
@@ -78,14 +75,7 @@ public class HttpRetriever implements Runnable {
         ImageTypeSpecifier typeSpecifier = ImageTypeSpecifier.createFromBufferedImageType(image.TYPE_INT_RGB);
         IIOMetadata metadata = writer.getDefaultImageMetadata(typeSpecifier, writeParam);
 
-        String[] names = metadata.getMetadataFormatNames();
-        int length = names.length;
-        for (int i = 0; i < length; i ++) {
-            System.out.println(names[i]);
-            displayMetadata(metadata.getAsTree(names[i]));
-        }
-
-        return null;
+          return null;
     }
 
     void displayMetadata(Node root) {
