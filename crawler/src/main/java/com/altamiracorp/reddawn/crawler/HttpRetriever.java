@@ -7,12 +7,21 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HttpRetriever implements Runnable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpRetriever.class);
+
     private HttpClient httpClient;
     private String header;
     private String directoryPath;
@@ -29,6 +38,38 @@ public class HttpRetriever implements Runnable {
 
     @Override
     public void run() {
+        Pattern jpegFileTypePattern = Pattern.compile("(.+)\\.jpg");
+        Matcher jpegFileTypeMatcher = jpegFileTypePattern.matcher(url);
+        if (jpegFileTypeMatcher.matches()) {
+            writeImageToFile();
+            return;
+        } else {
+            writeDocumentToFile();
+            return;
+        }
+    }
+
+    private void writeImageToFile() {
+        BufferedImage image = getImage();
+        if (image != null) {
+            try {
+                ImageIO.write(image, "jpg", new File(getFileName(new StringBuilder(url))));
+            } catch (IOException e) {
+                LOGGER.error("Unable to write image to file: " + url);
+            }
+        }
+    }
+
+    private BufferedImage getImage() {
+        try {
+            return ImageIO.read(new URL(url));
+        } catch (Exception e) {
+            LOGGER.error("Could not retrieve image from: " + url);
+            return null;
+        }
+    }
+
+    private void writeDocumentToFile() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(header);
         StringBuilder content = getContent();
@@ -119,9 +160,21 @@ public class HttpRetriever implements Runnable {
         return true;
     }
 
-    private String getFileName(StringBuilder sb) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-        byte[] bytesOfMessage = sb.toString().getBytes("UTF-8");
+    private String getFileName(StringBuilder sb) {
+        MessageDigest messageDigest = null;
+        try {
+            messageDigest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            LOGGER.error("Unable to find SHA-256 algorithm to generate file name.");
+            e.printStackTrace();
+        }
+        byte[] bytesOfMessage = new byte[0];
+        try {
+            bytesOfMessage = sb.toString().getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("Unable to get UTF-8 content as bytes to generate file name.");
+            e.printStackTrace();
+        }
         byte[] hash = messageDigest.digest(bytesOfMessage);
         return Hex.encodeHexString(hash);
     }
