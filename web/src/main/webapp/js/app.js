@@ -41,8 +41,25 @@ define([
             droppableSelector: '.graph-pane, .map-pane'
         });
 
+        var wsStack = [];
+        this.workspace = function(callback) {
+            if (this.workspaceData) {
+                callback.call(this, this.workspaceData);
+            } else {
+                wsStack.push(callback);
+            }
+        };
+
+        this.drainWorkspaceQueue = function() {
+            var self = this;
+            wsStack.forEach(function(c) {
+                c.call(self, self.workspaceData);
+            });
+        };
+
         this.after('initialize', function() {
             window.reddawnApp = this;
+
 
             this.on(document, 'error', this.onError);
             this.on(document, 'menubarToggleDisplay', this.toggleDisplay);
@@ -80,9 +97,9 @@ define([
             this.trigger(document, 'menubarToggleDisplay', { name: searchPane.data(DATA_MENUBAR_NAME) });
             this.trigger(document, 'menubarToggleDisplay', { name: graphPane.data(DATA_MENUBAR_NAME) });
 
-            this.on(document, 'nodesAdd', this.onNodesAdd);
-            this.on(document, 'nodesUpdate', this.onNodesUpdate);
-            this.on(document, 'nodesDelete', this.onNodesDelete);
+            this.on(document, 'addNodes', this.onAddNodes);
+            this.on(document, 'updateNodes', this.onUpdateNodes);
+            this.on(document, 'deleteNodes', this.onDeleteNodes);
 
             this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
 
@@ -111,8 +128,7 @@ define([
 
                 drop: function( event, ui ) {
                     var draggable = ui.draggable,
-                        droppable = $(event.target),
-                        droppableOffset = droppable.offset();
+                        droppable = $(event.target);
 
                     var info = draggable.data('info') || draggable.parents('li').data('info');
                     if ( !info ) {
@@ -120,22 +136,22 @@ define([
                         return;
                     }
 
-                    var graphPosition = $(event.target).is('.graph-pane') ?
+                    var dropPosition = $(event.target).is('.graph-pane') ?
                         {
-                            x: event.clientX - droppableOffset.left,
-                            y: event.clientY - droppableOffset.top
+                            x: event.clientX,
+                            y: event.clientY
                         } : {
                             x: parseInt(Math.random() * droppable.width(), 10),
                             y: parseInt(Math.random() * droppable.height(), 10)
                         };
 
-                    this.trigger(document, 'nodesAdd', {
+                    this.trigger(document, 'addNodes', {
                         nodes: [{
                             title: info.title || draggable.text(),
                             rowKey: info.rowKey.replace(/\\[x](1f)/ig, '\u001f'),
                             subType: info.subType,
                             type: info.type,
-                            graphPosition: graphPosition
+                            dropPosition: dropPosition
                         }]
                     });
                 }.bind(this)
@@ -206,9 +222,13 @@ define([
         };
 
         this.onWorkspaceLoaded = function(evt, data) {
-            this.workspaceData = data;
+            this.workspaceData = data || {};
+            this.workspaceData.data = this.workspaceData.data || {};
+            this.workspaceData.data.nodes = this.workspaceData.data.nodes || [];
+
             undoManager.reset();
             this.refreshRelationships();
+            this.drainWorkspaceQueue();
         };
 
         this.onWorkspaceDeleted = function(evt, data) {
@@ -229,103 +249,116 @@ define([
             this.trigger(document, 'workspaceSave', this.workspaceData.data);
         };
 
-        this.onNodesUpdate = function(evt, data) {
-            var self = this;
-            var undoData = {
-                noUndo: true,
-                nodes: []
-            };
-            var redoData = {
-                noUndo: true,
-                nodes: []
-            };
-            data.nodes.forEach(function(node) {
-                var matchingWorkspaceNodes = self.workspaceData.data.nodes.filter(function(workspaceNode) { return workspaceNode.rowKey == node.rowKey; });
-                matchingWorkspaceNodes.forEach(function(workspaceNode) {
-                    undoData.nodes.push(JSON.parse(JSON.stringify(workspaceNode)));
-                    $.extend(workspaceNode, node);
-                    redoData.nodes.push(JSON.parse(JSON.stringify(workspaceNode)));
-                });
-            });
+        this.onUpdateNodes = function(evt, data) {
 
-            if(!data.noUndo) {
-                undoManager.performedAction( 'Update ' + undoData.nodes.length + ' nodes', {
-                    undo: function() {
-                        self.trigger(document, 'nodesUpdate', undoData);
-                    },
-                    redo: function() {
-                        self.trigger(document, 'nodesUpdate', redoData);
-                    },
-                    bind: this
-                });
-            }
-
-            this.setWorkspaceDirty();
-        };
-
-        this.onNodesAdd = function(evt, data) {
-            var self = this;
-            this.workspaceData = this.workspaceData || {};
-            this.workspaceData.data = this.workspaceData.data || {};
-            this.workspaceData.data.nodes = this.workspaceData.data.nodes || [];
-            data.nodes.forEach(function(node) {
-                self.workspaceData.data.nodes.push(node);
-            });
-
-            if(!data.noUndo) {
-                var dataClone = JSON.parse(JSON.stringify(data));
-                dataClone.noUndo = true;
-                undoManager.performedAction( 'Add ' + dataClone.nodes.length + ' nodes', {
-                    undo: function() {
-                        self.trigger(document, 'nodesDelete', dataClone);
-                    },
-                    redo: function() {
-                        self.trigger(document, 'nodesAdd', dataClone);
-                    },
-                    bind: this
-                });
-            }
-
-            this.setWorkspaceDirty();
-            this.refreshRelationships();
-        };
-
-        this.onNodesDelete = function(evt, data) {
-            var self = this;
-
-            // get all the workspace nodes to delete (used by the undo manager)
-            var workspaceNodesToDelete = this.workspaceData.data.nodes
-                .filter(function(workspaceNode) {
-                    return data.nodes.filter(function(dataNode) {
-                        return workspaceNode.rowKey == dataNode.rowKey;
-                    }).length > 0;
-                });
-
-            // remove all workspace nodes from list
-            this.workspaceData.data.nodes = this.workspaceData.data.nodes
-                .filter(function(workspaceNode) {
-                    return workspaceNodesToDelete.filter(function(workspaceNodeToDelete) {
-                        return workspaceNode.rowKey == workspaceNodeToDelete.rowKey;
-                    }).length == 0;
-                });
-
-            if(!data.noUndo) {
-                var undoDataClone = JSON.parse(JSON.stringify({
+            this.workspace(function(ws) {
+                var undoData = {
                     noUndo: true,
-                    nodes: workspaceNodesToDelete
-                }));
-                undoManager.performedAction( 'Delete ' + data.nodes.length + ' nodes', {
-                    undo: function() {
-                        self.trigger(document, 'nodesAdd', undoDataClone);
-                    },
-                    redo: function() {
-                        self.trigger(document, 'nodesDelete', undoDataClone);
-                    },
-                    bind: this
-                });
-            }
+                    nodes: []
+                };
+                var redoData = {
+                    noUndo: true,
+                    nodes: []
+                };
+                data.nodes.forEach(function(node) {
+                    var matchingWorkspaceNodes = ws.data.nodes.filter(function(workspaceNode) { 
+                        return workspaceNode.rowKey == node.rowKey; 
+                    });
 
-            this.setWorkspaceDirty();
+                    matchingWorkspaceNodes.forEach(function(workspaceNode) {
+                        undoData.nodes.push(JSON.parse(JSON.stringify(workspaceNode)));
+                        $.extend(workspaceNode, node);
+                        redoData.nodes.push(JSON.parse(JSON.stringify(workspaceNode)));
+                    });
+                });
+
+                if(!data.noUndo) {
+                    undoManager.performedAction( 'Update ' + undoData.nodes.length + ' nodes', {
+                        undo: function() {
+                            this.trigger(document, 'updateNodes', undoData);
+                        },
+                        redo: function() {
+                            this.trigger(document, 'updateNodes', redoData);
+                        },
+                        bind: this
+                    });
+                }
+
+                this.setWorkspaceDirty();
+
+                this.trigger(document, 'nodesUpdated', data);
+            });
+        };
+
+        this.onAddNodes = function(evt, data) {
+            this.workspace(function(ws) {
+
+                data.nodes.forEach(function(node) {
+                    ws.data.nodes.push(node);
+                });
+
+                if(!data.noUndo) {
+                    var dataClone = JSON.parse(JSON.stringify(data));
+                    dataClone.noUndo = true;
+                    undoManager.performedAction( 'Add ' + dataClone.nodes.length + ' nodes', {
+                        undo: function() {
+                            this.trigger(document, 'deleteNodes', dataClone);
+                        },
+                        redo: function() {
+                            this.trigger(document, 'addNodes', dataClone);
+                        },
+                        bind: this
+                    });
+                }
+
+                this.setWorkspaceDirty();
+                this.refreshRelationships();
+
+                this.trigger(document, 'nodesAdded', data);
+            });
+        };
+
+        this.onDeleteNodes = function(evt, data) {
+            var self = this;
+
+            this.workspace(function(ws) {
+
+                // get all the workspace nodes to delete (used by the undo manager)
+                var workspaceNodesToDelete = ws.data.nodes
+                    .filter(function(workspaceNode) {
+                        return data.nodes.filter(function(dataNode) {
+                            return workspaceNode.rowKey == dataNode.rowKey;
+                        }).length > 0;
+                    });
+
+                // remove all workspace nodes from list
+                ws.data.nodes = ws.data.nodes
+                    .filter(function(workspaceNode) {
+                        return workspaceNodesToDelete.filter(function(workspaceNodeToDelete) {
+                            return workspaceNode.rowKey == workspaceNodeToDelete.rowKey;
+                        }).length === 0;
+                    });
+
+                if(!data.noUndo) {
+                    var undoDataClone = JSON.parse(JSON.stringify({
+                        noUndo: true,
+                        nodes: workspaceNodesToDelete
+                    }));
+                    undoManager.performedAction( 'Delete ' + data.nodes.length + ' nodes', {
+                        undo: function() {
+                            self.trigger(document, 'addNodes', undoDataClone);
+                        },
+                        redo: function() {
+                            self.trigger(document, 'deleteNodes', undoDataClone);
+                        },
+                        bind: this
+                    });
+                }
+
+                this.setWorkspaceDirty();
+
+                this.trigger(document, 'nodesDeleted', data);
+            });
         };
 
         this.refreshRelationships = function() {
@@ -335,7 +368,7 @@ define([
             this.ucdService.getRelationships(entityIds, artifactIds, function(err, relationships) {
                 if(err) {
                     console.error('Error', err);
-                    return $this.trigger(document, 'error', { message: err.toString() });
+                    return self.trigger(document, 'error', { message: err.toString() });
                 }
                 self.trigger(document, 'relationshipsLoaded', { relationships: relationships });
             });

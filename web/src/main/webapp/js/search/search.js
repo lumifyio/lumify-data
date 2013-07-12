@@ -252,15 +252,15 @@ define([
 
             this.select('searchResultsScrollSelector').on('scroll', this.onResultsScroll.bind(this));
 
-            this.on(document, 'nodesAdd', this.onNodesUpdate);
-            this.on(document, 'nodesUpdate', this.onNodesUpdate);
-            this.on(document, 'nodesDelete', this.onNodesDelete);
+            this.on(document, 'nodesAdded', this.onNodesUpdated);
+            this.on(document, 'nodesUpdated', this.onNodesUpdated);
+            this.on(document, 'nodesDeleted', this.onNodesDeleted);
             this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
         });
 
         this.onWorkspaceLoaded = function(evt, workspace) {
-            this.onNodesUpdate(evt, workspace.data || {});
+            this.onNodesUpdated(evt, workspace.data || {});
         };
 
         // Track changes to nodes so we display the "Displayed in Graph" icon
@@ -280,7 +280,7 @@ define([
             _currentNodes = {};
         };
 
-        this.onNodesUpdate = function(event, data) {
+        this.onNodesUpdated = function(event, data) {
             var self = this;
             (data.nodes || []).forEach(function(node) {
 
@@ -294,7 +294,7 @@ define([
             });
         };
 
-        this.onNodesDelete = function(event, data) {
+        this.onNodesDeleted = function(event, data) {
             var self = this;
             (data.nodes || []).forEach(function(node) {
                 delete _currentNodes[node.rowKey];
@@ -304,8 +304,8 @@ define([
 
 
         this.applyDraggable = function(el) {
+            var self = this;
 
-            var $this = this;
             el.draggable({
                 helper:'clone',
                 appendTo: 'body',
@@ -321,10 +321,18 @@ define([
                 otherDraggables: function(ev, ui){
 
                     ui.otherDraggables.each(function(){
-                        var info = this.data('original').parent().data('info');
-                        $this.trigger(this, 'addToGraph', {
-                            text: info.title,
-                            info:info
+                        var info = this.data('original').parent().data('info'),
+                            offset = this.offset(),
+                            dropPosition = { x:offset.left, y:offset.top };
+
+                        self.trigger(document, 'addNodes', {
+                            nodes: [{
+                                title: info.title,
+                                rowKey: info.rowKey.replace(/\\[x](1f)/ig, '\u001f'),
+                                subType: info.subType,
+                                type: info.type,
+                                dropPosition: dropPosition
+                            }]
                         });
                     });
                 },
