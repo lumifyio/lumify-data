@@ -31,7 +31,7 @@ function parseTemplate(err, data) {
 
 function buildTableHtml(json) {
     var domObj =
-        ['TABLE', {'BORDER': '0', 'CELLBORDER': '0', 'CELLSPACING': '0', 'CELLPADDING': '4'},
+        ['TABLE', {'BORDER': '1', 'CELLBORDER': '0', 'CELLSPACING': '0', 'CELLPADDING': '4'},
             ['TR',
                 ['TD', {'COLSPAN': '4', 'ALIGN': 'CENTER'},
                     ['FONT', {'POINT-SIZE': '20'}, json.table.label]
@@ -50,8 +50,14 @@ function buildTableHtml(json) {
 
 function buildColumnFamilyHtml(colFamKey, json) {
     var response = [
-        ['TR', {'CELLPADDING': '0'},
-            ['TD', {'HEIGHT': '0', 'BGCOLOR': 'BLACK', 'COLSPAN': '4'}]
+        ['TR',
+            ['TD', {'COLSPAN': '4'},
+                ['TABLE', {'HEIGHT': '0', 'BORDER': '0', 'BGCOLOR': '#333333', 'CELLBORDER': '0', 'CELLSPACING': '0', 'CELLPADDING': '0'},
+                    ['TR',
+                        ['TD', '']
+                    ]
+                ]
+            ]
         ],
         ['TR',
             ['TD', {'COLSPAN': '4', 'COLOR': 'GREY', 'ALIGN': 'LEFT'},
