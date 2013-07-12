@@ -7,6 +7,7 @@ import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndexRepositor
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 public class TermRepository extends Repository<Term> {
     private ArtifactTermIndexRepository artifactTermIndexRepository = new ArtifactTermIndexRepository();
@@ -47,6 +48,10 @@ public class TermRepository extends Repository<Term> {
             terms.add(term);
         }
         return terms;
+    }
+
+    public List<ColumnFamily> findMentions(Session session, String rowKey, long colFamOffset, long colFamLimit) {
+        return findByRowKeyWithColumnFamilyRegexOffsetAndLimit(session, rowKey, colFamOffset, colFamLimit, "urn.*");
     }
 
     @Override

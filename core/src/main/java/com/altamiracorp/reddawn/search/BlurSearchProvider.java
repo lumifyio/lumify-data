@@ -32,6 +32,7 @@ public class BlurSearchProvider implements SearchProvider {
     private static final String CONCEPT_LABEL_COLUMN_NAME = "conceptLabel";
 
     private Blur.Iface client;
+    private String blurPath;
 
     @Override
     public void setup(Mapper.Context context) throws Exception {
@@ -57,26 +58,34 @@ public class BlurSearchProvider implements SearchProvider {
 
         this.client = BlurClient.getClient(blurControllerLocation);
 
-        createTables(blurPath);
+        this.blurPath = blurPath;
+        this.initializeTables();
     }
 
-    private void createTables(String blurPath) throws TException {
+    @Override
+    public void initializeTables() {
         LOGGER.info("Creating blur tables");
         AnalyzerDefinition ad = new AnalyzerDefinition();
-        List<String> tableList = this.client.tableList();
-        String[] blurTables = new String[] { TERM_BLUR_TABLE_NAME, ARTIFACT_BLUR_TABLE_NAME };
+        try {
+            List<String> tableList = this.client.tableList();
+            String[] blurTables = new String[] { TERM_BLUR_TABLE_NAME, ARTIFACT_BLUR_TABLE_NAME };
 
-        for (String blurTable : blurTables) {
-            if (!tableList.contains(blurTable)) {
-                LOGGER.info("Creating term table: " + blurTable);
-                createTable(client, blurPath, ad, blurTable);
-            } else {
-                LOGGER.info ("Skipping create term table '" + blurTable + "' already exist.");
+            for (String blurTable : blurTables) {
+                if (!tableList.contains(blurTable)) {
+                    LOGGER.info("Creating table: " + blurTable);
+                    createTable(client, blurPath, ad, blurTable);
+                } else {
+                    LOGGER.info ("Skipping create table '" + blurTable + "' already exists.");
+                }
             }
+        } catch(TException e) {
+            throw new RuntimeException(e);
         }
     }
 
     private void createTable(Blur.Iface client, String blurPath, AnalyzerDefinition ad, String tableName) throws TException {
+        LOGGER.info("Creating blur table: " + tableName);
+
         TableDescriptor td = new TableDescriptor();
         td.setShardCount(16);
         td.setTableUri(blurPath + "/tables/" + tableName);
@@ -179,6 +188,21 @@ public class BlurSearchProvider implements SearchProvider {
     }
 
     @Override
+    public void deleteTables() {
+        deleteTable(ARTIFACT_BLUR_TABLE_NAME);
+        deleteTable(TERM_BLUR_TABLE_NAME);
+    }
+
+    private void deleteTable(String tableName) {
+        try {
+            LOGGER.info("Deleting blur table: " + tableName);
+            client.disableTable(tableName);
+            client.removeTable(tableName, true);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void add (Term term) throws Exception{
         if (term.getRowKey().toString() == null){
             return;

@@ -31,6 +31,10 @@ function(ServiceBase) {
         }, callback);
     };
 
+    Ucd.prototype.getStatementByRowKey = function(statementRowKey, callback) {
+        this._get("statement", statementRowKey, callback);
+    };
+
     Ucd.prototype.artifactSearch = function(query, callback) {
         this._search("artifact", query, callback);
     };
@@ -59,6 +63,14 @@ function(ServiceBase) {
     Ucd.prototype.getEntityById = function (id, callback) {
         this._get("entity", id, callback);
     };
+
+    Ucd.prototype.getEntityMentionsByRange = function (url, callback) {
+        return this._ajaxGet({ url: url }, callback);
+    }
+
+    Ucd.prototype.getEntityRelationshipsBySubject = function(id, callback) {
+        return this._ajaxGet({ url: 'entity/' + id + '/relationships' }, callback);
+    }
 
     Ucd.prototype.getSpecificEntityRelationship = function (e1, e2, callback) {
         return this._ajaxGet({
@@ -103,8 +115,12 @@ function(ServiceBase) {
     };
 
     Ucd.prototype._get = function (resource, id, callback) {
+        if(!id) {
+            return callback(new Error("Invalid or no id specified for resource '" + resource + "'"));
+        }
+
         //maybe it's an object for future options stuff?
-        var i = encodeURIComponent(typeof id == "object" ? id.id : id).replace(/\./, '%252e');
+        var i = encodeURIComponent(typeof id == "object" ? id.id : id).replace(/\./g, '%252e');
 
         return this._ajaxGet({
             url: resource + "/" + i,

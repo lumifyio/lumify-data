@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.ucd.sentence;
 
 import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.Value;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -13,6 +14,8 @@ public class SentenceMetadata extends ColumnFamily {
     public static final String DATE = "date";
     public static final String EXTRACTOR_ID = "extractorId";
     public static final String SECURITY_MARKING = "securityMarking";
+    public static final String ARTIFACT_SUBJECT = "atc:artifactSubject";
+    public static final String ARTIFACT_TYPE = "atc:artifactType";
 
     public SentenceMetadata() {
         super(NAME);
@@ -66,6 +69,24 @@ public class SentenceMetadata extends ColumnFamily {
 
     public SentenceMetadata setSecurityMarking(String securityMarking) {
         set(SECURITY_MARKING, securityMarking);
+        return this;
+    }
+
+    public String getArtifactSubject() {
+        return Value.toString(get(ARTIFACT_SUBJECT));
+    }
+
+    public SentenceMetadata setArtifactSubject(String artifactSubject) {
+        set(ARTIFACT_SUBJECT, artifactSubject);
+        return this;
+    }
+
+    public String getArtifactType() {
+        return Value.toString(get(ARTIFACT_TYPE));
+    }
+
+    public SentenceMetadata setArtifactType(ArtifactType artifactType) {
+        set(ARTIFACT_TYPE, artifactType.toString());
         return this;
     }
 }

@@ -15,5 +15,9 @@ public interface SearchProvider {
 
     Collection<ArtifactSearchResult> searchArtifacts(String query) throws Exception;
 
+    void deleteTables();
+
+    void initializeTables();
+
     Collection<TermSearchResult> searchTerms (String query) throws Exception;
 }
