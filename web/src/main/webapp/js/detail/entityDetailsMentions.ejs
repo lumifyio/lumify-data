@@ -1,5 +1,8 @@
 <h3>Mentions</h3>
 <ul>
+<% if(mentions.length == 0) { %>
+    <span>There are no more mentions to display</span>
+<% } %>
 <% mentions.forEach(function(termMention) { %>
     <li>
         <a class="mention-artifact artifact" href="artifact/<%= termMention.artifactKey %>"
@@ -18,8 +21,8 @@
 <% }); %>
 </ul>
 <% if(offset >= limit && offset > 0) { %>
-    <a href="entity/mentions/<%= key.value %>?offset=<%= parseInt(offset) - parseInt(limit) %>&limit=<%= limit %>" class="mention-request" data-key="<%= JSON.stringify(key) %>"> Previous </a>
+    <a href="entity/<%= key.value %>/mentions?offset=<%= parseInt(offset) - parseInt(limit) %>&limit=<%= limit %>" class="mention-request" data-key="<%= JSON.stringify(key) %>"> Previous </a>
 <% }
 if(limit == mentions.length) { %>
-<a href="entity/mentions/<%= key.value %>?offset=<%= parseInt(offset) + parseInt(limit) %>&limit=<%= limit %>" class="mention-request" data-key="<%= JSON.stringify(key) %>"> Next </a>
+<a href="entity/<%= key.value %>/mentions?offset=<%= parseInt(offset) + parseInt(limit) %>&limit=<%= limit %>" class="mention-request" data-key="<%= JSON.stringify(key) %>"> Next </a>
 <% } %>

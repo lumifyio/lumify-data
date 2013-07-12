@@ -309,7 +309,7 @@ define([
 
                     var offset = 0;
                     var limit = 2; // change later
-                    var url = 'entity/mentions/' + data.rowKey + '?offset=' + offset + '&limit=' + limit;
+                    var url = 'entity/' + data.rowKey + '/mentions?offset=' + offset + '&limit=' + limit;
                     var dataInfo = JSON.stringify({
                         'rowKey': entity.key.value,
                         'type': 'entity',
