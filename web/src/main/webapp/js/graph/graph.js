@@ -313,6 +313,7 @@ define([
                 info.push(node.data());
             });
 
+            this.trigger(document, 'relatedEntitySelected', [info]);
             this.trigger(document, 'searchResultSelected', [info]);
         };
 
