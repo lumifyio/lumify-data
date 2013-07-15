@@ -12,7 +12,6 @@ digraph models_diagram {
   "Concept"
   "Statement"
   "ConceptAssociation"
-  "Term"
   "ArtifactTermIndex"
   "Predicate"
   "PredicateAssociation"

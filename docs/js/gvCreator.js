@@ -5,9 +5,6 @@ var tablesLabel = "<<< tables >>>";
 var yaml = require("js-yaml");
 var builder = require("DOMBuilder");
 
-// Loads and converts to json
-var artifact = require("../yaml/artifact.yaml");
-
 var fs = require("fs");
 fs.readFile(__dirname + '/../template.gv', 'utf8', parseTemplate);
 
@@ -19,7 +16,12 @@ function parseTemplate(err, data) {
     var start = data.indexOf(tablesLabel);
     var end = start + tablesLabel.length;
 
-    var template = data.substring(0, start) + buildTableHtml(artifact) + data.substring(end);
+    var template = data.substring(0, start);
+    fs.readdirSync(__dirname + '/../yaml/').forEach(function(filename) {
+        template += buildTableHtml(require("../yaml/" + filename));
+    });
+
+    template += data.substring(end);
     fs.writeFile(__dirname + '/../build/erd.gv', template, function(err) {
         if(err) {
            console.log(err);
@@ -75,7 +77,7 @@ function buildColumnFamilyHtml(colFamKey, json) {
                 ['TD', {'ALIGN': 'LEFT'},
                     ['FONT', {'COLOR': '#444444'}, columnData[0].trim()]
                 ],
-                ['TD', {'ALIGN': 'LEFT'}, columnData[1].trim()]
+                ['TD', {'ALIGN': 'LEFT'}, (columnData.length > 1 ? columnData[1].trim() : '')]
             ]
         );
     }

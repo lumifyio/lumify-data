@@ -8,14 +8,48 @@ rowKey:
 
 columnFamilies:
     Content:
-        doc_artifact_bytes:     byte[] - The raw bytes of the artifact
-        doc_extracted_text:     byte[] - The extracted text
-        security:               string - The security markings
-        atc:highlighted_text:   string - Calculated text based on terms
-        atc:video_transcript:   json -   See com.altamiracorp.reddawn.ucd.artifact.VideoTranscript
+        doc_artifact_bytes:                 byte[] - The raw bytes of the artifact
+        doc_extracted_text:                 byte[] - The extracted text
+        security:                           string - The security markings
+        atc:highlighted_text:               string - Calculated text based on terms
+        atc:video_transcript:               json -   See com.altamiracorp.reddawn.ucd.artifact.VideoTranscript
     Generic_Metadata:
-        author:                 string - The author of the artifact
+        author:                             string - The author of the artifact
+        charset:                            string - The charset used by the artifact
+        category:                           string - The category that the artifact falls within
+        document_dtg:                       string
+        document_type:                      string
+        extracted_text_hdfs_path:           string
+        external_url:                       string
+        file_extension:                     string
+        file_name:                          string
+        file_size:                          string
+        file_timestamp:                     string
+        hdfs_file_path:                     string
+        mp4_hdfs_file_path:                 string
+        webm_hdfs_file_path:                string
+        video_preview_image_hdfs_file_path: string
+        poster_frame_hdfs_file_path:        string
+        audio_hdfs_file_path:               string
+        language:                           string
+        load_timestamp:                     string
+        load_type:                          string
+        mime_type:                          string
+        source:                             string
+        source_subtype:                     string
+        source_type:                        string
+        subject:                            string
     Dynamic_Metadata:
+        artifactSerialNumber:               string
+        attachment:                         string
+        doc_source_hash:                    string
+        edhGuid:                            string
+        geolocation:                        string
+        provenanceId:                       string
+        source_hash_algorithm:              string
+        source_label:                       string
+        structured_annotation_object:       string
+        unstructured_annotation_object:     string
 
 connections:
     Table:

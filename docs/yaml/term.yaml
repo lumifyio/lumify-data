@@ -1,0 +1,29 @@
+---
+table:
+    label: Term
+    description: An entity defined by one of several models
+
+rowKey:
+    sign:                                   string - The name of the term
+    modelKey:                               string - The model that generated the term
+    conceptLabel:                           string - The type of the term (e.g. person)
+
+columnFamilies:
+    sha256 of Term Mention:
+        artifactKey:                        sha256 - Hash of the artifact that produced the term mention
+        artifactKey_sign:                   string
+        author:                             string - The author of the artifact that generated the term mention
+        geoLocation:                        string - The geolocation associated with the mention
+        mention:                            json -   Information about where the mention occurred in the artifact
+        provenanceID:                       string
+        securityMarking:                    string - The security level of the mention
+        date:                               string - The date associated with the mention
+        atc:artifactType:                   string - The type of the artifact that produced the mention (e.g. document)
+        atc:artifactSubject:                string - The subject of the artifact that produced the mention
+        atc:sentenceText:                   string - The text of the sentence that produced the artifact
+        atc:sentenceOffset:                 string - The offset of the sentence relative to the start of the artifact text
+
+connections:
+    Table:
+        description: something
+...
