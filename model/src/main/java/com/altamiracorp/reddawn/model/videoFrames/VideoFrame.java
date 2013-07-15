@@ -5,7 +5,7 @@ import com.altamiracorp.reddawn.model.RowKey;
 import com.altamiracorp.reddawn.ucd.artifact.VideoTranscript;
 
 public class VideoFrame extends Row<VideoFrameRowKey> {
-    public static final String TABLE_NAME = "VideoFrame";
+    public static final String TABLE_NAME = "atc:VideoFrame";
 
     public VideoFrame(VideoFrameRowKey rowKey) {
         super(TABLE_NAME, rowKey);

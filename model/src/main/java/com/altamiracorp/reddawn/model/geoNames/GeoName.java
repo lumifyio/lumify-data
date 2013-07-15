@@ -4,7 +4,7 @@ import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.model.RowKey;
 
 public class GeoName extends Row<GeoNameRowKey> {
-    public static final String TABLE_NAME = "GeoName";
+    public static final String TABLE_NAME = "atc:GeoName";
 
     public GeoName(GeoNameRowKey rowKey) {
         super(TABLE_NAME, rowKey);
