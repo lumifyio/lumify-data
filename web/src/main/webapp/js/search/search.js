@@ -2,12 +2,14 @@
 define([
     'flight/lib/component',
     'service/ucd',
+    'util/previews',
+    'util/video/scrubber',
     'tpl!./search',
     'tpl!./searchResultsSummary',
     'tpl!./searchResults',
     'tpl!util/alert',
     'util/jquery.ui.draggable.multiselect',
-], function(defineComponent, UCD, template, summaryTemplate, resultsTemplate, alertTemplate) {
+], function(defineComponent, UCD, previews, VideoScrubber, template, summaryTemplate, resultsTemplate, alertTemplate) {
     'use strict';
 
     return defineComponent(Search);
@@ -22,6 +24,7 @@ define([
             searchQueryValidationSelector: '.search-query-validation',
             searchResultsSummarySelector: '.search-results-summary',
             searchSummaryResultItemSelector: '.search-results-summary li',
+            searchResultsScrollSelector: '.search-results ul.nav',
             searchResultItemLinkSelector: '.search-results li a',
             searchResultsSelector: '.search-results',
             closeResultsSelector: '.search-results .close'
@@ -31,16 +34,16 @@ define([
 
         this.onArtifactSearchResults = function(evt, artifacts) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            $searchResultsSummary.find('.documents .badge').removeClass('loading').text(artifacts.documents.length);
-            $searchResultsSummary.find('.images .badge').removeClass('loading').text(artifacts.images.length);
-            $searchResultsSummary.find('.videos .badge').removeClass('loading').text(artifacts.videos.length);
+            $searchResultsSummary.find('.document .badge').removeClass('loading').text(artifacts.document.length);
+            $searchResultsSummary.find('.image .badge').removeClass('loading').text(artifacts.image.length);
+            $searchResultsSummary.find('.video .badge').removeClass('loading').text(artifacts.video.length);
         };
 
         this.onEntitySearchResults = function(evt, entities) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            $searchResultsSummary.find('.people .badge').removeClass('loading').text((entities.person || []).length);
-            $searchResultsSummary.find('.locations .badge').removeClass('loading').text((entities.location || []).length);
-            $searchResultsSummary.find('.organizations .badge').removeClass('loading').text((entities.organization || []).length);
+            $searchResultsSummary.find('.person .badge').removeClass('loading').text((entities.person || []).length);
+            $searchResultsSummary.find('.location .badge').removeClass('loading').text((entities.location || []).length);
+            $searchResultsSummary.find('.organization .badge').removeClass('loading').text((entities.organization || []).length);
         };
 
         this.onFormSearch = function(evt) {
@@ -80,7 +83,7 @@ define([
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
-                self.searchResults.artifacts = artifacts;
+                self.searchResults.artifact = artifacts;
                 self.trigger('artifactSearchResults', artifacts);
             });
             this.ucd.entitySearch(query, function(err, entities) {
@@ -88,7 +91,7 @@ define([
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
-                self.searchResults.entities = entities;
+                self.searchResults.entity = entities;
                 self.trigger('entitySearchResults', entities);
             });
         };
@@ -115,9 +118,9 @@ define([
             data.results = this.searchResults[data.type][data.subType] || [];
 
             data.results.forEach(function(result) {
-                if(data.type == 'artifacts') {
+                if(data.type == 'artifact') {
                     result.title = result.subject;
-                } else if(data.type == 'entities') {
+                } else if(data.type == 'entity') {
                     result.title = result.sign;
                 } else {
                     result.title = 'Error: unknown type: ' + data.type;
@@ -130,9 +133,11 @@ define([
                     if ( nodeState.inGraph ) classes.push('graph-displayed');
                     if ( nodeState.inMap ) classes.push('map-displayed');
                 }
+                if (data.subType === 'video' || data.subType === 'image') {
+                    classes.push('has_preview');
+                }
                 result.className = classes.join(' ');
             });
-
 
             // Add splitbar to search results
             $searchResults.resizable({
@@ -148,6 +153,8 @@ define([
             
             if (data.results.length) {
                 $searchResults.show();
+
+                this.loadVisibleResultPreviews();
             } else {
                 $searchResults.hide();
             }
@@ -175,6 +182,52 @@ define([
             this.$node.find('.search-results-summary .active').removeClass('active');
         };
 
+        var previewTimeout;
+        this.onResultsScroll = function(e) {
+            clearTimeout(previewTimeout);
+            previewTimeout = setTimeout(this.loadVisibleResultPreviews.bind(this), 1000);
+        };
+
+        this.loadVisibleResultPreviews = function() {
+            var self = this;
+
+            if ( !self.previewQueue ) {
+                self.previewQueue = previews.createQueue('searchresults', { maxConcurrent: 1 });
+            }
+
+            var ul = self.select('searchResultsScrollSelector'),
+                yMin = ul[0].offsetTop,
+                yMax = yMin + ul.height(),
+                lis = ul.children('li'),
+                lisVisible = lis
+                    .filter(function(){ 
+                        return this.offsetTop >= yMin && this.offsetTop < yMax;
+                    });
+            
+            lisVisible.each(function() {
+                var li = $(this),
+                    info = li.data('info'),
+                    rowKey = info.rowKey;
+
+                if ((info.subType === 'video' || info.subType === 'image') && !li.data('preview-loaded')) {
+                    li.addClass('preview-loading');
+                    previews.generatePreview(rowKey, null, function(poster, frames) {
+                        li.removeClass('preview-loading')
+                          .data('preview-loaded', true);
+
+                        if(info.subType === 'video') {
+                            VideoScrubber.attachTo(li.find('.preview'), {
+                                poster: poster,
+                                frames: frames
+                            });
+                        } else if(info.subType === 'image') {
+                            li.find('.preview').html("<img src='" + poster + "' />");
+                        }
+                    });
+                }
+            });
+        };
+
 
         this.after('initialize', function() {
             this.$node.html(template({}));
@@ -197,15 +250,17 @@ define([
 				searchQuerySelector: this.onKeyUp
 			});
 
-            this.on(document, 'nodesAdd', this.onNodesUpdate);
-            this.on(document, 'nodesUpdate', this.onNodesUpdate);
-            this.on(document, 'nodesDelete', this.onNodesDelete);
+            this.select('searchResultsScrollSelector').on('scroll', this.onResultsScroll.bind(this));
+
+            this.on(document, 'nodesAdded', this.onNodesUpdated);
+            this.on(document, 'nodesUpdated', this.onNodesUpdated);
+            this.on(document, 'nodesDeleted', this.onNodesDeleted);
             this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
         });
 
         this.onWorkspaceLoaded = function(evt, workspace) {
-            this.onNodesUpdate(evt, workspace.data || {});
+            this.onNodesUpdated(evt, workspace.data || {});
         };
 
         // Track changes to nodes so we display the "Displayed in Graph" icon
@@ -225,21 +280,21 @@ define([
             _currentNodes = {};
         };
 
-        this.onNodesUpdate = function(event, data) {
+        this.onNodesUpdated = function(event, data) {
             var self = this;
             (data.nodes || []).forEach(function(node) {
 
                 // Only care about node search results and location updates
                 if ( (node.type && node.subType) || node.location || node.locations ) {
                     var inGraph = true;
-                    var inMap = !!(node.location || node.locations);
+                    var inMap = !!(node.location || (node.locations && node.locations.length));
                     _currentNodes[node.rowKey] = { inGraph:inGraph, inMap:inMap };
                     self.toggleSearchResultIcon(node.rowKey, inGraph, inMap);
                 }
             });
         };
 
-        this.onNodesDelete = function(event, data) {
+        this.onNodesDeleted = function(event, data) {
             var self = this;
             (data.nodes || []).forEach(function(node) {
                 delete _currentNodes[node.rowKey];
@@ -249,8 +304,8 @@ define([
 
 
         this.applyDraggable = function(el) {
+            var self = this;
 
-            var $this = this;
             el.draggable({
                 helper:'clone',
                 appendTo: 'body',
@@ -266,10 +321,18 @@ define([
                 otherDraggables: function(ev, ui){
 
                     ui.otherDraggables.each(function(){
-                        var info = this.data('original').parent().data('info');
-                        $this.trigger(this, 'addToGraph', {
-                            text: info.title,
-                            info:info
+                        var info = this.data('original').parent().data('info'),
+                            offset = this.offset(),
+                            dropPosition = { x:offset.left, y:offset.top };
+
+                        self.trigger(document, 'addNodes', {
+                            nodes: [{
+                                title: info.title,
+                                rowKey: info.rowKey.replace(/\\[x](1f)/ig, '\u001f'),
+                                subType: info.subType,
+                                type: info.type,
+                                dropPosition: dropPosition
+                            }]
                         });
                     });
                 },
@@ -279,7 +342,7 @@ define([
                             return $(this).data('info');
                         }).toArray();
 
-                    $this.trigger(document, 'searchResultSelected', [info]);
+                    self.trigger(document, 'searchResultSelected', [info]);
                 }
             });
         };

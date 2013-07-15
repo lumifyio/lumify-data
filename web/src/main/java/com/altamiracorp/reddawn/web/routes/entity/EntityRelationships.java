@@ -1,13 +1,10 @@
 package com.altamiracorp.reddawn.web.routes.entity;
 
 import com.altamiracorp.reddawn.model.Session;
-import com.altamiracorp.reddawn.statementExtraction.SentenceBasedStatementExtractor;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndexRepository;
-import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
 import com.altamiracorp.reddawn.ucd.statement.Statement;
 import com.altamiracorp.reddawn.ucd.statement.StatementRepository;
-import com.altamiracorp.reddawn.ucd.statement.StatementRowKey;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
@@ -20,6 +17,7 @@ import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 public class EntityRelationships implements Handler, AppAware {
     private WebApp app;
@@ -49,13 +47,10 @@ public class EntityRelationships implements Handler, AppAware {
         JSONArray resultsJson = new JSONArray();
         for (String fromEntityId : entityIds) {
             for (String toEntityId : entityIds) {
-                String rowKey = new StatementRowKey(
-                        fromEntityId,
-                        new PredicateRowKey(SentenceBasedStatementExtractor.MODEL_KEY, SentenceBasedStatementExtractor.PREDICATE_LABEL).toString(),
-                        toEntityId).toString();
-                Statement statement = statementRepository.findByRowKey(session, rowKey);
-                if (statement != null) {
+                List<Statement> statements = statementRepository.findBySourceAndTargetRowKey(session, fromEntityId, toEntityId);
+                if (statements.size() > 0) {
                     JSONObject rel = new JSONObject();
+                    rel.put("relationshipType", "entityToEntity");
                     rel.put("from", fromEntityId);
                     rel.put("to", toEntityId);
                     resultsJson.put(rel);
@@ -65,13 +60,14 @@ public class EntityRelationships implements Handler, AppAware {
 
         for (String artifactId : artifactIds) {
             ArtifactTermIndex artifactTermIndex = artifactTermIndexRepository.findByRowKey(session, artifactId);
-            if(artifactTermIndex == null) {
+            if (artifactTermIndex == null) {
                 continue;
             }
             for (String entityId : entityIds) {
                 for (TermRowKey artifactTermMentionTermRowKey : artifactTermIndex.getTermMentions()) {
                     if (artifactTermMentionTermRowKey.toString().equals(entityId)) {
                         JSONObject rel = new JSONObject();
+                        rel.put("relationshipType", "artifactToEntity");
                         rel.put("from", artifactId);
                         rel.put("to", entityId);
                         resultsJson.put(rel);

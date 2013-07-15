@@ -1,5 +1,8 @@
 package com.altamiracorp.reddawn.model;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.nio.ByteBuffer;
 
 public class Value {
@@ -97,5 +100,20 @@ public class Value {
             return null;
         }
         return value.toDouble();
+    }
+
+    public static JSONObject toJson(Value value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            String str = toString(value);
+            if (str.trim().length() == 0) {
+                return null;
+            }
+            return new JSONObject(str);
+        } catch (JSONException e) {
+            throw new RuntimeException("Could not parse JSON", e);
+        }
     }
 }

@@ -16,6 +16,30 @@ define([
 
     Renderer.prototype = CanvasRenderer.prototype;
 
+    Renderer.prototype.getNodeShape = function(node)
+	{
+		// TODO only allow rectangle for a compound node?
+//		if (node._private.style["width"].value == "auto" ||
+//		    node._private.style["height"].value == "auto")
+//		{
+//			return "rectangle";
+//		}
+
+		var shape = node._private.style["shape"].value;
+
+        if ( shape == 'none' ) return 'ellipse';
+
+		if( node.isParent() ){
+			if( shape === 'rectangle' || shape === 'roundrectangle' ){
+				return shape;
+			} else {
+				return 'rectangle';
+			}
+		}
+
+		return shape;
+	};
+
 	
     /**
      * Scale image to the size of the node
@@ -46,12 +70,11 @@ define([
         }
 	
         // Draw outline and clip to it based on node shape css
-		nodeShapes[r.getNodeShape(node)].drawPath(
-				context,
-				nodeX, nodeY, 
-				fitW, fitH);
-		
-		context.clip();
+        if ( node._private.style.shape.value !== 'none' ) {
+            var shape = r.getNodeShape(node);
+            nodeShapes[shape].drawPath( context, nodeX, nodeY, fitW, fitH);
+            context.clip();
+        }
 
 		context.drawImage(img, 
 				nodeX - fitW / 2,
@@ -60,7 +83,10 @@ define([
 				fitH);
 		
 		context.restore();
-		context.stroke();
+
+        if ( node._private.style.shape.value !== 'none' ) {
+            context.stroke();
+        }
 	};
 
 
@@ -121,7 +147,8 @@ define([
 		}
 		
 		return points;
-	}
+	};
+
 
 	nodeShapes["ellipse"] = {
 		draw: function(context, centerX, centerY, width, height) {

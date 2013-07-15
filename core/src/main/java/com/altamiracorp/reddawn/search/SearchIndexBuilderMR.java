@@ -44,10 +44,6 @@ public class SearchIndexBuilderMR extends ConfigurableMapJobBase {
 
         @Override
         protected void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
-            if (artifact.getType() != ArtifactType.DOCUMENT) {
-                return;
-            }
-
             try {
                 searchProvider.add(artifact);
             } catch (Exception ex) {

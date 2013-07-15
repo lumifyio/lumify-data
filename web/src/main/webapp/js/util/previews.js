@@ -9,23 +9,33 @@ define([
  */
 function(UCD, html2canvas, template) {
 
-    var MAX_CONCURRENT = 1;
+    var PREVIEW_CACHE = {};
 
     function Preview(rowKey, options, callback) {
         this.options = options || {};
         this.rowKey = rowKey;
         this.callback = callback;
+        this.isCancelled = false;
     }
+
     Preview.prototype.start = function() {
+        if (this.isCancelled) return;
 
         new UCD().getArtifactById(this.rowKey, function(err, artifact) {
+            if (this.isCancelled) return;
+
             if (err) {
                 console.error(err);
-                callback();
+                this.callback();
                 this.finished();
             } else {
-                if (artifact.type == 'video') {
-                    this.callback(artifact.posterFrameUrl);
+                if (artifact.type == 'image') {
+                    this.callback(artifact.rawUrl, artifact.rawUrl);
+                    PREVIEW_CACHE[this.rowKey] = [artifact.rawUrl, artifact.rawUrl];
+                    this.finished();
+                } else if (artifact.type == 'video') {
+                    this.callback(artifact.posterFrameUrl, artifact.videoPreviewImageUrl);
+                    PREVIEW_CACHE[this.rowKey] = [artifact.posterFrameUrl, artifact.videoPreviewImageUrl];
                     this.finished();
                 } else {
 
@@ -42,6 +52,8 @@ function(UCD, html2canvas, template) {
     };
 
     Preview.prototype.callbackForContent = function(title, html) {
+        if (this.isCancelled) return;
+
         var self = this,
             width = this.options.width,
             previewDiv = $(template({
@@ -50,17 +62,17 @@ function(UCD, html2canvas, template) {
                 html: html
             })).appendTo(document.body);
 
-        //previewDiv.css({position:'absolute',top:100,left:200,right:'auto',zIndex:9999});
-        
         function finish(url) {
             self.callback(url);
+            PREVIEW_CACHE[self.rowKey] = [url];
             previewDiv.remove();
             self.finished();
         }
 
-        var times = 0;
+        var times = 4;
         function generate() {
-            if (++times > 2) {
+            if (times-- === 0) {
+                console.error('Timeout generating', self.rowKey);
                 return finish();
             }
 
@@ -69,7 +81,8 @@ function(UCD, html2canvas, template) {
                     var dataUrl = canvas.toDataURL();
 
                     if (dataUrl.length < 5000) {
-                        return generate();
+                        console.warn('Preview generated less than 5k (' + dataUrl.length + '), retrying');
+                        return setTimeout(generate, 100);
                     }
                     finish(dataUrl);
                 }
@@ -86,31 +99,93 @@ function(UCD, html2canvas, template) {
         }
     };
 
-    var queue = [],
-        executing = [];
-        workQueue = function() {
-            if (queue.length === 0) return;
+    function PreviewQueue(name, opts) {
+        this.name = name;
+        this.items = [];
+        this.executing = [];
+        this.options = $.extend({
+            maxConcurrent: 10
+        }, opts);
+    }
+    PreviewQueue.prototype.addTask = function(task) {
+        var cache = PREVIEW_CACHE[task.rowKey];
+        if (cache) {
+            console.log('PREVIEW using cache', task.rowKey);
+            task.callback.apply(null, cache);
+        } else {
+            console.log('PREVIEW no cache', task.rowKey);
+            this.items.push( task );
+        }
+        this.take();
+    };
+    PreviewQueue.prototype.take = function() {
+        if (this.items.length === 0) return;
 
-            if (executing.length < MAX_CONCURRENT) {
-                var task = queue.shift();
-                executing.push( task );
+        if (this.executing.length < this.options.maxConcurrent) {
+            var task = this.items.shift();
+            this.executing.push( task );
 
-                task.taskFinished = function() {
-                    executing.splice(executing.indexOf(task), 1);
-                    workQueue();
-                };
-                task.start();
-            }
-        };
+            task.taskFinished = function() {
+                this.executing.splice(this.executing.indexOf(task), 1);
+                this.take();
+            }.bind(this);
+
+            task.start();
+        }
+    };
+    PreviewQueue.prototype.cancel = function() {
+        this.executing.forEach(function(task) {
+            task.cancel();
+        });
+        this.executing.length = 0;
+        this.items.length = 0;
+    };
+
+    var queues = {},
+        defaultQueue = queues['default'] = new PreviewQueue('default', { maxConcurrent: 1 });
 
     return {
-        generatePreview: function(rowKey, options, callback) {
-            if ( ! options || ! options.width ) {
-                throw new Error("Width option required for previews");
+
+        cancelQueue: function(queueName) {
+            queues[queueName || 'default'].cancel();
+        },
+
+        /**
+         * Create a queue for preview processing
+         *
+         * @param queueName Name of the queue
+         * @param options Options for configuring the queue
+         * @param options.maxConcurrent Maximum concurrent operations on the queue
+         */
+        createQueue: function(queueName, options) {
+            var queue = queues[queueName] = new PreviewQueue(queueName, options);
+            return queue;
+        },
+
+        /**
+         * Add a preview generation task to the queue
+         *
+         * @param rowKey The artifact rowKey
+         * @param opts Options for preview generation
+         * @param opts.width Width of the preview image preferred
+         * @param opts.queueName Optional queue name to use
+         * @param callback Task completion notification callback
+         */
+        generatePreview: function(rowKey, opts, callback) {
+            var options = $.extend({
+                width: 200,
+                queueName: 'default'
+            }, opts || {});
+
+            var queue = queues[options.queueName];
+            if ( !queue) {
+                queue = queues[options.queueName] = new PreviewQueue(queueName, options.queueOptions);
             }
 
-            queue.push( new Preview(rowKey, options, callback) );
-            workQueue();
+            delete options.queueOptions;
+            delete options.queueName;
+
+            queue.addTask( new Preview(rowKey, options, callback) );
         }
     };
 });

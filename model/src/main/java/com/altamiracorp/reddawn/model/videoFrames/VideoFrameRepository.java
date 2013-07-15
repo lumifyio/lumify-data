@@ -3,8 +3,12 @@ package com.altamiracorp.reddawn.model.videoFrames;
 import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.List;
 
 public class VideoFrameRepository extends Repository<VideoFrame> {
     @Override
@@ -40,5 +44,24 @@ public class VideoFrameRepository extends Repository<VideoFrame> {
         videoFrame.getMetadata()
                 .setHdfsPath(saveFileResults.getFullPath());
         this.save(session, videoFrame);
+    }
+
+    public List<VideoFrame> findAllByArtifactRowKey(Session session, String rowKey) {
+        return this.findByRowStartsWith(session, rowKey);
+    }
+
+    public Image loadImage(Session session, VideoFrame videoFrame) {
+        InputStream in = session.loadFile(videoFrame.getMetadata().getHdfsPath());
+        try {
+            return ImageIO.read(in);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not load image: " + videoFrame.getRowKey(), e);
+        } finally {
+            try {
+                in.close();
+            } catch (IOException e) {
+                throw new RuntimeException("Could not close InputStream", e);
+            }
+        }
     }
 }

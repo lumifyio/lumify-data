@@ -1,4 +1,4 @@
-
+@import "../util/animation";
 
 #map {
   left: 0;
@@ -8,6 +8,10 @@
   position: absolute;
   width: auto !important;
   height: auto !important;
+
+  &.invalid {
+    .shake;
+  }
 
   .leaflet-top, .leaflet-bottom {
     z-index: 40;

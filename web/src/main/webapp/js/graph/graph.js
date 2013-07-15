@@ -35,24 +35,24 @@ define([
             }
         };
 
-        this.onNodesAdd = function(evt, data) {
+        this.onNodesAdded = function(evt, data) {
             this.addNodes(data.nodes);
         };
 
         this.addNodes = function(nodes, opts) {
             var options = $.extend({ fit:false }, opts);
+            var addedNodes = [];
+            var self = this;
             this.cy(function(cy) {
                 nodes.forEach(function(node) {
                     var title = node.title;
-                    var position = node.graphPosition;
-
-                    if (title.length > 10) {
+                    if (title.length > 15) {
                         title = title.substring(0, 10) + "...";
                     }
 
                     var cyNodeData = {
                         group: 'nodes',
-                        renderedPosition: position,
+                        classes: $.trim(node.subType + ' ' + node.type),
                         data: {
                             id: node.rowKey,
                             rowKey: node.rowKey,
@@ -63,11 +63,28 @@ define([
                         }
                     };
 
-                    var cyNode = cy.add(cyNodeData);
-                    cyNode.addClass(node.subType);
-                    cyNode.addClass(node.type);
+                    var needsUpdate = false;
+                    if (node.graphPosition) {
+                        cyNodeData.position = self.pointsToPixels(node.graphPosition);
+                    } else if (node.dropPosition) {
+                        var offset = self.$node.offset();
+                        cyNodeData.renderedPosition = self.pointsToPixels({
+                            x: node.dropPosition.x - offset.left,
+                            y: node.dropPosition.y - offset.top
+                        });
+                        needsUpdate = true;
+                    }
 
-                    if (node.type === 'artifacts') {
+                    var cyNode = cy.add(cyNodeData);
+
+                    if (needsUpdate) {
+                        addedNodes.push({
+                            rowKey: node.rowKey,
+                            graphPosition: self.pixelsToPoints(cyNode.position())
+                        });
+                    }
+
+                    if (node.type === 'artifact') {
                         previews.generatePreview(node.rowKey, { width:178 * pixelScale }, function(dataUri) {
                             if (dataUri) {
                                 cyNode.css('background-image', dataUri);
@@ -76,8 +93,12 @@ define([
                     }
                 });
 
-                if (options.fit) {
+                if (options.fit && cy.nodes().length) {
                     cy.fit(undefined, FIT_PADDING);
+                }
+
+                if (addedNodes.length) {
+                    this.trigger(document, 'updateNodes', { nodes:addedNodes });
                 }
 
                 this.setWorkspaceDirty();
@@ -94,14 +115,16 @@ define([
                     };
                 });
 
-                this.trigger(document, 'nodesDelete', { nodes: nodesToDelete });
+                this.trigger(document, 'deleteNodes', { nodes: nodesToDelete });
             });
         };
 
-        this.onNodesDelete = function(event, data) {
+        this.onNodesDeleted = function(event, data) {
             this.cy(function(cy) {
                 var matchingNodes = cy.nodes().filter(function(idx, node) {
-                    return data.nodes.filter(function(nodeToDelete) { return node.data('rowKey') == nodeToDelete.rowKey; }).length > 0;
+                    return data.nodes.filter(function(nodeToDelete) { 
+                        return node.data('rowKey') == nodeToDelete.rowKey; 
+                    }).length > 0;
                 });
                 matchingNodes.remove();
                 this.setWorkspaceDirty();
@@ -110,44 +133,24 @@ define([
             });
         };
 
-        this.onNodesUpdate = function(evt, data) {
+        this.onNodesUpdated = function(evt, data) {
+            var self = this;
+            
             this.cy(function(cy) {
                 data.nodes
                     .filter(function(updatedNode) { return updatedNode.graphPosition; })
                     .forEach(function(updatedNode) {
                         cy.nodes()
                             .filter(function(idx, node) {
-                                return node.data('rowKey') == updatedNode.rowKey;
+                                return node.data('rowKey') === updatedNode.rowKey;
                             })
                             .each(function(idx, node) {
-                                node.position({
-                                    x: updatedNode.graphPosition.x * pixelScale,
-                                    y: updatedNode.graphPosition.y * pixelScale
-                                });
+                                node.position( self.pointsToPixels(updatedNode.graphPosition) );
                             });
                     });
             });
         };
 
-        this.onAddToGraph = function(event, data) {
-            var el = $(event.target),
-                p = el.offset(),
-                c = this.$node.offset(),
-                position = {
-                    x: p.left - c.left + el.width() / 2.0, 
-                    y: p.top - c.top + el.height() / 2.0
-                };
-
-            this.trigger(document, 'nodesAdd', {
-                nodes: [{
-                    title: data.text,
-                    rowKey: data.info.rowKey,
-                    subType: data.info.subType,
-                    type: data.info.type,
-                    graphPosition: position
-                }]
-            });
-        };
 
         this.onContextMenu = function(event) {
             var target = $(event.target),
@@ -205,7 +208,7 @@ define([
             var LAYOUT_OPTIONS = {
                 // Customize layout options
                 random: { padding: FIT_PADDING },
-                arbor: { friction: 0.5, repulsion: 1500 * pixelScale, targetFps: 60, stiffness: 150 }
+                arbor: { friction: 0.6, repulsion: 5000 * pixelScale, targetFps: 60, stiffness: 300 }
             };
             this.cy(function(cy) {
 
@@ -228,7 +231,7 @@ define([
                                 graphPosition: self.pixelsToPoints(node.position())
                             };
                         });
-                        self.trigger(document, 'nodesUpdate', { nodes:updates });
+                        self.trigger(document, 'updateNodes', { nodes:updates });
                     }
                 }, LAYOUT_OPTIONS[layout] || {});
 
@@ -298,11 +301,15 @@ define([
         });
 
         this.updateNodeSelections = function(cy) {
-            var selection = cy.nodes().filter(':selected'),
-                info = [];
+            var selection = cy.nodes().filter(':selected');
+            var edgeSelection = cy.edges().filter(':selected');
+            var info = [];
 
-            console.log('selections: ', selection);
+            console.log('selections: ', selection, edgeSelection);
             selection.each(function(index, node) {
+                info.push(node.data());
+            });
+            edgeSelection.each(function(index, node) {
                 info.push(node.data());
             });
 
@@ -337,10 +344,11 @@ define([
         };
 
         this.graphGrab = function(event) {
+            var self = this;
             this.cy(function(cy) {
                 var nodes = event.cyTarget.selected() ? cy.nodes().filter(':selected') : event.cyTarget;
                 this.grabbedNodes = nodes.each(function() {
-                    var p = this.position();
+                    var p = self.pixelsToPoints(this.position());
                     this.data('originalPosition', { x:p.x, y:p.y });
                     this.data('freed', false );
                 });
@@ -355,14 +363,12 @@ define([
                 nodes = this.grabbedNodes;
 
             nodes.each(function(i, e) {
-                var p = this.position();
+                var p = self.pixelsToPoints(this.position());
                 if ( !e.data('freed') ) {
                     dup = false;
                 }
                 e.data('targetPosition', {x:p.x, y:p.y});
                 e.data('freed', true);
-
-                p = self.pixelsToPoints(p);
             });
 
             if (dup) {
@@ -373,7 +379,7 @@ define([
             // If the user didn't drag more than a few pixels, select the
             // object, it could be an accidental mouse move
             var target = event.cyTarget, 
-                p = target.position(),
+                p = self.pixelsToPoints(target.position()),
                 originalPosition = target.data('originalPosition'),
                 dx = p.x - originalPosition.x,
                 dy = p.y - originalPosition.y,
@@ -381,6 +387,9 @@ define([
 
             if (distance < 5) {
                 target.select();
+                if (distance < 1) {
+                    return;
+                }
             }
 
 
@@ -396,14 +405,11 @@ define([
                 nodes: $.map(nodes, function(node) {
                     return {
                         rowKey: node.data('rowKey'),
-                        graphPosition: self.pixelsToPoints({
-                            x: node.data('targetPosition').x,
-                            y: node.data('targetPosition').y
-                        })
+                        graphPosition: node.data('targetPosition')
                     };
                 })
             };
-            self.trigger(document, 'nodesUpdate', graphMovedNodesData);
+            self.trigger(document, 'updateNodes', graphMovedNodesData);
 
             this.setWorkspaceDirty();
         };
@@ -414,7 +420,12 @@ define([
 
         this.checkEmptyGraph = function() {
             this.cy(function(cy) {
-                this.select('emptyGraphSelector').toggle(cy.nodes().length === 0);
+                var noNodes = cy.nodes().length === 0;
+
+                this.select('emptyGraphSelector').toggle(noNodes);
+                if (noNodes) {
+                    cy.reset();
+                }
             });
         };
 
@@ -440,7 +451,8 @@ define([
                     cy.add({
                         group: "edges",
                         data: {
-                            id: relationship.from + "->" + relationship.to,
+                            rowKey: relationship.from + "->" + relationship.to,
+                            relationshipType: relationship.relationshipType,
                             source: relationship.from,
                             target: relationship.to,
                             type: 'relationship'
@@ -451,12 +463,17 @@ define([
         };
 
         this.pixelsToPoints = function(position) {
-            if ('devicePixelRatio' in window) {
-                return {
-                    x: position.x / devicePixelRatio,
-                    y: position.y / devicePixelRatio
-                };
-            } else return position;
+            return {
+                x: position.x / pixelScale,
+                y: position.y / pixelScale
+            };
+        };
+
+        this.pointsToPixels = function(position) {
+            return {
+                x: position.x * pixelScale,
+                y: position.y * pixelScale
+            };
         };
 
         this.after('initialize', function() {
@@ -468,12 +485,13 @@ define([
 
 
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
-            this.on(document, 'nodesAdd', this.onNodesAdd);
-            this.on(document, 'nodesDelete', this.onNodesDelete);
-            this.on(document, 'nodesUpdate', this.onNodesUpdate);
+            this.on(document, 'nodesAdded', this.onNodesAdded);
+            this.on(document, 'nodesDeleted', this.onNodesDeleted);
+            this.on(document, 'nodesUpdated', this.onNodesUpdated);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
 
             cytoscape("renderer", "red-dawn", Renderer);
+            cytoscape.style.types.nodeShape.enums.push('none');
             cytoscape({
                 showOverlay: false,
                 minZoom: 1 / 3,
@@ -490,10 +508,11 @@ define([
                     })
                   .selector('node.location,node.place')
                     .css({
-                      'background-image': '/img/glyphicons/glyphicons_242_google_maps@2x.png',
-                      'width': 30 * pixelScale,
-                      'height': 40 * pixelScale,
+                      'background-image': '/img/pin@2x.png',
+                      'width': 35 * pixelScale,
+                      'height': 35 * pixelScale,
                       'border-color': 'white',
+                      'shape': 'none',
                       'border-width': 0
                     })
                   .selector('node.organization,node.organisation')
@@ -501,7 +520,7 @@ define([
                       'background-image': '/img/glyphicons/glyphicons_263_bank@2x.png',
                       'shape': 'roundrectangle'
                     })
-                  .selector('node.document,node.documents')
+                  .selector('node.document')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'rectangle',
@@ -510,7 +529,16 @@ define([
                       'border-color': '#ccc',
                       'border-width': 1
                     })
-                  .selector('node.videos')
+                  .selector('node.video')
+                    .css({
+                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
+                      'shape': 'rectangle',
+                      'width': 60 * 1.3 * pixelScale,
+                      'height': 60 * pixelScale,
+                      'border-color': '#ccc',
+                      'border-width': 1
+                    })
+                  .selector('node.image')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'rectangle',
@@ -575,7 +603,6 @@ define([
                             right: data.width + 'px'
                         });
                     });
-                    self.on(document, 'addToGraph', self.onAddToGraph);
 
                     cy.on({
                         tap: self.graphTap.bind(self),

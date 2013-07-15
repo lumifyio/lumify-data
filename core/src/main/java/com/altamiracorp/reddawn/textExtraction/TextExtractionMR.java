@@ -6,7 +6,6 @@ import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -18,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 public class TextExtractionMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(TextExtractionMR.class.getName());
@@ -50,7 +48,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
         protected void setup(Context context) throws IOException, InterruptedException {
             super.setup(context);
             try {
-                textExtractor = (TextExtractor) context.getConfiguration().getClass(CONF_TEXT_EXTRACTOR_CLASS, AsciiTextExtractor.class).newInstance();
+                textExtractor = (TextExtractor) context.getConfiguration().getClass(CONF_TEXT_EXTRACTOR_CLASS, TikaTextExtractor.class).newInstance();
                 textExtractor.setup(context);
                 session = ConfigurableMapJobBase.createRedDawnSession(context);
             } catch (InstantiationException e) {
@@ -63,29 +61,48 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
         @Override
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
             try {
-                if (artifact.getType() != ArtifactType.DOCUMENT) {
-                    // TODO remove me when we get real text for the video
-                    artifact.getContent().setDocExtractedText("video".getBytes());
-                    context.write(new Text(Artifact.TABLE_NAME), artifact);
-                    return;
-                }
                 LOGGER.info("Extracting text from artifact: " + artifact.getRowKey().toString());
-                InputStream in = artifactRepository.getRaw(session.getModelSession(), artifact);
-                if (in == null) {
-                    LOGGER.warn("No data found for artifact: " + artifact.getRowKey().toString());
+                ExtractedInfo extractedInfo = textExtractor.extract(session.getModelSession(), artifact);
+                if (extractedInfo == null) {
                     return;
                 }
-                ExtractedInfo extractedInfo = textExtractor.extract(in);
-                artifact.getContent().setDocExtractedText(extractedInfo.getText().getBytes());
-                artifact.getGenericMetadata()
-                        .setSubject(extractedInfo.getSubject())
-                        .setDocumentDtg(extractedInfo.getDate())
-                        .setDocumentType(extractedInfo.getType())
-                        .setSource(extractedInfo.getUrl())
-                        .setExternalUrl(extractedInfo.getExtUrl())
-                        .setSourceType(extractedInfo.getSrcType())
-                        .setFileTimestamp(extractedInfo.getDate().getTime() / 1000)
-                        .setLoadTimestamp(extractedInfo.getRetrievalTime());
+
+                if (extractedInfo.getText() != null) {
+                    artifact.getContent().setDocExtractedText(extractedInfo.getText().getBytes());
+                }
+
+                if (extractedInfo.getSubject() != null) {
+                    artifact.getGenericMetadata().setSubject(extractedInfo.getSubject());
+                }
+
+                if (extractedInfo.getDate() != null) {
+                    artifact.getGenericMetadata().setDocumentDtg(extractedInfo.getDate());
+                }
+
+                if (extractedInfo.getType() != null) {
+                    artifact.getGenericMetadata().setDocumentType(extractedInfo.getType());
+                }
+
+                if (extractedInfo.getUrl() != null) {
+                    artifact.getGenericMetadata().setSource(extractedInfo.getUrl());
+                }
+
+                if (extractedInfo.getExtUrl() != null) {
+                    artifact.getGenericMetadata().setExternalUrl(extractedInfo.getExtUrl());
+                }
+
+                if (extractedInfo.getSrcType() != null) {
+                    artifact.getGenericMetadata().setSourceType(extractedInfo.getSrcType());
+                }
+
+                if (extractedInfo.getDate() != null) {
+                    artifact.getGenericMetadata().setFileTimestamp(extractedInfo.getDate().getTime() / 1000);
+                }
+
+                if (extractedInfo.getRetrievalTime() != null) {
+                    artifact.getGenericMetadata().setLoadTimestamp(extractedInfo.getRetrievalTime());
+                }
+
                 context.write(new Text(Artifact.TABLE_NAME), artifact);
             } catch (Exception e) {
                 throw new IOException(e);

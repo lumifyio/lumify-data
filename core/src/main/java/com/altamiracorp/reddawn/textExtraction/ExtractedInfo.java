@@ -3,15 +3,15 @@ package com.altamiracorp.reddawn.textExtraction;
 import java.util.Date;
 
 public class ExtractedInfo {
-    private String mediaType = "";
-    private String subject = "";
-    private String text = "";
+    private String mediaType;
+    private String subject;
+    private String text;
     private Date date;
-    private String url = "";
-    private String type = "";
-    private String extUrl = "";
-    private String srcType = "";
-    private Long retrievalTime = 0l;
+    private String url;
+    private String type;
+    private String extUrl;
+    private String srcType;
+    private Long retrievalTime;
 
     public void setText(String text) {
         this.text = text;

@@ -29,7 +29,7 @@ public class TikaContentTypeExtractor implements ContentTypeExtractor {
     }
 
     @Override
-    public String extract(InputStream in) throws Exception {
+    public String extract(InputStream in, String fileExt) throws Exception {
         Parser parser = new AutoDetectParser();
         BodyContentHandler handler = new BodyContentHandler(10000000);
         Metadata metadata = new Metadata();
@@ -37,9 +37,21 @@ public class TikaContentTypeExtractor implements ContentTypeExtractor {
         parser.parse(in, handler, metadata, ctx);
 
         String contentType = metadata.get(MIME_TYPE_KEY);
-        if (contentType == null) {
-            contentType = "";
+        if (contentType == null || contentType.equals("application/octet-stream")) {
+            contentType = setContentTypeUsingFileExt (fileExt.toLowerCase());
         }
         return contentType;
+    }
+
+    private String setContentTypeUsingFileExt (String fileExt) {
+        if (fileExt.equals("jpeg") || fileExt.equals("tiff") || fileExt.equals("raw") || fileExt.equals("gif") ||
+                fileExt.equals("bmp") || fileExt.equals("png")){
+            return "image";
+        }
+        if (fileExt.equals("flv") || fileExt.equals("avi") || fileExt.equals("m2v") || fileExt.equals("mov") ||
+                fileExt.equals("mpg") || fileExt.equals("wmv")){
+            return "video";
+        }
+        return "";
     }
 }

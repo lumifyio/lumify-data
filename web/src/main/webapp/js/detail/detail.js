@@ -3,11 +3,28 @@ define([
     'flight/lib/component',
     'service/ucd',
     'videojs',
+    'util/video/scrubber',
+    'tpl!util/video/video',
     'tpl!./artifactDetails',
     'tpl!./entityDetails',
-    'tpl!./relationshipDetails',
-    'tpl!./multipleSelection'
-], function(defineComponent, UCD, videojs, artifactDetailsTemplate, entityDetailsTemplate, relationshipDetailsTemplate, multipleSelectionTemplate) {
+    'tpl!./entityToEntityRelationshipDetails',
+    'tpl!./entityToEntityRelationshipExcerpts',
+    'tpl!./multipleSelection',
+    'tpl!./entityDetailsMentions',
+    'tpl!./style'
+], function(
+    defineComponent,
+    UCD,
+    videojs,
+    VideoScrubber,
+    videoTemplate,
+    artifactDetailsTemplate,
+    entityDetailsTemplate,
+    entityToEntityRelationshipDetailsTemplate,
+    entityToEntityRelationshipExcerptsTemplate,
+    multipleSelectionTemplate,
+    entityDetailsMentionsTemplate,
+    styleTemplate) {
     'use strict';
 
     videojs.options.flash.swf = "/libs/video.js/video-js.swf";
@@ -16,29 +33,80 @@ define([
             { name: 'None' },
             { name: 'Subtle Icons', cls:'icons' },
             { name: 'Underline', cls:'underline' },
-            { name: 'Colors', cls:'colors' },
-            { name: 'Ugly Colors', cls:'uglycolors' }
+            { name: 'Colors', cls:'colors' }
         ],
-        ACTIVE_STYLE = 2;
+        DEFAULT = 2;
 
     return defineComponent(Detail);
 
     function Detail() {
 
+        this.useDefaultStyle = true;
+
         this.defaultAttrs({
             mapCoordinatesSelector: '.map-coordinates',
             highlightTypeSelector: '.highlight-options a',
             entitiesSelector: '.entity',
-            videoSelector: 'video'
+            artifactsSelector: '.artifact',
+            moreMentionsSelector: '.mention-request',
+            mentionArtifactSelector: '.mention-artifact',
+            previewSelector: '.preview',
+            videoSelector: 'video',
+            entityToEntityRelationshipSelector: '.entity-to-entity-relationship a.relationship-summary',
+            entityDetailsMentionsSelector: '.entity-mentions'
         });
 
         this.after('initialize', function() {
             this.on('click', {
                 mapCoordinatesSelector: this.onMapCoordinatesClicked,
-                highlightTypeSelector: this.onHighlightTypeClicked
+                highlightTypeSelector: this.onHighlightTypeClicked,
+                moreMentionsSelector: this.onRequestMoreMentions,
+                mentionArtifactSelector: this.onMentionArtifactSelected,
+                previewSelector: this.onPreviewClicked,
+                entityToEntityRelationshipSelector: this.onEntityToEntityRelationshipClicked
             });
+
+            this.on('scrollstop', this.updateEntityAndArtifactDraggables);
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
         });
+
+        this.onEntityToEntityRelationshipClicked = function(evt, data) {
+            var self = this;
+            var $target = $(evt.target).parents('li');
+            var statementRowKey = $target.data('statement-row-key');
+
+            if($target.hasClass('expanded')) {
+                $target.removeClass('expanded');
+                $target.addClass('collapsed');
+                $('.artifact-excerpts', $target).hide();
+            } else {
+                $target.addClass('expanded');
+                $target.removeClass('collapsed');
+
+                new UCD().getStatementByRowKey(statementRowKey, function(err, statement) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+
+                    var statementMentions = Object.keys(statement)
+                        .filter(function(key) {
+                            return key.indexOf('urn') == 0;
+                        })
+                        .map(function(key) {
+                            return statement[key];
+                        });
+                        console.log(statement);
+                        console.log(statementMentions);
+                    var html = entityToEntityRelationshipExcerptsTemplate({
+                        mentions: statementMentions
+                    });
+                    $('.artifact-excerpts', $target).html(html);
+                    $('.artifact-excerpts', $target).show();
+                    self.updateEntityAndArtifactDraggables();
+                });
+            }
+        };
 
         this.onMapCoordinatesClicked = function(evt, data) {
             var $target = $(evt.target);
@@ -58,16 +126,70 @@ define([
             ul.find('.checked').not(li).removeClass('checked');
             li.addClass('checked');
 
-            $.each( content.attr('class').split(/\s+/), function(index, item) {
-                if (item.match(/^highlight-(.+)$/)) {
-                    content.removeClass(item);
-                }
-            });
+            this.removeHighlightClasses();
             
             var newClass = li.data('cls');
             if (newClass) {
                 content.addClass('highlight-' + newClass);
             }
+
+            this.useDefaultStyle = false;
+        };
+
+        this.onPreviewClicked = function(evt) {
+            if (this.select('videoSelector').length) {
+                return;
+            }
+
+            var self = this,
+                players = videojs.players,
+                video = $(videoTemplate({
+                    mp4Url: self.currentArtifact.rawUrl + '?playback=true&type=video/mp4',
+                    webmUrl: self.currentArtifact.rawUrl + '?playback=true&type=video/webm',
+                    posterUrl: self.currentArtifact.posterFrameUrl
+                }));
+
+
+            this.select('previewSelector').html(video);
+            Object.keys(players).forEach(function(player) {
+                if (players[player]) {
+                    players[player].dispose();
+                    delete players[player];
+                }
+            });
+            videojs(video[0], { autoplay:true }, function() { });
+        };
+
+
+        this.getActiveStyle = function() {
+            if (this.useDefaultStyle) {
+                return DEFAULT;
+            }
+
+            var content = this.$node,
+                index = 0;
+            $.each( content.attr('class').split(/\s+/), function(_, item) {
+                var match = item.match(/^highlight-(.+)$/);
+                if (match) {
+                    return HIGHLIGHT_STYLES.forEach(function(style, i) {
+                        if (style.cls === match[1]) {
+                            index = i;
+                            return false;
+                        }
+                    });
+                }
+            });
+
+            return index;
+        };
+
+        this.removeHighlightClasses = function() {
+            var content = this.$node;
+            $.each( content.attr('class').split(/\s+/), function(index, item) {
+                if (item.match(/^highlight-(.+)$/)) {
+                    content.removeClass(item);
+                }
+            });
         };
 
         this.onSearchResultSelected = function(evt, data) {
@@ -76,15 +198,17 @@ define([
                 data = data[0];
             }
 
+            self.currentArtifact = null;
+
             if ( !data || data.length === 0 ) {
                 this.$node.empty();
                 this.currentRowKey = null;
             } else if($.isArray(data)) {
                 this.$node.html(multipleSelectionTemplate({nodes:data}));
                 this.currentRowKey = null;
-            } else if(data.type == 'artifacts') {
+            } else if(data.type == 'artifact') {
                 this.onArtifactSelected(evt, data);
-            } else if(data.type == 'entities') {
+            } else if(data.type == 'entity') {
                 this.onEntitySelected(evt, data);
             } else if(data.type == 'relationship') {
                 this.onRelationshipSelected(evt, data);
@@ -95,12 +219,46 @@ define([
             }
         };
 
+        this.onMentionArtifactSelected = function(evt, data) {
+            var $target = $(evt.target).parents('a');
+
+            this.trigger(document, 'searchResultSelected', {
+                type: 'artifact',
+                rowKey: $target.data("row-key")
+            });
+            evt.preventDefault();
+        }
+
         this.onRelationshipSelected = function(evt, data) {
-            var self = this;
-            this.$node.html("Loading...");
-            // TODO show something more useful here.
-            console.log('Showing relationship:', data);
-            self.$node.html(relationshipDetailsTemplate(data));
+            this.openUnlessAlreadyOpen(data, function(finished) {
+                var self = this;
+                if(data.relationshipType == 'artifactToEntity') {
+                    finished(true);
+                    this.trigger(document, 'searchResultSelected', {
+                        type: 'artifact',
+                        rowKey: data.source,
+                        entityOfInterest: data.target
+                    });
+                } else if(data.relationshipType == 'entityToEntity') {
+                    new UCD().getEntityToEntityRelationshipDetails(data.source, data.target, function(err, relationshipData) {
+                        finished(!err);
+
+                        if(err) {
+                            console.error('Error', err);
+                            return self.trigger(document, 'error', { message: err.toString() });
+                        }
+                        console.log(relationshipData);
+                        relationshipData.styleHtml = self.getStyleHtml();
+                        self.$node.html(entityToEntityRelationshipDetailsTemplate(relationshipData));
+
+                        self.applyHighlightStyle();
+                        self.updateEntityAndArtifactDraggables();
+                    });
+                } else {
+                    finished(false);
+                    self.$node.html("Bad relationship type:" + data.relationshipType);
+                }
+            });
         };
 
         this.onArtifactSelected = function(evt, data) {
@@ -113,19 +271,28 @@ define([
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
+
+                    self.currentArtifact = artifact;
                     console.log('Showing artifact:', artifact);
                     artifact.contentHtml = artifact.Content.highlighted_text || artifact.Content.doc_extracted_text || "";
                     artifact.contentHtml = artifact.contentHtml.replace(/[\n]+/g, "<br><br>\n");
-                    self.$node.html(artifactDetailsTemplate({ artifact: artifact, styles:HIGHLIGHT_STYLES, activeStyle:ACTIVE_STYLE }));
+                    var styleHtml = self.getStyleHtml();
+                    self.$node.html(artifactDetailsTemplate({ artifact: artifact, styleHtml: styleHtml }));
 
                     if (artifact.type == 'video') {
                         self.setupVideo(artifact);
                     }
-                    self.applyHighlightStyle();
 
-                    self.updateEntityDraggables();
+                    console.log('TODO: add some extra highlighting and scroll to this entity row key', data.entityOfInterest);
+
+                    self.applyHighlightStyle();
+                    self.updateEntityAndArtifactDraggables();
                 });
             });
+        };
+
+        this.getStyleHtml = function() {
+            return styleTemplate({ styles: HIGHLIGHT_STYLES, activeStyle: this.getActiveStyle() });
         };
 
         this.onEntitySelected = function(evt, data) {
@@ -139,10 +306,102 @@ define([
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
-                    console.log('Showing entity:', entity);
-                    self.$node.html(entityDetailsTemplate(entity));
+
+                    var offset = 0;
+                    var limit = 2; // change later
+                    var url = 'entity/' + data.rowKey + '/mentions?offset=' + offset + '&limit=' + limit;
+                    var dataInfo = JSON.stringify({
+                        'rowKey': entity.key.value,
+                        'type': 'entity',
+                        'subType': entity.key.conceptLabel
+                    });
+
+                    self.getMoreMentions(url, entity.key, dataInfo, function(mentionsHtml) {
+                        var entityDetailsData = {};
+                        entityDetailsData.key = entity.key;
+
+                        self.getRelationships(data.rowKey, function(relationships) {
+                            entityDetailsData.relationships = relationships.statements;
+                            console.log('Showing entity:', entityDetailsData);
+                            entityDetailsData.styleHtml = self.getStyleHtml();
+                            self.$node.html(entityDetailsTemplate(entityDetailsData));
+                            $('.entity-mentions', self.$node).html(mentionsHtml);
+                            self.applyHighlightStyle();
+                            self.updateEntityAndArtifactDraggables();
+                        });
+                    });
+
                 });
 
+            });
+        };
+
+        this.onRequestMoreMentions = function(evt, data) {
+            var self = this;
+            var $target = $(evt.target);
+            data = {
+                key: $target.data('key'),
+                url: $target.attr("href")
+            };
+
+            var dataInfo = JSON.stringify({
+                'rowKey': data.key.value,
+                'type': 'entity',
+                'subType': data.key.conceptLabel
+            });
+
+            this.getMoreMentions(data.url, data.key, dataInfo, function(mentionsHtml){
+                $('.entity-mentions', self.$node).html(mentionsHtml);
+                self.applyHighlightStyle();
+                self.updateEntityAndArtifactDraggables();
+            });
+            evt.preventDefault();
+        };
+
+        this.getMoreMentions = function(url, key, dataInfo, callback) {
+            new UCD().getEntityMentionsByRange(url, function(err, mentions){
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+
+                mentions.mentions.forEach(function(termMention) {
+                    var originalSentenceText = termMention['atc:sentenceText'];
+                    var originalSentenceTextParts = {};
+
+                    var artifactTermMention = JSON.parse(termMention.mention);
+
+                    var termMentionStart = artifactTermMention.start - parseInt(termMention['atc:sentenceOffset'], 10);
+                    var termMentionEnd = artifactTermMention.end - parseInt(termMention['atc:sentenceOffset'], 10);
+
+                    termMention.sentenceTextParts = {
+                        before: originalSentenceText.substring(0, termMentionStart),
+                        term: originalSentenceText.substring(termMentionStart, termMentionEnd),
+                        after: originalSentenceText.substring(termMentionEnd)
+                    }
+                });
+                var html = entityDetailsMentionsTemplate({
+                    mentions: mentions.mentions,
+                    limit: mentions.limit,
+                    offset: mentions.offset,
+                    key: key,
+                    dataInfo: dataInfo
+                });
+                console.log("Mentions: ", mentions);
+                callback(html);
+            });
+        };
+
+        this.getRelationships = function(rowKey, callback) {
+            var self = this;
+            new UCD().getEntityRelationshipsBySubject(rowKey, function(err, relationships) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+
+                console.log("Relationships: ", relationships);
+                callback(relationships);
             });
         };
 
@@ -159,11 +418,12 @@ define([
         };
 
 
-        this.updateEntityDraggables = function() {
+        this.updateEntityAndArtifactDraggables = function() {
             var entities = this.select('entitiesSelector');
+            var artifacts = this.select('artifactsSelector');
 
-            var $this = this;
-            entities.draggable({
+            // Only create draggables for items in the visible scroll area
+            entities.add(artifacts).withinScrollable(this.$node).draggable({
                 helper:'clone',
                 revert: 'invalid',
                 revertDuration: 250,
@@ -173,26 +433,16 @@ define([
         };
 
         this.setupVideo = function(artifact) {
-            var self = this,
-                video = this.select('videoSelector'),
-                players = videojs.players;
-
-            if (video.length) {
-                Object.keys(players).forEach(function(player) {
-                    if (players[player]) {
-                        players[player].dispose();
-                        delete players[player];
-                    }
-                });
-                videojs(video[0], {}, function() {
-                    self.trigger('videoReady', {artifact:artifact});
-                });
-            }
+            VideoScrubber.attachTo(this.select('previewSelector'), {
+                poster: artifact.posterFrameUrl,
+                frames: artifact.videoPreviewImageUrl
+            });
         };
 
         this.applyHighlightStyle = function() {
-            var newClass = HIGHLIGHT_STYLES[ACTIVE_STYLE].cls;
+            var newClass = HIGHLIGHT_STYLES[this.getActiveStyle()].cls;
             if (newClass) {
+                this.removeHighlightClasses();
                 this.$node.addClass('highlight-' + newClass);
             }
         };

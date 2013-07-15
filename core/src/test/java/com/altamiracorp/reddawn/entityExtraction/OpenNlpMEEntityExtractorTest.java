@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
@@ -90,6 +91,8 @@ public class OpenNlpMEEntityExtractorTest {
         sentence.getData().setText(text);
         sentence.getData().setStart(0L);
         sentence.getData().setEnd(100L);
+        sentence.getMetadata().setArtifactSubject("test subject");
+        sentence.getMetadata().setArtifactType(ArtifactType.DOCUMENT);
         Collection<Term> terms = extractor.extract(sentence);
         HashMap<String, Term> extractedTerms = new HashMap<String, Term>();
         for (Term term : terms) {

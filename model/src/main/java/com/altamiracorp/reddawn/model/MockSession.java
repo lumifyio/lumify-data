@@ -1,7 +1,10 @@
 package com.altamiracorp.reddawn.model;
 
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
+
 import java.io.*;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class MockSession extends Session {
     public HashMap<String, List<Row>> tables = new HashMap<String, List<Row>>();
@@ -55,16 +58,67 @@ public class MockSession extends Session {
     }
 
     @Override
+    List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, QueryUser queryUser) {
+        List<Row> rows = this.tables.get(tableName);
+        if (rows == null) {
+            throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
+        }
+
+        List<Row> result = new ArrayList<Row>();
+        for (Row row : rows) {
+            if (!Pattern.matches(rowKeyRegex, row.getRowKey().toString())) {
+                result.add(row);
+            }
+        }
+        return result;
+    }
+
+    @Override
     Row findByRowKey(String tableName, String rowKey, QueryUser queryUser) {
         List<Row> rows = this.tables.get(tableName);
-        if (rows == null)
+        if (rows == null) {
             throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
+        }
         for (Row row : rows) {
             if (row.getRowKey().toString().equals(rowKey)) {
                 return row;
             }
         }
         return null;
+    }
+
+    @Override
+    List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
+        List<Row> rows = this.tables.get(tableName);
+        if (rows == null) {
+            throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
+        }
+
+        Row matchedRow = null;
+        for (Row row : rows) {
+            if (row.getRowKey().toString().equals(rowKey)) {
+                matchedRow = row;
+                break;
+            }
+        }
+
+        List<ColumnFamily> result = new ArrayList<ColumnFamily>();
+        long count = 0L;
+        for(ColumnFamily colFam : (Collection<ColumnFamily>) matchedRow.getColumnFamilies()) {
+            if(Pattern.matches(colFamRegex, colFam.getColumnFamilyName())) {
+                if(count < colFamOffset + colFamLimit) {
+                    if(count >= colFamOffset) {
+                        result.add(colFam);
+                    }
+                } else {
+                    break;
+                }
+
+                count++;
+            }
+        }
+
+        return result;
     }
 
     @Override

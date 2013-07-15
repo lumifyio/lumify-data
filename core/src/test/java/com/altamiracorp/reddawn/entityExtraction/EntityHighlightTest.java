@@ -36,7 +36,7 @@ public class EntityHighlightTest {
         );
         List<EntityHighlightMR.EntityHighlightMapper.TermAndTermMention> termAndTermMetadata = EntityHighlightMR.EntityHighlightMapper.getTermAndTermMetadataForArtifact(artifactKey, terms);
         String highlightText = EntityHighlightMR.EntityHighlightMapper.getHighlightedText("Test highlight of Joe Ferner and Jeff Kunkle.", termAndTermMetadata);
-        assertEquals("Test highlight of <span class=\"entity person\" data-info=\"{&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;joe ferner\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entities&quot;}\">Joe Ferner</span> and <span class=\"entity person\" data-info=\"{&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;jeff kunkle\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entities&quot;}\">Jeff Kunkle</span>.", highlightText);
+        assertEquals("Test highlight of <span class=\"entity person\" data-info=\"{&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;joe ferner\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;}\">Joe Ferner</span> and <span class=\"entity person\" data-info=\"{&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;jeff kunkle\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;}\">Jeff Kunkle</span>.", highlightText);
     }
 
     @Test(expected = AssertionError.class) // TODO handle overlapping entities

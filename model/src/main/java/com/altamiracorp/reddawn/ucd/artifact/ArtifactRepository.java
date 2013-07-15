@@ -2,7 +2,10 @@ package com.altamiracorp.reddawn.ucd.artifact;
 
 import com.altamiracorp.reddawn.model.*;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
@@ -57,6 +60,19 @@ public class ArtifactRepository extends Repository<Artifact> {
         return null;
     }
 
+    public BufferedImage getRawAsImage(Session session, Artifact artifact) {
+        InputStream in = getRaw(session, artifact);
+        try {
+            try {
+                return ImageIO.read(in);
+            } finally {
+                in.close();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Could not read image", e);
+        }
+    }
+
     public InputStream getRawMp4(Session session, Artifact artifact) {
         String path = artifact.getGenericMetadata().getMp4HdfsFilePath();
         if (path == null) {
@@ -93,6 +109,14 @@ public class ArtifactRepository extends Repository<Artifact> {
         String path = artifact.getGenericMetadata().getPosterFrameHdfsFilePath();
         if (path == null) {
             throw new RuntimeException("Poster Frame file path not set.");
+        }
+        return session.loadFile(path);
+    }
+
+    public InputStream getVideoPreviewImage(Session session, Artifact artifact) {
+        String path = artifact.getGenericMetadata().getVideoPreviewImageHdfsFilePath();
+        if (path == null) {
+            throw new RuntimeException("Video preview image path not set.");
         }
         return session.loadFile(path);
     }

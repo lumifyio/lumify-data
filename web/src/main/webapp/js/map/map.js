@@ -27,9 +27,9 @@ define([
             this.on(document, 'mapEndZoom', this.onMapEndPan);
             this.on(document, 'mapUpdateBoundingBox', this.onMapUpdateBoundingBox);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
-            this.on(document, 'nodesAdd', this.onNodesAdd);
-            this.on(document, 'nodesUpdate', this.onNodesUpdate);
-            this.on(document, 'nodesDelete', this.onNodesDelete);
+            this.on(document, 'nodesAdded', this.onNodesAdded);
+            this.on(document, 'nodesUpdated', this.onNodesUpdated);
+            this.on(document, 'nodesDeleted', this.onNodesDeleted);
             this.on(document, 'windowResize', this.onMapEndPan);
             this.on(document, 'syncEnded', this.onSyncEnded);
         });
@@ -59,18 +59,22 @@ define([
 
         this.onWorkspaceLoaded = function(evt, workspaceData) {
             var self = this;
-            if (workspaceData.data === undefined || workspaceData.data.nodes === undefined) {
-                return;
-            }
-            workspaceData.data.nodes.forEach(function(node) {
-                if(node.location || node.locations) {
-                    self.updateOrAddNode(node);
+
+            this.map(function(map) {
+                map.removeAllMarkers();
+
+                if (workspaceData.data === undefined || workspaceData.data.nodes === undefined) {
+                    return;
                 }
-                self.updateNodeLocation(node);
+                workspaceData.data.nodes.forEach(function(node) {
+                    if(node.location || node.locations) {
+                        self.updateOrAddNode(node);
+                    }
+                });
             });
         };
 
-        this.onNodesAdd = function(evt, data) {
+        this.onNodesAdded = function(evt, data) {
             var self = this;
             data.nodes.forEach(function(node) {
                 self.updateOrAddNode(node);
@@ -87,40 +91,60 @@ define([
             this.map(function(map) {
                 this.deleteNode(node);
 
-                var locations;
-                if(node.locations) {
-                    locations = node.locations;
-                } else {
-                    locations = [ node.location ];
-                }
+                var locations = $.isArray(node.locations) ? node.locations : [ node.location ];
 
                 locations.forEach(function(location) {
                     var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
                     var marker = new mxn.Marker(pt);
                     marker.setAttribute('rowKey', node.rowKey);
-                    // TODO: fix weird shadow and can't close
-                    //marker.setInfoBubble(node.rowKey);
-                    //marker.click.addHandler(function() {
-                        // marker.openBubble();
-                    //});
+                    if ('devicePixelRatio' in window && devicePixelRatio > 1) {
+                        marker.setIcon('/img/small_pin@2x.png', [26, 52], [13, 52]);
+                    } else {
+                        marker.setIcon('/img/small_pin.png', [13, 26], [6,26]);
+                    }
+                    marker.click.addHandler(function(eventType, marker) {
+                        self.trigger(document, 'searchResultSelected', [ node ]);
+                    });
                     map.addMarker(marker);
                 });
+
+                if (locations.length) {
+                    self.fit(map);
+                }
             });
         };
 
-        this.onNodesUpdate = function(evt, data) {
+        this.onNodesUpdated = function(evt, data) {
             var self = this;
             data.nodes.forEach(function(node) {
                 self.updateOrAddNode(node);
             });
         };
 
-        this.onNodesDelete = function(evt, data) {
+        this.onNodesDeleted = function(evt, data) {
             var self = this;
             data.nodes.forEach(function(node) {
                 self.deleteNode(node);
             });
+
+            this.fit();
         };
+
+        this.fit = function(map) {
+            if (this.$node.is(':visible')) {
+
+                var _fit = function(map) {
+                    map.autoCenterAndZoom();
+                    if ( map.getZoom() > 10 ) {
+                        map.setZoom(10);
+                    }
+                }
+
+                if (map) _fit(map);
+                else this.map(_fit);
+            }
+        };
+
 
         this.deleteNode = function(node) {
             var self = this;
@@ -138,7 +162,7 @@ define([
 
         this.updateNodeLocation = function(node) {
             var self = this;
-            if(node.type == 'entities') {
+            if(node.type == 'entity') {
                 this.ucdService.getEntityById(node.rowKey, function(err, entity) {
                     if(err) {
                         console.error('Error', err);
@@ -158,15 +182,17 @@ define([
                         }
                     });
 
+                    node.locations = locations;
+                    if (locations.length === 0) {
+                        self.invalidMap();
+                    }
+
                     var nodesUpdateData = {
-                        nodes: [{
-                            rowKey: node.rowKey,
-                            locations: locations
-                        }]
+                        nodes: [node]
                     };
-                    self.trigger(document, 'nodesUpdate', nodesUpdateData);
+                    self.trigger(document, 'updateNodes', nodesUpdateData);
                 });
-            } else if(node.type == 'artifacts') {
+            } else if(node.type == 'artifact') {
                 this.ucdService.getArtifactById(node.rowKey, function(err, artifact) {
                     if(err) {
                         console.error('Error', err);
@@ -174,20 +200,36 @@ define([
                     }
 
                     if(artifact && artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) {
-                        var nodesUpdateData = {
-                            nodes: [{
-                                rowKey: node.rowKey,
-                                location: {
-                                    latitude: artifact.Dynamic_Metadata.latitude,
-                                    longitude: artifact.Dynamic_Metadata.longitude
-                                }
-                            }]
+
+                        node.location = {
+                            latitude: artifact.Dynamic_Metadata.latitude,
+                            longitude: artifact.Dynamic_Metadata.longitude
                         };
-                        self.trigger(document, 'nodesUpdate', nodesUpdateData);
+
+                        var nodesUpdateData = {
+                            nodes: [node]
+                        };
+                        self.trigger(document, 'updateNodes', nodesUpdateData);
+                    } else {
+                        self.invalidMap();
                     }
                 });
             } else {
                 console.error("Unknown node type:", node.type);
+            }
+        };
+
+        this.invalidMap = function() {
+            var map = this.select('mapSelector'),
+                cls = 'invalid';
+            
+            if (map.hasClass(cls)) {
+                map.removeClass(cls);
+                setTimeout(function() {
+                    map.addClass(cls);
+                }, 100);
+            } else {
+                map.addClass(cls);
             }
         };
 
@@ -294,6 +336,9 @@ define([
             });
             map.changeZoom.addHandler(function() {
                 self.trigger(document, 'mapEndZoom');
+            });
+            map.click.addHandler(function() {
+                self.trigger(document, 'searchResultSelected', []);
             });
 
 

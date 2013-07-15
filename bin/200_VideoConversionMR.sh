@@ -15,12 +15,13 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ "${VIRTUALIZATION_DISABLED}" = 'true' ]; then
-  ip=localhost
+  ip=$(ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
 else
   ip=192.168.33.10
 fi
 
 ffmpegDir=$(dirname $(which ffmpeg))
+ccextractorDir=$(dirname $(which ffmpeg))
 
 java \
 -Dfile.encoding=UTF-8 \
@@ -33,4 +34,5 @@ com.altamiracorp.reddawn.videoConversion.VideoConversionMR \
 --blurPath=hdfs://${ip}/blur \
 --username=root \
 --password=password \
--Dffmpeg.bin.dir=${ffmpegDir}
+-Dffmpeg.bin.dir=${ffmpegDir} \
+-Dccextractor.bin.dir=${ccextractorDir}
