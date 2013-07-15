@@ -6,6 +6,8 @@ import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
+import com.altamiracorp.reddawn.ucd.term.TermAndTermMetadataComparator;
 import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.reddawn.web.utils.UrlUtils;
@@ -43,9 +45,9 @@ public class ArtifactHtmlByRowKey implements Handler, AppAware {
         Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactKey.toString());
 
         Collection<Term> terms = termRepository.findByArtifactRowKey(session.getModelSession(), artifactKey.toString());
-        List<EntityHighlightMR.EntityHighlightMapper.TermAndTermMention> termAndTermMetadatas = EntityHighlightMR.EntityHighlightMapper.getTermAndTermMetadataForArtifact(artifactKey, terms);
-        Collections.sort(termAndTermMetadatas, new EntityHighlightMR.EntityHighlightMapper.TermAndTermMetadataComparator());
-        for (EntityHighlightMR.EntityHighlightMapper.TermAndTermMention termAndTermMetadata : termAndTermMetadatas) {
+        List<TermAndTermMention> termAndTermMetadatas = EntityHighlightMR.EntityHighlightMapper.getTermAndTermMetadataForArtifact(artifactKey, terms);
+        Collections.sort(termAndTermMetadatas, new TermAndTermMetadataComparator());
+        for (TermAndTermMention termAndTermMetadata : termAndTermMetadatas) {
             LOGGER.info(termAndTermMetadata.toString());
         }
         String highlightedText = EntityHighlightMR.EntityHighlightMapper.getHighlightedText(artifact.getContent().getDocExtractedTextString(), termAndTermMetadatas);
