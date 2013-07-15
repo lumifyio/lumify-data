@@ -1,0 +1,12 @@
+---
+table:
+    label: ArtifactPublicationDateIndex
+    description:
+
+rowKey:
+
+columnFamilies:
+
+connections:
+
+...

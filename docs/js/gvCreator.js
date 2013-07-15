@@ -41,7 +41,9 @@ function buildTableHtml(json) {
             ]
         ];
 
-    domObj = domObj.concat(buildColumnFamilyHtml('rowKey', json.rowKey));
+    if(typeof json.rowKey != 'undefined' && json.rowKey !== null) {
+        domObj = domObj.concat(buildColumnFamilyHtml('rowKey', json.rowKey));
+    }
 
     for(var key in json.columnFamilies) {
         domObj = domObj.concat(buildColumnFamilyHtml(key, json.columnFamilies[key]));

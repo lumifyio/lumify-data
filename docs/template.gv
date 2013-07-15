@@ -5,20 +5,6 @@ digraph models_diagram {
 
   <<< tables >>>
 
-  "Source" [label="Source | { Metadata | { acronym : string | additional_details : string } }"];
-  "ArtifactAssociation"
-  "Sentence"
-  "ArtifactStatementIndex"
-  "Concept"
-  "Statement"
-  "ConceptAssociation"
-  "ArtifactTermIndex"
-  "Predicate"
-  "PredicateAssociation"
-  "Object"
-  "ArtifactPublicationDateIndex"
-  "ArtifactMessageTypeIndex"
-
   "Term" -> "Statement" [arrowtail=none, arrowhead=crow, dir=both]
   "Term" -> "Statement" [arrowtail=none, arrowhead=crow, dir=both]
   "Term" -> "Object" [arrowtail=teetee, arrowhead=crow, dir=both]
