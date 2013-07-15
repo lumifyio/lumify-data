@@ -6,9 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import sun.misc.IOUtils;
 
-import javax.imageio.ImageIO;
+import javax.imageio.*;
+import javax.imageio.metadata.IIOInvalidTreeException;
 import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.metadata.IIOMetadataNode;
+import javax.imageio.stream.ImageOutputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
@@ -19,7 +23,7 @@ import java.util.regex.Pattern;
 
 
 public class PhotoHttpRetriever implements Runnable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HttpRetriever.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PhotoHttpRetriever.class);
 
     private HttpClient httpClient;
     private String header;
@@ -61,13 +65,38 @@ public class PhotoHttpRetriever implements Runnable {
         BufferedImage image = getImage(imageUrl);
         if (image != null) {
             try {
+
+                ImageWriter writer = ImageIO.getImageWritersByFormatName("jpg").next();
+                ImageWriteParam writeParam = writer.getDefaultWriteParam();
+
+
                 IIOMetadata meta = createMetadata(image);
-                //merge metadatanodes before writing to file
-                //metadata.mergeTree....
-                System.out.println("Writing " + imageUrl);
-                ImageIO.write(image, "jpg", new File(directoryPath + Utils.getFileName(new StringBuilder(imageUrl))));
+
+                System.out.println("Back");
+                IIOImage newImage = new IIOImage(image, null, meta);
+
+                File outputFile = new File(directoryPath + Utils.getFileName(new StringBuilder(imageUrl)));
+                System.out.println("About to set output");
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageOutputStream stream = ImageIO.createImageOutputStream(baos);
+                writer.setOutput(stream);
+
+                System.out.println("About to write");
+                writer.write(meta, newImage, writeParam);
+
+                FileOutputStream outputToFile = new FileOutputStream(new File(directoryPath +
+                        Utils.getFileName(new StringBuilder(imageUrl))));
+//                IOUtils.write(baos.toByteArray(), outputToFile);
+
+                BufferedOutputStream bos = new BufferedOutputStream(outputToFile);
+                bos.write(baos.toByteArray());
+
+                System.out.println("Wrote " + imageUrl);
+//                ImageIO.write(image, "jpg", new File(directoryPath + Utils.getFileName(new StringBuilder(imageUrl))));
             } catch (IOException e) {
                 LOGGER.error("Unable to write image to file: " + imageUrl);
+                e.printStackTrace();
             }
         }
     }
@@ -83,8 +112,41 @@ public class PhotoHttpRetriever implements Runnable {
 
     private IIOMetadata createMetadata(BufferedImage image) {
         System.out.println("inside create meta data");
+        ImageWriter writer = ImageIO.getImageWritersByFormatName("jpg").next();
+        ImageWriteParam writeParam = writer.getDefaultWriteParam();
+        ImageTypeSpecifier typeSpecifier = ImageTypeSpecifier.createFromBufferedImageType(image.TYPE_INT_RGB);
+        IIOMetadata metadata = writer.getDefaultImageMetadata(typeSpecifier, writeParam);
+        metadata.reset();
+        IIOMetadataNode root = new IIOMetadataNode(JPEG_NATIVE_FORMAT);
+//        IIOMetadataNode root = (IIOMetadataNode) metadata.getAsTree(JPEG_NATIVE_FORMAT); // does not work because it doesn't have jpegvariety and markerSequence nodes
+        IIOMetadataNode jv = new IIOMetadataNode("JPEGvariety");
+        root.appendChild(jv);
+////        for(String key : metaDataTags.keySet()) {
+////            String value = metaDataTags.get(key);
+////            String childNodeName = "imgChildNode";
+////            IIOMetadataNode childNode = new IIOMetadataNode(JPEG_NATIVE_FORMAT);
+////            childNode.setAttribute(key, value);
+////            System.out.println(key + ":" + value);
+////            root.appendChild(childNode);
+//////            metadata.mergeTree();
+////        }
+        IIOMetadataNode childNode = new IIOMetadataNode("atcAwesome");
+//
+        childNode.setAttribute("keyword", "sampleData");
+        jv.appendChild(childNode);
 
-        return null;
+        try {
+            metadata.mergeTree(JPEG_NATIVE_FORMAT, root);
+        } catch (IIOInvalidTreeException e) {
+            LOGGER.error("Unable to merge metadata into image.");
+            e.printStackTrace();
+        }
+//        for(String name : metadata.getMetadataFormatNames()) {
+//            System.out.println(name);
+//        }
+//        return null;
+             System.out.println("Leaving create meta data");
+        return metadata;
     }
 
     //delete all this before committing
