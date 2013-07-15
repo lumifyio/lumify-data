@@ -20,6 +20,14 @@
     display: block;
   }
 
+  &.allowPlayback:hover .scrubbing-play-button {
+    .opacity(30);
+
+    &:hover {
+      .opacity(100);
+    }
+  }
+
   .scrubbing-play-button {
     display: none;
     width: 50px;
@@ -33,7 +41,6 @@
     border: 3px solid white;
     .border-radius(25px);
     .box-sizing(border-box);
-    .opacity(30);
     .transition(~"opacity ease-in-out 0.2s");
 
     &:after {
@@ -49,10 +56,6 @@
       top: 50%;
       margin-left: -5px;
       margin-top: -11px;
-    }
-
-    &:hover {
-      .opacity(100);
     }
   }
 }
