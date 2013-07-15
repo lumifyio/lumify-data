@@ -79,31 +79,35 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
         for (int i = 0; i < line.size(); i++) {
             JSONObject columnMappingJson = mappingColumnsJson.getJSONObject(i);
             String sign = line.get(i);
-            String modelKey = columnMappingJson.getString("modelKey");
-            String conceptLabel = columnMappingJson.getString("conceptLabel");
+            if (columnMappingJson.has("skip") && columnMappingJson.getBoolean("skip")) {
+                terms.add(null);
+            } else {
+                String modelKey = columnMappingJson.getString("modelKey");
+                String conceptLabel = columnMappingJson.getString("conceptLabel");
 
-            // TODO these offsets need to be fixed. If the csv file has quotes or other characters which CsvListReader removes this will be wrong
-            Long termMentionStart = offset;
-            Long termMentionEnd = offset + sign.length();
+                // TODO these offsets need to be fixed. If the csv file has quotes or other characters which CsvListReader removes this will be wrong
+                Long termMentionStart = offset;
+                Long termMentionEnd = offset + sign.length();
 
-            TermRowKey termKey = new TermRowKey(sign, modelKey, conceptLabel);
-            TermMention termMention = new TermMention()
-                    .setArtifactKey(artifact.getRowKey().toString())
-                    .setArtifactKeySign(artifact.getRowKey().toString())
-                    .setAuthor(EXTRACTOR_ID)
-                    .setMentionStart(termMentionStart)
-                    .setMentionEnd(termMentionEnd)
-                    .setSentenceText(sentence.getData().getText())
-                    .setSentenceTokenOffset(Long.toString(sentence.getRowKey().getStartOffset()))
-                    .setArtifactSubject(sentence.getMetadata().getArtifactSubject())
-                    .setArtifactType(sentence.getMetadata().getArtifactType());
-            setSecurityMarking(termMention, sentence);
-            Term term = new Term(termKey)
-                    .addTermMention(termMention);
-            SentenceTerm sentenceTerm = new SentenceTerm(termMention)
-                    .setTermId(term);
-            sentence.addSentenceTerm(sentenceTerm);
-            terms.add(term);
+                TermRowKey termKey = new TermRowKey(sign, modelKey, conceptLabel);
+                TermMention termMention = new TermMention()
+                        .setArtifactKey(artifact.getRowKey().toString())
+                        .setArtifactKeySign(artifact.getRowKey().toString())
+                        .setAuthor(EXTRACTOR_ID)
+                        .setMentionStart(termMentionStart)
+                        .setMentionEnd(termMentionEnd)
+                        .setSentenceText(sentence.getData().getText())
+                        .setSentenceTokenOffset(Long.toString(sentence.getRowKey().getStartOffset()))
+                        .setArtifactSubject(sentence.getMetadata().getArtifactSubject())
+                        .setArtifactType(sentence.getMetadata().getArtifactType());
+                setSecurityMarking(termMention, sentence);
+                Term term = new Term(termKey)
+                        .addTermMention(termMention);
+                SentenceTerm sentenceTerm = new SentenceTerm(termMention)
+                        .setTermId(term);
+                sentence.addSentenceTerm(sentenceTerm);
+                terms.add(term);
+            }
 
             offset += sign.length() + ",".length();
         }

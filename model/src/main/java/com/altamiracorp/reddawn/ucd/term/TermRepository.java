@@ -82,6 +82,9 @@ public class TermRepository extends Repository<Term> {
     @Override
     public void saveMany(Session session, Collection<Term> terms) {
         for (Term term : terms) {
+            if (term == null) {
+                continue;
+            }
             save(session, term);
         }
     }

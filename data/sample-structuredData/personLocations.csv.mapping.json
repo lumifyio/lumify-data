@@ -17,6 +17,9 @@
     {
       "modelKey": "structuredData",
       "conceptLabel": "location"
+    },
+    {
+      "skip": true
     }
   ]
 }
