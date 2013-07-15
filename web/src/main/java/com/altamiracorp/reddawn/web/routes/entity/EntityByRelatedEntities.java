@@ -31,14 +31,18 @@ public class EntityByRelatedEntities implements Handler, AppAware{
         String rowKey = UrlUtils.urlDecode ((String) request.getAttribute("rowKey"));
         List<Statement> statements = statementRepository.findByRowStartsWith(session, rowKey);
 
-        JSONObject json = new JSONObject();
         JSONArray statementsJson = new JSONArray();
         for (Statement statement : statements){
-            statementsJson.put(new TermRowKey(statement.getRowKey().getObjectRowKey()).toJson());
+            JSONObject json = new JSONObject();
+            TermRowKey termRowKey = new TermRowKey(statement.getRowKey().getObjectRowKey());
+            json.put("rowKey", statement.getRowKey().getObjectRowKey());
+            json.put("subType", termRowKey.getConceptLabel());
+            json.put("title", termRowKey.getSign());
+            json.put("type", "entity");
+            statementsJson.put(json);
         }
-        json.put("statements", statementsJson);
 
-        new Responder(response).respondWith(json);
+        new Responder(response).respondWith(statementsJson);
         chain.next(request, response);
     }
 }
