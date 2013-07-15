@@ -56,10 +56,6 @@ public class SentenceExtractionMR extends ConfigurableMapJobBase {
 
         @Override
         protected void map(Text key, Artifact artifact, Context context) throws IOException, InterruptedException {
-            if (artifact.getType() != ArtifactType.DOCUMENT) {
-                return;
-            }
-
             LOGGER.info("Extracting sentences for artifact: " + artifact.getRowKey().toString());
 
             try {

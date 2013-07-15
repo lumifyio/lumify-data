@@ -4,7 +4,7 @@ import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -50,7 +50,7 @@ public class VideoFrameRepository extends Repository<VideoFrame> {
         return this.findByRowStartsWith(session, rowKey);
     }
 
-    public Image loadImage(Session session, VideoFrame videoFrame) {
+    public BufferedImage loadImage(Session session, VideoFrame videoFrame) {
         InputStream in = session.loadFile(videoFrame.getMetadata().getHdfsPath());
         try {
             return ImageIO.read(in);

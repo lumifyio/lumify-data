@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.textExtraction;
 
 import com.altamiracorp.reddawn.model.Session;
+import com.altamiracorp.reddawn.model.videoFrames.VideoFrame;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import org.apache.hadoop.mapreduce.Mapper;
 
@@ -10,8 +11,8 @@ public class IfAllElseFailsTextExtractor implements TextExtractor {
     }
 
     @Override
-    public ExtractedInfo extract(Session session, Artifact artifact) throws Exception {
-        ExtractedInfo extractedInfo = new ExtractedInfo();
+    public ArtifactExtractedInfo extract(Session session, Artifact artifact) throws Exception {
+        ArtifactExtractedInfo extractedInfo = new ArtifactExtractedInfo();
 
         if (!hasExtractedText(artifact)) {
             extractedInfo.setText(artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension());
@@ -34,5 +35,9 @@ public class IfAllElseFailsTextExtractor implements TextExtractor {
         return false;
     }
 
+    @Override
+    public VideoFrameExtractedInfo extract(Session session, VideoFrame videoFrame) throws Exception {
+        return null;
+    }
 
 }
