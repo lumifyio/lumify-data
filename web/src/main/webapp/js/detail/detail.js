@@ -109,6 +109,7 @@ define([
         };
 
         this.onMapCoordinatesClicked = function(evt, data) {
+            evt.preventDefault();
             var $target = $(evt.target);
             data = {
                 latitude: $target.attr('latitude'),
