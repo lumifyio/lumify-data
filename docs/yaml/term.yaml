@@ -1,7 +1,7 @@
 ---
 table:
     label: Term
-    description: An entity defined by one of several models
+    description: Persists analytic units extracted from Artifacts
 
 rowKey:
     sign:                                   string - The name of the term
@@ -9,22 +9,22 @@ rowKey:
     conceptLabel:                           string - The type of the term (e.g. person)
 
 columnFamilies:
-    sha256 of Term Mention:
-        artifactKey:                        sha256 - Hash of the artifact that produced the term mention
-        artifactKey_sign:                   string
-        author:                             string - The author of the artifact that generated the term mention
-        geoLocation:                        string - The geolocation associated with the mention
-        mention:                            json -   Information about where the mention occurred in the artifact
-        provenanceID:                       string
-        securityMarking:                    string - The security level of the mention
-        date:                               string - The date associated with the mention
+    sha256(concat(family values)) - Term Mentions:
+        artifactKey:                        string - Row key of Artifact in which the term mention occurred
+        artifactKey_sign:                   string - Row key of Artifact in which the term mention occurred
+        author:                             string - The analytic that generated the term mention
+        geoLocation:                        WKT - The location associated with the mention
+        mention:                            json - First and last character positions relative to Artifact (start, end)
+        provenanceID:                       string - Reference key into provenance system
+        securityMarking:                    string - CAPCO marking
+        date:                               long - Object creation time (Unix millis time)
         atc:artifactType:                   string - The type of the artifact that produced the mention (e.g. document)
         atc:artifactSubject:                string - The subject of the artifact that produced the mention
         atc:sentenceText:                   string - The text of the sentence that produced the artifact
         atc:sentenceOffset:                 string - The offset of the sentence relative to the start of the artifact text
 
 connections:
-    Statement:  none -> 1+
-    Object:     1 -> 1+
-    Concept:    1+ -> 1
+    Statement:  none -> many
+    Object:     one -> many
+    Concept:    many -> one
 ...

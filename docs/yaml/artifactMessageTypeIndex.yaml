@@ -1,11 +1,15 @@
 ---
 table:
     label: ArtifactMessageTypeIndex
-    description:
+    description: Allows to search by artifact type within time range
 
-rowKey:
+rowKey (separated by colon):
+    message type:   string - Corresponds to document_type in Artifact
+    timestamp:      long - Unix milliseconds timestamp
 
 columnFamilies:
+    ArtifactId:
+        artifact row id (sha256 hash): 
 
 connections:
     Artifact:   one -> one

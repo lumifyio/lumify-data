@@ -75,7 +75,7 @@ function buildColumnFamilyHtml(colFamKey, json) {
     ];
 
     for(var key in json) {
-        var columnData = json[key].split(' - ');
+        var columnData = (json[key] != null) ? json[key].split(' - ') : new Array('N/A');
         response.push(
             ['TR',
                 ['TD', {'ALIGN': 'LEFT', 'WIDTH': '100'}, ''],
