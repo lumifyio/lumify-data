@@ -52,6 +52,7 @@ columnFamilies:
         unstructured_annotation_object:     string
 
 connections:
-    Table:
-        description: something
+    Sentence:               one -> many
+    ArtifactAssociation:    one -> many
+    Term:                   many -> many
 ...

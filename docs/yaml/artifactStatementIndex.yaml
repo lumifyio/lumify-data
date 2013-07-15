@@ -8,5 +8,6 @@ rowKey:
 columnFamilies:
 
 connections:
-
+    Statement:  many -> many
+    Artifact:   many -> none
 ...

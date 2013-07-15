@@ -8,5 +8,6 @@ rowKey:
 columnFamilies:
 
 connections:
-
+    Artifact:   many -> one
+    Term:       many -> many
 ...

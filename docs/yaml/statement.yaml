@@ -8,5 +8,6 @@ rowKey:
 columnFamilies:
 
 connections:
-
+    Predicate:  many -> none
+    Sentence:   many -> none
 ...

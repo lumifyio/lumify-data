@@ -18,7 +18,11 @@ function parseTemplate(err, data) {
 
     var template = data.substring(0, start);
     fs.readdirSync(__dirname + '/../yaml/').forEach(function(filename) {
-        template += buildTableHtml(require("../yaml/" + filename));
+        var tableJson = require("../yaml/" + filename);
+        template += buildTableHtml(tableJson);
+        for(var key in tableJson.connections) {
+            template += buildConnectionDot(tableJson.table.label, key, tableJson.connections[key]);
+        }
     });
 
     template += data.substring(end);
@@ -85,4 +89,27 @@ function buildColumnFamilyHtml(colFamKey, json) {
     }
 
     return response;
+}
+
+function buildConnectionDot(from, to, relationship) {
+    var quantifiers = relationship.split('->');
+    return '"' + from + '" -> "' + to + '" [arrowtail=' + getArrowheadName(quantifiers[0].trim()) +
+            ', arrowhead=' + getArrowheadName(quantifiers[1].trim()) + ', dir=both]\n';
+}
+
+function getArrowheadName(quantifier) {
+    switch (quantifier) {
+        case '1+':
+        case 'many':
+            return 'crowtee';
+        case '0+':
+            return 'crowodot';
+        case '01':
+            return 'teeodot';
+        case '1':
+        case 'one':
+            return 'teetee';
+        default:
+            return 'none';
+    }
 }

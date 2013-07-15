@@ -8,5 +8,6 @@ rowKey:
 columnFamilies:
 
 connections:
-
+    PredicateAssociation:   none -> many
+    ConceptAssociation:     none -> many
 ...

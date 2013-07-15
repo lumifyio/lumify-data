@@ -8,5 +8,5 @@ rowKey:
 columnFamilies:
 
 connections:
-
+    ConceptAssociation: none -> many
 ...
