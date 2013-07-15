@@ -1,6 +1,6 @@
 ---
 table:
-    label: atc:GeoName
+    label: atc_GeoName
     description: The geo names used to identify locations
 
 rowKey:

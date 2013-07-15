@@ -1,6 +1,6 @@
 ---
 table:
-    label: atc:VideoFrame
+    label: atc_VideoFrame
     description:
 
 rowKey:

@@ -1,6 +1,6 @@
 ---
 table:
-    label: atc:Workspace
+    label: atc_Workspace
     description: Persists user workspaces
 
 rowKey (separated by \x1F):
