@@ -14,9 +14,9 @@ public class RSSEngine extends SearchEngine {
     }
 
     @Override
-    protected TreeMap<String, TreeMap<String, String>> search(Query q, int maxResults) {
+    protected ArrayList<String> search(Query q, int maxResults) {
         url = q.getRss();
-        TreeMap<String, TreeMap<String, String>> results = new TreeMap<String, TreeMap<String, String>>();
+        ArrayList<String> results = new ArrayList<String>();
         if (url.equals("")) {
             System.err.println("No RSS URL specified");
             return results;
@@ -30,7 +30,7 @@ public class RSSEngine extends SearchEngine {
             }
             ArrayList<String> links = SearchEngine.parseRSS(theUrl, maxResults);
             for (String link : links) {
-                results.put(link, null);
+                results.add(link);
             }
 
             try {

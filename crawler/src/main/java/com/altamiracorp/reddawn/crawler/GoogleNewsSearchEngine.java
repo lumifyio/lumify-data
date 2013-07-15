@@ -17,8 +17,8 @@ public class GoogleNewsSearchEngine extends SearchEngine {
     }
 
     @Override
-    protected TreeMap<String, TreeMap<String, String>> search(Query q, int maxResults) {
-        TreeMap<String, TreeMap<String, String>> results = new TreeMap<String, TreeMap<String, String>>();
+    protected List<String> search(Query q, int maxResults) {
+        ArrayList<String> results = new ArrayList<String>();
         String queryUrl = createQueryUrl(q, maxResults);
         URL fullURL = null;
         try {
@@ -30,7 +30,7 @@ public class GoogleNewsSearchEngine extends SearchEngine {
 
         ArrayList<String> links = SearchEngine.parseRSS(fullURL, maxResults);
         for (String link : links) {
-            results.put(link, null);
+            results.add(link);
         }
         try {
             getCrawler().crawl(results, q);

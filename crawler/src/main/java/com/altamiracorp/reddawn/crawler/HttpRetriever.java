@@ -9,35 +9,24 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageTypeSpecifier;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.metadata.IIOMetadata;
-import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class HttpRetriever implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpRetriever.class);
 
     private HttpClient httpClient;
-    private String header;
+    private String queryInfo;
     private String directoryPath;
     private String url;
     private HttpGet httpGet;
 
-    public HttpRetriever(HttpClient httpClient, String header, String directoryPath, String url) {
+    public HttpRetriever(HttpClient httpClient, String queryInfo, String directoryPath, String url) {
         this.httpClient = httpClient;
-        this.header = header;
+        this.queryInfo = queryInfo;
         this.directoryPath = directoryPath;
         this.url = url;
         httpGet = new HttpGet(url);
@@ -45,98 +34,12 @@ public class HttpRetriever implements Runnable {
 
     @Override
     public void run() {
-        Pattern jpegFileTypePattern = Pattern.compile("(.+)\\.jpg");
-        Matcher jpegFileTypeMatcher = jpegFileTypePattern.matcher(url);
-        if (jpegFileTypeMatcher.matches()) {
-            writeImageToFile();
-            return;
-        } else {
-            writeDocumentToFile();
-            return;
-        }
-    }
-
-    private void writeImageToFile() {
-        BufferedImage image = getImage();
-        if (image != null) {
-            try {
-                IIOMetadata meta = createMetadata(image);
-
-                ImageIO.write(image, "jpg", new File(directoryPath + getFileName(new StringBuilder(url))));
-            } catch (IOException e) {
-                LOGGER.error("Unable to write image to file: " + url);
-            }
-        }
-    }
-
-    private IIOMetadata createMetadata(BufferedImage image) {
-        ImageWriter writer = ImageIO.getImageWritersByFormatName("jpg").next();
-        ImageWriteParam writeParam = writer.getDefaultWriteParam();
-        ImageTypeSpecifier typeSpecifier = ImageTypeSpecifier.createFromBufferedImageType(image.TYPE_INT_RGB);
-        IIOMetadata metadata = writer.getDefaultImageMetadata(typeSpecifier, writeParam);
-
-          return null;
-    }
-
-    void displayMetadata(Node root) {
-        displayMetadata(root, 0);
-    }
-
-    private BufferedImage getImage() {
-        try {
-            return ImageIO.read(new URL(url));
-        } catch (Exception e) {
-            LOGGER.error("Could not retrieve image from: " + url);
-            return null;
-        }
-    }
-
-
-    void displayMetadata(Node node, int level) {
-        // print open tag of element
-        indent(level);
-        System.out.print("<" + node.getNodeName());
-        NamedNodeMap map = node.getAttributes();
-        if (map != null) {
-
-            // print attribute values
-            int length = map.getLength();
-            for (int i = 0; i < length; i++) {
-                Node attr = map.item(i);
-                System.out.print(" " + attr.getNodeName() +
-                        "=\"" + attr.getNodeValue() + "\"");
-            }
-        }
-
-        Node child = node.getFirstChild();
-        if (child == null) {
-            // no children, so close element and return
-            System.out.println("/>");
-            return;
-        }
-
-        // children, so close current tag
-        System.out.println(">");
-        while (child != null) {
-            // print children recursively
-            displayMetadata(child, level + 1);
-            child = child.getNextSibling();
-        }
-
-        // print close tag of element
-        indent(level);
-        System.out.println("</" + node.getNodeName() + ">");
-    }
-
-
-    void indent(int level) {
-        for (int i = 0; i < level; i++)
-            System.out.print("    ");
+        writeDocumentToFile();
     }
 
     private void writeDocumentToFile() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(header);
+        stringBuilder.append(getHeader(queryInfo));
         StringBuilder content = getContent();
         if (content.toString().equals("")) {
             return;
@@ -147,6 +50,19 @@ public class HttpRetriever implements Runnable {
         } else {
             System.err.println("\033[31m[Error] Problem writing file to: " + directoryPath + "\033[0m");
         }
+    }
+
+    private String getHeader(String queryInfo) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("<meta property=\"atc:result-url\" content=\"" + url + "\">\n");
+            stringBuilder.append("<meta property=\"atc:retrieval-timestamp\" content=\"" + getCurrentTimestamp() + "\">\n");
+            stringBuilder.append("<meta property=\"atc:query-info\" content=\"" + queryInfo + "\">\n");
+            return stringBuilder.toString();
+    }
+
+    public long getCurrentTimestamp() {
+        long unixTime = System.currentTimeMillis() / 1000L;
+        return unixTime;
     }
 
     private boolean isSuccessfulConnection(HttpResponse response) {
@@ -208,7 +124,7 @@ public class HttpRetriever implements Runnable {
     private boolean writeToFile(StringBuilder stringBuilder) {
         BufferedWriter fwriter = null;
         try {
-            String fileName = getFileName(stringBuilder);
+            String fileName = Utils.getFileName(stringBuilder);
             File file = new File(directoryPath + fileName);
             fwriter = new BufferedWriter(new FileWriter(file));
             fwriter.append(stringBuilder);
@@ -225,22 +141,5 @@ public class HttpRetriever implements Runnable {
         return true;
     }
 
-    private String getFileName(StringBuilder sb) {
-        MessageDigest messageDigest = null;
-        try {
-            messageDigest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            LOGGER.error("Unable to find SHA-256 algorithm to generate file name.");
-            e.printStackTrace();
-        }
-        byte[] bytesOfMessage = new byte[0];
-        try {
-            bytesOfMessage = sb.toString().getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error("Unable to get UTF-8 content as bytes to generate file name.");
-            e.printStackTrace();
-        }
-        byte[] hash = messageDigest.digest(bytesOfMessage);
-        return Hex.encodeHexString(hash);
-    }
+
 }

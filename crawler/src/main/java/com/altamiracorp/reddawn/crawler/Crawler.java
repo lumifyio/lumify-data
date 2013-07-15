@@ -21,27 +21,24 @@ public class Crawler {
         directoryPath = ".";
     }
 
-    public void crawl(TreeMap<String, TreeMap<String, String>> links, Query query) throws Exception {
-        HttpRetrievalManager manager = createManager();
-        for (String url : links.keySet()) {
-            String header = getHeader(url, query);
-            manager.addJob(url, header, directoryPath);
+    public void crawl(ArrayList<String> links, Query query) throws Exception {
+        HttpRetrievalManager manager = new HttpRetrievalManager();
+        for (String url : links) {
+            String queryInfo = query.getQueryInfo();
+            manager.addJob(url, queryInfo, directoryPath);
         }
         manager.shutDownWhenFinished();
         System.out.println("\033[34mSearch completed.\033[0m");
     }
 
-    //change to get header differently with photo
-    protected String getHeader(String url, Query query) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("<meta property=\"atc:result-url\" content=\"" + url + "\">\n");
-        stringBuilder.append("<meta property=\"atc:retrieval-timestamp\" content=\"" + getCurrentTimestamp() + "\">\n");
-        stringBuilder.append("<meta property=\"atc:query-info\" content=\"" + query.getQueryString() + "\">\n");
-        return stringBuilder.toString();
-    }
-
-    protected HttpRetrievalManager createManager() {
-        return new HttpRetrievalManager();
+    public void crawlPhotos(TreeMap<String, TreeMap<String, String>> links, Query query) throws Exception {
+        HttpRetrievalManager manager = new HttpRetrievalManager();
+        for (Map.Entry<String, TreeMap<String, String>> entry : links.entrySet()) {
+            entry.getValue().put("atc:retrieval-timestamp", "" + getCurrentTimestamp());
+            manager.addPhotoJob(entry, query.getQueryInfo(), directoryPath);
+        }
+        manager.shutDownWhenFinished();
+        System.out.println("\033[34mSearch completed.\033[0m");
     }
 
     public long getCurrentTimestamp() {

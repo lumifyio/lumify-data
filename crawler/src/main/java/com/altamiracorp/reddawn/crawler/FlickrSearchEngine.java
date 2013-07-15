@@ -33,7 +33,7 @@ public class FlickrSearchEngine extends SearchEngine {
     private static final String PER_PAGE = "15";
     private static final String FORMAT = "json";
     private static String FILE_EXTENSION = ".jpg";  // other options are png or gif but require reformatting
-                                                    // see http://www.flickr.com/services/api/misc.urls.html
+    // see http://www.flickr.com/services/api/misc.urls.html
 
 
     public FlickrSearchEngine(Crawler c) {
@@ -41,28 +41,40 @@ public class FlickrSearchEngine extends SearchEngine {
     }
 
     @Override
-    protected TreeMap<String, TreeMap<String, String>> search(Query q, int numOfResults) {
+    protected List<String> search(Query q, int numOfResults) {
         TreeMap<String, TreeMap<String, String>> imageResults = new TreeMap<String, TreeMap<String, String>>();
         ArrayList<String> results = new ArrayList<String>();
-        String queryUrl = createQueryUrl(q, 1, Integer.parseInt(PER_PAGE));
-        System.out.println(queryUrl + "\n");
 
+        String queryUrl = createQueryUrl(q, 1, Integer.parseInt(PER_PAGE));   //change to loop through pages
         URL url = getURL(queryUrl);
         JSONObject jsonObject = null;
         if (url != null) {
             jsonObject = getJsonObjectFromUrl(url);
         }
+        StringBuilder stringBuilder = new StringBuilder();
         if (jsonObject != null) {
-            System.out.println("JSON: \n" + jsonObject.toString());
             JSONArray photos = getPhotosJsonArray(jsonObject);
             for (int i = 0; i < photos.length(); i++) {
                 JSONObject photo = getPhotoJsonObject(photos, i);
                 if (photo != null) {
-                     imageResults.put(getPhotoUrl(photo), (TreeMap<String, String>) getPhotoMetadata(photo));
+                    String photoUrl = getPhotoUrl(photo);
+                    imageResults.put(photoUrl, (TreeMap<String, String>) getPhotoMetadata(photo));
+                    results.add(photoUrl);
                 }
             }
         }
-        return imageResults;
+        crawlResults(q, imageResults);
+        return results;
+    }
+
+    private void crawlResults(Query q, TreeMap<String, TreeMap<String, String>> imageResults) {
+        try {
+            getCrawler().crawlPhotos(imageResults, q);
+            StringBuilder stringBuilder = new StringBuilder();
+        } catch (Exception e) {
+            LOGGER.error("The crawler failed to crawl the " + getEngineName() + " on query \"" +
+                    q.getQueryString() + "\" result set");
+        }
     }
 
     private JSONObject getPhotoJsonObject(JSONArray photos, int i) {
@@ -153,8 +165,7 @@ public class FlickrSearchEngine extends SearchEngine {
         Matcher m = p.matcher(builder.toString());
         if (m.matches()) {
             return m.group(1);
-        }
-        else {
+        } else {
             return null;
         }
     }

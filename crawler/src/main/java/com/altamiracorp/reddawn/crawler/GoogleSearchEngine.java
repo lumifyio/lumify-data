@@ -27,8 +27,8 @@ public class GoogleSearchEngine extends SearchEngine {
     }
 
     @Override
-    protected TreeMap<String, TreeMap<String, String>> search(Query query, int maxResults) {
-        TreeMap<String, TreeMap<String, String>> searchResults = new TreeMap<String, TreeMap<String, String>>();
+    protected List<String> search(Query query, int maxResults) {
+        ArrayList<String> searchResults = new ArrayList<String>();
         String queryString = getQueryString(query);
 
         for (int searchCount = 0; searchCount * RESULTS_PER_SEARCH < maxResults; searchCount++) {
@@ -39,7 +39,7 @@ public class GoogleSearchEngine extends SearchEngine {
 
                 for (int i = 0; i < results.length(); i++) {
                     JSONObject entry = results.getJSONObject(i);
-                    searchResults.put(entry.getString("link"), null);
+                    searchResults.add(entry.getString("link"));
                 }
             } catch (Exception e) {
                 System.err.println("The response from the server for results " + (searchCount * RESULTS_PER_SEARCH + 1) +

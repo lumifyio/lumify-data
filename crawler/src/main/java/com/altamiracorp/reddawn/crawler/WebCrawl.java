@@ -132,6 +132,9 @@ public class WebCrawl {
                 } else if (trimmed.equalsIgnoreCase("rss")) {
                     engine = new RSSEngine(crawler);
                     queryList = rssLinks;
+                } else if (trimmed.equalsIgnoreCase("flickr")) {
+                    engine = new FlickrSearchEngine(crawler);
+                    queryList = queries;
                 }
 
                 for (Query q : queryList) engine.addQueryToQueue(q, results);
@@ -179,7 +182,7 @@ public class WebCrawl {
                 OptionBuilder
                         .withArgName("p")
                         .withLongOpt("provider")
-                        .withDescription("The search provider(s) to use for this query, separated by commas for multiple (options: google, news, reddit, rss) - required")
+                        .withDescription("The search provider(s) to use for this query, separated by commas for multiple (options: google, news, reddit, rss, flickr) - required")
                         .isRequired()
                         .hasArg(true)
                         .create()

@@ -15,15 +15,15 @@ public class RedditSearchEngine extends SearchEngine {
     }
 
     @Override
-    protected TreeMap<String, TreeMap<String, String>> search(Query q, int maxResults) {
-        TreeMap<String, TreeMap<String, String>> searchResults = new TreeMap<String, TreeMap<String, String>>();
+    protected List<String> search(Query q, int maxResults) {
+        ArrayList<String> searchResults = new ArrayList<String>();
         String queryUrl = createQueryString(q, maxResults);
 
         try {
             JSONObject resultsJSON = new JSONObject(SearchEngine.getWebpage(queryUrl));
             JSONArray childrenEntries = resultsJSON.getJSONObject("data").getJSONArray("children");
             for (int i = 0; i < maxResults; i++) {
-                searchResults.put(childrenEntries.getJSONObject(i).getJSONObject("data").getString("url"), null);
+                searchResults.add(childrenEntries.getJSONObject(i).getJSONObject("data").getString("url"));
             }
         } catch (JSONException e) {
             System.err.println("Results not successfully processed as JSON");
