@@ -38,5 +38,6 @@ digraph models_diagram {
 "Term" -> "Statement" [arrowtail=none, arrowhead=crowtee, dir=both]
 "Term" -> "Object" [arrowtail=teetee, arrowhead=crowtee, dir=both]
 "Term" -> "Concept" [arrowtail=crowtee, arrowhead=teetee, dir=both]
+"atc:Workspace" [label=<<table border="1" cellborder="0" cellspacing="0" cellpadding="4"><tr><td colspan="4" align="CENTER"><font point-size="20">atc:Workspace</font></td></tr><tr><td colspan="4"><table height="0" border="0" bgcolor="#333333" cellborder="0" cellspacing="0" cellpadding="0"><tr><td></td></tr></table></td></tr><tr><td colspan="4" color="GREY" align="LEFT"><font color="#888888" point-size="16">content</font></td></tr><tr><td align="LEFT" width="100"></td><td align="LEFT">data</td><td align="LEFT"><font color="#444444">json</font></td><td align="LEFT">The data held in the Workspace (comprised of nodes)</td></tr><tr><td colspan="4"><table height="0" border="0" bgcolor="#333333" cellborder="0" cellspacing="0" cellpadding="0"><tr><td></td></tr></table></td></tr><tr><td colspan="4" color="GREY" align="LEFT"><font color="#888888" point-size="16">metadata</font></td></tr><tr><td align="LEFT" width="100"></td><td align="LEFT">title</td><td align="LEFT"><font color="#444444">string</font></td><td align="LEFT">The title of the Workspace</td></tr></table>>];
 
 }
