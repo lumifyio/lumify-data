@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 public class GoogleNewsSearchEngine extends SearchEngine {
@@ -16,25 +17,28 @@ public class GoogleNewsSearchEngine extends SearchEngine {
     }
 
     @Override
-    protected List<String> search(Query q, int maxResults) {
-        ArrayList<String> links = new ArrayList<String>();
+    protected TreeMap<String, TreeMap<String, String>> search(Query q, int maxResults) {
+        TreeMap<String, TreeMap<String, String>> results = new TreeMap<String, TreeMap<String, String>>();
         String queryUrl = createQueryUrl(q, maxResults);
         URL fullURL = null;
         try {
             fullURL = new URL(queryUrl);
         } catch (MalformedURLException e) {
             System.err.println("Malformed search URL");
-            return links;
+            return results;
         }
 
-        links = SearchEngine.parseRSS(fullURL, maxResults);
+        ArrayList<String> links = SearchEngine.parseRSS(fullURL, maxResults);
+        for (String link : links) {
+            results.put(link, null);
+        }
         try {
-            getCrawler().crawl(links, q);
+            getCrawler().crawl(results, q);
         } catch (Exception e) {
             throw new RuntimeException("The crawler failed to crawl the " + getEngineName() + " on Query \"" +
                     q.getQueryString() + "\" result set");
         }
-        return links;
+        return results;
     }
 
     protected String createQueryUrl(Query query, int maxResults) {

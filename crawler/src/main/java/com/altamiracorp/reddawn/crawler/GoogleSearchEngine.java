@@ -26,9 +26,10 @@ public class GoogleSearchEngine extends SearchEngine {
                 "&alt=json";
     }
 
-    protected List<String> search(Query query, int maxResults) {
+    @Override
+    protected TreeMap<String, TreeMap<String, String>> search(Query query, int maxResults) {
+        TreeMap<String, TreeMap<String, String>> searchResults = new TreeMap<String, TreeMap<String, String>>();
         String queryString = getQueryString(query);
-        ArrayList<String> links = new ArrayList<String>();
 
         for (int searchCount = 0; searchCount * RESULTS_PER_SEARCH < maxResults; searchCount++) {
             String queryURL = queryString + getResultRange(searchCount, maxResults);
@@ -38,22 +39,22 @@ public class GoogleSearchEngine extends SearchEngine {
 
                 for (int i = 0; i < results.length(); i++) {
                     JSONObject entry = results.getJSONObject(i);
-                    links.add(entry.getString("link"));
+                    searchResults.put(entry.getString("link"), null);
                 }
             } catch (Exception e) {
                 System.err.println("The response from the server for results " + (searchCount * RESULTS_PER_SEARCH + 1) +
                         "-" + ((searchCount + 1) * RESULTS_PER_SEARCH) + " is not valid JSON (the search performed is" +
                         "likely invalid)");
-                return links; // Quit this search
+                return searchResults; // Quit this search
             }
         }
         try {
-            getCrawler().crawl(links, query);
+            getCrawler().crawl(searchResults, query);
         } catch (Exception e) {
             throw new RuntimeException("The crawler failed to crawl the " + getEngineName() + " \"" +
                     query.getQueryString() + "\" result set");
         }
-        return links;
+        return searchResults;
     }
 
     protected String getQueryString(Query query) {

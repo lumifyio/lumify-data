@@ -2,9 +2,7 @@ package com.altamiracorp.reddawn.crawler;
 
 import java.io.File;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 
 public class Crawler {
 
@@ -23,9 +21,9 @@ public class Crawler {
         directoryPath = ".";
     }
 
-    public void crawl(ArrayList<String> links, Query query) throws Exception {
+    public void crawl(TreeMap<String, TreeMap<String, String>> links, Query query) throws Exception {
         HttpRetrievalManager manager = createManager();
-        for (String url : links) {
+        for (String url : links.keySet()) {
             String header = getHeader(url, query);
             manager.addJob(url, header, directoryPath);
         }
@@ -33,6 +31,7 @@ public class Crawler {
         System.out.println("\033[34mSearch completed.\033[0m");
     }
 
+    //change to get header differently with photo
     protected String getHeader(String url, Query query) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("<meta property=\"atc:result-url\" content=\"" + url + "\">\n");

@@ -14,6 +14,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public abstract class SearchEngine {
 
@@ -40,15 +41,15 @@ public abstract class SearchEngine {
         return true;
     }
 
-    public ArrayList<List<String>> runQueue() {
-        ArrayList<List<String>> results = new ArrayList<List<String>>();
+    public List<TreeMap<String, TreeMap<String, String>>> runQueue() {
+        List<TreeMap<String, TreeMap<String, String>>> results = new ArrayList<TreeMap<String, TreeMap<String, String>>>();
         for (int i = 0; i < queryQueue.size(); i++) {
             results.add(runQuery(queryQueue.get(i), maxResultQueue.get(i)));
         }
         return results;
     }
 
-    public List<String> runQuery(Query q, int maxResults) {
+    public TreeMap<String, TreeMap<String, String>> runQuery(Query q, int maxResults) {
         System.out.println("\n\033[1m" + queryHeader(q) + "\033[0m");
         return search(q, maxResults);
     }
@@ -61,7 +62,7 @@ public abstract class SearchEngine {
      * @param maxResults The number of results to return
      * @return List of links retrieved from the search
      */
-    protected abstract List<String> search(Query q, int maxResults);
+    protected abstract TreeMap<String, TreeMap<String, String>> search(Query q, int maxResults);
 
     public Crawler getCrawler() {
         return crawler;

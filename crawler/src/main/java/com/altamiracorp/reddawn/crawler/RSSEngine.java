@@ -4,6 +4,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 public class RSSEngine extends SearchEngine {
     private String url = "";
@@ -13,12 +14,12 @@ public class RSSEngine extends SearchEngine {
     }
 
     @Override
-    protected List<String> search(Query q, int maxResults) {
+    protected TreeMap<String, TreeMap<String, String>> search(Query q, int maxResults) {
         url = q.getRss();
-        ArrayList<String> links = new ArrayList<String>();
+        TreeMap<String, TreeMap<String, String>> results = new TreeMap<String, TreeMap<String, String>>();
         if (url.equals("")) {
             System.err.println("No RSS URL specified");
-            return links;
+            return results;
         } else {
             URL theUrl;
             try {
@@ -27,16 +28,19 @@ public class RSSEngine extends SearchEngine {
                 System.err.println("Malformed search URL");
                 return null;
             }
-            links = SearchEngine.parseRSS(theUrl, maxResults);
+            ArrayList<String> links = SearchEngine.parseRSS(theUrl, maxResults);
+            for (String link : links) {
+                results.put(link, null);
+            }
 
             try {
-                getCrawler().crawl(links, q);
+                getCrawler().crawl(results, q);
             } catch (Exception e) {
                 throw new RuntimeException("The crawler failed to crawl the " + getEngineName() + " on link \"" +
                         q.getRss() + "\" result set");
             }
         }
-        return links;
+        return results;
     }
 
     @Override

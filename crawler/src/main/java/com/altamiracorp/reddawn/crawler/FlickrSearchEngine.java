@@ -41,8 +41,8 @@ public class FlickrSearchEngine extends SearchEngine {
     }
 
     @Override
-    protected List<String> search(Query q, int numOfResults) {
-        Map<String, TreeMap<String, String>> imageResults = new TreeMap<String, TreeMap<String, String>>();
+    protected TreeMap<String, TreeMap<String, String>> search(Query q, int numOfResults) {
+        TreeMap<String, TreeMap<String, String>> imageResults = new TreeMap<String, TreeMap<String, String>>();
         ArrayList<String> results = new ArrayList<String>();
         String queryUrl = createQueryUrl(q, 1, Integer.parseInt(PER_PAGE));
         System.out.println(queryUrl + "\n");
@@ -58,11 +58,11 @@ public class FlickrSearchEngine extends SearchEngine {
             for (int i = 0; i < photos.length(); i++) {
                 JSONObject photo = getPhotoJsonObject(photos, i);
                 if (photo != null) {
-                     imageResults.put(getPhotoUrl(photo), (TreeMap<String, String>)getPhotoMetadata(photo));
+                     imageResults.put(getPhotoUrl(photo), (TreeMap<String, String>) getPhotoMetadata(photo));
                 }
             }
         }
-        return results;
+        return imageResults;
     }
 
     private JSONObject getPhotoJsonObject(JSONArray photos, int i) {

@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 public class RedditSearchEngine extends SearchEngine {
 
@@ -14,28 +15,28 @@ public class RedditSearchEngine extends SearchEngine {
     }
 
     @Override
-    protected List<String> search(Query q, int maxResults) {
-        ArrayList<String> results = new ArrayList<String>();
+    protected TreeMap<String, TreeMap<String, String>> search(Query q, int maxResults) {
+        TreeMap<String, TreeMap<String, String>> searchResults = new TreeMap<String, TreeMap<String, String>>();
         String queryUrl = createQueryString(q, maxResults);
 
         try {
             JSONObject resultsJSON = new JSONObject(SearchEngine.getWebpage(queryUrl));
             JSONArray childrenEntries = resultsJSON.getJSONObject("data").getJSONArray("children");
             for (int i = 0; i < maxResults; i++) {
-                results.add(childrenEntries.getJSONObject(i).getJSONObject("data").getString("url"));
+                searchResults.put(childrenEntries.getJSONObject(i).getJSONObject("data").getString("url"), null);
             }
         } catch (JSONException e) {
             System.err.println("Results not successfully processed as JSON");
-            return results;
+            return searchResults;
         }
         try {
-            getCrawler().crawl(results, q);
+            getCrawler().crawl(searchResults, q);
         } catch (Exception e) {
             throw new RuntimeException("The crawler failed to crawl the " + getEngineName() + " on query \"" +
                     q.getQueryString() + "\" result set");
         }
 
-        return results;
+        return searchResults;
     }
 
     protected String createQueryString(Query q, int maxResults) {
