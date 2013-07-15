@@ -2,14 +2,19 @@
 
 define([
     'flight/lib/component',
-    'tpl!./scrubber'
-], function(defineComponent, template) {
+    'videojs',
+    'underscore',
+    'tpl!./scrubber',
+    'tpl!./video'
+], function(defineComponent, videojs, _, template, videoTemplate) {
     'use strict';
 
     // TODO: get this from the server
     var NUMBER_FRAMES = 20,
         POSTER = 1,
         FRAMES = 2;
+
+    videojs.options.flash.swf = "/libs/video.js/video-js.swf";
 
     return defineComponent(VideoScrubber);
 
@@ -19,7 +24,9 @@ define([
         this.currentFrame = -1;
 
         this.defaultAttrs({
-            scrubbingLineSelector: '.scrubbing-line'
+            allowPlayback: false,
+            scrubbingLineSelector: '.scrubbing-line',
+            videoSelector: 'video'
         });
 
         this.showFrames = function(index) {
@@ -40,7 +47,7 @@ define([
             };
 
             if (this.showing !== FRAMES) {
-                css.backgroundImage = 'url(' + this.attr.frames + ')';
+                css.backgroundImage = 'url(' + this.attr.videoPreviewImageUrl + ')';
             }
 
             this.$node.css(css);
@@ -58,7 +65,7 @@ define([
             };
             
             if ( this.showing !== POSTER ) {
-                css.backgroundImage = 'url(' + this.attr.poster + ')';
+                css.backgroundImage = 'url(' + this.attr.posterFrameUrl + ')';
             }
 
             this.$node.css(css);
@@ -66,30 +73,69 @@ define([
             this.currentFrame = -1;
         };
 
+        this.onClick = function(event) {
+            if (this.attr.allowPlayback !== true || this.select('videoSelector').length) {
+                return;
+            }
+
+            var players = videojs.players,
+                video = $(videoTemplate(this.attr));
+
+            this.$node.html(video);
+            Object.keys(players).forEach(function(player) {
+                if (players[player]) {
+                    players[player].dispose();
+                    delete players[player];
+                }
+            });
+
+            var scrubPercent = this.scrubPercent;
+            _.defer(videojs, video[0], { autoplay:true }, function() { 
+                var player = this;
+                function durationchange(event) {
+                    var duration = player.duration();
+                    if (duration > 0.0 && scrubPercent > 0.0) {
+                        player.off('durationchange', durationchange);
+                        player.off("loadedmetadata", durationchange);
+                        player.currentTime(Math.max(0.0, duration * scrubPercent - 1.0));
+                    }
+                }
+                player.on("durationchange", durationchange);
+                player.on("loadedmetadata", durationchange);
+            });
+        };
+
         this.after('initialize', function() {
             var self = this;
 
-            this.$node.html(template({}));
+            this.$node.toggleClass('allowPlayback', this.attr.allowPlayback)
+                      .html(template({}));
 
             this.showPoster();
 
             var image = new Image();
-            image.src = this.attr.frames;
+            image.src = this.attr.videoPreviewImageUrl;
 
             this.on('mousemove', {
                 scrubbingLineSelector: function(e) { e.stopPropagation(); }
             });
             this.$node
                 .on('mousemove', function(e) {
-                    if ($(e.target).is('.preview')) {
-                        var index = Math.round(e.offsetX / this.offsetWidth * NUMBER_FRAMES);
+                    var target = $(e.target);
+                    if (target.is('.preview')) {
+                        var percent = e.offsetX / this.offsetWidth,
+                            index = Math.round(percent * NUMBER_FRAMES);
+
+                        self.scrubPercent = index / NUMBER_FRAMES;
                         self.showFrames(index);
+                    } else if (target.is('.scrubbing-play-button')) {
+                        self.showPoster();
                     }
                 })
                 .on('mouseleave', function(e) {
                     self.showPoster();
-                });
-
+                })
+                .on('click', self.onClick.bind(self));
         });
     }
 

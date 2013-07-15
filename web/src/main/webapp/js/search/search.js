@@ -217,8 +217,8 @@ define([
 
                         if(info.subType === 'video') {
                             VideoScrubber.attachTo(li.find('.preview'), {
-                                poster: poster,
-                                frames: frames
+                                posterFrameUrl: poster,
+                                videoPreviewImageUrl: frames
                             });
                         } else if(info.subType === 'image') {
                             li.find('.preview').html("<img src='" + poster + "' />");
