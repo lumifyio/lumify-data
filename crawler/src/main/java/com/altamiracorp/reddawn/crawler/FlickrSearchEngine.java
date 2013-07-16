@@ -25,16 +25,18 @@ public class FlickrSearchEngine extends SearchEngine {
     private static final String GEO_ACCURACY = "7"; // scale is 1 (world) to 16 (city / street)
     private static final String CONTENT_TYPE_ALL = "7"; // includes photos, screenshots, and other
     private static final String CONTENT_TYPE_PHOTOS_AND_SCREENSHOTS = "4";
-    private static final String EXTRAS = "description,license,date_upload,date_taken,owner_name," +
+    private static final String EXTRAS = "description,date_upload,date_taken,owner_name," +
             "original_format,last_update,geo,tags,views,media";
     private static final List<String> METADATA_ITEMS = new ArrayList<String>(Arrays.asList("title", "description",
-            "license", "dateupload", "datetaken", "ownername", "originalformat", "lastupdate", "tags",
+            "dateupload", "datetaken", "ownername", "lastupdate", "tags",
             "views", "media", "latitude", "longitude", "accuracy"));
-    private static final String PER_PAGE = "15";
+    private String resultsPerPage = "500";
+    private static final int MAX_RESULTS_PER_PAGE = 500;
     private static final String FORMAT = "json";
-    private static String FILE_EXTENSION = ".jpg";  // other options are png or gif but require reformatting
+    private static String FILE_EXTENSION = ".jpg";  // other options are png or gif but they require reformatting url
     // see http://www.flickr.com/services/api/misc.urls.html
-
+    private TreeMap<String, TreeMap<String, String>> imageResults;
+    private ArrayList<String> results;
 
     public FlickrSearchEngine(Crawler c) {
         super(c);
@@ -42,10 +44,24 @@ public class FlickrSearchEngine extends SearchEngine {
 
     @Override
     protected List<String> search(Query q, int numOfResults) {
-        TreeMap<String, TreeMap<String, String>> imageResults = new TreeMap<String, TreeMap<String, String>>();
-        ArrayList<String> results = new ArrayList<String>();
+        imageResults = new TreeMap<String, TreeMap<String, String>>();
+        results = new ArrayList<String>();
+        if (numOfResults <= MAX_RESULTS_PER_PAGE) {
+            resultsPerPage = "" + numOfResults;
+            fetchOnePageOfQueryResults(q, 1, numOfResults);
+        } else {
+            for (int i = 0; i * MAX_RESULTS_PER_PAGE < numOfResults; i++) {
+                int resultsLeftToGet = numOfResults - (i * MAX_RESULTS_PER_PAGE);
+                int resultsToGet = (resultsLeftToGet < MAX_RESULTS_PER_PAGE) ? resultsLeftToGet : MAX_RESULTS_PER_PAGE;
+                fetchOnePageOfQueryResults(q, i+1, resultsToGet);
+            }
+        }
+        crawlResults(q, imageResults);
+        return results;
+    }
 
-        String queryUrl = createQueryUrl(q, 1, Integer.parseInt(PER_PAGE));   //change to loop through pages
+    private void fetchOnePageOfQueryResults(Query q, int index, int resultsToFetch) {
+        String queryUrl = createQueryUrl(q, index, Integer.parseInt(resultsPerPage));
         URL url = getURL(queryUrl);
         JSONObject jsonObject = null;
         if (url != null) {
@@ -54,7 +70,7 @@ public class FlickrSearchEngine extends SearchEngine {
         StringBuilder stringBuilder = new StringBuilder();
         if (jsonObject != null) {
             JSONArray photos = getPhotosJsonArray(jsonObject);
-            for (int i = 0; i < photos.length(); i++) {
+            for (int i = 0; i < photos.length() && resultsToFetch > 0; i++, resultsToFetch--) {
                 JSONObject photo = getPhotoJsonObject(photos, i);
                 if (photo != null) {
                     String photoUrl = getPhotoUrl(photo);
@@ -63,8 +79,6 @@ public class FlickrSearchEngine extends SearchEngine {
                 }
             }
         }
-        crawlResults(q, imageResults);
-        return results;
     }
 
     private void crawlResults(Query q, TreeMap<String, TreeMap<String, String>> imageResults) {
@@ -87,14 +101,18 @@ public class FlickrSearchEngine extends SearchEngine {
     }
 
     private Map<String, String> getPhotoMetadata(JSONObject photo) {
+    // see http://www.flickr.com/services/api/misc.urls.html
+        String currentTag = "";
         try {
             Map<String, String> photoInfo = new TreeMap<String, String>();
             for (String tag : METADATA_ITEMS) {
-                photoInfo.put(tag, photo.get(tag).toString());
+               currentTag = tag;
+               photoInfo.put(tag, photo.get(tag).toString());
             }
             return photoInfo;
         } catch (JSONException e) {
-            LOGGER.error("Could not retrieve photo metadata");
+            LOGGER.error("Could not retrieve photo metadata on tag " + currentTag);
+            e.printStackTrace();
             return null;
         }
     }
@@ -173,7 +191,7 @@ public class FlickrSearchEngine extends SearchEngine {
     protected String createQueryUrl(Query query, int page, int perPage) {
         TreeMap<String, String> queryParams = new TreeMap();
         queryParams.put("api_key", API_KEY);
-        queryParams.put("license", NO_KNOWN_COPYRIGHT_RESTRICTIONS_LICENSE);
+//        queryParams.put("license", NO_KNOWN_COPYRIGHT_RESTRICTIONS_LICENSE);
         queryParams.put("privacy_filter", PRIVACY_FILTER);
         queryParams.put("accuracy", GEO_ACCURACY);
         queryParams.put("content_type", CONTENT_TYPE_ALL);
