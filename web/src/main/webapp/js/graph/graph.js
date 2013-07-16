@@ -159,6 +159,7 @@ define([
                 func = functionName && this[functionName],
                 args = target.data('args');
 
+
             if (func) {
                 if (!args) {
                     args = [];
@@ -178,6 +179,13 @@ define([
             this.cy(function(cy) {
                 cy.zoom(level);
             });
+        };
+
+        this.onContextMenuLoadRelatedItems = function (){
+            var menu = this.select('nodeContextMenuSelector');
+            var currentNode = menu.attr('data-currentNode');
+            var data = { rowKey : currentNode };
+            this.trigger (document, 'loadRelatedSelected', data);
         };
 
         this.onContextMenuFitToWindow = function() {
@@ -202,6 +210,7 @@ define([
 
             });
         };
+
         this.onContextMenuLayout = function(layout, opts) {
             var self = this;
             var options = $.extend({onlySelected:false}, opts);
@@ -246,33 +255,41 @@ define([
         });
 
         this.graphContextTap = function(event) {
-            var menu = this.select('contextMenuSelector');
-
+            var menu;
+            if (event.cyTarget == event.cy){
+                menu = this.select ('contextMenuSelector');
+            } else {
+                menu = this.select ('nodeContextMenuSelector');
+                menu.attr("data-currentNode",event.cyTarget.data('rowKey'));
+                if (event.cy.nodes().filter(':selected').length > 1) {
+                    return false;
+                }
+            }
             // Show/Hide the layout selection menu item
             if (event.cy.nodes().filter(':selected').length) {
                 menu.find('.layout-multi').show();
             } else {
                 menu.find('.layout-multi').hide();
             }
-            
+
             // TODO: extract this context menu viewport fitting
             var offset = this.$node.offset(),
-                padding = 10,
-                windowSize = { x: $(window).width(), y: $(window).height() },
-                menuSize = { x: menu.outerWidth(), y: menu.outerHeight() },
-                submenu = menu.find('li.dropdown-submenu ul'),
-                submenuSize = menuSize,// { x:submenu.outerWidth(), y:submenu.outerHeight() },
-                placement = {
-                    left: Math.min( 
-                        event.originalEvent.pageX - offset.left,
-                        windowSize.x - offset.left - menuSize.x - padding
-                    ),
-                    top: Math.min( 
-                        event.originalEvent.pageY - offset.top, 
-                        windowSize.y - offset.top - menuSize.y - padding
-                    )
-                },
-                submenuPlacement = { left:'100%', right:'auto', top:0, bottom:'auto' };
+            padding = 10,
+            windowSize = { x: $(window).width(), y: $(window).height() },
+            menuSize = { x: menu.outerWidth(), y: menu.outerHeight() },
+            submenu = menu.find('li.dropdown-submenu ul'),
+            submenuSize = menuSize,// { x:submenu.outerWidth(), y:submenu.outerHeight() },
+            placement = {
+                left: Math.min(
+                    event.originalEvent.pageX - offset.left,
+                    windowSize.x - offset.left - menuSize.x - padding
+                ),
+                top: Math.min(
+                    event.originalEvent.pageY - offset.top,
+                    windowSize.y - offset.top - menuSize.y - padding
+                )
+            },
+            submenuPlacement = { left:'100%', right:'auto', top:0, bottom:'auto' };
 
             if ((placement.left + menuSize.x + submenuSize.x + padding) > windowSize.x) {
                 submenuPlacement = $.extend(submenuPlacement, { right: '100%', left:'auto' });
@@ -313,7 +330,6 @@ define([
                 info.push(node.data());
             });
 
-            this.trigger(document, 'loadRelatedSelected', [info]);
             this.trigger(document, 'searchResultSelected', [info]);
         };
 
@@ -483,7 +499,7 @@ define([
 
 
             this.select('contextMenuItemSelector').on('click', this.onContextMenu.bind(this));
-
+            this.select('nodeContextMenuSelector').on('click', this.onContextMenu.bind(this));
 
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'nodesAdded', this.onNodesAdded);
