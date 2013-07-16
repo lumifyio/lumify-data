@@ -68,6 +68,7 @@ define([
 
             this.on('scrollstop', this.updateEntityAndArtifactDraggables);
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
+            this.on(document, 'loadRelatedSelected', this.onLoadRelatedSelected);
         });
 
         this.onEntityToEntityRelationshipClicked = function(evt, data) {
@@ -217,6 +218,70 @@ define([
                 console.error(message);
                 return this.trigger(document, 'error', { message: message });
             }
+        };
+
+       this.onLoadRelatedSelected = function (evt, data){
+            if ($.isArray (data) && data.length == 1){
+                data = data [0];
+            }
+            // TO DO: Handle loading related artifacts
+            if (!data || data.length == 0){
+                this.$node.empty ();
+                this.currentRowKey = null;
+            } else if (data.type == 'entity') {
+                this.onRelatedEntitySelected (evt, data);
+            } else {
+                console.error ('Unhandled type: ' + data.type);
+                return this.trigger (document, 'error', { message: message });
+            }
+       };
+
+        this.onRelatedEntitySelected = function (evt, data){
+           this.openUnlessAlreadyOpen (data, function (finished){
+                var self = this;
+                new UCD ().getEntityById (data.rowKey, function (err, entity){
+                    finished (!err);
+                    if (err){
+                        console.error ('Error', err);
+                        return self.trigger (document, 'error', { message: err.toString () });
+                    }
+
+                    self.getRelatedEntities (data.rowKey, function (relatedEntities){
+                        var entityDetailsData = {};
+                        entityDetailsData.key = entity.key;
+                        entityDetailsData.relatedEntities = relatedEntities;
+                        // TO DO: FIX LAYOUT OF RELATED ITEMS!!!!!!!!
+                        var countX = data.originalPosition.x * 3 / 2;
+                        var countY = data.originalPosition.y * 3 / 2;
+                        entityDetailsData.relatedEntities.forEach (function (relatedEntity){
+                            var dropPosition = {x: countX + 10, y: countY + 20};
+                            self.trigger (document, 'addNodes', {nodes: [{
+                                    title: relatedEntity.title,
+                                    rowKey: relatedEntity.rowKey,
+                                    subType: relatedEntity.subType,
+                                    type: relatedEntity.type,
+                                    dropPosition: dropPosition,
+                                    selected: true
+                                }]
+                            });
+                            countX = countX + 5;
+                            countY = countY + 5;
+                        });
+                    });
+                });
+            });
+        };
+
+        this.getRelatedEntities = function (key, callback){
+            var self = this;
+            new UCD().getRelatedEntitiesBySubject (key, function (err, relatedEntities){
+                if (err){
+                    console.error ('Error', err);
+                    return self.trigger (document, 'error', { message: err.toString () });
+                }
+                console.log ('Related Entities', relatedEntities);
+                callback (relatedEntities);
+            });
         };
 
         this.onMentionArtifactSelected = function(evt, data) {
