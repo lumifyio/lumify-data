@@ -1,6 +1,8 @@
 package com.altamiracorp.reddawn.crawler;
 
 import org.apache.commons.cli.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -8,6 +10,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class WebCrawl {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebCrawl.class);
 
     private CommandLineParser parser;
     private CommandLine cl;
@@ -19,12 +22,10 @@ public class WebCrawl {
 
     public WebCrawl() {
         parser = new PosixParser();
-
         engines = new ArrayList<SearchEngine>();
         queries = new ArrayList<Query>();
         rssLinks = new ArrayList<Query>();
         redditQueries = new ArrayList<Query>();
-
         results = -1;
     }
 
@@ -58,18 +59,16 @@ public class WebCrawl {
     private void verifyParameters() {
         if (cl.getOptionValue("provider").equalsIgnoreCase("rss")) {
             if (cl.getOptionValue("rss") == null) {
-                System.out.println("URL to a valid RSS feed must be specified for search provider \'rss.\'");
+                LOGGER.error("URL to a valid RSS feed must be specified for search provider \'rss.\'");
                 printHelpAndExit();
             }
-        }
-        else if (cl.getOptionValue("provider").equalsIgnoreCase("reddit")) {
+        } else if (cl.getOptionValue("provider").equalsIgnoreCase("reddit")) {
             if (cl.getOptionValue("count") == null) {
-                System.out.println("Result count must be specified for search provider \'reddit.\'");
+                LOGGER.error("Result count must be specified for search provider \'reddit.\'");
                 printHelpAndExit();
             }
-        }
-        else if (cl.getOptionValue("query") == null || cl.getOptionValue("count") == null ) {
-            System.out.println("Query and result count must be specified");
+        } else if (cl.getOptionValue("query") == null || cl.getOptionValue("count") == null) {
+            LOGGER.error("Query and result count must be specified");
             printHelpAndExit();
         }
     }
@@ -82,7 +81,7 @@ public class WebCrawl {
         try {
             cl = parser.parse(createOptions(), args);
         } catch (ParseException e) {
-            System.err.println("The options could not be parsed, please try again or use --help for more information");
+            LOGGER.error("The options could not be parsed, please try again or use --help for more information");
             System.exit(1);
         }
         String directory = cl.getOptionValue("directory");
@@ -198,12 +197,12 @@ public class WebCrawl {
 
     public static Options createOptions() {
         Options options = new Options();
-        options.addOption("d","directory",true,"The absolute path of the directory to where the files will be written - required");
-        options.addOption("p","provider",true,"The search provider(s) to use for this query, separated by commas for multiple (options: google, news, reddit, rss, flickr) - required");
-        options.addOption("q","query",true,"The query/queries you want to perform (separate multiple with commas) - required for google, news and flickr providers, optional for reddit");
-        options.addOption("c","count",true,"The number of results to return from each query performed - required for google, news, reddit and flickr providers, optional for rss provider");
-        options.addOption("r","rss",true,"The RSS feed URL(s) to fetch for this query (separate multiple with commas) - required for rss provider");
-        options.addOption("s","subreddit",true,"The subreddit(s) to fetch (optionally filtered by query)");
+        options.addOption("d", "directory", true, "The absolute path of the directory to where the files will be written - required");
+        options.addOption("p", "provider", true, "The search provider(s) to use for this query, separated by commas for multiple (options: google, news, reddit, rss, flickr) - required");
+        options.addOption("q", "query", true, "The query/queries you want to perform (separate multiple with commas) - required for google, news and flickr providers, optional for reddit");
+        options.addOption("c", "count", true, "The number of results to return from each query performed - required for google, news, reddit and flickr providers, optional for rss provider");
+        options.addOption("r", "rss", true, "The RSS feed URL(s) to fetch for this query (separate multiple with commas) - required for rss provider");
+        options.addOption("s", "subreddit", true, "The subreddit(s) to fetch (optionally filtered by query)");
         return options;
     }
 

@@ -1,5 +1,8 @@
 package com.altamiracorp.reddawn.crawler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -8,6 +11,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class GoogleNewsSearchEngine extends SearchEngine {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoogleNewsSearchEngine.class);
 
     private String baseURL;
 
@@ -24,7 +28,7 @@ public class GoogleNewsSearchEngine extends SearchEngine {
         try {
             fullURL = new URL(queryUrl);
         } catch (MalformedURLException e) {
-            System.err.println("Malformed search URL");
+            LOGGER.error("Malformed search URL");
             return results;
         }
 
@@ -35,8 +39,9 @@ public class GoogleNewsSearchEngine extends SearchEngine {
         try {
             getCrawler().crawl(results, q);
         } catch (Exception e) {
-            throw new RuntimeException("The crawler failed to crawl the " + getEngineName() + " on Query \"" +
+            LOGGER.error("The crawler failed to crawl the " + getEngineName() + " on Query \"" +
                     q.getQueryString() + "\" result set");
+            e.printStackTrace();
         }
         return results;
     }

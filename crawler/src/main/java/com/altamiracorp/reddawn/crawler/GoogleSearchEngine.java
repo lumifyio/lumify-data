@@ -2,12 +2,15 @@ package com.altamiracorp.reddawn.crawler;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
 public class GoogleSearchEngine extends SearchEngine {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoogleSearchEngine.class);
 
     private String baseURL;
     final int RESULTS_PER_SEARCH = 10;
@@ -42,7 +45,7 @@ public class GoogleSearchEngine extends SearchEngine {
                     searchResults.add(entry.getString("link"));
                 }
             } catch (Exception e) {
-                System.err.println("The response from the server for results " + (searchCount * RESULTS_PER_SEARCH + 1) +
+                LOGGER.error("The response from the server for results " + (searchCount * RESULTS_PER_SEARCH + 1) +
                         "-" + ((searchCount + 1) * RESULTS_PER_SEARCH) + " is not valid JSON (the search performed is" +
                         "likely invalid)");
                 return searchResults; // Quit this search

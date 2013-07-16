@@ -1,10 +1,14 @@
 package com.altamiracorp.reddawn.crawler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.*;
 
 public class Crawler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Crawler.class);
 
     private String directoryPath;
 
@@ -28,7 +32,7 @@ public class Crawler {
             manager.addJob(url, queryInfo, directoryPath);
         }
         manager.shutDownWhenFinished();
-        System.out.println("\033[34mSearch completed.\033[0m");
+        LOGGER.info("\033[34mSearch completed.\033[0m");
     }
 
     public void crawlPhotos(TreeMap<String, TreeMap<String, String>> links, Query query) throws Exception {

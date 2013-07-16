@@ -67,7 +67,7 @@ public class PhotoHttpRetriever implements Runnable {
                 File outputFile = new File(directoryPath + "/" + filename);
                 changeExifMetadata(inputFile, outputFile);
                 inputFile.delete();
-                System.out.println("Processed: " + url);
+                LOGGER.info("Processed: " + url);
             } catch (Exception e) {
                 LOGGER.error("Unable to write image to file: " + imageUrl);
                 e.printStackTrace();

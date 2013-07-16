@@ -46,9 +46,9 @@ public class HttpRetriever implements Runnable {
         }
         stringBuilder.append(content);
         if (writeToFile(stringBuilder)) {
-            System.out.println("Processed: " + url);
+            LOGGER.info("Processed: " + url);
         } else {
-            System.err.println("\033[31m[Error] Problem writing file to: " + directoryPath + "\033[0m");
+            LOGGER.error("\033[31m[Error] Problem writing file to: " + directoryPath + "\033[0m");
         }
     }
 
@@ -70,7 +70,7 @@ public class HttpRetriever implements Runnable {
         String[] statusInfo = status.split(" ");
         int statusNumber = Integer.parseInt(statusInfo[1]);
         if (statusNumber >= 400 && statusNumber < 500) {
-            System.err.println("\033[31m[Error] Page not found: " + httpGet.getURI() + "\033[0m");
+            LOGGER.error("\033[31m[Error] Page not found: " + httpGet.getURI() + "\033[0m");
             return false;
         }
         return true;
@@ -87,7 +87,7 @@ public class HttpRetriever implements Runnable {
             stringBuilder.append(getResponseContent(response));
         } catch (IOException ex) {
             httpGet.abort();
-            System.err.println("\033[31m[Error] Problem with Http Request on URL: " + httpGet.getURI() + "\033[0m");
+            LOGGER.error("\033[31m[Error] Problem with Http Request on URL: " + httpGet.getURI() + "\033[0m");
             return new StringBuilder();
         }
         return stringBuilder;

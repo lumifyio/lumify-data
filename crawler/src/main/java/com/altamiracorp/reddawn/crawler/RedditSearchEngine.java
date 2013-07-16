@@ -3,12 +3,15 @@ package com.altamiracorp.reddawn.crawler;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
 public class RedditSearchEngine extends SearchEngine {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedditSearchEngine.class);
 
     public RedditSearchEngine(Crawler crawler) {
         super(crawler);
@@ -26,13 +29,13 @@ public class RedditSearchEngine extends SearchEngine {
                 searchResults.add(childrenEntries.getJSONObject(i).getJSONObject("data").getString("url"));
             }
         } catch (JSONException e) {
-            System.err.println("Results not successfully processed as JSON");
+            LOGGER.error("Results not successfully processed as JSON");
             return searchResults;
         }
         try {
             getCrawler().crawl(searchResults, q);
         } catch (Exception e) {
-            throw new RuntimeException("The crawler failed to crawl the " + getEngineName() + " on query \"" +
+            LOGGER.error("The crawler failed to crawl the " + getEngineName() + " on query \"" +
                     q.getQueryString() + "\" result set");
         }
 
