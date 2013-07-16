@@ -65,8 +65,11 @@ public class WebCrawl {
             System.err.println("The options could not be parsed, please try again or use --help for more information");
             System.exit(1);
         }
-
-        crawler = new Crawler(cl.getOptionValue("directory"));
+        String directory = cl.getOptionValue("directory");
+        if (directory.charAt(directory.length()-1) != '/') {
+            directory += "/";
+        }
+        crawler = new Crawler(directory);
     }
 
     protected Query addSearchQuery(String queryString) {
