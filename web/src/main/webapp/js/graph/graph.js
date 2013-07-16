@@ -50,6 +50,10 @@ define([
                         title = title.substring(0, 10) + "...";
                     }
 
+                    if (node.selected != true){
+                        node.selected = false;
+                    }
+
                     var cyNodeData = {
                         group: 'nodes',
                         classes: $.trim(node.subType + ' ' + node.type),
@@ -59,8 +63,9 @@ define([
                             subType: node.subType,
                             type: node.type,
                             title: title,
-                            originalTitle: node.title
-                        }
+                            originalTitle: node.title,
+                        },
+                        selected: node.selected
                     };
 
                     var needsUpdate = false;
@@ -263,6 +268,7 @@ define([
             var menu;
             if (event.cyTarget == event.cy){
                 menu = this.select ('contextMenuSelector');
+                this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
             } else {
                 menu = this.select ('nodeContextMenuSelector');
                 menu.attr("data-currentNode-rowkey",event.cyTarget.data('rowKey'));
@@ -272,6 +278,7 @@ define([
                 if (event.cy.nodes().filter(':selected').length > 1) {
                     return false;
                 }
+                this.select('contextMenuSelector').blur().parent().removeClass('open');
             }
 
             // Show/Hide the layout selection menu item
@@ -595,7 +602,8 @@ define([
                   .selector('edge')
                     .css({
                       'width': 2,
-                      'target-arrow-shape': 'triangle'
+                      'target-arrow-shape': 'triangle',
+                      'source-arrow-shape': 'triangle'
                     }),
 
                 ready: function(){
