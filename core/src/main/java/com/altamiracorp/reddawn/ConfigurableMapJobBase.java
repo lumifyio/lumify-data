@@ -121,11 +121,6 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
     protected abstract Class<? extends Mapper> getMapperClass(Job job, Class clazz);
 
     public static RedDawnSession createRedDawnSession(Mapper.Context context) {
-        Configuration cfg = context.getConfiguration();
-        Properties properties = new Properties();
-        for (Map.Entry<String, String> entry : cfg) {
-            properties.setProperty(entry.getKey(), entry.getValue());
-        }
-        return RedDawnSession.create(properties);
+        return RedDawnSession.create(context);
     }
 }

@@ -1,14 +1,14 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
+import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.ucd.AccumuloSentenceInputFormat;
-import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
-import com.altamiracorp.reddawn.ucd.sentence.SentenceTerm;
+import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
 import com.altamiracorp.reddawn.ucd.term.Term;
-import com.altamiracorp.reddawn.ucd.term.TermMention;
+import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -41,11 +41,15 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
     public static class EntityExtractorMapper extends Mapper<Text, Sentence, Text, Row> {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "entityExtractorClass";
         private EntityExtractor entityExtractor;
+        private TermRepository termRepository = new TermRepository();
+        private SentenceRepository sentenceRepository = new SentenceRepository();
+        private RedDawnSession session;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
             super.setup(context);
             try {
+                session = ConfigurableMapJobBase.createRedDawnSession(context);
                 entityExtractor = (EntityExtractor) context.getConfiguration().getClass(CONF_ENTITY_EXTRACTOR_CLASS, NullEntityExtractor.class).newInstance();
                 entityExtractor.setup(context);
             } catch (InstantiationException e) {
@@ -57,40 +61,18 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
 
         public void map(Text rowKey, Sentence sentence, Context context) throws IOException, InterruptedException {
             try {
-                Collection<Term> terms = extractEntities(sentence);
-                writeEntities(context, terms, sentence);
+                Collection<Term> terms = entityExtractor.extract(sentence);
+                writeEntities(terms, sentence);
             } catch (Exception e) {
                 throw new IOException(e);
             }
         }
 
-        private void writeEntities(Context context, Collection<Term> terms, Sentence sentence) throws IOException, InterruptedException {
+        private void writeEntities(Collection<Term> terms, Sentence sentence) throws IOException, InterruptedException {
             for (Term term : terms) {
-                context.write(new Text(Term.TABLE_NAME), term);
-
-                for (TermMention termMention : term.getTermMentions()) {
-                    AddArtifactTermIndex(context, term, termMention);
-                    AddSentenceTerms(context, term, termMention, sentence);
-                }
+                termRepository.save(session.getModelSession(), term);
+                sentenceRepository.save(session.getModelSession(), sentence, term);
             }
-        }
-
-        private void AddSentenceTerms(Context context, Term term, TermMention termMention, Sentence sentence) throws IOException, InterruptedException {
-            SentenceTerm sentenceTerm = new SentenceTerm(termMention)
-                    .setTermId(term);
-            sentence.addSentenceTerm(sentenceTerm);
-            // todo: we might be able to speed up entity extraction by only writing the term mentions (ie construct a new sentence with only SentenceTerms rather than using the existing fully loaded Sentence)
-            context.write(new Text(Sentence.TABLE_NAME), sentence);
-        }
-
-        private void AddArtifactTermIndex(Context context, Term term, TermMention termMention) throws IOException, InterruptedException {
-            ArtifactTermIndex artifactTermIndex = new ArtifactTermIndex(termMention.getArtifactKey());
-            artifactTermIndex.addTermMention(term.getRowKey(), termMention);
-            context.write(new Text(ArtifactTermIndex.TABLE_NAME), artifactTermIndex);
-        }
-
-        private Collection<Term> extractEntities(Sentence sentence) throws Exception {
-            return entityExtractor.extract(sentence);
         }
 
         public static void init(Job job, Class<? extends EntityExtractor> entityExtractor) {

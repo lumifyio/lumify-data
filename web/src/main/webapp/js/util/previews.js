@@ -110,10 +110,8 @@ function(UCD, html2canvas, template) {
     PreviewQueue.prototype.addTask = function(task) {
         var cache = PREVIEW_CACHE[task.rowKey];
         if (cache) {
-            console.log('PREVIEW using cache', task.rowKey);
             task.callback.apply(null, cache);
         } else {
-            console.log('PREVIEW no cache', task.rowKey);
             this.items.push( task );
         }
         this.take();

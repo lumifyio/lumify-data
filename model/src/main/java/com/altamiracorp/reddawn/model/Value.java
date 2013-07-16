@@ -36,7 +36,15 @@ public class Value {
             return (byte[]) value;
         }
 
+        if (value instanceof JSONObject) {
+            return jsonObjectToBytes((JSONObject) value);
+        }
+
         throw new RuntimeException("Unhandled type to convert: " + value.getClass().getName());
+    }
+
+    private byte[] jsonObjectToBytes(JSONObject value) {
+        return stringToBytes(value.toString());
     }
 
     private byte[] doubleToBytes(Double value) {
