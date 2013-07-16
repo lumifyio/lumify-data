@@ -1,0 +1,7 @@
+digraph models_diagram {
+  graph [splines=ortho, nodesep=0.7]
+  node [shape=plaintext]
+  rankdir = LR
+
+  <<< tables >>>
+}

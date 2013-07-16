@@ -6,9 +6,7 @@ import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
-import com.altamiracorp.reddawn.ucd.term.Term;
-import com.altamiracorp.reddawn.ucd.term.TermMention;
-import com.altamiracorp.reddawn.ucd.term.TermRepository;
+import com.altamiracorp.reddawn.ucd.term.*;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hadoop.io.Text;
@@ -23,7 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class EntityHighlightMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityHighlightMR.class.getName());
@@ -125,49 +126,6 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
             return result.toString();
         }
 
-        public static class TermAndTermMention {
-            private Term term;
-            private TermMention termMention;
-
-            public TermAndTermMention(Term term, TermMention termMetadata) {
-                this.term = term;
-                this.termMention = termMetadata;
-            }
-
-            public Term getTerm() {
-                return term;
-            }
-
-            public TermMention getTermMention() {
-                return termMention;
-            }
-
-            @Override
-            public String toString() {
-                return getTerm().getRowKey().getSign()
-                        + " - "
-                        + getTermMention().getMentionStart()
-                        + "-"
-                        + getTermMention().getMentionEnd();
-            }
-        }
-
-        public static class TermAndTermMetadataComparator implements Comparator<TermAndTermMention> {
-            @Override
-            public int compare(TermAndTermMention t1, TermAndTermMention t2) {
-                long t1Start = t1.getTermMention().getMentionStart();
-                long t2Start = t2.getTermMention().getMentionStart();
-                if (t1Start == t2Start) {
-                    long t1End = t1.getTermMention().getMentionEnd();
-                    long t2End = t2.getTermMention().getMentionEnd();
-                    if (t1End == t2End) {
-                        return 0;
-                    }
-                    return t1End > t2End ? 1 : -1;
-                }
-                return t1Start > t2Start ? 1 : -1;
-            }
-        }
     }
 
     public static void main(String[] args) throws Exception {

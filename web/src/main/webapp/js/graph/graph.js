@@ -524,11 +524,10 @@ define([
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
 
             cytoscape("renderer", "red-dawn", Renderer);
-            cytoscape.style.types.nodeShape.enums.push('none');
             cytoscape({
                 showOverlay: false,
-                minZoom: 1 / 3,
-                maxZoom: 3,
+                minZoom: 1 / 4,
+                maxZoom: 4,
                 container: this.select('cytoscapeContainerSelector').css({height:'100%'})[0],
                 renderer: {
                     name: 'red-dawn'
@@ -565,7 +564,7 @@ define([
                   .selector('node.video')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
-                      'shape': 'rectangle',
+                      'shape': 'movieStrip',
                       'width': 60 * 1.3 * pixelScale,
                       'height': 60 * pixelScale,
                       'border-color': '#ccc',

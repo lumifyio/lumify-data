@@ -11,10 +11,13 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.hadoop.util.ToolRunner;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +29,7 @@ import java.util.Iterator;
 public class FileImport extends RedDawnCommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileImport.class.getName());
     private static final long MAX_SIZE_OF_INLINE_FILE = 1 * 1024 * 1024; // 1MiB
+    private static final String MAPPING_JSON_FILE_NAME_SUFFIX = ".mapping.json";
     private ArtifactRepository artifactRepository = new ArtifactRepository();
     private String directory;
     private String pattern;
@@ -42,7 +46,7 @@ public class FileImport extends RedDawnCommandLineBase {
     protected void processOptions(CommandLine cmd) {
         super.processOptions(cmd);
         this.directory = cmd.getOptionValue("directory");
-        if(this.directory == null) throw new RuntimeException("No directory provided to FileImport");
+        if (this.directory == null) throw new RuntimeException("No directory provided to FileImport");
         if (cmd.hasOption("pattern")) {
             this.pattern = cmd.getOptionValue("pattern");
         } else {
@@ -105,8 +109,9 @@ public class FileImport extends RedDawnCommandLineBase {
 
         while (fileIterator.hasNext()) {
             File f = fileIterator.next();
-            if (f.isFile()) {
-                writeFile(redDawnSession, f);
+            if (f.isFile() && !f.getName().endsWith(MAPPING_JSON_FILE_NAME_SUFFIX)) {
+                JSONObject mappingJson = readMappingJsonFile(f);
+                writeFile(redDawnSession, f, mappingJson);
             }
         }
 
@@ -114,7 +119,21 @@ public class FileImport extends RedDawnCommandLineBase {
         return 0;
     }
 
-    private void writeFile(RedDawnSession redDawnSession, File file) throws IOException, MutationsRejectedException {
+    private JSONObject readMappingJsonFile(File f) throws JSONException, IOException {
+        File mappingJsonFile = new File(f.getAbsolutePath() + MAPPING_JSON_FILE_NAME_SUFFIX);
+        JSONObject mappingJson = null;
+        if (mappingJsonFile.exists()) {
+            FileInputStream mappingJsonFileIn = new FileInputStream(mappingJsonFile);
+            try {
+                mappingJson = new JSONObject(IOUtils.toString(mappingJsonFileIn));
+            } finally {
+                mappingJsonFileIn.close();
+            }
+        }
+        return mappingJson;
+    }
+
+    private void writeFile(RedDawnSession redDawnSession, File file, JSONObject mappingJson) throws IOException, MutationsRejectedException {
         Artifact artifact;
         if (file.getName().startsWith(".")) {
             return;
@@ -144,6 +163,9 @@ public class FileImport extends RedDawnCommandLineBase {
                 .setFileExtension(FilenameUtils.getExtension(file.getName()))
                 .setFileTimestamp(file.lastModified())
                 .setSource(this.source);
+        if (mappingJson != null) {
+            artifact.getGenericMetadata().setMappingJson(mappingJson);
+        }
 
         LOGGER.info("Writing artifact: " + artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension() + " (rowId: " + artifact.getRowKey().toString() + ")");
         artifactRepository.save(redDawnSession.getModelSession(), artifact);

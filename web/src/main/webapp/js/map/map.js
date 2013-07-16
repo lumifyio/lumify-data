@@ -248,7 +248,6 @@ define([
 
         this.onMapCenter = function(evt, data) {
             this.map(function(map) {
-                this.trigger(document, 'modeSelect', { mode: 'map' });
                 var latlon = new mxn.LatLonPoint(data.latitude, data.longitude);
                 map.setCenterAndZoom(latlon, 7);
             });

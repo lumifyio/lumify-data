@@ -37,7 +37,6 @@ define([
             graphSelector: '.graph-pane',
             mapSelector: '.map-pane',
             detailPaneSelector: '.detail-pane',
-            modeSelectSelector: '.mode-select',
             droppableSelector: '.graph-pane, .map-pane'
         });
 
@@ -107,6 +106,10 @@ define([
             this.on(document, 'workspaceSave', this.onSaveWorkspace);
             this.on(document, 'workspaceDeleted', this.onWorkspaceDeleted);
 
+            this.on(document, 'mapCenter', this.onMapAction);
+
+            this.on(document, 'changeView', this.onChangeView);
+
             this.loadActiveWorkspace();
             this.setupWindowResizeTrigger();
         });
@@ -120,6 +123,23 @@ define([
                     self.trigger(document, 'windowResize');
                 }, MAX_RESIZE_TRIGGER_INTERVAL);
             });
+        };
+
+        this.onMapAction = function(event, data) {
+            this.trigger(document, 'changeView', { view: 'map' });
+        };
+
+        this.onChangeView = function(event, data) {
+            var view = data && data.view;
+
+            var pane = view && this.select(view + 'Selector');
+            if (pane && pane.hasClass('visible')) {
+                return;
+            } else if (pane) {
+                this.trigger(document, 'menubarToggleDisplay', { name: pane.data(DATA_MENUBAR_NAME) });
+            } else {
+                console.log("View " + data.view + " isn't supported");
+            }
         };
 
         this.setupDroppable = function() {
@@ -463,7 +483,6 @@ define([
             ]);
             // TODO: fix this smellyness
             $('.search-results').hide();
-            this.trigger('detailPaneResize', { width:0, syncToRemote:false });
 
             var graph = this.select('graphSelector');
             if ( ! graph.hasClass('visible') ) {
@@ -482,6 +501,7 @@ define([
 
                     if ( !name ) {
                         if ( isDetail ) {
+                            self.trigger('detailPaneResize', { width:0, syncToRemote:false });
                             return detailPane.addClass('collapsed').removeClass('visible');
                         }
                         return console.warn('No ' + DATA_MENUBAR_NAME + ' attribute, unable to collapse');

@@ -8147,6 +8147,8 @@ var cytoscape;
 		this.load();
 	}
 
+    CanvasRenderer.nodeShapes = nodeShapes;
+
 	CanvasRenderer.prototype.notify = function(params) {
 		if ( params.type == "destroy" ){
 			this.destroy();

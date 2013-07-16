@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.sentenceExtraction;
 
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactGenericMetadata;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
@@ -35,6 +36,7 @@ public class SentenceExtractionMRTest {
         Artifact mockArtifact = mock(Artifact.class);
         ArtifactRowKey mockArtifactRK = mock(ArtifactRowKey.class);
         when(mockArtifact.getRowKey()).thenReturn(mockArtifactRK);
+        when(mockArtifact.getGenericMetadata()).thenReturn(new ArtifactGenericMetadata());
         when(mockArtifact.getType()).thenReturn(ArtifactType.DOCUMENT);
         when(mockArtifactRK.toString()).thenReturn("I don't care about this output");
 

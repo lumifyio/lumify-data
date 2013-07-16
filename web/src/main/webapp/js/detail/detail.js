@@ -2,9 +2,7 @@
 define([
     'flight/lib/component',
     'service/ucd',
-    'videojs',
     'util/video/scrubber',
-    'tpl!util/video/video',
     'tpl!./artifactDetails',
     'tpl!./entityDetails',
     'tpl!./entityToEntityRelationshipDetails',
@@ -15,9 +13,7 @@ define([
 ], function(
     defineComponent,
     UCD,
-    videojs,
     VideoScrubber,
-    videoTemplate,
     artifactDetailsTemplate,
     entityDetailsTemplate,
     entityToEntityRelationshipDetailsTemplate,
@@ -27,7 +23,6 @@ define([
     styleTemplate) {
     'use strict';
 
-    videojs.options.flash.swf = "/libs/video.js/video-js.swf";
 
     var HIGHLIGHT_STYLES = [
             { name: 'None' },
@@ -51,7 +46,6 @@ define([
             moreMentionsSelector: '.mention-request',
             mentionArtifactSelector: '.mention-artifact',
             previewSelector: '.preview',
-            videoSelector: 'video',
             entityToEntityRelationshipSelector: '.entity-to-entity-relationship a.relationship-summary',
             entityDetailsMentionsSelector: '.entity-mentions'
         });
@@ -62,7 +56,6 @@ define([
                 highlightTypeSelector: this.onHighlightTypeClicked,
                 moreMentionsSelector: this.onRequestMoreMentions,
                 mentionArtifactSelector: this.onMentionArtifactSelected,
-                previewSelector: this.onPreviewClicked,
                 entityToEntityRelationshipSelector: this.onEntityToEntityRelationshipClicked
             });
 
@@ -110,6 +103,7 @@ define([
         };
 
         this.onMapCoordinatesClicked = function(evt, data) {
+            evt.preventDefault();
             var $target = $(evt.target);
             data = {
                 latitude: $target.attr('latitude'),
@@ -135,30 +129,6 @@ define([
             }
 
             this.useDefaultStyle = false;
-        };
-
-        this.onPreviewClicked = function(evt) {
-            if (this.select('videoSelector').length) {
-                return;
-            }
-
-            var self = this,
-                players = videojs.players,
-                video = $(videoTemplate({
-                    mp4Url: self.currentArtifact.rawUrl + '?playback=true&type=video/mp4',
-                    webmUrl: self.currentArtifact.rawUrl + '?playback=true&type=video/webm',
-                    posterUrl: self.currentArtifact.posterFrameUrl
-                }));
-
-
-            this.select('previewSelector').html(video);
-            Object.keys(players).forEach(function(player) {
-                if (players[player]) {
-                    players[player].dispose();
-                    delete players[player];
-                }
-            });
-            videojs(video[0], { autoplay:true }, function() { });
         };
 
 
@@ -499,8 +469,10 @@ define([
 
         this.setupVideo = function(artifact) {
             VideoScrubber.attachTo(this.select('previewSelector'), {
-                poster: artifact.posterFrameUrl,
-                frames: artifact.videoPreviewImageUrl
+                rawUrl: artifact.rawUrl,
+                posterFrameUrl: artifact.posterFrameUrl,
+                videoPreviewImageUrl: artifact.videoPreviewImageUrl,
+                allowPlayback: true
             });
         };
 

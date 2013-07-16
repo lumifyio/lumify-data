@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.ucd;
 
+import com.altamiracorp.reddawn.model.AccumuloBaseInputFormat;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;

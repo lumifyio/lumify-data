@@ -62,7 +62,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
             try {
                 LOGGER.info("Extracting text from artifact: " + artifact.getRowKey().toString());
-                ExtractedInfo extractedInfo = textExtractor.extract(session.getModelSession(), artifact);
+                ArtifactExtractedInfo extractedInfo = textExtractor.extract(session.getModelSession(), artifact);
                 if (extractedInfo == null) {
                     return;
                 }

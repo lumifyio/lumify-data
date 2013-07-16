@@ -1,4 +1,4 @@
-package com.altamiracorp.reddawn.ucd;
+package com.altamiracorp.reddawn.model;
 
 import com.altamiracorp.reddawn.model.AccumuloHelper;
 import com.altamiracorp.reddawn.model.Repository;

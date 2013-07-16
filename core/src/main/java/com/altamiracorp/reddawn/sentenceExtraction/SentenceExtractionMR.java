@@ -59,6 +59,9 @@ public class SentenceExtractionMR extends ConfigurableMapJobBase {
             if (artifact.getType() != ArtifactType.DOCUMENT) {
                 return;
             }
+            if (artifact.getGenericMetadata().getMappingJson() != null) {
+                return;
+            }
 
             LOGGER.info("Extracting sentences for artifact: " + artifact.getRowKey().toString());
 

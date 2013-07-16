@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.model.videoFrames;
 
 import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.model.RowKey;
+import com.altamiracorp.reddawn.ucd.artifact.VideoTranscript;
 
 public class VideoFrame extends Row<VideoFrameRowKey> {
     public static final String TABLE_NAME = "VideoFrame";
