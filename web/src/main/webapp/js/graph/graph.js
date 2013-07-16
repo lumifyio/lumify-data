@@ -183,8 +183,12 @@ define([
 
         this.onContextMenuLoadRelatedItems = function (){
             var menu = this.select('nodeContextMenuSelector');
-            var currentNode = menu.attr('data-currentNode');
-            var data = { rowKey : currentNode };
+            var currentNodeRK = menu.attr('data-currentNode-rowKey');
+            var currentNodeOriginalPosition = {x: menu.attr("data-currentNode-positionX"), y: menu.attr("data-currentNode-positionY")};
+            var currentNodeSign = menu.attr ('data-currentNode-sign');
+            var data = { rowKey : currentNodeRK,
+                         originalPosition: currentNodeOriginalPosition,
+                         sign : currentNodeSign};
             this.trigger (document, 'loadRelatedSelected', data);
         };
 
@@ -260,7 +264,10 @@ define([
                 menu = this.select ('contextMenuSelector');
             } else {
                 menu = this.select ('nodeContextMenuSelector');
-                menu.attr("data-currentNode",event.cyTarget.data('rowKey'));
+                menu.attr("data-currentNode-rowkey",event.cyTarget.data('rowKey'));
+                menu.attr("data-currentNode-positionX", event.cyTarget.position ('x'));
+                menu.attr("data-currentNode-positionY", event.cyTarget.position ('y'));
+                menu.attr("data-currentNode-sign", event.cyTarget.data('title'));
                 if (event.cy.nodes().filter(':selected').length > 1) {
                     return false;
                 }
