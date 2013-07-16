@@ -1,0 +1,12 @@
+<div class="underneath">
+  <input value="<%= text %>"</input>
+  <div class="dropdown">
+
+    <a class="dropdown-toggle <%= type %>" data-toggle="dropdown" href="#"><%= type %> <b class="caret"></b></a>
+    <ul class="dropdown-menu">
+      <% entityTypes.forEach(function(entityType) { %>
+      <li><a class="<%= entityType %>" href="#"><%= entityType %></a></li>
+      <% }); %>
+    </ul>
+  </div>
+</div>

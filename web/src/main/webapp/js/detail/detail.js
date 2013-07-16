@@ -3,22 +3,26 @@ define([
     'flight/lib/component',
     'service/ucd',
     'util/video/scrubber',
+    'underscore',
     'tpl!./artifactDetails',
     'tpl!./entityDetails',
     'tpl!./entityToEntityRelationshipDetails',
     'tpl!./entityToEntityRelationshipExcerpts',
     'tpl!./multipleSelection',
+    'tpl!./popover',
     'tpl!./entityDetailsMentions',
     'tpl!./style'
 ], function(
     defineComponent,
     UCD,
     VideoScrubber,
+    _,
     artifactDetailsTemplate,
     entityDetailsTemplate,
     entityToEntityRelationshipDetailsTemplate,
     entityToEntityRelationshipExcerptsTemplate,
     multipleSelectionTemplate,
+    popoverTemplate,
     entityDetailsMentionsTemplate,
     styleTemplate) {
     'use strict';
@@ -61,7 +65,70 @@ define([
 
             this.on('scrollstop', this.updateEntityAndArtifactDraggables);
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
+
+            $(document).on('selectionchange', this.onSelectionChange.bind(this));
         });
+
+        this.onSelectionChange = function(e) {
+            var selection = window.getSelection();
+
+            // Ignore selection events within the dropdown
+            if ( $(selection.anchorNode).is('.underneath') ||
+                 $(selection.anchorNode).parents('.underneath').length) {
+                return;
+            }
+            if (selection.isCollapsed) {
+                this.$node.find('.underneath').remove();
+            }
+            this.handleSelectionChange();
+        };
+
+        this.handleSelectionChange = _.debounce(function() {
+            this.$node.find('.underneath').remove();
+
+            var sel = window.getSelection(),
+                text = sel && sel.type === 'Range' && sel.toString();
+
+            if (text && text.length) {
+                var anchor = $(sel.anchorNode),
+                    focus = $(sel.focusNode),
+                    is = '.detail-pane .text';
+                
+                // Ignore outside content text
+                if (anchor.parents(is).length === 0 || focus.parents(is).length === 0) {
+                    return;
+                }
+
+                // Ignore if too long of selection
+                var wordLength = text.split(/\s+/).length;
+                if (wordLength > 10) {
+                    return;
+                }
+
+                // Find which way the selection was travelling (which is the
+                // furthest element in document
+                var end = focus, endOffset = sel.focusOffset;
+                if (text.indexOf(anchor[0].textContent.substring(sel.anchorOffset, 1)) > 
+                    text.indexOf(focus[0].textContent.substring(sel.focusOffset, 1))) {
+                    end = anchor;
+                    endOffset = sel.anchorOffset;
+                }
+
+                // Move to first space in end so as to not break up word when
+                // splitting
+                var i = Math.max(endOffset - 1, 0), character = '', whitespaceCheck = /^[^\s]$/;
+                do {
+                    character = end[0].textContent.substring(++i, i+1);
+                } while (whitespaceCheck.test(character));
+
+                end[0].splitText(i);
+                end.after(popoverTemplate({
+                    type: 'Set type of term',
+                    text: text,
+                    entityTypes: 'organization person date location money'.split(' ')
+                }));
+            }
+        }, 500);
 
         this.onEntityToEntityRelationshipClicked = function(evt, data) {
             var self = this;
