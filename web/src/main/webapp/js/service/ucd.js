@@ -77,7 +77,7 @@ function(ServiceBase) {
     }
 
     Ucd.prototype.getRelatedTermsFromArtifact = function (id, callback){
-        return this._ajaxGet({url: 'artifact/' + id + '/terms'}, callback);
+        return this._ajaxGet({url: 'artifact/' + id + '/relatedEntities'}, callback);
     }
 
     Ucd.prototype.getSpecificEntityRelationship = function (e1, e2, callback) {
