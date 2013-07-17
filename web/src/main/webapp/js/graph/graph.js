@@ -92,7 +92,7 @@ define([
                     }
 
                     if (node.type === 'artifact') {
-                        previews.generatePreview(node.rowKey, { width:178 * retina.ratio }, function(dataUri) {
+                        previews.generatePreview(node.rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
                             if (dataUri) {
                                 cyNode.css('background-image', dataUri);
                             }
@@ -215,7 +215,7 @@ define([
             var LAYOUT_OPTIONS = {
                 // Customize layout options
                 random: { padding: FIT_PADDING },
-                arbor: { friction: 0.6, repulsion: 5000 * retina.ratio, targetFps: 60, stiffness: 300 }
+                arbor: { friction: 0.6, repulsion: 5000 * retina.devicePixelRatio, targetFps: 60, stiffness: 300 }
             };
             this.cy(function(cy) {
 
