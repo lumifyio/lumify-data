@@ -73,8 +73,12 @@ function(ServiceBase) {
     }
 
     Ucd.prototype.getRelatedEntitiesBySubject = function(id, callback) {
-            return this._ajaxGet({ url: 'entity/' + id + '/relatedEntities' }, callback);
-        }
+        return this._ajaxGet({ url: 'entity/' + id + '/relatedEntities' }, callback);
+    }
+
+    Ucd.prototype.getRelatedTermsFromArtifact = function (id, callback){
+        return this._ajaxGet({url: 'artifact/' + id + '/terms'}, callback);
+    }
 
     Ucd.prototype.getSpecificEntityRelationship = function (e1, e2, callback) {
         return this._ajaxGet({
