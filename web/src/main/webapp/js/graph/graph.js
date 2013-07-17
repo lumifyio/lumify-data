@@ -123,7 +123,6 @@ define([
                     }, LAYOUT_OPTIONS['grid'] || {});
 
                     cy.layout(opts);
-                    cy.layout(p[t])
                 });
 
                 if (options.fit && cy.nodes().length) {
