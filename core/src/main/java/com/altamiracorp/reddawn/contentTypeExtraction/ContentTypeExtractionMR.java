@@ -70,10 +70,6 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
                 if (contentType == ""){
                     LOGGER.warn ("No content type set for artifact: " + artifact.getRowKey().toString());
                 }
-                if (contentType.contains("image")) {
-                    contentTypeExtractor.extractImageMetadata(in);
-
-                }
                 artifact.getGenericMetadata().setMimeType(contentType);
                 context.write(new Text(Artifact.TABLE_NAME), artifact);
             } catch (Exception e) {
