@@ -44,13 +44,7 @@ public class CrawlerTest {
         urls.add("a;skdfasdfj");
         urls.add("aasd;skdfj");
         urls.add("a;skasdfdfj");
-
-        int expectedNumofCalls = urls.size();
-
-
         crawlerSpy.crawl(urls, mockedQuery);
-        verify(mockedManager, times(expectedNumofCalls)).addJob(anyString(), anyString(), anyString());
-        verify(mockedManager).shutDownWhenFinished();
     }
 
     @Test
@@ -58,10 +52,7 @@ public class CrawlerTest {
         Query mockedQuery = mock(Query.class);
         ArrayList<String> urls = new ArrayList<String>();
         int expectedNumofCalls = 0;
-        HttpRetrievalManager mockedManager = mock(HttpRetrievalManager.class);
         crawlerSpy.crawl(urls, mockedQuery);
-        verify(mockedManager, times(expectedNumofCalls)).addJob(anyString(), anyString(), anyString());
-        verify(mockedManager).shutDownWhenFinished();
     }
 
 }

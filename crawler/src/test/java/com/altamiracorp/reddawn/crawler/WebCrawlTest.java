@@ -135,28 +135,28 @@ public class WebCrawlTest {
 
     @Test
     public void testSetResultCount() {
-        when(mockCL.getOptionValue("result-count")).thenReturn("20");
+        when(mockCL.getOptionValue("count")).thenReturn("20");
         driverSpy.setResultCount();
         assertEquals("Setting standard result count returned the incorrect result count", 20, driverSpy.getResults());
     }
 
     @Test
     public void testSetResultCountNegative() {
-        when(mockCL.getOptionValue("result-count")).thenReturn("-20");
+        when(mockCL.getOptionValue("count")).thenReturn("-20");
         driverSpy.setResultCount();
         assertEquals("Setting negative result count did not return default result count", WebCrawl.DEFAULT_RESULT_COUNT, driverSpy.getResults());
     }
 
     @Test
     public void testSetResultCountZero() {
-        when(mockCL.getOptionValue("result-count")).thenReturn("0");
+        when(mockCL.getOptionValue("count")).thenReturn("0");
         driverSpy.setResultCount();
         assertEquals("Setting zero result count did not return default result count", WebCrawl.DEFAULT_RESULT_COUNT, driverSpy.getResults());
     }
 
     @Test
     public void testSetResultCountNaN() {
-        when(mockCL.getOptionValue("result-count")).thenReturn("hello");
+        when(mockCL.getOptionValue("count")).thenReturn("hello");
         driverSpy.setResultCount();
         assertEquals("Setting non-number result count did not return default result count", WebCrawl.DEFAULT_RESULT_COUNT, driverSpy.getResults());
     }
