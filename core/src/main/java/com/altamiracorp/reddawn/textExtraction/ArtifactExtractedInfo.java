@@ -2,7 +2,7 @@ package com.altamiracorp.reddawn.textExtraction;
 
 import java.util.Date;
 
-public class ExtractedInfo {
+public class ArtifactExtractedInfo {
     private String mediaType;
     private String subject;
     private String text;

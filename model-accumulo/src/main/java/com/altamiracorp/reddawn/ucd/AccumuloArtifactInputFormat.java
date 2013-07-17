@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.ucd;
 
+import com.altamiracorp.reddawn.model.AccumuloBaseInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;

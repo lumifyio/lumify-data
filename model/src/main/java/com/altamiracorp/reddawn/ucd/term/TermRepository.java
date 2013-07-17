@@ -3,13 +3,16 @@ package com.altamiracorp.reddawn.ucd.term;
 import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndexRepository;
+import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 public class TermRepository extends Repository<Term> {
     private ArtifactTermIndexRepository artifactTermIndexRepository = new ArtifactTermIndexRepository();
+    private SentenceRepository sentenceRepository = new SentenceRepository();
 
     @Override
     public Term fromRow(Row row) {
@@ -44,9 +47,16 @@ public class TermRepository extends Repository<Term> {
         }
         for (TermRowKey termRowKey : artifactTermIndex.getTermMentions()) {
             Term term = findByRowKey(session, termRowKey.toString());
+            if (term == null) {
+                throw new RuntimeException("Could not find term with id " + termRowKey.toString());
+            }
             terms.add(term);
         }
         return terms;
+    }
+
+    public List<ColumnFamily> findMentions(Session session, String rowKey, long colFamOffset, long colFamLimit) {
+        return findByRowKeyWithColumnFamilyRegexOffsetAndLimit(session, rowKey, colFamOffset, colFamLimit, "urn.*");
     }
 
     @Override
@@ -66,6 +76,16 @@ public class TermRepository extends Repository<Term> {
 
         for (ArtifactTermIndex artifactTermIndex : artifactTermIndexHashMap.values()) {
             artifactTermIndexRepository.save(session, artifactTermIndex);
+        }
+    }
+
+    @Override
+    public void saveMany(Session session, Collection<Term> terms) {
+        for (Term term : terms) {
+            if (term == null) {
+                continue;
+            }
+            save(session, term);
         }
     }
 }

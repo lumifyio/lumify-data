@@ -41,7 +41,7 @@ public class TikaTextExtractorTest {
         Artifact artifact = new Artifact();
         artifact.getContent().setDocArtifactBytes(data.getBytes());
         artifact.getGenericMetadata().setMimeType("text/plain");
-        ExtractedInfo info = textExtractor.extract(session, artifact);
+        ArtifactExtractedInfo info = textExtractor.extract(session, artifact);
 
         assertEquals("Test Title", info.getSubject());
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");

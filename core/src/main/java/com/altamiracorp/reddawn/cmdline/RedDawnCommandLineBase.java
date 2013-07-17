@@ -151,7 +151,7 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
         if (getBlurHdfsPath() != null) {
             properties.setProperty(BlurSearchProvider.BLUR_PATH, getBlurHdfsPath());
         }
-        return RedDawnSession.create(properties);
+        return RedDawnSession.create(properties, null);
     }
 
     public String getZookeeperInstanceName() {

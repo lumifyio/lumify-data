@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.textExtraction;
 
 import com.altamiracorp.reddawn.model.Session;
+import com.altamiracorp.reddawn.model.videoFrames.VideoFrame;
 import com.altamiracorp.reddawn.textExtraction.util.GenericDateExtractor;
 import com.altamiracorp.reddawn.textExtraction.util.TikaMetadataUtils;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
@@ -79,7 +80,7 @@ public class TikaTextExtractor implements TextExtractor {
     }
 
     @Override
-    public ExtractedInfo extract(Session session, Artifact artifact) throws Exception {
+    public ArtifactExtractedInfo extract(Session session, Artifact artifact) throws Exception {
         if (artifact.getType() != ArtifactType.DOCUMENT) {
             return null;
         }
@@ -89,7 +90,7 @@ public class TikaTextExtractor implements TextExtractor {
             return null;
         }
 
-        ExtractedInfo result = new ExtractedInfo();
+        ArtifactExtractedInfo result = new ArtifactExtractedInfo();
 
         String text = IOUtils.toString(in);
         Parser parser = new AutoDetectParser();
@@ -120,6 +121,11 @@ public class TikaTextExtractor implements TextExtractor {
         result.setRetrievalTime(extractRetrievalTime(metadata));
 
         return result;
+    }
+
+    @Override
+    public VideoFrameExtractedInfo extract(Session session, VideoFrame videoFrame) throws Exception {
+        return null;
     }
 
     private String extractTextFromHtml(String text) throws BoilerpipeProcessingException {

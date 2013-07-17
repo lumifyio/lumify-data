@@ -1,6 +1,8 @@
 package com.altamiracorp.reddawn.ucd.statement;
 
 import com.altamiracorp.reddawn.model.*;
+import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,10 +36,6 @@ public class StatementRepository extends Repository<Statement> {
     @Override
     public String getTableName() {
         return Statement.TABLE_NAME;
-    }
-
-    public void save(Session session, Statement statement) {
-        super.save(session, statement);
     }
 
     public List<Statement> findBySourceAndTargetRowKey(Session session, String sourceEntityRowKey, String targetEntityRowKey) {

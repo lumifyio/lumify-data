@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.ucd.artifact;
 
 import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.Value;
+import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -28,10 +29,12 @@ public class ArtifactGenericMetadata extends ColumnFamily {
     public static final String WEBM_HDFS_FILE_PATH = "webm_hdfs_file_path";
     public static final String VIDEO_PREVIEW_IMAGE_HDFS_FILE_PATH = "video_preview_image_hdfs_file_path";
     public static final String POSTER_FRAME_HDFS_FILE_PATH = "poster_frame_hdfs_file_path";
+    public static final String AUDIO_HDFS_FILE_PATH = "audio_hdfs_file_path";
     public static final String LANGUAGE = "language";
     public static final String LOAD_TIMESTAMP = "load_timestamp";
     public static final String LOAD_TYPE = "load_type";
     public static final String MIME_TYPE = "mime_type";
+    public static final String MAPPING_JSON = "atc:mapping_json";
     public static final String SOURCE = "source";
     public static final String SOURCE_SUBTYPE = "source_subtype";
     public static final String SOURCE_TYPE = "source_type";
@@ -210,6 +213,15 @@ public class ArtifactGenericMetadata extends ColumnFamily {
         return this;
     }
 
+    public String getAudioHdfsFilePath() {
+        return Value.toString(get(AUDIO_HDFS_FILE_PATH));
+    }
+
+    public ArtifactGenericMetadata setAudioHdfsFilePath(String audioFileHdfsPath) {
+        set(AUDIO_HDFS_FILE_PATH, audioFileHdfsPath);
+        return this;
+    }
+
     public String getLanguage() {
         return Value.toString(get(LANGUAGE));
     }
@@ -251,6 +263,15 @@ public class ArtifactGenericMetadata extends ColumnFamily {
 
     public ArtifactGenericMetadata setMimeType(String mimeType) {
         set(MIME_TYPE, mimeType);
+        return this;
+    }
+
+    public JSONObject getMappingJson() {
+        return Value.toJson(get(MAPPING_JSON));
+    }
+
+    public ArtifactGenericMetadata setMappingJson(JSONObject mappingJson) {
+        set(MAPPING_JSON, mappingJson);
         return this;
     }
 

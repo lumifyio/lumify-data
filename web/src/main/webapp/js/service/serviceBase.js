@@ -28,7 +28,7 @@ define(['atmosphere'],
 
 		ServiceBase.prototype.getSocket = function () {
 			return document.$socket;
-		}
+		};
 
         ServiceBase.prototype._ajaxPost = function(options, callback) {
             options.type = options.type || "POST";
@@ -50,7 +50,7 @@ define(['atmosphere'],
             };
 
             options.error = options.error || function(xhr, textStatus, errorThrown) {
-                var err = new Error("Failed in request: " + options.url);
+                var err = new Error("Failed in request: " + options.resolvedUrl);
                 err.xhr = xhr;
                 err.textStatus = textStatus;
                 err.errorThrown = err.errorThrown;

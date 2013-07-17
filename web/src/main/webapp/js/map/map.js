@@ -27,9 +27,9 @@ define([
             this.on(document, 'mapEndZoom', this.onMapEndPan);
             this.on(document, 'mapUpdateBoundingBox', this.onMapUpdateBoundingBox);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
-            this.on(document, 'nodesAdd', this.onNodesAdd);
-            this.on(document, 'nodesUpdate', this.onNodesUpdate);
-            this.on(document, 'nodesDelete', this.onNodesDelete);
+            this.on(document, 'nodesAdded', this.onNodesAdded);
+            this.on(document, 'nodesUpdated', this.onNodesUpdated);
+            this.on(document, 'nodesDeleted', this.onNodesDeleted);
             this.on(document, 'windowResize', this.onMapEndPan);
             this.on(document, 'syncEnded', this.onSyncEnded);
         });
@@ -74,7 +74,7 @@ define([
             });
         };
 
-        this.onNodesAdd = function(evt, data) {
+        this.onNodesAdded = function(evt, data) {
             var self = this;
             data.nodes.forEach(function(node) {
                 self.updateOrAddNode(node);
@@ -114,14 +114,14 @@ define([
             });
         };
 
-        this.onNodesUpdate = function(evt, data) {
+        this.onNodesUpdated = function(evt, data) {
             var self = this;
             data.nodes.forEach(function(node) {
                 self.updateOrAddNode(node);
             });
         };
 
-        this.onNodesDelete = function(evt, data) {
+        this.onNodesDeleted = function(evt, data) {
             var self = this;
             data.nodes.forEach(function(node) {
                 self.deleteNode(node);
@@ -190,7 +190,7 @@ define([
                     var nodesUpdateData = {
                         nodes: [node]
                     };
-                    self.trigger(document, 'nodesUpdate', nodesUpdateData);
+                    self.trigger(document, 'updateNodes', nodesUpdateData);
                 });
             } else if(node.type == 'artifact') {
                 this.ucdService.getArtifactById(node.rowKey, function(err, artifact) {
@@ -209,7 +209,7 @@ define([
                         var nodesUpdateData = {
                             nodes: [node]
                         };
-                        self.trigger(document, 'nodesUpdate', nodesUpdateData);
+                        self.trigger(document, 'updateNodes', nodesUpdateData);
                     } else {
                         self.invalidMap();
                     }
@@ -248,7 +248,6 @@ define([
 
         this.onMapCenter = function(evt, data) {
             this.map(function(map) {
-                this.trigger(document, 'modeSelect', { mode: 'map' });
                 var latlon = new mxn.LatLonPoint(data.latitude, data.longitude);
                 map.setCenterAndZoom(latlon, 7);
             });

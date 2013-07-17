@@ -17,7 +17,9 @@ public class FormatUcd extends RedDawnCommandLineBase {
     protected int run(CommandLine cmd) throws Exception {
         RedDawnSession session = createRedDawnSession();
         session.getModelSession().deleteTables();
+        session.getSearchProvider().deleteTables();
         session.getModelSession().initializeTables();
+        session.getSearchProvider().initializeTables();
 
         session.close();
         return 0;

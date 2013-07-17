@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.statementExtraction;
 
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceTerm;
 import com.altamiracorp.reddawn.ucd.statement.Statement;
@@ -40,6 +41,9 @@ public class SentenceBasedStatementExtractorTest {
         Sentence sentence = new Sentence("urn:sha256:007d1437", 10, 53);
         sentence.getData().setArtifactId("urn:sha256:007d1437");
         sentence.getMetadata().setSecurityMarking("U");
+        sentence.getMetadata().setArtifactSubject("test subject");
+        sentence.getMetadata().setArtifactType(ArtifactType.DOCUMENT);
+        sentence.getData().setText("some text here");
         sentence.getData().setStart(10L);
         sentence.getData().setEnd(53L);
 
@@ -92,6 +96,9 @@ public class SentenceBasedStatementExtractorTest {
         Sentence sentence = new Sentence("urn:sha256:007d1437", 10, 53);
         sentence.getData().setArtifactId("urn:sha256:007d1437");
         sentence.getMetadata().setSecurityMarking("U");
+        sentence.getMetadata().setArtifactSubject("test subject");
+        sentence.getMetadata().setArtifactType(ArtifactType.DOCUMENT);
+        sentence.getData().setText("some text here");
         sentence.getData().setStart(10L);
         sentence.getData().setEnd(53L);
 
@@ -137,6 +144,9 @@ public class SentenceBasedStatementExtractorTest {
         Sentence sentence = new Sentence("urn:sha256:007d1437", 10, 53);
         sentence.getData().setArtifactId("urn:sha256:007d1437");
         sentence.getMetadata().setSecurityMarking("U");
+        sentence.getMetadata().setArtifactSubject("test subject");
+        sentence.getMetadata().setArtifactType(ArtifactType.DOCUMENT);
+        sentence.getData().setText("some text here");
         sentence.getData().setStart(10L);
         sentence.getData().setEnd(53L);
 

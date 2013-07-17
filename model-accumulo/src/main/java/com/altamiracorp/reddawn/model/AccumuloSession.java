@@ -4,12 +4,14 @@ import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
+import org.apache.accumulo.core.iterators.user.RegExFilter;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,27 +33,37 @@ public class AccumuloSession extends Session {
     private final Connector connector;
     private final FileSystem hdfsFileSystem;
     private final String hdfsRootDir;
+    private final Mapper.Context context;
     private long maxMemory = 1000000L;
     private long maxLatency = 1000L;
     private int maxWriteThreads = 10;
 
-    public AccumuloSession(Connector connector, FileSystem hdfsFileSystem, String hdfsRootDir, AccumuloQueryUser queryUser) {
+    public AccumuloSession(Connector connector, FileSystem hdfsFileSystem, String hdfsRootDir, AccumuloQueryUser queryUser, Mapper.Context context) {
         super(queryUser);
         this.hdfsFileSystem = hdfsFileSystem;
         this.hdfsRootDir = hdfsRootDir;
         this.connector = connector;
+        this.context = context;
     }
 
     @Override
     void save(Row row) {
         try {
-            BatchWriter writer = connector.createBatchWriter(row.getTableName(), getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
-            AccumuloHelper.addRowToWriter(writer, row);
-            writer.flush();
-            writer.close();
+            if (context != null) {
+                context.write(new Text(row.getTableName()), row);
+            } else {
+                BatchWriter writer = connector.createBatchWriter(row.getTableName(), getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
+                AccumuloHelper.addRowToWriter(writer, row);
+                writer.flush();
+                writer.close();
+            }
         } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
         } catch (MutationsRejectedException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -59,15 +71,26 @@ public class AccumuloSession extends Session {
     @Override
     void saveMany(String tableName, Collection<Row> rows) {
         try {
-            BatchWriter writer = connector.createBatchWriter(tableName, getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
-            for (Row row : rows) {
-                AccumuloHelper.addRowToWriter(writer, row);
+            if (context != null) {
+                Text tableNameText = new Text(tableName);
+                for (Row row : rows) {
+                    context.write(tableNameText, row);
+                }
+            } else {
+                BatchWriter writer = connector.createBatchWriter(tableName, getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
+                for (Row row : rows) {
+                    AccumuloHelper.addRowToWriter(writer, row);
+                }
+                writer.flush();
+                writer.close();
             }
-            writer.flush();
-            writer.close();
         } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
         } catch (MutationsRejectedException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -91,6 +114,22 @@ public class AccumuloSession extends Session {
     }
 
     @Override
+    List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, QueryUser queryUser) {
+        try {
+            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
+            scanner.setRange(new Range());
+
+            IteratorSetting iter = new IteratorSetting(15, "regExFilter", RegExFilter.class);
+            RegExFilter.setRegexs(iter, rowKeyRegex, null, null, null, false);
+            scanner.addScanIterator(iter);
+
+            return AccumuloHelper.scannerToRows(tableName, scanner);
+        } catch (TableNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     Row findByRowKey(String tableName, String rowKey, QueryUser queryUser) {
         try {
             Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
@@ -103,6 +142,17 @@ public class AccumuloSession extends Session {
                 throw new RuntimeException("Too many rows returned for a single row query (rowKey: " + rowKey + ", size: " + rows.size() + ")");
             }
             return rows.get(0);
+        } catch (TableNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
+        try {
+            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
+            scanner.setRange(new Range(rowKey));
+            return AccumuloHelper.scannerToColumnFamiliesFilteredByRegex(scanner, colFamOffset, colFamLimit, colFamRegex);
         } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
         }

@@ -30,11 +30,36 @@ public class FFMPEGVideoConversion {
     public void convert(RedDawnSession session, Artifact artifact) throws IOException, InterruptedException {
         File videoFile = writeFileToTemp(session, artifact);
         extractCloseCaptioning(session, videoFile, artifact);
+        extractAudio(session, videoFile, artifact);
         encodeMp4(session, videoFile, artifact);
         encodeWebM(session, videoFile, artifact);
         extractPosterFrame(session, videoFile, artifact);
         extractFramesForAnalysis(session, videoFile, artifact);
         videoFile.delete();
+    }
+
+    private void extractAudio(RedDawnSession session, File file, Artifact artifact) throws IOException, InterruptedException {
+        File audioFile = File.createTempFile("audio_", ".mp3");
+
+        // pass 1
+        LOGGER.info("Extracting audio from video " + file.getAbsolutePath() + " to " + audioFile.getAbsolutePath());
+        ffmpeg(new String[]{
+                "-i", file.getAbsolutePath(),
+                "-vn",
+                //"-ac", "2",
+                "-ar", "44100",
+                "-ab", "320k",
+                "-f", "mp3",
+                "-y",
+                audioFile.getAbsolutePath()
+        });
+
+        // save file
+        InputStream audioFileIn = new FileInputStream(audioFile);
+        SaveFileResults audioFileSaveResults = artifactRepository.saveFile(session.getModelSession(), audioFileIn);
+        artifact.getGenericMetadata().setAudioHdfsFilePath(audioFileSaveResults.getFullPath());
+        audioFileIn.close();
+        audioFile.delete();
     }
 
     private void extractCloseCaptioning(RedDawnSession session, File videoFile, Artifact artifact) throws IOException, InterruptedException {
