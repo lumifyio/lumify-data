@@ -200,6 +200,8 @@ define([
                 this.currentRowKey = null;
             } else if (data.type == 'entity') {
                 this.onRelatedEntitySelected (evt, data);
+            } else if (data.type == 'artifact'){
+                this.onRelatedArtifactSelected (evt, data);
             } else {
                 console.error ('Unhandled type: ' + data.type);
                 return this.trigger (document, 'error', { message: message });
@@ -242,6 +244,41 @@ define([
             });
         };
 
+        this.onRelatedArtifactSelected = function (evt, data){
+            this.openUnlessAlreadyOpen (data, function (finished){
+                var self = this;
+                new UCD ().getArtifactById (data.rowKey, function (err, artifact){
+                    finished (!err);
+                    if (err){
+                        console.error ('Error', err);
+                        return self.trigger (document, 'error', { message: err.toString () });
+                    }
+
+                    self.getRelatedTerms (data.rowKey, function (relatedTerms){
+                        var termData = {};
+                        termData.key = artifact.key;
+                        termData.relatedTerms = relatedTerms;
+                        var countX = data.originalPosition.x * 3/2;
+                        var countY = data.originalPosition.y * 3/2;
+                        termData.relatedTerms.forEach (function (relatedTerm){
+                            var dropPosition = {x: countX + 10, y: countY + 20};
+                            self.trigger (document, 'addNodes', {nodes:[{
+                                    title: relatedTerm.title,
+                                    rowKey: relatedTerm.rowKey,
+                                    subType: relatedTerm.subType,
+                                    type: relatedTerm.type,
+                                    dropPosition: dropPosition,
+                                    selected: true
+                                }]
+                            });
+                            countX = countX + 5;
+                            countY = countY + 5;
+                        });
+                    });
+                });
+            });
+        };
+
         this.getRelatedEntities = function (key, callback){
             var self = this;
             new UCD().getRelatedEntitiesBySubject (key, function (err, relatedEntities){
@@ -253,6 +290,18 @@ define([
                 callback (relatedEntities);
             });
         };
+
+        this.getRelatedTerms = function (key, callback){
+            var self = this;
+            new UCD().getRelatedTermsFromArtifact (key, function (err, relatedTerms){
+                if (err){
+                    console.error ('Error', err);
+                    return self.trigger (document, 'error', { message: err.toString() });
+                }
+                console.log ('Related Terms', relatedTerms);
+                callback (relatedTerms);
+            });
+        }
 
         this.onMentionArtifactSelected = function(evt, data) {
             var $target = $(evt.target).parents('a');
