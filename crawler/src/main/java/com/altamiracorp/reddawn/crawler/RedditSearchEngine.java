@@ -3,38 +3,43 @@ package com.altamiracorp.reddawn.crawler;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeMap;
 
 public class RedditSearchEngine extends SearchEngine {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedditSearchEngine.class);
 
     public RedditSearchEngine(Crawler crawler) {
         super(crawler);
     }
 
     @Override
-    protected ArrayList<String> search(Query q, int maxResults) {
-        ArrayList<String> results = new ArrayList<String>();
+    protected List<String> search(Query q, int maxResults) {
+        ArrayList<String> searchResults = new ArrayList<String>();
         String queryUrl = createQueryString(q, maxResults);
 
         try {
             JSONObject resultsJSON = new JSONObject(SearchEngine.getWebpage(queryUrl));
             JSONArray childrenEntries = resultsJSON.getJSONObject("data").getJSONArray("children");
             for (int i = 0; i < maxResults; i++) {
-                results.add(childrenEntries.getJSONObject(i).getJSONObject("data").getString("url"));
+                searchResults.add(childrenEntries.getJSONObject(i).getJSONObject("data").getString("url"));
             }
         } catch (JSONException e) {
-            System.err.println("Results not successfully processed as JSON");
-            return results;
+            LOGGER.error("Results not successfully processed as JSON");
+            return searchResults;
         }
         try {
-            getCrawler().crawl(results, q);
+            getCrawler().crawl(searchResults, q);
         } catch (Exception e) {
-            throw new RuntimeException("The crawler failed to crawl the " + getEngineName() + " on query \"" +
+            LOGGER.error("The crawler failed to crawl the " + getEngineName() + " on query \"" +
                     q.getQueryString() + "\" result set");
         }
 
-        return results;
+        return searchResults;
     }
 
     protected String createQueryString(Query q, int maxResults) {

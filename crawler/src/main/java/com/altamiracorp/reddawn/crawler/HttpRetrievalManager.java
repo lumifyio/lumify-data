@@ -8,6 +8,8 @@ import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
 
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -27,17 +29,18 @@ public class HttpRetrievalManager {
         httpClient = new DefaultHttpClient(cm);
     }
 
-    public void addJob(String url, String header, String directoryPath) {
-        HttpRetriever httpRetriever = createHttpRetriever(httpClient, header, directoryPath, url);
+    public void addJob(String url, String queryInfo, String directoryPath) {
+        HttpRetriever httpRetriever = new HttpRetriever(httpClient, queryInfo, directoryPath, url);
         executor.submit(httpRetriever);
+    }
+
+    public void addPhotoJob(Map.Entry<String, TreeMap<String, String>> urlAndInfo, String queryInfo, String directoryPath) {
+        PhotoHttpRetriever photoHttpRetriever =  new PhotoHttpRetriever(httpClient, queryInfo, directoryPath, urlAndInfo);
+        executor.submit(photoHttpRetriever);
     }
 
     public void shutDownWhenFinished() throws InterruptedException {
         executor.shutdown();
         executor.awaitTermination(5, TimeUnit.MINUTES);
-    }
-
-    protected HttpRetriever createHttpRetriever(HttpClient httpClient, String header, String directoryPath, String url) {
-        return new HttpRetriever(httpClient, header, directoryPath, url);
     }
 }

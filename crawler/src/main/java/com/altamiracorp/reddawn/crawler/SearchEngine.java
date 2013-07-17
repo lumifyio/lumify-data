@@ -4,6 +4,8 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,8 +16,10 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public abstract class SearchEngine {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchEngine.class);
 
     private ArrayList<Query> queryQueue;
     private ArrayList<Integer> maxResultQueue;
@@ -40,16 +44,16 @@ public abstract class SearchEngine {
         return true;
     }
 
-    public ArrayList<ArrayList<String>> runQueue() {
-        ArrayList<ArrayList<String>> results = new ArrayList<ArrayList<String>>();
+    public ArrayList<List<String>> runQueue() {
+        ArrayList<List<String>> results = new ArrayList<List<String>>();
         for (int i = 0; i < queryQueue.size(); i++) {
             results.add(runQuery(queryQueue.get(i), maxResultQueue.get(i)));
         }
         return results;
     }
 
-    public ArrayList<String> runQuery(Query q, int maxResults) {
-        System.out.println("\n\033[1m" + queryHeader(q) + "\033[0m");
+    public List<String> runQuery(Query q, int maxResults) {
+        LOGGER.info("\n\033[1m" + queryHeader(q) + "\033[0m");
         return search(q, maxResults);
     }
 
@@ -61,7 +65,7 @@ public abstract class SearchEngine {
      * @param maxResults The number of results to return
      * @return List of links retrieved from the search
      */
-    protected abstract ArrayList<String> search(Query q, int maxResults);
+    protected abstract List<String> search(Query q, int maxResults);
 
     public Crawler getCrawler() {
         return crawler;
@@ -118,10 +122,13 @@ public abstract class SearchEngine {
         try {
             fullURL = new URL(queryURL);
         } catch (MalformedURLException e) {
-            System.err.println("Malformed search URL");
+            LOGGER.error("Malformed search URL");
             return null;
         }
+        return getWebPageContent(fullURL);
+    }
 
+    public static String getWebPageContent(URL fullURL) {
         StringBuilder builder = new StringBuilder();
         try {
             URLConnection connection = fullURL.openConnection();
@@ -131,7 +138,7 @@ public abstract class SearchEngine {
                 builder.append(line);
             }
         } catch (IOException e) {
-            System.err.println("The http connection failed");
+            LOGGER.error("The http connection failed");
             return null;
         }
         return builder.toString();
@@ -144,7 +151,7 @@ public abstract class SearchEngine {
         try {
             xml = saxReader.read(url);
         } catch (DocumentException e) {
-            System.err.println("The specified URL (" + url + ") does not produce a valid document");
+            LOGGER.error("The specified URL (" + url + ") does not produce a valid document");
             return null;
         }
         List items = xml.getRootElement().element("channel").elements("item");

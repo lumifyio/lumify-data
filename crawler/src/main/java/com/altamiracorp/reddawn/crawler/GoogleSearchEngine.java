@@ -2,11 +2,15 @@ package com.altamiracorp.reddawn.crawler;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 public class GoogleSearchEngine extends SearchEngine {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoogleSearchEngine.class);
 
     private String baseURL;
     final int RESULTS_PER_SEARCH = 10;
@@ -25,9 +29,10 @@ public class GoogleSearchEngine extends SearchEngine {
                 "&alt=json";
     }
 
-    protected ArrayList<String> search(Query query, int maxResults) {
+    @Override
+    protected List<String> search(Query query, int maxResults) {
+        ArrayList<String> searchResults = new ArrayList<String>();
         String queryString = getQueryString(query);
-        ArrayList<String> links = new ArrayList<String>();
 
         for (int searchCount = 0; searchCount * RESULTS_PER_SEARCH < maxResults; searchCount++) {
             String queryURL = queryString + getResultRange(searchCount, maxResults);
@@ -37,22 +42,22 @@ public class GoogleSearchEngine extends SearchEngine {
 
                 for (int i = 0; i < results.length(); i++) {
                     JSONObject entry = results.getJSONObject(i);
-                    links.add(entry.getString("link"));
+                    searchResults.add(entry.getString("link"));
                 }
             } catch (Exception e) {
-                System.err.println("The response from the server for results " + (searchCount * RESULTS_PER_SEARCH + 1) +
+                LOGGER.error("The response from the server for results " + (searchCount * RESULTS_PER_SEARCH + 1) +
                         "-" + ((searchCount + 1) * RESULTS_PER_SEARCH) + " is not valid JSON (the search performed is" +
                         "likely invalid)");
-                return links; // Quit this search
+                return searchResults; // Quit this search
             }
         }
         try {
-            getCrawler().crawl(links, query);
+            getCrawler().crawl(searchResults, query);
         } catch (Exception e) {
             throw new RuntimeException("The crawler failed to crawl the " + getEngineName() + " \"" +
                     query.getQueryString() + "\" result set");
         }
-        return links;
+        return searchResults;
     }
 
     protected String getQueryString(Query query) {

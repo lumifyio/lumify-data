@@ -7,21 +7,26 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+
 public class HttpRetriever implements Runnable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HttpRetriever.class);
+
     private HttpClient httpClient;
-    private String header;
+    private String queryInfo;
     private String directoryPath;
     private String url;
     private HttpGet httpGet;
 
-    public HttpRetriever(HttpClient httpClient, String header, String directoryPath, String url) {
+    public HttpRetriever(HttpClient httpClient, String queryInfo, String directoryPath, String url) {
         this.httpClient = httpClient;
-        this.header = header;
+        this.queryInfo = queryInfo;
         this.directoryPath = directoryPath;
         this.url = url;
         httpGet = new HttpGet(url);
@@ -29,18 +34,35 @@ public class HttpRetriever implements Runnable {
 
     @Override
     public void run() {
+        writeDocumentToFile();
+    }
+
+    private void writeDocumentToFile() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(header);
+        stringBuilder.append(getHeader(queryInfo));
         StringBuilder content = getContent();
         if (content.toString().equals("")) {
             return;
         }
         stringBuilder.append(content);
         if (writeToFile(stringBuilder)) {
-            System.out.println("Processed: " + url);
+            LOGGER.info("Processed: " + url);
         } else {
-            System.err.println("\033[31m[Error] Problem writing file to: " + directoryPath + "\033[0m");
+            LOGGER.error("\033[31m[Error] Problem writing file to: " + directoryPath + "\033[0m");
         }
+    }
+
+    private String getHeader(String queryInfo) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("<meta property=\"atc:result-url\" content=\"" + url + "\">\n");
+            stringBuilder.append("<meta property=\"atc:retrieval-timestamp\" content=\"" + getCurrentTimestamp() + "\">\n");
+            stringBuilder.append("<meta property=\"atc:query-info\" content=\"" + queryInfo + "\">\n");
+            return stringBuilder.toString();
+    }
+
+    public long getCurrentTimestamp() {
+        long unixTime = System.currentTimeMillis() / 1000L;
+        return unixTime;
     }
 
     private boolean isSuccessfulConnection(HttpResponse response) {
@@ -48,7 +70,7 @@ public class HttpRetriever implements Runnable {
         String[] statusInfo = status.split(" ");
         int statusNumber = Integer.parseInt(statusInfo[1]);
         if (statusNumber >= 400 && statusNumber < 500) {
-            System.err.println("\033[31m[Error] Page not found: " + httpGet.getURI() + "\033[0m");
+            LOGGER.error("\033[31m[Error] Page not found: " + httpGet.getURI() + "\033[0m");
             return false;
         }
         return true;
@@ -65,7 +87,7 @@ public class HttpRetriever implements Runnable {
             stringBuilder.append(getResponseContent(response));
         } catch (IOException ex) {
             httpGet.abort();
-            System.err.println("\033[31m[Error] Problem with Http Request on URL: " + httpGet.getURI() + "\033[0m");
+            LOGGER.error("\033[31m[Error] Problem with Http Request on URL: " + httpGet.getURI() + "\033[0m");
             return new StringBuilder();
         }
         return stringBuilder;
@@ -102,7 +124,7 @@ public class HttpRetriever implements Runnable {
     private boolean writeToFile(StringBuilder stringBuilder) {
         BufferedWriter fwriter = null;
         try {
-            String fileName = getFileName(stringBuilder);
+            String fileName = Utils.getFileName(stringBuilder);
             File file = new File(directoryPath + fileName);
             fwriter = new BufferedWriter(new FileWriter(file));
             fwriter.append(stringBuilder);
@@ -119,10 +141,5 @@ public class HttpRetriever implements Runnable {
         return true;
     }
 
-    private String getFileName(StringBuilder sb) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-        byte[] bytesOfMessage = sb.toString().getBytes("UTF-8");
-        byte[] hash = messageDigest.digest(bytesOfMessage);
-        return Hex.encodeHexString(hash);
-    }
+
 }

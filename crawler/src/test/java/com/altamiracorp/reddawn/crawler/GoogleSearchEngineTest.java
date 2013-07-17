@@ -7,6 +7,7 @@ import org.junit.runners.JUnit4;
 import org.mockito.Matchers;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 
 import static junit.framework.Assert.assertEquals;
@@ -54,7 +55,7 @@ public class GoogleSearchEngineTest {
     public void testSearchInvalid() throws Exception {
         GoogleSearchEngine engineSpy = spy(engine);
         doReturn("http://www.google.com").when(engineSpy).getQueryString(any(Query.class));
-        ArrayList<String> results = engineSpy.search(mockQuery, 10);
+        List<String> results = engineSpy.search(mockQuery, 10);
         verify(mockCrawler, times(0)).crawl(Matchers.<ArrayList<String>>any(), any(Query.class));
         assertEquals("An invalid JSON response did not return an empty link set", 0, results.size());
     }

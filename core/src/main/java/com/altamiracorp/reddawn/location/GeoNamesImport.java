@@ -34,7 +34,7 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
     }
 
     @Override
-    protected void processOptions(CommandLine cmd) {
+    protected void processOptions(CommandLine cmd) throws Exception {
         super.processOptions(cmd);
         this.fileName = cmd.getOptionValue("filename");
     }
