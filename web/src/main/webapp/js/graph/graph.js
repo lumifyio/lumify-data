@@ -601,8 +601,7 @@ define([
                   .selector('edge')
                     .css({
                       'width': 2,
-                      'target-arrow-shape': 'triangle',
-                      'source-arrow-shape': 'triangle'
+                      'target-arrow-shape': 'triangle'
                     }),
 
                 ready: function(){
