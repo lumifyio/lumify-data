@@ -36,7 +36,7 @@ public class AccumuloHelper {
         mutation.put(columnFamilyName, column.getName(), value);
     }
 
-    public static List<Row> scannerToRows(String tableName, Scanner scanner) {
+    public static List<Row> scannerToRows(String tableName, ScannerBase scanner) {
         ArrayList<Row> rows = new ArrayList<Row>();
         RowIterator rowIterator = new RowIterator(scanner);
         while (rowIterator.hasNext()) {
@@ -45,6 +45,8 @@ public class AccumuloHelper {
         }
         return rows;
     }
+
+
 
     public static List<ColumnFamily> scannerToColumnFamiliesFilteredByRegex(Scanner scanner,
                                                                             long colFamOffset, long colFamLimit, String colFamRegex) {
