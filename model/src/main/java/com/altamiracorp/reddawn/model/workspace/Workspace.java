@@ -4,7 +4,7 @@ import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.model.RowKey;
 
 public class Workspace extends Row<WorkspaceRowKey> {
-    public static final String TABLE_NAME = "Workspace";
+    public static final String TABLE_NAME = "atc_Workspace";
 
     public Workspace(WorkspaceRowKey rowKey) {
         super(TABLE_NAME, rowKey);
