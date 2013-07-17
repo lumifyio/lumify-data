@@ -43,7 +43,34 @@ define([
             var options = $.extend({ fit:false }, opts);
             var addedNodes = [];
             var self = this;
+            var LAYOUT_OPTIONS = {
+                // Customize layout options
+                random: { padding: FIT_PADDING },
+                arbor: { friction: 0.6, repulsion: 5000 * pixelScale, targetFps: 60, stiffness: 300 }
+            };
+
             this.cy(function(cy) {
+                var unselected = cy.nodes().filter(':unselected');
+                unselected.lock ();
+                var opts = $.extend({
+                    name:'grid',
+                    fit: false,
+                    stop: function() {
+                        if (unselected) {
+                            unselected.unlock();
+                        }
+                        var updates = $.map(cy.nodes(), function(node) {
+                            return {
+                                rowKey: node.data('rowKey'),
+                                graphPosition: self.pixelsToPoints(node.position())
+                            };
+                        });
+                        self.trigger(document, 'updateNodes', { nodes:updates });
+                    }
+                }, LAYOUT_OPTIONS['grid'] || {});
+
+                cy.layout(opts);
+
                 nodes.forEach(function(node) {
                     var title = node.title;
                     if (title.length > 15) {
