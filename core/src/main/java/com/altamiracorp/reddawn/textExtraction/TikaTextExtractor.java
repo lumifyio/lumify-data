@@ -12,6 +12,8 @@ import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.tika.config.TikaConfig;
+import org.apache.tika.detect.Detector;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
@@ -93,7 +95,7 @@ public class TikaTextExtractor implements TextExtractor {
         ArtifactExtractedInfo result = new ArtifactExtractedInfo();
 
         String text = IOUtils.toString(in);
-        Parser parser = new AutoDetectParser();
+        Parser parser = new AutoDetectParser(); // TODO: the content type should already be detected. To speed this up we should be able to grab the parser from content type.
         BodyContentHandler handler = new BodyContentHandler(10000000);
         Metadata metadata = new Metadata();
         ParseContext ctx = new ParseContext();

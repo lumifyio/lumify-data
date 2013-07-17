@@ -43,7 +43,7 @@ public class FileImport extends RedDawnCommandLineBase {
     }
 
     @Override
-    protected void processOptions(CommandLine cmd) {
+    protected void processOptions(CommandLine cmd) throws Exception {
         super.processOptions(cmd);
         this.directory = cmd.getOptionValue("directory");
         if (this.directory == null) throw new RuntimeException("No directory provided to FileImport");

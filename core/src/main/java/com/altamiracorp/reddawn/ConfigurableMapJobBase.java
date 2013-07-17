@@ -53,7 +53,7 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
     }
 
     @Override
-    protected void processOptions(CommandLine cmd) {
+    protected void processOptions(CommandLine cmd) throws Exception {
         super.processOptions(cmd);
 
         if (hasConfigurableClassname()) {

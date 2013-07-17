@@ -23,7 +23,7 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
--Xmx1024M \
+-Xmx4096M \
 com.altamiracorp.reddawn.statementExtraction.StatementExtractionMR \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
