@@ -223,21 +223,19 @@ define([
                         entityDetailsData.key = entity.key;
                         entityDetailsData.relatedEntities = relatedEntities;
                         // TO DO: FIX LAYOUT OF RELATED ITEMS!!!!!!!!
-                        var countX = data.originalPosition.x * 3 / 2;
-                        var countY = data.originalPosition.y * 3 / 2;
+                        var countX = data.originalPosition.x;
+                        var countY = data.originalPosition.y;
                         entityDetailsData.relatedEntities.forEach (function (relatedEntity){
-                            var dropPosition = {x: countX + 10, y: countY + 20};
+                            var graphPosition = {x: 100, y: 100};
                             self.trigger (document, 'addNodes', {nodes: [{
                                     title: relatedEntity.title,
                                     rowKey: relatedEntity.rowKey,
                                     subType: relatedEntity.subType,
                                     type: relatedEntity.type,
-                                    dropPosition: dropPosition,
+                                    graphPosition: graphPosition,
                                     selected: true
                                 }]
                             });
-                            countX = countX + 5;
-                            countY = countY + 5;
                         });
                     });
                 });
