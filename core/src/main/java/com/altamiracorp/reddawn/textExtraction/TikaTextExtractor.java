@@ -10,9 +10,7 @@ import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
-import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
@@ -23,7 +21,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -102,11 +99,11 @@ public class TikaTextExtractor implements TextExtractor {
         try {
 
             ArtifactExtractedInfo result = new ArtifactExtractedInfo();
-
-            Parser parser = new AutoDetectParser();
+            Parser parser = new AutoDetectParser(); // TODO: the content type should already be detected. To speed this up we should be able to grab the parser from content type.
             BodyContentHandler handler = new BodyContentHandler(10000000);
             Metadata metadata = new Metadata();
             ParseContext ctx = new ParseContext();
+
             parser.parse(in, handler, metadata, ctx);
 
             // since we are using the AutoDetectParser, it is safe to assume that
@@ -130,7 +127,7 @@ public class TikaTextExtractor implements TextExtractor {
             result.setRetrievalTime(extractRetrievalTime(metadata));
 
             String customImageMetadata = extractTextField(metadata, customFlickrMetadataKeys);
-            if(customImageMetadata != null && !customImageMetadata.equals("")) {
+            if (customImageMetadata != null && !customImageMetadata.equals("")) {
                 try {
                     JSONObject customImageMetadataJson = new JSONObject(customImageMetadata);
                     result.setText(new JSONObject(customImageMetadataJson.get("description").toString()).get("_content") +
@@ -139,7 +136,7 @@ public class TikaTextExtractor implements TextExtractor {
                             .extractSingleDate(customImageMetadataJson.get("lastupdate").toString()));
                     result.setRetrievalTime(Long.parseLong(customImageMetadataJson.get("atc:retrieval-timestamp").toString()));
                     result.setSubject(customImageMetadataJson.get("title").toString());
-                } catch(JSONException e) {
+                } catch (JSONException e) {
                     LOGGER.warn("Image returned invalid custom metadata");
                 }
             }

@@ -49,9 +49,7 @@ public class VideoFrameTextExtractionMR extends ConfigurableMapJobBase {
                 textExtractor = (TextExtractor) context.getConfiguration().getClass(CONF_TEXT_EXTRACTOR_CLASS, TikaTextExtractor.class).newInstance();
                 textExtractor.setup(context);
                 session = ConfigurableMapJobBase.createRedDawnSession(context);
-            } catch (InstantiationException e) {
-                throw new IOException(e);
-            } catch (IllegalAccessException e) {
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }

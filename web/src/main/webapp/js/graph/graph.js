@@ -6,12 +6,19 @@ define([
     './renderer',
     'tpl!./graph',
     'util/throttle',
-    'util/previews'
-], function(defineComponent, cytoscape, Renderer, template, throttle, previews) {
+    'util/previews',
+    'util/retina'
+], function(
+    defineComponent,
+    cytoscape,
+    Renderer,
+    template,
+    throttle,
+    previews,
+    retina) {
     'use strict';
 
     var FIT_PADDING = 50;
-    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
     return defineComponent(Graph);
 
@@ -65,10 +72,10 @@ define([
 
                     var needsUpdate = false;
                     if (node.graphPosition) {
-                        cyNodeData.position = self.pointsToPixels(node.graphPosition);
+                        cyNodeData.position = retina.pointsToPixels(node.graphPosition);
                     } else if (node.dropPosition) {
                         var offset = self.$node.offset();
-                        cyNodeData.renderedPosition = self.pointsToPixels({
+                        cyNodeData.renderedPosition = retina.pointsToPixels({
                             x: node.dropPosition.x - offset.left,
                             y: node.dropPosition.y - offset.top
                         });
@@ -80,12 +87,12 @@ define([
                     if (needsUpdate) {
                         addedNodes.push({
                             rowKey: node.rowKey,
-                            graphPosition: self.pixelsToPoints(cyNode.position())
+                            graphPosition: retina.pixelsToPoints(cyNode.position())
                         });
                     }
 
                     if (node.type === 'artifact') {
-                        previews.generatePreview(node.rowKey, { width:178 * pixelScale }, function(dataUri) {
+                        previews.generatePreview(node.rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
                             if (dataUri) {
                                 cyNode.css('background-image', dataUri);
                             }
@@ -145,7 +152,7 @@ define([
                                 return node.data('rowKey') === updatedNode.rowKey;
                             })
                             .each(function(idx, node) {
-                                node.position( self.pointsToPixels(updatedNode.graphPosition) );
+                                node.position( retina.pointsToPixels(updatedNode.graphPosition) );
                             });
                     });
             });
@@ -208,7 +215,7 @@ define([
             var LAYOUT_OPTIONS = {
                 // Customize layout options
                 random: { padding: FIT_PADDING },
-                arbor: { friction: 0.6, repulsion: 5000 * pixelScale, targetFps: 60, stiffness: 300 }
+                arbor: { friction: 0.6, repulsion: 5000 * retina.devicePixelRatio, targetFps: 60, stiffness: 300 }
             };
             this.cy(function(cy) {
 
@@ -228,7 +235,7 @@ define([
                         var updates = $.map(cy.nodes(), function(node) {
                             return {
                                 rowKey: node.data('rowKey'),
-                                graphPosition: self.pixelsToPoints(node.position())
+                                graphPosition: retina.pixelsToPoints(node.position())
                             };
                         });
                         self.trigger(document, 'updateNodes', { nodes:updates });
@@ -348,7 +355,7 @@ define([
             this.cy(function(cy) {
                 var nodes = event.cyTarget.selected() ? cy.nodes().filter(':selected') : event.cyTarget;
                 this.grabbedNodes = nodes.each(function() {
-                    var p = self.pixelsToPoints(this.position());
+                    var p = retina.pixelsToPoints(this.position());
                     this.data('originalPosition', { x:p.x, y:p.y });
                     this.data('freed', false );
                 });
@@ -363,7 +370,7 @@ define([
                 nodes = this.grabbedNodes;
 
             nodes.each(function(i, e) {
-                var p = self.pixelsToPoints(this.position());
+                var p = retina.pixelsToPoints(this.position());
                 if ( !e.data('freed') ) {
                     dup = false;
                 }
@@ -379,7 +386,7 @@ define([
             // If the user didn't drag more than a few pixels, select the
             // object, it could be an accidental mouse move
             var target = event.cyTarget, 
-                p = self.pixelsToPoints(target.position()),
+                p = retina.pixelsToPoints(target.position()),
                 originalPosition = target.data('originalPosition'),
                 dx = p.x - originalPosition.x,
                 dy = p.y - originalPosition.y,
@@ -462,20 +469,6 @@ define([
             });
         };
 
-        this.pixelsToPoints = function(position) {
-            return {
-                x: position.x / pixelScale,
-                y: position.y / pixelScale
-            };
-        };
-
-        this.pointsToPixels = function(position) {
-            return {
-                x: position.x * pixelScale,
-                y: position.y * pixelScale
-            };
-        };
-
         this.after('initialize', function() {
             var self = this;
             this.$node.html(template({}));
@@ -508,8 +501,8 @@ define([
                   .selector('node.location,node.place')
                     .css({
                       'background-image': '/img/pin@2x.png',
-                      'width': 35 * pixelScale,
-                      'height': 35 * pixelScale,
+                      'width': 35 * retina.devicePixelRatio,
+                      'height': 35 * retina.devicePixelRatio,
                       'border-color': 'white',
                       'shape': 'none',
                       'border-width': 0
@@ -523,8 +516,8 @@ define([
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'rectangle',
-                      'width': 60 * pixelScale,
-                      'height': 60 * 1.2 * pixelScale,
+                      'width': 60 * retina.devicePixelRatio,
+                      'height': 60 * 1.2 * retina.devicePixelRatio,
                       'border-color': '#ccc',
                       'border-width': 1
                     })
@@ -532,8 +525,8 @@ define([
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'movieStrip',
-                      'width': 60 * 1.3 * pixelScale,
-                      'height': 60 * pixelScale,
+                      'width': 60 * 1.3 * retina.devicePixelRatio,
+                      'height': 60 * retina.devicePixelRatio,
                       'border-color': '#ccc',
                       'border-width': 1
                     })
@@ -541,18 +534,18 @@ define([
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'rectangle',
-                      'width': 60 * 1.3 * pixelScale,
-                      'height': 60 * pixelScale,
+                      'width': 60 * 1.3 * retina.devicePixelRatio,
+                      'height': 60 * retina.devicePixelRatio,
                       'border-color': '#ccc',
                       'border-width': 1
                     })
                   .selector('node')
                     .css({
-                      'width': 30 * pixelScale,
-                      'height': 30 * pixelScale,
+                      'width': 30 * retina.devicePixelRatio,
+                      'height': 30 * retina.devicePixelRatio,
                       'content': 'data(title)',
                       'font-family': 'helvetica',
-                      'font-size': 18 * pixelScale,
+                      'font-size': 18 * retina.devicePixelRatio,
                       'text-outline-width': 2,
                       'text-outline-color': 'white',
                       'text-valign': 'bottom',

@@ -86,12 +86,8 @@ define([
 				fitH);
 
 		context.restore();
-
-        if ( node._private.style.shape.value !== 'none' &&
-                node._private.style.shape.value !== 'movieStrip') {
-            context.stroke();
-        }
 	};
+
 
     return Renderer;
 });
