@@ -1,6 +1,7 @@
 
 define([
     'flight/lib/component',
+    './edit/dropdown',
     'service/ucd',
     'util/video/scrubber',
     'underscore',
@@ -9,11 +10,11 @@ define([
     'tpl!./entityToEntityRelationshipDetails',
     'tpl!./entityToEntityRelationshipExcerpts',
     'tpl!./multipleSelection',
-    'tpl!./popover',
     'tpl!./entityDetailsMentions',
     'tpl!./style'
 ], function(
     defineComponent,
+    EditDropdown,
     UCD,
     VideoScrubber,
     _,
@@ -22,7 +23,6 @@ define([
     entityToEntityRelationshipDetailsTemplate,
     entityToEntityRelationshipExcerptsTemplate,
     multipleSelectionTemplate,
-    popoverTemplate,
     entityDetailsMentionsTemplate,
     styleTemplate) {
     'use strict';
@@ -60,6 +60,7 @@ define([
                 highlightTypeSelector: this.onHighlightTypeClicked,
                 moreMentionsSelector: this.onRequestMoreMentions,
                 mentionArtifactSelector: this.onMentionArtifactSelected,
+                entitiesSelector: this.onEntityClicked,
                 entityToEntityRelationshipSelector: this.onEntityToEntityRelationshipClicked
             });
 
@@ -70,21 +71,34 @@ define([
         });
 
         this.onSelectionChange = function(e) {
-            var selection = window.getSelection();
+            var selection = window.getSelection(),
+                trimmedText = $.trim(selection.toString());
 
             // Ignore selection events within the dropdown
-            if ( $(selection.anchorNode).is('.underneath') ||
-                 $(selection.anchorNode).parents('.underneath').length) {
+            if ( selection.type == 'None' || 
+                 $(selection.anchorNode).is('.underneath') ||
+                 $(selection.anchorNode).parents('.underneath').length ||
+                 $(selection.focusNode).is('.underneath') ||
+                 $(selection.focusNode).parents('.underneath').length) {
                 return;
             }
-            if (selection.isCollapsed) {
-                this.$node.find('.underneath').remove();
+
+            // Ignore if selection hasn't change
+            if (trimmedText.length && trimmedText === this.previousSelection) {
+                return;
+            } else this.previousSelection = trimmedText;
+
+            // Remove all dropdowns if empty selection
+            if (selection.isCollapsed || trimmedText.length === 0) {
+                EditDropdown.teardownAll();
+
             }
+
             this.handleSelectionChange();
         };
 
         this.handleSelectionChange = _.debounce(function() {
-            this.$node.find('.underneath').remove();
+            EditDropdown.teardownAll();
 
             var sel = window.getSelection(),
                 text = sel && sel.type === 'Range' && sel.toString();
@@ -122,13 +136,24 @@ define([
                 } while (whitespaceCheck.test(character));
 
                 end[0].splitText(i);
-                end.after(popoverTemplate({
-                    type: 'Set type of term',
-                    text: text,
-                    entityTypes: 'organization person date location money'.split(' ')
-                }));
+                this.dropdownEntity(end, text);
             }
         }, 500);
+
+        this.onEntityClicked = function(event) {
+            _.defer(this.dropdownEntity.bind(this), $(event.target));
+        };
+
+        this.dropdownEntity = function(insertAfterNode, text) {
+            EditDropdown.teardownAll();
+
+            var form = $('<div class="underneath"></div>');
+            insertAfterNode.after(form);
+            EditDropdown.attachTo(form, {
+                term: text,
+                mentionNode: insertAfterNode
+            });
+        };
 
         this.onEntityToEntityRelationshipClicked = function(evt, data) {
             var self = this;
