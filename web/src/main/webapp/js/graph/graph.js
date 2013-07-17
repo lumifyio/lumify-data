@@ -50,27 +50,6 @@ define([
             };
 
             this.cy(function(cy) {
-                var unselected = cy.nodes().filter(':unselected');
-                unselected.lock ();
-                var opts = $.extend({
-                    name:'grid',
-                    fit: false,
-                    stop: function() {
-                        if (unselected) {
-                            unselected.unlock();
-                        }
-                        var updates = $.map(cy.nodes(), function(node) {
-                            return {
-                                rowKey: node.data('rowKey'),
-                                graphPosition: self.pixelsToPoints(node.position())
-                            };
-                        });
-                        self.trigger(document, 'updateNodes', { nodes:updates });
-                    }
-                }, LAYOUT_OPTIONS['grid'] || {});
-
-                cy.layout(opts);
-
                 nodes.forEach(function(node) {
                     var title = node.title;
                     if (title.length > 15) {
@@ -132,6 +111,27 @@ define([
                 if (addedNodes.length) {
                     this.trigger(document, 'updateNodes', { nodes:addedNodes });
                 }
+
+                var unselected = cy.nodes().filter(':unselected');
+                unselected.lock ();
+                var opts = $.extend({
+                    name:'grid',
+                    fit: false,
+                    stop: function() {
+                        if (unselected) {
+                            unselected.unlock();
+                        }
+                        var updates = $.map(cy.nodes(), function(node) {
+                        return {
+                                rowKey: node.data('rowKey'),
+                                graphPosition: self.pixelsToPoints(node.position())
+                            };
+                        });
+                        self.trigger(document, 'updateNodes', { nodes:updates });
+                    }
+                }, LAYOUT_OPTIONS['grid'] || {});
+
+                cy.layout(opts);
 
                 this.setWorkspaceDirty();
             });
