@@ -56,10 +56,9 @@ public class FlickrSearchEngineTest {
                 "&accuracy=7" +
                 "&api_key=06e4190d750d2386f81d1afde77d7b38" +
                 "&content_type=7" +
-                "&extras=description,license,date_upload,date_taken,owner_name," +
+                "&extras=description,date_upload,date_taken,owner_name," +
                 "original_format,last_update,geo,tags,views,media" +
                 "&format=json" +
-                "&license=7" +
                 "&page=" + samplePageNumber +
                 "&per_page=" + samplePerPage +
                 "&privacy_filter=public";
