@@ -133,11 +133,12 @@ public class TikaTextExtractor implements TextExtractor {
             if(customImageMetadata != null && !customImageMetadata.equals("")) {
                 try {
                     JSONObject customImageMetadataJson = new JSONObject(customImageMetadata);
-                    result.setText(customImageMetadataJson.get("description").toString() + "\n" +
-                            customImageMetadataJson.get("tags").toString());
+                    result.setText(new JSONObject(customImageMetadataJson.get("description").toString()).get("_content") +
+                            "\n" + customImageMetadataJson.get("tags").toString());
                     result.setDate(GenericDateExtractor
                             .extractSingleDate(customImageMetadataJson.get("lastupdate").toString()));
                     result.setRetrievalTime(Long.parseLong(customImageMetadataJson.get("atc:retrieval-timestamp").toString()));
+                    result.setSubject(customImageMetadataJson.get("title").toString());
                 } catch(JSONException e) {
                     LOGGER.warn("Image returned invalid custom metadata");
                 }
