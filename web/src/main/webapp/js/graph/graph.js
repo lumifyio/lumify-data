@@ -509,9 +509,10 @@ define([
                 cy.edges().remove();
                 if (relationshipData.relationships != null){
                 var start = Date.now ();
+                var relationshipEdges = [];
                 relationshipData.relationships.forEach(function(relationship) {
-                console.log ('relationshipsLoaded');
-                    cy.add({
+                    console.log ('relationshipsLoaded');
+                    relationshipEdges.push ({
                         group: "edges",
                         data: {
                             rowKey: relationship.from + "->" + relationship.to,
@@ -522,7 +523,9 @@ define([
                         },
                         classes: (relationship.bidirectional ? 'bidirectional' : '')
                     });
+
                 });
+                cy.add(relationshipEdges);
                 console.log ("start",  (Date.now() - start));
                 }
             });
