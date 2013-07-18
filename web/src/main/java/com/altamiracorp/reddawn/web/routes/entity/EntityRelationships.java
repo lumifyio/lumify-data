@@ -33,53 +33,6 @@ public class EntityRelationships implements Handler, AppAware {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
- /*       Session session = this.app.getRedDawnSession(request).getModelSession();
-
-        String[] entityIds = request.getParameterValues("entityIds[]");
-        if (entityIds == null) {
-            entityIds = new String[0];
-        }
-
-        String[] artifactIds = request.getParameterValues("artifactIds[]");
-        if (artifactIds == null) {
-            artifactIds = new String[0];
-        }
-
-        // TODO load the relationships from the database
-        JSONArray resultsJson = new JSONArray();
-        for (String fromEntityId : entityIds) {
-            for (String toEntityId : entityIds) {
-                List<Statement> statements = statementRepository.findBySourceAndTargetRowKey(session, fromEntityId, toEntityId);
-                if (statements.size() > 0) {
-                    JSONObject rel = new JSONObject();
-                    rel.put("relationshipType", "entityToEntity");
-                    rel.put("from", fromEntityId);
-                    rel.put("to", toEntityId);
-                    resultsJson.put(rel);
-                }
-            }
-        }
-
-        for (String artifactId : artifactIds) {
-            ArtifactTermIndex artifactTermIndex = artifactTermIndexRepository.findByRowKey(session, artifactId);
-            if (artifactTermIndex == null) {
-                continue;
-            }
-            for (String entityId : entityIds) {
-                for (TermRowKey artifactTermMentionTermRowKey : artifactTermIndex.getTermMentions()) {
-                    if (artifactTermMentionTermRowKey.toString().equals(entityId)) {
-                        JSONObject rel = new JSONObject();
-                        rel.put("relationshipType", "artifactToEntity");
-                        rel.put("from", artifactId);
-                        rel.put("to", entityId);
-                        resultsJson.put(rel);
-                    }
-                }
-            }
-        }
-
-        new Responder(response).respondWith(resultsJson);
-*/
         Session session = this.app.getRedDawnSession(request).getModelSession();
 
         JSONObject jsonArray = new JSONObject(request.getParameter("json"));
