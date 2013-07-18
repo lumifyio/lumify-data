@@ -5,6 +5,8 @@ import com.altamiracorp.reddawn.model.RowKeyHelper;
 import com.altamiracorp.reddawn.model.Value;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 
+import java.util.Date;
+
 public class StatementArtifact extends ColumnFamily {
     public static final String ARTIFACT_KEY = "artifactKey";
     public static final String AUTHOR = "author";
@@ -64,6 +66,10 @@ public class StatementArtifact extends ColumnFamily {
     public StatementArtifact setDate(Long date) {
         set(DATE, date);
         return this;
+    }
+
+    public StatementArtifact setDate(Date date) {
+        return setDate(date.getTime());
     }
 
     public String getExtractorId() {
