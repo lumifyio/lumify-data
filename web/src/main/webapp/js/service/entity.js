@@ -19,6 +19,22 @@ function(ServiceBase) {
 			callback (err,response);
 		});
 	};
+
+    var cachedConcepts;
+    EntityService.prototype.concepts = function(callback) {
+        if (cachedConcepts) {
+            callback(null, cachedConcepts);
+        } else {
+            this._ajaxGet({
+                url: 'concept'
+            }, function(err, response) {
+                if (!err) {
+                    cachedConcepts = response;
+                }
+                callback(err, response);
+            });
+        }
+    };
 	
     return EntityService;
 });

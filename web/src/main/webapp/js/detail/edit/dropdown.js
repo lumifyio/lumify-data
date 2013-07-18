@@ -3,8 +3,9 @@
 define([
     'flight/lib/component',
     'tpl!./dropdown',
+    'tpl!./concept-options',
     'service/entity'
-], function(defineComponent, dropdownTemplate, EntityService) {
+], function(defineComponent, dropdownTemplate, conceptsTemplate, EntityService) {
     'use strict';
 
     return defineComponent(EditDropdown);
@@ -48,12 +49,12 @@ define([
         });
 
         this.after('initialize', function() {
-            var node = this.$node;
+            var self = this,
+                node = this.$node;
 
             node.html(dropdownTemplate({
                 type: 'Set type of term',
-                text: this.attr.term || this.attr.mentionNode.text(),
-                entityTypes: 'organization person date location money'.split(' ')
+                text: this.attr.term || this.attr.mentionNode.text()
             }));
 
             _.defer(function() {
@@ -66,6 +67,10 @@ define([
                 });
                 var form = node.find('.term-form');
                 node.css({ height:form.outerHeight(true) + 'px' });
+
+                self.entityService.concepts(function(err, concepts) {
+                    self.select('conceptSelector').html(conceptsTemplate({concepts:concepts}));
+                });
             });
 
             this.on('click', {

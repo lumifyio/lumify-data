@@ -2,6 +2,7 @@
 define([
     'flight/lib/component',
     'service/ucd',
+    'service/entity',
     'util/previews',
     'util/video/scrubber',
     'tpl!./search',
@@ -9,13 +10,14 @@ define([
     'tpl!./searchResults',
     'tpl!util/alert',
     'util/jquery.ui.draggable.multiselect',
-], function(defineComponent, UCD, previews, VideoScrubber, template, summaryTemplate, resultsTemplate, alertTemplate) {
+], function(defineComponent, UCD, EntityService, previews, VideoScrubber, template, summaryTemplate, resultsTemplate, alertTemplate) {
     'use strict';
 
     return defineComponent(Search);
 
     function Search() {
         this.ucd = new UCD();
+        this.entityService = new EntityService();
 		this.currentQuery = null;
 
         this.defaultAttrs({
@@ -76,24 +78,26 @@ define([
             var $searchResults = this.select('searchResultsSelector');
 
             $searchResults.hide();
-            $searchResultsSummary.html(summaryTemplate({}));
-            $('.badge', $searchResultsSummary).addClass('loading');
-            this.ucd.artifactSearch(query, function(err, artifacts) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-                self.searchResults.artifact = artifacts;
-                self.trigger('artifactSearchResults', artifacts);
-            });
-            this.ucd.entitySearch(query, function(err, entities) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-                self.searchResults.entity = entities;
-                self.trigger('entitySearchResults', entities);
-            });
+            this.entityService.concepts(function(err, concepts) {
+                $searchResultsSummary.html(summaryTemplate({concepts:concepts}));
+                $('.badge', $searchResultsSummary).addClass('loading');
+                this.ucd.artifactSearch(query, function(err, artifacts) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+                    self.searchResults.artifact = artifacts;
+                    self.trigger('artifactSearchResults', artifacts);
+                });
+                this.ucd.entitySearch(query, function(err, entities) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+                    self.searchResults.entity = entities;
+                    self.trigger('entitySearchResults', entities);
+                });
+            }.bind(this));
         };
 
         this.onSummaryResultItemClick = function(evt) {
