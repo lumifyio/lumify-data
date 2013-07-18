@@ -313,6 +313,20 @@ define([
         this.onAddNodes = function(evt, data) {
             this.workspace(function(ws) {
 
+                var allNodes = this.workspaceData.data.nodes;
+                var oldNodes = [];
+                allNodes.forEach (function (allNode){
+                    var isOldNode = true;
+                    data.nodes.forEach (function (dataNode){
+                        if (dataNode.rowKey == allNode.rowKey){
+                            isOldNode = false;
+                        }
+                    });
+                    if (isOldNode){
+                        oldNodes.push (allNode);
+                    }
+                });
+
                 data.nodes.forEach(function(node) {
                     ws.data.nodes.push(node);
                 });
@@ -332,7 +346,8 @@ define([
                 }
 
                 this.setWorkspaceDirty();
-                this.refreshRelationships();
+
+                this.refreshRelationships (oldNodes, data.nodes);
 
                 this.trigger(document, 'nodesAdded', data);
             });
@@ -381,11 +396,38 @@ define([
             });
         };
 
-        this.refreshRelationships = function() {
+        this.refreshRelationships = function(oldNodes, newNodes) {
             var self = this;
+            var oldEntityIds = [];
+            var oldArtifactIds = [];
+            var newEntityIds = [];
+            var newArtifactIds = [];
             var entityIds = this.getEntityIds();
             var artifactIds = this.getArtifactIds();
-            this.ucdService.getRelationships(entityIds, artifactIds, function(err, relationships) {
+            if (oldNodes == null && newNodes == null) {
+                 newEntityIds = entityIds;
+                 oldEntityIds = [];
+                 newArtifactIds = artifactIds;
+                 oldArtifactIds = [];
+            } else {
+                newNodes.forEach (function(newNode){
+                    if (newNode.type == 'entity'){
+                        newEntityIds.push (newNode.rowKey);
+                    } else if (newNode.type == 'artifact'){
+                        newArtifactIds.push (newNode.rowKey);
+                    }
+                });
+                oldNodes.forEach (function(oldNode){
+                    if (oldNode.type == 'entity'){
+                        oldEntityIds.push (oldNode.rowKey);
+                    } else if (oldNode.type == 'artifact'){
+                        oldArtifactIds.push (oldNode.rowKey);
+                    }
+                });
+            }
+
+
+            this.ucdService.getRelationships(oldEntityIds, newEntityIds, oldArtifactIds, newArtifactIds, function(err, relationships) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });

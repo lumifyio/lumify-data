@@ -1,5 +1,7 @@
 package com.altamiracorp.reddawn.model;
 
+import com.altamiracorp.reddawn.ucd.statement.Statement;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -69,5 +71,9 @@ public abstract class Repository<T> {
 
     public void delete(Session session, RowKey rowKey) {
         session.deleteRow(getTableName(), rowKey);
+    }
+
+    public List<Row> findByRowStartsWithList (List<String> rowKeyPrefixes, Session session){
+        return session.findByRowStartsWithList(getTableName(), rowKeyPrefixes, session.getQueryUser());
     }
 }
