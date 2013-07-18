@@ -69,23 +69,18 @@ public class EntityCreate implements Handler, AppAware {
         }
 
         String newObjectSign = request.getParameter("newObjectSign");
-        String newObjectConceptLabel = request.getParameter("newObjectConceptLabel");
-        if ((newObjectSign == null && newObjectConceptLabel != null) || (newObjectSign != null && newObjectConceptLabel == null)) {
-            throw new RuntimeException("When creating a new object both 'newObjectSign' and 'newObjectConceptLabel' need to be specified.");
-        }
-
         String sentenceRowKey = request.getParameter("sentenceRowKey");
         String objectRowKey = request.getParameter("objectRowKey");
-        if (sentenceRowKey != null && (objectRowKey == null || (newObjectSign == null && newObjectConceptLabel == null))) {
-            throw new RuntimeException("When associating a Term to and Object 'sentenceRowKey' and ('objectRowKey' or ('newObjectSign' and 'newObjectConceptLabel')) are required.");
+        if (sentenceRowKey != null && (objectRowKey == null || newObjectSign == null)) {
+            throw new RuntimeException("When associating a Term to and Object 'sentenceRowKey' and ('objectRowKey' or 'newObjectSign')) are required.");
         }
 
         // do the work
         Term term = createTerm(currentUser, session, artifactKey, mentionStart, mentionEnd, sign, conceptLabel);
         resultsJson.put("termRowKey", term.getRowKey().toJson());
 
-        if (newObjectSign != null && newObjectConceptLabel != null) {
-            objectRowKey = createObjectTerm(currentUser, session, artifactKey, newObjectSign, newObjectConceptLabel, mentionStart, mentionEnd);
+        if (newObjectSign != null) {
+            objectRowKey = createObjectTerm(currentUser, session, artifactKey, newObjectSign, conceptLabel, mentionStart, mentionEnd);
             resultsJson.put("objectTermRowKey", objectRowKey);
         }
 
