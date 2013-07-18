@@ -198,7 +198,7 @@ define([
             var menu = this.select('nodeContextMenuSelector');
             var currentNodeRK = menu.attr('data-currentNode-rowKey');
             var position = {x: menu.attr ('data-currentNode-positionX'), y: menu.attr ('data-currentNode-positionY')};
-            var currentNodeOriginalPosition = this.pixelsToPoints(position);
+            var currentNodeOriginalPosition = retina.pixelsToPoints(position);
             var data = { rowKey : currentNodeRK,
                          originalPosition: currentNodeOriginalPosition,
                          type : menu.attr("data-currentNode-type")};
