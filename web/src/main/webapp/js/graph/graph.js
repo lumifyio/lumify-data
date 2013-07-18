@@ -223,7 +223,7 @@ define([
                          originalPosition: currentNodeOriginalPosition,
                          type : menu.attr("data-currentNode-type")};
             this.trigger (document, 'loadRelatedSelected', data);
-        };
+                  };
 
         this.onContextMenuFitToWindow = function() {
             this.cy(function(cy) {
@@ -507,7 +507,13 @@ define([
         this.onRelationshipsLoaded = function(evt, relationshipData) {
             this.cy(function(cy) {
                 cy.edges().remove();
+                if (relationshipData.relationships != null){
                 relationshipData.relationships.forEach(function(relationship) {
+                    cy.edges().addClass('bidirectional');
+                    if (relationship.bidirectional == false)
+                    {
+                        cy.edges().removeClass ('bidirectional');
+                    }
                     cy.add({
                         group: "edges",
                         data: {
@@ -519,6 +525,7 @@ define([
                         }
                     });
                 });
+                }
             });
         };
 
@@ -629,6 +636,12 @@ define([
                     .css({
                       'width': 2,
                       'target-arrow-shape': 'triangle'
+                    })
+                  .selector('.bidirectional')
+                    .css ({
+                      'width': 2,
+                      'target-arrow-shape': 'triangle',
+                      'source-arrow-shape': 'triangle'
                     }),
 
                 ready: function(){

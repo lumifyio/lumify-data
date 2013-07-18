@@ -12,11 +12,13 @@ function(ServiceBase) {
     Ucd.prototype = Object.create(ServiceBase.prototype);
 
     Ucd.prototype.getRelationships = function(entityIds, artifactIds, callback) {
-        return this._ajaxGet({
+        return this._ajaxPost({
             url: '/entity/relationships',
             data: {
-                entityIds: entityIds,
-                artifactIds: artifactIds
+                json: JSON.stringify({
+                    entityIds: entityIds,
+                    artifactIds: artifactIds
+                })
             }
         }, callback);
     };

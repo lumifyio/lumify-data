@@ -382,6 +382,9 @@ define([
         };
 
         this.refreshRelationships = function() {
+console.log ('----------------------');
+console.log ('Refresh!!');
+console.log ('----------------------');
             var self = this;
             var entityIds = this.getEntityIds();
             var artifactIds = this.getArtifactIds();

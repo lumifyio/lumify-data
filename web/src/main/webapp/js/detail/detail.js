@@ -225,18 +225,19 @@ define([
                         // TO DO: FIX LAYOUT OF RELATED ITEMS!!!!!!!!
                         var countX = data.originalPosition.x;
                         var countY = data.originalPosition.y;
+                        var addNodes = [];
                         entityDetailsData.relatedEntities.forEach (function (relatedEntity){
                             var graphPosition = {x: 100, y: 100};
-                            self.trigger (document, 'addNodes', {nodes: [{
-                                    title: relatedEntity.title,
-                                    rowKey: relatedEntity.rowKey,
-                                    subType: relatedEntity.subType,
-                                    type: relatedEntity.type,
-                                    graphPosition: graphPosition,
-                                    selected: true
-                                }]
-                            });
+                            addNodes.push ({
+                               title: relatedEntity.title,
+                               rowKey: relatedEntity.rowKey,
+                               subType: relatedEntity.subType,
+                               type: relatedEntity.type,
+                               graphPosition: graphPosition,
+                               selected: true
+                           });
                         });
+                        self.trigger (document, 'addNodes', {nodes: addNodes});
                     });
                 });
             });
