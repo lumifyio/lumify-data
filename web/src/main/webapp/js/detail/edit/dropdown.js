@@ -38,7 +38,8 @@ define([
                 if (err) {
                     self.trigger(document, 'error', err);
                 } else {
-                    console.log(data.termRowKey);
+                    // TODO: highlight the term?
+                    //console.log(data.termRowKey);
                     self.teardown();
                 }
             });
@@ -69,7 +70,12 @@ define([
                 node.css({ height:form.outerHeight(true) + 'px' });
 
                 self.entityService.concepts(function(err, concepts) {
-                    self.select('conceptSelector').html(conceptsTemplate({concepts:concepts}));
+                    var mentionNodeInfo = self.attr.mentionNode && self.attr.mentionNode.data('info');
+
+                    self.select('conceptSelector').html(conceptsTemplate({
+                        concepts:concepts,
+                        selectedConceptLabel:mentionNodeInfo && mentionNodeInfo.subType
+                    }));
                 });
             });
 
