@@ -6,12 +6,13 @@ class accumulo(
   $logdir="/var/log/accumulo"
 ) {
   include macro
+  require hadoop
 
   $homedir = "${installdir}/accumulo-${version}"
   $homelink = "${installdir}/accumulo"
   $configdir = "/etc/accumulo-${version}"
   $configlink = "/etc/accumulo"
-  $downloaddir = "/opt/downloads"
+  $downloaddir = "/tmp/downloads"
   $downloadpath = "${downloaddir}/accumulo-${version}-dist.tar.gz"
 
   notify { "Installing Accumulo ${version}. Please run `sudo -u ${user} ${homedir}/bin/accumulo init` to initialize after installation completes.":}
@@ -34,17 +35,10 @@ class accumulo(
     path  => $installdir,
   }
 
-  file { $homedir:
-    owner   => $user,
-    group   => $group,
-    recurse => true,
-    require => Macro::Extract[$downloadpath],
-  }
-
   file { $homelink:
     ensure  => link,
     target  => $homedir,
-    require => File[$homedir],
+    require => Macro::Extract[$downloadpath],
   }
 
   file { $configdir:
@@ -92,8 +86,9 @@ class accumulo(
 
   file { $logdir:
     ensure => directory,
-    owner  => $user,
+    owner  => 'root',
     group  => $group,
+    mode   => 0775,
   }
 
   exec { "vm.swappiness=10 online" :
@@ -106,3 +101,4 @@ class accumulo(
     unless  => "/bin/grep -q vm.swappiness=10 /etc/sysctl.conf",
   }
 }
+include accumulo
