@@ -58,6 +58,21 @@ public class MockSession extends Session {
     }
 
     @Override
+    List<Row> findByRowStartsWithList(String tableName, List<String> rowKeyPrefixes, QueryUser queryUser) {
+        List<Row> rows = this.tables.get(tableName);
+        ArrayList<Row> results = new ArrayList<Row>();
+        for (Row row : rows){
+            String rowKey = row.getRowKey().toString();
+            for (String rowKeyPrefix : rowKeyPrefixes){
+                if (rowKey.startsWith(rowKeyPrefix)){
+                    results.add(row);
+                }
+            }
+        }
+        return results;
+    }
+
+    @Override
     List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, QueryUser queryUser) {
         List<Row> rows = this.tables.get(tableName);
         if (rows == null) {
