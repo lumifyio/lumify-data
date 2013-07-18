@@ -1,20 +1,13 @@
 <div>
-  <input value="<%= text %>"</input>
+  <span class="sign"><%= text %></span>
   <select>
     <option>Select concept...</option>
     <% entityTypes.forEach(function(entityType) { %>
     <option value="<%= entityType %>"><%= entityType %></option>
     <% }); %>
   </select>
-  <button class="create-term btn btn-small btn-primary">Create Term</button>
-    <!--
-  <div class="dropdown">
 
-    <a class="dropdown-toggle <%= type %>" data-toggle="dropdown" href="#"><%= type %> <b class="caret"></b></a>
-    <ul class="dropdown-menu">
-      <% entityTypes.forEach(function(entityType) { %>
-      <li><a class="<%= entityType %>" href="#"><%= entityType %></a></li>
-      <% }); %>
-    </ul>
-  </div-->
+  <div class="buttons">
+    <button class="create-term btn btn-small btn-primary">Create Term</button>
+  </div>
 </div>
