@@ -21,6 +21,7 @@ class accumulo(
     ensure  => "present",
     gid     => $group,
     home    => $configlink,
+    require => Group[$group],
   }
 
   file { $downloaddir:
@@ -101,4 +102,3 @@ class accumulo(
     unless  => "/bin/grep -q vm.swappiness=10 /etc/sysctl.conf",
   }
 }
-include accumulo
