@@ -44,7 +44,7 @@ public class Server extends RedDawnCommandLineBase {
     }
 
     @Override
-    protected void processOptions(CommandLine cmd) {
+    protected void processOptions(CommandLine cmd) throws Exception {
         super.processOptions(cmd);
 
         String port = cmd.getOptionValue("port");

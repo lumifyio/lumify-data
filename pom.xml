@@ -38,6 +38,16 @@
 			<id>red-dawn-snapshots</id>
 			<url>http://nic-mvnproxy.nearinfinity.com:8080/artifactory/libs-snapshot-local/</url>
 		</repository>
+        <repository>
+            <id>info-bliki-repository</id>
+            <url>http://gwtwiki.googlecode.com/svn/maven-repository/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
 	<properties>

@@ -8,6 +8,7 @@ import org.mockito.Matchers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static junit.framework.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -38,7 +39,7 @@ public class RedditSearchEngineTest {
     public void testSearchInvalid() throws Exception {
         RedditSearchEngine engineSpy = spy(engine);
         doReturn("http://www.google.com").when(engineSpy).createQueryString(any(Query.class), anyInt());
-        ArrayList<String> results = engineSpy.search(mock(Query.class), 10);
+        List<String> results = engineSpy.search(mock(Query.class), 10);
         verify(mockCrawler, times(0)).crawl(Matchers.<ArrayList<String>>any(), any(Query.class));
         assertEquals("An invalid JSON response did not return an empty link set", 0, results.size());
     }

@@ -25,11 +25,6 @@ public class ArtifactGenericMetadata extends ColumnFamily {
     public static final String FILE_SIZE = "file_size";
     public static final String FILE_TIMESTAMP = "file_timestamp";
     public static final String HDFS_FILE_PATH = "hdfs_file_path";
-    public static final String MP4_HDFS_FILE_PATH = "mp4_hdfs_file_path";
-    public static final String WEBM_HDFS_FILE_PATH = "webm_hdfs_file_path";
-    public static final String VIDEO_PREVIEW_IMAGE_HDFS_FILE_PATH = "video_preview_image_hdfs_file_path";
-    public static final String POSTER_FRAME_HDFS_FILE_PATH = "poster_frame_hdfs_file_path";
-    public static final String AUDIO_HDFS_FILE_PATH = "audio_hdfs_file_path";
     public static final String LANGUAGE = "language";
     public static final String LOAD_TIMESTAMP = "load_timestamp";
     public static final String LOAD_TYPE = "load_type";
@@ -39,6 +34,11 @@ public class ArtifactGenericMetadata extends ColumnFamily {
     public static final String SOURCE_SUBTYPE = "source_subtype";
     public static final String SOURCE_TYPE = "source_type";
     public static final String SUBJECT = "subject";
+    public static final String MP4_HDFS_FILE_PATH = "atc:mp4_hdfs_file_path";
+    public static final String WEBM_HDFS_FILE_PATH = "atc:webm_hdfs_file_path";
+    public static final String VIDEO_PREVIEW_IMAGE_HDFS_FILE_PATH = "atc:video_preview_image_hdfs_file_path";
+    public static final String POSTER_FRAME_HDFS_FILE_PATH = "atc:poster_frame_hdfs_file_path";
+    public static final String AUDIO_HDFS_FILE_PATH = "atc:audio_hdfs_file_path";
 
     public ArtifactGenericMetadata() {
         super(NAME);

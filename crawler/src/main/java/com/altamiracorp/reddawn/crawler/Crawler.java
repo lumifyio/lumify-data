@@ -1,12 +1,14 @@
 package com.altamiracorp.reddawn.crawler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 
 public class Crawler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Crawler.class);
 
     private String directoryPath;
 
@@ -24,25 +26,23 @@ public class Crawler {
     }
 
     public void crawl(ArrayList<String> links, Query query) throws Exception {
-        HttpRetrievalManager manager = createManager();
+        HttpRetrievalManager manager = new HttpRetrievalManager();
         for (String url : links) {
-            String header = getHeader(url, query);
-            manager.addJob(url, header, directoryPath);
+            String queryInfo = query.getQueryInfo();
+            manager.addJob(url, queryInfo, directoryPath);
+        }
+        manager.shutDownWhenFinished();
+        LOGGER.info("\033[34mSearch completed.\033[0m");
+    }
+
+    public void crawlPhotos(TreeMap<String, TreeMap<String, String>> links, Query query) throws Exception {
+        HttpRetrievalManager manager = new HttpRetrievalManager();
+        for (Map.Entry<String, TreeMap<String, String>> entry : links.entrySet()) {
+            entry.getValue().put("atc:retrieval-timestamp", "" + getCurrentTimestamp());
+            manager.addPhotoJob(entry, query.getQueryInfo(), directoryPath);
         }
         manager.shutDownWhenFinished();
         System.out.println("\033[34mSearch completed.\033[0m");
-    }
-
-    protected String getHeader(String url, Query query) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("<meta property=\"atc:result-url\" content=\"" + url + "\">\n");
-        stringBuilder.append("<meta property=\"atc:retrieval-timestamp\" content=\"" + getCurrentTimestamp() + "\">\n");
-        stringBuilder.append("<meta property=\"atc:query-info\" content=\"" + query.getQueryString() + "\">\n");
-        return stringBuilder.toString();
-    }
-
-    protected HttpRetrievalManager createManager() {
-        return new HttpRetrievalManager();
     }
 
     public long getCurrentTimestamp() {

@@ -1,11 +1,17 @@
 package com.altamiracorp.reddawn.crawler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 public class GoogleNewsSearchEngine extends SearchEngine {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoogleNewsSearchEngine.class);
 
     private String baseURL;
 
@@ -15,25 +21,29 @@ public class GoogleNewsSearchEngine extends SearchEngine {
     }
 
     @Override
-    protected ArrayList<String> search(Query q, int maxResults) {
-        ArrayList<String> links = new ArrayList<String>();
+    protected List<String> search(Query q, int maxResults) {
+        ArrayList<String> results = new ArrayList<String>();
         String queryUrl = createQueryUrl(q, maxResults);
         URL fullURL = null;
         try {
             fullURL = new URL(queryUrl);
         } catch (MalformedURLException e) {
-            System.err.println("Malformed search URL");
-            return links;
+            LOGGER.error("Malformed search URL");
+            return results;
         }
 
-        links = SearchEngine.parseRSS(fullURL, maxResults);
-        try {
-            getCrawler().crawl(links, q);
-        } catch (Exception e) {
-            throw new RuntimeException("The crawler failed to crawl the " + getEngineName() + " on Query \"" +
-                    q.getQueryString() + "\" result set");
+        ArrayList<String> links = SearchEngine.parseRSS(fullURL, maxResults);
+        for (String link : links) {
+            results.add(link);
         }
-        return links;
+        try {
+            getCrawler().crawl(results, q);
+        } catch (Exception e) {
+            LOGGER.error("The crawler failed to crawl the " + getEngineName() + " on Query \"" +
+                    q.getQueryString() + "\" result set");
+            e.printStackTrace();
+        }
+        return results;
     }
 
     protected String createQueryUrl(Query query, int maxResults) {

@@ -3,8 +3,9 @@
 define([
     'flight/lib/component',
     'tpl!./map',
-    'service/ucd'
-], function(defineComponent, template, UcdService) {
+    'service/ucd',
+    'util/retina'
+], function(defineComponent, template, UcdService, retina) {
     'use strict';
 
     return defineComponent(Map);
@@ -97,7 +98,7 @@ define([
                     var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
                     var marker = new mxn.Marker(pt);
                     marker.setAttribute('rowKey', node.rowKey);
-                    if ('devicePixelRatio' in window && devicePixelRatio > 1) {
+                    if (retina.devicePixelRatio > 1) {
                         marker.setIcon('/img/small_pin@2x.png', [26, 52], [13, 52]);
                     } else {
                         marker.setIcon('/img/small_pin.png', [13, 26], [6,26]);

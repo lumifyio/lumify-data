@@ -45,7 +45,7 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
     protected abstract int run(CommandLine cmd) throws Exception;
 
-    protected void processOptions(CommandLine cmd) {
+    protected void processOptions(CommandLine cmd) throws Exception {
         this.zookeeperInstanceName = cmd.getOptionValue("zookeeperInstanceName");
         this.zookeeperServerNames = cmd.getOptionValue("zookeeperServerNames");
         this.hadoopUrl = cmd.getOptionValue("hadoopUrl");

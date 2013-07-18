@@ -15,6 +15,6 @@ for step in $(ls ${DIR}/[0-9][0-9][0-9]_*.sh | sort); do
   printf '%*s\n' "${COLUMNS:-$(tput cols)}" | tr ' ' -
   echo -n $'\e[00;00m'
 
-  ${step}
+  time ${step}
   [ $? -eq 0 ] || exit
 done
