@@ -258,21 +258,26 @@ define([
                         var termData = {};
                         termData.key = artifact.key;
                         termData.relatedTerms = relatedTerms;
-                        var countX = data.originalPosition.x * 3/2;
-                        var countY = data.originalPosition.y * 3/2;
-                        termData.relatedTerms.forEach (function (relatedTerm){
-                            var dropPosition = {x: countX + 10, y: countY + 20};
-                            self.trigger (document, 'addNodes', {nodes:[{
+                        var xOffset = 100, yOffset = 100;
+                        var x = data.originalPosition.x;
+                        var y = data.originalPosition.y;
+                        self.trigger(document, 'addNodes', {
+                            nodes: termData.relatedTerms.map(function(relatedTerm, index) {
+                                if (index % 10 === 0) {
+                                    y += yOffset;
+                                }
+                                return {
                                     title: relatedTerm.title,
                                     rowKey: relatedTerm.rowKey,
                                     subType: relatedTerm.subType,
                                     type: relatedTerm.type,
-                                    dropPosition: dropPosition,
+                                    graphPosition: {
+                                        x: x + xOffset * (index % 10 + 1),
+                                        y: y
+                                    },
                                     selected: true
-                                }]
-                            });
-                            countX = countX + 5;
-                            countY = countY + 5;
+                                };
+                            })
                         });
                     });
                 });
