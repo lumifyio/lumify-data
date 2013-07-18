@@ -1,41 +1,108 @@
-# == Class: accumulo
-#
-# Full description of class accumulo here.
-#
-# === Parameters
-#
-# Document parameters here.
-#
-# [*sample_parameter*]
-#   Explanation of what this parameter affects and what it defaults to.
-#   e.g. "Specify one or more upstream ntp servers as an array."
-#
-# === Variables
-#
-# Here you should define a list of variables that this module would require.
-#
-# [*sample_variable*]
-#   Explanation of how this variable affects the funtion of this class and if it
-#   has a default. e.g. "The parameter enc_ntp_servers must be set by the
-#   External Node Classifier as a comma separated list of hostnames." (Note,
-#   global variables should not be used in preference to class parameters  as of
-#   Puppet 2.6.)
-#
-# === Examples
-#
-#  class { accumulo:
-#    servers => [ 'pool.ntp.org', 'ntp.local.company.com' ]
-#  }
-#
-# === Authors
-#
-# Author Name <author@domain.com>
-#
-# === Copyright
-#
-# Copyright 2013 Your name here, unless otherwise noted.
-#
-class accumulo {
+class accumulo(
+  $version="1.4.3",
+  $user="accumulo",
+  $group="hadoop",
+  $installdir="/usr/lib",
+  $logdir="/var/log/accumulo"
+) {
+  include macro
 
+  $homedir = "${installdir}/accumulo-${version}"
+  $homelink = "${installdir}/accumulo"
+  $configdir = "/etc/accumulo-${version}"
+  $configlink = "/etc/accumulo"
+  $downloaddir = "/opt/downloads"
+  $downloadpath = "${downloaddir}/accumulo-${version}-dist.tar.gz"
 
+  notify { "Installing Accumulo ${version}. Please run `sudo -u ${user} ${homedir}/bin/accumulo init` to initialize after installation completes.":}
+
+  user { $user :
+    ensure  => "present",
+    gid     => $group,
+    home    => $configlink,
+  }
+
+  file { $downloaddir:
+    ensure => directory,
+    mode   => 777,
+  }
+
+  macro::download { "http://www.us.apache.org/dist/accumulo/${version}/accumulo-${version}-dist.tar.gz":
+    path    => $downloadpath,
+    require => [File[$downloaddir], User[$user]],
+  } -> macro::extract { $downloadpath:
+    path  => $installdir,
+  }
+
+  file { $homedir:
+    owner   => $user,
+    group   => $group,
+    recurse => true,
+    require => Macro::Extract[$downloadpath],
+  }
+
+  file { $homelink:
+    ensure  => link,
+    target  => $homedir,
+    require => File[$homedir],
+  }
+
+  file { $configdir:
+    ensure => directory,
+  }
+
+  file { $configlink:
+    ensure => link,
+    target => $configdir,
+    require => File[$configdir],
+  }
+
+  exec { "copy-example-accumulo-config" :
+    command => "/bin/cp ${homedir}/conf/examples/512MB/native-standalone/* ${configdir}",
+    user    => root,
+    group   => root,
+    unless  => "/usr/bin/test -f ${configdir}/accumulo-env.sh",
+    require => [Macro::Extract[$downloadpath], File[$configdir]],
+  }
+
+  file { "${homedir}/conf":
+    ensure  => link,
+    target  => $configdir,
+    force   => true,
+    require => Exec["copy-example-accumulo-config"],
+  }
+
+  file { "${configdir}/accumulo-env.sh":
+    ensure  => file,
+    content => template("accumulo/accumulo-env.sh.erb"),
+    require => Exec["copy-example-accumulo-config"],
+  }
+
+  file { "${configdir}/accumulo-site.xml":
+    ensure  => file,
+    content => template("accumulo/accumulo-site.xml.erb"),
+    require => Exec["copy-example-accumulo-config"],
+  }
+
+  exec { 'change-config-file-modes':
+    command => '/bin/find . -type f -exec chmod 0644 {} \;',
+    cwd     => $configdir,
+    require => Exec["copy-example-accumulo-config"],
+  }
+
+  file { $logdir:
+    ensure => directory,
+    owner  => $user,
+    group  => $group,
+  }
+
+  exec { "vm.swappiness=10 online" :
+    command => "/sbin/sysctl -w vm.swappiness=10",
+    unless  => "/usr/bin/test $(/sbin/sysctl -n vm.swappiness) -eq 10",
+  }
+
+  exec { "vm.swappiness=10 persistant" :
+    command => '/bin/echo "vm.swappiness=10" >> /etc/sysctl.conf',
+    unless  => "/bin/grep -q vm.swappiness=10 /etc/sysctl.conf",
+  }
 }
