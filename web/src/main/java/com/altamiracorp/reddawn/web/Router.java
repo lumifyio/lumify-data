@@ -1,9 +1,9 @@
 package com.altamiracorp.reddawn.web;
 
-import com.altamiracorp.reddawn.web.routes.entity.EntityRelationshipsBidrectional;
 import com.altamiracorp.reddawn.web.routes.artifact.*;
 import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
+import com.altamiracorp.reddawn.web.routes.concept.ConceptList;
 import com.altamiracorp.reddawn.web.routes.entity.*;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
@@ -40,6 +40,8 @@ public class Router extends HttpServlet {
         if (app.get("env").equals("dev")) {
             authenticator = DevBasicAuthenticator.class;
         }
+
+        app.get("/concept/", ConceptList.class);
 
         app.get("/artifact/search", authenticator, ArtifactSearch.class);
         app.get("/artifact/{rowKey}/terms", authenticator, ArtifactTermsByRowKey.class);

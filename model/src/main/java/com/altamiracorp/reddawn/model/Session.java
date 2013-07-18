@@ -5,6 +5,9 @@ import com.altamiracorp.reddawn.model.videoFrames.VideoFrame;
 import com.altamiracorp.reddawn.model.workspace.Workspace;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
+import com.altamiracorp.reddawn.ucd.concept.Concept;
+import com.altamiracorp.reddawn.ucd.concept.ConceptRepository;
+import com.altamiracorp.reddawn.ucd.concept.ConceptRowKey;
 import com.altamiracorp.reddawn.ucd.object.UcdObject;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.source.Source;
@@ -56,10 +59,32 @@ public abstract class Session {
         initializeTable(ArtifactTermIndex.TABLE_NAME);
         initializeTable(Statement.TABLE_NAME);
         initializeTable(UcdObject.TABLE_NAME);
+        initializeTable(Concept.TABLE_NAME);
 
         initializeTable(Workspace.TABLE_NAME);
         initializeTable(GeoName.TABLE_NAME);
         initializeTable(VideoFrame.TABLE_NAME);
+
+        addDefaultConcepts();
+    }
+
+    protected void addDefaultConcepts() {
+        ConceptRepository conceptRepository = new ConceptRepository();
+
+        Concept conceptPerson = new Concept(new ConceptRowKey("system", "person"));
+        conceptPerson.getConceptElements()
+                .setLabelUi("Person");
+        conceptRepository.save(this, conceptPerson);
+
+        Concept conceptLocation = new Concept(new ConceptRowKey("system", "location"));
+        conceptLocation.getConceptElements()
+                .setLabelUi("Location");
+        conceptRepository.save(this, conceptLocation);
+
+        Concept conceptOrganization = new Concept(new ConceptRowKey("system", "organization"));
+        conceptOrganization.getConceptElements()
+                .setLabelUi("Organization");
+        conceptRepository.save(this, conceptOrganization);
     }
 
     public QueryUser getQueryUser() {
@@ -75,6 +100,7 @@ public abstract class Session {
         deleteTable(ArtifactTermIndex.TABLE_NAME);
         deleteTable(Statement.TABLE_NAME);
         deleteTable(UcdObject.TABLE_NAME);
+        deleteTable(Concept.TABLE_NAME);
 
         deleteTable(Workspace.TABLE_NAME);
         deleteTable(GeoName.TABLE_NAME);
