@@ -36,13 +36,20 @@ public class EntityRelationships implements Handler, AppAware {
         Session session = this.app.getRedDawnSession(request).getModelSession();
 
         JSONObject jsonArray = new JSONObject(request.getParameter("json"));
-        JSONArray entityIds = jsonArray.getJSONArray("entityIds");
-        JSONArray artifactIds = jsonArray.getJSONArray("artifactIds");
+        JSONArray oldEntityIds = jsonArray.getJSONArray("oldEntityIds");
+        JSONArray newEntityIds = jsonArray.getJSONArray("newEntityIds");
+        JSONArray oldArtifactIds = jsonArray.getJSONArray("oldArtifactIds");
+        JSONArray newArtifactIds = jsonArray.getJSONArray("newArtifactIds");
+        ArrayList <String> newEntityRowKey = new ArrayList<String>();
 
-        if (entityIds.length() > 0){
+        if ((oldEntityIds.length() + newEntityIds.length()) > 0){
             List <String> rowKeyPrefixes = new ArrayList<String>();
-            for (int i = 0; i < entityIds.length(); i ++){
-                rowKeyPrefixes.add(entityIds.getString(i));
+            for (int i = 0; i < oldEntityIds.length(); i ++){
+                rowKeyPrefixes.add(oldEntityIds.getString(i));
+            }
+            for (int i = 0; i < newEntityIds.length(); i ++){
+                rowKeyPrefixes.add(newEntityIds.getString(i));
+                newEntityRowKey.add(newEntityIds.getString(i));
             }
 
             HashMap<String, HashSet<String>> entityRelationships = statementRepository.findRelationshipDirection(rowKeyPrefixes, session);
@@ -51,7 +58,8 @@ public class EntityRelationships implements Handler, AppAware {
             for (Map.Entry<String, HashSet<String>> entityRelationship : entityRelationships.entrySet()){
                 for (String toEntity : entityRelationship.getValue()){
                     HashSet<String> toEntities = entityRelationships.get(toEntity);
-                        JSONObject rel = new JSONObject();
+                    JSONObject rel = new JSONObject();
+                    if (newEntityRowKey.contains(entityRelationship.getKey()) || newEntityRowKey.contains(toEntity)){
                         if (toEntities.contains(entityRelationship.getKey()) && !toEntity.equals(entityRelationship.getKey())){
 
                             rel.put ("bidirectional", true);
@@ -61,6 +69,7 @@ public class EntityRelationships implements Handler, AppAware {
                         rel.put("from", entityRelationship.getKey());
                         rel.put("to", toEntity);
                         resultsJson.put(rel);
+                    }
                 }
             }
             new Responder(response).respondWith(resultsJson);
