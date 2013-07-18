@@ -61,7 +61,7 @@ public class StatementRepository extends Repository<Statement> {
         }
 
         for (Row row : rows){
-            StatementRowKey statementRowKey = ((Statement)row).getRowKey();
+            StatementRowKey statementRowKey = new StatementRowKey(row.getRowKey().toString());
             if (rowKeyPrefixes.contains(statementRowKey.getObjectRowKey())){
                 relationshipMap.get(statementRowKey.getSubjectRowKey()).add(statementRowKey.getObjectRowKey());
             }
