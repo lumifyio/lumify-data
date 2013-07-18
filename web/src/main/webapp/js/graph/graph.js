@@ -102,28 +102,28 @@ define([
                             }
                         });
                     }
-
-                    var unselected = cy.nodes().filter(':unselected');
-                    unselected.lock ();
-                    var opts = $.extend({
-                        name:'grid',
-                        fit: false,
-                        stop: function() {
-                            if (unselected) {
-                                unselected.unlock();
-                            }
-                            var updates = $.map(cy.nodes(), function(node) {
-                                return {
-                                    rowKey: node.data('rowKey'),
-                                    graphPosition: self.pixelsToPoints(node.position())
-                                };
-                            });
-                            self.trigger(document, 'updateNodes', { nodes:updates });
-                        }
-                    }, LAYOUT_OPTIONS['grid'] || {});
-
-                    cy.layout(opts);
                 });
+
+                var unselected = cy.nodes().filter(':unselected');
+                                    unselected.lock ();
+                                    var opts = $.extend({
+                                        name:'grid',
+                                        fit: false,
+                                        stop: function() {
+                                            if (unselected) {
+                                                unselected.unlock();
+                                            }
+                                            var updates = $.map(cy.nodes(), function(node) {
+                                                return {
+                                                    rowKey: node.data('rowKey'),
+                                                    graphPosition: self.pixelsToPoints(node.position())
+                                                };
+                                            });
+                                            self.trigger(document, 'updateNodes', { nodes:updates });
+                                        }
+                                    }, LAYOUT_OPTIONS['grid'] || {});
+
+                                    cy.layout(opts);
 
                 if (options.fit && cy.nodes().length) {
                     cy.fit(undefined, FIT_PADDING);
@@ -508,12 +508,9 @@ define([
             this.cy(function(cy) {
                 cy.edges().remove();
                 if (relationshipData.relationships != null){
+                var start = Date.now ();
                 relationshipData.relationships.forEach(function(relationship) {
-                    cy.edges().addClass('bidirectional');
-                    if (relationship.bidirectional == false)
-                    {
-                        cy.edges().removeClass ('bidirectional');
-                    }
+                console.log ('relationshipsLoaded');
                     cy.add({
                         group: "edges",
                         data: {
@@ -522,9 +519,11 @@ define([
                             source: relationship.from,
                             target: relationship.to,
                             type: 'relationship'
-                        }
+                        },
+                        classes: (relationship.bidirectional ? 'bidirectional' : '')
                     });
                 });
+                console.log ("start",  (Date.now() - start));
                 }
             });
         };
