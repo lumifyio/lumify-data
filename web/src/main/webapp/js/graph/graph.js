@@ -53,7 +53,7 @@ define([
             var LAYOUT_OPTIONS = {
                 // Customize layout options
                 random: { padding: FIT_PADDING },
-                arbor: { friction: 0.6, repulsion: 5000 * pixelScale, targetFps: 60, stiffness: 300 }
+                arbor: { friction: 0.6, repulsion: 5000 * retina.devicePixelRatio, targetFps: 60, stiffness: 300 }
             };
 
             this.cy(function(cy) {
@@ -124,7 +124,7 @@ define([
                         var updates = $.map(cy.nodes(), function(node) {
                             return {
                                 rowKey: node.data('rowKey'),
-                                graphPosition: self.pixelsToPoints(node.position())
+                                graphPosition: retina.pixelsToPoints(node.position())
                             };
                         });
                         self.trigger(document, 'updateNodes', { nodes:updates });
