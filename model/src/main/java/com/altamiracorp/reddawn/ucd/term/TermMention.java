@@ -7,6 +7,8 @@ import com.altamiracorp.reddawn.model.Value;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
+
 public class TermMention extends ColumnFamily {
     public static final String ARTIFACT_KEY = "artifactKey";
     public static final String ARTIFACT_KEY_SIGN = "artifactKey_sign";
@@ -236,6 +238,10 @@ public class TermMention extends ColumnFamily {
     public TermMention setDate(Long date) {
         set(DATE, date);
         return this;
+    }
+
+    public TermMention setDate(Date date) {
+        return setDate(date.getTime());
     }
 
     @Override
