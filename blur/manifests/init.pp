@@ -1,41 +1,130 @@
-# == Class: blur
-#
-# Full description of class blur here.
-#
-# === Parameters
-#
-# Document parameters here.
-#
-# [*sample_parameter*]
-#   Explanation of what this parameter affects and what it defaults to.
-#   e.g. "Specify one or more upstream ntp servers as an array."
-#
-# === Variables
-#
-# Here you should define a list of variables that this module would require.
-#
-# [*sample_variable*]
-#   Explanation of how this variable affects the funtion of this class and if it
-#   has a default. e.g. "The parameter enc_ntp_servers must be set by the
-#   External Node Classifier as a comma separated list of hostnames." (Note,
-#   global variables should not be used in preference to class parameters  as of
-#   Puppet 2.6.)
-#
-# === Examples
-#
-#  class { blur:
-#    servers => [ 'pool.ntp.org', 'ntp.local.company.com' ]
-#  }
-#
-# === Authors
-#
-# Author Name <author@domain.com>
-#
-# === Copyright
-#
-# Copyright 2013 Your name here, unless otherwise noted.
-#
-class blur {
+class blur (
+  $version="0.2.0-incubating-SNAPSHOT",
+  $user="blur",
+  $group="hadoop",
+  $installdir="/usr/lib",
+  $logdir="/var/log/apache-blur",
+  $piddir="/var/run/apache-blur",
+  $javahome="/usr/java/default",
+  $hadoophome="/usr/lib/hadoop",
+  $tmpdir = '/tmp'
+) {
+  include macro
+  require hadoop
 
+  $homedir = "${installdir}/apache-blur-${version}"
+  $homelink = "${installdir}/apache-blur"
+  $configdir = "/etc/apache-blur-${version}"
+  $configlink = "/etc/apache-blur"
+  $downloadpath = "${tmpdir}/apache-blur-${version}-bin.tar.gz"
 
+  user { $user :
+    ensure  => "present",
+    gid     => $group,
+    home    => $configlink,
+    require => Package["hadoop-0.20"],
+  }
+
+  file { $downloadpath:
+    ensure  => file,
+    source  => "puppet:///modules/blur/apache-blur-0.2.0-incubating-SNAPSHOT-bin.tar.gz",
+  }
+
+  macro::extract { $downloadpath:
+    path    => $installdir,
+    require => File[$downloadpath],
+  }
+
+  file { $homelink:
+    ensure  => link,
+    target  => $homedir,
+    require => Macro::Extract[$downloadpath],
+  }
+
+  file { $configdir:
+    ensure => directory,
+  }
+
+  file { $configlink:
+    ensure  => link,
+    target  => $configdir,
+    require => File[$configdir],
+  }
+
+  exec { "copy-config" :
+    command => "/bin/cp ${homedir}/conf/* ${configdir}",
+    user    => root,
+    group   => root,
+    unless  => "/usr/bin/test -f ${configdir}/blur-env.sh",
+    require => [Macro::Extract[$downloadpath], File[$configdir]],
+  }
+
+  file { "${configdir}/blur-env.sh":
+    ensure  => file,
+    content => template("blur/blur-env.sh.erb"),
+    require => Exec["copy-config"],
+  }
+
+  exec { 'change-blur-config-file-modes':
+    command => '/bin/find . -type f -exec chmod 0644 {} \;',
+    cwd     => $configdir,
+    require => Exec["copy-config"],
+  }
+
+  file { $logdir:
+    ensure  => directory,
+    owner   => 'root',
+    group   => $group,
+    mode    => 0775,
+  }
+
+  file { $piddir:
+    ensure  => directory,
+    owner   => 'root',
+    group   => $group,
+    mode    => 0775,
+  }
+
+  file { "${homedir}/pids":
+    ensure  => link,
+    target  => $piddir,
+    force   => true,
+    require => [Macro::Extract[$downloadpath], File[$piddir]],
+  }
+
+  file { "${homedir}/logs":
+    ensure  => link,
+    target  => $logdir,
+    force   => true,
+    require => [Macro::Extract[$downloadpath], File[$logdir]],
+  }
+
+  exec { 'ulimit -Sn 50000' :
+    command => '/bin/echo "* soft nofile 50000" >> /etc/security/limits.conf',
+    unless => '/bin/grep -q "* soft nofile 50000" /etc/security/limits.conf',
+  }
+
+  exec { 'ulimit -Hn 100000' :
+    command => '/bin/echo "* hard nofile 100000" >> /etc/security/limits.conf',
+    unless  => '/bin/grep -q "* hard nofile 100000" /etc/security/limits.conf',
+  }
+
+  file { "${configdir}/.ssh":
+    ensure  => directory,
+    owner   => $user,
+    group   => $group,
+    mode    => 0744,
+    require => Macro::Extract[$downloadpath],
+  }
+
+  macro::setup-passwordless-ssh { $user :
+    sshdir  => "$configdir/.ssh",
+    require => File["${configdir}/.ssh"],
+  }
+
+  file { "${configdir}/.ssh/id_rsa":
+    mode => 0600,
+    require => Macro::Setup-passwordless-ssh[$user],
+  }
 }
+include blur

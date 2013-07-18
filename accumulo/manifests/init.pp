@@ -3,7 +3,8 @@ class accumulo(
   $user="accumulo",
   $group="hadoop",
   $installdir="/usr/lib",
-  $logdir="/var/log/accumulo"
+  $logdir="/var/log/accumulo",
+  $tmpdir = '/tmp'
 ) {
   include macro
   require hadoop
@@ -12,8 +13,7 @@ class accumulo(
   $homelink = "${installdir}/accumulo"
   $configdir = "/etc/accumulo-${version}"
   $configlink = "/etc/accumulo"
-  $downloaddir = "/tmp/downloads"
-  $downloadpath = "${downloaddir}/accumulo-${version}-dist.tar.gz"
+  $downloadpath = "${tmpdir}/accumulo-${version}-dist.tar.gz"
 
   notify { "Installing Accumulo ${version}. Please run `sudo -u ${user} ${homedir}/bin/accumulo init` to initialize after installation completes.":}
 
@@ -21,17 +21,12 @@ class accumulo(
     ensure  => "present",
     gid     => $group,
     home    => $configlink,
-    require => Group[$group],
-  }
-
-  file { $downloaddir:
-    ensure => directory,
-    mode   => 777,
+    require => Package["hadoop-0.20"],
   }
 
   macro::download { "http://www.us.apache.org/dist/accumulo/${version}/accumulo-${version}-dist.tar.gz":
     path    => $downloadpath,
-    require => [File[$downloaddir], User[$user]],
+    require => User[$user],
   } -> macro::extract { $downloadpath:
     path  => $installdir,
   }
@@ -79,7 +74,7 @@ class accumulo(
     require => Exec["copy-example-accumulo-config"],
   }
 
-  exec { 'change-config-file-modes':
+  exec { 'change-accumulo-config-file-modes':
     command => '/bin/find . -type f -exec chmod 0644 {} \;',
     cwd     => $configdir,
     require => Exec["copy-example-accumulo-config"],
@@ -90,6 +85,13 @@ class accumulo(
     owner  => 'root',
     group  => $group,
     mode   => 0775,
+  }
+
+  file { "${homedir}/logs":
+    ensure  => link,
+    target  => $logdir,
+    force   => true,
+    require => [Macro::Extract[$downloadpath], File[$logdir]],
   }
 
   exec { "vm.swappiness=10 online" :
