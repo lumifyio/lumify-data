@@ -64,7 +64,8 @@ define([
                         overflow: 'visible'
                     });
                 });
-                node.css({height:node.children('div').outerHeight() + 'px'});
+                var form = node.find('.term-form');
+                node.css({ height:form.outerHeight(true) + 'px' });
             });
 
             this.on('click', {
