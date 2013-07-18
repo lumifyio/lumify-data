@@ -151,7 +151,8 @@ define([
             insertAfterNode.after(form);
             EditDropdown.attachTo(form, {
                 term: text,
-                mentionNode: insertAfterNode
+                mentionNode: insertAfterNode,
+                artifactKey: this.currentRowKey
             });
         };
 

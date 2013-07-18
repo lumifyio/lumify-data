@@ -8,6 +8,7 @@ import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
+import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import org.json.JSONObject;
@@ -18,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
-public class EntityCreate implements Handler {
+public class EntityCreate implements Handler, AppAware {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(EntityCreate.class.getName());
     private static final String MODEL_KEY = "manual";

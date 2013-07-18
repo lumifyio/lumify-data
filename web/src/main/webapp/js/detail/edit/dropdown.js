@@ -16,17 +16,30 @@ define([
         this.defaultAttrs({
             entityConceptMenuSelector: '.underneath .dropdown-menu a',
             createTermButtonSelector: '.create-term',
-            termInputSelector: 'input',
+            termSelector: '.sign',
             conceptSelector: 'select'
         });
 
         this.onCreateTermClicked = function(event) {
-            this.entityService.createEntity({
-                termText: this.select('termInputSelector').val(),
-                conceptType: this.select('conceptSelector').val()
+            var self = this,
+                sentence = this.$node.parents('.sentence'),
+                sentenceInfo = sentence.data('info'),
+                sign = this.select('termSelector').text(),
+                mentionStart = sentenceInfo.start + sentence.text().indexOf(sign);
+
+            this.entityService.createTerm({
+                sign: sign,
+                conceptLabel: this.select('conceptSelector').val(),
+                artifactKey: this.attr.artifactKey,
+                mentionStart: mentionStart,
+                mentionEnd: mentionStart + sign.length
             }, function(err, data) {
-                // TODO:
-                console.log(err, data);
+                if (err) {
+                    self.trigger(document, 'error', err);
+                } else {
+                    console.log(data.termRowKey);
+                    self.teardown();
+                }
             });
         };
 

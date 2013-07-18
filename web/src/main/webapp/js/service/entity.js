@@ -11,11 +11,10 @@ function(ServiceBase) {
 
     EntityService.prototype = Object.create(ServiceBase.prototype);
 
-	EntityService.prototype.createEntity = function(createRequest, callback) {
+	EntityService.prototype.createTerm = function(createRequest, callback) {
 		this._ajaxPost({
 			url: 'entity/create',
-			contentType: 'application/json',
-			data: JSON.stringify(createRequest)
+			data: createRequest
 		},function (err, response) {
 			callback (err,response);
 		});
