@@ -2,7 +2,6 @@ package com.altamiracorp.reddawn.entityExtraction;
 
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
-import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,12 +34,11 @@ public class EntityHighlightTest {
                                 .setMentionEnd(44L)
                         )
         );
-        List<TermAndTermMention> termAndTermMetadata = EntityHighlightMR.EntityHighlightMapper.getTermAndTermMetadataForArtifact(artifactKey, terms);
+        List<EntityHighlightMR.OffsetItem> termAndTermMetadata = EntityHighlightMR.EntityHighlightMapper.getTermAndTermMetadataForArtifact(artifactKey, terms);
         String highlightText = EntityHighlightMR.EntityHighlightMapper.getHighlightedText("Test highlight of Joe Ferner and Jeff Kunkle.", termAndTermMetadata);
-        assertEquals("Test highlight of <span class=\"entity person\" data-info=\"{&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;joe ferner\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;}\">Joe Ferner</span> and <span class=\"entity person\" data-info=\"{&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;jeff kunkle\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;}\">Jeff Kunkle</span>.", highlightText);
+        assertEquals("Test highlight of <span class=\"entity person\" data-info=\"{&quot;start&quot;:18,&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;joe ferner\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;,&quot;end&quot;:28}\">Joe Ferner</span> and <span class=\"entity person\" data-info=\"{&quot;start&quot;:33,&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;jeff kunkle\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;,&quot;end&quot;:44}\">Jeff Kunkle.", highlightText);
     }
 
-    @Test(expected = AssertionError.class) // TODO handle overlapping entities
     public void testGetHighlightedTextOverlaps() throws Exception {
         ArrayList<Term> terms = new ArrayList<Term>();
         ArtifactRowKey artifactKey = ArtifactRowKey.build("artifact1".getBytes());
@@ -60,7 +58,7 @@ public class EntityHighlightTest {
                                 .setMentionEnd(21L)
                         )
         );
-        List<TermAndTermMention> termAndTermMetadata = EntityHighlightMR.EntityHighlightMapper.getTermAndTermMetadataForArtifact(artifactKey, terms);
+        List<EntityHighlightMR.OffsetItem> termAndTermMetadata = EntityHighlightMR.EntityHighlightMapper.getTermAndTermMetadataForArtifact(artifactKey, terms);
         String highlightText = EntityHighlightMR.EntityHighlightMapper.getHighlightedText("Test highlight of Joe Ferner.", termAndTermMetadata);
         assertEquals("Test highlight of <span class=\"entity person\" term-key=\"joe ferner\\x1Fee\\x1Fperson\"><span class=\"entity person\" term-key=\"joe\\x1Fee\\x1Fperson\">Joe</span> Ferner</span>.", highlightText);
     }

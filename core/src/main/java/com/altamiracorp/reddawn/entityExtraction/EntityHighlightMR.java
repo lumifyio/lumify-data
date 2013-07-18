@@ -6,7 +6,12 @@ import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
-import com.altamiracorp.reddawn.ucd.term.*;
+import com.altamiracorp.reddawn.ucd.sentence.Sentence;
+import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
+import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
+import com.altamiracorp.reddawn.ucd.term.TermMention;
+import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.hadoop.io.Text;
@@ -21,10 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class EntityHighlightMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityHighlightMR.class.getName());
@@ -47,6 +49,7 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
 
     public static class EntityHighlightMapper extends Mapper<Text, Artifact, Text, Artifact> {
         private TermRepository termRepository = new TermRepository();
+        private SentenceRepository sentenceRepository = new SentenceRepository();
         private RedDawnSession session;
 
         @Override
@@ -73,56 +76,78 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
         }
 
         private boolean populateHighlightedText(Artifact artifact, Collection<Term> terms) throws JSONException {
-            List<TermAndTermMention> termAndTermMetadata = getTermAndTermMetadataForArtifact(artifact.getRowKey(), terms);
-            String highlightedText = getHighlightedText(artifact.getContent().getDocExtractedTextString(), termAndTermMetadata);
+            List<OffsetItem> termAndTermMetadata = getTermAndTermMetadataForArtifact(artifact.getRowKey(), terms);
+            List<OffsetItem> sentences = getSentencesForArtifact(artifact.getRowKey());
+            ArrayList<OffsetItem> offsetItems = new ArrayList<OffsetItem>();
+            offsetItems.addAll(termAndTermMetadata);
+            offsetItems.addAll(sentences);
+            String highlightedText = getHighlightedText(artifact.getContent().getDocExtractedTextString(), offsetItems);
             artifact.getContent().setHighlightedText(highlightedText);
             return true;
         }
 
-        public static List<TermAndTermMention> getTermAndTermMetadataForArtifact(ArtifactRowKey artifactKey, Collection<Term> terms) {
-            ArrayList<TermAndTermMention> termMetadatas = new ArrayList<TermAndTermMention>();
+        private List<OffsetItem> getSentencesForArtifact(ArtifactRowKey rowKey) {
+            List<Sentence> sentences = sentenceRepository.findByArtifactRowKey(session.getModelSession(), rowKey);
+            ArrayList<OffsetItem> sentenceOffsetItems = new ArrayList<OffsetItem>();
+            for (Sentence sentence : sentences) {
+                sentenceOffsetItems.add(new SentenceOffsetItem(sentence));
+            }
+            return sentenceOffsetItems;
+        }
+
+        public static List<OffsetItem> getTermAndTermMetadataForArtifact(ArtifactRowKey artifactKey, Collection<Term> terms) {
+            ArrayList<OffsetItem> termMetadataOffsetItems = new ArrayList<OffsetItem>();
             for (Term term : terms) {
                 for (TermMention termMention : term.getTermMentions()) {
                     if (termMention.getArtifactKey().equals(artifactKey.toString())) {
-                        termMetadatas.add(new TermAndTermMention(term, termMention));
+                        termMetadataOffsetItems.add(new TermAndTermMetadataOffsetItem(new TermAndTermMention(term, termMention)));
                     }
                 }
             }
-            return termMetadatas;
+            return termMetadataOffsetItems;
         }
 
-        public static String getHighlightedText(String text, List<TermAndTermMention> termAndTermMetadatas) throws JSONException {
-            Collections.sort(termAndTermMetadatas, new TermAndTermMetadataComparator());
-            long start = 0;
+        public static String getHighlightedText(String text, List<OffsetItem> offsetItems) throws JSONException {
+            Collections.sort(offsetItems, new OffsetItemComparator());
             StringBuilder result = new StringBuilder();
-            for (TermAndTermMention termAndTermMetadata : termAndTermMetadatas) {
-                TermMention mention = termAndTermMetadata.getTermMention();
-                String keyString = termAndTermMetadata.getTerm().getRowKey().toString();
-                keyString = keyString.replaceAll("\\x1f", "\\\\x1F");
-
-                if (mention.getMentionStart() < start) {
-                    continue; // TODO handle overlapping entities (see com.altamiracorp.reddawn.entityExtraction.EntityHighlightTest#testGetHighlightedTextOverlaps)
+            PriorityQueue<Integer> endOffsets = new PriorityQueue<Integer>();
+            int lastStart = 0;
+            for (OffsetItem offsetItem : offsetItems) {
+                while (endOffsets.size() > 0 && endOffsets.peek() < offsetItem.getStart().intValue()) {
+                    int end = endOffsets.poll();
+                    result.append(text.substring(lastStart, end));
+                    result.append("</span>");
+                    lastStart = end;
                 }
+                result.append(text.substring(lastStart, offsetItem.getStart().intValue()));
+
+                String rowKey = offsetItem.getRowKey();
+                rowKey = rowKey.replaceAll("\\x1f", "\\\\x1F");
 
                 JSONObject infoJson = new JSONObject();
-                infoJson.put("rowKey", keyString);
-                infoJson.put("type", "entity");
-                infoJson.put("subType", termAndTermMetadata.getTerm().getRowKey().getConceptLabel());
+                infoJson.put("start", offsetItem.getStart());
+                infoJson.put("end", offsetItem.getEnd());
+                infoJson.put("rowKey", rowKey);
+                infoJson.put("type", offsetItem.getType());
+                if (offsetItem.getSubType() != null) {
+                    infoJson.put("subType", offsetItem.getSubType());
+                }
 
-                result.append(text.substring((int) start, (int) mention.getMentionStart().longValue()));
                 result.append("<span");
-                result.append(" class=\"entity ");
-                result.append(termAndTermMetadata.getTerm().getRowKey().getConceptLabel());
+                result.append(" class=\"");
+                result.append(offsetItem.getType());
+                if (offsetItem.getConceptLabel() != null) {
+                    result.append(" " + offsetItem.getConceptLabel());
+                }
                 result.append("\"");
                 result.append(" data-info=\"");
                 result.append(StringEscapeUtils.escapeHtml(infoJson.toString()));
                 result.append("\"");
                 result.append(">");
-                result.append(text.substring((int) mention.getMentionStart().longValue(), (int) mention.getMentionEnd().longValue()));
-                result.append("</span>");
-                start = mention.getMentionEnd();
+                endOffsets.add(offsetItem.getEnd().intValue());
+                lastStart = offsetItem.getStart().intValue();
             }
-            result.append(text.substring((int) start));
+            result.append(text.substring(lastStart));
             return result.toString();
         }
 
@@ -138,6 +163,108 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
     @Override
     protected boolean hasConfigurableClassname() {
         return false;
+    }
+
+    public static abstract class OffsetItem {
+        public abstract Long getStart();
+
+        public abstract Long getEnd();
+
+        public abstract String getType();
+
+        public abstract String getSubType();
+
+        public abstract String getRowKey();
+
+        public abstract String getConceptLabel();
+    }
+
+    private static class TermAndTermMetadataOffsetItem extends OffsetItem {
+
+        private TermAndTermMention termAndTermMetadata;
+
+        public TermAndTermMetadataOffsetItem(TermAndTermMention termAndTermMetadata) {
+            this.termAndTermMetadata = termAndTermMetadata;
+        }
+
+        @Override
+        public Long getStart() {
+            return termAndTermMetadata.getTermMention().getMentionStart();
+        }
+
+        @Override
+        public Long getEnd() {
+            return termAndTermMetadata.getTermMention().getMentionEnd();
+        }
+
+        @Override
+        public String getType() {
+            return "entity";
+        }
+
+        @Override
+        public String getSubType() {
+            return termAndTermMetadata.getTerm().getRowKey().getConceptLabel();
+        }
+
+        @Override
+        public String getRowKey() {
+            return termAndTermMetadata.getTerm().getRowKey().toString();
+        }
+
+        @Override
+        public String getConceptLabel() {
+            return termAndTermMetadata.getTerm().getRowKey().getConceptLabel();
+        }
+    }
+
+    private static class SentenceOffsetItem extends OffsetItem {
+
+        private final Sentence sentence;
+
+        public SentenceOffsetItem(Sentence sentence) {
+            this.sentence = sentence;
+        }
+
+        @Override
+        public Long getStart() {
+            return sentence.getRowKey().getStartOffset();
+        }
+
+        @Override
+        public Long getEnd() {
+            return sentence.getRowKey().getEndOffset();
+        }
+
+        @Override
+        public String getType() {
+            return "sentence";
+        }
+
+        @Override
+        public String getSubType() {
+            return null;
+        }
+
+        @Override
+        public String getRowKey() {
+            return sentence.getRowKey().toString();
+        }
+
+        @Override
+        public String getConceptLabel() {
+            return null;
+        }
+    }
+
+    private static class OffsetItemComparator implements Comparator<OffsetItem> {
+        @Override
+        public int compare(OffsetItem o1, OffsetItem o2) {
+            if (o1.getStart() == o2.getStart()) {
+                return Long.compare(o1.getEnd(), o2.getEnd());
+            }
+            return Long.compare(o1.getStart(), o2.getStart());
+        }
     }
 }
 
