@@ -1,0 +1,45 @@
+<!--
+  Copyright (c) 2010 Yahoo! Inc. All rights reserved.
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+<workflow-app xmlns="uri:oozie:workflow:0.1" name="init-aggregate-wf">
+    <start to="format-ucd-node"/>
+    <action name="format-ucd-node">
+		<sub-workflow>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/init/format-ucd</app-path>
+			<propagate-configuration/>
+        </sub-workflow>
+        <ok to="file-import-node"/>
+        <error to="fail"/>
+    </action>
+    <action name="file-import-node">
+		<sub-workflow>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/init/file-import</app-path>
+			<propagate-configuration/>
+        </sub-workflow>
+        <ok to="geonames-import-node"/>
+        <error to="fail"/>
+    </action>
+    <action name="geonames-import-node">
+		<sub-workflow>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/init/geonames-import</app-path>
+			<propagate-configuration/>
+        </sub-workflow>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+    <kill name="fail">
+        <message>Initialization aggregate workflow failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+    <end name="end"/>
+</workflow-app>
