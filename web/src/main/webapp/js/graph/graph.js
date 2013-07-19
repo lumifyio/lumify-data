@@ -506,6 +506,9 @@ define([
         this.onWorkspaceLoaded = function(evt, workspace) {
             this.resetGraph();
             if (workspace.data && workspace.data.nodes) {
+                workspace.data.nodes.forEach(function(node){
+                    node.selected = false;
+                });
                 this.addNodes(workspace.data.nodes, { fit:true });
             }
 
@@ -514,29 +517,28 @@ define([
 
         this.onRelationshipsLoaded = function(evt, relationshipData) {
             this.cy(function(cy) {
-               // cy.edges().remove();
                 if (relationshipData.relationships != null){
-                var start = Date.now ();
-                var relationshipEdges = [];
+                    var start = Date.now ();
+                    var relationshipEdges = [];
 
-                relationshipData.relationships.forEach(function(relationship) {
-                    console.log ('relationshipsLoaded');
-                    relationshipEdges.push ({
-                        group: "edges",
-                        data: {
-                            rowKey: relationship.from + "->" + relationship.to,
-                            relationshipType: relationship.relationshipType,
-                            source: relationship.from,
-                            target: relationship.to,
-                            type: 'relationship',
-                            id: (relationship.from < relationship.to ? relationship.from + relationship.to : relationship.to + relationship.from)
-                        },
-                        classes: (relationship.bidirectional ? 'bidirectional' : '')
+                    relationshipData.relationships.forEach(function(relationship) {
+                        console.log ('relationshipsLoaded');
+                        relationshipEdges.push ({
+                            group: "edges",
+                            data: {
+                                rowKey: relationship.from + "->" + relationship.to,
+                                relationshipType: relationship.relationshipType,
+                                source: relationship.from,
+                                target: relationship.to,
+                                type: 'relationship',
+                                id: (relationship.from < relationship.to ? relationship.from + relationship.to : relationship.to + relationship.from)
+                            },
+                            classes: (relationship.bidirectional ? 'bidirectional' : '')
+                        });
+
                     });
-
-                });
-                cy.add(relationshipEdges);
-                console.log ("start",  (Date.now() - start));
+                    cy.add(relationshipEdges);
+                    console.log ("start",  (Date.now() - start));
                 }
             });
         };
