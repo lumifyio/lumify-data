@@ -10,6 +10,7 @@ import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
 import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -49,27 +50,11 @@ public class EntityHighlighter {
             }
             result.append(text.substring(lastStart, offsetItem.getStart().intValue()));
 
-            String rowKey = offsetItem.getRowKey();
-            rowKey = rowKey.replaceAll("\\x1f", "\\\\x1F");
-
-            JSONObject infoJson = new JSONObject();
-            infoJson.put("start", offsetItem.getStart());
-            infoJson.put("end", offsetItem.getEnd());
-            infoJson.put("rowKey", rowKey);
-            infoJson.put("type", offsetItem.getType());
-            if (offsetItem.getSubType() != null) {
-                infoJson.put("subType", offsetItem.getSubType());
-            }
-            if (offsetItem.getObjectRowKey() != null) {
-                infoJson.put("objectRowKey", offsetItem.getObjectRowKey().toJson());
-            }
+            JSONObject infoJson = offsetItem.getInfoJson();
 
             result.append("<span");
             result.append(" class=\"");
-            result.append(offsetItem.getType());
-            if (offsetItem.getConceptLabel() != null) {
-                result.append(" " + offsetItem.getConceptLabel());
-            }
+            result.append(StringUtils.join(offsetItem.getCssClasses(), " "));
             result.append("\"");
             result.append(" data-info=\"");
             result.append(StringEscapeUtils.escapeHtml(infoJson.toString()));
@@ -96,7 +81,7 @@ public class EntityHighlighter {
         for (Term term : terms) {
             for (TermMention termMention : term.getTermMentions()) {
                 if (termMention.getArtifactKey().equals(artifactKey.toString())) {
-                    termMetadataOffsetItems.add(new TermAndTermMetadataOffsetItem(new TermAndTermMention(term, termMention)));
+                    termMetadataOffsetItems.add(new TermAndTermMentionOffsetItem(new TermAndTermMention(term, termMention)));
                 }
             }
         }
