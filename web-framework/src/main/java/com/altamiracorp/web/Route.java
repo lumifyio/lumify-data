@@ -29,7 +29,7 @@ public class Route {
             return false;
         }
 
-        String[] requestPathComponents = splitPathComponents(request.getPathInfo());
+        String[] requestPathComponents = splitPathComponents(request.getRequestURI());
         if (requestPathComponents.length != routePathComponents.length) {
             return false;
         }
