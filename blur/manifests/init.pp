@@ -127,4 +127,3 @@ class blur (
     require => Macro::Setup-passwordless-ssh[$user],
   }
 }
-include blur

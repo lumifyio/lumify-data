@@ -10,7 +10,7 @@ class macro {
 
   define extract ($file = $title, $type=undef, $user='root', $group='root', $path) {
     case $type {
-      'zip':   { $cmd = '/usr/bin/unzip -q' }
+      'zip':   { $cmd = '/usr/bin/unzip -qo' }
       'gzip':  { $cmd = '/bin/gunzip' }
       default: { $cmd = '/bin/tar xzf' }
     }
