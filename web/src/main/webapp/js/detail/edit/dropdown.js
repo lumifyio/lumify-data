@@ -27,6 +27,7 @@ define([
             if ( ! this.attr.selection ) {
                 return;
             }
+            // TODO: update object info
 
             var textNode = this.node.previousSibling,
                 offset = this.attr.selection[
@@ -66,6 +67,10 @@ define([
                     mentionEnd: mentionStart + sign.length
                 };
 
+            if (this.attr.objectRowKey) {
+                parameters.objectRowKey = this.attr.objectRowKey;
+            }
+
             if (newObjectSign.length) {
                 parameters.newObjectSign = newObjectSign;
             }
@@ -89,6 +94,8 @@ define([
                 node = this.$node,
                 mentionData = this.attr.mentionNode && this.attr.mentionNode.parents('.entity').data('info'),
                 objectSign = mentionData && mentionData.objectRowKey && mentionData.objectRowKey.sign || '';
+
+            this.attr.objectRowKey = mentionData && mentionData.objectRowKey && mentionData.objectRowKey.value || undefined;
 
             node.html(dropdownTemplate({
                 type: 'Set type of term',

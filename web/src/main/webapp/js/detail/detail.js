@@ -141,7 +141,11 @@ define([
         }, 500);
 
         this.onEntityClicked = function(event) {
-            _.defer(this.dropdownEntity.bind(this), $(event.target));
+            var $target = $(event.target);
+            if ($target.is('.underneath') || $target.parents('.underneath').length) {
+                return;
+            }
+            _.defer(this.dropdownEntity.bind(this), $target);
         };
 
         this.dropdownEntity = function(insertAfterNode, sel, text) {
