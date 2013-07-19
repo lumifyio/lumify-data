@@ -51,4 +51,8 @@ public abstract class OffsetItem {
             throw new RuntimeException(e);
         }
     }
+
+    public boolean shouldHighlight() {
+        return true;
+    }
 }

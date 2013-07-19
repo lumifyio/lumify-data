@@ -128,7 +128,7 @@ public class EntityCreate implements Handler, AppAware {
     }
 
     private static TermAndTermMention createObjectTerm(User currentUser, String artifactKey, String objectSign, String objectConceptLabel, long mentionStart, long mentionEnd) {
-        Term objectTerm = new Term(objectSign, "object", objectConceptLabel);
+        Term objectTerm = new Term(objectSign, TermRowKey.OBJECT_MODEL_KEY, objectConceptLabel);
         TermMention objectTermMention = new TermMention()
                 .setArtifactKey(artifactKey)
                 .setMentionStart(mentionStart)

@@ -42,6 +42,10 @@ public class EntityHighlighter {
         PriorityQueue<Integer> endOffsets = new PriorityQueue<Integer>();
         int lastStart = 0;
         for (OffsetItem offsetItem : offsetItems) {
+            if (!offsetItem.shouldHighlight()) {
+                continue;
+            }
+
             while (endOffsets.size() > 0 && endOffsets.peek() < offsetItem.getStart().intValue()) {
                 int end = endOffsets.poll();
                 result.append(text.substring(lastStart, end));
