@@ -199,16 +199,16 @@ define([
                 this.$node.empty ();
                 this.currentRowKey = null;
             } else if (data.type == 'entity') {
-                this.onRelatedEntitySelected (evt, data);
+                this.onLoadRelatedEntitySelected (evt, data);
             } else if (data.type == 'artifact'){
-                this.onRelatedArtifactSelected (evt, data);
+                this.onLoadRelatedArtifactSelected (evt, data);
             } else {
                 console.error ('Unhandled type: ' + data.type);
                 return this.trigger (document, 'error', { message: message });
             }
        };
 
-        this.onRelatedEntitySelected = function (evt, data){
+        this.onLoadRelatedEntitySelected = function (evt, data){
            this.openUnlessAlreadyOpen (data, function (finished){
                 var self = this;
                 new UCD ().getEntityById (data.rowKey, function (err, entity){
@@ -218,32 +218,37 @@ define([
                         return self.trigger (document, 'error', { message: err.toString () });
                     }
 
-                    self.getRelatedEntities (data.rowKey, function (relatedEntities){
-                        var entityDetailsData = {};
-                        entityDetailsData.key = entity.key;
-                        entityDetailsData.relatedEntities = relatedEntities;
-                        // TO DO: FIX LAYOUT OF RELATED ITEMS!!!!!!!!
-                        var countX = data.originalPosition.x;
-                        var countY = data.originalPosition.y;
-                        var addNodes = [];
-                        entityDetailsData.relatedEntities.forEach (function (relatedEntity){
-                            var graphPosition = {x: 100, y: 100};
-                            addNodes.push ({
-                               title: relatedEntity.title,
-                               rowKey: relatedEntity.rowKey,
-                               subType: relatedEntity.subType,
-                               type: relatedEntity.type,
-                               graphPosition: graphPosition,
-                               selected: true
-                           });
+                    self.getLoadRelatedEntities (data.rowKey, function (relatedEntities){
+                        var entityData = {};
+                        entityData.key = entity.key;
+                        entityData.relatedEntities = relatedEntities;
+                        var xOffset = 100, yOffset = 100;
+                        var x = data.originalPosition.x;
+                        var y = data.originalPosition.y;
+                        self.trigger(document, 'addNodes', {
+                            nodes: entityData.relatedEntities.map(function(relatedEntity, index) {
+                                if (index % 10 === 0) {
+                                    y += yOffset;
+                                }
+                                return {
+                                    title: relatedEntity.title,
+                                    rowKey: relatedEntity.rowKey,
+                                    subType: relatedEntity.subType,
+                                    type: relatedEntity.type,
+                                    graphPosition: {
+                                        x: x + xOffset * (index % 10 + 1),
+                                        y: y
+                                    },
+                                    selected: true
+                                };
+                            })
                         });
-                        self.trigger (document, 'addNodes', {nodes: addNodes});
                     });
                 });
-            });
+           });
         };
 
-        this.onRelatedArtifactSelected = function (evt, data){
+        this.onLoadRelatedArtifactSelected = function (evt, data){
             this.openUnlessAlreadyOpen (data, function (finished){
                 var self = this;
                 new UCD ().getArtifactById (data.rowKey, function (err, artifact){
@@ -253,7 +258,7 @@ define([
                         return self.trigger (document, 'error', { message: err.toString () });
                     }
 
-                    self.getRelatedTerms (data.rowKey, function (relatedTerms){
+                    self.getLoadRelatedTerms (data.rowKey, function (relatedTerms){
                         var termData = {};
                         termData.key = artifact.key;
                         termData.relatedTerms = relatedTerms;
@@ -278,7 +283,7 @@ define([
             });
         };
 
-        this.getRelatedEntities = function (key, callback){
+        this.getLoadRelatedEntities = function (key, callback){
             var self = this;
             new UCD().getRelatedEntitiesBySubject (key, function (err, relatedEntities){
                 if (err){
@@ -290,7 +295,7 @@ define([
             });
         };
 
-        this.getRelatedTerms = function (key, callback){
+        this.getLoadRelatedTerms = function (key, callback){
             var self = this;
             new UCD().getRelatedTermsFromArtifact (key, function (err, relatedTerms){
                 if (err){
