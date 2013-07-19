@@ -38,9 +38,6 @@ public class EntityRelationships implements Handler, AppAware {
         JSONObject jsonArray = new JSONObject(request.getParameter("json"));
         JSONArray oldEntityIds = jsonArray.getJSONArray("oldEntityIds");
         JSONArray newEntityIds = jsonArray.getJSONArray("newEntityIds");
-//        JSONArray oldArtifactIds = jsonArray.getJSONArray("oldArtifactIds");
-//        JSONArray newArtifactIds = jsonArray.getJSONArray("newArtifactIds");
-        //String [] artifactIds = request.getParameterValues("artifactIds[]");
         JSONArray artifactIds = jsonArray.getJSONArray("artifactIds");
         ArrayList <String> newEntityRowKey = new ArrayList<String>();
         ArrayList <String> artifactRowKeys = new ArrayList<String>();
