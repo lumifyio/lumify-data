@@ -135,7 +135,7 @@ public class StatementRepositoryTest {
 
         assertEquals(2, statementRow.getColumnFamilies().size());
         ColumnFamily firstColumnFamily = (ColumnFamily)statementRow.getColumnFamilies().iterator().next();
-        assertEquals("urn\u001Fsha256\u001Feafce42c1f5203eb7007d7af91608dbc36b067446e2dd09cb7095e7e377d58ac", firstColumnFamily.getColumnFamilyName());
+        assertEquals("urn\u001Fsha256\u001F4606359e21250a64779ac2bae9063c17735f281fc4eeca1be8a86bdbc577119f", firstColumnFamily.getColumnFamilyName());
         assertEquals("testArtifactKey", firstColumnFamily.get(StatementArtifact.ARTIFACT_KEY).toString());
         assertEquals("testAuthor", firstColumnFamily.get(StatementArtifact.AUTHOR).toString());
         assertEquals((Long)100L, firstColumnFamily.get(StatementArtifact.DATE).toLong());
