@@ -182,6 +182,10 @@ define([
 			this.currentQuery = data.query;
 		};
 
+        this.onFocusSearchField = function() {
+            this.select('searchQuerySelector').focus();
+        };
+
         this.close = function(e) {
             this.select('searchResultsSelector').hide();
             this.$node.find('.search-results-summary .active').removeClass('active');
@@ -244,6 +248,7 @@ define([
             this.on('entitySearchResults', this.onEntitySearchResults);
             this.on(document,'showSearchResults', this.onShowSearchResults);
 			this.on(document,'searchQueryChanged',this.onQueryChange);
+            this.on(document, 'focusSearchField', this.onFocusSearchField);
             this.on('submit', {
                 searchFormSelector: this.onFormSearch
             });
