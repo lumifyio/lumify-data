@@ -57,8 +57,28 @@ define([
             };
 
             this.cy(function(cy) {
+                var unselected = cy.nodes().filter(':unselected');
+                unselected.lock ();
+                var opts = $.extend({
+                    name:'grid',
+                    fit: false,
+                    stop: function() {
+                        if (unselected) {
+                            unselected.unlock();
+                        }
+                        var updates = $.map(cy.nodes(), function(node) {
+                            return {
+                                rowKey: node.data('rowKey'),
+                                graphPosition: retina.pixelsToPoints(node.position())
+                            };
+                        });
+                        self.trigger(document, 'updateNodes', { nodes:updates });
+                    }
+                }, LAYOUT_OPTIONS['grid'] || {});
 
-               nodes.forEach(function(node) {
+                cy.layout(opts);
+
+                nodes.forEach(function(node) {
                     var title = node.title;
                     if (title.length > 15) {
                         title = title.substring(0, 10) + "...";
@@ -111,27 +131,6 @@ define([
                         });
                     }
                 });
-
-                var unselected = cy.nodes().filter(':unselected');
-                unselected.lock ();
-                var opts = $.extend({
-                    name:'grid',
-                    fit: false,
-                    stop: function() {
-                        if (unselected) {
-                            unselected.unlock();
-                        }
-                        var updates = $.map(cy.nodes(), function(node) {
-                            return {
-                                rowKey: node.data('rowKey'),
-                                graphPosition: retina.pixelsToPoints(node.position())
-                            };
-                        });
-                        self.trigger(document, 'updateNodes', { nodes:updates });
-                    }
-                }, LAYOUT_OPTIONS['grid'] || {});
-
-                cy.layout(opts);
 
                 if (options.fit && cy.nodes().length) {
                     cy.fit(undefined, FIT_PADDING);
@@ -516,11 +515,9 @@ define([
         this.onRelationshipsLoaded = function(evt, relationshipData) {
             this.cy(function(cy) {
                 if (relationshipData.relationships != null){
-                    var start = Date.now ();
                     var relationshipEdges = [];
 
                     relationshipData.relationships.forEach(function(relationship) {
-                        console.log ('relationshipsLoaded');
                         relationshipEdges.push ({
                             group: "edges",
                             data: {
@@ -536,7 +533,6 @@ define([
 
                     });
                     cy.add(relationshipEdges);
-                    console.log ("start",  (Date.now() - start));
                 }
             });
         };
