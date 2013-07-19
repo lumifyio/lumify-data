@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 
 public abstract class Repository<T> {
-
     public abstract T fromRow(Row row);
 
     public abstract Row toRow(T obj);

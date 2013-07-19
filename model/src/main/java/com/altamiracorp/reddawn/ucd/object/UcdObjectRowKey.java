@@ -1,18 +1,16 @@
-package com.altamiracorp.reddawn.ucd.term;
+package com.altamiracorp.reddawn.ucd.object;
 
 import com.altamiracorp.reddawn.model.RowKey;
 import com.altamiracorp.reddawn.model.RowKeyHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class TermRowKey extends RowKey {
-    public static final String OBJECT_MODEL_KEY = "object";
-
-    public TermRowKey(String rowKey) {
+public class UcdObjectRowKey extends RowKey {
+    public UcdObjectRowKey(String rowKey) {
         super(rowKey);
     }
 
-    public TermRowKey(String sign, String modelKey, String conceptLabel) {
+    public UcdObjectRowKey(String sign, String modelKey, String conceptLabel) {
         super(RowKeyHelper.buildMinor(sign.toLowerCase(), modelKey, conceptLabel));
     }
 

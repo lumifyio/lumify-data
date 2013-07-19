@@ -24,7 +24,7 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.entityExtraction.EntityHighlightMR \
+com.altamiracorp.reddawn.entityHighlight.EntityHighlightMR \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \

@@ -1,8 +1,10 @@
 
 define([
     'flight/lib/component',
+    './edit/dropdown',
     'service/ucd',
     'util/video/scrubber',
+    'underscore',
     'tpl!./artifactDetails',
     'tpl!./entityDetails',
     'tpl!./entityToEntityRelationshipDetails',
@@ -12,8 +14,10 @@ define([
     'tpl!./style'
 ], function(
     defineComponent,
+    EditDropdown,
     UCD,
     VideoScrubber,
+    _,
     artifactDetailsTemplate,
     entityDetailsTemplate,
     entityToEntityRelationshipDetailsTemplate,
@@ -56,12 +60,101 @@ define([
                 highlightTypeSelector: this.onHighlightTypeClicked,
                 moreMentionsSelector: this.onRequestMoreMentions,
                 mentionArtifactSelector: this.onMentionArtifactSelected,
+                entitiesSelector: this.onEntityClicked,
                 entityToEntityRelationshipSelector: this.onEntityToEntityRelationshipClicked
             });
 
             this.on('scrollstop', this.updateEntityAndArtifactDraggables);
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
+
+            $(document).on('selectionchange', this.onSelectionChange.bind(this));
         });
+
+        this.onSelectionChange = function(e) {
+            var selection = window.getSelection(),
+                trimmedText = $.trim(selection.toString());
+
+            // Ignore selection events within the dropdown
+            if ( selection.type == 'None' || 
+                 $(selection.anchorNode).is('.underneath') ||
+                 $(selection.anchorNode).parents('.underneath').length ||
+                 $(selection.focusNode).is('.underneath') ||
+                 $(selection.focusNode).parents('.underneath').length) {
+                return;
+            }
+
+            // Ignore if selection hasn't change
+            if (trimmedText.length && trimmedText === this.previousSelection) {
+                return;
+            } else this.previousSelection = trimmedText;
+
+            // Remove all dropdowns if empty selection
+            if (selection.isCollapsed || trimmedText.length === 0) {
+                EditDropdown.teardownAll();
+
+            }
+
+            this.handleSelectionChange();
+        };
+
+        this.handleSelectionChange = _.debounce(function() {
+            EditDropdown.teardownAll();
+
+            var sel = window.getSelection(),
+                text = sel && sel.type === 'Range' && sel.toString();
+
+            if (text && text.length) {
+                var anchor = $(sel.anchorNode),
+                    focus = $(sel.focusNode),
+                    is = '.detail-pane .text';
+                
+                // Ignore outside content text
+                if (anchor.parents(is).length === 0 || focus.parents(is).length === 0) {
+                    return;
+                }
+
+                // Ignore if too long of selection
+                var wordLength = text.split(/\s+/).length;
+                if (wordLength > 10) {
+                    return;
+                }
+
+                // Find which way the selection was travelling (which is the
+                // furthest element in document
+                var end = focus, endOffset = sel.focusOffset;
+                if (text.indexOf(anchor[0].textContent.substring(sel.anchorOffset, 1)) > 
+                    text.indexOf(focus[0].textContent.substring(sel.focusOffset, 1))) {
+                    end = anchor;
+                    endOffset = sel.anchorOffset;
+                }
+
+                // Move to first space in end so as to not break up word when
+                // splitting
+                var i = Math.max(endOffset - 1, 0), character = '', whitespaceCheck = /^[^\s]$/;
+                do {
+                    character = end[0].textContent.substring(++i, i+1);
+                } while (whitespaceCheck.test(character));
+
+                end[0].splitText(i);
+                this.dropdownEntity(end, text);
+            }
+        }, 500);
+
+        this.onEntityClicked = function(event) {
+            _.defer(this.dropdownEntity.bind(this), $(event.target));
+        };
+
+        this.dropdownEntity = function(insertAfterNode, text) {
+            EditDropdown.teardownAll();
+
+            var form = $('<div class="underneath"></div>');
+            insertAfterNode.after(form);
+            EditDropdown.attachTo(form, {
+                sign: text,
+                mentionNode: insertAfterNode,
+                artifactKey: this.currentRowKey
+            });
+        };
 
         this.onEntityToEntityRelationshipClicked = function(evt, data) {
             var self = this;

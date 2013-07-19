@@ -1,26 +1,24 @@
-package com.altamiracorp.reddawn.ucd.predicate;
+package com.altamiracorp.reddawn.ucd.concept;
 
 import com.altamiracorp.reddawn.model.RowKey;
 import com.altamiracorp.reddawn.model.RowKeyHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class PredicateRowKey extends RowKey {
-    public static final PredicateRowKey IS_AN_OBJECT = new PredicateRowKey("system", "isAnObject");
-
-    public PredicateRowKey(String rowKey) {
+public class ConceptRowKey extends RowKey {
+    public ConceptRowKey(String rowKey) {
         super(rowKey);
     }
 
-    public PredicateRowKey(String modelKey, String predicateLabel) {
-        super(RowKeyHelper.buildMinor(modelKey, predicateLabel).toString());
+    public ConceptRowKey(String modelKey, String conceptLabel) {
+        super(RowKeyHelper.buildMinor(modelKey, conceptLabel));
     }
 
     public String getModelKey() {
         return RowKeyHelper.splitOnMinorFieldSeperator(this.toString())[0];
     }
 
-    public String getPredicateLabel() {
+    public String getConceptLabel() {
         return RowKeyHelper.splitOnMinorFieldSeperator(this.toString())[1];
     }
 
@@ -29,10 +27,10 @@ public class PredicateRowKey extends RowKey {
         try {
             JSONObject json = super.toJson();
             json.put("modelKey", getModelKey());
-            json.put("predicateLabel", getPredicateLabel());
+            json.put("conceptLabel", getConceptLabel());
             return json;
         } catch (JSONException e) {
-            throw new RuntimeException("Could not parse rowkey", e);
+            throw new RuntimeException(e);
         }
     }
 }

@@ -40,4 +40,10 @@ public class SentenceRowKey extends RowKey {
         String startOffsetPadded = keyElements[keyElements.length - 1];
         return Long.parseLong(startOffsetPadded);
     }
+
+    public Long getEndOffset() {
+        String[] keyElements = this.toString().split(":");
+        String startOffsetPadded = keyElements[keyElements.length - 2];
+        return Long.parseLong(startOffsetPadded);
+    }
 }
