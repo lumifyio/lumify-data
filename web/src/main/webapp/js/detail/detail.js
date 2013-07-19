@@ -147,7 +147,7 @@ define([
             insertAfterNode.after(form);
             EditDropdown.attachTo(form, {
                 sign: text,
-                selection: { anchor:sel.anchorNode, focus:sel.focusNode, anchorOffset: sel.anchorOffset, focusOffset: sel.focusOffset },
+                selection: sel && { anchor:sel.anchorNode, focus:sel.focusNode, anchorOffset: sel.anchorOffset, focusOffset: sel.focusOffset },
                 mentionNode: insertAfterNode,
                 artifactKey: this.currentRowKey
             });

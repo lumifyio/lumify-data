@@ -24,6 +24,10 @@ define([
         });
 
         this.highlightTerm = function(data) {
+            if ( ! this.attr.selection ) {
+                return;
+            }
+
             var textNode = this.node.previousSibling,
                 offset = this.attr.selection[
                     this.attr.selection.anchor === textNode ? 'anchorOffset' : 'focusOffset'
