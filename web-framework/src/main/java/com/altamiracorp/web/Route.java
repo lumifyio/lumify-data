@@ -63,18 +63,22 @@ public class Route {
 
     private String[] splitPathComponents(String path) {
         String[] components = path.split("/");
-        String[] lastComponents = components[components.length - 1].split("\\.");
-        if (lastComponents.length > 1) {
-            String[] allComponents = new String[components.length - 1 + lastComponents.length];
-            for (int i = 0; i < components.length - 1; i++) {
-                allComponents[i] = components[i];
+        if (components.length > 0)
+        {
+            String[] lastComponents = components[components.length - 1].split("\\.");
+            if (lastComponents.length > 1) {
+                String[] allComponents = new String[components.length - 1 + lastComponents.length];
+                for (int i = 0; i < components.length - 1; i++) {
+                    allComponents[i] = components[i];
+                }
+                for (int i = 0; i < lastComponents.length; i++) {
+                    allComponents[components.length + i - 1] = lastComponents[i];
+                }
+                return allComponents;
+            } else {
+                return components;
             }
-            for (int i = 0; i < lastComponents.length; i++) {
-                allComponents[components.length + i - 1] = lastComponents[i];
-            }
-            return allComponents;
-        } else {
-            return components;
         }
+        return new String [0];
     }
 }
