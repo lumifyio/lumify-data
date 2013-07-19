@@ -30,29 +30,32 @@ public class EntityHighlighter {
             offsetItems.addAll(termAndTermMetadata);
             offsetItems.addAll(sentences);
 
-            return getHighlightedText(artifact.getContent().getDocExtractedTextString(), offsetItems);
+            return getHighlightedText(artifact.getContent().getDocExtractedTextString(), 0, offsetItems);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static String getHighlightedText(String text, List<OffsetItem> offsetItems) throws JSONException {
+    public static String getHighlightedText(String text, int textStartOffset, List<OffsetItem> offsetItems) throws JSONException {
         Collections.sort(offsetItems, new OffsetItemComparator());
         StringBuilder result = new StringBuilder();
         PriorityQueue<Integer> endOffsets = new PriorityQueue<Integer>();
         int lastStart = 0;
         for (OffsetItem offsetItem : offsetItems) {
+            if (offsetItem.getStart() < textStartOffset || offsetItem.getEnd() < textStartOffset) {
+                continue;
+            }
             if (!offsetItem.shouldHighlight()) {
                 continue;
             }
 
             while (endOffsets.size() > 0 && endOffsets.peek() < offsetItem.getStart().intValue()) {
                 int end = endOffsets.poll();
-                result.append(text.substring(lastStart, end));
+                result.append(text.substring(lastStart - textStartOffset, end - textStartOffset));
                 result.append("</span>");
                 lastStart = end;
             }
-            result.append(text.substring(lastStart, offsetItem.getStart().intValue()));
+            result.append(text.substring(lastStart - textStartOffset, offsetItem.getStart().intValue() - textStartOffset));
 
             JSONObject infoJson = offsetItem.getInfoJson();
 
@@ -67,11 +70,11 @@ public class EntityHighlighter {
             endOffsets.add(offsetItem.getEnd().intValue());
             lastStart = offsetItem.getStart().intValue();
         }
-        result.append(text.substring(lastStart));
+        result.append(text.substring(lastStart - textStartOffset));
         return result.toString();
     }
 
-    private List<OffsetItem> getSentencesForArtifact(RedDawnSession session, ArtifactRowKey rowKey) {
+    public List<OffsetItem> getSentencesForArtifact(RedDawnSession session, ArtifactRowKey rowKey) {
         List<Sentence> sentences = sentenceRepository.findByArtifactRowKey(session.getModelSession(), rowKey);
         ArrayList<OffsetItem> sentenceOffsetItems = new ArrayList<OffsetItem>();
         for (Sentence sentence : sentences) {
