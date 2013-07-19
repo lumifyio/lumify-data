@@ -6,6 +6,7 @@ import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.reddawn.ucd.object.UcdObjectRowKey;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
 import com.altamiracorp.reddawn.ucd.term.Term;
@@ -132,6 +133,9 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
                 if (offsetItem.getSubType() != null) {
                     infoJson.put("subType", offsetItem.getSubType());
                 }
+                if (offsetItem.getObjectRowKey() != null) {
+                    infoJson.put("objectRowKey", offsetItem.getObjectRowKey().toJson());
+                }
 
                 result.append("<span");
                 result.append(" class=\"");
@@ -172,11 +176,19 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
 
         public abstract String getType();
 
-        public abstract String getSubType();
+        public String getSubType() {
+            return null;
+        }
 
         public abstract String getRowKey();
 
-        public abstract String getConceptLabel();
+        public String getConceptLabel() {
+            return null;
+        }
+
+        public UcdObjectRowKey getObjectRowKey() {
+            return null;
+        }
     }
 
     private static class TermAndTermMetadataOffsetItem extends OffsetItem {
@@ -216,6 +228,11 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
         public String getConceptLabel() {
             return termAndTermMetadata.getTerm().getRowKey().getConceptLabel();
         }
+
+        @Override
+        public UcdObjectRowKey getObjectRowKey() {
+            return termAndTermMetadata.getTermMention().getObjectRowKey();
+        }
     }
 
     private static class SentenceOffsetItem extends OffsetItem {
@@ -242,18 +259,8 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
         }
 
         @Override
-        public String getSubType() {
-            return null;
-        }
-
-        @Override
         public String getRowKey() {
             return sentence.getRowKey().toString();
-        }
-
-        @Override
-        public String getConceptLabel() {
-            return null;
         }
     }
 

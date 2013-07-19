@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.GeoLocation;
 import com.altamiracorp.reddawn.model.RowKeyHelper;
 import com.altamiracorp.reddawn.model.Value;
+import com.altamiracorp.reddawn.ucd.object.UcdObjectRowKey;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,6 +23,7 @@ public class TermMention extends ColumnFamily {
     public static final String ARTIFACT_SUBJECT = "atc:artifactSubject";
     public static final String SENTENCE_TEXT = "atc:sentenceText";
     public static final String SENTENCE_OFFSET = "atc:sentenceOffset";
+    public static final String OBJECT_ROW_KEY = "atc:objectRowKey";
 
     public TermMention() {
         super(null);
@@ -242,6 +244,19 @@ public class TermMention extends ColumnFamily {
 
     public TermMention setDate(Date date) {
         return setDate(date.getTime());
+    }
+
+    public UcdObjectRowKey getObjectRowKey() {
+        String rowKey = Value.toString(get(OBJECT_ROW_KEY));
+        if (rowKey == null) {
+            return null;
+        }
+        return new UcdObjectRowKey(rowKey);
+    }
+
+    public TermMention setObjectRowKey(String objectRowKey) {
+        set(OBJECT_ROW_KEY, objectRowKey);
+        return this;
     }
 
     @Override

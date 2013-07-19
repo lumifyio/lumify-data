@@ -9,10 +9,7 @@ import com.altamiracorp.reddawn.ucd.statement.Statement;
 import com.altamiracorp.reddawn.ucd.statement.StatementArtifact;
 import com.altamiracorp.reddawn.ucd.statement.StatementRepository;
 import com.altamiracorp.reddawn.ucd.statement.StatementRowKey;
-import com.altamiracorp.reddawn.ucd.term.Term;
-import com.altamiracorp.reddawn.ucd.term.TermMention;
-import com.altamiracorp.reddawn.ucd.term.TermRepository;
-import com.altamiracorp.reddawn.ucd.term.TermRowKey;
+import com.altamiracorp.reddawn.ucd.term.*;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;
@@ -21,15 +18,12 @@ import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
 public class EntityCreate implements Handler, AppAware {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EntityCreate.class.getName());
     private static final String MODEL_KEY = "manual";
     private WebApp app;
     private TermRepository termRepository = new TermRepository();
@@ -76,26 +70,36 @@ public class EntityCreate implements Handler, AppAware {
         }
 
         // do the work
-        Term term = createTerm(currentUser, session, artifactKey, mentionStart, mentionEnd, sign, conceptLabel);
-        resultsJson.put("termRowKey", term.getRowKey().toJson());
+        TermAndTermMention termAndTermMention = createTerm(currentUser, artifactKey, mentionStart, mentionEnd, sign, conceptLabel);
+        resultsJson.put("termRowKey", termAndTermMention.getTerm().getRowKey().toJson());
 
         if (newObjectSign != null) {
-            objectRowKey = createObjectTerm(currentUser, session, artifactKey, newObjectSign, conceptLabel, mentionStart, mentionEnd);
+            TermAndTermMention objectTermAndTermMention = createObjectTerm(currentUser, artifactKey, newObjectSign, conceptLabel, mentionStart, mentionEnd);
+            objectRowKey = objectTermAndTermMention.getTerm().getRowKey().toString();
             resultsJson.put("objectTermRowKey", objectRowKey);
+
+            termRepository.save(session.getModelSession(), objectTermAndTermMention.getTerm());
         }
 
         if (sentenceRowKey != null && objectRowKey != null) {
-            Statement statement = createIsAnObjectStatement(currentUser, session, artifactKey, sentenceRowKey, objectRowKey, term);
-            resultsJson.put("isAnObjectStatementRowKey", statement.getRowKey().toJson());
+            Statement isAnObjectStatement = createIsAnObjectStatement(currentUser, artifactKey, sentenceRowKey, objectRowKey, termAndTermMention.getTerm());
+            resultsJson.put("isAnObjectStatementRowKey", isAnObjectStatement.getRowKey().toJson());
 
-            UcdObject ucdObject = createObject(session, objectRowKey, statement);
+            UcdObject ucdObject = createObject(objectRowKey, isAnObjectStatement);
             resultsJson.put("ucdObjectRowKey", ucdObject.getRowKey().toJson());
+
+            termAndTermMention.getTermMention().setObjectRowKey(ucdObject.getRowKey().toString());
+
+            statementRepository.save(session.getModelSession(), isAnObjectStatement);
+            ucdObjectRepository.save(session.getModelSession(), ucdObject);
         }
+
+        termRepository.save(session.getModelSession(), termAndTermMention.getTerm());
 
         new Responder(response).respondWith(resultsJson);
     }
 
-    private Term createTerm(User currentUser, RedDawnSession session, String artifactKey, long mentionStart, long mentionEnd, String sign, String conceptLabel) {
+    private static TermAndTermMention createTerm(User currentUser, String artifactKey, long mentionStart, long mentionEnd, String sign, String conceptLabel) {
         Term term = new Term(sign, MODEL_KEY, conceptLabel);
         TermMention termMention = new TermMention()
                 .setArtifactKey(artifactKey)
@@ -104,20 +108,18 @@ public class EntityCreate implements Handler, AppAware {
                 .setAuthor(currentUser.getUsername())
                 .setDate(new Date());
         term.addTermMention(termMention);
-        termRepository.save(session.getModelSession(), term);
-        return term;
+        return new TermAndTermMention(term, termMention);
     }
 
-    private UcdObject createObject(RedDawnSession session, String objectRowKey, Statement statement) {
+    private static UcdObject createObject(String objectRowKey, Statement statement) {
         UcdObject ucdObject = new UcdObject(objectRowKey);
         UcdObjectObjectStatement ucdObjectObjectStatement = new UcdObjectObjectStatement();
         ucdObjectObjectStatement.set(statement.getRowKey().toString(), statement.getRowKey().toString());
         ucdObject.addObjectStatement(ucdObjectObjectStatement);
-        ucdObjectRepository.save(session.getModelSession(), ucdObject);
         return ucdObject;
     }
 
-    private Statement createIsAnObjectStatement(User currentUser, RedDawnSession session, String artifactKey, String sentenceRowKey, String objectRowKey, Term term) {
+    private static Statement createIsAnObjectStatement(User currentUser, String artifactKey, String sentenceRowKey, String objectRowKey, Term term) {
         StatementRowKey statementRowKey = new StatementRowKey(term.getRowKey(), PredicateRowKey.IS_AN_OBJECT, new TermRowKey(objectRowKey));
         Statement statement = new Statement(statementRowKey);
         StatementArtifact statementArtifact = new StatementArtifact()
@@ -126,12 +128,10 @@ public class EntityCreate implements Handler, AppAware {
                 .setDate(new Date())
                 .setSentence(sentenceRowKey);
         statement.addStatementArtifact(statementArtifact);
-        statementRepository.save(session.getModelSession(), statement);
         return statement;
     }
 
-    private String createObjectTerm(User currentUser, RedDawnSession session, String artifactKey, String objectSign, String objectConceptLabel, long mentionStart, long mentionEnd) {
-        String objectRowKey;
+    private static TermAndTermMention createObjectTerm(User currentUser, String artifactKey, String objectSign, String objectConceptLabel, long mentionStart, long mentionEnd) {
         Term objectTerm = new Term(objectSign, "object", objectConceptLabel);
         TermMention objectTermMention = new TermMention()
                 .setArtifactKey(artifactKey)
@@ -140,9 +140,7 @@ public class EntityCreate implements Handler, AppAware {
                 .setAuthor(currentUser.getUsername())
                 .setDate(new Date());
         objectTerm.addTermMention(objectTermMention);
-        termRepository.save(session.getModelSession(), objectTerm);
-        objectRowKey = objectTerm.getRowKey().toString();
-        return objectRowKey;
+        return new TermAndTermMention(objectTerm, objectTermMention);
     }
 
     public void setApp(App app) {
