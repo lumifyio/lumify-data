@@ -1,5 +1,7 @@
 package com.altamiracorp.web;
 
+import com.altamiracorp.reddawn.web.utils.UrlUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
@@ -28,15 +30,14 @@ public class Route {
         if (!requestMethod.equals(method)) {
             return false;
         }
-
-        String[] requestPathComponents = splitPathComponents(request.getRequestURI());
+        String[] requestPathComponents = splitPathComponents(UrlUtils.urlDecode(request.getRequestURI().replace("%2F", "\\$1F$")));
         if (requestPathComponents.length != routePathComponents.length) {
             return false;
         }
 
         for (int i = 0; i < routePathComponents.length; i++) {
             String routeComponent = routePathComponents[i];
-            String requestComponent = requestPathComponents[i];
+            String requestComponent = requestPathComponents[i].replace("\\$1F$", "/");
 
             Matcher matcher = componentPattern.matcher(routeComponent);
             if (matcher.matches()) {

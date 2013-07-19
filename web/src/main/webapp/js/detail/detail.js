@@ -402,7 +402,7 @@ define([
 
                     var offset = 0;
                     var limit = 2; // change later
-                    var url = 'entity/' + data.rowKey + '/mentions?offset=' + offset + '&limit=' + limit;
+                    var url = 'entity/' + encodeURIComponent(data.rowKey) + '/mentions?offset=' + offset + '&limit=' + limit;
                     var dataInfo = JSON.stringify({
                         'rowKey': entity.key.value,
                         'type': 'entity',
@@ -487,7 +487,7 @@ define([
 
         this.getRelationships = function(rowKey, callback) {
             var self = this;
-            new UCD().getEntityRelationshipsBySubject(rowKey, function(err, relationships) {
+            new UCD().getEntityRelationshipsBySubject(encodeURIComponent(rowKey), function(err, relationships) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
