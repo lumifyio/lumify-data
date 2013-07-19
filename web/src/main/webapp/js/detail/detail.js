@@ -94,11 +94,14 @@ define([
                 EditDropdown.teardownAll();
             }
 
-            this.handleSelectionChange(selection, text);
+            this.handleSelectionChange();
         };
 
-        this.handleSelectionChange = _.debounce(function(sel, text) {
+        this.handleSelectionChange = _.debounce(function() {
             EditDropdown.teardownAll();
+
+            var sel = window.getSelection(),
+                text = sel && sel.type === 'Range' ? $.trim(sel.toString()) : '';
 
             if (text && text.length) {
                 var anchor = $(sel.anchorNode),
