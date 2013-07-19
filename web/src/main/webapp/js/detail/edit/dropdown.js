@@ -4,8 +4,9 @@ define([
     'flight/lib/component',
     'tpl!./dropdown',
     'tpl!./concept-options',
-    'service/entity'
-], function(defineComponent, dropdownTemplate, conceptsTemplate, EntityService) {
+    'service/entity',
+    'underscore'
+], function(defineComponent, dropdownTemplate, conceptsTemplate, EntityService, _) {
     'use strict';
 
     return defineComponent(EditDropdown);
@@ -21,6 +22,29 @@ define([
             objectSignSelector: '.object-sign',
             conceptSelector: 'select'
         });
+
+        this.highlightTerm = function(data) {
+            var textNode = this.node.previousSibling,
+                offset = this.attr.selection[
+                    this.attr.selection.anchor === textNode ? 'anchorOffset' : 'focusOffset'
+                ];
+
+            // Split textnode into just the selection
+            textNode.splitText(offset);
+            textNode = this.node.previousSibling;
+
+            // Remove textnode
+            textNode.parentNode.removeChild(textNode);
+
+            // Add new term node
+            $('<span>')
+                .text(this.attr.sign)
+                .data('info', data.info)
+                .addClass(data.cssClasses.join(' '))
+                .insertBefore(this.$node);
+
+            // TODO: make draggable
+        };
 
         this.onCreateTermClicked = function(event) {
             var self = this,
@@ -46,9 +70,8 @@ define([
                 if (err) {
                     self.trigger(document, 'error', err);
                 } else {
-                    // TODO: highlight the term?
-                    //console.log(data.termRowKey);
-                    self.teardown();
+                    self.highlightTerm(data);
+                    _.defer(self.teardown.bind(self));
                 }
             });
         };
