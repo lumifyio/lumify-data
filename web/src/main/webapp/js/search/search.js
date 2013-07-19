@@ -43,6 +43,7 @@ define([
 
         this.onEntitySearchResults = function(evt, entities) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
+            $searchResultsSummary.find('.badge').removeClass('loading').text('0');
             $searchResultsSummary.find('.person .badge').removeClass('loading').text((entities.person || []).length);
             $searchResultsSummary.find('.location .badge').removeClass('loading').text((entities.location || []).length);
             $searchResultsSummary.find('.organization .badge').removeClass('loading').text((entities.organization || []).length);
