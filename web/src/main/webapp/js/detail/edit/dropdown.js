@@ -47,7 +47,7 @@ define([
                 .addClass(data.cssClasses.join(' '))
                 .insertBefore(this.$node);
 
-            // TODO: make draggable
+            this.trigger(document, 'termCreated', data);
         };
 
         this.onCreateTermClicked = function(event) {

@@ -65,6 +65,7 @@ define([
             });
 
             this.on('scrollstop', this.updateEntityAndArtifactDraggables);
+            this.on(document, 'termCreated', this.updateEntityAndArtifactDraggables);
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
 
             $(document).on('selectionchange', this.onSelectionChange.bind(this));
