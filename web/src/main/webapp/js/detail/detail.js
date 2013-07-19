@@ -150,7 +150,7 @@ define([
             var form = $('<div class="underneath"></div>');
             insertAfterNode.after(form);
             EditDropdown.attachTo(form, {
-                term: text,
+                sign: text,
                 mentionNode: insertAfterNode,
                 artifactKey: this.currentRowKey
             });

@@ -17,7 +17,8 @@ define([
         this.defaultAttrs({
             entityConceptMenuSelector: '.underneath .dropdown-menu a',
             createTermButtonSelector: '.create-term',
-            termSelector: '.sign',
+            signSelector: '.sign',
+            objectSignSelector: '.object-sign',
             conceptSelector: 'select'
         });
 
@@ -25,16 +26,23 @@ define([
             var self = this,
                 sentence = this.$node.parents('.sentence'),
                 sentenceInfo = sentence.data('info'),
-                sign = this.select('termSelector').text(),
-                mentionStart = sentenceInfo.start + sentence.text().indexOf(sign);
+                sign = this.select('signSelector').text(),
+                newObjectSign = $.trim(this.select('objectSignSelector').val()),
+                mentionStart = sentenceInfo.start + sentence.text().indexOf(sign),
+                parameters = {
+                    sign: sign,
+                    conceptLabel: this.select('conceptSelector').val(),
+                    sentenceRowKey: sentenceInfo.rowKey,
+                    artifactKey: this.attr.artifactKey,
+                    mentionStart: mentionStart,
+                    mentionEnd: mentionStart + sign.length
+                };
 
-            this.entityService.createTerm({
-                sign: sign,
-                conceptLabel: this.select('conceptSelector').val(),
-                artifactKey: this.attr.artifactKey,
-                mentionStart: mentionStart,
-                mentionEnd: mentionStart + sign.length
-            }, function(err, data) {
+            if (newObjectSign.length) {
+                parameters.newObjectSign = newObjectSign;
+            }
+
+            this.entityService.createTerm(parameters, function(err, data) {
                 if (err) {
                     self.trigger(document, 'error', err);
                 } else {
@@ -55,7 +63,8 @@ define([
 
             node.html(dropdownTemplate({
                 type: 'Set type of term',
-                text: this.attr.term || this.attr.mentionNode.text()
+                sign: this.attr.sign || this.attr.mentionNode.text(),
+                objectSign: ''
             }));
 
             _.defer(function() {

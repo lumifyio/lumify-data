@@ -64,7 +64,7 @@ public class EntityCreate implements Handler, AppAware {
         String newObjectSign = request.getParameter("newObjectSign");
         String sentenceRowKey = request.getParameter("sentenceRowKey");
         String objectRowKey = request.getParameter("objectRowKey");
-        if (sentenceRowKey != null && (objectRowKey == null || newObjectSign == null)) {
+        if (sentenceRowKey == null && (objectRowKey != null || newObjectSign != null)) {
             throw new RuntimeException("When associating a Term to and Object 'sentenceRowKey' and ('objectRowKey' or 'newObjectSign')) are required.");
         }
 
