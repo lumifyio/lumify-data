@@ -86,12 +86,14 @@ define([
 
         this.after('initialize', function() {
             var self = this,
-                node = this.$node;
+                node = this.$node,
+                mentionData = this.attr.mentionNode && this.attr.mentionNode.parents('.entity').data('info'),
+                objectSign = mentionData && mentionData.objectRowKey && mentionData.objectRowKey.sign;
 
             node.html(dropdownTemplate({
                 type: 'Set type of term',
                 sign: this.attr.sign || this.attr.mentionNode.text(),
-                objectSign: ''
+                objectSign: objectSign
             }));
 
             _.defer(function() {
