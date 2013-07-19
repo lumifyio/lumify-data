@@ -9,6 +9,7 @@ public class SentenceData extends ColumnFamily {
     public static final String END = "end";
     public static final String START = "start";
     public static final String TEXT = "text";
+    public static final String HIGHLIGHTED_TEXT = "highlighted_text";
 
     public SentenceData() {
         super(NAME);
@@ -47,6 +48,15 @@ public class SentenceData extends ColumnFamily {
 
     public SentenceData setText(String text) {
         set(TEXT, text);
+        return this;
+    }
+
+    public String getHighlightedText() {
+        return Value.toString(get(HIGHLIGHTED_TEXT));
+    }
+
+    public SentenceData setHighlightedText(String highlightedText) {
+        set(HIGHLIGHTED_TEXT, highlightedText);
         return this;
     }
 }
