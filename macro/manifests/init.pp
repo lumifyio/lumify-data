@@ -59,4 +59,21 @@ class macro {
       require => Exec["generate-ssh-keypair-${user}"],
     }
   }
+
+  define git-clone ($url = $title, $options = "", $path) {
+    exec { "git clone ${options} ${url}" :
+      command => "/usr/bin/git clone ${options} ${url} ${path}",
+      creates => "${path}/.git",
+      require => Package['git'],
+    }
+  }
+
+  define git-checkout ($branch = $title, $path) {
+    exec { "git checkout ${path} ${branch}" :
+      command => "/usr/bin/git checkout ${branch}",
+      cwd     => $path,
+      unless  => "/usr/bin/git branch | /bin/grep '* ${branch}'",
+      require => Package['git'],
+    }
+  }
 }

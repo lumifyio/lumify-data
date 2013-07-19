@@ -1,0 +1,31 @@
+class ffmpeg::x264($prefix="/opt/ffmpeg", $tmpdir="/tmp") {
+  require buildtools
+  include macro
+
+  $srcdir = "${tmpdir}/x264"
+
+  macro::git-clone { "x264-clone":
+    url     => "git://git.videolan.org/x264",
+    path    => $srcdir,
+    options => "--depth 1",
+  }
+
+  macro::git-checkout { 'x264-checkout':
+    path    => $srcdir,
+    branch  => "stable",
+    require => Macro::Git-clone["x264-clone"],
+  }
+
+  $configure = "${srcdir}/configure --prefix='${prefix}' --bindir='${prefix}/bin' --enable-static"
+  $make      = "/usr/bin/make"
+  $install   = "/usr/bin/make install"
+  $distclean  = "/usr/bin/make distclean"
+  $cmd       = "${configure} && ${make} && ${install} && ${distclean}"
+
+  exec { 'x264-build' :
+    cwd     => $srcdir,
+    command => $cmd,
+    creates => "${prefix}/bin/x264",
+    require => Macro::Git-checkout['x264-checkout'],
+  }
+}
