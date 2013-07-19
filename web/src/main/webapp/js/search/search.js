@@ -268,7 +268,7 @@ define([
         var _currentNodes = {};
         this.toggleSearchResultIcon = function(rowKey, inGraph, inMap) {
             this.$node
-                .find('li.' + encodeURIComponent(rowKey).replace(/%/g,"\\%"))
+                .find('li.' + encodeURIComponent(rowKey).replace(/(['"%])/g,"\\$1"))
                 .toggleClass('graph-displayed', inGraph)
                 .toggleClass('map-displayed', inMap);
         };
