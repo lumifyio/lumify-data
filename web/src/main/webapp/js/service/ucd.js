@@ -11,16 +11,20 @@ function(ServiceBase) {
 
     Ucd.prototype = Object.create(ServiceBase.prototype);
 
-    Ucd.prototype.getRelationships = function(oldEntityIds, newEntityIds, oldArtifactIds, newArtifactIds, callback) {
+//    Ucd.prototype.getRelationships = function(oldEntityIds, newEntityIds, oldArtifactIds, newArtifactIds, callback) {
+    Ucd.prototype.getRelationships = function(oldEntityIds, newEntityIds, artifactIds, callback) {
+console.log ('UCD');
         return this._ajaxPost({
             url: '/entity/relationships',
             data: {
+           //     artifactIds: artifactIds,
                 json: JSON.stringify({
                     oldEntityIds: oldEntityIds,
                     newEntityIds: newEntityIds,
-                    oldArtifactIds: oldArtifactIds,
-                    newArtifactIds: newArtifactIds
-                })
+                    artifactIds: artifactIds
+//                    oldArtifactIds: oldArtifactIds,
+//                    newArtifactIds: newArtifactIds
+                }),
             }
         }, callback);
     };

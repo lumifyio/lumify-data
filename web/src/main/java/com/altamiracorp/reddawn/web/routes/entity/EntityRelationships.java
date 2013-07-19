@@ -38,30 +38,35 @@ public class EntityRelationships implements Handler, AppAware {
         JSONObject jsonArray = new JSONObject(request.getParameter("json"));
         JSONArray oldEntityIds = jsonArray.getJSONArray("oldEntityIds");
         JSONArray newEntityIds = jsonArray.getJSONArray("newEntityIds");
-        JSONArray oldArtifactIds = jsonArray.getJSONArray("oldArtifactIds");
-        JSONArray newArtifactIds = jsonArray.getJSONArray("newArtifactIds");
+//        JSONArray oldArtifactIds = jsonArray.getJSONArray("oldArtifactIds");
+//        JSONArray newArtifactIds = jsonArray.getJSONArray("newArtifactIds");
+        //String [] artifactIds = request.getParameterValues("artifactIds[]");
+        JSONArray artifactIds = jsonArray.getJSONArray("artifactIds");
         ArrayList <String> newEntityRowKey = new ArrayList<String>();
+        ArrayList <String> artifactRowKeys = new ArrayList<String>();
 
+        List <String> rowKeyPrefixes = new ArrayList<String>();
+        for (int i = 0; i < oldEntityIds.length(); i ++){
+            rowKeyPrefixes.add(oldEntityIds.getString(i));
+        }
+        for (int i = 0; i < newEntityIds.length(); i ++){
+            rowKeyPrefixes.add(newEntityIds.getString(i));
+            newEntityRowKey.add(newEntityIds.getString(i));
+        }
+
+        for (int i = 0; i < artifactIds.length(); i++){
+            artifactRowKeys.add(artifactIds.getString(i));
+        }
+
+        JSONArray resultsJson = new JSONArray();
         if ((oldEntityIds.length() + newEntityIds.length()) > 0){
-            List <String> rowKeyPrefixes = new ArrayList<String>();
-            for (int i = 0; i < oldEntityIds.length(); i ++){
-                rowKeyPrefixes.add(oldEntityIds.getString(i));
-            }
-            for (int i = 0; i < newEntityIds.length(); i ++){
-                rowKeyPrefixes.add(newEntityIds.getString(i));
-                newEntityRowKey.add(newEntityIds.getString(i));
-            }
-
             HashMap<String, HashSet<String>> entityRelationships = statementRepository.findRelationshipDirection(rowKeyPrefixes, session);
-
-            JSONArray resultsJson = new JSONArray();
             for (Map.Entry<String, HashSet<String>> entityRelationship : entityRelationships.entrySet()){
                 for (String toEntity : entityRelationship.getValue()){
                     HashSet<String> toEntities = entityRelationships.get(toEntity);
                     JSONObject rel = new JSONObject();
                     if (newEntityRowKey.contains(entityRelationship.getKey()) || newEntityRowKey.contains(toEntity)){
                         if (toEntities.contains(entityRelationship.getKey()) && !toEntity.equals(entityRelationship.getKey())){
-
                             rel.put ("bidirectional", true);
                             toEntities.remove(entityRelationship.getKey());
                         }
@@ -72,8 +77,29 @@ public class EntityRelationships implements Handler, AppAware {
                     }
                 }
             }
-            new Responder(response).respondWith(resultsJson);
-            chain.next(request, response);
         }
+
+
+        if (artifactRowKeys.size() > 0){
+            for (String artifactId : artifactRowKeys){
+                ArtifactTermIndex artifactTermIndex = artifactTermIndexRepository.findByRowKey(session, artifactId);
+                if (artifactTermIndex == null){
+                    continue;
+                }
+                for (String entityRowKey : newEntityRowKey){
+                    for (TermRowKey artifactTermMentionTermRowKey : artifactTermIndex.getTermMentions()){
+                        if (artifactTermMentionTermRowKey.toString().equals(entityRowKey)){
+                            JSONObject rel = new JSONObject();
+                            rel.put ("relationshipType", "artifactToEntity");
+                            rel.put ("from", artifactId);
+                            rel.put ("to", entityRowKey);
+                            resultsJson.put(rel);
+                        }
+                    }
+                }
+            }
+        }
+
+        new Responder(response).respondWith(resultsJson);
     }
 }

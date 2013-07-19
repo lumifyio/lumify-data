@@ -399,35 +399,36 @@ define([
         this.refreshRelationships = function(oldNodes, newNodes) {
             var self = this;
             var oldEntityIds = [];
-            var oldArtifactIds = [];
             var newEntityIds = [];
-            var newArtifactIds = [];
+//            var oldArtifactIds = [];
+//            var newArtifactIds = [];
             var entityIds = this.getEntityIds();
             var artifactIds = this.getArtifactIds();
             if (oldNodes == null && newNodes == null) {
                  newEntityIds = entityIds;
                  oldEntityIds = [];
-                 newArtifactIds = artifactIds;
-                 oldArtifactIds = [];
+//                 newArtifactIds = artifactIds;
+//                 oldArtifactIds = [];
             } else {
                 newNodes.forEach (function(newNode){
                     if (newNode.type == 'entity'){
                         newEntityIds.push (newNode.rowKey);
-                    } else if (newNode.type == 'artifact'){
-                        newArtifactIds.push (newNode.rowKey);
-                    }
+                    }// else if (newNode.type == 'artifact'){
+//                        newArtifactIds.push (newNode.rowKey);
+//                    }
                 });
                 oldNodes.forEach (function(oldNode){
                     if (oldNode.type == 'entity'){
                         oldEntityIds.push (oldNode.rowKey);
-                    } else if (oldNode.type == 'artifact'){
-                        oldArtifactIds.push (oldNode.rowKey);
-                    }
+                    }// else if (oldNode.type == 'artifact'){
+//                        oldArtifactIds.push (oldNode.rowKey);
+//                    }
                 });
             }
 
 
-            this.ucdService.getRelationships(oldEntityIds, newEntityIds, oldArtifactIds, newArtifactIds, function(err, relationships) {
+        //    this.ucdService.getRelationships(oldEntityIds, newEntityIds, oldArtifactIds, newArtifactIds, function(err, relationships) {
+            this.ucdService.getRelationships(oldEntityIds, newEntityIds, artifactIds, function(err, relationships) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
