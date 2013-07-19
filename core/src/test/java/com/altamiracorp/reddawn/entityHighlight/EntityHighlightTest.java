@@ -1,4 +1,4 @@
-package com.altamiracorp.reddawn.entityExtraction;
+package com.altamiracorp.reddawn.entityHighlight;
 
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
@@ -34,8 +34,8 @@ public class EntityHighlightTest {
                                 .setMentionEnd(44L)
                         )
         );
-        List<EntityHighlightMR.OffsetItem> termAndTermMetadata = EntityHighlightMR.EntityHighlightMapper.getTermAndTermMetadataForArtifact(artifactKey, terms);
-        String highlightText = EntityHighlightMR.EntityHighlightMapper.getHighlightedText("Test highlight of Joe Ferner and Jeff Kunkle.", termAndTermMetadata);
+        List<OffsetItem> termAndTermMetadata = EntityHighlighter.getTermAndTermMetadataForArtifact(artifactKey, terms);
+        String highlightText = EntityHighlighter.getHighlightedText("Test highlight of Joe Ferner and Jeff Kunkle.", termAndTermMetadata);
         assertEquals("Test highlight of <span class=\"entity person\" data-info=\"{&quot;start&quot;:18,&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;joe ferner\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;,&quot;end&quot;:28}\">Joe Ferner</span> and <span class=\"entity person\" data-info=\"{&quot;start&quot;:33,&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;jeff kunkle\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;,&quot;end&quot;:44}\">Jeff Kunkle.", highlightText);
     }
 
@@ -58,8 +58,8 @@ public class EntityHighlightTest {
                                 .setMentionEnd(21L)
                         )
         );
-        List<EntityHighlightMR.OffsetItem> termAndTermMetadata = EntityHighlightMR.EntityHighlightMapper.getTermAndTermMetadataForArtifact(artifactKey, terms);
-        String highlightText = EntityHighlightMR.EntityHighlightMapper.getHighlightedText("Test highlight of Joe Ferner.", termAndTermMetadata);
+        List<OffsetItem> termAndTermMetadata = EntityHighlighter.getTermAndTermMetadataForArtifact(artifactKey, terms);
+        String highlightText = EntityHighlighter.getHighlightedText("Test highlight of Joe Ferner.", termAndTermMetadata);
         assertEquals("Test highlight of <span class=\"entity person\" term-key=\"joe ferner\\x1Fee\\x1Fperson\"><span class=\"entity person\" term-key=\"joe\\x1Fee\\x1Fperson\">Joe</span> Ferner</span>.", highlightText);
     }
 }
