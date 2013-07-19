@@ -443,7 +443,6 @@ define([
                 return;
             }
 
-
             // If the user didn't drag more than a few pixels, select the
             // object, it could be an accidental mouse move
             var target = event.cyTarget, 
@@ -459,7 +458,6 @@ define([
                     return;
                 }
             }
-
 
             // Cache these positions since data attr could be overidden
             // then submit to undo manager
