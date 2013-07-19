@@ -88,7 +88,7 @@ define([
             var self = this,
                 node = this.$node,
                 mentionData = this.attr.mentionNode && this.attr.mentionNode.parents('.entity').data('info'),
-                objectSign = mentionData && mentionData.objectRowKey && mentionData.objectRowKey.sign;
+                objectSign = mentionData && mentionData.objectRowKey && mentionData.objectRowKey.sign || '';
 
             node.html(dropdownTemplate({
                 type: 'Set type of term',
