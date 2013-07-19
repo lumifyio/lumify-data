@@ -16,4 +16,15 @@ public class Column {
     public Value getValue() {
         return this.value;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        toString(result, "");
+        return result.toString();
+    }
+
+    public void toString(StringBuilder out, String indent) {
+        out.append(indent + getName() + ": " + getValue() + "\n");
+    }
 }

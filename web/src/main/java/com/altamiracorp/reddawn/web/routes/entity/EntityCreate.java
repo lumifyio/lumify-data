@@ -3,7 +3,6 @@ package com.altamiracorp.reddawn.web.routes.entity;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.entityHighlight.TermAndTermMentionOffsetItem;
 import com.altamiracorp.reddawn.ucd.object.UcdObject;
-import com.altamiracorp.reddawn.ucd.object.UcdObjectObjectStatement;
 import com.altamiracorp.reddawn.ucd.object.UcdObjectRepository;
 import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
 import com.altamiracorp.reddawn.ucd.statement.Statement;
@@ -109,9 +108,7 @@ public class EntityCreate implements Handler, AppAware {
 
     private static UcdObject createObject(String objectRowKey, Statement statement) {
         UcdObject ucdObject = new UcdObject(objectRowKey);
-        UcdObjectObjectStatement ucdObjectObjectStatement = new UcdObjectObjectStatement();
-        ucdObjectObjectStatement.set(statement.getRowKey().toString(), statement.getRowKey().toString());
-        ucdObject.addObjectStatement(ucdObjectObjectStatement);
+        ucdObject.getUcdObjectObjectStatement().addStatement(statement);
         return ucdObject;
     }
 
