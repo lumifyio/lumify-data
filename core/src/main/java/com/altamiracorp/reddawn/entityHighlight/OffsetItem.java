@@ -39,7 +39,7 @@ public abstract class OffsetItem {
     public JSONObject toJson() {
         try {
             JSONObject json = new JSONObject();
-            json.put("info", json);
+            json.put("info", getInfoJson());
 
             JSONArray cssClasses = new JSONArray();
             for (String cssClass : getCssClasses()) {
