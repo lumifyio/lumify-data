@@ -92,10 +92,18 @@ define([
         this.after('initialize', function() {
             var self = this,
                 node = this.$node,
-                mentionData = this.attr.mentionNode && this.attr.mentionNode.parents('.entity').data('info'),
-                objectSign = mentionData && mentionData.objectRowKey && mentionData.objectRowKey.sign || '';
+                mentionNode = this.attr.mentionNode,
+                mentionData = mentionNode && mentionNode.parents('.entity').data('info'),
+                objectSign = '';
 
-            this.attr.objectRowKey = mentionData && mentionData.objectRowKey && mentionData.objectRowKey.value || undefined;
+            if (mentionData && mentionData.objectRowKey) {
+                this.attr.objectRowKey = mentionData.objectRowKey.value;
+                objectSign = mentionData.objectRowKey.sign;
+            } else if (mentionNode) {
+                var info = mentionNode.data('info');
+                this.attr.objectRowKey = info.objectRowKey.value;
+                objectSign = info.objectRowKey.sign;
+            }
 
             node.html(dropdownTemplate({
                 type: 'Set type of term',
