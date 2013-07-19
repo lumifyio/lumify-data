@@ -18,7 +18,8 @@
         <module>model-accumulo</module>
         <module>dictionary-seed</module>
         <module>crawler</module>
-    </modules>
+    <module>oozie</module>
+  </modules>
 
     <repositories>
         <repository>
