@@ -1,9 +1,6 @@
 package com.altamiracorp.reddawn.ucd.concept;
 
-import com.altamiracorp.reddawn.model.Column;
-import com.altamiracorp.reddawn.model.ColumnFamily;
-import com.altamiracorp.reddawn.model.Repository;
-import com.altamiracorp.reddawn.model.Row;
+import com.altamiracorp.reddawn.model.*;
 
 import java.util.Collection;
 
@@ -31,5 +28,12 @@ public class ConceptRepository extends Repository<Concept> {
     @Override
     public String getTableName() {
         return Concept.TABLE_NAME;
+    }
+
+    public void save(Session session, ConceptRowKey conceptRowKey, String labelUi) {
+        Concept conceptPerson = new Concept(conceptRowKey);
+        conceptPerson.getConceptElements()
+                .setLabelUi(labelUi);
+        save(session, conceptPerson);
     }
 }

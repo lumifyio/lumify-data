@@ -71,20 +71,13 @@ public abstract class Session {
     protected void addDefaultConcepts() {
         ConceptRepository conceptRepository = new ConceptRepository();
 
-        Concept conceptPerson = new Concept(new ConceptRowKey("system", "person"));
-        conceptPerson.getConceptElements()
-                .setLabelUi("Person");
-        conceptRepository.save(this, conceptPerson);
-
-        Concept conceptLocation = new Concept(new ConceptRowKey("system", "location"));
-        conceptLocation.getConceptElements()
-                .setLabelUi("Location");
-        conceptRepository.save(this, conceptLocation);
-
-        Concept conceptOrganization = new Concept(new ConceptRowKey("system", "organization"));
-        conceptOrganization.getConceptElements()
-                .setLabelUi("Organization");
-        conceptRepository.save(this, conceptOrganization);
+        conceptRepository.save(this, new ConceptRowKey("system", "person"), "Person");
+        conceptRepository.save(this, new ConceptRowKey("system", "location"), "Location");
+        conceptRepository.save(this, new ConceptRowKey("system", "organization"), "Organization");
+        conceptRepository.save(this, new ConceptRowKey("system", "date"), "Date");
+        conceptRepository.save(this, new ConceptRowKey("system", "money"), "Money");
+        conceptRepository.save(this, new ConceptRowKey("system", "percentage"), "Percentage");
+        conceptRepository.save(this, new ConceptRowKey("system", "time"), "Time");
     }
 
     public QueryUser getQueryUser() {
