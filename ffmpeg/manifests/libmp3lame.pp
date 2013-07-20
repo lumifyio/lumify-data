@@ -1,4 +1,4 @@
-class ffmpeg::libmp3lame($prefix="/opt/ffmpeg", $tmpdir="/tmp") {
+class ffmpeg::libmp3lame($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
   require buildtools
   include macro
 

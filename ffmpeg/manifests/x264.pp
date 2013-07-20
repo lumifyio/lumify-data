@@ -1,4 +1,4 @@
-class ffmpeg::x264($prefix="/opt/ffmpeg", $tmpdir="/tmp") {
+class ffmpeg::x264($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
   require buildtools
   include macro
 

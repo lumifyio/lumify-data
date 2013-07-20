@@ -1,4 +1,4 @@
-class ffmpeg::libogg($prefix="/opt/ffmpeg", $tmpdir="/tmp") {
+class ffmpeg::libogg($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
   require buildtools
   include macro
 

@@ -1,4 +1,4 @@
-class ffmpeg::libvorbis($prefix="/opt/ffmpeg", $tmpdir="/tmp") {
+class ffmpeg::libvorbis($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
   require buildtools
   require libogg
   include macro

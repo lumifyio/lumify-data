@@ -1,4 +1,4 @@
-class ffmpeg::libtheora($prefix="/opt/ffmpeg", $tmpdir="/tmp") {
+class ffmpeg::libtheora($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
   require buildtools
   require libogg
   include macro

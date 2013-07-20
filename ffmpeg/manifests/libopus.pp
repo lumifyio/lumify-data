@@ -1,4 +1,4 @@
-class ffmpeg::libopus($prefix="/opt/ffmpeg", $tmpdir="/tmp") {
+class ffmpeg::libopus($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
   require buildtools
   include macro
 

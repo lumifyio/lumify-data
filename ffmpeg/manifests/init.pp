@@ -1,6 +1,6 @@
 class ffmpeg (
-  $prefix="/opt/ffmpeg",
-  $tmpdir="/tmp"
+  $prefix="/usr/local/ffmpeg",
+  $tmpdir="/usr/local/src"
 ) {
   require buildtools
   require ffmpeg::x264

@@ -1,4 +1,4 @@
-class ffmpeg::libfdkaac($prefix="/opt/ffmpeg", $tmpdir="/tmp") {
+class ffmpeg::libfdkaac($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
   require buildtools
   include macro
 
