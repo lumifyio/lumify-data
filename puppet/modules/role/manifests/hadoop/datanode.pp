@@ -3,4 +3,5 @@ class role::hadoop::datanode {
   include ::hadoop::datanode
   include ::zookeeper
   include ::ffmpeg
+  include ::opencv
 }
