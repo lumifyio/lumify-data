@@ -6,6 +6,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypes;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -30,7 +31,7 @@ public class TikaContentTypeExtractor implements ContentTypeExtractor {
     public String extract(InputStream in, String fileExt) throws Exception {
         DefaultDetector detector = new DefaultDetector();
         Metadata metadata = new Metadata();
-        MediaType mediaType = detector.detect(in, metadata);
+        MediaType mediaType = detector.detect(new BufferedInputStream(in), metadata);
 
         String contentType = mediaType.toString();
         if (contentType == null || contentType.equals("application/octet-stream")) {
