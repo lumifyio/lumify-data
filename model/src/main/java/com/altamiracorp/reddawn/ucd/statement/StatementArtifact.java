@@ -8,6 +8,8 @@ import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
 
 import java.util.Date;
 
+import java.util.Date;
+
 public class StatementArtifact extends ColumnFamily {
     public static final String ARTIFACT_KEY = "artifactKey";
     public static final String AUTHOR = "author";

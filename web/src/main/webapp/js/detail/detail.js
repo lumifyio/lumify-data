@@ -65,6 +65,7 @@ define([
             });
 
             this.on('scrollstop', this.updateEntityAndArtifactDraggables);
+            this.on(document, 'termCreated', this.updateEntityAndArtifactDraggables);
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
 
             $(document).on('selectionchange', this.onSelectionChange.bind(this));
@@ -72,7 +73,7 @@ define([
 
         this.onSelectionChange = function(e) {
             var selection = window.getSelection(),
-                trimmedText = $.trim(selection.toString());
+                text = selection.type === 'Range' ? $.trim(selection.toString()) : '';
 
             // Ignore selection events within the dropdown
             if ( selection.type == 'None' || 
@@ -84,14 +85,13 @@ define([
             }
 
             // Ignore if selection hasn't change
-            if (trimmedText.length && trimmedText === this.previousSelection) {
+            if (text.length && text === this.previousSelection) {
                 return;
-            } else this.previousSelection = trimmedText;
+            } else this.previousSelection = text;
 
             // Remove all dropdowns if empty selection
-            if (selection.isCollapsed || trimmedText.length === 0) {
+            if (selection.isCollapsed || text.length === 0) {
                 EditDropdown.teardownAll();
-
             }
 
             this.handleSelectionChange();
@@ -101,7 +101,7 @@ define([
             EditDropdown.teardownAll();
 
             var sel = window.getSelection(),
-                text = sel && sel.type === 'Range' && sel.toString();
+                text = sel && sel.type === 'Range' ? $.trim(sel.toString()) : '';
 
             if (text && text.length) {
                 var anchor = $(sel.anchorNode),
@@ -136,21 +136,26 @@ define([
                 } while (whitespaceCheck.test(character));
 
                 end[0].splitText(i);
-                this.dropdownEntity(end, text);
+                this.dropdownEntity(end, sel, text);
             }
         }, 500);
 
         this.onEntityClicked = function(event) {
-            _.defer(this.dropdownEntity.bind(this), $(event.target));
+            var $target = $(event.target);
+            if ($target.is('.underneath') || $target.parents('.underneath').length) {
+                return;
+            }
+            _.defer(this.dropdownEntity.bind(this), $target);
         };
 
-        this.dropdownEntity = function(insertAfterNode, text) {
+        this.dropdownEntity = function(insertAfterNode, sel, text) {
             EditDropdown.teardownAll();
 
-            var form = $('<div class="underneath"></div>');
+            var form = $('<div class="underneath"/>');
             insertAfterNode.after(form);
             EditDropdown.attachTo(form, {
                 sign: text,
+                selection: sel && { anchor:sel.anchorNode, focus:sel.focusNode, anchorOffset: sel.anchorOffset, focusOffset: sel.focusOffset },
                 mentionNode: insertAfterNode,
                 artifactKey: this.currentRowKey
             });
