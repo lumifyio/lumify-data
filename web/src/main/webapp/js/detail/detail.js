@@ -286,7 +286,7 @@ define([
             if ($.isArray (data) && data.length == 1){
                 data = data [0];
             }
-            // TO DO: Handle loading related artifacts
+
             if (!data || data.length == 0){
                 this.$node.empty ();
                 this.currentRowKey = null;
