@@ -73,7 +73,7 @@ public class EntityHighlightTest {
         String text = "This is a test sentence";
         List<OffsetItem> offsetItems = new ArrayList<OffsetItem>();
 
-        OffsetItem mockEntity1 = mock(OffsetItem.class);
+        OffsetItem mockEntity1 = mock(TermAndTermMentionOffsetItem.class);
         when(mockEntity1.getStart()).thenReturn(0l);
         when(mockEntity1.getEnd()).thenReturn(4l);
         when(mockEntity1.getCssClasses()).thenReturn(new ArrayList<String>(Arrays.asList(new String[]{"first"})));
@@ -81,7 +81,7 @@ public class EntityHighlightTest {
         when(mockEntity1.getInfoJson()).thenReturn(new JSONObject("{\"data\":\"attribute\"}"));
         offsetItems.add(mockEntity1);
 
-        OffsetItem mockEntity2 = mock(OffsetItem.class);
+        OffsetItem mockEntity2 = mock(TermAndTermMentionOffsetItem.class);
         when(mockEntity2.getStart()).thenReturn(0l);
         when(mockEntity2.getEnd()).thenReturn(4l);
         when(mockEntity2.getCssClasses()).thenReturn(new ArrayList<String>(Arrays.asList(new String[]{"second"})));
@@ -89,7 +89,7 @@ public class EntityHighlightTest {
         when(mockEntity2.getInfoJson()).thenReturn(new JSONObject("{\"data\":\"attribute\"}"));
         offsetItems.add(mockEntity2);
 
-        OffsetItem mockEntity3 = mock(OffsetItem.class);
+        OffsetItem mockEntity3 = mock(TermAndTermMentionOffsetItem.class);
         when(mockEntity3.getStart()).thenReturn(0l);
         when(mockEntity3.getEnd()).thenReturn(7l);
         when(mockEntity3.getCssClasses()).thenReturn(new ArrayList<String>(Arrays.asList(new String[]{"third"})));
@@ -97,7 +97,7 @@ public class EntityHighlightTest {
         when(mockEntity3.getInfoJson()).thenReturn(new JSONObject("{\"data\":\"attribute\"}"));
         offsetItems.add(mockEntity3);
 
-        OffsetItem mockEntity4 = mock(OffsetItem.class);
+        OffsetItem mockEntity4 = mock(TermAndTermMentionOffsetItem.class);
         when(mockEntity4.getStart()).thenReturn(5l);
         when(mockEntity4.getEnd()).thenReturn(9l);
         when(mockEntity4.getCssClasses()).thenReturn(new ArrayList<String>(Arrays.asList(new String[]{"fourth"})));
@@ -105,7 +105,7 @@ public class EntityHighlightTest {
         when(mockEntity4.getInfoJson()).thenReturn(new JSONObject("{\"data\":\"attribute\"}"));
         offsetItems.add(mockEntity4);
 
-        OffsetItem mockEntity5 = mock(OffsetItem.class);
+        OffsetItem mockEntity5 = mock(TermAndTermMentionOffsetItem.class);
         when(mockEntity5.getStart()).thenReturn(15l);
         when(mockEntity5.getEnd()).thenReturn(23l);
         when(mockEntity5.getCssClasses()).thenReturn(new ArrayList<String>(Arrays.asList(new String[]{"fifth"})));
