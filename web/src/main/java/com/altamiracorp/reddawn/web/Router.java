@@ -49,15 +49,17 @@ public class Router extends HttpServlet {
         app.get("/artifact/{rowKey}/raw", authenticator, ArtifactRawByRowKey.class);
         app.get("/artifact/{rowKey}/poster-frame", authenticator, ArtifactPosterFrameByRowKey.class);
         app.get("/artifact/{rowKey}/video-preview", authenticator, ArtifactVideoPreviewImageByRowKey.class);
+        app.get("/artifact/{rowKey}/relatedEntities", authenticator, ArtifactByRelatedEntities.class);
         app.get("/artifact/{rowKey}", authenticator, ArtifactByRowKey.class);
 
         app.get("/statement/{rowKey}", authenticator, StatementByRowKey.class);
 
         app.get("/entity/relationship", authenticator, EntityToEntityRelationship.class);
-        app.get("/entity/relationships", authenticator, EntityRelationships.class);
+        app.post("/entity/relationships", authenticator, EntityRelationships.class);
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.get("/entity/{rowKey}/mentions", authenticator, EntityMentionsByRange.class);
         app.get("/entity/{rowKey}/relationships", authenticator, EntityRelationshipsBidrectional.class);
+        app.get("/entity/{rowKey}/relatedEntities", authenticator, EntityByRelatedEntities.class);
         app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);
         app.post("/entity/create", authenticator, EntityCreate.class);
 

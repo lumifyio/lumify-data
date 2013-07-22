@@ -33,23 +33,34 @@ public class EntityToEntityRelationship implements Handler, AppAware {
         String target = request.getParameter("target");
         RedDawnSession session = app.getRedDawnSession(request);
 
-        List<Statement> statements = statementRepository.findBySourceAndTargetRowKey(session.getModelSession(), source, target);
+        List<Statement> sourceToTargetStatements = statementRepository.findBySourceAndTargetRowKey(session.getModelSession(), source, target);
+        List<Statement> targetToSourceStatements = statementRepository.findBySourceAndTargetRowKey(session.getModelSession(), target, source);
 
-        JSONObject results = resultsToJson(source, target, statements);
+        JSONObject results = resultsToJson(source, target, sourceToTargetStatements, targetToSourceStatements);
 
         new Responder(response).respondWith(results);
     }
 
-    private JSONObject resultsToJson(String source, String target, List<Statement> statements) throws JSONException {
+    private JSONObject resultsToJson(String source, String target, List<Statement> sourceToTargetStatements, List<Statement> targetToSourceStatements) throws JSONException {
         JSONObject results = new JSONObject();
         results.put("source", new TermRowKey(source).toJson());
         results.put("target", new TermRowKey(target).toJson());
 
         JSONArray statementsJson = new JSONArray();
-        for (Statement statement : statements) {
+        for (Statement statement : sourceToTargetStatements) {
             statementsJson.put(statement.toJson());
         }
-        results.put("statements", statementsJson);
+        results.put("sourceToTargetStatements", statementsJson);
+
+        if (targetToSourceStatements.size() > 0){
+            results.put ("bidirectional", "true");
+
+            statementsJson = new JSONArray();
+            for (Statement statement : targetToSourceStatements) {
+                statementsJson.put(statement.toJson());
+            }
+            results.put("targetToSourceStatements", statementsJson);
+        }
 
         return results;
     }

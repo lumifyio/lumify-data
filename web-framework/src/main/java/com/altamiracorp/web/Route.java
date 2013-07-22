@@ -1,5 +1,7 @@
 package com.altamiracorp.web;
 
+import com.altamiracorp.reddawn.web.utils.UrlUtils;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,15 +30,14 @@ public class Route {
         if (!requestMethod.equals(method)) {
             return false;
         }
-
-        String[] requestPathComponents = splitPathComponents(request.getPathInfo());
+        String[] requestPathComponents = splitPathComponents(UrlUtils.urlDecode(request.getRequestURI().replace("%2F", "\\$1F$")));
         if (requestPathComponents.length != routePathComponents.length) {
             return false;
         }
 
         for (int i = 0; i < routePathComponents.length; i++) {
             String routeComponent = routePathComponents[i];
-            String requestComponent = requestPathComponents[i];
+            String requestComponent = requestPathComponents[i].replace("\\$1F$", "/");
 
             Matcher matcher = componentPattern.matcher(routeComponent);
             if (matcher.matches()) {
@@ -63,7 +64,7 @@ public class Route {
 
     private String[] splitPathComponents(String path) {
         String[] components = path.split("/");
-        if (components.length > 0) {
+        if (components.length > 0){
             String[] lastComponents = components[components.length - 1].split("\\.");
             if (lastComponents.length > 1) {
                 String[] allComponents = new String[components.length - 1 + lastComponents.length];
