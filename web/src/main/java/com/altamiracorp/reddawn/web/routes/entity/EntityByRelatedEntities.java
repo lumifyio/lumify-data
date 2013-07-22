@@ -28,7 +28,7 @@ public class EntityByRelatedEntities implements Handler, AppAware{
     @Override
     public void handle (HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         Session session = this.app.getRedDawnSession(request).getModelSession();
-        String rowKey = UrlUtils.urlDecode((String) request.getAttribute("rowKey"));
+        String rowKey = (String) request.getAttribute("rowKey");
         List<Statement> statements = statementRepository.findByRowStartsWith(session, rowKey);
 
         JSONArray statementsJson = new JSONArray();

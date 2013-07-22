@@ -217,7 +217,7 @@ define([
             });
         };
 
-        this.onContextMenuLoadRelatedItems = function (){
+        this.onContextMenuLoadRelatedItems = function () {
             var menu = this.select('nodeContextMenuSelector');
             var currentNodeRK = menu.data('currentNodeRowKey');
             var position = {x: menu.data ('currentNodePositionX'), y: menu.data ('currentNodePositionY')};
@@ -226,7 +226,7 @@ define([
                          originalPosition: currentNodeOriginalPosition,
                          type : menu.data("currentNodeType")};
             this.trigger (document, 'loadRelatedSelected', data);
-                  };
+        };
 
         this.onContextMenuFitToWindow = function() {
             this.cy(function(cy) {

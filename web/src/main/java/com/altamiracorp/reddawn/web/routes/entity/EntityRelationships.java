@@ -76,7 +76,6 @@ public class EntityRelationships implements Handler, AppAware {
             }
         }
 
-
         if (artifactRowKeys.size() > 0) {
             for (String artifactId : artifactRowKeys) {
                 ArtifactTermIndex artifactTermIndex = artifactTermIndexRepository.findByRowKey(session, artifactId);

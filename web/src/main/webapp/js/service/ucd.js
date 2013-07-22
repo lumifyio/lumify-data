@@ -76,11 +76,11 @@ function(ServiceBase) {
     }
 
     Ucd.prototype.getRelatedEntitiesBySubject = function(id, callback) {
-        return this._ajaxGet({ url: 'entity/' + id + '/relatedEntities' }, callback);
+        return this._ajaxGet({ url: 'entity/' + encodeURIComponent(id) + '/relatedEntities' }, callback);
     }
 
     Ucd.prototype.getRelatedTermsFromArtifact = function (id, callback){
-        return this._ajaxGet({url: 'artifact/' + id + '/relatedEntities'}, callback);
+        return this._ajaxGet({url: 'artifact/' + encodeURIComponent(id) + '/relatedEntities'}, callback);
     }
 
     Ucd.prototype.getSpecificEntityRelationship = function (e1, e2, callback) {
@@ -133,7 +133,6 @@ function(ServiceBase) {
         //maybe it's an object for future options stuff?
         console.log(id);
         var i = encodeURIComponent(typeof id == "object" ? id.id : id);
-        console.log(i);
         return this._ajaxGet({
             url: resource + "/" + i,
         }, callback);
