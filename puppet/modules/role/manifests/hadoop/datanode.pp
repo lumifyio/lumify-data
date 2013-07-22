@@ -4,5 +4,6 @@ class role::hadoop::datanode {
   include ::zookeeper
   include ::ffmpeg
   include ::ccextractor
+  include ::tesseract
   include ::opencv
 }
