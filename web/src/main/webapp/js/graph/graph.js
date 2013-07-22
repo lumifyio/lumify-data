@@ -24,6 +24,11 @@ define([
 
     function Graph() {
         var callbackQueue = [];
+        var LAYOUT_OPTIONS = {
+            // Customize layout options
+            random: { padding: FIT_PADDING },
+            arbor: { friction: 0.6, repulsion: 5000 * retina.devicePixelRatio, targetFps: 60, stiffness: 300 }
+        };
 
         this.defaultAttrs({
             cytoscapeContainerSelector: '.cytoscape-container',
@@ -50,11 +55,6 @@ define([
             var options = $.extend({ fit:false }, opts);
             var addedNodes = [];
             var self = this;
-            var LAYOUT_OPTIONS = {
-                // Customize layout options
-                random: { padding: FIT_PADDING },
-                arbor: { friction: 0.6, repulsion: 5000 * retina.devicePixelRatio, targetFps: 60, stiffness: 300 }
-            };
 
             this.cy(function(cy) {
                 var existingNodes = $.map(cy.nodes(), function (node){
@@ -258,11 +258,6 @@ define([
         this.onContextMenuLayout = function(layout, opts) {
             var self = this;
             var options = $.extend({onlySelected:false}, opts);
-            var LAYOUT_OPTIONS = {
-                // Customize layout options
-                random: { padding: FIT_PADDING },
-                arbor: { friction: 0.6, repulsion: 5000 * retina.devicePixelRatio, targetFps: 60, stiffness: 300 }
-            };
             this.cy(function(cy) {
 
                 var unselected;
