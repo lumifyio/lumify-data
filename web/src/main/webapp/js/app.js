@@ -156,7 +156,6 @@ define([
             $(document).on('dropover dropout', function(e, ui) {
                 if ($(e.target).closest(droppable).length === 0) {
                     enabled = e.type === 'dropout';
-                    console.log(enabled ? 'ENABLED' : 'DISABLED');
                 }
             });
 
