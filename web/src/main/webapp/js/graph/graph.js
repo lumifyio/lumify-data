@@ -24,6 +24,11 @@ define([
 
     function Graph() {
         var callbackQueue = [];
+        var LAYOUT_OPTIONS = {
+            // Customize layout options
+            random: { padding: FIT_PADDING },
+            arbor: { friction: 0.6, repulsion: 5000 * retina.devicePixelRatio, targetFps: 60, stiffness: 300 }
+        };
 
         this.defaultAttrs({
             cytoscapeContainerSelector: '.cytoscape-container',
@@ -50,7 +55,30 @@ define([
             var options = $.extend({ fit:false }, opts);
             var addedNodes = [];
             var self = this;
+
             this.cy(function(cy) {
+                var existingNodes = $.map(cy.nodes(), function (node){
+                    node.lock();
+                });
+                var opts = $.extend({
+                    name:'grid',
+                    fit: false,
+                    stop: function() {
+                        $.map(cy.nodes(), function (node) {
+                            node.unlock();
+                        });
+                        var updates = $.map(cy.nodes(), function(node) {
+                            return {
+                                rowKey: node.data('rowKey'),
+                                graphPosition: retina.pixelsToPoints(node.position())
+                            };
+                        });
+                        self.trigger(document, 'updateNodes', { nodes:updates });
+                    }
+                }, LAYOUT_OPTIONS['grid'] || {});
+
+                cy.layout(opts);
+
                 nodes.forEach(function(node) {
                     var title = node.title;
                     if (title.length > 15) {
@@ -66,8 +94,9 @@ define([
                             subType: node.subType,
                             type: node.type,
                             title: title,
-                            originalTitle: node.title
-                        }
+                            originalTitle: node.title,
+                        },
+                        selected: !!node.selected
                     };
 
                     var needsUpdate = false;
@@ -142,7 +171,6 @@ define([
 
         this.onNodesUpdated = function(evt, data) {
             var self = this;
-            
             this.cy(function(cy) {
                 data.nodes
                     .filter(function(updatedNode) { return updatedNode.graphPosition; })
@@ -166,6 +194,7 @@ define([
                 func = functionName && this[functionName],
                 args = target.data('args');
 
+
             if (func) {
                 if (!args) {
                     args = [];
@@ -178,6 +207,7 @@ define([
             setTimeout(function() {
                 target.blur();
                 this.select('contextMenuSelector').blur().parent().removeClass('open');
+                this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
             }.bind(this), 0);
         };
 
@@ -186,6 +216,17 @@ define([
                 cy.zoom(level);
             });
         };
+
+        this.onContextMenuLoadRelatedItems = function (){
+            var menu = this.select('nodeContextMenuSelector');
+            var currentNodeRK = menu.data('currentNodeRowKey');
+            var position = {x: menu.data ('currentNodePositionX'), y: menu.data ('currentNodePositionY')};
+            var currentNodeOriginalPosition = retina.pixelsToPoints(position);
+            var data = { rowKey : currentNodeRK,
+                         originalPosition: currentNodeOriginalPosition,
+                         type : menu.data("currentNodeType")};
+            this.trigger (document, 'loadRelatedSelected', data);
+                  };
 
         this.onContextMenuFitToWindow = function() {
             this.cy(function(cy) {
@@ -209,14 +250,10 @@ define([
 
             });
         };
+
         this.onContextMenuLayout = function(layout, opts) {
             var self = this;
             var options = $.extend({onlySelected:false}, opts);
-            var LAYOUT_OPTIONS = {
-                // Customize layout options
-                random: { padding: FIT_PADDING },
-                arbor: { friction: 0.6, repulsion: 5000 * retina.devicePixelRatio, targetFps: 60, stiffness: 300 }
-            };
             this.cy(function(cy) {
 
                 var unselected;
@@ -253,7 +290,21 @@ define([
         });
 
         this.graphContextTap = function(event) {
-            var menu = this.select('contextMenuSelector');
+            var menu;
+            if (event.cyTarget == event.cy){
+                menu = this.select ('contextMenuSelector');
+                this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
+            } else {
+                menu = this.select ('nodeContextMenuSelector');
+                menu.data("currentNodeRowKey",event.cyTarget.data('rowKey'));
+                menu.data("currentNodePositionX", event.cyTarget.position ('x'));
+                menu.data("currentNodePositionY", event.cyTarget.position ('y'));
+                menu.data("currentNodeType", event.cyTarget.data('type'));
+                if (event.cy.nodes().filter(':selected').length > 1) {
+                    return false;
+                }
+                this.select('contextMenuSelector').blur().parent().removeClass('open');
+            }
 
             // Show/Hide the layout selection menu item
             if (event.cy.nodes().filter(':selected').length) {
@@ -261,25 +312,25 @@ define([
             } else {
                 menu.find('.layout-multi').hide();
             }
-            
+
             // TODO: extract this context menu viewport fitting
             var offset = this.$node.offset(),
-                padding = 10,
-                windowSize = { x: $(window).width(), y: $(window).height() },
-                menuSize = { x: menu.outerWidth(), y: menu.outerHeight() },
-                submenu = menu.find('li.dropdown-submenu ul'),
-                submenuSize = menuSize,// { x:submenu.outerWidth(), y:submenu.outerHeight() },
-                placement = {
-                    left: Math.min( 
-                        event.originalEvent.pageX - offset.left,
-                        windowSize.x - offset.left - menuSize.x - padding
-                    ),
-                    top: Math.min( 
-                        event.originalEvent.pageY - offset.top, 
-                        windowSize.y - offset.top - menuSize.y - padding
-                    )
-                },
-                submenuPlacement = { left:'100%', right:'auto', top:0, bottom:'auto' };
+            padding = 10,
+            windowSize = { x: $(window).width(), y: $(window).height() },
+            menuSize = { x: menu.outerWidth(), y: menu.outerHeight() },
+            submenu = menu.find('li.dropdown-submenu ul'),
+            submenuSize = menuSize,// { x:submenu.outerWidth(), y:submenu.outerHeight() },
+            placement = {
+                left: Math.min(
+                    event.originalEvent.pageX - offset.left,
+                    windowSize.x - offset.left - menuSize.x - padding
+                ),
+                top: Math.min(
+                    event.originalEvent.pageY - offset.top,
+                    windowSize.y - offset.top - menuSize.y - padding
+                )
+            },
+            submenuPlacement = { left:'100%', right:'auto', top:0, bottom:'auto' };
 
             if ((placement.left + menuSize.x + submenuSize.x + padding) > windowSize.x) {
                 submenuPlacement = $.extend(submenuPlacement, { right: '100%', left:'auto' });
@@ -382,7 +433,6 @@ define([
                 return;
             }
 
-
             // If the user didn't drag more than a few pixels, select the
             // object, it could be an accidental mouse move
             var target = event.cyTarget, 
@@ -398,7 +448,6 @@ define([
                     return;
                 }
             }
-
 
             // Cache these positions since data attr could be overidden
             // then submit to undo manager
@@ -445,6 +494,9 @@ define([
         this.onWorkspaceLoaded = function(evt, workspace) {
             this.resetGraph();
             if (workspace.data && workspace.data.nodes) {
+                workspace.data.nodes.forEach(function(node){
+                    node.selected = false;
+                });
                 this.addNodes(workspace.data.nodes, { fit:true });
             }
 
@@ -453,19 +505,26 @@ define([
 
         this.onRelationshipsLoaded = function(evt, relationshipData) {
             this.cy(function(cy) {
-                cy.edges().remove();
-                relationshipData.relationships.forEach(function(relationship) {
-                    cy.add({
-                        group: "edges",
-                        data: {
-                            rowKey: relationship.from + "->" + relationship.to,
-                            relationshipType: relationship.relationshipType,
-                            source: relationship.from,
-                            target: relationship.to,
-                            type: 'relationship'
-                        }
+                if (relationshipData.relationships != null){
+                    var relationshipEdges = [];
+
+                    relationshipData.relationships.forEach(function(relationship) {
+                        relationshipEdges.push ({
+                            group: "edges",
+                            data: {
+                                rowKey: relationship.from + "->" + relationship.to,
+                                relationshipType: relationship.relationshipType,
+                                source: relationship.from,
+                                target: relationship.to,
+                                type: 'relationship',
+                                id: (relationship.from < relationship.to ? relationship.from + relationship.to : relationship.to + relationship.from)
+                            },
+                            classes: (relationship.bidirectional ? 'bidirectional' : '')
+                        });
+
                     });
-                });
+                    cy.add(relationshipEdges);
+                }
             });
         };
 
@@ -475,7 +534,7 @@ define([
 
 
             this.select('contextMenuItemSelector').on('click', this.onContextMenu.bind(this));
-
+            this.select('nodeContextMenuSelector').on('click', this.onContextMenu.bind(this));
 
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'nodesAdded', this.onNodesAdded);
@@ -562,6 +621,12 @@ define([
                     .css({
                       'width': 2,
                       'target-arrow-shape': 'triangle'
+                    })
+                  .selector('.bidirectional')
+                    .css ({
+                      'width': 2,
+                      'target-arrow-shape': 'triangle',
+                      'source-arrow-shape': 'triangle'
                     }),
 
                 ready: function(){

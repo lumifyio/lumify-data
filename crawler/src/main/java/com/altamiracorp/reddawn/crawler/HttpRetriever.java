@@ -53,11 +53,11 @@ public class HttpRetriever implements Runnable {
     }
 
     private String getHeader(String queryInfo) {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("<meta property=\"atc:result-url\" content=\"" + url + "\">\n");
-            stringBuilder.append("<meta property=\"atc:retrieval-timestamp\" content=\"" + getCurrentTimestamp() + "\">\n");
-            stringBuilder.append("<meta property=\"atc:query-info\" content=\"" + queryInfo + "\">\n");
-            return stringBuilder.toString();
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("<meta property=\"atc:result-url\" content=\"" + url + "\">\n");
+        stringBuilder.append("<meta property=\"atc:retrieval-timestamp\" content=\"" + getCurrentTimestamp() + "\">\n");
+        stringBuilder.append("<meta property=\"atc:query-info\" content=\"" + queryInfo + "\">\n");
+        return stringBuilder.toString();
     }
 
     public long getCurrentTimestamp() {
@@ -122,24 +122,30 @@ public class HttpRetriever implements Runnable {
     }
 
     private boolean writeToFile(StringBuilder stringBuilder) {
-        BufferedWriter fwriter = null;
-        try {
-            String fileName = Utils.getFileName(stringBuilder);
-            File file = new File(directoryPath + "/" + fileName);
-            fwriter = new BufferedWriter(new FileWriter(file));
-            fwriter.append(stringBuilder);
-        } catch (Exception e) {
-            return false;
-        } finally {
+        String fileName = Utils.getFileName(stringBuilder);
+        File file = createFile(fileName);
+        if (file != null) {
+            BufferedWriter fwriter = null;
             try {
+                fwriter = new BufferedWriter(new FileWriter(file));
+                fwriter.append(stringBuilder);
                 fwriter.flush();
                 fwriter.close();
-            } catch (IOException e) {
+                return true;
+            } catch (Exception e) {
+                LOGGER.error("Could not write " + file.getAbsolutePath() + " to file.");
                 return false;
             }
         }
-        return true;
+        return false;
     }
 
+    private File createFile(String fileName) {
+        if (directoryPath.charAt(directoryPath.length() - 1) == '/') {
+            return new File(directoryPath + fileName);
+        } else {
+            return new File(directoryPath + "/" + fileName);
+        }
+    }
 
 }

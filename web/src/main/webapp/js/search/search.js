@@ -285,7 +285,7 @@ define([
         var _currentNodes = {};
         this.toggleSearchResultIcon = function(rowKey, inGraph, inMap) {
             this.$node
-                .find('li.' + encodeURIComponent(rowKey).replace(/(['"%])/g,"\\$1"))
+                .find('li.' + encodeURIComponent(rowKey).replace(/(['"%.])/g,"\\$1"))
                 .toggleClass('graph-displayed', inGraph)
                 .toggleClass('map-displayed', inMap);
         };
@@ -300,7 +300,6 @@ define([
         this.onNodesUpdated = function(event, data) {
             var self = this;
             (data.nodes || []).forEach(function(node) {
-
                 // Only care about node search results and location updates
                 if ( (node.type && node.subType) || node.location || node.locations ) {
                     var inGraph = true;

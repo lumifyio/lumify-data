@@ -3,7 +3,13 @@
   <select>
     <option>Loading...</option>
   </select>
-  <input placeholder="Associate with Object..." class="object-sign" type="text" value="<%= objectSign %>"></input>
+  <input 
+    data-provide="typeahead" 
+    autocomplete="off" 
+    placeholder="Associate with Object..." 
+    class="object-sign" 
+    type="text" 
+    value="<%= objectSign %>"></input>
 
   <div class="buttons">
     <button class="create-term btn btn-small btn-primary">Create Term</button>

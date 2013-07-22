@@ -1,17 +1,15 @@
 package com.altamiracorp.reddawn.web.routes.entity;
 
 import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.model.ColumnFamily;
-import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
-import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.web.utils.UrlUtils;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +32,7 @@ public class EntityByRowKey implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
-        TermRowKey termKey = new TermRowKey(UrlUtils.urlDecode((String) request.getAttribute("rowKey")));
+        TermRowKey termKey = new TermRowKey(((String) request.getAttribute("rowKey")).replace("$2E$", "."));
 
         JSONObject json = new JSONObject();
         json.put("key", termKey.toJson());

@@ -1,7 +1,11 @@
 package com.altamiracorp.reddawn.ucd.object;
 
+import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.model.RowKey;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UcdObject extends Row<UcdObjectRowKey> {
     public static final String TABLE_NAME = "Object";
@@ -28,5 +32,10 @@ public class UcdObject extends Row<UcdObjectRowKey> {
             addColumnFamily(new UcdObjectObjectStatement());
         }
         return get(UcdObjectObjectStatement.NAME);
+    }
+
+    public UcdObject addObjectStatement(UcdObjectObjectStatement objectStatement) {
+        this.addColumnFamily(objectStatement);
+        return this;
     }
 }

@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -108,6 +109,24 @@ public class AccumuloSession extends Session {
             }
             return AccumuloHelper.scannerToRows(tableName, scanner);
         } catch (TableNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    List<Row> findByRowStartsWithList(String tableName, List<String> rowKeyPrefixes, QueryUser queryUser) {
+        try {
+            BatchScanner scanner = this.connector.createBatchScanner(tableName,  ((AccumuloQueryUser) queryUser).getAuthorizations() , 2);
+            Collection <Range> ranges = new ArrayList<Range>();
+
+            for (String rowKeyPrefix : rowKeyPrefixes) {
+                Range range = new Range(rowKeyPrefix, rowKeyPrefix+"ZZZZZZ");
+                ranges.add(range);
+            }
+
+            scanner.setRanges(ranges);
+            return AccumuloHelper.scannerToRows(tableName, scanner);
+        } catch (TableNotFoundException e){
             throw new RuntimeException(e);
         }
     }

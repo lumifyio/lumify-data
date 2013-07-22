@@ -7,11 +7,11 @@ import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
-import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.web.utils.UrlUtils;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
