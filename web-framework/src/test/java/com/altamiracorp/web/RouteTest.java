@@ -28,7 +28,7 @@ public class RouteTest {
         Route r = new Route(Method.GET, path, handler);
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getMethod()).thenReturn("GET");
-        when(request.getPathInfo()).thenReturn("/foo");
+        when(request.getRequestURI()).thenReturn("/foo");
         assertFalse(r.isMatch(request));
     }
 
@@ -37,7 +37,7 @@ public class RouteTest {
         Route r = new Route(Method.GET, path, handler);
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getMethod()).thenReturn("GET");
-        when(request.getPathInfo()).thenReturn(path);
+        when(request.getRequestURI()).thenReturn(path);
         assertTrue(r.isMatch(request));
     }
 
@@ -46,7 +46,7 @@ public class RouteTest {
         Route r = new Route(Method.GET, path + "/{id}", handler);
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getMethod()).thenReturn("GET");
-        when(request.getPathInfo()).thenReturn(path + "/25");
+        when(request.getRequestURI()).thenReturn(path + "/25");
         assertTrue(r.isMatch(request));
         verify(request).setAttribute("id", "25");
     }
@@ -56,7 +56,7 @@ public class RouteTest {
         Route r = new Route(Method.GET, path + "/{model}/edit/{id}", handler);
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getMethod()).thenReturn("GET");
-        when(request.getPathInfo()).thenReturn(path + "/person/edit/25");
+        when(request.getRequestURI()).thenReturn(path + "/person/edit/25");
         assertTrue(r.isMatch(request));
         verify(request).setAttribute("model", "person");
         verify(request).setAttribute("id", "25");
@@ -67,7 +67,7 @@ public class RouteTest {
         Route r = new Route(Method.GET, path + "/{file}.ext", handler);
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getMethod()).thenReturn("GET");
-        when(request.getPathInfo()).thenReturn(path + "/less.ext");
+        when(request.getRequestURI()).thenReturn(path + "/less.ext");
         assertTrue(r.isMatch(request));
         verify(request).setAttribute("file", "less");
     }

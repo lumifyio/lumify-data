@@ -5,10 +5,10 @@ import com.altamiracorp.reddawn.ucd.statement.Statement;
 import com.altamiracorp.reddawn.ucd.statement.StatementRepository;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import com.altamiracorp.reddawn.web.WebApp;
-import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.web.*;
 import com.altamiracorp.web.App;
+import com.altamiracorp.web.utils.UrlUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -28,7 +28,7 @@ public class EntityByRelatedEntities implements Handler, AppAware{
     @Override
     public void handle (HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         Session session = this.app.getRedDawnSession(request).getModelSession();
-        String rowKey = UrlUtils.urlDecode ((String) request.getAttribute("rowKey"));
+        String rowKey = UrlUtils.urlDecode((String) request.getAttribute("rowKey"));
         List<Statement> statements = statementRepository.findByRowStartsWith(session, rowKey);
 
         JSONArray statementsJson = new JSONArray();

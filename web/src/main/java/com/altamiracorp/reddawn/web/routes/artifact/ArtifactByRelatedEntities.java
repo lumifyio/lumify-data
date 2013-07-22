@@ -6,10 +6,10 @@ import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndexRepositor
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import com.altamiracorp.reddawn.web.WebApp;
-import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.web.*;
 import com.altamiracorp.web.App;
+import com.altamiracorp.web.utils.UrlUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 

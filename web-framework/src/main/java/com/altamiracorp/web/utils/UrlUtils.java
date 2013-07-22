@@ -1,4 +1,4 @@
-package com.altamiracorp.reddawn.web.utils;
+package com.altamiracorp.web.utils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
