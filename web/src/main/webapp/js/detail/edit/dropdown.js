@@ -4,9 +4,10 @@ define([
     'flight/lib/component',
     'tpl!./dropdown',
     'tpl!./concept-options',
+    'service/ucd',
     'service/entity',
     'underscore'
-], function(defineComponent, dropdownTemplate, conceptsTemplate, EntityService, _) {
+], function(defineComponent, dropdownTemplate, conceptsTemplate, Ucd, EntityService, _) {
     'use strict';
 
     return defineComponent(EditDropdown);
@@ -14,6 +15,7 @@ define([
 
     function EditDropdown() {
         this.entityService = new EntityService();
+        this.ucd = new Ucd();
 
         this.defaultAttrs({
             entityConceptMenuSelector: '.underneath .dropdown-menu a',
@@ -141,25 +143,13 @@ define([
                 objectSign: objectRowKey && objectRowKey.sign || ''
             }));
 
+
             _.defer(function() {
-                node.one('transitionend', function() {
-                    node.css({
-                        transition: 'none',
-                        height:'auto',
-                        overflow: 'visible'
-                    });
-                });
-                var form = node.find('.term-form');
-                node.css({ height:form.outerHeight(true) + 'px' });
+                self.setupObjectTypeAhead();
 
-                self.entityService.concepts(function(err, concepts) {
-                    var mentionNodeInfo = mentionNode.data('info');
+                self.open();
 
-                    self.select('conceptSelector').html(conceptsTemplate({
-                        concepts:concepts,
-                        selectedConceptLabel:mentionNodeInfo && mentionNodeInfo.subType || ''
-                    }));
-                });
+                self.loadConcepts();
             });
 
             this.on('click', {
@@ -167,5 +157,81 @@ define([
                 createTermButtonSelector: this.onCreateTermClicked
             });
         });
+
+
+        this.loadConcepts = function() {
+            var self = this;
+            self.entityService.concepts(function(err, concepts) {
+                var mentionNode = $(self.attr.mentionNode),
+                    mentionNodeInfo = mentionNode.data('info');
+
+                self.select('conceptSelector').html(conceptsTemplate({
+                    concepts:concepts,
+                    selectedConceptLabel:mentionNodeInfo && mentionNodeInfo.subType || ''
+                }));
+            });
+        };
+
+        this.setupObjectTypeAhead = function() {
+            var self = this;
+
+            self.select('objectSignSelector').typeahead({
+                source: function(query, callback) {
+                    self.ucd.entitySearch(query.toLowerCase(), function(err, entities) {
+                        if(err) {
+                            console.error('Error', err);
+                            return self.trigger(document, 'error', { message: err.toString() });
+                        }
+
+                        // Convert dictionary map with type keys into flat
+                        // array
+                        var types = Object.keys(entities);
+                        var entityArrays = types.map(function(type) { return entities[type]; });
+                        var all = Array.prototype.concat.apply([], entityArrays);
+
+                        // Typeahead just expects list of strings, give
+                        // these objects some string like behavior using
+                        // the "sign" property
+                        all.forEach(function(entity) {
+                            $.extend(entity, {
+                                toString: function () {
+                                    return JSON.stringify(this);
+                                },
+                                toLowerCase: function () {
+                                    return this.sign.toLowerCase();
+                                },
+                                indexOf: function (string) {
+                                    return String.prototype.indexOf.apply(this.sign, arguments);
+                                },
+                                replace: function (string) {
+                                    return String.prototype.replace.apply(this.sign + ' (' + this.conceptLabel + ')', arguments);
+                                }
+                            });
+                        });
+
+                        callback(all);
+                    });
+                    return;
+                }, 
+                updater: function (item) {
+                    item = JSON.parse(item);
+                    return item && item.sign || '';
+                }
+            });
+        };
+
+        this.open = function() {
+            var node = this.$node;
+
+            node.one('transitionend', function() {
+                node.css({
+                    transition: 'none',
+                    height:'auto',
+                    overflow: 'visible'
+                });
+            });
+            var form = node.find('.term-form');
+            node.css({ height:form.outerHeight(true) + 'px' });
+        };
     }
 });
