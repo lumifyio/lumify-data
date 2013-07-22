@@ -125,7 +125,7 @@ public class HttpRetriever implements Runnable {
         BufferedWriter fwriter = null;
         try {
             String fileName = Utils.getFileName(stringBuilder);
-            File file = new File(directoryPath + fileName);
+            File file = new File(directoryPath + "/" + fileName);
             fwriter = new BufferedWriter(new FileWriter(file));
             fwriter.append(stringBuilder);
         } catch (Exception e) {
