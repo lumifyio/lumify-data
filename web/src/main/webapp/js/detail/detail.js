@@ -308,7 +308,7 @@ define([
                     return self.trigger (document, 'error', { message: err.toString () });
                 }
 
-                self.getLoadRelatedEntities (data.rowKey, function (relatedEntities){
+                self.loadRelatedEntities (data.rowKey, function (relatedEntities){
                     var entityData = {};
                     entityData.key = entity.key;
                     entityData.relatedEntities = relatedEntities;
@@ -325,7 +325,7 @@ define([
                     return self.trigger (document, 'error', { message: err.toString () });
                 }
 
-                self.getLoadRelatedTerms (data.rowKey, function (relatedTerms){
+                self.loadRelatedTerms (data.rowKey, function (relatedTerms){
                     var termData = {};
                     termData.key = artifact.key;
                     termData.relatedTerms = relatedTerms;
@@ -358,7 +358,7 @@ define([
             });
         };
 
-        this.getLoadRelatedEntities = function (key, callback){
+        this.loadRelatedEntities = function (key, callback){
             var self = this;
             new UCD().getRelatedEntitiesBySubject (key, function (err, relatedEntities){
                 if (err){
@@ -370,7 +370,7 @@ define([
             });
         };
 
-        this.getLoadRelatedTerms = function (key, callback){
+        this.loadRelatedTerms = function (key, callback){
             var self = this;
             new UCD().getRelatedTermsFromArtifact (key, function (err, relatedTerms){
                 if (err){
