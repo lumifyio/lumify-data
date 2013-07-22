@@ -312,27 +312,7 @@ define([
                     var entityData = {};
                     entityData.key = entity.key;
                     entityData.relatedEntities = relatedEntities;
-                    var xOffset = 100, yOffset = 100;
-                    var x = data.originalPosition.x;
-                    var y = data.originalPosition.y;
-                    self.trigger(document, 'addNodes', {
-                        nodes: entityData.relatedEntities.map(function(relatedEntity, index) {
-                            if (index % 10 === 0) {
-                                y += yOffset;
-                            }
-                            return {
-                                title: relatedEntity.title,
-                                rowKey: relatedEntity.rowKey,
-                                subType: relatedEntity.subType,
-                                type: relatedEntity.type,
-                                graphPosition: {
-                                    x: x + xOffset * (index % 10 + 1),
-                                    y: y
-                                },
-                                selected: true
-                            };
-                        })
-                    });
+                    self.onLoadRelatedItems (data, entityData.relatedEntities);
                 });
             });
         };
@@ -349,28 +329,32 @@ define([
                     var termData = {};
                     termData.key = artifact.key;
                     termData.relatedTerms = relatedTerms;
-                    var xOffset = 100, yOffset = 100;
-                    var x = data.originalPosition.x;
-                    var y = data.originalPosition.y;
-                    self.trigger(document, 'addNodes', {
-                        nodes: termData.relatedTerms.map(function(relatedTerm, index) {
-                            if (index % 10 === 0) {
-                                y += yOffset;
-                            }
-                            return {
-                                title: relatedTerm.title,
-                                rowKey: relatedTerm.rowKey,
-                                subType: relatedTerm.subType,
-                                type: relatedTerm.type,
-                                graphPosition: {
-                                    x: x + xOffset * (index % 10 + 1),
-                                    y: y
-                                },
-                                selected: true
-                            };
-                        })
-                    });
+                    self.onLoadRelatedItems (data, termData.relatedTerms);
                 });
+            });
+        };
+
+        this.onLoadRelatedItems = function (originalData, nodes){
+            var xOffset = 100, yOffset = 100;
+            var x = originalData.originalPosition.x;
+            var y = originalData.originalPosition.y;
+            this.trigger (document, 'addNodes', {
+                nodes: nodes.map (function (relatedItem, index){
+                    if (index % 10 === 0) {
+                        y += yOffset;
+                    }
+                    return {
+                        title: relatedItem.title,
+                        rowKey: relatedItem.rowKey,
+                        subType: relatedItem.subType,
+                        type: relatedItem.type,
+                        graphPosition: {
+                            x: x + xOffset * (index % 10 + 1),
+                            y: y
+                        },
+                        selected: true
+                    };
+                })
             });
         };
 
