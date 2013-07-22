@@ -52,17 +52,17 @@ public class StatementRepository extends Repository<Statement> {
         return results;
     }
 
-    public HashMap <String, HashSet<String>> findRelationshipDirection (List <String> rowKeyPrefixes, Session session){
-        List <Row> rows = findByRowStartsWithList(rowKeyPrefixes, session);
-        HashMap <String, HashSet<String>> relationshipMap = new HashMap<String, HashSet<String>>();
+    public HashMap<String, HashSet<String>> findRelationshipWithDirection(Session session, List<String> rowKeyPrefixes) {
+        List<Row> rows = findByRowStartsWithList(rowKeyPrefixes, session);
+        HashMap<String, HashSet<String>> relationshipMap = new HashMap<String, HashSet<String>>();
 
-        for (String rowKey : rowKeyPrefixes){
+        for (String rowKey : rowKeyPrefixes) {
             relationshipMap.put(rowKey, new HashSet<String>());
         }
 
-        for (Row row : rows){
+        for (Row row : rows) {
             StatementRowKey statementRowKey = new StatementRowKey(row.getRowKey().toString());
-            if (rowKeyPrefixes.contains(statementRowKey.getObjectRowKey())){
+            if (rowKeyPrefixes.contains(statementRowKey.getObjectRowKey())) {
                 relationshipMap.get(statementRowKey.getSubjectRowKey()).add(statementRowKey.getObjectRowKey());
             }
         }

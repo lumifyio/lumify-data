@@ -57,7 +57,7 @@ public class EntityRelationships implements Handler, AppAware {
 
         JSONArray resultsJson = new JSONArray();
         if ((oldEntityIds.length() + newEntityIds.length()) > 0){
-            HashMap<String, HashSet<String>> entityRelationships = statementRepository.findRelationshipDirection(rowKeyPrefixes, session);
+            HashMap<String, HashSet<String>> entityRelationships = statementRepository.findRelationshipWithDirection(session, rowKeyPrefixes);
             for (Map.Entry<String, HashSet<String>> entityRelationship : entityRelationships.entrySet()){
                 for (String toEntity : entityRelationship.getValue()){
                     HashSet<String> toEntities = entityRelationships.get(toEntity);
