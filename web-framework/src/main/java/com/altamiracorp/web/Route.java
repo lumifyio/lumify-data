@@ -30,15 +30,14 @@ public class Route {
         if (!requestMethod.equals(method)) {
             return false;
         }
-        String encodedRequestUri = request.getRequestURI().replaceAll("%2F", "%252F");
-        String[] requestPathComponents = splitPathComponents(UrlUtils.urlDecode(encodedRequestUri));
+        String[] requestPathComponents = splitPathComponents(request.getRequestURI());
         if (requestPathComponents.length != routePathComponents.length) {
             return false;
         }
 
         for (int i = 0; i < routePathComponents.length; i++) {
             String routeComponent = routePathComponents[i];
-            String requestComponent = requestPathComponents[i].replaceAll("%2F", "/");
+            String requestComponent = UrlUtils.urlDecode(requestPathComponents[i]);
 
             Matcher matcher = componentPattern.matcher(routeComponent);
             if (matcher.matches()) {
