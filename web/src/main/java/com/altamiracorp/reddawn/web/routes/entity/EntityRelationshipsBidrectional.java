@@ -33,7 +33,7 @@ public class EntityRelationshipsBidrectional implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         Session session = this.app.getRedDawnSession(request).getModelSession();
-        String rowKey = Pattern.quote(UrlUtils.urlDecode((String) request.getAttribute("rowKey")));
+        String rowKey = Pattern.quote(((String) request.getAttribute("rowKey")).replace("$2E$", "."));
         List<Statement> statements = statementRepository.findByRowKeyRegex(session, "(" + rowKey + ".*)|(.*" + rowKey + ")");
 
         JSONObject json = new JSONObject();

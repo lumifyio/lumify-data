@@ -491,6 +491,7 @@ define([
         };
 
         this.onSearchResultSelection = function(e, data) {
+            console.log(data);
             var detailPane = this.select('detailPaneSelector');
             var minWidth = 100;
             var width = 0;

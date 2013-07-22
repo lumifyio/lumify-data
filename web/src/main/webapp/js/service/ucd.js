@@ -64,7 +64,7 @@ function(ServiceBase) {
     };
 
     Ucd.prototype.getEntityById = function (id, callback) {
-        this._get("entity", id, callback);
+        this._get("entity", id.replace(/\./g, '$2E$'), callback);
     };
 
     Ucd.prototype.getEntityMentionsByRange = function (url, callback) {
@@ -131,8 +131,9 @@ function(ServiceBase) {
         }
 
         //maybe it's an object for future options stuff?
-        var i = encodeURIComponent(typeof id == "object" ? id.id : id).replace(/\./g, '%252e');
-
+        console.log(id);
+        var i = encodeURIComponent(typeof id == "object" ? id.id : id);
+        console.log(i);
         return this._ajaxGet({
             url: resource + "/" + i,
         }, callback);
