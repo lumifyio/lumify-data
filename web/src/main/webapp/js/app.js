@@ -336,6 +336,8 @@ define([
                     }
                 });
 
+                if (added.length === 0) return;
+
                 if(!data.noUndo) {
                     var dataClone = JSON.parse(JSON.stringify(data));
                     dataClone.noUndo = true;
