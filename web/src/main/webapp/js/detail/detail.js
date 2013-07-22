@@ -480,11 +480,7 @@ define([
 
                     var offset = 0;
                     var limit = 2; // change later
-<<<<<<< Updated upstream
-                    var url = 'entity/' + encodeURIComponent(data.rowKey) + '/mentions?offset=' + offset + '&limit=' + limit;
-=======
                     var url = 'entity/' + encodeURIComponent(data.rowKey).replace(/\./g, '$2E$') + '/mentions?offset=' + offset + '&limit=' + limit;
->>>>>>> Stashed changes
                     var dataInfo = JSON.stringify({
                         'rowKey': entity.key.value,
                         'type': 'entity',
