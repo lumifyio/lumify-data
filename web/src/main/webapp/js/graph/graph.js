@@ -219,12 +219,12 @@ define([
 
         this.onContextMenuLoadRelatedItems = function (){
             var menu = this.select('nodeContextMenuSelector');
-            var currentNodeRK = menu.attr('data-currentNode-rowKey');
-            var position = {x: menu.attr ('data-currentNode-positionX'), y: menu.attr ('data-currentNode-positionY')};
+            var currentNodeRK = menu.data('currentNodeRowKey');
+            var position = {x: menu.data ('currentNodePositionX'), y: menu.data ('currentNodePositionY')};
             var currentNodeOriginalPosition = retina.pixelsToPoints(position);
             var data = { rowKey : currentNodeRK,
                          originalPosition: currentNodeOriginalPosition,
-                         type : menu.attr("data-currentNode-type")};
+                         type : menu.data("currentNodeType")};
             this.trigger (document, 'loadRelatedSelected', data);
                   };
 
@@ -296,10 +296,10 @@ define([
                 this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
             } else {
                 menu = this.select ('nodeContextMenuSelector');
-                menu.attr("data-currentNode-rowkey",event.cyTarget.data('rowKey'));
-                menu.attr("data-currentNode-positionX", event.cyTarget.position ('x'));
-                menu.attr("data-currentNode-positionY", event.cyTarget.position ('y'));
-                menu.attr("data-currentNode-type", event.cyTarget.data('type'));
+                menu.data("currentNodeRowKey",event.cyTarget.data('rowKey'));
+                menu.data("currentNodePositionX", event.cyTarget.position ('x'));
+                menu.data("currentNodePositionY", event.cyTarget.position ('y'));
+                menu.data("currentNodeType", event.cyTarget.data('type'));
                 if (event.cy.nodes().filter(':selected').length > 1) {
                     return false;
                 }

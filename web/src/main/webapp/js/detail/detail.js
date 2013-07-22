@@ -286,7 +286,7 @@ define([
             if ($.isArray (data) && data.length == 1){
                 data = data [0];
             }
-
+            
             if (!data || data.length == 0){
                 this.$node.empty ();
                 this.currentRowKey = null;
@@ -295,7 +295,8 @@ define([
             } else if (data.type == 'artifact'){
                 this.onLoadRelatedArtifactSelected (evt, data);
             } else {
-                console.error ('Unhandled type: ' + data.type);
+                var message = 'Unhandled type: ' + data.type;
+                console.error (message);
                 return this.trigger (document, 'error', { message: message });
             }
        };
