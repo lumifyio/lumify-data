@@ -85,10 +85,6 @@ define([
                         title = title.substring(0, 10) + "...";
                     }
 
-                    if (node.selected != true){
-                        node.selected = false;
-                    }
-
                     var cyNodeData = {
                         group: 'nodes',
                         classes: $.trim(node.subType + ' ' + node.type),
@@ -100,7 +96,7 @@ define([
                             title: title,
                             originalTitle: node.title,
                         },
-                        selected: node.selected
+                        selected: !!node.selected
                     };
 
                     var needsUpdate = false;
