@@ -10,17 +10,21 @@ import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.apache.tika.sax.ToHTMLContentHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.ContentHandler;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -92,15 +96,22 @@ public class TikaTextExtractor implements TextExtractor {
             return null;
         }
 
-        InputStream in = artifactRepository.getRaw(session, artifact);
-        if (in == null) {
+        InputStream in;
+        InputStream raw = artifactRepository.getRaw(session, artifact);
+        if (raw == null) {
             return null;
         }
         try {
-
             ArtifactExtractedInfo result = new ArtifactExtractedInfo();
             Parser parser = new AutoDetectParser(); // TODO: the content type should already be detected. To speed this up we should be able to grab the parser from content type.
-            BodyContentHandler handler = new BodyContentHandler(10000000);
+            String text = "";
+            ContentHandler handler = new BodyContentHandler(10000000);
+            if (isHtml(artifact)) {
+                text = IOUtils.toString(raw);
+                in = new ByteArrayInputStream(text.getBytes());
+            } else {
+                in = raw;
+            }
             Metadata metadata = new Metadata();
             ParseContext ctx = new ParseContext();
 
@@ -108,12 +119,13 @@ public class TikaTextExtractor implements TextExtractor {
 
             // since we are using the AutoDetectParser, it is safe to assume that
             //the Content-Type metadata key will always return a value
-            String text = handler.toString();
-            if (metadata.get(MIME_TYPE_KEY).toLowerCase().contains("text")) {
+            if (isHtml(artifact)) {
                 text = extractTextFromHtml(text);
                 if (text == null || text.length() == 0) {
                     text = handler.toString();
                 }
+            } else {
+                text = handler.toString();
             }
 
             result.setText(text);
@@ -143,7 +155,7 @@ public class TikaTextExtractor implements TextExtractor {
 
             return result;
         } finally {
-            in.close();
+            raw.close();
         }
     }
 
@@ -224,6 +236,10 @@ public class TikaTextExtractor implements TextExtractor {
             }
         }
         return host;
+    }
+
+    private boolean isHtml (Artifact artifact) {
+        return artifact.getGenericMetadata().getMimeType().contains("text");
     }
 
 }
