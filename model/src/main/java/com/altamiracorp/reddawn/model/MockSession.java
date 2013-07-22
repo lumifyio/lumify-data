@@ -1,7 +1,5 @@
 package com.altamiracorp.reddawn.model;
 
-import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
-
 import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -88,6 +86,11 @@ public class MockSession extends Session {
     }
 
     @Override
+    Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, QueryUser queryUser) {
+        return findByRowKey(tableName, rowKey, queryUser);
+    }
+
+    @Override
     List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
         List<Row> rows = this.tables.get(tableName);
         if (rows == null) {
@@ -104,10 +107,10 @@ public class MockSession extends Session {
 
         List<ColumnFamily> result = new ArrayList<ColumnFamily>();
         long count = 0L;
-        for(ColumnFamily colFam : (Collection<ColumnFamily>) matchedRow.getColumnFamilies()) {
-            if(Pattern.matches(colFamRegex, colFam.getColumnFamilyName())) {
-                if(count < colFamOffset + colFamLimit) {
-                    if(count >= colFamOffset) {
+        for (ColumnFamily colFam : (Collection<ColumnFamily>) matchedRow.getColumnFamilies()) {
+            if (Pattern.matches(colFamRegex, colFam.getColumnFamilyName())) {
+                if (count < colFamOffset + colFamLimit) {
+                    if (count >= colFamOffset) {
                         result.add(colFam);
                     }
                 } else {

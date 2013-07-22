@@ -5,6 +5,7 @@ import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
+import com.altamiracorp.reddawn.ucd.sentence.SentenceTerm;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
@@ -30,29 +31,32 @@ public class EntityHighlighter {
             offsetItems.addAll(termAndTermMetadata);
             offsetItems.addAll(sentences);
 
-            return getHighlightedText(artifact.getContent().getDocExtractedTextString(), offsetItems);
+            return getHighlightedText(artifact.getContent().getDocExtractedTextString(), 0, offsetItems);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static String getHighlightedText(String text, List<OffsetItem> offsetItems) throws JSONException {
+    public static String getHighlightedText(String text, int textStartOffset, List<OffsetItem> offsetItems) throws JSONException {
         Collections.sort(offsetItems, new OffsetItemComparator());
         StringBuilder result = new StringBuilder();
         PriorityQueue<Integer> endOffsets = new PriorityQueue<Integer>();
-        int lastStart = 0;
+        int lastStart = textStartOffset;
         for (OffsetItem offsetItem : offsetItems) {
+            if (offsetItem.getStart() < textStartOffset || offsetItem.getEnd() < textStartOffset) {
+                continue;
+            }
             if (!offsetItem.shouldHighlight()) {
                 continue;
             }
 
             while (endOffsets.size() > 0 && endOffsets.peek() < offsetItem.getStart().intValue()) {
                 int end = endOffsets.poll();
-                result.append(text.substring(lastStart, end));
+                result.append(text.substring(lastStart - textStartOffset, end - textStartOffset));
                 result.append("</span>");
                 lastStart = end;
             }
-            result.append(text.substring(lastStart, offsetItem.getStart().intValue()));
+            result.append(text.substring(lastStart - textStartOffset, offsetItem.getStart().intValue() - textStartOffset));
 
             JSONObject infoJson = offsetItem.getInfoJson();
 
@@ -67,11 +71,11 @@ public class EntityHighlighter {
             endOffsets.add(offsetItem.getEnd().intValue());
             lastStart = offsetItem.getStart().intValue();
         }
-        result.append(text.substring(lastStart));
+        result.append(text.substring(lastStart - textStartOffset));
         return result.toString();
     }
 
-    private List<OffsetItem> getSentencesForArtifact(RedDawnSession session, ArtifactRowKey rowKey) {
+    public List<OffsetItem> getSentencesForArtifact(RedDawnSession session, ArtifactRowKey rowKey) {
         List<Sentence> sentences = sentenceRepository.findByArtifactRowKey(session.getModelSession(), rowKey);
         ArrayList<OffsetItem> sentenceOffsetItems = new ArrayList<OffsetItem>();
         for (Sentence sentence : sentences) {
@@ -90,5 +94,29 @@ public class EntityHighlighter {
             }
         }
         return termMetadataOffsetItems;
+    }
+
+    public String getHighlightedText(RedDawnSession session, Sentence sentence) {
+        List<OffsetItem> offsetItems = getSentenceOffsetItems(session, sentence);
+        try {
+            return getHighlightedText(sentence.getData().getText(), new Integer((int) (long) sentence.getData().getStart()), offsetItems);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<OffsetItem> getSentenceOffsetItems(RedDawnSession session, Sentence sentence) {
+        List<OffsetItem> offsetItems = new ArrayList<OffsetItem>();
+        List<SentenceTerm> sentenceTerms = sentence.getSentenceTerms();
+        for (SentenceTerm sentenceTerm : sentenceTerms) {
+
+            String termId = sentenceTerm.getTermId();
+            String columnFamilyName = sentenceTerm.getColumnFamilyName();
+
+            Term term = termRepository.findByRowKey(session.getModelSession(), termId);
+            TermMention termMention = term.<TermMention>get(columnFamilyName);
+            offsetItems.add(new TermAndTermMentionOffsetItem(new TermAndTermMention(term, termMention)));
+        }
+        return offsetItems;
     }
 }

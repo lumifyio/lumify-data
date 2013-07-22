@@ -28,8 +28,7 @@ define([
             searchSummaryResultItemSelector: '.search-results-summary li',
             searchResultsScrollSelector: '.search-results ul.nav',
             searchResultItemLinkSelector: '.search-results li a',
-            searchResultsSelector: '.search-results',
-            closeResultsSelector: '.search-results .close'
+            searchResultsSelector: '.search-results'
         });
 
         this.searchResults = null;
@@ -102,7 +101,16 @@ define([
         };
 
         this.onSummaryResultItemClick = function(evt) {
+            evt.preventDefault();
+
             var $target = $(evt.target).parents('li');
+            if ($target.hasClass('active')) {
+                return this.close(evt);
+            }
+
+            if (+$target.find('.badge').text() === 0) {
+                return this.close(evt);
+            }
 
             this.$node.find('.search-results-summary .active').removeClass('active');
             $target.addClass('active');
@@ -182,6 +190,10 @@ define([
 			this.currentQuery = data.query;
 		};
 
+        this.onFocusSearchField = function() {
+            this.select('searchQuerySelector').focus();
+        };
+
         this.close = function(e) {
             this.select('searchResultsSelector').hide();
             this.$node.find('.search-results-summary .active').removeClass('active');
@@ -244,12 +256,12 @@ define([
             this.on('entitySearchResults', this.onEntitySearchResults);
             this.on(document,'showSearchResults', this.onShowSearchResults);
 			this.on(document,'searchQueryChanged',this.onQueryChange);
+            this.on(document, 'focusSearchField', this.onFocusSearchField);
             this.on('submit', {
                 searchFormSelector: this.onFormSearch
             });
             this.on('click', {
-                searchSummaryResultItemSelector: this.onSummaryResultItemClick,
-                closeResultsSelector: this.close
+                searchSummaryResultItemSelector: this.onSummaryResultItemClick
             });
 			this.on('keyup', {
 				searchQuerySelector: this.onKeyUp

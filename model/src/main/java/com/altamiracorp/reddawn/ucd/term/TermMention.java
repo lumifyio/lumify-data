@@ -81,11 +81,11 @@ public class TermMention extends ColumnFamily {
         return this;
     }
 
-    public String getSentenceTokenOffset() {
-        return Value.toString(get(SENTENCE_OFFSET));
+    public Long getSentenceTokenOffset() {
+        return Value.toLong(get(SENTENCE_OFFSET));
     }
 
-    public TermMention setSentenceTokenOffset(String sentenceOffset) {
+    public TermMention setSentenceTokenOffset(Long sentenceOffset) {
         set(SENTENCE_OFFSET, sentenceOffset);
         return this;
     }
@@ -257,6 +257,10 @@ public class TermMention extends ColumnFamily {
     public TermMention setObjectRowKey(String objectRowKey) {
         set(OBJECT_ROW_KEY, objectRowKey);
         return this;
+    }
+
+    public TermMention setObjectRowKey(UcdObjectRowKey objectRowKey) {
+        return setObjectRowKey(objectRowKey.toString());
     }
 
     @Override

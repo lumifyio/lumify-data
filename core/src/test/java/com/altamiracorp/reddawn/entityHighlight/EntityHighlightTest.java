@@ -35,7 +35,7 @@ public class EntityHighlightTest {
                         )
         );
         List<OffsetItem> termAndTermMetadata = EntityHighlighter.getTermAndTermMetadataForArtifact(artifactKey, terms);
-        String highlightText = EntityHighlighter.getHighlightedText("Test highlight of Joe Ferner and Jeff Kunkle.", termAndTermMetadata);
+        String highlightText = EntityHighlighter.getHighlightedText("Test highlight of Joe Ferner and Jeff Kunkle.", 0, termAndTermMetadata);
         assertEquals("Test highlight of <span class=\"entity person\" data-info=\"{&quot;start&quot;:18,&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;joe ferner\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;,&quot;end&quot;:28}\">Joe Ferner</span> and <span class=\"entity person\" data-info=\"{&quot;start&quot;:33,&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;jeff kunkle\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;,&quot;end&quot;:44}\">Jeff Kunkle.", highlightText);
     }
 
@@ -59,7 +59,7 @@ public class EntityHighlightTest {
                         )
         );
         List<OffsetItem> termAndTermMetadata = EntityHighlighter.getTermAndTermMetadataForArtifact(artifactKey, terms);
-        String highlightText = EntityHighlighter.getHighlightedText("Test highlight of Joe Ferner.", termAndTermMetadata);
+        String highlightText = EntityHighlighter.getHighlightedText("Test highlight of Joe Ferner.", 0, termAndTermMetadata);
         assertEquals("Test highlight of <span class=\"entity person\" term-key=\"joe ferner\\x1Fee\\x1Fperson\"><span class=\"entity person\" term-key=\"joe\\x1Fee\\x1Fperson\">Joe</span> Ferner</span>.", highlightText);
     }
 }

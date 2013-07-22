@@ -26,14 +26,12 @@ public class UcdObject extends Row<UcdObjectRowKey> {
         this(new UcdObjectRowKey(sign, modelKey, conceptLabel));
     }
 
-    public List<UcdObjectObjectStatement> getObjectStatements() {
-        ArrayList<UcdObjectObjectStatement> ucdObjectObjectStatements = new ArrayList<UcdObjectObjectStatement>();
-        for (ColumnFamily columnFamily : getColumnFamilies()) {
-            if (columnFamily instanceof UcdObjectObjectStatement) {
-                ucdObjectObjectStatements.add((UcdObjectObjectStatement) columnFamily);
-            }
+    public UcdObjectObjectStatement getUcdObjectObjectStatement() {
+        UcdObjectObjectStatement ucdObjectObjectStatement = get(UcdObjectObjectStatement.NAME);
+        if (ucdObjectObjectStatement == null) {
+            addColumnFamily(new UcdObjectObjectStatement());
         }
-        return ucdObjectObjectStatements;
+        return get(UcdObjectObjectStatement.NAME);
     }
 
     public UcdObject addObjectStatement(UcdObjectObjectStatement objectStatement) {
