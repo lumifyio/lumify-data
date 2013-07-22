@@ -57,15 +57,16 @@ define([
             };
 
             this.cy(function(cy) {
-                var unselected = cy.nodes().filter(':unselected');
-                unselected.lock ();
+                var existingNodes = $.map(cy.nodes(), function (node){
+                    node.lock();
+                });
                 var opts = $.extend({
                     name:'grid',
                     fit: false,
                     stop: function() {
-                        if (unselected) {
-                            unselected.unlock();
-                        }
+                        $.map(cy.nodes(), function (node) {
+                            node.unlock();
+                        });
                         var updates = $.map(cy.nodes(), function(node) {
                             return {
                                 rowKey: node.data('rowKey'),
@@ -174,7 +175,6 @@ define([
 
         this.onNodesUpdated = function(evt, data) {
             var self = this;
-            
             this.cy(function(cy) {
                 data.nodes
                     .filter(function(updatedNode) { return updatedNode.graphPosition; })
