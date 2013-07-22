@@ -39,32 +39,32 @@ public class EntityRelationships implements Handler, AppAware {
         JSONArray oldEntityIds = jsonArray.getJSONArray("oldEntityIds");
         JSONArray newEntityIds = jsonArray.getJSONArray("newEntityIds");
         JSONArray artifactIds = jsonArray.getJSONArray("artifactIds");
-        ArrayList <String> newEntityRowKey = new ArrayList<String>();
-        ArrayList <String> artifactRowKeys = new ArrayList<String>();
+        ArrayList<String> newEntityRowKey = new ArrayList<String>();
+        ArrayList<String> artifactRowKeys = new ArrayList<String>();
 
-        List <String> rowKeyPrefixes = new ArrayList<String>();
-        for (int i = 0; i < oldEntityIds.length(); i ++){
+        List<String> rowKeyPrefixes = new ArrayList<String>();
+        for (int i = 0; i < oldEntityIds.length(); i++) {
             rowKeyPrefixes.add(oldEntityIds.getString(i));
         }
-        for (int i = 0; i < newEntityIds.length(); i ++){
+        for (int i = 0; i < newEntityIds.length(); i++) {
             rowKeyPrefixes.add(newEntityIds.getString(i));
             newEntityRowKey.add(newEntityIds.getString(i));
         }
 
-        for (int i = 0; i < artifactIds.length(); i++){
+        for (int i = 0; i < artifactIds.length(); i++) {
             artifactRowKeys.add(artifactIds.getString(i));
         }
 
         JSONArray resultsJson = new JSONArray();
-        if ((oldEntityIds.length() + newEntityIds.length()) > 0){
+        if ((oldEntityIds.length() + newEntityIds.length()) > 0) {
             HashMap<String, HashSet<String>> entityRelationships = statementRepository.findRelationshipWithDirection(session, rowKeyPrefixes);
-            for (Map.Entry<String, HashSet<String>> entityRelationship : entityRelationships.entrySet()){
-                for (String toEntity : entityRelationship.getValue()){
+            for (Map.Entry<String, HashSet<String>> entityRelationship : entityRelationships.entrySet()) {
+                for (String toEntity : entityRelationship.getValue()) {
                     HashSet<String> toEntities = entityRelationships.get(toEntity);
                     JSONObject rel = new JSONObject();
-                    if (newEntityRowKey.contains(entityRelationship.getKey()) || newEntityRowKey.contains(toEntity)){
-                        if (toEntities.contains(entityRelationship.getKey()) && !toEntity.equals(entityRelationship.getKey())){
-                            rel.put ("bidirectional", true);
+                    if (newEntityRowKey.contains(entityRelationship.getKey()) || newEntityRowKey.contains(toEntity)) {
+                        if (toEntities.contains(entityRelationship.getKey()) && !toEntity.equals(entityRelationship.getKey())) {
+                            rel.put("bidirectional", true);
                             toEntities.remove(entityRelationship.getKey());
                         }
                         rel.put("relationshipType", "entityToEntity");
@@ -77,19 +77,19 @@ public class EntityRelationships implements Handler, AppAware {
         }
 
 
-        if (artifactRowKeys.size() > 0){
-            for (String artifactId : artifactRowKeys){
+        if (artifactRowKeys.size() > 0) {
+            for (String artifactId : artifactRowKeys) {
                 ArtifactTermIndex artifactTermIndex = artifactTermIndexRepository.findByRowKey(session, artifactId);
-                if (artifactTermIndex == null){
+                if (artifactTermIndex == null) {
                     continue;
                 }
-                for (String entityRowKey : newEntityRowKey){
-                    for (TermRowKey artifactTermMentionTermRowKey : artifactTermIndex.getTermMentions()){
-                        if (artifactTermMentionTermRowKey.toString().equals(entityRowKey)){
+                for (String entityRowKey : newEntityRowKey) {
+                    for (TermRowKey artifactTermMentionTermRowKey : artifactTermIndex.getTermMentions()) {
+                        if (artifactTermMentionTermRowKey.toString().equals(entityRowKey)) {
                             JSONObject rel = new JSONObject();
-                            rel.put ("relationshipType", "artifactToEntity");
-                            rel.put ("from", artifactId);
-                            rel.put ("to", entityRowKey);
+                            rel.put("relationshipType", "artifactToEntity");
+                            rel.put("from", artifactId);
+                            rel.put("to", entityRowKey);
                             resultsJson.put(rel);
                         }
                     }
