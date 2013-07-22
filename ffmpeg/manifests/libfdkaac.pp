@@ -1,4 +1,4 @@
-class ffmpeg::libfdkaac($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
+class ffmpeg::libfdkaac($prefix="/usr/local", $tmpdir="/usr/local/src") {
   require buildtools
   include macro
 
@@ -17,7 +17,7 @@ class ffmpeg::libfdkaac($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
   }
 
   $autoreconf = "/usr/bin/autoreconf -fiv"
-  $configure  = "${srcdir}/configure --prefix=${prefix} --disable-shared"
+  $configure  = "${srcdir}/configure --prefix=${prefix}"
   $make       = "/usr/bin/make"
   $install    = "/usr/bin/make install"
   $distclean  = "/usr/bin/make distclean"

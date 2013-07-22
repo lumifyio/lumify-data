@@ -1,4 +1,4 @@
-class ffmpeg::libogg($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
+class ffmpeg::libogg($prefix="/usr/local", $tmpdir="/usr/local/src") {
   require buildtools
   include macro
 
@@ -12,7 +12,7 @@ class ffmpeg::libogg($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
     path => $tmpdir,
   }
   
-  $configure  = "${srcdir}/configure --prefix=${prefix} --disable-shared"
+  $configure  = "${srcdir}/configure --prefix=${prefix}"
   $make       = "/usr/bin/make"
   $install    = "/usr/bin/make install"
   $distclean  = "/usr/bin/make distclean"

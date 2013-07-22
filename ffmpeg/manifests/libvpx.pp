@@ -1,4 +1,4 @@
-class ffmpeg::libvpx($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
+class ffmpeg::libvpx($prefix="/usr/local", $tmpdir="/usr/local/src") {
   require buildtools
   include macro
 

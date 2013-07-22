@@ -1,4 +1,4 @@
-class ffmpeg::libvorbis($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
+class ffmpeg::libvorbis($prefix="/usr/local", $tmpdir="/usr/local/src") {
   require buildtools
   require libogg
   include macro
@@ -13,7 +13,7 @@ class ffmpeg::libvorbis($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
     path => $tmpdir,
   }
   
-  $configure  = "${srcdir}/configure --prefix=${prefix} --with-ogg=${prefix} --disable-shared"
+  $configure  = "${srcdir}/configure --prefix=${prefix} --with-ogg=${prefix}"
   $make       = "/usr/bin/make"
   $install    = "/usr/bin/make install"
   $distclean  = "/usr/bin/make distclean"

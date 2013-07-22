@@ -1,4 +1,4 @@
-class ffmpeg::libmp3lame($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
+class ffmpeg::libmp3lame($prefix="/usr/local", $tmpdir="/usr/local/src") {
   require buildtools
   include macro
 
@@ -12,7 +12,7 @@ class ffmpeg::libmp3lame($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") 
     path => $tmpdir,
   }
 
-  $configure  = "${srcdir}/configure --prefix=${prefix} --bindir=${prefix}/bin --disable-shared --enable-nasm"
+  $configure  = "${srcdir}/configure --prefix=${prefix} --bindir=${prefix}/bin --enable-nasm"
   $make       = "/usr/bin/make"
   $install    = "/usr/bin/make install"
   $distclean  = "/usr/bin/make distclean"

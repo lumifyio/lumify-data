@@ -1,7 +1,4 @@
-class ffmpeg (
-  $prefix="/usr/local/ffmpeg",
-  $tmpdir="/usr/local/src"
-) {
+class ffmpeg ($prefix="/usr/local", $tmpdir="/usr/local/src") {
   require buildtools
   require ffmpeg::x264
   require ffmpeg::libfdkaac

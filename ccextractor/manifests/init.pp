@@ -1,7 +1,7 @@
 class ccextractor (
   $version="0.66",
   $tmpdir="/usr/local/src",
-  $installdir="/usr/local/ccextractor"
+  $installdir="/usr/local/bin"
 ) {
   include macro
 
@@ -24,21 +24,10 @@ class ccextractor (
     require => Macro::Extract['extract-ccextractor'],
   }
 
-  file { 'ccextractor-dir':
-    path   => "${installdir}",
-    ensure => directory,
-  }
-
-  file { 'ccextractor-bin-dir':
-    path    => "${installdir}/bin",
-    ensure  => directory,
-    require => File['ccextractor-dir'],
-  }
-
   exec { "copy-ccextractor-to-bin":
-    command => "/bin/cp ccextractor ${installdir}/bin",
+    command => "/bin/cp ccextractor ${installdir}",
     cwd     => $srcdir,
-    unless  => "/usr/bin/test -f ${installdir}/bin/ccextractor",
-    require => [Exec['build-ccextractor'], File['ccextractor-bin-dir']],
+    unless  => "/usr/bin/test -f ${installdir}/ccextractor",
+    require => Exec['build-ccextractor'],
   }
 }

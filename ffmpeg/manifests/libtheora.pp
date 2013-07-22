@@ -1,4 +1,4 @@
-class ffmpeg::libtheora($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
+class ffmpeg::libtheora($prefix="/usr/local", $tmpdir="/usr/local/src") {
   require buildtools
   require libogg
   include macro
@@ -13,7 +13,7 @@ class ffmpeg::libtheora($prefix="/usr/local/ffmpeg", $tmpdir="/usr/local/src") {
     path => $tmpdir,
   }
   
-  $configure  = "${srcdir}/configure --prefix=${prefix} --with-ogg=${prefix} --disable-examples --disable-shared --disable-sdltest --disable-vorbistest"
+  $configure  = "${srcdir}/configure --prefix=${prefix} --with-ogg=${prefix} --disable-examples --disable-sdltest --disable-vorbistest"
   $make       = "/usr/bin/make"
   $install    = "/usr/bin/make install"
   $distclean  = "/usr/bin/make distclean"
