@@ -65,4 +65,13 @@ public class DBPedia extends Row<DBPediaRowKey> {
         }
         return get(DBPediaInstanceTypes.NAME);
     }
+
+    public DBPediaWikipediaLinks getWikipediaLinks() {
+        DBPediaWikipediaLinks metadata = get(DBPediaWikipediaLinks.NAME);
+        if (metadata == null) {
+            addColumnFamily(new DBPediaWikipediaLinks());
+        }
+        return get(DBPediaWikipediaLinks.NAME);
+    }
+
 }

@@ -14,90 +14,42 @@ function(UCD, html2canvas, template) {
     function Preview(rowKey, options, callback) {
         this.options = options || {};
         this.rowKey = rowKey;
-        this.callback = callback;
-        this.isCancelled = false;
+        this.callback = this._cacheResult(callback);
     }
 
+    Preview.prototype._cacheResult = function(callback) {
+        var self = this;
+        return function() {
+            var args = jQuery.makeArray(arguments);
+            if (args.length) {
+                PREVIEW_CACHE[self.rowKey] = args;
+            }
+            callback.apply(undefined, args);
+
+            if (self.taskFinished) {
+                self.taskFinished();
+            }
+        };
+    };
+
     Preview.prototype.start = function() {
-        if (this.isCancelled) return;
-
         new UCD().getArtifactById(this.rowKey, function(err, artifact) {
-            if (this.isCancelled) return;
-
             if (err) {
                 console.error(err);
                 this.callback();
-                this.finished();
             } else {
                 if (artifact.type == 'image') {
                     this.callback(artifact.rawUrl, artifact.rawUrl);
-                    PREVIEW_CACHE[this.rowKey] = [artifact.rawUrl, artifact.rawUrl];
-                    this.finished();
                 } else if (artifact.type == 'video') {
                     this.callback(artifact.posterFrameUrl, artifact.videoPreviewImageUrl);
-                    PREVIEW_CACHE[this.rowKey] = [artifact.posterFrameUrl, artifact.videoPreviewImageUrl];
-                    this.finished();
                 } else {
-
-                    // TODO: extract from detail pane and this to common function
-                    var html = artifact.Content.highlighted_text || artifact.Content.doc_extracted_text;
-
-                    this.callbackForContent(
-                        artifact.Generic_Metadata.subject, 
-                        html.replace(/[\n]+/g, "<br><br>\n")
-                    );
+                    // TODO: Generate artifact preview on server
+                    this.callback();
                 }
             }
         }.bind(this));
     };
 
-    Preview.prototype.callbackForContent = function(title, html) {
-        if (this.isCancelled) return;
-
-        var self = this,
-            width = this.options.width,
-            previewDiv = $(template({
-                width: width,
-                title: title,
-                html: html
-            })).appendTo(document.body);
-
-        function finish(url) {
-            self.callback(url);
-            PREVIEW_CACHE[self.rowKey] = [url];
-            previewDiv.remove();
-            self.finished();
-        }
-
-        var times = 4;
-        function generate() {
-            if (times-- === 0) {
-                console.error('Timeout generating', self.rowKey);
-                return finish();
-            }
-
-            html2canvas(previewDiv[0], {
-                onrendered: function(canvas) {
-                    var dataUrl = canvas.toDataURL();
-
-                    if (dataUrl.length < 5000) {
-                        console.warn('Preview generated less than 5k (' + dataUrl.length + '), retrying');
-                        return setTimeout(generate, 100);
-                    }
-                    finish(dataUrl);
-                }
-            });
-
-        }
-
-        generate();
-    };
-
-    Preview.prototype.finished = function() {
-        if (this.taskFinished) {
-            this.taskFinished();
-        }
-    };
 
     function PreviewQueue(name, opts) {
         this.name = name;

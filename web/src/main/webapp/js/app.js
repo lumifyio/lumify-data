@@ -314,7 +314,6 @@ define([
 
         this.onAddNodes = function(evt, data) {
             this.workspace(function(ws) {
-
                 var allNodes = this.workspaceData.data.nodes;
                 var oldNodes = [];
                 allNodes.forEach (function (allNode){
@@ -329,8 +328,12 @@ define([
                     }
                 });
 
+                var added = [];
                 data.nodes.forEach(function(node) {
-                    ws.data.nodes.push(node);
+                    if (ws.data.nodes.filter(function(n) { return n.rowKey === node.rowKey; }).length === 0) {
+                        added.push(node);
+                        ws.data.nodes.push(node);
+                    }
                 });
 
                 if(!data.noUndo) {
@@ -351,7 +354,7 @@ define([
 
                 this.refreshRelationships (oldNodes, data.nodes);
 
-                this.trigger(document, 'nodesAdded', data);
+                this.trigger(document, 'nodesAdded', { nodes:added } );
             });
         };
 
