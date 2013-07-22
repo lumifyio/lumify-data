@@ -24,31 +24,49 @@ define([
         });
 
         this.highlightTerm = function(data) {
-            if ( ! this.attr.selection ) {
-                return;
+            var mentionNode = $(this.attr.mentionNode),
+                termExists = mentionNode.is('.entity'),
+                associatedObjectExists = this.objectRowKeySpan.length,
+                associatedObject = data.info.objectRowKey;
+
+            if ( associatedObjectExists ) {
+
+                this.objectRowKeySpan.data('info', data.info);
+
+            } else if ( termExists && associatedObject ) {
+
+                mentionNode.wrap( $('<span>')
+                    .data('info', data.info)
+                    .addClass(data.cssClasses.join(' ')));
+
+            } else if ( termExists ) {
+
+                mentionNode.data('info', data.info);
+
+            } else {
+
+                // Must be a new term (possibly with an associated object)
+                var textNode = this.node.previousSibling,
+                    offset = this.attr.selection[
+                        this.attr.selection.anchor === textNode ? 'anchorOffset' : 'focusOffset'
+                    ];
+
+                // Split textnode into just the selection
+                textNode.splitText(offset);
+                textNode = this.node.previousSibling;
+
+                // Remove textnode
+                textNode.parentNode.removeChild(textNode);
+
+                // Add new term node
+                $('<span>')
+                    .text(this.attr.sign)
+                    .data('info', data.info)
+                    .addClass(data.cssClasses.join(' '))
+                    .insertBefore(this.$node);
+
+                this.trigger(document, 'termCreated', data);
             }
-            // TODO: update object info
-
-            var textNode = this.node.previousSibling,
-                offset = this.attr.selection[
-                    this.attr.selection.anchor === textNode ? 'anchorOffset' : 'focusOffset'
-                ];
-
-            // Split textnode into just the selection
-            textNode.splitText(offset);
-            textNode = this.node.previousSibling;
-
-            // Remove textnode
-            textNode.parentNode.removeChild(textNode);
-
-            // Add new term node
-            $('<span>')
-                .text(this.attr.sign)
-                .data('info', data.info)
-                .addClass(data.cssClasses.join(' '))
-                .insertBefore(this.$node);
-
-            this.trigger(document, 'termCreated', data);
         };
 
         this.onCreateTermClicked = function(event) {
@@ -67,8 +85,13 @@ define([
                     mentionEnd: mentionStart + sign.length
                 };
 
-            if (this.attr.objectRowKey) {
-                parameters.objectRowKey = this.attr.objectRowKey;
+            if ( !parameters.conceptLabel || parameters.conceptLabel.length === 0) {
+                this.select('conceptSelector').focus();
+                return;
+            }
+
+            if (this.objectRowKey) {
+                parameters.objectRowKey = this.objectRowKey.value;
             }
 
             if (newObjectSign.length) {
@@ -92,23 +115,30 @@ define([
         this.after('initialize', function() {
             var self = this,
                 node = this.$node,
-                mentionNode = this.attr.mentionNode,
-                mentionData = mentionNode && mentionNode.parents('.entity').data('info'),
-                objectSign = '';
+                mentionNode = $(this.attr.mentionNode),
+                objectRowKeySpan = null,
+                objectRowKey = null;
 
-            if (mentionData && mentionData.objectRowKey) {
-                this.attr.objectRowKey = mentionData.objectRowKey.value;
-                objectSign = mentionData.objectRowKey.sign;
-            } else if (mentionNode) {
-                var info = mentionNode.data('info');
-                this.attr.objectRowKey = info.objectRowKey.value;
-                objectSign = info.objectRowKey.sign;
-            }
+            // Find first parent (including self) with objectRowKey
+            mentionNode.parents('.entity').addBack('.entity').toArray().reverse().forEach(function(obj) {
+                var node = $(obj),
+                    info = node.data('info');
+
+                console.log('checking', obj, info);
+                if (info && info.objectRowKey) {
+                    objectRowKeySpan = node;
+                    objectRowKey = info.objectRowKey;
+                    return false;
+                }
+            });
+
+            this.objectRowKeySpan = $(objectRowKeySpan);
+            this.objectRowKey = objectRowKey;
 
             node.html(dropdownTemplate({
                 type: 'Set type of term',
-                sign: this.attr.sign || this.attr.mentionNode.text(),
-                objectSign: objectSign
+                sign: this.attr.sign || mentionNode.text(),
+                objectSign: objectRowKey && objectRowKey.sign || ''
             }));
 
             _.defer(function() {
@@ -123,11 +153,11 @@ define([
                 node.css({ height:form.outerHeight(true) + 'px' });
 
                 self.entityService.concepts(function(err, concepts) {
-                    var mentionNodeInfo = self.attr.mentionNode && self.attr.mentionNode.data('info');
+                    var mentionNodeInfo = mentionNode.data('info');
 
                     self.select('conceptSelector').html(conceptsTemplate({
                         concepts:concepts,
-                        selectedConceptLabel:mentionNodeInfo && mentionNodeInfo.subType
+                        selectedConceptLabel:mentionNodeInfo && mentionNodeInfo.subType || ''
                     }));
                 });
             });
