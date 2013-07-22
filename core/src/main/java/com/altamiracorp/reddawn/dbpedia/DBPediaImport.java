@@ -145,6 +145,8 @@ public class DBPediaImport extends RedDawnCommandLineBase {
             dbpediaReader = new SpecificMappingBasedPropertiesReader();
         } else if (inFileName.contains("mappingbased_properties")) {
             dbpediaReader = new MappingBasedPropertiesReader();
+        } else if (inFileName.contains("wikipedia_links")) {
+            dbpediaReader = new WikipediaLinksReader();
         }
 
         if (dbpediaReader == null) {
@@ -367,6 +369,26 @@ public class DBPediaImport extends RedDawnCommandLineBase {
         protected DBPedia readLine(String[] lineParts) {
             DBPedia dbpedia = new DBPedia(lineParts[0]);
             dbpedia.getMappingBasedProperties().set(lineParts[1], lineParts[2]);
+            return dbpedia;
+        }
+    }
+
+    private class WikipediaLinksReader extends DBPediaReader {
+        @Override
+        protected int getTotalLineCount() {
+            return 28327616;
+        }
+
+        @Override
+        protected DBPedia readLine(String[] lineParts) {
+            if (!lineParts[0].startsWith("http://dbpedia.org")) {
+                return null;
+            }
+            DBPedia dbpedia = new DBPedia(lineParts[0]);
+            if (lineParts[1].equals("http://xmlns.com/foaf/0.1/isPrimaryTopicOf")) {
+                dbpedia.getWikipediaLinks().setUrl(lineParts[2]);
+            }
+            dbpedia.getWikipediaLinks().set(lineParts[1], lineParts[2]);
             return dbpedia;
         }
     }
