@@ -181,8 +181,8 @@ public class ArtifactRepositoryTest {
 
         artifactRepository.save(session, artifact);
 
-        assertEquals(1, session.tables.get(Artifact.TABLE_NAME).size());
-        Row row = session.tables.get(Artifact.TABLE_NAME).get(0);
+        assertEquals(2, session.tables.get(Artifact.TABLE_NAME).size()); // includes the dbpedia artifact
+        Row row = session.tables.get(Artifact.TABLE_NAME).get(1);
         assertEquals(4, row.getColumnFamilies().size());
 
         assertEquals("urn\u001Fsha256\u001F69a7d91207b30df0240271bd16e7878f9559d54a480acc967b99917abc0301f9", row.getRowKey().toString());

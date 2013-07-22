@@ -58,7 +58,9 @@ public class WikipediaPageXmlTikaParser extends AbstractParser {
 
             metadata.set(Metadata.CONTENT_TYPE, MIME_TYPE);
             metadata.set(TikaCoreProperties.TITLE, title);
-            metadata.set("url", getExtUrl(title));
+            String extUrl = getExtUrl(title);
+            metadata.set("url", extUrl);
+            metadata.set("atc:result-url", extUrl);
 
             XHTMLContentHandler xhtml = new XHTMLContentHandler(handler, metadata);
             xhtml.startDocument();
@@ -74,6 +76,7 @@ public class WikipediaPageXmlTikaParser extends AbstractParser {
     }
 
     private String getExtUrl(String title) throws UnsupportedEncodingException {
+        title = title.replace(' ', '_');
         title = URLEncoder.encode(title, "UTF-8");
         return "http://en.wikipedia.org/wiki/" + title;
     }

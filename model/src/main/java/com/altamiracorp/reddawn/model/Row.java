@@ -53,4 +53,14 @@ public class Row<TRowKey extends RowKey> {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        result.append(getTableName() + ": " + getRowKey() + "\n");
+        for (ColumnFamily columnFamily : getColumnFamilies()) {
+            columnFamily.toString(result, "\t");
+        }
+        return result.toString();
+    }
 }

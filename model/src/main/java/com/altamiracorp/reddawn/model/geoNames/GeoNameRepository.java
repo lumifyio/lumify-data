@@ -9,17 +9,17 @@ import java.util.List;
 public class GeoNameRepository extends Repository<GeoName> {
     @Override
     public GeoName fromRow(Row row) {
-        GeoName artifact = new GeoName(row.getRowKey());
+        GeoName geoName = new GeoName(row.getRowKey());
         Collection<ColumnFamily> families = row.getColumnFamilies();
         for (ColumnFamily columnFamily : families) {
             if (columnFamily.getColumnFamilyName().equals(GeoNameMetadata.NAME)) {
                 Collection<Column> columns = columnFamily.getColumns();
-                artifact.addColumnFamily(new GeoNameMetadata().addColumns(columns));
+                geoName.addColumnFamily(new GeoNameMetadata().addColumns(columns));
             } else {
-                artifact.addColumnFamily(columnFamily);
+                geoName.addColumnFamily(columnFamily);
             }
         }
-        return artifact;
+        return geoName;
     }
 
     @Override
