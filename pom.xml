@@ -28,7 +28,7 @@
         </repository>
 		<repository>
 			<id>red-dawn-releases</id>
-			<url>http://nic-mvnproxy.nearinfinity.com:8080/artifactory/libs-release-local/</url>
+			<url>http://nic-mvnproxy.nearinfinity.com:8080/artifactory/libs-release/</url>
 		</repository>
 		<repository>
 			<snapshots>
@@ -37,7 +37,7 @@
 				<checksumPolicy>fail</checksumPolicy>
 			</snapshots>
 			<id>red-dawn-snapshots</id>
-			<url>http://nic-mvnproxy.nearinfinity.com:8080/artifactory/libs-snapshot-local/</url>
+			<url>http://nic-mvnproxy.nearinfinity.com:8080/artifactory/libs-snapshot/</url>
 		</repository>
         <repository>
             <id>info-bliki-repository</id>
