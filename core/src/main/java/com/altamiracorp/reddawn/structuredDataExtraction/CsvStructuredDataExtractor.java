@@ -97,7 +97,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
                         .setMentionStart(termMentionStart)
                         .setMentionEnd(termMentionEnd)
                         .setSentenceText(sentence.getData().getText())
-                        .setSentenceTokenOffset(Long.toString(sentence.getRowKey().getStartOffset()))
+                        .setSentenceTokenOffset(sentence.getRowKey().getStartOffset())
                         .setArtifactSubject(sentence.getMetadata().getArtifactSubject())
                         .setArtifactType(sentence.getMetadata().getArtifactType());
                 setSecurityMarking(termMention, sentence);

@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class AccumuloSession extends Session {
@@ -71,6 +72,9 @@ public class AccumuloSession extends Session {
 
     @Override
     void saveMany(String tableName, Collection<Row> rows) {
+        if (rows.size() == 0) {
+            return;
+        }
         try {
             if (context != null) {
                 Text tableNameText = new Text(tableName);
@@ -153,6 +157,31 @@ public class AccumuloSession extends Session {
         try {
             Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
             scanner.setRange(new Range(rowKey));
+            List<Row> rows = AccumuloHelper.scannerToRows(tableName, scanner);
+            if (rows.size() == 0) {
+                return null;
+            }
+            if (rows.size() > 1) {
+                throw new RuntimeException("Too many rows returned for a single row query (rowKey: " + rowKey + ", size: " + rows.size() + ")");
+            }
+            return rows.get(0);
+        } catch (TableNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, QueryUser queryUser) {
+        try {
+            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
+            scanner.setRange(new Range(rowKey));
+            for (Map.Entry<String, String> columnFamilyAndColumnQualifier : columnsToReturn.entrySet()) {
+                if (columnFamilyAndColumnQualifier.getValue().equals("*")) {
+                    scanner.fetchColumnFamily(new Text(columnFamilyAndColumnQualifier.getKey()));
+                } else {
+                    scanner.fetchColumn(new Text(columnFamilyAndColumnQualifier.getKey()), new Text(columnFamilyAndColumnQualifier.getValue()));
+                }
+            }
             List<Row> rows = AccumuloHelper.scannerToRows(tableName, scanner);
             if (rows.size() == 0) {
                 return null;

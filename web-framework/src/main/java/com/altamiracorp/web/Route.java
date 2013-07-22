@@ -3,13 +3,13 @@ package com.altamiracorp.web;
 import com.altamiracorp.reddawn.web.utils.UrlUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Route {
-    public static enum Method { GET, POST, PUT, DELETE };
+    public static enum Method {GET, POST, PUT, DELETE}
+
+    ;
 
     private Method method;
     private String path;
@@ -79,6 +79,6 @@ public class Route {
                 return components;
             }
         }
-        return new String [0];
+        return new String[0];
     }
 }

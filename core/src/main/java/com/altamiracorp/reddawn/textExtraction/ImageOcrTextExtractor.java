@@ -11,8 +11,11 @@ import net.sourceforge.tess4j.TesseractException;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
+import java.util.List;
 
 public class ImageOcrTextExtractor implements TextExtractor {
+    private static final List<String> ICON_MIME_TYPES = Arrays.asList(new String[]{"image/x-icon", "image/vnd.microsoft.icon"});
     private ArtifactRepository artifactRepository = new ArtifactRepository();
     private VideoFrameRepository videoFrameRepository = new VideoFrameRepository();
     private Tesseract tesseract;
@@ -28,7 +31,7 @@ public class ImageOcrTextExtractor implements TextExtractor {
             return null;
         }
 
-        if (artifact.getGenericMetadata().getMimeType().equals("image/x-icon")) {
+        if (isIcon(artifact)) {
             return null;
         }
 
@@ -62,5 +65,9 @@ public class ImageOcrTextExtractor implements TextExtractor {
         ocrResults = ocrResults.trim();
         // TODO remove the trash that doesn't seem to be words
         return ocrResults;
+    }
+
+    private boolean isIcon (Artifact artifact) {
+        return ICON_MIME_TYPES.contains(artifact.getGenericMetadata().getMimeType());
     }
 }

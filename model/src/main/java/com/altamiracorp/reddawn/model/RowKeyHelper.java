@@ -55,4 +55,8 @@ public class RowKeyHelper {
     public static String[] splitOnMajorFieldSeperator(String rowKey) {
         return rowKey.split("" + MAJOR_FIELD_SEPARATOR);
     }
+
+    public static String jsonEncode(String rowKey) {
+        return rowKey.replaceAll("\\x1f", "\\\\x1F");
+    }
 }

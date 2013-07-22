@@ -4,6 +4,9 @@ import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.RowKeyHelper;
 import com.altamiracorp.reddawn.model.Value;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
+import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
+
+import java.util.Date;
 
 public class StatementArtifact extends ColumnFamily {
     public static final String ARTIFACT_KEY = "artifactKey";
@@ -30,7 +33,6 @@ public class StatementArtifact extends ColumnFamily {
             StringBuilder sb = new StringBuilder();
             sb.append(getArtifactKey());
             sb.append(getAuthor());
-            sb.append(getDate());
             sb.append(getExtractorId());
             sb.append(getSecurityMarking());
             sb.append(getSentence());
@@ -66,6 +68,10 @@ public class StatementArtifact extends ColumnFamily {
         return this;
     }
 
+    public StatementArtifact setDate(Date date) {
+        return setDate(date.getTime());
+    }
+
     public String getExtractorId() {
         return Value.toString(get(EXTRACTOR_ID));
     }
@@ -91,6 +97,10 @@ public class StatementArtifact extends ColumnFamily {
     public StatementArtifact setSentence(String sentence) {
         set(SENTENCE, sentence);
         return this;
+    }
+
+    public StatementArtifact setSentence(SentenceRowKey sentenceRowKey) {
+        return setSentence(sentenceRowKey.toString());
     }
 
     public String getSentenceText() {

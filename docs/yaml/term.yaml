@@ -22,6 +22,7 @@ columnFamilies:
         atc:artifactSubject:                string - The subject of the artifact that produced the mention
         atc:sentenceText:                   string - The text of the sentence that produced the artifact
         atc:sentenceOffset:                 string - The offset of the sentence relative to the start of the artifact text
+        atc:objectRowKey:                   string - If this term mention refers to an object, this is the object row key
 
 connections:
     Statement:  none -> many

@@ -57,4 +57,18 @@ public class ColumnFamily {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        toString(result, "");
+        return result.toString();
+    }
+
+    public void toString(StringBuilder out, String indent) {
+        out.append(indent + getColumnFamilyName() + "\n");
+        for (Column column : getColumns()) {
+            column.toString(out, indent + "\t");
+        }
+    }
 }

@@ -11,8 +11,9 @@ define([
     'map/map',
     'service/workspace',
     'service/ucd',
+    'util/keyboard',
     'util/undoManager'
-], function(appTemplate, defineComponent, Menubar, Search, Workspaces, Users, Graph, Detail, Map, WorkspaceService, UcdService, undoManager) {
+], function(appTemplate, defineComponent, Menubar, Search, Workspaces, Users, Graph, Detail, Map, WorkspaceService, UcdService, Keyboard, undoManager) {
     'use strict';
 
     return defineComponent(App);
@@ -82,6 +83,7 @@ define([
             Graph.attachTo(graphPane);
             Detail.attachTo(detailPane.find('.content'));
             Map.attachTo(mapPane);
+            Keyboard.attachTo(document);
 
             // Configure splitpane resizing
             resizable(searchPane, 'e');
@@ -467,6 +469,13 @@ define([
                     this.select('workspacesSelector'),
                     this.select('detailPaneSelector')
                 ]);
+            }
+
+            if (data.name == 'search' && !pane.hasClass('visible')) {
+                var self = this;
+                pane.one('transitionend', function() {
+                    self.trigger(document, 'focusSearchField');
+                });
             }
 
             pane.toggleClass('visible');

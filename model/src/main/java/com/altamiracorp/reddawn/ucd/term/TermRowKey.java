@@ -6,6 +6,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class TermRowKey extends RowKey {
+    public static final String OBJECT_MODEL_KEY = "object";
+    public static final String DBPEDIA_MODEL_KEY = "dbpedia";
+
     public TermRowKey(String rowKey) {
         super(rowKey);
     }

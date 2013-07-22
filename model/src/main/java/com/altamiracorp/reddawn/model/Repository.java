@@ -5,9 +5,9 @@ import com.altamiracorp.reddawn.ucd.statement.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public abstract class Repository<T> {
-
     public abstract T fromRow(Row row);
 
     public abstract Row toRow(T obj);
@@ -16,6 +16,14 @@ public abstract class Repository<T> {
 
     public T findByRowKey(Session session, String rowKey) {
         Row row = session.findByRowKey(getTableName(), rowKey, session.getQueryUser());
+        if (row == null) {
+            return null;
+        }
+        return fromRow(row);
+    }
+
+    public T findByRowKey(Session session, String rowKey, Map<String, String> columnsToReturn) {
+        Row row = session.findByRowKey(getTableName(), rowKey, columnsToReturn, session.getQueryUser());
         if (row == null) {
             return null;
         }

@@ -1,10 +1,12 @@
 package com.altamiracorp.reddawn.ucd.sentence;
 
 import com.altamiracorp.reddawn.model.*;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
 
 import java.util.Collection;
+import java.util.List;
 
 public class SentenceRepository extends Repository<Sentence> {
     @Override
@@ -45,5 +47,9 @@ public class SentenceRepository extends Repository<Sentence> {
             sentence.addSentenceTerm(sentenceTerm);
         }
         save(session, sentence);
+    }
+
+    public List<Sentence> findByArtifactRowKey(Session session, ArtifactRowKey rowKey) {
+        return findByRowStartsWith(session, rowKey.toString());
     }
 }
