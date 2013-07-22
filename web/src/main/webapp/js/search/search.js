@@ -274,6 +274,8 @@ define([
             this.on(document, 'nodesDeleted', this.onNodesDeleted);
             this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
+
+            this.select('searchResultsSelector').droppable({ accept:'.search-results *' });
         });
 
         this.onWorkspaceLoaded = function(evt, workspace) {
@@ -329,6 +331,7 @@ define([
                 revertDuration: 250,
                 scroll: false,
                 zIndex: 100,
+                distance: 10,
                 multi: true,
                 otherDraggablesClass: 'search-result-dragging',
                 start: function(ev, ui) {
