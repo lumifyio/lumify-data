@@ -301,80 +301,74 @@ define([
        };
 
         this.onLoadRelatedEntitySelected = function (evt, data){
-           this.openUnlessAlreadyOpen (data, function (finished){
-                var self = this;
-                new UCD ().getEntityById (data.rowKey, function (err, entity){
-                    finished (!err);
-                    if (err){
-                        console.error ('Error', err);
-                        return self.trigger (document, 'error', { message: err.toString () });
-                    }
+            var self = this;
+            new UCD ().getEntityById (data.rowKey, function (err, entity){
+                if (err){
+                    console.error ('Error', err);
+                    return self.trigger (document, 'error', { message: err.toString () });
+                }
 
-                    self.getLoadRelatedEntities (data.rowKey, function (relatedEntities){
-                        var entityData = {};
-                        entityData.key = entity.key;
-                        entityData.relatedEntities = relatedEntities;
-                        var xOffset = 100, yOffset = 100;
-                        var x = data.originalPosition.x;
-                        var y = data.originalPosition.y;
-                        self.trigger(document, 'addNodes', {
-                            nodes: entityData.relatedEntities.map(function(relatedEntity, index) {
-                                if (index % 10 === 0) {
-                                    y += yOffset;
-                                }
-                                return {
-                                    title: relatedEntity.title,
-                                    rowKey: relatedEntity.rowKey,
-                                    subType: relatedEntity.subType,
-                                    type: relatedEntity.type,
-                                    graphPosition: {
-                                        x: x + xOffset * (index % 10 + 1),
-                                        y: y
-                                    },
-                                    selected: true
-                                };
-                            })
-                        });
+                self.getLoadRelatedEntities (data.rowKey, function (relatedEntities){
+                    var entityData = {};
+                    entityData.key = entity.key;
+                    entityData.relatedEntities = relatedEntities;
+                    var xOffset = 100, yOffset = 100;
+                    var x = data.originalPosition.x;
+                    var y = data.originalPosition.y;
+                    self.trigger(document, 'addNodes', {
+                        nodes: entityData.relatedEntities.map(function(relatedEntity, index) {
+                            if (index % 10 === 0) {
+                                y += yOffset;
+                            }
+                            return {
+                                title: relatedEntity.title,
+                                rowKey: relatedEntity.rowKey,
+                                subType: relatedEntity.subType,
+                                type: relatedEntity.type,
+                                graphPosition: {
+                                    x: x + xOffset * (index % 10 + 1),
+                                    y: y
+                                },
+                                selected: true
+                            };
+                        })
                     });
                 });
-           });
+            });
         };
 
         this.onLoadRelatedArtifactSelected = function (evt, data){
-            this.openUnlessAlreadyOpen (data, function (finished){
-                var self = this;
-                new UCD ().getArtifactById (data.rowKey, function (err, artifact){
-                    finished (!err);
-                    if (err){
-                        console.error ('Error', err);
-                        return self.trigger (document, 'error', { message: err.toString () });
-                    }
+            var self = this;
+            new UCD ().getArtifactById (data.rowKey, function (err, artifact){
+                if (err){
+                    console.error ('Error', err);
+                    return self.trigger (document, 'error', { message: err.toString () });
+                }
 
-                    self.getLoadRelatedTerms (data.rowKey, function (relatedTerms){
-                        var termData = {};
-                        termData.key = artifact.key;
-                        termData.relatedTerms = relatedTerms;
-                        var xOffset = 100, yOffset = 100;
-                        var x = data.originalPosition.x;
-                        var y = data.originalPosition.y;
-                        self.trigger(document, 'addNodes', {
-                            nodes: termData.relatedTerms.map(function(relatedTerm, index) {
-                                if (index % 10 === 0) {
-                                    y += yOffset;
-                                }
-                                return {
-                                    title: relatedTerm.title,
-                                    rowKey: relatedTerm.rowKey,
-                                    subType: relatedTerm.subType,
-                                    type: relatedTerm.type,
-                                    graphPosition: {
-                                        x: x + xOffset * (index % 10 + 1),
-                                        y: y
-                                    },
-                                    selected: true
-                                };
-                            })
-                        });
+                self.getLoadRelatedTerms (data.rowKey, function (relatedTerms){
+                    var termData = {};
+                    termData.key = artifact.key;
+                    termData.relatedTerms = relatedTerms;
+                    var xOffset = 100, yOffset = 100;
+                    var x = data.originalPosition.x;
+                    var y = data.originalPosition.y;
+                    self.trigger(document, 'addNodes', {
+                        nodes: termData.relatedTerms.map(function(relatedTerm, index) {
+                            if (index % 10 === 0) {
+                                y += yOffset;
+                            }
+                            return {
+                                title: relatedTerm.title,
+                                rowKey: relatedTerm.rowKey,
+                                subType: relatedTerm.subType,
+                                type: relatedTerm.type,
+                                graphPosition: {
+                                    x: x + xOffset * (index % 10 + 1),
+                                    y: y
+                                },
+                                selected: true
+                            };
+                        })
                     });
                 });
             });
