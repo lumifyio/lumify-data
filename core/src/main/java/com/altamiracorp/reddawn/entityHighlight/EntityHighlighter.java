@@ -42,7 +42,24 @@ public class EntityHighlighter {
         StringBuilder result = new StringBuilder();
         PriorityQueue<Integer> endOffsets = new PriorityQueue<Integer>();
         int lastStart = textStartOffset;
-        for (OffsetItem offsetItem : offsetItems) {
+        for (int i = 0; i < offsetItems.size(); i++) {
+            OffsetItem offsetItem = offsetItems.get(i);
+
+            boolean overlapsPreviousItem = false;
+            if (offsetItem instanceof TermAndTermMentionOffsetItem) {
+                for (int j = 0; j < i; j++) {
+                    OffsetItem compareItem = offsetItems.get(j);
+                    if (compareItem instanceof TermAndTermMentionOffsetItem && (compareItem.getEnd() >= offsetItem.getEnd()
+                            || compareItem.getEnd() > offsetItem.getStart())) {
+                        overlapsPreviousItem = true;
+                        offsetItems.remove(i--);
+                        break;
+                    }
+                }
+            }
+            if(overlapsPreviousItem) {
+                continue;
+            }
             if (offsetItem.getStart() < textStartOffset || offsetItem.getEnd() < textStartOffset) {
                 continue;
             }
