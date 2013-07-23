@@ -649,7 +649,8 @@ define([
                     });
 
                     // Override "Fit to Window" button and call our own
-                    $('.ui-cytoscape-panzoom-reset span').on('mousedown', function(e) {
+                    $('.ui-cytoscape-panzoom-reset').on('mousedown', function(e) {
+						if (e.button !== 0) return;
                         e.stopPropagation();
                         self.fit();
                     });
