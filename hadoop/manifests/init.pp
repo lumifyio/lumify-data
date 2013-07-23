@@ -18,5 +18,6 @@ class hadoop {
     content  => template("hadoop/core-site.xml.erb"),
     owner    => "root",
     group    => "root",
+    require  => Package['hadoop-0.20'],
   }
 }
