@@ -38,9 +38,6 @@ public class VideoConversionMR extends ConfigurableMapJobBase {
     }
 
     public static class VideoConversionMapper extends Mapper<Text, Artifact, Text, Artifact> {
-        public static final String CONF_CCEXTRACTOR_BIN_DIR = "ccextractor.bin.dir";
-        public static final String CONF_FFMPEG_BIN_DIR = "ffmpeg.bin.dir";
-        public static final String CONF_FFMPEG_LIB_DIR = "ffmpeg.lib.dir";
         private RedDawnSession session;
         private FFMPEGVideoConversion videoConversion = new FFMPEGVideoConversion();
 
@@ -48,9 +45,6 @@ public class VideoConversionMR extends ConfigurableMapJobBase {
         protected void setup(Context context) throws IOException, InterruptedException {
             super.setup(context);
             session = ConfigurableMapJobBase.createRedDawnSession(context);
-            videoConversion.setFFMPEGBinDir(context.getConfiguration().get(CONF_FFMPEG_BIN_DIR, FFMPEGVideoConversion.DEFAULT_FFMPEG_BIN_DIR));
-            videoConversion.setFFMPEGLibDir(context.getConfiguration().get(CONF_FFMPEG_LIB_DIR, FFMPEGVideoConversion.DEFAULT_FFMPEG_LIB_DIR));
-            videoConversion.setCCExtractorBinDir(context.getConfiguration().get(CONF_CCEXTRACTOR_BIN_DIR, FFMPEGVideoConversion.DEFAULT_CCEXTRACTOR_BIN_DIR));
         }
 
         @Override
