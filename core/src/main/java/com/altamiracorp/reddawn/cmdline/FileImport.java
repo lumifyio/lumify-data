@@ -21,10 +21,12 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Iterator;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class FileImport extends RedDawnCommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileImport.class.getName());
@@ -46,7 +48,20 @@ public class FileImport extends RedDawnCommandLineBase {
     protected void processOptions(CommandLine cmd) throws Exception {
         super.processOptions(cmd);
         this.directory = cmd.getOptionValue("directory");
-        if (this.directory == null) throw new RuntimeException("No directory provided to FileImport");
+        System.out.println("\n\n\n\n Directory: " + this.directory + "\n\n\n\n");
+        File file = new File(directory);
+        if (!file.exists()) {
+            int second= directory.lastIndexOf('/', (directory.length() - 3));
+            int last= directory.lastIndexOf('/');
+            String set = directory.substring(second);
+            if(last == (directory.length()-1))  {
+                set = directory.substring(second, last);
+            }
+            String dataset =  set + ".zip";
+            downloadDataset(dataset);
+            extractDataset(dataset);
+        }
+
         if (cmd.hasOption("pattern")) {
             this.pattern = cmd.getOptionValue("pattern");
         } else {
@@ -98,8 +113,22 @@ public class FileImport extends RedDawnCommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         File directory = new File(getDirectory());
+        if (!directory.exists()) {
+            int second= getDirectory().lastIndexOf('/', (getDirectory().length() - 3));
+            String set;
+            if(getDirectory().charAt((getDirectory().length()-1)) == '/')  {
+                int last= getDirectory().lastIndexOf('/');
+                set = getDirectory().substring(second, last);
+            } else {
+                set = getDirectory().substring(second);
+                this.directory += "/";
+            }
+            String dataset =  set + ".zip";
+            downloadDataset(dataset);
+            extractDataset(dataset);
+            directory = new File(set);
+        }
         String pattern = getPattern();
-
         RedDawnSession redDawnSession = createRedDawnSession();
         redDawnSession.getModelSession().initializeTables();
 
@@ -181,5 +210,98 @@ public class FileImport extends RedDawnCommandLineBase {
 
     public String getSource() {
         return source;
+    }
+
+    private void downloadDataset(String dataset){
+        try{
+            String amazon = "https://s3.amazonaws.com/RedDawn/DataSets";
+            String aws = amazon + dataset;
+
+            URL awsset = new URL(aws);
+            URLConnection connect = awsset.openConnection();
+            //perform login information
+
+            InputStream in = connect.getInputStream();
+
+            String repo = this.directory;       //repo for download
+            File file = new File(repo);
+            file.mkdirs();
+            FileOutputStream out = new FileOutputStream(repo + dataset);
+
+            byte[] outStream = new byte[4096];
+            int count;
+            while((count = in.read(outStream)) >= 0){
+                out.write(outStream, 0, count);
+            }
+
+            in.close();
+            out.close();
+
+        } catch(IOException e) {
+            LOGGER.info("Error pulling dataset from AWS");
+            e.printStackTrace();
+        }
+    }
+
+    private void extractDataset(String dataset){
+        try{
+            String storedRepo;
+            String repo;
+           if(directory.charAt(directory.length()-1) != '/'){
+                storedRepo =this.directory + "/";
+                String set = dataset.substring(1, (dataset.length()-4));
+                repo = this.directory + "/unzip_" + set + "/";        //repo for extraction from download
+            }
+            else {
+                storedRepo =this.directory;
+                String set = dataset.substring(1, (dataset.length()-4));
+                repo = this.directory + "unzip_" + set + "/";        //repo for extraction from download
+            }
+
+            this.directory = repo;
+
+            String zipString = storedRepo.substring(0, (storedRepo.length()-1)) + dataset;
+            byte[] buf = new byte[1024];
+
+            ZipEntry zipentry;
+            File file = new File(repo);
+            file.mkdirs();
+            File file2 = new File(storedRepo);
+            file2.mkdirs();
+            ZipInputStream zipinputstream = new ZipInputStream(new FileInputStream(zipString));
+
+            zipentry = zipinputstream.getNextEntry();
+            while (zipentry != null) {
+                //for each entry to be extracted
+                String entryName = repo + zipentry.getName();
+                entryName = entryName.replace('/', File.separatorChar);
+                entryName = entryName.replace('\\', File.separatorChar);
+                System.out.println("entryname " + entryName);
+                int n;
+                FileOutputStream fileoutputstream;
+                File newFile = new File(entryName);
+                if (zipentry.isDirectory()) {
+                    if (!newFile.mkdirs()) {
+                        break;
+                    }
+                    zipentry = zipinputstream.getNextEntry();
+                    continue;
+                }
+
+                fileoutputstream = new FileOutputStream(entryName);
+
+                while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
+                    fileoutputstream.write(buf, 0, n);
+                }
+
+                fileoutputstream.close();
+                zipinputstream.closeEntry();
+                zipentry = zipinputstream.getNextEntry();
+
+            }
+        } catch(Exception e){
+            LOGGER.info("Error in extracting zip file");
+            e.printStackTrace();
+        }
     }
 }
