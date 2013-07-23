@@ -1,0 +1,8 @@
+---
+accumulo_example_config: 512MB/native-standalone
+accumulo_masters:
+  - 192.168.33.10
+accumulo_slaves:
+  - 192.168.33.10
+zookeeper_nodes:
+  - localhost:2181
