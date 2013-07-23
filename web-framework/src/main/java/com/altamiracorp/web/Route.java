@@ -30,7 +30,8 @@ public class Route {
         if (!requestMethod.equals(method)) {
             return false;
         }
-        String [] requestPathComponents = splitPathComponents(request.getRequestURI());
+
+        String[] requestPathComponents = splitPathComponents(request.getRequestURI());
         if (requestPathComponents.length != routePathComponents.length) {
             return false;
         }

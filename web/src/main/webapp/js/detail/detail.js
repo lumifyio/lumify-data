@@ -64,6 +64,8 @@ define([
                 entityToEntityRelationshipSelector: this.onEntityToEntityRelationshipClicked
             });
 
+            this.preventDropEventsFromPropagating();
+
             this.on('scrollstop', this.updateEntityAndArtifactDraggables);
             this.on(document, 'termCreated', this.updateEntityAndArtifactDraggables);
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
@@ -71,6 +73,11 @@ define([
 
             $(document).on('selectionchange', this.onSelectionChange.bind(this));
         });
+
+        // Ignore drop events so they don't propagate to the graph/map
+        this.preventDropEventsFromPropagating = function() {
+            this.$node.droppable({ accept: '.entity' });
+        };
 
         this.onSelectionChange = function(e) {
             var selection = window.getSelection(),
@@ -590,17 +597,20 @@ define([
 
 
         this.updateEntityAndArtifactDraggables = function() {
-            var entities = this.select('entitiesSelector');
-            var artifacts = this.select('artifactsSelector');
+            var self = this,
+                entities = this.select('entitiesSelector'),
+                artifacts = this.select('artifactsSelector');
 
-            // Only create draggables for items in the visible scroll area
-            entities.add(artifacts).withinScrollable(this.$node).draggable({
-                helper:'clone',
-                revert: 'invalid',
-                revertDuration: 250,
-                scroll: false,
-                zIndex: 100
-            });
+            entities.add(artifacts)
+                // Filter list to those in visible scroll area
+                .withinScrollable(this.$node)
+                .draggable({
+                    helper:'clone',
+                    revertDuration: 250,
+                    scroll: false,
+                    zIndex: 100,
+                    distance: 10
+                });
         };
 
         this.setupVideo = function(artifact) {

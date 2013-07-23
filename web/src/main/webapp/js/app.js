@@ -146,9 +146,31 @@ define([
 
         this.setupDroppable = function() {
 
-            this.select('droppableSelector').droppable({
+            var enabled = false,
+                droppable = this.select('droppableSelector');
 
+            // Other droppables might be on top of graph, listen to 
+            // their over/out events and ignore drops if the user hasn't
+            // dragged outside of them. Can't use greedy option since they are
+            // absolutely positioned
+            $(document).on('dropover dropout', function(e, ui) {
+                if ($(e.target).closest(droppable).length === 0) {
+                    enabled = e.type === 'dropout';
+                }
+            });
+
+            droppable.droppable({
+                accept: function(item) {
+                    $(item).draggable('option', 'revert', function() {
+                        return !enabled;
+                    });
+                    return true;
+                },
                 drop: function( event, ui ) {
+
+                    // Early exit if should leave to a different droppable
+                    if (!enabled) return;
+
                     var draggable = ui.draggable,
                         droppable = $(event.target);
 
@@ -335,6 +357,8 @@ define([
                         ws.data.nodes.push(node);
                     }
                 });
+
+                if (added.length === 0) return;
 
                 if(!data.noUndo) {
                     var dataClone = JSON.parse(JSON.stringify(data));

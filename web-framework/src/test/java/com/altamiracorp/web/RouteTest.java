@@ -63,6 +63,16 @@ public class RouteTest {
     }
 
     @Test
+    public void testWithEscapedSlash() {
+        Route r = new Route(Method.GET, path + "/{id}/test", handler);
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getMethod()).thenReturn("GET");
+        when(request.getRequestURI()).thenReturn(path + "/12%2F34/test");
+        assertTrue(r.isMatch(request));
+        verify(request).setAttribute("id", "12/34");
+    }
+
+    @Test
     public void testComponentAsBaseFilename() {
         Route r = new Route(Method.GET, path + "/{file}.ext", handler);
         HttpServletRequest request = mock(HttpServletRequest.class);
