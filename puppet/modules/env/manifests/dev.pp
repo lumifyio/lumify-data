@@ -11,22 +11,22 @@ class env::dev {
   }
 
   file { '/opt/start.sh' :
-    source => 'puppet:///modules/env/start.sh',
+    source => 'puppet:///modules/env/dev/start.sh',
     mode => 'u=rwx,g=,o=',
   }
 
   file { '/opt/stop.sh' :
-    source => 'puppet:///modules/env/stop.sh',
+    source => 'puppet:///modules/env/dev/stop.sh',
     mode => 'u=rwx,g=,o=',
   }
 
   file { '/opt/format.sh' :
-    source => 'puppet:///modules/env/format.sh',
+    source => 'puppet:///modules/env/dev/format.sh',
     mode => 'u=rwx,g=,o=',
   }
 
   file { '/opt/shell.sh' :
-    source => 'puppet:///modules/env/shell.sh',
+    source => 'puppet:///modules/env/dev/shell.sh',
     mode => 'u=rwx,g=,o=',
   }
 }

@@ -2,10 +2,10 @@
 
 case "$1" in
   accumulo)
-    sudo -u accumulo /opt/accumulo/bin/accumulo shell -u root
+    sudo -u accumulo /usr/lib/accumulo/bin/accumulo shell -u root
     ;;
   blur)
-    sudo -u blur /opt/blur/bin/blur shell
+    sudo -u blur /usr/lib/apache-blur/bin/blur shell
     ;;
   zk)
     echo 'not yet implemented'

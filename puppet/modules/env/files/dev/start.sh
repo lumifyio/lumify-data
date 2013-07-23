@@ -2,10 +2,10 @@
 
 for service in /etc/init.d/hadoop-0.20-*
 do
-    sudo $service start
+    sudo $service restart
 done
 
-sudo /sbin/service hadoop-zookeeper-server start
+sudo /sbin/service hadoop-zookeeper-server restart
 sudo -u accumulo /usr/lib/accumulo/bin/start-all.sh
 sudo -u blur /usr/lib/apache-blur/bin/start-all.sh
 

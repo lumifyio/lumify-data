@@ -18,14 +18,8 @@ import java.util.regex.Pattern;
 
 public class FFMPEGVideoConversion {
     private static final Logger LOGGER = LoggerFactory.getLogger(FFMPEGVideoConversion.class.getName());
-    public static final String DEFAULT_FFMPEG_BIN_DIR = "/opt/ffmpeg/bin/";
-    public static final String DEFAULT_FFMPEG_LIB_DIR = "/opt/ffmpeg/lib/";
-    public static final String DEFAULT_CCEXTRACTOR_BIN_DIR = "/opt/ccextractor/bin/";
     private ArtifactRepository artifactRepository = new ArtifactRepository();
     private VideoFrameRepository videoFrameRepository = new VideoFrameRepository();
-    private String ffmpegBinDir = DEFAULT_FFMPEG_BIN_DIR;
-    private String ffmpegLibDir = DEFAULT_FFMPEG_LIB_DIR;
-    private String ccextractorBinDir = DEFAULT_CCEXTRACTOR_BIN_DIR;
 
     public void convert(RedDawnSession session, Artifact artifact) throws IOException, InterruptedException {
         File videoFile = writeFileToTemp(session, artifact);
@@ -201,7 +195,7 @@ public class FFMPEGVideoConversion {
 
     private void qtFaststart(String[] args) throws IOException, InterruptedException {
         ArrayList<String> ffmpegArgs = new ArrayList<String>();
-        ffmpegArgs.add(new File(getFFMPEGBinDir(), "qt-faststart").getAbsolutePath());
+        ffmpegArgs.add("qt-faststart");
         for (String arg : args) {
             ffmpegArgs.add(arg);
         }
@@ -218,12 +212,11 @@ public class FFMPEGVideoConversion {
 
     private void ffmpeg(String[] args) throws IOException, InterruptedException {
         ArrayList<String> ffmpegArgs = new ArrayList<String>();
-        ffmpegArgs.add(new File(getFFMPEGBinDir(), "ffmpeg").getAbsolutePath());
+        ffmpegArgs.add("ffmpeg");
         for (String arg : args) {
             ffmpegArgs.add(arg);
         }
         ProcessBuilder procBuilder = new ProcessBuilder(ffmpegArgs);
-        procBuilder.environment().put("LD_LIBRARY_PATH", getFFMPEGLibDir());
         LOGGER.info("Running: " + arrayToString(ffmpegArgs));
         Process proc = procBuilder.start();
         int returnCode = proc.waitFor();
@@ -236,7 +229,7 @@ public class FFMPEGVideoConversion {
 
     private void ccextractor(String[] args) throws IOException, InterruptedException {
         ArrayList<String> ffmpegArgs = new ArrayList<String>();
-        ffmpegArgs.add(new File(getCCExtractorBinDir(), "ccextractor").getAbsolutePath());
+        ffmpegArgs.add("ccextractor");
         for (String arg : args) {
             ffmpegArgs.add(arg);
         }
@@ -305,29 +298,5 @@ public class FFMPEGVideoConversion {
 
     public void setArtifactRepository(ArtifactRepository artifactRepository) {
         this.artifactRepository = artifactRepository;
-    }
-
-    public String getFFMPEGBinDir() {
-        return ffmpegBinDir;
-    }
-
-    public void setFFMPEGBinDir(String ffmpegBinDir) {
-        this.ffmpegBinDir = ffmpegBinDir;
-    }
-
-    public String getFFMPEGLibDir() {
-        return ffmpegLibDir;
-    }
-
-    public void setFFMPEGLibDir(String ffmpegLibDir) {
-        this.ffmpegLibDir = ffmpegLibDir;
-    }
-
-    public String getCCExtractorBinDir() {
-        return ccextractorBinDir;
-    }
-
-    public void setCCExtractorBinDir(String ccextractorBinDir) {
-        this.ccextractorBinDir = ccextractorBinDir;
     }
 }
