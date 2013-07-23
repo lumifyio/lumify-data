@@ -48,7 +48,6 @@ public class FileImport extends RedDawnCommandLineBase {
     protected void processOptions(CommandLine cmd) throws Exception {
         super.processOptions(cmd);
         this.directory = cmd.getOptionValue("directory");
-        System.out.println("\n\n\n\n Directory: " + this.directory + "\n\n\n\n");
         File file = new File(directory);
         if (!file.exists()) {
             int second= directory.lastIndexOf('/', (directory.length() - 3));
