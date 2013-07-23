@@ -1,0 +1,98 @@
+<html>
+<head>
+    <title>Accumulo Client</title>
+    <script src='/libs/jquery/jquery.js'></script>
+    <script src='/libs/ejs/ejs.js'></script>
+    <style>
+        table {
+            border-collapse:collapse;
+        }
+
+        td {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Accumulo Client</h1>
+    <form>
+        <b>Table:</b>
+        <select id="tableName">
+            <option>Artifact</option>
+            <option>Object</option>
+        </select>
+        <br/>
+
+        <b>Begin</b>
+        <input type="text" id="beginKey" value="0">
+        <br/>
+
+        <b>End</b>
+        <input type="text" id="endEnd" value="z">
+        <br/>
+
+        <button id="query">Query</button>
+    </form>
+
+    <div id="results">
+
+    </div>
+
+    <script type="text/javascript">
+        var resultsTemplate;
+
+        $(function() {
+            resultsTemplate = document.getElementById('resultsTemplate').innerHTML;
+            $('#query').click(onQuery);
+        });
+
+        function onQuery() {
+            $.ajax({
+                url: '/admin/query',
+                data: {
+                    tableName: $('#tableName').val(),
+                    beginKey: $('#beginKey').val(),
+                    endEnd: $('#endEnd').val()
+                },
+                success: function(data) {
+                    console.log(data);
+                    var html = ejs.render(resultsTemplate, data);
+                    $('#results').html(html);
+                },
+                dataType: 'json'
+            });
+            return false;
+        }
+    </script>
+
+    <script id="resultsTemplate" type="text/template">
+        <table>
+            <% rows.forEach(function(row) { %>
+                <tr>
+                    <td>
+                        <%= row.key.value %>
+                        <table>
+                            <% Object.keys(row).forEach(function(columnFamilyName) { %>
+                                <% if(columnFamilyName == 'key' || columnFamilyName == 'tableName') { return; } %>
+                                <tr>
+                                    <td>
+                                        <%= columnFamilyName %>
+                                        <table>
+                                            <% Object.keys(row[columnFamilyName]).forEach(function(columnName) { %>
+                                                <tr>
+                                                    <td><%= columnName %></td>
+                                                    <td><%= row[columnFamilyName][columnName] %> </td>
+                                                </tr>
+                                            <% }) %>
+                                        </table>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </table>
+                    </td>
+                </tr>
+            <% }) %>
+        </table>
+    </script>
+</body>
+</html>

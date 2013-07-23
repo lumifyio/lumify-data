@@ -28,7 +28,7 @@ public class MockSession extends Session {
     }
 
     @Override
-    List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, QueryUser queryUser) {
+    public List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, QueryUser queryUser) {
         List<Row> rows = this.tables.get(tableName);
         ArrayList<Row> results = new ArrayList<Row>();
         for (Row row : rows) {
