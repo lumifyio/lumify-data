@@ -131,7 +131,6 @@ function(ServiceBase) {
         }
 
         //maybe it's an object for future options stuff?
-        console.log(id);
         var i = encodeURIComponent(typeof id == "object" ? id.id : id);
         return this._ajaxGet({
             url: resource + "/" + i,
