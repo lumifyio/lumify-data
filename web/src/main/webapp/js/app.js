@@ -146,15 +146,12 @@ define([
         };
 
         this.onRequestGraphPadding = function() {
-            var defaultPadding = 10,
-                searchWidth = this.select('searchSelector').filter('.visible').outerWidth(true) || 0,
+            var searchWidth = this.select('searchSelector').filter('.visible').outerWidth(true) || 0,
                 searchResultsWidth = searchWidth > 0 ? $('.search-results:visible').outerWidth(true) || 0 : 0,
                 detailWidth = this.select('detailPaneSelector').filter('.visible').outerWidth(true) || 0,
                 padding = {
-                    l: searchWidth + searchResultsWidth + defaultPadding,
-                    r: detailWidth + defaultPadding,
-                    t: defaultPadding,
-                    b: defaultPadding
+                    l:searchWidth + searchResultsWidth, r:detailWidth,
+                    t:0, b:0
                 };
 
             this.trigger(document, 'graphPaddingResponse', { padding: padding });

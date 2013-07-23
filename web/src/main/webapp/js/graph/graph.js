@@ -240,6 +240,11 @@ define([
                 if( cy.elements().size() === 0 ){
                     cy.reset();
                 } else {
+                    var border = 20;
+                    data.padding.r += this.select('graphToolsSelector').outerWidth(true);
+                    data.padding.l += border;
+                    data.padding.t += border;
+                    data.padding.b += border;
                     cy.fit(undefined, data.padding);
                 }
             });
