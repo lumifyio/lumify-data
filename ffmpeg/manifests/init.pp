@@ -46,4 +46,10 @@ class ffmpeg ($prefix="/usr/local", $tmpdir="/usr/local/src") {
     creates => "${prefix}/bin/qt-faststart",
     require => Exec['ffmpeg-build'],
   }
+
+  file { "/etc/profile.d/usr_local_lib.sh":
+    ensure  => file,
+    content => "export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${prefix}/lib",
+    require => Exec['ffmpeg-build'],
+  }
 }

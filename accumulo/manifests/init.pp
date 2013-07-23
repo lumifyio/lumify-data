@@ -1,9 +1,9 @@
 class accumulo(
-  $version="1.4.3",
-  $user="accumulo",
-  $group="hadoop",
-  $installdir="/usr/lib",
-  $logdir="/var/log/accumulo",
+  $version = "1.4.3",
+  $user = "accumulo",
+  $group = "hadoop",
+  $installdir = "/usr/lib",
+  $logdir = "/var/log/accumulo",
   $tmpdir = '/tmp'
 ) {
   include macro
@@ -62,30 +62,65 @@ class accumulo(
     require => Exec["copy-example-accumulo-config"],
   }
 
-  file { "${configdir}/accumulo-env.sh":
+  file { "accumulo-env-config":
+    path    => "${configdir}/accumulo-env.sh",
     ensure  => file,
     content => template("accumulo/accumulo-env.sh.erb"),
     require => Exec["copy-example-accumulo-config"],
   }
 
-  file { "${configdir}/accumulo-site.xml":
+  file { "accumulo-site-config":
+    path    => "${configdir}/accumulo-site.xml",
     ensure  => file,
     content => template("accumulo/accumulo-site.xml.erb"),
     require => Exec["copy-example-accumulo-config"],
   }
 
-  exec { 'change-accumulo-config-file-modes':
-    command => '/bin/find . -type f -exec chmod 0644 {} \;',
-    cwd     => $configdir,
+  file { "accumulo-masters-config":
+    path    => "${configdir}/masters",
+    ensure  => file,
+    content => template("accumulo/masters.erb"),
     require => Exec["copy-example-accumulo-config"],
+  }
+
+  file { "accumulo-slaves-config":
+    path    => "${configdir}/slaves",
+    ensure  => file,
+    content => template("accumulo/slaves.erb"),
+    require => Exec["copy-example-accumulo-config"],
+  }
+
+  exec { 'change-accumulo-config-file-modes':
+    command => '/bin/find ./* -type f -exec chmod 0644 {} \;',
+    cwd     => $configdir,
+    require => [File["accumulo-env-config"], File["accumulo-site-config"], File["accumulo-masters-config"], File["accumulo-slaves-config"]],
   }
 
   file { $logdir:
     ensure => directory,
-    owner  => 'root',
+#    owner  => "root",
+    owner  => $user,
     group  => $group,
-    mode   => 0775,
+#    mode   => 0775,
   }
+
+#  file { "walog-dir":
+#    path    => "${logdir}/walog",
+#    ensure  => directory,
+#    owner   => "root",
+#    group   => $group,
+#    mode    => 0755,
+#    require => File[$logdir],
+#  }
+#
+#  file { "walog-lock-file":
+#    path    => "${logdir}/walog/.lock",
+#    ensure  => file,
+#    owner   => "root",
+#    group   => $group,
+#    mode    => 0764,
+#    require => File["walog-dir"],
+#  }
 
   file { "${homedir}/logs":
     ensure  => link,
@@ -102,5 +137,18 @@ class accumulo(
   exec { "vm.swappiness=10 persistant" :
     command => '/bin/echo "vm.swappiness=10" >> /etc/sysctl.conf',
     unless  => "/bin/grep -q vm.swappiness=10 /etc/sysctl.conf",
+  }
+
+  file { "${configdir}/.ssh":
+    ensure  => directory,
+    owner   => $user,
+    group   => $group,
+    mode    => 0755,
+    require => Macro::Extract[$downloadpath],
+  }
+
+  macro::setup-passwordless-ssh { $user :
+    sshdir  => "$configdir/.ssh",
+    require => File["${configdir}/.ssh"],
   }
 }

@@ -66,7 +66,7 @@ class blur (
   }
 
   exec { 'change-blur-config-file-modes':
-    command => '/bin/find . -type f -exec chmod 0644 {} \;',
+    command => '/bin/find ./* -type f -exec chmod 0644 {} \;',
     cwd     => $configdir,
     require => Exec["copy-config"],
   }
@@ -113,17 +113,12 @@ class blur (
     ensure  => directory,
     owner   => $user,
     group   => $group,
-    mode    => 0744,
+    mode    => 0755,
     require => Macro::Extract[$downloadpath],
   }
 
   macro::setup-passwordless-ssh { $user :
     sshdir  => "$configdir/.ssh",
     require => File["${configdir}/.ssh"],
-  }
-
-  file { "${configdir}/.ssh/id_rsa":
-    mode => 0600,
-    require => Macro::Setup-passwordless-ssh[$user],
   }
 }

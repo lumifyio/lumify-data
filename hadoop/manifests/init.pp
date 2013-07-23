@@ -11,4 +11,12 @@ class hadoop {
     ensure  => installed,
     require => Package['hadoop-0.20'],
   }
+
+  $name_node_ipaddress = "192.168.33.10"
+  file { "/etc/hadoop/conf/core-site.xml":
+    ensure   => file,
+    content  => template("hadoop/core-site.xml.erb"),
+    owner    => "root",
+    group    => "root",
+  }
 }
