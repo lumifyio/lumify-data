@@ -18,15 +18,13 @@ define([
     retina) {
     'use strict';
 
-    var FIT_PADDING = 50;
-
     return defineComponent(Graph);
 
     function Graph() {
         var callbackQueue = [];
         var LAYOUT_OPTIONS = {
             // Customize layout options
-            random: { padding: FIT_PADDING },
+            random: { padding: 10 },
             arbor: { friction: 0.6, repulsion: 5000 * retina.devicePixelRatio, targetFps: 60, stiffness: 300 }
         };
 
@@ -130,7 +128,7 @@ define([
                 });
 
                 if (options.fit && cy.nodes().length) {
-                    cy.fit(undefined, FIT_PADDING);
+                    this.fit();
                 }
 
                 if (addedNodes.length) {
@@ -229,25 +227,21 @@ define([
         };
 
         this.onContextMenuFitToWindow = function() {
+            this.fit();
+        };
+
+
+        this.fit = function() {
+            this.trigger(document, 'requestGraphPadding');
+        };
+
+        this.onGraphPadding = function(e, data) {
             this.cy(function(cy) {
                 if( cy.elements().size() === 0 ){
                     cy.reset();
                 } else {
-                    cy.fit(undefined, FIT_PADDING);
+                    cy.fit(undefined, data.padding);
                 }
-                
-                var $container = this.select('cytoscapeContainerSelector');
-                var length = Math.max( $container.width(), $container.height() );
-                var zoom = cy.zoom() * (length - FIT_PADDING * 2)/length;
-
-                cy.zoom({
-                    level: zoom,
-                    renderedPosition: {
-                        x: $container.width()/2,
-                        y: $container.height()/2
-                    }
-                });
-
             });
         };
 
@@ -541,6 +535,7 @@ define([
             this.on(document, 'nodesDeleted', this.onNodesDeleted);
             this.on(document, 'nodesUpdated', this.onNodesUpdated);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
+            this.on(document, 'graphPaddingResponse', this.onGraphPadding);
 
             cytoscape("renderer", "red-dawn", Renderer);
             cytoscape({
@@ -646,12 +641,18 @@ define([
 
                     $(container).cytoscapePanzoom({
                         minZoom: options.minZoom,
-                        maxZoom: options.maxZoom,
-                        fitPadding: FIT_PADDING
+                        maxZoom: options.maxZoom
                     }).focus().on({
                         click: function() { this.focus(); },
                         keydown: self.onKeyHandler.bind(self),
                         keyup: self.onKeyHandler.bind(self)
+                    });
+
+                    // Override "Fit to Window" button and call our own
+                    $('.ui-cytoscape-panzoom-reset').on('mousedown', function(e) {
+						if (e.button !== 0) return;
+                        e.stopPropagation();
+                        self.fit();
                     });
 
                     var panZoom = self.select('graphToolsSelector');
@@ -675,6 +676,11 @@ define([
                 done: function() {
                     self.cyLoaded = true;
                     self.drainCallbackQueue();
+
+                    
+                    setTimeout(function() {
+                        self.fit();
+                    }, 100);
                 }
             });
         });

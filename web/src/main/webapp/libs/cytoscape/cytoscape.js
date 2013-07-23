@@ -4410,10 +4410,18 @@ var cytoscape;
 			var w = parseFloat( style.containerCss("width") ) * pixelScale;
 			var h = parseFloat( style.containerCss("height") ) * pixelScale;
 			var zoom;
-			padding = $$.is.number(padding) ? padding : 0;
 
+            if (!$$.is.plainObject(padding)) {
+                if (!$$.is.number(padding)) padding = 0;
+                padding = {t:padding,r:padding,b:padding,l:padding};                
+            }
+            padding.t = (padding.t || 0) * pixelScale;
+            padding.r = (padding.r || 0) * pixelScale;
+            padding.b = (padding.b || 0) * pixelScale;
+            padding.l = (padding.l || 0) * pixelScale;
+            
 			if( !isNaN(w) && !isNaN(h) ){
-				zoom = Math.min( (w - 2*padding)/bb.w, (h - 2*padding)/bb.h );
+				zoom = Math.min( (w - (padding.l+padding.r))/bb.w, (h - (padding.t+padding.b))/bb.h );
 
 				// crop zoom
 				zoom = zoom > this._private.maxZoom ? this._private.maxZoom : zoom;
@@ -4422,8 +4430,8 @@ var cytoscape;
                 this._private.zoom = zoom;
 
 				this._private.pan = { // now pan to middle
-					x: (w - zoom*( bb.x1 + bb.x2 ))/2,
-					y: (h - zoom*( bb.y1 + bb.y2 ))/2
+					x: (w + padding.l - padding.r - zoom*( bb.x1 + bb.x2 ))/2,
+					y: (h + padding.t - padding.b - zoom*( bb.y1 + bb.y2 ))/2
 				};
 			}
 

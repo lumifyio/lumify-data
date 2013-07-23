@@ -66,6 +66,7 @@ define([
             this.on(document, 'message', this.onMessage);
             this.on(document, 'searchResultSelected', this.onSearchResultSelection);
             this.on(document, 'syncStarted', this.onSyncStarted);
+            this.on(document, 'requestGraphPadding', this.onRequestGraphPadding);
 
             var content = $(appTemplate({})),
                 menubarPane = content.filter('.menubar-pane'),
@@ -142,6 +143,21 @@ define([
             } else {
                 console.log("View " + data.view + " isn't supported");
             }
+        };
+
+        this.onRequestGraphPadding = function() {
+            var defaultPadding = 10,
+                searchWidth = this.select('searchSelector').filter('.visible').outerWidth(true) || 0,
+                searchResultsWidth = searchWidth > 0 ? $('.search-results:visible').outerWidth(true) || 0 : 0,
+                detailWidth = this.select('detailPaneSelector').filter('.visible').outerWidth(true) || 0,
+                padding = {
+                    l: searchWidth + searchResultsWidth + defaultPadding,
+                    r: detailWidth + defaultPadding,
+                    t: defaultPadding,
+                    b: defaultPadding
+                };
+
+            this.trigger(document, 'graphPaddingResponse', { padding: padding });
         };
 
         this.setupDroppable = function() {
