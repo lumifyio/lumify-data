@@ -48,19 +48,7 @@ public class FileImport extends RedDawnCommandLineBase {
     protected void processOptions(CommandLine cmd) throws Exception {
         super.processOptions(cmd);
         this.directory = cmd.getOptionValue("directory");
-        File file = new File(directory);
-        if (!file.exists() && !(this.directory.equals("sample/directory"))) {
-            int second= directory.lastIndexOf('/', (directory.length() - 3));
-            int last= directory.lastIndexOf('/');
-            String set = directory.substring(second);
-            if(last == (directory.length()-1))  {
-                set = directory.substring(second, last);
-            }
-            String dataset =  set + ".zip";
-            downloadDataset(dataset);
-            extractDataset(dataset);
-        }
-
+        if (this.directory == null) throw new RuntimeException("No directory provided to FileImport");
         if (cmd.hasOption("pattern")) {
             this.pattern = cmd.getOptionValue("pattern");
         } else {
@@ -76,7 +64,6 @@ public class FileImport extends RedDawnCommandLineBase {
     @Override
     protected Options getOptions() {
         Options options = super.getOptions();
-
         options.addOption(
                 OptionBuilder
                         .withArgName("d")
@@ -112,20 +99,12 @@ public class FileImport extends RedDawnCommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         File directory = new File(getDirectory());
-        if (!directory.exists() && !(this.directory.equals("sample/directory"))) {
-            int second= getDirectory().lastIndexOf('/', (getDirectory().length() - 3));
-            String set;
-            if(getDirectory().charAt((getDirectory().length()-1)) == '/')  {
-                int last= getDirectory().lastIndexOf('/');
-                set = getDirectory().substring(second, last);
-            } else {
-                set = getDirectory().substring(second);
-                this.directory += "/";
-            }
-            String dataset =  set + ".zip";
+        if(!datasetExists(getDirectory())) {
+            String dataset = getDatasetName(getDirectory());
+            dataset += ".zip";
             downloadDataset(dataset);
             extractDataset(dataset);
-            directory = new File(set);
+            directory = new File(getDirectory());
         }
         String pattern = getPattern();
         RedDawnSession redDawnSession = createRedDawnSession();
@@ -211,33 +190,54 @@ public class FileImport extends RedDawnCommandLineBase {
         return source;
     }
 
+    private String getDatasetName(String dir){
+        int second= dir.lastIndexOf('/', (dir.length() - 3));
+        String set;
+        if(dir.charAt((dir.length()-1)) == '/')  {
+            int last= dir.lastIndexOf('/');
+            set = dir.substring(second, last);
+        } else {
+            set = dir.substring(second);
+            this.directory += "/";
+        }
+        return set;
+    }
+
+    private Boolean datasetExists(String dir) {
+        File file = new File(dir);
+        return (file.exists() || (dir.equals("sample/directory")));
+    }
+
     private void downloadDataset(String dataset){
         try{
             String amazon = "https://s3.amazonaws.com/RedDawn/DataSets";
-            String aws = amazon + dataset;
-
-            URL awsset = new URL(aws);
-            URLConnection connect = awsset.openConnection();
-            //perform login information
-
+            URL aws = new URL(amazon + dataset);
+            URLConnection connect = aws.openConnection();
             InputStream in = connect.getInputStream();
-
-            String repo = this.directory;       //repo for download
+            String repo = getDirectory();
             File file = new File(repo);
             file.mkdirs();
             FileOutputStream out = new FileOutputStream(repo + dataset);
-
             byte[] outStream = new byte[4096];
             int count;
             while((count = in.read(outStream)) >= 0){
                 out.write(outStream, 0, count);
             }
-
             in.close();
             out.close();
-
         } catch(IOException e) {
             LOGGER.info("Error pulling dataset from AWS");
+            LOGGER.info("Dataset does not exist.  " +
+                    "\nPlease choose from the following options:" +
+                    "\n\t * bombing-100-docs" +
+                    "\n\t * congress-250-all" +
+                    "\n\t * election-100-images" +
+                    "\n\t * fda-25-docs" +
+                    "\n\t * pope-25-all" +
+                    "\n\t * quotes-25-images" +
+                    "\n\t * sandy-500-all" +
+                    "\n\t * tucson-100-all" +
+                    "\n\t * video");
             e.printStackTrace();
         }
     }
@@ -250,28 +250,23 @@ public class FileImport extends RedDawnCommandLineBase {
                 storedRepo =this.directory + "/";
                 String set = dataset.substring(1, (dataset.length()-4));
                 repo = this.directory + "/unzip_" + set + "/";        //repo for extraction from download
-            }
-            else {
+            } else {
                 storedRepo =this.directory;
                 String set = dataset.substring(1, (dataset.length()-4));
                 repo = this.directory + "unzip_" + set + "/";        //repo for extraction from download
             }
-
             this.directory = repo;
 
             String zipString = storedRepo.substring(0, (storedRepo.length()-1)) + dataset;
             byte[] buf = new byte[1024];
-
             ZipEntry zipentry;
             File file = new File(repo);
             file.mkdirs();
             File file2 = new File(storedRepo);
             file2.mkdirs();
             ZipInputStream zipinputstream = new ZipInputStream(new FileInputStream(zipString));
-
             zipentry = zipinputstream.getNextEntry();
             while (zipentry != null) {
-                //for each entry to be extracted
                 String entryName = repo + zipentry.getName();
                 entryName = entryName.replace('/', File.separatorChar);
                 entryName = entryName.replace('\\', File.separatorChar);
@@ -286,17 +281,13 @@ public class FileImport extends RedDawnCommandLineBase {
                     zipentry = zipinputstream.getNextEntry();
                     continue;
                 }
-
                 fileoutputstream = new FileOutputStream(entryName);
-
                 while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
                     fileoutputstream.write(buf, 0, n);
                 }
-
                 fileoutputstream.close();
                 zipinputstream.closeEntry();
                 zipentry = zipinputstream.getNextEntry();
-
             }
         } catch(Exception e){
             LOGGER.info("Error in extracting zip file");
