@@ -4,6 +4,8 @@ import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.SaveFileResults;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
@@ -25,8 +27,6 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Iterator;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public class FileImport extends RedDawnCommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileImport.class.getName());
@@ -193,7 +193,7 @@ public class FileImport extends RedDawnCommandLineBase {
     private String getDatasetName(String dir){
         int second= dir.lastIndexOf('/', (dir.length() - 3));
         String set;
-        if(dir.charAt((dir.length()-1)) == '/')  {
+        if(dir.charAt((dir.length() - 1)) == '/')  {
             int last= dir.lastIndexOf('/');
             set = dir.substring(second, last);
         } else {
@@ -243,55 +243,22 @@ public class FileImport extends RedDawnCommandLineBase {
     }
 
     private void extractDataset(String dataset){
-        try{
-            String storedRepo;
-            String repo;
-           if(directory.charAt(directory.length()-1) != '/'){
-                storedRepo =this.directory + "/";
-                String set = dataset.substring(1, (dataset.length()-4));
-                repo = this.directory + "/unzip_" + set + "/";        //repo for extraction from download
+            String repo = getDirectory();
+            String set = dataset.substring(1, (dataset.length()-4));
+            String zipString = repo.substring(0, (repo.length()-1)) + dataset;
+            if(directory.charAt(directory.length()-1) != '/'){
+                repo += "/";
+                repo = repo + "/unzip_" + set + "/";
             } else {
-                storedRepo =this.directory;
-                String set = dataset.substring(1, (dataset.length()-4));
-                repo = this.directory + "unzip_" + set + "/";        //repo for extraction from download
+                repo = repo + "unzip_" + set + "/";
             }
-            this.directory = repo;
-
-            String zipString = storedRepo.substring(0, (storedRepo.length()-1)) + dataset;
-            byte[] buf = new byte[1024];
-            ZipEntry zipentry;
-            File file = new File(repo);
-            file.mkdirs();
-            File file2 = new File(storedRepo);
-            file2.mkdirs();
-            ZipInputStream zipinputstream = new ZipInputStream(new FileInputStream(zipString));
-            zipentry = zipinputstream.getNextEntry();
-            while (zipentry != null) {
-                String entryName = repo + zipentry.getName();
-                entryName = entryName.replace('/', File.separatorChar);
-                entryName = entryName.replace('\\', File.separatorChar);
-                System.out.println("entryname " + entryName);
-                int n;
-                FileOutputStream fileoutputstream;
-                File newFile = new File(entryName);
-                if (zipentry.isDirectory()) {
-                    if (!newFile.mkdirs()) {
-                        break;
-                    }
-                    zipentry = zipinputstream.getNextEntry();
-                    continue;
-                }
-                fileoutputstream = new FileOutputStream(entryName);
-                while ((n = zipinputstream.read(buf, 0, 1024)) > -1) {
-                    fileoutputstream.write(buf, 0, n);
-                }
-                fileoutputstream.close();
-                zipinputstream.closeEntry();
-                zipentry = zipinputstream.getNextEntry();
+            try {
+                ZipFile zipped = new ZipFile(zipString);
+                zipped.extractAll(repo);
+                this.directory = repo;
+            } catch (ZipException e) {
+                LOGGER.info("Error in extracting zip file");
+                e.printStackTrace();
             }
-        } catch(Exception e){
-            LOGGER.info("Error in extracting zip file");
-            e.printStackTrace();
-        }
     }
 }
