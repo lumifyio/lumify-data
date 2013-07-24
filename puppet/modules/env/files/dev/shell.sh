@@ -8,10 +8,10 @@ case "$1" in
     sudo -u blur /usr/lib/apache-blur/bin/blur shell
     ;;
   zk)
-    echo 'not yet implemented'
+    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh
     ;;
   *)
     echo 'you must specify a supported shell, one of:'
-    awk '/[a-z]+)/ {print $1}' $0 | sed -e 's/)//' -e 's/^/  /'
+    awk '/[a-z]+\)/ {print $1}' $0 | sed -e 's/)//' -e 's/^/  /'
     ;;
 esac
