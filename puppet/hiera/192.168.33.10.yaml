@@ -1,8 +1,9 @@
 ---
 accumulo_example_config: 512MB/native-standalone
 accumulo_masters:
-  - 192.168.33.10
+  - %{ipaddress_eth1}
 accumulo_slaves:
-  - 192.168.33.10
+  - %{ipaddress_eth1}
 zookeeper_nodes:
-  - localhost:2181
+  - %{ipaddress_eth1}:2181
+namenode_ipaddress: %{ipaddress_eth1}
