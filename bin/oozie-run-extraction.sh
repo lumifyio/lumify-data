@@ -12,5 +12,5 @@ if [ "${VIRTUALIZATION_DISABLED}" = 'true' ]; then
   cd /vagrant/oozie
   sudo -u hdfs oozie job -oozie http://localhost:11000/oozie -config workflows/job-common.properties -Doozie.wf.application.path='${nameNode}/user/${user.name}/${workflowRoot}/aggregate/all' -run
 else
-  vagrant ssh -c 'cd /vagrant/oozie && sudo -u hdfs oozie job -oozie http://localhost:11000/oozie -config workflows/job-common.properties -Doozie.wf.application.path=\${nameNode}/user/\${user.name}/\${workflowRoot}/aggregate/all -run'
+  vagrant ssh -c 'cd /vagrant/oozie && sudo -u hdfs oozie job -oozie http://localhost:11000/oozie -config workflows/job-common.properties -Doozie.wf.application.path=\${nameNode}/user/\${user.name}/\${workflowRoot}/aggregate/extraction -run'
 fi
