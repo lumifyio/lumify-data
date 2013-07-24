@@ -20,6 +20,9 @@ public class VideoFrameRepository extends Repository<VideoFrame> {
             if (columnFamilyName.equals(VideoFrameMetadata.NAME)) {
                 Collection<Column> columns = columnFamily.getColumns();
                 videoFrame.addColumnFamily(new VideoFrameMetadata().addColumns(columns));
+            } else if (columnFamilyName.equals(VideoFrameDetectedObjects.NAME)) {
+                Collection<Column> columns = columnFamily.getColumns();
+                videoFrame.addColumnFamily(new VideoFrameDetectedObjects().addColumns(columns));
             } else {
                 videoFrame.addColumnFamily(columnFamily);
             }

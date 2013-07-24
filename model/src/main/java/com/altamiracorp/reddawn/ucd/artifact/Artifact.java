@@ -56,6 +56,14 @@ public class Artifact extends Row<ArtifactRowKey> {
         return get(ArtifactDynamicMetadata.NAME);
     }
 
+    public ArtifactDetectedObjects getArtifactDetectedObjects() {
+        ArtifactDetectedObjects artifactDetectedObjects = get(ArtifactDetectedObjects.NAME);
+        if (artifactDetectedObjects == null) {
+            addColumnFamily(new ArtifactDetectedObjects());
+        }
+        return get(ArtifactDetectedObjects.NAME);
+    }
+
     public Date getPublishedDate() {
         Date date = getGenericMetadata().getDocumentDtgDate();
         if (date != null) {
