@@ -49,7 +49,7 @@ public class FileImport extends RedDawnCommandLineBase {
         super.processOptions(cmd);
         this.directory = cmd.getOptionValue("directory");
         File file = new File(directory);
-        if (!file.exists()) {
+        if (!file.exists() && !(this.directory.equals("sample/directory"))) {
             int second= directory.lastIndexOf('/', (directory.length() - 3));
             int last= directory.lastIndexOf('/');
             String set = directory.substring(second);
@@ -112,7 +112,7 @@ public class FileImport extends RedDawnCommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         File directory = new File(getDirectory());
-        if (!directory.exists()) {
+        if (!directory.exists() && !(this.directory.equals("sample/directory"))) {
             int second= getDirectory().lastIndexOf('/', (getDirectory().length() - 3));
             String set;
             if(getDirectory().charAt((getDirectory().length()-1)) == '/')  {
