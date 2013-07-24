@@ -167,16 +167,17 @@ define([
             // dragged outside of them. Can't use greedy option since they are
             // absolutely positioned
             $(document).on('dropover dropout', function(e, ui) {
-                if ($(e.target).closest(droppable).length === 0) {
+                var target = $(e.target),
+                    notAppDroppable = !target.is(droppable),
+                    noParentDroppables = target.parents('.ui-droppable').length === 0;
+
+                if (notAppDroppable && noParentDroppables) {
                     enabled = e.type === 'dropout';
                 }
             });
 
             droppable.droppable({
                 accept: function(item) {
-                    $(item).draggable('option', 'revert', function() {
-                        return !enabled;
-                    });
                     return true;
                 },
                 drop: function( event, ui ) {

@@ -2,18 +2,19 @@
 
 define([
     'flight/lib/component',
-    'tpl!./dropdown',
+    '../withDropdown',
+    'tpl!./termForm',
     'tpl!./concept-options',
     'service/ucd',
     'service/entity',
     'underscore'
-], function(defineComponent, dropdownTemplate, conceptsTemplate, Ucd, EntityService, _) {
+], function(defineComponent, withDropdown, dropdownTemplate, conceptsTemplate, Ucd, EntityService, _) {
     'use strict';
 
-    return defineComponent(EditDropdown);
+    return defineComponent(TermForm, withDropdown);
 
 
-    function EditDropdown() {
+    function TermForm() {
         this.entityService = new EntityService();
         this.ucd = new Ucd();
 
@@ -110,10 +111,6 @@ define([
             });
         };
 
-        this.after('teardown', function() {
-            this.$node.remove();
-        });
-
         this.after('initialize', function() {
             var self = this,
                 node = this.$node,
@@ -121,12 +118,15 @@ define([
                 objectRowKeySpan = null,
                 objectRowKey = null;
 
+            mentionNode
+                .parents('.sentence').addClass('focused')
+                .parents('.text').addClass('focus');
+
             // Find first parent (including self) with objectRowKey
             mentionNode.parents('.entity').addBack('.entity').toArray().reverse().forEach(function(obj) {
                 var node = $(obj),
                     info = node.data('info');
 
-                console.log('checking', obj, info);
                 if (info && info.objectRowKey) {
                     objectRowKeySpan = node;
                     objectRowKey = info.objectRowKey;
@@ -140,15 +140,13 @@ define([
             node.html(dropdownTemplate({
                 type: 'Set type of term',
                 sign: this.attr.sign || mentionNode.text(),
-                objectSign: objectRowKey && objectRowKey.sign || ''
+                objectSign: objectRowKey && objectRowKey.sign || '',
+                finishMessage: (mentionNode.hasClass('term') ? 'Update Term' : 'Create Term')
             }));
 
 
             _.defer(function() {
                 self.setupObjectTypeAhead();
-
-                self.open();
-
                 self.loadConcepts();
             });
 
@@ -218,20 +216,6 @@ define([
                     return item && item.sign || '';
                 }
             });
-        };
-
-        this.open = function() {
-            var node = this.$node;
-
-            node.one('transitionend', function() {
-                node.css({
-                    transition: 'none',
-                    height:'auto',
-                    overflow: 'visible'
-                });
-            });
-            var form = node.find('.term-form');
-            node.css({ height:form.outerHeight(true) + 'px' });
         };
     }
 });

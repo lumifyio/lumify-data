@@ -1,7 +1,8 @@
 
 define([
     'flight/lib/component',
-    './edit/dropdown',
+    './dropdowns/termForm/termForm',
+    './dropdowns/statementForm/statementForm',
     'service/ucd',
     'util/video/scrubber',
     'underscore',
@@ -14,7 +15,8 @@ define([
     'tpl!./style'
 ], function(
     defineComponent,
-    EditDropdown,
+    TermForm,
+    StatementForm,
     UCD,
     VideoScrubber,
     _,
@@ -76,7 +78,7 @@ define([
 
         // Ignore drop events so they don't propagate to the graph/map
         this.preventDropEventsFromPropagating = function() {
-            this.$node.droppable({ accept: '.entity' });
+            this.$node.droppable({ accept: '.entity,.term' });
         };
 
         this.onSelectionChange = function(e) {
@@ -99,7 +101,8 @@ define([
 
             // Remove all dropdowns if empty selection
             if (selection.isCollapsed || text.length === 0) {
-                EditDropdown.teardownAll();
+                TermForm.teardownAll();
+                StatementForm.teardownAll();
             }
 
             this.handleSelectionChange();
@@ -157,11 +160,12 @@ define([
         };
 
         this.dropdownEntity = function(insertAfterNode, sel, text) {
-            EditDropdown.teardownAll();
+            TermForm.teardownAll();
+            StatementForm.teardownAll();
 
             var form = $('<div class="underneath"/>');
             insertAfterNode.after(form);
-            EditDropdown.attachTo(form, {
+            TermForm.attachTo(form, {
                 sign: text,
                 selection: sel && { anchor:sel.anchorNode, focus:sel.focusNode, anchorOffset: sel.anchorOffset, focusOffset: sel.focusOffset },
                 mentionNode: insertAfterNode,
@@ -599,17 +603,49 @@ define([
         this.updateEntityAndArtifactDraggables = function() {
             var self = this,
                 entities = this.select('entitiesSelector'),
+                terms = this.select('termsSelector'),
                 artifacts = this.select('artifactsSelector');
 
-            entities.add(artifacts)
+            entities.add(artifacts).add(terms)
                 // Filter list to those in visible scroll area
                 .withinScrollable(this.$node)
                 .draggable({
                     helper:'clone',
+                    revert: 'invalid',
                     revertDuration: 250,
                     scroll: false,
                     zIndex: 100,
-                    distance: 10
+                    distance: 10,
+                    start: function() {
+                        $(this)
+                            .parents('.sentence').addClass('focused')
+                            .parents('.text').addClass('focus');
+                    },
+                    stop: function() {
+                        $(this)
+                            .parents('.sentence').removeClass('focused')
+                            .parents('.text').removeClass('focus');
+                    }
+                })
+                .droppable({
+                    activeClass: 'drop-target',
+                    hoverClass: 'drop-hover',
+                    accept: function(el) {
+                        var item = $(el),
+                            isTerm = item.is('.term'),
+                            sameSentence = isTerm && $(this).closest('.sentence').is(item.closest('.sentence'));
+                        return isTerm && sameSentence;
+                    },
+                    drop: function(event, ui) {
+                        var destTerm = $(this),
+                            form = $('<div class="underneath"/>');
+
+                        destTerm.after(form);
+                        StatementForm.attachTo(form, {
+                            sourceTerm: ui.helper,
+                            destTerm: destTerm
+                        });
+                    }
                 });
         };
 
