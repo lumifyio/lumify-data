@@ -35,6 +35,9 @@ public class ArtifactRepository extends Repository<Artifact> {
             } else if (columnFamily.getColumnFamilyName().equals(ArtifactDynamicMetadata.NAME)) {
                 Collection<Column> columns = columnFamily.getColumns();
                 artifact.addColumnFamily(new ArtifactDynamicMetadata().addColumns(columns));
+            } else if (columnFamily.getColumnFamilyName().equals(ArtifactDetectedObjects.NAME)) {
+                Collection<Column> columns = columnFamily.getColumns();
+                artifact.addColumnFamily(new ArtifactDetectedObjects().addColumns(columns));
             } else {
                 artifact.addColumnFamily(columnFamily);
             }
