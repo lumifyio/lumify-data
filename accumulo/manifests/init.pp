@@ -9,6 +9,11 @@ class accumulo(
   include macro
   require hadoop
 
+  $accumulo_masters = hiera_array('accumulo_masters')
+  $accumulo_slaves = hiera_array('accumulo_slaves')
+  $accumulo_example_config = hiera('accumulo_example_config')
+  $zookeeper_nodes = hiera_array('zookeeper_nodes')
+
   $homedir = "${installdir}/accumulo-${version}"
   $homelink = "${installdir}/accumulo"
   $configdir = "/etc/accumulo-${version}"
@@ -48,7 +53,7 @@ class accumulo(
   }
 
   exec { "copy-example-accumulo-config" :
-    command => "/bin/cp ${homedir}/conf/examples/512MB/native-standalone/* ${configdir}",
+    command => "/bin/cp ${homedir}/conf/examples/${accumulo_example_config}/* ${configdir}",
     user    => root,
     group   => root,
     unless  => "/usr/bin/test -f ${configdir}/accumulo-env.sh",
@@ -98,29 +103,9 @@ class accumulo(
 
   file { $logdir:
     ensure => directory,
-#    owner  => "root",
     owner  => $user,
     group  => $group,
-#    mode   => 0775,
   }
-
-#  file { "walog-dir":
-#    path    => "${logdir}/walog",
-#    ensure  => directory,
-#    owner   => "root",
-#    group   => $group,
-#    mode    => 0755,
-#    require => File[$logdir],
-#  }
-#
-#  file { "walog-lock-file":
-#    path    => "${logdir}/walog/.lock",
-#    ensure  => file,
-#    owner   => "root",
-#    group   => $group,
-#    mode    => 0764,
-#    require => File["walog-dir"],
-#  }
 
   file { "${homedir}/logs":
     ensure  => link,
@@ -148,7 +133,7 @@ class accumulo(
   }
 
   macro::setup-passwordless-ssh { $user :
-    sshdir  => "$configdir/.ssh",
+    sshdir  => "${configdir}/.ssh",
     require => File["${configdir}/.ssh"],
   }
 }

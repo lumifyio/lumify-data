@@ -12,6 +12,9 @@ class blur (
   include macro
   require hadoop
 
+  $java_home = hiera("java_home")
+  $hadoop_home = hiera("hadoop_home")
+
   $homedir = "${installdir}/apache-blur-${version}"
   $homelink = "${installdir}/apache-blur"
   $configdir = "/etc/apache-blur-${version}"

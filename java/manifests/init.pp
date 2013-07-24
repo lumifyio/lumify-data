@@ -4,7 +4,7 @@ class java($tmpdir = '/tmp', $version = '6u45', $arch = 'amd64') {
   $pkg = "jdk-${version}-linux-${arch}"
   $dist = "${pkg}.rpm"
   $path = "${tmpdir}/${dist}"
-  $javahome = "/usr/java/default"
+  $java_home = hiera("java_home")
 
   macro::download { "jdk-download":
     url  => "https://s3.amazonaws.com/RedDawn/${dist}",
@@ -20,8 +20,7 @@ class java($tmpdir = '/tmp', $version = '6u45', $arch = 'amd64') {
 
   file { "/etc/profile.d/java_home.sh":
     ensure  => file,
-    content => "export JAVA_HOME=${javahome}",
+    content => "export JAVA_HOME=${java_home}",
     require => Package['jdk'],
   }
 }
-require java

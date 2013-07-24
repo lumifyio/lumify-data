@@ -32,7 +32,7 @@ test -z "$ACCUMULO_HOME"         && export ACCUMULO_HOME=<%= @homelink %>
 test -z "$JAVA_HOME"             && export JAVA_HOME=/usr/java/default
 test -z "$HADOOP_HOME"           && export HADOOP_HOME=/usr/lib/hadoop
 test -z "$ZOOKEEPER_HOME"        && export ZOOKEEPER_HOME=/usr/lib/zookeeper
-test -z "$ACCUMULO_LOG_DIR"      && export ACCUMULO_LOG_DIR=/var/log/accumulo
+test -z "$ACCUMULO_LOG_DIR"      && export ACCUMULO_LOG_DIR=<%= @logdir %>
 if [ -f ${ACCUMULO_HOME}/conf/accumulo.policy ]
 then
    POLICY="-Djava.security.manager -Djava.security.policy=${ACCUMULO_HOME}/conf/accumulo.policy"

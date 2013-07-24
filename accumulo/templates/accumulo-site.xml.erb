@@ -30,7 +30,7 @@
 
     <property>
         <name>instance.zookeeper.host</name>
-        <value>localhost:2181</value>
+        <value><%= @zookeeper_nodes.join(',') %></value>
         <description>comma separated list of zookeeper servers</description>
     </property>
 
