@@ -1,0 +1,4 @@
+---
+java_home: /usr/java/default
+hadoop_home: /usr/lib/hadoop
+accumulo_home: /usr/lib/accumulo

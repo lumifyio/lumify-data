@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.model;
 
 import org.apache.accumulo.core.client.*;
+import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
@@ -17,11 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class AccumuloSession extends Session {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSession.class.getName());
@@ -116,17 +113,17 @@ public class AccumuloSession extends Session {
     @Override
     List<Row> findByRowStartsWithList(String tableName, List<String> rowKeyPrefixes, QueryUser queryUser) {
         try {
-            BatchScanner scanner = this.connector.createBatchScanner(tableName,  ((AccumuloQueryUser) queryUser).getAuthorizations() , 2);
-            Collection <Range> ranges = new ArrayList<Range>();
+            BatchScanner scanner = this.connector.createBatchScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations(), 2);
+            Collection<Range> ranges = new ArrayList<Range>();
 
             for (String rowKeyPrefix : rowKeyPrefixes) {
-                Range range = new Range(rowKeyPrefix, rowKeyPrefix+"ZZZZZZ");
+                Range range = new Range(rowKeyPrefix, rowKeyPrefix + "ZZZZZZ"); // TODO is this the best way?
                 ranges.add(range);
             }
 
             scanner.setRanges(ranges);
             return AccumuloHelper.scannerToRows(tableName, scanner);
-        } catch (TableNotFoundException e){
+        } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -309,6 +306,11 @@ public class AccumuloSession extends Session {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    @Override
+    public List<String> getTableList() {
+        return new ArrayList<String>(this.connector.tableOperations().list());
     }
 
     public long getMaxMemory() {

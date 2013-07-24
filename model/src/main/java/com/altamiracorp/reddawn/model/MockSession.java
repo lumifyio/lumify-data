@@ -59,10 +59,10 @@ public class MockSession extends Session {
     List<Row> findByRowStartsWithList(String tableName, List<String> rowKeyPrefixes, QueryUser queryUser) {
         List<Row> rows = this.tables.get(tableName);
         ArrayList<Row> results = new ArrayList<Row>();
-        for (Row row : rows){
+        for (Row row : rows) {
             String rowKey = row.getRowKey().toString();
-            for (String rowKeyPrefix : rowKeyPrefixes){
-                if (rowKey.startsWith(rowKeyPrefix)){
+            for (String rowKeyPrefix : rowKeyPrefixes) {
+                if (rowKey.startsWith(rowKeyPrefix)) {
                     results.add(row);
                 }
             }
@@ -189,5 +189,10 @@ public class MockSession extends Session {
     @Override
     public long getFileLength(String path) {
         return new File(path).length();
+    }
+
+    @Override
+    public List<String> getTableList() {
+        return new ArrayList<String>(this.tables.keySet());
     }
 }

@@ -48,5 +48,6 @@ Vagrant.configure('2') do |config|
     puppet.module_path    = [ 'puppet/modules', 'puppet/puppet-modules' ]
     puppet.manifest_file  = 'dev.pp'
     puppet.facter         = { 'fqdn' => 'prevent.error.com' }
+    puppet.options        = "--hiera_config /vagrant/puppet/hiera-dev.yaml"
   end
 end

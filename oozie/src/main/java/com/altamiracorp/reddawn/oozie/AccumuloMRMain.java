@@ -1,7 +1,9 @@
 package com.altamiracorp.reddawn.oozie;
 
+import org.apache.accumulo.core.client.IteratorSetting;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.client.mapreduce.AccumuloOutputFormat;
+import org.apache.accumulo.core.iterators.user.TimestampFilter;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -11,12 +13,17 @@ import org.apache.oozie.action.hadoop.MapReduceMain;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Properties;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class AccumuloMRMain extends MapReduceMain {
+    private final SimpleDateFormat dateParser = initDateParser();
 
-    private static final String INPUT_FORMAT = "mapred.input.format.class";
+    private static SimpleDateFormat initDateParser() {
+        SimpleDateFormat dateParser = new SimpleDateFormat("yyyyMMddHHmmssz");
+        dateParser.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return dateParser;
+    }
 
     public static void main(String[] args) throws Exception {
         run(AccumuloMRMain.class, args);
@@ -34,7 +41,7 @@ public class AccumuloMRMain extends MapReduceMain {
 
         logMasking("Map-Reduce job configuration:", new HashSet<String>(), actionConf);
 
-        initAccumuloFormats(actionConf);
+        initAccumuloFormats(actionConf, null);
 
         System.out.println("Submitting Oozie action Accumulo Map-Reduce job");
         System.out.println();
@@ -54,27 +61,20 @@ public class AccumuloMRMain extends MapReduceMain {
         System.out.println();
     }
 
-    protected Job submitJobNew (Configuration configuration) throws Exception {
-
-        Job job = new Job (configuration);
+    public Job submitJobNew(Configuration configuration) throws Exception {
+        Job job = new Job(configuration);
 
         // propagate delegation related props from launcher job to MR job
         if (System.getenv("HADOOP_TOKEN_FILE_LOCATION") != null) {
             job.getConfiguration().set("mapreduce.job.credentials.binary", System.getenv("HADOOP_TOKEN_FILE_LOCATION"));
         }
-        boolean exception = false;
-        try {
-            job.submit();
-        }
-        catch (Exception ex) {
-            exception = true;
-            throw ex;
-        }
+
+        job.submit();
 
         return job;
     }
 
-    private void initAccumuloFormats(Configuration actionConf) throws ClassNotFoundException{
+    public void initAccumuloFormats(Configuration actionConf, Long timestampFilterStartTime) throws ClassNotFoundException {
         String zookeeperInstanceName = actionConf.get("zookeeperInstanceName");
         String zookeeperServerNames = actionConf.get("zookeeperServerNames");
         String username = actionConf.get("username");
@@ -82,9 +82,19 @@ public class AccumuloMRMain extends MapReduceMain {
         String table = actionConf.get("tableName");
 
         AccumuloInputFormat.setZooKeeperInstance(actionConf, zookeeperInstanceName, zookeeperServerNames);
-        AccumuloInputFormat.setInputInfo(actionConf,username,password.getBytes(),table, new Authorizations());
+        AccumuloInputFormat.setInputInfo(actionConf, username, password.getBytes(), table, new Authorizations());
+
+        if (timestampFilterStartTime != null) {
+            Map<String, String> timestampIteratorProperties = new HashMap<String, String>();
+            Date timestampFilterStartTimeDate = new Date(timestampFilterStartTime);
+            String timestampFilterStartTimeString = dateParser.format(timestampFilterStartTimeDate);
+            timestampIteratorProperties.put(TimestampFilter.START, timestampFilterStartTimeString);
+            timestampIteratorProperties.put(TimestampFilter.START_INCL, Boolean.toString(true));
+            IteratorSetting timestampIteratorSettings = new IteratorSetting(1, TimestampFilter.class, timestampIteratorProperties);
+            AccumuloInputFormat.addIterator(actionConf, timestampIteratorSettings);
+        }
 
         AccumuloOutputFormat.setZooKeeperInstance(actionConf, zookeeperInstanceName, zookeeperServerNames);
-        AccumuloOutputFormat.setOutputInfo(actionConf,username,password.getBytes(),false,table);
+        AccumuloOutputFormat.setOutputInfo(actionConf, username, password.getBytes(), false, table);
     }
 }
