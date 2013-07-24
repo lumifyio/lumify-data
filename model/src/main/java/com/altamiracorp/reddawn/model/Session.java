@@ -37,7 +37,7 @@ public abstract class Session {
 
     abstract void saveMany(String tableName, Collection<Row> rows);
 
-    abstract List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, QueryUser queryUser);
+    public abstract List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, QueryUser queryUser);
 
     abstract List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, QueryUser queryUser);
 
