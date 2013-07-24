@@ -13,6 +13,20 @@ class tesseract($prefix="/usr/local", $tmpdir="/usr/local/src") {
     path => $tmpdir,
   }
 
+  file { "${prefix}/share/tessdata/":
+    ensure => directory,
+  }
+
+  macro::download { "tesseract-eng-download":
+    url  => "https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.eng.tar.gz",
+    path => "${tmpdir}/tesseract-ocr-3.02.eng.tar.gz",
+  } -> macro::extract { 'extract-tesseract-eng':
+    file => "${tmpdir}/tesseract-ocr-3.02.eng.tar.gz",
+    path => "${prefix}/share/tessdata/",
+    options => "--strip-components=2",
+    require => File["${prefix}/share/tessdata/"],
+  }
+
   $autogen    = "${srcdir}/autogen.sh"
   $configure  = "${srcdir}/configure --prefix=${prefix}"
   $make       = "/usr/bin/make"

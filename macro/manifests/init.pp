@@ -8,11 +8,11 @@ class macro {
     }
   }
 
-  define extract ($file = $title, $type=undef, $user='root', $group='root', $path) {
+  define extract ($file = $title, $type=undef, $user='root', $group='root', $path, $options='') {
     case $type {
-      'zip':   { $cmd = '/usr/bin/unzip -qo' }
-      'gzip':  { $cmd = '/bin/gunzip' }
-      default: { $cmd = '/bin/tar xzf' }
+      'zip':   { $cmd = "/usr/bin/unzip -qo ${options}" }
+      'gzip':  { $cmd = "/bin/gunzip ${options}" }
+      default: { $cmd = "/bin/tar ${options} -xzf" }
     }
 
     exec { "extract-${file}" :
