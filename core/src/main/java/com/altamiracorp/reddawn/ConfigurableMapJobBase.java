@@ -87,14 +87,14 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
         }
         job.setJarByClass(this.getClass());
 
-        job.setInputFormatClass(getInputFormatClassAndInit(job));
-
         if (this.config != null) {
             for (String config : this.config) {
                 String[] parts = config.split("=", 2);
                 job.getConfiguration().set(parts[0], parts[1]);
             }
         }
+
+        job.setInputFormatClass(getInputFormatClassAndInit(job));
 
         job.setMapOutputKeyClass(Key.class);
         job.setMapOutputValueClass(Value.class);
