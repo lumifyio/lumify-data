@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.web;
 
 import com.altamiracorp.reddawn.web.routes.admin.AdminQuery;
+import com.altamiracorp.reddawn.web.routes.admin.AdminTables;
 import com.altamiracorp.reddawn.web.routes.artifact.*;
 import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
@@ -80,6 +81,7 @@ public class Router extends HttpServlet {
         app.post("/chat/{chatId}/post", authenticator, ChatPostMessage.class);
 
         app.get("/admin/query", authenticator, AdminQuery.class);
+        app.get("/admin/tables", authenticator, AdminTables.class);
 
         LessRestlet.init(rootDir);
         app.get("/css/{file}.css", LessRestlet.class);

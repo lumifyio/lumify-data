@@ -4,12 +4,28 @@
     <script src='/libs/jquery/jquery.js'></script>
     <script src='/libs/ejs/ejs.js'></script>
     <style>
+        .row {
+            border-bottom: 1px solid black;
+            padding-bottom: 20px;
+        }
+
+        .rowData {
+            padding-left: 20px;
+        }
+
         table {
             border-collapse:collapse;
         }
 
         td {
             border: 1px solid black;
+            font-size: 10pt;
+        }
+
+        td.columnName {
+            font-weight: bold;
+            vertical-align: top;
+            text-align: right;
         }
     </style>
 </head>
@@ -18,8 +34,7 @@
     <form>
         <b>Table:</b>
         <select id="tableName">
-            <option>Artifact</option>
-            <option>Object</option>
+            <option>Loading...</option>
         </select>
         <br/>
 
@@ -40,13 +55,26 @@
 
     <script type="text/javascript">
         var resultsTemplate;
+        var tablesListTemplate;
 
         $(function() {
             resultsTemplate = document.getElementById('resultsTemplate').innerHTML;
+            tablesListTemplate = document.getElementById('tablesListTemplate').innerHTML;
+
             $('#query').click(onQuery);
+            $.ajax({
+                url: '/admin/tables',
+                success: function(data) {
+                    console.log(data);
+                    var html = ejs.render(tablesListTemplate, data);
+                    $('#tableName').html(html);
+                },
+                dataType: 'json'
+            });
         });
 
         function onQuery() {
+            $('#results').html("Loading...");
             $.ajax({
                 url: '/admin/query',
                 data: {
@@ -66,33 +94,31 @@
     </script>
 
     <script id="resultsTemplate" type="text/template">
-        <table>
-            <% rows.forEach(function(row) { %>
-                <tr>
-                    <td>
-                        <%= row.key.value %>
-                        <table>
-                            <% Object.keys(row).forEach(function(columnFamilyName) { %>
-                                <% if(columnFamilyName == 'key' || columnFamilyName == 'tableName') { return; } %>
+        <% rows.forEach(function(row) { %>
+            <div class="row">
+                <h2 class="rowKey"><%= row.key.value %></h2>
+                <div class="rowData">
+                    <% Object.keys(row).forEach(function(columnFamilyName) { %>
+                        <% if(columnFamilyName == 'key' || columnFamilyName == 'tableName') { return; } %>
+                        <h3 class="columnFamilyName"><%= columnFamilyName %></h3>
+                        <table class="columns">
+                            <% Object.keys(row[columnFamilyName]).forEach(function(columnName) { %>
                                 <tr>
-                                    <td>
-                                        <%= columnFamilyName %>
-                                        <table>
-                                            <% Object.keys(row[columnFamilyName]).forEach(function(columnName) { %>
-                                                <tr>
-                                                    <td><%= columnName %></td>
-                                                    <td><%= row[columnFamilyName][columnName] %> </td>
-                                                </tr>
-                                            <% }) %>
-                                        </table>
-                                    </td>
+                                    <td class="columnName"><%= columnName %></td>
+                                    <td class="columnValue"><%= row[columnFamilyName][columnName] %> </td>
                                 </tr>
                             <% }) %>
                         </table>
-                    </td>
-                </tr>
-            <% }) %>
-        </table>
+                    <% }) %>
+                </div>
+            </div>
+        <% }) %>
+    </script>
+
+    <script id="tablesListTemplate" type="text/template">
+        <% tables.forEach(function(table) { %>
+            <option><%= table %></option>
+        <% }) %>
     </script>
 </body>
 </html>

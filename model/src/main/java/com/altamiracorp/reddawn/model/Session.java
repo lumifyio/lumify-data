@@ -142,4 +142,6 @@ public abstract class Session {
         }
         return dbpediaSourceArtifactRowKey;
     }
+
+    public abstract List<String> getTableList();
 }
