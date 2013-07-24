@@ -20,6 +20,7 @@ case "$1" in
     open http://192.168.33.10:50060
     ;;
   *)
-    echo 'you must specify a supported web console, one of: accumulo, namenode, datanode, secondarynamenode, jobtracker, tasktracker'
+    echo 'you must specify a supported console, one of:'
+    awk '/[a-z]+\)/ {print $1}' $0 | sed -e 's/)//' -e 's/^/  /'
     ;;
 esac
