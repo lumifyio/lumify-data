@@ -33,5 +33,5 @@ com.altamiracorp.reddawn.objectDetection.ObjectDetectionMR \
 --password=password \
 -DopenCVConfPathPrefix=file://$(cd ${DIR}/.. && pwd) \
 -Dclassifier.file=haarcascade_frontalface_alt.xml \
--Dclassifier.concept=face
+-Dclassifier.concept=face \
 -DjobType=videoFrame
