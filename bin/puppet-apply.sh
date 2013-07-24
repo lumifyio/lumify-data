@@ -27,5 +27,5 @@ fi
 
 module_path=$(echo ${module_dirs} | sed -e 's/ /:/g')
 
-echo sudo puppet apply --modulepath ${module_path} ${manifest} $*
-sudo puppet apply --modulepath ${module_path} ${manifest} $*
+echo sudo puppet apply --hiera_config /vagrant/puppet/hiera-dev.yaml --modulepath ${module_path} ${manifest} $*
+sudo puppet apply --hiera_config /vagrant/puppet/hiera-dev.yaml --modulepath ${module_path} ${manifest} $*
