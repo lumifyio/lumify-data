@@ -21,7 +21,7 @@ else
 fi
 
 ffmpegDir=$(dirname $(which ffmpeg))
-ccextractorDir=$(dirname $(which ffmpeg))
+ccextractorDir=$(dirname $(which ccextractor))
 
 java \
 -Dfile.encoding=UTF-8 \
