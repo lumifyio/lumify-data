@@ -11,6 +11,8 @@ import java.util.Date;
 import java.util.Date;
 
 public class StatementArtifact extends ColumnFamily {
+    public static final String MANUAL_AUTHOR = "Manual";
+
     public static final String ARTIFACT_KEY = "artifactKey";
     public static final String AUTHOR = "author";
     public static final String DATE = "date";

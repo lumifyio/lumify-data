@@ -10,6 +10,7 @@ import com.altamiracorp.reddawn.web.routes.entity.*;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
 import com.altamiracorp.reddawn.web.routes.statement.StatementByRowKey;
+import com.altamiracorp.reddawn.web.routes.statement.StatementCreate;
 import com.altamiracorp.reddawn.web.routes.user.MeGet;
 import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceByRowKey;
@@ -55,6 +56,7 @@ public class Router extends HttpServlet {
         app.get("/artifact/{rowKey}", authenticator, ArtifactByRowKey.class);
 
         app.get("/statement/{rowKey}", authenticator, StatementByRowKey.class);
+        app.post("/statement/create", authenticator, StatementCreate.class);
 
         app.get("/entity/relationship", authenticator, EntityToEntityRelationship.class);
         app.post("/entity/relationships", authenticator, EntityRelationships.class);

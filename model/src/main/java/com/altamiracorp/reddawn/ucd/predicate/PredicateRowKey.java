@@ -6,6 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PredicateRowKey extends RowKey {
+    public static final String MANUAL_MODEL_KEY = "manual";
     public static final PredicateRowKey IS_AN_OBJECT = new PredicateRowKey("system", "isAnObject");
 
     public PredicateRowKey(String rowKey) {
