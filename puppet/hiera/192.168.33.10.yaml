@@ -5,5 +5,5 @@ accumulo_masters:
 accumulo_slaves:
   - %{ipaddress_eth1}
 zookeeper_nodes:
-  - %{ipaddress_eth1}:2181
+  - localhost:2181
 namenode_ipaddress: %{ipaddress_eth1}
