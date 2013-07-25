@@ -31,9 +31,9 @@ public class ConceptRepository extends Repository<Concept> {
     }
 
     public void save(Session session, ConceptRowKey conceptRowKey, String labelUi) {
-        Concept conceptPerson = new Concept(conceptRowKey);
-        conceptPerson.getConceptElements()
+        Concept concept = new Concept(conceptRowKey);
+        concept.getConceptElements()
                 .setLabelUi(labelUi);
-        save(session, conceptPerson);
+        save(session, concept);
     }
 }

@@ -11,6 +11,9 @@ import com.altamiracorp.reddawn.ucd.concept.Concept;
 import com.altamiracorp.reddawn.ucd.concept.ConceptRepository;
 import com.altamiracorp.reddawn.ucd.concept.ConceptRowKey;
 import com.altamiracorp.reddawn.ucd.object.UcdObject;
+import com.altamiracorp.reddawn.ucd.predicate.Predicate;
+import com.altamiracorp.reddawn.ucd.predicate.PredicateRepository;
+import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.source.Source;
 import com.altamiracorp.reddawn.ucd.statement.Statement;
@@ -41,7 +44,7 @@ public abstract class Session {
 
     abstract List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, QueryUser queryUser);
 
-    abstract List<Row> findByRowStartsWithList (String tableName, List<String> rowKeyPrefix, QueryUser queryUser);
+    abstract List<Row> findByRowStartsWithList(String tableName, List<String> rowKeyPrefix, QueryUser queryUser);
 
     abstract List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, QueryUser queryUser);
 
@@ -68,6 +71,7 @@ public abstract class Session {
         initializeTable(Statement.TABLE_NAME);
         initializeTable(UcdObject.TABLE_NAME);
         initializeTable(Concept.TABLE_NAME);
+        initializeTable(Predicate.TABLE_NAME);
 
         initializeTable(Workspace.TABLE_NAME);
         initializeTable(GeoName.TABLE_NAME);
@@ -75,6 +79,7 @@ public abstract class Session {
         initializeTable(DBPedia.TABLE_NAME);
 
         addDefaultConcepts();
+        addDefaultPredicates();
         addDbpediaSourceArtifact();
     }
 
@@ -109,6 +114,16 @@ public abstract class Session {
         conceptRepository.save(this, new ConceptRowKey("system", "time"), "Time");
     }
 
+    protected void addDefaultPredicates() {
+        PredicateRepository predicateRepository = new PredicateRepository();
+
+        predicateRepository.save(this, new PredicateRowKey("system", "knows"), "Knows");
+        predicateRepository.save(this, new PredicateRowKey("system", "locationCity"), "Location City");
+        predicateRepository.save(this, new PredicateRowKey("system", "birthPlace"), "Birth Place");
+        predicateRepository.save(this, new PredicateRowKey("system", "birthDate"), "Birth Date");
+        predicateRepository.save(this, new PredicateRowKey("system", "deathDate"), "Death Date");
+    }
+
     public QueryUser getQueryUser() {
         return this.queryUser;
     }
@@ -123,6 +138,7 @@ public abstract class Session {
         deleteTable(Statement.TABLE_NAME);
         deleteTable(UcdObject.TABLE_NAME);
         deleteTable(Concept.TABLE_NAME);
+        deleteTable(Predicate.TABLE_NAME);
 
         deleteTable(Workspace.TABLE_NAME);
         deleteTable(GeoName.TABLE_NAME);

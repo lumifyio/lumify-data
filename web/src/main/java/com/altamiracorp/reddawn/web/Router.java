@@ -9,6 +9,7 @@ import com.altamiracorp.reddawn.web.routes.concept.ConceptList;
 import com.altamiracorp.reddawn.web.routes.entity.*;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
+import com.altamiracorp.reddawn.web.routes.predicate.PredicateList;
 import com.altamiracorp.reddawn.web.routes.statement.StatementByRowKey;
 import com.altamiracorp.reddawn.web.routes.statement.StatementCreate;
 import com.altamiracorp.reddawn.web.routes.user.MeGet;
@@ -45,6 +46,8 @@ public class Router extends HttpServlet {
         }
 
         app.get("/concept/", ConceptList.class);
+
+        app.get("/predicate/", PredicateList.class);
 
         app.get("/artifact/search", authenticator, ArtifactSearch.class);
         app.get("/artifact/{rowKey}/terms", authenticator, ArtifactTermsByRowKey.class);
