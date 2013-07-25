@@ -1,0 +1,30 @@
+{
+  "name": "erd-generator",
+  "version": "0.0.1",
+  "description": "Entity Relationship Diagram generator for BigTable-style databases like HBase and Accumulo.",
+  "main": "js/gvCreator.js",
+  "dependencies": {
+    "DOMBuilder": "~2.1.6",
+    "js-yaml": "~2.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "none"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nearinfinity/red-dawn.git"
+  },
+  "keywords": [
+    "erd",
+    "bigtable",
+    "hbase",
+    "accumulo",
+    "diagram"
+  ],
+  "author": "Jeff Principe",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nearinfinity/red-dawn/issues"
+  }
+}
