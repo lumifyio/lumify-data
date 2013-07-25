@@ -18,10 +18,14 @@ function parseTemplate(err, data) {
 
     var template = data.substring(0, start);
     fs.readdirSync(__dirname + '/../yaml/').forEach(function(filename) {
-        var tableJson = require("../yaml/" + filename);
-        template += buildTableHtml(tableJson);
-        for(var key in tableJson.connections) {
-            template += buildConnectionDot(tableJson.table.label, key, tableJson.connections[key]);
+        if(/\.ya?ml$/.test(filename)) {
+            var tableJson = require("../yaml/" + filename);
+            template += buildTableHtml(tableJson);
+            for(var key in tableJson.connections) {
+                template += buildConnectionDot(tableJson.table.label, key, tableJson.connections[key]);
+            }
+        } else {
+            console.log("Skipped processing of:", filename);
         }
     });
 
