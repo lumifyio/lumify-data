@@ -1,7 +1,11 @@
 #!/bin/bash
 
-mkdir -p build
-# TODO build erd.gv from all *.desc
-rm -f build/erd.gv && node js/gvCreator.js
-rm -f build/erd.png && dot build/erd.gv | neato -n -Tpng -obuild/erd.png
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
+./node_modules/bigtable-erd-generator/makeErd.sh ${DIR}/yaml ${DIR}/build
