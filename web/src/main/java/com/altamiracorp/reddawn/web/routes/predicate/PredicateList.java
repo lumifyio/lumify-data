@@ -42,4 +42,8 @@ public class PredicateList implements Handler, AppAware {
     public void setApp(App app) {
         this.app = (WebApp) app;
     }
+
+    public void setPredicateRepository(PredicateRepository predicateRepository) {
+        this.predicateRepository = predicateRepository;
+    }
 }
