@@ -1,54 +1,26 @@
 package com.altamiracorp.reddawn.web.routes.predicate;
 
-import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.model.Session;
 import com.altamiracorp.reddawn.ucd.predicate.Predicate;
-import com.altamiracorp.reddawn.ucd.predicate.PredicateRepository;
 import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
-import com.altamiracorp.reddawn.web.WebApp;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.reddawn.web.routes.RouteTestBase;
 import org.json.JSONArray;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mockito;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class)
-public class PredicateListTest {
+public class PredicateListTest extends RouteTestBase {
     private PredicateList predicateList;
-    private HttpServletRequest mockRequest;
-    private HttpServletResponse mockResponse;
-    private HandlerChain mockHandlerChain;
-    private WebApp mockApp;
-    private PredicateRepository mockPredicateRepository;
-    private RedDawnSession mockRedDawnSessionSession;
-    private Session mockSession;
-    private StringWriter responseStringWriter;
 
     @Before
-    public void setUp() throws IOException {
-        responseStringWriter = new StringWriter();
-
-        mockApp = Mockito.mock(WebApp.class);
-        mockRequest = Mockito.mock(HttpServletRequest.class);
-        mockResponse = Mockito.mock(HttpServletResponse.class);
-        when(mockResponse.getWriter()).thenReturn(new PrintWriter(responseStringWriter));
-        mockHandlerChain = Mockito.mock(HandlerChain.class);
-        mockPredicateRepository = Mockito.mock(PredicateRepository.class);
-        mockRedDawnSessionSession = Mockito.mock(RedDawnSession.class);
-        mockSession = Mockito.mock(Session.class);
-        when(mockRedDawnSessionSession.getModelSession()).thenReturn(mockSession);
+    public void setUp() throws Exception {
+        super.setUp();
 
         predicateList = new PredicateList();
         predicateList.setApp(mockApp);
