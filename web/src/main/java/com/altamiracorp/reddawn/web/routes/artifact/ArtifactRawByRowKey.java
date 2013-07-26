@@ -145,4 +145,8 @@ public class ArtifactRawByRowKey implements Handler, AppAware {
         }
         return mimeType;
     }
+
+    public void setArtifactRepository(ArtifactRepository artifactRepository) {
+        this.artifactRepository = artifactRepository;
+    }
 }
