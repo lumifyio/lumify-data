@@ -39,7 +39,7 @@ public class ArtifactByRowKeyTest extends RouteTestBase {
         artifactByRowKey.handle(mockRequest, mockResponse, mockHandlerChain);
 
         JSONObject responseJson = new JSONObject(responseStringWriter.getBuffer().toString());
-        Assert.assertEquals(ArtifactRawByRowKey.getUrl(mockRequest, artifactRowKey), responseJson.getString("rawUrl"));
+        assertEquals(ArtifactRawByRowKey.getUrl(mockRequest, artifactRowKey), responseJson.getString("rawUrl"));
         assertEquals(artifactRowKey.toString(), responseJson.getJSONObject("key").getString("value"));
         assertEquals("document", responseJson.getString("type"));
     }

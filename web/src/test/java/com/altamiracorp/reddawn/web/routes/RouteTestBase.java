@@ -3,7 +3,11 @@ package com.altamiracorp.reddawn.web.routes;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.Session;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.reddawn.ucd.object.UcdObjectRepository;
 import com.altamiracorp.reddawn.ucd.predicate.PredicateRepository;
+import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
+import com.altamiracorp.reddawn.ucd.statement.StatementRepository;
+import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.HandlerChain;
 import org.mockito.Mockito;
@@ -28,6 +32,10 @@ public abstract class RouteTestBase {
 
     public PredicateRepository mockPredicateRepository;
     public ArtifactRepository mockArtifactRepository;
+    public TermRepository mockTermRepository;
+    public StatementRepository mockStatementRepository;
+    public SentenceRepository mockSentenceRepository;
+    public UcdObjectRepository mockUcdObjectRepository;
 
     public void setUp() throws Exception {
         responseStringWriter = new StringWriter();
@@ -42,6 +50,10 @@ public abstract class RouteTestBase {
 
         mockPredicateRepository = Mockito.mock(PredicateRepository.class);
         mockArtifactRepository = Mockito.mock(ArtifactRepository.class);
+        mockTermRepository = Mockito.mock(TermRepository.class);
+        mockStatementRepository = Mockito.mock(StatementRepository.class);
+        mockSentenceRepository = Mockito.mock(SentenceRepository.class);
+        mockUcdObjectRepository = Mockito.mock(UcdObjectRepository.class);
 
         //request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
         when(mockRequest.getScheme()).thenReturn("http");
