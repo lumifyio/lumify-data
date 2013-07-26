@@ -57,7 +57,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         Class<? extends ObjectDetectionMapper> mapperClass;
         String type = job.getConfiguration().get(JOB_TYPE, DEFAULT_JOB_TYPE);
         try {
-            ObjectDetectionMapper.init(job,clazz);
+            ObjectDetectionMapper.init(job, clazz);
             if (type.equals("videoFrame")) {
                 mapperClass = VideoFrameObjectDetectionMapper.class;
             } else {
@@ -69,7 +69,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         return mapperClass;
     }
 
-    public static class ObjectDetectionMapper<T extends Row> extends Mapper<Text,T, Text, T> {
+    public static class ObjectDetectionMapper<T extends Row> extends Mapper<Text, T, Text, T> {
         private static final String CONCEPT = "classifier.concept";
         private static final String DEFAULT_CONCEPT = "face";
 
@@ -90,7 +90,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
             super.setup(context);
             try {
                 session = createRedDawnSession(context);
-                classifierConcept = context.getConfiguration().get(CONCEPT,DEFAULT_CONCEPT);
+                classifierConcept = context.getConfiguration().get(CONCEPT, DEFAULT_CONCEPT);
                 classifierPath = resolveClassifierPath(context);
                 objectDetector = (ObjectDetector) context.getConfiguration().getClass(OBJECT_DETECTOR_CLASS, OpenCVObjectDetector.class).newInstance();
             } catch (InstantiationException e) {
@@ -100,9 +100,9 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
             }
         }
 
-        private String resolveClassifierPath (Context context) throws IOException {
+        private String resolveClassifierPath(Context context) throws IOException {
             String classifierPath = null;
-            String classifierName = context.getConfiguration().get(CLASSIFIER,DEFAULT_CLASSIFIER);
+            String classifierName = context.getConfiguration().get(CLASSIFIER, DEFAULT_CLASSIFIER);
             String pathPrefix = context.getConfiguration().get(PATH_PREFIX, DEFAULT_PATH_PREFIX);
 
             if (pathPrefix.startsWith("hdfs://")) {
@@ -128,7 +128,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
             return classifierPath;
         }
 
-        public static void init (Job job, Class <? extends ObjectDetector> objectDetector) throws URISyntaxException {
+        public static void init(Job job, Class<? extends ObjectDetector> objectDetector) throws URISyntaxException {
             Configuration conf = job.getConfiguration();
             String pathPrefix = conf.get(PATH_PREFIX, DEFAULT_PATH_PREFIX);
             if (pathPrefix.startsWith("hdfs://")) {
@@ -136,7 +136,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
                 DistributedCache.addCacheFile(new URI(pathPrefix + "/conf/opencv/" + classifierName), conf);
             }
 
-            job.getConfiguration().setClass(OBJECT_DETECTOR_CLASS,objectDetector,ObjectDetector.class);
+            job.getConfiguration().setClass(OBJECT_DETECTOR_CLASS, objectDetector, ObjectDetector.class);
         }
     }
 
@@ -149,7 +149,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
             List<DetectedObject> detectedObjects = objectDetector.detectObjects(session, artifact, classifierPath);
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
-                    artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL, detectedObject.getCoordStrings());
+                    artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL, detectedObject.getX1(), detectedObject.getY1(), detectedObject.getY1(), detectedObject.getY2());
                 }
                 context.write(new Text(Artifact.TABLE_NAME), artifact);
             }
@@ -161,7 +161,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
             List<DetectedObject> detectedObjects = objectDetector.detectObjects(session, videoFrame, classifierPath);
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
-                    videoFrame.getDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL, detectedObject.getCoordStrings());
+                    videoFrame.getDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL, detectedObject.getX1(), detectedObject.getY1(), detectedObject.getY1(), detectedObject.getY2());
                 }
                 context.write(new Text(VideoFrame.TABLE_NAME), videoFrame);
             }

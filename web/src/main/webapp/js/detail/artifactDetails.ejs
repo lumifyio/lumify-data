@@ -26,4 +26,8 @@
   <img src='<%= artifact.rawUrl %>' width="auto" height="300"/>
 <% } %>
 
+<% if(artifact['atc:Artifact_Detected_Objects']) { %>
+  <pre><%- JSON.stringify(artifact['atc:Artifact_Detected_Objects'], null, 2) %></pre>
+<% } %>
+
 <div class="text"><%- artifact.contentHtml %></div>

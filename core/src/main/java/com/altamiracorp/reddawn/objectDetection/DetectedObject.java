@@ -45,14 +45,4 @@ public class DetectedObject {
     public void setY2(int y2) {
         this.y2 = y2;
     }
-
-    public String[] getCoordStrings() {
-        String [] coords = new String [4];
-        coords[0] = Integer.toString(getX1());
-        coords[1] = Integer.toString(getY1());
-        coords[2] = Integer.toString(getX2());
-        coords[3] = Integer.toString(getY2());
-
-        return coords;
-    }
 }
