@@ -24,6 +24,7 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 com.altamiracorp.reddawn.objectDetection.ObjectDetectionMR \
+--classname=com.altamiracorp.reddawn.objectDetection.OpenCVObjectDetector \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
