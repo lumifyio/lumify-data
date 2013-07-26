@@ -1,4 +1,4 @@
-class buildtools {
+class buildtools($tmpdir="/usr/local/src") {
   exec { 'epel':
     command => '/bin/rpm -ivH http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm',
     unless => '/bin/rpm -q epel-release-6-8',
@@ -37,6 +37,10 @@ class buildtools {
     ensure => present,
   }
 
+  package { 'cmake' :
+    ensure => present,
+  }
+
   package { 'nasm':
     ensure => present,
   }
@@ -48,4 +52,13 @@ class buildtools {
   package { 'zlib-devel':
     ensure => present,
   }
+
+  macro::download { "ant-download":
+    url  => "http://apache.mirrors.hoobly.com//ant/binaries/apache-ant-1.9.2-bin.tar.gz",
+    path => "${tmpdir}/apache-ant-1.9.2-bin.tar.gz",
+  } -> macro::extract { 'extract-ant':
+    file => "${tmpdir}/apache-ant-1.9.2-bin.tar.gz",
+    path => $tmpdir,
+  }
+
 }
