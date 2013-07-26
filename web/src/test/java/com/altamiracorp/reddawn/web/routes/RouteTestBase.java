@@ -8,6 +8,7 @@ import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.HandlerChain;
 import org.mockito.Mockito;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
@@ -23,12 +24,14 @@ public abstract class RouteTestBase {
     public RedDawnSession mockRedDawnSessionSession;
     public Session mockModelSession;
     public StringWriter responseStringWriter;
+    public ServletOutputStream mockResponseOutputStream;
 
     public PredicateRepository mockPredicateRepository;
     public ArtifactRepository mockArtifactRepository;
 
     public void setUp() throws Exception {
         responseStringWriter = new StringWriter();
+        mockResponseOutputStream = Mockito.mock(ServletOutputStream.class);
 
         mockApp = Mockito.mock(WebApp.class);
         mockRequest = Mockito.mock(HttpServletRequest.class);
@@ -46,6 +49,7 @@ public abstract class RouteTestBase {
         when(mockRequest.getServerPort()).thenReturn(80);
 
         when(mockResponse.getWriter()).thenReturn(new PrintWriter(responseStringWriter));
+        when(mockResponse.getOutputStream()).thenReturn(mockResponseOutputStream);
         when(mockApp.getRedDawnSession(mockRequest)).thenReturn(mockRedDawnSessionSession);
         when(mockRedDawnSessionSession.getModelSession()).thenReturn(mockModelSession);
     }
