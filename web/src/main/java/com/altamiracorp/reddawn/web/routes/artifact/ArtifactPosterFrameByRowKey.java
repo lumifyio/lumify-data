@@ -50,4 +50,8 @@ public class ArtifactPosterFrameByRowKey implements Handler, AppAware {
     public void setApp(App app) {
         this.app = (WebApp) app;
     }
+
+    public void setArtifactRepository(ArtifactRepository artifactRepository) {
+        this.artifactRepository = artifactRepository;
+    }
 }
