@@ -6,6 +6,7 @@ import com.altamiracorp.reddawn.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.ucd.artifact.VideoTranscript;
+import com.altamiracorp.reddawn.util.StreamHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -202,9 +203,9 @@ public class FFMPEGVideoConversion {
         ProcessBuilder procBuilder = new ProcessBuilder(ffmpegArgs);
         LOGGER.info("Running: " + arrayToString(ffmpegArgs));
         Process proc = procBuilder.start();
+        new StreamHelper(proc.getInputStream(),LOGGER,"qt-faststart(stdout): ");
+        new StreamHelper(proc.getErrorStream(),LOGGER,"qt-faststart(stderr): ");
         int returnCode = proc.waitFor();
-        writeStreamToLog("qt-faststart(stdout): ", proc.getInputStream());
-        writeStreamToLog("qt-faststart(stderr): ", proc.getErrorStream());
         if (returnCode != 0) {
             throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
         }
@@ -219,9 +220,9 @@ public class FFMPEGVideoConversion {
         ProcessBuilder procBuilder = new ProcessBuilder(ffmpegArgs);
         LOGGER.info("Running: " + arrayToString(ffmpegArgs));
         Process proc = procBuilder.start();
+        new StreamHelper(proc.getInputStream(),LOGGER,"ffmpeg(stdout): ");
+        new StreamHelper(proc.getErrorStream(),LOGGER,"ffmpeg(stderr): ");
         int returnCode = proc.waitFor();
-        writeStreamToLog("ffmpeg(stdout): ", proc.getInputStream());
-        writeStreamToLog("ffmpeg(stderr): ", proc.getErrorStream());
         if (returnCode != 0) {
             throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
         }
@@ -236,19 +237,11 @@ public class FFMPEGVideoConversion {
         ProcessBuilder procBuilder = new ProcessBuilder(ffmpegArgs);
         LOGGER.info("Running: " + arrayToString(ffmpegArgs));
         Process proc = procBuilder.start();
+        new StreamHelper(proc.getInputStream(),LOGGER,"ccextractor(stdout): ");
+        new StreamHelper(proc.getErrorStream(),LOGGER,"ccextractor(stderr): ");
         int returnCode = proc.waitFor();
-        writeStreamToLog("ccextractor(stdout): ", proc.getInputStream());
-        writeStreamToLog("ccextractor(stderr): ", proc.getErrorStream());
         if (returnCode != 0) {
             throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
-        }
-    }
-
-    private void writeStreamToLog(String prefix, InputStream stream) throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(stream));
-        String line;
-        while ((line = in.readLine()) != null) {
-            LOGGER.info(prefix + line);
         }
     }
 

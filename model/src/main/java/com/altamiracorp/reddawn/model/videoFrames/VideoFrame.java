@@ -22,4 +22,12 @@ public class VideoFrame extends Row<VideoFrameRowKey> {
         }
         return get(VideoFrameMetadata.NAME);
     }
+
+    public VideoFrameDetectedObjects getDetectedObjects() {
+        VideoFrameDetectedObjects videoFrameDetectedObjects = get(VideoFrameDetectedObjects.NAME);
+        if (videoFrameDetectedObjects == null) {
+            addColumnFamily(new VideoFrameDetectedObjects());
+        }
+        return get(VideoFrameDetectedObjects.NAME);
+    }
 }
