@@ -6,6 +6,7 @@ import com.altamiracorp.reddawn.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.ucd.artifact.VideoTranscript;
+import com.altamiracorp.reddawn.util.StreamHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -18,14 +19,8 @@ import java.util.regex.Pattern;
 
 public class FFMPEGVideoConversion {
     private static final Logger LOGGER = LoggerFactory.getLogger(FFMPEGVideoConversion.class.getName());
-    public static final String DEFAULT_FFMPEG_BIN_DIR = "/opt/ffmpeg/bin/";
-    public static final String DEFAULT_FFMPEG_LIB_DIR = "/opt/ffmpeg/lib/";
-    public static final String DEFAULT_CCEXTRACTOR_BIN_DIR = "/opt/ccextractor/bin/";
     private ArtifactRepository artifactRepository = new ArtifactRepository();
     private VideoFrameRepository videoFrameRepository = new VideoFrameRepository();
-    private String ffmpegBinDir = DEFAULT_FFMPEG_BIN_DIR;
-    private String ffmpegLibDir = DEFAULT_FFMPEG_LIB_DIR;
-    private String ccextractorBinDir = DEFAULT_CCEXTRACTOR_BIN_DIR;
 
     public void convert(RedDawnSession session, Artifact artifact) throws IOException, InterruptedException {
         File videoFile = writeFileToTemp(session, artifact);
@@ -201,16 +196,16 @@ public class FFMPEGVideoConversion {
 
     private void qtFaststart(String[] args) throws IOException, InterruptedException {
         ArrayList<String> ffmpegArgs = new ArrayList<String>();
-        ffmpegArgs.add(new File(getFFMPEGBinDir(), "qt-faststart").getAbsolutePath());
+        ffmpegArgs.add("qt-faststart");
         for (String arg : args) {
             ffmpegArgs.add(arg);
         }
         ProcessBuilder procBuilder = new ProcessBuilder(ffmpegArgs);
         LOGGER.info("Running: " + arrayToString(ffmpegArgs));
         Process proc = procBuilder.start();
+        new StreamHelper(proc.getInputStream(),LOGGER,"qt-faststart(stdout): ");
+        new StreamHelper(proc.getErrorStream(),LOGGER,"qt-faststart(stderr): ");
         int returnCode = proc.waitFor();
-        writeStreamToLog("qt-faststart(stdout): ", proc.getInputStream());
-        writeStreamToLog("qt-faststart(stderr): ", proc.getErrorStream());
         if (returnCode != 0) {
             throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
         }
@@ -218,17 +213,16 @@ public class FFMPEGVideoConversion {
 
     private void ffmpeg(String[] args) throws IOException, InterruptedException {
         ArrayList<String> ffmpegArgs = new ArrayList<String>();
-        ffmpegArgs.add(new File(getFFMPEGBinDir(), "ffmpeg").getAbsolutePath());
+        ffmpegArgs.add("ffmpeg");
         for (String arg : args) {
             ffmpegArgs.add(arg);
         }
         ProcessBuilder procBuilder = new ProcessBuilder(ffmpegArgs);
-        procBuilder.environment().put("LD_LIBRARY_PATH", getFFMPEGLibDir());
         LOGGER.info("Running: " + arrayToString(ffmpegArgs));
         Process proc = procBuilder.start();
+        new StreamHelper(proc.getInputStream(),LOGGER,"ffmpeg(stdout): ");
+        new StreamHelper(proc.getErrorStream(),LOGGER,"ffmpeg(stderr): ");
         int returnCode = proc.waitFor();
-        writeStreamToLog("ffmpeg(stdout): ", proc.getInputStream());
-        writeStreamToLog("ffmpeg(stderr): ", proc.getErrorStream());
         if (returnCode != 0) {
             throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
         }
@@ -236,26 +230,18 @@ public class FFMPEGVideoConversion {
 
     private void ccextractor(String[] args) throws IOException, InterruptedException {
         ArrayList<String> ffmpegArgs = new ArrayList<String>();
-        ffmpegArgs.add(new File(getCCExtractorBinDir(), "ccextractor").getAbsolutePath());
+        ffmpegArgs.add("ccextractor");
         for (String arg : args) {
             ffmpegArgs.add(arg);
         }
         ProcessBuilder procBuilder = new ProcessBuilder(ffmpegArgs);
         LOGGER.info("Running: " + arrayToString(ffmpegArgs));
         Process proc = procBuilder.start();
+        new StreamHelper(proc.getInputStream(),LOGGER,"ccextractor(stdout): ");
+        new StreamHelper(proc.getErrorStream(),LOGGER,"ccextractor(stderr): ");
         int returnCode = proc.waitFor();
-        writeStreamToLog("ccextractor(stdout): ", proc.getInputStream());
-        writeStreamToLog("ccextractor(stderr): ", proc.getErrorStream());
         if (returnCode != 0) {
             throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
-        }
-    }
-
-    private void writeStreamToLog(String prefix, InputStream stream) throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(stream));
-        String line;
-        while ((line = in.readLine()) != null) {
-            LOGGER.info(prefix + line);
         }
     }
 
@@ -305,29 +291,5 @@ public class FFMPEGVideoConversion {
 
     public void setArtifactRepository(ArtifactRepository artifactRepository) {
         this.artifactRepository = artifactRepository;
-    }
-
-    public String getFFMPEGBinDir() {
-        return ffmpegBinDir;
-    }
-
-    public void setFFMPEGBinDir(String ffmpegBinDir) {
-        this.ffmpegBinDir = ffmpegBinDir;
-    }
-
-    public String getFFMPEGLibDir() {
-        return ffmpegLibDir;
-    }
-
-    public void setFFMPEGLibDir(String ffmpegLibDir) {
-        this.ffmpegLibDir = ffmpegLibDir;
-    }
-
-    public String getCCExtractorBinDir() {
-        return ccextractorBinDir;
-    }
-
-    public void setCCExtractorBinDir(String ccextractorBinDir) {
-        this.ccextractorBinDir = ccextractorBinDir;
     }
 }

@@ -23,8 +23,6 @@ public class CrawlerTest {
         crawler = new Crawler();
         crawlerSpy = spy(crawler);
         mockedManager = mock(HttpRetrievalManager.class);
-        when(crawlerSpy.createManager()).thenReturn(mockedManager);
-
     }
 
     @Test
@@ -46,13 +44,7 @@ public class CrawlerTest {
         urls.add("a;skdfasdfj");
         urls.add("aasd;skdfj");
         urls.add("a;skasdfdfj");
-
-        int expectedNumofCalls = urls.size();
-
-
         crawlerSpy.crawl(urls, mockedQuery);
-        verify(mockedManager, times(expectedNumofCalls)).addJob(anyString(), anyString(), anyString());
-        verify(mockedManager).shutDownWhenFinished();
     }
 
     @Test
@@ -60,25 +52,7 @@ public class CrawlerTest {
         Query mockedQuery = mock(Query.class);
         ArrayList<String> urls = new ArrayList<String>();
         int expectedNumofCalls = 0;
-        HttpRetrievalManager mockedManager = mock(HttpRetrievalManager.class);
-
-
-        when(crawlerSpy.createManager()).thenReturn(mockedManager);
-
         crawlerSpy.crawl(urls, mockedQuery);
-        verify(mockedManager, times(expectedNumofCalls)).addJob(anyString(), anyString(), anyString());
-        verify(mockedManager).shutDownWhenFinished();
-    }
-
-    @Test
-    public void testGetHeader() {
-        Query mockedQuery = mock(Query.class);
-        when(mockedQuery.getQueryString()).thenReturn("queryInfo");
-        when(crawlerSpy.getCurrentTimestamp()).thenReturn(1000000000l);
-        String result = crawlerSpy.getHeader("url", mockedQuery);
-        assertEquals("<meta property=\"atc:result-url\" content=\"url\">\n" +
-                    "<meta property=\"atc:retrieval-timestamp\" content=\"1000000000\">\n" +
-                    "<meta property=\"atc:query-info\" content=\"queryInfo\">\n", result);
     }
 
 }

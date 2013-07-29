@@ -1,10 +1,10 @@
 
 define([
     'flight/lib/component',
+    './edit/dropdown',
     'service/ucd',
-    'videojs',
     'util/video/scrubber',
-    'tpl!util/video/video',
+    'underscore',
     'tpl!./artifactDetails',
     'tpl!./entityDetails',
     'tpl!./entityToEntityRelationshipDetails',
@@ -14,10 +14,10 @@ define([
     'tpl!./style'
 ], function(
     defineComponent,
+    EditDropdown,
     UCD,
-    videojs,
     VideoScrubber,
-    videoTemplate,
+    _,
     artifactDetailsTemplate,
     entityDetailsTemplate,
     entityToEntityRelationshipDetailsTemplate,
@@ -27,7 +27,6 @@ define([
     styleTemplate) {
     'use strict';
 
-    videojs.options.flash.swf = "/libs/video.js/video-js.swf";
 
     var HIGHLIGHT_STYLES = [
             { name: 'None' },
@@ -51,7 +50,6 @@ define([
             moreMentionsSelector: '.mention-request',
             mentionArtifactSelector: '.mention-artifact',
             previewSelector: '.preview',
-            videoSelector: 'video',
             entityToEntityRelationshipSelector: '.entity-to-entity-relationship a.relationship-summary',
             entityDetailsMentionsSelector: '.entity-mentions'
         });
@@ -62,13 +60,114 @@ define([
                 highlightTypeSelector: this.onHighlightTypeClicked,
                 moreMentionsSelector: this.onRequestMoreMentions,
                 mentionArtifactSelector: this.onMentionArtifactSelected,
-                previewSelector: this.onPreviewClicked,
+                entitiesSelector: this.onEntityClicked,
                 entityToEntityRelationshipSelector: this.onEntityToEntityRelationshipClicked
             });
 
+            this.preventDropEventsFromPropagating();
+
             this.on('scrollstop', this.updateEntityAndArtifactDraggables);
+            this.on(document, 'termCreated', this.updateEntityAndArtifactDraggables);
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
+            this.on(document, 'loadRelatedSelected', this.onLoadRelatedSelected);
+
+            $(document).on('selectionchange', this.onSelectionChange.bind(this));
         });
+
+        // Ignore drop events so they don't propagate to the graph/map
+        this.preventDropEventsFromPropagating = function() {
+            this.$node.droppable({ accept: '.entity' });
+        };
+
+        this.onSelectionChange = function(e) {
+            var selection = window.getSelection(),
+                text = selection.type === 'Range' ? $.trim(selection.toString()) : '';
+
+            // Ignore selection events within the dropdown
+            if ( selection.type == 'None' || 
+                 $(selection.anchorNode).is('.underneath') ||
+                 $(selection.anchorNode).parents('.underneath').length ||
+                 $(selection.focusNode).is('.underneath') ||
+                 $(selection.focusNode).parents('.underneath').length) {
+                return;
+            }
+
+            // Ignore if selection hasn't change
+            if (text.length && text === this.previousSelection) {
+                return;
+            } else this.previousSelection = text;
+
+            // Remove all dropdowns if empty selection
+            if (selection.isCollapsed || text.length === 0) {
+                EditDropdown.teardownAll();
+            }
+
+            this.handleSelectionChange();
+        };
+
+        this.handleSelectionChange = _.debounce(function() {
+            EditDropdown.teardownAll();
+
+            var sel = window.getSelection(),
+                text = sel && sel.type === 'Range' ? $.trim(sel.toString()) : '';
+
+            if (text && text.length) {
+                var anchor = $(sel.anchorNode),
+                    focus = $(sel.focusNode),
+                    is = '.detail-pane .text';
+                
+                // Ignore outside content text
+                if (anchor.parents(is).length === 0 || focus.parents(is).length === 0) {
+                    return;
+                }
+
+                // Ignore if too long of selection
+                var wordLength = text.split(/\s+/).length;
+                if (wordLength > 10) {
+                    return;
+                }
+
+                // Find which way the selection was travelling (which is the
+                // furthest element in document
+                var end = focus, endOffset = sel.focusOffset;
+                if (text.indexOf(anchor[0].textContent.substring(sel.anchorOffset, 1)) > 
+                    text.indexOf(focus[0].textContent.substring(sel.focusOffset, 1))) {
+                    end = anchor;
+                    endOffset = sel.anchorOffset;
+                }
+
+                // Move to first space in end so as to not break up word when
+                // splitting
+                var i = Math.max(endOffset - 1, 0), character = '', whitespaceCheck = /^[^\s]$/;
+                do {
+                    character = end[0].textContent.substring(++i, i+1);
+                } while (whitespaceCheck.test(character));
+
+                end[0].splitText(i);
+                this.dropdownEntity(end, sel, text);
+            }
+        }, 500);
+
+        this.onEntityClicked = function(event) {
+            var $target = $(event.target);
+            if ($target.is('.underneath') || $target.parents('.underneath').length) {
+                return;
+            }
+            _.defer(this.dropdownEntity.bind(this), $target);
+        };
+
+        this.dropdownEntity = function(insertAfterNode, sel, text) {
+            EditDropdown.teardownAll();
+
+            var form = $('<div class="underneath"/>');
+            insertAfterNode.after(form);
+            EditDropdown.attachTo(form, {
+                sign: text,
+                selection: sel && { anchor:sel.anchorNode, focus:sel.focusNode, anchorOffset: sel.anchorOffset, focusOffset: sel.focusOffset },
+                mentionNode: insertAfterNode,
+                artifactKey: this.currentRowKey
+            });
+        };
 
         this.onEntityToEntityRelationshipClicked = function(evt, data) {
             var self = this;
@@ -109,6 +208,7 @@ define([
         };
 
         this.onMapCoordinatesClicked = function(evt, data) {
+            evt.preventDefault();
             var $target = $(evt.target);
             data = {
                 latitude: $target.attr('latitude'),
@@ -134,30 +234,6 @@ define([
             }
 
             this.useDefaultStyle = false;
-        };
-
-        this.onPreviewClicked = function(evt) {
-            if (this.select('videoSelector').length) {
-                return;
-            }
-
-            var self = this,
-                players = videojs.players,
-                video = $(videoTemplate({
-                    mp4Url: self.currentArtifact.rawUrl + '?playback=true&type=video/mp4',
-                    webmUrl: self.currentArtifact.rawUrl + '?playback=true&type=video/webm',
-                    posterUrl: self.currentArtifact.posterFrameUrl
-                }));
-
-
-            this.select('previewSelector').html(video);
-            Object.keys(players).forEach(function(player) {
-                if (players[player]) {
-                    players[player].dispose();
-                    delete players[player];
-                }
-            });
-            videojs(video[0], { autoplay:true }, function() { });
         };
 
 
@@ -193,7 +269,6 @@ define([
         };
 
         this.onSearchResultSelected = function(evt, data) {
-
             if ($.isArray(data) && data.length === 1) {
                 data = data[0];
             }
@@ -218,6 +293,107 @@ define([
                 return this.trigger(document, 'error', { message: message });
             }
         };
+
+       this.onLoadRelatedSelected = function (evt, data){
+            if ($.isArray (data) && data.length == 1){
+                data = data [0];
+            }
+            
+            if (!data || data.length == 0){
+                this.$node.empty ();
+                this.currentRowKey = null;
+            } else if (data.type == 'entity') {
+                this.onLoadRelatedEntitySelected (evt, data);
+            } else if (data.type == 'artifact'){
+                this.onLoadRelatedArtifactSelected (evt, data);
+            } else {
+                var message = 'Unhandled type: ' + data.type;
+                console.error (message);
+                return this.trigger (document, 'error', { message: message });
+            }
+       };
+
+        this.onLoadRelatedEntitySelected = function (evt, data){
+            var self = this;
+            new UCD ().getEntityById (data.rowKey, function (err, entity){
+                if (err){
+                    console.error ('Error', err);
+                    return self.trigger (document, 'error', { message: err.toString () });
+                }
+
+                self.loadRelatedEntities (data.rowKey, function (relatedEntities){
+                    var entityData = {};
+                    entityData.key = entity.key;
+                    entityData.relatedEntities = relatedEntities;
+                    self.onLoadRelatedItems (data, entityData.relatedEntities);
+                });
+            });
+        };
+
+        this.onLoadRelatedArtifactSelected = function (evt, data){
+            var self = this;
+            new UCD ().getArtifactById (data.rowKey, function (err, artifact){
+                if (err){
+                    console.error ('Error', err);
+                    return self.trigger (document, 'error', { message: err.toString () });
+                }
+
+                self.loadRelatedTerms (data.rowKey, function (relatedTerms){
+                    var termData = {};
+                    termData.key = artifact.key;
+                    termData.relatedTerms = relatedTerms;
+                    self.onLoadRelatedItems (data, termData.relatedTerms);
+                });
+            });
+        };
+
+        this.onLoadRelatedItems = function (originalData, nodes){
+            var xOffset = 100, yOffset = 100;
+            var x = originalData.originalPosition.x;
+            var y = originalData.originalPosition.y;
+            this.trigger (document, 'addNodes', {
+                nodes: nodes.map (function (relatedItem, index){
+                    if (index % 10 === 0) {
+                        y += yOffset;
+                    }
+                    return {
+                        title: relatedItem.title,
+                        rowKey: relatedItem.rowKey,
+                        subType: relatedItem.subType,
+                        type: relatedItem.type,
+                        graphPosition: {
+                            x: x + xOffset * (index % 10 + 1),
+                            y: y
+                        },
+                        selected: true
+                    };
+                })
+            });
+        };
+
+        this.loadRelatedEntities = function (key, callback){
+            var self = this;
+            new UCD().getRelatedEntitiesBySubject (key, function (err, relatedEntities){
+                if (err){
+                    console.error ('Error', err);
+                    return self.trigger (document, 'error', { message: err.toString () });
+                }
+                console.log ('Related Entities', relatedEntities);
+                callback (relatedEntities);
+            });
+        };
+
+        this.loadRelatedTerms = function (key, callback){
+            var self = this;
+            new UCD().getRelatedTermsFromArtifact (key, function (err, relatedTerms){
+                if (err){
+                    console.error ('Error', err);
+                    return self.trigger (document, 'error', { message: err.toString() });
+                }
+                console.log ('Related Terms', relatedTerms);
+                callback (relatedTerms);
+            });
+        }
 
         this.onMentionArtifactSelected = function(evt, data) {
             var $target = $(evt.target).parents('a');
@@ -299,6 +475,8 @@ define([
             this.openUnlessAlreadyOpen(data, function(finished) {
                 var self = this;
 
+                console.log(data);
+
                 new UCD().getEntityById(data.rowKey, function(err, entity) {
                     finished(!err);
 
@@ -309,7 +487,7 @@ define([
 
                     var offset = 0;
                     var limit = 2; // change later
-                    var url = 'entity/' + data.rowKey + '/mentions?offset=' + offset + '&limit=' + limit;
+                    var url = 'entity/' + encodeURIComponent(data.rowKey).replace(/\./g, '$2E$') + '/mentions?offset=' + offset + '&limit=' + limit;
                     var dataInfo = JSON.stringify({
                         'rowKey': entity.key.value,
                         'type': 'entity',
@@ -394,7 +572,7 @@ define([
 
         this.getRelationships = function(rowKey, callback) {
             var self = this;
-            new UCD().getEntityRelationshipsBySubject(rowKey, function(err, relationships) {
+            new UCD().getEntityRelationshipsBySubject(encodeURIComponent(rowKey).replace(/\./g, '$2E$'), function(err, relationships) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
@@ -419,23 +597,28 @@ define([
 
 
         this.updateEntityAndArtifactDraggables = function() {
-            var entities = this.select('entitiesSelector');
-            var artifacts = this.select('artifactsSelector');
+            var self = this,
+                entities = this.select('entitiesSelector'),
+                artifacts = this.select('artifactsSelector');
 
-            // Only create draggables for items in the visible scroll area
-            entities.add(artifacts).withinScrollable(this.$node).draggable({
-                helper:'clone',
-                revert: 'invalid',
-                revertDuration: 250,
-                scroll: false,
-                zIndex: 100
-            });
+            entities.add(artifacts)
+                // Filter list to those in visible scroll area
+                .withinScrollable(this.$node)
+                .draggable({
+                    helper:'clone',
+                    revertDuration: 250,
+                    scroll: false,
+                    zIndex: 100,
+                    distance: 10
+                });
         };
 
         this.setupVideo = function(artifact) {
             VideoScrubber.attachTo(this.select('previewSelector'), {
-                poster: artifact.posterFrameUrl,
-                frames: artifact.videoPreviewImageUrl
+                rawUrl: artifact.rawUrl,
+                posterFrameUrl: artifact.posterFrameUrl,
+                videoPreviewImageUrl: artifact.videoPreviewImageUrl,
+                allowPlayback: true
             });
         };
 

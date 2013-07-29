@@ -24,11 +24,11 @@ public class DictionarySearcherTest {
         searcher = new DictionarySearcher();
     }
 
-    @Test
-    public void testHttpRequestNormal() {
-        String response = searcher.httpRequest("http://google.com");
-        assertTrue("A standard http request returned an empty response", response.length() > 0);
-    }
+//    @Test
+//    public void testHttpRequestNormal() {
+//        String response = searcher.httpRequest("http://google.com");
+//        assertTrue("A standard http request returned an empty response", response.length() > 0);
+//    }
 
     @Test(expected = RuntimeException.class)
     public void testHttpRequestMalformedURL() throws Exception {

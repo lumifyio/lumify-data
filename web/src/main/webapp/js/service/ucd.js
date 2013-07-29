@@ -11,12 +11,15 @@ function(ServiceBase) {
 
     Ucd.prototype = Object.create(ServiceBase.prototype);
 
-    Ucd.prototype.getRelationships = function(entityIds, artifactIds, callback) {
-        return this._ajaxGet({
+    Ucd.prototype.getRelationships = function(oldEntityIds, newEntityIds, artifactIds, callback) {
+        return this._ajaxPost({
             url: '/entity/relationships',
             data: {
-                entityIds: entityIds,
-                artifactIds: artifactIds
+                json: JSON.stringify({
+                    oldEntityIds: oldEntityIds,
+                    newEntityIds: newEntityIds,
+                    artifactIds: artifactIds
+                }),
             }
         }, callback);
     };
@@ -61,7 +64,7 @@ function(ServiceBase) {
     };
 
     Ucd.prototype.getEntityById = function (id, callback) {
-        this._get("entity", id, callback);
+        this._get("entity", id.replace(/\./g, '$2E$'), callback);
     };
 
     Ucd.prototype.getEntityMentionsByRange = function (url, callback) {
@@ -70,6 +73,14 @@ function(ServiceBase) {
 
     Ucd.prototype.getEntityRelationshipsBySubject = function(id, callback) {
         return this._ajaxGet({ url: 'entity/' + id + '/relationships' }, callback);
+    }
+
+    Ucd.prototype.getRelatedEntitiesBySubject = function(id, callback) {
+        return this._ajaxGet({ url: 'entity/' + encodeURIComponent(id) + '/relatedEntities' }, callback);
+    }
+
+    Ucd.prototype.getRelatedTermsFromArtifact = function (id, callback){
+        return this._ajaxGet({url: 'artifact/' + encodeURIComponent(id) + '/relatedEntities'}, callback);
     }
 
     Ucd.prototype.getSpecificEntityRelationship = function (e1, e2, callback) {
@@ -120,8 +131,7 @@ function(ServiceBase) {
         }
 
         //maybe it's an object for future options stuff?
-        var i = encodeURIComponent(typeof id == "object" ? id.id : id).replace(/\./g, '%252e');
-
+        var i = encodeURIComponent(typeof id == "object" ? id.id : id);
         return this._ajaxGet({
             url: resource + "/" + i,
         }, callback);

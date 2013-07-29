@@ -239,7 +239,7 @@ var parse = exports.parse = function(str, options){
 
 var compile = exports.compile = function(str, options){
   options = options || {};
-  
+
   var input = JSON.stringify(str)
     , filename = options.filename
         ? JSON.stringify(options.filename)

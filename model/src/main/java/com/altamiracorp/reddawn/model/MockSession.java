@@ -1,7 +1,5 @@
 package com.altamiracorp.reddawn.model;
 
-import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
-
 import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -30,7 +28,7 @@ public class MockSession extends Session {
     }
 
     @Override
-    List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, QueryUser queryUser) {
+    public List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, QueryUser queryUser) {
         List<Row> rows = this.tables.get(tableName);
         ArrayList<Row> results = new ArrayList<Row>();
         for (Row row : rows) {
@@ -54,6 +52,21 @@ public class MockSession extends Session {
             }
         }
         Collections.sort(results, new RowKeyComparator());
+        return results;
+    }
+
+    @Override
+    List<Row> findByRowStartsWithList(String tableName, List<String> rowKeyPrefixes, QueryUser queryUser) {
+        List<Row> rows = this.tables.get(tableName);
+        ArrayList<Row> results = new ArrayList<Row>();
+        for (Row row : rows) {
+            String rowKey = row.getRowKey().toString();
+            for (String rowKeyPrefix : rowKeyPrefixes) {
+                if (rowKey.startsWith(rowKeyPrefix)) {
+                    results.add(row);
+                }
+            }
+        }
         return results;
     }
 
@@ -88,6 +101,11 @@ public class MockSession extends Session {
     }
 
     @Override
+    Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, QueryUser queryUser) {
+        return findByRowKey(tableName, rowKey, queryUser);
+    }
+
+    @Override
     List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
         List<Row> rows = this.tables.get(tableName);
         if (rows == null) {
@@ -104,10 +122,10 @@ public class MockSession extends Session {
 
         List<ColumnFamily> result = new ArrayList<ColumnFamily>();
         long count = 0L;
-        for(ColumnFamily colFam : (Collection<ColumnFamily>) matchedRow.getColumnFamilies()) {
-            if(Pattern.matches(colFamRegex, colFam.getColumnFamilyName())) {
-                if(count < colFamOffset + colFamLimit) {
-                    if(count >= colFamOffset) {
+        for (ColumnFamily colFam : (Collection<ColumnFamily>) matchedRow.getColumnFamilies()) {
+            if (Pattern.matches(colFamRegex, colFam.getColumnFamilyName())) {
+                if (count < colFamOffset + colFamLimit) {
+                    if (count >= colFamOffset) {
                         result.add(colFam);
                     }
                 } else {
@@ -171,5 +189,10 @@ public class MockSession extends Session {
     @Override
     public long getFileLength(String path) {
         return new File(path).length();
+    }
+
+    @Override
+    public List<String> getTableList() {
+        return new ArrayList<String>(this.tables.keySet());
     }
 }

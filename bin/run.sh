@@ -8,6 +8,12 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
+if [ "$1" != '' ]; then
+  directory=${1}
+else
+  directory=${DIR}/../data/import
+fi
+
 for step in $(ls ${DIR}/[0-9][0-9][0-9]_*.sh | sort); do
   echo -n $'\n\e[01;35m'
   echo $(basename ${step})
@@ -15,6 +21,10 @@ for step in $(ls ${DIR}/[0-9][0-9][0-9]_*.sh | sort); do
   printf '%*s\n' "${COLUMNS:-$(tput cols)}" | tr ' ' -
   echo -n $'\e[00;00m'
 
-  ${step}
+  if [ "${step}" == "${DIR}/100_FileImport.sh" ]; then
+    time ${step} $directory
+  else
+    time ${step}
+  fi
   [ $? -eq 0 ] || exit
 done

@@ -41,7 +41,7 @@ public class AppTest {
         App app = new App(servletConfig);
         app.get(path, handler);
         when(request.getMethod()).thenReturn("GET");
-        when(request.getPathInfo()).thenReturn(path);
+        when(request.getRequestURI()).thenReturn(path);
         app.handle(request, response);
         verify(handler).handle(eq(request), eq(response), any(HandlerChain.class));
     }
@@ -51,7 +51,7 @@ public class AppTest {
         App app = new App(servletConfig);
         app.get(path, handler);
         when(request.getMethod()).thenReturn("POST");
-        when(request.getPathInfo()).thenReturn(path);
+        when(request.getRequestURI()).thenReturn(path);
         when(servletContext.getNamedDispatcher(anyString())).thenReturn(requestDispatcher);
         app.handle(request, response);
         verify(requestDispatcher).forward(any(HttpServletRequest.class), any(HttpServletResponse.class));
@@ -68,7 +68,7 @@ public class AppTest {
         };
         app.post(path, handler);
         when(request.getMethod()).thenReturn("POST");
-        when(request.getPathInfo()).thenReturn(path);
+        when(request.getRequestURI()).thenReturn(path);
         try {
             app.handle(request, response);
             fail("exception should have been thrown");
@@ -82,7 +82,7 @@ public class AppTest {
         App app = new App(servletConfig);
         app.delete(path, TestHandler.class);
         when(request.getMethod()).thenReturn("DELETE");
-        when(request.getPathInfo()).thenReturn(path);
+        when(request.getRequestURI()).thenReturn(path);
         app.handle(request, response);
         verify(request).setAttribute("handled", "true");
     }
@@ -93,7 +93,7 @@ public class AppTest {
         Handler h2 = new TestHandler();
         app.get(path, h2, handler);
         when(request.getMethod()).thenReturn("GET");
-        when(request.getPathInfo()).thenReturn(path);
+        when(request.getRequestURI()).thenReturn(path);
         app.handle(request, response);
         verify(handler).handle(eq(request), eq(response), any(HandlerChain.class));
     }
@@ -103,7 +103,7 @@ public class AppTest {
         App app = new App(servletConfig);
         app.delete(path, TestHandler.class, TestHandler.class);
         when(request.getMethod()).thenReturn("DELETE");
-        when(request.getPathInfo()).thenReturn(path);
+        when(request.getRequestURI()).thenReturn(path);
         app.handle(request, response);
         verify(request, times(2)).setAttribute("handled", "true");
     }

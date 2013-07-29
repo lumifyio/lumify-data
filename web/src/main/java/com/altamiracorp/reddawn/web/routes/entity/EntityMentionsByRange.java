@@ -6,11 +6,11 @@ import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
-import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.web.utils.UrlUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -35,7 +35,7 @@ public class EntityMentionsByRange implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
-        String rowKey = UrlUtils.urlDecode((String) request.getAttribute("rowKey"));
+        String rowKey = ((String) request.getAttribute("rowKey")).replace("$2E$", ".");
         String[] params = UrlUtils.urlDecode(request.getQueryString()).split("&");
         Map<String, String> paramMap = new TreeMap<String, String>();
         for(String param : params) {

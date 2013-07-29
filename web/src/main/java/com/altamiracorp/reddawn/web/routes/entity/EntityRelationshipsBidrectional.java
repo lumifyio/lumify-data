@@ -4,10 +4,8 @@ import com.altamiracorp.reddawn.model.Session;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndexRepository;
 import com.altamiracorp.reddawn.ucd.statement.Statement;
 import com.altamiracorp.reddawn.ucd.statement.StatementRepository;
-import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
-import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
@@ -33,7 +31,7 @@ public class EntityRelationshipsBidrectional implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         Session session = this.app.getRedDawnSession(request).getModelSession();
-        String rowKey = Pattern.quote(UrlUtils.urlDecode((String) request.getAttribute("rowKey")));
+        String rowKey = Pattern.quote(((String) request.getAttribute("rowKey")).replace("$2E$", "."));
         List<Statement> statements = statementRepository.findByRowKeyRegex(session, "(" + rowKey + ".*)|(.*" + rowKey + ")");
 
         JSONObject json = new JSONObject();

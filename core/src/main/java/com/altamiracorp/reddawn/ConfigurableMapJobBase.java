@@ -53,7 +53,7 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
     }
 
     @Override
-    protected void processOptions(CommandLine cmd) {
+    protected void processOptions(CommandLine cmd) throws Exception {
         super.processOptions(cmd);
 
         if (hasConfigurableClassname()) {
@@ -87,14 +87,14 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
         }
         job.setJarByClass(this.getClass());
 
-        job.setInputFormatClass(getInputFormatClassAndInit(job));
-
         if (this.config != null) {
             for (String config : this.config) {
                 String[] parts = config.split("=", 2);
                 job.getConfiguration().set(parts[0], parts[1]);
             }
         }
+
+        job.setInputFormatClass(getInputFormatClassAndInit(job));
 
         job.setMapOutputKeyClass(Key.class);
         job.setMapOutputValueClass(Value.class);
@@ -121,11 +121,6 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
     protected abstract Class<? extends Mapper> getMapperClass(Job job, Class clazz);
 
     public static RedDawnSession createRedDawnSession(Mapper.Context context) {
-        Configuration cfg = context.getConfiguration();
-        Properties properties = new Properties();
-        for (Map.Entry<String, String> entry : cfg) {
-            properties.setProperty(entry.getKey(), entry.getValue());
-        }
-        return RedDawnSession.create(properties);
+        return RedDawnSession.create(context);
     }
 }

@@ -16,7 +16,16 @@ else
   manifests_dir=$(mount | awk '/manifests.*vboxsf/ {print $1}')
 fi
 
-module_path=$(echo ${module_dirs} | sed -e 's/ /:/g')
-manifest=red-dawn.pp
+manifest=${manifests_dir}/dev.pp
+if [ $# -gt 0 ]; then
+  echo "$1" | grep '\.pp$'
+  if [ $? -eq 0 ]; then
+    manifest="$1"
+    shift
+  fi
+fi
 
-sudo puppet apply --modulepath ${module_path} ${manifests_dir}/${manifest} $*
+module_path=$(echo ${module_dirs} | sed -e 's/ /:/g')
+
+echo sudo puppet apply --hiera_config /vagrant/puppet/hiera-dev.yaml --modulepath ${module_path} ${manifest} $*
+sudo puppet apply --hiera_config /vagrant/puppet/hiera-dev.yaml --modulepath ${module_path} ${manifest} $*

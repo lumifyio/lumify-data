@@ -6,17 +6,27 @@ define([
     './renderer',
     'tpl!./graph',
     'util/throttle',
-    'util/previews'
-], function(defineComponent, cytoscape, Renderer, template, throttle, previews) {
+    'util/previews',
+    'util/retina'
+], function(
+    defineComponent,
+    cytoscape,
+    Renderer,
+    template,
+    throttle,
+    previews,
+    retina) {
     'use strict';
-
-    var FIT_PADDING = 50;
-    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
     return defineComponent(Graph);
 
     function Graph() {
         var callbackQueue = [];
+        var LAYOUT_OPTIONS = {
+            // Customize layout options
+            random: { padding: 10 },
+            arbor: { friction: 0.6, repulsion: 5000 * retina.devicePixelRatio, targetFps: 60, stiffness: 300 }
+        };
 
         this.defaultAttrs({
             cytoscapeContainerSelector: '.cytoscape-container',
@@ -43,7 +53,30 @@ define([
             var options = $.extend({ fit:false }, opts);
             var addedNodes = [];
             var self = this;
+
             this.cy(function(cy) {
+                var existingNodes = $.map(cy.nodes(), function (node){
+                    node.lock();
+                });
+                var opts = $.extend({
+                    name:'grid',
+                    fit: false,
+                    stop: function() {
+                        $.map(cy.nodes(), function (node) {
+                            node.unlock();
+                        });
+                        var updates = $.map(cy.nodes(), function(node) {
+                            return {
+                                rowKey: node.data('rowKey'),
+                                graphPosition: retina.pixelsToPoints(node.position())
+                            };
+                        });
+                        self.trigger(document, 'updateNodes', { nodes:updates });
+                    }
+                }, LAYOUT_OPTIONS['grid'] || {});
+
+                cy.layout(opts);
+
                 nodes.forEach(function(node) {
                     var title = node.title;
                     if (title.length > 15) {
@@ -59,16 +92,17 @@ define([
                             subType: node.subType,
                             type: node.type,
                             title: title,
-                            originalTitle: node.title
-                        }
+                            originalTitle: node.title,
+                        },
+                        selected: !!node.selected
                     };
 
                     var needsUpdate = false;
                     if (node.graphPosition) {
-                        cyNodeData.position = self.pointsToPixels(node.graphPosition);
+                        cyNodeData.position = retina.pointsToPixels(node.graphPosition);
                     } else if (node.dropPosition) {
                         var offset = self.$node.offset();
-                        cyNodeData.renderedPosition = self.pointsToPixels({
+                        cyNodeData.renderedPosition = retina.pointsToPixels({
                             x: node.dropPosition.x - offset.left,
                             y: node.dropPosition.y - offset.top
                         });
@@ -80,12 +114,12 @@ define([
                     if (needsUpdate) {
                         addedNodes.push({
                             rowKey: node.rowKey,
-                            graphPosition: self.pixelsToPoints(cyNode.position())
+                            graphPosition: retina.pixelsToPoints(cyNode.position())
                         });
                     }
 
                     if (node.type === 'artifact') {
-                        previews.generatePreview(node.rowKey, { width:178 * pixelScale }, function(dataUri) {
+                        previews.generatePreview(node.rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
                             if (dataUri) {
                                 cyNode.css('background-image', dataUri);
                             }
@@ -94,7 +128,7 @@ define([
                 });
 
                 if (options.fit && cy.nodes().length) {
-                    cy.fit(undefined, FIT_PADDING);
+                    this.fit();
                 }
 
                 if (addedNodes.length) {
@@ -135,7 +169,6 @@ define([
 
         this.onNodesUpdated = function(evt, data) {
             var self = this;
-            
             this.cy(function(cy) {
                 data.nodes
                     .filter(function(updatedNode) { return updatedNode.graphPosition; })
@@ -145,7 +178,7 @@ define([
                                 return node.data('rowKey') === updatedNode.rowKey;
                             })
                             .each(function(idx, node) {
-                                node.position( self.pointsToPixels(updatedNode.graphPosition) );
+                                node.position( retina.pointsToPixels(updatedNode.graphPosition) );
                             });
                     });
             });
@@ -159,6 +192,7 @@ define([
                 func = functionName && this[functionName],
                 args = target.data('args');
 
+
             if (func) {
                 if (!args) {
                     args = [];
@@ -171,6 +205,7 @@ define([
             setTimeout(function() {
                 target.blur();
                 this.select('contextMenuSelector').blur().parent().removeClass('open');
+                this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
             }.bind(this), 0);
         };
 
@@ -180,36 +215,44 @@ define([
             });
         };
 
+        this.onContextMenuLoadRelatedItems = function () {
+            var menu = this.select('nodeContextMenuSelector');
+            var currentNodeRK = menu.data('currentNodeRowKey');
+            var position = {x: menu.data ('currentNodePositionX'), y: menu.data ('currentNodePositionY')};
+            var currentNodeOriginalPosition = retina.pixelsToPoints(position);
+            var data = { rowKey : currentNodeRK,
+                         originalPosition: currentNodeOriginalPosition,
+                         type : menu.data("currentNodeType")};
+            this.trigger (document, 'loadRelatedSelected', data);
+        };
+
         this.onContextMenuFitToWindow = function() {
+            this.fit();
+        };
+
+
+        this.fit = function() {
+            this.trigger(document, 'requestGraphPadding');
+        };
+
+        this.onGraphPadding = function(e, data) {
             this.cy(function(cy) {
                 if( cy.elements().size() === 0 ){
                     cy.reset();
                 } else {
-                    cy.fit(undefined, FIT_PADDING);
+                    var border = 20;
+                    data.padding.r += this.select('graphToolsSelector').outerWidth(true);
+                    data.padding.l += border;
+                    data.padding.t += border;
+                    data.padding.b += border;
+                    cy.fit(undefined, data.padding);
                 }
-                
-                var $container = this.select('cytoscapeContainerSelector');
-                var length = Math.max( $container.width(), $container.height() );
-                var zoom = cy.zoom() * (length - FIT_PADDING * 2)/length;
-
-                cy.zoom({
-                    level: zoom,
-                    renderedPosition: {
-                        x: $container.width()/2,
-                        y: $container.height()/2
-                    }
-                });
-
             });
         };
+
         this.onContextMenuLayout = function(layout, opts) {
             var self = this;
             var options = $.extend({onlySelected:false}, opts);
-            var LAYOUT_OPTIONS = {
-                // Customize layout options
-                random: { padding: FIT_PADDING },
-                arbor: { friction: 0.6, repulsion: 5000 * pixelScale, targetFps: 60, stiffness: 300 }
-            };
             this.cy(function(cy) {
 
                 var unselected;
@@ -228,7 +271,7 @@ define([
                         var updates = $.map(cy.nodes(), function(node) {
                             return {
                                 rowKey: node.data('rowKey'),
-                                graphPosition: self.pixelsToPoints(node.position())
+                                graphPosition: retina.pixelsToPoints(node.position())
                             };
                         });
                         self.trigger(document, 'updateNodes', { nodes:updates });
@@ -246,7 +289,21 @@ define([
         });
 
         this.graphContextTap = function(event) {
-            var menu = this.select('contextMenuSelector');
+            var menu;
+            if (event.cyTarget == event.cy){
+                menu = this.select ('contextMenuSelector');
+                this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
+            } else {
+                menu = this.select ('nodeContextMenuSelector');
+                menu.data("currentNodeRowKey",event.cyTarget.data('rowKey'));
+                menu.data("currentNodePositionX", event.cyTarget.position ('x'));
+                menu.data("currentNodePositionY", event.cyTarget.position ('y'));
+                menu.data("currentNodeType", event.cyTarget.data('type'));
+                if (event.cy.nodes().filter(':selected').length > 1) {
+                    return false;
+                }
+                this.select('contextMenuSelector').blur().parent().removeClass('open');
+            }
 
             // Show/Hide the layout selection menu item
             if (event.cy.nodes().filter(':selected').length) {
@@ -254,25 +311,25 @@ define([
             } else {
                 menu.find('.layout-multi').hide();
             }
-            
+
             // TODO: extract this context menu viewport fitting
             var offset = this.$node.offset(),
-                padding = 10,
-                windowSize = { x: $(window).width(), y: $(window).height() },
-                menuSize = { x: menu.outerWidth(), y: menu.outerHeight() },
-                submenu = menu.find('li.dropdown-submenu ul'),
-                submenuSize = menuSize,// { x:submenu.outerWidth(), y:submenu.outerHeight() },
-                placement = {
-                    left: Math.min( 
-                        event.originalEvent.pageX - offset.left,
-                        windowSize.x - offset.left - menuSize.x - padding
-                    ),
-                    top: Math.min( 
-                        event.originalEvent.pageY - offset.top, 
-                        windowSize.y - offset.top - menuSize.y - padding
-                    )
-                },
-                submenuPlacement = { left:'100%', right:'auto', top:0, bottom:'auto' };
+            padding = 10,
+            windowSize = { x: $(window).width(), y: $(window).height() },
+            menuSize = { x: menu.outerWidth(), y: menu.outerHeight() },
+            submenu = menu.find('li.dropdown-submenu ul'),
+            submenuSize = menuSize,// { x:submenu.outerWidth(), y:submenu.outerHeight() },
+            placement = {
+                left: Math.min(
+                    event.originalEvent.pageX - offset.left,
+                    windowSize.x - offset.left - menuSize.x - padding
+                ),
+                top: Math.min(
+                    event.originalEvent.pageY - offset.top,
+                    windowSize.y - offset.top - menuSize.y - padding
+                )
+            },
+            submenuPlacement = { left:'100%', right:'auto', top:0, bottom:'auto' };
 
             if ((placement.left + menuSize.x + submenuSize.x + padding) > windowSize.x) {
                 submenuPlacement = $.extend(submenuPlacement, { right: '100%', left:'auto' });
@@ -348,7 +405,7 @@ define([
             this.cy(function(cy) {
                 var nodes = event.cyTarget.selected() ? cy.nodes().filter(':selected') : event.cyTarget;
                 this.grabbedNodes = nodes.each(function() {
-                    var p = self.pixelsToPoints(this.position());
+                    var p = retina.pixelsToPoints(this.position());
                     this.data('originalPosition', { x:p.x, y:p.y });
                     this.data('freed', false );
                 });
@@ -363,7 +420,7 @@ define([
                 nodes = this.grabbedNodes;
 
             nodes.each(function(i, e) {
-                var p = self.pixelsToPoints(this.position());
+                var p = retina.pixelsToPoints(this.position());
                 if ( !e.data('freed') ) {
                     dup = false;
                 }
@@ -375,11 +432,10 @@ define([
                 return;
             }
 
-
             // If the user didn't drag more than a few pixels, select the
             // object, it could be an accidental mouse move
             var target = event.cyTarget, 
-                p = self.pixelsToPoints(target.position()),
+                p = retina.pixelsToPoints(target.position()),
                 originalPosition = target.data('originalPosition'),
                 dx = p.x - originalPosition.x,
                 dy = p.y - originalPosition.y,
@@ -391,7 +447,6 @@ define([
                     return;
                 }
             }
-
 
             // Cache these positions since data attr could be overidden
             // then submit to undo manager
@@ -438,6 +493,9 @@ define([
         this.onWorkspaceLoaded = function(evt, workspace) {
             this.resetGraph();
             if (workspace.data && workspace.data.nodes) {
+                workspace.data.nodes.forEach(function(node){
+                    node.selected = false;
+                });
                 this.addNodes(workspace.data.nodes, { fit:true });
             }
 
@@ -446,34 +504,27 @@ define([
 
         this.onRelationshipsLoaded = function(evt, relationshipData) {
             this.cy(function(cy) {
-                cy.edges().remove();
-                relationshipData.relationships.forEach(function(relationship) {
-                    cy.add({
-                        group: "edges",
-                        data: {
-                            rowKey: relationship.from + "->" + relationship.to,
-                            relationshipType: relationship.relationshipType,
-                            source: relationship.from,
-                            target: relationship.to,
-                            type: 'relationship'
-                        }
+                if (relationshipData.relationships != null){
+                    var relationshipEdges = [];
+
+                    relationshipData.relationships.forEach(function(relationship) {
+                        relationshipEdges.push ({
+                            group: "edges",
+                            data: {
+                                rowKey: relationship.from + "->" + relationship.to,
+                                relationshipType: relationship.relationshipType,
+                                source: relationship.from,
+                                target: relationship.to,
+                                type: 'relationship',
+                                id: (relationship.from < relationship.to ? relationship.from + relationship.to : relationship.to + relationship.from)
+                            },
+                            classes: (relationship.bidirectional ? 'bidirectional' : '')
+                        });
+
                     });
-                });
+                    cy.add(relationshipEdges);
+                }
             });
-        };
-
-        this.pixelsToPoints = function(position) {
-            return {
-                x: position.x / pixelScale,
-                y: position.y / pixelScale
-            };
-        };
-
-        this.pointsToPixels = function(position) {
-            return {
-                x: position.x * pixelScale,
-                y: position.y * pixelScale
-            };
         };
 
         this.after('initialize', function() {
@@ -482,20 +533,20 @@ define([
 
 
             this.select('contextMenuItemSelector').on('click', this.onContextMenu.bind(this));
-
+            this.select('nodeContextMenuSelector').on('click', this.onContextMenu.bind(this));
 
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'nodesAdded', this.onNodesAdded);
             this.on(document, 'nodesDeleted', this.onNodesDeleted);
             this.on(document, 'nodesUpdated', this.onNodesUpdated);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
+            this.on(document, 'graphPaddingResponse', this.onGraphPadding);
 
             cytoscape("renderer", "red-dawn", Renderer);
-            cytoscape.style.types.nodeShape.enums.push('none');
             cytoscape({
                 showOverlay: false,
-                minZoom: 1 / 3,
-                maxZoom: 3,
+                minZoom: 1 / 4,
+                maxZoom: 4,
                 container: this.select('cytoscapeContainerSelector').css({height:'100%'})[0],
                 renderer: {
                     name: 'red-dawn'
@@ -509,8 +560,8 @@ define([
                   .selector('node.location,node.place')
                     .css({
                       'background-image': '/img/pin@2x.png',
-                      'width': 35 * pixelScale,
-                      'height': 35 * pixelScale,
+                      'width': 35 * retina.devicePixelRatio,
+                      'height': 35 * retina.devicePixelRatio,
                       'border-color': 'white',
                       'shape': 'none',
                       'border-width': 0
@@ -524,17 +575,17 @@ define([
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'rectangle',
-                      'width': 60 * pixelScale,
-                      'height': 60 * 1.2 * pixelScale,
+                      'width': 60 * retina.devicePixelRatio,
+                      'height': 60 * 1.2 * retina.devicePixelRatio,
                       'border-color': '#ccc',
                       'border-width': 1
                     })
                   .selector('node.video')
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
-                      'shape': 'rectangle',
-                      'width': 60 * 1.3 * pixelScale,
-                      'height': 60 * pixelScale,
+                      'shape': 'movieStrip',
+                      'width': 60 * 1.3 * retina.devicePixelRatio,
+                      'height': 60 * retina.devicePixelRatio,
                       'border-color': '#ccc',
                       'border-width': 1
                     })
@@ -542,18 +593,18 @@ define([
                     .css({
                       'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                       'shape': 'rectangle',
-                      'width': 60 * 1.3 * pixelScale,
-                      'height': 60 * pixelScale,
+                      'width': 60 * 1.3 * retina.devicePixelRatio,
+                      'height': 60 * retina.devicePixelRatio,
                       'border-color': '#ccc',
                       'border-width': 1
                     })
                   .selector('node')
                     .css({
-                      'width': 30 * pixelScale,
-                      'height': 30 * pixelScale,
+                      'width': 30 * retina.devicePixelRatio,
+                      'height': 30 * retina.devicePixelRatio,
                       'content': 'data(title)',
                       'font-family': 'helvetica',
-                      'font-size': 18 * pixelScale,
+                      'font-size': 18 * retina.devicePixelRatio,
                       'text-outline-width': 2,
                       'text-outline-color': 'white',
                       'text-valign': 'bottom',
@@ -570,6 +621,12 @@ define([
                     .css({
                       'width': 2,
                       'target-arrow-shape': 'triangle'
+                    })
+                  .selector('.bidirectional')
+                    .css ({
+                      'width': 2,
+                      'target-arrow-shape': 'triangle',
+                      'source-arrow-shape': 'triangle'
                     }),
 
                 ready: function(){
@@ -589,12 +646,18 @@ define([
 
                     $(container).cytoscapePanzoom({
                         minZoom: options.minZoom,
-                        maxZoom: options.maxZoom,
-                        fitPadding: FIT_PADDING
+                        maxZoom: options.maxZoom
                     }).focus().on({
                         click: function() { this.focus(); },
                         keydown: self.onKeyHandler.bind(self),
                         keyup: self.onKeyHandler.bind(self)
+                    });
+
+                    // Override "Fit to Window" button and call our own
+                    $('.ui-cytoscape-panzoom-reset').on('mousedown', function(e) {
+						if (e.button !== 0) return;
+                        e.stopPropagation();
+                        self.fit();
                     });
 
                     var panZoom = self.select('graphToolsSelector');
@@ -618,6 +681,11 @@ define([
                 done: function() {
                     self.cyLoaded = true;
                     self.drainCallbackQueue();
+
+                    
+                    setTimeout(function() {
+                        self.fit();
+                    }, 100);
                 }
             });
         });

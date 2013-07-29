@@ -115,6 +115,15 @@ public class VideoTranscript {
             if (result != 0) {
                 return result;
             }
+            if (time.getEnd() == null && timeOther.getEnd() == null) {
+                return 0;
+            }
+            if (time.getEnd() == null) {
+                return -1;
+            }
+            if (timeOther.getEnd() == null) {
+                return 1;
+            }
             return time.getEnd().compareTo(timeOther.getEnd());
         }
     }

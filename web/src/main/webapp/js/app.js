@@ -11,8 +11,9 @@ define([
     'map/map',
     'service/workspace',
     'service/ucd',
+    'util/keyboard',
     'util/undoManager'
-], function(appTemplate, defineComponent, Menubar, Search, Workspaces, Users, Graph, Detail, Map, WorkspaceService, UcdService, undoManager) {
+], function(appTemplate, defineComponent, Menubar, Search, Workspaces, Users, Graph, Detail, Map, WorkspaceService, UcdService, Keyboard, undoManager) {
     'use strict';
 
     return defineComponent(App);
@@ -37,7 +38,6 @@ define([
             graphSelector: '.graph-pane',
             mapSelector: '.map-pane',
             detailPaneSelector: '.detail-pane',
-            modeSelectSelector: '.mode-select',
             droppableSelector: '.graph-pane, .map-pane'
         });
 
@@ -66,6 +66,7 @@ define([
             this.on(document, 'message', this.onMessage);
             this.on(document, 'searchResultSelected', this.onSearchResultSelection);
             this.on(document, 'syncStarted', this.onSyncStarted);
+            this.on(document, 'requestGraphPadding', this.onRequestGraphPadding);
 
             var content = $(appTemplate({})),
                 menubarPane = content.filter('.menubar-pane'),
@@ -83,6 +84,7 @@ define([
             Graph.attachTo(graphPane);
             Detail.attachTo(detailPane.find('.content'));
             Map.attachTo(mapPane);
+            Keyboard.attachTo(document);
 
             // Configure splitpane resizing
             resizable(searchPane, 'e');
@@ -107,6 +109,10 @@ define([
             this.on(document, 'workspaceSave', this.onSaveWorkspace);
             this.on(document, 'workspaceDeleted', this.onWorkspaceDeleted);
 
+            this.on(document, 'mapCenter', this.onMapAction);
+
+            this.on(document, 'changeView', this.onChangeView);
+
             this.loadActiveWorkspace();
             this.setupWindowResizeTrigger();
         });
@@ -122,11 +128,62 @@ define([
             });
         };
 
+        this.onMapAction = function(event, data) {
+            this.trigger(document, 'changeView', { view: 'map' });
+        };
+
+        this.onChangeView = function(event, data) {
+            var view = data && data.view;
+
+            var pane = view && this.select(view + 'Selector');
+            if (pane && pane.hasClass('visible')) {
+                return;
+            } else if (pane) {
+                this.trigger(document, 'menubarToggleDisplay', { name: pane.data(DATA_MENUBAR_NAME) });
+            } else {
+                console.log("View " + data.view + " isn't supported");
+            }
+        };
+
+        this.onRequestGraphPadding = function() {
+            var searchWidth = this.select('searchSelector').filter('.visible').outerWidth(true) || 0,
+                searchResultsWidth = searchWidth > 0 ? $('.search-results:visible').outerWidth(true) || 0 : 0,
+                detailWidth = this.select('detailPaneSelector').filter('.visible').outerWidth(true) || 0,
+                padding = {
+                    l:searchWidth + searchResultsWidth, r:detailWidth,
+                    t:0, b:0
+                };
+
+            this.trigger(document, 'graphPaddingResponse', { padding: padding });
+        };
+
         this.setupDroppable = function() {
 
-            this.select('droppableSelector').droppable({
+            var enabled = false,
+                droppable = this.select('droppableSelector');
 
+            // Other droppables might be on top of graph, listen to 
+            // their over/out events and ignore drops if the user hasn't
+            // dragged outside of them. Can't use greedy option since they are
+            // absolutely positioned
+            $(document).on('dropover dropout', function(e, ui) {
+                if ($(e.target).closest(droppable).length === 0) {
+                    enabled = e.type === 'dropout';
+                }
+            });
+
+            droppable.droppable({
+                accept: function(item) {
+                    $(item).draggable('option', 'revert', function() {
+                        return !enabled;
+                    });
+                    return true;
+                },
                 drop: function( event, ui ) {
+
+                    // Early exit if should leave to a different droppable
+                    if (!enabled) return;
+
                     var draggable = ui.draggable,
                         droppable = $(event.target);
 
@@ -292,10 +349,29 @@ define([
 
         this.onAddNodes = function(evt, data) {
             this.workspace(function(ws) {
-
-                data.nodes.forEach(function(node) {
-                    ws.data.nodes.push(node);
+                var allNodes = this.workspaceData.data.nodes;
+                var oldNodes = [];
+                allNodes.forEach (function (allNode){
+                    var isOldNode = true;
+                    data.nodes.forEach (function (dataNode){
+                        if (dataNode.rowKey == allNode.rowKey){
+                            isOldNode = false;
+                        }
+                    });
+                    if (isOldNode){
+                        oldNodes.push (allNode);
+                    }
                 });
+
+                var added = [];
+                data.nodes.forEach(function(node) {
+                    if (ws.data.nodes.filter(function(n) { return n.rowKey === node.rowKey; }).length === 0) {
+                        added.push(node);
+                        ws.data.nodes.push(node);
+                    }
+                });
+
+                if (added.length === 0) return;
 
                 if(!data.noUndo) {
                     var dataClone = JSON.parse(JSON.stringify(data));
@@ -312,9 +388,10 @@ define([
                 }
 
                 this.setWorkspaceDirty();
-                this.refreshRelationships();
 
-                this.trigger(document, 'nodesAdded', data);
+                this.refreshRelationships (oldNodes, data.nodes);
+
+                this.trigger(document, 'nodesAdded', { nodes:added } );
             });
         };
 
@@ -361,11 +438,29 @@ define([
             });
         };
 
-        this.refreshRelationships = function() {
+        this.refreshRelationships = function(oldNodes, newNodes) {
             var self = this;
+            var oldEntityIds = [];
+            var newEntityIds = [];
             var entityIds = this.getEntityIds();
             var artifactIds = this.getArtifactIds();
-            this.ucdService.getRelationships(entityIds, artifactIds, function(err, relationships) {
+            if (oldNodes == null && newNodes == null) {
+                 newEntityIds = entityIds;
+                 oldEntityIds = [];
+            } else {
+                newNodes.forEach (function(newNode){
+                    if (newNode.type == 'entity'){
+                        newEntityIds.push (newNode.rowKey);
+                    }
+                });
+                oldNodes.forEach (function(oldNode){
+                    if (oldNode.type == 'entity'){
+                        oldEntityIds.push (oldNode.rowKey);
+                    }
+                });
+            }
+
+            this.ucdService.getRelationships(oldEntityIds, newEntityIds, artifactIds, function(err, relationships) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
@@ -416,6 +511,13 @@ define([
                 ]);
             }
 
+            if (data.name == 'search' && !pane.hasClass('visible')) {
+                var self = this;
+                pane.one('transitionend', function() {
+                    self.trigger(document, 'focusSearchField');
+                });
+            }
+
             pane.toggleClass('visible');
         };
 
@@ -426,6 +528,7 @@ define([
         };
 
         this.onSearchResultSelection = function(e, data) {
+            console.log(data);
             var detailPane = this.select('detailPaneSelector');
             var minWidth = 100;
             var width = 0;
@@ -463,7 +566,6 @@ define([
             ]);
             // TODO: fix this smellyness
             $('.search-results').hide();
-            this.trigger('detailPaneResize', { width:0, syncToRemote:false });
 
             var graph = this.select('graphSelector');
             if ( ! graph.hasClass('visible') ) {
@@ -482,6 +584,7 @@ define([
 
                     if ( !name ) {
                         if ( isDetail ) {
+                            self.trigger('detailPaneResize', { width:0, syncToRemote:false });
                             return detailPane.addClass('collapsed').removeClass('visible');
                         }
                         return console.warn('No ' + DATA_MENUBAR_NAME + ' attribute, unable to collapse');

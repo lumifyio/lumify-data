@@ -42,7 +42,7 @@ public class RouterTest {
     public void testSimpleRoute() throws Exception {
         router.addRoute(Method.GET, path, handler);
         when(request.getMethod()).thenReturn(Method.GET.toString());
-        when(request.getPathInfo()).thenReturn(path);
+        when(request.getRequestURI()).thenReturn(path);
         router.route(request, response);
         verify(handler).handle(eq(request), eq(response), any(HandlerChain.class));
     }
@@ -51,7 +51,7 @@ public class RouterTest {
     public void testRouteWithComponent() throws Exception {
         router.addRoute(Method.GET, path + "/{id}/text", handler);
         when(request.getMethod()).thenReturn(Method.GET.toString());
-        when(request.getPathInfo()).thenReturn(path + "/25/text");
+        when(request.getRequestURI()).thenReturn(path + "/25/text");
         router.route(request, response);
         verify(handler).handle(eq(request), eq(response), any(HandlerChain.class));
         verify(request).setAttribute("id", "25");
@@ -61,7 +61,7 @@ public class RouterTest {
     public void testRouteMissingDueToMethod() throws Exception {
         router.addRoute(Method.GET, path, handler);
         when(request.getMethod()).thenReturn(Method.POST.toString());
-        when(request.getPathInfo()).thenReturn(path);
+        when(request.getRequestURI()).thenReturn(path);
         when(servletContext.getNamedDispatcher(anyString())).thenReturn(requestDispatcher);
         router.route(request, response);
         verify(requestDispatcher).forward(any(HttpServletRequest.class), any(HttpServletResponse.class));
@@ -71,7 +71,7 @@ public class RouterTest {
     public void testRouteMissingDueToPath() throws Exception {
         router.addRoute(Method.GET, path, handler);
         when(request.getMethod()).thenReturn(Method.GET.toString());
-        when(request.getPathInfo()).thenReturn(path + "extra");
+        when(request.getRequestURI()).thenReturn(path + "extra");
         when(servletContext.getNamedDispatcher(anyString())).thenReturn(requestDispatcher);
         router.route(request, response);
         verify(requestDispatcher).forward(any(HttpServletRequest.class), any(HttpServletResponse.class));
@@ -82,7 +82,7 @@ public class RouterTest {
         Handler h2 = new TestHandler();
         router.addRoute(Method.GET, path, h2, handler);
         when(request.getMethod()).thenReturn(Method.GET.toString());
-        when(request.getPathInfo()).thenReturn(path);
+        when(request.getRequestURI()).thenReturn(path);
         router.route(request, response);
         verify(handler).handle(eq(request), eq(response), any(HandlerChain.class));
     }

@@ -62,27 +62,28 @@ public class UtilsTest {
         assertEquals("&bestIntern=jeff&favoriteIntern=sam", result);
     }
 
-    @Test
-    public void testGetWebpageNormal() throws Exception {
-        String result = SearchEngine.getWebpage("http://www.google.com");
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testGetWebpageInvalidUrl() throws Exception {
-        String result = SearchEngine.getWebpage("http://www.google.com/as;dlfijas%20;ldigjb");
-        assertNull(result);
-    }
-
-    @Test
-    public void testParseRSSNormal() throws Exception {
-        ArrayList<String> results = SearchEngine.parseRSS(new URL("http://rss.cnn.com/rss/cnn_world.rss"), 10);
-        assertEquals(10, results.size());
-    }
-
-    @Test
-    public void testParseRSSInvalidUrl() throws Exception {
-        ArrayList<String> results = SearchEngine.parseRSS(new URL("http://www.google.com"), 10);
-        assertNull(results);
-    }
+    // TODO these are integration tests and need to be refactored out
+//    @Test
+//    public void testGetWebpageNormal() throws Exception {
+//        String result = SearchEngine.getWebpage("http://www.google.com");
+//        assertNotNull(result);
+//    }
+//
+//    @Test
+//    public void testGetWebpageInvalidUrl() throws Exception {
+//        String result = SearchEngine.getWebpage("http://www.google.com/as;dlfijas%20;ldigjb");
+//        assertNull(result);
+//    }
+//
+//    @Test
+//    public void testParseRSSNormal() throws Exception {
+//        ArrayList<String> results = SearchEngine.parseRSS(new URL("http://rss.cnn.com/rss/cnn_world.rss"), 10);
+//        assertEquals(10, results.size());
+//    }
+//
+//    @Test
+//    public void testParseRSSInvalidUrl() throws Exception {
+//        ArrayList<String> results = SearchEngine.parseRSS(new URL("http://www.google.com"), 10);
+//        assertNull(results);
+//    }
 }

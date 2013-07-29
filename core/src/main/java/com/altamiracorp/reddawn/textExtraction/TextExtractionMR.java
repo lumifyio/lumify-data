@@ -51,9 +51,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
                 textExtractor = (TextExtractor) context.getConfiguration().getClass(CONF_TEXT_EXTRACTOR_CLASS, TikaTextExtractor.class).newInstance();
                 textExtractor.setup(context);
                 session = ConfigurableMapJobBase.createRedDawnSession(context);
-            } catch (InstantiationException e) {
-                throw new IOException(e);
-            } catch (IllegalAccessException e) {
+            } catch (Exception e) {
                 throw new IOException(e);
             }
         }
@@ -62,7 +60,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
             try {
                 LOGGER.info("Extracting text from artifact: " + artifact.getRowKey().toString());
-                ExtractedInfo extractedInfo = textExtractor.extract(session.getModelSession(), artifact);
+                ArtifactExtractedInfo extractedInfo = textExtractor.extract(session.getModelSession(), artifact);
                 if (extractedInfo == null) {
                     return;
                 }

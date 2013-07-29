@@ -443,6 +443,7 @@
 					bindButton( $zoomIn, (1 + options.zoomFactor) );
 					bindButton( $zoomOut, (1 - options.zoomFactor) );
 					
+                    /*
 					$reset.bind("mousedown", function(e){
 						if( e.button != 0 ){
 							return;
@@ -469,6 +470,7 @@
 
 						return false;
 					});
+                    */
 					
 					
 					

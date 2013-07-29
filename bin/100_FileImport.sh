@@ -21,7 +21,7 @@ else
 fi
 
 if [ "${VIRTUALIZATION_DISABLED}" = 'true' ]; then
-  ip=$(ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
+  ip=$(ifconfig eth0 | awk -F ':| +' '/inet addr/ {print $4}')
 else
   ip=192.168.33.10
 fi

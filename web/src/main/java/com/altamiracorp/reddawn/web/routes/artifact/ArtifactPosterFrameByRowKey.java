@@ -5,11 +5,11 @@ import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.web.WebApp;
-import com.altamiracorp.reddawn.web.utils.UrlUtils;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.web.utils.UrlUtils;
 import org.apache.poi.util.IOUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -49,5 +49,9 @@ public class ArtifactPosterFrameByRowKey implements Handler, AppAware {
     @Override
     public void setApp(App app) {
         this.app = (WebApp) app;
+    }
+
+    public void setArtifactRepository(ArtifactRepository artifactRepository) {
+        this.artifactRepository = artifactRepository;
     }
 }

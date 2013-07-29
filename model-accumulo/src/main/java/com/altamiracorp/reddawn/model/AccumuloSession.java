@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.model;
 
 import org.apache.accumulo.core.client.*;
+import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
@@ -11,14 +12,13 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class AccumuloSession extends Session {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSession.class.getName());
@@ -32,54 +32,96 @@ public class AccumuloSession extends Session {
     private final Connector connector;
     private final FileSystem hdfsFileSystem;
     private final String hdfsRootDir;
+    private final Mapper.Context context;
     private long maxMemory = 1000000L;
     private long maxLatency = 1000L;
     private int maxWriteThreads = 10;
 
-    public AccumuloSession(Connector connector, FileSystem hdfsFileSystem, String hdfsRootDir, AccumuloQueryUser queryUser) {
+    public AccumuloSession(Connector connector, FileSystem hdfsFileSystem, String hdfsRootDir, AccumuloQueryUser queryUser, Mapper.Context context) {
         super(queryUser);
         this.hdfsFileSystem = hdfsFileSystem;
         this.hdfsRootDir = hdfsRootDir;
         this.connector = connector;
+        this.context = context;
     }
 
     @Override
     void save(Row row) {
         try {
-            BatchWriter writer = connector.createBatchWriter(row.getTableName(), getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
-            AccumuloHelper.addRowToWriter(writer, row);
-            writer.flush();
-            writer.close();
+            if (context != null) {
+                context.write(new Text(row.getTableName()), row);
+            } else {
+                BatchWriter writer = connector.createBatchWriter(row.getTableName(), getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
+                AccumuloHelper.addRowToWriter(writer, row);
+                writer.flush();
+                writer.close();
+            }
         } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
         } catch (MutationsRejectedException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
     void saveMany(String tableName, Collection<Row> rows) {
+        if (rows.size() == 0) {
+            return;
+        }
         try {
-            BatchWriter writer = connector.createBatchWriter(tableName, getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
-            for (Row row : rows) {
-                AccumuloHelper.addRowToWriter(writer, row);
+            if (context != null) {
+                Text tableNameText = new Text(tableName);
+                for (Row row : rows) {
+                    context.write(tableNameText, row);
+                }
+            } else {
+                BatchWriter writer = connector.createBatchWriter(tableName, getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
+                for (Row row : rows) {
+                    AccumuloHelper.addRowToWriter(writer, row);
+                }
+                writer.flush();
+                writer.close();
             }
-            writer.flush();
-            writer.close();
         } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
         } catch (MutationsRejectedException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    List<Row> findByRowKeyRange(String tableName, String rowKeyStart, String rowKeyEnd, QueryUser queryUser) {
+    public List<Row> findByRowKeyRange(String tableName, String rowKeyStart, String rowKeyEnd, QueryUser queryUser) {
         try {
             Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
             if (rowKeyStart != null) {
                 scanner.setRange(new Range(rowKeyStart, rowKeyEnd));
             }
+            return AccumuloHelper.scannerToRows(tableName, scanner);
+        } catch (TableNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    List<Row> findByRowStartsWithList(String tableName, List<String> rowKeyPrefixes, QueryUser queryUser) {
+        try {
+            BatchScanner scanner = this.connector.createBatchScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations(), 2);
+            Collection<Range> ranges = new ArrayList<Range>();
+
+            for (String rowKeyPrefix : rowKeyPrefixes) {
+                Range range = new Range(rowKeyPrefix, rowKeyPrefix + "ZZZZZZ"); // TODO is this the best way?
+                ranges.add(range);
+            }
+
+            scanner.setRanges(ranges);
             return AccumuloHelper.scannerToRows(tableName, scanner);
         } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
@@ -102,7 +144,7 @@ public class AccumuloSession extends Session {
             scanner.addScanIterator(iter);
 
             return AccumuloHelper.scannerToRows(tableName, scanner);
-        } catch(TableNotFoundException e) {
+        } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -126,12 +168,37 @@ public class AccumuloSession extends Session {
     }
 
     @Override
+    Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, QueryUser queryUser) {
+        try {
+            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
+            scanner.setRange(new Range(rowKey));
+            for (Map.Entry<String, String> columnFamilyAndColumnQualifier : columnsToReturn.entrySet()) {
+                if (columnFamilyAndColumnQualifier.getValue().equals("*")) {
+                    scanner.fetchColumnFamily(new Text(columnFamilyAndColumnQualifier.getKey()));
+                } else {
+                    scanner.fetchColumn(new Text(columnFamilyAndColumnQualifier.getKey()), new Text(columnFamilyAndColumnQualifier.getValue()));
+                }
+            }
+            List<Row> rows = AccumuloHelper.scannerToRows(tableName, scanner);
+            if (rows.size() == 0) {
+                return null;
+            }
+            if (rows.size() > 1) {
+                throw new RuntimeException("Too many rows returned for a single row query (rowKey: " + rowKey + ", size: " + rows.size() + ")");
+            }
+            return rows.get(0);
+        } catch (TableNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
         try {
             Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
             scanner.setRange(new Range(rowKey));
             return AccumuloHelper.scannerToColumnFamiliesFilteredByRegex(scanner, colFamOffset, colFamLimit, colFamRegex);
-        } catch(TableNotFoundException e) {
+        } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -239,6 +306,11 @@ public class AccumuloSession extends Session {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    @Override
+    public List<String> getTableList() {
+        return new ArrayList<String>(this.connector.tableOperations().list());
     }
 
     public long getMaxMemory() {

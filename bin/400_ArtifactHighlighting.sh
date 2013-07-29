@@ -15,7 +15,7 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ "${VIRTUALIZATION_DISABLED}" = 'true' ]; then
-  ip=$(ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}')
+  ip=$(ifconfig eth0 | awk -F ':| +' '/inet addr/ {print $4}')
 else
   ip=192.168.33.10
 fi
@@ -24,7 +24,7 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.entityExtraction.EntityHighlightMR \
+com.altamiracorp.reddawn.entityHighlight.EntityHighlightMR \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \

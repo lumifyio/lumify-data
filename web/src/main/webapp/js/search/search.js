@@ -2,6 +2,7 @@
 define([
     'flight/lib/component',
     'service/ucd',
+    'service/entity',
     'util/previews',
     'util/video/scrubber',
     'tpl!./search',
@@ -9,13 +10,14 @@ define([
     'tpl!./searchResults',
     'tpl!util/alert',
     'util/jquery.ui.draggable.multiselect',
-], function(defineComponent, UCD, previews, VideoScrubber, template, summaryTemplate, resultsTemplate, alertTemplate) {
+], function(defineComponent, UCD, EntityService, previews, VideoScrubber, template, summaryTemplate, resultsTemplate, alertTemplate) {
     'use strict';
 
     return defineComponent(Search);
 
     function Search() {
         this.ucd = new UCD();
+        this.entityService = new EntityService();
 		this.currentQuery = null;
 
         this.defaultAttrs({
@@ -26,8 +28,7 @@ define([
             searchSummaryResultItemSelector: '.search-results-summary li',
             searchResultsScrollSelector: '.search-results ul.nav',
             searchResultItemLinkSelector: '.search-results li a',
-            searchResultsSelector: '.search-results',
-            closeResultsSelector: '.search-results .close'
+            searchResultsSelector: '.search-results'
         });
 
         this.searchResults = null;
@@ -41,6 +42,7 @@ define([
 
         this.onEntitySearchResults = function(evt, entities) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
+            $searchResultsSummary.find('.badge').removeClass('loading').text('0');
             $searchResultsSummary.find('.person .badge').removeClass('loading').text((entities.person || []).length);
             $searchResultsSummary.find('.location .badge').removeClass('loading').text((entities.location || []).length);
             $searchResultsSummary.find('.organization .badge').removeClass('loading').text((entities.organization || []).length);
@@ -76,28 +78,39 @@ define([
             var $searchResults = this.select('searchResultsSelector');
 
             $searchResults.hide();
-            $searchResultsSummary.html(summaryTemplate({}));
-            $('.badge', $searchResultsSummary).addClass('loading');
-            this.ucd.artifactSearch(query, function(err, artifacts) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-                self.searchResults.artifact = artifacts;
-                self.trigger('artifactSearchResults', artifacts);
-            });
-            this.ucd.entitySearch(query, function(err, entities) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-                self.searchResults.entity = entities;
-                self.trigger('entitySearchResults', entities);
-            });
+            this.entityService.concepts(function(err, concepts) {
+                $searchResultsSummary.html(summaryTemplate({concepts:concepts}));
+                $('.badge', $searchResultsSummary).addClass('loading');
+                this.ucd.artifactSearch(query, function(err, artifacts) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+                    self.searchResults.artifact = artifacts;
+                    self.trigger('artifactSearchResults', artifacts);
+                });
+                this.ucd.entitySearch(query, function(err, entities) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+                    self.searchResults.entity = entities;
+                    self.trigger('entitySearchResults', entities);
+                });
+            }.bind(this));
         };
 
         this.onSummaryResultItemClick = function(evt) {
+            evt.preventDefault();
+
             var $target = $(evt.target).parents('li');
+            if ($target.hasClass('active')) {
+                return this.close(evt);
+            }
+
+            if (+$target.find('.badge').text() === 0) {
+                return this.close(evt);
+            }
 
             this.$node.find('.search-results-summary .active').removeClass('active');
             $target.addClass('active');
@@ -177,6 +190,10 @@ define([
 			this.currentQuery = data.query;
 		};
 
+        this.onFocusSearchField = function() {
+            this.select('searchQuerySelector').focus();
+        };
+
         this.close = function(e) {
             this.select('searchResultsSelector').hide();
             this.$node.find('.search-results-summary .active').removeClass('active');
@@ -217,8 +234,8 @@ define([
 
                         if(info.subType === 'video') {
                             VideoScrubber.attachTo(li.find('.preview'), {
-                                poster: poster,
-                                frames: frames
+                                posterFrameUrl: poster,
+                                videoPreviewImageUrl: frames
                             });
                         } else if(info.subType === 'image') {
                             li.find('.preview').html("<img src='" + poster + "' />");
@@ -239,12 +256,12 @@ define([
             this.on('entitySearchResults', this.onEntitySearchResults);
             this.on(document,'showSearchResults', this.onShowSearchResults);
 			this.on(document,'searchQueryChanged',this.onQueryChange);
+            this.on(document, 'focusSearchField', this.onFocusSearchField);
             this.on('submit', {
                 searchFormSelector: this.onFormSearch
             });
             this.on('click', {
-                searchSummaryResultItemSelector: this.onSummaryResultItemClick,
-                closeResultsSelector: this.close
+                searchSummaryResultItemSelector: this.onSummaryResultItemClick
             });
 			this.on('keyup', {
 				searchQuerySelector: this.onKeyUp
@@ -257,6 +274,8 @@ define([
             this.on(document, 'nodesDeleted', this.onNodesDeleted);
             this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
+
+            this.select('searchResultsSelector').droppable({ accept:'.search-results *' });
         });
 
         this.onWorkspaceLoaded = function(evt, workspace) {
@@ -268,7 +287,7 @@ define([
         var _currentNodes = {};
         this.toggleSearchResultIcon = function(rowKey, inGraph, inMap) {
             this.$node
-                .find('li.' + encodeURIComponent(rowKey).replace(/%/g,"\\%"))
+                .find('li.' + encodeURIComponent(rowKey).replace(/(['"(%.])/g,"\\$1"))
                 .toggleClass('graph-displayed', inGraph)
                 .toggleClass('map-displayed', inMap);
         };
@@ -283,7 +302,6 @@ define([
         this.onNodesUpdated = function(event, data) {
             var self = this;
             (data.nodes || []).forEach(function(node) {
-
                 // Only care about node search results and location updates
                 if ( (node.type && node.subType) || node.location || node.locations ) {
                     var inGraph = true;
@@ -313,6 +331,7 @@ define([
                 revertDuration: 250,
                 scroll: false,
                 zIndex: 100,
+                distance: 10,
                 multi: true,
                 otherDraggablesClass: 'search-result-dragging',
                 start: function(ev, ui) {

@@ -1,5 +1,6 @@
 @import "../util/lists.less";
 @import "../util/constants.less";
+@import "../util/selection.less";
 @import "highlighting";
 
 .content {
@@ -9,6 +10,10 @@
   .preview {
     height: 300px;
     cursor: pointer;
+  }
+
+  .underneath {
+    @import "editDropdown";
   }
 
   .btn-toolbar {
@@ -26,6 +31,10 @@
     li.checked:hover a {
       background-image: url(../../img/glyphicons/white/glyphicons_206_ok_2@2x.png);
     }
+  }
+
+  .text {
+    word-wrap: break-word;
   }
 
   .multiple {

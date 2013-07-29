@@ -17,4 +17,8 @@ public class VideoFrameRowKey extends RowKey {
                 + ":"
                 + StringUtils.leftPad(Long.toString(frameStartTime), 16, '0');
     }
+
+    public Long getTime() {
+        return Long.parseLong(this.toString().split(":")[1]);
+    }
 }

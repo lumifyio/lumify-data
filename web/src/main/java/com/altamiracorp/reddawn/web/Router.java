@@ -1,13 +1,17 @@
 package com.altamiracorp.reddawn.web;
 
-import com.altamiracorp.reddawn.web.routes.entity.EntityRelationshipsBidrectional;
+import com.altamiracorp.reddawn.web.routes.admin.AdminQuery;
+import com.altamiracorp.reddawn.web.routes.admin.AdminTables;
 import com.altamiracorp.reddawn.web.routes.artifact.*;
 import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
+import com.altamiracorp.reddawn.web.routes.concept.ConceptList;
 import com.altamiracorp.reddawn.web.routes.entity.*;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
+import com.altamiracorp.reddawn.web.routes.predicate.PredicateList;
 import com.altamiracorp.reddawn.web.routes.statement.StatementByRowKey;
+import com.altamiracorp.reddawn.web.routes.statement.StatementCreate;
 import com.altamiracorp.reddawn.web.routes.user.MeGet;
 import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceByRowKey;
@@ -41,23 +45,30 @@ public class Router extends HttpServlet {
             authenticator = DevBasicAuthenticator.class;
         }
 
+        app.get("/concept/", ConceptList.class);
+
+        app.get("/predicate/", PredicateList.class);
+
         app.get("/artifact/search", authenticator, ArtifactSearch.class);
         app.get("/artifact/{rowKey}/terms", authenticator, ArtifactTermsByRowKey.class);
         app.get("/artifact/{rowKey}/text", authenticator, ArtifactTextByRowKey.class);
-        app.get("/artifact/{rowKey}/html", authenticator, ArtifactHtmlByRowKey.class);
         app.get("/artifact/{rowKey}/raw", authenticator, ArtifactRawByRowKey.class);
         app.get("/artifact/{rowKey}/poster-frame", authenticator, ArtifactPosterFrameByRowKey.class);
         app.get("/artifact/{rowKey}/video-preview", authenticator, ArtifactVideoPreviewImageByRowKey.class);
+        app.get("/artifact/{rowKey}/relatedEntities", authenticator, ArtifactByRelatedEntities.class);
         app.get("/artifact/{rowKey}", authenticator, ArtifactByRowKey.class);
 
         app.get("/statement/{rowKey}", authenticator, StatementByRowKey.class);
+        app.post("/statement/create", authenticator, StatementCreate.class);
 
         app.get("/entity/relationship", authenticator, EntityToEntityRelationship.class);
-        app.get("/entity/relationships", authenticator, EntityRelationships.class);
+        app.post("/entity/relationships", authenticator, EntityRelationships.class);
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.get("/entity/{rowKey}/mentions", authenticator, EntityMentionsByRange.class);
         app.get("/entity/{rowKey}/relationships", authenticator, EntityRelationshipsBidrectional.class);
+        app.get("/entity/{rowKey}/relatedEntities", authenticator, EntityByRelatedEntities.class);
         app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);
+        app.post("/entity/create", authenticator, EntityCreate.class);
 
         app.get("/workspace/", authenticator, WorkspaceList.class);
         app.post("/workspace/save", authenticator, WorkspaceSave.class);
@@ -73,6 +84,9 @@ public class Router extends HttpServlet {
 
         app.post("/chat/new", authenticator, ChatNew.class);
         app.post("/chat/{chatId}/post", authenticator, ChatPostMessage.class);
+
+        app.get("/admin/query", authenticator, AdminQuery.class);
+        app.get("/admin/tables", authenticator, AdminTables.class);
 
         LessRestlet.init(rootDir);
         app.get("/css/{file}.css", LessRestlet.class);

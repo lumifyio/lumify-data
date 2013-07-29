@@ -1,18 +1,17 @@
 package com.altamiracorp.reddawn.contentTypeExtraction;
 
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.AutoDetectParser;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
-import org.apache.tika.sax.BodyContentHandler;
+import org.apache.tika.mime.MediaType;
+import org.apache.tika.mime.MimeTypes;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 public class TikaContentTypeExtractor implements ContentTypeExtractor {
-    private static final String MIME_TYPE_KEY = "Content-Type";
     private static final String PROPS_FILE = "tika-extractor.properties";
 
     @Override
@@ -30,26 +29,24 @@ public class TikaContentTypeExtractor implements ContentTypeExtractor {
 
     @Override
     public String extract(InputStream in, String fileExt) throws Exception {
-        Parser parser = new AutoDetectParser();
-        BodyContentHandler handler = new BodyContentHandler(10000000);
+        DefaultDetector detector = new DefaultDetector();
         Metadata metadata = new Metadata();
-        ParseContext ctx = new ParseContext();
-        parser.parse(in, handler, metadata, ctx);
+        MediaType mediaType = detector.detect(new BufferedInputStream(in), metadata);
 
-        String contentType = metadata.get(MIME_TYPE_KEY);
+        String contentType = mediaType.toString();
         if (contentType == null || contentType.equals("application/octet-stream")) {
-            contentType = setContentTypeUsingFileExt (fileExt.toLowerCase());
+            contentType = setContentTypeUsingFileExt(fileExt.toLowerCase());
         }
         return contentType;
     }
 
-    private String setContentTypeUsingFileExt (String fileExt) {
+    private String setContentTypeUsingFileExt(String fileExt) {
         if (fileExt.equals("jpeg") || fileExt.equals("tiff") || fileExt.equals("raw") || fileExt.equals("gif") ||
-                fileExt.equals("bmp") || fileExt.equals("png")){
+                fileExt.equals("bmp") || fileExt.equals("png")) {
             return "image";
         }
         if (fileExt.equals("flv") || fileExt.equals("avi") || fileExt.equals("m2v") || fileExt.equals("mov") ||
-                fileExt.equals("mpg") || fileExt.equals("wmv")){
+                fileExt.equals("mpg") || fileExt.equals("wmv")) {
             return "video";
         }
         return "";

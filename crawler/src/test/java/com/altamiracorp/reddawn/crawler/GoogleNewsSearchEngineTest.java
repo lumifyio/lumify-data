@@ -27,13 +27,14 @@ public class GoogleNewsSearchEngineTest {
         engine = new GoogleNewsSearchEngine(mockCrawler);
     }
 
-    @Test
-    public void testSearch() throws Exception {
-        mockQuery = mock(Query.class);
-        int maxResult = 5;
-        assertEquals("A normal search Google News query did not return the specified number of results (has Enginefunction and HTTP dependencies)",
-                maxResult, engine.search(mockQuery, maxResult).size());
-    }
+    // TODO this is an integration test and needs to be refactored to a unit test
+//    @Test
+//    public void testSearch() throws Exception {
+//        mockQuery = mock(Query.class);
+//        int maxResult = 5;
+//        assertEquals("A normal search Google News query did not return the specified number of results (has Enginefunction and HTTP dependencies)",
+//                maxResult, engine.search(mockQuery, maxResult).size());
+//    }
 
     @Test
     public void testSearchEmpty() {

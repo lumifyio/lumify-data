@@ -21,8 +21,8 @@
 <% }); %>
 </ul>
 <% if(offset >= limit && offset > 0) { %>
-    <a href="entity/<%= key.value %>/mentions?offset=<%= parseInt(offset) - parseInt(limit) %>&limit=<%= limit %>" class="mention-request" data-key="<%= JSON.stringify(key) %>"> Previous </a>
+    <a href="entity/<%= encodeURIComponent(key.value).replace(/\./g, '$2E$') %>/mentions?offset=<%= parseInt(offset) - parseInt(limit) %>&limit=<%= limit %>" class="mention-request" data-key="<%= JSON.stringify(key) %>"> Previous </a>
 <% }
 if(limit == mentions.length) { %>
-<a href="entity/<%= key.value %>/mentions?offset=<%= parseInt(offset) + parseInt(limit) %>&limit=<%= limit %>" class="mention-request" data-key="<%= JSON.stringify(key) %>"> Next </a>
+<a href="entity/<%= encodeURIComponent(key.value).replace(/\./g, '$2E$') %>/mentions?offset=<%= parseInt(offset) + parseInt(limit) %>&limit=<%= limit %>" class="mention-request" data-key="<%= JSON.stringify(key) %>"> Next </a>
 <% } %>

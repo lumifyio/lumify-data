@@ -45,7 +45,7 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
     protected abstract int run(CommandLine cmd) throws Exception;
 
-    protected void processOptions(CommandLine cmd) {
+    protected void processOptions(CommandLine cmd) throws Exception {
         this.zookeeperInstanceName = cmd.getOptionValue("zookeeperInstanceName");
         this.zookeeperServerNames = cmd.getOptionValue("zookeeperServerNames");
         this.hadoopUrl = cmd.getOptionValue("hadoopUrl");
@@ -151,7 +151,7 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
         if (getBlurHdfsPath() != null) {
             properties.setProperty(BlurSearchProvider.BLUR_PATH, getBlurHdfsPath());
         }
-        return RedDawnSession.create(properties);
+        return RedDawnSession.create(properties, null);
     }
 
     public String getZookeeperInstanceName() {

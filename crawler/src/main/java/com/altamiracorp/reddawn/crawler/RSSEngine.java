@@ -1,10 +1,17 @@
 package com.altamiracorp.reddawn.crawler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeMap;
 
 public class RSSEngine extends SearchEngine {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RSSEngine.class);
+
     private String url = "";
 
     public RSSEngine(Crawler c) {
@@ -14,28 +21,31 @@ public class RSSEngine extends SearchEngine {
     @Override
     protected ArrayList<String> search(Query q, int maxResults) {
         url = q.getRss();
-        ArrayList<String> links = new ArrayList<String>();
+        ArrayList<String> results = new ArrayList<String>();
         if (url.equals("")) {
-            System.err.println("No RSS URL specified");
-            return links;
+           LOGGER.error("No RSS URL specified");
+            return results;
         } else {
             URL theUrl;
             try {
                 theUrl = new URL(url);
             } catch (MalformedURLException e) {
-                System.err.println("Malformed search URL");
+                LOGGER.error("Malformed search URL");
                 return null;
             }
-            links = SearchEngine.parseRSS(theUrl, maxResults);
+            ArrayList<String> links = SearchEngine.parseRSS(theUrl, maxResults);
+            for (String link : links) {
+                results.add(link);
+            }
 
             try {
-                getCrawler().crawl(links, q);
+                getCrawler().crawl(results, q);
             } catch (Exception e) {
                 throw new RuntimeException("The crawler failed to crawl the " + getEngineName() + " on link \"" +
                         q.getRss() + "\" result set");
             }
         }
-        return links;
+        return results;
     }
 
     @Override

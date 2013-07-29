@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.textExtraction;
 
 import com.altamiracorp.reddawn.model.Session;
+import com.altamiracorp.reddawn.model.videoFrames.VideoFrame;
 import com.altamiracorp.reddawn.textExtraction.util.GenericDateExtractor;
 import com.altamiracorp.reddawn.textExtraction.util.TikaMetadataUtils;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
@@ -16,6 +17,12 @@ import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.apache.tika.sax.ToHTMLContentHandler;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.ContentHandler;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,6 +37,8 @@ import java.util.Properties;
 public class TikaTextExtractor implements TextExtractor {
     ArtifactRepository artifactRepository = new ArtifactRepository();
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TikaTextExtractor.class);
+
     private static final String MIME_TYPE_KEY = "Content-Type";
 
     private static final String PROPS_FILE = "tika-extractor.properties";
@@ -40,6 +49,7 @@ public class TikaTextExtractor implements TextExtractor {
     private static final String EXT_URL_KEYS_PROPERTY = "tika.extraction.exturlkeys";
     private static final String SRC_TYPE_KEYS_PROPERTY = "tika.extraction.srctypekeys";
     private static final String RETRIEVAL_TIMESTAMP_KEYS_PROPERTY = "tika.extraction.retrievaltimestampkeys";
+    private static final String CUSTOM_FLICKR_METADATA_KEYS_PROPERTY = "tika.extraction.customflickrmetadatakeys";
 
     private List<String> dateKeys;
     private List<String> subjectKeys;
@@ -48,6 +58,7 @@ public class TikaTextExtractor implements TextExtractor {
     private List<String> extUrlKeys;
     private List<String> srcTypeKeys;
     private List<String> retrievalTimestampKeys;
+    private List<String> customFlickrMetadataKeys;
 
     @Override
     public void setup(Mapper.Context context) {
@@ -75,51 +86,82 @@ public class TikaTextExtractor implements TextExtractor {
         extUrlKeys = Arrays.asList(tikaProperties.getProperty(EXT_URL_KEYS_PROPERTY, "atc:result-url").split(","));
         srcTypeKeys = Arrays.asList(tikaProperties.getProperty(SRC_TYPE_KEYS_PROPERTY, "og:type").split(","));
         retrievalTimestampKeys = Arrays.asList(tikaProperties.getProperty(RETRIEVAL_TIMESTAMP_KEYS_PROPERTY, "atc:retrieval-timestamp").split(","));
+        customFlickrMetadataKeys = Arrays.asList(tikaProperties.getProperty(CUSTOM_FLICKR_METADATA_KEYS_PROPERTY, "Unknown tag (0x9286)").split(","));
 
     }
 
     @Override
-    public ExtractedInfo extract(Session session, Artifact artifact) throws Exception {
-        if (artifact.getType() != ArtifactType.DOCUMENT) {
+    public ArtifactExtractedInfo extract(Session session, Artifact artifact) throws Exception {
+        if (artifact.getType() != ArtifactType.DOCUMENT && artifact.getType() != ArtifactType.IMAGE) {
             return null;
         }
 
-        InputStream in = artifactRepository.getRaw(session, artifact);
-        if (in == null) {
+        InputStream in;
+        InputStream raw = artifactRepository.getRaw(session, artifact);
+        if (raw == null) {
             return null;
         }
+        try {
+            ArtifactExtractedInfo result = new ArtifactExtractedInfo();
+            Parser parser = new AutoDetectParser(); // TODO: the content type should already be detected. To speed this up we should be able to grab the parser from content type.
+            String text = "";
+            ContentHandler handler = new BodyContentHandler(10000000);
+            if (isHtml(artifact)) {
+                text = IOUtils.toString(raw);
+                in = new ByteArrayInputStream(text.getBytes());
+            } else {
+                in = raw;
+            }
+            Metadata metadata = new Metadata();
+            ParseContext ctx = new ParseContext();
 
-        ExtractedInfo result = new ExtractedInfo();
+            parser.parse(in, handler, metadata, ctx);
 
-        String text = IOUtils.toString(in);
-        Parser parser = new AutoDetectParser();
-        BodyContentHandler handler = new BodyContentHandler(10000000);
-        Metadata metadata = new Metadata();
-        ParseContext ctx = new ParseContext();
-        parser.parse(new ByteArrayInputStream(text.getBytes()), handler, metadata, ctx);
-
-        // since we are using the AutoDetectParser, it is safe to assume that
-        //the Content-Type metadata key will always return a value
-        if (metadata.get(MIME_TYPE_KEY).toLowerCase().contains("text")) {
-            text = extractTextFromHtml(text);
-            if (text == null || text.length() == 0) {
+            // since we are using the AutoDetectParser, it is safe to assume that
+            //the Content-Type metadata key will always return a value
+            if (isHtml(artifact)) {
+                text = extractTextFromHtml(text);
+                if (text == null || text.length() == 0) {
+                    text = handler.toString();
+                }
+            } else {
                 text = handler.toString();
             }
-        } else {
-            text = handler.toString();
+
+            result.setText(text);
+
+            result.setDate(extractDate(metadata));
+            result.setSubject(extractTextField(metadata, subjectKeys));
+            result.setUrl(extractUrl(metadata));
+            result.setType(extractTextField(metadata, typeKeys));
+            result.setExtUrl(extractTextField(metadata, extUrlKeys));
+            result.setSrcType(extractTextField(metadata, srcTypeKeys));
+            result.setRetrievalTime(extractRetrievalTime(metadata));
+
+            String customImageMetadata = extractTextField(metadata, customFlickrMetadataKeys);
+            if (customImageMetadata != null && !customImageMetadata.equals("")) {
+                try {
+                    JSONObject customImageMetadataJson = new JSONObject(customImageMetadata);
+                    result.setText(new JSONObject(customImageMetadataJson.get("description").toString()).get("_content") +
+                            "\n" + customImageMetadataJson.get("tags").toString());
+                    result.setDate(GenericDateExtractor
+                            .extractSingleDate(customImageMetadataJson.get("lastupdate").toString()));
+                    result.setRetrievalTime(Long.parseLong(customImageMetadataJson.get("atc:retrieval-timestamp").toString()));
+                    result.setSubject(customImageMetadataJson.get("title").toString());
+                } catch (JSONException e) {
+                    LOGGER.warn("Image returned invalid custom metadata");
+                }
+            }
+
+            return result;
+        } finally {
+            raw.close();
         }
+    }
 
-        result.setText(text);
-
-        result.setDate(extractDate(metadata));
-        result.setSubject(extractTextField(metadata, subjectKeys));
-        result.setUrl(extractUrl(metadata));
-        result.setType(extractTextField(metadata, typeKeys));
-        result.setExtUrl(extractTextField(metadata, extUrlKeys));
-        result.setSrcType(extractTextField(metadata, srcTypeKeys));
-        result.setRetrievalTime(extractRetrievalTime(metadata));
-
-        return result;
+    @Override
+    public VideoFrameExtractedInfo extract(Session session, VideoFrame videoFrame) throws Exception {
+        return null;
     }
 
     private String extractTextFromHtml(String text) throws BoilerpipeProcessingException {
@@ -194,6 +236,10 @@ public class TikaTextExtractor implements TextExtractor {
             }
         }
         return host;
+    }
+
+    private boolean isHtml (Artifact artifact) {
+        return artifact.getGenericMetadata().getMimeType().contains("text");
     }
 
 }
