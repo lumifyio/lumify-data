@@ -1,6 +1,7 @@
 class opencv($tmpdir="/usr/local/src") {
   require ffmpeg
   require buildtools
+  require java
   include macro
 
   $srcdir = "${tmpdir}/opencv-2.4.5"
