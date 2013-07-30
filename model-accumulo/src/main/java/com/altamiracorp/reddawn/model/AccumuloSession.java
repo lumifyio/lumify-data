@@ -13,6 +13,7 @@ import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +33,12 @@ public class AccumuloSession extends Session {
     private final Connector connector;
     private final FileSystem hdfsFileSystem;
     private final String hdfsRootDir;
-    private final Mapper.Context context;
+    private final TaskInputOutputContext context;
     private long maxMemory = 1000000L;
     private long maxLatency = 1000L;
     private int maxWriteThreads = 10;
 
-    public AccumuloSession(Connector connector, FileSystem hdfsFileSystem, String hdfsRootDir, AccumuloQueryUser queryUser, Mapper.Context context) {
+    public AccumuloSession(Connector connector, FileSystem hdfsFileSystem, String hdfsRootDir, AccumuloQueryUser queryUser, TaskInputOutputContext context) {
         super(queryUser);
         this.hdfsFileSystem = hdfsFileSystem;
         this.hdfsRootDir = hdfsRootDir;
