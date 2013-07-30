@@ -1,6 +1,6 @@
 <div class="btn-toolbar">
 
-  <% if(artifact.type != 'video') { %>
+  <% if(['video','image'].indexOf(artifact.type) === -1) { %>
     <%- styleHtml %>
   <% } %>
 
@@ -23,11 +23,15 @@
   <div class="preview"/>
 <% } %>
 <% if(artifact.type == 'image') { %>
-  <img src='<%= artifact.rawUrl %>' width="auto" height="300"/>
+  <div class="image-preview" style="background-image:url(<%= artifact.rawUrl %>);">
+    <img src='<%= artifact.rawUrl %>' width="auto" height="300"/>
+  </div>
 <% } %>
 
 <% if(artifact['atc:Artifact_Detected_Objects']) { %>
-  <pre><%- JSON.stringify(artifact['atc:Artifact_Detected_Objects'], null, 2) %></pre>
+  <% artifact['atc:Artifact_Detected_Objects'].detectedObjects.forEach(function(object) { %>
+  <a class="label label-info detected-object" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.concept %></a>
+  <% }); %>
 <% } %>
 
 <div class="text"><%- artifact.contentHtml %></div>

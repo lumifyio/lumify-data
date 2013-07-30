@@ -3,6 +3,7 @@ define([
     'flight/lib/component',
     './dropdowns/termForm/termForm',
     './dropdowns/statementForm/statementForm',
+    './artifact/image/image',
     'service/ucd',
     'util/video/scrubber',
     'underscore',
@@ -17,6 +18,7 @@ define([
     defineComponent,
     TermForm,
     StatementForm,
+    Image,
     UCD,
     VideoScrubber,
     _,
@@ -52,6 +54,8 @@ define([
             moreMentionsSelector: '.mention-request',
             mentionArtifactSelector: '.mention-artifact',
             previewSelector: '.preview',
+            detectedObjectSelector: '.detected-object',
+            imagePreviewSelector: '.image-preview',
             entityToEntityRelationshipSelector: '.entity-to-entity-relationship a.relationship-summary',
             entityDetailsMentionsSelector: '.entity-mentions'
         });
@@ -62,6 +66,7 @@ define([
                 highlightTypeSelector: this.onHighlightTypeClicked,
                 moreMentionsSelector: this.onRequestMoreMentions,
                 mentionArtifactSelector: this.onMentionArtifactSelected,
+                detectedObjectSelector: this.onDetectedObjectClicked,
                 entitiesSelector: this.onEntityClicked,
                 entityToEntityRelationshipSelector: this.onEntityToEntityRelationshipClicked
             });
@@ -72,6 +77,8 @@ define([
             this.on(document, 'termCreated', this.updateEntityAndArtifactDraggables);
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
             this.on(document, 'loadRelatedSelected', this.onLoadRelatedSelected);
+
+            this.$node.on('mouseenter mouseleave', '.detected-object', this.onDetectedObjectHover.bind(this));
 
             $(document).on('selectionchange', this.onSelectionChange.bind(this));
         });
@@ -108,8 +115,20 @@ define([
             this.handleSelectionChange();
         };
 
+        this.onDetectedObjectClicked = function(event) {
+            console.log('Clicked', event);
+        };
+
+        this.onDetectedObjectHover = function(event) {
+            if (event.type == 'mouseenter') {
+                this.trigger(document, 'DetectedObjectEnter', $(event.target).data('info'));
+            } else {
+                this.trigger(document, 'DetectedObjectLeave', $(event.target).data('info'));
+            }
+        };
+
         this.handleSelectionChange = _.debounce(function() {
-            EditDropdown.teardownAll();
+            TermForm.teardownAll();
 
             var sel = window.getSelection(),
                 text = sel && sel.type === 'Range' ? $.trim(sel.toString()) : '';
@@ -459,8 +478,10 @@ define([
                     var styleHtml = self.getStyleHtml();
                     self.$node.html(artifactDetailsTemplate({ artifact: artifact, styleHtml: styleHtml }));
 
-                    if (artifact.type == 'video') {
+                    if (artifact.type === 'video') {
                         self.setupVideo(artifact);
+                    } else if (artifact.type === 'image') {
+                        self.setupImage(artifact);
                     }
 
                     console.log('TODO: add some extra highlighting and scroll to this entity row key', data.entityOfInterest);
@@ -655,6 +676,12 @@ define([
                 posterFrameUrl: artifact.posterFrameUrl,
                 videoPreviewImageUrl: artifact.videoPreviewImageUrl,
                 allowPlayback: true
+            });
+        };
+
+        this.setupImage = function(artifact) {
+            Image.attachTo(this.select('imagePreviewSelector'), {
+                src: artifact.rawUrl
             });
         };
 
