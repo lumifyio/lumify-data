@@ -1,22 +1,22 @@
 #!/bin/bash -e
 
 case "$1" in
-  accumulo)
+  accumulo | a)
     open http://192.168.33.10:50095/status
     ;;
-  namenode)
+  namenode | nn)
     open http://192.168.33.10:50070
     ;;
-  datanode)
+  datanode | dn)
     open http://192.168.33.10:50075
     ;;
-  secondarynamenode)
+  secondarynamenode | sn)
     open http://192.168.33.10:50090
     ;;
-  jobtracker)
+  jobtracker | jt)
     open http://192.168.33.10:50030
     ;;
-  tasktracker)
+  tasktracker | tt)
     open http://192.168.33.10:50060
     ;;
   *)
