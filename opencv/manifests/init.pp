@@ -21,26 +21,26 @@ class opencv($tmpdir="/usr/local/src") {
     require => Macro::Extract['extract-opencv'],
   }
 
-  $cmake      = "/usr/bin/cmake -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF ."
-  $make       = "/usr/bin/make"
-  $install    = "/usr/bin/make install"
+  $cmake   = "/usr/bin/cmake -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF ."
+  $make    = "/usr/bin/make"
+  $install = "/usr/bin/make install"
 
   exec { 'opencv-cmake' :
-    cwd     => $srcdir,
-    command => "$cmake",
-    path => "/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin:${tmpdir}/apache-ant-1.9.2-bin/bin",
+    cwd         => $srcdir,
+    command     => $cmake,
+    path        => "/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin:${tmpdir}/apache-ant-1.9.2-bin/bin",
     environment => "ANT_DIR=${tmpdir}/apache-ant-1.9.2-bin",
-    require => Exec['opencv-java-patch'],
+    require     => Exec['opencv-java-patch'],
   }
 
   exec { 'opencv-build' :
-    cwd     => $srcdir,
-    command => "${make} && ${install}",
-    creates => "${prefix}/lib/libopencv_java245.so",
-    path => "/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin:${tmpdir}/apache-ant-1.9.2-bin/bin",
+    cwd         => $srcdir,
+    command     => "${make} && ${install}",
+    creates     => "${prefix}/lib/libopencv_java245.so",
+    path        => "/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin:${tmpdir}/apache-ant-1.9.2-bin/bin",
     environment => "ANT_DIR=${tmpdir}/apache-ant-1.9.2-bin",
-    require => Exec['opencv-cmake'],
+    timeout     => 0,
+    require     => Exec['opencv-cmake'],
   }
-
 }
 
