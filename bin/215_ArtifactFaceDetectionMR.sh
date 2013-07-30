@@ -21,6 +21,7 @@ else
 fi
 
 java \
+-Djava.library.path=$LD_LIBRARY_PATH \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 com.altamiracorp.reddawn.objectDetection.ObjectDetectionMR \
