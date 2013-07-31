@@ -442,10 +442,10 @@ define([
                 distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance < 5) {
-                target.select();
-                if (distance < 1) {
-                    return;
+                if (!event.originalEvent.shiftKey) {
+                    event.cy.$(':selected').unselect();
                 }
+                target.select();
             }
 
             // Cache these positions since data attr could be overidden
