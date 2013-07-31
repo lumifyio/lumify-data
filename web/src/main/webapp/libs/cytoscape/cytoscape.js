@@ -10682,6 +10682,46 @@ var cytoscape;
 				context.translate(cy.pan().x, cy.pan().y);
 				context.scale(cy.zoom(), cy.zoom());
 			} 
+
+            context.save();
+            var zoom = cy._private.zoom,
+                min = cy._private.minZoom,
+                max = cy._private.maxZoom,
+                range = max - min,
+                adjustedZoom = zoom - min,
+                zoomPercent = adjustedZoom / range,
+                hue = 200,
+                saturation = 60,
+                maxLightness = 97,
+                minLightness = 85,
+                panX = cy._private.pan.x,
+                panY = cy._private.pan.y,
+                v = Math.floor((maxLightness - minLightness) * zoomPercent + minLightness),
+                inc = 20 * pixelScale,
+                maxX = context.canvas.width / zoom,
+                maxY = context.canvas.height / zoom,
+                startX = panX / zoom,
+                startY = panY / zoom;
+
+            context.strokeStyle = 'hsl(' + hue + ', ' + saturation + '%,' + v + '%)';
+            context.lineWidth = 1;
+            context.beginPath();
+            startX -= startX % inc;
+            for (var x = -startX; x < maxX-startX; x += inc) {
+                var adjustedX = Math.floor(x) - 0.5;
+                context.moveTo(adjustedX, -startY);
+                context.lineTo(adjustedX, maxY-startY);
+            }
+
+            startY -= startY % inc;
+            for (var y = -startY; y < maxY-startY; y += inc) {
+                var adjustedY = Math.floor(y) - 0.5;
+                context.moveTo(-startX, adjustedY);
+                context.lineTo(maxX-startX, adjustedY);
+            }
+
+            context.stroke();
+            context.restore();
 			
 			for (var index = 0; index < elesNotInDragLayer.length; index++) {
 				element = elesNotInDragLayer[index];
