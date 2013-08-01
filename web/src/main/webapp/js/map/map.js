@@ -223,8 +223,10 @@ define([
         this.invalidMap = function() {
             var map = this.select('mapSelector'),
                 cls = 'invalid';
-            
-            if (map.hasClass(cls)) {
+
+            if (this.$node.closest('.visible').length === 0) {
+                return;
+            } else if (map.hasClass(cls)) {
                 map.removeClass(cls);
                 setTimeout(function() {
                     map.addClass(cls);
