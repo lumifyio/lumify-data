@@ -3,7 +3,7 @@ package com.altamiracorp.reddawn.model.graph;
 import java.util.HashMap;
 import java.util.Set;
 
-public class GraphNodeImpl implements GraphNode {
+public class GraphNodeImpl extends GraphNode {
     private String id;
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 

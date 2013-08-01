@@ -7,6 +7,7 @@ define([
     'tpl!./graph',
     'util/throttle',
     'util/previews',
+    'service/ucd',
     'util/retina'
 ], function(
     defineComponent,
@@ -15,12 +16,15 @@ define([
     template,
     throttle,
     previews,
+    UCD,
     retina) {
     'use strict';
 
     return defineComponent(Graph);
 
     function Graph() {
+        this.ucd = new UCD();
+
         var callbackQueue = [];
         var LAYOUT_OPTIONS = {
             // Customize layout options
@@ -78,7 +82,7 @@ define([
                 cy.layout(opts);
 
                 nodes.forEach(function(node) {
-                    var title = node.title;
+                    var title = node.title || 'unknown';
                     if (title.length > 15) {
                         title = title.substring(0, 10) + "...";
                     }
@@ -89,6 +93,7 @@ define([
                         data: {
                             id: node.rowKey,
                             rowKey: node.rowKey,
+                            graphNodeId: node.graphNodeId,
                             subType: node.subType,
                             type: node.type,
                             title: title,
@@ -218,11 +223,15 @@ define([
         this.onContextMenuLoadRelatedItems = function () {
             var menu = this.select('nodeContextMenuSelector');
             var currentNodeRK = menu.data('currentNodeRowKey');
+            var graphNodeId = menu.data('currentNodeGraphNodeId');
             var position = {x: menu.data ('currentNodePositionX'), y: menu.data ('currentNodePositionY')};
             var currentNodeOriginalPosition = retina.pixelsToPoints(position);
-            var data = { rowKey : currentNodeRK,
-                         originalPosition: currentNodeOriginalPosition,
-                         type : menu.data("currentNodeType")};
+            var data = {
+                rowKey: currentNodeRK,
+                graphNodeId: graphNodeId,
+                originalPosition: currentNodeOriginalPosition,
+                type : menu.data("currentNodeType")
+            };
             this.trigger (document, 'loadRelatedSelected', data);
         };
 
@@ -296,6 +305,7 @@ define([
             } else {
                 menu = this.select ('nodeContextMenuSelector');
                 menu.data("currentNodeRowKey",event.cyTarget.data('rowKey'));
+                menu.data("currentNodeGraphNodeId",event.cyTarget.data('graphNodeId'));
                 menu.data("currentNodePositionX", event.cyTarget.position ('x'));
                 menu.data("currentNodePositionY", event.cyTarget.position ('y'));
                 menu.data("currentNodeType", event.cyTarget.data('type'));
@@ -527,6 +537,52 @@ define([
             });
         };
 
+        this.onLoadRelatedSelected = function(evt, data) {
+            var self = this;
+
+            if ($.isArray(data) && data.length == 1){
+                data = data[0];
+            }
+
+            console.log('Getting related nodes for:', data);
+
+            var xOffset = 100, yOffset = 100;
+            var x = data.originalPosition.x;
+            var y = data.originalPosition.y;
+
+            this.ucd.getRelatedNodes(data.graphNodeId, function(err, nodes) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+                nodes = nodes.nodes;
+
+                nodes = nodes.map(function(node, index) {
+                    if (index % 10 === 0) {
+                        y += yOffset;
+                    }
+                    return {
+                        graphNodeId: node.id,
+                        title: node.properties.sign,
+                        rowKey: node.properties.rowKey,
+                        subType: node.properties.conceptLabel,
+                        type: node.properties.type,
+                        graphPosition: {
+                            x: x + xOffset * (index % 10 + 1),
+                            y: y
+                        },
+                        selected: true
+                    };
+                });
+
+                console.log(nodes);
+
+                self.trigger(document, 'addNodes', {
+                    nodes: nodes
+                });
+            });
+        };
+
         this.after('initialize', function() {
             var self = this;
             this.$node.html(template({}));
@@ -540,6 +596,7 @@ define([
             this.on(document, 'nodesDeleted', this.onNodesDeleted);
             this.on(document, 'nodesUpdated', this.onNodesUpdated);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
+            this.on(document, 'loadRelatedSelected', this.onLoadRelatedSelected);
             this.on(document, 'graphPaddingResponse', this.onGraphPadding);
 
             cytoscape("renderer", "red-dawn", Renderer);

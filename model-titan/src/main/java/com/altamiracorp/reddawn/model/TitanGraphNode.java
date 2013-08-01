@@ -5,7 +5,7 @@ import com.tinkerpop.blueprints.Vertex;
 
 import java.util.Set;
 
-public class TitanGraphNode implements GraphNode {
+public class TitanGraphNode extends GraphNode {
     private final Vertex vertex;
 
     public TitanGraphNode(Vertex vertex) {

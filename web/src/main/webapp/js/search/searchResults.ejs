@@ -1,6 +1,7 @@
 <% results.forEach(function(result) { %>
 <li class="<%= result.className %>" data-info="<%= JSON.stringify({
       'rowKey': result.rowKey,
+      'graphNodeId': result.graphNodeId,
       'type': type,
       'subType': subType,
       'title': result.title

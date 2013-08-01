@@ -206,6 +206,7 @@ define([
                     this.trigger(document, 'addNodes', {
                         nodes: [{
                             title: info.title || draggable.text(),
+                            graphNodeId: info.graphNodeId,
                             rowKey: info.rowKey.replace(/\\[x](1f)/ig, '\u001f'),
                             subType: info.subType,
                             type: info.type,

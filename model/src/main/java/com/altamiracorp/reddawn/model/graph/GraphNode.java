@@ -1,13 +1,31 @@
 package com.altamiracorp.reddawn.model.graph;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.Set;
 
-public interface GraphNode {
-    String getId();
+public abstract class GraphNode {
+    public abstract String getId();
 
-    void setProperty(String key, Object value);
+    public abstract void setProperty(String key, Object value);
 
-    Set<String> getPropertyKeys();
+    public abstract Set<String> getPropertyKeys();
 
-    Object getProperty(String propertyKey);
+    public abstract Object getProperty(String propertyKey);
+
+    public JSONObject toJson() {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("id", getId());
+            JSONObject propertiesJson = new JSONObject();
+            for (String key : getPropertyKeys()) {
+                propertiesJson.put(key, getProperty(key));
+            }
+            json.put("properties", propertiesJson);
+            return json;
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

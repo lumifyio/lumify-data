@@ -127,4 +127,22 @@ public class TitanGraphSession extends GraphSession {
         }
         return results;
     }
+
+    @Override
+    public List<GraphNode> getRelatedNodes(String graphNodeId) {
+        ArrayList<GraphNode> results = new ArrayList<GraphNode>();
+        Vertex vertex = this.graph.getVertex(graphNodeId);
+
+        Iterable<Edge> edges = vertex.getEdges(Direction.OUT);
+        for (Edge edge : edges) {
+            results.add(new TitanGraphNode(edge.getVertex(Direction.IN)));
+        }
+
+        edges = vertex.getEdges(Direction.IN);
+        for (Edge edge : edges) {
+            results.add(new TitanGraphNode(edge.getVertex(Direction.OUT)));
+        }
+
+        return results;
+    }
 }

@@ -75,13 +75,9 @@ function(ServiceBase) {
         return this._ajaxGet({ url: 'entity/' + id + '/relationships' }, callback);
     }
 
-    Ucd.prototype.getRelatedEntitiesBySubject = function(id, callback) {
-        return this._ajaxGet({ url: 'entity/' + encodeURIComponent(id) + '/relatedEntities' }, callback);
-    }
-
-    Ucd.prototype.getRelatedTermsFromArtifact = function (id, callback){
-        return this._ajaxGet({url: 'artifact/' + encodeURIComponent(id) + '/relatedEntities'}, callback);
-    }
+    Ucd.prototype.getRelatedNodes = function(graphNodeId, callback) {
+        return this._ajaxGet({ url: 'graph/' + encodeURIComponent(graphNodeId) + '/relatedNodes' }, callback);
+    };
 
     Ucd.prototype.getSpecificEntityRelationship = function (e1, e2, callback) {
         return this._ajaxGet({

@@ -7,6 +7,7 @@ import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
 import com.altamiracorp.reddawn.web.routes.concept.ConceptList;
 import com.altamiracorp.reddawn.web.routes.entity.*;
+import com.altamiracorp.reddawn.web.routes.graph.GraphRelatedNodes;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
 import com.altamiracorp.reddawn.web.routes.predicate.PredicateList;
@@ -55,7 +56,6 @@ public class Router extends HttpServlet {
         app.get("/artifact/{rowKey}/raw", authenticator, ArtifactRawByRowKey.class);
         app.get("/artifact/{rowKey}/poster-frame", authenticator, ArtifactPosterFrameByRowKey.class);
         app.get("/artifact/{rowKey}/video-preview", authenticator, ArtifactVideoPreviewImageByRowKey.class);
-        app.get("/artifact/{rowKey}/relatedEntities", authenticator, ArtifactByRelatedEntities.class);
         app.get("/artifact/{rowKey}", authenticator, ArtifactByRowKey.class);
 
         app.get("/statement/{rowKey}", authenticator, StatementByRowKey.class);
@@ -66,9 +66,10 @@ public class Router extends HttpServlet {
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.get("/entity/{rowKey}/mentions", authenticator, EntityMentionsByRange.class);
         app.get("/entity/{rowKey}/relationships", authenticator, EntityRelationshipsBidrectional.class);
-        app.get("/entity/{rowKey}/relatedEntities", authenticator, EntityByRelatedEntities.class);
         app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);
         app.post("/entity/create", authenticator, EntityCreate.class);
+
+        app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedNodes.class);
 
         app.get("/workspace/", authenticator, WorkspaceList.class);
         app.post("/workspace/save", authenticator, WorkspaceSave.class);

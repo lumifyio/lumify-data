@@ -129,6 +129,8 @@ public class ArtifactRepository extends Repository<Artifact> {
     public void saveToGraph(Session session, GraphSession graphSession, Artifact artifact) {
         String suggestedNodeId = artifact.getGraphNodeId();
         GraphNode node = new GraphNodeImpl(suggestedNodeId);
+        node.setProperty("type", "artifact");
+        node.setProperty("subType", artifact.getType().toString().toLowerCase());
         node.setProperty("rowKey", artifact.getRowKey().toString());
         node.setProperty("subject", artifact.getGenericMetadata().getSubject());
 

@@ -11,4 +11,6 @@ public abstract class GraphSession {
     public abstract String save(GraphRelationship relationship);
 
     public abstract List<GraphNode> findBy(String key, String value);
+
+    public abstract List<GraphNode> getRelatedNodes(String graphNodeId);
 }

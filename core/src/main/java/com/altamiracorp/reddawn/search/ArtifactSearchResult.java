@@ -10,13 +10,15 @@ public class ArtifactSearchResult {
     private final String subject;
     private final Date publishedDate;
     private final ArtifactType artifactType;
+    private final String graphNodeId;
 
-    public ArtifactSearchResult(String rowKey, String subject, Date publishedDate, String source, ArtifactType artifactType) {
+    public ArtifactSearchResult(String rowKey, String subject, Date publishedDate, String source, ArtifactType artifactType, String graphNodeId) {
         this.rowKey = rowKey;
         this.subject = subject;
         this.publishedDate = publishedDate;
         this.source = source;
         this.artifactType = artifactType;
+        this.graphNodeId = graphNodeId;
     }
 
     public String getRowKey() {
@@ -35,9 +37,13 @@ public class ArtifactSearchResult {
         return this.source;
     }
 
+    public String getGraphNodeId() {
+        return graphNodeId;
+    }
+
     @Override
     public String toString() {
-        return "rowKey: " + getRowKey() + ", subject: " + getSubject() + ", publishedDate: " + getPublishedDate() + ", source: " + getSource();
+        return "rowKey: " + getRowKey() + ", subject: " + getSubject() + ", publishedDate: " + getPublishedDate() + ", source: " + getSource() + ", graphNodeId: " + getGraphNodeId();
     }
 
     public ArtifactType getType() {

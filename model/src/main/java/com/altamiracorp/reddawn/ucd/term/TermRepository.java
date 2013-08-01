@@ -95,6 +95,7 @@ public class TermRepository extends Repository<Term> {
     public void saveToGraph(Session session, GraphSession graphSession, Term term, TermMention termMention) {
         String suggestedNodeId = termMention.getGraphNodeId(term);
         GraphNode node = new GraphNodeImpl(suggestedNodeId);
+        node.setProperty("type", "termMention");
         node.setProperty("rowKey", term.getRowKey().toString());
         node.setProperty("columnFamilyName", termMention.getColumnFamilyName());
         node.setProperty("sign", term.getRowKey().getSign());
