@@ -83,11 +83,11 @@ public class TitanGraphSession extends GraphSession {
             edge = graph.getEdge(relationship.getId());
         }
         if (edge == null) {
-            edge = findEdge(relationship.getSource().getId(), relationship.getDest().getId());
+            edge = findEdge(relationship.getSourceNodeId(), relationship.getDestNodeId());
         }
         if (edge == null) {
-            Vertex sourceVertex = findVertex(relationship.getSource());
-            Vertex destVertex = findVertex(relationship.getDest());
+            Vertex sourceVertex = findVertex(relationship.getSourceNodeId());
+            Vertex destVertex = findVertex(relationship.getDestNodeId());
             edge = this.graph.addEdge(relationship.getId(), sourceVertex, destVertex, relationship.getLabel());
         }
         for (String propertyKey : relationship.getPropertyKeys()) {
@@ -97,11 +97,8 @@ public class TitanGraphSession extends GraphSession {
         return "" + edge.getId();
     }
 
-    private Vertex findVertex(GraphNode node) {
-        if (node instanceof TitanGraphNode) {
-            return ((TitanGraphNode) node).getVertex();
-        }
-        return graph.getVertex(node.getId());
+    private Vertex findVertex(String nodeId) {
+        return graph.getVertex(nodeId);
     }
 
     private Edge findEdge(String sourceId, String destId) {

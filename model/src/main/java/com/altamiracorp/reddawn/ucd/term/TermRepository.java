@@ -115,7 +115,7 @@ public class TermRepository extends Repository<Term> {
             throw new RuntimeException("Multiple artifact nodes found \"" + termMention.getArtifactKey() + "\"");
         }
 
-        GraphRelationship artifactRelationship = new GraphRelationship(null, artifactNodes.get(0), node, "artifactToTermMention");
+        GraphRelationship artifactRelationship = new GraphRelationship(null, artifactNodes.get(0).getId(), nodeId, "artifactToTermMention");
         graphSession.save(artifactRelationship);
     }
 }

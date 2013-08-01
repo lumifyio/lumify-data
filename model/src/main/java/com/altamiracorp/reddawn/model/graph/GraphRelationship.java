@@ -5,24 +5,24 @@ import java.util.Set;
 
 public class GraphRelationship {
     private final String id;
-    private final GraphNode source;
-    private final GraphNode dest;
+    private final String sourceNodeId;
+    private final String destNodeId;
     private String label;
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 
-    public GraphRelationship(String id, GraphNode source, GraphNode dest, String label) {
+    public GraphRelationship(String id, String sourceNodeId, String destNodeId, String label) {
         this.id = id;
-        this.source = source;
-        this.dest = dest;
+        this.sourceNodeId = sourceNodeId;
+        this.destNodeId = destNodeId;
         this.label = label;
     }
 
-    public GraphNode getSource() {
-        return source;
+    public String getSourceNodeId() {
+        return sourceNodeId;
     }
 
-    public GraphNode getDest() {
-        return dest;
+    public String getDestNodeId() {
+        return destNodeId;
     }
 
     public String getId() {
