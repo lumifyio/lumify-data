@@ -1,6 +1,9 @@
 package com.altamiracorp.reddawn.ucd.term;
 
 import com.altamiracorp.reddawn.model.*;
+import com.altamiracorp.reddawn.model.graph.GraphNode;
+import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
+import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndexRepository;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
@@ -87,5 +90,32 @@ public class TermRepository extends Repository<Term> {
             }
             save(session, term);
         }
+    }
+
+    public void saveToGraph(Session session, GraphSession graphSession, Term term, TermMention termMention) {
+        String suggestedNodeId = termMention.getGraphNodeId(term);
+        GraphNode node = new GraphNodeImpl(suggestedNodeId);
+        node.setProperty("rowKey", term.getRowKey().toString());
+        node.setProperty("columnFamilyName", termMention.getColumnFamilyName());
+        node.setProperty("sign", term.getRowKey().getSign());
+        node.setProperty("modelKey", term.getRowKey().getModelKey());
+        node.setProperty("conceptLabel", term.getRowKey().getConceptLabel());
+
+        String nodeId = graphSession.save(node);
+        if (!nodeId.equals(suggestedNodeId)) {
+            termMention.setGraphNodeId(nodeId);
+            this.save(session, term);
+        }
+
+        List<GraphNode> artifactNodes = graphSession.findBy("rowKey", termMention.getArtifactKey());
+        if (artifactNodes.size() == 0) {
+            throw new RuntimeException("Could not find artifact \"" + termMention.getArtifactKey() + "\" to link term mention to");
+        }
+        if (artifactNodes.size() > 1) {
+            throw new RuntimeException("Multiple artifact nodes found \"" + termMention.getArtifactKey() + "\"");
+        }
+
+        GraphRelationship artifactRelationship = new GraphRelationship(null, artifactNodes.get(0), node, "artifactToTermMention");
+        graphSession.save(artifactRelationship);
     }
 }

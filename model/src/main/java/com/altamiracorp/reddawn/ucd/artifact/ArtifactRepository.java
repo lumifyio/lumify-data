@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.ucd.artifact;
 
 import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
+import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -127,8 +128,9 @@ public class ArtifactRepository extends Repository<Artifact> {
 
     public void saveToGraph(Session session, GraphSession graphSession, Artifact artifact) {
         String suggestedNodeId = artifact.getGraphNodeId();
-        GraphNode node = new GraphNode(suggestedNodeId);
-        node.setProperty("artifactRowKey", artifact.getRowKey().toString());
+        GraphNode node = new GraphNodeImpl(suggestedNodeId);
+        node.setProperty("rowKey", artifact.getRowKey().toString());
+        node.setProperty("subject", artifact.getGenericMetadata().getSubject());
 
         String nodeId = graphSession.save(node);
         if (!nodeId.equals(suggestedNodeId)) {

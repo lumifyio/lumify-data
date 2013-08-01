@@ -24,6 +24,7 @@ public class TermMention extends ColumnFamily {
     public static final String SENTENCE_TEXT = "atc:sentenceText";
     public static final String SENTENCE_OFFSET = "atc:sentenceOffset";
     public static final String OBJECT_ROW_KEY = "atc:objectRowKey";
+    public static final String GRAPH_NODE_ID = "atc:graphNodeId";
 
     public TermMention() {
         super(null);
@@ -282,5 +283,18 @@ public class TermMention extends ColumnFamily {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String getGraphNodeId(Term term) {
+        String graphNodeId = Value.toString(get(GRAPH_NODE_ID));
+        if (graphNodeId == null) {
+            graphNodeId = RowKeyHelper.buildMajor(term.getRowKey().toString(), this.getColumnFamilyName());
+        }
+        return graphNodeId;
+    }
+
+    public TermMention setGraphNodeId(String graphNodeId) {
+        set(GRAPH_NODE_ID, graphNodeId);
+        return this;
     }
 }

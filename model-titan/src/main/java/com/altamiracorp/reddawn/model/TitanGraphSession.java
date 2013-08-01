@@ -1,17 +1,21 @@
 package com.altamiracorp.reddawn.model;
 
 import com.altamiracorp.reddawn.model.graph.GraphNode;
+import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 import java.util.Properties;
 
 public class TitanGraphSession extends GraphSession {
@@ -43,6 +47,7 @@ public class TitanGraphSession extends GraphSession {
 
         LOGGER.info("opening titan:\n" + confToString(conf));
         graph = TitanFactory.open(conf);
+        graph.createKeyIndex("rowKey", Vertex.class);
     }
 
     private String confToString(Configuration conf) {
@@ -64,10 +69,62 @@ public class TitanGraphSession extends GraphSession {
         if (vertex == null) {
             vertex = this.graph.addVertex(node.getId());
         }
-        for (Map.Entry<String, Object> property : node.getProperties()) {
-            vertex.setProperty(property.getKey(), property.getValue());
+        for (String propertyKey : node.getPropertyKeys()) {
+            vertex.setProperty(propertyKey, node.getProperty(propertyKey));
         }
         this.graph.commit();
         return "" + vertex.getId();
+    }
+
+    @Override
+    public String save(GraphRelationship relationship) {
+        Edge edge = null;
+        if (relationship.getId() != null) {
+            edge = graph.getEdge(relationship.getId());
+        }
+        if (edge == null) {
+            edge = findEdge(relationship.getSource().getId(), relationship.getDest().getId());
+        }
+        if (edge == null) {
+            Vertex sourceVertex = findVertex(relationship.getSource());
+            Vertex destVertex = findVertex(relationship.getDest());
+            edge = this.graph.addEdge(relationship.getId(), sourceVertex, destVertex, relationship.getLabel());
+        }
+        for (String propertyKey : relationship.getPropertyKeys()) {
+            edge.setProperty(propertyKey, relationship.getProperty(propertyKey));
+        }
+        this.graph.commit();
+        return "" + edge.getId();
+    }
+
+    private Vertex findVertex(GraphNode node) {
+        if (node instanceof TitanGraphNode) {
+            return ((TitanGraphNode) node).getVertex();
+        }
+        return graph.getVertex(node.getId());
+    }
+
+    private Edge findEdge(String sourceId, String destId) {
+        // TODO could there be multiple edge matches for sourceId and destId
+        Vertex sourceVertex = this.graph.getVertex(sourceId);
+        Iterable<Edge> edges = sourceVertex.getEdges(Direction.OUT);
+        for (Edge edge : edges) {
+            Vertex destVertex = edge.getVertex(Direction.OUT);
+            String destVertexId = "" + destVertex.getId();
+            if (destVertexId.equals(destId)) {
+                return edge;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<GraphNode> findBy(String key, String value) {
+        Iterable<Vertex> vertices = this.graph.getVertices(key, value);
+        ArrayList<GraphNode> results = new ArrayList<GraphNode>();
+        for (Vertex vertex : vertices) {
+            results.add(new TitanGraphNode(vertex));
+        }
+        return results;
     }
 }
