@@ -132,7 +132,9 @@ public class ArtifactRepository extends Repository<Artifact> {
         node.setProperty("type", "artifact");
         node.setProperty("subType", artifact.getType().toString().toLowerCase());
         node.setProperty("rowKey", artifact.getRowKey().toString());
-        node.setProperty("title", artifact.getGenericMetadata().getSubject());
+        if (artifact.getGenericMetadata().getSubject() != null) {
+            node.setProperty("title", artifact.getGenericMetadata().getSubject());
+        }
 
         String nodeId = graphSession.save(node);
         if (!nodeId.equals(suggestedNodeId)) {
