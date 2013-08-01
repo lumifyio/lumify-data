@@ -96,11 +96,10 @@ public class TermRepository extends Repository<Term> {
         String suggestedNodeId = termMention.getGraphNodeId(term);
         GraphNode node = new GraphNodeImpl(suggestedNodeId);
         node.setProperty("type", "termMention");
+        node.setProperty("subType", term.getRowKey().getConceptLabel());
         node.setProperty("rowKey", term.getRowKey().toString());
         node.setProperty("columnFamilyName", termMention.getColumnFamilyName());
-        node.setProperty("sign", term.getRowKey().getSign());
-        node.setProperty("modelKey", term.getRowKey().getModelKey());
-        node.setProperty("conceptLabel", term.getRowKey().getConceptLabel());
+        node.setProperty("title", term.getRowKey().getSign());
 
         String nodeId = graphSession.save(node);
         if (!nodeId.equals(suggestedNodeId)) {
