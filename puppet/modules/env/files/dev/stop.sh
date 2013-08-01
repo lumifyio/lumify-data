@@ -42,10 +42,10 @@ case "$1" in
     ;;
   *)
 
-   blur
-   accumulo
-   elasticsearch
-   zk
-   hadoop
+    blur
+    accumulo
+    zk
+    hadoop
+    elasticsearch
     ;;
 esac
