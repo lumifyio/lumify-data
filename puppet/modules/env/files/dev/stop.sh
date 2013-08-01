@@ -16,6 +16,9 @@ case "$1" in
   blur)
     sudo -u blur /usr/lib/apache-blur/bin/stop-all.sh
     ;;
+  elasticsearch)
+    echo "Don't know how to stop elasticsearch"
+    ;;
   *)
     for service in /etc/init.d/hadoop-0.20-*
     do
@@ -25,5 +28,6 @@ case "$1" in
     sudo /sbin/service hadoop-zookeeper-server stop
     sudo -u accumulo /usr/lib/accumulo/bin/stop-all.sh
     sudo -u blur /usr/lib/apache-blur/bin/stop-all.sh
+    echo "Don't know how to stop elasticsearch"
     ;;
 esac

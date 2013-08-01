@@ -19,6 +19,9 @@ case "$1" in
   oozie)
     sudo service oozie restart
     ;;
+  elasticsearch)
+    sudo -u esearch /usr/lib/elasticsearch/bin/elasticsearch -p /var/run/elasticsearch/elasticsearch.pid
+    ;;
   *)
     for service in /etc/init.d/hadoop-0.20-*
     do
@@ -33,5 +36,7 @@ case "$1" in
     # Remove sleep command when Blur safemodewait fails more gracefully when cluster isn't started
     sleep 10
     sudo -u blur /usr/lib/apache-blur/bin/blur safemodewait
+
+    sudo -u esearch /usr/lib/elasticsearch/bin/elasticsearch -p /var/run/elasticsearch/elasticsearch.pid
     ;;
 esac
