@@ -120,4 +120,12 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
     public static RedDawnSession createRedDawnSession(TaskInputOutputContext context) {
         return RedDawnSession.create(context);
     }
+
+    protected String[] getConfig () {
+        return this.config;
+    }
+
+    protected Class getClazz () {
+        return this.clazz;
+    }
 }
