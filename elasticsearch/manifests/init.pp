@@ -112,4 +112,23 @@ class elasticsearch(
     owner   => $user,
     group   => $group,
   }
+
+  macro::git-clone { "elasticsearch-servicewrapper-clone":
+    url     => "git://github.com/elasticsearch/elasticsearch-servicewrapper.git",
+    path    => "${tmpdir}/elasticsearch-servicewrapper",
+    options => "--depth 1",
+  }
+
+  exec { "copy-elasticsearch-servicewrapper" :
+    command => "/bin/cp -r ${tmpdir}/elasticsearch-servicewrapper/service/ ${homedir}/bin",
+    unless  => "/usr/bin/test -f ${homedir}/bin/service/",
+    require => [Macro::Git-clone["elasticsearch-servicewrapper-clone"], Macro::Extract[$downloadpath]],
+  }
+
+  file { "elasticsearch-service-config":
+    path    => "${homedir}/bin/service/elasticsearch.conf",
+    ensure  => file,
+    content => template("elasticsearch/elasticsearch.conf.erb"),
+    require => Exec["copy-elasticsearch-servicewrapper"],
+  }
 }
