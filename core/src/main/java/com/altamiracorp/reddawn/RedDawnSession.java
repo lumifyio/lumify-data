@@ -1,11 +1,12 @@
 package com.altamiracorp.reddawn;
 
+import com.altamiracorp.reddawn.graph.GraphSession;
+import com.altamiracorp.reddawn.graph.TitanGraphSession;
 import com.altamiracorp.reddawn.model.AccumuloQueryUser;
 import com.altamiracorp.reddawn.model.AccumuloSession;
 import com.altamiracorp.reddawn.model.Session;
 import com.altamiracorp.reddawn.search.BlurSearchProvider;
 import com.altamiracorp.reddawn.search.SearchProvider;
-import com.google.common.io.LineReader;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -13,7 +14,6 @@ import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 
 import java.io.IOException;
@@ -25,6 +25,7 @@ import java.util.Properties;
 public class RedDawnSession {
     private Session modelSession;
     private SearchProvider searchProvider;
+    private GraphSession graphSession;
 
     private RedDawnSession() {
 
@@ -35,10 +36,15 @@ public class RedDawnSession {
             RedDawnSession session = new RedDawnSession();
             session.modelSession = createModelSession(props, context);
             session.searchProvider = createSearchProvider(props);
+            session.graphSession = createGraphSession(props);
             return session;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static GraphSession createGraphSession(Properties props) {
+        return new TitanGraphSession(props);
     }
 
     public static RedDawnSession create(TaskInputOutputContext context) {
