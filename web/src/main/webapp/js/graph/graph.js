@@ -54,6 +54,7 @@ define([
         };
 
         this.addNodes = function(nodes, opts) {
+            console.log('addNodes:', nodes);
             var options = $.extend({ fit:false }, opts);
             var addedNodes = [];
             var self = this;
@@ -71,7 +72,7 @@ define([
                         });
                         var updates = $.map(cy.nodes(), function(node) {
                             return {
-                                rowKey: node.data('rowKey'),
+                                graphNodeId: node.data('graphNodeId'),
                                 graphPosition: retina.pixelsToPoints(node.position())
                             };
                         });
@@ -82,6 +83,7 @@ define([
                 cy.layout(opts);
 
                 nodes.forEach(function(node) {
+                    console.log('adding node:', node);
                     var title = node.title || 'unknown';
                     if (title.length > 15) {
                         title = title.substring(0, 10) + "...";
@@ -91,7 +93,7 @@ define([
                         group: 'nodes',
                         classes: $.trim(node.subType + ' ' + node.type),
                         data: {
-                            id: node.rowKey,
+                            id: node.graphNodeId,
                             rowKey: node.rowKey,
                             graphNodeId: node.graphNodeId,
                             subType: node.subType,
@@ -118,7 +120,7 @@ define([
 
                     if (needsUpdate) {
                         addedNodes.push({
-                            rowKey: node.rowKey,
+                            graphNodeId: node.graphNodeId,
                             graphPosition: retina.pixelsToPoints(cyNode.position())
                         });
                     }
@@ -563,10 +565,10 @@ define([
                     }
                     return {
                         graphNodeId: node.id,
-                        title: node.properties.sign,
-                        rowKey: node.properties.rowKey,
-                        subType: node.properties.conceptLabel,
                         type: node.properties.type,
+                        subType: node.properties.subType,
+                        title: node.properties.title,
+                        rowKey: node.properties.rowKey,
                         graphPosition: {
                             x: x + xOffset * (index % 10 + 1),
                             y: y
@@ -575,7 +577,7 @@ define([
                     };
                 });
 
-                console.log(nodes);
+                console.log('trigger nodes', nodes);
 
                 self.trigger(document, 'addNodes', {
                     nodes: nodes

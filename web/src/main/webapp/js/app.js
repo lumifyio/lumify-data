@@ -356,7 +356,7 @@ define([
                 allNodes.forEach (function (allNode){
                     var isOldNode = true;
                     data.nodes.forEach (function (dataNode){
-                        if (dataNode.rowKey == allNode.rowKey){
+                        if (dataNode.graphNodeId == allNode.graphNodeId){
                             isOldNode = false;
                         }
                     });
@@ -367,7 +367,7 @@ define([
 
                 var added = [];
                 data.nodes.forEach(function(node) {
-                    if (ws.data.nodes.filter(function(n) { return n.rowKey === node.rowKey; }).length === 0) {
+                    if (ws.data.nodes.filter(function(n) { return n.graphNodeId === node.graphNodeId; }).length === 0) {
                         added.push(node);
                         ws.data.nodes.push(node);
                     }
