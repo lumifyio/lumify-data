@@ -3399,6 +3399,7 @@ var cytoscape;
 			zoomEnabled: options.zoomEnabled === undefined ? true : options.zoomEnabled,
 			panEnabled: options.panEnabled === undefined ? true : options.panEnabled,
 			boxSelectionEnabled: options.boxSelectionEnabled === undefined ? true : options.boxSelectionEnabled,
+			graphPaperEnabled: options.graphPaperEnabled === undefined ? true : options.graphPaperEnabled,
 			zoom: $$.is.number(options.zoom) ? options.zoom : 1,
 			pan: {
 				x: $$.is.plainObject(options.pan) && $$.is.number(options.pan.x) ? options.pan.x : 0,
@@ -4264,6 +4265,16 @@ var cytoscape;
 			
 			return this; // chaining
 		},
+
+        graphPaperEnabled: function( bool ){
+			if( bool !== undefined ){
+				this._private.graphPaperEnabled = bool ? true : false;
+			} else {
+				return this._private.graphPaperEnabled;
+			}
+			
+			return this; // chaining
+        },
 
 		boxSelectionEnabled: function( bool ){
 			if( bool !== undefined ){
@@ -10683,45 +10694,47 @@ var cytoscape;
 				context.scale(cy.zoom(), cy.zoom());
 			} 
 
-            context.save();
-            var zoom = cy._private.zoom,
-                min = cy._private.minZoom,
-                max = cy._private.maxZoom,
-                range = max - min,
-                adjustedZoom = zoom - min,
-                zoomPercent = adjustedZoom / range,
-                hue = 200,
-                saturation = 60,
-                maxLightness = 97,
-                minLightness = 85,
-                panX = cy._private.pan.x,
-                panY = cy._private.pan.y,
-                v = Math.floor((maxLightness - minLightness) * zoomPercent + minLightness),
-                inc = 20 * pixelScale,
-                maxX = context.canvas.width / zoom,
-                maxY = context.canvas.height / zoom,
-                startX = panX / zoom,
-                startY = panY / zoom;
+			if ( cy._private.graphPaperEnabled ) {
+                context.save();
+                var zoom = cy._private.zoom,
+                    min = cy._private.minZoom,
+                    max = cy._private.maxZoom,
+                    range = max - min,
+                    adjustedZoom = zoom - min,
+                    zoomPercent = adjustedZoom / range,
+                    hue = 200,
+                    saturation = 60,
+                    maxLightness = 97,
+                    minLightness = 85,
+                    panX = cy._private.pan.x,
+                    panY = cy._private.pan.y,
+                    v = Math.floor((maxLightness - minLightness) * zoomPercent + minLightness),
+                    inc = 20 * pixelScale,
+                    maxX = context.canvas.width / zoom,
+                    maxY = context.canvas.height / zoom,
+                    startX = panX / zoom,
+                    startY = panY / zoom;
 
-            context.strokeStyle = 'hsl(' + hue + ', ' + saturation + '%,' + v + '%)';
-            context.lineWidth = 1;
-            context.beginPath();
-            startX -= startX % inc;
-            for (var x = -startX; x < maxX-startX; x += inc) {
-                var adjustedX = Math.floor(x) - 0.5;
-                context.moveTo(adjustedX, -startY);
-                context.lineTo(adjustedX, maxY-startY);
+                context.strokeStyle = 'hsl(' + hue + ', ' + saturation + '%,' + v + '%)';
+                context.lineWidth = 1;
+                context.beginPath();
+                startX -= startX % inc;
+                for (var x = -startX; x < maxX-startX; x += inc) {
+                    var adjustedX = Math.floor(x) - 0.5;
+                    context.moveTo(adjustedX, -startY);
+                    context.lineTo(adjustedX, maxY-startY);
+                }
+
+                startY -= startY % inc;
+                for (var y = -startY; y < maxY-startY; y += inc) {
+                    var adjustedY = Math.floor(y) - 0.5;
+                    context.moveTo(-startX, adjustedY);
+                    context.lineTo(maxX-startX, adjustedY);
+                }
+
+                context.stroke();
+                context.restore();
             }
-
-            startY -= startY % inc;
-            for (var y = -startY; y < maxY-startY; y += inc) {
-                var adjustedY = Math.floor(y) - 0.5;
-                context.moveTo(-startX, adjustedY);
-                context.lineTo(maxX-startX, adjustedY);
-            }
-
-            context.stroke();
-            context.restore();
 			
 			for (var index = 0; index < elesNotInDragLayer.length; index++) {
 				element = elesNotInDragLayer[index];
