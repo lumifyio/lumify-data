@@ -1,6 +1,6 @@
-package com.altamiracorp.reddawn.graph;
+package com.altamiracorp.reddawn.model;
 
-import com.altamiracorp.reddawn.model.AccumuloSession;
+import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
 
 public class TitanGraphSession extends GraphSession {
@@ -55,5 +56,18 @@ public class TitanGraphSession extends GraphSession {
             result.append("\n");
         }
         return result.toString();
+    }
+
+    @Override
+    public String save(GraphNode node) {
+        Vertex vertex = this.graph.getVertex(node.getId());
+        if (vertex == null) {
+            vertex = this.graph.addVertex(node.getId());
+        }
+        for (Map.Entry<String, Object> property : node.getProperties()) {
+            vertex.setProperty(property.getKey(), property.getValue());
+        }
+        this.graph.commit();
+        return "" + vertex.getId();
     }
 }

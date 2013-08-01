@@ -1,10 +1,6 @@
 package com.altamiracorp.reddawn;
 
-import com.altamiracorp.reddawn.graph.GraphSession;
-import com.altamiracorp.reddawn.graph.TitanGraphSession;
-import com.altamiracorp.reddawn.model.AccumuloQueryUser;
-import com.altamiracorp.reddawn.model.AccumuloSession;
-import com.altamiracorp.reddawn.model.Session;
+import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.search.BlurSearchProvider;
 import com.altamiracorp.reddawn.search.SearchProvider;
 import org.apache.accumulo.core.client.AccumuloException;
@@ -88,5 +84,9 @@ public class RedDawnSession {
 
     public SearchProvider getSearchProvider() {
         return this.searchProvider;
+    }
+
+    public GraphSession getGraphSession() {
+        return graphSession;
     }
 }

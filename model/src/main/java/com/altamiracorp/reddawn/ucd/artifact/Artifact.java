@@ -103,4 +103,16 @@ public class Artifact extends Row<ArtifactRowKey> {
         else
             return ArtifactType.DOCUMENT;
     }
+
+    public String getGraphNodeId() {
+        String nodeId = getGenericMetadata().getGraphNodeId();
+        if (nodeId == null) {
+            nodeId = getRowKey().toString();
+        }
+        return nodeId;
+    }
+
+    public void setGraphNodeId(String nodeId) {
+        getGenericMetadata().setGraphNodeId(nodeId);
+    }
 }

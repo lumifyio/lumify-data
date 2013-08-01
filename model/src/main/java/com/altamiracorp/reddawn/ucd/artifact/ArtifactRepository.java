@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.ucd.artifact;
 
 import com.altamiracorp.reddawn.model.*;
+import com.altamiracorp.reddawn.model.graph.GraphNode;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -122,5 +123,17 @@ public class ArtifactRepository extends Repository<Artifact> {
             throw new RuntimeException("Video preview image path not set.");
         }
         return session.loadFile(path);
+    }
+
+    public void saveToGraph(Session session, GraphSession graphSession, Artifact artifact) {
+        String suggestedNodeId = artifact.getGraphNodeId();
+        GraphNode node = new GraphNode(suggestedNodeId);
+        node.setProperty("artifactRowKey", artifact.getRowKey().toString());
+
+        String nodeId = graphSession.save(node);
+        if (!nodeId.equals(suggestedNodeId)) {
+            artifact.setGraphNodeId(nodeId);
+            this.save(session, artifact);
+        }
     }
 }
