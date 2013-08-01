@@ -5,6 +5,7 @@
         <artifactId>reddawn</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+    <groupId>com.altamiracorp.reddawn</groupId>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>core</artifactId>
     <version>1.0-SNAPSHOT</version>
