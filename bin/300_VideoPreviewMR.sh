@@ -31,5 +31,6 @@ com.altamiracorp.reddawn.videoPreview.VideoPreviewMR \
 --hadoopUrl=hdfs://${ip}:8020 \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
+--graph.storage.index.search.hostname=${ip} \
 --username=root \
 --password=password

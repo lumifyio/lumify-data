@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.cmdline;
 
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloSession;
+import com.altamiracorp.reddawn.model.TitanGraphSession;
 import com.altamiracorp.reddawn.search.BlurSearchProvider;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.commons.cli.*;
@@ -18,6 +19,7 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
     private String blurHdfsPath;
     private String blurControllerLocation;
     private String hadoopUrl;
+    private String graphStorageIndexSearchHostname;
 
     @Override
     public int run(String[] args) throws Exception {
@@ -53,6 +55,7 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
         this.password = cmd.getOptionValue("password").getBytes();
         this.blurHdfsPath = cmd.getOptionValue("blurPath");
         this.blurControllerLocation = cmd.getOptionValue("blurControllerLocation");
+        this.graphStorageIndexSearchHostname = cmd.getOptionValue("graph.storage.index.search.hostname");
     }
 
     protected Options getOptions() {
@@ -135,6 +138,16 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
                         .create()
         );
 
+        options.addOption(
+                OptionBuilder
+                        .withLongOpt("graph.storage.index.search.hostname")
+                        .withDescription("The hostname of elastic search")
+                        .isRequired()
+                        .hasArg(true)
+                        .withArgName("graph.storage.index.search.hostname")
+                        .create()
+        );
+
         return options;
     }
 
@@ -150,6 +163,9 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
         }
         if (getBlurHdfsPath() != null) {
             properties.setProperty(BlurSearchProvider.BLUR_PATH, getBlurHdfsPath());
+        }
+        if (getGraphStorageIndexSearchHostname() != null) {
+            properties.setProperty(TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, getGraphStorageIndexSearchHostname());
         }
         return RedDawnSession.create(properties, null);
     }
@@ -196,6 +212,14 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
     public void setBlurControllerLocation(String blurControllerLocation) {
         this.blurControllerLocation = blurControllerLocation;
+    }
+
+    public String getGraphStorageIndexSearchHostname() {
+        return graphStorageIndexSearchHostname;
+    }
+
+    public void setGraphStorageIndexSearchHostname(String graphStorageIndexSearchHostname) {
+        this.graphStorageIndexSearchHostname = graphStorageIndexSearchHostname;
     }
 
     public String getBlurHdfsPath() {

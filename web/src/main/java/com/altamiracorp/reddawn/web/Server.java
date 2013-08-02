@@ -19,8 +19,7 @@ public class Server extends RedDawnCommandLineBase {
     private int port;
 
     public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(CachedConfiguration.getInstance(),
-                new Server(), args);
+        int res = ToolRunner.run(CachedConfiguration.getInstance(), new Server(), args);
         if (res != 0) {
             System.exit(res);
         }
@@ -73,14 +72,14 @@ public class Server extends RedDawnCommandLineBase {
         messagingContext.setWar("./messaging/src/main/webapp/");
 
         ContextHandlerCollection contexts = new ContextHandlerCollection();
-        contexts.setHandlers(new Handler[] { webAppContext, messagingContext });
-        
+        contexts.setHandlers(new Handler[]{webAppContext, messagingContext});
+
         server.setHandler(contexts);
         server.start();
         server.join();
 
-		return 0;
-	}
+        return 0;
+    }
 
     public RedDawnSession createRedDawnSession(HttpServletRequest request) {
         // TODO create a reddawn session based on user in request object.

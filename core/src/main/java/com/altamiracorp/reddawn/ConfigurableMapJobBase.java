@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn;
 import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.AccumuloSession;
+import com.altamiracorp.reddawn.model.TitanGraphSession;
 import com.altamiracorp.reddawn.search.BlurSearchProvider;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.accumulo.core.data.Key;
@@ -10,12 +11,8 @@ import org.apache.accumulo.core.data.Value;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.util.Tool;
-
-import java.util.Map;
-import java.util.Properties;
 
 public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase implements Tool {
     private Class clazz;
@@ -81,6 +78,9 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
         }
         if (getBlurHdfsPath() != null) {
             job.getConfiguration().set(BlurSearchProvider.BLUR_PATH, getBlurHdfsPath());
+        }
+        if (getGraphStorageIndexSearchHostname() != null) {
+            job.getConfiguration().set(TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, getGraphStorageIndexSearchHostname());
         }
         job.setJarByClass(this.getClass());
 

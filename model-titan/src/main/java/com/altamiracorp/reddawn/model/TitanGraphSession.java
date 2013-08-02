@@ -22,10 +22,10 @@ import java.util.*;
 public class TitanGraphSession extends GraphSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(TitanGraphSession.class.getName());
 
-    private static final String STORAGE_BACKEND_KEY = "graph.storage.backend";
-    private static final String STORAGE_TABLE_NAME_KEY = "graph.storage.tablename";
-    private static final String STORAGE_INDEX_SEARCH_BACKEND = "graph.storage.index.search.backend";
-    private static final String STORAGE_INDEX_SEARCH_HOSTNAME = "graph.storage.index.search.hostname";
+    public static final String STORAGE_BACKEND_KEY = "graph.storage.backend";
+    public static final String STORAGE_TABLE_NAME_KEY = "graph.storage.tablename";
+    public static final String STORAGE_INDEX_SEARCH_BACKEND = "graph.storage.index.search.backend";
+    public static final String STORAGE_INDEX_SEARCH_HOSTNAME = "graph.storage.index.search.hostname";
     public static final String DEFAULT_STORAGE_TABLE_NAME = "atc_titan";
     public static final String DEFAULT_BACKEND_NAME = AccumuloStorageManager.class.getName();
     public static final String DEFAULT_SEARCH_NAME = "elasticsearch";

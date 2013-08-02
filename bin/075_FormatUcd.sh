@@ -28,6 +28,7 @@ com.altamiracorp.reddawn.cmdline.FormatUcd \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
+--graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password
