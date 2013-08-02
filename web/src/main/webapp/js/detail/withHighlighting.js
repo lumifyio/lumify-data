@@ -147,15 +147,14 @@ define([
 
             // Remove all dropdowns if empty selection
             if (selection.isCollapsed || text.length === 0) {
-                TermForm.teardownAll();
-                StatementForm.teardownAll();
+                this.tearDownDropdowns();
             }
 
             this.handleSelectionChange();
         };
 
         this.handleSelectionChange = _.debounce(function() {
-            TermForm.teardownAll();
+            this.tearDownDropdowns();
 
             var sel = window.getSelection(),
                 text = sel && sel.type === 'Range' ? $.trim(sel.toString()) : '';
@@ -198,8 +197,7 @@ define([
         }, 500);
 
         this.dropdownEntity = function(insertAfterNode, sel, text) {
-            TermForm.teardownAll();
-            StatementForm.teardownAll();
+            this.tearDownDropdowns();
 
             var form = $('<div class="underneath"/>');
             insertAfterNode.after(form);
@@ -233,6 +231,7 @@ define([
                     scroll: false,
                     zIndex: 100,
                     distance: 10,
+                    cursorAt: { left: -10, top: -10 },
                     start: function() {
                         $(this)
                             .parents('.sentence').addClass('focused')
@@ -247,6 +246,7 @@ define([
                 .droppable({
                     activeClass: 'drop-target',
                     hoverClass: 'drop-hover',
+                    tolerance: 'pointer',
                     accept: function(el) {
                         var item = $(el),
                             isTerm = item.is('.term'),
@@ -255,15 +255,19 @@ define([
                     },
                     drop: function(event, ui) {
                         var destTerm = $(this),
-                            form = $('<div class="underneath"/>');
+                            form = $('<div class="underneath"/>').insertAfter(destTerm);
 
-                        destTerm.after(form);
                         StatementForm.attachTo(form, {
                             sourceTerm: ui.helper,
                             destTerm: destTerm
                         });
                     }
                 });
+        };
+
+        this.tearDownDropdowns = function() {
+            TermForm.teardownAll();
+            StatementForm.teardownAll();
         };
 
     }

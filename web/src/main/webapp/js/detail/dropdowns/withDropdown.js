@@ -4,7 +4,8 @@ define(['underscore'], function(_) {
     function withDropdown() {
 
         this.open = function() {
-            var node = this.$node;
+            var self = this,
+                node = this.$node;
 
             node.one('transitionend', function() {
                 node.css({
@@ -12,6 +13,7 @@ define(['underscore'], function(_) {
                     height:'auto',
                     overflow: 'visible'
                 });
+                self.trigger('opened');
             });
             var form = node.find('.form');
             node.css({ height:form.outerHeight(true) + 'px' });

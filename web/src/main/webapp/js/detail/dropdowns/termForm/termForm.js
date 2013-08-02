@@ -111,6 +111,14 @@ define([
             });
         };
 
+        this.after('teardown', function() {
+            $(this.attr.mentionNode)
+                .parents('.sentence').removeClass('focused')
+                .parents('.text').removeClass('focus');
+
+            this.$node.remove();
+        });
+
         this.after('initialize', function() {
             var self = this,
                 node = this.$node,
@@ -145,9 +153,9 @@ define([
             }));
 
 
-            _.defer(function() {
-                self.setupObjectTypeAhead();
-                self.loadConcepts();
+            this.on('opened', function() {
+                this.setupObjectTypeAhead();
+                this.loadConcepts();
             });
 
             this.on('click', {
@@ -178,6 +186,7 @@ define([
                     self.ucd.entitySearch(query.toLowerCase(), function(err, entities) {
                         if(err) {
                             console.error('Error', err);
+                            callback([]);
                             return self.trigger(document, 'error', { message: err.toString() });
                         }
 
@@ -187,33 +196,11 @@ define([
                         var entityArrays = types.map(function(type) { return entities[type]; });
                         var all = Array.prototype.concat.apply([], entityArrays);
 
-                        // Typeahead just expects list of strings, give
-                        // these objects some string like behavior using
-                        // the "sign" property
-                        all.forEach(function(entity) {
-                            $.extend(entity, {
-                                toString: function () {
-                                    return JSON.stringify(this);
-                                },
-                                toLowerCase: function () {
-                                    return this.sign.toLowerCase();
-                                },
-                                indexOf: function (string) {
-                                    return String.prototype.indexOf.apply(this.sign, arguments);
-                                },
-                                replace: function (string) {
-                                    return String.prototype.replace.apply(this.sign + ' (' + this.conceptLabel + ')', arguments);
-                                }
-                            });
-                        });
-
-                        callback(all);
+                        callback(all.map(function(e) {
+                            return e.sign;
+                        }));
                     });
                     return;
-                }, 
-                updater: function (item) {
-                    item = JSON.parse(item);
-                    return item && item.sign || '';
                 }
             });
         };

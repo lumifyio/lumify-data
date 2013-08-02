@@ -35,6 +35,15 @@
 
   .text {
     word-wrap: break-word;
+
+    .sentence {
+      .transition(~"color ease-in 0.2s");
+    }
+
+    &.focus {
+      .sentence { color:#ddd; }
+      .sentence.focused { color:inherit; }
+    }
   }
 
   .multiple {
