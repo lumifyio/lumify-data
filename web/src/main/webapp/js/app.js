@@ -352,18 +352,6 @@ define([
         this.onAddNodes = function(evt, data) {
             this.workspace(function(ws) {
                 var allNodes = this.workspaceData.data.nodes;
-//                var oldNodes = [];
-//                allNodes.forEach (function (allNode){
-//                    var isOldNode = true;
-//                    data.nodes.forEach (function (dataNode){
-//                        if (dataNode.graphNodeId == allNode.graphNodeId){
-//                            isOldNode = false;
-//                        }
-//                    });
-//                    if (isOldNode){
-//                        oldNodes.push (allNode);
-//                    }
-//                });
 
                 var added = [];
                 data.nodes.forEach(function(node) {

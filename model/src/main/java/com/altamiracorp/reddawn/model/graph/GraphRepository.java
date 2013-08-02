@@ -1,7 +1,6 @@
 package com.altamiracorp.reddawn.model.graph;
 
 import com.altamiracorp.reddawn.model.GraphSession;
-import com.tinkerpop.blueprints.Edge;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,7 +11,7 @@ public class GraphRepository {
         return graphSession.getRelatedNodes(graphNodeId);
     }
 
-    public HashMap<String, HashSet<String>> getRelationships (GraphSession graphSession, List<String> allIds){
+    public HashMap<String, HashSet<String>> getRelationships(GraphSession graphSession, List<String> allIds) {
         return graphSession.getRelationships(allIds);
     }
 }

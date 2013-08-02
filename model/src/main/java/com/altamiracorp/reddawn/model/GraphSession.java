@@ -2,7 +2,6 @@ package com.altamiracorp.reddawn.model;
 
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
-import com.tinkerpop.blueprints.Edge;
 
 import java.util.HashMap;
 import java.util.HashSet;
