@@ -27,6 +27,7 @@ java \
 com.altamiracorp.reddawn.statementExtraction.StatementExtractionMR \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
+--graph.storage.index.search.hostname=${ip} \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
