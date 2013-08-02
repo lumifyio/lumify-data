@@ -1,0 +1,24 @@
+<ul>
+    <% statements.forEach(function(statement) { %>
+      <li class="entity-to-entity-relationship collapsed" data-statement-row-key="<%= statement.key.value %>">
+        <a href="javascript:" class="relationship-summary">
+            <span
+                class="entity <%= left.conceptLabel %>"
+                data-info="<%= JSON.stringify({
+                  'rowKey': left.value,
+                  'type': 'entity',
+                  'subType': left.conceptLabel
+                }) %>"><%= left.sign %></span>
+            <%= statement.key.predicateLabel.predicateLabel %>
+            <span
+                class="entity <%= right.conceptLabel %>"
+                data-info="<%= JSON.stringify({
+                  'rowKey': right.value,
+                  'type': 'entity',
+                  'subType': right.conceptLabel
+                }) %>"><%= right.sign %></span>
+        </a>
+        <div class="artifact-excerpts"></div>
+      </li>
+    <% }); %>
+</ul>
