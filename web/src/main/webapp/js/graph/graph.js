@@ -490,6 +490,11 @@ define([
                 var noNodes = cy.nodes().length === 0;
 
                 this.select('emptyGraphSelector').toggle(noNodes);
+                cy.panningEnabled(!noNodes)
+                    .zoomingEnabled(!noNodes)
+                    .boxSelectionEnabled(!noNodes)
+                    .graphPaperEnabled(!noNodes);
+
                 if (noNodes) {
                     cy.reset();
                 }

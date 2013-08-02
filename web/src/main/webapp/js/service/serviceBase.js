@@ -50,6 +50,7 @@ define(['atmosphere'],
             };
 
             options.error = options.error || function(xhr, textStatus, errorThrown) {
+                if (textStatus === 'abort') return;
                 var err = new Error("Failed in request: " + options.resolvedUrl);
                 err.xhr = xhr;
                 err.textStatus = textStatus;

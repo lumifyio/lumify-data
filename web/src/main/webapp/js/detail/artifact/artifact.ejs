@@ -1,8 +1,6 @@
-<div class="btn-toolbar">
 
-  <% if(['video','image'].indexOf(artifact.type) === -1) { %>
-    <%- styleHtml %>
-  <% } %>
+<div class="btn-toolbar">
+  <%- highlightButton %>
 
   <div class="btn-group">
     <a class="btn btn-small" href="<%= artifact.rawUrl %>" target="_blank">View</a>
