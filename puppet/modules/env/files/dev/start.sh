@@ -27,7 +27,6 @@ function elasticsearch {
     sudo /usr/lib/elasticsearch/bin/service/elasticsearch start
 }
 
-
 case "$1" in
   hadoop)
     hadoop
@@ -48,16 +47,11 @@ case "$1" in
     elasticsearch
     ;;
   *)
-
     hadoop
     zk
     accumulo
     oozie
-    blur
-    # Remove sleep command when Blur safemodewait fails more gracefully when cluster isn't started
-    sleep 10
-    sudo -u blur /usr/lib/apache-blur/bin/blur safemodewait
-
+    blur; sleep 10; sudo -u blur /usr/lib/apache-blur/bin/blur safemodewait
     elasticsearch
     ;;
 esac
