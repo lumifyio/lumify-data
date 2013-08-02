@@ -33,11 +33,8 @@ Vagrant.configure('2') do |config|
   # Example for VirtualBox:
   #
   config.vm.provider :virtualbox do |vb|
-  #   # Don't boot with headless mode
-  #   vb.gui = true
-  #
-  #   # Use VBoxManage to customize the VM. For example to change memory:
-     vb.customize ["modifyvm", :id, "--memory", "2048"]
+    vb.customize ["modifyvm", :id, '--memory', '4096']
+    vb.customize ["modifyvm", :id, '--cpus', '2']
   end
   #
   # View the documentation for the provider you're using for more
@@ -48,6 +45,6 @@ Vagrant.configure('2') do |config|
     puppet.module_path    = [ 'puppet/modules', 'puppet/puppet-modules' ]
     puppet.manifest_file  = 'dev.pp'
     puppet.facter         = { 'fqdn' => 'prevent.error.com' }
-    puppet.options        = "--hiera_config /vagrant/puppet/hiera-dev.yaml"
+    puppet.options        = '--hiera_config /vagrant/puppet/hiera-dev.yaml'
   end
 end
