@@ -1,0 +1,23 @@
+<div class="btn-toolbar">
+  <%- highlightButton %>
+</div>
+
+<h2><%= source.sign %> -> <%= target.sign %></h2>
+<h3>Statements</h3>
+<div class="statements">
+  <% var statements = sourceToTargetStatements %>
+  <% var left = source %>
+  <% var right = target %>
+  <% include ./statements %>
+</div>
+
+<% if (bidirectional) { %>
+  <h2><%= target.sign %> -> <%= source.sign %></h2>
+  <h3>Statements</h3>
+  <div class="bi-statements">
+    <% var statements = targetToSourceStatements %>
+    <% var left = target %>
+    <% var right = source %>
+    <% include ./statements %>
+  </div>
+<% }; %>
