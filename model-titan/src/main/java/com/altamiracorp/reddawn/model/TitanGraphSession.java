@@ -5,18 +5,19 @@ import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
+import com.thinkaurelius.titan.core.TitanVertexQuery;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.gremlin.groovy.Gremlin;
+import com.tinkerpop.gremlin.java.GremlinPipeline;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class TitanGraphSession extends GraphSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(TitanGraphSession.class.getName());
@@ -142,4 +143,22 @@ public class TitanGraphSession extends GraphSession {
 
         return results;
     }
+
+    @Override
+    public HashMap<String, HashSet<String>> getRelationships (List<String> allIds) {
+        HashMap <String, HashSet<String>> relationshipMap = new HashMap<String, HashSet<String>>();
+        for (String id : allIds) {
+            relationshipMap.put(id, new HashSet<String>());
+            Vertex vertex = this.graph.getVertex(id);
+            List<Vertex> vertexes = new GremlinPipeline(vertex).outE().bothV().toList();
+            for (Vertex v : vertexes) {
+                if (allIds.contains(v.getId().toString())) {
+                    relationshipMap.get(id).add(v.getId().toString());
+                }
+            }
+        }
+
+        return relationshipMap;
+    }
+
 }
