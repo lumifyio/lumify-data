@@ -19,10 +19,13 @@ function blur {
     sudo -u blur /usr/lib/apache-blur/bin/stop-all.sh
 }
 
+function oozie {
+    sudo service oozie stop
+}
+
 function elasticsearch {
     sudo /usr/lib/elasticsearch/bin/service/elasticsearch stop
 }
-
 
 case "$1" in
   hadoop)
@@ -37,15 +40,18 @@ case "$1" in
   blur)
     blur
     ;;
+  oozie)
+    oozie
+    ;;
   elasticsearch)
     elasticsearch
     ;;
   *)
-
+    elasticsearch
     blur
+    oozie
     accumulo
     zk
     hadoop
-    elasticsearch
     ;;
 esac

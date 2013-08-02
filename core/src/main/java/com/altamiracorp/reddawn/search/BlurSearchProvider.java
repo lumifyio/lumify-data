@@ -248,34 +248,4 @@ public class BlurSearchProvider implements SearchProvider {
 
         client.mutate(mutation);
     }
-
-    @Override
-    public Collection<TermSearchResult> searchTerms(String query) throws Exception {
-        BlurQuery blurQuery = new BlurQuery();
-        SimpleQuery simpleQuery = new SimpleQuery();
-        simpleQuery.setQueryStr(query);
-        blurQuery.setSimpleQuery(simpleQuery);
-        blurQuery.setSelector(new Selector());
-
-        BlurResults blurResults = client.query(TERM_BLUR_TABLE_NAME, blurQuery);
-        ArrayList<TermSearchResult> results = new ArrayList<TermSearchResult>();
-        for (BlurResult blurResult : blurResults.getResults()) {
-            Row row = blurResult.getFetchResult().getRowResult().getRow();
-            String rowId = row.getId();
-            assert row.getRecordCount() == 1;
-            Record record = row.getRecords().get(0);
-            String sign = "";
-            String conceptLabel = "";
-            for (Column column : record.getColumns()) {
-                if (column.getName().equals(SIGN_COLUMN_NAME)) {
-                    sign = column.getValue();
-                } else if (column.getName().equals(CONCEPT_LABEL_COLUMN_NAME)) {
-                    conceptLabel = column.getValue();
-                }
-            }
-            TermSearchResult result = new TermSearchResult(rowId, sign, conceptLabel);
-            results.add(result);
-        }
-        return results;
-    }
 }

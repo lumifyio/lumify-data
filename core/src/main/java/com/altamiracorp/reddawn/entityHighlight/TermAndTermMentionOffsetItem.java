@@ -40,6 +40,11 @@ public class TermAndTermMentionOffsetItem extends OffsetItem {
         return termAndTermMention.getTerm().getRowKey().toString();
     }
 
+    @Override
+    public String getGraphNodeId() {
+        return termAndTermMention.getTermMention().getGraphNodeId(termAndTermMention.getTerm());
+    }
+
     public String getConceptLabel() {
         return termAndTermMention.getTerm().getRowKey().getConceptLabel();
     }

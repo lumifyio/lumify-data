@@ -18,6 +18,4 @@ public interface SearchProvider {
     void deleteTables();
 
     void initializeTables();
-
-    Collection<TermSearchResult> searchTerms (String query) throws Exception;
 }

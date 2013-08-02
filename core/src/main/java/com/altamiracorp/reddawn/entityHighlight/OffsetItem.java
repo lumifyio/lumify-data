@@ -17,12 +17,19 @@ public abstract class OffsetItem {
 
     public abstract String getRowKey();
 
+    public String getGraphNodeId() {
+        return null;
+    }
+
     public JSONObject getInfoJson() {
         try {
             JSONObject infoJson = new JSONObject();
             infoJson.put("start", getStart());
             infoJson.put("end", getEnd());
             infoJson.put("rowKey", RowKeyHelper.jsonEncode(getRowKey()));
+            if (getGraphNodeId() != null) {
+                infoJson.put("graphNodeId", getGraphNodeId());
+            }
             infoJson.put("type", getType());
             return infoJson;
         } catch (JSONException e) {
