@@ -1,12 +1,22 @@
 <div class="form">
-  <div class="text src-term"><%= source %></div>
-  <input 
-    placeholder="Statement Label..." 
-    type="text" 
-    value=""></input>
-  <div class="text dest-term"><%= dest %></div>
+
+  <div class="text src-term"><span><%= source %></span></div>
+  <div class="text dest-term"><span><%= dest %></span></div>
+
+  <div class="arrow-wrap">
+    <input 
+      data-provide="typeahead" 
+      autocomplete="off" 
+      class="statement-label" 
+      placeholder="Label" 
+      type="text" 
+      value=""></input>
+    <div class="arrow"/>
+      <a class="invert" href="#">Invert</a>
+  </div>
+
 
   <div class="buttons">
-    <button class="create-statement btn btn-small btn-primary">Create Statement</button>
+    <button class="create-statement btn btn-small btn-primary">Connect</button>
   </div>
 </div>

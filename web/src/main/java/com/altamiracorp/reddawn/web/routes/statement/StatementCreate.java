@@ -24,6 +24,7 @@ import com.altamiracorp.web.HandlerChain;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLDecoder;
 import java.util.Date;
 
 public class StatementCreate implements Handler, AppAware {
@@ -46,15 +47,21 @@ public class StatementCreate implements Handler, AppAware {
         if (subjectRowKey == null) {
             throw new RuntimeException("'subjectRowKey' is required.");
         }
+        subjectRowKey = URLDecoder.decode(subjectRowKey, "UTF-8");
+
         if (objectRowKey == null) {
             throw new RuntimeException("'objectRowKey' is required.");
         }
+        objectRowKey = URLDecoder.decode(objectRowKey, "UTF-8");
+
         if (predicateLabel == null) {
             throw new RuntimeException("'predicateLabel' is required.");
         }
+
         if (sentenceRowKey == null) {
             throw new RuntimeException("'sentenceRowKey' is required.");
         }
+        sentenceRowKey = URLDecoder.decode(sentenceRowKey, "UTF-8");
 
         Sentence containingSentence = sentenceRepository.findByRowKey(session.getModelSession(), sentenceRowKey);
         if(containingSentence == null) {
