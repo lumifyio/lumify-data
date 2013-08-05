@@ -111,14 +111,6 @@ define([
             });
         };
 
-        this.after('teardown', function() {
-            $(this.attr.mentionNode)
-                .parents('.sentence').removeClass('focused')
-                .parents('.text').removeClass('focus');
-
-            this.$node.remove();
-        });
-
         this.after('initialize', function() {
             var self = this,
                 node = this.$node,

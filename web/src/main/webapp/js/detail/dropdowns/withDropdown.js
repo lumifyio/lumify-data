@@ -21,13 +21,14 @@ define(['underscore'], function(_) {
 
         this.after('teardown', function() {
             this.$node
-                .parents('.sentence').removeClass('focused')
-                .parents('.text').removeClass('focus');
+                .closest('.sentence').removeClass('focused')
+                .closest('.text').removeClass('dropdown');
 
             this.$node.remove();
         });
 
         this.after('initialize', function() {
+            this.$node.closest('.text').addClass('dropdown');
             _.defer(this.open.bind(this));
         });
     }

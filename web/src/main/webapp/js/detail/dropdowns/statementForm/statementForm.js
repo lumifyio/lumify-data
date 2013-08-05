@@ -30,10 +30,13 @@ define([
                 dest: this.attr.destTerm.text()
             }));
 
-            
+
             this.applyTermClasses(this.attr.sourceTerm, this.select('sourceTermSelector'));
             this.applyTermClasses(this.attr.destTerm, this.select('destTermSelector'));
 
+            this.attr.sourceTerm.addClass('focused');
+            this.attr.destTerm.addClass('focused');
+            
             this.select('createStatementButtonSelector').attr('disabled', true);
             this.setupLabelTypeAhead();
 
@@ -43,6 +46,12 @@ define([
             });
             this.on('opened', this.onOpened);
         });
+
+        this.after('teardown', function() {
+            this.attr.sourceTerm.removeClass('focused');
+            this.attr.destTerm.removeClass('focused');
+        });
+
 
         this.applyTermClasses = function(el, applyToElement) {
             var classes = el.attr('class').split(/\s+/),

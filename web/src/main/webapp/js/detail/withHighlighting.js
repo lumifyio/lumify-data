@@ -50,8 +50,6 @@ define([
         this.after('initialize', function() {
             this.highlightNode = this.$node.closest('.content');
 
-            this.preventDropEventsFromPropagating();
-
             $(document).on('selectionchange.detail', this.onSelectionChange.bind(this));
             this.highlightNode.on('scrollstop', this.updateEntityAndArtifactDraggables.bind(this));
             this.on('click', {
@@ -122,10 +120,6 @@ define([
             }
         };
 
-        // Ignore drop events so they don't propagate to the graph/map
-        this.preventDropEventsFromPropagating = function() {
-            this.$node.droppable({ accept: '.entity,.term' });
-        };
 
         this.onSelectionChange = function(e) {
             var selection = window.getSelection(),
@@ -228,19 +222,17 @@ define([
                     helper:'clone',
                     revert: 'invalid',
                     revertDuration: 250,
-                    scroll: false,
+                    scroll: true,
                     zIndex: 100,
                     distance: 10,
                     cursorAt: { left: -10, top: -10 },
                     start: function() {
                         $(this)
-                            .parents('.sentence').addClass('focused')
-                            .parents('.text').addClass('focus');
+                            .parents('.text').addClass('drag-focus');
                     },
                     stop: function() {
                         $(this)
-                            .parents('.sentence').removeClass('focused')
-                            .parents('.text').removeClass('focus');
+                            .parents('.text').removeClass('drag-focus');
                     }
                 })
                 .droppable({
@@ -249,9 +241,9 @@ define([
                     tolerance: 'pointer',
                     accept: function(el) {
                         var item = $(el),
-                            isTerm = item.is('.entity'),
-                            sameSentence = isTerm && $(this).closest('.sentence').is(item.closest('.sentence'));
-                        return isTerm && sameSentence;
+                            isEntity = item.is('.entity');
+
+                        return isEntity;
                     },
                     drop: function(event, ui) {
                         var destTerm = $(this),
@@ -260,7 +252,7 @@ define([
                         self.tearDownDropdowns();
 
                         StatementForm.attachTo(form, {
-                            sourceTerm: ui.helper,
+                            sourceTerm: ui.draggable,
                             destTerm: destTerm
                         });
                     }
