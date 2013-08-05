@@ -1,8 +1,6 @@
 package com.altamiracorp.reddawn.entityHighlight;
 
-import com.altamiracorp.reddawn.ucd.object.UcdObjectRowKey;
 import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
-import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -49,16 +47,9 @@ public class TermAndTermMentionOffsetItem extends OffsetItem {
         return termAndTermMention.getTerm().getRowKey().getConceptLabel();
     }
 
-    public UcdObjectRowKey getObjectRowKey() {
-        return termAndTermMention.getTermMention().getObjectRowKey();
-    }
-
     @Override
     public boolean shouldHighlight() {
         if (!super.shouldHighlight()) {
-            return false;
-        }
-        if (termAndTermMention.getTerm().getRowKey().getModelKey().equals(TermRowKey.OBJECT_MODEL_KEY)) {
             return false;
         }
         return true;
@@ -70,9 +61,6 @@ public class TermAndTermMentionOffsetItem extends OffsetItem {
             JSONObject infoJson = super.getInfoJson();
             if (getSubType() != null) {
                 infoJson.put("subType", getSubType());
-            }
-            if (getObjectRowKey() != null) {
-                infoJson.put("objectRowKey", getObjectRowKey().toJson());
             }
             return infoJson;
         } catch (JSONException e) {

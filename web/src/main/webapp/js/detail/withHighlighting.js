@@ -205,7 +205,7 @@ define([
                 sign: text,
                 selection: sel && { anchor:sel.anchorNode, focus:sel.focusNode, anchorOffset: sel.anchorOffset, focusOffset: sel.focusOffset },
                 mentionNode: insertAfterNode,
-                artifactKey: this.currentRowKey
+                artifactKey: this.attr.data.rowKey
             });
         };
 

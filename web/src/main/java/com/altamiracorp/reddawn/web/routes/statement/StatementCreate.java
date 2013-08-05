@@ -1,11 +1,7 @@
 package com.altamiracorp.reddawn.web.routes.statement;
 
 import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.entityHighlight.TermAndTermMentionOffsetItem;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
-import com.altamiracorp.reddawn.ucd.object.UcdObject;
-import com.altamiracorp.reddawn.ucd.object.UcdObjectObjectStatement;
-import com.altamiracorp.reddawn.ucd.object.UcdObjectRepository;
 import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
@@ -13,7 +9,7 @@ import com.altamiracorp.reddawn.ucd.statement.Statement;
 import com.altamiracorp.reddawn.ucd.statement.StatementArtifact;
 import com.altamiracorp.reddawn.ucd.statement.StatementRepository;
 import com.altamiracorp.reddawn.ucd.statement.StatementRowKey;
-import com.altamiracorp.reddawn.ucd.term.*;
+import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;
@@ -64,7 +60,7 @@ public class StatementCreate implements Handler, AppAware {
         sentenceRowKey = URLDecoder.decode(sentenceRowKey, "UTF-8");
 
         Sentence containingSentence = sentenceRepository.findByRowKey(session.getModelSession(), sentenceRowKey);
-        if(containingSentence == null) {
+        if (containingSentence == null) {
             throw new RuntimeException("The sentence row key given was not found.");
         }
 
@@ -76,9 +72,9 @@ public class StatementCreate implements Handler, AppAware {
 
     private static Statement createStatement(String subjectRowKey, String predicateLabel, String objectRowKey, Sentence containingSentence) {
         ArtifactType artifactType = ArtifactType.DOCUMENT;
-        if(containingSentence.getMetadata().getArtifactType().equalsIgnoreCase("image")) {
+        if (containingSentence.getMetadata().getArtifactType().equalsIgnoreCase("image")) {
             artifactType = ArtifactType.IMAGE;
-        } else if(containingSentence.getMetadata().getArtifactType().equalsIgnoreCase("video")) {
+        } else if (containingSentence.getMetadata().getArtifactType().equalsIgnoreCase("video")) {
             artifactType = ArtifactType.VIDEO;
         }
 

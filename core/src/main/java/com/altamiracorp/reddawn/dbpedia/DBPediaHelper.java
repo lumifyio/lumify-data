@@ -6,8 +6,6 @@ import com.altamiracorp.reddawn.model.Value;
 import com.altamiracorp.reddawn.model.dbpedia.DBPedia;
 import com.altamiracorp.reddawn.model.dbpedia.DBPediaRepository;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
-import com.altamiracorp.reddawn.ucd.object.UcdObject;
-import com.altamiracorp.reddawn.ucd.object.UcdObjectRowKey;
 import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
 import com.altamiracorp.reddawn.ucd.statement.Statement;
@@ -55,11 +53,6 @@ public class DBPediaHelper {
     }
 
     public Term createTerm(DBPedia dbpedia, String dbpediaSourceArtifactRowKey) {
-        UcdObjectRowKey objectRowKey = getObjectRowKey(dbpedia);
-        if (objectRowKey == null) {
-            return null;
-        }
-
         Term term = new Term(getTermRowKey(dbpedia));
         TermMention termMention = createTermMention(dbpediaSourceArtifactRowKey);
 
@@ -73,6 +66,21 @@ public class DBPediaHelper {
 
         term.addTermMention(termMention);
         return term;
+    }
+
+    private TermRowKey getTermRowKey(DBPedia dbpedia) {
+        String sign = dbpedia.getLabel().getLabel();
+        if (sign == null || sign.length() == 0) {
+            return null;
+        }
+
+        String modelKey = TermRowKey.DBPEDIA_MODEL_KEY;
+        String conceptLabel = dbPediaRepository.getConceptLabel(dbpedia);
+        if (conceptLabel == null) {
+            return null;
+        }
+
+        return new TermRowKey(sign, modelKey, conceptLabel);
     }
 
     private static TermMention createTermMention(String dbpediaSourceArtifactRowKey) {
@@ -89,26 +97,6 @@ public class DBPediaHelper {
                 .setSentenceText("")
                 .setSentenceTokenOffset(0L);
         return termMention;
-    }
-
-    private UcdObjectRowKey getObjectRowKey(DBPedia dbpedia) {
-        String sign = dbpedia.getLabel().getLabel();
-        if (sign == null || sign.length() == 0) {
-            return null;
-        }
-
-        String modelKey = TermRowKey.OBJECT_MODEL_KEY;
-        String conceptLabel = dbPediaRepository.getConceptLabel(dbpedia);
-        if (conceptLabel == null) {
-            return null;
-        }
-
-        return new UcdObjectRowKey(sign, modelKey, conceptLabel);
-    }
-
-    private TermRowKey getTermRowKey(DBPedia dbpedia) {
-        UcdObjectRowKey objectRowKey = getObjectRowKey(dbpedia);
-        return new TermRowKey(objectRowKey.getSign(), TermRowKey.DBPEDIA_MODEL_KEY, objectRowKey.getConceptLabel());
     }
 
     public class CreateStatementsResult {
@@ -156,17 +144,6 @@ public class DBPediaHelper {
         }
 
         return createStatementsResult;
-    }
-
-    public UcdObject createUcdObject(DBPedia dbpedia, List<Statement> statements) {
-        if (statements.size() == 0) {
-            return null;
-        }
-        UcdObject obj = new UcdObject(getObjectRowKey(dbpedia));
-        for (Statement statement : statements) {
-            obj.getUcdObjectObjectStatement().addStatement(statement);
-        }
-        return obj;
     }
 
     private static abstract class PredicateMapAction {

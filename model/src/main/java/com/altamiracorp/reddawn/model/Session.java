@@ -10,7 +10,6 @@ import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.concept.Concept;
 import com.altamiracorp.reddawn.ucd.concept.ConceptRepository;
 import com.altamiracorp.reddawn.ucd.concept.ConceptRowKey;
-import com.altamiracorp.reddawn.ucd.object.UcdObject;
 import com.altamiracorp.reddawn.ucd.predicate.Predicate;
 import com.altamiracorp.reddawn.ucd.predicate.PredicateRepository;
 import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
@@ -69,7 +68,6 @@ public abstract class Session {
         initializeTable(Sentence.TABLE_NAME);
         initializeTable(ArtifactTermIndex.TABLE_NAME);
         initializeTable(Statement.TABLE_NAME);
-        initializeTable(UcdObject.TABLE_NAME);
         initializeTable(Concept.TABLE_NAME);
         initializeTable(Predicate.TABLE_NAME);
 
@@ -138,7 +136,6 @@ public abstract class Session {
         deleteTable(Sentence.TABLE_NAME);
         deleteTable(ArtifactTermIndex.TABLE_NAME);
         deleteTable(Statement.TABLE_NAME);
-        deleteTable(UcdObject.TABLE_NAME);
         deleteTable(Concept.TABLE_NAME);
         deleteTable(Predicate.TABLE_NAME);
 
