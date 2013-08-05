@@ -40,21 +40,15 @@ public class EntityRelationships implements Handler, AppAware {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = this.app.getRedDawnSession(request);
 
-        JSONObject jsonArray = new JSONObject(request.getParameter("json"));
-        JSONArray entityIds = jsonArray.getJSONArray("entityIds");
-        JSONArray artifactIds = jsonArray.getJSONArray("artifactIds");
+        String [] ids = request.getParameterValues("ids[]");
+        if (ids == null) {
+            ids = new String [0];
+        }
 
         List<String> allIds = new ArrayList<String>();
-        List<String> artifactGraphNodeIds = new ArrayList<String>();
-        List<String> entityGraphNodeIds = new ArrayList<String>();
 
-        for (int i = 0; i < entityIds.length(); i++) {
-            allIds.add(entityIds.getString(i));
-            entityGraphNodeIds.add(entityIds.getString(i));
-        }
-        for (int i = 0; i < artifactIds.length(); i++) {
-            allIds.add(artifactIds.getString(i));
-            artifactGraphNodeIds.add(artifactIds.getString(i));
+        for (int i = 0; i < ids.length; i++) {
+            allIds.add(ids[i]);
         }
 
         JSONArray resultsJson = new JSONArray();
@@ -64,11 +58,13 @@ public class EntityRelationships implements Handler, AppAware {
         for (Map.Entry<String, HashSet<String>> relationship : relationships.entrySet()){
             for (String toId : relationship.getValue()) {
                 JSONObject rel = new JSONObject();
-                if (artifactGraphNodeIds.contains(relationship.getKey())){
+                String type = graphRepository.getNodeType(session.getGraphSession(), relationship.getKey());
+                if (type.equals("artifact")) {
                     rel.put("relationshipType", "artifactToEntity");
-                } else if (entityGraphNodeIds.contains(relationship.getKey())) {
-                    rel.put("relationshipType", "entityToEntity");
+                } else {
+                    rel.put ("relationshipType", "entityToEntity");
                 }
+
                 rel.put("from", relationship.getKey());
                 rel.put("to", toId);
                 resultsJson.put(rel);

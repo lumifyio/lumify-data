@@ -161,4 +161,9 @@ public class TitanGraphSession extends GraphSession {
         return relationshipMap;
     }
 
+    @Override
+    public String getNodeType (String graphNodeId) {
+        Vertex vertex = findVertex(graphNodeId);
+        return vertex.getProperty("type");
+    }
 }

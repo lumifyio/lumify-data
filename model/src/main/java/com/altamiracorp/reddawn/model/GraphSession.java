@@ -17,4 +17,6 @@ public abstract class GraphSession {
     public abstract List<GraphNode> getRelatedNodes(String graphNodeId);
 
     public abstract HashMap<String, HashSet<String>> getRelationships(List<String> allIds);
+
+    public abstract String getNodeType (String graphNodeId);
 }

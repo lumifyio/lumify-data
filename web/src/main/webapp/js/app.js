@@ -430,16 +430,25 @@ define([
 
         this.refreshRelationships = function() {
             var self = this;
-            var entityIds = this.getEntityIds();
-            var artifactIds = this.getArtifactIds();
+            var ids = this.getIds();
 
-            this.ucdService.getRelationships(entityIds, artifactIds, function(err, relationships) {
+            this.ucdService.getRelationships(ids, function(err, relationships) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
                 self.trigger(document, 'relationshipsLoaded', { relationships: relationships });
             });
+        };
+
+        this.getIds = function () {
+           if (this.workspaceData.data === undefined || this.workspaceData.data.nodes === undefined) {
+               return [];
+           }
+           return this.workspaceData.data.nodes
+               .map(function(node) {
+                   return node.graphNodeId;
+               });
         };
 
         this.getEntityIds = function() {
