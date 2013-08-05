@@ -33,7 +33,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class Router extends HttpServlet {
-    private App app;
+    private WebApp app;
     final File rootDir = new File("./web/src/main/webapp");
 
     @Override
@@ -99,6 +99,7 @@ public class Router extends HttpServlet {
             HttpServletResponse httpResponse = (HttpServletResponse) resp;
             httpResponse.addHeader("Accept-Ranges", "bytes");
             app.handle((HttpServletRequest) req, httpResponse);
+            app.close(req);
         } catch (Exception e) {
             throw new ServletException(e);
         }

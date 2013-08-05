@@ -75,7 +75,7 @@ public class RedDawnSession {
     }
 
     public void close() {
-
+        graphSession.close();
     }
 
     public Session getModelSession() {

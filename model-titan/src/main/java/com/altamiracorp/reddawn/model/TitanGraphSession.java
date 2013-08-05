@@ -5,12 +5,9 @@ import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.TitanVertexQuery;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.gremlin.groovy.Gremlin;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -145,8 +142,8 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public HashMap<String, HashSet<String>> getRelationships (List<String> allIds) {
-        HashMap <String, HashSet<String>> relationshipMap = new HashMap<String, HashSet<String>>();
+    public HashMap<String, HashSet<String>> getRelationships(List<String> allIds) {
+        HashMap<String, HashSet<String>> relationshipMap = new HashMap<String, HashSet<String>>();
         for (String id : allIds) {
             relationshipMap.put(id, new HashSet<String>());
             Vertex vertex = this.graph.getVertex(id);
@@ -162,8 +159,13 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public String getNodeType (String graphNodeId) {
+    public String getNodeType(String graphNodeId) {
         Vertex vertex = findVertex(graphNodeId);
         return vertex.getProperty("type");
+    }
+
+    @Override
+    public void close() {
+        graph.shutdown();
     }
 }
