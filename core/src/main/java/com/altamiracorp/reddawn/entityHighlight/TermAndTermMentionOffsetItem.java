@@ -47,6 +47,10 @@ public class TermAndTermMentionOffsetItem extends OffsetItem {
         return termAndTermMention.getTerm().getRowKey().getConceptLabel();
     }
 
+    public String getTitle() {
+        return termAndTermMention.getTerm().getRowKey().getSign();
+    }
+
     @Override
     public boolean shouldHighlight() {
         if (!super.shouldHighlight()) {
@@ -59,6 +63,7 @@ public class TermAndTermMentionOffsetItem extends OffsetItem {
     public JSONObject getInfoJson() {
         try {
             JSONObject infoJson = super.getInfoJson();
+            infoJson.put("title", getTitle());
             if (getSubType() != null) {
                 infoJson.put("subType", getSubType());
             }
