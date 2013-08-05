@@ -3,8 +3,6 @@ package com.altamiracorp.reddawn.web.routes.statement;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
-import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
-import com.altamiracorp.reddawn.ucd.statement.StatementRepository;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
@@ -20,10 +18,7 @@ import java.net.URLDecoder;
 
 public class StatementCreate implements Handler, AppAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(StatementCreate.class.getName());
-    private static final String MODEL_KEY = "manual";
     private WebApp app;
-    private StatementRepository statementRepository = new StatementRepository();
-    private SentenceRepository sentenceRepository = new SentenceRepository();
     private GraphRepository graphRepository = new GraphRepository();
 
     @Override
