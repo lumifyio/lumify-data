@@ -29,7 +29,7 @@ class opencv($tmpdir="/usr/local/src") {
     cwd         => $srcdir,
     command     => $cmake,
     path        => "/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin:${tmpdir}/apache-ant-1.9.2-bin/bin",
-    environment => "ANT_DIR=${tmpdir}/apache-ant-1.9.2-bin",
+    environment => "ANT_DIR=${tmpdir}/apache-ant-1.9.2",
     require     => Exec['opencv-java-patch'],
   }
 
@@ -38,7 +38,7 @@ class opencv($tmpdir="/usr/local/src") {
     command     => "${make} && ${install}",
     creates     => "${prefix}/lib/libopencv_java245.so",
     path        => "/usr/lib64/qt-3.3/bin:/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/vagrant/bin:${tmpdir}/apache-ant-1.9.2-bin/bin",
-    environment => "ANT_DIR=${tmpdir}/apache-ant-1.9.2-bin",
+    environment => "ANT_DIR=${tmpdir}/apache-ant-1.9.2",
     timeout     => 0,
     require     => Exec['opencv-cmake'],
   }
