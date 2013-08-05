@@ -11,6 +11,12 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,11 +32,14 @@ public class TitanGraphSession extends GraphSession {
     public static final String DEFAULT_STORAGE_TABLE_NAME = "atc_titan";
     public static final String DEFAULT_BACKEND_NAME = AccumuloStorageManager.class.getName();
     public static final String DEFAULT_SEARCH_NAME = "elasticsearch";
+    private static final String DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME = "titan";
+    private static final Integer DEFAULT_STORAGE_INDEX_SEARCH_PORT = 9300;
     private final TitanGraph graph;
+    private Properties localConf;
 
     public TitanGraphSession(Properties props) {
         super();
-
+        localConf = props;
         PropertiesConfiguration conf = new PropertiesConfiguration();
         conf.setProperty("storage.backend", props.getProperty(STORAGE_BACKEND_KEY, DEFAULT_BACKEND_NAME));
         conf.setProperty("storage.tablename", props.getProperty(STORAGE_TABLE_NAME_KEY, DEFAULT_STORAGE_TABLE_NAME));
@@ -167,5 +176,13 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public void close() {
         graph.shutdown();
-    }
+	}
+	
+	@Override
+    public void deleteSearchIndex() {
+        LOGGER.info("delete search index: " + DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME);
+        //TODO: should port be configurable? How about cluster name?
+        TransportClient client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(localConf.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME,"localhost"),DEFAULT_STORAGE_INDEX_SEARCH_PORT));
+        client.admin().indices().delete(new DeleteIndexRequest(DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME)).actionGet();
+	}
 }

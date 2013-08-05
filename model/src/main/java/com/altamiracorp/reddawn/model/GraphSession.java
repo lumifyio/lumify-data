@@ -21,4 +21,7 @@ public abstract class GraphSession {
     public abstract String getNodeType (String graphNodeId);
 
     public abstract void close();
+
+    public abstract void deleteSearchIndex ();
+
 }

@@ -76,16 +76,16 @@ define([
         this.onCreateStatement = function(event) {
             var self = this,
                 parameters = {
-                    subjectKey: this.attr.sourceTerm.data('info').rowKey,
-                    objectKey: this.attr.destTerm.data('info').rowKey,
+                    sourceGraphNodeId: this.attr.sourceTerm.data('info').graphNodeId,
+                    destGraphNodeId: this.attr.destTerm.data('info').graphNodeId,
                     predicateLabel: this.select('statementLabelSelector').val(),
                     sentenceRowKey: this.attr.destTerm.closest('.sentence').data('info').rowKey
                 };
 
             if (this.select('formSelector').hasClass('invert')) {
-                var swap = parameters.subjectKey;
-                parameters.subjectKey = parameters.objectKey;
-                parameters.objectKey = swap;
+                var swap = parameters.sourceGraphNodeId;
+                parameters.sourceGraphNodeId = parameters.destGraphNodeId;
+                parameters.destGraphNodeId = swap;
             }
 
             this.statementService.createStatement(parameters, function(err, data) {
