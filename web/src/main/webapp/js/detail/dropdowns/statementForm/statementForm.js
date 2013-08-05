@@ -93,6 +93,7 @@ define([
                     self.trigger(document, 'error', err);
                 } else {
                     _.defer(self.teardown.bind(self));
+                    self.trigger(document, 'refreshRelationships');
                 }
             });
         };
