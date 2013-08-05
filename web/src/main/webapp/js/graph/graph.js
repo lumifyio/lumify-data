@@ -234,7 +234,7 @@ define([
                 originalPosition: currentNodeOriginalPosition,
                 type : menu.data("currentNodeType")
             };
-            this.trigger (document, 'loadRelatedSelected', data);
+            this.onLoadRelatedSelected(data);
         };
 
         this.onContextMenuFitToWindow = function() {
@@ -544,7 +544,7 @@ define([
             });
         };
 
-        this.onLoadRelatedSelected = function(evt, data) {
+        this.onLoadRelatedSelected = function(data) {
             var self = this;
 
             if ($.isArray(data) && data.length == 1){
@@ -603,7 +603,6 @@ define([
             this.on(document, 'nodesDeleted', this.onNodesDeleted);
             this.on(document, 'nodesUpdated', this.onNodesUpdated);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
-            this.on(document, 'loadRelatedSelected', this.onLoadRelatedSelected);
             this.on(document, 'graphPaddingResponse', this.onGraphPadding);
 
             cytoscape("renderer", "red-dawn", Renderer);
