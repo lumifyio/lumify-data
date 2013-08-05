@@ -64,11 +64,33 @@ class buildtools($tmpdir="/usr/local/src") {
     path => $tmpdir,
   }
 
+  $ant_home = "${tmpdir}/apache-ant-${antVersion}"
+
+  file { "/etc/profile.d/ant.sh":
+    ensure   => file,
+    content  => template("buildtools/ant.sh.erb"),
+    owner    => "root",
+    group    => "root",
+    force    => true,
+    require  => Macro::Extract['ant-extract'],
+  }
+
   macro::download { 'maven-download':
     url  => "http://www.us.apache.org/dist/maven/binaries/apache-maven-${mavenVersion}-bin.tar.gz",
     path => "${tmpdir}/apache-maven-${mavenVersion}-bin.tar.gz",
   } -> macro::extract { 'maven-extract':
     file => "${tmpdir}/apache-maven-${mavenVersion}-bin.tar.gz",
     path => $tmpdir,
+  }
+
+  $mvn_home = "${tmpdir}/apache-maven-${mavenVersion}"
+
+  file { "/etc/profile.d/maven.sh":
+    ensure   => file,
+    content  => template("buildtools/maven.sh.erb"),
+    owner    => "root",
+    group    => "root",
+    force    => true,
+    require  => Macro::Extract['maven-extract'],
   }
 }

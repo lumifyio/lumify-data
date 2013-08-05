@@ -42,5 +42,14 @@ class opencv($tmpdir="/usr/local/src") {
     timeout     => 0,
     require     => Exec['opencv-cmake'],
   }
+
+  file { "/etc/profile.d/opencv.sh":
+    ensure   => file,
+    source   => "puppet:///modules/opencv/opencv.sh",
+    owner    => "root",
+    group    => "root",
+    force    => true,
+    require  => Exec['opencv-build'],
+  }
 }
 
