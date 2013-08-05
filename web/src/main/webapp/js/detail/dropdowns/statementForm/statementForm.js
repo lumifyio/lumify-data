@@ -4,8 +4,7 @@ define([
     '../withDropdown',
     'tpl!./statementForm',
     'service/statement',
-    'underscore',
-    'bigText'
+    'underscore'
 ], function(defineComponent, withDropdown, statementFormTemplate, StatementService, _) {
     'use strict';
 
@@ -35,7 +34,6 @@ define([
             this.applyTermClasses(this.attr.sourceTerm, this.select('sourceTermSelector'));
             this.applyTermClasses(this.attr.destTerm, this.select('destTermSelector'));
 
-            this.select('termLabelsSelector').bigText({maximumFontSize: 20});
             this.select('createStatementButtonSelector').attr('disabled', true);
             this.setupLabelTypeAhead();
 

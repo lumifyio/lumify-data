@@ -249,13 +249,15 @@ define([
                     tolerance: 'pointer',
                     accept: function(el) {
                         var item = $(el),
-                            isTerm = item.is('.term'),
+                            isTerm = item.is('.entity'),
                             sameSentence = isTerm && $(this).closest('.sentence').is(item.closest('.sentence'));
                         return isTerm && sameSentence;
                     },
                     drop: function(event, ui) {
                         var destTerm = $(this),
                             form = $('<div class="underneath"/>').insertAfter(destTerm);
+
+                        self.tearDownDropdowns();
 
                         StatementForm.attachTo(form, {
                             sourceTerm: ui.helper,
