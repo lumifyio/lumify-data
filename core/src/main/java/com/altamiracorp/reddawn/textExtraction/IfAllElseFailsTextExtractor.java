@@ -6,6 +6,9 @@ import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import org.apache.hadoop.mapreduce.Mapper;
 
 public class IfAllElseFailsTextExtractor implements TextExtractor {
+
+    private static final String NAME = "ifAllElseFailsExtractor";
+
     @Override
     public void setup(Mapper.Context context) {
     }
@@ -38,6 +41,11 @@ public class IfAllElseFailsTextExtractor implements TextExtractor {
     @Override
     public VideoFrameExtractedInfo extract(Session session, VideoFrame videoFrame) throws Exception {
         return null;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
 }

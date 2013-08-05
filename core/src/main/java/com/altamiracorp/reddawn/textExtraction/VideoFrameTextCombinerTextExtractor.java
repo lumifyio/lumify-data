@@ -11,6 +11,8 @@ import org.apache.hadoop.mapreduce.Mapper;
 import java.util.List;
 
 public class VideoFrameTextCombinerTextExtractor implements TextExtractor {
+    private static final String NAME = "videoFrameTextCombinerExtractor";
+
     private VideoFrameRepository videoFrameRepository = new VideoFrameRepository();
 
     @Override
@@ -41,6 +43,11 @@ public class VideoFrameTextCombinerTextExtractor implements TextExtractor {
     @Override
     public VideoFrameExtractedInfo extract(Session session, VideoFrame videoFrame) throws Exception {
         return null;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
 

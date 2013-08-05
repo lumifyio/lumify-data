@@ -66,7 +66,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
                 }
 
                 if (extractedInfo.getText() != null) {
-                    artifact.getContent().setDocExtractedText(extractedInfo.getText().getBytes());
+                    artifact.getArtifactExtractedText().addExtractedText(textExtractor.getName(),extractedInfo.getText());
                 }
 
                 if (extractedInfo.getSubject() != null) {

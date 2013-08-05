@@ -38,6 +38,7 @@ public class TikaTextExtractor implements TextExtractor {
     ArtifactRepository artifactRepository = new ArtifactRepository();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaTextExtractor.class);
+    private static final String NAME = "tikaExtractor";
 
     private static final String MIME_TYPE_KEY = "Content-Type";
 
@@ -162,6 +163,11 @@ public class TikaTextExtractor implements TextExtractor {
     @Override
     public VideoFrameExtractedInfo extract(Session session, VideoFrame videoFrame) throws Exception {
         return null;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private String extractTextFromHtml(String text) throws BoilerpipeProcessingException {
