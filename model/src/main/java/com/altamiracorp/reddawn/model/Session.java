@@ -78,6 +78,8 @@ public abstract class Session {
         initializeTable(VideoFrame.TABLE_NAME);
         initializeTable(DBPedia.TABLE_NAME);
 
+        initializeTable("atc_titan"); // see com.altamiracorp.reddawn.model.TitanGraphSession
+
         addDefaultConcepts();
         addDefaultPredicates();
         addDbpediaSourceArtifact();
@@ -144,6 +146,8 @@ public abstract class Session {
         deleteTable(GeoName.TABLE_NAME);
         deleteTable(VideoFrame.TABLE_NAME);
         deleteTable(DBPedia.TABLE_NAME);
+
+        deleteTable("atc_titan"); // see com.altamiracorp.reddawn.model.TitanGraphSession
     }
 
     public abstract SaveFileResults saveFile(InputStream in);
