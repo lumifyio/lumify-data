@@ -29,9 +29,7 @@ import java.util.*;
 
 public class EntityRelationships implements Handler, AppAware {
     private WebApp app;
-    private StatementRepository statementRepository = new StatementRepository();
     private GraphRepository graphRepository = new GraphRepository();
-    private ArtifactTermIndexRepository artifactTermIndexRepository = new ArtifactTermIndexRepository();
 
     @Override
     public void setApp(App app) {
@@ -47,12 +45,16 @@ public class EntityRelationships implements Handler, AppAware {
         JSONArray artifactIds = jsonArray.getJSONArray("artifactIds");
 
         List<String> allIds = new ArrayList<String>();
+        List<String> artifactGraphNodeIds = new ArrayList<String>();
+        List<String> entityGraphNodeIds = new ArrayList<String>();
 
         for (int i = 0; i < entityIds.length(); i++) {
             allIds.add(entityIds.getString(i));
+            entityGraphNodeIds.add(entityIds.getString(i));
         }
         for (int i = 0; i < artifactIds.length(); i++) {
             allIds.add(artifactIds.getString(i));
+            artifactGraphNodeIds.add(artifactIds.getString(i));
         }
 
         JSONArray resultsJson = new JSONArray();
@@ -62,7 +64,11 @@ public class EntityRelationships implements Handler, AppAware {
         for (Map.Entry<String, HashSet<String>> relationship : relationships.entrySet()){
             for (String toId : relationship.getValue()) {
                 JSONObject rel = new JSONObject();
-                rel.put("relationshipType", "relationship");
+                if (artifactGraphNodeIds.contains(relationship.getKey())){
+                    rel.put("relationshipType", "artifactToEntity");
+                } else if (entityGraphNodeIds.contains(relationship.getKey())) {
+                    rel.put("relationshipType", "entityToEntity");
+                }
                 rel.put("from", relationship.getKey());
                 rel.put("to", toId);
                 resultsJson.put(rel);
