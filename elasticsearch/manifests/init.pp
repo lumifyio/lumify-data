@@ -8,6 +8,7 @@ class elasticsearch(
   $tmpdir = '/tmp'
 ) {
   include macro
+  require hadoop
 
   $homedir = "${installdir}/elasticsearch-${version}"
   $homelink = "${installdir}/elasticsearch"
