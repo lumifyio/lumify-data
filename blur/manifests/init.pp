@@ -88,6 +88,13 @@ class blur (
     mode    => 0775,
   }
 
+  file { "${homedir}/conf":
+    ensure  => link,
+    target  => $configlink,
+    force   => true,
+    require => [Macro::Extract[$downloadpath], File[$configlink]],
+  }
+
   file { "${homedir}/pids":
     ensure  => link,
     target  => $piddir,
