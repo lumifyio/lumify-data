@@ -161,8 +161,7 @@ public class TitanGraphSession extends GraphSession {
                 if (allIds.contains(v.getId().toString())) {
                     Edge e = findEdge(id, v.getId().toString());
                     if (e != null){
-                        e.setProperty("relationshipType", e.getLabel());
-                        e.setProperty("edgeId", e.getId().toString());
+                        e.setProperty("RelationshipType", e.getLabel());
                         relationshipMap.get(id).add(v.getId().toString());
                     }
                 }
@@ -184,9 +183,12 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public String getNodeType(String graphNodeId) {
-        Vertex vertex = findVertex(graphNodeId);
-        return vertex.getProperty("type");
+    public String findTitle(String graphNodeId) {
+        GraphNode node = new TitanGraphNode(findVertex(graphNodeId));
+        if (node.getProperty("title") != "") {
+            return node.getProperty("title").toString();
+        }
+        return node.getProperty("type").toString();
     }
 
     @Override

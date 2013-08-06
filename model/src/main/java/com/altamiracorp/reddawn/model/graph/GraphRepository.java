@@ -7,8 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 
 public class GraphRepository {
-    public String getNodeType(GraphSession graphSession, String graphNodeId) {
-        return graphSession.getNodeType(graphNodeId);
+    public String findTitle (GraphSession graphSession, String graphNodeId) {
+        return graphSession.findTitle(graphNodeId);
     }
 
     public List<GraphNode> getRelatedNodes(GraphSession graphSession, String graphNodeId) {
