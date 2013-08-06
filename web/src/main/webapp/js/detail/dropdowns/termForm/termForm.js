@@ -76,6 +76,7 @@ define([
                     self.trigger(document, 'error', err);
                 } else {
                     self.highlightTerm(data);
+                    self.trigger(document, 'termCreated', data);
                     _.defer(self.teardown.bind(self));
                 }
             });
@@ -203,8 +204,6 @@ define([
                              .addClass(data.cssClasses.join(' '))
                              .removeClass('focused');
                 this.promoted = null;
-
-                this.trigger(document, 'termCreated', data);
             }
         };
 
