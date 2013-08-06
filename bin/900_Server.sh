@@ -1,4 +1,12 @@
 #!/bin/bash
+# require: 215_ArtifactFaceDetectionMR.sh
+# require: 215_VideoFrameFaceDetectionMR.sh
+# require: 300_VideoPreviewMR.sh
+# require: 710_TermMentionToTitanMR.sh
+# require: 500_StatementExtractionMR.sh
+# require: 600_ArtifactLocationExtractionMR.sh
+# require: 790_ArtifactHighlighting.sh
+# require: 800_BlurSearchIndexBuilder.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do

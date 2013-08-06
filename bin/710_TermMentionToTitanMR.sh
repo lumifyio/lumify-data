@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 300_DictionaryEntityExtractionMR.sh, 300_EntityExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
