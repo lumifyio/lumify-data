@@ -322,8 +322,8 @@ define([
                     nodes: []
                 };
                 data.nodes.forEach(function(node) {
-                    var matchingWorkspaceNodes = ws.data.nodes.filter(function(workspaceNode) { 
-                        return workspaceNode.rowKey == node.rowKey; 
+                    var matchingWorkspaceNodes = ws.data.nodes.filter(function(workspaceNode) {
+                        return workspaceNode.graphNodeId == node.graphNodeId;
                     });
 
                     matchingWorkspaceNodes.forEach(function(workspaceNode) {
