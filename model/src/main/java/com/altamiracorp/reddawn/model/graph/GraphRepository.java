@@ -24,4 +24,8 @@ public class GraphRepository {
         graphSession.save(relationship);
         return relationship;
     }
+
+    public HashMap<String, String> getEdgeProperties (GraphSession graphSession, String sourceNode, String destNode){
+        return graphSession.getEdgeProperties (sourceNode, destNode);
+    }
 }

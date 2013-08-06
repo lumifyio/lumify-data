@@ -161,8 +161,8 @@ public class TitanGraphSession extends GraphSession {
                 if (allIds.contains(v.getId().toString())) {
                     Edge e = findEdge(id, v.getId().toString());
                     if (e != null){
-                        GraphRelationship graphRelationship = new GraphRelationship(e.getId().toString(), id, v.getId().toString(), e.getLabel());
-                        save(graphRelationship);
+                        e.setProperty("relationshipType", e.getLabel());
+                        e.setProperty("edgeId", e.getId().toString());
                         relationshipMap.get(id).add(v.getId().toString());
                     }
                 }
@@ -170,6 +170,17 @@ public class TitanGraphSession extends GraphSession {
         }
 
         return relationshipMap;
+    }
+
+    @Override
+    public HashMap<String, String> getEdgeProperties (String sourceNode, String destNode){
+        HashMap<String, String> properties = new HashMap<String, String>();
+        Edge e = findEdge(sourceNode, destNode);
+        for (String property : e.getPropertyKeys()){
+            properties.put(property, e.getProperty(property).toString());
+        }
+
+        return properties;
     }
 
     @Override

@@ -24,4 +24,6 @@ public abstract class GraphSession {
 
     public abstract void deleteSearchIndex ();
 
+    public abstract HashMap<String, String> getEdgeProperties (String sourceNode, String destNode);
+
 }

@@ -7,6 +7,7 @@ import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
 import com.altamiracorp.reddawn.web.routes.concept.ConceptList;
 import com.altamiracorp.reddawn.web.routes.entity.*;
+import com.altamiracorp.reddawn.web.routes.graph.GraphNodeToGraphNodeRelationship;
 import com.altamiracorp.reddawn.web.routes.graph.GraphRelatedNodes;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
@@ -70,6 +71,7 @@ public class Router extends HttpServlet {
         app.post("/entity/create", authenticator, EntityCreate.class);
 
         app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedNodes.class);
+        app.get("/graph/relationship", authenticator, GraphNodeToGraphNodeRelationship.class);
 
         app.get("/workspace/", authenticator, WorkspaceList.class);
         app.post("/workspace/save", authenticator, WorkspaceSave.class);
