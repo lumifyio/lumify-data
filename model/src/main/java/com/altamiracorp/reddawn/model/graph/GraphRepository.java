@@ -7,8 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 
 public class GraphRepository {
-    public String getNodeType (GraphSession graphSession, String graphNodeId) {
-        return graphSession.getNodeType (graphNodeId);
+    public String getNodeType(GraphSession graphSession, String graphNodeId) {
+        return graphSession.getNodeType(graphNodeId);
     }
 
     public List<GraphNode> getRelatedNodes(GraphSession graphSession, String graphNodeId) {
@@ -17,5 +17,11 @@ public class GraphRepository {
 
     public HashMap<String, HashSet<String>> getRelationships(GraphSession graphSession, List<String> allIds) {
         return graphSession.getRelationships(allIds);
+    }
+
+    public GraphRelationship saveRelationship(GraphSession graphSession, String sourceGraphNodeId, String destGraphNodeId, String label) {
+        GraphRelationship relationship = new GraphRelationship(null, sourceGraphNodeId, destGraphNodeId, label);
+        graphSession.save(relationship);
+        return relationship;
     }
 }

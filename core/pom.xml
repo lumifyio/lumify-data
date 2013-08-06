@@ -10,10 +10,6 @@
     <version>1.0-SNAPSHOT</version>
     <name>Core</name>
 
-    <properties>
-        <javacv.version>0.2</javacv.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.altamiracorp.reddawn</groupId>

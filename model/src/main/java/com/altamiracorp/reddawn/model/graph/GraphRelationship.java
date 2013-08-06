@@ -1,6 +1,10 @@
 package com.altamiracorp.reddawn.model.graph;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class GraphRelationship {
@@ -39,5 +43,25 @@ public class GraphRelationship {
 
     public Object getProperty(String propertyKey) {
         return properties.get(propertyKey);
+    }
+
+    public JSONObject toJson() {
+        try {
+            JSONObject json = new JSONObject();
+            json.put("id", getId());
+            json.put("label", getLabel());
+            json.put("sourceNodeId", getSourceNodeId());
+            json.put("destNodeId", getDestNodeId());
+
+            JSONObject propertiesJson = new JSONObject();
+            for (Map.Entry<String, Object> property : this.properties.entrySet()) {
+                propertiesJson.put(property.getKey(), property.getValue().toString());
+            }
+            json.put("properties", propertiesJson);
+
+            return json;
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

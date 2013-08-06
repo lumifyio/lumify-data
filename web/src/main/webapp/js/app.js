@@ -103,6 +103,8 @@ define([
             this.on(document, 'updateNodes', this.onUpdateNodes);
             this.on(document, 'deleteNodes', this.onDeleteNodes);
 
+            this.on(document, 'refreshRelationships', this.refreshRelationships);
+
             this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
 
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);

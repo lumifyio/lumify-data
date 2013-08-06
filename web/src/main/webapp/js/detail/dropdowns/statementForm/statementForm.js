@@ -4,8 +4,7 @@ define([
     '../withDropdown',
     'tpl!./statementForm',
     'service/statement',
-    'underscore',
-    'bigText'
+    'underscore'
 ], function(defineComponent, withDropdown, statementFormTemplate, StatementService, _) {
     'use strict';
 
@@ -31,11 +30,13 @@ define([
                 dest: this.attr.destTerm.text()
             }));
 
-            
+
             this.applyTermClasses(this.attr.sourceTerm, this.select('sourceTermSelector'));
             this.applyTermClasses(this.attr.destTerm, this.select('destTermSelector'));
 
-            this.select('termLabelsSelector').bigText({maximumFontSize: 20});
+            this.attr.sourceTerm.addClass('focused');
+            this.attr.destTerm.addClass('focused');
+            
             this.select('createStatementButtonSelector').attr('disabled', true);
             this.setupLabelTypeAhead();
 
@@ -45,6 +46,12 @@ define([
             });
             this.on('opened', this.onOpened);
         });
+
+        this.after('teardown', function() {
+            this.attr.sourceTerm.removeClass('focused');
+            this.attr.destTerm.removeClass('focused');
+        });
+
 
         this.applyTermClasses = function(el, applyToElement) {
             var classes = el.attr('class').split(/\s+/),
@@ -78,16 +85,16 @@ define([
         this.onCreateStatement = function(event) {
             var self = this,
                 parameters = {
-                    subjectKey: this.attr.sourceTerm.data('info').rowKey,
-                    objectKey: this.attr.destTerm.data('info').rowKey,
+                    sourceGraphNodeId: this.attr.sourceTerm.data('info').graphNodeId,
+                    destGraphNodeId: this.attr.destTerm.data('info').graphNodeId,
                     predicateLabel: this.select('statementLabelSelector').val(),
                     sentenceRowKey: this.attr.destTerm.closest('.sentence').data('info').rowKey
                 };
 
             if (this.select('formSelector').hasClass('invert')) {
-                var swap = parameters.subjectKey;
-                parameters.subjectKey = parameters.objectKey;
-                parameters.objectKey = swap;
+                var swap = parameters.sourceGraphNodeId;
+                parameters.sourceGraphNodeId = parameters.destGraphNodeId;
+                parameters.destGraphNodeId = swap;
             }
 
             this.statementService.createStatement(parameters, function(err, data) {
@@ -95,6 +102,7 @@ define([
                     self.trigger(document, 'error', err);
                 } else {
                     _.defer(self.teardown.bind(self));
+                    self.trigger(document, 'refreshRelationships');
                 }
             });
         };

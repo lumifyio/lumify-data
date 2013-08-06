@@ -1,6 +1,8 @@
 package com.altamiracorp.reddawn.model;
 
 import com.altamiracorp.reddawn.ucd.statement.Statement;
+import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
+import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 
 import java.util.ArrayList;
 import java.util.Collection;

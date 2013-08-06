@@ -1,14 +1,13 @@
 package com.altamiracorp.reddawn.entityHighlight;
 
-import com.altamiracorp.reddawn.ucd.object.UcdObjectRowKey;
+import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
 import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
-import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
 
-public class TermAndTermMentionOffsetItem extends OffsetItem {
+public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparable<TermAndTermMentionOffsetItem> {
 
     private TermAndTermMention termAndTermMention;
 
@@ -17,12 +16,12 @@ public class TermAndTermMentionOffsetItem extends OffsetItem {
     }
 
     @Override
-    public Long getStart() {
+    public long getStart() {
         return termAndTermMention.getTermMention().getMentionStart();
     }
 
     @Override
-    public Long getEnd() {
+    public long getEnd() {
         return termAndTermMention.getTermMention().getMentionEnd();
     }
 
@@ -49,16 +48,13 @@ public class TermAndTermMentionOffsetItem extends OffsetItem {
         return termAndTermMention.getTerm().getRowKey().getConceptLabel();
     }
 
-    public UcdObjectRowKey getObjectRowKey() {
-        return termAndTermMention.getTermMention().getObjectRowKey();
+    public String getTitle() {
+        return termAndTermMention.getTerm().getRowKey().getSign();
     }
 
     @Override
     public boolean shouldHighlight() {
         if (!super.shouldHighlight()) {
-            return false;
-        }
-        if (termAndTermMention.getTerm().getRowKey().getModelKey().equals(TermRowKey.OBJECT_MODEL_KEY)) {
             return false;
         }
         return true;
@@ -68,11 +64,9 @@ public class TermAndTermMentionOffsetItem extends OffsetItem {
     public JSONObject getInfoJson() {
         try {
             JSONObject infoJson = super.getInfoJson();
+            infoJson.put("title", getTitle());
             if (getSubType() != null) {
                 infoJson.put("subType", getSubType());
-            }
-            if (getObjectRowKey() != null) {
-                infoJson.put("objectRowKey", getObjectRowKey().toJson());
             }
             return infoJson;
         } catch (JSONException e) {
@@ -85,5 +79,22 @@ public class TermAndTermMentionOffsetItem extends OffsetItem {
         List<String> classes = super.getCssClasses();
         classes.add(getConceptLabel());
         return classes;
+    }
+
+    @Override
+    public int compareTo(TermAndTermMentionOffsetItem other) {
+        if (this.getStart() == other.getStart()) {
+            if (this.getEnd() == other.getEnd()) {
+                // TODO: probably should tag nodes that are resolved somehow so that we can sort them better
+                if (this.termAndTermMention.getTerm().getRowKey().getModelKey().equals(PredicateRowKey.MANUAL_MODEL_KEY)) {
+                    return -1;
+                }
+                return 0;
+            } else {
+                return this.getEnd() < other.getEnd() ? -1 : 1;
+            }
+        } else {
+            return this.getStart() < other.getStart() ? -1 : 1;
+        }
     }
 }

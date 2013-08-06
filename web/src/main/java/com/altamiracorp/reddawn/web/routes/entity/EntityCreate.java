@@ -2,14 +2,7 @@ package com.altamiracorp.reddawn.web.routes.entity;
 
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.entityHighlight.TermAndTermMentionOffsetItem;
-import com.altamiracorp.reddawn.ucd.object.UcdObject;
-import com.altamiracorp.reddawn.ucd.object.UcdObjectObjectStatement;
-import com.altamiracorp.reddawn.ucd.object.UcdObjectRepository;
-import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
-import com.altamiracorp.reddawn.ucd.statement.Statement;
-import com.altamiracorp.reddawn.ucd.statement.StatementArtifact;
-import com.altamiracorp.reddawn.ucd.statement.StatementRepository;
-import com.altamiracorp.reddawn.ucd.statement.StatementRowKey;
+import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.ucd.term.*;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.User;
@@ -27,8 +20,7 @@ public class EntityCreate implements Handler, AppAware {
     private static final String MODEL_KEY = "manual";
     private WebApp app;
     private TermRepository termRepository = new TermRepository();
-    private StatementRepository statementRepository = new StatementRepository();
-    private UcdObjectRepository ucdObjectRepository = new UcdObjectRepository();
+    private GraphRepository graphRepository = new GraphRepository();
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
@@ -61,80 +53,39 @@ public class EntityCreate implements Handler, AppAware {
             throw new RuntimeException("'conceptLabel' is required.");
         }
 
+        String graphNodeId = request.getParameter("graphNodeId");
+
         String newObjectSign = request.getParameter("newObjectSign");
-        String sentenceRowKey = request.getParameter("sentenceRowKey");
-        String objectRowKey = request.getParameter("objectRowKey");
-        if (sentenceRowKey == null && (objectRowKey != null || newObjectSign != null)) {
-            throw new RuntimeException("When associating a Term to and Object 'sentenceRowKey' and ('objectRowKey' or 'newObjectSign')) are required.");
+
+        if (newObjectSign != null) {
+            sign = newObjectSign;
         }
 
         // do the work
-        TermAndTermMention termAndTermMention = createTerm(currentUser, artifactKey, mentionStart, mentionEnd, sign, conceptLabel);
-
-        if (newObjectSign != null) {
-            TermAndTermMention objectTermAndTermMention = createObjectTerm(currentUser, artifactKey, newObjectSign, conceptLabel, mentionStart, mentionEnd);
-            objectRowKey = objectTermAndTermMention.getTerm().getRowKey().toString();
-
-            termRepository.save(session.getModelSession(), objectTermAndTermMention.getTerm());
-        }
-
-        if (sentenceRowKey != null && objectRowKey != null) {
-            Statement isAnObjectStatement = createIsAnObjectStatement(currentUser, artifactKey, sentenceRowKey, objectRowKey, termAndTermMention.getTerm());
-
-            UcdObject ucdObject = createObject(objectRowKey, isAnObjectStatement);
-
-            termAndTermMention.getTermMention().setObjectRowKey(ucdObject.getRowKey().toString());
-
-            statementRepository.save(session.getModelSession(), isAnObjectStatement);
-            ucdObjectRepository.save(session.getModelSession(), ucdObject);
+        TermRowKey termRowKey = new TermRowKey(sign, MODEL_KEY, conceptLabel);
+        TermAndTermMention termAndTermMention = termRepository.findMention(session.getModelSession(), termRowKey, artifactKey, mentionStart, mentionEnd);
+        if (termAndTermMention == null) {
+            Term term = new Term(termRowKey);
+            TermMention termMention = new TermMention()
+                    .setArtifactKey(artifactKey)
+                    .setMentionStart(mentionStart)
+                    .setMentionEnd(mentionEnd)
+                    .setAuthor(currentUser.getUsername())
+                    .setDate(new Date());
+            term.addTermMention(termMention);
+            termAndTermMention = new TermAndTermMention(term, termMention);
         }
 
         termRepository.save(session.getModelSession(), termAndTermMention.getTerm());
+        termRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), termAndTermMention.getTerm(), termAndTermMention.getTermMention());
+
+        String newGraphNodeId = termAndTermMention.getTermMention().getGraphNodeId(termAndTermMention.getTerm());
+        if (newGraphNodeId != null && graphNodeId != null && !newGraphNodeId.equals(graphNodeId)) {
+            graphRepository.saveRelationship(session.getGraphSession(), newGraphNodeId, graphNodeId, "entityResolved");
+        }
 
         TermAndTermMentionOffsetItem offsetItem = new TermAndTermMentionOffsetItem(termAndTermMention);
         new Responder(response).respondWith(offsetItem.toJson());
-    }
-
-    private static TermAndTermMention createTerm(User currentUser, String artifactKey, long mentionStart, long mentionEnd, String sign, String conceptLabel) {
-        Term term = new Term(sign, MODEL_KEY, conceptLabel);
-        TermMention termMention = new TermMention()
-                .setArtifactKey(artifactKey)
-                .setMentionStart(mentionStart)
-                .setMentionEnd(mentionEnd)
-                .setAuthor(currentUser.getUsername())
-                .setDate(new Date());
-        term.addTermMention(termMention);
-        return new TermAndTermMention(term, termMention);
-    }
-
-    private static UcdObject createObject(String objectRowKey, Statement statement) {
-        UcdObject ucdObject = new UcdObject(objectRowKey);
-        ucdObject.getUcdObjectObjectStatement().addStatement(statement);
-        return ucdObject;
-    }
-
-    private static Statement createIsAnObjectStatement(User currentUser, String artifactKey, String sentenceRowKey, String objectRowKey, Term term) {
-        StatementRowKey statementRowKey = new StatementRowKey(term.getRowKey(), PredicateRowKey.IS_AN_OBJECT, new TermRowKey(objectRowKey));
-        Statement statement = new Statement(statementRowKey);
-        StatementArtifact statementArtifact = new StatementArtifact()
-                .setArtifactKey(artifactKey)
-                .setAuthor(currentUser.getUsername())
-                .setDate(new Date())
-                .setSentence(sentenceRowKey);
-        statement.addStatementArtifact(statementArtifact);
-        return statement;
-    }
-
-    private static TermAndTermMention createObjectTerm(User currentUser, String artifactKey, String objectSign, String objectConceptLabel, long mentionStart, long mentionEnd) {
-        Term objectTerm = new Term(objectSign, TermRowKey.OBJECT_MODEL_KEY, objectConceptLabel);
-        TermMention objectTermMention = new TermMention()
-                .setArtifactKey(artifactKey)
-                .setMentionStart(mentionStart)
-                .setMentionEnd(mentionEnd)
-                .setAuthor(currentUser.getUsername())
-                .setDate(new Date());
-        objectTerm.addTermMention(objectTermMention);
-        return new TermAndTermMention(objectTerm, objectTermMention);
     }
 
     public void setApp(App app) {

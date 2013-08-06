@@ -60,7 +60,7 @@ public class Server extends RedDawnCommandLineBase {
         WebSessionFactory.setServer(this);
         WebSessionFactory.createRedDawnSession(null).getModelSession().initializeTables();
 
-        InetSocketAddress addr = new InetSocketAddress("127.0.0.1", this.port);
+        InetSocketAddress addr = new InetSocketAddress("0.0.0.0", this.port);
         org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(addr);
 
         WebAppContext webAppContext = new WebAppContext();
