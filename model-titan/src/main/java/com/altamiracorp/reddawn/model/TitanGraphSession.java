@@ -113,7 +113,7 @@ public class TitanGraphSession extends GraphSession {
         Vertex sourceVertex = this.graph.getVertex(sourceId);
         Iterable<Edge> edges = sourceVertex.getEdges(Direction.OUT);
         for (Edge edge : edges) {
-            Vertex destVertex = edge.getVertex(Direction.OUT);
+            Vertex destVertex = edge.getVertex(Direction.IN);
             String destVertexId = "" + destVertex.getId();
             if (destVertexId.equals(destId)) {
                 return edge;
@@ -159,7 +159,12 @@ public class TitanGraphSession extends GraphSession {
             List<Vertex> vertexes = new GremlinPipeline(vertex).outE().bothV().toList();
             for (Vertex v : vertexes) {
                 if (allIds.contains(v.getId().toString())) {
-                    relationshipMap.get(id).add(v.getId().toString());
+                    Edge e = findEdge(id, v.getId().toString());
+                    if (e != null){
+                        GraphRelationship graphRelationship = new GraphRelationship(e.getId().toString(), id, v.getId().toString(), e.getLabel());
+                        save(graphRelationship);
+                        relationshipMap.get(id).add(v.getId().toString());
+                    }
                 }
             }
         }
