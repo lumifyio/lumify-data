@@ -1,4 +1,7 @@
 <ul>
+<% if(relationships.length == 0) { %>
+    <span>There are no relationships to display</span>
+<% } %>
 <% relationships.forEach(function(relationship) { %>
     <li>
         <span
