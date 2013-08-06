@@ -222,7 +222,10 @@ define([
                     helper:'clone',
                     revert: 'invalid',
                     revertDuration: 250,
-                    scroll: true,
+                    // scroll:true (default) requests position:relative on
+                    // detail-pane .content, but that breaks dragging from
+                    // detail-pane to graph.
+                    scroll: false,
                     zIndex: 100,
                     distance: 10,
                     cursorAt: { left: -10, top: -10 },
