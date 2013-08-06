@@ -10,6 +10,8 @@ import com.altamiracorp.reddawn.web.routes.entity.*;
 import com.altamiracorp.reddawn.web.routes.graph.GraphRelatedNodes;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
+import com.altamiracorp.reddawn.web.routes.node.NodeProperties;
+import com.altamiracorp.reddawn.web.routes.node.NodeRelationships;
 import com.altamiracorp.reddawn.web.routes.predicate.PredicateList;
 import com.altamiracorp.reddawn.web.routes.statement.StatementByRowKey;
 import com.altamiracorp.reddawn.web.routes.statement.StatementCreate;
@@ -64,10 +66,11 @@ public class Router extends HttpServlet {
         app.get("/entity/relationship", authenticator, EntityToEntityRelationship.class);
         app.post("/entity/relationships", authenticator, EntityRelationships.class);
         app.get("/entity/search", authenticator, EntitySearch.class);
-        app.get("/entity/{rowKey}/mentions", authenticator, EntityMentionsByRange.class);
-        app.get("/entity/{rowKey}/relationships", authenticator, EntityRelationshipsBidrectional.class);
         app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);
         app.post("/entity/create", authenticator, EntityCreate.class);
+
+        app.get("/node/{graphNodeId}/properties", authenticator, NodeProperties.class);
+//        app.get("/node/{graphNodeId}/relationships", authenticator, NodeRelationships.class);
 
         app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedNodes.class);
 

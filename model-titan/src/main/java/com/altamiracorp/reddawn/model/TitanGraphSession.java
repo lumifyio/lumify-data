@@ -12,10 +12,7 @@ import com.tinkerpop.gremlin.java.GremlinPipeline;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,4 +182,12 @@ public class TitanGraphSession extends GraphSession {
         TransportClient client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(localConf.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME,"localhost"),DEFAULT_STORAGE_INDEX_SEARCH_PORT));
         client.admin().indices().delete(new DeleteIndexRequest(DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME)).actionGet();
 	}
+
+    @Override
+    public Map<String, String> getProperties(String graphNodeId) {
+        Vertex vertex = this.graph.getVertex(graphNodeId);
+        GremlinPipeline gremlinPipeline = new GremlinPipeline(vertex).map();
+
+        return (Map<String, String>) gremlinPipeline.toList().get(0);
+    }
 }

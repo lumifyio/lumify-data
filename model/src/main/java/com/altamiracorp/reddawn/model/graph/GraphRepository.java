@@ -2,9 +2,7 @@ package com.altamiracorp.reddawn.model.graph;
 
 import com.altamiracorp.reddawn.model.GraphSession;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class GraphRepository {
     public String getNodeType(GraphSession graphSession, String graphNodeId) {
@@ -23,5 +21,9 @@ public class GraphRepository {
         GraphRelationship relationship = new GraphRelationship(null, sourceGraphNodeId, destGraphNodeId, label);
         graphSession.save(relationship);
         return relationship;
+    }
+
+    public Map<String, String> getProperties(GraphSession graphSession, String graphNodeId) {
+        return graphSession.getProperties(graphNodeId);
     }
 }
