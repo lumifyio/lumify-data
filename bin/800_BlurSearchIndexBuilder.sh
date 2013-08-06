@@ -1,5 +1,5 @@
 #!/bin/bash
-# require: 700_ArtifactToTitanMR.sh
+# require: 249_TextExtractionMR_IfAllElseFails.sh, 700_ArtifactToTitanMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
