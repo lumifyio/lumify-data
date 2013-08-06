@@ -11,12 +11,12 @@ public class SentenceOffsetItem extends OffsetItem {
     }
 
     @Override
-    public Long getStart() {
+    public long getStart() {
         return sentence.getRowKey().getStartOffset();
     }
 
     @Override
-    public Long getEnd() {
+    public long getEnd() {
         return sentence.getRowKey().getEndOffset();
     }
 
