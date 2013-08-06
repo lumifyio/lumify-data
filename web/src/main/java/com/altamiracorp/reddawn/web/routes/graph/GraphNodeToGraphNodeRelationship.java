@@ -35,12 +35,13 @@ public class GraphNodeToGraphNodeRelationship implements Handler, AppAware {
         HashMap<String, String> properties = graphRepository.getEdgeProperties(session.getGraphSession(), source, target);
 
         JSONObject results = new JSONObject();
-        results.put("source", source);
-        results.put("target", target);
+        results.put("source", graphRepository.findTitle(session.getGraphSession(),source));
+        results.put("target", graphRepository.findTitle(session.getGraphSession(),target));
         JSONArray propertyJson = new JSONArray();
         for (Map.Entry<String, String> p : properties.entrySet()) {
             JSONObject property = new JSONObject();
-            property.put(p.getKey(), p.getValue());
+            property.put("key", p.getKey());
+            property.put("value", p.getValue());
             propertyJson.put(property);
         }
         results.put("properties", propertyJson);
