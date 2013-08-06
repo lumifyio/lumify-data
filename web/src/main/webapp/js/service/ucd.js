@@ -79,16 +79,6 @@ function(ServiceBase) {
         return this._ajaxGet({ url: 'graph/' + encodeURIComponent(graphNodeId) + '/relatedNodes' }, callback);
     };
 
-    Ucd.prototype.getSpecificEntityRelationship = function (e1, e2, callback) {
-        return this._ajaxGet({
-            url: 'entity/relationship',
-            data: {
-                entity1: e1,
-                entity2: e2
-            }
-        }, callback);
-    };
-
     Ucd.prototype.entityRelationships = function (id, options, callback) {
         return this._relationships("entity", id, options, callback);
     };
