@@ -18,7 +18,7 @@ public abstract class GraphSession {
 
     public abstract HashMap<String, HashSet<String>> getRelationships(List<String> allIds);
 
-    public abstract String findTitle (String graphNodeId);
+    public abstract GraphNode findNode (String graphNodeId);
 
     public abstract void close();
 

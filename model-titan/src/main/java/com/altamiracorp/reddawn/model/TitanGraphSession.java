@@ -183,12 +183,8 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public String findTitle(String graphNodeId) {
-        GraphNode node = new TitanGraphNode(findVertex(graphNodeId));
-        if (node.getProperty("title") != "") {
-            return node.getProperty("title").toString();
-        }
-        return node.getProperty("type").toString();
+    public GraphNode findNode(String graphNodeId) {
+        return new TitanGraphNode(findVertex(graphNodeId));
     }
 
     @Override
