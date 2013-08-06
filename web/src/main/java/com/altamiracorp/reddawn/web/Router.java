@@ -70,7 +70,7 @@ public class Router extends HttpServlet {
         app.post("/entity/create", authenticator, EntityCreate.class);
 
         app.get("/node/{graphNodeId}/properties", authenticator, NodeProperties.class);
-//        app.get("/node/{graphNodeId}/relationships", authenticator, NodeRelationships.class);
+        app.get("/node/{graphNodeId}/relationships", authenticator, NodeRelationships.class);
 
         app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedNodes.class);
 

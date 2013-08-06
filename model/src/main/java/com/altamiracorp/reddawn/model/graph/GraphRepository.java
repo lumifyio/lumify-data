@@ -26,4 +26,8 @@ public class GraphRepository {
     public Map<String, String> getProperties(GraphSession graphSession, String graphNodeId) {
         return graphSession.getProperties(graphNodeId);
     }
+
+    public Map<GraphRelationship, GraphNode> getRelationships(GraphSession graphSession, String graphNodeId) {
+        return graphSession.getRelationships(graphNodeId);
+    }
 }

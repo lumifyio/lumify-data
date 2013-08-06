@@ -190,4 +190,16 @@ public class TitanGraphSession extends GraphSession {
 
         return (Map<String, String>) gremlinPipeline.toList().get(0);
     }
+
+    @Override
+    public Map<GraphRelationship, GraphNode> getRelationships(String graphNodeId) {
+        Vertex vertex = this.graph.getVertex(graphNodeId);
+
+        Map<GraphRelationship, GraphNode> relationships = new HashMap<GraphRelationship, GraphNode>();
+        for(Edge e : vertex.getEdges(Direction.IN)) {
+            relationships.put(new TitanGraphRelationship(e), new TitanGraphNode(e.getVertex(Direction.OUT)));
+        }
+
+        return relationships;
+    }
 }

@@ -3,7 +3,10 @@ package com.altamiracorp.reddawn.model;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 public abstract class GraphSession {
     public abstract String save(GraphNode node);
@@ -23,4 +26,6 @@ public abstract class GraphSession {
     public abstract void deleteSearchIndex ();
 
     public abstract Map<String, String> getProperties(String graphNodeId);
+
+    public abstract Map<GraphRelationship, GraphNode> getRelationships(String graphNodeId);
 }
