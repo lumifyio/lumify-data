@@ -20,15 +20,15 @@ function(ServiceBase) {
         }, callback);
     };
 
-    Ucd.prototype.getEntityToEntityRelationshipDetails = function(source, target, callback) {
+    Ucd.prototype.getNodeToNodeRelationshipDetails = function (source, target, callback){
         return this._ajaxGet({
-            url: 'entity/relationship',
+            url: 'graph/relationship',
             data: {
                 source: source,
                 target: target
             }
         }, callback);
-    };
+    }
 
     Ucd.prototype.getStatementByRowKey = function(statementRowKey, callback) {
         return this._get("statement", statementRowKey, callback);
