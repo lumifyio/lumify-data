@@ -81,6 +81,11 @@ public class EntityHighlighter {
             result.append(" class=\"");
             result.append(StringUtils.join(offsetItem.getCssClasses(), " "));
             result.append("\"");
+            if (offsetItem.getTitle() != null) {
+                result.append(" title=\"");
+                result.append(StringEscapeUtils.escapeHtml(offsetItem.getTitle()));
+                result.append("\"");
+            }
             result.append(" data-info=\"");
             result.append(StringEscapeUtils.escapeHtml(infoJson.toString()));
             result.append("\"");

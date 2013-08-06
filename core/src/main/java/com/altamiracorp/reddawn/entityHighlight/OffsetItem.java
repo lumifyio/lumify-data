@@ -62,4 +62,8 @@ public abstract class OffsetItem {
     public boolean shouldHighlight() {
         return true;
     }
+
+    public String getTitle() {
+        return null;
+    }
 }
