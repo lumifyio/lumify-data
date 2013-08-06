@@ -245,7 +245,8 @@ public class TikaTextExtractor implements TextExtractor {
     }
 
     private boolean isHtml (Artifact artifact) {
-        return artifact.getGenericMetadata().getMimeType().contains("text");
+        return artifact.getGenericMetadata().getMimeType().contains("text")
+                || artifact.getGenericMetadata().getMimeType().contains("html");
     }
 
 }
