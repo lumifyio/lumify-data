@@ -2,10 +2,8 @@ package com.altamiracorp.reddawn.web.routes.entity;
 
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.entityHighlight.TermAndTermMentionOffsetItem;
-import com.altamiracorp.reddawn.ucd.term.Term;
-import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
-import com.altamiracorp.reddawn.ucd.term.TermMention;
-import com.altamiracorp.reddawn.ucd.term.TermRepository;
+import com.altamiracorp.reddawn.model.graph.GraphRepository;
+import com.altamiracorp.reddawn.ucd.term.*;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;
@@ -22,6 +20,7 @@ public class EntityCreate implements Handler, AppAware {
     private static final String MODEL_KEY = "manual";
     private WebApp app;
     private TermRepository termRepository = new TermRepository();
+    private GraphRepository graphRepository = new GraphRepository();
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
@@ -54,6 +53,8 @@ public class EntityCreate implements Handler, AppAware {
             throw new RuntimeException("'conceptLabel' is required.");
         }
 
+        String graphNodeId = request.getParameter("graphNodeId");
+
         String newObjectSign = request.getParameter("newObjectSign");
 
         if (newObjectSign != null) {
@@ -61,25 +62,30 @@ public class EntityCreate implements Handler, AppAware {
         }
 
         // do the work
-        TermAndTermMention termAndTermMention = createTerm(currentUser, artifactKey, mentionStart, mentionEnd, sign, conceptLabel);
+        TermRowKey termRowKey = new TermRowKey(sign, MODEL_KEY, conceptLabel);
+        TermAndTermMention termAndTermMention = termRepository.findMention(session.getModelSession(), termRowKey, artifactKey, mentionStart, mentionEnd);
+        if (termAndTermMention == null) {
+            Term term = new Term(termRowKey);
+            TermMention termMention = new TermMention()
+                    .setArtifactKey(artifactKey)
+                    .setMentionStart(mentionStart)
+                    .setMentionEnd(mentionEnd)
+                    .setAuthor(currentUser.getUsername())
+                    .setDate(new Date());
+            term.addTermMention(termMention);
+            termAndTermMention = new TermAndTermMention(term, termMention);
+        }
 
         termRepository.save(session.getModelSession(), termAndTermMention.getTerm());
         termRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), termAndTermMention.getTerm(), termAndTermMention.getTermMention());
 
+        String newGraphNodeId = termAndTermMention.getTermMention().getGraphNodeId(termAndTermMention.getTerm());
+        if (!newGraphNodeId.equals(graphNodeId)) {
+            graphRepository.saveRelationship(session.getGraphSession(), newGraphNodeId, graphNodeId, "entityResolved");
+        }
+
         TermAndTermMentionOffsetItem offsetItem = new TermAndTermMentionOffsetItem(termAndTermMention);
         new Responder(response).respondWith(offsetItem.toJson());
-    }
-
-    private static TermAndTermMention createTerm(User currentUser, String artifactKey, long mentionStart, long mentionEnd, String sign, String conceptLabel) {
-        Term term = new Term(sign, MODEL_KEY, conceptLabel);
-        TermMention termMention = new TermMention()
-                .setArtifactKey(artifactKey)
-                .setMentionStart(mentionStart)
-                .setMentionEnd(mentionEnd)
-                .setAuthor(currentUser.getUsername())
-                .setDate(new Date());
-        term.addTermMention(termMention);
-        return new TermAndTermMention(term, termMention);
     }
 
     public void setApp(App app) {

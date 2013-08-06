@@ -97,6 +97,10 @@ define([
                 parameters.objectRowKey = this.objectRowKey.value;
             }
 
+            if (this.graphNodeId) {
+                parameters.graphNodeId = this.graphNodeId;
+            }
+
             if (newObjectSign.length) {
                 parameters.newObjectSign = newObjectSign;
             }
@@ -116,7 +120,8 @@ define([
                 node = this.$node,
                 mentionNode = $(this.attr.mentionNode),
                 objectRowKeySpan = null,
-                objectRowKey = null;
+                objectRowKey = null,
+                graphNodeId = null;
 
             mentionNode
                 .parents('.sentence').addClass('focused')
@@ -126,6 +131,7 @@ define([
             mentionNode.parents('.entity').addBack('.entity').toArray().reverse().forEach(function(obj) {
                 var node = $(obj),
                     info = node.data('info');
+                graphNodeId = info.graphNodeId;
 
                 if (info && info.objectRowKey) {
                     objectRowKeySpan = node;
@@ -136,6 +142,7 @@ define([
 
             this.objectRowKeySpan = $(objectRowKeySpan);
             this.objectRowKey = objectRowKey;
+            this.graphNodeId = graphNodeId;
 
             node.html(dropdownTemplate({
                 type: 'Set type of term',

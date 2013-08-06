@@ -118,4 +118,24 @@ public class TermRepository extends Repository<Term> {
         GraphRelationship artifactRelationship = new GraphRelationship(null, artifactNodes.get(0).getId(), nodeId, "artifactToTermMention");
         graphSession.save(artifactRelationship);
     }
+
+    public TermAndTermMention findMention(Session session, TermRowKey termRowKey, String artifactKey, long mentionStart, long mentionEnd) {
+        Term term = findByRowKey(session, termRowKey.toString());
+        if (term == null) {
+            return null;
+        }
+        for (TermMention termMention : term.getTermMentions()) {
+            if (!termMention.getArtifactKey().equals(artifactKey)) {
+                continue;
+            }
+            if (termMention.getMentionStart() != mentionStart) {
+                continue;
+            }
+            if (termMention.getMentionEnd() != mentionEnd) {
+                continue;
+            }
+            return new TermAndTermMention(term, termMention);
+        }
+        return null;
+    }
 }
