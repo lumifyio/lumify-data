@@ -80,7 +80,7 @@ public class EntityCreate implements Handler, AppAware {
         termRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), termAndTermMention.getTerm(), termAndTermMention.getTermMention());
 
         String newGraphNodeId = termAndTermMention.getTermMention().getGraphNodeId(termAndTermMention.getTerm());
-        if (!newGraphNodeId.equals(graphNodeId)) {
+        if (newGraphNodeId != null && graphNodeId != null && !newGraphNodeId.equals(graphNodeId)) {
             graphRepository.saveRelationship(session.getGraphSession(), newGraphNodeId, graphNodeId, "entityResolved");
         }
 
