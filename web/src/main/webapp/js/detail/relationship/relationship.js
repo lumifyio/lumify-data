@@ -1,6 +1,3 @@
-
-
-
 define([
     'flight/lib/component',
     '../withTypeContent',
@@ -36,17 +33,7 @@ define([
             });
 
             var data = this.attr.data;
-            if(data.relationshipType == 'artifactToEntity') {
-                _.defer(this.trigger.bind(this), document, 'searchResultSelected', {
-                    type: 'artifact',
-                    rowKey: data.source,
-                    entityOfInterest: data.target
-                });
-            } else if(data.relationshipType == 'entityToEntity') {
-                this.loadRelationship();
-            } else {
-                return this.trigger(document, 'error', { error: "Bad relationship type:" + data.relationshipType });
-            }
+            this.loadRelationship ();
         });
 
 
@@ -54,16 +41,16 @@ define([
             var self = this,
                 data = this.attr.data;
 
-            this.handleCancelling(this.ucdService.getEntityToEntityRelationshipDetails(data.source, data.target, function(err, relationshipData) {
-
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
+            this.ucdService.getNodeToNodeRelationshipDetails (data.source, data.target, function (err, relationshipData){
+                if (err) {
+                    console.error ('Error', err);
+                    return self.trigger (document, 'error', { message: err.toString () });
                 }
 
-                relationshipData.highlightButton = self.highlightButton();
-                self.$node.html(template(relationshipData));
-            }));
+                relationshipData.highlightButton = self.highlightButton ();
+                self.$node.html (template(relationshipData));
+
+            });
         };
 
 
