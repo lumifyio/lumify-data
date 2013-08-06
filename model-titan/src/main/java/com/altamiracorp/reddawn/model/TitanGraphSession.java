@@ -160,7 +160,7 @@ public class TitanGraphSession extends GraphSession {
             for (Vertex v : vertexes) {
                 if (allIds.contains(v.getId().toString())) {
                     Edge e = findEdge(id, v.getId().toString());
-                    if (e != null){
+                    if (e != null) {
                         e.setProperty("RelationshipType", e.getLabel());
                         relationshipMap.get(id).add(v.getId().toString());
                     }
@@ -172,10 +172,10 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public HashMap<String, String> getEdgeProperties (String sourceNode, String destNode){
+    public HashMap<String, String> getEdgeProperties(String sourceNode, String destNode) {
         HashMap<String, String> properties = new HashMap<String, String>();
         Edge e = findEdge(sourceNode, destNode);
-        for (String property : e.getPropertyKeys()){
+        for (String property : e.getPropertyKeys()) {
             properties.put(property, e.getProperty(property).toString());
         }
 
@@ -190,13 +190,13 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public void close() {
         graph.shutdown();
-	}
-	
-	@Override
+    }
+
+    @Override
     public void deleteSearchIndex() {
         LOGGER.info("delete search index: " + DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME);
         //TODO: should port be configurable? How about cluster name?
-        TransportClient client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(localConf.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME,"localhost"),DEFAULT_STORAGE_INDEX_SEARCH_PORT));
+        TransportClient client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(localConf.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME, "localhost"), DEFAULT_STORAGE_INDEX_SEARCH_PORT));
         client.admin().indices().delete(new DeleteIndexRequest(DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME)).actionGet();
-	}
+    }
 }
