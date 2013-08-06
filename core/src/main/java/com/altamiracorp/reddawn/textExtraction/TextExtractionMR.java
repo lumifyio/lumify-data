@@ -66,7 +66,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
                 }
 
                 if (extractedInfo.getText() != null) {
-                    artifact.getArtifactExtractedText().addExtractedText(textExtractor.getName(),extractedInfo.getText());
+                    artifact.getArtifactExtractedText().addExtractedText(textExtractor.getName(),cleanExtractedText(extractedInfo.getText()));
                 }
 
                 if (extractedInfo.getSubject() != null) {
@@ -105,6 +105,19 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
             } catch (Exception e) {
                 throw new IOException(e);
             }
+        }
+
+        private String cleanExtractedText (String extractedText) {
+            StringBuilder trimmedText = new StringBuilder();
+            String[] splitResults = extractedText.split("\\n");
+            for (int i = 0; i < splitResults.length; i++) {
+                trimmedText.append(splitResults[i].trim());
+                if (i != splitResults.length) {
+                    trimmedText.append("\n");
+                }
+            }
+
+            return trimmedText.toString().replaceAll("\\n{3,}","\n\n");
         }
 
         public static void init(Job job, Class<? extends TextExtractor> textExtractorClass) {
