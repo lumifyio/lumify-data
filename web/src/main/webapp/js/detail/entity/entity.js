@@ -32,11 +32,15 @@ define([
 
         this.loadEntity = function() {
             var self = this;
-
+console.log("Attributes:", this.attr.data);
             var nodeInfo = {
                 id: this.attr.data.id,
                 properties: {
-                    title: this.attr.data.originalTitle || this.attr.data.title || 'No Title'
+                    title: this.attr.data.originalTitle || this.attr.data.title || 'No Title',
+                    graphNodeId: this.attr.data.graphNodeId,
+                    type: this.attr.data.type,
+                    subType: this.attr.data.subType,
+                    rowKey: this.attr.data.rowKey
                 }
             }
 
@@ -50,6 +54,8 @@ define([
                 relationships.forEach(function(relationship) {
                     var relationshipTplData = {};
                     relationshipTplData.relationship = relationship.relationship;
+
+                    relationship.node.properties.graphNodeId = relationship.node.id;
 
                     if(nodeInfo.id == relationship.relationship.sourceNodeId) {
                         relationshipTplData.sourceNode = nodeInfo;
