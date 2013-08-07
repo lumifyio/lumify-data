@@ -98,8 +98,8 @@ public class OpenNlpMEEntityExtractorTest {
         for (Term term : terms) {
             extractedTerms.put(term.getRowKey().getSign() + "-" + term.getRowKey().getConceptLabel(), term);
         }
-        assertTrue("A person wasn't found", extractedTerms.containsKey("bob robertson-person"));
-        ArrayList<TermMention> bobRobertsonMentions = new ArrayList<TermMention>(extractedTerms.get("bob robertson-person").getTermMentions());
+        assertTrue("A person wasn't found", extractedTerms.containsKey("Bob Robertson-person"));
+        ArrayList<TermMention> bobRobertsonMentions = new ArrayList<TermMention>(extractedTerms.get("Bob Robertson-person").getTermMentions());
         assertEquals(1, bobRobertsonMentions.size());
         assertEquals(31, bobRobertsonMentions.get(0).getMentionStart().intValue());
         assertEquals(44, bobRobertsonMentions.get(0).getMentionEnd().intValue());
@@ -107,13 +107,13 @@ public class OpenNlpMEEntityExtractorTest {
         assertTrue("A date wasn't found", extractedTerms.containsKey("a year-date"));
         assertTrue("Money wasn't found", extractedTerms.containsKey("2 million-money"));
 
-        assertTrue("A location wasn't found", extractedTerms.containsKey("benghazi-location"));
-        ArrayList<TermMention> benghaziMentions = new ArrayList<TermMention>(extractedTerms.get("benghazi-location").getTermMentions());
+        assertTrue("A location wasn't found", extractedTerms.containsKey("Benghazi-location"));
+        ArrayList<TermMention> benghaziMentions = new ArrayList<TermMention>(extractedTerms.get("Benghazi-location").getTermMentions());
         assertEquals(1, benghaziMentions.size());
         assertEquals(189, benghaziMentions.get(0).getMentionStart().intValue());
         assertEquals(197, benghaziMentions.get(0).getMentionEnd().intValue());
 
-        assertTrue("An organization wasn't found", extractedTerms.containsKey("cnn-organization"));
+        assertTrue("An organization wasn't found", extractedTerms.containsKey("CNN-organization"));
         assertTrue("A percentage wasn't found", extractedTerms.containsKey("47-percentage"));
         assertTrue("A time wasn't found", extractedTerms.containsKey("1:30-time"));
     }
