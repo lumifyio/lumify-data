@@ -49,6 +49,7 @@ class blur (
     owner  => "$user",
     group  => "$group", 
     mode   => "0644",
+    require => Macro::Extract[$downloadpath],
   }
 
   file { $configlink:
