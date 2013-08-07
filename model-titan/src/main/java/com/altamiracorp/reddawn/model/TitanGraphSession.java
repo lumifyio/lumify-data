@@ -110,7 +110,7 @@ public class TitanGraphSession extends GraphSession {
         Vertex sourceVertex = this.graph.getVertex(sourceId);
         Iterable<Edge> edges = sourceVertex.getEdges(Direction.OUT);
         for (Edge edge : edges) {
-            Vertex destVertex = edge.getVertex(Direction.OUT);
+            Vertex destVertex = edge.getVertex(Direction.IN);
             String destVertexId = "" + destVertex.getId();
             if (destVertexId.equals(destId)) {
                 return edge;
@@ -156,7 +156,11 @@ public class TitanGraphSession extends GraphSession {
             List<Vertex> vertexes = new GremlinPipeline(vertex).outE().bothV().toList();
             for (Vertex v : vertexes) {
                 if (allIds.contains(v.getId().toString())) {
-                    relationshipMap.get(id).add(v.getId().toString());
+                    Edge e = findEdge(id, v.getId().toString());
+                    if (e != null) {
+                        e.setProperty("RelationshipType", e.getLabel());
+                        relationshipMap.get(id).add(v.getId().toString());
+                    }
                 }
             }
         }
@@ -165,21 +169,31 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public String getNodeType(String graphNodeId) {
-        Vertex vertex = findVertex(graphNodeId);
-        return vertex.getProperty("type");
+    public HashMap<String, String> getEdgeProperties(String sourceNode, String destNode) {
+        HashMap<String, String> properties = new HashMap<String, String>();
+        Edge e = findEdge(sourceNode, destNode);
+        for (String property : e.getPropertyKeys()) {
+            properties.put(property, e.getProperty(property).toString());
+        }
+
+        return properties;
+    }
+
+    @Override
+    public GraphNode findNode(String graphNodeId) {
+        return new TitanGraphNode(findVertex(graphNodeId));
     }
 
     @Override
     public void close() {
         graph.shutdown();
-	}
-	
-	@Override
+    }
+
+    @Override
     public void deleteSearchIndex() {
         LOGGER.info("delete search index: " + DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME);
         //TODO: should port be configurable? How about cluster name?
-        TransportClient client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(localConf.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME,"localhost"),DEFAULT_STORAGE_INDEX_SEARCH_PORT));
+        TransportClient client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(localConf.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME, "localhost"), DEFAULT_STORAGE_INDEX_SEARCH_PORT));
         client.admin().indices().delete(new DeleteIndexRequest(DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME)).actionGet();
 	}
 

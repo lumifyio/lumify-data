@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 249_TextExtractionMR_IfAllElseFails.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do

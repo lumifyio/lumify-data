@@ -52,12 +52,6 @@
   .entity, .artifact {
     cursor: pointer;
 
-    &.drop-target {
-      .entity-styling(~"border-bottom-color", 0.5);
-    }
-    &.drop-hover {
-      .entity-styling(~"background-color", 1.0);
-    }
   }
 
   // THEMES
@@ -65,23 +59,30 @@
   // add menu item in artifactDetails.ejs with a data-cls attribute set to class suffix
 
   &.highlight-colors {
-    .entity, .focus .focused .entity, .artifact, .focus .focused .artifact {
-      .entity-styling(~"background-color");
+    .dropdown .entity:not(.focused) {
+      .entity-styling(~"background-color", 0.3);
     }
+    .entity, .artifact {
+      .entity-styling(~"background-color");
 
-    .focus .entity, .focus .artifact {
-      .entity-styling(~"background-color", 0.1);
+      &.drop-hover {
+        .entity-styling(~"background-color", 0.9, 0.7);
+      }
     }
   }
 
   &.highlight-underline {
-    .entity, .focus .focused .entity, .artifact, .focus .focused .artifact {
+    .dropdown .entity:not(.focused) {
+      .entity-styling(border-bottom-color, 0.4);
+    }
+    .entity, .artifact {
       .entity-styling(border-bottom-color, 1.0, 1.0, 1.0);
+
+      &.drop-hover {
+        .entity-styling(~"background-color", 1.0);
+      }
     }
-    .focus .entity, .focus .artifact {
-      .entity-styling(border-bottom-color, 0.1);
-    }
-}
+  }
 
   &.highlight-icons {
     .entity, .artifact {

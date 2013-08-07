@@ -57,7 +57,7 @@ public class EntityHighlighter {
                     }
                 }
             }
-            if(overlapsPreviousItem) {
+            if (overlapsPreviousItem) {
                 continue;
             }
             if (offsetItem.getStart() < textStartOffset || offsetItem.getEnd() < textStartOffset) {
@@ -67,13 +67,13 @@ public class EntityHighlighter {
                 continue;
             }
 
-            while (endOffsets.size() > 0 && endOffsets.peek() < offsetItem.getStart().intValue()) {
+            while (endOffsets.size() > 0 && endOffsets.peek() < offsetItem.getStart()) {
                 int end = endOffsets.poll();
                 result.append(text.substring(lastStart - textStartOffset, end - textStartOffset));
                 result.append("</span>");
                 lastStart = end;
             }
-            result.append(text.substring(lastStart - textStartOffset, offsetItem.getStart().intValue() - textStartOffset));
+            result.append(text.substring(lastStart - textStartOffset, (int) (offsetItem.getStart() - textStartOffset)));
 
             JSONObject infoJson = offsetItem.getInfoJson();
 
@@ -81,12 +81,17 @@ public class EntityHighlighter {
             result.append(" class=\"");
             result.append(StringUtils.join(offsetItem.getCssClasses(), " "));
             result.append("\"");
+            if (offsetItem.getTitle() != null) {
+                result.append(" title=\"");
+                result.append(StringEscapeUtils.escapeHtml(offsetItem.getTitle()));
+                result.append("\"");
+            }
             result.append(" data-info=\"");
             result.append(StringEscapeUtils.escapeHtml(infoJson.toString()));
             result.append("\"");
             result.append(">");
-            endOffsets.add(offsetItem.getEnd().intValue());
-            lastStart = offsetItem.getStart().intValue();
+            endOffsets.add((int) offsetItem.getEnd());
+            lastStart = (int) offsetItem.getStart();
         }
         result.append(text.substring(lastStart - textStartOffset));
         return result.toString();

@@ -20,15 +20,15 @@ function(ServiceBase) {
         }, callback);
     };
 
-    Ucd.prototype.getEntityToEntityRelationshipDetails = function(source, target, callback) {
+    Ucd.prototype.getNodeToNodeRelationshipDetails = function (source, target, callback){
         return this._ajaxGet({
-            url: 'entity/relationship',
+            url: 'graph/relationship',
             data: {
                 source: source,
                 target: target
             }
         }, callback);
-    };
+    }
 
     Ucd.prototype.getStatementByRowKey = function(statementRowKey, callback) {
         return this._get("statement", statementRowKey, callback);
@@ -69,16 +69,6 @@ function(ServiceBase) {
 
     Ucd.prototype.getRelatedNodes = function(graphNodeId, callback) {
         return this._ajaxGet({ url: 'graph/' + encodeURIComponent(graphNodeId) + '/relatedNodes' }, callback);
-    };
-
-    Ucd.prototype.getSpecificEntityRelationship = function (e1, e2, callback) {
-        return this._ajaxGet({
-            url: 'entity/relationship',
-            data: {
-                entity1: e1,
-                entity2: e2
-            }
-        }, callback);
     };
 
     Ucd.prototype.entityRelationships = function (id, options, callback) {

@@ -7,6 +7,7 @@ import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
 import com.altamiracorp.reddawn.web.routes.concept.ConceptList;
 import com.altamiracorp.reddawn.web.routes.entity.*;
+import com.altamiracorp.reddawn.web.routes.graph.GraphNodeToGraphNodeRelationship;
 import com.altamiracorp.reddawn.web.routes.graph.GraphRelatedNodes;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
@@ -63,7 +64,6 @@ public class Router extends HttpServlet {
         app.get("/statement/{rowKey}", authenticator, StatementByRowKey.class);
         app.post("/statement/create", authenticator, StatementCreate.class);
 
-        app.get("/entity/relationship", authenticator, EntityToEntityRelationship.class);
         app.post("/entity/relationships", authenticator, EntityRelationships.class);
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);
@@ -73,6 +73,7 @@ public class Router extends HttpServlet {
         app.get("/node/{graphNodeId}/relationships", authenticator, NodeRelationships.class);
 
         app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedNodes.class);
+        app.get("/graph/relationship", authenticator, GraphNodeToGraphNodeRelationship.class);
 
         app.get("/workspace/", authenticator, WorkspaceList.class);
         app.post("/workspace/save", authenticator, WorkspaceSave.class);

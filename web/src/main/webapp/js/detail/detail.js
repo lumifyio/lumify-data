@@ -23,9 +23,16 @@ define([
             });
 
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
+            this.preventDropEventsFromPropagating();
             
             this.$node.html(template({}));
         });
+
+
+        // Ignore drop events so they don't propagate to the graph/map
+        this.preventDropEventsFromPropagating = function() {
+            this.$node.droppable({ accept: '.entity' });
+        };
 
 
         this.onMapCoordinatesClicked = function(evt, data) {

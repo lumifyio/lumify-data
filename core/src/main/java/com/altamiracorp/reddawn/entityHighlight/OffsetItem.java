@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class OffsetItem {
-    public abstract Long getStart();
+    public abstract long getStart();
 
-    public abstract Long getEnd();
+    public abstract long getEnd();
 
     public abstract String getType();
 
@@ -61,5 +61,9 @@ public abstract class OffsetItem {
 
     public boolean shouldHighlight() {
         return true;
+    }
+
+    public String getTitle() {
+        return null;
     }
 }

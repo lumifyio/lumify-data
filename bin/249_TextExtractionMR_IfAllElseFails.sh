@@ -1,4 +1,8 @@
 #!/bin/bash
+# require: 225_TextExtractionMR_OCR.sh
+# require: 225_TextExtractionMR_Tika.sh
+# require: 225_TextExtractionMR_Transcript.sh
+# require: 230_TextExtractionMR_VideoFrameTextCombiner.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do

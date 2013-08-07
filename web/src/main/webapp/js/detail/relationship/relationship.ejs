@@ -2,22 +2,24 @@
   <%- highlightButton %>
 </div>
 
-<h2><%= source.sign %> -> <%= target.sign %></h2>
-<h3>Statements</h3>
-<div class="statements">
-  <% var statements = sourceToTargetStatements %>
-  <% var left = source %>
-  <% var right = target %>
-  <% include ./statements %>
-</div>
+<h2>
+<span class="node-to-node-relationship" data-graph-node-id="<%= sourceId %>" data-graph-node-type="<%= sourceType %>">
+    <a href="javascript:" class="vertex">
+        <%= sourceTitle %>
+    </a> ->
+</span>
 
-<% if (bidirectional) { %>
-  <h2><%= target.sign %> -> <%= source.sign %></h2>
-  <h3>Statements</h3>
-  <div class="bi-statements">
-    <% var statements = targetToSourceStatements %>
-    <% var left = target %>
-    <% var right = source %>
-    <% include ./statements %>
-  </div>
-<% }; %>
+<span class="node-to-node-relationship" data-graph-node-id="<%= targetId %>" data-graph-node-type="<%= targetType %>">
+    <a href="javascript:" class="vertex" >
+        <%= targetTitle %>
+    </a>
+</span>
+</h2>
+<h3>Properties</h3>
+<div class="properties">
+  <% properties.forEach(function(property) {%>
+        <li>
+        <%= property.key%>: <%= property.value%>
+        </li>
+      <%}); %>
+</div>

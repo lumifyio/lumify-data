@@ -5,8 +5,8 @@ import com.altamiracorp.reddawn.model.GraphSession;
 import java.util.*;
 
 public class GraphRepository {
-    public String getNodeType(GraphSession graphSession, String graphNodeId) {
-        return graphSession.getNodeType(graphNodeId);
+    public GraphNode findNode(GraphSession graphSession, String graphNodeId) {
+        return graphSession.findNode(graphNodeId);
     }
 
     public List<GraphNode> getRelatedNodes(GraphSession graphSession, String graphNodeId) {
@@ -29,5 +29,9 @@ public class GraphRepository {
 
     public Map<GraphRelationship, GraphNode> getRelationships(GraphSession graphSession, String graphNodeId) {
         return graphSession.getRelationships(graphNodeId);
+    }
+
+    public HashMap<String, String> getEdgeProperties(GraphSession graphSession, String sourceNode, String destNode) {
+        return graphSession.getEdgeProperties(sourceNode, destNode);
     }
 }

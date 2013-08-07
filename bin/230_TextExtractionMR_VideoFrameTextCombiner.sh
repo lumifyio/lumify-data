@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 150_ContentTypeExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do

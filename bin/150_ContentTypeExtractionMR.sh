@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 100_FileImport.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do

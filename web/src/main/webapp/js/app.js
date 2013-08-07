@@ -103,6 +103,8 @@ define([
             this.on(document, 'updateNodes', this.onUpdateNodes);
             this.on(document, 'deleteNodes', this.onDeleteNodes);
 
+            this.on(document, 'refreshRelationships', this.refreshRelationships);
+
             this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
 
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
@@ -183,7 +185,6 @@ define([
                 drop: function( event, ui ) {
                     // Early exit if should leave to a different droppable
                     if (!enabled) return;
-console.log("Enabled");
                     var draggable = ui.draggable,
                         droppable = $(event.target);
 
@@ -323,8 +324,8 @@ console.log("Enabled");
                     nodes: []
                 };
                 data.nodes.forEach(function(node) {
-                    var matchingWorkspaceNodes = ws.data.nodes.filter(function(workspaceNode) { 
-                        return workspaceNode.rowKey == node.rowKey; 
+                    var matchingWorkspaceNodes = ws.data.nodes.filter(function(workspaceNode) {
+                        return workspaceNode.graphNodeId == node.graphNodeId;
                     });
 
                     matchingWorkspaceNodes.forEach(function(workspaceNode) {

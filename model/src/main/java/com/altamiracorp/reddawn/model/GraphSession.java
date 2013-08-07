@@ -19,11 +19,13 @@ public abstract class GraphSession {
 
     public abstract HashMap<String, HashSet<String>> getRelationships(List<String> allIds);
 
-    public abstract String getNodeType (String graphNodeId);
+    public abstract GraphNode findNode(String graphNodeId);
 
     public abstract void close();
 
-    public abstract void deleteSearchIndex ();
+    public abstract void deleteSearchIndex();
+
+    public abstract HashMap<String, String> getEdgeProperties(String sourceNode, String destNode);
 
     public abstract Map<String, String> getProperties(String graphNodeId);
 

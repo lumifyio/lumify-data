@@ -13,7 +13,7 @@ public class TermRowKey extends RowKey {
     }
 
     public TermRowKey(String sign, String modelKey, String conceptLabel) {
-        super(RowKeyHelper.buildMinor(sign.toLowerCase(), modelKey, conceptLabel));
+        super(RowKeyHelper.buildMinor(sign, modelKey, conceptLabel));
     }
 
     public String getSign() {

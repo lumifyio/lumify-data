@@ -40,9 +40,22 @@
       .transition(~"color ease-in 0.2s");
     }
 
-    &.focus {
-      .sentence { color:#ddd; }
-      .sentence.focused { color:inherit; }
+    @fade-color: #ddd;
+    @normal-color: #333;
+
+    // When entities are being dragged
+    &.drag-focus, &.dropdown {
+      .sentence { color: @fade-color; }
+      .sentence .entity { color:@normal-color; }
+    }
+
+    // When dropdown is opened
+    &.dropdown .sentence .entity { 
+      color:@fade-color;
+
+      &.focused {
+        color: @normal-color;
+      }
     }
   }
 

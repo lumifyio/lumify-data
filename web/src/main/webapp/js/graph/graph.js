@@ -182,7 +182,7 @@ define([
                     .forEach(function(updatedNode) {
                         cy.nodes()
                             .filter(function(idx, node) {
-                                return node.data('rowKey') === updatedNode.rowKey;
+                                return node.data('graphNodeId') === updatedNode.graphNodeId;
                             })
                             .each(function(idx, node) {
                                 node.position( retina.pointsToPixels(updatedNode.graphPosition) );
@@ -283,6 +283,7 @@ define([
                             return {
                                 rowKey: node.data('rowKey'),
                                 graphPosition: retina.pixelsToPoints(node.position())
+                                //TODO add graphNodeId
                             };
                         });
                         self.trigger(document, 'updateNodes', { nodes:updates });
@@ -472,6 +473,7 @@ define([
                 nodes: $.map(nodes, function(node) {
                     return {
                         rowKey: node.data('rowKey'),
+                        graphNodeId: node.data('id'),
                         graphPosition: node.data('targetPosition')
                     };
                 })
