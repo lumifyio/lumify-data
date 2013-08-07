@@ -153,7 +153,8 @@ define([
                     return {
                         rowKey: node.data('rowKey'),
                         type: node.data('type'),
-                        subType: node.data('subType')
+                        subType: node.data('subType'),
+                        graphNodeId: node.data('graphNodeId')
                     };
                 });
 
