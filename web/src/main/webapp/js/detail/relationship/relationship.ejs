@@ -3,13 +3,27 @@
 </div>
 
 <h2>
-<span class="node-to-node-relationship" data-graph-node-id="<%= sourceId %>" data-graph-node-title="<%= sourceTitle %>" data-graph-node-type="<%= sourceType %>">
+<% var data = JSON.stringify({
+      id : sourceId,
+      title : sourceTitle,
+      type : sourceType,
+      rowKey : sourceRowKey,
+      subType : sourceSubType}); %>
+
+<span class="node-to-node-relationship" data-info='<%- data %>' >
     <a href="javascript:" class="vertex">
         <%= sourceTitle %>
     </a> ->
 </span>
 
-<span class="node-to-node-relationship" data-graph-node-id="<%= targetId %>" data-graph-node-title="<%= targetTitle %>" data-graph-node-type="<%= targetType %>">
+<% var data = JSON.stringify({
+      id : targetId,
+      title : targetTitle,
+      type : targetType,
+      rowKey : targetRowKey,
+      subType : targetSubType}); %>
+
+<span class="node-to-node-relationship" data-info='<%- data %>'>
     <a href="javascript:" class="vertex" >
         <%= targetTitle %>
     </a>

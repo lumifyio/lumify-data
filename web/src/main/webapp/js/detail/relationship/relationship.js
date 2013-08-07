@@ -46,14 +46,8 @@ define([
         this.onNodeToNodeRelationshipClicked = function(evt) {
             var self = this;
             var $target = $(evt.target).parents('span');
-            var graphNodeId = $target.data('graph-node-id');
-            var graphNodeType = $target.data('graph-node-type');
 
-            if (graphNodeType == 'artifact') {
-                this.trigger (document, 'searchResultSelected', { rowKey: graphNodeId, type: graphNodeType });
-            } else {
-                this.trigger (document, 'searchResultSelected', { id: graphNodeId, type: graphNodeType, title: $target.data('graph-node-title')});
-            }
+            this.trigger (document, 'searchResultSelected',  $target.data('info'));
         };
     }
 });
