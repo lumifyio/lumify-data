@@ -516,7 +516,7 @@ define([
 
             if (data.name == 'search' && !pane.hasClass('visible')) {
                 var self = this;
-                pane.one('transitionend', function() {
+                pane.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
                     self.trigger(document, 'focusSearchField');
                 });
             }

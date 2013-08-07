@@ -15,7 +15,7 @@ define(['underscore'], function(_) {
                 return _.defer(this.open.bind(this));
             }
 
-            node.one('transitionend', function() {
+            node.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
                 node.css({
                     transition: 'none',
                     height: 'auto',
