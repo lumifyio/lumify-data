@@ -56,7 +56,11 @@ public class GraphNodeToGraphNodeRelationship implements Handler, AppAware {
     }
 
     private JSONObject resultsToJson(String id, String nodePrefix, GraphNode graphNode, JSONObject obj) throws JSONException {
-        obj.put(nodePrefix + "Id", id);
+        if (graphNode.getProperty("type").equals("artifact")) {
+            obj.put(nodePrefix + "Id", graphNode.getProperty("rowKey"));
+        } else {
+            obj.put(nodePrefix + "Id", id);
+        }
 
         if (graphNode.getProperty("title") != "") {
             obj.put(nodePrefix + "Title", graphNode.getProperty("title"));
