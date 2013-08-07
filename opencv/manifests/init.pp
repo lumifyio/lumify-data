@@ -4,13 +4,15 @@ class opencv($tmpdir="/usr/local/src") {
   require java
   include macro
 
-  $srcdir = "${tmpdir}/opencv-2.4.5"
+  $opencvVersion = "2.4.5"
+
+  $srcdir = "${tmpdir}/opencv-${$opencvVersion}"
 
   macro::download { "opencv-download":
-    url  => "http://downloads.sourceforge.net/project/opencvlibrary/opencv-unix/2.4.5/opencv-2.4.5.tar.gz",
-    path => "${tmpdir}/opencv-2.4.5.tar.gz",
+    url  => "http://downloads.sourceforge.net/project/opencvlibrary/opencv-unix/${$opencvVersion}/opencv-${$opencvVersion}.tar.gz",
+    path => "${tmpdir}/opencv-${$opencvVersion}.tar.gz",
   } -> macro::extract { 'extract-opencv':
-    file => "${tmpdir}/opencv-2.4.5.tar.gz",
+    file => "${tmpdir}/opencv-${$opencvVersion}.tar.gz",
     path => $tmpdir,
   }
 
