@@ -47,7 +47,6 @@ define([
 
 
         this.onSearchResultSelected = function(evt, data) {
-console.log(data);
             if ($.isArray(data) && data.length === 1) {
                 data = data[0];
             }
