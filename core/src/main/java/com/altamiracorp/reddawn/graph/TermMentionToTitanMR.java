@@ -60,6 +60,11 @@ public class TermMentionToTitanMR extends ConfigurableMapJobBase {
             }
         }
 
+        @Override
+        protected void cleanup(Context context) throws IOException, InterruptedException {
+            session.close();
+            super.cleanup(context);
+        }
     }
 
     public static void main(String[] args) throws Exception {

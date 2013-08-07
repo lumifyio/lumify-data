@@ -7,6 +7,8 @@ import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
 import com.altamiracorp.reddawn.web.routes.concept.ConceptList;
 import com.altamiracorp.reddawn.web.routes.entity.*;
+import com.altamiracorp.reddawn.web.routes.graph.GraphGeoLocationSearch;
+import com.altamiracorp.reddawn.web.routes.graph.GraphGetNode;
 import com.altamiracorp.reddawn.web.routes.graph.GraphNodeToGraphNodeRelationship;
 import com.altamiracorp.reddawn.web.routes.graph.GraphRelatedNodes;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
@@ -22,7 +24,6 @@ import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceByRowKey;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceDelete;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceList;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceSave;
-import com.altamiracorp.web.App;
 import com.altamiracorp.web.Handler;
 
 import javax.servlet.ServletConfig;
@@ -74,6 +75,8 @@ public class Router extends HttpServlet {
 
         app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedNodes.class);
         app.get("/graph/relationship", authenticator, GraphNodeToGraphNodeRelationship.class);
+        app.get("/graph/node/geoLocationSearch", authenticator, GraphGeoLocationSearch.class);
+        app.get("/graph/node/{graphNodeId}", authenticator, GraphGetNode.class);
 
         app.get("/workspace/", authenticator, WorkspaceList.class);
         app.post("/workspace/save", authenticator, WorkspaceSave.class);

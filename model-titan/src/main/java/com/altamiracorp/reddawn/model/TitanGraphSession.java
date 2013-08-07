@@ -1,10 +1,12 @@
 package com.altamiracorp.reddawn.model;
 
+import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
-import com.thinkaurelius.titan.core.TitanFactory;
-import com.thinkaurelius.titan.core.TitanGraph;
+import com.thinkaurelius.titan.core.*;
+import com.thinkaurelius.titan.core.attribute.Geo;
+import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
@@ -51,7 +53,26 @@ public class TitanGraphSession extends GraphSession {
 
         LOGGER.info("opening titan:\n" + confToString(conf));
         graph = TitanFactory.open(conf);
-        graph.createKeyIndex("rowKey", Vertex.class);
+
+        if (graph.getType(PROPERTY_NAME_ROW_KEY) == null) {
+            graph.makeType()
+                    .name(PROPERTY_NAME_ROW_KEY)
+                    .dataType(String.class)
+                    .indexed(Vertex.class)
+                    .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
+                    .indexed(Titan.Token.STANDARD_INDEX, Vertex.class)
+                    .makePropertyKey();
+        }
+
+        if (graph.getType(PROPERTY_NAME_GEO_LOCATION) == null) {
+            graph.makeType()
+                    .name(PROPERTY_NAME_GEO_LOCATION)
+                    .dataType(Geoshape.class)
+                    .indexed(Vertex.class)
+                    .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
+                    .indexed(Titan.Token.STANDARD_INDEX, Vertex.class)
+                    .makePropertyKey();
+        }
     }
 
     private String confToString(Configuration conf) {
@@ -69,14 +90,20 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public String save(GraphNode node) {
+        TitanTransaction tx = this.graph.newTransaction();
         Vertex vertex = this.graph.getVertex(node.getId());
         if (vertex == null) {
             vertex = this.graph.addVertex(node.getId());
         }
         for (String propertyKey : node.getPropertyKeys()) {
-            vertex.setProperty(propertyKey, node.getProperty(propertyKey));
+            Object val = node.getProperty(propertyKey);
+            if (val instanceof GraphGeoLocation) {
+                GraphGeoLocation loc = (GraphGeoLocation) val;
+                val = Geoshape.point(loc.getLatitude(), loc.getLongitude());
+            }
+            vertex.setProperty(propertyKey, val);
         }
-        this.graph.commit();
+        tx.commit();
         return "" + vertex.getId();
     }
 
@@ -122,6 +149,10 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public List<GraphNode> findBy(String key, String value) {
         Iterable<Vertex> vertices = this.graph.getVertices(key, value);
+        return toGraphNodes(vertices);
+    }
+
+    private ArrayList<GraphNode> toGraphNodes(Iterable<Vertex> vertices) {
         ArrayList<GraphNode> results = new ArrayList<GraphNode>();
         for (Vertex vertex : vertices) {
             results.add(new TitanGraphNode(vertex));
@@ -177,6 +208,14 @@ public class TitanGraphSession extends GraphSession {
         }
 
         return properties;
+    }
+
+    @Override
+    public List<GraphNode> findByGeoLocation(double latitude, double longitude, double radius) {
+        Iterable<Vertex> r = graph.query()
+                .has(PROPERTY_NAME_GEO_LOCATION, Geo.WITHIN, Geoshape.circle(latitude, longitude, radius))
+                .vertices();
+        return toGraphNodes(r);
     }
 
     @Override
