@@ -8,8 +8,9 @@ define([
     'tpl!./instructions/regionLoading',
     'service/ucd',
     'util/retina',
-    'util/withContextMenu'
-], function(defineComponent, template, centerTemplate, radiusTemplate, loadingTemplate, UcdService, retina, withContextMenu) {
+    'util/withContextMenu',
+    'underscore'
+], function(defineComponent, template, centerTemplate, radiusTemplate, loadingTemplate, UcdService, retina, withContextMenu, _) {
     'use strict';
             
     var MODE_NORMAL = 0,
@@ -264,17 +265,21 @@ define([
 
         this.invalidMap = function() {
             var map = this.select('mapSelector'),
-                cls = 'invalid';
+                cls = 'invalid',
+                animate = function() {
+                    map.removeClass(cls);
+                    _.defer(function() {
+                        map.on('animationend MSAnimationEnd webkitAnimationEnd oAnimationEnd oanimationend', function() {
+                            map.removeClass(cls);
+                        });
+                        map.addClass(cls);
+                    });
+                };
 
             if (this.$node.closest('.visible').length === 0) {
                 return;
-            } else if (map.hasClass(cls)) {
-                map.removeClass(cls);
-                setTimeout(function() {
-                    map.addClass(cls);
-                }, 100);
             } else {
-                map.addClass(cls);
+                animate();
             }
         };
 
