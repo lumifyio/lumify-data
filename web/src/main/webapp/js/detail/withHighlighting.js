@@ -249,7 +249,7 @@ define([
                     tolerance: 'pointer',
                     accept: function(el) {
                         var item = $(el),
-                            isTerm = item.is('.entity'),
+                            isTerm = item.is('.entity, .artifact'),
                             sameSentence = isTerm && $(this).closest('.sentence').is(item.closest('.sentence'));
                         return isTerm && sameSentence;
                     },

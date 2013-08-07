@@ -32,7 +32,6 @@ define([
 
         this.loadEntity = function() {
             var self = this;
-console.log("Attributes:", this.attr.data);
             var nodeInfo = {
                 id: this.attr.data.id,
                 properties: {
