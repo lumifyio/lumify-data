@@ -358,6 +358,16 @@ define([
                 var allNodes = this.workspaceData.data.nodes;
 
                 var added = [];
+                // FIXME: How should we store nodes in the workspace? 
+                // currently mapping { id:[graphNodeId], properties:{} } 
+                // to { graphNodeId:..., [properties] }
+                data.nodes = data.nodes.map(function(n) {
+                    if (n.properties) {
+                        n.properties.graphNodeId = n.id;
+                        return n.properties;
+                    }
+                    return n;
+                });
                 data.nodes.forEach(function(node) {
                     if (ws.data.nodes.filter(function(n) { return n.graphNodeId === node.graphNodeId; }).length === 0) {
                         added.push(node);

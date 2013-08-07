@@ -5,15 +5,17 @@ define([
     'tpl!./map',
     'tpl!./instructions/regionCenter',
     'tpl!./instructions/regionRadius',
+    'tpl!./instructions/regionLoading',
     'service/ucd',
     'util/retina',
     'util/withContextMenu'
-], function(defineComponent, template, centerTemplate, radiusTemplate, UcdService, retina, withContextMenu) {
+], function(defineComponent, template, centerTemplate, radiusTemplate, loadingTemplate, UcdService, retina, withContextMenu) {
     'use strict';
             
     var MODE_NORMAL = 0,
         MODE_REGION_SELECTION_MODE_POINT = 1,
-        MODE_REGION_SELECTION_MODE_RADIUS = 2;
+        MODE_REGION_SELECTION_MODE_RADIUS = 2,
+        MODE_REGION_SELECTION_MODE_LOADING = 3;
 
     return defineComponent(Map, withContextMenu);
 
@@ -73,9 +75,15 @@ define([
         };
 
         this.onContextMenuLoadResultsWithinRadius = function() {
-            this.mode = MODE_REGION_SELECTION_MODE_POINT;
+            var self = this;
 
+            this.mode = MODE_REGION_SELECTION_MODE_POINT;
             this.$node.append(centerTemplate({}));
+            $(document).on('keydown.regionselection', function(e) {
+                if (e.which === $.ui.keyCode.ESCAPE) {
+                    self.endRegionSelection();
+                }
+            });
         };
 
         this.onSyncEnded = function() {
@@ -343,6 +351,22 @@ define([
             }
         };
 
+        this.endRegionSelection = function() {
+            this.mode = MODE_NORMAL;
+
+            this.off('mousemove');
+            $('#map_mouse_position_hack').remove();
+            this.$node.find('.instructions').remove();
+
+            if (this.regionPolyline) {
+                this.map(function(map) {
+                    map.removePolyline(this.regionPolyline);
+                });
+            }
+
+            $(document).off('keydown.regionselection');
+        };
+
         this.onMapClicked = function(evt, map, data) {
             var self = this;
             this.$node.find('.instructions').remove();
@@ -398,24 +422,25 @@ define([
 
                 case MODE_REGION_SELECTION_MODE_RADIUS:
 
-                    self.mode = MODE_NORMAL;
-
+                    self.mode = MODE_REGION_SELECTION_MODE_LOADING;
                     self.off('mousemove');
-                    $('#map_mouse_position_hack').remove();
+                    self.$node.find('.instructions').remove();
+                    self.$node.append(loadingTemplate({}));
 
-                    if (self.regionPolyline) {
-                        map.removePolyline(self.regionPolyline);
-                    }
-
-                    // TODO: load results with center and radius
-                    console.log(
+                    self.ucdService.locationSearch(
                         self.regionCenterPoint.lat,
                         self.regionCenterPoint.lon, 
-                        self.regionRadiusDistance + ' km',
-                        mxn.util.KMToMiles(self.regionRadiusDistance) + ' miles'
+                        self.regionRadiusDistance,
+                        function(err, data) {
+                            self.endRegionSelection();
+                            if (!err) {
+                                self.trigger(document, 'addNodes', data);
+                            }
+                        }
                     );
 
                     break;
+
             }
         };
 
