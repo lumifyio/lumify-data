@@ -28,7 +28,18 @@ function(ServiceBase) {
                 target: target
             }
         }, callback);
-    }
+    };
+
+    Ucd.prototype.locationSearch = function(lat, lon, radiuskm, callback) {
+        return this._ajaxGet({
+            url: 'graph/node/geoLocationSearch',
+            data: {
+                lat: lat,
+                lon: lon,
+                radius: radiuskm
+            }
+        }, callback);
+    };
 
     Ucd.prototype.getStatementByRowKey = function(statementRowKey, callback) {
         return this._get("statement", statementRowKey, callback);

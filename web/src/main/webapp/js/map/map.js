@@ -3,15 +3,20 @@
 define([
     'flight/lib/component',
     'tpl!./map',
+    'tpl!./instructions/regionCenter',
+    'tpl!./instructions/regionRadius',
+    'tpl!./instructions/regionLoading',
     'service/ucd',
     'util/retina',
-    'util/withContextMenu'
-], function(defineComponent, template, UcdService, retina, withContextMenu) {
+    'util/withContextMenu',
+    'underscore'
+], function(defineComponent, template, centerTemplate, radiusTemplate, loadingTemplate, UcdService, retina, withContextMenu, _) {
     'use strict';
             
     var MODE_NORMAL = 0,
         MODE_REGION_SELECTION_MODE_POINT = 1,
-        MODE_REGION_SELECTION_MODE_RADIUS = 2;
+        MODE_REGION_SELECTION_MODE_RADIUS = 2,
+        MODE_REGION_SELECTION_MODE_LOADING = 3;
 
     return defineComponent(Map, withContextMenu);
 
@@ -71,8 +76,15 @@ define([
         };
 
         this.onContextMenuLoadResultsWithinRadius = function() {
+            var self = this;
+
             this.mode = MODE_REGION_SELECTION_MODE_POINT;
-            // TODO: show instructions
+            this.$node.append(centerTemplate({}));
+            $(document).on('keydown.regionselection', function(e) {
+                if (e.which === $.ui.keyCode.ESCAPE) {
+                    self.endRegionSelection();
+                }
+            });
         };
 
         this.onSyncEnded = function() {
@@ -253,17 +265,21 @@ define([
 
         this.invalidMap = function() {
             var map = this.select('mapSelector'),
-                cls = 'invalid';
+                cls = 'invalid',
+                animate = function() {
+                    map.removeClass(cls);
+                    _.defer(function() {
+                        map.on('animationend MSAnimationEnd webkitAnimationEnd oAnimationEnd oanimationend', function() {
+                            map.removeClass(cls);
+                        });
+                        map.addClass(cls);
+                    });
+                };
 
             if (this.$node.closest('.visible').length === 0) {
                 return;
-            } else if (map.hasClass(cls)) {
-                map.removeClass(cls);
-                setTimeout(function() {
-                    map.addClass(cls);
-                }, 100);
             } else {
-                map.addClass(cls);
+                animate();
             }
         };
 
@@ -340,58 +356,96 @@ define([
             }
         };
 
+        this.endRegionSelection = function() {
+            this.mode = MODE_NORMAL;
+
+            this.off('mousemove');
+            $('#map_mouse_position_hack').remove();
+            this.$node.find('.instructions').remove();
+
+            if (this.regionPolyline) {
+                this.map(function(map) {
+                    map.removePolyline(this.regionPolyline);
+                });
+            }
+
+            $(document).off('keydown.regionselection');
+        };
+
         this.onMapClicked = function(evt, map, data) {
             var self = this;
+            this.$node.find('.instructions').remove();
+
             switch (self.mode) {
                 case MODE_NORMAL: 
                     self.trigger(document, 'searchResultSelected', []);
                     break;
 
                 case MODE_REGION_SELECTION_MODE_POINT:
-                    // TODO: add descriptive text under cursor of what to do
+
+                    self.mode = MODE_REGION_SELECTION_MODE_RADIUS;
+
+                    this.$node.append(radiusTemplate({}));
+
                     self.regionCenterPoint = data.location;
 
                     var span = $('<span id="map_mouse_position_hack"></span>').hide().appendTo(document.body),
                         radius = new mxn.Radius(self.regionCenterPoint, 10);
 
+                    // Register for mouse events using the hack. 
+                    // mapstraction doesn't have a mousemove handler!?! so we
+                    // just grab the text of the span content: "lat / lon"
                     map.mousePosition(span.attr('id'));
+
                     self.on('mousemove', function() {
-                        var parts = span.text().split(/\s*\/\s*/);
-                        if (parts.length === 2) {
-                            var point = new mxn.LatLonPoint(parts[0], parts[1]);
+                       var parts = span.text().split(/\s*\/\s*/);
+                       if (parts.length === 2) {
+                           var point = new mxn.LatLonPoint(parts[0], parts[1]);
 
-                            if (self.regionPolyline) {
-                                map.removePolyline(self.regionPolyline);
-                            }
+                           if (self.regionPolyline) {
+                               map.removePolyline(self.regionPolyline);
+                           }
 
-                            self.regionRadiusDistance = Math.max(1, self.regionCenterPoint.distance(point) * 0.95);
-                            self.regionPolyline = radius.getPolyline(self.regionRadiusDistance, 'rgba(0,0,128,0.5)');
-                            map.addPolyline(self.regionPolyline);
-                        }
+                           self.regionRadiusDistance = Math.max(1, self.regionCenterPoint.distance(point) * 0.95);
+                           self.regionPolyline = radius.getPolyline(self.regionRadiusDistance, '#0000aa');
+                           self.regionPolyline.addData({
+                               fillColor: '#000088',
+                               opacity: 0.2,
+                               closed: true
+                           });
+
+                           map.addPolyline(self.regionPolyline);
+
+                           // Google maps fix to disable events on polyline
+                           if (map.api === 'googlev3' && self.regionPolyline.proprietary_polyline) {
+                               self.regionPolyline.proprietary_polyline.setOptions( { clickable: false } );
+                           }
+                       }
                     });
-                    self.mode = MODE_REGION_SELECTION_MODE_RADIUS;
 
                     break;
 
                 case MODE_REGION_SELECTION_MODE_RADIUS:
 
-                    self.mode = MODE_NORMAL;
-
+                    self.mode = MODE_REGION_SELECTION_MODE_LOADING;
                     self.off('mousemove');
-                    $('#map_mouse_position_hack').remove();
-                    if (self.regionPolyline) {
-                        map.removePolyline(self.regionPolyline);
-                    }
+                    self.$node.find('.instructions').remove();
+                    self.$node.append(loadingTemplate({}));
 
-                    // TODO: load results with center and radius
-                    console.log(
+                    self.ucdService.locationSearch(
                         self.regionCenterPoint.lat,
                         self.regionCenterPoint.lon, 
-                        self.regionRadiusDistance + ' km',
-                        mxn.util.KMToMiles(self.regionRadiusDistance) + ' miles'
+                        self.regionRadiusDistance,
+                        function(err, data) {
+                            self.endRegionSelection();
+                            if (!err) {
+                                self.trigger(document, 'addNodes', data);
+                            }
+                        }
                     );
 
                     break;
+
             }
         };
 

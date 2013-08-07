@@ -93,7 +93,15 @@ public class EntityHighlighter {
             endOffsets.add((int) offsetItem.getEnd());
             lastStart = (int) offsetItem.getStart();
         }
+
+        while (endOffsets.size() > 0) {
+            int end = endOffsets.poll();
+            result.append(text.substring(lastStart - textStartOffset, end - textStartOffset));
+            result.append("</span>");
+            lastStart = end;
+        }
         result.append(text.substring(lastStart - textStartOffset));
+
         return result.toString();
     }
 
