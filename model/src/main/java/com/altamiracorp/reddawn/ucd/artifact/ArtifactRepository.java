@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.ucd.artifact;
 
 import com.altamiracorp.reddawn.model.*;
+import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
 
@@ -131,7 +132,12 @@ public class ArtifactRepository extends Repository<Artifact> {
         GraphNode node = new GraphNodeImpl(suggestedNodeId);
         node.setProperty("type", "artifact");
         node.setProperty("subType", artifact.getType().toString().toLowerCase());
-        node.setProperty("rowKey", artifact.getRowKey().toString());
+        node.setProperty(GraphSession.PROPERTY_NAME_ROW_KEY, artifact.getRowKey().toString());
+        if (artifact.getDynamicMetadata().getLatitude() != null) {
+            double latitude = artifact.getDynamicMetadata().getLatitude();
+            double longitude = artifact.getDynamicMetadata().getLongitude();
+            node.setProperty(GraphSession.PROPERTY_NAME_GEO_LOCATION, new GraphGeoLocation(latitude, longitude));
+        }
         if (artifact.getGenericMetadata().getSubject() != null) {
             node.setProperty("title", artifact.getGenericMetadata().getSubject());
         }
