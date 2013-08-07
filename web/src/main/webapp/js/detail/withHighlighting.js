@@ -30,7 +30,8 @@ define([
         this.defaultAttrs({
             resolvableSelector: '.text .entity',
             highlightTypeSelector: '.highlight-options a',
-            highlightedWordsSelector: '.entity, .term, .artifact'
+            highlightedWordsSelector: '.entity, .term, .artifact',
+            draggablesSelector: '.entity, .term, .artifact, .artifact-title'
         });
 
         // Automatically refresh draggables when request completes
@@ -213,7 +214,7 @@ define([
 
         this.updateEntityAndArtifactDraggables = function() {
             var self = this,
-                words = this.select('highlightedWordsSelector');
+                words = this.select('draggablesSelector');
 
             // Filter list to those in visible scroll area
             words
@@ -244,7 +245,7 @@ define([
                     tolerance: 'pointer',
                     accept: function(el) {
                         var item = $(el),
-                            isEntity = item.is('.entity, .artifact');
+                            isEntity = item.is('.entity');
 
                         return isEntity;
                     },

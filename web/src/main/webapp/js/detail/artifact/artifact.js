@@ -35,11 +35,17 @@ define([
             var self = this;
 
             this.handleCancelling(this.ucdService.getArtifactById(this.attr.data.rowKey, function(err, artifact) {
-
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
+
+                artifact.dataInfo = JSON.stringify({
+                    type: 'artifact',
+                    subType: artifact.type,
+                    graphNodeId: artifact.Generic_Metadata['atc:graph_node_id'],
+                    rowKey: artifact.key.value
+                });
 
                 self.$node.html(template({ artifact: self.setupContentHtml(artifact), highlightButton:self.highlightButton() }));
 
