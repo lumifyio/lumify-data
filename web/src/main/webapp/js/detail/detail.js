@@ -63,7 +63,7 @@ define([
                 moduleName = $.isArray(data) ? 'multiple' : data.type;
 
             // Attach specific module based on the object selected
-            if (moduleName != "artifact" && moduleName != "relationship") {
+            if (moduleName != "artifact" && moduleName != "relationship" && moduleName != "multiple") {
                 moduleName = "entity";
             }
 
