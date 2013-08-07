@@ -151,10 +151,9 @@ define([
             this.cy(function(cy) {
                 var nodesToDelete = $.map(cy.nodes().filter(':selected'), function(node) {
                     return {
-                        rowKey: node.data('rowKey'),
+                        graphNodeId: node.data('graphNodeId'),
                         type: node.data('type'),
-                        subType: node.data('subType'),
-                        graphNodeId: node.data('graphNodeId')
+                        subType: node.data('subType')
                     };
                 });
 
@@ -166,7 +165,7 @@ define([
             this.cy(function(cy) {
                 var matchingNodes = cy.nodes().filter(function(idx, node) {
                     return data.nodes.filter(function(nodeToDelete) { 
-                        return node.data('rowKey') == nodeToDelete.rowKey; 
+                        return node.data('graphNodeId') == nodeToDelete.graphNodeId; 
                     }).length > 0;
                 });
                 matchingNodes.remove();
@@ -260,9 +259,8 @@ define([
                         }
                         var updates = $.map(cy.nodes(), function(node) {
                             return {
-                                rowKey: node.data('rowKey'),
+                                graphNodeId: node.data('graphNodeId'),
                                 graphPosition: retina.pixelsToPoints(node.position())
-                                //TODO add graphNodeId
                             };
                         });
                         self.trigger(document, 'updateNodes', { nodes:updates });
