@@ -6,13 +6,13 @@ class opencv($tmpdir="/usr/local/src") {
 
   $opencvVersion = "2.4.5"
 
-  $srcdir = "${tmpdir}/opencv-${$opencvVersion}"
+  $srcdir = "${tmpdir}/opencv-${opencvVersion}"
 
   macro::download { "opencv-download":
-    url  => "http://downloads.sourceforge.net/project/opencvlibrary/opencv-unix/${$opencvVersion}/opencv-${$opencvVersion}.tar.gz",
-    path => "${tmpdir}/opencv-${$opencvVersion}.tar.gz",
+    url  => "http://downloads.sourceforge.net/project/opencvlibrary/opencv-unix/${$opencvVersion}/opencv-${opencvVersion}.tar.gz",
+    path => "${tmpdir}/opencv-${opencvVersion}.tar.gz",
   } -> macro::extract { 'extract-opencv':
-    file => "${tmpdir}/opencv-${$opencvVersion}.tar.gz",
+    file => "${tmpdir}/opencv-${opencvVersion}.tar.gz",
     path => $tmpdir,
   }
 
