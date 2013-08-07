@@ -175,6 +175,8 @@ define([
 
                 if (notAppDroppable && noParentDroppables) {
                     enabled = e.type === 'dropout';
+                } else {
+                    enabled = true;
                 }
             });
 

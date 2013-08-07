@@ -28,7 +28,7 @@ define([
         };
 
         this.defaultAttrs({
-            entitySelector: '.entity',
+            resolvableSelector: '.text .entity',
             highlightTypeSelector: '.highlight-options a',
             highlightedWordsSelector: '.entity, .term, .artifact'
         });
@@ -53,7 +53,7 @@ define([
             $(document).on('selectionchange.detail', this.onSelectionChange.bind(this));
             this.highlightNode.on('scrollstop', this.updateEntityAndArtifactDraggables.bind(this));
             this.on('click', {
-                entitySelector: this.onEntityClicked,
+                resolvableSelector: this.onResolvableClicked,
                 highlightTypeSelector: this.onHighlightTypeClicked
             });
             this.on(document, 'termCreated', this.updateEntityAndArtifactDraggables);
@@ -203,7 +203,7 @@ define([
             });
         };
 
-        this.onEntityClicked = function(event) {
+        this.onResolvableClicked = function(event) {
             var $target = $(event.target);
             if ($target.is('.underneath') || $target.parents('.underneath').length) {
                 return;
