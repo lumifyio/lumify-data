@@ -172,7 +172,7 @@ public class FFMPEGVideoConversion {
                 "-bufsize", "1000k",
                 "-vf", "scale=720:480",
                 "-threads", "0",
-                "-acodec", "libvo_aacenc",
+                "-acodec", "libfdk_aac",
                 "-b:a", "128k",
                 "-f", "mp4",
                 mp4File.getAbsolutePath()
