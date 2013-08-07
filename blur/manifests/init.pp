@@ -46,6 +46,9 @@ class blur (
 
   file { $configdir:
     ensure => directory,
+    owner  => "$user",
+    group  => "$group", 
+    mode   => "0644",
   }
 
   file { $configlink:
