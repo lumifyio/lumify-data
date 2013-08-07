@@ -244,7 +244,7 @@ define([
                     tolerance: 'pointer',
                     accept: function(el) {
                         var item = $(el),
-                            isEntity = item.is('.entity');
+                            isEntity = item.is('.entity, .artifact');
 
                         return isEntity;
                     },

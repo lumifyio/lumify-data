@@ -5,6 +5,7 @@ import com.altamiracorp.reddawn.model.GraphSession;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 public class GraphRepository {
     public GraphNode findNode(GraphSession graphSession, String graphNodeId) {
@@ -25,7 +26,23 @@ public class GraphRepository {
         return relationship;
     }
 
+    public Map<String, String> getProperties(GraphSession graphSession, String graphNodeId) {
+        return graphSession.getProperties(graphNodeId);
+    }
+
+    public Map<GraphRelationship, GraphNode> getRelationships(GraphSession graphSession, String graphNodeId) {
+        return graphSession.getRelationships(graphNodeId);
+    }
+
     public HashMap<String, String> getEdgeProperties(GraphSession graphSession, String sourceNode, String destNode) {
         return graphSession.getEdgeProperties(sourceNode, destNode);
+    }
+
+    public List<GraphNode> findByGeoLocation(GraphSession graphSession, double latitude, double longitude, double radius) {
+        return graphSession.findByGeoLocation(latitude, longitude, radius);
+    }
+
+    public List<GraphNode> searchNodes(GraphSession graphSession, String query) {
+        return graphSession.searchNodes(query);
     }
 }

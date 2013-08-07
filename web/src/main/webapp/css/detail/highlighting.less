@@ -1,5 +1,5 @@
 .entity-styling(background-color, @sat:1.0, @val:1.0, @alpha:0.2) {
-  @hueIncrement: 360 / 7;
+  @hueIncrement: 360 / 10;
 
   background-color: hsva(0, @sat, @val, @alpha);
 
@@ -10,9 +10,12 @@
   &.organization { background-color: hsva(@hueIncrement * 4, @sat, @val, @alpha); }
   &.percentage { background-color: hsva(@hueIncrement * 5, @sat, @val, @alpha); }
   &.person { background-color: hsva(@hueIncrement * 6, @sat, @val, @alpha); }
+  &.document { background-color: hsva(@hueIncrement * 7, @sat, @val, @alpha); }
+  &.image { background-color: hsva(@hueIncrement * 8, @sat, @val, @alpha); }
+  &.video { background-color: hsva(@hueIncrement * 9, @sat, @val, @alpha); }
 }
 .entity-styling(color, @sat:1.0, @val:1.0, @alpha:0.2) {
-  @hueIncrement: 360 / 7;
+  @hueIncrement: 360 / 10;
 
   color: hsva(0, @sat, @val, @alpha);
 
@@ -23,9 +26,12 @@
   &.organization { color: hsva(@hueIncrement * 4, @sat, @val, @alpha); }
   &.percentage { color: hsva(@hueIncrement * 5, @sat, @val, @alpha); }
   &.person { color: hsva(@hueIncrement * 6, @sat, @val, @alpha); }
+  &.document { color: hsva(@hueIncrement * 7, @sat, @val, @alpha); }
+  &.image { color: hsva(@hueIncrement * 8, @sat, @val, @alpha); }
+  &.video { color: hsva(@hueIncrement * 9, @sat, @val, @alpha); }
 }
 .entity-styling(border-bottom-color, @sat:1.0, @val:1.0, @alpha:0.2) {
-  @hueIncrement: 360 / 7;
+  @hueIncrement: 360 / 10;
 
   border-bottom: 2px solid hsva(0, @sat, @val, @alpha);
 
@@ -36,11 +42,14 @@
   &.organization { border-bottom-color: hsva(@hueIncrement * 4, @sat, @val, @alpha); }
   &.percentage { border-bottom-color: hsva(@hueIncrement * 5, @sat, @val, @alpha); }
   &.person { border-bottom-color: hsva(@hueIncrement * 6, @sat, @val, @alpha); }
+  &.document { border-bottom-color: hsva(@hueIncrement * 7, @sat, @val, @alpha); }
+  &.image { border-bottom-color: hsva(@hueIncrement * 8, @sat, @val, @alpha); }
+  &.video { border-bottom-color: hsva(@hueIncrement * 9, @sat, @val, @alpha); }
 }
 
 .highlighting {
 
-  .entity {
+  .entity, .artifact {
     cursor: pointer;
 
   }
@@ -53,7 +62,7 @@
     .dropdown .entity:not(.focused) {
       .entity-styling(~"background-color", 0.3);
     }
-    .entity {
+    .entity, .artifact {
       .entity-styling(~"background-color");
 
       &.drop-hover {
@@ -66,7 +75,7 @@
     .dropdown .entity:not(.focused) {
       .entity-styling(border-bottom-color, 0.4);
     }
-    .entity {
+    .entity, .artifact {
       .entity-styling(border-bottom-color, 1.0, 1.0, 1.0);
 
       &.drop-hover {
@@ -76,7 +85,7 @@
   }
 
   &.highlight-icons {
-    .entity {
+    .entity, .artifact {
       background-color: lighten(@pane-background, 5%);
       padding: 0 3px;
       .border-radius(3px);
@@ -125,6 +134,18 @@
 
       &.person:before {
         background-image: url(../../img/glyphicons/glyphicons_003_user@2x.png);
+      }
+
+      &.document:before {
+        background-image: url(../../img/glyphicons/glyphicons_036_file@2x.png);
+      }
+
+      &.image:before {
+        background-image: url(../../img/glyphicons/glyphicons_011_camera@2x.png);
+      }
+
+      &.vidoe:before {
+        background-image: url(../../img/glyphicons/glyphicons_008_film@2x.png);
       }
     }
 

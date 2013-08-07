@@ -8,7 +8,8 @@ define([
     'util/throttle',
     'util/previews',
     'service/ucd',
-    'util/retina'
+    'util/retina',
+    'util/withContextMenu'
 ], function(
     defineComponent,
     cytoscape,
@@ -17,10 +18,11 @@ define([
     throttle,
     previews,
     UCD,
-    retina) {
+    retina,
+    withContextMenu) {
     'use strict';
 
-    return defineComponent(Graph);
+    return defineComponent(Graph, withContextMenu);
 
     function Graph() {
         this.ucd = new UCD();
@@ -37,7 +39,6 @@ define([
             emptyGraphSelector: '.empty-graph',
             graphToolsSelector: '.ui-cytoscape-panzoom',
             contextMenuSelector: '.graph-context-menu',
-            contextMenuItemSelector: '.graph-context-menu a',
             nodeContextMenuSelector: '.node-context-menu'
         });
 
@@ -94,7 +95,7 @@ define([
                         classes: $.trim(node.subType + ' ' + node.type),
                         data: {
                             id: node.graphNodeId,
-                            rowKey: node.rowKey,
+                            rowKey: node.rowKey || node.rowkey,
                             graphNodeId: node.graphNodeId,
                             subType: node.subType,
                             type: node.type,
@@ -192,29 +193,6 @@ define([
         };
 
 
-        this.onContextMenu = function(event) {
-            var target = $(event.target),
-                name = target.data('func'),
-                functionName = name && 'onContextMenu' + name.substring(0, 1).toUpperCase() + name.substring(1),
-                func = functionName && this[functionName],
-                args = target.data('args');
-
-
-            if (func) {
-                if (!args) {
-                    args = [];
-                }
-                func.apply(this, args);
-            } else {
-                console.error('No function exists for context menu command: ' + functionName);
-            }
-
-            setTimeout(function() {
-                target.blur();
-                this.select('contextMenuSelector').blur().parent().removeClass('open');
-                this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
-            }.bind(this), 0);
-        };
 
         this.onContextMenuZoom = function(level) {
             this.cy(function(cy) {
@@ -325,36 +303,7 @@ define([
                 menu.find('.layout-multi').hide();
             }
 
-            // TODO: extract this context menu viewport fitting
-            var offset = this.$node.offset(),
-            padding = 10,
-            windowSize = { x: $(window).width(), y: $(window).height() },
-            menuSize = { x: menu.outerWidth(), y: menu.outerHeight() },
-            submenu = menu.find('li.dropdown-submenu ul'),
-            submenuSize = menuSize,// { x:submenu.outerWidth(), y:submenu.outerHeight() },
-            placement = {
-                left: Math.min(
-                    event.originalEvent.pageX - offset.left,
-                    windowSize.x - offset.left - menuSize.x - padding
-                ),
-                top: Math.min(
-                    event.originalEvent.pageY - offset.top,
-                    windowSize.y - offset.top - menuSize.y - padding
-                )
-            },
-            submenuPlacement = { left:'100%', right:'auto', top:0, bottom:'auto' };
-
-            if ((placement.left + menuSize.x + submenuSize.x + padding) > windowSize.x) {
-                submenuPlacement = $.extend(submenuPlacement, { right: '100%', left:'auto' });
-            }
-            if ((placement.top + menuSize.y + (submenu.children('li').length * 26) + padding) > windowSize.y) {
-                submenuPlacement = $.extend(submenuPlacement, { top: 'auto', bottom:'0' });
-            }
-
-            menu.parent('div').css($.extend({ position:'absolute' }, placement));
-            submenu.css(submenuPlacement);
-
-            menu.dropdown('toggle');
+            this.toggleMenu({positionUsingEvent:event}, menu);
         };
 
         this.graphSelect = throttle('selection', 100, function(event) {
@@ -595,10 +544,6 @@ define([
         this.after('initialize', function() {
             var self = this;
             this.$node.html(template({}));
-
-
-            this.select('contextMenuItemSelector').on('click', this.onContextMenu.bind(this));
-            this.select('nodeContextMenuSelector').on('click', this.onContextMenu.bind(this));
 
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'nodesAdded', this.onNodesAdded);

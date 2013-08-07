@@ -40,8 +40,8 @@ public class GraphNodeToGraphNodeRelationship implements Handler, AppAware {
         GraphNode targetNode = graphRepository.findNode(session.getGraphSession(), target);
 
         JSONObject results = new JSONObject();
-        results = resultsToJson("source", sourceNode, results);
-        results = resultsToJson("target", targetNode, results);
+        results = resultsToJson(source, "source", sourceNode, results);
+        results = resultsToJson(target, "target", targetNode, results);
 
         JSONArray propertyJson = new JSONArray();
         for (Map.Entry<String, String> p : properties.entrySet()) {
@@ -55,8 +55,12 @@ public class GraphNodeToGraphNodeRelationship implements Handler, AppAware {
         new Responder(response).respondWith(results);
     }
 
-    private JSONObject resultsToJson(String nodePrefix, GraphNode graphNode, JSONObject obj) throws JSONException {
-        obj.put(nodePrefix + "Id", graphNode.getProperty("rowKey"));
+    private JSONObject resultsToJson(String id, String nodePrefix, GraphNode graphNode, JSONObject obj) throws JSONException {
+        if (graphNode.getProperty("type").equals("artifact")) {
+            obj.put(nodePrefix + "Id", graphNode.getProperty("rowKey"));
+        } else {
+            obj.put(nodePrefix + "Id", id);
+        }
 
         if (graphNode.getProperty("title") != "") {
             obj.put(nodePrefix + "Title", graphNode.getProperty("title"));

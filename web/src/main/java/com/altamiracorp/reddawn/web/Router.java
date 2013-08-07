@@ -7,10 +7,11 @@ import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
 import com.altamiracorp.reddawn.web.routes.concept.ConceptList;
 import com.altamiracorp.reddawn.web.routes.entity.*;
-import com.altamiracorp.reddawn.web.routes.graph.GraphNodeToGraphNodeRelationship;
-import com.altamiracorp.reddawn.web.routes.graph.GraphRelatedNodes;
+import com.altamiracorp.reddawn.web.routes.graph.*;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
+import com.altamiracorp.reddawn.web.routes.node.NodeProperties;
+import com.altamiracorp.reddawn.web.routes.node.NodeRelationships;
 import com.altamiracorp.reddawn.web.routes.predicate.PredicateList;
 import com.altamiracorp.reddawn.web.routes.statement.StatementByRowKey;
 import com.altamiracorp.reddawn.web.routes.statement.StatementCreate;
@@ -20,7 +21,6 @@ import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceByRowKey;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceDelete;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceList;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceSave;
-import com.altamiracorp.web.App;
 import com.altamiracorp.web.Handler;
 
 import javax.servlet.ServletConfig;
@@ -63,14 +63,17 @@ public class Router extends HttpServlet {
         app.post("/statement/create", authenticator, StatementCreate.class);
 
         app.post("/entity/relationships", authenticator, EntityRelationships.class);
-        app.get("/entity/search", authenticator, EntitySearch.class);
-        app.get("/entity/{rowKey}/mentions", authenticator, EntityMentionsByRange.class);
-        app.get("/entity/{rowKey}/relationships", authenticator, EntityRelationshipsBidrectional.class);
         app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);
         app.post("/entity/create", authenticator, EntityCreate.class);
 
+        app.get("/node/{graphNodeId}/properties", authenticator, NodeProperties.class);
+        app.get("/node/{graphNodeId}/relationships", authenticator, NodeRelationships.class);
+
         app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedNodes.class);
         app.get("/graph/relationship", authenticator, GraphNodeToGraphNodeRelationship.class);
+        app.get("/graph/node/search", authenticator, GraphNodeSearch.class);
+        app.get("/graph/node/geoLocationSearch", authenticator, GraphGeoLocationSearch.class);
+        app.get("/graph/node/{graphNodeId}", authenticator, GraphGetNode.class);
 
         app.get("/workspace/", authenticator, WorkspaceList.class);
         app.post("/workspace/save", authenticator, WorkspaceSave.class);

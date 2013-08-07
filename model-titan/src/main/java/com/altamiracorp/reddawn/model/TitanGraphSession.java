@@ -1,10 +1,13 @@
 package com.altamiracorp.reddawn.model;
 
+import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
-import com.thinkaurelius.titan.core.TitanFactory;
-import com.thinkaurelius.titan.core.TitanGraph;
+import com.thinkaurelius.titan.core.*;
+import com.thinkaurelius.titan.core.attribute.Geo;
+import com.thinkaurelius.titan.core.attribute.Geoshape;
+import com.thinkaurelius.titan.core.attribute.Text;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
@@ -12,10 +15,7 @@ import com.tinkerpop.gremlin.java.GremlinPipeline;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,36 @@ public class TitanGraphSession extends GraphSession {
 
         LOGGER.info("opening titan:\n" + confToString(conf));
         graph = TitanFactory.open(conf);
-        graph.createKeyIndex("rowKey", Vertex.class);
+
+        if (graph.getType(PROPERTY_NAME_ROW_KEY) == null) {
+            graph.makeType()
+                    .name(PROPERTY_NAME_ROW_KEY)
+                    .dataType(String.class)
+                    .indexed(Vertex.class)
+                    .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
+                    .indexed(Titan.Token.STANDARD_INDEX, Vertex.class)
+                    .makePropertyKey();
+        }
+
+        if (graph.getType(PROPERTY_NAME_TITLE) == null) {
+            graph.makeType()
+                    .name(PROPERTY_NAME_TITLE)
+                    .dataType(String.class)
+                    .indexed(Vertex.class)
+                    .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
+                    .indexed(Titan.Token.STANDARD_INDEX, Vertex.class)
+                    .makePropertyKey();
+        }
+
+        if (graph.getType(PROPERTY_NAME_GEO_LOCATION) == null) {
+            graph.makeType()
+                    .name(PROPERTY_NAME_GEO_LOCATION)
+                    .dataType(Geoshape.class)
+                    .indexed(Vertex.class)
+                    .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
+                    .indexed(Titan.Token.STANDARD_INDEX, Vertex.class)
+                    .makePropertyKey();
+        }
     }
 
     private String confToString(Configuration conf) {
@@ -72,14 +101,20 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public String save(GraphNode node) {
+        TitanTransaction tx = this.graph.newTransaction();
         Vertex vertex = this.graph.getVertex(node.getId());
         if (vertex == null) {
             vertex = this.graph.addVertex(node.getId());
         }
         for (String propertyKey : node.getPropertyKeys()) {
-            vertex.setProperty(propertyKey, node.getProperty(propertyKey));
+            Object val = node.getProperty(propertyKey);
+            if (val instanceof GraphGeoLocation) {
+                GraphGeoLocation loc = (GraphGeoLocation) val;
+                val = Geoshape.point(loc.getLatitude(), loc.getLongitude());
+            }
+            vertex.setProperty(propertyKey, val);
         }
-        this.graph.commit();
+        tx.commit();
         return "" + vertex.getId();
     }
 
@@ -125,6 +160,10 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public List<GraphNode> findBy(String key, String value) {
         Iterable<Vertex> vertices = this.graph.getVertices(key, value);
+        return toGraphNodes(vertices);
+    }
+
+    private ArrayList<GraphNode> toGraphNodes(Iterable<Vertex> vertices) {
         ArrayList<GraphNode> results = new ArrayList<GraphNode>();
         for (Vertex vertex : vertices) {
             results.add(new TitanGraphNode(vertex));
@@ -183,6 +222,22 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
+    public List<GraphNode> findByGeoLocation(double latitude, double longitude, double radius) {
+        Iterable<Vertex> r = graph.query()
+                .has(PROPERTY_NAME_GEO_LOCATION, Geo.WITHIN, Geoshape.circle(latitude, longitude, radius))
+                .vertices();
+        return toGraphNodes(r);
+    }
+
+    @Override
+    public List<GraphNode> searchNodes(String query) {
+        Iterable<Vertex> r = graph.query()
+                .has(PROPERTY_NAME_TITLE, Text.CONTAINS, query)
+                .vertices();
+        return toGraphNodes(r);
+    }
+
+    @Override
     public GraphNode findNode(String graphNodeId) {
         return new TitanGraphNode(findVertex(graphNodeId));
     }
@@ -198,5 +253,29 @@ public class TitanGraphSession extends GraphSession {
         //TODO: should port be configurable? How about cluster name?
         TransportClient client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(localConf.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME, "localhost"), DEFAULT_STORAGE_INDEX_SEARCH_PORT));
         client.admin().indices().delete(new DeleteIndexRequest(DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME)).actionGet();
+    }
+
+    @Override
+    public Map<String, String> getProperties(String graphNodeId) {
+        Vertex vertex = this.graph.getVertex(graphNodeId);
+        GremlinPipeline gremlinPipeline = new GremlinPipeline(vertex).map();
+
+        return (Map<String, String>) gremlinPipeline.toList().get(0);
+    }
+
+    @Override
+    public Map<GraphRelationship, GraphNode> getRelationships(String graphNodeId) {
+        Vertex vertex = this.graph.getVertex(graphNodeId);
+
+        Map<GraphRelationship, GraphNode> relationships = new HashMap<GraphRelationship, GraphNode>();
+        for (Edge e : vertex.getEdges(Direction.IN)) {
+            relationships.put(new TitanGraphRelationship(e), new TitanGraphNode(e.getVertex(Direction.OUT)));
+        }
+
+        for (Edge e : vertex.getEdges(Direction.OUT)) {
+            relationships.put(new TitanGraphRelationship(e), new TitanGraphNode(e.getVertex(Direction.IN)));
+        }
+
+        return relationships;
     }
 }

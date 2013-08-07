@@ -6,8 +6,13 @@ import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 public abstract class GraphSession {
+    public static final String PROPERTY_NAME_ROW_KEY = "rowKey";
+    public static final String PROPERTY_NAME_TITLE = "title";
+    public static final String PROPERTY_NAME_GEO_LOCATION = "geoLocation";
+
     public abstract String save(GraphNode node);
 
     public abstract String save(GraphRelationship relationship);
@@ -26,4 +31,11 @@ public abstract class GraphSession {
 
     public abstract HashMap<String, String> getEdgeProperties(String sourceNode, String destNode);
 
+    public abstract Map<String, String> getProperties(String graphNodeId);
+
+    public abstract Map<GraphRelationship, GraphNode> getRelationships(String graphNodeId);
+
+    public abstract List<GraphNode> findByGeoLocation(double latitude, double longitude, double radius);
+
+    public abstract List<GraphNode> searchNodes(String query);
 }

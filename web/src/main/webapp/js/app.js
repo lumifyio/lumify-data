@@ -183,10 +183,8 @@ define([
                     return true;
                 },
                 drop: function( event, ui ) {
-
                     // Early exit if should leave to a different droppable
                     if (!enabled) return;
-
                     var draggable = ui.draggable,
                         droppable = $(event.target);
 
@@ -205,11 +203,15 @@ define([
                             y: parseInt(Math.random() * droppable.height(), 10)
                         };
 
+                    if(info.rowKey == undefined) {
+                        info.rowKey = info.rowkey;
+                    }
+
                     this.trigger(document, 'addNodes', {
                         nodes: [{
                             title: info.title || draggable.text(),
                             graphNodeId: info.graphNodeId,
-                            rowKey: info.rowKey.replace(/\\[x](1f)/ig, '\u001f'),
+                            rowKey: (info.rowKey || '').replace(/\\[x](1f)/ig, '\u001f'),
                             subType: info.subType,
                             type: info.type,
                             dropPosition: dropPosition

@@ -63,6 +63,10 @@ define([
                 moduleName = $.isArray(data) ? 'multiple' : data.type;
 
             // Attach specific module based on the object selected
+            if (moduleName != "artifact" && moduleName != "relationship") {
+                moduleName = "entity";
+            }
+
             require([
                 'detail/' + moduleName + '/' + moduleName,
             ], function(Module) {
