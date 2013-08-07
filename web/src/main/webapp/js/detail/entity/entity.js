@@ -4,9 +4,9 @@ define([
     '../withTypeContent',
     '../withHighlighting',
     'tpl!./entity',
-    'tpl!./mentions',
+    'tpl!./properties',
     'tpl!./relationships'
-], function(defineComponent, withTypeContent, withHighlighting, template, mentionsTemplate, relationshipsTemplate) {
+], function(defineComponent, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate) {
 
     'use strict';
 
@@ -15,22 +15,15 @@ define([
     function Entity() {
 
         this.defaultAttrs({
-            moreMentionsSelector: '.mention-request',
-            mentionsSelector: '.entity-mentions',
+            propertiesSelector: '.entity-properties',
             relationshipsSelector: '.entity-relationships',
-            mentionArtifactSelector: '.mention-artifact'
         });
 
         this.after('initialize', function() {
-
-            this.on('click', {
-                moreMentionsSelector: this.onRequestMoreMentions,
-                mentionArtifactSelector: this.onMentionArtifactSelected
-            });
-
             this.$node.html(template({
-                sign: this.attr.data.originalTitle || this.attr.data.title || 'No Title',
-                highlightButton: this.highlightButton()
+                title: this.attr.data.originalTitle || this.attr.data.title || 'No Title',
+                highlightButton: this.highlightButton(),
+                id: this.attr.data.id
             }));
 
             this.loadEntity();
@@ -40,109 +33,63 @@ define([
         this.loadEntity = function() {
             var self = this;
 
-            console.log('loadEntity', this.attr.data);
+            var nodeInfo = {
+                id: this.attr.data.id,
+                properties: {
+                    title: this.attr.data.originalTitle || this.attr.data.title || 'No Title'
+                }
+            }
 
-            var offset = 0,
-                limit = 2, // TODO: sane value here?
-                url = 'entity/' + encodeURIComponent(this.attr.data.rowKey).replace(/\./g, '$2E$') + '/mentions?offset=' + offset + '&limit=' + limit,
-                dataInfo = JSON.stringify({
-                    'rowKey': this.attr.data.rowKey,
-                    'type': 'entity',
-                    'subType': this.attr.data.subType
+            this.getProperties(this.attr.data.id, function(properties) {
+                self.select('propertiesSelector').html(propertiesTemplate({properties: properties}));
+            });
+
+            this.getRelationships(this.attr.data.id, function(relationships) {
+                var relationshipsTplData = []
+
+                relationships.forEach(function(relationship) {
+                    var relationshipTplData = {};
+                    relationshipTplData.relationship = relationship.relationship;
+
+                    if(nodeInfo.id == relationship.relationship.sourceNodeId) {
+                        relationshipTplData.sourceNode = nodeInfo;
+                        relationshipTplData.destNode = relationship.node;
+                    } else {
+                        relationshipTplData.sourceNode = relationship.node;
+                        relationshipTplData.destNode = nodeInfo;
+                    }
+
+                    relationshipsTplData.push(relationshipTplData);
                 });
 
-            console.log('loadEntity dataInfo', dataInfo);
-
-            self.getMoreMentions(url, this.attr.data.rowKey, dataInfo, function(mentionsHtml) {
-                console.log('updating mentions');
-                self.select('mentionsSelector').html(mentionsHtml);
-                self.updateEntityAndArtifactDraggables();
+                self.select('relationshipsSelector').html(relationshipsTemplate({relationships: relationshipsTplData }))
             });
-
-            self.getRelationships(self.attr.data.rowKey, function(relationships) {
-                console.log('updating relationsships');
-                self.select('relationshipsSelector').html(relationshipsTemplate({
-                    relationships: relationships.statements
-                }));
-                self.updateEntityAndArtifactDraggables();
-            });
-
         };
 
-        this.onMentionArtifactSelected = function(evt, data) {
-            var $target = $(evt.target).parents('a');
-
-            this.trigger(document, 'searchResultSelected', {
-                type: 'artifact',
-                rowKey: $target.data("row-key")
-            });
-            evt.preventDefault();
-        };
-
-
-        this.onRequestMoreMentions = function(evt, data) {
+        this.getProperties = function(graphNodeId, callback) {
             var self = this;
-            var $target = $(evt.target);
-            data = {
-                key: $target.data('key'),
-                url: $target.attr("href")
-            };
 
-            var dataInfo = JSON.stringify({
-                'rowKey': data.key.value,
-                'type': 'entity',
-                'subType': data.key.conceptLabel
-            });
-
-            this.getMoreMentions(data.url, data.key, dataInfo, function(mentionsHtml){
-                $('.entity-mentions', self.$node).html(mentionsHtml);
-            });
-            evt.preventDefault();
-        };
-
-        this.getMoreMentions = function(url, key, dataInfo, callback) {
-            this.handleCancelling(this.ucdService.getEntityMentionsByRange(url, function(err, mentions){
+            this.handleCancelling(this.ucdService.getNodeProperties(encodeURIComponent(graphNodeId), function(err, properties) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
 
-                mentions.mentions.forEach(function(termMention) {
-                    var originalSentenceText = termMention['atc:sentenceText'];
-                    var originalSentenceTextParts = {};
-
-                    var artifactTermMention = JSON.parse(termMention.mention);
-
-                    var termMentionStart = artifactTermMention.start - parseInt(termMention['atc:sentenceOffset'], 10);
-                    var termMentionEnd = artifactTermMention.end - parseInt(termMention['atc:sentenceOffset'], 10);
-
-                    termMention.sentenceTextParts = {
-                        before: originalSentenceText.substring(0, termMentionStart),
-                        term: originalSentenceText.substring(termMentionStart, termMentionEnd),
-                        after: originalSentenceText.substring(termMentionEnd)
-                    };
-                });
-                var html = mentionsTemplate({
-                    mentions: mentions.mentions,
-                    limit: mentions.limit,
-                    offset: mentions.offset,
-                    key: key,
-                    dataInfo: dataInfo
-                });
-                callback(html);
+                console.log("Properties:", properties);
+                callback(properties);
             }));
         };
 
-        this.getRelationships = function(rowKey, callback) {
+        this.getRelationships = function(graphNodeId, callback) {
             var self = this;
 
-            this.handleCancelling(this.ucdService.getEntityRelationshipsBySubject(encodeURIComponent(rowKey).replace(/\./g, '$2E$'), function(err, relationships) {
+            this.handleCancelling(this.ucdService.getNodeRelationships(encodeURIComponent(graphNodeId), function(err, relationships) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
 
-                console.log("Relationships: ", relationships);
+                console.log("Relationships:", relationships);
                 callback(relationships);
             }));
         };

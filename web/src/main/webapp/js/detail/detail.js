@@ -40,6 +40,10 @@ define([
 
 
         this.onSearchResultSelected = function(evt, data) {
+
+
+
+        console.log(data);
             if ($.isArray(data) && data.length === 1) {
                 data = data[0];
             }
@@ -56,6 +60,10 @@ define([
                 moduleName = $.isArray(data) ? 'multiple' : data.type;
 
             // Attach specific module based on the object selected
+            if (moduleName != "artifact") {
+                moduleName = "entity";
+            }
+
             require([
                 'detail/' + moduleName + '/' + moduleName,
             ], function(Module) {

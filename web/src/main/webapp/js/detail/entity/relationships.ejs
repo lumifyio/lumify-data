@@ -1,23 +1,9 @@
 <ul>
 <% relationships.forEach(function(relationship) { %>
-    <li>
-        <span
-            class="entity <%= relationship.subjectRowKey.conceptLabel %>"
-            data-info="<%= JSON.stringify({
-              'rowKey': relationship.subjectRowKey.value,
-              'type': 'entity',
-              'subType': relationship.subjectRowKey.conceptLabel
-            }) %>"><%= relationship.subjectRowKey.sign %>
-        </span>
-        <%= relationship.predicateLabel.predicateLabel %>
-        <span
-            class="entity <%= relationship.objectRowKey.conceptLabel %>"
-            data-info="<%= JSON.stringify({
-              'rowKey': relationship.objectRowKey.value,
-              'type': 'entity',
-              'subType': relationship.objectRowKey.conceptLabel
-            }) %>"><%= relationship.objectRowKey.sign %>
-        </span>
+    <li class="entity-relationship">
+        <%- relationship.sourceNode.properties.title || 'No Title' %>
+        <%= relationship.relationship.label %>
+        <%- relationship.destNode.properties.title || 'No title' %>
     </li>
-<% }) %>
+<% }); %>
 </ul>

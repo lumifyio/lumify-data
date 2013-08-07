@@ -200,6 +200,10 @@ public class TitanGraphSession extends GraphSession {
             relationships.put(new TitanGraphRelationship(e), new TitanGraphNode(e.getVertex(Direction.OUT)));
         }
 
+        for(Edge e : vertex.getEdges(Direction.OUT)) {
+            relationships.put(new TitanGraphRelationship(e), new TitanGraphNode(e.getVertex(Direction.IN)));
+        }
+
         return relationships;
     }
 }
