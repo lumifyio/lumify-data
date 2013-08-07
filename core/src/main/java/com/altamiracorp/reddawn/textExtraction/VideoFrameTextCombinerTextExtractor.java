@@ -24,6 +24,9 @@ public class VideoFrameTextCombinerTextExtractor implements TextExtractor {
         }
 
         VideoTranscript transcript = artifact.getContent().getVideoTranscript();
+        if (transcript == null) {
+            transcript = new VideoTranscript();
+        }
         List<VideoFrame> videoFrames = videoFrameRepository.findAllByArtifactRowKey(session, artifact.getRowKey().toString());
         for (VideoFrame videoFrame : videoFrames) {
             VideoTranscript.Time time = new VideoTranscript.Time(videoFrame.getRowKey().getTime(), null);
