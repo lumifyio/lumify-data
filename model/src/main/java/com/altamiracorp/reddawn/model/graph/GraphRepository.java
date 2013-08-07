@@ -2,7 +2,10 @@ package com.altamiracorp.reddawn.model.graph;
 
 import com.altamiracorp.reddawn.model.GraphSession;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 public class GraphRepository {
     public GraphNode findNode(GraphSession graphSession, String graphNodeId) {
@@ -37,5 +40,9 @@ public class GraphRepository {
 
     public List<GraphNode> findByGeoLocation(GraphSession graphSession, double latitude, double longitude, double radius) {
         return graphSession.findByGeoLocation(latitude, longitude, radius);
+    }
+
+    public List<GraphNode> searchNodes(GraphSession graphSession, String query) {
+        return graphSession.searchNodes(query);
     }
 }

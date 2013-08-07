@@ -7,10 +7,7 @@ import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
 import com.altamiracorp.reddawn.web.routes.concept.ConceptList;
 import com.altamiracorp.reddawn.web.routes.entity.*;
-import com.altamiracorp.reddawn.web.routes.graph.GraphGeoLocationSearch;
-import com.altamiracorp.reddawn.web.routes.graph.GraphGetNode;
-import com.altamiracorp.reddawn.web.routes.graph.GraphNodeToGraphNodeRelationship;
-import com.altamiracorp.reddawn.web.routes.graph.GraphRelatedNodes;
+import com.altamiracorp.reddawn.web.routes.graph.*;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
 import com.altamiracorp.reddawn.web.routes.node.NodeProperties;
@@ -66,7 +63,6 @@ public class Router extends HttpServlet {
         app.post("/statement/create", authenticator, StatementCreate.class);
 
         app.post("/entity/relationships", authenticator, EntityRelationships.class);
-        app.get("/entity/search", authenticator, EntitySearch.class);
         app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);
         app.post("/entity/create", authenticator, EntityCreate.class);
 
@@ -75,6 +71,7 @@ public class Router extends HttpServlet {
 
         app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedNodes.class);
         app.get("/graph/relationship", authenticator, GraphNodeToGraphNodeRelationship.class);
+        app.get("/graph/node/search", authenticator, GraphNodeSearch.class);
         app.get("/graph/node/geoLocationSearch", authenticator, GraphGeoLocationSearch.class);
         app.get("/graph/node/{graphNodeId}", authenticator, GraphGetNode.class);
 

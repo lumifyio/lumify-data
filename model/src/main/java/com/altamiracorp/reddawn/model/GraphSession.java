@@ -10,6 +10,7 @@ import java.util.Map;
 
 public abstract class GraphSession {
     public static final String PROPERTY_NAME_ROW_KEY = "rowKey";
+    public static final String PROPERTY_NAME_TITLE = "title";
     public static final String PROPERTY_NAME_GEO_LOCATION = "geoLocation";
 
     public abstract String save(GraphNode node);
@@ -35,4 +36,6 @@ public abstract class GraphSession {
     public abstract Map<GraphRelationship, GraphNode> getRelationships(String graphNodeId);
 
     public abstract List<GraphNode> findByGeoLocation(double latitude, double longitude, double radius);
+
+    public abstract List<GraphNode> searchNodes(String query);
 }

@@ -56,11 +56,11 @@ function(ServiceBase) {
     };
 
     Ucd.prototype.entitySearch = function (query, callback) {
-        return this._search("entity", query, callback);
+        return this._search("graph/node", query, callback);
     };
 
-    Ucd.prototype.getEntityById = function (id, callback) {
-        return this._get("entity", id.replace(/\./g, '$2E$'), callback);
+    Ucd.prototype.getGraphNodeById = function (id, callback) {
+        return this._get("graph/node", id, callback);
     };
 
     Ucd.prototype.getRelatedEntitiesBySubject = function(id, callback) {

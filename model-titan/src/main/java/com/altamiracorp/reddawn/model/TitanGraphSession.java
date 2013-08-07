@@ -7,6 +7,7 @@ import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.thinkaurelius.titan.core.*;
 import com.thinkaurelius.titan.core.attribute.Geo;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
+import com.thinkaurelius.titan.core.attribute.Text;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
@@ -57,6 +58,16 @@ public class TitanGraphSession extends GraphSession {
         if (graph.getType(PROPERTY_NAME_ROW_KEY) == null) {
             graph.makeType()
                     .name(PROPERTY_NAME_ROW_KEY)
+                    .dataType(String.class)
+                    .indexed(Vertex.class)
+                    .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
+                    .indexed(Titan.Token.STANDARD_INDEX, Vertex.class)
+                    .makePropertyKey();
+        }
+
+        if (graph.getType(PROPERTY_NAME_TITLE) == null) {
+            graph.makeType()
+                    .name(PROPERTY_NAME_TITLE)
                     .dataType(String.class)
                     .indexed(Vertex.class)
                     .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
@@ -219,6 +230,14 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
+    public List<GraphNode> searchNodes(String query) {
+        Iterable<Vertex> r = graph.query()
+                .has(PROPERTY_NAME_TITLE, Text.CONTAINS, query)
+                .vertices();
+        return toGraphNodes(r);
+    }
+
+    @Override
     public GraphNode findNode(String graphNodeId) {
         return new TitanGraphNode(findVertex(graphNodeId));
     }
@@ -234,7 +253,7 @@ public class TitanGraphSession extends GraphSession {
         //TODO: should port be configurable? How about cluster name?
         TransportClient client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(localConf.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME, "localhost"), DEFAULT_STORAGE_INDEX_SEARCH_PORT));
         client.admin().indices().delete(new DeleteIndexRequest(DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME)).actionGet();
-	}
+    }
 
     @Override
     public Map<String, String> getProperties(String graphNodeId) {
@@ -249,11 +268,11 @@ public class TitanGraphSession extends GraphSession {
         Vertex vertex = this.graph.getVertex(graphNodeId);
 
         Map<GraphRelationship, GraphNode> relationships = new HashMap<GraphRelationship, GraphNode>();
-        for(Edge e : vertex.getEdges(Direction.IN)) {
+        for (Edge e : vertex.getEdges(Direction.IN)) {
             relationships.put(new TitanGraphRelationship(e), new TitanGraphNode(e.getVertex(Direction.OUT)));
         }
 
-        for(Edge e : vertex.getEdges(Direction.OUT)) {
+        for (Edge e : vertex.getEdges(Direction.OUT)) {
             relationships.put(new TitanGraphRelationship(e), new TitanGraphNode(e.getVertex(Direction.IN)));
         }
 

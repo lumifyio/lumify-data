@@ -195,7 +195,7 @@ define([
         this.updateNodeLocation = function(node) {
             var self = this;
             if(node.type == 'entity') {
-                this.ucdService.getEntityById(node.rowKey, function(err, entity) {
+                this.ucdService.getGraphNodeById(node.graphNodeId, function(err, entity) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
