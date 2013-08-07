@@ -153,8 +153,7 @@ define([
                     return {
                         graphNodeId: node.data('graphNodeId'),
                         type: node.data('type'),
-                        subType: node.data('subType'),
-                        graphNodeId: node.data('graphNodeId')
+                        subType: node.data('subType')
                     };
                 });
 
