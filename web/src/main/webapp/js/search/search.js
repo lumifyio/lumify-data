@@ -147,7 +147,7 @@ define([
                 }
 
                 // Check if this result is in the graph/map
-                var classes = [encodeURIComponent(result.graphNodeId)];
+                var classes = ['gId' + encodeURIComponent(result.graphNodeId)];
                 var nodeState = _currentNodes[result.graphNodeId];
                 if (nodeState) {
                     if ( nodeState.inGraph ) classes.push('graph-displayed');
@@ -279,7 +279,8 @@ define([
             this.on(document, 'nodesAdded', this.onNodesUpdated);
             this.on(document, 'nodesUpdated', this.onNodesUpdated);
             this.on(document, 'nodesDeleted', this.onNodesDeleted);
-            this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
+            this.on(document, 'switchWorkspace', this.onWorkspaceClear);
+            this.on(document, 'workspaceDeleted', this.onWorkspaceClear);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
 
             this.select('searchResultsSelector').droppable({ accept:'.search-results *' });
@@ -294,13 +295,13 @@ define([
         var _currentNodes = {};
         this.toggleSearchResultIcon = function(graphNodeId, inGraph, inMap) {
             this.$node
-                .find('li.' + encodeURIComponent(graphNodeId))
+                .find('li.gId' + encodeURIComponent(graphNodeId))
                 .toggleClass('graph-displayed', inGraph)
                 .toggleClass('map-displayed', inMap);
         };
 
         // Switching workspaces should clear the icon state and nodes
-        this.onSwitchWorkspace = function() {
+        this.onWorkspaceClear = function() {
             this.$node.find('li.graph-displayed').removeClass('graph-displayed');
             this.$node.find('li.map-displayed').removeClass('map-displayed');
             _currentNodes = {};
