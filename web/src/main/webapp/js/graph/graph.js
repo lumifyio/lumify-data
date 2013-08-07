@@ -541,6 +541,14 @@ define([
             });
         };
 
+        this.onMenubarToggleDisplay = function(e, data) {
+            if (data.name === 'graph') {
+                this.cy(function(cy) {
+                    cy.renderer().notify({type:'viewport'});
+                });
+            }
+        };
+
         this.after('initialize', function() {
             var self = this;
             this.$node.html(template({}));
@@ -551,6 +559,7 @@ define([
             this.on(document, 'nodesUpdated', this.onNodesUpdated);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
             this.on(document, 'graphPaddingResponse', this.onGraphPadding);
+            this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);
 
             cytoscape("renderer", "red-dawn", Renderer);
             cytoscape({
