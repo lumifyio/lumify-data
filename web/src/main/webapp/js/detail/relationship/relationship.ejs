@@ -4,29 +4,27 @@
 
 <h2>
 <% var data = JSON.stringify({
-      id : sourceId,
+      graphNodeId : sourceId,
       title : sourceTitle,
       type : sourceType,
       rowKey : sourceRowKey,
       subType : sourceSubType}); %>
 
-<span class="node-to-node-relationship" data-info='<%- data %>' >
-    <a href="javascript:" class="vertex">
+<span class="node-to-node-relationship generic-draggable fake-link" data-info='<%- data %>' >
         <%= sourceTitle %>
-    </a> ->
 </span>
 
+    ->
+
 <% var data = JSON.stringify({
-      id : targetId,
+      graphNodeId : targetId,
       title : targetTitle,
       type : targetType,
       rowKey : targetRowKey,
       subType : targetSubType}); %>
 
-<span class="node-to-node-relationship" data-info='<%- data %>'>
-    <a href="javascript:" class="vertex" >
+<span class="node-to-node-relationship generic-draggable fake-link" data-info='<%- data %>'>
         <%= targetTitle %>
-    </a>
 </span>
 </h2>
 <h3>Properties</h3>

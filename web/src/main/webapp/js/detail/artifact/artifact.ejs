@@ -8,7 +8,7 @@
   </div>
 </div>
 
-<h2 class="artifact-title" data-info='<%= artifact.dataInfo %>'><%= artifact.Generic_Metadata.subject || 'No title available' %></h2>
+<h2 class="generic-draggable" data-info='<%= artifact.dataInfo %>'><%= artifact.Generic_Metadata.subject || 'No title available' %></h2>
 <% if(artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude) { %>
     <b>Location:</b>
     <a href="#" class="map-coordinates" latitude="<%= artifact.Dynamic_Metadata.latitude %>" longitude="<%= artifact.Dynamic_Metadata.longitude %>">

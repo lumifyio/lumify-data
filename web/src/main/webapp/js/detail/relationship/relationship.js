@@ -13,7 +13,7 @@ define([
     function Relationship() {
 
         this.defaultAttrs({
-            nodeToNodeRelationshipSelector: '.node-to-node-relationship a.vertex',
+            nodeToNodeRelationshipSelector: '.node-to-node-relationship',
         });
 
         this.after('initialize', function() {
@@ -39,13 +39,13 @@ define([
 
                 relationshipData.highlightButton = self.highlightButton ();
                 self.$node.html (template(relationshipData));
-
+                self.updateEntityAndArtifactDraggables();
             });
         };
 
         this.onNodeToNodeRelationshipClicked = function(evt) {
             var self = this;
-            var $target = $(evt.target).parents('span');
+            var $target = $(evt.target);
 
             this.trigger (document, 'searchResultSelected',  $target.data('info'));
         };
