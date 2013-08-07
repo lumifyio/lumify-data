@@ -94,7 +94,7 @@ define([
                         classes: $.trim(node.subType + ' ' + node.type),
                         data: {
                             id: node.graphNodeId,
-                            rowKey: node.rowKey,
+                            rowKey: node.rowKey || node.rowkey,
                             graphNodeId: node.graphNodeId,
                             subType: node.subType,
                             type: node.type,

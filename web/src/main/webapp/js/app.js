@@ -181,10 +181,9 @@ define([
                     return true;
                 },
                 drop: function( event, ui ) {
-
                     // Early exit if should leave to a different droppable
                     if (!enabled) return;
-
+console.log("Enabled");
                     var draggable = ui.draggable,
                         droppable = $(event.target);
 
@@ -202,6 +201,10 @@ define([
                             x: parseInt(Math.random() * droppable.width(), 10),
                             y: parseInt(Math.random() * droppable.height(), 10)
                         };
+
+                    if(info.rowKey == undefined) {
+                        info.rowKey = info.rowkey;
+                    }
 
                     this.trigger(document, 'addNodes', {
                         nodes: [{

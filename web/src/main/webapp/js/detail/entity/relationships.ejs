@@ -1,9 +1,9 @@
 <ul>
 <% relationships.forEach(function(relationship) { %>
     <li class="entity-relationship">
-        <span class="<%= relationship.sourceNode.properties.type %> <%= relationship.sourceNode.properties.subType %>" data-info="<%- JSON.stringify(relationship.sourceNode.properties) %>"><%- relationship.sourceNode.properties.title || 'No Title' %></span>
+        <span class="<%= relationship.sourceNode.properties.type %> <%= relationship.sourceNode.properties.subType %>" data-info='<%- JSON.stringify(relationship.sourceNode.properties) %>'><%- relationship.sourceNode.properties.title || 'No Title' %></span>
         <%= relationship.relationship.label %>
-        <span class="<%= relationship.destNode.properties.type %> <%= relationship.destNode.properties.subType %>" data-info="<%- JSON.stringify(relationship.destNode.properties) %>"><%- relationship.destNode.properties.title || 'No Title' %></span>
+        <span class="<%= relationship.destNode.properties.type %> <%= relationship.destNode.properties.subType %>" data-info='<%- JSON.stringify(relationship.destNode.properties) %>'><%- relationship.destNode.properties.title || 'No Title' %></span>
     </li>
 <% }); %>
 </ul>
