@@ -3,10 +3,12 @@
 define([
     'flight/lib/component',
     'tpl!./map',
+    'tpl!./instructions/regionCenter',
+    'tpl!./instructions/regionRadius',
     'service/ucd',
     'util/retina',
     'util/withContextMenu'
-], function(defineComponent, template, UcdService, retina, withContextMenu) {
+], function(defineComponent, template, centerTemplate, radiusTemplate, UcdService, retina, withContextMenu) {
     'use strict';
             
     var MODE_NORMAL = 0,
@@ -72,7 +74,8 @@ define([
 
         this.onContextMenuLoadResultsWithinRadius = function() {
             this.mode = MODE_REGION_SELECTION_MODE_POINT;
-            // TODO: show instructions
+
+            this.$node.append(centerTemplate({}));
         };
 
         this.onSyncEnded = function() {
@@ -342,34 +345,54 @@ define([
 
         this.onMapClicked = function(evt, map, data) {
             var self = this;
+            this.$node.find('.instructions').remove();
+
             switch (self.mode) {
                 case MODE_NORMAL: 
                     self.trigger(document, 'searchResultSelected', []);
                     break;
 
                 case MODE_REGION_SELECTION_MODE_POINT:
-                    // TODO: add descriptive text under cursor of what to do
+
+                    self.mode = MODE_REGION_SELECTION_MODE_RADIUS;
+
+                    this.$node.append(radiusTemplate({}));
+
                     self.regionCenterPoint = data.location;
 
                     var span = $('<span id="map_mouse_position_hack"></span>').hide().appendTo(document.body),
                         radius = new mxn.Radius(self.regionCenterPoint, 10);
 
+                    // Register for mouse events using the hack. 
+                    // mapstraction doesn't have a mousemove handler!?! so we
+                    // just grab the text of the span content: "lat / lon"
                     map.mousePosition(span.attr('id'));
+
                     self.on('mousemove', function() {
-                        var parts = span.text().split(/\s*\/\s*/);
-                        if (parts.length === 2) {
-                            var point = new mxn.LatLonPoint(parts[0], parts[1]);
+                       var parts = span.text().split(/\s*\/\s*/);
+                       if (parts.length === 2) {
+                           var point = new mxn.LatLonPoint(parts[0], parts[1]);
 
-                            if (self.regionPolyline) {
-                                map.removePolyline(self.regionPolyline);
-                            }
+                           if (self.regionPolyline) {
+                               map.removePolyline(self.regionPolyline);
+                           }
 
-                            self.regionRadiusDistance = Math.max(1, self.regionCenterPoint.distance(point) * 0.95);
-                            self.regionPolyline = radius.getPolyline(self.regionRadiusDistance, 'rgba(0,0,128,0.5)');
-                            map.addPolyline(self.regionPolyline);
-                        }
+                           self.regionRadiusDistance = Math.max(1, self.regionCenterPoint.distance(point) * 0.95);
+                           self.regionPolyline = radius.getPolyline(self.regionRadiusDistance, '#0000aa');
+                           self.regionPolyline.addData({
+                               fillColor: '#000088',
+                               opacity: 0.2,
+                               closed: true
+                           });
+
+                           map.addPolyline(self.regionPolyline);
+
+                           // Google maps fix to disable events on polyline
+                           if (map.api === 'googlev3' && self.regionPolyline.proprietary_polyline) {
+                               self.regionPolyline.proprietary_polyline.setOptions( { clickable: false } );
+                           }
+                       }
                     });
-                    self.mode = MODE_REGION_SELECTION_MODE_RADIUS;
 
                     break;
 
@@ -379,6 +402,7 @@ define([
 
                     self.off('mousemove');
                     $('#map_mouse_position_hack').remove();
+
                     if (self.regionPolyline) {
                         map.removePolyline(self.regionPolyline);
                     }
