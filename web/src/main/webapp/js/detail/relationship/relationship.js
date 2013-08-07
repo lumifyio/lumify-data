@@ -52,7 +52,7 @@ define([
             if (graphNodeType == 'artifact') {
                 this.trigger (document, 'searchResultSelected', { rowKey: graphNodeId, type: graphNodeType });
             } else {
-                this.trigger (document, 'searchResultSelected', { id: graphNodeId, type: graphNodeType });
+                this.trigger (document, 'searchResultSelected', { id: graphNodeId, type: graphNodeType, title: $target.data('graph-node-title')});
             }
         };
     }
