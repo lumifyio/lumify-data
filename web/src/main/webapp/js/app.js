@@ -355,19 +355,29 @@ define([
 
         this.onAddNodes = function(evt, data) {
             this.workspace(function(ws) {
-                var allNodes = this.workspaceData.data.nodes;
+                var allNodes = this.workspaceData.data.nodes,
+                    added = [],
+                    win = $(window);
 
-                var added = [];
                 // FIXME: How should we store nodes in the workspace? 
                 // currently mapping { id:[graphNodeId], properties:{} } 
                 // to { graphNodeId:..., [properties] }
                 data.nodes = data.nodes.map(function(n) {
+                    var node = n;
                     if (n.properties) {
-                        n.properties.graphNodeId = n.id;
-                        return n.properties;
+                        node = n.properties;
+                        node.graphNodeId = n.id;
                     }
-                    return n;
+                    if ( !node.dropPosition && !node.graphPosition) {
+                        node.dropPosition = {
+                            x: parseInt(Math.random() * win.width(), 10),
+                            y: parseInt(Math.random() * win.height(), 10)
+                        };
+                    }
+                    return node;
                 });
+
+                // Check if already in workspace
                 data.nodes.forEach(function(node) {
                     if (ws.data.nodes.filter(function(n) { return n.graphNodeId === node.graphNodeId; }).length === 0) {
                         added.push(node);
