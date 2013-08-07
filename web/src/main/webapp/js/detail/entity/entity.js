@@ -17,13 +17,18 @@ define([
         this.defaultAttrs({
             propertiesSelector: '.entity-properties',
             relationshipsSelector: '.entity-relationships',
+            detailedObjectSelector: '.entity, .artifact, .relationship'
         });
 
         this.after('initialize', function() {
+            this.on('click', {
+                detailedObjectSelector: this.onDetailedObjectClicked
+            });
+
             this.$node.html(template({
                 title: this.attr.data.originalTitle || this.attr.data.title || 'No Title',
                 highlightButton: this.highlightButton(),
-                id: this.attr.data.id
+                id: this.attr.data.id || this.attr.data.graphNodeId
             }));
 
             this.loadEntity();
@@ -33,7 +38,7 @@ define([
         this.loadEntity = function() {
             var self = this;
             var nodeInfo = {
-                id: this.attr.data.id,
+                id: this.attr.data.id || this.attr.data.graphNodeId,
                 properties: {
                     title: this.attr.data.originalTitle || this.attr.data.title || 'No Title',
                     graphNodeId: this.attr.data.graphNodeId,
@@ -43,16 +48,21 @@ define([
                 }
             }
 
-            this.getProperties(this.attr.data.id, function(properties) {
+            this.getProperties(this.attr.data.id || this.attr.data.graphNodeId, function(properties) {
                 self.select('propertiesSelector').html(propertiesTemplate({properties: properties}));
             });
 
-            this.getRelationships(this.attr.data.id, function(relationships) {
+            this.getRelationships(this.attr.data.id || this.attr.data.graphNodeId, function(relationships) {
                 var relationshipsTplData = []
 
                 relationships.forEach(function(relationship) {
                     var relationshipTplData = {};
                     relationshipTplData.relationship = relationship.relationship;
+                    relationshipTplData.dataInfo = JSON.stringify({
+                        source: relationship.relationship.sourceNodeId,
+                        target: relationship.relationship.destNodeId,
+                        type: 'relationship'
+                    });
 
                     relationship.node.properties.graphNodeId = relationship.node.id;
 
@@ -98,5 +108,14 @@ define([
                 callback(relationships);
             }));
         };
+
+        this.onDetailedObjectClicked = function(evt) {
+            var self = this;
+            var $target = $(evt.target);
+
+            this.trigger(document, 'searchResultSelected', $target.data('info'));
+
+            evt.stopPropagation();
+        }
     }
 });
