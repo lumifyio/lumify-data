@@ -1,0 +1,4 @@
+setenv.sh
+spinup.yml
+*_instances.txt
+*.log
