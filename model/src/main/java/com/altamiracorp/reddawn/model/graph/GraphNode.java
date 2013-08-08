@@ -10,7 +10,7 @@ import java.util.Set;
 public abstract class GraphNode {
     public abstract String getId();
 
-    public abstract void setProperty(String key, Object value);
+    public abstract GraphNode setProperty(String key, Object value);
 
     public abstract Set<String> getPropertyKeys();
 

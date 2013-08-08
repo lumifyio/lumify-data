@@ -18,8 +18,9 @@ public class TitanGraphNode extends GraphNode {
     }
 
     @Override
-    public void setProperty(String key, Object value) {
+    public GraphNode setProperty(String key, Object value) {
         this.vertex.setProperty(key, value);
+        return this;
     }
 
     public Set<String> getPropertyKeys() {

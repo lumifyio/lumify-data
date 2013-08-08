@@ -38,4 +38,6 @@ public abstract class GraphSession {
     public abstract List<GraphNode> findByGeoLocation(double latitude, double longitude, double radius);
 
     public abstract List<GraphNode> searchNodes(String query);
+
+    public abstract GraphNode findNodeByTitleAndType(String graphNodeTitle, String graphNodeType);
 }

@@ -24,6 +24,7 @@ public class TermMention extends ColumnFamily {
     public static final String SENTENCE_OFFSET = "atc:sentenceOffset";
     public static final String OBJECT_ROW_KEY = "atc:objectRowKey";
     public static final String GRAPH_NODE_ID = "atc:graphNodeId";
+    public static final String RESOLVED_GRAPH_NODE_ID = "atc:resolvedGraphNodeId";
 
     public TermMention() {
         super(null);
@@ -105,6 +106,15 @@ public class TermMention extends ColumnFamily {
 
     public TermMention setAuthor(String author) {
         set(AUTHOR, author);
+        return this;
+    }
+
+    public String getResolvedGraphNodeId() {
+        return Value.toString(get(RESOLVED_GRAPH_NODE_ID));
+    }
+
+    public TermMention setResolvedGraphNodeId(String resolvedGraphNodeId) {
+        set(RESOLVED_GRAPH_NODE_ID, resolvedGraphNodeId);
         return this;
     }
 
@@ -267,12 +277,8 @@ public class TermMention extends ColumnFamily {
         }
     }
 
-    public String getGraphNodeId(Term term) {
-        String graphNodeId = Value.toString(get(GRAPH_NODE_ID));
-        if (graphNodeId == null) {
-            graphNodeId = RowKeyHelper.buildMajor(term.getRowKey().toString(), this.getColumnFamilyName());
-        }
-        return graphNodeId;
+    public String getGraphNodeId() {
+        return Value.toString(get(GRAPH_NODE_ID));
     }
 
     public TermMention setGraphNodeId(String graphNodeId) {

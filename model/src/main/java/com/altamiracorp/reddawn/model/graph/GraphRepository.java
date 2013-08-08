@@ -8,8 +8,17 @@ import java.util.List;
 import java.util.Map;
 
 public class GraphRepository {
+    public static final String ENTITY_TYPE = "entity";
+    public static final String TERM_MENTION_TYPE = "termMention";
+    public static final String ARTIFACT_TYPE = "artifact";
+
+
     public GraphNode findNode(GraphSession graphSession, String graphNodeId) {
         return graphSession.findNode(graphNodeId);
+    }
+
+    public GraphNode findNodeByTitleAndType(GraphSession graphSession, String graphNodeTitle, String graphNodeType) {
+        return graphSession.findNodeByTitleAndType(graphNodeTitle, graphNodeType);
     }
 
     public List<GraphNode> getRelatedNodes(GraphSession graphSession, String graphNodeId) {
@@ -24,6 +33,10 @@ public class GraphRepository {
         GraphRelationship relationship = new GraphRelationship(null, sourceGraphNodeId, destGraphNodeId, label);
         graphSession.save(relationship);
         return relationship;
+    }
+
+    public String saveNode(GraphSession graphSession, GraphNode graphNode) {
+        return graphSession.save(graphNode);
     }
 
     public Map<String, String> getProperties(GraphSession graphSession, String graphNodeId) {

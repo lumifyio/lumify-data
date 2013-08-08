@@ -160,6 +160,7 @@ define([
         };
 
         this.setupDroppable = function() {
+            var self = this;
 
             var enabled = false,
                 droppable = this.select('droppableSelector');
@@ -209,18 +210,45 @@ define([
                         info.rowKey = info.rowkey;
                     }
 
-                    this.trigger(document, 'addNodes', {
-                        nodes: [{
-                            title: info.title || draggable.text(),
-                            graphNodeId: info.graphNodeId,
-                            rowKey: (info.rowKey || '').replace(/\\[x](1f)/ig, '\u001f'),
-                            subType: info.subType,
-                            type: info.type,
-                            dropPosition: dropPosition
-                        }]
-                    });
-                }.bind(this)
+                    var nodes = [{
+                        title: info.title || draggable.text(),
+                        graphNodeId: info.graphNodeId,
+                        rowKey: (info.rowKey || '').replace(/\\[x](1f)/ig, '\u001f'),
+                        subType: info.subType,
+                        type: info.type,
+                        dropPosition: dropPosition
+                    }];
 
+                    if(info.resolvedGraphNodeId) {
+                        this.ucdService.getGraphNodeById(info.resolvedGraphNodeId, function(err, data) {
+                            if(err) {
+                                console.error('Error', err);
+                                return self.trigger(document, 'error', { message: err.toString() });
+                            }
+
+                            console.log(data);
+
+                            nodes.push({
+                                graphNodeId: data.id,
+                                title: data.properties.title || 'No title available',
+                                type: data.properties.type,
+                                subType: data.properties.subType,
+                                dropPosition: {
+                                    x: dropPosition.x + droppable.width()/10,
+                                    y: dropPosition.y
+                                }
+                            });
+
+                            self.trigger(document, 'addNodes', {
+                                nodes: nodes
+                            });
+                        });
+                    } else {
+                        self.trigger(document, 'addNodes', {
+                            nodes: nodes
+                        });
+                    }
+                }.bind(this)
             });
         };
 

@@ -93,7 +93,7 @@ public class TermRepository extends Repository<Term> {
     }
 
     public void saveToGraph(Session session, GraphSession graphSession, Term term, TermMention termMention) {
-        String suggestedNodeId = termMention.getGraphNodeId(term);
+        String suggestedNodeId = termMention.getGraphNodeId();
         GraphNode node = new GraphNodeImpl(suggestedNodeId);
         node.setProperty("type", "termMention");
         node.setProperty("subType", term.getRowKey().getConceptLabel());
