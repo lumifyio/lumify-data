@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class GraphSession {
-    public static final String PROPERTY_NAME_ROW_KEY = "rowKey";
+    public static final String PROPERTY_NAME_ROW_KEY = "_rowKey";
     public static final String PROPERTY_NAME_TITLE = "title";
     public static final String PROPERTY_NAME_GEO_LOCATION = "geoLocation";
 

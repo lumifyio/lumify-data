@@ -98,7 +98,7 @@ public class TermRepository extends Repository<Term> {
         node.setProperty("type", "termMention");
         node.setProperty("subType", term.getRowKey().getConceptLabel());
         node.setProperty(GraphSession.PROPERTY_NAME_ROW_KEY, term.getRowKey().toString());
-        node.setProperty("columnFamilyName", termMention.getColumnFamilyName());
+        node.setProperty("_columnFamilyName", termMention.getColumnFamilyName());
         node.setProperty(GraphSession.PROPERTY_NAME_TITLE, term.getRowKey().getSign());
 
         String nodeId = graphSession.save(node);
@@ -107,7 +107,7 @@ public class TermRepository extends Repository<Term> {
             this.save(session, term);
         }
 
-        List<GraphNode> artifactNodes = graphSession.findBy("rowKey", termMention.getArtifactKey());
+        List<GraphNode> artifactNodes = graphSession.findBy("_rowKey", termMention.getArtifactKey());
         if (artifactNodes.size() == 0) {
             throw new RuntimeException("Could not find artifact \"" + termMention.getArtifactKey() + "\" to link term mention to");
         }
