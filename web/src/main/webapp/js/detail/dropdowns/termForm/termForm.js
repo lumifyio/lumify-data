@@ -44,6 +44,7 @@ define([
 
         this.onCreateTermClicked = function(event) {
             var self = this,
+                $mentionNode = $(this.attr.mentionNode),
                 sentence = this.$node.parents('.sentence'),
                 sentenceInfo = sentence.data('info'),
                 sign = this.select('signSelector').text(),
@@ -69,7 +70,10 @@ define([
 
             if (newObjectSign.length) {
                 parameters.newObjectSign = newObjectSign;
+                $mentionNode.attr('title', newObjectSign);
             }
+
+            $mentionNode.addClass('resolved');
 
             this.entityService.createTerm(parameters, function(err, data) {
                 if (err) {
