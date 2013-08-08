@@ -420,7 +420,7 @@ define([
                 var workspaceNodesToDelete = ws.data.nodes
                     .filter(function(workspaceNode) {
                         return data.nodes.filter(function(dataNode) {
-                            return workspaceNode.rowKey == dataNode.rowKey;
+                            return workspaceNode.graphNodeId == dataNode.graphNodeId;
                         }).length > 0;
                     });
 
