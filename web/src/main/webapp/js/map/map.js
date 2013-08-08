@@ -206,7 +206,29 @@ define([
 
         this.updateNodeLocation = function(node) {
             var self = this;
-            if(node.type == 'entity') {
+            if(node.type == 'artifact') {
+                this.ucdService.getArtifactById(node.rowKey, function(err, artifact) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+
+                    if(artifact && artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) {
+
+                        node.location = {
+                            latitude: artifact.Dynamic_Metadata.latitude,
+                            longitude: artifact.Dynamic_Metadata.longitude
+                        };
+
+                        var nodesUpdateData = {
+                            nodes: [node]
+                        };
+                        self.trigger(document, 'updateNodes', nodesUpdateData);
+                    } else {
+                        self.invalidMap();
+                    }
+                });
+            } else {
                 this.ucdService.getGraphNodeById(node.graphNodeId, function(err, entity) {
                     if(err) {
                         console.error('Error', err);
@@ -236,30 +258,6 @@ define([
                     };
                     self.trigger(document, 'updateNodes', nodesUpdateData);
                 });
-            } else if(node.type == 'artifact') {
-                this.ucdService.getArtifactById(node.rowKey, function(err, artifact) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-
-                    if(artifact && artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) {
-
-                        node.location = {
-                            latitude: artifact.Dynamic_Metadata.latitude,
-                            longitude: artifact.Dynamic_Metadata.longitude
-                        };
-
-                        var nodesUpdateData = {
-                            nodes: [node]
-                        };
-                        self.trigger(document, 'updateNodes', nodesUpdateData);
-                    } else {
-                        self.invalidMap();
-                    }
-                });
-            } else {
-                console.error("Unknown node type:", node.type);
             }
         };
 
