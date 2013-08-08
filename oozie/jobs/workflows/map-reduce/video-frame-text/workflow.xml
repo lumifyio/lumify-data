@@ -1,0 +1,62 @@
+<!--
+  Copyright (c) 2010 Yahoo! Inc. All rights reserved.
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+<workflow-app xmlns="uri:oozie:workflow:0.1" name="video-frame-text-map-reduce-wf">
+    <start to="mr-node"/>
+    <action name="mr-node">
+        <map-reduce>
+            <job-tracker>${jobTracker}</job-tracker>
+            <name-node>${nameNode}</name-node>
+            <prepare>
+            </prepare>
+			<job-xml>../../../job-common.xml</job-xml>
+            <configuration>
+                <property>
+                    <name>mapred.job.queue.name</name>
+                    <value>${queueName}</value>
+                </property>
+                <property>
+                    <name>mapreduce.map.class</name>
+                    <value>com.altamiracorp.reddawn.textExtraction.VideoFrameTextExtractionMR$VideoFrameTextExtractorMapper</value>
+                </property>
+                <property>
+                    <name>textExtractorClass</name>
+                    <value>com.altamiracorp.reddawn.textExtraction.ImageOcrTextExtractor</value>
+                </property>
+                <property>
+                    <name>mapred.map.tasks</name>
+                    <value>${numMapTasks}</value>
+                </property>
+				<property>
+					<name>tableName</name>
+                    <value>${tableVideoFrame}</value>
+				</property>
+				<property>
+			        <name>mapreduce.inputformat.class</name>
+			        <value>${inputFormatVideoFrame}</value>
+			    </property>
+				<property>
+			        <name>oozie.launcher.action.main.class</name>
+			        <value>${launcherClass}</value>
+			    </property>
+            </configuration>
+        </map-reduce>
+        <ok to="end"/>
+        <error to="fail"/>
+    </action>
+    <kill name="fail">
+        <message>Map/Reduce failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
+    </kill>
+    <end name="end"/>
+</workflow-app>
