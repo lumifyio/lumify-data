@@ -101,7 +101,10 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public String save(GraphNode node) {
         TitanTransaction tx = this.graph.newTransaction();
-        Vertex vertex = this.graph.getVertex(node.getId());
+        Vertex vertex = null;
+        if(node.getId() != null) {
+            vertex = this.graph.getVertex(node.getId());
+        }
         if (vertex == null) {
             vertex = this.graph.addVertex(node.getId());
         }
@@ -234,6 +237,15 @@ public class TitanGraphSession extends GraphSession {
                 .has(PROPERTY_NAME_TITLE, Text.CONTAINS, query)
                 .vertices();
         return toGraphNodes(r);
+    }
+
+    @Override
+    public GraphNode findNodeByTitleAndType(String graphNodeTitle, String graphNodeType) {
+        List<Vertex> vertices = new GremlinPipeline(graph.getVertices()).has("title", graphNodeTitle).has("type", graphNodeType).toList();
+        if(vertices.size() > 0) {
+            return new TitanGraphNode(vertices.get(0));
+        }
+        return null;
     }
 
     @Override

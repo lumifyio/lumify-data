@@ -53,7 +53,6 @@ define([
                 parameters = {
                     sign: sign,
                     conceptLabel: this.select('conceptSelector').val(),
-                    sentenceRowKey: sentenceInfo.rowKey,
                     artifactKey: this.attr.artifactKey,
                     mentionStart: mentionStart,
                     mentionEnd: mentionStart + sign.length
@@ -69,7 +68,7 @@ define([
             }
 
             if (newObjectSign.length) {
-                parameters.newObjectSign = newObjectSign;
+                parameters.objectSign = newObjectSign;
                 $mentionNode.attr('title', newObjectSign);
             }
 
@@ -80,6 +79,7 @@ define([
                     self.trigger(document, 'error', err);
                 } else {
                     self.highlightTerm(data);
+                    console.log(data);
                     self.trigger(document, 'termCreated', data);
                     _.defer(self.teardown.bind(self));
                 }

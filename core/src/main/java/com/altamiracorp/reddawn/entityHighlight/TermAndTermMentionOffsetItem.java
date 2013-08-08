@@ -41,7 +41,12 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
 
     @Override
     public String getGraphNodeId() {
-        return termAndTermMention.getTermMention().getGraphNodeId(termAndTermMention.getTerm());
+        return termAndTermMention.getTermMention().getGraphNodeId();
+    }
+
+    @Override
+    public String getResolvedGraphNodeId() {
+        return termAndTermMention.getTermMention().getResolvedGraphNodeId();
     }
 
     public String getConceptLabel() {

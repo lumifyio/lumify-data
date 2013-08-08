@@ -7,6 +7,10 @@ public class GraphNodeImpl extends GraphNode {
     private String id;
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 
+    public GraphNodeImpl() {
+        this.id = null;
+    }
+
     public GraphNodeImpl(String id) {
         this.id = id;
     }
@@ -15,8 +19,9 @@ public class GraphNodeImpl extends GraphNode {
         return this.id;
     }
 
-    public void setProperty(String key, Object value) {
+    public GraphNode setProperty(String key, Object value) {
         properties.put(key, value);
+        return this;
     }
 
     @Override

@@ -2,6 +2,9 @@ package com.altamiracorp.reddawn.web.routes.entity;
 
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.entityHighlight.TermAndTermMentionOffsetItem;
+import com.altamiracorp.reddawn.model.GraphSession;
+import com.altamiracorp.reddawn.model.graph.GraphNode;
+import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.ucd.term.*;
 import com.altamiracorp.reddawn.web.Responder;
@@ -27,41 +30,47 @@ public class EntityCreate implements Handler, AppAware {
         User currentUser = User.getUser(request);
         RedDawnSession session = app.getRedDawnSession(request);
 
-        // validate parameters
-        String artifactKey = request.getParameter("artifactKey");
-        if (artifactKey == null) {
-            throw new RuntimeException("'artifactKey' is required.");
+        // required parameters
+        String artifactKey = getRequiredParameter(request, "artifactKey");
+        long mentionStart = Long.parseLong(getRequiredParameter(request, "mentionStart"));
+        long mentionEnd = Long.parseLong(getRequiredParameter(request, "mentionEnd"));
+        String sign = getRequiredParameter(request, "sign");
+        String conceptLabel = getRequiredParameter(request, "conceptLabel");
+
+        // optional parameters
+        String mentionGraphNodeId = request.getParameter("graphNodeId");
+        String objectSign = request.getParameter("objectSign");
+
+        GraphNode resolvedNode = null;
+        String resolvedGraphNodeId = null;
+        if(objectSign != null && objectSign.length() > 0) {
+            resolvedNode = getObjectGraphNode(session.getGraphSession(), objectSign, conceptLabel);
+            resolvedGraphNodeId = resolvedNode.getId();
+        }
+        TermAndTermMention termAndTermMention = getTermAndTermMention(currentUser, session, artifactKey, mentionStart, mentionEnd, sign, conceptLabel, resolvedGraphNodeId);
+
+        if(resolvedNode != null) {
+            graphRepository.saveRelationship(session.getGraphSession(), resolvedGraphNodeId, termAndTermMention.getTermMention().getGraphNodeId(), "entityResolved");
         }
 
-        if (request.getParameter("mentionStart") == null) {
-            throw new RuntimeException("'mentionStart' is required.");
+        TermAndTermMentionOffsetItem offsetItem = new TermAndTermMentionOffsetItem(termAndTermMention);
+        new Responder(response).respondWith(offsetItem.toJson());
+    }
+
+    private GraphNode getObjectGraphNode(GraphSession session, String title, String subType) {
+        GraphNode graphNode = graphRepository.findNodeByTitleAndType(session, title, GraphRepository.ENTITY_TYPE);
+        if(graphNode == null) {
+            graphNode = new GraphNodeImpl()
+                    .setProperty("title", title)
+                    .setProperty("type", GraphRepository.ENTITY_TYPE)
+                    .setProperty("subType", subType);
+            String graphNodeId = graphRepository.saveNode(session, graphNode);
+            return new GraphNodeImpl(graphNodeId).setProperty("title", title).setProperty("type", GraphRepository.ENTITY_TYPE).setProperty("subType", subType);
         }
-        long mentionStart = Long.parseLong(request.getParameter("mentionStart"));
+        return graphNode;
+    }
 
-        if (request.getParameter("mentionEnd") == null) {
-            throw new RuntimeException("'mentionEnd' is required.");
-        }
-        long mentionEnd = Long.parseLong(request.getParameter("mentionEnd"));
-
-        String sign = request.getParameter("sign");
-        if (sign == null) {
-            throw new RuntimeException("'sign' is required.");
-        }
-
-        String conceptLabel = request.getParameter("conceptLabel");
-        if (conceptLabel == null) {
-            throw new RuntimeException("'conceptLabel' is required.");
-        }
-
-        String graphNodeId = request.getParameter("graphNodeId");
-
-        String newObjectSign = request.getParameter("newObjectSign");
-
-        if (newObjectSign != null) {
-            sign = newObjectSign;
-        }
-
-        // do the work
+    private TermAndTermMention getTermAndTermMention(User currentUser, RedDawnSession session, String artifactKey, long mentionStart, long mentionEnd, String sign, String conceptLabel, String resolvedNodeId) {
         TermRowKey termRowKey = new TermRowKey(sign, MODEL_KEY, conceptLabel);
         TermAndTermMention termAndTermMention = termRepository.findMention(session.getModelSession(), termRowKey, artifactKey, mentionStart, mentionEnd);
         if (termAndTermMention == null) {
@@ -71,21 +80,24 @@ public class EntityCreate implements Handler, AppAware {
                     .setMentionStart(mentionStart)
                     .setMentionEnd(mentionEnd)
                     .setAuthor(currentUser.getUsername())
-                    .setDate(new Date());
+                    .setDate(new Date())
+                    .setResolvedGraphNodeId(resolvedNodeId);
             term.addTermMention(termMention);
             termAndTermMention = new TermAndTermMention(term, termMention);
+
+            termRepository.save(session.getModelSession(), termAndTermMention.getTerm());
+            termRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), termAndTermMention.getTerm(), termAndTermMention.getTermMention());
         }
 
-        termRepository.save(session.getModelSession(), termAndTermMention.getTerm());
-        termRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), termAndTermMention.getTerm(), termAndTermMention.getTermMention());
+        return termAndTermMention;
+    }
 
-        String newGraphNodeId = termAndTermMention.getTermMention().getGraphNodeId(termAndTermMention.getTerm());
-        if (newGraphNodeId != null && graphNodeId != null && !newGraphNodeId.equals(graphNodeId)) {
-            graphRepository.saveRelationship(session.getGraphSession(), newGraphNodeId, graphNodeId, "entityResolved");
+    public static String getRequiredParameter(HttpServletRequest request, String parameterName) {
+        String parameter = request.getParameter(parameterName);
+        if (parameter == null) {
+            throw new RuntimeException("'" + parameterName + "' is required.");
         }
-
-        TermAndTermMentionOffsetItem offsetItem = new TermAndTermMentionOffsetItem(termAndTermMention);
-        new Responder(response).respondWith(offsetItem.toJson());
+        return parameter;
     }
 
     public void setApp(App app) {
