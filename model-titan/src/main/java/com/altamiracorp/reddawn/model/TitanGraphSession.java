@@ -213,11 +213,13 @@ public class TitanGraphSession extends GraphSession {
     public HashMap<String, String> getEdgeProperties(String sourceNode, String destNode) {
         HashMap<String, String> properties = new HashMap<String, String>();
         Edge e = findEdge(sourceNode, destNode);
-        for (String property : e.getPropertyKeys()) {
-            properties.put(property, e.getProperty(property).toString());
+        if (e != null) {
+            for (String property : e.getPropertyKeys()) {
+                properties.put(property, e.getProperty(property).toString());
+            }
+            return properties;
         }
-
-        return properties;
+        return null;
     }
 
     @Override

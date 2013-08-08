@@ -52,6 +52,12 @@ public class GraphNodeToGraphNodeRelationship implements Handler, AppAware {
         }
         results.put("properties", propertyJson);
 
+        if (graphRepository.getEdgeProperties(session.getGraphSession(), target, source) != null) {
+            results.put("bidirectional", "true");
+        } else {
+            results.put("bidirectional", false);
+        }
+
         new Responder(response).respondWith(results);
     }
 
