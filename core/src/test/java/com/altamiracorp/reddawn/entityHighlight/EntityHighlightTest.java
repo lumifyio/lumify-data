@@ -41,7 +41,7 @@ public class EntityHighlightTest {
         );
         List<OffsetItem> termAndTermMetadata = EntityHighlighter.getTermAndTermMetadataForArtifact(artifactKey, terms);
         String highlightText = EntityHighlighter.getHighlightedText("Test highlight of Joe Ferner and Jeff Kunkle.", 0, termAndTermMetadata);
-        assertEquals("Test highlight of <span class=\"entity person\" title=\"joe ferner\" data-info=\"{&quot;title&quot;:&quot;joe ferner&quot;,&quot;graphNodeId&quot;:&quot;joe ferner\\u001fee\\u001fperson\\u001eurn\\u001fsha256\\u001f86cb88d514567f46461b9611907f504d91e00e521af08a15695b3f510a2f7064&quot;,&quot;start&quot;:18,&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;joe ferner\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;,&quot;end&quot;:28}\">Joe Ferner</span> and <span class=\"entity person\" title=\"jeff kunkle\" data-info=\"{&quot;title&quot;:&quot;jeff kunkle&quot;,&quot;graphNodeId&quot;:&quot;jeff kunkle\\u001fee\\u001fperson\\u001eurn\\u001fsha256\\u001f2c5402d7eb70a3930bff576a5e13a563e7994088a192837b5b46440ed68dc43b&quot;,&quot;start&quot;:33,&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;jeff kunkle\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;,&quot;end&quot;:44}\">Jeff Kunkle.", highlightText);
+        assertEquals("Test highlight of <span class=\"entity person\" title=\"joe ferner\" data-info=\"{&quot;title&quot;:&quot;joe ferner&quot;,&quot;graphNodeId&quot;:&quot;joe ferner\\u001fee\\u001fperson\\u001eurn\\u001fsha256\\u001f86cb88d514567f46461b9611907f504d91e00e521af08a15695b3f510a2f7064&quot;,&quot;start&quot;:18,&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;joe ferner\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;,&quot;end&quot;:28}\">Joe Ferner</span> and <span class=\"entity person\" title=\"jeff kunkle\" data-info=\"{&quot;title&quot;:&quot;jeff kunkle&quot;,&quot;graphNodeId&quot;:&quot;jeff kunkle\\u001fee\\u001fperson\\u001eurn\\u001fsha256\\u001f2c5402d7eb70a3930bff576a5e13a563e7994088a192837b5b46440ed68dc43b&quot;,&quot;start&quot;:33,&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;jeff kunkle\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;,&quot;end&quot;:44}\">Jeff Kunkle</span>.", highlightText);
     }
 
     public void testGetHighlightedTextOverlaps() throws Exception {
@@ -115,7 +115,7 @@ public class EntityHighlightTest {
 
         Assert.assertEquals("<span class=\"first\" data-info=\"{&quot;data&quot;:&quot;attribute&quot;}\">This</span> " +
                 "<span class=\"fourth\" data-info=\"{&quot;data&quot;:&quot;attribute&quot;}\">is a</span> test <span " +
-                "class=\"fifth\" data-info=\"{&quot;data&quot;:&quot;attribute&quot;}\">sentence",
+                "class=\"fifth\" data-info=\"{&quot;data&quot;:&quot;attribute&quot;}\">sentence</span>",
                 EntityHighlighter.getHighlightedText(text, 0, offsetItems));
     }
 }
