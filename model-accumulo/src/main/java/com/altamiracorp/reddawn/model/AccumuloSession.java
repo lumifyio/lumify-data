@@ -317,23 +317,7 @@ public class AccumuloSession extends Session {
     @Override
     public void touchRow(String tableName, RowKey rowKey, QueryUser queryUser) {
         Row row = findByRowKey(tableName, rowKey.toString(), queryUser);
-        ColumnFamily firstColumnFamily = (ColumnFamily) row.getColumnFamilies().iterator().next();
-        Column firstColumn = firstColumnFamily.getColumns().iterator().next();
-
-        Mutation mutation = new Mutation(rowKey.toString());
-        Text firstColumnFamilyName = new Text(firstColumnFamily.getColumnFamilyName());
-        Text firstColumnQualifier = new Text(firstColumn.getName());
-        Value firstColumnValue = new Value(firstColumn.getValue().toBytes());
-        mutation.put(firstColumnFamilyName, firstColumnQualifier, firstColumnValue);
-
-        try {
-            BatchWriter writer = connector.createBatchWriter(row.getTableName(), getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
-            writer.addMutation(mutation);
-            writer.flush();
-            writer.close();
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
+        save(row);
     }
 
     public long getMaxMemory() {
