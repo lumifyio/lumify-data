@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.web.routes.entity;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.entityHighlight.TermAndTermMentionOffsetItem;
 import com.altamiracorp.reddawn.model.GraphSession;
+import com.altamiracorp.reddawn.model.RowKeyHelper;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
@@ -18,6 +19,7 @@ import com.altamiracorp.web.HandlerChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
+import java.util.List;
 
 public class EntityCreate implements Handler, AppAware {
     private static final String MODEL_KEY = "manual";
@@ -71,7 +73,7 @@ public class EntityCreate implements Handler, AppAware {
     }
 
     private TermAndTermMention getTermAndTermMention(User currentUser, RedDawnSession session, String artifactKey, long mentionStart, long mentionEnd, String sign, String conceptLabel, String resolvedNodeId) {
-        TermRowKey termRowKey = new TermRowKey(sign, MODEL_KEY, conceptLabel);
+        TermRowKey termRowKey = getTermRowKey(session, sign, conceptLabel);
         TermAndTermMention termAndTermMention = termRepository.findMention(session.getModelSession(), termRowKey, artifactKey, mentionStart, mentionEnd);
         if (termAndTermMention == null) {
             Term term = new Term(termRowKey);
@@ -81,17 +83,24 @@ public class EntityCreate implements Handler, AppAware {
                     .setMentionEnd(mentionEnd)
                     .setAuthor(currentUser.getUsername())
                     .setDate(new Date());
-            if(resolvedNodeId != null) {
-                termMention.setResolvedGraphNodeId(resolvedNodeId);
-            }
             term.addTermMention(termMention);
             termAndTermMention = new TermAndTermMention(term, termMention);
-
-            termRepository.save(session.getModelSession(), termAndTermMention.getTerm());
             termRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), termAndTermMention.getTerm(), termAndTermMention.getTermMention());
         }
-
+        if(resolvedNodeId != null) {
+            termAndTermMention.getTermMention().setResolvedGraphNodeId(resolvedNodeId);
+        }
+        termRepository.save(session.getModelSession(), termAndTermMention.getTerm());
         return termAndTermMention;
+    }
+
+    private TermRowKey getTermRowKey(RedDawnSession session, String sign, String conceptLabel) {
+        List<Term> results = termRepository.findByRowKeyRegex(session.getModelSession(), "^" + sign
+                + RowKeyHelper.MINOR_FIELD_SEPARATOR + ".*" + RowKeyHelper.MINOR_FIELD_SEPARATOR + conceptLabel + "$");
+        if(results.size() > 0) {
+            return results.get(0).getRowKey();
+        }
+        return new TermRowKey(sign, MODEL_KEY, conceptLabel);
     }
 
     public static String getRequiredParameter(HttpServletRequest request, String parameterName) {
