@@ -13,6 +13,7 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
+import com.tinkerpop.pipes.Pipe;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -190,9 +191,10 @@ public class TitanGraphSession extends GraphSession {
     public List<GraphNode> getResolvedRelatedNodes(String graphNodeId) {
         Vertex vertex = this.graph.getVertex(graphNodeId);
 
-        List<Vertex> resolvedVertices = new GremlinPipeline(vertex).bothE().bothV().has("type", GraphRepository.ENTITY_TYPE).toList();
-        resolvedVertices.addAll(new GremlinPipeline(vertex).bothE().bothV().has("type", GraphRepository.ARTIFACT_TYPE).toList());
-        resolvedVertices.addAll(new GremlinPipeline(vertex).bothE().bothV().in(GraphRepository.ENTITY_RESOLVED_PREDICATE).toList());
+        List<Vertex> resolvedVertices = new GremlinPipeline(vertex).both().hasNot("type", GraphRepository.TERM_MENTION_TYPE).toList();
+        resolvedVertices.addAll(new GremlinPipeline(vertex).both().has("type", GraphRepository.TERM_MENTION_TYPE).both().hasNot("type", GraphRepository.TERM_MENTION_TYPE).toList());
+        resolvedVertices.addAll(new GremlinPipeline(vertex).both().has("type", GraphRepository.TERM_MENTION_TYPE).as("mentions").both().hasNot("type", GraphRepository.TERM_MENTION_TYPE).hasNot("id", vertex.getId()).back("mentions").toList());
+
         List<GraphNode> results = new ArrayList<GraphNode>();
         for(Vertex v : resolvedVertices) {
             results.add(new TitanGraphNode(v));

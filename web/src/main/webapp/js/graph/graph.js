@@ -538,7 +538,7 @@ define([
                         type: node.properties.type,
                         subType: node.properties.subType,
                         title: node.properties.title,
-                        rowKey: node.properties.rowKey,
+                        rowKey: node.properties._rowKey,
                         graphPosition: {
                             x: x + xOffset * (index % 10 + 1),
                             y: y
