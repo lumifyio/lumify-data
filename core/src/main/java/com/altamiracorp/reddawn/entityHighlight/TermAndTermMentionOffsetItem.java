@@ -90,8 +90,11 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
     public int compareTo(TermAndTermMentionOffsetItem other) {
         if (this.getStart() == other.getStart()) {
             if (this.getEnd() == other.getEnd()) {
-                // TODO: probably should tag nodes that are resolved somehow so that we can sort them better
-                if (this.termAndTermMention.getTerm().getRowKey().getModelKey().equals(PredicateRowKey.MANUAL_MODEL_KEY)) {
+                if (getResolvedGraphNodeId() != null && other.getResolvedGraphNodeId() == null) {
+                    return -1;
+                } else if (getResolvedGraphNodeId() == null && other.getResolvedGraphNodeId() != null) {
+                    return 1;
+                } else if (this.termAndTermMention.getTerm().getRowKey().getModelKey().equals(PredicateRowKey.MANUAL_MODEL_KEY)) {
                     return -1;
                 }
                 return 0;
