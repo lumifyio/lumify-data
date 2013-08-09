@@ -38,6 +38,7 @@ public class TikaTextExtractor implements TextExtractor {
     ArtifactRepository artifactRepository = new ArtifactRepository();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaTextExtractor.class);
+    private static final String NAME = "tikaExtractor";
 
     private static final String MIME_TYPE_KEY = "Content-Type";
 
@@ -164,6 +165,11 @@ public class TikaTextExtractor implements TextExtractor {
         return null;
     }
 
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
     private String extractTextFromHtml(String text) throws BoilerpipeProcessingException {
         String extractedText;
 
@@ -239,7 +245,8 @@ public class TikaTextExtractor implements TextExtractor {
     }
 
     private boolean isHtml (Artifact artifact) {
-        return artifact.getGenericMetadata().getMimeType().contains("text");
+        return artifact.getGenericMetadata().getMimeType().contains("text")
+                || artifact.getGenericMetadata().getMimeType().contains("html");
     }
 
 }

@@ -1,5 +1,8 @@
 #!/bin/bash
-# require: 249_TextExtractorConsolidationMR.sh
+# require: 225_TextExtractionMR_OCR.sh
+# require: 225_TextExtractionMR_Tika.sh
+# require: 225_TextExtractionMR_Transcript.sh
+# require: 230_TextExtractionMR_VideoFrameTextCombiner.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -24,8 +27,7 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
--Xmx1024M \
-com.altamiracorp.reddawn.sentenceExtraction.SentenceExtractionMR \
+com.altamiracorp.reddawn.textExtraction.TextExtractorConsolidationMR \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
@@ -33,6 +35,4 @@ com.altamiracorp.reddawn.sentenceExtraction.SentenceExtractionMR \
 --graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
---password=password \
---classname=com.altamiracorp.reddawn.sentenceExtraction.OpenNlpSentenceExtractor \
---config=nlpConfPathPrefix=file://$(cd ${DIR}/.. && pwd)
+--password=password
