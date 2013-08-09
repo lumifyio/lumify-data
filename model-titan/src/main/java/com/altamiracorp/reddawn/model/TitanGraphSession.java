@@ -61,7 +61,7 @@ public class TitanGraphSession extends GraphSession {
             graph.makeType()
                     .name(PROPERTY_NAME_ROW_KEY)
                     .dataType(String.class)
-                    .indexed("search",Vertex.class)
+                    .indexed("search", Vertex.class)
                     .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
                     .makePropertyKey();
         }
@@ -70,7 +70,7 @@ public class TitanGraphSession extends GraphSession {
             graph.makeType()
                     .name(PROPERTY_NAME_TITLE)
                     .dataType(String.class)
-                    .indexed("search",Vertex.class)
+                    .indexed("search", Vertex.class)
                     .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
                     .makePropertyKey();
         }
@@ -79,7 +79,7 @@ public class TitanGraphSession extends GraphSession {
             graph.makeType()
                     .name(PROPERTY_NAME_GEO_LOCATION)
                     .dataType(Geoshape.class)
-                    .indexed("search",Vertex.class)
+                    .indexed("search", Vertex.class)
                     .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
                     .makePropertyKey();
         }
@@ -102,7 +102,7 @@ public class TitanGraphSession extends GraphSession {
     public String save(GraphNode node) {
         TitanTransaction tx = this.graph.newTransaction();
         Vertex vertex = null;
-        if(node.getId() != null) {
+        if (node.getId() != null) {
             vertex = this.graph.getVertex(node.getId());
         }
         if (vertex == null) {
@@ -180,7 +180,7 @@ public class TitanGraphSession extends GraphSession {
 
         List<Vertex> vertices = new GremlinPipeline(vertex).bothE().bothV().toList();
         vertices.addAll(new GremlinPipeline(vertex).bothE().bothV().in(GraphRepository.ENTITY_RESOLVED_PREDICATE).toList());
-        for(Vertex v : vertices) {
+        for (Vertex v : vertices) {
             results.add(new TitanGraphNode(v));
         }
 
@@ -196,7 +196,7 @@ public class TitanGraphSession extends GraphSession {
         resolvedVertices.addAll(new GremlinPipeline(vertex).both().has("type", GraphRepository.TERM_MENTION_TYPE).as("mentions").both().hasNot("type", GraphRepository.TERM_MENTION_TYPE).hasNot("id", vertex.getId()).back("mentions").toList());
 
         List<GraphNode> results = new ArrayList<GraphNode>();
-        for(Vertex v : resolvedVertices) {
+        for (Vertex v : resolvedVertices) {
             results.add(new TitanGraphNode(v));
         }
         return results;
@@ -255,7 +255,7 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public GraphNode findNodeByTitleAndType(String graphNodeTitle, String graphNodeType) {
         List<Vertex> vertices = new GremlinPipeline(graph.getVertices()).has("title", graphNodeTitle).has("type", graphNodeType).toList();
-        if(vertices.size() > 0) {
+        if (vertices.size() > 0) {
             return new TitanGraphNode(vertices.get(0));
         }
         return null;
@@ -301,5 +301,11 @@ public class TitanGraphSession extends GraphSession {
         }
 
         return relationships;
+    }
+
+    @Override
+    public void removeRelationship(String source, String target) {
+        Edge edge = findEdge(source, target);
+        edge.remove();
     }
 }

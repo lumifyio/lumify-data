@@ -198,7 +198,7 @@ define([
             insertAfterNode.after(form);
             TermForm.attachTo(form, {
                 sign: text,
-                selection: sel && { anchor:sel.anchorNode, focus:sel.focusNode, anchorOffset: sel.anchorOffset, focusOffset: sel.focusOffset },
+                selection: sel && { anchor:sel.anchorNode, focus:sel.focusNode, anchorOffset: sel.anchorOffset, focusOffset: sel.focusOffset, range:sel.rangeCount && sel.getRangeAt(0).cloneRange() },
                 mentionNode: insertAfterNode,
                 artifactKey: this.attr.data.rowKey
             });

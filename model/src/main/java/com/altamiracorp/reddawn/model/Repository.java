@@ -1,9 +1,5 @@
 package com.altamiracorp.reddawn.model;
 
-import com.altamiracorp.reddawn.ucd.statement.Statement;
-import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
-import com.altamiracorp.reddawn.ucd.term.TermRowKey;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -83,7 +79,11 @@ public abstract class Repository<T> {
         session.deleteRow(getTableName(), rowKey);
     }
 
-    public List<Row> findByRowStartsWithList (List<String> rowKeyPrefixes, Session session){
+    public List<Row> findByRowStartsWithList(List<String> rowKeyPrefixes, Session session) {
         return session.findByRowStartsWithList(getTableName(), rowKeyPrefixes, session.getQueryUser());
+    }
+
+    public void touchRow(Session session, RowKey rowKey) {
+        session.touchRow(getTableName(), rowKey, session.getQueryUser());
     }
 }

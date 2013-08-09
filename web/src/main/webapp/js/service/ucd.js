@@ -20,6 +20,16 @@ function(ServiceBase) {
         }, callback);
     };
 
+    Ucd.prototype.deleteEdge = function(sourceId, targetId, callback) {
+        return this._ajaxGet({
+            url: '/node/removeRelationship',
+            data: {
+                sourceId: sourceId,
+                targetId: targetId
+            }
+        }, callback);
+    };
+
     Ucd.prototype.getNodeToNodeRelationshipDetails = function (source, target, callback){
         return this._ajaxGet({
             url: 'node/relationship',

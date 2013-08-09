@@ -41,7 +41,8 @@ define([
             emptyGraphSelector: '.empty-graph',
             graphToolsSelector: '.ui-cytoscape-panzoom',
             contextMenuSelector: '.graph-context-menu',
-            nodeContextMenuSelector: '.node-context-menu'
+            nodeContextMenuSelector: '.node-context-menu',
+            edgeContextMenuSelector: '.edge-context-menu'
         });
 
         this.cy = function(callback) {
@@ -227,6 +228,20 @@ define([
             return data;
         }
 
+        this.onContextMenuDeleteEdge = function () {
+            var menu = this.select('edgeContextMenuSelector');
+            var edgeId = menu.data('edgeId');
+            this.cy(function(cy) {
+                this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), function(err) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+                    cy.remove (cy.getElementById (edgeId));
+                })
+            });
+        }
+
         this.onContextMenuFitToWindow = function() {
             this.fit();
         };
@@ -290,9 +305,21 @@ define([
 
         this.graphContextTap = function(event) {
             var menu;
+            // TODO: create different nodeContext menus for nodes/edges
             if (event.cyTarget == event.cy){
                 menu = this.select ('contextMenuSelector');
                 this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
+                this.select('edgeContextMenuSelector').blur().parent().removeClass('open');
+            } else if (event.cyTarget.group ('edges') == 'edges') {
+                menu = this.select ('edgeContextMenuSelector');
+                menu.data("edgeId", event.cyTarget.data('id'));
+                menu.data("sourceId",event.cyTarget.data('source'));
+                menu.data("targetId",event.cyTarget.data('target'));
+                if (event.cy.nodes().filter(':selected').length > 1) {
+                    return false;
+                }
+                this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
+                this.select('contextMenuSelector').blur().parent().removeClass('open');
             } else {
                 menu = this.select ('nodeContextMenuSelector');
                 menu.data("currentNodeRowKey",event.cyTarget.data('rowKey'));
@@ -304,6 +331,7 @@ define([
                     return false;
                 }
                 this.select('contextMenuSelector').blur().parent().removeClass('open');
+                this.select('edgeContextMenuSelector').blur().parent().removeClass('open');
             }
 
             // Show/Hide the layout selection menu item
@@ -488,7 +516,6 @@ define([
             this.cy(function(cy) {
                 if (relationshipData.relationships != null){
                     var relationshipEdges = [];
-
                     relationshipData.relationships.forEach(function(relationship) {
                         relationshipEdges.push ({
                             group: "edges",
@@ -498,7 +525,7 @@ define([
                                 source: relationship.from,
                                 target: relationship.to,
                                 type: 'relationship',
-                                id: (relationship.from < relationship.to ? relationship.from + relationship.to : relationship.to + relationship.from)
+                                id: (relationship.from + relationship.to)
                             },
                             classes: (relationship.bidirectional ? 'bidirectional' : '')
                         });

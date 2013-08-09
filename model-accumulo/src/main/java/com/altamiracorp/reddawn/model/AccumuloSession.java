@@ -12,7 +12,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -312,6 +311,13 @@ public class AccumuloSession extends Session {
     @Override
     public List<String> getTableList() {
         return new ArrayList<String>(this.connector.tableOperations().list());
+    }
+
+    // TODO change this to use an accumulo touch command. Accumulo doesn't have one yet though.
+    @Override
+    public void touchRow(String tableName, RowKey rowKey, QueryUser queryUser) {
+        Row row = findByRowKey(tableName, rowKey.toString(), queryUser);
+        save(row);
     }
 
     public long getMaxMemory() {

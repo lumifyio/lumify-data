@@ -11,6 +11,7 @@ import com.altamiracorp.reddawn.web.routes.graph.*;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
 import com.altamiracorp.reddawn.web.routes.node.NodeProperties;
+import com.altamiracorp.reddawn.web.routes.node.NodeRelationshipRemoval;
 import com.altamiracorp.reddawn.web.routes.node.NodeRelationships;
 import com.altamiracorp.reddawn.web.routes.node.NodeToNodeRelationship;
 import com.altamiracorp.reddawn.web.routes.predicate.PredicateList;
@@ -70,6 +71,7 @@ public class Router extends HttpServlet {
         app.get("/node/{graphNodeId}/properties", authenticator, NodeProperties.class);
         app.get("/node/{graphNodeId}/relationships", authenticator, NodeRelationships.class);
         app.get("/node/relationship", authenticator, NodeToNodeRelationship.class);
+        app.get("/node/removeRelationship", authenticator, NodeRelationshipRemoval.class);
 
         app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedNodes.class);
         app.get("/graph/{graphNodeId}/relatedResolvedNodes", authenticator, GraphRelatedResolvedNodes.class);
