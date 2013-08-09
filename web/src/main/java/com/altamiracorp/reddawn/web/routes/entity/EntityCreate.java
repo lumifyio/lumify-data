@@ -6,6 +6,8 @@ import com.altamiracorp.reddawn.model.GraphSession;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.ucd.term.*;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.User;
@@ -22,6 +24,7 @@ import java.util.Date;
 public class EntityCreate implements Handler, AppAware {
     private static final String MODEL_KEY = "manual";
     private WebApp app;
+    private ArtifactRepository artifactRepository = new ArtifactRepository();
     private TermRepository termRepository = new TermRepository();
     private GraphRepository graphRepository = new GraphRepository();
 
@@ -38,20 +41,21 @@ public class EntityCreate implements Handler, AppAware {
         String conceptLabel = getRequiredParameter(request, "conceptLabel");
 
         // optional parameters
-        String mentionGraphNodeId = request.getParameter("graphNodeId");
         String objectSign = request.getParameter("objectSign");
 
         GraphNode resolvedNode = null;
         String resolvedGraphNodeId = null;
-        if(objectSign != null && objectSign.length() > 0) {
+        if (objectSign != null && objectSign.length() > 0) {
             resolvedNode = getObjectGraphNode(session.getGraphSession(), objectSign, conceptLabel);
             resolvedGraphNodeId = resolvedNode.getId();
         }
         TermAndTermMention termAndTermMention = getTermAndTermMention(currentUser, session, artifactKey, mentionStart, mentionEnd, sign, conceptLabel, resolvedGraphNodeId);
 
-        if(resolvedNode != null) {
+        if (resolvedNode != null) {
             graphRepository.saveRelationship(session.getGraphSession(), resolvedGraphNodeId, termAndTermMention.getTermMention().getGraphNodeId(), "entityResolved");
         }
+
+        artifactRepository.touchRow(session.getModelSession(), new ArtifactRowKey(artifactKey));
 
         TermAndTermMentionOffsetItem offsetItem = new TermAndTermMentionOffsetItem(termAndTermMention);
         new Responder(response).respondWith(offsetItem.toJson());
@@ -59,7 +63,7 @@ public class EntityCreate implements Handler, AppAware {
 
     private GraphNode getObjectGraphNode(GraphSession session, String title, String subType) {
         GraphNode graphNode = graphRepository.findNodeByTitleAndType(session, title, GraphRepository.ENTITY_TYPE);
-        if(graphNode == null) {
+        if (graphNode == null) {
             graphNode = new GraphNodeImpl()
                     .setProperty("title", title)
                     .setProperty("type", GraphRepository.ENTITY_TYPE)
@@ -81,7 +85,7 @@ public class EntityCreate implements Handler, AppAware {
                     .setMentionEnd(mentionEnd)
                     .setAuthor(currentUser.getUsername())
                     .setDate(new Date());
-            if(resolvedNodeId != null) {
+            if (resolvedNodeId != null) {
                 termMention.setResolvedGraphNodeId(resolvedNodeId);
             }
             term.addTermMention(termMention);

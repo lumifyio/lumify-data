@@ -12,7 +12,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -312,6 +311,29 @@ public class AccumuloSession extends Session {
     @Override
     public List<String> getTableList() {
         return new ArrayList<String>(this.connector.tableOperations().list());
+    }
+
+    // TODO change this to use an accumulo touch command. Accumulo doesn't have one yet though.
+    @Override
+    public void touchRow(String tableName, RowKey rowKey, QueryUser queryUser) {
+        Row row = findByRowKey(tableName, rowKey.toString(), queryUser);
+        ColumnFamily firstColumnFamily = (ColumnFamily) row.getColumnFamilies().iterator().next();
+        Column firstColumn = firstColumnFamily.getColumns().iterator().next();
+
+        Mutation mutation = new Mutation(rowKey.toString());
+        Text firstColumnFamilyName = new Text(firstColumnFamily.getColumnFamilyName());
+        Text firstColumnQualifier = new Text(firstColumn.getName());
+        Value firstColumnValue = new Value(firstColumn.getValue().toBytes());
+        mutation.put(firstColumnFamilyName, firstColumnQualifier, firstColumnValue);
+
+        try {
+            BatchWriter writer = connector.createBatchWriter(row.getTableName(), getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
+            writer.addMutation(mutation);
+            writer.flush();
+            writer.close();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     public long getMaxMemory() {
