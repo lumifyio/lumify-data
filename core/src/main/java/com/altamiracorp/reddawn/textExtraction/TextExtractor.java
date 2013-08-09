@@ -13,4 +13,6 @@ public interface TextExtractor {
     ArtifactExtractedInfo extract(Session session, Artifact artifact) throws Exception;
 
     VideoFrameExtractedInfo extract(Session session, VideoFrame videoFrame) throws Exception;
+
+    String getName();
 }

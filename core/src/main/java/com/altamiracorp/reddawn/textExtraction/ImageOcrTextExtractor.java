@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ImageOcrTextExtractor implements TextExtractor {
+    private static final String NAME = "imageOCRExtractor";
     private static final List<String> ICON_MIME_TYPES = Arrays.asList(new String[]{"image/x-icon", "image/vnd.microsoft.icon"});
     private ArtifactRepository artifactRepository = new ArtifactRepository();
     private VideoFrameRepository videoFrameRepository = new VideoFrameRepository();
@@ -55,6 +56,11 @@ public class ImageOcrTextExtractor implements TextExtractor {
         VideoFrameExtractedInfo extractedInfo = new VideoFrameExtractedInfo();
         extractedInfo.setText(ocrResults);
         return extractedInfo;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private String extractTextFromImage(BufferedImage image) throws TesseractException {

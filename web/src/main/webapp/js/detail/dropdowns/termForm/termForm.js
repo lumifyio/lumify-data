@@ -73,7 +73,7 @@ define([
             }
 
             $mentionNode.addClass('resolved');
-
+console.log(parameters);
             this.entityService.createTerm(parameters, function(err, data) {
                 if (err) {
                     self.trigger(document, 'error', err);

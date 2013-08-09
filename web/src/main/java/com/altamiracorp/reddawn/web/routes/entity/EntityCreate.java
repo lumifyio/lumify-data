@@ -80,8 +80,10 @@ public class EntityCreate implements Handler, AppAware {
                     .setMentionStart(mentionStart)
                     .setMentionEnd(mentionEnd)
                     .setAuthor(currentUser.getUsername())
-                    .setDate(new Date())
-                    .setResolvedGraphNodeId(resolvedNodeId);
+                    .setDate(new Date());
+            if(resolvedNodeId != null) {
+                termMention.setResolvedGraphNodeId(resolvedNodeId);
+            }
             term.addTermMention(termMention);
             termAndTermMention = new TermAndTermMention(term, termMention);
 

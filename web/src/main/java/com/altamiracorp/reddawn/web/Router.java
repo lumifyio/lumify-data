@@ -12,6 +12,7 @@ import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
 import com.altamiracorp.reddawn.web.routes.node.NodeProperties;
 import com.altamiracorp.reddawn.web.routes.node.NodeRelationships;
+import com.altamiracorp.reddawn.web.routes.node.NodeToNodeRelationship;
 import com.altamiracorp.reddawn.web.routes.predicate.PredicateList;
 import com.altamiracorp.reddawn.web.routes.statement.StatementByRowKey;
 import com.altamiracorp.reddawn.web.routes.statement.StatementCreate;
@@ -68,9 +69,9 @@ public class Router extends HttpServlet {
 
         app.get("/node/{graphNodeId}/properties", authenticator, NodeProperties.class);
         app.get("/node/{graphNodeId}/relationships", authenticator, NodeRelationships.class);
+        app.get("/node/relationship", authenticator, NodeToNodeRelationship.class);
 
         app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedNodes.class);
-        app.get("/graph/relationship", authenticator, GraphNodeToGraphNodeRelationship.class);
         app.get("/graph/node/search", authenticator, GraphNodeSearch.class);
         app.get("/graph/node/geoLocationSearch", authenticator, GraphGeoLocationSearch.class);
         app.get("/graph/node/{graphNodeId}", authenticator, GraphGetNode.class);
