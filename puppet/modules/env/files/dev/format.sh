@@ -19,3 +19,7 @@ for service in /etc/init.d/hadoop-0.20-*
 do
     sudo $service stop
 done
+
+sudo /usr/lib/elasticsearch/bin/service/elasticsearch start
+curl -XDELETE "http://localhost:9200/_all"
+sudo /usr/lib/elasticsearch/bin/service/elasticsearch stop
