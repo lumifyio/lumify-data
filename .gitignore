@@ -1,4 +1,6 @@
+*.pem
 setenv.sh
 spinup.yml
 *_instances.txt
+*_hosts
 *.log
