@@ -12,6 +12,8 @@ public class GraphRepository {
     public static final String TERM_MENTION_TYPE = "termMention";
     public static final String ARTIFACT_TYPE = "artifact";
 
+    public static final String ENTITY_RESOLVED_PREDICATE = "entityResolved";
+
 
     public GraphNode findNode(GraphSession graphSession, String graphNodeId) {
         return graphSession.findNode(graphNodeId);
