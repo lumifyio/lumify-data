@@ -59,7 +59,7 @@ public class TitanGraphSession extends GraphSession {
             graph.makeType()
                     .name(PROPERTY_NAME_ROW_KEY)
                     .dataType(String.class)
-                    .indexed(Vertex.class)
+                    .indexed("search",Vertex.class)
                     .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
                     .makePropertyKey();
         }
@@ -68,7 +68,7 @@ public class TitanGraphSession extends GraphSession {
             graph.makeType()
                     .name(PROPERTY_NAME_TITLE)
                     .dataType(String.class)
-                    .indexed(Vertex.class)
+                    .indexed("search",Vertex.class)
                     .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
                     .makePropertyKey();
         }
@@ -77,7 +77,7 @@ public class TitanGraphSession extends GraphSession {
             graph.makeType()
                     .name(PROPERTY_NAME_GEO_LOCATION)
                     .dataType(Geoshape.class)
-                    .indexed(Vertex.class)
+                    .indexed("search",Vertex.class)
                     .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
                     .makePropertyKey();
         }
