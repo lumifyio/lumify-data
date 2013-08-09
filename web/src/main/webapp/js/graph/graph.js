@@ -565,6 +565,7 @@ define([
                 showOverlay: false,
                 minZoom: 1 / 4,
                 maxZoom: 4,
+                hideEdgesOnViewport: true,
                 container: this.select('cytoscapeContainerSelector').css({height:'100%'})[0],
                 renderer: {
                     name: 'red-dawn'
@@ -627,6 +628,13 @@ define([
                       'text-outline-color': 'white',
                       'text-valign': 'bottom',
                       'color': '#999'
+                    })
+                  .selector('node.termMention')
+                    .css({
+                      'width': 15 * retina.devicePixelRatio,
+                      'height': 15 * retina.devicePixelRatio,
+                      'text-outline-width': 1,
+                      'font-size': 9 * retina.devicePixelRatio
                     })
                   .selector(':selected')
                     .css({

@@ -1,0 +1,6 @@
+<configuration>
+	<property>
+		<name>TIMESTAMP_START_TIME</name>
+		<value>-1</value>
+	</property>
+</configuration>

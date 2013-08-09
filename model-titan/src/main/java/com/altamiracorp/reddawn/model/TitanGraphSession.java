@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.model;
 import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
+import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.thinkaurelius.titan.core.*;
 import com.thinkaurelius.titan.core.attribute.Geo;
@@ -184,6 +185,11 @@ public class TitanGraphSession extends GraphSession {
         edges = vertex.getEdges(Direction.IN);
         for (Edge edge : edges) {
             results.add(new TitanGraphNode(edge.getVertex(Direction.OUT)));
+        }
+
+        List<Vertex> resolvedVertices = new GremlinPipeline(vertex).bothE().bothV().in(GraphRepository.ENTITY_RESOLVED_PREDICATE).toList();
+        for(Vertex v : resolvedVertices) {
+            results.add(new TitanGraphNode(v));
         }
 
         return results;
