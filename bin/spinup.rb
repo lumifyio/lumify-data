@@ -42,7 +42,7 @@ def load_config
     hash[key] == nil || hash[key].length == 0
   end
 
-  if missing_config_keys > 0
+  if missing_config_keys.count > 0
     puts 'ERROR: the following required keys are not set in spinup.yml:'
     missing_config_keys.each do |key|
       put '  ' + key
