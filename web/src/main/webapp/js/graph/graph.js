@@ -4,6 +4,7 @@ define([
     'flight/lib/component',
     'cytoscape',
     './renderer',
+    './contextmenu/withGraphContextMenuItems',
     'tpl!./graph',
     'util/throttle',
     'util/previews',
@@ -14,6 +15,7 @@ define([
     defineComponent,
     cytoscape,
     Renderer,
+    withGraphContextMenuItems,
     template,
     throttle,
     previews,
@@ -22,7 +24,7 @@ define([
     withContextMenu) {
     'use strict';
 
-    return defineComponent(Graph, withContextMenu);
+    return defineComponent(Graph, withContextMenu, withGraphContextMenuItems);
 
     function Graph() {
         this.ucd = new UCD();
@@ -215,103 +217,9 @@ define([
             this.onLoadRelatedSelected(data);
         };
 
-        this.onContextMenuConnect = function() {
-            var menu = this.select('nodeContextMenuSelector');
-            var graphNodeId = menu.data('currentNodeGraphNodeId');
-
-            this.cy(function(cy) {
-                var edge = null,
-                    input = null,
-                    complete = function(val) {
-                        if (val) {
-                            console.log(val);
-                        }
-                        cy.remove(edge);
-                        edge = null;
-                        cy.off(tapEvents);
-                        cy.panningEnabled(true)
-                          .zoomingEnabled(true)
-                          .boxSelectionEnabled(true);
-                        input.remove();
-                    },
-                    mouseEvents = {
-                        mouseover: function(event) {
-                            if (event.cy == event.cyTarget) return;
-                            if (event.cyTarget.id() === graphNodeId) return;
-
-                            edge = cy.add({
-                              group: 'edges',
-                              classes: 'temp',
-                              data: {
-                                  source: graphNodeId,
-                                  target: event.cyTarget.id()
-                              }
-                            });
-                        },
-                        mouseout: function(event) {
-                            if (edge && !edge.hasClass('label')) {
-                                cy.remove(edge);
-                                edge = null;
-                            }
-                        }
-                    },
-                    tapEvents = {
-                        tap: function(event) {
-                            if (edge) {
-                                if (edge.hasClass('label')) {
-                                    complete();
-                                } else {
-                                    cy.off(mouseEvents);
-
-                                    var srcPosition = retina.pixelsToPoints(cy.getElementById(edge.data('source')).renderedPosition()),
-                                        dstPosition = retina.pixelsToPoints(cy.getElementById(edge.data('target')).renderedPosition()),
-                                        center = {
-                                            left: (dstPosition.x - srcPosition.x) / 2 + srcPosition.x,
-                                            top: (dstPosition.y - srcPosition.y) / 2 + srcPosition.y
-                                        };
-
-                                    cy.panningEnabled(false)
-                                        .zoomingEnabled(false)
-                                        .boxSelectionEnabled(false);
-
-                                    input = $('<input placeholder="Enter label" type="text">')
-                                        .css({
-                                            left: (center.left - 50) + 'px',
-                                            top: (center.top - 15) + 'px',
-                                            width: '100px',
-                                            position: 'absolute',
-                                            zIndex: 100,
-                                            textAlign: 'center'
-                                        })
-                                        .appendTo(document.body)
-                                        .on({
-                                            keydown: function(e) {
-                                                if (e.which === $.ui.keyCode.TAB) {
-                                                    e.preventDefault();
-                                                    return false;
-                                                }
-
-                                                if (e.which === $.ui.keyCode.ENTER) {
-                                                    complete($(this).val());
-                                                }
-                                            }
-                                        });
-                                    _.defer(input.focus.bind(input));
-                                    edge.addClass('label');
-                                }
-                            }
-                        }
-                    };
-
-                cy.on(mouseEvents);
-                cy.on(tapEvents);
-            });
-        };
-
         this.onContextMenuFitToWindow = function() {
             this.fit();
         };
-
 
         this.fit = function() {
             this.trigger(document, 'requestGraphPadding');
@@ -399,6 +307,9 @@ define([
         };
 
         this.graphSelect = throttle('selection', 100, function(event) {
+            if (this.creatingStatement) {
+                return event.cy.elements().unselect();
+            }
             this.updateNodeSelections(event.cy);
         });
 
@@ -738,7 +649,8 @@ define([
                   .selector('edge.label')
                     .css({
                       'content': 'data(label)',
-                      'font-size': 14 * retina.devicePixelRatio,
+                      'font-size': 12 * retina.devicePixelRatio,
+                      'color': '#0088cc',
                       'text-outline-color': 'white',
                       'text-outline-width': 4,
                     })
