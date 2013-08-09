@@ -290,6 +290,7 @@ define([
 
         this.graphContextTap = function(event) {
             var menu;
+            // TODO: create different nodeContext menus for nodes/edges
             if (event.cyTarget == event.cy){
                 menu = this.select ('contextMenuSelector');
                 this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
