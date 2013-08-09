@@ -21,5 +21,9 @@ do
 done
 
 sudo /usr/lib/elasticsearch/bin/service/elasticsearch start
-curl -XDELETE "http://localhost:9200/_all"
+until curl -XDELETE "http://localhost:9200/_all"
+do
+	echo "Cannot connect to Elasticsearch, waiting 2 seconds before trying again"
+	sleep 2
+done
 sudo /usr/lib/elasticsearch/bin/service/elasticsearch stop
