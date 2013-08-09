@@ -19,3 +19,11 @@ for service in /etc/init.d/hadoop-0.20-*
 do
     sudo $service stop
 done
+
+sudo /usr/lib/elasticsearch/bin/service/elasticsearch start
+until curl -XDELETE "http://localhost:9200/_all"
+do
+	echo "Cannot connect to Elasticsearch, waiting 2 seconds before trying again"
+	sleep 2
+done
+sudo /usr/lib/elasticsearch/bin/service/elasticsearch stop

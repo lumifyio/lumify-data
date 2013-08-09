@@ -171,13 +171,17 @@ define([
             // absolutely positioned
             $(document).on('dropover dropout', function(e, ui) {
                 var target = $(e.target),
-                    notAppDroppable = !target.is(droppable),
+                    appDroppable = target.is(droppable),
                     noParentDroppables = target.parents('.ui-droppable').length === 0;
 
-                if (notAppDroppable && noParentDroppables) {
+                if (appDroppable) {
+                    // Ignore events from this droppable
+                    return;
+                }
+
+                // If this droppable has no parent droppables
+                if (noParentDroppables) {
                     enabled = e.type === 'dropout';
-                } else {
-                    enabled = true;
                 }
             });
 
