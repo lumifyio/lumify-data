@@ -8689,7 +8689,7 @@ var cytoscape;
 			var near = r.findNearestElement(pos[0], pos[1], true);
 			var nodes = r.getCachedNodes(); var edges = r.getCachedEdges(); 
 			var draggedElements = r.dragData.possibleDragElements; var down = r.hoverData.down;
-			var shiftDown = e.shiftKey;
+			var shiftDown = e.metaKey;
 			
 			r.data.bgActivePosistion = undefined; // not active bg now
 			clearTimeout( r.bgActiveTimeout );
