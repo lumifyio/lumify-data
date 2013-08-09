@@ -41,6 +41,9 @@ public class ArtifactRepository extends Repository<Artifact> {
             } else if (columnFamily.getColumnFamilyName().equals(ArtifactDetectedObjects.NAME)) {
                 Collection<Column> columns = columnFamily.getColumns();
                 artifact.addColumnFamily(new ArtifactDetectedObjects().addColumns(columns));
+            } else if (columnFamily.getColumnFamilyName().equals(ArtifactExtractedText.NAME)) {
+                Collection<Column> columns = columnFamily.getColumns();
+                artifact.addColumnFamily(new ArtifactExtractedText().addColumns(columns));
             } else {
                 artifact.addColumnFamily(columnFamily);
             }
