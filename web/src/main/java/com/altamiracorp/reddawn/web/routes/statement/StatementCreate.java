@@ -26,29 +26,23 @@ public class StatementCreate implements Handler, AppAware {
         RedDawnSession session = app.getRedDawnSession(request);
 
         // validate parameters
-        String sourceGraphNodeId = request.getParameter("sourceGraphNodeId");
-        String destGraphNodeId = request.getParameter("destGraphNodeId");
-        String predicateLabel = request.getParameter("predicateLabel");
+        String sourceGraphNodeId = URLDecoder.decode(getRequiredParameter(request, "sourceGraphNodeId"), "UTF-8");
+        String destGraphNodeId = URLDecoder.decode(getRequiredParameter(request, "destGraphNodeId"), "UTF-8");
+        String predicateLabel = getRequiredParameter(request, "predicateLabel");
 
-        if (sourceGraphNodeId == null) {
-            throw new RuntimeException("'sourceGraphNodeId' is required.");
-        }
-        sourceGraphNodeId = URLDecoder.decode(sourceGraphNodeId, "UTF-8");
-
-        if (destGraphNodeId == null) {
-            throw new RuntimeException("'objectRowKey' is required.");
-        }
-        destGraphNodeId = URLDecoder.decode(destGraphNodeId, "UTF-8");
-
-        if (predicateLabel == null) {
-            throw new RuntimeException("'predicateLabel' is required.");
-        }
-
-        GraphRelationship relationship = graphRepository.saveRelationship(session.getGraphSession(), sourceGraphNodeId, destGraphNodeId, "termToTerm");
+        GraphRelationship relationship = graphRepository.saveRelationship(session.getGraphSession(), sourceGraphNodeId, destGraphNodeId, predicateLabel);
 
         LOGGER.info("Statement created:\n" + relationship.toJson().toString(2));
 
         new Responder(response).respondWith(relationship.toJson());
+    }
+
+    public static String getRequiredParameter(HttpServletRequest request, String parameterName) {
+        String parameter = request.getParameter(parameterName);
+        if (parameter == null) {
+            throw new RuntimeException("'" + parameterName + "' is required.");
+        }
+        return parameter;
     }
 
     public void setApp(App app) {
