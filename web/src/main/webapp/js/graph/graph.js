@@ -4,6 +4,7 @@ define([
     'flight/lib/component',
     'cytoscape',
     './renderer',
+    './contextmenu/withGraphContextMenuItems',
     'tpl!./graph',
     'util/throttle',
     'util/previews',
@@ -14,6 +15,7 @@ define([
     defineComponent,
     cytoscape,
     Renderer,
+    withGraphContextMenuItems,
     template,
     throttle,
     previews,
@@ -22,7 +24,7 @@ define([
     withContextMenu) {
     'use strict';
 
-    return defineComponent(Graph, withContextMenu);
+    return defineComponent(Graph, withContextMenu, withGraphContextMenuItems);
 
     function Graph() {
         this.ucd = new UCD();
@@ -229,7 +231,6 @@ define([
             this.fit();
         };
 
-
         this.fit = function() {
             this.trigger(document, 'requestGraphPadding');
         };
@@ -316,6 +317,9 @@ define([
         };
 
         this.graphSelect = throttle('selection', 100, function(event) {
+            if (this.creatingStatement) {
+                return event.cy.elements().unselect();
+            }
             this.updateNodeSelections(event.cy);
         });
 
@@ -412,6 +416,7 @@ define([
                 dy = p.y - originalPosition.y,
                 distance = Math.sqrt(dx * dx + dy * dy);
 
+            if (distance === 0) return;
             if (distance < 5) {
                 if (!event.originalEvent.shiftKey) {
                     event.cy.$(':selected').unselect();
@@ -657,6 +662,21 @@ define([
                     .css({
                       'width': 2,
                       'target-arrow-shape': 'triangle'
+                    })
+                  .selector('edge.label')
+                    .css({
+                      'content': 'data(label)',
+                      'font-size': 12 * retina.devicePixelRatio,
+                      'color': '#0088cc',
+                      'text-outline-color': 'white',
+                      'text-outline-width': 4,
+                    })
+                  .selector('edge.temp')
+                    .css({
+                      'width': 4,
+                      'line-color': '#0088cc',
+                      'line-style': 'dotted',
+                      'target-arrow-color': '#0088cc'
                     })
                   .selector('.bidirectional')
                     .css ({
