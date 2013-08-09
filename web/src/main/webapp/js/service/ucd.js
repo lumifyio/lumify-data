@@ -22,7 +22,7 @@ function(ServiceBase) {
 
     Ucd.prototype.getNodeToNodeRelationshipDetails = function (source, target, callback){
         return this._ajaxGet({
-            url: 'graph/relationship',
+            url: 'node/relationship',
             data: {
                 source: source,
                 target: target

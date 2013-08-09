@@ -1,4 +1,4 @@
-package com.altamiracorp.reddawn.web.routes.graph;
+package com.altamiracorp.reddawn.web.routes.node;
 
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-public class GraphNodeToGraphNodeRelationship implements Handler, AppAware {
+public class NodeToNodeRelationship implements Handler, AppAware {
     private GraphRepository graphRepository = new GraphRepository();
     private WebApp app;
 
