@@ -57,7 +57,7 @@ define([
                     // TODO: add some extra highlighting and scroll to this entity row key => self.attr.data.entityOfInterest);
 
                     /*
-                    var n = self.$node.find('.entity')
+                    var n = self.$node.find('.entitcreateStatementy')
                         .filter(function() { 
                             // Different escaping is breaking this
                             return $(this).data('info').rowKey === self.attr.data.entityOfInterest;

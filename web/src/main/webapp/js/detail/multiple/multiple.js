@@ -15,6 +15,7 @@ define([
 
         this.after('initialize', function() {
             this.$node.html(template({nodes:this.attr.data}));
+            this.updateEntityAndArtifactDraggables();
         });
     }
 });

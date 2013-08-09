@@ -87,8 +87,7 @@ define([
                 parameters = {
                     sourceGraphNodeId: this.attr.sourceTerm.data('info').graphNodeId,
                     destGraphNodeId: this.attr.destTerm.data('info').graphNodeId,
-                    predicateLabel: this.select('statementLabelSelector').val(),
-                    sentenceRowKey: this.attr.destTerm.closest('.sentence').data('info').rowKey
+                    predicateLabel: this.select('statementLabelSelector').val()
                 };
 
             if (this.select('formSelector').hasClass('invert')) {
