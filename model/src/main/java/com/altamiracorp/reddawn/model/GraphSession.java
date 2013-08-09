@@ -21,6 +21,8 @@ public abstract class GraphSession {
 
     public abstract List<GraphNode> getRelatedNodes(String graphNodeId);
 
+    public abstract List<GraphNode> getResolvedRelatedNodes(String graphNodeId);
+
     public abstract HashMap<String, HashSet<String>> getRelationships(List<String> allIds);
 
     public abstract GraphNode findNode(String graphNodeId);

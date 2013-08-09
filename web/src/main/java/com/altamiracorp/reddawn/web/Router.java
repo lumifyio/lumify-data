@@ -72,6 +72,7 @@ public class Router extends HttpServlet {
         app.get("/node/relationship", authenticator, NodeToNodeRelationship.class);
 
         app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedNodes.class);
+        app.get("/graph/{graphNodeId}/relatedResolvedNodes", authenticator, GraphRelatedResolvedNodes.class);
         app.get("/graph/node/search", authenticator, GraphNodeSearch.class);
         app.get("/graph/node/geoLocationSearch", authenticator, GraphGeoLocationSearch.class);
         app.get("/graph/node/{graphNodeId}", authenticator, GraphGetNode.class);

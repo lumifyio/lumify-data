@@ -177,21 +177,26 @@ public class TitanGraphSession extends GraphSession {
         ArrayList<GraphNode> results = new ArrayList<GraphNode>();
         Vertex vertex = this.graph.getVertex(graphNodeId);
 
-        Iterable<Edge> edges = vertex.getEdges(Direction.OUT);
-        for (Edge edge : edges) {
-            results.add(new TitanGraphNode(edge.getVertex(Direction.IN)));
-        }
-
-        edges = vertex.getEdges(Direction.IN);
-        for (Edge edge : edges) {
-            results.add(new TitanGraphNode(edge.getVertex(Direction.OUT)));
-        }
-
-        List<Vertex> resolvedVertices = new GremlinPipeline(vertex).bothE().bothV().in(GraphRepository.ENTITY_RESOLVED_PREDICATE).toList();
-        for(Vertex v : resolvedVertices) {
+        List<Vertex> vertices = new GremlinPipeline(vertex).bothE().bothV().toList();
+        vertices.addAll(new GremlinPipeline(vertex).bothE().bothV().in(GraphRepository.ENTITY_RESOLVED_PREDICATE).toList());
+        for(Vertex v : vertices) {
             results.add(new TitanGraphNode(v));
         }
 
+        return results;
+    }
+
+    @Override
+    public List<GraphNode> getResolvedRelatedNodes(String graphNodeId) {
+        Vertex vertex = this.graph.getVertex(graphNodeId);
+
+        List<Vertex> resolvedVertices = new GremlinPipeline(vertex).bothE().bothV().has("type", GraphRepository.ENTITY_TYPE).toList();
+        resolvedVertices.addAll(new GremlinPipeline(vertex).bothE().bothV().has("type", GraphRepository.ARTIFACT_TYPE).toList());
+        resolvedVertices.addAll(new GremlinPipeline(vertex).bothE().bothV().in(GraphRepository.ENTITY_RESOLVED_PREDICATE).toList());
+        List<GraphNode> results = new ArrayList<GraphNode>();
+        for(Vertex v : resolvedVertices) {
+            results.add(new TitanGraphNode(v));
+        }
         return results;
     }
 
