@@ -1,10 +1,12 @@
 package com.altamiracorp.reddawn.entityHighlight;
 
+import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
 import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparable<TermAndTermMentionOffsetItem> {
@@ -27,7 +29,7 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
 
     @Override
     public String getType() {
-        return "entity";
+        return GraphRepository.TERM_MENTION_TYPE;
     }
 
     public String getSubType() {
@@ -81,7 +83,11 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
 
     @Override
     public List<String> getCssClasses() {
-        List<String> classes = super.getCssClasses();
+        List<String> classes = new ArrayList<String>();
+        classes.add("entity");
+        if(getResolvedGraphNodeId() != null) {
+            classes.add("resolved");
+        }
         classes.add(getConceptLabel());
         return classes;
     }

@@ -393,6 +393,7 @@ define([
                 // currently mapping { id:[graphNodeId], properties:{} } 
                 // to { graphNodeId:..., [properties] }
                 data.nodes = data.nodes.map(function(n) {
+                console.log(n);
                     var node = n;
                     if (n.properties) {
                         node = n.properties;

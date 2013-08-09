@@ -628,6 +628,13 @@ define([
                       'text-valign': 'bottom',
                       'color': '#999'
                     })
+                  .selector('node.termMention')
+                    .css({
+                      'width': 15 * retina.devicePixelRatio,
+                      'height': 15 * retina.devicePixelRatio,
+                      'text-outline-width': 1,
+                      'font-size': 9 * retina.devicePixelRatio
+                    })
                   .selector(':selected')
                     .css({
                       'background-color': '#0088cc',
