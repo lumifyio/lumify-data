@@ -1,5 +1,5 @@
 class elasticsearch(
-  $version = "0.90.2",
+  $version = "0.90.0",
   $user = "esearch",
   $group = "hadoop",
   $installdir = "/usr/lib",
