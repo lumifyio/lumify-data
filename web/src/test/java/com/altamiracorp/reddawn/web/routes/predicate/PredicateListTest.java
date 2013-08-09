@@ -50,10 +50,10 @@ public class PredicateListTest extends RouteTestBase {
         JSONArray responseJson = new JSONArray(responseStringWriter.getBuffer().toString());
         assertEquals(2, responseJson.length());
 
-        assertEquals("testModel\u001ftestPredicate1", responseJson.getJSONObject(0).getJSONObject("rowKey").getString("value"));
+        assertEquals("testModel\u001ftestPredicate1", responseJson.getJSONObject(0).getJSONObject("_rowKey").getString("value"));
         assertEquals("Test Predicate 1", responseJson.getJSONObject(0).getString("labelUi"));
 
-        assertEquals("testModel\u001ftestPredicate2", responseJson.getJSONObject(1).getJSONObject("rowKey").getString("value"));
+        assertEquals("testModel\u001ftestPredicate2", responseJson.getJSONObject(1).getJSONObject("_rowKey").getString("value"));
         assertEquals("Test Predicate 2", responseJson.getJSONObject(1).getString("labelUi"));
     }
 }

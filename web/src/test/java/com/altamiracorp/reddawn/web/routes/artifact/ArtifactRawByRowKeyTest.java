@@ -34,7 +34,7 @@ public class ArtifactRawByRowKeyTest extends RouteTestBase {
         ArtifactRowKey artifactRowKey = ArtifactRowKey.build("testContents".getBytes());
         when(mockRequest.getParameter("download")).thenReturn(null);
         when(mockRequest.getParameter("playback")).thenReturn(null);
-        when(mockRequest.getAttribute("rowKey")).thenReturn(artifactRowKey.toString());
+        when(mockRequest.getAttribute("_rowKey")).thenReturn(artifactRowKey.toString());
 
         Artifact artifact = new Artifact(artifactRowKey);
         artifact.getGenericMetadata()
@@ -73,7 +73,7 @@ public class ArtifactRawByRowKeyTest extends RouteTestBase {
         when(mockRequest.getParameter("playback")).thenReturn("true");
         when(mockRequest.getParameter("type")).thenReturn("video/mp4");
         when(mockRequest.getHeader("Range")).thenReturn("bytes=1-4");
-        when(mockRequest.getAttribute("rowKey")).thenReturn(artifactRowKey.toString());
+        when(mockRequest.getAttribute("_rowKey")).thenReturn(artifactRowKey.toString());
 
         Artifact artifact = new Artifact(artifactRowKey);
         artifact.getGenericMetadata()

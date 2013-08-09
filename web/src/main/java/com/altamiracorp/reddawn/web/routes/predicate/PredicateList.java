@@ -29,7 +29,7 @@ public class PredicateList implements Handler, AppAware {
         JSONArray resultsJSON = new JSONArray();
         for (Predicate predicate : predicates) {
             JSONObject predicateJson = new JSONObject();
-            predicateJson.put("rowKey", predicate.getRowKey().toJson());
+            predicateJson.put("_rowKey", predicate.getRowKey().toJson());
             predicateJson.put("labelUi", predicate.getPredicateElements().getLabelUi());
             resultsJSON.put(predicateJson);
         }

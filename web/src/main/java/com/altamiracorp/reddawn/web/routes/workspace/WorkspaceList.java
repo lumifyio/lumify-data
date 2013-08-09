@@ -31,7 +31,7 @@ public class WorkspaceList implements Handler, AppAware {
         JSONArray resultsJSON = new JSONArray();
         for (Workspace workspace : workspaces) {
             JSONObject workspaceJSON = new JSONObject();
-            workspaceJSON.put("rowKey", workspace.getRowKey());
+            workspaceJSON.put("_rowKey", workspace.getRowKey());
             workspaceJSON.put("title", workspace.getMetadata().getTitle());
             resultsJSON.put(workspaceJSON);
         }

@@ -29,7 +29,7 @@ public class ArtifactByRowKeyTest extends RouteTestBase {
     @Test
     public void testHandle() throws Exception {
         ArtifactRowKey artifactRowKey = ArtifactRowKey.build("testContents".getBytes());
-        when(mockRequest.getAttribute("rowKey")).thenReturn(artifactRowKey.toString());
+        when(mockRequest.getAttribute("_rowKey")).thenReturn(artifactRowKey.toString());
 
         Artifact artifact = new Artifact(artifactRowKey);
         artifact.getGenericMetadata()

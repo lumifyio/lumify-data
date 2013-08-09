@@ -15,7 +15,7 @@ public class Route {
     private String path;
     private Handler[] handlers;
 
-    private Pattern componentPattern = Pattern.compile("\\{([a-zA-Z]+)\\}");
+    private Pattern componentPattern = Pattern.compile("\\{([_a-zA-Z]+)\\}");
     private String[] routePathComponents;
 
     public Route(Method method, String path, Handler... handlers) {

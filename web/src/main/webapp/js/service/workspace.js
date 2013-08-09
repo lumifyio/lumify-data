@@ -18,9 +18,9 @@ function(ServiceBase) {
         }, callback);
     };
 
-    WorkspaceService.prototype.getByRowKey = function (rowKey, callback) {
+    WorkspaceService.prototype.getByRowKey = function (_rowKey, callback) {
         return this._ajaxGet({
-            url: 'workspace/' + rowKey
+            url: 'workspace/' + _rowKey
         }, callback);
     };
 
@@ -33,21 +33,21 @@ function(ServiceBase) {
         }, callback);
     };
 
-    WorkspaceService.prototype.save = function (rowKey, workspace, callback) {
-        console.log("workspace save:", rowKey, workspace);
+    WorkspaceService.prototype.save = function (_rowKey, workspace, callback) {
+        console.log("workspace save:", _rowKey, workspace);
         workspace.data = JSON.stringify(workspace.data);
         this._ajaxPost({
-            url: 'workspace/' + rowKey + '/save',
+            url: 'workspace/' + _rowKey + '/save',
             data: workspace
         }, callback);
     };
 
-    WorkspaceService.prototype.delete = function(rowKey, callback) {
-        console.log("workspace delete:", rowKey);
+    WorkspaceService.prototype.delete = function(_rowKey, callback) {
+        console.log("workspace delete:", _rowKey);
         this._ajaxDelete({
-            url: 'workspace/' + rowKey,
+            url: 'workspace/' + _rowKey,
             data: {
-                rowKey: rowKey
+                _rowKey: _rowKey
             }
         }, callback);
     }

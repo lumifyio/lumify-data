@@ -2,9 +2,9 @@
 <li class="nav-header">Workspaces</li>
 
 <% results.forEach(function(result) { %>
-<li class="<%= selected === result.rowKey ? 'active' : '' %>" 
-    data-rowkey="<%= result.rowKey %>"
-    ><a href="#"><button class="delete btn btn-mini btn-danger">Delete</button><span><%= result.title || result.rowKey %></span></a></li>
+<li class="<%= selected === result._rowKey ? 'active' : '' %>" 
+    data-_row-key="<%= result._rowKey %>"
+    ><a href="#"><button class="delete btn btn-mini btn-danger">Delete</button><span><%= result.title || result._rowKey %></span></a></li>
 <% }); %>
 
 <li>

@@ -98,7 +98,7 @@ define([
                         classes: $.trim(node.subType + ' ' + node.type),
                         data: {
                             id: node.graphNodeId,
-                            rowKey: node.rowKey || node['_rowKey'],
+                            _rowKey: node._rowKey,
                             graphNodeId: node.graphNodeId,
                             subType: node.subType,
                             type: node.type,
@@ -130,7 +130,7 @@ define([
                     }
 
                     if (node.type === 'artifact') {
-                        previews.generatePreview(node.rowKey || node['_rowKey'], { width:178 * retina.devicePixelRatio }, function(dataUri) {
+                        previews.generatePreview(node._rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
                             if (dataUri) {
                                 cyNode.css('background-image', dataUri);
                             }
@@ -220,7 +220,7 @@ define([
             var position = {x: menu.data ('currentNodePositionX'), y: menu.data ('currentNodePositionY')};
             var currentNodeOriginalPosition = retina.pixelsToPoints(position);
             var data = {
-                rowKey: currentNodeRK,
+                _rowKey: currentNodeRK,
                 graphNodeId: graphNodeId,
                 originalPosition: currentNodeOriginalPosition,
                 type : menu.data("currentNodeType")
@@ -322,7 +322,7 @@ define([
                 this.select('contextMenuSelector').blur().parent().removeClass('open');
             } else {
                 menu = this.select ('nodeContextMenuSelector');
-                menu.data("currentNodeRowKey",event.cyTarget.data('rowKey'));
+                menu.data("currentNodeRowKey",event.cyTarget.data('_rowKey'));
                 menu.data("currentNodeGraphNodeId",event.cyTarget.data('graphNodeId'));
                 menu.data("currentNodePositionX", event.cyTarget.position ('x'));
                 menu.data("currentNodePositionY", event.cyTarget.position ('y'));
@@ -463,7 +463,7 @@ define([
             var graphMovedNodesData = {
                 nodes: $.map(nodes, function(node) {
                     return {
-                        rowKey: node.data('rowKey'),
+                        _rowKey: node.data('_rowKey'),
                         graphNodeId: node.data('id'),
                         graphPosition: node.data('targetPosition')
                     };
@@ -520,7 +520,7 @@ define([
                         relationshipEdges.push ({
                             group: "edges",
                             data: {
-                                rowKey: relationship.from + "->" + relationship.to,
+                                _rowKey: relationship.from + "->" + relationship.to,
                                 relationshipType: relationship.relationshipType,
                                 source: relationship.from,
                                 target: relationship.to,
@@ -560,18 +560,14 @@ define([
                     if (index % 10 === 0) {
                         y += yOffset;
                     }
-                    return {
+                    return $.extend({}, node.properties, {
                         graphNodeId: node.id,
-                        type: node.properties.type,
-                        subType: node.properties.subType,
-                        title: node.properties.title,
-                        rowKey: node.properties._rowKey,
                         graphPosition: {
                             x: x + xOffset * (index % 10 + 1),
                             y: y
                         },
                         selected: true
-                    };
+                    });
                 });
 
                 console.log('trigger nodes', nodes);

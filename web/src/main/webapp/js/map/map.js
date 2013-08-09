@@ -140,7 +140,7 @@ define([
                 locations.forEach(function(location) {
                     var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
                     var marker = new mxn.Marker(pt);
-                    marker.setAttribute('rowKey', node.rowKey);
+                    marker.setAttribute('_rowKey', node._rowKey);
                     if (retina.devicePixelRatio > 1) {
                         marker.setIcon('/img/small_pin@2x.png', [26, 52], [13, 52]);
                     } else {
@@ -196,7 +196,7 @@ define([
             this.map(function(map) {
                 map.markers
                     .filter(function(marker) {
-                        return marker.getAttribute('rowKey') == node.rowKey;
+                        return marker.getAttribute('_rowKey') == node._rowKey;
                     })
                     .forEach(function(marker) {
                         map.removeMarker(marker);
@@ -207,7 +207,7 @@ define([
         this.updateNodeLocation = function(node) {
             var self = this;
             if(node.type == 'artifact') {
-                this.ucdService.getArtifactById(node.rowKey || node['_rowKey'], function(err, artifact) {
+                this.ucdService.getArtifactById(node._rowKey, function(err, artifact) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });

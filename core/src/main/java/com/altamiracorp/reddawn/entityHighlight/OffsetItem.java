@@ -30,7 +30,7 @@ public abstract class OffsetItem {
             JSONObject infoJson = new JSONObject();
             infoJson.put("start", getStart());
             infoJson.put("end", getEnd());
-            infoJson.put("rowKey", RowKeyHelper.jsonEncode(getRowKey()));
+            infoJson.put("_rowKey", RowKeyHelper.jsonEncode(getRowKey()));
             if (getGraphNodeId() != null) {
                 infoJson.put("graphNodeId", getGraphNodeId());
             }

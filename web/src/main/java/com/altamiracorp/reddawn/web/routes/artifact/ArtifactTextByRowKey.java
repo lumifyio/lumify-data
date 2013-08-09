@@ -27,7 +27,7 @@ public class ArtifactTextByRowKey implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
-        ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("rowKey")));
+        ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("_rowKey")));
         Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactKey.toString());
 
         if (artifact == null || artifact.getContent() == null || artifact.getContent().getDocExtractedText() == null) {
