@@ -66,17 +66,13 @@ define([
                 return;
             }
 
-            if (this.graphNodeId) {
-                parameters.graphNodeId = this.graphNodeId;
-            }
-
             if (newObjectSign.length) {
                 parameters.objectSign = newObjectSign;
                 $mentionNode.attr('title', newObjectSign);
             }
 
             $mentionNode.addClass('resolved');
-console.log(parameters);
+
             this.entityService.createTerm(parameters, function(err, data) {
                 if (err) {
                     self.trigger(document, 'error', err);

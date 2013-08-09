@@ -161,4 +161,6 @@ public abstract class Session {
     }
 
     public abstract List<String> getTableList();
+
+    public abstract void touchRow(String tableName, RowKey rowKey, QueryUser queryUser);
 }
