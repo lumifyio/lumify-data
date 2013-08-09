@@ -186,7 +186,7 @@ def run_instance(instance_type, ip, name, options={})
   instance_id
 end
 
-def get_volume_id(instance_id, device_name='/dev/sda1')
+def get_volume_id(instance_id, device_name='/dev/sda*')
   cmd = "ec2-describe-volumes --filter \"attachment.instance-id=#{instance_id}\" --filter \"attachment.device=#{device_name}\""
   output = run(cmd)
   volume_id = output.lines.find {|line| line.match(/^VOLUME/)}.split(/\s+/)[1]
