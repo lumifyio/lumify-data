@@ -97,7 +97,7 @@ define([
                         classes: $.trim(node.subType + ' ' + node.type),
                         data: {
                             id: node.graphNodeId,
-                            rowKey: node.rowKey || node.rowkey,
+                            rowKey: node.rowKey || node['_rowKey'],
                             graphNodeId: node.graphNodeId,
                             subType: node.subType,
                             type: node.type,
@@ -129,7 +129,7 @@ define([
                     }
 
                     if (node.type === 'artifact') {
-                        previews.generatePreview(node.rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
+                        previews.generatePreview(node.rowKey || node['_rowKey'], { width:178 * retina.devicePixelRatio }, function(dataUri) {
                             if (dataUri) {
                                 cyNode.css('background-image', dataUri);
                             }
