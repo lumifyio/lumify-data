@@ -11,6 +11,7 @@ import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.thinkaurelius.titan.core.attribute.Text;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import org.apache.commons.configuration.Configuration;
@@ -53,35 +54,10 @@ public class TitanGraphSession extends GraphSession {
         conf.setProperty("storage.index.search.hostname", props.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME, "localhost"));
         conf.setProperty("storage.index.search.client-only", "true");
 
+        conf.setProperty("autotype", "none");
+
         LOGGER.info("opening titan:\n" + confToString(conf));
         graph = TitanFactory.open(conf);
-
-        if (graph.getType(PROPERTY_NAME_ROW_KEY) == null) {
-            graph.makeType()
-                    .name(PROPERTY_NAME_ROW_KEY)
-                    .dataType(String.class)
-                    .indexed("search",Vertex.class)
-                    .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
-                    .makePropertyKey();
-        }
-
-        if (graph.getType(PROPERTY_NAME_TITLE) == null) {
-            graph.makeType()
-                    .name(PROPERTY_NAME_TITLE)
-                    .dataType(String.class)
-                    .indexed("search",Vertex.class)
-                    .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
-                    .makePropertyKey();
-        }
-
-        if (graph.getType(PROPERTY_NAME_GEO_LOCATION) == null) {
-            graph.makeType()
-                    .name(PROPERTY_NAME_GEO_LOCATION)
-                    .dataType(Geoshape.class)
-                    .indexed("search",Vertex.class)
-                    .unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK)
-                    .makePropertyKey();
-        }
     }
 
     private String confToString(Configuration conf) {
@@ -299,5 +275,10 @@ public class TitanGraphSession extends GraphSession {
         }
 
         return relationships;
+    }
+
+    @Override
+    public Graph getGraph() {
+        return graph;
     }
 }

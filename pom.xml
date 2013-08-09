@@ -20,7 +20,8 @@
         <module>dictionary-seed</module>
         <module>crawler</module>
     <module>oozie</module>
-  </modules>
+        <module>ontology</module>
+    </modules>
 
     <repositories>
         <repository>
