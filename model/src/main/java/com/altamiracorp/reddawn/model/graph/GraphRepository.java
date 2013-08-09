@@ -64,4 +64,9 @@ public class GraphRepository {
     public List<GraphNode> getResolvedRelatedNodes(GraphSession graphSession, String graphNodeId) {
         return graphSession.getResolvedRelatedNodes(graphNodeId);
     }
+
+    public void removeRelationship(GraphSession graphSession, String source, String target) {
+        graphSession.removeRelationship(source, target);
+        return;
+    }
 }

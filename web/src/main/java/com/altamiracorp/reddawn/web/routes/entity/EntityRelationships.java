@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.web.routes.entity;
 
 import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
@@ -45,14 +46,7 @@ public class EntityRelationships implements Handler, AppAware {
 
         for (Map.Entry<String, HashSet<String>> relationship : relationships.entrySet()) {
             for (String toId : relationship.getValue()) {
-                HashSet<String> toIds = relationships.get(toId);
                 JSONObject rel = new JSONObject();
-
-                if (toIds.contains(relationship.getKey())) {
-                    rel.put("bidirectional", true);
-                    toIds.remove(relationship.getKey());
-                }
-
                 rel.put("from", relationship.getKey());
                 rel.put("to", toId);
                 resultsJson.put(rel);
