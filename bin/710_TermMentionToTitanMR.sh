@@ -1,5 +1,5 @@
 #!/bin/bash
-# require: 300_DictionaryEntityExtractionMR.sh, 300_EntityExtractionMR.sh
+# require: 300_DictionaryEntityExtractionMR.sh, 300_EntityExtractionMR.sh, 700_ArtifactToTitanMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
