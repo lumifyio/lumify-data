@@ -60,4 +60,8 @@ public class GraphRepository {
     public List<GraphNode> searchNodes(GraphSession graphSession, String query) {
         return graphSession.searchNodes(query);
     }
+
+    public List<GraphNode> getResolvedRelatedNodes(GraphSession graphSession, String graphNodeId) {
+        return graphSession.getResolvedRelatedNodes(graphNodeId);
+    }
 }

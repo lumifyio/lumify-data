@@ -200,7 +200,17 @@ define([
             });
         };
 
+        this.onContextMenuLoadResolvedRelatedItems = function() {
+            var data = this.setupLoadRelatedItems();
+            this.onLoadRelatedSelected(true, data);
+        };
+
         this.onContextMenuLoadRelatedItems = function () {
+            var data = this.setupLoadRelatedItems();
+            this.onLoadRelatedSelected(false, data);
+        };
+
+        this.setupLoadRelatedItems = function() {
             var menu = this.select('nodeContextMenuSelector');
             var currentNodeRK = menu.data('currentNodeRowKey');
             var graphNodeId = menu.data('currentNodeGraphNodeId');
@@ -212,8 +222,8 @@ define([
                 originalPosition: currentNodeOriginalPosition,
                 type : menu.data("currentNodeType")
             };
-            this.onLoadRelatedSelected(data);
-        };
+            return data;
+        }
 
         this.onContextMenuFitToWindow = function() {
             this.fit();
@@ -494,7 +504,7 @@ define([
             });
         };
 
-        this.onLoadRelatedSelected = function(data) {
+        this.onLoadRelatedSelected = function(resolvedOnly, data) {
             var self = this;
 
             if ($.isArray(data) && data.length == 1){
@@ -507,7 +517,7 @@ define([
             var x = data.originalPosition.x;
             var y = data.originalPosition.y;
 
-            this.ucd.getRelatedNodes(data.graphNodeId, function(err, nodes) {
+            this.ucd.getRelatedNodes(data.graphNodeId, resolvedOnly, function(err, nodes) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
