@@ -53,6 +53,12 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
         edges.put(hasEdgeEdge.getName(), hasEdgeEdge);
 
+        TitanLabel isAEdge = (TitanLabel) graph.getType("isA");
+        if (isAEdge == null) {
+            isAEdge = graph.makeType().name("isA").directed().makeEdgeLabel();
+        }
+        edges.put(isAEdge.getName(), isAEdge);
+
         // Artifact concept
         TitanKey subTypeProperty = (TitanKey) graph.getType("subType");
         if (subTypeProperty == null) {
