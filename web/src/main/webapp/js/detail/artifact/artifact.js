@@ -34,7 +34,7 @@ define([
         this.loadArtifact = function() {
             var self = this;
 
-            this.handleCancelling(this.ucdService.getArtifactById(this.attr.data._rowKey, function(err, artifact) {
+            this.handleCancelling(this.ucdService.getArtifactById(this.attr.data._rowKey || this.attr.data.rowKey, function(err, artifact) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
