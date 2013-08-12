@@ -31,7 +31,7 @@ define([
             var self = this,
                 data = this.attr.data;
 
-            this.ucdService.getNodeToNodeRelationshipDetails (data.source, data.target, function (err, relationshipData){
+            this.ucdService.getNodeToNodeRelationshipDetails (data.source, data.target, data.relationshipType, function (err, relationshipData){
                 if (err) {
                     console.error ('Error', err);
                     return self.trigger (document, 'error', { message: err.toString () });

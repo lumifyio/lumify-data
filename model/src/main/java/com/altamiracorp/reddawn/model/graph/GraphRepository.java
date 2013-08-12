@@ -27,7 +27,7 @@ public class GraphRepository {
         return graphSession.getRelatedNodes(graphNodeId);
     }
 
-    public HashMap<String, HashSet<String>> getRelationships(GraphSession graphSession, List<String> allIds) {
+    public List<GraphRelationship> getRelationships(GraphSession graphSession, List<String> allIds) {
         return graphSession.getRelationships(allIds);
     }
 
@@ -59,8 +59,8 @@ public class GraphRepository {
         return graphSession.getRelationships(graphNodeId);
     }
 
-    public HashMap<String, String> getEdgeProperties(GraphSession graphSession, String sourceNode, String destNode) {
-        return graphSession.getEdgeProperties(sourceNode, destNode);
+    public HashMap<String, String> getEdgeProperties(GraphSession graphSession, String sourceNode, String destNode, String label) {
+        return graphSession.getEdgeProperties(sourceNode, destNode, label);
     }
 
     public List<GraphNode> findByGeoLocation(GraphSession graphSession, double latitude, double longitude, double radius) {
@@ -79,8 +79,8 @@ public class GraphRepository {
         return graphSession.getResolvedRelatedNodes(graphNodeId);
     }
 
-    public void removeRelationship(GraphSession graphSession, String source, String target) {
-        graphSession.removeRelationship(source, target);
+    public void removeRelationship(GraphSession graphSession, String source, String target, String label) {
+        graphSession.removeRelationship(source, target, label);
         return;
     }
 }

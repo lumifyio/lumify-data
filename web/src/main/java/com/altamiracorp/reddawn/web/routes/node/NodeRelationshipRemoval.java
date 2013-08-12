@@ -26,7 +26,8 @@ public class NodeRelationshipRemoval implements Handler, AppAware {
 
         String source = request.getParameter("sourceId");
         String target = request.getParameter("targetId");
+        String label = request.getParameter("label");
 
-        graphRepository.removeRelationship(session.getGraphSession(), source, target);
+        graphRepository.removeRelationship(session.getGraphSession(), source, target, label);
     }
 }
