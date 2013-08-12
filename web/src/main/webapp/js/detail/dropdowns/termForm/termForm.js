@@ -183,7 +183,7 @@ define([
                         var all = Array.prototype.concat.apply([], entityArrays);
 
                         callback(all.map(function(e) {
-                            return e.sign;
+                            return e.properties.title;
                         }));
                     });
                     return;
