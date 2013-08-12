@@ -318,20 +318,14 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    <<<<<<<HEAD
-
     public Graph getGraph() {
         return graph;
     }
 
-    public void removeRelationship(String source, String target) {
-        Edge edge = findEdge(source, target);
-        =======
-        public void removeRelationship (String source, String target, String label){
-            Edge edge = findEdge(source, target, label);
-            >>>>>>>origin / develop
-            if (edge != null) {
-                edge.remove();
-            }
+    public void removeRelationship(String source, String target, String label) {
+        Edge edge = findEdge(source, target, label);
+        if (edge != null) {
+            edge.remove();
         }
     }
+}
