@@ -17,6 +17,7 @@ import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.web.utils.UrlUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,6 +49,7 @@ public class EntityCreate implements Handler, AppAware {
         GraphNode resolvedNode = null;
         String resolvedGraphNodeId = null;
         if (objectSign != null && objectSign.length() > 0) {
+            objectSign = UrlUtils.urlDecode(objectSign);
             resolvedNode = getObjectGraphNode(session.getGraphSession(), objectSign, conceptLabel);
             resolvedGraphNodeId = resolvedNode.getId();
         }
@@ -112,7 +114,7 @@ public class EntityCreate implements Handler, AppAware {
         if (parameter == null) {
             throw new RuntimeException("'" + parameterName + "' is required.");
         }
-        return parameter;
+        return UrlUtils.urlDecode(parameter);
     }
 
     public void setApp(App app) {
