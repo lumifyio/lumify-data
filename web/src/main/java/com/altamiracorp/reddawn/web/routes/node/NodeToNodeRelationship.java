@@ -34,8 +34,9 @@ public class NodeToNodeRelationship implements Handler, AppAware {
         RedDawnSession session = app.getRedDawnSession(request);
         String source = request.getParameter("source");
         String target = request.getParameter("target");
+        String label = request.getParameter("label");
 
-        HashMap<String, String> properties = graphRepository.getEdgeProperties(session.getGraphSession(), source, target);
+        HashMap<String, String> properties = graphRepository.getEdgeProperties(session.getGraphSession(), source, target, label);
         GraphNode sourceNode = graphRepository.findNode(session.getGraphSession(), source);
         GraphNode targetNode = graphRepository.findNode(session.getGraphSession(), target);
 
@@ -51,12 +52,6 @@ public class NodeToNodeRelationship implements Handler, AppAware {
             propertyJson.put(property);
         }
         results.put("properties", propertyJson);
-
-        if (graphRepository.getEdgeProperties(session.getGraphSession(), target, source) != null) {
-            results.put("bidirectional", "true");
-        } else {
-            results.put("bidirectional", false);
-        }
 
         new Responder(response).respondWith(results);
     }

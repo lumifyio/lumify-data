@@ -23,7 +23,7 @@ public abstract class GraphSession {
 
     public abstract List<GraphNode> getResolvedRelatedNodes(String graphNodeId);
 
-    public abstract HashMap<String, HashSet<String>> getRelationships(List<String> allIds);
+    public abstract List<GraphRelationship> getRelationships(List<String> allIds);
 
     public abstract GraphNode findNode(String graphNodeId);
 
@@ -31,7 +31,7 @@ public abstract class GraphSession {
 
     public abstract void deleteSearchIndex();
 
-    public abstract HashMap<String, String> getEdgeProperties(String sourceNode, String destNode);
+    public abstract HashMap<String, String> getEdgeProperties(String sourceNode, String destNode, String label);
 
     public abstract Map<String, String> getProperties(String graphNodeId);
 
@@ -45,5 +45,5 @@ public abstract class GraphSession {
 
     public abstract GraphNode findNodeByExactTitleAndType(String graphNodeTitle, String graphNodeType);
 
-    public abstract void removeRelationship(String source, String target);
+    public abstract void removeRelationship(String source, String target, String label);
 }

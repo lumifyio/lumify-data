@@ -232,7 +232,7 @@ define([
             var menu = this.select('edgeContextMenuSelector');
             var edgeId = menu.data('edgeId');
             this.cy(function(cy) {
-                this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), function(err) {
+                this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), menu.data('relationshipType'), function(err) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
@@ -315,6 +315,7 @@ define([
                 menu.data("edgeId", event.cyTarget.data('id'));
                 menu.data("sourceId",event.cyTarget.data('source'));
                 menu.data("targetId",event.cyTarget.data('target'));
+                menu.data("relationshipType", event.cyTarget.data('relationshipType'));
                 if (event.cy.nodes().filter(':selected').length > 1) {
                     return false;
                 }
@@ -525,11 +526,9 @@ define([
                                 source: relationship.from,
                                 target: relationship.to,
                                 type: 'relationship',
-                                id: (relationship.from + relationship.to)
+                                id: (relationship.from + relationship.to + relationship.relationshipType)
                             },
-                            classes: (relationship.bidirectional ? 'bidirectional' : '')
                         });
-
                     });
                     cy.add(relationshipEdges);
                 }
@@ -700,12 +699,6 @@ define([
                       'line-color': '#0088cc',
                       'line-style': 'dotted',
                       'target-arrow-color': '#0088cc'
-                    })
-                  .selector('.bidirectional')
-                    .css ({
-                      'width': 2,
-                      'target-arrow-shape': 'triangle',
-                      'source-arrow-shape': 'triangle'
                     }),
 
                 ready: function(){

@@ -494,6 +494,7 @@ define([
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
+console.log ('app.js -> relationships', relationships);
                 self.trigger(document, 'relationshipsLoaded', { relationships: relationships });
             });
         };

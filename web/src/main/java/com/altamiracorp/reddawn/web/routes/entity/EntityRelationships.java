@@ -42,15 +42,14 @@ public class EntityRelationships implements Handler, AppAware {
 
         JSONArray resultsJson = new JSONArray();
 
-        HashMap<String, HashSet<String>> relationships = graphRepository.getRelationships(session.getGraphSession(), allIds);
+        List<GraphRelationship> graphRelationships = graphRepository.getRelationships(session.getGraphSession(), allIds);
 
-        for (Map.Entry<String, HashSet<String>> relationship : relationships.entrySet()) {
-            for (String toId : relationship.getValue()) {
+        for (GraphRelationship graphRelationship : graphRelationships) {
                 JSONObject rel = new JSONObject();
-                rel.put("from", relationship.getKey());
-                rel.put("to", toId);
+                rel.put("from", graphRelationship.getSourceNodeId());
+                rel.put("to", graphRelationship.getDestNodeId());
+                rel.put("relationshipType", graphRelationship.getLabel());
                 resultsJson.put(rel);
-            }
         }
 
         new Responder(response).respondWith(resultsJson);

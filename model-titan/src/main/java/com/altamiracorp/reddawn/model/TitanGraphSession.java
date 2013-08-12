@@ -129,7 +129,7 @@ public class TitanGraphSession extends GraphSession {
             edge = graph.getEdge(relationship.getId());
         }
         if (edge == null) {
-            edge = findEdge(relationship.getSourceNodeId(), relationship.getDestNodeId());
+            edge = findEdge(relationship.getSourceNodeId(), relationship.getDestNodeId(), relationship.getLabel());
         }
         if (edge == null) {
             Vertex sourceVertex = findVertex(relationship.getSourceNodeId());
@@ -155,15 +155,28 @@ public class TitanGraphSession extends GraphSession {
         return graph.getVertex(nodeId);
     }
 
-    private Edge findEdge(String sourceId, String destId) {
-        // TODO could there be multiple edge matches for sourceId and destId
+    private List<Edge> findAllEdges(String sourceId, String destId) {
+        List <Edge> edgeList = new ArrayList<Edge>();
         Vertex sourceVertex = this.graph.getVertex(sourceId);
         Iterable<Edge> edges = sourceVertex.getEdges(Direction.OUT);
         for (Edge edge : edges) {
             Vertex destVertex = edge.getVertex(Direction.IN);
             String destVertexId = "" + destVertex.getId();
             if (destVertexId.equals(destId)) {
-                return edge;
+                    edgeList.add(edge);
+            }
+        }
+        return edgeList;
+    }
+
+    private Edge findEdge(String sourceId, String destId, String label) {
+        Vertex sourceVertex = this.graph.getVertex(sourceId);
+        Iterable<Edge> edges = sourceVertex.getEdges(Direction.OUT);
+        for (Edge edge : edges) {
+            Vertex destVertex = edge.getVertex(Direction.IN);
+            String destVertexId = "" + destVertex.getId();
+            if (destVertexId.equals(destId) && label.equals(edge.getLabel())) {
+                    return edge;
             }
         }
         return null;
@@ -213,30 +226,31 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public HashMap<String, HashSet<String>> getRelationships(List<String> allIds) {
-        HashMap<String, HashSet<String>> relationshipMap = new HashMap<String, HashSet<String>>();
+    public List<GraphRelationship> getRelationships(List<String> allIds) {
+        List<GraphRelationship> graphRelationships = new ArrayList<GraphRelationship>();
         for (String id : allIds) {
-            relationshipMap.put(id, new HashSet<String>());
             Vertex vertex = this.graph.getVertex(id);
             List<Vertex> vertexes = new GremlinPipeline(vertex).outE().bothV().toList();
             for (Vertex v : vertexes) {
                 if (allIds.contains(v.getId().toString())) {
-                    Edge e = findEdge(id, v.getId().toString());
-                    if (e != null) {
-                        e.setProperty("RelationshipType", e.getLabel());
-                        relationshipMap.get(id).add(v.getId().toString());
+                    List<Edge> edges = findAllEdges(id, v.getId().toString());
+                    for (Edge e : edges){
+                        if (e != null) {
+                            e.setProperty("RelationshipType", e.getLabel());
+                            graphRelationships.add(new GraphRelationship(e.getId().toString(), id, v.getId().toString(), e.getLabel()));
+                        }
                     }
                 }
             }
         }
 
-        return relationshipMap;
+        return graphRelationships;
     }
 
     @Override
-    public HashMap<String, String> getEdgeProperties(String sourceNode, String destNode) {
+    public HashMap<String, String> getEdgeProperties(String sourceNode, String destNode, String label) {
         HashMap<String, String> properties = new HashMap<String, String>();
-        Edge e = findEdge(sourceNode, destNode);
+        Edge e = findEdge(sourceNode, destNode, label);
         if (e != null) {
             for (String property : e.getPropertyKeys()) {
                 properties.put(property, e.getProperty(property).toString());
@@ -330,8 +344,8 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public void removeRelationship(String source, String target) {
-        Edge edge = findEdge(source, target);
+    public void removeRelationship(String source, String target, String label) {
+        Edge edge = findEdge(source, target, label);
         if (edge != null) {
             edge.remove();
         }
