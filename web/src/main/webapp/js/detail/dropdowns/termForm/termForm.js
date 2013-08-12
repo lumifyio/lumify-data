@@ -120,8 +120,7 @@ define([
                 this.promoted = this.promoteSelectionToSpan();
             }
 
-            var titleMatchesSign = new RegExp("^" + sign + "$", "i").test(title);
-            if (!titleMatchesSign && title.length) {
+            if (mentionNode.hasClass('resolved')) {
                 objectSign = title;
             }
 
