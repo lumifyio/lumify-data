@@ -90,7 +90,7 @@ define([
                     self.searchResults.artifact = artifacts;
                     self.trigger('artifactSearchResults', artifacts);
                 });
-                this.ucd.entitySearch(query, function(err, entities) {
+                this.ucd.graphNodeSearch(query, function(err, entities) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });

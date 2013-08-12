@@ -169,7 +169,7 @@ define([
 
             self.select('objectSignSelector').typeahead({
                 source: function(query, callback) {
-                    self.ucd.entitySearch(query.toLowerCase(), function(err, entities) {
+                    self.ucd.entitySearch(query, function(err, entities) {
                         if(err) {
                             console.error('Error', err);
                             callback([]);

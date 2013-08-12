@@ -20,7 +20,7 @@ public class GraphRepository {
     }
 
     public GraphNode findNodeByTitleAndType(GraphSession graphSession, String graphNodeTitle, String graphNodeType) {
-        return graphSession.findNodeByTitleAndType(graphNodeTitle, graphNodeType);
+        return graphSession.findNodeByExactTitleAndType(graphNodeTitle, graphNodeType);
     }
 
     public List<GraphNode> getRelatedNodes(GraphSession graphSession, String graphNodeId) {

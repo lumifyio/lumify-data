@@ -43,7 +43,7 @@ public abstract class GraphSession {
 
     public abstract List<GraphNode> searchNodesByTitleAndType(String query, String type);
 
-    public abstract GraphNode findNodeByTitleAndType(String graphNodeTitle, String graphNodeType);
+    public abstract GraphNode findNodeByExactTitleAndType(String graphNodeTitle, String graphNodeType);
 
     public abstract void removeRelationship(String source, String target);
 }

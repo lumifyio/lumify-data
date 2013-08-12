@@ -77,6 +77,10 @@ function(ServiceBase) {
     };
 
     Ucd.prototype.entitySearch = function (query, callback) {
+        return this._search("entity", query, callback);
+    };
+
+    Ucd.prototype.graphNodeSearch = function (query, callback) {
         return this._search("graph/node", query, callback);
     };
 

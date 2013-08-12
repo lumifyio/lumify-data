@@ -272,10 +272,14 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public GraphNode findNodeByTitleAndType(String graphNodeTitle, String graphNodeType) {
-        List<Vertex> vertices = new GremlinPipeline(graph.getVertices()).has("title", graphNodeTitle).has("type", graphNodeType).toList();
-        if (vertices.size() > 0) {
-            return new TitanGraphNode(vertices.get(0));
+    public GraphNode findNodeByExactTitleAndType(String graphNodeTitle, String graphNodeType) {
+        Iterable<Vertex> r = graph.query()
+                .has("title", graphNodeTitle)
+                .has("type", graphNodeType)
+                .vertices();
+        ArrayList<GraphNode> graphNodes = toGraphNodes(r);
+        if (graphNodes.size() > 0) {
+            return graphNodes.get(0);
         }
         return null;
     }
