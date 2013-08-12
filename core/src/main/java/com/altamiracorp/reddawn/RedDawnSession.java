@@ -1,11 +1,8 @@
 package com.altamiracorp.reddawn;
 
-import com.altamiracorp.reddawn.model.AccumuloQueryUser;
-import com.altamiracorp.reddawn.model.AccumuloSession;
-import com.altamiracorp.reddawn.model.Session;
+import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.search.BlurSearchProvider;
 import com.altamiracorp.reddawn.search.SearchProvider;
-import com.google.common.io.LineReader;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -13,7 +10,7 @@ import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 
 import java.io.IOException;
 import java.net.URI;
@@ -24,23 +21,29 @@ import java.util.Properties;
 public class RedDawnSession {
     private Session modelSession;
     private SearchProvider searchProvider;
+    private GraphSession graphSession;
 
     private RedDawnSession() {
 
     }
 
-    public static RedDawnSession create(Properties props, Mapper.Context context) {
+    public static RedDawnSession create(Properties props, TaskInputOutputContext context) {
         try {
             RedDawnSession session = new RedDawnSession();
             session.modelSession = createModelSession(props, context);
             session.searchProvider = createSearchProvider(props);
+            session.graphSession = createGraphSession(props);
             return session;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static RedDawnSession create(Mapper.Context context) {
+    private static GraphSession createGraphSession(Properties props) {
+        return new TitanGraphSession(props);
+    }
+
+    public static RedDawnSession create(TaskInputOutputContext context) {
         Configuration cfg = context.getConfiguration();
         Properties properties = new Properties();
         for (Map.Entry<String, String> entry : cfg) {
@@ -55,7 +58,7 @@ public class RedDawnSession {
         return blurSearchProvider;
     }
 
-    private static Session createModelSession(Properties props, Mapper.Context context) throws AccumuloException, AccumuloSecurityException, IOException, URISyntaxException, InterruptedException {
+    private static Session createModelSession(Properties props, TaskInputOutputContext context) throws AccumuloException, AccumuloSecurityException, IOException, URISyntaxException, InterruptedException {
         String zookeeperInstanceName = props.getProperty(AccumuloSession.ZOOKEEPER_INSTANCE_NAME);
         String zookeeperServerName = props.getProperty(AccumuloSession.ZOOKEEPER_SERVER_NAMES);
         String username = props.getProperty(AccumuloSession.USERNAME);
@@ -72,7 +75,7 @@ public class RedDawnSession {
     }
 
     public void close() {
-
+        graphSession.close();
     }
 
     public Session getModelSession() {
@@ -81,5 +84,9 @@ public class RedDawnSession {
 
     public SearchProvider getSearchProvider() {
         return this.searchProvider;
+    }
+
+    public GraphSession getGraphSession() {
+        return graphSession;
     }
 }

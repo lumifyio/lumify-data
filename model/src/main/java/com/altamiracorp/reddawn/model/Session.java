@@ -10,7 +10,6 @@ import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.concept.Concept;
 import com.altamiracorp.reddawn.ucd.concept.ConceptRepository;
 import com.altamiracorp.reddawn.ucd.concept.ConceptRowKey;
-import com.altamiracorp.reddawn.ucd.object.UcdObject;
 import com.altamiracorp.reddawn.ucd.predicate.Predicate;
 import com.altamiracorp.reddawn.ucd.predicate.PredicateRepository;
 import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
@@ -69,7 +68,6 @@ public abstract class Session {
         initializeTable(Sentence.TABLE_NAME);
         initializeTable(ArtifactTermIndex.TABLE_NAME);
         initializeTable(Statement.TABLE_NAME);
-        initializeTable(UcdObject.TABLE_NAME);
         initializeTable(Concept.TABLE_NAME);
         initializeTable(Predicate.TABLE_NAME);
 
@@ -77,6 +75,8 @@ public abstract class Session {
         initializeTable(GeoName.TABLE_NAME);
         initializeTable(VideoFrame.TABLE_NAME);
         initializeTable(DBPedia.TABLE_NAME);
+
+        initializeTable("atc_titan"); // see com.altamiracorp.reddawn.model.TitanGraphSession
 
         addDefaultConcepts();
         addDefaultPredicates();
@@ -136,7 +136,6 @@ public abstract class Session {
         deleteTable(Sentence.TABLE_NAME);
         deleteTable(ArtifactTermIndex.TABLE_NAME);
         deleteTable(Statement.TABLE_NAME);
-        deleteTable(UcdObject.TABLE_NAME);
         deleteTable(Concept.TABLE_NAME);
         deleteTable(Predicate.TABLE_NAME);
 
@@ -144,6 +143,8 @@ public abstract class Session {
         deleteTable(GeoName.TABLE_NAME);
         deleteTable(VideoFrame.TABLE_NAME);
         deleteTable(DBPedia.TABLE_NAME);
+
+        deleteTable("atc_titan"); // see com.altamiracorp.reddawn.model.TitanGraphSession
     }
 
     public abstract SaveFileResults saveFile(InputStream in);
@@ -160,4 +161,6 @@ public abstract class Session {
     }
 
     public abstract List<String> getTableList();
+
+    public abstract void touchRow(String tableName, RowKey rowKey, QueryUser queryUser);
 }

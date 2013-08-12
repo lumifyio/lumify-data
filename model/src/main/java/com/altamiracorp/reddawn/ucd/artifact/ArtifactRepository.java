@@ -1,6 +1,9 @@
 package com.altamiracorp.reddawn.ucd.artifact;
 
 import com.altamiracorp.reddawn.model.*;
+import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
+import com.altamiracorp.reddawn.model.graph.GraphNode;
+import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -38,6 +41,9 @@ public class ArtifactRepository extends Repository<Artifact> {
             } else if (columnFamily.getColumnFamilyName().equals(ArtifactDetectedObjects.NAME)) {
                 Collection<Column> columns = columnFamily.getColumns();
                 artifact.addColumnFamily(new ArtifactDetectedObjects().addColumns(columns));
+            } else if (columnFamily.getColumnFamilyName().equals(ArtifactExtractedText.NAME)) {
+                Collection<Column> columns = columnFamily.getColumns();
+                artifact.addColumnFamily(new ArtifactExtractedText().addColumns(columns));
             } else {
                 artifact.addColumnFamily(columnFamily);
             }
@@ -122,5 +128,27 @@ public class ArtifactRepository extends Repository<Artifact> {
             throw new RuntimeException("Video preview image path not set.");
         }
         return session.loadFile(path);
+    }
+
+    public void saveToGraph(Session session, GraphSession graphSession, Artifact artifact) {
+        String suggestedNodeId = artifact.getGraphNodeId();
+        GraphNode node = new GraphNodeImpl(suggestedNodeId);
+        node.setProperty("type", "artifact");
+        node.setProperty("subType", artifact.getType().toString().toLowerCase());
+        node.setProperty(GraphSession.PROPERTY_NAME_ROW_KEY, artifact.getRowKey().toString());
+        if (artifact.getDynamicMetadata().getLatitude() != null) {
+            double latitude = artifact.getDynamicMetadata().getLatitude();
+            double longitude = artifact.getDynamicMetadata().getLongitude();
+            node.setProperty(GraphSession.PROPERTY_NAME_GEO_LOCATION, new GraphGeoLocation(latitude, longitude));
+        }
+        if (artifact.getGenericMetadata().getSubject() != null) {
+            node.setProperty("title", artifact.getGenericMetadata().getSubject());
+        }
+
+        String nodeId = graphSession.save(node);
+        if (!nodeId.equals(suggestedNodeId)) {
+            artifact.setGraphNodeId(nodeId);
+            this.save(session, artifact);
+        }
     }
 }

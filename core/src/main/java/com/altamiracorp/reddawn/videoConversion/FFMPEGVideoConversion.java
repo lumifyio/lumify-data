@@ -172,7 +172,7 @@ public class FFMPEGVideoConversion {
                 "-bufsize", "1000k",
                 "-vf", "scale=720:480",
                 "-threads", "0",
-                "-acodec", "libvo_aacenc",
+                "-acodec", "libfdk_aac",
                 "-b:a", "128k",
                 "-f", "mp4",
                 mp4File.getAbsolutePath()
@@ -203,9 +203,7 @@ public class FFMPEGVideoConversion {
         ProcessBuilder procBuilder = new ProcessBuilder(ffmpegArgs);
         LOGGER.info("Running: " + arrayToString(ffmpegArgs));
         Process proc = procBuilder.start();
-        new StreamHelper(proc.getInputStream(),LOGGER,"qt-faststart(stdout): ");
-        new StreamHelper(proc.getErrorStream(),LOGGER,"qt-faststart(stderr): ");
-        int returnCode = proc.waitFor();
+        int returnCode = runProc(proc, "qt-faststart");
         if (returnCode != 0) {
             throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
         }
@@ -220,9 +218,7 @@ public class FFMPEGVideoConversion {
         ProcessBuilder procBuilder = new ProcessBuilder(ffmpegArgs);
         LOGGER.info("Running: " + arrayToString(ffmpegArgs));
         Process proc = procBuilder.start();
-        new StreamHelper(proc.getInputStream(),LOGGER,"ffmpeg(stdout): ");
-        new StreamHelper(proc.getErrorStream(),LOGGER,"ffmpeg(stderr): ");
-        int returnCode = proc.waitFor();
+        int returnCode = runProc(proc, "ffmpeg");
         if (returnCode != 0) {
             throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
         }
@@ -237,12 +233,32 @@ public class FFMPEGVideoConversion {
         ProcessBuilder procBuilder = new ProcessBuilder(ffmpegArgs);
         LOGGER.info("Running: " + arrayToString(ffmpegArgs));
         Process proc = procBuilder.start();
-        new StreamHelper(proc.getInputStream(),LOGGER,"ccextractor(stdout): ");
-        new StreamHelper(proc.getErrorStream(),LOGGER,"ccextractor(stderr): ");
-        int returnCode = proc.waitFor();
+        int returnCode = runProc(proc, "ccextractor");
         if (returnCode != 0) {
             throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
         }
+    }
+
+    private int runProc(Process proc, String logPrefix) throws InterruptedException, IOException {
+        StreamHelper inStreamHelper = new StreamHelper(proc.getInputStream(), LOGGER, logPrefix + "(stdout): ");
+        inStreamHelper.start();
+
+        StreamHelper errStreamHelper = new StreamHelper(proc.getErrorStream(), LOGGER, logPrefix + "(stderr): ");
+        errStreamHelper.start();
+
+        proc.waitFor();
+
+        synchronized (inStreamHelper) {
+            inStreamHelper.join(10000);
+        }
+
+        synchronized (errStreamHelper) {
+            errStreamHelper.join(10000);
+        }
+
+        LOGGER.info(logPrefix + "(returncode): " + proc.exitValue());
+
+        return proc.exitValue();
     }
 
     private String arrayToString(ArrayList<String> arr) {
@@ -260,6 +276,7 @@ public class FFMPEGVideoConversion {
             FileOutputStream out = new FileOutputStream(tempFile);
             try {
                 IOUtils.copy(in, out);
+                out.flush();
             } finally {
                 out.close();
             }

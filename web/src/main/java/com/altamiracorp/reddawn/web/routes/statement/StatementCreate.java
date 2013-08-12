@@ -1,93 +1,48 @@
 package com.altamiracorp.reddawn.web.routes.statement;
 
 import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.entityHighlight.TermAndTermMentionOffsetItem;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
-import com.altamiracorp.reddawn.ucd.object.UcdObject;
-import com.altamiracorp.reddawn.ucd.object.UcdObjectObjectStatement;
-import com.altamiracorp.reddawn.ucd.object.UcdObjectRepository;
-import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
-import com.altamiracorp.reddawn.ucd.sentence.Sentence;
-import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
-import com.altamiracorp.reddawn.ucd.statement.Statement;
-import com.altamiracorp.reddawn.ucd.statement.StatementArtifact;
-import com.altamiracorp.reddawn.ucd.statement.StatementRepository;
-import com.altamiracorp.reddawn.ucd.statement.StatementRowKey;
-import com.altamiracorp.reddawn.ucd.term.*;
+import com.altamiracorp.reddawn.model.graph.GraphRelationship;
+import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.web.Responder;
-import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
+import java.net.URLDecoder;
 
 public class StatementCreate implements Handler, AppAware {
-    private static final String MODEL_KEY = "manual";
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatementCreate.class.getName());
     private WebApp app;
-    private StatementRepository statementRepository = new StatementRepository();
-    private SentenceRepository sentenceRepository = new SentenceRepository();
+    private GraphRepository graphRepository = new GraphRepository();
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        User currentUser = User.getUser(request);
         RedDawnSession session = app.getRedDawnSession(request);
 
         // validate parameters
-        String subjectRowKey = request.getParameter("subjectKey");
-        String objectRowKey = request.getParameter("objectKey");
-        String predicateLabel = request.getParameter("predicateLabel");
-        String sentenceRowKey = request.getParameter("sentenceRowKey");
+        String sourceGraphNodeId = URLDecoder.decode(getRequiredParameter(request, "sourceGraphNodeId"), "UTF-8");
+        String destGraphNodeId = URLDecoder.decode(getRequiredParameter(request, "destGraphNodeId"), "UTF-8");
+        String predicateLabel = getRequiredParameter(request, "predicateLabel");
 
-        if (subjectRowKey == null) {
-            throw new RuntimeException("'subjectRowKey' is required.");
-        }
-        if (objectRowKey == null) {
-            throw new RuntimeException("'objectRowKey' is required.");
-        }
-        if (predicateLabel == null) {
-            throw new RuntimeException("'predicateLabel' is required.");
-        }
-        if (sentenceRowKey == null) {
-            throw new RuntimeException("'sentenceRowKey' is required.");
-        }
+        GraphRelationship relationship = graphRepository.saveRelationship(session.getGraphSession(), sourceGraphNodeId, destGraphNodeId, predicateLabel);
 
-        Sentence containingSentence = sentenceRepository.findByRowKey(session.getModelSession(), sentenceRowKey);
-        if(containingSentence == null) {
-            throw new RuntimeException("The sentence row key given was not found.");
-        }
+        LOGGER.info("Statement created:\n" + relationship.toJson().toString(2));
 
-        Statement statement = createStatement(subjectRowKey, predicateLabel, objectRowKey, containingSentence);
-        statementRepository.save(session.getModelSession(), statement);
-
-        new Responder(response).respondWith(statement.toJson());
+        new Responder(response).respondWith(relationship.toJson());
     }
 
-    private static Statement createStatement(String subjectRowKey, String predicateLabel, String objectRowKey, Sentence containingSentence) {
-        ArtifactType artifactType = ArtifactType.DOCUMENT;
-        if(containingSentence.getMetadata().getArtifactType().equalsIgnoreCase("image")) {
-            artifactType = ArtifactType.IMAGE;
-        } else if(containingSentence.getMetadata().getArtifactType().equalsIgnoreCase("video")) {
-            artifactType = ArtifactType.VIDEO;
+    public static String getRequiredParameter(HttpServletRequest request, String parameterName) {
+        String parameter = request.getParameter(parameterName);
+        if (parameter == null) {
+            throw new RuntimeException("'" + parameterName + "' is required.");
         }
-
-        Statement statement = new Statement(new StatementRowKey(new TermRowKey(subjectRowKey), new PredicateRowKey(PredicateRowKey.MANUAL_MODEL_KEY, predicateLabel), new TermRowKey(objectRowKey)));
-        StatementArtifact statementArtifact = new StatementArtifact()
-                .setArtifactKey(containingSentence.getData().getArtifactId())
-                .setArtifactType(artifactType)
-                .setArtifactSubject(containingSentence.getMetadata().getArtifactSubject())
-                .setSentence(containingSentence.getRowKey())
-                .setSentenceText(containingSentence.getData().getText())
-                .setDate(new Date())
-                .setAuthor(StatementArtifact.MANUAL_AUTHOR)
-                .setExtractorId(StatementArtifact.MANUAL_AUTHOR)
-                .setSecurityMarking("U");
-        statement.addStatementArtifact(statementArtifact);
-        return statement;
+        return parameter;
     }
 
     public void setApp(App app) {

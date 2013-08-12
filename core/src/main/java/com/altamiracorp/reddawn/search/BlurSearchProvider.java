@@ -24,10 +24,11 @@ public class BlurSearchProvider implements SearchProvider {
     private static final String TEXT_COLUMN_NAME = "text";
     private static final String SUBJECT_COLUMN_NAME = "subject";
     private static final String PUBLISHED_DATE_COLUMN_NAME = "publishedDate";
+    private static final String GRAPH_NODE_ID_COLUMN_NAME = "graphNodeId";
     private static final String SOURCE_COLUMN_NAME = "source";
     private static final String ARTIFACT_TYPE = "type";
     private static final String TERM_BLUR_TABLE_NAME = "term";
-    private static final String SHA_COLUMN_FAMILY_NAME="sha";
+    private static final String SHA_COLUMN_FAMILY_NAME = "sha";
     private static final String SIGN_COLUMN_NAME = "sign";
     private static final String CONCEPT_LABEL_COLUMN_NAME = "conceptLabel";
 
@@ -68,17 +69,17 @@ public class BlurSearchProvider implements SearchProvider {
         AnalyzerDefinition ad = new AnalyzerDefinition();
         try {
             List<String> tableList = this.client.tableList();
-            String[] blurTables = new String[] { TERM_BLUR_TABLE_NAME, ARTIFACT_BLUR_TABLE_NAME };
+            String[] blurTables = new String[]{TERM_BLUR_TABLE_NAME, ARTIFACT_BLUR_TABLE_NAME};
 
             for (String blurTable : blurTables) {
                 if (!tableList.contains(blurTable)) {
                     LOGGER.info("Creating table: " + blurTable);
                     createTable(client, blurPath, ad, blurTable);
                 } else {
-                    LOGGER.info ("Skipping create table '" + blurTable + "' already exists.");
+                    LOGGER.info("Skipping create table '" + blurTable + "' already exists.");
                 }
             }
-        } catch(TException e) {
+        } catch (TException e) {
             throw new RuntimeException(e);
         }
     }
@@ -109,6 +110,7 @@ public class BlurSearchProvider implements SearchProvider {
         String id = artifact.getRowKey().toString();
         String publishedDate = dateFormat.format(artifact.getPublishedDate());
         String source = artifact.getGenericMetadata().getSource();
+        String graphNodeId = artifact.getGenericMetadata().getGraphNodeId();
 
         if (text == null) {
             text = "";
@@ -122,6 +124,9 @@ public class BlurSearchProvider implements SearchProvider {
         columns.add(new Column(SUBJECT_COLUMN_NAME, subject));
         columns.add(new Column(PUBLISHED_DATE_COLUMN_NAME, publishedDate));
         columns.add(new Column(ARTIFACT_TYPE, artifact.getType().toString()));
+        if (graphNodeId != null) {
+            columns.add(new Column(GRAPH_NODE_ID_COLUMN_NAME, graphNodeId));
+        }
         if (source != null) {
             columns.add(new Column(SOURCE_COLUMN_NAME, source));
         }
@@ -167,6 +172,7 @@ public class BlurSearchProvider implements SearchProvider {
             assert record.getFamily().equals(GENERIC_COLUMN_FAMILY_NAME);
             Date publishedDate = null;
             String source = null;
+            String graphNodeId = null;
             ArtifactType artifactType = ArtifactType.DOCUMENT;
 
             for (Column column : record.getColumns()) {
@@ -178,10 +184,12 @@ public class BlurSearchProvider implements SearchProvider {
                     source = column.getValue();
                 } else if (column.getName().equals(ARTIFACT_TYPE)) {
                     artifactType = ArtifactType.valueOf(column.getValue());
+                } else if (column.getName().equals(GRAPH_NODE_ID_COLUMN_NAME)) {
+                    graphNodeId = column.getValue();
                 }
             }
 
-            ArtifactSearchResult result = new ArtifactSearchResult(rowId, subject, publishedDate, source, artifactType);
+            ArtifactSearchResult result = new ArtifactSearchResult(rowId, subject, publishedDate, source, artifactType, graphNodeId);
             results.add(result);
         }
         return results;
@@ -203,8 +211,8 @@ public class BlurSearchProvider implements SearchProvider {
         }
     }
 
-    public void add (Term term) throws Exception{
-        if (term.getRowKey().toString() == null){
+    public void add(Term term) throws Exception {
+        if (term.getRowKey().toString() == null) {
             return;
         }
 
@@ -212,15 +220,15 @@ public class BlurSearchProvider implements SearchProvider {
         String id = term.getRowKey().toString();
         String sign = term.getRowKey().getSign();
         String conceptLabel = term.getRowKey().getConceptLabel();
-        if (sign == null){
+        if (sign == null) {
             sign = "";
         }
 
         List<Column> columns = new ArrayList<Column>();
-        columns.add (new Column(SIGN_COLUMN_NAME, sign));
-        columns.add (new Column(CONCEPT_LABEL_COLUMN_NAME, conceptLabel));
+        columns.add(new Column(SIGN_COLUMN_NAME, sign));
+        columns.add(new Column(CONCEPT_LABEL_COLUMN_NAME, conceptLabel));
 
-        Record record = new Record ();
+        Record record = new Record();
         record.setRecordId(id);
         record.setFamily(SHA_COLUMN_FAMILY_NAME);
         record.setColumns(columns);
@@ -229,8 +237,8 @@ public class BlurSearchProvider implements SearchProvider {
         recordMutation.setRecord(record);
         recordMutation.setRecordMutationType(RecordMutationType.REPLACE_ENTIRE_RECORD);
 
-        List <RecordMutation> recordMutations = new ArrayList<RecordMutation>();
-        recordMutations.add (recordMutation);
+        List<RecordMutation> recordMutations = new ArrayList<RecordMutation>();
+        recordMutations.add(recordMutation);
 
         RowMutation mutation = new RowMutation();
         mutation.setTable(TERM_BLUR_TABLE_NAME);
@@ -239,36 +247,5 @@ public class BlurSearchProvider implements SearchProvider {
         mutation.setRecordMutations(recordMutations);
 
         client.mutate(mutation);
-    }
-
-    @Override
-    public Collection<TermSearchResult> searchTerms (String query) throws Exception {
-        BlurQuery blurQuery = new BlurQuery ();
-        SimpleQuery simpleQuery = new SimpleQuery();
-        simpleQuery.setQueryStr(query);
-        blurQuery.setSimpleQuery(simpleQuery);
-        blurQuery.setSelector(new Selector());
-
-        BlurResults blurResults = client.query(TERM_BLUR_TABLE_NAME, blurQuery);
-        ArrayList<TermSearchResult> results = new ArrayList<TermSearchResult>();
-        for (BlurResult blurResult : blurResults.getResults()){
-            Row row = blurResult.getFetchResult().getRowResult().getRow();
-            String rowId = row.getId();
-            assert row.getRecordCount() == 1;
-            Record record = row.getRecords().get(0);
-            String sign = "";
-            String conceptLabel = "";
-            for (Column column : record.getColumns()){
-                if (column.getName().equals(SIGN_COLUMN_NAME)){
-                    sign = column.getValue();
-                }
-                else if (column.getName().equals(CONCEPT_LABEL_COLUMN_NAME)){
-                    conceptLabel = column.getValue();
-                }
-            }
-            TermSearchResult result = new TermSearchResult(rowId, sign, conceptLabel);
-            results.add(result);
-        }
-        return results;
     }
 }

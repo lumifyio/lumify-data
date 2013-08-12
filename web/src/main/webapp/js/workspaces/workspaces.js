@@ -24,8 +24,8 @@ define([
 			if ($(event.target).is('input') || $(event.target).is('button')) {
 				return;
 			}
-            var rowKey = $(event.target).parents('li').data('rowkey');
-            this.trigger( document, 'switchWorkspace', { rowKey: rowKey });
+            var _rowKey = $(event.target).parents('li').data('_rowKey');
+            this.trigger( document, 'switchWorkspace', { _rowKey: _rowKey });
         };
 
         this.onAddNew = function(event) {
@@ -34,7 +34,7 @@ define([
             var data = { title: title };
             this.workspaceService.saveNew(data, function (err, workspace) {
 				this.loadWorkspaceList();
-				this.trigger( document, 'switchWorkspace', { rowKey: workspace.workspaceId });
+				this.trigger( document, 'switchWorkspace', { _rowKey: workspace.workspaceId });
 			}.bind(this));
         };
 
@@ -46,10 +46,10 @@ define([
         };
 
         this.onDelete = function( event ) {
-            var rowKey = $(event.target).parents('li').data('rowkey');
-            this.trigger(document, 'workspaceDeleting', { rowKey: rowKey });
-            this.workspaceService.delete(rowKey, function() {
-                this.trigger(document, 'workspaceDeleted', { rowKey: rowKey });
+            var _rowKey = $(event.target).parents('li').data('_rowKey');
+            this.trigger(document, 'workspaceDeleting', { _rowKey: _rowKey });
+            this.workspaceService.delete(_rowKey, function() {
+                this.trigger(document, 'workspaceDeleted', { _rowKey: _rowKey });
                 this.loadWorkspaceList.apply(this, arguments);
             }.bind(this));
         };
@@ -58,7 +58,7 @@ define([
             this.select( 'workspaceListItemSelector' )
                 .removeClass('active')
                 .each(function() {
-                    if ($(this).data('rowkey') == data.rowKey) {
+                    if ($(this).data('_rowKey') == data._rowKey) {
                         $(this).addClass('active');
                         return false;
                     }
@@ -85,7 +85,7 @@ define([
         this.after( 'initialize', function() {
             this.loadWorkspaceList();
             this.on( document, 'switchWorkspace', this.onWorkspaceSwitch );
-			this.on( document, 'workspaceSaved', this.onWorkspaceSaved )
+			this.on( document, 'workspaceSaved', this.onWorkspaceSaved );
             this.on( 'click', {
                 workspaceListItemSelector: this.onWorkspaceItemClick,
                 addNewSelector: this.onAddNew,

@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 200_VideoConversionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -21,6 +22,7 @@ else
 fi
 
 java \
+-Djava.library.path=$LD_LIBRARY_PATH \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 com.altamiracorp.reddawn.objectDetection.ObjectDetectionMR \
@@ -28,6 +30,7 @@ com.altamiracorp.reddawn.objectDetection.ObjectDetectionMR \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
+--graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \

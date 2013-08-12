@@ -11,22 +11,28 @@ function(ServiceBase) {
 
     Ucd.prototype = Object.create(ServiceBase.prototype);
 
-    Ucd.prototype.getRelationships = function(oldEntityIds, newEntityIds, artifactIds, callback) {
+    Ucd.prototype.getRelationships = function(ids, callback) {
         return this._ajaxPost({
-            url: '/entity/relationships',
+            url: 'entity/relationships',
             data: {
-                json: JSON.stringify({
-                    oldEntityIds: oldEntityIds,
-                    newEntityIds: newEntityIds,
-                    artifactIds: artifactIds
-                }),
+                ids: ids
             }
         }, callback);
     };
 
-    Ucd.prototype.getEntityToEntityRelationshipDetails = function(source, target, callback) {
+    Ucd.prototype.deleteEdge = function(sourceId, targetId, callback) {
         return this._ajaxGet({
-            url: '/entity/relationship',
+            url: '/node/removeRelationship',
+            data: {
+                sourceId: sourceId,
+                targetId: targetId
+            }
+        }, callback);
+    };
+
+    Ucd.prototype.getNodeToNodeRelationshipDetails = function (source, target, callback){
+        return this._ajaxGet({
+            url: 'node/relationship',
             data: {
                 source: source,
                 target: target
@@ -34,16 +40,27 @@ function(ServiceBase) {
         }, callback);
     };
 
+    Ucd.prototype.locationSearch = function(lat, lon, radiuskm, callback) {
+        return this._ajaxGet({
+            url: 'graph/node/geoLocationSearch',
+            data: {
+                lat: lat,
+                lon: lon,
+                radius: radiuskm
+            }
+        }, callback);
+    };
+
     Ucd.prototype.getStatementByRowKey = function(statementRowKey, callback) {
-        this._get("statement", statementRowKey, callback);
+        return this._get("statement", statementRowKey, callback);
     };
 
     Ucd.prototype.artifactSearch = function(query, callback) {
-        this._search("artifact", query, callback);
+        return this._search("artifact", query, callback);
     };
 
     Ucd.prototype.getArtifactById = function (id, callback) {
-        this._get("artifact", id, callback);
+        return this._get("artifact", id, callback);
     };
 
     Ucd.prototype.getRawArtifactById = function (id, callback) {
@@ -56,46 +73,40 @@ function(ServiceBase) {
     },
 
     Ucd.prototype.artifactRelationships = function (id, options, callback) {
-        this._relationships("artifact", id, options, callback);
+        return this._relationships("artifact", id, options, callback);
     };
 
     Ucd.prototype.entitySearch = function (query, callback) {
-        this._search("entity", query, callback);
+        return this._search("entity", query, callback);
     };
 
-    Ucd.prototype.getEntityById = function (id, callback) {
-        this._get("entity", id.replace(/\./g, '$2E$'), callback);
+    Ucd.prototype.graphNodeSearch = function (query, callback) {
+        return this._search("graph/node", query, callback);
     };
 
-    Ucd.prototype.getEntityMentionsByRange = function (url, callback) {
-        return this._ajaxGet({ url: url }, callback);
-    }
-
-    Ucd.prototype.getEntityRelationshipsBySubject = function(id, callback) {
-        return this._ajaxGet({ url: 'entity/' + id + '/relationships' }, callback);
-    }
+    Ucd.prototype.getGraphNodeById = function (id, callback) {
+        return this._get("graph/node", id, callback);
+    };
 
     Ucd.prototype.getRelatedEntitiesBySubject = function(id, callback) {
         return this._ajaxGet({ url: 'entity/' + encodeURIComponent(id) + '/relatedEntities' }, callback);
-    }
+    };
 
-    Ucd.prototype.getRelatedTermsFromArtifact = function (id, callback){
-        return this._ajaxGet({url: 'artifact/' + encodeURIComponent(id) + '/relatedEntities'}, callback);
-    }
-
-    Ucd.prototype.getSpecificEntityRelationship = function (e1, e2, callback) {
-        return this._ajaxGet({
-            url: 'entity/relationship',
-            data: {
-                entity1: e1,
-                entity2: e2
-            }
-        }, callback);
+    Ucd.prototype.getRelatedNodes = function(graphNodeId, resolvedOnly, callback) {
+        return this._ajaxGet({ url: 'graph/' + encodeURIComponent(graphNodeId) + (resolvedOnly ? '/relatedResolvedNodes' : '/relatedNodes') }, callback);
     };
 
     Ucd.prototype.entityRelationships = function (id, options, callback) {
         return this._relationships("entity", id, options, callback);
     };
+
+    Ucd.prototype.getNodeRelationships = function(graphNodeId, callback) {
+        return this._ajaxGet({ url: 'node/' + encodeURIComponent(graphNodeId) + '/relationships'}, callback);
+    }
+
+    Ucd.prototype.getNodeProperties = function(graphNodeId, callback) {
+        return this._ajaxGet({ url: 'node/' + encodeURIComponent(graphNodeId) + '/properties'}, callback);
+    }
 
     Ucd.prototype._relationship = function (resource, id, options, callback) {
         var data = {};

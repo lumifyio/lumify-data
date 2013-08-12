@@ -32,8 +32,4 @@ public class NullSearchProvider implements SearchProvider {
     @Override
     public void initializeTables() {
     }
-
-    public Collection<TermSearchResult> searchTerms (String query) throws Exception {
-        return new ArrayList <TermSearchResult>();
-    }
 }

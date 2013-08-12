@@ -73,8 +73,9 @@ public class ArtifactSearch implements Handler, AppAware {
     private JSONObject artifactToSearchResult(HttpServletRequest request, ArtifactSearchResult artifactSearchResult) throws JSONException {
         JSONObject artifactJson = new JSONObject();
         artifactJson.put("url", ArtifactByRowKey.getUrl(request, artifactSearchResult.getRowKey()));
-        artifactJson.put("rowKey", artifactSearchResult.getRowKey());
+        artifactJson.put("_rowKey", artifactSearchResult.getRowKey());
         artifactJson.put("subject", artifactSearchResult.getSubject());
+        artifactJson.put("graphNodeId", artifactSearchResult.getGraphNodeId());
         Date publishedDate = artifactSearchResult.getPublishedDate();
         if (publishedDate != null) {
             artifactJson.put("publishedDate", publishedDate.getTime());

@@ -149,7 +149,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
             List<DetectedObject> detectedObjects = objectDetector.detectObjects(session, artifact, classifierPath);
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
-                    artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL, detectedObject.getX1(), detectedObject.getY1(), detectedObject.getY1(), detectedObject.getY2());
+                    artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL, detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());
                 }
                 context.write(new Text(Artifact.TABLE_NAME), artifact);
             }
@@ -161,7 +161,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
             List<DetectedObject> detectedObjects = objectDetector.detectObjects(session, videoFrame, classifierPath);
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
-                    videoFrame.getDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL, detectedObject.getX1(), detectedObject.getY1(), detectedObject.getY1(), detectedObject.getY2());
+                    videoFrame.getDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL, detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());
                 }
                 context.write(new Text(VideoFrame.TABLE_NAME), videoFrame);
             }

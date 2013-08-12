@@ -107,7 +107,7 @@ public class OpenNlpEntityExtractorTest {
         sentence.getMetadata().setArtifactType(ArtifactType.DOCUMENT);
         Collection<Term> terms = extractor.extract(sentence);
         Term firstTerm = terms.iterator().next();
-        assertEquals("altamira corporation\u001FOpenNlpDictionary\u001Forganization", firstTerm.getRowKey().toString());
+        assertEquals("Altamira Corporation\u001FOpenNlpDictionary\u001Forganization", firstTerm.getRowKey().toString());
         TermMention firstTermMention = firstTerm.getTermMentions().get(0);
         assertEquals((Long)232L, firstTermMention.getMentionStart());
         assertEquals((Long)252L, firstTermMention.getMentionEnd());
@@ -128,7 +128,7 @@ public class OpenNlpEntityExtractorTest {
         sentence.getMetadata().setArtifactType(ArtifactType.DOCUMENT);
         Collection<Term> terms = extractor.extract(sentence);
         Term firstTerm = terms.iterator().next();
-        assertEquals("altamira corporation\u001FOpenNlpDictionary\u001Forganization", firstTerm.getRowKey().toString());
+        assertEquals("Altamira Corporation\u001FOpenNlpDictionary\u001Forganization", firstTerm.getRowKey().toString());
         TermMention firstTermMention = firstTerm.getTermMentions().get(0);
         assertEquals("U", firstTermMention.getSecurityMarking());
     }
@@ -145,9 +145,9 @@ public class OpenNlpEntityExtractorTest {
     }
 
     private void validateOutput(List<String> terms) {
-        assertTrue("A person wasn't found", terms.contains("bob robertson-person"));
-        assertTrue("A location wasn't found", terms.contains("boston , ma-location"));
-        assertTrue("An organization wasn't found", terms.contains("altamira corporation-organization"));
+        assertTrue("A person wasn't found", terms.contains("Bob Robertson-person"));
+        assertTrue("A location wasn't found", terms.contains("Boston , MA-location"));
+        assertTrue("An organization wasn't found", terms.contains("Altamira Corporation-organization"));
 
     }
 

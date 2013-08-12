@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 300_DictionaryEntityExtractionMR.sh, 300_EntityExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -27,6 +28,7 @@ java \
 com.altamiracorp.reddawn.statementExtraction.StatementExtractionMR \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
+--graph.storage.index.search.hostname=${ip} \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \

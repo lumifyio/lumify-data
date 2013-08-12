@@ -64,6 +64,14 @@ public class Artifact extends Row<ArtifactRowKey> {
         return get(ArtifactDetectedObjects.NAME);
     }
 
+    public ArtifactExtractedText getArtifactExtractedText() {
+        ArtifactExtractedText artifactExtractedText = get(ArtifactExtractedText.NAME);
+        if (artifactExtractedText == null) {
+            addColumnFamily(new ArtifactExtractedText());
+        }
+        return get(ArtifactExtractedText.NAME);
+    }
+
     public Date getPublishedDate() {
         Date date = getGenericMetadata().getDocumentDtgDate();
         if (date != null) {
@@ -102,5 +110,17 @@ public class Artifact extends Row<ArtifactRowKey> {
             return ArtifactType.IMAGE;
         else
             return ArtifactType.DOCUMENT;
+    }
+
+    public String getGraphNodeId() {
+        String nodeId = getGenericMetadata().getGraphNodeId();
+        if (nodeId == null) {
+            nodeId = getRowKey().toString();
+        }
+        return nodeId;
+    }
+
+    public void setGraphNodeId(String nodeId) {
+        getGenericMetadata().setGraphNodeId(nodeId);
     }
 }

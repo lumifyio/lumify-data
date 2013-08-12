@@ -12,8 +12,21 @@
     cursor: pointer;
   }
 
+  .generic-draggable {
+    cursor: pointer;
+  }
+
+  .fake-link {
+    color: #08c;
+
+    &:hover {
+      color: #079;
+      text-decoration: underline;
+    }
+  }
+
   .underneath {
-    @import "editDropdown";
+    @import "dropdown";
   }
 
   .btn-toolbar {
@@ -35,6 +48,28 @@
 
   .text {
     word-wrap: break-word;
+
+    .sentence {
+      .transition(~"color ease-in 0.2s");
+    }
+
+    @fade-color: #ddd;
+    @normal-color: #333;
+
+    // When entities are being dragged
+    &.drag-focus, &.dropdown {
+      .sentence { color: @fade-color; }
+      .sentence .entity { color:@normal-color; }
+    }
+
+    // When dropdown is opened
+    &.dropdown .sentence .entity { 
+      color:@fade-color;
+
+      &.focused {
+        color: @normal-color;
+      }
+    }
   }
 
   .multiple {
@@ -55,6 +90,20 @@
         margin: 1em 0;
       }
     }
+  }
+
+  .image-preview {
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    display: inline-block;
+    max-width: 100%;
+
+    img {
+      -webkit-transition: -webkit-filter ease-out 0.2s;
+    }
+  }
+  .detected-object {
+    margin-top: 1em;
   }
 
   .highlighting;

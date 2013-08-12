@@ -39,6 +39,7 @@ public class ArtifactGenericMetadata extends ColumnFamily {
     public static final String VIDEO_PREVIEW_IMAGE_HDFS_FILE_PATH = "atc:video_preview_image_hdfs_file_path";
     public static final String POSTER_FRAME_HDFS_FILE_PATH = "atc:poster_frame_hdfs_file_path";
     public static final String AUDIO_HDFS_FILE_PATH = "atc:audio_hdfs_file_path";
+    public static final String GRAPH_NODE_ID = "atc:graph_node_id";
 
     public ArtifactGenericMetadata() {
         super(NAME);
@@ -319,6 +320,15 @@ public class ArtifactGenericMetadata extends ColumnFamily {
 
     public ArtifactGenericMetadata setSubject(String subject) {
         set(SUBJECT, subject);
+        return this;
+    }
+
+    public String getGraphNodeId() {
+        return Value.toString(get(GRAPH_NODE_ID));
+    }
+
+    public ArtifactGenericMetadata setGraphNodeId(String nodeId) {
+        set(GRAPH_NODE_ID, nodeId);
         return this;
     }
 }

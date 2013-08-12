@@ -32,7 +32,7 @@ public class EntityByRowKey implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
-        TermRowKey termKey = new TermRowKey(((String) request.getAttribute("rowKey")).replace("$2E$", "."));
+        TermRowKey termKey = new TermRowKey(((String) request.getAttribute("_rowKey")).replace("$2E$", "."));
 
         JSONObject json = new JSONObject();
         json.put("key", termKey.toJson());

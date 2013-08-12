@@ -6,11 +6,8 @@ import com.altamiracorp.reddawn.model.AccumuloDBPediaInputFormat;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.model.dbpedia.DBPedia;
-import com.altamiracorp.reddawn.ucd.object.UcdObject;
-import com.altamiracorp.reddawn.ucd.object.UcdObjectRepository;
 import com.altamiracorp.reddawn.ucd.statement.StatementRepository;
 import com.altamiracorp.reddawn.ucd.term.Term;
-import com.altamiracorp.reddawn.ucd.term.TermMention;
 import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
@@ -47,7 +44,6 @@ public class DBPediaImportMR extends ConfigurableMapJobBase {
     public static class DBPediaImportMapper extends Mapper<Text, DBPedia, Text, Row> {
         private TermRepository termRepository = new TermRepository();
         private StatementRepository statementRepository = new StatementRepository();
-        private UcdObjectRepository ucdObjectRepository = new UcdObjectRepository();
         private DBPediaHelper dbPediaHelper = new DBPediaHelper();
         private RedDawnSession session;
 
@@ -66,21 +62,11 @@ public class DBPediaImportMR extends ConfigurableMapJobBase {
             }
 
             DBPediaHelper.CreateStatementsResult createStatementsResult = dbPediaHelper.createStatements(session, term, dbPedia, dbpediaSourceArtifactRowKey);
-            UcdObject obj = dbPediaHelper.createUcdObject(dbPedia, createStatementsResult.statements);
-
-            if (obj != null) {
-                for (TermMention termMention : term.getTermMentions()) {
-                    termMention.setObjectRowKey(obj.getRowKey());
-                }
-            }
 
             System.out.println("Importing: " + dbPedia);
             termRepository.save(session.getModelSession(), term);
             termRepository.saveMany(session.getModelSession(), createStatementsResult.terms);
             statementRepository.saveMany(session.getModelSession(), createStatementsResult.statements);
-            if (obj != null) {
-                ucdObjectRepository.save(session.getModelSession(), obj);
-            }
         }
     }
 

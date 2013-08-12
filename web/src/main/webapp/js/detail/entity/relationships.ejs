@@ -1,0 +1,12 @@
+<ul>
+<% if(relationships.length == 0) { %>
+    <span>There are no relationships to display</span>
+<% } %>
+<% relationships.forEach(function(relationship) { %>
+    <li class="relationship" data-info='<%= relationship.dataInfo %>'>
+        <span class="<%- relationship.sourceNode.properties.type == 'artifact' ? 'artifact' : 'entity' %> <%= relationship.sourceNode.properties.subType %>" data-info='<%- JSON.stringify(relationship.sourceNode.properties) %>'><%- relationship.sourceNode.properties.title || 'No Title' %></span>
+        <%= relationship.relationship.label %>
+        <span class="<%- relationship.destNode.properties.type == 'artifact' ? 'artifact' : 'entity' %> <%= relationship.destNode.properties.subType %>" data-info='<%- JSON.stringify(relationship.destNode.properties) %>'><%- relationship.destNode.properties.title || 'No Title' %></span>
+    </li>
+<% }); %>
+</ul>

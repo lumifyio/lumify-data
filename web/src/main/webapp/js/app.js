@@ -103,6 +103,8 @@ define([
             this.on(document, 'updateNodes', this.onUpdateNodes);
             this.on(document, 'deleteNodes', this.onDeleteNodes);
 
+            this.on(document, 'refreshRelationships', this.refreshRelationships);
+
             this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
 
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
@@ -158,6 +160,7 @@ define([
         };
 
         this.setupDroppable = function() {
+            var self = this;
 
             var enabled = false,
                 droppable = this.select('droppableSelector');
@@ -167,23 +170,28 @@ define([
             // dragged outside of them. Can't use greedy option since they are
             // absolutely positioned
             $(document).on('dropover dropout', function(e, ui) {
-                if ($(e.target).closest(droppable).length === 0) {
+                var target = $(e.target),
+                    appDroppable = target.is(droppable),
+                    noParentDroppables = target.parents('.ui-droppable').length === 0;
+
+                if (appDroppable) {
+                    // Ignore events from this droppable
+                    return;
+                }
+
+                // If this droppable has no parent droppables
+                if (noParentDroppables) {
                     enabled = e.type === 'dropout';
                 }
             });
 
             droppable.droppable({
                 accept: function(item) {
-                    $(item).draggable('option', 'revert', function() {
-                        return !enabled;
-                    });
                     return true;
                 },
                 drop: function( event, ui ) {
-
                     // Early exit if should leave to a different droppable
                     if (!enabled) return;
-
                     var draggable = ui.draggable,
                         droppable = $(event.target);
 
@@ -202,17 +210,45 @@ define([
                             y: parseInt(Math.random() * droppable.height(), 10)
                         };
 
-                    this.trigger(document, 'addNodes', {
-                        nodes: [{
-                            title: info.title || draggable.text(),
-                            rowKey: info.rowKey.replace(/\\[x](1f)/ig, '\u001f'),
-                            subType: info.subType,
-                            type: info.type,
-                            dropPosition: dropPosition
-                        }]
-                    });
-                }.bind(this)
+                    var nodes = [{
+                        title: info.title || draggable.text(),
+                        graphNodeId: info.graphNodeId,
+                        _rowKey: info._rowKey,
+                        subType: info.subType,
+                        type: info.type,
+                        dropPosition: dropPosition
+                    }];
 
+                    if(info.resolvedGraphNodeId) {
+                        this.ucdService.getGraphNodeById(info.resolvedGraphNodeId, function(err, data) {
+                            if(err) {
+                                console.error('Error', err);
+                                return self.trigger(document, 'error', { message: err.toString() });
+                            }
+
+                            console.log(data);
+
+                            nodes.push({
+                                graphNodeId: data.id,
+                                title: data.properties.title || 'No title available',
+                                type: data.properties.type,
+                                subType: data.properties.subType,
+                                dropPosition: {
+                                    x: dropPosition.x + droppable.width()/10,
+                                    y: dropPosition.y
+                                }
+                            });
+
+                            self.trigger(document, 'addNodes', {
+                                nodes: nodes
+                            });
+                        });
+                    } else {
+                        self.trigger(document, 'addNodes', {
+                            nodes: nodes
+                        });
+                    }
+                }.bind(this)
             });
         };
 
@@ -228,11 +264,11 @@ define([
                 } else {
                     for (var i = 0; i < workspaces.length; i++) {
                         if (workspaces[i].active) {
-                            self.loadWorkspace(workspaces[i].rowKey);
+                            self.loadWorkspace(workspaces[i]._rowKey);
                             return;
                         }
                     }
-                    self.loadWorkspace(workspaces[0].rowKey); // backwards compatibility when no current workspace
+                    self.loadWorkspace(workspaces[0]._rowKey); // backwards compatibility when no current workspace
                 }
             });
         };
@@ -255,7 +291,7 @@ define([
         };
 
         this.onSwitchWorkspace = function(evt, data) {
-            this.loadWorkspace(data.rowKey);
+            this.loadWorkspace(data._rowKey);
         };
 
         this.onSaveWorkspace = function(evt, workspace) {
@@ -289,7 +325,7 @@ define([
         };
 
         this.onWorkspaceDeleted = function(evt, data) {
-            if (this.workspaceRowKey == data.rowKey) {
+            if (this.workspaceRowKey == data._rowKey) {
                 this.workspaceRowKey = null;
                 this.loadActiveWorkspace();
             }
@@ -318,8 +354,8 @@ define([
                     nodes: []
                 };
                 data.nodes.forEach(function(node) {
-                    var matchingWorkspaceNodes = ws.data.nodes.filter(function(workspaceNode) { 
-                        return workspaceNode.rowKey == node.rowKey; 
+                    var matchingWorkspaceNodes = ws.data.nodes.filter(function(workspaceNode) {
+                        return workspaceNode.graphNodeId == node.graphNodeId;
                     });
 
                     matchingWorkspaceNodes.forEach(function(workspaceNode) {
@@ -349,23 +385,34 @@ define([
 
         this.onAddNodes = function(evt, data) {
             this.workspace(function(ws) {
-                var allNodes = this.workspaceData.data.nodes;
-                var oldNodes = [];
-                allNodes.forEach (function (allNode){
-                    var isOldNode = true;
-                    data.nodes.forEach (function (dataNode){
-                        if (dataNode.rowKey == allNode.rowKey){
-                            isOldNode = false;
-                        }
-                    });
-                    if (isOldNode){
-                        oldNodes.push (allNode);
+                var allNodes = this.workspaceData.data.nodes,
+                    added = [],
+                    win = $(window);
+
+                // FIXME: How should we store nodes in the workspace? 
+                // currently mapping { id:[graphNodeId], properties:{} } 
+                // to { graphNodeId:..., [properties] }
+                data.nodes = data.nodes.map(function(n) {
+                    var node = n;
+                    if (n.properties) {
+                        node = n.properties;
+                        node.graphNodeId = n.id;
                     }
+                    // Legacy names
+                    node._rowKey = encodeURIComponent((node._rowKey || node.rowKey || node.rowkey || '').replace(/\\[x](1f)/ig, '\u001f'));
+
+                    if ( !node.dropPosition && !node.graphPosition) {
+                        node.dropPosition = {
+                            x: parseInt(Math.random() * win.width(), 10),
+                            y: parseInt(Math.random() * win.height(), 10)
+                        };
+                    }
+                    return node;
                 });
 
-                var added = [];
+                // Check if already in workspace
                 data.nodes.forEach(function(node) {
-                    if (ws.data.nodes.filter(function(n) { return n.rowKey === node.rowKey; }).length === 0) {
+                    if (ws.data.nodes.filter(function(n) { return n.graphNodeId === node.graphNodeId; }).length === 0) {
                         added.push(node);
                         ws.data.nodes.push(node);
                     }
@@ -389,7 +436,7 @@ define([
 
                 this.setWorkspaceDirty();
 
-                this.refreshRelationships (oldNodes, data.nodes);
+                this.refreshRelationships ();
 
                 this.trigger(document, 'nodesAdded', { nodes:added } );
             });
@@ -404,7 +451,7 @@ define([
                 var workspaceNodesToDelete = ws.data.nodes
                     .filter(function(workspaceNode) {
                         return data.nodes.filter(function(dataNode) {
-                            return workspaceNode.rowKey == dataNode.rowKey;
+                            return workspaceNode.graphNodeId == dataNode.graphNodeId;
                         }).length > 0;
                     });
 
@@ -412,7 +459,7 @@ define([
                 ws.data.nodes = ws.data.nodes
                     .filter(function(workspaceNode) {
                         return workspaceNodesToDelete.filter(function(workspaceNodeToDelete) {
-                            return workspaceNode.rowKey == workspaceNodeToDelete.rowKey;
+                            return workspaceNode._rowKey == workspaceNodeToDelete._rowKey;
                         }).length === 0;
                     });
 
@@ -438,29 +485,11 @@ define([
             });
         };
 
-        this.refreshRelationships = function(oldNodes, newNodes) {
+        this.refreshRelationships = function() {
             var self = this;
-            var oldEntityIds = [];
-            var newEntityIds = [];
-            var entityIds = this.getEntityIds();
-            var artifactIds = this.getArtifactIds();
-            if (oldNodes == null && newNodes == null) {
-                 newEntityIds = entityIds;
-                 oldEntityIds = [];
-            } else {
-                newNodes.forEach (function(newNode){
-                    if (newNode.type == 'entity'){
-                        newEntityIds.push (newNode.rowKey);
-                    }
-                });
-                oldNodes.forEach (function(oldNode){
-                    if (oldNode.type == 'entity'){
-                        oldEntityIds.push (oldNode.rowKey);
-                    }
-                });
-            }
+            var ids = this.getIds();
 
-            this.ucdService.getRelationships(oldEntityIds, newEntityIds, artifactIds, function(err, relationships) {
+            this.ucdService.getRelationships(ids, function(err, relationships) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
@@ -469,16 +498,23 @@ define([
             });
         };
 
+        this.getIds = function () {
+           if (this.workspaceData.data === undefined || this.workspaceData.data.nodes === undefined) {
+               return [];
+           }
+           return this.workspaceData.data.nodes
+               .map(function(node) {
+                   return node.graphNodeId;
+               });
+        };
+
         this.getEntityIds = function() {
             if (this.workspaceData.data === undefined || this.workspaceData.data.nodes === undefined) {
                 return [];
             }
             return this.workspaceData.data.nodes
-                .filter(function(node) {
-                    return node.type == 'entity';
-                })
                 .map(function(node) {
-                    return node.rowKey;
+                    return node.graphNodeId;
                 });
         };
 
@@ -491,7 +527,7 @@ define([
                     return node.type == 'artifact';
                 })
                 .map(function(node) {
-                    return node.rowKey;
+                    return node.graphNodeId;
                 });
         };
 
@@ -513,7 +549,7 @@ define([
 
             if (data.name == 'search' && !pane.hasClass('visible')) {
                 var self = this;
-                pane.one('transitionend', function() {
+                pane.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
                     self.trigger(document, 'focusSearchField');
                 });
             }
@@ -528,7 +564,6 @@ define([
         };
 
         this.onSearchResultSelection = function(e, data) {
-            console.log(data);
             var detailPane = this.select('detailPaneSelector');
             var minWidth = 100;
             var width = 0;

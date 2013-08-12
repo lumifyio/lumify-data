@@ -30,7 +30,7 @@ public class StatementRepositoryTest {
                 new TermRowKey("Tina", "CTA", "Person")
         );
 
-        assertEquals("bob\u001FCTA\u001FPerson\u001Eurn:mil.army.dsc:schema:dataspace\u001Fknows\u001Etina\u001FCTA\u001FPerson", statementRowKey.toString());
+        assertEquals("Bob\u001FCTA\u001FPerson\u001Eurn:mil.army.dsc:schema:dataspace\u001Fknows\u001ETina\u001FCTA\u001FPerson", statementRowKey.toString());
     }
 
     @Test
@@ -131,7 +131,7 @@ public class StatementRepositoryTest {
 
         assertEquals(1, session.tables.get(Statement.TABLE_NAME).size());
         Row statementRow = session.tables.get(Statement.TABLE_NAME).get(0);
-        assertEquals("bob\u001FCTA\u001FPerson\u001Eurn:mil.army.dsc:schema:dataspace\u001Fknows\u001Etina\u001FCTA\u001FPerson", statementRow.getRowKey().toString());
+        assertEquals("Bob\u001FCTA\u001FPerson\u001Eurn:mil.army.dsc:schema:dataspace\u001Fknows\u001ETina\u001FCTA\u001FPerson", statementRow.getRowKey().toString());
 
         assertEquals(2, statementRow.getColumnFamilies().size());
         ColumnFamily firstColumnFamily = (ColumnFamily)statementRow.getColumnFamilies().iterator().next();

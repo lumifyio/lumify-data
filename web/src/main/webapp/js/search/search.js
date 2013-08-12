@@ -42,10 +42,11 @@ define([
 
         this.onEntitySearchResults = function(evt, entities) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            $searchResultsSummary.find('.badge').removeClass('loading').text('0');
-            $searchResultsSummary.find('.person .badge').removeClass('loading').text((entities.person || []).length);
-            $searchResultsSummary.find('.location .badge').removeClass('loading').text((entities.location || []).length);
-            $searchResultsSummary.find('.organization .badge').removeClass('loading').text((entities.organization || []).length);
+            this.entityService.concepts(function(err, concepts) {
+                concepts.forEach(function(concept) {
+                    $searchResultsSummary.find('.' + concept.conceptLabel + ' .badge').removeClass('loading').text((entities[concept.conceptLabel] || []).length);
+                });
+            });
         };
 
         this.onFormSearch = function(evt) {
@@ -89,13 +90,19 @@ define([
                     self.searchResults.artifact = artifacts;
                     self.trigger('artifactSearchResults', artifacts);
                 });
-                this.ucd.entitySearch(query, function(err, entities) {
+                this.ucd.graphNodeSearch(query, function(err, entities) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
-                    self.searchResults.entity = entities;
-                    self.trigger('entitySearchResults', entities);
+                    self.searchResults.entity = {};
+                    entities.nodes.forEach(function(entity) {
+                        entity.sign = entity.properties['title'];
+                        entity.graphNodeId = entity.id;
+                        self.searchResults.entity[entity.properties['subType']] = self.searchResults.entity[entity.properties['subType']] || [];
+                        self.searchResults.entity[entity.properties['subType']].push(entity);
+                    });
+                    self.trigger('entitySearchResults', self.searchResults.entity);
                 });
             }.bind(this));
         };
@@ -140,8 +147,8 @@ define([
                 }
 
                 // Check if this result is in the graph/map
-                var classes = [encodeURIComponent(result.rowKey)];
-                var nodeState = _currentNodes[result.rowKey];
+                var classes = ['gId' + encodeURIComponent(result.graphNodeId)];
+                var nodeState = _currentNodes[result.graphNodeId];
                 if (nodeState) {
                     if ( nodeState.inGraph ) classes.push('graph-displayed');
                     if ( nodeState.inMap ) classes.push('map-displayed');
@@ -224,11 +231,11 @@ define([
             lisVisible.each(function() {
                 var li = $(this),
                     info = li.data('info'),
-                    rowKey = info.rowKey;
+                    _rowKey = info._rowKey;
 
                 if ((info.subType === 'video' || info.subType === 'image') && !li.data('preview-loaded')) {
                     li.addClass('preview-loading');
-                    previews.generatePreview(rowKey, null, function(poster, frames) {
+                    previews.generatePreview(_rowKey, null, function(poster, frames) {
                         li.removeClass('preview-loading')
                           .data('preview-loaded', true);
 
@@ -272,7 +279,8 @@ define([
             this.on(document, 'nodesAdded', this.onNodesUpdated);
             this.on(document, 'nodesUpdated', this.onNodesUpdated);
             this.on(document, 'nodesDeleted', this.onNodesDeleted);
-            this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
+            this.on(document, 'switchWorkspace', this.onWorkspaceClear);
+            this.on(document, 'workspaceDeleted', this.onWorkspaceClear);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
 
             this.select('searchResultsSelector').droppable({ accept:'.search-results *' });
@@ -285,15 +293,15 @@ define([
         // Track changes to nodes so we display the "Displayed in Graph" icon
         // in search results
         var _currentNodes = {};
-        this.toggleSearchResultIcon = function(rowKey, inGraph, inMap) {
+        this.toggleSearchResultIcon = function(graphNodeId, inGraph, inMap) {
             this.$node
-                .find('li.' + encodeURIComponent(rowKey).replace(/(['"(%.])/g,"\\$1"))
+                .find('li.gId' + encodeURIComponent(graphNodeId))
                 .toggleClass('graph-displayed', inGraph)
                 .toggleClass('map-displayed', inMap);
         };
 
         // Switching workspaces should clear the icon state and nodes
-        this.onSwitchWorkspace = function() {
+        this.onWorkspaceClear = function() {
             this.$node.find('li.graph-displayed').removeClass('graph-displayed');
             this.$node.find('li.map-displayed').removeClass('map-displayed');
             _currentNodes = {};
@@ -306,8 +314,8 @@ define([
                 if ( (node.type && node.subType) || node.location || node.locations ) {
                     var inGraph = true;
                     var inMap = !!(node.location || (node.locations && node.locations.length));
-                    _currentNodes[node.rowKey] = { inGraph:inGraph, inMap:inMap };
-                    self.toggleSearchResultIcon(node.rowKey, inGraph, inMap);
+                    _currentNodes[node.graphNodeId] = { inGraph:inGraph, inMap:inMap };
+                    self.toggleSearchResultIcon(node.graphNodeId, inGraph, inMap);
                 }
             });
         };
@@ -315,8 +323,8 @@ define([
         this.onNodesDeleted = function(event, data) {
             var self = this;
             (data.nodes || []).forEach(function(node) {
-                delete _currentNodes[node.rowKey];
-                self.toggleSearchResultIcon(node.rowKey, false, false);
+                delete _currentNodes[node.graphNodeId];
+                self.toggleSearchResultIcon(node.graphNodeId, false, false);
             });
         };
 
@@ -347,7 +355,8 @@ define([
                         self.trigger(document, 'addNodes', {
                             nodes: [{
                                 title: info.title,
-                                rowKey: info.rowKey.replace(/\\[x](1f)/ig, '\u001f'),
+                                graphNodeId: info.graphNodeId,
+                                _rowKey: info._rowKey,
                                 subType: info.subType,
                                 type: info.type,
                                 dropPosition: dropPosition

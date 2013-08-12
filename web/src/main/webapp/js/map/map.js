@@ -3,17 +3,28 @@
 define([
     'flight/lib/component',
     'tpl!./map',
+    'tpl!./instructions/regionCenter',
+    'tpl!./instructions/regionRadius',
+    'tpl!./instructions/regionLoading',
     'service/ucd',
-    'util/retina'
-], function(defineComponent, template, UcdService, retina) {
+    'util/retina',
+    'util/withContextMenu',
+    'underscore'
+], function(defineComponent, template, centerTemplate, radiusTemplate, loadingTemplate, UcdService, retina, withContextMenu, _) {
     'use strict';
+            
+    var MODE_NORMAL = 0,
+        MODE_REGION_SELECTION_MODE_POINT = 1,
+        MODE_REGION_SELECTION_MODE_RADIUS = 2,
+        MODE_REGION_SELECTION_MODE_LOADING = 3;
 
-    return defineComponent(Map);
+    return defineComponent(Map, withContextMenu);
 
     function Map() {
         var callbackQueue = [];
 
         this.ucdService = new UcdService();
+        this.mode = MODE_NORMAL;
 
         this.defaultAttrs({
             mapSelector: '#map'
@@ -21,6 +32,9 @@ define([
 
         this.after('initialize', function() {
             this.$node.html(template({}));
+
+
+            this.registerForContextMenuEvent();
 
             this.on(document, 'mapShow', this.onMapShow);
             this.on(document, 'mapCenter', this.onMapCenter);
@@ -43,6 +57,35 @@ define([
             }
         };
 
+        this.registerForContextMenuEvent = function() {
+
+            this.map(function(map) {
+                var self = this;
+                if (map.api == 'googlev3') {
+                    google.maps.event.addListener(map.getMap(), 'rightclick', function(e) {
+                        self.toggleMenu({
+                            positionInNode:e.pixel
+                        });
+                    });
+                } else {
+                    this.on('contextmenu', function(event) {
+                        self.toggleMenu({ positionUsingEvent:event });
+                    });
+                }
+            });
+        };
+
+        this.onContextMenuLoadResultsWithinRadius = function() {
+            var self = this;
+
+            this.mode = MODE_REGION_SELECTION_MODE_POINT;
+            this.$node.append(centerTemplate({}));
+            $(document).on('keydown.regionselection', function(e) {
+                if (e.which === $.ui.keyCode.ESCAPE) {
+                    self.endRegionSelection();
+                }
+            });
+        };
 
         this.onSyncEnded = function() {
             this.map(function(map) {
@@ -97,7 +140,7 @@ define([
                 locations.forEach(function(location) {
                     var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
                     var marker = new mxn.Marker(pt);
-                    marker.setAttribute('rowKey', node.rowKey);
+                    marker.setAttribute('_rowKey', node._rowKey);
                     if (retina.devicePixelRatio > 1) {
                         marker.setIcon('/img/small_pin@2x.png', [26, 52], [13, 52]);
                     } else {
@@ -153,7 +196,7 @@ define([
             this.map(function(map) {
                 map.markers
                     .filter(function(marker) {
-                        return marker.getAttribute('rowKey') == node.rowKey;
+                        return marker.getAttribute('_rowKey') == node._rowKey;
                     })
                     .forEach(function(marker) {
                         map.removeMarker(marker);
@@ -163,8 +206,30 @@ define([
 
         this.updateNodeLocation = function(node) {
             var self = this;
-            if(node.type == 'entity') {
-                this.ucdService.getEntityById(node.rowKey, function(err, entity) {
+            if(node.type == 'artifact') {
+                this.ucdService.getArtifactById(node._rowKey, function(err, artifact) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+
+                    if(artifact && artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) {
+
+                        node.location = {
+                            latitude: artifact.Dynamic_Metadata.latitude,
+                            longitude: artifact.Dynamic_Metadata.longitude
+                        };
+
+                        var nodesUpdateData = {
+                            nodes: [node]
+                        };
+                        self.trigger(document, 'updateNodes', nodesUpdateData);
+                    } else {
+                        self.invalidMap();
+                    }
+                });
+            } else {
+                this.ucdService.getGraphNodeById(node.graphNodeId, function(err, entity) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
@@ -193,44 +258,26 @@ define([
                     };
                     self.trigger(document, 'updateNodes', nodesUpdateData);
                 });
-            } else if(node.type == 'artifact') {
-                this.ucdService.getArtifactById(node.rowKey, function(err, artifact) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-
-                    if(artifact && artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) {
-
-                        node.location = {
-                            latitude: artifact.Dynamic_Metadata.latitude,
-                            longitude: artifact.Dynamic_Metadata.longitude
-                        };
-
-                        var nodesUpdateData = {
-                            nodes: [node]
-                        };
-                        self.trigger(document, 'updateNodes', nodesUpdateData);
-                    } else {
-                        self.invalidMap();
-                    }
-                });
-            } else {
-                console.error("Unknown node type:", node.type);
             }
         };
 
         this.invalidMap = function() {
             var map = this.select('mapSelector'),
-                cls = 'invalid';
-            
-            if (map.hasClass(cls)) {
-                map.removeClass(cls);
-                setTimeout(function() {
-                    map.addClass(cls);
-                }, 100);
+                cls = 'invalid',
+                animate = function() {
+                    map.removeClass(cls);
+                    _.defer(function() {
+                        map.on('animationend MSAnimationEnd webkitAnimationEnd oAnimationEnd oanimationend', function() {
+                            map.removeClass(cls);
+                        });
+                        map.addClass(cls);
+                    });
+                };
+
+            if (this.$node.closest('.visible').length === 0) {
+                return;
             } else {
-                map.addClass(cls);
+                animate();
             }
         };
 
@@ -307,6 +354,99 @@ define([
             }
         };
 
+        this.endRegionSelection = function() {
+            this.mode = MODE_NORMAL;
+
+            this.off('mousemove');
+            $('#map_mouse_position_hack').remove();
+            this.$node.find('.instructions').remove();
+
+            if (this.regionPolyline) {
+                this.map(function(map) {
+                    map.removePolyline(this.regionPolyline);
+                });
+            }
+
+            $(document).off('keydown.regionselection');
+        };
+
+        this.onMapClicked = function(evt, map, data) {
+            var self = this;
+            this.$node.find('.instructions').remove();
+
+            switch (self.mode) {
+                case MODE_NORMAL: 
+                    self.trigger(document, 'searchResultSelected', []);
+                    break;
+
+                case MODE_REGION_SELECTION_MODE_POINT:
+
+                    self.mode = MODE_REGION_SELECTION_MODE_RADIUS;
+
+                    this.$node.append(radiusTemplate({}));
+
+                    self.regionCenterPoint = data.location;
+
+                    var span = $('<span id="map_mouse_position_hack"></span>').hide().appendTo(document.body),
+                        radius = new mxn.Radius(self.regionCenterPoint, 10);
+
+                    // Register for mouse events using the hack. 
+                    // mapstraction doesn't have a mousemove handler!?! so we
+                    // just grab the text of the span content: "lat / lon"
+                    map.mousePosition(span.attr('id'));
+
+                    self.on('mousemove', function() {
+                       var parts = span.text().split(/\s*\/\s*/);
+                       if (parts.length === 2) {
+                           var point = new mxn.LatLonPoint(parts[0], parts[1]);
+
+                           if (self.regionPolyline) {
+                               map.removePolyline(self.regionPolyline);
+                           }
+
+                           self.regionRadiusDistance = Math.max(1, self.regionCenterPoint.distance(point) * 0.95);
+                           self.regionPolyline = radius.getPolyline(self.regionRadiusDistance, '#0000aa');
+                           self.regionPolyline.addData({
+                               fillColor: '#000088',
+                               opacity: 0.2,
+                               closed: true
+                           });
+
+                           map.addPolyline(self.regionPolyline);
+
+                           // Google maps fix to disable events on polyline
+                           if (map.api === 'googlev3' && self.regionPolyline.proprietary_polyline) {
+                               self.regionPolyline.proprietary_polyline.setOptions( { clickable: false } );
+                           }
+                       }
+                    });
+
+                    break;
+
+                case MODE_REGION_SELECTION_MODE_RADIUS:
+
+                    self.mode = MODE_REGION_SELECTION_MODE_LOADING;
+                    self.off('mousemove');
+                    self.$node.find('.instructions').remove();
+                    self.$node.append(loadingTemplate({}));
+
+                    self.ucdService.locationSearch(
+                        self.regionCenterPoint.lat,
+                        self.regionCenterPoint.lon, 
+                        self.regionRadiusDistance,
+                        function(err, data) {
+                            self.endRegionSelection();
+                            if (!err) {
+                                self.trigger(document, 'addNodes', data);
+                            }
+                        }
+                    );
+
+                    break;
+
+            }
+        };
+
         this.initializeMap = function() {
             delete this.initializeMap;
 
@@ -337,8 +477,8 @@ define([
             map.changeZoom.addHandler(function() {
                 self.trigger(document, 'mapEndZoom');
             });
-            map.click.addHandler(function() {
-                self.trigger(document, 'searchResultSelected', []);
+            map.click.addHandler(function(event, mapmxn, data) {
+                self.onMapClicked(event, map, data);
             });
 
 
@@ -348,6 +488,7 @@ define([
                 });
             }
 
+            // TODO: persist the map location in workspace
             var latlon = new mxn.LatLonPoint(38.89,-77.03);
             map.setCenterAndZoom(latlon, 7);
             map.enableScrollWheelZoom();

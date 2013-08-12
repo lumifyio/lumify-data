@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 550_TermLocationExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -29,6 +30,7 @@ com.altamiracorp.reddawn.location.ArtifactLocationExtractorMR \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
+--graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \

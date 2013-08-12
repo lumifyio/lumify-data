@@ -3,12 +3,7 @@ package com.altamiracorp.reddawn.util;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 
 /**
  * Helper class to handle Runtime.exec() output.
@@ -43,7 +38,7 @@ public class StreamHelper extends Thread {
      * @param inputStream the input stream
      */
     public StreamHelper(InputStream inputStream) {
-        this(inputStream, null, null, null,null);
+        this(inputStream, null, null, null, null);
     }
 
     /**
@@ -54,7 +49,7 @@ public class StreamHelper extends Thread {
      * @param contentBuffer the buffer to write the captured output to
      */
     public StreamHelper(InputStream inputStream, StringBuffer contentBuffer) {
-        this(inputStream, null, null, contentBuffer,null);
+        this(inputStream, null, null, contentBuffer, null);
     }
 
     /**
@@ -105,7 +100,6 @@ public class StreamHelper extends Thread {
         this.logger = logger;
         this.contentBuffer = contentBuffer;
         this.prefix = prefix;
-        start(); // FIXME This class should either be final, or should not start threads in the constructor.
     }
 
     /**
@@ -129,7 +123,7 @@ public class StreamHelper extends Thread {
             isreader = new InputStreamReader(inputStream);
             reader = new BufferedReader(isreader);
             String line = null;
-            while (keepReading && reader.ready() && (line = reader.readLine()) != null) {
+            while (keepReading && (line = reader.readLine()) != null) {
                 if (prefix != null) {
                     line = prefix + line;
                 }
@@ -179,5 +173,4 @@ public class StreamHelper extends Thread {
             logger.info(output);
         }
     }
-
 }

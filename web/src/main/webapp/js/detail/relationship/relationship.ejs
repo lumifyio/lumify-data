@@ -1,0 +1,37 @@
+<div class="btn-toolbar">
+  <%- highlightButton %>
+</div>
+
+<h2>
+<% var data = JSON.stringify({
+      graphNodeId : relationshipData.sourceId,
+      title : relationshipData.sourceTitle,
+      type : relationshipData.sourceType,
+      _rowKey : relationshipData.sourceRowKey,
+      subType : relationshipData.sourceSubType}); %>
+
+<span class="node-to-node-relationship generic-draggable fake-link" data-info='<%- data %>' >
+        <%= relationshipData.sourceTitle || "No title available" %>
+</span>
+
+->
+
+<% var data = JSON.stringify({
+      graphNodeId : relationshipData.targetId,
+      title : relationshipData.targetTitle,
+      type : relationshipData.targetType,
+      _rowKey : relationshipData.targetRowKey,
+      subType : relationshipData.targetSubType}); %>
+
+<span class="node-to-node-relationship generic-draggable fake-link" data-info='<%- data %>'>
+        <%= relationshipData.targetTitle || "No title available" %>
+</span>
+</h2>
+<h3>Properties</h3>
+<div class="properties">
+  <% relationshipData.properties.forEach(function(property) {%>
+        <li>
+        <%= property.key%>: <%= property.value%>
+        </li>
+      <%}); %>
+</div>

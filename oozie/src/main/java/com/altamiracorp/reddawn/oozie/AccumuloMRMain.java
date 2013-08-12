@@ -17,11 +17,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class AccumuloMRMain extends MapReduceMain {
+    private static final String START_TIME = "timestampFilterStartTime";
     private final SimpleDateFormat dateParser = initDateParser();
 
     private static SimpleDateFormat initDateParser() {
         SimpleDateFormat dateParser = new SimpleDateFormat("yyyyMMddHHmmssz");
-        dateParser.setTimeZone(TimeZone.getTimeZone("GMT"));
+        dateParser.setTimeZone(TimeZone.getTimeZone("UTC"));
         return dateParser;
     }
 
@@ -41,7 +42,7 @@ public class AccumuloMRMain extends MapReduceMain {
 
         logMasking("Map-Reduce job configuration:", new HashSet<String>(), actionConf);
 
-        initAccumuloFormats(actionConf, null);
+        initAccumuloFormats(actionConf);
 
         System.out.println("Submitting Oozie action Accumulo Map-Reduce job");
         System.out.println();
@@ -74,7 +75,7 @@ public class AccumuloMRMain extends MapReduceMain {
         return job;
     }
 
-    public void initAccumuloFormats(Configuration actionConf, Long timestampFilterStartTime) throws ClassNotFoundException {
+    public void initAccumuloFormats(Configuration actionConf) throws ClassNotFoundException {
         String zookeeperInstanceName = actionConf.get("zookeeperInstanceName");
         String zookeeperServerNames = actionConf.get("zookeeperServerNames");
         String username = actionConf.get("username");
@@ -84,10 +85,10 @@ public class AccumuloMRMain extends MapReduceMain {
         AccumuloInputFormat.setZooKeeperInstance(actionConf, zookeeperInstanceName, zookeeperServerNames);
         AccumuloInputFormat.setInputInfo(actionConf, username, password.getBytes(), table, new Authorizations());
 
-        if (timestampFilterStartTime != null) {
+        if (actionConf.get(START_TIME) != null && !actionConf.get(START_TIME).equals("-1")) {
+            System.out.println("Setting Accumulo TimeStampIterator start time to " + actionConf.get(START_TIME));
             Map<String, String> timestampIteratorProperties = new HashMap<String, String>();
-            Date timestampFilterStartTimeDate = new Date(timestampFilterStartTime);
-            String timestampFilterStartTimeString = dateParser.format(timestampFilterStartTimeDate);
+            String timestampFilterStartTimeString = actionConf.get(START_TIME);
             timestampIteratorProperties.put(TimestampFilter.START, timestampFilterStartTimeString);
             timestampIteratorProperties.put(TimestampFilter.START_INCL, Boolean.toString(true));
             IteratorSetting timestampIteratorSettings = new IteratorSetting(1, TimestampFilter.class, timestampIteratorProperties);

@@ -41,7 +41,7 @@ public class EntityHighlightTest {
         );
         List<OffsetItem> termAndTermMetadata = EntityHighlighter.getTermAndTermMetadataForArtifact(artifactKey, terms);
         String highlightText = EntityHighlighter.getHighlightedText("Test highlight of Joe Ferner and Jeff Kunkle.", 0, termAndTermMetadata);
-        assertEquals("Test highlight of <span class=\"entity person\" data-info=\"{&quot;start&quot;:18,&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;joe ferner\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;,&quot;end&quot;:28}\">Joe Ferner</span> and <span class=\"entity person\" data-info=\"{&quot;start&quot;:33,&quot;subType&quot;:&quot;person&quot;,&quot;rowKey&quot;:&quot;jeff kunkle\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;entity&quot;,&quot;end&quot;:44}\">Jeff Kunkle.", highlightText);
+        assertEquals("Test highlight of <span class=\"entity person\" title=\"joe ferner\" data-info=\"{&quot;title&quot;:&quot;joe ferner&quot;,&quot;start&quot;:18,&quot;subType&quot;:&quot;person&quot;,&quot;_rowKey&quot;:&quot;joe ferner\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;termMention&quot;,&quot;end&quot;:28}\">Joe Ferner</span> and <span class=\"entity person\" title=\"jeff kunkle\" data-info=\"{&quot;title&quot;:&quot;jeff kunkle&quot;,&quot;start&quot;:33,&quot;subType&quot;:&quot;person&quot;,&quot;_rowKey&quot;:&quot;jeff kunkle\\\\x1Fee\\\\x1Fperson&quot;,&quot;type&quot;:&quot;termMention&quot;,&quot;end&quot;:44}\">Jeff Kunkle</span>.", highlightText);
     }
 
     public void testGetHighlightedTextOverlaps() throws Exception {
@@ -115,7 +115,7 @@ public class EntityHighlightTest {
 
         Assert.assertEquals("<span class=\"first\" data-info=\"{&quot;data&quot;:&quot;attribute&quot;}\">This</span> " +
                 "<span class=\"fourth\" data-info=\"{&quot;data&quot;:&quot;attribute&quot;}\">is a</span> test <span " +
-                "class=\"fifth\" data-info=\"{&quot;data&quot;:&quot;attribute&quot;}\">sentence",
+                "class=\"fifth\" data-info=\"{&quot;data&quot;:&quot;attribute&quot;}\">sentence</span>",
                 EntityHighlighter.getHighlightedText(text, 0, offsetItems));
     }
 }

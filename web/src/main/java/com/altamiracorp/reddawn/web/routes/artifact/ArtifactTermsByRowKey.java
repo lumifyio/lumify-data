@@ -30,7 +30,7 @@ public class ArtifactTermsByRowKey implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
-        ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("rowKey")));
+        ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("_rowKey")));
         Collection<Term> terms = termRepository.findByArtifactRowKey(session.getModelSession(), artifactKey.toString());
 
         JSONArray result = new JSONArray();

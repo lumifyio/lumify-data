@@ -195,4 +195,8 @@ public class MockSession extends Session {
     public List<String> getTableList() {
         return new ArrayList<String>(this.tables.keySet());
     }
+
+    @Override
+    public void touchRow(String tableName, RowKey rowKey, QueryUser queryUser) {
+    }
 }
