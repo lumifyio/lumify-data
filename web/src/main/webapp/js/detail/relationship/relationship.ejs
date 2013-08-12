@@ -4,32 +4,32 @@
 
 <h2>
 <% var data = JSON.stringify({
-      graphNodeId : sourceId,
-      title : sourceTitle,
-      type : sourceType,
-      _rowKey : sourceRowKey,
-      subType : sourceSubType}); %>
+      graphNodeId : relationshipData.sourceId,
+      title : relationshipData.sourceTitle,
+      type : relationshipData.sourceType,
+      _rowKey : relationshipData.sourceRowKey,
+      subType : relationshipData.sourceSubType}); %>
 
 <span class="node-to-node-relationship generic-draggable fake-link" data-info='<%- data %>' >
-        <%= sourceTitle %>
+        <%= relationshipData.sourceTitle || "No title available" %>
 </span>
 
 ->
 
 <% var data = JSON.stringify({
-      graphNodeId : targetId,
-      title : targetTitle,
-      type : targetType,
-      _rowKey : targetRowKey,
-      subType : targetSubType}); %>
+      graphNodeId : relationshipData.targetId,
+      title : relationshipData.targetTitle,
+      type : relationshipData.targetType,
+      _rowKey : relationshipData.targetRowKey,
+      subType : relationshipData.targetSubType}); %>
 
 <span class="node-to-node-relationship generic-draggable fake-link" data-info='<%- data %>'>
-        <%= targetTitle %>
+        <%= relationshipData.targetTitle || "No title available" %>
 </span>
 </h2>
 <h3>Properties</h3>
 <div class="properties">
-  <% properties.forEach(function(property) {%>
+  <% relationshipData.properties.forEach(function(property) {%>
         <li>
         <%= property.key%>: <%= property.value%>
         </li>

@@ -5,7 +5,10 @@ import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
-import com.thinkaurelius.titan.core.*;
+import com.thinkaurelius.titan.core.TitanFactory;
+import com.thinkaurelius.titan.core.TitanGraph;
+import com.thinkaurelius.titan.core.TitanTransaction;
+import com.thinkaurelius.titan.core.TypeMaker;
 import com.thinkaurelius.titan.core.attribute.Geo;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.thinkaurelius.titan.core.attribute.Text;
@@ -13,7 +16,6 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
-import com.tinkerpop.pipes.Pipe;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -290,6 +292,9 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public Map<GraphRelationship, GraphNode> getRelationships(String graphNodeId) {
         Vertex vertex = this.graph.getVertex(graphNodeId);
+        if (vertex == null) {
+            throw new RuntimeException("Could not find vertex with id: " + graphNodeId);
+        }
 
         Map<GraphRelationship, GraphNode> relationships = new HashMap<GraphRelationship, GraphNode>();
         for (Edge e : vertex.getEdges(Direction.IN)) {
@@ -306,7 +311,7 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public void removeRelationship(String source, String target) {
         Edge edge = findEdge(source, target);
-        if (edge != null){
+        if (edge != null) {
             edge.remove();
         }
     }
