@@ -54,8 +54,6 @@ public class Router extends HttpServlet {
         app.get("/predicate/", PredicateList.class);
 
         app.get("/artifact/search", authenticator, ArtifactSearch.class);
-        app.get("/artifact/{_rowKey}/terms", authenticator, ArtifactTermsByRowKey.class);
-        app.get("/artifact/{_rowKey}/text", authenticator, ArtifactTextByRowKey.class);
         app.get("/artifact/{_rowKey}/raw", authenticator, ArtifactRawByRowKey.class);
         app.get("/artifact/{_rowKey}/poster-frame", authenticator, ArtifactPosterFrameByRowKey.class);
         app.get("/artifact/{_rowKey}/video-preview", authenticator, ArtifactVideoPreviewImageByRowKey.class);

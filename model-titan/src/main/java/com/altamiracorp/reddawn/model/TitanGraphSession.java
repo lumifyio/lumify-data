@@ -236,7 +236,6 @@ public class TitanGraphSession extends GraphSession {
                     List<Edge> edges = findAllEdges(id, v.getId().toString());
                     for (Edge e : edges){
                         if (e != null) {
-                            e.setProperty("RelationshipType", e.getLabel());
                             graphRelationships.add(new GraphRelationship(e.getId().toString(), id, v.getId().toString(), e.getLabel()));
                         }
                     }
@@ -252,6 +251,7 @@ public class TitanGraphSession extends GraphSession {
         HashMap<String, String> properties = new HashMap<String, String>();
         Edge e = findEdge(sourceNode, destNode, label);
         if (e != null) {
+            properties.put("Relationship Type", e.getLabel());
             for (String property : e.getPropertyKeys()) {
                 properties.put(property, e.getProperty(property).toString());
             }
