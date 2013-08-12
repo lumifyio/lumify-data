@@ -9,7 +9,7 @@ grep -q $(hostname) /etc/hosts || cat ${hosts_file} >> /etc/hosts
 sudo rpm -ivh ${PUPPETLABS_RPM_URL}
 sudo yum -y install puppet-server
 
-for other_host in $(awk '{print $1}' ${hosts_file}); do
+for other_host in $(awk -v localhost=$(hostname) '$2!=localhost {print $1}' ${hosts_file}); do
   scp ${SSH_OPTS} ${hosts_file} ${other_host}:
   ssh ${SSH_OPTS} -t ${other_host} sudo -s "grep -q ${other_host} /etc/hosts || cat ${hosts_file} >> /etc/hosts"
   echo ssh ${SSH_OPTS} -t ${other_host} sudo rpm -ivh ${PUPPETLABS_RPM_URL}
