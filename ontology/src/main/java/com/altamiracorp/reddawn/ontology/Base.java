@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.ontology;
 
 import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
+import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanKey;
 import com.thinkaurelius.titan.core.TitanLabel;
@@ -15,11 +16,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 public abstract class Base extends RedDawnCommandLineBase {
-    public static final String CONCEPT_TYPE = "Concept";
-    public static final String ARTIFACT_TYPE = "Artifact";
-    public static final String TERM_MENTION_TYPE = "TermMention";
-    public static final String ENTITY_TYPE = "Entity";
-
     protected Map<String, TitanKey> properties = new HashMap<String, TitanKey>();
     protected Map<String, TitanLabel> edges = new HashMap<String, TitanLabel>();
 
@@ -78,14 +74,14 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
         properties.put(geoLocationProperty.getName(), geoLocationProperty);
 
-        Iterator<Vertex> artifactIter = graph.getVertices(conceptProperty.getName(), ARTIFACT_TYPE).iterator();
+        Iterator<Vertex> artifactIter = graph.getVertices(conceptProperty.getName(), OntologyRepository.ARTIFACT_TYPE).iterator();
         TitanVertex artifact;
         if (artifactIter.hasNext()) {
             artifact = (TitanVertex) artifactIter.next();
         } else {
             artifact = (TitanVertex) graph.addVertex(null);
-            artifact.setProperty(typeProperty.getName(), CONCEPT_TYPE);
-            artifact.addProperty(conceptProperty, ARTIFACT_TYPE);
+            artifact.setProperty(typeProperty.getName(), OntologyRepository.CONCEPT_TYPE);
+            artifact.addProperty(conceptProperty, OntologyRepository.ARTIFACT_TYPE);
             artifact.addEdge(hasPropertyEdge, typeProperty);
             artifact.addEdge(hasPropertyEdge, subTypeProperty);
             artifact.addEdge(hasPropertyEdge, titleProperty);
@@ -105,14 +101,14 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
         properties.put(columnFamilyNameProperty.getName(), columnFamilyNameProperty);
 
-        Iterator<Vertex> termMentionIter = graph.getVertices(conceptProperty.getName(), TERM_MENTION_TYPE).iterator();
+        Iterator<Vertex> termMentionIter = graph.getVertices(conceptProperty.getName(), OntologyRepository.TERM_MENTION_TYPE).iterator();
         TitanVertex termMention;
         if (termMentionIter.hasNext()) {
             termMention = (TitanVertex) termMentionIter.next();
         } else {
             termMention = (TitanVertex) graph.addVertex(null);
-            termMention.setProperty(typeProperty.getName(), CONCEPT_TYPE);
-            termMention.addProperty(conceptProperty, TERM_MENTION_TYPE);
+            termMention.setProperty(typeProperty.getName(), OntologyRepository.CONCEPT_TYPE);
+            termMention.addProperty(conceptProperty, OntologyRepository.TERM_MENTION_TYPE);
             termMention.addEdge(hasPropertyEdge, typeProperty);
             termMention.addEdge(hasPropertyEdge, subTypeProperty);
             termMention.addEdge(hasPropertyEdge, rowKeyProperty);
@@ -121,11 +117,14 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
 
         // Entity concept
-        Iterator<Vertex> entityIter = graph.getVertices(conceptProperty.getName(), ENTITY_TYPE).iterator();
-        if (!entityIter.hasNext()) {
-            TitanVertex entity = (TitanVertex) graph.addVertex(null);
-            entity.setProperty(typeProperty.getName(), CONCEPT_TYPE);
-            entity.addProperty(conceptProperty, ENTITY_TYPE);
+        Iterator<Vertex> entityIter = graph.getVertices(conceptProperty.getName(), OntologyRepository.ENTITY_TYPE).iterator();
+        TitanVertex entity;
+        if (entityIter.hasNext()) {
+            entity = (TitanVertex) entityIter.next();
+        } else {
+            entity = (TitanVertex) graph.addVertex(null);
+            entity.setProperty(typeProperty.getName(), OntologyRepository.CONCEPT_TYPE);
+            entity.addProperty(conceptProperty, OntologyRepository.ENTITY_TYPE);
             entity.addEdge(hasPropertyEdge, typeProperty);
             entity.addEdge(hasPropertyEdge, subTypeProperty);
             entity.addEdge(hasPropertyEdge, titleProperty);
@@ -141,12 +140,12 @@ public abstract class Base extends RedDawnCommandLineBase {
         hasTermMention.addEdge(hasEdgeEdge, termMention);
 
 
-        int returnCode = defineOntology(graph);
+        int returnCode = defineOntology(graph, entity);
 
         graph.commit();
         graph.shutdown();
         return returnCode;
     }
 
-    protected abstract int defineOntology(TitanGraph graph);
+    protected abstract int defineOntology(TitanGraph graph, TitanVertex entity);
 }

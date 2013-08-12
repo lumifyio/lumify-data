@@ -198,7 +198,6 @@ public class TitanGraphSession extends GraphSession {
                 if (allIds.contains(v.getId().toString())) {
                     Edge e = findEdge(id, v.getId().toString());
                     if (e != null) {
-                        e.setProperty("RelationshipType", e.getLabel());
                         relationshipMap.get(id).add(v.getId().toString());
                     }
                 }

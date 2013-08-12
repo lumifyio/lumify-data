@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
+import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -131,9 +132,9 @@ public class ArtifactRepository extends Repository<Artifact> {
     }
 
     public void saveToGraph(Session session, GraphSession graphSession, Artifact artifact) {
-        String suggestedNodeId = artifact.getGraphNodeId();
-        GraphNode node = new GraphNodeImpl(suggestedNodeId);
-        node.setProperty("type", "artifact");
+        GraphNode node = new GraphNodeImpl();
+        String oldRowKey = artifact.getGenericMetadata().getGraphNodeId();
+        node.setProperty("type", OntologyRepository.ARTIFACT_TYPE);
         node.setProperty("subType", artifact.getType().toString().toLowerCase());
         node.setProperty(GraphSession.PROPERTY_NAME_ROW_KEY, artifact.getRowKey().toString());
         if (artifact.getDynamicMetadata().getLatitude() != null) {
@@ -146,8 +147,8 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
 
         String nodeId = graphSession.save(node);
-        if (!nodeId.equals(suggestedNodeId)) {
-            artifact.setGraphNodeId(nodeId);
+        if (!nodeId.equals(oldRowKey)) {
+            artifact.getGenericMetadata().setGraphNodeId(nodeId);
             this.save(session, artifact);
         }
     }

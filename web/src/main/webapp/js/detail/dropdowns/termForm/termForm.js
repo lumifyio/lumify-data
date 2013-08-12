@@ -55,13 +55,13 @@ define([
                 mentionStart = sentenceInfo.start + sentence.text().indexOf(sign),
                 parameters = {
                     sign: sign,
-                    conceptLabel: this.select('conceptSelector').val(),
+                    conceptId: this.select('conceptSelector').val(),
                     artifactKey: this.attr.artifactKey,
                     mentionStart: mentionStart,
                     mentionEnd: mentionStart + sign.length
                 };
 
-            if ( !parameters.conceptLabel || parameters.conceptLabel.length === 0) {
+            if ( !parameters.conceptId || parameters.conceptId.length === 0) {
                 this.select('conceptSelector').focus();
                 return;
             }

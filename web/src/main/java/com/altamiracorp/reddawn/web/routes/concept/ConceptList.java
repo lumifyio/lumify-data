@@ -1,8 +1,8 @@
 package com.altamiracorp.reddawn.web.routes.concept;
 
 import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.ucd.concept.Concept;
-import com.altamiracorp.reddawn.ucd.concept.ConceptRepository;
+import com.altamiracorp.reddawn.model.ontology.Concept;
+import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
@@ -10,32 +10,45 @@ import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Collection;
+import java.util.List;
 
 public class ConceptList implements Handler, AppAware {
-    private ConceptRepository conceptRepository = new ConceptRepository();
+    private OntologyRepository ontologyRepository = new OntologyRepository();
     private WebApp app;
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
 
-        Collection<Concept> concepts = conceptRepository.findAll(session.getModelSession());
+        Concept entityConcept = ontologyRepository.getEntityConcept(session.getGraphSession());
 
-        JSONArray resultsJSON = new JSONArray();
-        for (Concept concept : concepts) {
-            JSONObject conceptJson = new JSONObject();
-            conceptJson.put("conceptLabel", concept.getRowKey().getConceptLabel());
-            conceptJson.put("ui", concept.getConceptElements().getLabelUi());
-            resultsJSON.put(conceptJson);
+        JSONObject result = buildJsonTree(session, entityConcept);
+
+        new Responder(response).respondWith(result);
+        chain.next(request, response);
+    }
+
+    private JSONObject buildJsonTree(RedDawnSession session, Concept concept) throws JSONException {
+        JSONObject result = new JSONObject();
+        result.put("id", concept.getId());
+        result.put("title", concept.getTitle());
+
+        List<Concept> childConcepts = ontologyRepository.getChildConcepts(session.getGraphSession(), concept);
+        if (childConcepts.size() > 0) {
+            JSONArray childrenJson = new JSONArray();
+            for (Concept childConcept : childConcepts) {
+                JSONObject childJson = buildJsonTree(session, childConcept);
+                childrenJson.put(childJson);
+            }
+            result.put("children", childrenJson);
         }
 
-        new Responder(response).respondWith(resultsJSON);
-        chain.next(request, response);
+        return result;
     }
 
     @Override

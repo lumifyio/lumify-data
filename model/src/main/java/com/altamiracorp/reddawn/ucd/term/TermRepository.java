@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
+import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndexRepository;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
@@ -93,16 +94,16 @@ public class TermRepository extends Repository<Term> {
     }
 
     public void saveToGraph(Session session, GraphSession graphSession, Term term, TermMention termMention) {
-        String suggestedNodeId = termMention.getGraphNodeId();
-        GraphNode node = new GraphNodeImpl(suggestedNodeId);
-        node.setProperty("type", "termMention");
+        String oldGraphNodeId = termMention.getGraphNodeId();
+        GraphNode node = new GraphNodeImpl();
+        node.setProperty("type", OntologyRepository.TERM_MENTION_TYPE);
         node.setProperty("subType", term.getRowKey().getConceptLabel());
         node.setProperty(GraphSession.PROPERTY_NAME_ROW_KEY, term.getRowKey().toString());
         node.setProperty("_columnFamilyName", termMention.getColumnFamilyName());
         node.setProperty(GraphSession.PROPERTY_NAME_TITLE, term.getRowKey().getSign());
 
         String nodeId = graphSession.save(node);
-        if (!nodeId.equals(suggestedNodeId)) {
+        if (!nodeId.equals(oldGraphNodeId)) {
             termMention.setGraphNodeId(nodeId);
             this.save(session, term);
         }
@@ -115,7 +116,7 @@ public class TermRepository extends Repository<Term> {
             throw new RuntimeException("Multiple artifact nodes found \"" + termMention.getArtifactKey() + "\"");
         }
 
-        GraphRelationship artifactRelationship = new GraphRelationship(null, artifactNodes.get(0).getId(), nodeId, "artifactToTermMention");
+        GraphRelationship artifactRelationship = new GraphRelationship(null, artifactNodes.get(0).getId(), nodeId, "hasTermMention");
         graphSession.save(artifactRelationship);
     }
 

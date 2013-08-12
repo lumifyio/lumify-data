@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 public class TermRowKey extends RowKey {
     public static final String DBPEDIA_MODEL_KEY = "dbpedia";
+    public static final String MANUAL_MODEL_KEY = "manual";
 
     public TermRowKey(String rowKey) {
         super(rowKey);

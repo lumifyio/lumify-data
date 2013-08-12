@@ -43,8 +43,8 @@ define([
         this.onEntitySearchResults = function(evt, entities) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
             this.entityService.concepts(function(err, concepts) {
-                concepts.forEach(function(concept) {
-                    $searchResultsSummary.find('.' + concept.conceptLabel + ' .badge').removeClass('loading').text((entities[concept.conceptLabel] || []).length);
+                concepts.children.forEach(function(concept) {
+                    $searchResultsSummary.find('.' + concept.title + ' .badge').removeClass('loading').text((entities[concept.title] || []).length);
                 });
             });
         };

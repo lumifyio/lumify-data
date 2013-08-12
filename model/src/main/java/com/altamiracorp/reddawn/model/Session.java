@@ -7,15 +7,7 @@ import com.altamiracorp.reddawn.model.workspace.Workspace;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
-import com.altamiracorp.reddawn.ucd.concept.Concept;
-import com.altamiracorp.reddawn.ucd.concept.ConceptRepository;
-import com.altamiracorp.reddawn.ucd.concept.ConceptRowKey;
-import com.altamiracorp.reddawn.ucd.predicate.Predicate;
-import com.altamiracorp.reddawn.ucd.predicate.PredicateRepository;
-import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
-import com.altamiracorp.reddawn.ucd.source.Source;
-import com.altamiracorp.reddawn.ucd.statement.Statement;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,12 +56,8 @@ public abstract class Session {
         LOGGER.info("initializeTables");
         initializeTable(Artifact.TABLE_NAME);
         initializeTable(Term.TABLE_NAME);
-        initializeTable(Source.TABLE_NAME);
         initializeTable(Sentence.TABLE_NAME);
         initializeTable(ArtifactTermIndex.TABLE_NAME);
-        initializeTable(Statement.TABLE_NAME);
-        initializeTable(Concept.TABLE_NAME);
-        initializeTable(Predicate.TABLE_NAME);
 
         initializeTable(Workspace.TABLE_NAME);
         initializeTable(GeoName.TABLE_NAME);
@@ -78,8 +66,6 @@ public abstract class Session {
 
         initializeTable("atc_titan"); // see com.altamiracorp.reddawn.model.TitanGraphSession
 
-        addDefaultConcepts();
-        addDefaultPredicates();
         addDbpediaSourceArtifact();
     }
 
@@ -102,28 +88,6 @@ public abstract class Session {
         dbpediaSourceArtifactRowKey = artifact.getRowKey().toString();
     }
 
-    protected void addDefaultConcepts() {
-        ConceptRepository conceptRepository = new ConceptRepository();
-
-        conceptRepository.save(this, new ConceptRowKey("system", "person"), "Person");
-        conceptRepository.save(this, new ConceptRowKey("system", "location"), "Location");
-        conceptRepository.save(this, new ConceptRowKey("system", "organization"), "Organization");
-        conceptRepository.save(this, new ConceptRowKey("system", "date"), "Date");
-        conceptRepository.save(this, new ConceptRowKey("system", "money"), "Money");
-        conceptRepository.save(this, new ConceptRowKey("system", "percentage"), "Percentage");
-        conceptRepository.save(this, new ConceptRowKey("system", "time"), "Time");
-    }
-
-    protected void addDefaultPredicates() {
-        PredicateRepository predicateRepository = new PredicateRepository();
-
-        predicateRepository.save(this, new PredicateRowKey("system", "knows"), "Knows");
-        predicateRepository.save(this, new PredicateRowKey("system", "locationCity"), "Location City");
-        predicateRepository.save(this, new PredicateRowKey("system", "birthPlace"), "Birth Place");
-        predicateRepository.save(this, new PredicateRowKey("system", "birthDate"), "Birth Date");
-        predicateRepository.save(this, new PredicateRowKey("system", "deathDate"), "Death Date");
-    }
-
     public QueryUser getQueryUser() {
         return this.queryUser;
     }
@@ -132,12 +96,8 @@ public abstract class Session {
         LOGGER.info("deleteTables");
         deleteTable(Artifact.TABLE_NAME);
         deleteTable(Term.TABLE_NAME);
-        deleteTable(Source.TABLE_NAME);
         deleteTable(Sentence.TABLE_NAME);
         deleteTable(ArtifactTermIndex.TABLE_NAME);
-        deleteTable(Statement.TABLE_NAME);
-        deleteTable(Concept.TABLE_NAME);
-        deleteTable(Predicate.TABLE_NAME);
 
         deleteTable(Workspace.TABLE_NAME);
         deleteTable(GeoName.TABLE_NAME);

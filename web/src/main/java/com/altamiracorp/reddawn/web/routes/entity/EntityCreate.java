@@ -44,7 +44,8 @@ public class EntityCreate implements Handler, AppAware {
         long mentionStart = Long.parseLong(getRequiredParameter(request, "mentionStart"));
         long mentionEnd = Long.parseLong(getRequiredParameter(request, "mentionEnd"));
         String sign = getRequiredParameter(request, "sign");
-        String conceptLabel = getRequiredParameter(request, "conceptLabel");
+        String conceptId = getRequiredParameter(request, "conceptId");
+        GraphNode conceptVertex = graphRepository.findNode(session.getGraphSession(), conceptId);
 
         // optional parameters
         String objectSign = request.getParameter("objectSign");
@@ -52,12 +53,12 @@ public class EntityCreate implements Handler, AppAware {
         GraphNode resolvedNode = null;
         if (objectSign != null && objectSign.length() > 0) {
             objectSign = UrlUtils.urlDecode(objectSign);
-            resolvedNode = getObjectGraphNode(session.getGraphSession(), objectSign, conceptLabel);
+            resolvedNode = getObjectGraphNode(session.getGraphSession(), objectSign, conceptVertex);
         }
-        TermAndTermMention termAndTermMention = getTermAndTermMention(currentUser, session, artifactKey, mentionStart, mentionEnd, sign, conceptLabel, resolvedNode);
+        TermAndTermMention termAndTermMention = getTermAndTermMention(currentUser, session, artifactKey, mentionStart, mentionEnd, sign, conceptVertex, resolvedNode);
 
         if (resolvedNode != null) {
-            graphRepository.saveRelationship(session.getGraphSession(), resolvedNode.getId(), termAndTermMention.getTermMention().getGraphNodeId(), "entityResolved");
+            graphRepository.saveRelationship(session.getGraphSession(), termAndTermMention.getTermMention().getGraphNodeId(), resolvedNode.getId(), "isA");
         }
 
         artifactRepository.touchRow(session.getModelSession(), new ArtifactRowKey(artifactKey));
@@ -66,7 +67,8 @@ public class EntityCreate implements Handler, AppAware {
         new Responder(response).respondWith(offsetItem.toJson());
     }
 
-    private GraphNode getObjectGraphNode(GraphSession session, String title, String subType) {
+    private GraphNode getObjectGraphNode(GraphSession session, String title, GraphNode conceptVertex) {
+        String subType = (String) conceptVertex.getProperty("title");
         GraphNode graphNode = graphRepository.findNodeByTitleAndType(session, title, GraphRepository.ENTITY_TYPE);
         if (graphNode == null) {
             graphNode = new GraphNodeImpl()
@@ -79,8 +81,9 @@ public class EntityCreate implements Handler, AppAware {
         return graphNode;
     }
 
-    private TermAndTermMention getTermAndTermMention(User currentUser, RedDawnSession session, String artifactKey, long mentionStart, long mentionEnd, String sign, String conceptLabel, GraphNode resolvedNode) {
-        TermRowKey termRowKey = getTermRowKey(session, sign, conceptLabel);
+    private TermAndTermMention getTermAndTermMention(User currentUser, RedDawnSession session, String artifactKey, long mentionStart, long mentionEnd, String sign, GraphNode conceptVertex, GraphNode resolvedNode) {
+        String subType = (String) conceptVertex.getProperty("title");
+        TermRowKey termRowKey = getTermRowKey(session, sign, subType);
         TermAndTermMention termAndTermMention = termRepository.findMention(session.getModelSession(), termRowKey, artifactKey, mentionStart, mentionEnd);
         if (termAndTermMention == null) {
             LOGGER.info("No existing term mention found... Creating... artifactKey: " + artifactKey);

@@ -1,5 +1,4 @@
 #!/bin/bash
-# require: 100_DBPediaMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do

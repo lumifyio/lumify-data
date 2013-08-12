@@ -1,6 +1,6 @@
 <option value=''>Choose a concept...</option>
-<% concepts.forEach(function(concept) { %>
+<% concepts.children.forEach(function(concept) { %>
 <option 
-  <% if (concept.conceptLabel === selectedConceptLabel) { %>selected<% } %> 
-  value="<%= concept.conceptLabel %>"><%= concept.ui %></option>
+  <% if (concept.title === selectedConceptLabel) { %>selected<% } %>
+  value="<%= concept.id %>"><%= concept.title %></option>
 <% }); %>
