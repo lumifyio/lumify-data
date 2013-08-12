@@ -50,16 +50,14 @@ public class EntityCreate implements Handler, AppAware {
         String objectSign = request.getParameter("objectSign");
 
         GraphNode resolvedNode = null;
-        String resolvedGraphNodeId = null;
         if (objectSign != null && objectSign.length() > 0) {
             objectSign = UrlUtils.urlDecode(objectSign);
             resolvedNode = getObjectGraphNode(session.getGraphSession(), objectSign, conceptLabel);
-            resolvedGraphNodeId = resolvedNode.getId();
         }
-        TermAndTermMention termAndTermMention = getTermAndTermMention(currentUser, session, artifactKey, mentionStart, mentionEnd, sign, conceptLabel, resolvedGraphNodeId);
+        TermAndTermMention termAndTermMention = getTermAndTermMention(currentUser, session, artifactKey, mentionStart, mentionEnd, sign, conceptLabel, resolvedNode);
 
         if (resolvedNode != null) {
-            graphRepository.saveRelationship(session.getGraphSession(), resolvedGraphNodeId, termAndTermMention.getTermMention().getGraphNodeId(), "entityResolved");
+            graphRepository.saveRelationship(session.getGraphSession(), resolvedNode.getId(), termAndTermMention.getTermMention().getGraphNodeId(), "entityResolved");
         }
 
         artifactRepository.touchRow(session.getModelSession(), new ArtifactRowKey(artifactKey));
@@ -81,7 +79,7 @@ public class EntityCreate implements Handler, AppAware {
         return graphNode;
     }
 
-    private TermAndTermMention getTermAndTermMention(User currentUser, RedDawnSession session, String artifactKey, long mentionStart, long mentionEnd, String sign, String conceptLabel, String resolvedNodeId) {
+    private TermAndTermMention getTermAndTermMention(User currentUser, RedDawnSession session, String artifactKey, long mentionStart, long mentionEnd, String sign, String conceptLabel, GraphNode resolvedNode) {
         TermRowKey termRowKey = getTermRowKey(session, sign, conceptLabel);
         TermAndTermMention termAndTermMention = termRepository.findMention(session.getModelSession(), termRowKey, artifactKey, mentionStart, mentionEnd);
         if (termAndTermMention == null) {
@@ -98,8 +96,9 @@ public class EntityCreate implements Handler, AppAware {
             termRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), termAndTermMention.getTerm(), termAndTermMention.getTermMention());
             LOGGER.info("New graph node for term mention created with node id: " + termAndTermMention.getTermMention().getGraphNodeId());
         }
-        if (resolvedNodeId != null) {
-            termAndTermMention.getTermMention().setResolvedGraphNodeId(resolvedNodeId);
+        if (resolvedNode != null) {
+            termAndTermMention.getTermMention().setResolvedGraphNodeId(resolvedNode.getId());
+            termAndTermMention.getTermMention().setResolvedSign((String) resolvedNode.getProperty(GraphSession.PROPERTY_NAME_TITLE));
         }
         termRepository.save(session.getModelSession(), termAndTermMention.getTerm());
         return termAndTermMention;
