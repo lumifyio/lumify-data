@@ -37,6 +37,9 @@ public class ImageOcrTextExtractor implements TextExtractor {
         }
 
         BufferedImage image = artifactRepository.getRawAsImage(session, artifact);
+        if (image == null){
+            return null;
+        }
         String ocrResults = extractTextFromImage(image);
         if (ocrResults == null) {
             return null;
