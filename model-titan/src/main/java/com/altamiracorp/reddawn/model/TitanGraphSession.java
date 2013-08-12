@@ -247,9 +247,18 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<GraphNode> searchNodes(String query) {
+    public List<GraphNode> searchNodesByTitle(String query) {
         Iterable<Vertex> r = graph.query()
                 .has(PROPERTY_NAME_TITLE, Text.CONTAINS, query)
+                .vertices();
+        return toGraphNodes(r);
+    }
+
+    @Override
+    public List<GraphNode> searchNodesByTitleAndType(String query, String type) {
+        Iterable<Vertex> r = graph.query()
+                .has(PROPERTY_NAME_TITLE, Text.CONTAINS, query)
+                .has("type", type)
                 .vertices();
         return toGraphNodes(r);
     }

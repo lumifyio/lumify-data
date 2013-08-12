@@ -57,8 +57,12 @@ public class GraphRepository {
         return graphSession.findByGeoLocation(latitude, longitude, radius);
     }
 
-    public List<GraphNode> searchNodes(GraphSession graphSession, String query) {
-        return graphSession.searchNodes(query);
+    public List<GraphNode> searchNodesByTitle(GraphSession graphSession, String query) {
+        return graphSession.searchNodesByTitle(query);
+    }
+
+    public List<GraphNode> searchNodesByTitleAndType(GraphSession graphSession, String query, String type) {
+        return graphSession.searchNodesByTitleAndType(query, type);
     }
 
     public List<GraphNode> getResolvedRelatedNodes(GraphSession graphSession, String graphNodeId) {

@@ -65,6 +65,7 @@ public class Router extends HttpServlet {
         app.post("/statement/create", authenticator, StatementCreate.class);
 
         app.post("/entity/relationships", authenticator, EntityRelationships.class);
+        app.get("/entity/search", authenticator, EntitySearch.class);
         app.get("/entity/{_rowKey}", authenticator, EntityByRowKey.class);
         app.post("/entity/create", authenticator, EntityCreate.class);
 
