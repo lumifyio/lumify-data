@@ -1,7 +1,4 @@
 #!/bin/bash
-# require: 300_DictionaryEntityExtractionMR.sh
-# require: 300_EntityExtractionMR.sh
-# require: 700_ArtifactToTitanMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -11,7 +8,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh core)
+classpath=$(${DIR}/classpath.sh ontology)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
@@ -27,12 +24,12 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.graph.TermMentionToTitanMR \
+com.altamiracorp.reddawn.ontology.Dev \
 --zookeeperInstanceName=reddawn \
---zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
 --graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
+--zookeeperServerNames=${ip} \
 --username=root \
 --password=password

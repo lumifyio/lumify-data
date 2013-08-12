@@ -1,5 +1,6 @@
 #!/bin/bash
-# require: 700_ArtifactToTitanMR.sh, 710_TermMentionToTitanMR.sh
+# require: 700_ArtifactToTitanMR.sh
+# require: 710_TermMentionToTitanMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
