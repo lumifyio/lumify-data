@@ -107,7 +107,7 @@ public class TermRepository extends Repository<Term> {
             this.save(session, term);
         }
 
-        List<GraphNode> artifactNodes = graphSession.findBy("_rowKey", termMention.getArtifactKey());
+        List<GraphNode> artifactNodes = graphSession.findBy(GraphSession.PROPERTY_NAME_ROW_KEY, termMention.getArtifactKey());
         if (artifactNodes.size() == 0) {
             throw new RuntimeException("Could not find artifact \"" + termMention.getArtifactKey() + "\" to link term mention to");
         }
