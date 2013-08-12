@@ -133,7 +133,15 @@ public class TitanGraphSession extends GraphSession {
         }
         if (edge == null) {
             Vertex sourceVertex = findVertex(relationship.getSourceNodeId());
+            if (sourceVertex == null) {
+                throw new RuntimeException("Could not find source vertex: " + relationship.getSourceNodeId());
+            }
+
             Vertex destVertex = findVertex(relationship.getDestNodeId());
+            if (destVertex == null) {
+                throw new RuntimeException("Could not find destination vertex: " + relationship.getDestNodeId());
+            }
+
             edge = this.graph.addEdge(relationship.getId(), sourceVertex, destVertex, relationship.getLabel());
         }
         for (String propertyKey : relationship.getPropertyKeys()) {

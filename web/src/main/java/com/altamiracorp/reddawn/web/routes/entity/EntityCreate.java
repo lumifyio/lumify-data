@@ -18,6 +18,8 @@ import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 
 public class EntityCreate implements Handler, AppAware {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntityCreate.class.getName());
     private static final String MODEL_KEY = "manual";
     private WebApp app;
     private ArtifactRepository artifactRepository = new ArtifactRepository();
@@ -82,6 +85,7 @@ public class EntityCreate implements Handler, AppAware {
         TermRowKey termRowKey = getTermRowKey(session, sign, conceptLabel);
         TermAndTermMention termAndTermMention = termRepository.findMention(session.getModelSession(), termRowKey, artifactKey, mentionStart, mentionEnd);
         if (termAndTermMention == null) {
+            LOGGER.info("No existing term mention found... Creating... artifactKey: " + artifactKey);
             Term term = new Term(termRowKey);
             TermMention termMention = new TermMention()
                     .setArtifactKey(artifactKey)
@@ -92,8 +96,9 @@ public class EntityCreate implements Handler, AppAware {
             term.addTermMention(termMention);
             termAndTermMention = new TermAndTermMention(term, termMention);
             termRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), termAndTermMention.getTerm(), termAndTermMention.getTermMention());
+            LOGGER.info("New graph node for term mention created with node id: " + termAndTermMention.getTermMention().getGraphNodeId());
         }
-        if(resolvedNodeId != null) {
+        if (resolvedNodeId != null) {
             termAndTermMention.getTermMention().setResolvedGraphNodeId(resolvedNodeId);
         }
         termRepository.save(session.getModelSession(), termAndTermMention.getTerm());
@@ -103,7 +108,7 @@ public class EntityCreate implements Handler, AppAware {
     private TermRowKey getTermRowKey(RedDawnSession session, String sign, String conceptLabel) {
         List<Term> results = termRepository.findByRowKeyRegex(session.getModelSession(), "^" + sign
                 + RowKeyHelper.MINOR_FIELD_SEPARATOR + ".*" + RowKeyHelper.MINOR_FIELD_SEPARATOR + conceptLabel + "$");
-        if(results.size() > 0) {
+        if (results.size() > 0) {
             return results.get(0).getRowKey();
         }
         return new TermRowKey(sign, MODEL_KEY, conceptLabel);
