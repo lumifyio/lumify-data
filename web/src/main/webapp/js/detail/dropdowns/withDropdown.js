@@ -16,6 +16,7 @@ define(['underscore'], function(_) {
             }
 
             node.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
+                node.off('transitionend webkitTransitionEnd oTransitionEnd otransitionend');
                 node.css({
                     transition: 'none',
                     height: 'auto',

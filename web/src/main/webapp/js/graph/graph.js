@@ -41,7 +41,8 @@ define([
             emptyGraphSelector: '.empty-graph',
             graphToolsSelector: '.ui-cytoscape-panzoom',
             contextMenuSelector: '.graph-context-menu',
-            nodeContextMenuSelector: '.node-context-menu'
+            nodeContextMenuSelector: '.node-context-menu',
+            edgeContextMenuSelector: '.edge-context-menu'
         });
 
         this.cy = function(callback) {
@@ -97,7 +98,7 @@ define([
                         classes: $.trim(node.subType + ' ' + node.type),
                         data: {
                             id: node.graphNodeId,
-                            rowKey: node.rowKey || node['_rowKey'],
+                            _rowKey: node._rowKey,
                             graphNodeId: node.graphNodeId,
                             subType: node.subType,
                             type: node.type,
@@ -129,7 +130,7 @@ define([
                     }
 
                     if (node.type === 'artifact') {
-                        previews.generatePreview(node.rowKey || node['_rowKey'], { width:178 * retina.devicePixelRatio }, function(dataUri) {
+                        previews.generatePreview(node._rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
                             if (dataUri) {
                                 cyNode.css('background-image', dataUri);
                             }
@@ -219,12 +220,26 @@ define([
             var position = {x: menu.data ('currentNodePositionX'), y: menu.data ('currentNodePositionY')};
             var currentNodeOriginalPosition = retina.pixelsToPoints(position);
             var data = {
-                rowKey: currentNodeRK,
+                _rowKey: currentNodeRK,
                 graphNodeId: graphNodeId,
                 originalPosition: currentNodeOriginalPosition,
                 type : menu.data("currentNodeType")
             };
             return data;
+        }
+
+        this.onContextMenuDeleteEdge = function () {
+            var menu = this.select('edgeContextMenuSelector');
+            var edgeId = menu.data('edgeId');
+            this.cy(function(cy) {
+                this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), function(err) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+                    cy.remove (cy.getElementById (edgeId));
+                })
+            });
         }
 
         this.onContextMenuFitToWindow = function() {
@@ -290,12 +305,24 @@ define([
 
         this.graphContextTap = function(event) {
             var menu;
+            // TODO: create different nodeContext menus for nodes/edges
             if (event.cyTarget == event.cy){
                 menu = this.select ('contextMenuSelector');
                 this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
+                this.select('edgeContextMenuSelector').blur().parent().removeClass('open');
+            } else if (event.cyTarget.group ('edges') == 'edges') {
+                menu = this.select ('edgeContextMenuSelector');
+                menu.data("edgeId", event.cyTarget.data('id'));
+                menu.data("sourceId",event.cyTarget.data('source'));
+                menu.data("targetId",event.cyTarget.data('target'));
+                if (event.cy.nodes().filter(':selected').length > 1) {
+                    return false;
+                }
+                this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
+                this.select('contextMenuSelector').blur().parent().removeClass('open');
             } else {
                 menu = this.select ('nodeContextMenuSelector');
-                menu.data("currentNodeRowKey",event.cyTarget.data('rowKey'));
+                menu.data("currentNodeRowKey",event.cyTarget.data('_rowKey'));
                 menu.data("currentNodeGraphNodeId",event.cyTarget.data('graphNodeId'));
                 menu.data("currentNodePositionX", event.cyTarget.position ('x'));
                 menu.data("currentNodePositionY", event.cyTarget.position ('y'));
@@ -304,6 +331,7 @@ define([
                     return false;
                 }
                 this.select('contextMenuSelector').blur().parent().removeClass('open');
+                this.select('edgeContextMenuSelector').blur().parent().removeClass('open');
             }
 
             // Show/Hide the layout selection menu item
@@ -435,7 +463,7 @@ define([
             var graphMovedNodesData = {
                 nodes: $.map(nodes, function(node) {
                     return {
-                        rowKey: node.data('rowKey'),
+                        _rowKey: node.data('_rowKey'),
                         graphNodeId: node.data('id'),
                         graphPosition: node.data('targetPosition')
                     };
@@ -488,17 +516,16 @@ define([
             this.cy(function(cy) {
                 if (relationshipData.relationships != null){
                     var relationshipEdges = [];
-
                     relationshipData.relationships.forEach(function(relationship) {
                         relationshipEdges.push ({
                             group: "edges",
                             data: {
-                                rowKey: relationship.from + "->" + relationship.to,
+                                _rowKey: relationship.from + "->" + relationship.to,
                                 relationshipType: relationship.relationshipType,
                                 source: relationship.from,
                                 target: relationship.to,
                                 type: 'relationship',
-                                id: (relationship.from < relationship.to ? relationship.from + relationship.to : relationship.to + relationship.from)
+                                id: (relationship.from + relationship.to)
                             },
                             classes: (relationship.bidirectional ? 'bidirectional' : '')
                         });
@@ -533,18 +560,14 @@ define([
                     if (index % 10 === 0) {
                         y += yOffset;
                     }
-                    return {
+                    return $.extend({}, node.properties, {
                         graphNodeId: node.id,
-                        type: node.properties.type,
-                        subType: node.properties.subType,
-                        title: node.properties.title,
-                        rowKey: node.properties.rowKey,
                         graphPosition: {
                             x: x + xOffset * (index % 10 + 1),
                             y: y
                         },
                         selected: true
-                    };
+                    });
                 });
 
                 console.log('trigger nodes', nodes);

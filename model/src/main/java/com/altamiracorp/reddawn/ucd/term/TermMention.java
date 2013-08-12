@@ -22,9 +22,9 @@ public class TermMention extends ColumnFamily {
     public static final String ARTIFACT_SUBJECT = "atc:artifactSubject";
     public static final String SENTENCE_TEXT = "atc:sentenceText";
     public static final String SENTENCE_OFFSET = "atc:sentenceOffset";
-    public static final String OBJECT_ROW_KEY = "atc:objectRowKey";
     public static final String GRAPH_NODE_ID = "atc:graphNodeId";
     public static final String RESOLVED_GRAPH_NODE_ID = "atc:resolvedGraphNodeId";
+    public static final String RESOLVED_SIGN = "atc:resolvedSign";
 
     public TermMention() {
         super(null);
@@ -115,6 +115,15 @@ public class TermMention extends ColumnFamily {
 
     public TermMention setResolvedGraphNodeId(String resolvedGraphNodeId) {
         set(RESOLVED_GRAPH_NODE_ID, resolvedGraphNodeId);
+        return this;
+    }
+
+    public String getResolvedSign() {
+        return Value.toString(get(RESOLVED_SIGN));
+    }
+
+    public TermMention setResolvedSign(String resolvedSign) {
+        set(RESOLVED_SIGN, resolvedSign);
         return this;
     }
 

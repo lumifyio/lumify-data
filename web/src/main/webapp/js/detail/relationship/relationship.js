@@ -4,7 +4,7 @@ define([
     '../withHighlighting',
     'tpl!./relationship',
     'underscore'
-], function(defineComponent, withTypeContent, withHighlighting, template, statementsTemplate, excerptsTemplate, _) {
+], function(defineComponent, withTypeContent, withHighlighting, template, _) {
 
     'use strict';
 
@@ -37,8 +37,10 @@ define([
                     return self.trigger (document, 'error', { message: err.toString () });
                 }
 
-                relationshipData.highlightButton = self.highlightButton ();
-                self.$node.html (template(relationshipData));
+                self.$node.html (template({
+                    highlightButton: self.highlightButton(),
+                    relationshipData: relationshipData
+                }));
                 self.updateEntityAndArtifactDraggables();
             });
         };

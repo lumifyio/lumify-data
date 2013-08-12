@@ -11,6 +11,7 @@ import com.altamiracorp.reddawn.web.routes.graph.*;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
 import com.altamiracorp.reddawn.web.routes.node.NodeProperties;
+import com.altamiracorp.reddawn.web.routes.node.NodeRelationshipRemoval;
 import com.altamiracorp.reddawn.web.routes.node.NodeRelationships;
 import com.altamiracorp.reddawn.web.routes.node.NodeToNodeRelationship;
 import com.altamiracorp.reddawn.web.routes.predicate.PredicateList;
@@ -53,23 +54,25 @@ public class Router extends HttpServlet {
         app.get("/predicate/", PredicateList.class);
 
         app.get("/artifact/search", authenticator, ArtifactSearch.class);
-        app.get("/artifact/{rowKey}/terms", authenticator, ArtifactTermsByRowKey.class);
-        app.get("/artifact/{rowKey}/text", authenticator, ArtifactTextByRowKey.class);
-        app.get("/artifact/{rowKey}/raw", authenticator, ArtifactRawByRowKey.class);
-        app.get("/artifact/{rowKey}/poster-frame", authenticator, ArtifactPosterFrameByRowKey.class);
-        app.get("/artifact/{rowKey}/video-preview", authenticator, ArtifactVideoPreviewImageByRowKey.class);
-        app.get("/artifact/{rowKey}", authenticator, ArtifactByRowKey.class);
+        app.get("/artifact/{_rowKey}/terms", authenticator, ArtifactTermsByRowKey.class);
+        app.get("/artifact/{_rowKey}/text", authenticator, ArtifactTextByRowKey.class);
+        app.get("/artifact/{_rowKey}/raw", authenticator, ArtifactRawByRowKey.class);
+        app.get("/artifact/{_rowKey}/poster-frame", authenticator, ArtifactPosterFrameByRowKey.class);
+        app.get("/artifact/{_rowKey}/video-preview", authenticator, ArtifactVideoPreviewImageByRowKey.class);
+        app.get("/artifact/{_rowKey}", authenticator, ArtifactByRowKey.class);
 
-        app.get("/statement/{rowKey}", authenticator, StatementByRowKey.class);
+        app.get("/statement/{_rowKey}", authenticator, StatementByRowKey.class);
         app.post("/statement/create", authenticator, StatementCreate.class);
 
         app.post("/entity/relationships", authenticator, EntityRelationships.class);
-        app.get("/entity/{rowKey}", authenticator, EntityByRowKey.class);
+        app.get("/entity/search", authenticator, EntitySearch.class);
+        app.get("/entity/{_rowKey}", authenticator, EntityByRowKey.class);
         app.post("/entity/create", authenticator, EntityCreate.class);
 
         app.get("/node/{graphNodeId}/properties", authenticator, NodeProperties.class);
         app.get("/node/{graphNodeId}/relationships", authenticator, NodeRelationships.class);
         app.get("/node/relationship", authenticator, NodeToNodeRelationship.class);
+        app.get("/node/removeRelationship", authenticator, NodeRelationshipRemoval.class);
 
         app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedNodes.class);
         app.get("/graph/{graphNodeId}/relatedResolvedNodes", authenticator, GraphRelatedResolvedNodes.class);

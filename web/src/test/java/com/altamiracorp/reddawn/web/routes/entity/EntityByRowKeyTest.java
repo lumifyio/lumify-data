@@ -32,7 +32,7 @@ public class EntityByRowKeyTest extends RouteTestBase {
         TermRowKey termRowKey = new TermRowKey("Joe Ferner", "manual", "person");
         Term term = new Term(termRowKey);
 
-        when(mockRequest.getAttribute("rowKey")).thenReturn(termRowKey.toString());
+        when(mockRequest.getAttribute("_rowKey")).thenReturn(termRowKey.toString());
 
         entityByRowKey.handle(mockRequest, mockResponse, mockHandlerChain);
 

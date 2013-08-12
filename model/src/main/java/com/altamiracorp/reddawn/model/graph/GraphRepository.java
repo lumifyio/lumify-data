@@ -20,7 +20,7 @@ public class GraphRepository {
     }
 
     public GraphNode findNodeByTitleAndType(GraphSession graphSession, String graphNodeTitle, String graphNodeType) {
-        return graphSession.findNodeByTitleAndType(graphNodeTitle, graphNodeType);
+        return graphSession.findNodeByExactTitleAndType(graphNodeTitle, graphNodeType);
     }
 
     public List<GraphNode> getRelatedNodes(GraphSession graphSession, String graphNodeId) {
@@ -57,11 +57,20 @@ public class GraphRepository {
         return graphSession.findByGeoLocation(latitude, longitude, radius);
     }
 
-    public List<GraphNode> searchNodes(GraphSession graphSession, String query) {
-        return graphSession.searchNodes(query);
+    public List<GraphNode> searchNodesByTitle(GraphSession graphSession, String query) {
+        return graphSession.searchNodesByTitle(query);
+    }
+
+    public List<GraphNode> searchNodesByTitleAndType(GraphSession graphSession, String query, String type) {
+        return graphSession.searchNodesByTitleAndType(query, type);
     }
 
     public List<GraphNode> getResolvedRelatedNodes(GraphSession graphSession, String graphNodeId) {
         return graphSession.getResolvedRelatedNodes(graphNodeId);
+    }
+
+    public void removeRelationship(GraphSession graphSession, String source, String target) {
+        graphSession.removeRelationship(source, target);
+        return;
     }
 }

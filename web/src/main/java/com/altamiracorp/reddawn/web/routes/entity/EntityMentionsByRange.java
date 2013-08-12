@@ -35,7 +35,7 @@ public class EntityMentionsByRange implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
-        String rowKey = ((String) request.getAttribute("rowKey")).replace("$2E$", ".");
+        String rowKey = ((String) request.getAttribute("_rowKey")).replace("$2E$", ".");
         String[] params = UrlUtils.urlDecode(request.getQueryString()).split("&");
         Map<String, String> paramMap = new TreeMap<String, String>();
         for(String param : params) {

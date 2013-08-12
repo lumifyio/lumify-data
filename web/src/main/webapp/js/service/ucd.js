@@ -20,6 +20,16 @@ function(ServiceBase) {
         }, callback);
     };
 
+    Ucd.prototype.deleteEdge = function(sourceId, targetId, callback) {
+        return this._ajaxGet({
+            url: '/node/removeRelationship',
+            data: {
+                sourceId: sourceId,
+                targetId: targetId
+            }
+        }, callback);
+    };
+
     Ucd.prototype.getNodeToNodeRelationshipDetails = function (source, target, callback){
         return this._ajaxGet({
             url: 'node/relationship',
@@ -67,6 +77,10 @@ function(ServiceBase) {
     };
 
     Ucd.prototype.entitySearch = function (query, callback) {
+        return this._search("entity", query, callback);
+    };
+
+    Ucd.prototype.graphNodeSearch = function (query, callback) {
         return this._search("graph/node", query, callback);
     };
 

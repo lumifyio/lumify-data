@@ -210,14 +210,10 @@ define([
                             y: parseInt(Math.random() * droppable.height(), 10)
                         };
 
-                    if(info.rowKey == undefined) {
-                        info.rowKey = info.rowkey;
-                    }
-
                     var nodes = [{
                         title: info.title || draggable.text(),
                         graphNodeId: info.graphNodeId,
-                        rowKey: (info.rowKey || '').replace(/\\[x](1f)/ig, '\u001f'),
+                        _rowKey: info._rowKey,
                         subType: info.subType,
                         type: info.type,
                         dropPosition: dropPosition
@@ -268,11 +264,11 @@ define([
                 } else {
                     for (var i = 0; i < workspaces.length; i++) {
                         if (workspaces[i].active) {
-                            self.loadWorkspace(workspaces[i].rowKey);
+                            self.loadWorkspace(workspaces[i]._rowKey);
                             return;
                         }
                     }
-                    self.loadWorkspace(workspaces[0].rowKey); // backwards compatibility when no current workspace
+                    self.loadWorkspace(workspaces[0]._rowKey); // backwards compatibility when no current workspace
                 }
             });
         };
@@ -295,7 +291,7 @@ define([
         };
 
         this.onSwitchWorkspace = function(evt, data) {
-            this.loadWorkspace(data.rowKey);
+            this.loadWorkspace(data._rowKey);
         };
 
         this.onSaveWorkspace = function(evt, workspace) {
@@ -329,7 +325,7 @@ define([
         };
 
         this.onWorkspaceDeleted = function(evt, data) {
-            if (this.workspaceRowKey == data.rowKey) {
+            if (this.workspaceRowKey == data._rowKey) {
                 this.workspaceRowKey = null;
                 this.loadActiveWorkspace();
             }
@@ -397,12 +393,14 @@ define([
                 // currently mapping { id:[graphNodeId], properties:{} } 
                 // to { graphNodeId:..., [properties] }
                 data.nodes = data.nodes.map(function(n) {
-                console.log(n);
                     var node = n;
                     if (n.properties) {
                         node = n.properties;
                         node.graphNodeId = n.id;
                     }
+                    // Legacy names
+                    node._rowKey = encodeURIComponent((node._rowKey || node.rowKey || node.rowkey || '').replace(/\\[x](1f)/ig, '\u001f'));
+
                     if ( !node.dropPosition && !node.graphPosition) {
                         node.dropPosition = {
                             x: parseInt(Math.random() * win.width(), 10),
@@ -461,7 +459,7 @@ define([
                 ws.data.nodes = ws.data.nodes
                     .filter(function(workspaceNode) {
                         return workspaceNodesToDelete.filter(function(workspaceNodeToDelete) {
-                            return workspaceNode.rowKey == workspaceNodeToDelete.rowKey;
+                            return workspaceNode._rowKey == workspaceNodeToDelete._rowKey;
                         }).length === 0;
                     });
 

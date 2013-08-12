@@ -56,6 +56,10 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
     }
 
     public String getTitle() {
+        String resolvedSign = termAndTermMention.getTermMention().getResolvedSign();
+        if (resolvedSign != null) {
+            return resolvedSign;
+        }
         return termAndTermMention.getTerm().getRowKey().getSign();
     }
 
@@ -85,7 +89,7 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
     public List<String> getCssClasses() {
         List<String> classes = new ArrayList<String>();
         classes.add("entity");
-        if(getResolvedGraphNodeId() != null) {
+        if (getResolvedGraphNodeId() != null) {
             classes.add("resolved");
         }
         classes.add(getConceptLabel());

@@ -90,7 +90,7 @@ define([
                     self.searchResults.artifact = artifacts;
                     self.trigger('artifactSearchResults', artifacts);
                 });
-                this.ucd.entitySearch(query, function(err, entities) {
+                this.ucd.graphNodeSearch(query, function(err, entities) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
@@ -231,11 +231,11 @@ define([
             lisVisible.each(function() {
                 var li = $(this),
                     info = li.data('info'),
-                    rowKey = info.rowKey;
+                    _rowKey = info._rowKey;
 
                 if ((info.subType === 'video' || info.subType === 'image') && !li.data('preview-loaded')) {
                     li.addClass('preview-loading');
-                    previews.generatePreview(rowKey, null, function(poster, frames) {
+                    previews.generatePreview(_rowKey, null, function(poster, frames) {
                         li.removeClass('preview-loading')
                           .data('preview-loaded', true);
 
@@ -356,7 +356,7 @@ define([
                             nodes: [{
                                 title: info.title,
                                 graphNodeId: info.graphNodeId,
-                                rowKey: (info.rowKey || '').replace(/\\[x](1f)/ig, '\u001f'),
+                                _rowKey: info._rowKey,
                                 subType: info.subType,
                                 type: info.type,
                                 dropPosition: dropPosition

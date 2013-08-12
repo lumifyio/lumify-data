@@ -27,7 +27,7 @@ public class StatementByRowKey implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
-        ArtifactRowKey statementRowKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("rowKey")));
+        ArtifactRowKey statementRowKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("_rowKey")));
         Statement statement = statementRepository.findByRowKey(session.getModelSession(), statementRowKey.toString());
 
         if (statement == null) {

@@ -35,6 +35,9 @@ define([
             if (info) {
                 this.updateConceptLabel(info.subType);
             }
+            
+            // Remove extra textNodes
+            this.node.parentNode.normalize();
         });
 
         this.after('initialize', function() {
@@ -166,7 +169,7 @@ define([
 
             self.select('objectSignSelector').typeahead({
                 source: function(query, callback) {
-                    self.ucd.entitySearch(query.toLowerCase(), function(err, entities) {
+                    self.ucd.entitySearch(query, function(err, entities) {
                         if(err) {
                             console.error('Error', err);
                             callback([]);
@@ -180,7 +183,7 @@ define([
                         var all = Array.prototype.concat.apply([], entityArrays);
 
                         callback(all.map(function(e) {
-                            return e.sign;
+                            return e.properties.title;
                         }));
                     });
                     return;
@@ -198,7 +201,7 @@ define([
                 mentionNode.data('info', data.info);
                 // TODO: remove classes and reapply
 
-            } else {
+            } else if (this.promoted) {
 
                 this.promoted.data('info', data.info)
                              .addClass(data.cssClasses.join(' '))
@@ -208,22 +211,26 @@ define([
         };
 
         this.promoteSelectionToSpan = function() {
-            var textNode = this.node.previousSibling,
-                offset = this.attr.selection[
-                    this.attr.selection.anchor === textNode ? 'anchorOffset' : 'focusOffset'
-                    ];
+            var textNode = this.node,
+                range = this.attr.selection.range;
 
-            // Split textnode into just the selection
-            textNode.splitText(offset);
-            textNode = this.node.previousSibling;
+            range.startContainer.splitText(range.startOffset);
+            if (range.endOffset < range.endContainer.textContent.length) {
+                range.endContainer.splitText(range.endOffset);
+            }
 
-            // Remove textnode
-            textNode.parentNode.removeChild(textNode);
+            // TODO: handle case where selection includes existing entity
+            while (textNode && textNode.textContent !== this.attr.sign) {
+                textNode = textNode.previousSibling;
+            }
+            if (!textNode) return;
 
-            // Add new term node
-            return $('<span>').text(this.attr.sign)
+            var span = $('<span>').text(textNode.textContent)
                               .addClass('entity focused')
-                              .insertBefore(this.$node);
+                              .insertBefore(textNode);
+
+            textNode.parentNode.removeChild(textNode);
+            return span;
         };
 
         this.demoteSpanToTextNode = function(node) {

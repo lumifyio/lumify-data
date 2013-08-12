@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-// TODO: change this over to an Entity search once entities work
 public class GraphNodeSearch implements Handler, AppAware {
     private GraphRepository graphRepository = new GraphRepository();
     private WebApp app;
@@ -29,7 +28,7 @@ public class GraphNodeSearch implements Handler, AppAware {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         String query = request.getParameter("q");
         RedDawnSession session = app.getRedDawnSession(request);
-        List<GraphNode> nodes = graphRepository.searchNodes(session.getGraphSession(), query);
+        List<GraphNode> nodes = graphRepository.searchNodesByTitle(session.getGraphSession(), query);
         JSONObject results = new JSONObject();
         results.put("nodes", GraphNode.toJson(nodes));
         new Responder(response).respondWith(results);

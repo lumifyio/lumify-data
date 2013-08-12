@@ -44,16 +44,16 @@ define([
                     graphNodeId: this.attr.data.graphNodeId,
                     type: this.attr.data.type,
                     subType: this.attr.data.subType,
-                    rowKey: this.attr.data.rowKey
+                    _rowKey: this.attr.data._rowKey
                 }
-            }
+            };
 
             this.getProperties(this.attr.data.id || this.attr.data.graphNodeId, function(properties) {
                 self.select('propertiesSelector').html(propertiesTemplate({properties: properties}));
             });
 
             this.getRelationships(this.attr.data.id || this.attr.data.graphNodeId, function(relationships) {
-                var relationshipsTplData = []
+                var relationshipsTplData = [];
 
                 relationships.forEach(function(relationship) {
                     var relationshipTplData = {};

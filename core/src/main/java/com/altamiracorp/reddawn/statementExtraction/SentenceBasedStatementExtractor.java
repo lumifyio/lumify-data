@@ -48,8 +48,12 @@ public class SentenceBasedStatementExtractor implements StatementExtractor {
                             .setSecurityMarking(sentence.getMetadata().getSecurityMarking())
                             .setSentence(sentence.getRowKey().toString())
                             .setSentenceText(sentence.getData().getText())
-                            .setArtifactSubject(sentence.getMetadata().getArtifactSubject())
                             .setArtifactType(ArtifactType.valueOf(sentence.getMetadata().getArtifactType()));
+
+                    if (sentence.getMetadata().getArtifactSubject() != null) {
+                        statementArtifact.setArtifactSubject(sentence.getMetadata().getArtifactSubject());
+                    }
+
                     statement.addStatementArtifact(statementArtifact);
 
                     result.add(statement);

@@ -39,7 +39,7 @@ public class ArtifactRawByRowKey implements Handler, AppAware {
         boolean videoPlayback = request.getParameter("playback") != null;
 
         RedDawnSession session = app.getRedDawnSession(request);
-        ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("rowKey")));
+        ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("_rowKey")));
         Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactKey.toString());
 
         if (artifact == null) {
