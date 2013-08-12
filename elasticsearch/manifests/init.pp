@@ -133,4 +133,10 @@ class elasticsearch(
     content => template("elasticsearch/elasticsearch.conf.erb"),
     require => Exec["copy-elasticsearch-servicewrapper"],
   }
+
+  exec { "install-elasticsearch-gui-plugin" :
+    command => "${homedir}/bin/plugin --install jettro/elasticsearch-gui",
+    creates => "${homedir}/plugins/gui",
+    require => Macro::Extract[$downloadpath],
+  }
 }
