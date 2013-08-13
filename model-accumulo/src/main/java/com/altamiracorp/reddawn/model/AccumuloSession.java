@@ -317,6 +317,7 @@ public class AccumuloSession extends Session {
     @Override
     public void touchRow(String tableName, RowKey rowKey, QueryUser queryUser) {
         Row row = findByRowKey(tableName, rowKey.toString(), queryUser);
+        row.setDirtyBits(true);
         save(row);
     }
 

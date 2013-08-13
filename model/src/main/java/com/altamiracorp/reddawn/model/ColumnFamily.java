@@ -72,4 +72,10 @@ public class ColumnFamily {
             column.toString(out, indent + "\t");
         }
     }
+
+    public void setDirtyBit(boolean val) {
+        for (Column column : getColumns()) {
+            column.setDirty(val);
+        }
+    }
 }
