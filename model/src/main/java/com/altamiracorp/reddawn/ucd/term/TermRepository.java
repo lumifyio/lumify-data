@@ -4,10 +4,10 @@ import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
+import com.altamiracorp.reddawn.model.ontology.Concept;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndexRepository;
-import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,7 +16,6 @@ import java.util.List;
 
 public class TermRepository extends Repository<Term> {
     private ArtifactTermIndexRepository artifactTermIndexRepository = new ArtifactTermIndexRepository();
-    private SentenceRepository sentenceRepository = new SentenceRepository();
 
     @Override
     public Term fromRow(Row row) {
@@ -93,22 +92,23 @@ public class TermRepository extends Repository<Term> {
         }
     }
 
-    public void saveToGraph(Session session, GraphSession graphSession, Term term, TermMention termMention) {
+    public void saveToGraph(Session session, GraphSession graphSession, Term term, TermMention termMention, String conceptId) {
         String oldGraphNodeId = termMention.getGraphNodeId();
         GraphNode node = new GraphNodeImpl();
-        node.setProperty("type", OntologyRepository.TERM_MENTION_TYPE);
-        node.setProperty("subType", term.getRowKey().getConceptLabel());
-        node.setProperty(GraphSession.PROPERTY_NAME_ROW_KEY, term.getRowKey().toString());
-        node.setProperty("_columnFamilyName", termMention.getColumnFamilyName());
-        node.setProperty(GraphSession.PROPERTY_NAME_TITLE, term.getRowKey().getSign());
+        node.setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE);
+        node.setProperty(OntologyRepository.SUBTYPE_PROPERTY_NAME, conceptId);
+        node.setProperty(OntologyRepository.ROW_KEY_PROPERTY_NAME, term.getRowKey().toString());
+        node.setProperty(OntologyRepository.COLUMN_FAMILY_NAME_PROPERTY_NAME, termMention.getColumnFamilyName());
+        node.setProperty(OntologyRepository.TITLE_PROPERTY_NAME, term.getRowKey().getSign());
 
         String nodeId = graphSession.save(node);
-        if (!nodeId.equals(oldGraphNodeId)) {
+        if (!nodeId.equals(oldGraphNodeId) || !termMention.getGraphSubTypeNodeId().equals(conceptId)) {
+            termMention.setGraphSubTypeNodeId(conceptId);
             termMention.setGraphNodeId(nodeId);
             this.save(session, term);
         }
 
-        List<GraphNode> artifactNodes = graphSession.findBy(GraphSession.PROPERTY_NAME_ROW_KEY, termMention.getArtifactKey());
+        List<GraphNode> artifactNodes = graphSession.findBy(OntologyRepository.ROW_KEY_PROPERTY_NAME, termMention.getArtifactKey());
         if (artifactNodes.size() == 0) {
             throw new RuntimeException("Could not find artifact \"" + termMention.getArtifactKey() + "\" to link term mention to");
         }

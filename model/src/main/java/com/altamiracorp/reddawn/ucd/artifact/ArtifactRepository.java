@@ -134,16 +134,16 @@ public class ArtifactRepository extends Repository<Artifact> {
     public void saveToGraph(Session session, GraphSession graphSession, Artifact artifact) {
         GraphNode node = new GraphNodeImpl();
         String oldRowKey = artifact.getGenericMetadata().getGraphNodeId();
-        node.setProperty("type", OntologyRepository.ARTIFACT_TYPE);
-        node.setProperty("subType", artifact.getType().toString().toLowerCase());
-        node.setProperty(GraphSession.PROPERTY_NAME_ROW_KEY, artifact.getRowKey().toString());
+        node.setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.ARTIFACT_TYPE);
+        node.setProperty(OntologyRepository.SUBTYPE_PROPERTY_NAME, artifact.getType().toString().toLowerCase());
+        node.setProperty(OntologyRepository.ROW_KEY_PROPERTY_NAME, artifact.getRowKey().toString());
         if (artifact.getDynamicMetadata().getLatitude() != null) {
             double latitude = artifact.getDynamicMetadata().getLatitude();
             double longitude = artifact.getDynamicMetadata().getLongitude();
-            node.setProperty(GraphSession.PROPERTY_NAME_GEO_LOCATION, new GraphGeoLocation(latitude, longitude));
+            node.setProperty(OntologyRepository.GEO_LOCATION_PROPERTY_NAME, new GraphGeoLocation(latitude, longitude));
         }
         if (artifact.getGenericMetadata().getSubject() != null) {
-            node.setProperty("title", artifact.getGenericMetadata().getSubject());
+            node.setProperty(OntologyRepository.TITLE_PROPERTY_NAME, artifact.getGenericMetadata().getSubject());
         }
 
         String nodeId = graphSession.save(node);

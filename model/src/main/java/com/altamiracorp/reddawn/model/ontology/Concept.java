@@ -1,19 +1,8 @@
 package com.altamiracorp.reddawn.model.ontology;
 
-import com.tinkerpop.blueprints.Vertex;
+public abstract class Concept {
 
-public class Concept {
-    private final Vertex vertex;
+    public abstract String getId();
 
-    public Concept(Vertex vertex) {
-        this.vertex = vertex;
-    }
-
-    public Object getId() {
-        return this.vertex.getId();
-    }
-
-    public String getTitle() {
-        return this.vertex.getProperty("title");
-    }
+    public abstract String getTitle();
 }

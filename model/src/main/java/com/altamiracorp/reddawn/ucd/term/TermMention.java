@@ -25,6 +25,7 @@ public class TermMention extends ColumnFamily {
     public static final String GRAPH_NODE_ID = "atc:graphNodeId";
     public static final String RESOLVED_GRAPH_NODE_ID = "atc:resolvedGraphNodeId";
     public static final String RESOLVED_SIGN = "atc:resolvedSign";
+    public static final String GRAPH_SUB_TYPE_NODE_ID = "atc:resolvedSubTypeNodeId";
 
     public TermMention() {
         super(null);
@@ -115,6 +116,15 @@ public class TermMention extends ColumnFamily {
 
     public TermMention setResolvedGraphNodeId(String resolvedGraphNodeId) {
         set(RESOLVED_GRAPH_NODE_ID, resolvedGraphNodeId);
+        return this;
+    }
+
+    public String getGraphSubTypeNodeId() {
+        return Value.toString(get(GRAPH_SUB_TYPE_NODE_ID));
+    }
+
+    public TermMention setGraphSubTypeNodeId(String subTypeNodeId) {
+        set(GRAPH_SUB_TYPE_NODE_ID, subTypeNodeId);
         return this;
     }
 

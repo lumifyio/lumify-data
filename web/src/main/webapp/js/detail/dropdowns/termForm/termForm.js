@@ -151,16 +151,35 @@ define([
         this.loadConcepts = function() {
             var self = this;
             self.allConcepts = [];
-            self.entityService.concepts(function(err, concepts) {
+            self.entityService.concepts(function(err, rootConcept) {
                 var mentionNode = $(self.attr.mentionNode),
                     mentionNodeInfo = mentionNode.data('info');
 
-                self.allConcepts = concepts;
+                self.allConcepts = self.flattenConcepts(rootConcept);
                 self.select('conceptSelector').html(conceptsTemplate({
-                    concepts:concepts,
-                    selectedConceptLabel:mentionNodeInfo && mentionNodeInfo.subType || ''
+                    concepts: self.allConcepts,
+                    selectedConceptId: mentionNodeInfo && mentionNodeInfo.subType || ''
                 }));
             });
+        };
+
+        this.flattenConcepts = function(concept) {
+            var childIdx, child, grandChildIdx;
+            var flattenedConcepts = [];
+            for(childIdx in concept.children) {
+                child = concept.children[childIdx];
+                if(concept.flattenedTitle) {
+                    child.flattenedTitle = concept.flattenedTitle + "/" + child.title;
+                } else {
+                    child.flattenedTitle = child.title;
+                }
+                flattenedConcepts.push(child);
+                var grandChildren = this.flattenConcepts(child);
+                for(grandChildIdx in grandChildren) {
+                    flattenedConcepts.push(grandChildren[grandChildIdx]);
+                }
+            }
+            return flattenedConcepts;
         };
 
         this.setupObjectTypeAhead = function() {

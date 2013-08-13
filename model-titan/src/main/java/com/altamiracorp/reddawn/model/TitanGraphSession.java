@@ -3,7 +3,7 @@ package com.altamiracorp.reddawn.model;
 import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
-import com.altamiracorp.reddawn.model.graph.GraphRepository;
+import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
@@ -176,8 +176,15 @@ public class TitanGraphSession extends GraphSession {
         ArrayList<GraphNode> results = new ArrayList<GraphNode>();
         Vertex vertex = this.graph.getVertex(graphNodeId);
 
-        List<Vertex> vertices = new GremlinPipeline(vertex).bothE().bothV().toList();
-        vertices.addAll(new GremlinPipeline(vertex).bothE().bothV().in(GraphRepository.ENTITY_RESOLVED_PREDICATE).toList());
+        List<Vertex> vertices = new GremlinPipeline(vertex)
+                .bothE()
+                .bothV()
+                .toList();
+        vertices.addAll(new GremlinPipeline(vertex)
+                .bothE()
+                .bothV()
+                .in(OntologyRepository.IS_A_LABEL_NAME)
+                .toList());
         for (Vertex v : vertices) {
             results.add(new TitanGraphNode(v));
         }
@@ -189,9 +196,25 @@ public class TitanGraphSession extends GraphSession {
     public List<GraphNode> getResolvedRelatedNodes(String graphNodeId) {
         Vertex vertex = this.graph.getVertex(graphNodeId);
 
-        List<Vertex> resolvedVertices = new GremlinPipeline(vertex).both().hasNot("type", GraphRepository.TERM_MENTION_TYPE).toList();
-        resolvedVertices.addAll(new GremlinPipeline(vertex).both().has("type", GraphRepository.TERM_MENTION_TYPE).both().hasNot("type", GraphRepository.TERM_MENTION_TYPE).toList());
-        resolvedVertices.addAll(new GremlinPipeline(vertex).both().has("type", GraphRepository.TERM_MENTION_TYPE).as("mentions").both().hasNot("type", GraphRepository.TERM_MENTION_TYPE).hasNot("id", vertex.getId()).back("mentions").toList());
+        List<Vertex> resolvedVertices = new GremlinPipeline(vertex)
+                .both()
+                .hasNot(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE)
+                .toList();
+        resolvedVertices.addAll(new GremlinPipeline(vertex)
+                .both()
+                .has(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE)
+                .both()
+                .hasNot(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE)
+                .toList());
+        resolvedVertices.addAll(new GremlinPipeline(vertex)
+                .both()
+                .has(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE)
+                .as("mentions")
+                .both()
+                .hasNot(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE)
+                .hasNot("id", vertex.getId())
+                .back("mentions")
+                .toList());
 
         List<GraphNode> results = new ArrayList<GraphNode>();
         for (Vertex v : resolvedVertices) {
@@ -238,7 +261,7 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public List<GraphNode> findByGeoLocation(double latitude, double longitude, double radius) {
         Iterable<Vertex> r = graph.query()
-                .has(PROPERTY_NAME_GEO_LOCATION, Geo.WITHIN, Geoshape.circle(latitude, longitude, radius))
+                .has(OntologyRepository.GEO_LOCATION_PROPERTY_NAME, Geo.WITHIN, Geoshape.circle(latitude, longitude, radius))
                 .vertices();
         return toGraphNodes(r);
     }
@@ -246,7 +269,7 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public List<GraphNode> searchNodesByTitle(String query) {
         Iterable<Vertex> r = graph.query()
-                .has(PROPERTY_NAME_TITLE, Text.CONTAINS, query)
+                .has(OntologyRepository.TITLE_PROPERTY_NAME, Text.CONTAINS, query)
                 .vertices();
         return toGraphNodes(r);
     }
@@ -254,7 +277,7 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public List<GraphNode> searchNodesByTitleAndType(String query, String type) {
         Iterable<Vertex> r = graph.query()
-                .has(PROPERTY_NAME_TITLE, Text.CONTAINS, query)
+                .has(OntologyRepository.TITLE_PROPERTY_NAME, Text.CONTAINS, query)
                 .has("type", type)
                 .vertices();
         return toGraphNodes(r);
@@ -263,8 +286,8 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public GraphNode findNodeByExactTitleAndType(String graphNodeTitle, String graphNodeType) {
         Iterable<Vertex> r = graph.query()
-                .has("title", graphNodeTitle)
-                .has("type", graphNodeType)
+                .has(OntologyRepository.TITLE_PROPERTY_NAME, graphNodeTitle)
+                .has(OntologyRepository.TYPE_PROPERTY_NAME, graphNodeType)
                 .vertices();
         ArrayList<GraphNode> graphNodes = toGraphNodes(r);
         if (graphNodes.size() > 0) {

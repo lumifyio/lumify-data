@@ -1,6 +1,6 @@
 package com.altamiracorp.reddawn.entityHighlight;
 
-import com.altamiracorp.reddawn.model.graph.GraphRepository;
+import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import org.json.JSONException;
@@ -29,11 +29,11 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
 
     @Override
     public String getType() {
-        return GraphRepository.TERM_MENTION_TYPE;
+        return OntologyRepository.TERM_MENTION_TYPE;
     }
 
     public String getSubType() {
-        return termAndTermMention.getTerm().getRowKey().getConceptLabel();
+        return termAndTermMention.getTermMention().getGraphSubTypeNodeId();
     }
 
     @Override
@@ -92,7 +92,7 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
         if (getResolvedGraphNodeId() != null) {
             classes.add("resolved");
         }
-        classes.add(getConceptLabel());
+        classes.add("subType-" + getSubType());
         return classes;
     }
 
