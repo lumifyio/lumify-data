@@ -111,6 +111,7 @@ public class AccumuloHelper {
             String columnNameString = accumuloColumn.getKey().getColumnQualifier().toString();
             columnFamily.set(columnNameString, accumuloValueToObject(accumuloColumn.getValue()));
         }
+        row.setDirtyBits(false);
         return row;
     }
 

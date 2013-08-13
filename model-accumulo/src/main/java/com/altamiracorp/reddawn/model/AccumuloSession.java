@@ -350,8 +350,10 @@ public class AccumuloSession extends Session {
         Collection<ColumnFamily> columnFamilies = row.getColumnFamilies();
         for (ColumnFamily columnFamily : columnFamilies) {
             for (Column column : columnFamily.getColumns()) {
-                Value value = new Value(column.getValue().toBytes());
-                mutation.put(columnFamily.getColumnFamilyName(), column.getName(), value);
+                if (column.isDirty()) {
+                    Value value = new Value(column.getValue().toBytes());
+                    mutation.put(columnFamily.getColumnFamilyName(), column.getName(), value);
+                }
             }
         }
         return mutation;

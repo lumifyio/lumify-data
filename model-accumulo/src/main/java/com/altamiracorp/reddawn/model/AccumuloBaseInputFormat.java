@@ -41,6 +41,7 @@ public abstract class AccumuloBaseInputFormat<TModel extends Row, TRepo extends 
                 PeekingIterator<Map.Entry<Key, Value>> it = new PeekingIterator<Map.Entry<Key, Value>>(rowIterator.next());
                 TRepo repository = getRepository();
                 this.currentV = repository.fromRow(AccumuloHelper.accumuloRowToRow(repository.getTableName(), it));
+                this.currentV.setDirtyBits(false);
                 this.numKeysRead = this.rowIterator.getKVCount();
                 this.currentKey = new Key(this.currentV.getRowKey().toString());
                 this.currentK = new Text(this.currentKey.getRow());
