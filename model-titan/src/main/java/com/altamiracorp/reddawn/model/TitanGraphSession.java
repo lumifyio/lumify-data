@@ -102,7 +102,6 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public String save(GraphNode node) {
-        TitanTransaction tx = this.graph.newTransaction();
         Vertex vertex = null;
         if (node.getId() != null) {
             vertex = this.graph.getVertex(node.getId());
@@ -118,7 +117,6 @@ public class TitanGraphSession extends GraphSession {
             }
             vertex.setProperty(propertyKey, val);
         }
-        tx.commit();
         return "" + vertex.getId();
     }
 
@@ -147,7 +145,6 @@ public class TitanGraphSession extends GraphSession {
         for (String propertyKey : relationship.getPropertyKeys()) {
             edge.setProperty(propertyKey, relationship.getProperty(propertyKey));
         }
-        this.graph.commit();
         return "" + edge.getId();
     }
 
@@ -305,7 +302,8 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public void close() {
-        graph.shutdown();
+        this.graph.commit();
+        this.graph.shutdown();
     }
 
     @Override
