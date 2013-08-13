@@ -9,12 +9,12 @@ define([
 
     movieStrip.drawBackground = function(context, nodeX, nodeY, fitW, fitH) {
         var ratio = retina.devicePixelRatio,
-            padding = 1 * ratio,
+            padding = 2 * ratio,
             total = 5,
-            extend = 4 * ratio,
+            extend = 6 * ratio,
             height = Math.floor(fitH / total),
             holeSize = {
-                width: extend * 0.5,
+                width: extend * 0.6,
                 height: height - padding * 2
             },
             holeLeftPosition = extend / 2 - holeSize.width / 2,
