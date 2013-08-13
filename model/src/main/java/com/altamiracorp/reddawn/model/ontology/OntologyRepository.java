@@ -20,6 +20,7 @@ public class OntologyRepository {
     public static final String ROW_KEY_PROPERTY_NAME = "_rowKey";
     public static final String COLUMN_FAMILY_NAME_PROPERTY_NAME = "_columnFamilyName";
     public static final String GLYPH_ICON_PROPERTY_NAME = "_glyphIcon";
+    public static final String COLOR_PROPERTY_NAME = "_color";
 
     public static final String CONCEPT_TYPE = "Concept";
     public static final String ARTIFACT_TYPE = "Artifact";

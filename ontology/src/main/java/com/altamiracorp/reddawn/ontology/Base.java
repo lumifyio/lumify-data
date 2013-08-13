@@ -74,6 +74,12 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
         properties.put(glyphIconProperty.getName(), glyphIconProperty);
 
+        TitanKey colorProperty = (TitanKey) graph.getType(OntologyRepository.COLOR_PROPERTY_NAME);
+        if (colorProperty == null) {
+            colorProperty = graph.makeType().name(OntologyRepository.COLOR_PROPERTY_NAME).dataType(String.class).unique(Direction.OUT).makePropertyKey();
+        }
+        properties.put(colorProperty.getName(), colorProperty);
+
         TitanKey geoLocationProperty = (TitanKey) graph.getType(OntologyRepository.GEO_LOCATION_PROPERTY_NAME);
         if (geoLocationProperty == null) {
             geoLocationProperty = graph.makeType().name(OntologyRepository.GEO_LOCATION_PROPERTY_NAME).dataType(Geoshape.class).unique(Direction.OUT).indexed("search", Vertex.class).makePropertyKey();

@@ -42,6 +42,9 @@ public class ConceptList implements Handler, AppAware {
             result.put("glyphIconResourceRowKey", concept.getGlyphIconResourceRowKey());
             result.put("glyphIconHref", getGlyphUrl(request, concept.getGlyphIconResourceRowKey()));
         }
+        if (concept.getColor() != null) {
+            result.put("color", concept.getColor());
+        }
 
         List<Concept> childConcepts = ontologyRepository.getChildConcepts(session.getGraphSession(), concept);
         if (childConcepts.size() > 0) {

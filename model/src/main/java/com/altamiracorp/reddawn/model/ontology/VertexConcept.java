@@ -22,6 +22,11 @@ public class VertexConcept extends Concept {
         return getVertex().getProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME);
     }
 
+    @Override
+    public String getColor() {
+        return getVertex().getProperty(OntologyRepository.COLOR_PROPERTY_NAME);
+    }
+
     public Vertex getVertex() {
         return this.vertex;
     }
