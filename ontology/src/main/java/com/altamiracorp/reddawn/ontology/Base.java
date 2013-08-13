@@ -68,11 +68,19 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
         properties.put(titleProperty.getName(), titleProperty);
 
+        TitanKey glyphIconProperty = (TitanKey) graph.getType(OntologyRepository.GLYPH_ICON_PROPERTY_NAME);
+        if (glyphIconProperty == null) {
+            glyphIconProperty = graph.makeType().name(OntologyRepository.GLYPH_ICON_PROPERTY_NAME).dataType(String.class).unique(Direction.OUT).makePropertyKey();
+        }
+        properties.put(glyphIconProperty.getName(), glyphIconProperty);
+
         TitanKey geoLocationProperty = (TitanKey) graph.getType(OntologyRepository.GEO_LOCATION_PROPERTY_NAME);
         if (geoLocationProperty == null) {
             geoLocationProperty = graph.makeType().name(OntologyRepository.GEO_LOCATION_PROPERTY_NAME).dataType(Geoshape.class).unique(Direction.OUT).indexed("search", Vertex.class).makePropertyKey();
         }
         properties.put(geoLocationProperty.getName(), geoLocationProperty);
+
+        graph.commit();
 
         Iterator<Vertex> artifactIter = graph.getVertices(conceptProperty.getName(), OntologyRepository.ARTIFACT_TYPE).iterator();
         TitanVertex artifact;
@@ -82,11 +90,13 @@ public abstract class Base extends RedDawnCommandLineBase {
             artifact = (TitanVertex) graph.addVertex(null);
             artifact.setProperty(typeProperty.getName(), OntologyRepository.CONCEPT_TYPE);
             artifact.addProperty(conceptProperty, OntologyRepository.ARTIFACT_TYPE);
-            findOrAddEdge(artifact, typeProperty, hasPropertyEdge);
-            findOrAddEdge(artifact, subTypeProperty, hasPropertyEdge);
-            findOrAddEdge(artifact, titleProperty, hasPropertyEdge);
-            findOrAddEdge(artifact, geoLocationProperty, hasPropertyEdge);
         }
+        findOrAddEdge(artifact, typeProperty, hasPropertyEdge);
+        findOrAddEdge(artifact, subTypeProperty, hasPropertyEdge);
+        findOrAddEdge(artifact, titleProperty, hasPropertyEdge);
+        findOrAddEdge(artifact, geoLocationProperty, hasPropertyEdge);
+
+        graph.commit();
 
         // TermMention concept
         TitanKey rowKeyProperty = (TitanKey) graph.getType(OntologyRepository.ROW_KEY_PROPERTY_NAME);
@@ -101,6 +111,8 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
         properties.put(columnFamilyNameProperty.getName(), columnFamilyNameProperty);
 
+        graph.commit();
+
         Iterator<Vertex> termMentionIter = graph.getVertices(conceptProperty.getName(), OntologyRepository.TERM_MENTION_TYPE).iterator();
         TitanVertex termMention;
         if (termMentionIter.hasNext()) {
@@ -109,12 +121,14 @@ public abstract class Base extends RedDawnCommandLineBase {
             termMention = (TitanVertex) graph.addVertex(null);
             termMention.setProperty(typeProperty.getName(), OntologyRepository.CONCEPT_TYPE);
             termMention.addProperty(conceptProperty, OntologyRepository.TERM_MENTION_TYPE);
-            findOrAddEdge(termMention, typeProperty, hasPropertyEdge);
-            findOrAddEdge(termMention, subTypeProperty, hasPropertyEdge);
-            findOrAddEdge(termMention, rowKeyProperty, hasPropertyEdge);
-            findOrAddEdge(termMention, columnFamilyNameProperty, hasPropertyEdge);
-            findOrAddEdge(termMention, titleProperty, hasPropertyEdge);
         }
+        findOrAddEdge(termMention, typeProperty, hasPropertyEdge);
+        findOrAddEdge(termMention, subTypeProperty, hasPropertyEdge);
+        findOrAddEdge(termMention, rowKeyProperty, hasPropertyEdge);
+        findOrAddEdge(termMention, columnFamilyNameProperty, hasPropertyEdge);
+        findOrAddEdge(termMention, titleProperty, hasPropertyEdge);
+
+        graph.commit();
 
         // Entity concept
         Iterator<Vertex> entityIter = graph.getVertices(conceptProperty.getName(), OntologyRepository.ENTITY_TYPE).iterator();
@@ -125,10 +139,12 @@ public abstract class Base extends RedDawnCommandLineBase {
             entity = (TitanVertex) graph.addVertex(null);
             entity.setProperty(typeProperty.getName(), OntologyRepository.CONCEPT_TYPE);
             entity.addProperty(conceptProperty, OntologyRepository.ENTITY_TYPE);
-            findOrAddEdge(entity, typeProperty, hasPropertyEdge);
-            findOrAddEdge(entity, subTypeProperty, hasPropertyEdge);
-            findOrAddEdge(entity, titleProperty, hasPropertyEdge);
         }
+        findOrAddEdge(entity, typeProperty, hasPropertyEdge);
+        findOrAddEdge(entity, subTypeProperty, hasPropertyEdge);
+        findOrAddEdge(entity, titleProperty, hasPropertyEdge);
+
+        graph.commit();
 
         // Artifact to TermMention relationship
         TitanLabel hasTermMention = (TitanLabel) graph.getType(OntologyRepository.HAS_TERM_MENTION_LABEL_NAME);
@@ -138,6 +154,8 @@ public abstract class Base extends RedDawnCommandLineBase {
         edges.put(hasTermMention.getName(), hasTermMention);
         artifact.addEdge(hasEdgeEdge, hasTermMention);
         findOrAddEdge(hasTermMention, termMention, hasEdgeEdge);
+
+        graph.commit();
 
         int returnCode = defineOntology(graph, entity);
 

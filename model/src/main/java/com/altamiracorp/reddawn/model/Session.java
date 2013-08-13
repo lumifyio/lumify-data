@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.model;
 
 import com.altamiracorp.reddawn.model.dbpedia.DBPedia;
 import com.altamiracorp.reddawn.model.geoNames.GeoName;
+import com.altamiracorp.reddawn.model.resources.Resource;
 import com.altamiracorp.reddawn.model.videoFrames.VideoFrame;
 import com.altamiracorp.reddawn.model.workspace.Workspace;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
@@ -63,6 +64,7 @@ public abstract class Session {
         initializeTable(GeoName.TABLE_NAME);
         initializeTable(VideoFrame.TABLE_NAME);
         initializeTable(DBPedia.TABLE_NAME);
+        initializeTable(Resource.TABLE_NAME);
 
         initializeTable("atc_titan"); // see com.altamiracorp.reddawn.model.TitanGraphSession
 
@@ -103,6 +105,7 @@ public abstract class Session {
         deleteTable(GeoName.TABLE_NAME);
         deleteTable(VideoFrame.TABLE_NAME);
         deleteTable(DBPedia.TABLE_NAME);
+        deleteTable(Resource.TABLE_NAME);
 
         deleteTable("atc_titan"); // see com.altamiracorp.reddawn.model.TitanGraphSession
     }

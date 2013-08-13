@@ -18,4 +18,9 @@ public class GraphNodeConcept extends Concept {
     public String getTitle() {
         return (String) graphNode.getProperty(OntologyRepository.TITLE_PROPERTY_NAME);
     }
+
+    @Override
+    public String getGlyphIconResourceRowKey() {
+        return (String) graphNode.getProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME);
+    }
 }

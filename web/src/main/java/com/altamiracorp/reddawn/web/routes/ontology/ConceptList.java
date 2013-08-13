@@ -9,6 +9,7 @@ import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.web.utils.UrlUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,28 +28,36 @@ public class ConceptList implements Handler, AppAware {
 
         Concept entityConcept = ontologyRepository.getEntityConcept(session.getGraphSession());
 
-        JSONObject result = buildJsonTree(session, entityConcept);
+        JSONObject result = buildJsonTree(request, session, entityConcept);
 
         new Responder(response).respondWith(result);
         chain.next(request, response);
     }
 
-    private JSONObject buildJsonTree(RedDawnSession session, Concept concept) throws JSONException {
+    private JSONObject buildJsonTree(HttpServletRequest request, RedDawnSession session, Concept concept) throws JSONException {
         JSONObject result = new JSONObject();
         result.put("id", concept.getId());
         result.put("title", concept.getTitle());
+        if (concept.getGlyphIconResourceRowKey() != null) {
+            result.put("glyphIconResourceRowKey", concept.getGlyphIconResourceRowKey());
+            result.put("glyphIconHref", getGlyphUrl(request, concept.getGlyphIconResourceRowKey()));
+        }
 
         List<Concept> childConcepts = ontologyRepository.getChildConcepts(session.getGraphSession(), concept);
         if (childConcepts.size() > 0) {
             JSONArray childrenJson = new JSONArray();
             for (Concept childConcept : childConcepts) {
-                JSONObject childJson = buildJsonTree(session, childConcept);
+                JSONObject childJson = buildJsonTree(request, session, childConcept);
                 childrenJson.put(childJson);
             }
             result.put("children", childrenJson);
         }
 
         return result;
+    }
+
+    public static String getGlyphUrl(HttpServletRequest request, String resourceKey) {
+        return UrlUtils.getRootRef(request) + "/resource/" + resourceKey;
     }
 
     @Override

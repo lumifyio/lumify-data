@@ -1,5 +1,4 @@
 #!/bin/bash
-# require: 076_ResourceImport.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -25,7 +24,7 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.ontology.Dev \
+com.altamiracorp.reddawn.cmdline.ResourceImport \
 --zookeeperInstanceName=reddawn \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
@@ -33,4 +32,8 @@ com.altamiracorp.reddawn.ontology.Dev \
 --hadoopUrl=hdfs://${ip}:8020 \
 --zookeeperServerNames=${ip} \
 --username=root \
---password=password
+--password=password \
+${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_006_user_add@2x.png \
+${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_242_google_maps@2x.png \
+${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_263_bank@2x.png
+

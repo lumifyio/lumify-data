@@ -5,4 +5,6 @@ public abstract class Concept {
     public abstract String getId();
 
     public abstract String getTitle();
+
+    public abstract String getGlyphIconResourceRowKey();
 }

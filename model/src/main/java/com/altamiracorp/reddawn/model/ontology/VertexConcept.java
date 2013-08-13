@@ -14,7 +14,12 @@ public class VertexConcept extends Concept {
     }
 
     public String getTitle() {
-        return getVertex().getProperty("title");
+        return getVertex().getProperty(OntologyRepository.TITLE_PROPERTY_NAME);
+    }
+
+    @Override
+    public String getGlyphIconResourceRowKey() {
+        return getVertex().getProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME);
     }
 
     public Vertex getVertex() {
