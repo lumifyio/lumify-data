@@ -211,7 +211,11 @@ define([
                         };
 
                     var nodes = [{
-                        title: info.title || draggable.text(),
+                        title: $.trim(
+                            info.title || 
+                            // Only get the direct children textnode
+                            draggable.clone().children().remove().end().text()
+                        ),
                         graphNodeId: info.graphNodeId,
                         _rowKey: info._rowKey,
                         subType: info.subType,
