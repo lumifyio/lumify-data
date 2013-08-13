@@ -92,7 +92,9 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
         if (getResolvedGraphNodeId() != null) {
             classes.add("resolved");
         }
-        classes.add("subType-" + getSubType());
+        if (getSubType() != null) {
+            classes.add("subType-" + getSubType());
+        }
         return classes;
     }
 
