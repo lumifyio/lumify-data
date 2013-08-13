@@ -55,6 +55,7 @@ public class TermMentionToTitanMR extends ConfigurableMapJobBase {
                 for (TermMention termMention : term.getTermMentions()) {
                     termRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), term, termMention);
                 }
+                session.getGraphSession().commit();
             } catch (Exception e) {
                 throw new IOException(e);
             }

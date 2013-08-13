@@ -52,6 +52,7 @@ public class ArtifactToTitanMR extends ConfigurableMapJobBase {
             LOGGER.info("Adding artifact to titan: " + artifact.getRowKey().toString());
             try {
                 artifactRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), artifact);
+                session.getGraphSession().commit();
             } catch (Exception e) {
                 throw new IOException(e);
             }

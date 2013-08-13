@@ -348,4 +348,9 @@ public class TitanGraphSession extends GraphSession {
             edge.remove();
         }
     }
+
+    @Override
+    public void commit() {
+        this.graph.commit();
+    }
 }

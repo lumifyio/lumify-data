@@ -46,4 +46,6 @@ public abstract class GraphSession {
     public abstract GraphNode findNodeByExactTitleAndType(String graphNodeTitle, String graphNodeType);
 
     public abstract void removeRelationship(String source, String target, String label);
+
+    public abstract void commit();
 }
