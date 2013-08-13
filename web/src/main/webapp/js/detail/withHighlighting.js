@@ -3,17 +3,20 @@
 define([
     './dropdowns/termForm/termForm',
     './dropdowns/statementForm/statementForm',
-    'tpl!detail/toolbar/highlight'
-], function(TermForm, StatementForm, highlightButtonTemplate) {
+    'tpl!detail/toolbar/highlight',
+    'util/css-stylesheet',
+    'service/entity'
+], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, EntityService) {
 
     var HIGHLIGHT_STYLES = [
             { name: 'None' },
-            { name: 'Subtle Icons', cls:'icons' },
-            { name: 'Underline', cls:'underline' },
-            { name: 'Colors', cls:'colors' }
+            { name: 'Subtle Icons', selector:'icons' },
+            { name: 'Underline', selector:'underline' },
+            { name: 'Colors', selector:'colors' }
         ],
         DEFAULT = 2,
-        useDefaultStyle = true;
+        useDefaultStyle = true,
+        entityService = new EntityService();
 
 
     return withHighlighting;
@@ -71,14 +74,13 @@ define([
             ul.find('.checked').not(li).removeClass('checked');
             li.addClass('checked');
 
-            this.removeHighlightClasses();
-            
-            var newClass = li.data('cls');
+            var newClass = li.data('selector');
             if (newClass) {
                 content.addClass('highlight-' + newClass);
             }
-
             useDefaultStyle = false;
+
+            this.applyHighlightStyle();
         };
 
 
@@ -93,7 +95,7 @@ define([
                 var match = item.match(/^highlight-(.+)$/);
                 if (match) {
                     return HIGHLIGHT_STYLES.forEach(function(style, i) {
-                        if (style.cls === match[1]) {
+                        if (style.selector === match[1]) {
                             index = i;
                             return false;
                         }
@@ -114,10 +116,31 @@ define([
         };
 
         this.applyHighlightStyle = function() {
-            var newClass = HIGHLIGHT_STYLES[this.getActiveStyle()].cls;
-            if (newClass) {
-                this.removeHighlightClasses();
-                this.highlightNode.addClass('highlight-' + newClass);
+            var style = HIGHLIGHT_STYLES[this.getActiveStyle()];
+            this.removeHighlightClasses();
+            this.highlightNode.addClass('highlight-' + style.selector);
+
+            if (!style.styleApplied) {
+                entityService.concepts(function(err, concepts) {
+                    var styleFile = 'tpl!detail/highlight-styles/' + style.selector + '.css';
+                    require([styleFile], function(tpl) {
+                        function apply(concept) {
+                            if (concept.color) {
+                                var definition = tpl({ concept:concept });
+                                // TODO: add 1) drop-hover style for statement
+                                // creation, 2) icons, 3) focused style
+                                stylesheet.addRule(
+                                    '.highlight-' + style.selector + ' .entity.subType-' + concept.id, 
+                                    definition
+                                );
+                            }
+                            if (concept.children) {
+                                concept.children.forEach(apply);
+                            }
+                        }
+                        apply(concepts);
+                    });
+                });
             }
         };
 

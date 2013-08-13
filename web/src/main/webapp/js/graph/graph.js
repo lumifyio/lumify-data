@@ -97,7 +97,7 @@ define([
 
                     var cyNodeData = {
                         group: 'nodes',
-                        classes: $.trim('subtype-' + node.subType + ' ' + node.type),
+                        classes: $.trim('concept-' + node.subType + ' ' + node.type),
                         data: {
                             id: node.graphNodeId,
                             _rowKey: node._rowKey,

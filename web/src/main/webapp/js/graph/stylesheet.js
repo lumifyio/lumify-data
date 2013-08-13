@@ -11,7 +11,7 @@ define([
     return load;
 
     function apply(concept) {
-        style.selector('node.subtype-' + concept.id)
+        style.selector('node.concept-' + concept.id)
              .css({
                  'background-image': concept.glyphIconHref
              });
@@ -44,18 +44,18 @@ define([
                 'border-color': '#ccc',
                 'border-width': 1
             })
-            .selector('node.subtype-document')
+            .selector('node.concept-document')
             .css({
                 'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                 'width': 30 * retina.devicePixelRatio,
                 'height': 30 * 1.2 * retina.devicePixelRatio
             })
-            .selector('node.subtype-video')
+            .selector('node.concept-video')
             .css({
                 'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
                 'shape': 'movieStrip'
             })
-            .selector('node.subtype-image')
+            .selector('node.concept-image')
             .css({
                 'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
             })
