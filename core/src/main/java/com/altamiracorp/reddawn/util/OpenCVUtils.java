@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.util;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 
 import javax.imageio.ImageIO;
@@ -13,6 +14,8 @@ import static org.opencv.core.CvType.*;
 public class OpenCVUtils {
 
     public static Mat bufferedImageToMat (BufferedImage image) {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+
         if (image != null) {
             Mat mat;
             int numComponents = image.getColorModel().getNumComponents();

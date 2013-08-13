@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.util;
 
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -18,6 +19,11 @@ public class OpenCVUtilsTest {
     private static final String TEST_4_CHANNEL_IMAGE = "colbert-4channel.png";
     private static final String TEST_3_CHANNEL_IMAGE = "colbert-3channel.png";
     private static final String TEST_GRAYSCALE_IMAGE = "colbert-gray.png";
+
+    @Before
+    public void setUp() throws Exception {
+        System.out.println(System.getProperty("java.library.path"));
+    }
 
     @Test
     public void testBufferedImageToMat() throws IOException {
