@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 080_Ontology.sh
 # require: 150_ContentTypeExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"

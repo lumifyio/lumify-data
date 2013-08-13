@@ -26,7 +26,7 @@ function(ServiceBase) {
             callback(null, cachedConcepts);
         } else {
             this._ajaxGet({
-                url: 'concept'
+                url: 'ontology/concept'
             }, function(err, response) {
                 if (!err) {
                     cachedConcepts = response;

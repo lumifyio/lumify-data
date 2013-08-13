@@ -1,11 +1,10 @@
-
 define([
     'flight/lib/component',
     '../withDropdown',
     'tpl!./statementForm',
     'service/statement',
     'underscore'
-], function(defineComponent, withDropdown, statementFormTemplate, StatementService, _) {
+], function (defineComponent, withDropdown, statementFormTemplate, StatementService, _) {
     'use strict';
 
     return defineComponent(StatementForm, withDropdown);
@@ -24,7 +23,7 @@ define([
             invertAnchorSelector: 'a.invert'
         });
 
-        this.after('initialize', function() {
+        this.after('initialize', function () {
             this.$node.html(statementFormTemplate({
                 source: this.attr.sourceTerm.text(),
                 dest: this.attr.destTerm.text()
@@ -36,7 +35,7 @@ define([
 
             this.attr.sourceTerm.addClass('focused');
             this.attr.destTerm.addClass('focused');
-            
+
             this.select('createStatementButtonSelector').attr('disabled', true);
             this.setupLabelTypeAhead();
 
@@ -47,42 +46,44 @@ define([
             this.on('opened', this.onOpened);
         });
 
-        this.after('teardown', function() {
+        this.after('teardown', function () {
             this.attr.sourceTerm.removeClass('focused');
             this.attr.destTerm.removeClass('focused');
         });
 
 
-        this.applyTermClasses = function(el, applyToElement) {
+        this.applyTermClasses = function (el, applyToElement) {
             var classes = el.attr('class').split(/\s+/),
                 ignored = [/^ui-*/, /^term$/, /^entity$/];
 
-            classes.forEach(function(cls) {
-                var ignore = _.any(ignored, function(regex) { return regex.test(cls); });
-                if ( !ignore ) {
+            classes.forEach(function (cls) {
+                var ignore = _.any(ignored, function (regex) {
+                    return regex.test(cls);
+                });
+                if (!ignore) {
                     applyToElement.addClass(cls);
                 }
             });
         };
 
-        this.onInputChange = function(e) {
+        this.onInputChange = function (e) {
             this.select('createStatementButtonSelector')
                 .attr('disabled', $.trim($(e.target).val()).length === 0);
         };
 
-        this.onOpened = function() {
+        this.onOpened = function () {
             this.select('statementLabelSelector')
                 .on('change keyup', this.onInputChange.bind(this))
                 .focus();
         };
 
-        this.onInvert = function(e) {
+        this.onInvert = function (e) {
             e.preventDefault();
             this.select('formSelector').toggleClass('invert');
         };
 
 
-        this.onCreateStatement = function(event) {
+        this.onCreateStatement = function (event) {
             var self = this,
                 parameters = {
                     sourceGraphNodeId: this.attr.sourceTerm.data('info').graphNodeId,
@@ -96,7 +97,7 @@ define([
                 parameters.destGraphNodeId = swap;
             }
 
-            this.statementService.createStatement(parameters, function(err, data) {
+            this.statementService.createStatement(parameters, function (err, data) {
                 if (err) {
                     self.trigger(document, 'error', err);
                 } else {
@@ -106,20 +107,23 @@ define([
             });
         };
 
-        this.setupLabelTypeAhead = function() {
+        this.setupLabelTypeAhead = function () {
             var self = this;
 
             self.select('statementLabelSelector').typeahead({
-                source: function(query, callback) {
-                    self.statementService.predicates(function(err, predicates) {
-                        if(err) {
+                source: function (query, callback) {
+                    var sourceConceptTypeId = self.attr.sourceTerm.data('info').subType;
+                    var destConceptTypeId = self.attr.destTerm.data('info').subType;
+                    self.statementService.relationships(sourceConceptTypeId, destConceptTypeId, function (err, results) {
+                        if (err) {
                             console.error('Error', err);
                             callback([]);
                             return self.trigger(document, 'error', { message: err.toString() });
                         }
 
-                        callback(predicates.map(function(p) {
-                            return p.labelUi; 
+                        console.log('relationships results:', results);
+                        callback(results.relationships.map(function (p) {
+                            return p.title;
                         }));
                     });
                     return;

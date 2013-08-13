@@ -4,6 +4,8 @@ import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.Row;
+import com.altamiracorp.reddawn.model.ontology.Concept;
+import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.ucd.AccumuloTermInputFormat;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
@@ -42,6 +44,7 @@ public class TermMentionToTitanMR extends ConfigurableMapJobBase {
     public static class TermToTitan extends Mapper<Text, Term, Text, Row> {
         private RedDawnSession session;
         private TermRepository termRepository = new TermRepository();
+        private OntologyRepository ontologyRepository = new OntologyRepository();
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -53,7 +56,13 @@ public class TermMentionToTitanMR extends ConfigurableMapJobBase {
             LOGGER.info("Adding term to titan: " + term.getRowKey().toString());
             try {
                 for (TermMention termMention : term.getTermMentions()) {
-                    termRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), term, termMention);
+                    String conceptLabel = term.getRowKey().getConceptLabel();
+                    Concept concept = ontologyRepository.getConceptByName(session.getGraphSession(), conceptLabel);
+                    if (concept == null) {
+                        throw new RuntimeException("Could not find concept: " + conceptLabel);
+                    }
+
+                    termRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), term, termMention, concept.getId());
                 }
                 session.getGraphSession().commit();
             } catch (Exception e) {

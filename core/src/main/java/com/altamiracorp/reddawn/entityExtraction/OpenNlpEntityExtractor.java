@@ -88,7 +88,7 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         Long termMentionEnd = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
 
         String concept = openNlpTypeToConcept(foundName.getType());
-        TermRowKey termKey = new TermRowKey(sign, getModelName(), concept);
+        TermRowKey termKey = new TermRowKey(sign, getModelName(), mapConceptName(concept));
         TermMention termMention = new TermMention()
                 .setArtifactKey(sentence.getData().getArtifactId())
                 .setArtifactKeySign(sentence.getData().getArtifactId())
@@ -107,6 +107,10 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         Term term = new Term(termKey)
                 .addTermMention(termMention);
         return term;
+    }
+
+    protected String mapConceptName(String concept) {
+        return concept.substring(0, 1).toUpperCase() + concept.substring(1);
     }
 
     private void setSecurityMarking(TermMention termMention, Sentence sentence) {

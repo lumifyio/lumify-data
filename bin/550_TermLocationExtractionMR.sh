@@ -2,7 +2,6 @@
 # require: 100_GeoNamesImport.sh
 # require: 300_DictionaryEntityExtractionMR.sh
 # require: 300_EntityExtractionMR.sh
-# require: 250_StructuredDataExtractorMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do

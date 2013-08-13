@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.model;
 
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
+import com.tinkerpop.blueprints.Graph;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,10 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class GraphSession {
-    public static final String PROPERTY_NAME_ROW_KEY = "_rowKey";
-    public static final String PROPERTY_NAME_TITLE = "title";
-    public static final String PROPERTY_NAME_GEO_LOCATION = "geoLocation";
-
     public abstract String save(GraphNode node);
 
     public abstract String save(GraphRelationship relationship);
@@ -40,6 +37,8 @@ public abstract class GraphSession {
     public abstract List<GraphNode> findByGeoLocation(double latitude, double longitude, double radius);
 
     public abstract List<GraphNode> searchNodesByTitle(String query);
+
+    public abstract Graph getGraph();
 
     public abstract List<GraphNode> searchNodesByTitleAndType(String query, String type);
 

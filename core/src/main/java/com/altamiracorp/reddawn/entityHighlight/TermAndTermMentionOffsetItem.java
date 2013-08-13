@@ -1,8 +1,8 @@
 package com.altamiracorp.reddawn.entityHighlight;
 
-import com.altamiracorp.reddawn.model.graph.GraphRepository;
-import com.altamiracorp.reddawn.ucd.predicate.PredicateRowKey;
+import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
+import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,11 +29,11 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
 
     @Override
     public String getType() {
-        return GraphRepository.TERM_MENTION_TYPE;
+        return OntologyRepository.TERM_MENTION_TYPE;
     }
 
     public String getSubType() {
-        return termAndTermMention.getTerm().getRowKey().getConceptLabel();
+        return termAndTermMention.getTermMention().getGraphSubTypeNodeId();
     }
 
     @Override
@@ -92,7 +92,9 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
         if (getResolvedGraphNodeId() != null) {
             classes.add("resolved");
         }
-        classes.add(getConceptLabel());
+        if (getSubType() != null) {
+            classes.add("subType-" + getSubType());
+        }
         return classes;
     }
 
@@ -104,7 +106,7 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
                     return -1;
                 } else if (getResolvedGraphNodeId() == null && other.getResolvedGraphNodeId() != null) {
                     return 1;
-                } else if (this.termAndTermMention.getTerm().getRowKey().getModelKey().equals(PredicateRowKey.MANUAL_MODEL_KEY)) {
+                } else if (this.termAndTermMention.getTerm().getRowKey().getModelKey().equals(TermRowKey.MANUAL_MODEL_KEY)) {
                     return -1;
                 }
                 return 0;
