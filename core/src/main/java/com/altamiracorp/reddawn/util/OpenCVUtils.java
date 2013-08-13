@@ -13,11 +13,13 @@ import static org.opencv.core.CvType.CV_8UC3;
 public class OpenCVUtils {
 
     public static Mat bufferedImageToMat (BufferedImage image) {
-        Mat mat = new Mat(image.getHeight(),image.getWidth(),CV_8UC3);
-        byte[] pixelData = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
-        mat.put(0,0,pixelData);
-
-        return mat;
+        if (image != null) {
+            Mat mat = new Mat(image.getHeight(),image.getWidth(),CV_8UC3);
+            byte[] pixelData = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
+            mat.put(0,0,pixelData);
+            return mat;
+        }
+        return null;
     }
 
     public static BufferedImage matToBufferedImage (Mat mat) throws IOException {
