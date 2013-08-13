@@ -22,6 +22,7 @@ class ffmpeg::libvorbis($prefix="/usr/local", $tmpdir="/usr/local/src") {
   exec { 'libvorbis-build' :
     cwd     => $srcdir,
     command => $cmd,
+    environment => "LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/${prefix}/lib",
     creates => "${prefix}/lib/libvorbis.a",
     require => Macro::Extract['extract-libvorbis'],
   }

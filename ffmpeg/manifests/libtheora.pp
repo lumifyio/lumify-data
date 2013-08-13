@@ -22,6 +22,7 @@ class ffmpeg::libtheora($prefix="/usr/local", $tmpdir="/usr/local/src") {
   exec { 'libtheora-build' :
     cwd => $srcdir,
     command => $cmd,
+    environment => "LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/${prefix}/lib",
     creates => "${prefix}/lib/libtheora.a",
     require => Macro::Extract['extract-libtheora'],
   }
