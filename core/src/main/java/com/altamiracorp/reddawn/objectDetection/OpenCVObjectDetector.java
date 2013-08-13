@@ -18,14 +18,16 @@ public class OpenCVObjectDetector extends ObjectDetector {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         ArrayList<DetectedObject> detectedObjectList = new ArrayList<DetectedObject>();
         Mat image = OpenCVUtils.bufferedImageToMat(bImage);
-        CascadeClassifier faceDetector = new CascadeClassifier(classifierPath);
+        if (image != null){
+            CascadeClassifier faceDetector = new CascadeClassifier(classifierPath);
 
-        MatOfRect faceDetections = new MatOfRect();
-        faceDetector.detectMultiScale(image, faceDetections);
+            MatOfRect faceDetections = new MatOfRect();
+            faceDetector.detectMultiScale(image, faceDetections);
 
-        for (Rect rect : faceDetections.toArray()) {
-            DetectedObject detectedObject = new DetectedObject(rect.x,rect.y,rect.x + rect.width, rect.y + rect.height);
-            detectedObjectList.add(detectedObject);
+            for (Rect rect : faceDetections.toArray()) {
+                DetectedObject detectedObject = new DetectedObject(rect.x,rect.y,rect.x + rect.width, rect.y + rect.height);
+                detectedObjectList.add(detectedObject);
+            }
         }
 
         return detectedObjectList;
