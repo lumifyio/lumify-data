@@ -20,7 +20,7 @@ public class Dev extends Base {
     @Override
     protected int defineOntology(TitanGraph graph, TitanVertex entity) {
         TitanVertex person = getOrCreateType(graph, entity, PERSON_TYPE);
-        person.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "8be90948c928cdee579aaf752799a5c3143a0a3ce0d99cbf498e950a285fbb68");
+        person.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "f3ee34c83989653f9ed5abf9c1d138abda75951b0e9682b7e6965f545d6ebf20");
 
         TitanVertex org = getOrCreateType(graph, entity, ORGANIZATION_TYPE);
         org.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "8777a8592b14db5a7d4d151d9887f9500077adbfac7e30fecd987093299602da");

@@ -33,7 +33,7 @@ com.altamiracorp.reddawn.cmdline.ResourceImport \
 --zookeeperServerNames=${ip} \
 --username=root \
 --password=password \
-${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_006_user_add@2x.png \
+${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_003_user.png \
 ${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_242_google_maps@2x.png \
 ${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_263_bank@2x.png
 
