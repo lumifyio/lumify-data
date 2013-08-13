@@ -1,4 +1,4 @@
-package com.altamiracorp.reddawn.web.routes.concept;
+package com.altamiracorp.reddawn.web.routes.ontology;
 
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.ontology.Concept;

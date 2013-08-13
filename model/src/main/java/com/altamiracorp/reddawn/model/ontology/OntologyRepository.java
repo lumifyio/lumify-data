@@ -4,6 +4,8 @@ import com.altamiracorp.reddawn.model.GraphSession;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.gremlin.java.GremlinPipeline;
+import com.tinkerpop.pipes.PipeFunction;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -58,6 +60,14 @@ public class OntologyRepository {
         return concepts;
     }
 
+    public Concept getConceptById(GraphSession graphSession, String conceptVertexId) {
+        Vertex conceptVertex = graphSession.getGraph().getVertex(conceptVertexId);
+        if (conceptVertex == null) {
+            return null;
+        }
+        return new VertexConcept(conceptVertex);
+    }
+
     public List<String> getConceptPath(GraphSession graphSession, String conceptVertexId) {
         ArrayList<String> path = new ArrayList<String>();
         Vertex conceptVertex = graphSession.getGraph().getVertex(conceptVertexId);
@@ -87,5 +97,40 @@ public class OntologyRepository {
             return null;
         }
         return new GraphNodeConcept(node);
+    }
+
+    public List<Relationship> getRelationships(GraphSession graphSession, String sourceConceptTypeId, String destConceptTypeId) {
+        VertexConcept sourceConcept = (VertexConcept) getConceptById(graphSession, sourceConceptTypeId);
+        if (sourceConcept == null) {
+            throw new RuntimeException("Could not find concept: " + sourceConceptTypeId);
+        }
+        final VertexConcept destConcept = (VertexConcept) getConceptById(graphSession, destConceptTypeId);
+        if (destConcept == null) {
+            throw new RuntimeException("Could not find concept: " + destConceptTypeId);
+        }
+
+        List<Vertex> relationshipTypes = new GremlinPipeline(sourceConcept.getVertex())
+                .outE(HAS_EDGE_LABEL_NAME)
+                .inV()
+                .as("edgeTypes")
+                .outE(HAS_EDGE_LABEL_NAME)
+                .inV()
+                .filter(new PipeFunction<Vertex, Boolean>() {
+                    @Override
+                    public Boolean compute(Vertex vertex) {
+                        return vertex.getId().toString().equals(destConcept.getId());
+                    }
+                })
+                .back("edgeTypes")
+                .toList();
+        return toRelationships(relationshipTypes);
+    }
+
+    private List<Relationship> toRelationships(List<Vertex> relationshipTypes) {
+        ArrayList<Relationship> relationships = new ArrayList<Relationship>();
+        for (Vertex relationshipType : relationshipTypes) {
+            relationships.add(new VertexRelationship(relationshipType));
+        }
+        return relationships;
     }
 }

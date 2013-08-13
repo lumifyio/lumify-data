@@ -82,10 +82,10 @@ public abstract class Base extends RedDawnCommandLineBase {
             artifact = (TitanVertex) graph.addVertex(null);
             artifact.setProperty(typeProperty.getName(), OntologyRepository.CONCEPT_TYPE);
             artifact.addProperty(conceptProperty, OntologyRepository.ARTIFACT_TYPE);
-            artifact.addEdge(hasPropertyEdge, typeProperty);
-            artifact.addEdge(hasPropertyEdge, subTypeProperty);
-            artifact.addEdge(hasPropertyEdge, titleProperty);
-            artifact.addEdge(hasPropertyEdge, geoLocationProperty);
+            findOrAddEdge(artifact, typeProperty, hasPropertyEdge);
+            findOrAddEdge(artifact, subTypeProperty, hasPropertyEdge);
+            findOrAddEdge(artifact, titleProperty, hasPropertyEdge);
+            findOrAddEdge(artifact, geoLocationProperty, hasPropertyEdge);
         }
 
         // TermMention concept
@@ -109,11 +109,11 @@ public abstract class Base extends RedDawnCommandLineBase {
             termMention = (TitanVertex) graph.addVertex(null);
             termMention.setProperty(typeProperty.getName(), OntologyRepository.CONCEPT_TYPE);
             termMention.addProperty(conceptProperty, OntologyRepository.TERM_MENTION_TYPE);
-            termMention.addEdge(hasPropertyEdge, typeProperty);
-            termMention.addEdge(hasPropertyEdge, subTypeProperty);
-            termMention.addEdge(hasPropertyEdge, rowKeyProperty);
-            termMention.addEdge(hasPropertyEdge, columnFamilyNameProperty);
-            termMention.addEdge(hasPropertyEdge, titleProperty);
+            findOrAddEdge(termMention, typeProperty, hasPropertyEdge);
+            findOrAddEdge(termMention, subTypeProperty, hasPropertyEdge);
+            findOrAddEdge(termMention, rowKeyProperty, hasPropertyEdge);
+            findOrAddEdge(termMention, columnFamilyNameProperty, hasPropertyEdge);
+            findOrAddEdge(termMention, titleProperty, hasPropertyEdge);
         }
 
         // Entity concept
@@ -125,9 +125,9 @@ public abstract class Base extends RedDawnCommandLineBase {
             entity = (TitanVertex) graph.addVertex(null);
             entity.setProperty(typeProperty.getName(), OntologyRepository.CONCEPT_TYPE);
             entity.addProperty(conceptProperty, OntologyRepository.ENTITY_TYPE);
-            entity.addEdge(hasPropertyEdge, typeProperty);
-            entity.addEdge(hasPropertyEdge, subTypeProperty);
-            entity.addEdge(hasPropertyEdge, titleProperty);
+            findOrAddEdge(entity, typeProperty, hasPropertyEdge);
+            findOrAddEdge(entity, subTypeProperty, hasPropertyEdge);
+            findOrAddEdge(entity, titleProperty, hasPropertyEdge);
         }
 
         // Artifact to TermMention relationship
@@ -137,8 +137,7 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
         edges.put(hasTermMention.getName(), hasTermMention);
         artifact.addEdge(hasEdgeEdge, hasTermMention);
-        hasTermMention.addEdge(hasEdgeEdge, termMention);
-
+        findOrAddEdge(hasTermMention, termMention, hasEdgeEdge);
 
         int returnCode = defineOntology(graph, entity);
 
@@ -159,8 +158,28 @@ public abstract class Base extends RedDawnCommandLineBase {
             vertex.setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.CONCEPT_TYPE);
             vertex.setProperty(OntologyRepository.TITLE_PROPERTY_NAME, typeName);
             vertex.addProperty(OntologyRepository.CONCEPT_PROPERTY_NAME, typeName);
-            vertex.addEdge(OntologyRepository.IS_A_LABEL_NAME, parent);
+            findOrAddEdge(vertex, parent, OntologyRepository.IS_A_LABEL_NAME);
         }
         return vertex;
+    }
+
+    protected void getOrCreateRelationshipType(TitanGraph graph, TitanVertex fromVertex, TitanVertex toVertex, String relationshipName) {
+        TitanLabel relationshipLabel = (TitanLabel) graph.getType(relationshipName);
+        if (relationshipLabel == null) {
+            relationshipLabel = graph.makeType().name(relationshipName).directed().makeEdgeLabel();
+            relationshipLabel.setProperty(OntologyRepository.TITLE_PROPERTY_NAME, relationshipName);
+        }
+
+        TitanLabel hasEdgeLabel = this.edges.get(OntologyRepository.HAS_EDGE_LABEL_NAME);
+        findOrAddEdge(fromVertex, relationshipLabel, hasEdgeLabel);
+        findOrAddEdge(relationshipLabel, toVertex, hasEdgeLabel);
+    }
+
+    protected void findOrAddEdge(TitanVertex fromVertex, TitanVertex toVertex, TitanLabel edgeLabel) {
+        findOrAddEdge(fromVertex, toVertex, edgeLabel.getName());
+    }
+
+    protected void findOrAddEdge(TitanVertex fromVertex, TitanVertex toVertex, String edgeLabel) {
+        fromVertex.addEdge(edgeLabel, toVertex);
     }
 }

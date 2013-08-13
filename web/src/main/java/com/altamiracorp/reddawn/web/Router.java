@@ -5,7 +5,7 @@ import com.altamiracorp.reddawn.web.routes.admin.AdminTables;
 import com.altamiracorp.reddawn.web.routes.artifact.*;
 import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
-import com.altamiracorp.reddawn.web.routes.concept.ConceptList;
+import com.altamiracorp.reddawn.web.routes.ontology.ConceptList;
 import com.altamiracorp.reddawn.web.routes.entity.EntityByRowKey;
 import com.altamiracorp.reddawn.web.routes.entity.EntityCreate;
 import com.altamiracorp.reddawn.web.routes.entity.EntityRelationships;
@@ -17,6 +17,7 @@ import com.altamiracorp.reddawn.web.routes.node.NodeProperties;
 import com.altamiracorp.reddawn.web.routes.node.NodeRelationshipRemoval;
 import com.altamiracorp.reddawn.web.routes.node.NodeRelationships;
 import com.altamiracorp.reddawn.web.routes.node.NodeToNodeRelationship;
+import com.altamiracorp.reddawn.web.routes.ontology.RelationshipList;
 import com.altamiracorp.reddawn.web.routes.statement.StatementCreate;
 import com.altamiracorp.reddawn.web.routes.user.MeGet;
 import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
@@ -50,7 +51,8 @@ public class Router extends HttpServlet {
             authenticator = DevBasicAuthenticator.class;
         }
 
-        app.get("/concept/", ConceptList.class);
+        app.get("/ontology/concept/", ConceptList.class);
+        app.get("/ontology/relationship/", RelationshipList.class);
 
         app.get("/artifact/search", authenticator, ArtifactSearch.class);
         app.get("/artifact/{_rowKey}/raw", authenticator, ArtifactRawByRowKey.class);
