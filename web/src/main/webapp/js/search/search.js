@@ -41,12 +41,24 @@ define([
         };
 
         this.onEntitySearchResults = function(evt, entities) {
+            var self = this;
+            console.log('onEntitySearchResults', entities);
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            this.entityService.concepts(function(err, concepts) {
-                concepts.children.forEach(function(concept) {
-                    $searchResultsSummary.find('.' + concept.title + ' .badge').removeClass('loading').text((entities[concept.title] || []).length);
+            this.entityService.concepts(function(err, rootConcept) {
+                rootConcept.children.forEach(function(concept) {
+                    self.onEntitySearchResultsForConcept($searchResultsSummary, concept, entities);
                 });
             });
+        };
+
+        this.onEntitySearchResultsForConcept = function($searchResultsSummary, concept, entities) {
+            var self = this;
+            $searchResultsSummary.find('.concept-' + concept.id + ' .badge').removeClass('loading').text((entities[concept.id] || []).length);
+            if(concept.children && concept.children.length > 0) {
+                concept.children.forEach(function(childConcept) {
+                    self.onEntitySearchResultsForConcept($searchResultsSummary, childConcept, entities);
+                });
+            }
         };
 
         this.onFormSearch = function(evt) {
@@ -80,7 +92,7 @@ define([
 
             $searchResults.hide();
             this.entityService.concepts(function(err, concepts) {
-                $searchResultsSummary.html(summaryTemplate({concepts:concepts}));
+                $searchResultsSummary.html(summaryTemplate({ rootConcept: concepts }));
                 $('.badge', $searchResultsSummary).addClass('loading');
                 this.ucd.artifactSearch(query, function(err, artifacts) {
                     if(err) {

@@ -6,6 +6,17 @@
 
 <li class="nav-header">Entities</li>
 
-<% concepts.children.forEach(function(concept) { %>
-<li item-path="entity.<%= concept.title %>" class="<%= concept.title %>"><a href="#"><%= concept.title %><span class="badge"></span></a></li>
-<% }); %>
+<%- getConceptChildrenHtml(rootConcept, 0) %>
+
+<%
+function getConceptChildrenHtml(concept, indent) {
+    var html = "";
+    concept.children.forEach(function(concept) {
+        html += '<li item-path="entity.' + concept.id + '" style="padding-left: ' + indent + 'px;" class="concept-' + concept.id + '"><a href="#">' + concept.title + '<span class="badge"></span></a></li>';
+        if(concept.children && concept.children.length > 0) {
+            html += getConceptChildrenHtml(concept, indent + 8);
+        }
+    });
+    return html;
+}
+%>
