@@ -7,7 +7,6 @@ import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.TitanTransaction;
 import com.thinkaurelius.titan.core.attribute.Geo;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.thinkaurelius.titan.core.attribute.Text;
@@ -349,5 +348,10 @@ public class TitanGraphSession extends GraphSession {
         if (edge != null) {
             edge.remove();
         }
+    }
+
+    @Override
+    public void commit() {
+        this.graph.commit();
     }
 }

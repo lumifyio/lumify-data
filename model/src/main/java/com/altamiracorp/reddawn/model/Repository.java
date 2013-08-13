@@ -17,6 +17,7 @@ public abstract class Repository<T> {
         if (row == null) {
             return null;
         }
+        row.setDirtyBits(false);
         return fromRow(row);
     }
 
@@ -25,6 +26,7 @@ public abstract class Repository<T> {
         if (row == null) {
             return null;
         }
+        row.setDirtyBits(false);
         return fromRow(row);
     }
 

@@ -16,6 +16,7 @@ public class ColumnFamily {
 
     public void addColumn(Column column) {
         this.columns.put(column.getName(), column);
+        column.setDirty(true);
     }
 
     public ColumnFamily addColumns(Collection<Column> columns) {
@@ -69,6 +70,12 @@ public class ColumnFamily {
         out.append(indent + getColumnFamilyName() + "\n");
         for (Column column : getColumns()) {
             column.toString(out, indent + "\t");
+        }
+    }
+
+    public void setDirtyBit(boolean val) {
+        for (Column column : getColumns()) {
+            column.setDirty(val);
         }
     }
 }
