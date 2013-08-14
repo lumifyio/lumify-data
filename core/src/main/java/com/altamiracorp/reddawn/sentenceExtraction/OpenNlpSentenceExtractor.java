@@ -24,10 +24,13 @@ import java.util.Date;
 import java.util.List;
 
 public class OpenNlpSentenceExtractor implements SentenceExtractor {
+    private static final String SENTENCE_LENGTH_LIMIT = "sentenceLengthLimit";
+    private static final String DEFAULT_SENTENCE_LENGTH_LIMIT = "1000";
     private static final String PATH_PREFIX_CONFIG = "nlpConfPathPrefix";
     private static final String DEFAULT_PATH_PREFIX = "hdfs://";
     private static final String EXTRACTOR_ID = "OpenNLP";
     private SentenceDetector sentenceDetector;
+    private int maxLength;
     private static final Logger LOGGER = LoggerFactory.getLogger(FileImport.class.getName());
 
     @Override
@@ -35,6 +38,7 @@ public class OpenNlpSentenceExtractor implements SentenceExtractor {
         String pathPrefix = context.getConfiguration().get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX);
         FileSystem fs = FileSystem.get(context.getConfiguration());
         setSentenceDetector(loadSentenceDetector(fs, pathPrefix));
+        maxLength = Integer.parseInt(context.getConfiguration().get(SENTENCE_LENGTH_LIMIT,DEFAULT_SENTENCE_LENGTH_LIMIT));
     }
 
     @Override
@@ -45,6 +49,10 @@ public class OpenNlpSentenceExtractor implements SentenceExtractor {
         Span[] sentenceSpans = sentenceDetector.sentPosDetect(text);
 
         for (Span span : sentenceSpans) {
+            if (span.length() > maxLength) {
+                continue;
+            }
+
             Sentence sentence = new Sentence();
 
             SentenceData data = sentence.getData();
