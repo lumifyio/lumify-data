@@ -25,7 +25,8 @@ var require = {
     arbor: '../libs/cytoscape/arbor',
     html2canvas: '../libs/html2canvas/html2canvas',
     videojs: '../libs/video.js/video',
-    underscore: '../libs/underscore/underscore'
+    underscore: '../libs/underscore/underscore',
+    colorjs: '../libs/color-js/color'
   },
   shim: {
     ejs: { exports: 'ejs' },
