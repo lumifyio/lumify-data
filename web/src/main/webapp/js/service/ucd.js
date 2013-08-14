@@ -103,6 +103,7 @@ function(ServiceBase) {
     }
 
     Ucd.prototype.getNodeProperties = function(graphNodeId, callback) {
+        console.log('getNodeProperties:', graphNodeId);
         return this._ajaxGet({ url: 'node/' + encodeURIComponent(graphNodeId) + '/properties'}, callback);
     }
 

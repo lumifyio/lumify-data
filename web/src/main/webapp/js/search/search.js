@@ -76,6 +76,18 @@ define([
             return false;
         };
 
+        this.getConceptChildrenHtml = function(concept, indent) {
+            var self = this;
+            var html = "";
+            concept.children.forEach(function(concept) {
+                html += '<li item-path="entity.' + concept.id + '" class="concept-' + concept.id + '"><a href="#" style="padding-left:' + indent + 'px;">' + concept.title + '<span class="badge"></span></a></li>';
+                if(concept.children && concept.children.length > 0) {
+                    html += self.getConceptChildrenHtml(concept, indent + 15);
+                }
+            });
+            return html;
+        };
+
         this.doSearch = function(evt, query) {
 			//added for sync effect
 			if (!this.searchResults) {
@@ -92,7 +104,8 @@ define([
 
             $searchResults.hide();
             this.entityService.concepts(function(err, concepts) {
-                $searchResultsSummary.html(summaryTemplate({ rootConcept: concepts }));
+                var resultsHtml = self.getConceptChildrenHtml(concepts, 15);
+                $searchResultsSummary.html(summaryTemplate({ resultsHtml: resultsHtml }));
                 $('.badge', $searchResultsSummary).addClass('loading');
                 this.ucd.artifactSearch(query, function(err, artifacts) {
                     if(err) {

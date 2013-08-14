@@ -5,33 +5,51 @@ define([
     '../withHighlighting',
     'tpl!./entity',
     'tpl!./properties',
-    'tpl!./relationships'
-], function(defineComponent, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate) {
+    'tpl!./relationships',
+    'service/entity'
+], function(defineComponent, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, EntityService) {
 
     'use strict';
+
+    var entityService = new EntityService();
 
     return defineComponent(Entity, withTypeContent, withHighlighting);
 
     function Entity() {
 
         this.defaultAttrs({
+            glyphIconSelector: '.entity-glyphIcon',
             propertiesSelector: '.entity-properties',
             relationshipsSelector: '.entity-relationships',
             detailedObjectSelector: '.entity, .artifact, .relationship'
         });
 
         this.after('initialize', function() {
+            var self = this;
             this.on('click', {
                 detailedObjectSelector: this.onDetailedObjectClicked
             });
 
-            this.$node.html(template({
-                title: this.attr.data.originalTitle || this.attr.data.title || 'No Title',
-                highlightButton: this.highlightButton(),
-                id: this.attr.data.id || this.attr.data.graphNodeId
-            }));
+            entityService.concepts(function(err, concepts, conceptMap) {
+                if (err) {
+                    return self.trigger(document, 'error', err);
+                }
 
-            this.loadEntity();
+                var glyphIconHref = '';
+                var concept = conceptMap[self.attr.data.subType];
+                if(concept) {
+                    glyphIconHref = concept.glyphIconHref;
+                }
+
+                self.$node.html(template({
+                    title: self.attr.data.originalTitle || self.attr.data.title || 'No Title',
+                    highlightButton: self.highlightButton(),
+                    glyphIconHref: glyphIconHref,
+                    id: self.attr.data.id || self.attr.data.graphNodeId
+                }));
+
+                self.loadEntity();
+            });
         });
 
 
@@ -49,6 +67,13 @@ define([
             };
 
             this.getProperties(this.attr.data.id || this.attr.data.graphNodeId, function(properties) {
+                for(var i=0; i<properties.length; i++) {
+                    var property = properties[i];
+                    if(property.key == '_glyphIcon') {
+                        self.select('glyphIconSelector').attr('src', '/resource/' + property.value);
+                        break;
+                    }
+                }
                 self.select('propertiesSelector').html(propertiesTemplate({properties: properties}));
             });
 
