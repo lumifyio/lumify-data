@@ -18,26 +18,28 @@ public class Dev extends Base {
     @Override
     protected int defineOntology(TitanGraph graph, TitanVertex entity) {
         TitanVertex person = getOrCreateConcept(graph, entity, PERSON_TYPE);
-        addPropertyToConcept(graph, person, "birthDate", PropertyType.DATE);
         person.setProperty(PropertyName.GLYPH_ICON.toString(), "bb94e4ffc8290bd0d07a919a010a4c5c69eb820d3ed4b6442da0fd217d74d058");
-        person.setProperty(PropertyName.COLOR.toString(), "rgba(0, 102, 255)");
+        person.setProperty(PropertyName.COLOR.toString(), "rgb(0, 102, 255)");
+        graph.commit();
+        addPropertyToConcept(graph, person, "birthDate", PropertyType.DATE);
 
         TitanVertex org = getOrCreateConcept(graph, entity, ORGANIZATION_TYPE);
         org.setProperty(PropertyName.GLYPH_ICON.toString(), "8777a8592b14db5a7d4d151d9887f9500077adbfac7e30fecd987093299602da");
-        org.setProperty(PropertyName.COLOR.toString(), "rgba(0, 255, 102)");
+        org.setProperty(PropertyName.COLOR.toString(), "rgb(0, 255, 102)");
+        graph.commit();
         addPropertyToConcept(graph, org, "formationDate", PropertyType.DATE);
 
         TitanVertex company = getOrCreateConcept(graph, org, COMPANY_TYPE);
         company.setProperty(PropertyName.GLYPH_ICON.toString(), "8777a8592b14db5a7d4d151d9887f9500077adbfac7e30fecd987093299602da");
-        company.setProperty(PropertyName.COLOR.toString(), "rgba(0, 255, 102)");
+        company.setProperty(PropertyName.COLOR.toString(), "rgb(0, 255, 102)");
+        graph.commit();
         addPropertyToConcept(graph, company, "netIncome", PropertyType.CURRENCY);
 
         TitanVertex location = getOrCreateConcept(graph, entity, LOCATION_TYPE);
         location.setProperty(PropertyName.GLYPH_ICON.toString(), "698ca9f70bbfce7bf7a4bdd5cdb8348d9062b31fa8085cc11b75f747e1b5c86b");
-        location.setProperty(PropertyName.COLOR.toString(), "rgba(204, 255, 0)");
-        addPropertyToConcept(graph, location, "geoLocation", PropertyType.GEO_LOCATION);
-
+        location.setProperty(PropertyName.COLOR.toString(), "rgb(204, 255, 0)");
         graph.commit();
+        addPropertyToConcept(graph, location, "geoLocation", PropertyType.GEO_LOCATION);
 
         getOrCreateRelationshipType(graph, person, person, "knows");
         getOrCreateRelationshipType(graph, person, company, "worksAt");

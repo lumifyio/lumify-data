@@ -202,11 +202,13 @@ public abstract class Base extends RedDawnCommandLineBase {
             relationshipLabel = graph.makeType().name(relationshipName).directed().makeEdgeLabel();
             relationshipLabel.setProperty(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString());
             relationshipLabel.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), relationshipName);
+            graph.commit();
         }
 
         TitanLabel hasEdgeLabel = this.edges.get(LabelName.HAS_EDGE.toString());
         findOrAddEdge(fromVertex, relationshipLabel, hasEdgeLabel);
         findOrAddEdge(relationshipLabel, toVertex, hasEdgeLabel);
+        graph.commit();
     }
 
     protected void findOrAddEdge(TitanVertex fromVertex, TitanVertex toVertex, TitanLabel edgeLabel) {
@@ -235,8 +237,12 @@ public abstract class Base extends RedDawnCommandLineBase {
             propertyVertex.setProperty(PropertyName.TYPE.toString(), VertexType.PROPERTY.toString());
             propertyVertex.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), propertyName);
             propertyVertex.setProperty(PropertyName.DATA_TYPE.toString(), dataType.toString());
+            graph.commit();
         }
+
         findOrAddEdge(concept, propertyVertex, LabelName.HAS_PROPERTY.toString());
+        graph.commit();
+
         return propertyVertex;
     }
 }
