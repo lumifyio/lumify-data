@@ -1,6 +1,6 @@
 package com.altamiracorp.reddawn.entityHighlight;
 
-import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import org.json.JSONException;
@@ -29,7 +29,7 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
 
     @Override
     public String getType() {
-        return OntologyRepository.TERM_MENTION_TYPE;
+        return VertexType.TERM_MENTION.toString();
     }
 
     public String getSubType() {

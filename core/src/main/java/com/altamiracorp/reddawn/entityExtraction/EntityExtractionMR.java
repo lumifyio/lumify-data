@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
-import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.ucd.AccumuloSentenceInputFormat;
@@ -13,7 +13,6 @@ import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
 
@@ -38,18 +37,16 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
         return AccumuloModelOutputFormat.class;
     }
 
-    public static class EntityExtractorMapper extends Mapper<Text, Sentence, Text, Row> {
+    public static class EntityExtractorMapper extends RedDawnMapper<Text, Sentence, Text, Row> {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "entityExtractorClass";
         private EntityExtractor entityExtractor;
         private TermRepository termRepository = new TermRepository();
         private SentenceRepository sentenceRepository = new SentenceRepository();
-        private RedDawnSession session;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
             super.setup(context);
             try {
-                session = ConfigurableMapJobBase.createRedDawnSession(context);
                 entityExtractor = (EntityExtractor) context.getConfiguration().getClass(CONF_ENTITY_EXTRACTOR_CLASS, NullEntityExtractor.class).newInstance();
                 entityExtractor.setup(context);
             } catch (InstantiationException e) {
@@ -59,19 +56,15 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
             }
         }
 
-        public void map(Text rowKey, Sentence sentence, Context context) throws IOException, InterruptedException {
-            try {
-                Collection<Term> terms = entityExtractor.extract(sentence);
-                writeEntities(terms, sentence);
-            } catch (Exception e) {
-                throw new IOException(e);
-            }
+        public void safeMap(Text rowKey, Sentence sentence, Context context) throws Exception {
+            Collection<Term> terms = entityExtractor.extract(sentence);
+            writeEntities(terms, sentence);
         }
 
         private void writeEntities(Collection<Term> terms, Sentence sentence) throws IOException, InterruptedException {
             for (Term term : terms) {
-                termRepository.save(session.getModelSession(), term);
-                sentenceRepository.save(session.getModelSession(), sentence, term);
+                termRepository.save(getSession().getModelSession(), term);
+                sentenceRepository.save(getSession().getModelSession(), sentence, term);
             }
         }
 

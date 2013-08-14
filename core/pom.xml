@@ -1,11 +1,14 @@
 <?xml version="1.0"?>
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>com.altamiracorp.reddawn</groupId>
         <artifactId>reddawn</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
+
     <artifactId>core</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>Core</name>
@@ -27,15 +30,15 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
-		<dependency>
-	        <groupId>org.apache.accumulo</groupId>
-	        <artifactId>accumulo-core</artifactId>
-     	</dependency>
+        <dependency>
+            <groupId>org.apache.accumulo</groupId>
+            <artifactId>accumulo-core</artifactId>
+        </dependency>
 
-	    <dependency>
-	        <groupId>org.apache.hadoop</groupId>
-	        <artifactId>hadoop-client</artifactId>
-	    </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>commons-cli</groupId>
@@ -49,11 +52,11 @@
             <version>2.1</version>
         </dependency>
 
-		<dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.7.5</version>
-		</dependency>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.tika</groupId>
@@ -94,7 +97,8 @@
             <groupId>org.apache.blur</groupId>
             <artifactId>blur-thrift</artifactId>
             <version>${blur-version}</version>
-            <!-- We believe that blur-gui is attempted to download because it is part of a multi-module project. maven fails to download this because it's a war. -->
+            <!-- We believe that blur-gui is attempted to download because it is 
+                part of a multi-module project. maven fails to download this because it's a war. -->
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.blur</groupId>
@@ -147,7 +151,7 @@
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
             <version>3.1</version>
-			<scope>runtime</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -172,12 +176,12 @@
             <scope>test</scope>
         </dependency>
 
-		<dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.5</version>
-			<scope>runtime</scope>
-		</dependency>
+            <scope>runtime</scope>
+        </dependency>
 
         <dependency>
             <groupId>log4j</groupId>

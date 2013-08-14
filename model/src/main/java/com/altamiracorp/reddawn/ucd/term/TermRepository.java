@@ -4,8 +4,8 @@ import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
-import com.altamiracorp.reddawn.model.ontology.Concept;
-import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndexRepository;
 
@@ -95,11 +95,11 @@ public class TermRepository extends Repository<Term> {
     public void saveToGraph(Session session, GraphSession graphSession, Term term, TermMention termMention, String conceptId) {
         String oldGraphNodeId = termMention.getGraphNodeId();
         GraphNode node = new GraphNodeImpl();
-        node.setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE);
-        node.setProperty(OntologyRepository.SUBTYPE_PROPERTY_NAME, conceptId);
-        node.setProperty(OntologyRepository.ROW_KEY_PROPERTY_NAME, term.getRowKey().toString());
-        node.setProperty(OntologyRepository.COLUMN_FAMILY_NAME_PROPERTY_NAME, termMention.getColumnFamilyName());
-        node.setProperty(OntologyRepository.TITLE_PROPERTY_NAME, term.getRowKey().getSign());
+        node.setProperty(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString());
+        node.setProperty(PropertyName.SUBTYPE.toString(), conceptId);
+        node.setProperty(PropertyName.ROW_KEY.toString(), term.getRowKey().toString());
+        node.setProperty(PropertyName.COLUMN_FAMILY_NAME.toString(), termMention.getColumnFamilyName());
+        node.setProperty(PropertyName.TITLE.toString(), term.getRowKey().getSign());
 
         String nodeId = graphSession.save(node);
         if (!nodeId.equals(oldGraphNodeId) || !termMention.getGraphSubTypeNodeId().equals(conceptId)) {
@@ -108,7 +108,7 @@ public class TermRepository extends Repository<Term> {
             this.save(session, term);
         }
 
-        List<GraphNode> artifactNodes = graphSession.findBy(OntologyRepository.ROW_KEY_PROPERTY_NAME, termMention.getArtifactKey());
+        List<GraphNode> artifactNodes = graphSession.findBy(PropertyName.ROW_KEY.toString(), termMention.getArtifactKey());
         if (artifactNodes.size() == 0) {
             throw new RuntimeException("Could not find artifact \"" + termMention.getArtifactKey() + "\" to link term mention to");
         }

@@ -16,16 +16,16 @@ public class GraphNodeConcept extends Concept {
 
     @Override
     public String getTitle() {
-        return (String) graphNode.getProperty(OntologyRepository.TITLE_PROPERTY_NAME);
+        return (String) graphNode.getProperty(PropertyName.ONTOLOGY_TITLE);
     }
 
     @Override
     public String getGlyphIconResourceRowKey() {
-        return (String) graphNode.getProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME);
+        return (String) graphNode.getProperty(PropertyName.GLYPH_ICON);
     }
 
     @Override
     public String getColor() {
-        return (String) graphNode.getProperty(OntologyRepository.COLOR_PROPERTY_NAME);
+        return (String) graphNode.getProperty(PropertyName.COLOR);
     }
 }

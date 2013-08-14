@@ -1,9 +1,9 @@
 package com.altamiracorp.reddawn.search;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
+import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
@@ -23,7 +23,7 @@ public class SearchIndexBuilderMR extends ConfigurableMapJobBase {
         return SearchMapper.class;
     }
 
-    public static class SearchMapper extends Mapper<Text, Artifact, Text, Mutation> {
+    public static class SearchMapper extends RedDawnMapper<Text, Artifact, Text, Mutation> {
         private static final String CONF_SEARCH_INDEX_BUILDER_CLASS = "searchIndexBuilderClass";
         private SearchProvider searchProvider;
 
@@ -43,12 +43,8 @@ public class SearchIndexBuilderMR extends ConfigurableMapJobBase {
         }
 
         @Override
-        protected void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
-            try {
-                searchProvider.add(artifact);
-            } catch (Exception ex) {
-                throw new IOException(ex);
-            }
+        protected void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
+            searchProvider.add(artifact);
         }
 
         public static void init(Job job, Class searchClass) {
