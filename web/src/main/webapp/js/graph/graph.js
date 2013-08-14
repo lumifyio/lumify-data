@@ -4,6 +4,7 @@ define([
     'flight/lib/component',
     'cytoscape',
     './renderer',
+    './stylesheet',
     './contextmenu/withGraphContextMenuItems',
     'tpl!./graph',
     'util/throttle',
@@ -15,6 +16,7 @@ define([
     defineComponent,
     cytoscape,
     Renderer,
+    stylesheet,
     withGraphContextMenuItems,
     template,
     throttle,
@@ -95,7 +97,7 @@ define([
 
                     var cyNodeData = {
                         group: 'nodes',
-                        classes: $.trim(node.subType + ' ' + node.type),
+                        classes: $.trim('concept-' + node.subType + ' ' + node.type),
                         data: {
                             id: node.graphNodeId,
                             _rowKey: node._rowKey,
@@ -597,6 +599,15 @@ define([
             this.on(document, 'graphPaddingResponse', this.onGraphPadding);
             this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);
 
+            stylesheet(function(style) {
+                self.initializeGraph(style);
+            });
+
+        });
+
+        this.initializeGraph = function(style) {
+            var self = this;
+
             cytoscape("renderer", "red-dawn", Renderer);
             cytoscape({
                 showOverlay: false,
@@ -607,99 +618,7 @@ define([
                 renderer: {
                     name: 'red-dawn'
                 },
-                style: cytoscape.stylesheet()
-                  // TODO: get the list of types and subTypes
-                  .selector('node.person')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_003_user@2x.png'
-                    })
-                  .selector('node.location,node.place')
-                    .css({
-                      'background-image': '/img/pin@2x.png',
-                      'width': 35 * retina.devicePixelRatio,
-                      'height': 35 * retina.devicePixelRatio,
-                      'border-color': 'white',
-                      'shape': 'none',
-                      'border-width': 0
-                    })
-                  .selector('node.organization,node.organisation')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_263_bank@2x.png',
-                      'shape': 'roundrectangle'
-                    })
-                  .selector('node.document')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
-                      'shape': 'rectangle',
-                      'width': 60 * retina.devicePixelRatio,
-                      'height': 60 * 1.2 * retina.devicePixelRatio,
-                      'border-color': '#ccc',
-                      'border-width': 1
-                    })
-                  .selector('node.video')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
-                      'shape': 'movieStrip',
-                      'width': 60 * 1.3 * retina.devicePixelRatio,
-                      'height': 60 * retina.devicePixelRatio,
-                      'border-color': '#ccc',
-                      'border-width': 1
-                    })
-                  .selector('node.image')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
-                      'shape': 'rectangle',
-                      'width': 60 * 1.3 * retina.devicePixelRatio,
-                      'height': 60 * retina.devicePixelRatio,
-                      'border-color': '#ccc',
-                      'border-width': 1
-                    })
-                  .selector('node')
-                    .css({
-                      'width': 30 * retina.devicePixelRatio,
-                      'height': 30 * retina.devicePixelRatio,
-                      'content': 'data(title)',
-                      'font-family': 'helvetica',
-                      'font-size': 18 * retina.devicePixelRatio,
-                      'text-outline-width': 2,
-                      'text-outline-color': 'white',
-                      'text-valign': 'bottom',
-                      'color': '#999'
-                    })
-                  .selector('node.termMention')
-                    .css({
-                      'width': 15 * retina.devicePixelRatio,
-                      'height': 15 * retina.devicePixelRatio,
-                      'text-outline-width': 1,
-                      'font-size': 9 * retina.devicePixelRatio
-                    })
-                  .selector(':selected')
-                    .css({
-                      'background-color': '#0088cc',
-                      'border-color': '#0088cc',
-                      'line-color': '#000',
-                      'color': '#0088cc'
-                    })
-                  .selector('edge')
-                    .css({
-                      'width': 2,
-                      'target-arrow-shape': 'triangle'
-                    })
-                  .selector('edge.label')
-                    .css({
-                      'content': 'data(label)',
-                      'font-size': 12 * retina.devicePixelRatio,
-                      'color': '#0088cc',
-                      'text-outline-color': 'white',
-                      'text-outline-width': 4,
-                    })
-                  .selector('edge.temp')
-                    .css({
-                      'width': 4,
-                      'line-color': '#0088cc',
-                      'line-style': 'dotted',
-                      'target-arrow-color': '#0088cc'
-                    }),
+                style: style,
 
                 ready: function(){
                     var cy = this;
@@ -760,7 +679,7 @@ define([
                     }, 100);
                 }
             });
-        });
+        };
     }
 
 });
