@@ -17,11 +17,11 @@ public abstract class OffsetItem {
 
     public abstract String getRowKey();
 
-    public String getGraphNodeId() {
+    public String getGraphVertexId() {
         return null;
     }
 
-    public String getResolvedGraphNodeId() {
+    public String getResolvedGraphVertexId() {
         return null;
     }
 
@@ -31,11 +31,11 @@ public abstract class OffsetItem {
             infoJson.put("start", getStart());
             infoJson.put("end", getEnd());
             infoJson.put("_rowKey", RowKeyHelper.jsonEncode(getRowKey()));
-            if (getGraphNodeId() != null) {
-                infoJson.put("graphNodeId", getGraphNodeId());
+            if (getGraphVertexId() != null) {
+                infoJson.put("graphNodeId", getGraphVertexId());
             }
-            if (getResolvedGraphNodeId() != null) {
-                infoJson.put("resolvedGraphNodeId", getResolvedGraphNodeId());
+            if (getResolvedGraphVertexId() != null) {
+                infoJson.put("resolvedGraphNodeId", getResolvedGraphVertexId());
             }
             infoJson.put("type", getType());
             return infoJson;
@@ -47,7 +47,7 @@ public abstract class OffsetItem {
     public List<String> getCssClasses() {
         ArrayList<String> classes = new ArrayList<String>();
         classes.add(getType());
-        if (getResolvedGraphNodeId() != null) {
+        if (getResolvedGraphVertexId() != null) {
             classes.add("resolved");
         }
         return classes;

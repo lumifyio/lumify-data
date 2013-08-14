@@ -7,10 +7,10 @@ import org.json.JSONObject;
 import java.util.List;
 import java.util.Set;
 
-public abstract class GraphNode {
+public abstract class GraphVertex {
     public abstract String getId();
 
-    public abstract GraphNode setProperty(String key, Object value);
+    public abstract GraphVertex setProperty(String key, Object value);
 
     public abstract Set<String> getPropertyKeys();
 
@@ -31,10 +31,10 @@ public abstract class GraphNode {
         }
     }
 
-    public static JSONArray toJson(List<GraphNode> nodes) {
+    public static JSONArray toJson(List<GraphVertex> vertices) {
         JSONArray results = new JSONArray();
-        for (GraphNode node : nodes) {
-            results.put(node.toJson());
+        for (GraphVertex vertex : vertices) {
+            results.put(vertex.toJson());
         }
         return results;
     }

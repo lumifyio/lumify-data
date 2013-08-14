@@ -33,7 +33,7 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
     }
 
     public String getSubType() {
-        return termAndTermMention.getTermMention().getGraphSubTypeNodeId();
+        return termAndTermMention.getTermMention().getGraphSubTypeVertexeId();
     }
 
     @Override
@@ -42,13 +42,13 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
     }
 
     @Override
-    public String getGraphNodeId() {
-        return termAndTermMention.getTermMention().getGraphNodeId();
+    public String getGraphVertexId() {
+        return termAndTermMention.getTermMention().getGraphVertexId();
     }
 
     @Override
-    public String getResolvedGraphNodeId() {
-        return termAndTermMention.getTermMention().getResolvedGraphNodeId();
+    public String getResolvedGraphVertexId() {
+        return termAndTermMention.getTermMention().getResolvedGraphVertexId();
     }
 
     public String getConceptLabel() {
@@ -89,7 +89,7 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
     public List<String> getCssClasses() {
         List<String> classes = new ArrayList<String>();
         classes.add("entity");
-        if (getResolvedGraphNodeId() != null) {
+        if (getResolvedGraphVertexId() != null) {
             classes.add("resolved");
         }
         if (getSubType() != null) {
@@ -102,9 +102,9 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
     public int compareTo(TermAndTermMentionOffsetItem other) {
         if (this.getStart() == other.getStart()) {
             if (this.getEnd() == other.getEnd()) {
-                if (getResolvedGraphNodeId() != null && other.getResolvedGraphNodeId() == null) {
+                if (getResolvedGraphVertexId() != null && other.getResolvedGraphVertexId() == null) {
                     return -1;
-                } else if (getResolvedGraphNodeId() == null && other.getResolvedGraphNodeId() != null) {
+                } else if (getResolvedGraphVertexId() == null && other.getResolvedGraphVertexId() != null) {
                     return 1;
                 } else if (this.termAndTermMention.getTerm().getRowKey().getModelKey().equals(TermRowKey.MANUAL_MODEL_KEY)) {
                     return -1;

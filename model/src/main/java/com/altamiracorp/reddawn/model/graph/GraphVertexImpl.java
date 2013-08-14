@@ -3,15 +3,15 @@ package com.altamiracorp.reddawn.model.graph;
 import java.util.HashMap;
 import java.util.Set;
 
-public class GraphNodeImpl extends GraphNode {
+public class GraphVertexImpl extends GraphVertex {
     private String id;
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 
-    public GraphNodeImpl() {
+    public GraphVertexImpl() {
         this.id = null;
     }
 
-    public GraphNodeImpl(String id) {
+    public GraphVertexImpl(String id) {
         this.id = id;
     }
 
@@ -19,7 +19,7 @@ public class GraphNodeImpl extends GraphNode {
         return this.id;
     }
 
-    public GraphNode setProperty(String key, Object value) {
+    public GraphVertex setProperty(String key, Object value) {
         properties.put(key, value);
         return this;
     }

@@ -1,7 +1,7 @@
-package com.altamiracorp.reddawn.web.routes.node;
+package com.altamiracorp.reddawn.web.routes.vertex;
 
 import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.model.graph.GraphNode;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
@@ -16,11 +16,9 @@ import org.json.JSONObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
-public class NodeToNodeRelationship implements Handler, AppAware {
+public class VertexToVertexRelationship implements Handler, AppAware {
     private GraphRepository graphRepository = new GraphRepository();
     private WebApp app;
 
@@ -37,12 +35,12 @@ public class NodeToNodeRelationship implements Handler, AppAware {
         String label = request.getParameter("label");
 
         HashMap<String, String> properties = graphRepository.getEdgeProperties(session.getGraphSession(), source, target, label);
-        GraphNode sourceNode = graphRepository.findNode(session.getGraphSession(), source);
-        GraphNode targetNode = graphRepository.findNode(session.getGraphSession(), target);
+        GraphVertex sourceVertex = graphRepository.findVertex(session.getGraphSession(), source);
+        GraphVertex targetVertex = graphRepository.findVertex(session.getGraphSession(), target);
 
         JSONObject results = new JSONObject();
-        results = resultsToJson(source, "source", sourceNode, results);
-        results = resultsToJson(target, "target", targetNode, results);
+        results = resultsToJson(source, "source", sourceVertex, results);
+        results = resultsToJson(target, "target", targetVertex, results);
 
         JSONArray propertyJson = new JSONArray();
         for (Map.Entry<String, String> p : properties.entrySet()) {
@@ -56,23 +54,23 @@ public class NodeToNodeRelationship implements Handler, AppAware {
         new Responder(response).respondWith(results);
     }
 
-    private JSONObject resultsToJson(String id, String nodePrefix, GraphNode graphNode, JSONObject obj) throws JSONException {
-        if (graphNode.getProperty("_rowKey") == null){
-            obj.put(nodePrefix + "RowKey", "");
+    private JSONObject resultsToJson(String id, String prefix, GraphVertex graphVertex, JSONObject obj) throws JSONException {
+        if (graphVertex.getProperty("_rowKey") == null){
+            obj.put(prefix + "RowKey", "");
         } else {
-            obj.put(nodePrefix + "RowKey", graphNode.getProperty("_rowKey"));
+            obj.put(prefix + "RowKey", graphVertex.getProperty("_rowKey"));
         }
 
-        obj.put(nodePrefix + "Id", id);
-        obj.put(nodePrefix + "SubType", graphNode.getProperty("subType"));
+        obj.put(prefix + "Id", id);
+        obj.put(prefix + "SubType", graphVertex.getProperty("subType"));
 
-        if (graphNode.getProperty("title") != "") {
-            obj.put(nodePrefix + "Title", graphNode.getProperty("title"));
+        if (graphVertex.getProperty("title") != "") {
+            obj.put(prefix + "Title", graphVertex.getProperty("title"));
         } else {
-            obj.put(nodePrefix + "Title", graphNode.getProperty("type"));
+            obj.put(prefix + "Title", graphVertex.getProperty("type"));
         }
 
-        obj.put(nodePrefix + "Type", graphNode.getProperty("type"));
+        obj.put(prefix + "Type", graphVertex.getProperty("type"));
         return obj;
     }
 }

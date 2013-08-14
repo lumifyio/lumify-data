@@ -3,21 +3,20 @@ package com.altamiracorp.reddawn.model.graph;
 import com.altamiracorp.reddawn.model.GraphSession;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 public class GraphRepository {
-    public GraphNode findNode(GraphSession graphSession, String graphNodeId) {
-        return graphSession.findNode(graphNodeId);
+    public GraphVertex findVertex(GraphSession graphSession, String graphVertexId) {
+        return graphSession.findGraphVertex(graphVertexId);
     }
 
-    public GraphNode findNodeByTitleAndType(GraphSession graphSession, String graphNodeTitle, String graphNodeType) {
-        return graphSession.findNodeByExactTitleAndType(graphNodeTitle, graphNodeType);
+    public GraphVertex findVertexByTitleAndType(GraphSession graphSession, String graphVertexTitle, String graphVertexType) {
+        return graphSession.findVertexByExactTitleAndType(graphVertexTitle, graphVertexType);
     }
 
-    public List<GraphNode> getRelatedNodes(GraphSession graphSession, String graphNodeId) {
-        return graphSession.getRelatedNodes(graphNodeId);
+    public List<GraphVertex> getRelatedVertices(GraphSession graphSession, String graphVertexId) {
+        return graphSession.getRelatedVertices(graphVertexId);
     }
 
     public List<GraphRelationship> getRelationships(GraphSession graphSession, List<String> allIds) {
@@ -35,41 +34,41 @@ public class GraphRepository {
         return graphRelationship;
     }
 
-    public GraphRelationship saveRelationship(GraphSession graphSession, String sourceGraphNodeId, String destGraphNodeId, String label) {
-        GraphRelationship relationship = new GraphRelationship(null, sourceGraphNodeId, destGraphNodeId, label);
+    public GraphRelationship saveRelationship(GraphSession graphSession, String sourceGraphVertexId, String destGraphVertexId, String label) {
+        GraphRelationship relationship = new GraphRelationship(null, sourceGraphVertexId, destGraphVertexId, label);
         return save(graphSession, relationship);
     }
 
-    public String saveNode(GraphSession graphSession, GraphNode graphNode) {
-        return graphSession.save(graphNode);
+    public String saveVertex(GraphSession graphSession, GraphVertex graphVertex) {
+        return graphSession.save(graphVertex);
     }
 
-    public Map<String, String> getProperties(GraphSession graphSession, String graphNodeId) {
-        return graphSession.getProperties(graphNodeId);
+    public Map<String, String> getProperties(GraphSession graphSession, String graphVertexId) {
+        return graphSession.getProperties(graphVertexId);
     }
 
-    public Map<GraphRelationship, GraphNode> getRelationships(GraphSession graphSession, String graphNodeId) {
-        return graphSession.getRelationships(graphNodeId);
+    public Map<GraphRelationship, GraphVertex> getRelationships(GraphSession graphSession, String graphVertexId) {
+        return graphSession.getRelationships(graphVertexId);
     }
 
-    public HashMap<String, String> getEdgeProperties(GraphSession graphSession, String sourceNode, String destNode, String label) {
-        return graphSession.getEdgeProperties(sourceNode, destNode, label);
+    public HashMap<String, String> getEdgeProperties(GraphSession graphSession, String sourceVertex, String destVertex, String label) {
+        return graphSession.getEdgeProperties(sourceVertex, destVertex, label);
     }
 
-    public List<GraphNode> findByGeoLocation(GraphSession graphSession, double latitude, double longitude, double radius) {
+    public List<GraphVertex> findByGeoLocation(GraphSession graphSession, double latitude, double longitude, double radius) {
         return graphSession.findByGeoLocation(latitude, longitude, radius);
     }
 
-    public List<GraphNode> searchNodesByTitle(GraphSession graphSession, String query) {
-        return graphSession.searchNodesByTitle(query);
+    public List<GraphVertex> searchVerticesByTitle(GraphSession graphSession, String query) {
+        return graphSession.searchVerticesByTitle(query);
     }
 
-    public List<GraphNode> searchNodesByTitleAndType(GraphSession graphSession, String query, String type) {
-        return graphSession.searchNodesByTitleAndType(query, type);
+    public List<GraphVertex> searchVerticesByTitleAndType(GraphSession graphSession, String query, String type) {
+        return graphSession.searchVerticesByTitleAndType(query, type);
     }
 
-    public List<GraphNode> getResolvedRelatedNodes(GraphSession graphSession, String graphNodeId) {
-        return graphSession.getResolvedRelatedNodes(graphNodeId);
+    public List<GraphVertex> getResolvedRelatedVertices(GraphSession graphSession, String graphVertexId) {
+        return graphSession.getResolvedRelatedVertices(graphVertexId);
     }
 
     public void removeRelationship(GraphSession graphSession, String source, String target, String label) {
