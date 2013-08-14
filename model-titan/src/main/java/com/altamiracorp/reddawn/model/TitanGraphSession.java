@@ -226,6 +226,9 @@ public class TitanGraphSession extends GraphSession {
         List<GraphRelationship> graphRelationships = new ArrayList<GraphRelationship>();
         for (String id : allIds) {
             Vertex vertex = this.graph.getVertex(id);
+            if (vertex == null) {
+                throw new RuntimeException("Could not find vertex with id: " + id);
+            }
             List<Vertex> vertexes = new GremlinPipeline(vertex).outE().bothV().toList();
             for (Vertex v : vertexes) {
                 if (allIds.contains(v.getId().toString())) {
