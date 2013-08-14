@@ -98,10 +98,6 @@ function(ServiceBase) {
         return this._ajaxGet({ url: 'graph/' + encodeURIComponent(graphNodeId) + (resolvedOnly ? '/relatedResolvedNodes' : '/relatedNodes') }, callback);
     };
 
-    Ucd.prototype.entityRelationships = function (id, options, callback) {
-        return this._relationships("entity", id, options, callback);
-    };
-
     Ucd.prototype.getNodeRelationships = function(graphNodeId, callback) {
         return this._ajaxGet({ url: 'node/' + encodeURIComponent(graphNodeId) + '/relationships'}, callback);
     }
