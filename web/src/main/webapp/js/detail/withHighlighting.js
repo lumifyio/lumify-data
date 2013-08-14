@@ -11,7 +11,7 @@ define([
 
     var HIGHLIGHT_STYLES = [
             { name: 'None' },
-            { name: 'Subtle Icons', selector:'icons' },
+            { name: 'Icons', selector:'icons' },
             { name: 'Underline', selector:'underline' },
             { name: 'Colors', selector:'colors' }
         ],
