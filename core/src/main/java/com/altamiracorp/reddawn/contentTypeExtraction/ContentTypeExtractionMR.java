@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.contentTypeExtraction;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
-import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
@@ -10,7 +10,6 @@ import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
@@ -38,11 +37,10 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
         return AccumuloModelOutputFormat.class;
     }
 
-    public static class ContentTypeExtractorMapper extends Mapper<Text, Artifact, Text, Artifact> {
+    public static class ContentTypeExtractorMapper extends RedDawnMapper<Text, Artifact, Text, Artifact> {
         private ArtifactRepository artifactRepository = new ArtifactRepository();
         public static final String CONF_CONTENT_TYPE_EXTRACTOR_CLASS = "contentTypeExtractorClass";
         private ContentTypeExtractor contentTypeExtractor;
-        private RedDawnSession session;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -50,7 +48,6 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
             try {
                 contentTypeExtractor = (ContentTypeExtractor) context.getConfiguration().getClass(CONF_CONTENT_TYPE_EXTRACTOR_CLASS, TikaContentTypeExtractor.class).newInstance();
                 contentTypeExtractor.setup(context);
-                session = ConfigurableMapJobBase.createRedDawnSession(context);
             } catch (InstantiationException e) {
                 throw new IOException(e);
             } catch (IllegalAccessException e) {
@@ -59,22 +56,18 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
         }
 
         @Override
-        public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
-            try {
-                LOGGER.info("Extracting content type from artifact: " + artifact.getRowKey().toString());
-                InputStream in = artifactRepository.getRaw(session.getModelSession(), artifact);
-                if (in == null) {
-                    LOGGER.warn("No data found for artifact: " + artifact.getRowKey().toString());
-                }
-                String contentType = contentTypeExtractor.extract(in, artifact.getGenericMetadata().getFileExtension());
-                if (contentType == ""){
-                    LOGGER.warn ("No content type set for artifact: " + artifact.getRowKey().toString());
-                }
-                artifact.getGenericMetadata().setMimeType(contentType);
-                context.write(new Text(Artifact.TABLE_NAME), artifact);
-            } catch (Exception e) {
-                throw new IOException(e);
+        public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
+            LOGGER.info("Extracting content type from artifact: " + artifact.getRowKey().toString());
+            InputStream in = artifactRepository.getRaw(getSession().getModelSession(), artifact);
+            if (in == null) {
+                LOGGER.warn("No data found for artifact: " + artifact.getRowKey().toString());
             }
+            String contentType = contentTypeExtractor.extract(in, artifact.getGenericMetadata().getFileExtension());
+            if (contentType == "") {
+                LOGGER.warn("No content type set for artifact: " + artifact.getRowKey().toString());
+            }
+            artifact.getGenericMetadata().setMimeType(contentType);
+            context.write(new Text(Artifact.TABLE_NAME), artifact);
         }
     }
 

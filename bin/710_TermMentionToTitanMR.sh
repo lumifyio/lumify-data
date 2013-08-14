@@ -35,4 +35,5 @@ com.altamiracorp.reddawn.graph.TermMentionToTitanMR \
 --graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
---password=password
+--password=password \
+--failOnFirstError

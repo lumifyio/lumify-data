@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.objectDetection;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
-import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.AccumuloVideoFrameInputFormat;
 import com.altamiracorp.reddawn.model.Row;
@@ -71,7 +71,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         return mapperClass;
     }
 
-    public static class ObjectDetectionMapper<T extends Row> extends Mapper<Text, T, Text, T> {
+    public static abstract class ObjectDetectionMapper<T extends Row> extends RedDawnMapper<Text, T, Text, T> {
         private static final String CONCEPT = "classifier.concept";
         private static final String DEFAULT_CONCEPT = "face";
 
@@ -83,7 +83,6 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         public static final String OBJECT_DETECTOR_CLASS = "objectDetectorClass";
 
         protected ObjectDetector objectDetector;
-        protected RedDawnSession session;
         protected String classifierPath;
         protected String classifierConcept;
 
@@ -91,7 +90,6 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         protected void setup(Context context) throws IOException, InterruptedException {
             super.setup(context);
             try {
-                session = createRedDawnSession(context);
                 classifierConcept = context.getConfiguration().get(CONCEPT, DEFAULT_CONCEPT);
                 classifierPath = resolveClassifierPath(context);
                 objectDetector = (ObjectDetector) context.getConfiguration().getClass(OBJECT_DETECTOR_CLASS, OpenCVObjectDetector.class).newInstance();
@@ -145,13 +143,13 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
     public static class ArtifactObjectDetectionMapper extends ObjectDetectionMapper<Artifact> {
         private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactObjectDetectionMapper.class);
 
-        public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
+        public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
             if (artifact.getType() != ArtifactType.IMAGE) {
                 return;
             }
 
             LOGGER.info("Detecting objects of concept " + classifierConcept + " for artifact " + rowKey.toString());
-            List<DetectedObject> detectedObjects = objectDetector.detectObjects(session, artifact, classifierPath);
+            List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), artifact, classifierPath);
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
                     artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL, detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());
@@ -164,9 +162,9 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
     public static class VideoFrameObjectDetectionMapper extends ObjectDetectionMapper<VideoFrame> {
         private static final Logger LOGGER = LoggerFactory.getLogger(VideoFrameObjectDetectionMapper.class);
 
-        public void map(Text rowKey, VideoFrame videoFrame, Context context) throws IOException, InterruptedException {
+        public void safeMap(Text rowKey, VideoFrame videoFrame, Context context) throws Exception {
             LOGGER.info("Detecting objects of concept " + classifierConcept + " for video frame " + rowKey.toString());
-            List<DetectedObject> detectedObjects = objectDetector.detectObjects(session, videoFrame, classifierPath);
+            List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), videoFrame, classifierPath);
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
                     videoFrame.getDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL, detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());

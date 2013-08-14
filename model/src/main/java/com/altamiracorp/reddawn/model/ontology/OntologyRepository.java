@@ -74,7 +74,7 @@ public class OntologyRepository {
     }
 
     public Concept getConceptByName(GraphSession graphSession, String title) {
-        GraphVertex vertex = graphSession.findVertexByExactTitleAndType(title, VertexType.CONCEPT);
+        GraphVertex vertex = graphSession.findVertexByOntologyTitleAndType(title, VertexType.CONCEPT);
         if (vertex == null) {
             return null;
         }

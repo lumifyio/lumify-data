@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.textExtraction;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
-import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.AccumuloVideoFrameInputFormat;
 import com.altamiracorp.reddawn.model.videoFrames.VideoFrame;
@@ -9,7 +9,6 @@ import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
@@ -37,10 +36,9 @@ public class VideoFrameTextExtractionMR extends ConfigurableMapJobBase {
         return AccumuloModelOutputFormat.class;
     }
 
-    public static class VideoFrameTextExtractorMapper extends Mapper<Text, VideoFrame, Text, VideoFrame> {
+    public static class VideoFrameTextExtractorMapper extends RedDawnMapper<Text, VideoFrame, Text, VideoFrame> {
         public static final String CONF_TEXT_EXTRACTOR_CLASS = "textExtractorClass";
         private TextExtractor textExtractor;
-        private RedDawnSession session;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -48,29 +46,24 @@ public class VideoFrameTextExtractionMR extends ConfigurableMapJobBase {
             try {
                 textExtractor = (TextExtractor) context.getConfiguration().getClass(CONF_TEXT_EXTRACTOR_CLASS, TikaTextExtractor.class).newInstance();
                 textExtractor.setup(context);
-                session = ConfigurableMapJobBase.createRedDawnSession(context);
             } catch (Exception e) {
                 throw new IOException(e);
             }
         }
 
         @Override
-        public void map(Text rowKey, VideoFrame videoFrame, Context context) throws IOException, InterruptedException {
-            try {
-                LOGGER.info("Extracting text from video frame: " + videoFrame.getRowKey().toString());
-                VideoFrameExtractedInfo extractedInfo = textExtractor.extract(session.getModelSession(), videoFrame);
-                if (extractedInfo == null) {
-                    return;
-                }
-
-                if (extractedInfo.getText() != null) {
-                    videoFrame.getMetadata().setText(extractedInfo.getText());
-                }
-
-                context.write(new Text(VideoFrame.TABLE_NAME), videoFrame);
-            } catch (Exception e) {
-                throw new IOException(e);
+        public void safeMap(Text rowKey, VideoFrame videoFrame, Context context) throws Exception {
+            LOGGER.info("Extracting text from video frame: " + videoFrame.getRowKey().toString());
+            VideoFrameExtractedInfo extractedInfo = textExtractor.extract(getSession().getModelSession(), videoFrame);
+            if (extractedInfo == null) {
+                return;
             }
+
+            if (extractedInfo.getText() != null) {
+                videoFrame.getMetadata().setText(extractedInfo.getText());
+            }
+
+            context.write(new Text(VideoFrame.TABLE_NAME), videoFrame);
         }
 
         public static void init(Job job, Class<? extends TextExtractor> textExtractorClass) {

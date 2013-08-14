@@ -64,6 +64,8 @@ define([
                     applyToElement.addClass(cls);
                 }
             });
+
+            applyToElement.addClass('concepticon-' + el.data('info').subType);
         };
 
         this.onInputChange = function (e) {

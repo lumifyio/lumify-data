@@ -15,6 +15,7 @@
     "html2canvas": "~0.4.0",
     "jquery.atmosphere": "latest",
     "video.js": "~4.0.3",
-    "underscore": "~1.5.1"
+    "underscore": "~1.5.1",
+    "color-js": "~1.0.1"
   }
 }

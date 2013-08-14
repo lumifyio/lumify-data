@@ -36,5 +36,6 @@ com.altamiracorp.reddawn.videoConversion.VideoConversionMR \
 --graph.storage.index.search.hostname=${ip} \
 --username=root \
 --password=password \
+--failOnFirstError \
 -Dffmpeg.bin.dir=${ffmpegDir} \
 -Dccextractor.bin.dir=${ccextractorDir}

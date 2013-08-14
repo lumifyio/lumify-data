@@ -5,12 +5,13 @@ define([
     './dropdowns/statementForm/statementForm',
     'tpl!detail/toolbar/highlight',
     'util/css-stylesheet',
+    'colorjs',
     'service/entity'
-], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, EntityService) {
+], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, colorjs, EntityService) {
 
     var HIGHLIGHT_STYLES = [
             { name: 'None' },
-            { name: 'Subtle Icons', selector:'icons' },
+            { name: 'Icons', selector:'icons' },
             { name: 'Underline', selector:'underline' },
             { name: 'Colors', selector:'colors' }
         ],
@@ -121,24 +122,52 @@ define([
             this.highlightNode.addClass('highlight-' + style.selector);
 
             if (!style.styleApplied) {
+
                 entityService.concepts(function(err, concepts) {
                     var styleFile = 'tpl!detail/highlight-styles/' + style.selector + '.css';
                     require([styleFile], function(tpl) {
                         function apply(concept) {
                             if (concept.color) {
-                                var definition = tpl({ concept:concept });
+                                var STATES = {
+                                        NORMAL: 0,
+                                        HOVER: 1,
+                                        DIM: 2
+                                    },
+                                    definition = function(state) {
+                                        return tpl({ STATES:STATES, state:state, concept:concept, colorjs:colorjs });
+                                    };
+
                                 // TODO: add 1) drop-hover style for statement
                                 // creation, 2) icons, 3) focused style
+
+                                // Dim 
+                                // (when dropdown is opened and it wasn't this entity)
                                 stylesheet.addRule(
-                                    '.highlight-' + style.selector + ' .entity.subType-' + concept.id, 
-                                    definition
+                                    '.highlight-' + style.selector + ' .dropdown .entity.subType-' + concept.id, 
+                                    definition(STATES.DIM)
                                 );
+
+                                // Default style (or focused)
+                                stylesheet.addRule(
+                                    '.highlight-' + style.selector + ' .entity.subType-' + concept.id + ',' +
+                                    '.highlight-' + style.selector + ' .dropdown .focused.subType-' + concept.id, 
+                                    definition(STATES.NORMAL)
+                                );
+
+                                // Drag-drop hover
+                                stylesheet.addRule(
+                                    '.highlight-' + style.selector + ' .drop-hover.subType-' + concept.id, 
+                                    definition(STATES.HOVER)
+                                );
+
+                                stylesheet.addRule('.concepticon-' + concept.id, 'background-image: url(' + concept.glyphIconHref + ')');
                             }
                             if (concept.children) {
                                 concept.children.forEach(apply);
                             }
                         }
                         apply(concepts);
+                        style.styleApplied = true;
                     });
                 });
             }
