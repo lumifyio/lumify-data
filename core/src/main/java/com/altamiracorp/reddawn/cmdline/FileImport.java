@@ -30,7 +30,7 @@ import java.util.Iterator;
 
 public class FileImport extends RedDawnCommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileImport.class.getName());
-    private static final long MAX_SIZE_OF_INLINE_FILE = 1 * 1024 * 1024; // 1MiB
+    private static final long MAX_SIZE_OF_INLINE_FILE = 512 * 1024; // 512kiB
     private static final String MAPPING_JSON_FILE_NAME_SUFFIX = ".mapping.json";
     private ArtifactRepository artifactRepository = new ArtifactRepository();
     private String directory;
