@@ -5,6 +5,8 @@ import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -134,16 +136,16 @@ public class ArtifactRepository extends Repository<Artifact> {
     public void saveToGraph(Session session, GraphSession graphSession, Artifact artifact) {
         GraphVertex vertex = new GraphVertexImpl();
         String oldRowKey = artifact.getGenericMetadata().getGraphVertexId();
-        vertex.setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.ARTIFACT_TYPE);
-        vertex.setProperty(OntologyRepository.SUBTYPE_PROPERTY_NAME, artifact.getType().toString().toLowerCase());
-        vertex.setProperty(OntologyRepository.ROW_KEY_PROPERTY_NAME, artifact.getRowKey().toString());
+        vertex.setProperty(PropertyName.TYPE.toString(), VertexType.ARTIFACT.toString());
+        vertex.setProperty(PropertyName.SUBTYPE.toString(), artifact.getType().toString().toLowerCase());
+        vertex.setProperty(PropertyName.ROW_KEY.toString(), artifact.getRowKey().toString());
         if (artifact.getDynamicMetadata().getLatitude() != null) {
             double latitude = artifact.getDynamicMetadata().getLatitude();
             double longitude = artifact.getDynamicMetadata().getLongitude();
-            vertex.setProperty(OntologyRepository.GEO_LOCATION_PROPERTY_NAME, new GraphGeoLocation(latitude, longitude));
+            vertex.setProperty(PropertyName.GEO_LOCATION.toString(), new GraphGeoLocation(latitude, longitude));
         }
         if (artifact.getGenericMetadata().getSubject() != null) {
-            vertex.setProperty(OntologyRepository.TITLE_PROPERTY_NAME, artifact.getGenericMetadata().getSubject());
+            vertex.setProperty(PropertyName.TITLE.toString(), artifact.getGenericMetadata().getSubject());
         }
 
         String vertexId = graphSession.save(vertex);

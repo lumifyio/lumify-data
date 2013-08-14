@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.model.graph;
 
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,6 +14,10 @@ public abstract class GraphVertex {
     public abstract GraphVertex setProperty(String key, Object value);
 
     public abstract Set<String> getPropertyKeys();
+
+    public Object getProperty(PropertyName propertyKey) {
+        return getProperty(propertyKey.toString());
+    }
 
     public abstract Object getProperty(String propertyKey);
 

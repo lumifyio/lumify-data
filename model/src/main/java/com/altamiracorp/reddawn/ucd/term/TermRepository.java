@@ -4,7 +4,8 @@ import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
-import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndexRepository;
 
@@ -94,11 +95,11 @@ public class TermRepository extends Repository<Term> {
     public void saveToGraph(Session session, GraphSession graphSession, Term term, TermMention termMention, String conceptId) {
         String oldGraphVertexId = termMention.getGraphVertexId();
         GraphVertex vertex = new GraphVertexImpl();
-        vertex.setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE);
-        vertex.setProperty(OntologyRepository.SUBTYPE_PROPERTY_NAME, conceptId);
-        vertex.setProperty(OntologyRepository.ROW_KEY_PROPERTY_NAME, term.getRowKey().toString());
-        vertex.setProperty(OntologyRepository.COLUMN_FAMILY_NAME_PROPERTY_NAME, termMention.getColumnFamilyName());
-        vertex.setProperty(OntologyRepository.TITLE_PROPERTY_NAME, term.getRowKey().getSign());
+        vertex.setProperty(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString());
+        vertex.setProperty(PropertyName.SUBTYPE.toString(), conceptId);
+        vertex.setProperty(PropertyName.ROW_KEY.toString(), term.getRowKey().toString());
+        vertex.setProperty(PropertyName.COLUMN_FAMILY_NAME.toString(), termMention.getColumnFamilyName());
+        vertex.setProperty(PropertyName.TITLE.toString(), term.getRowKey().getSign());
 
         String vertexId = graphSession.save(vertex);
         if (!vertexId.equals(oldGraphVertexId) || !termMention.getGraphSubTypeVertexeId().equals(conceptId)) {
@@ -107,7 +108,7 @@ public class TermRepository extends Repository<Term> {
             this.save(session, term);
         }
 
-        List<GraphVertex> artifactVertices = graphSession.findBy(OntologyRepository.ROW_KEY_PROPERTY_NAME, termMention.getArtifactKey());
+        List<GraphVertex> artifactVertices = graphSession.findBy(PropertyName.ROW_KEY.toString(), termMention.getArtifactKey());
         if (artifactVertices.size() == 0) {
             throw new RuntimeException("Could not find artifact \"" + termMention.getArtifactKey() + "\" to link term mention to");
         }

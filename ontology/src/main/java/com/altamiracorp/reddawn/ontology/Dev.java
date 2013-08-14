@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.ontology;
 
-import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.model.ontology.PropertyType;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanVertex;
 
@@ -17,24 +18,24 @@ public class Dev extends Base {
     @Override
     protected int defineOntology(TitanGraph graph, TitanVertex entity) {
         TitanVertex person = getOrCreateConcept(graph, entity, PERSON_TYPE);
-        addPropertyToConcept(graph, person, "birthDate", OntologyRepository.DATE_PROPERTY_TYPE);
-        person.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "f3ee34c83989653f9ed5abf9c1d138abda75951b0e9682b7e6965f545d6ebf20");
-        person.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgba(0, 102, 255, 0.2)");
+        addPropertyToConcept(graph, person, "birthDate", PropertyType.DATE);
+        person.setProperty(PropertyName.GLYPH_ICON.toString(), "f3ee34c83989653f9ed5abf9c1d138abda75951b0e9682b7e6965f545d6ebf20");
+        person.setProperty(PropertyName.COLOR.toString(), "rgba(0, 102, 255, 0.2)");
 
         TitanVertex org = getOrCreateConcept(graph, entity, ORGANIZATION_TYPE);
-        org.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "8777a8592b14db5a7d4d151d9887f9500077adbfac7e30fecd987093299602da");
-        org.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgba(0, 255, 102, 0.2)");
-        addPropertyToConcept(graph, org, "formationDate", OntologyRepository.DATE_PROPERTY_TYPE);
+        org.setProperty(PropertyName.GLYPH_ICON.toString(), "8777a8592b14db5a7d4d151d9887f9500077adbfac7e30fecd987093299602da");
+        org.setProperty(PropertyName.COLOR.toString(), "rgba(0, 255, 102, 0.2)");
+        addPropertyToConcept(graph, org, "formationDate", PropertyType.DATE);
 
         TitanVertex company = getOrCreateConcept(graph, org, COMPANY_TYPE);
-        company.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "8777a8592b14db5a7d4d151d9887f9500077adbfac7e30fecd987093299602da");
-        company.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgba(0, 255, 102, 0.2)");
-        addPropertyToConcept(graph, company, "netIncome", OntologyRepository.CURRENCY_PROPERTY_TYPE);
+        company.setProperty(PropertyName.GLYPH_ICON.toString(), "8777a8592b14db5a7d4d151d9887f9500077adbfac7e30fecd987093299602da");
+        company.setProperty(PropertyName.COLOR.toString(), "rgba(0, 255, 102, 0.2)");
+        addPropertyToConcept(graph, company, "netIncome", PropertyType.CURRENCY);
 
         TitanVertex location = getOrCreateConcept(graph, entity, LOCATION_TYPE);
-        location.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "caffdc4a603c968ca4a6392aeceaca380c02231459d9ba7240f807eaf0775c65");
-        location.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgba(204, 255, 0, 0.2)");
-        addPropertyToConcept(graph, location, "geoLocation", OntologyRepository.GEO_LOCATION_PROPERTY_TYPE);
+        location.setProperty(PropertyName.GLYPH_ICON.toString(), "caffdc4a603c968ca4a6392aeceaca380c02231459d9ba7240f807eaf0775c65");
+        location.setProperty(PropertyName.COLOR.toString(), "rgba(204, 255, 0, 0.2)");
+        addPropertyToConcept(graph, location, "geoLocation", PropertyType.GEO_LOCATION);
 
         graph.commit();
 

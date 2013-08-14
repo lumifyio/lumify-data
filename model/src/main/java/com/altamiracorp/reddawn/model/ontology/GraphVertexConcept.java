@@ -16,16 +16,16 @@ public class GraphVertexConcept extends Concept {
 
     @Override
     public String getTitle() {
-        return (String) graphVertex.getProperty(OntologyRepository.TITLE_PROPERTY_NAME);
+        return (String) graphVertex.getProperty(PropertyName.TITLE);
     }
 
     @Override
     public String getGlyphIconResourceRowKey() {
-        return (String) graphVertex.getProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME);
+        return (String) graphVertex.getProperty(PropertyName.GLYPH_ICON);
     }
 
     @Override
     public String getColor() {
-        return (String) graphVertex.getProperty(OntologyRepository.COLOR_PROPERTY_NAME);
+        return (String) graphVertex.getProperty(PropertyName.COLOR);
     }
 }

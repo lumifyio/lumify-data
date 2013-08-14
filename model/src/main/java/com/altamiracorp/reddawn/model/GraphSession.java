@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.model;
 
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.tinkerpop.blueprints.Graph;
 
 import java.util.HashMap;
@@ -39,9 +40,11 @@ public abstract class GraphSession {
 
     public abstract Graph getGraph();
 
-    public abstract List<GraphVertex> searchVerticesByTitleAndType(String query, String type);
+    public abstract List<GraphVertex> searchVerticesByTitleAndType(String query, VertexType type);
 
-    public abstract GraphVertex findVertexByExactTitleAndType(String graphVertexTitle, String graphVertexType);
+    public abstract GraphVertex findVertexByExactTitleAndType(String graphVertexTitle, VertexType graphVertexType);
+
+    public abstract GraphVertex findVertexByOntologyTitleAndType(String title, VertexType concept);
 
     public abstract void removeRelationship(String source, String target, String label);
 

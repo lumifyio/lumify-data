@@ -30,7 +30,7 @@ digraph {
 	"Location" -> "Entity" [color=black;];
 	{ rank=same; "Person";"Organization";"Location";}
 	"Person" -> "Person" [ label = "knows"; color=lightgrey; ];
-	"Person" -> "Location" [ label = "livesAt"; color=lightgrey; ];
-	"Person" -> "Company" [ label = "worksAt"; color=lightgrey; ];
 	"Organization" -> "Location" [ label = "headquarteredAt"; color=lightgrey; ];
+	"Person" -> "Company" [ label = "worksAt"; color=lightgrey; ];
+	"Person" -> "Location" [ label = "livesAt"; color=lightgrey; ];
 }

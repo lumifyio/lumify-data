@@ -3,7 +3,9 @@ package com.altamiracorp.reddawn.model;
 import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
-import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
+import com.altamiracorp.reddawn.model.ontology.LabelName;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
@@ -179,7 +181,7 @@ public class TitanGraphSession extends GraphSession {
         vertices.addAll(new GremlinPipeline(vertex)
                 .bothE()
                 .bothV()
-                .in(OntologyRepository.IS_A_LABEL_NAME)
+                .in(LabelName.IS_A.toString())
                 .toList());
         for (Vertex v : vertices) {
             results.add(new TitanGraphVertex(v));
@@ -194,20 +196,20 @@ public class TitanGraphSession extends GraphSession {
 
         List<Vertex> resolvedVertices = new GremlinPipeline(vertex)
                 .both()
-                .hasNot(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE)
+                .hasNot(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString())
                 .toList();
         resolvedVertices.addAll(new GremlinPipeline(vertex)
                 .both()
-                .has(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE)
+                .has(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString())
                 .both()
-                .hasNot(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE)
+                .hasNot(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString())
                 .toList());
         resolvedVertices.addAll(new GremlinPipeline(vertex)
                 .both()
-                .has(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE)
+                .has(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString())
                 .as("mentions")
                 .both()
-                .hasNot(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE)
+                .hasNot(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString())
                 .hasNot("id", vertex.getId())
                 .back("mentions")
                 .toList());
@@ -257,7 +259,7 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public List<GraphVertex> findByGeoLocation(double latitude, double longitude, double radius) {
         Iterable<Vertex> r = graph.query()
-                .has(OntologyRepository.GEO_LOCATION_PROPERTY_NAME, Geo.WITHIN, Geoshape.circle(latitude, longitude, radius))
+                .has(PropertyName.GEO_LOCATION.toString(), Geo.WITHIN, Geoshape.circle(latitude, longitude, radius))
                 .vertices();
         return toGraphVertices(r);
     }
@@ -265,25 +267,38 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public List<GraphVertex> searchVerticesByTitle(String query) {
         Iterable<Vertex> r = graph.query()
-                .has(OntologyRepository.TITLE_PROPERTY_NAME, Text.CONTAINS, query)
+                .has(PropertyName.TITLE.toString(), Text.CONTAINS, query)
                 .vertices();
         return toGraphVertices(r);
     }
 
     @Override
-    public List<GraphVertex> searchVerticesByTitleAndType(String query, String type) {
+    public List<GraphVertex> searchVerticesByTitleAndType(String query, VertexType type) {
         Iterable<Vertex> r = graph.query()
-                .has(OntologyRepository.TITLE_PROPERTY_NAME, Text.CONTAINS, query)
-                .has("type", type)
+                .has(PropertyName.TITLE.toString(), Text.CONTAINS, query)
+                .has(PropertyName.TYPE.toString(), type.toString())
                 .vertices();
         return toGraphVertices(r);
     }
 
     @Override
-    public GraphVertex findVertexByExactTitleAndType(String graphVertexTitle, String graphVertexType) {
+    public GraphVertex findVertexByExactTitleAndType(String graphVertexTitle, VertexType type) {
         Iterable<Vertex> r = graph.query()
-                .has(OntologyRepository.TITLE_PROPERTY_NAME, graphVertexTitle)
-                .has(OntologyRepository.TYPE_PROPERTY_NAME, graphVertexType)
+                .has(PropertyName.TITLE.toString(), graphVertexTitle)
+                .has(PropertyName.TYPE.toString(), type.toString())
+                .vertices();
+        ArrayList<GraphVertex> graphVertices = toGraphVertices(r);
+        if (graphVertices.size() > 0) {
+            return graphVertices.get(0);
+        }
+        return null;
+    }
+
+    @Override
+    public GraphVertex findVertexByOntologyTitleAndType(String title, VertexType type) {
+        Iterable<Vertex> r = graph.query()
+                .has(PropertyName.ONTOLOGY_TITLE.toString(), title)
+                .has(PropertyName.TYPE.toString(), type.toString())
                 .vertices();
         ArrayList<GraphVertex> graphVertices = toGraphVertices(r);
         if (graphVertices.size() > 0) {
