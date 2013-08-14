@@ -8,6 +8,7 @@ import com.thinkaurelius.titan.core.TitanLabel;
 import com.thinkaurelius.titan.core.TitanVertex;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.apache.commons.cli.CommandLine;
 
@@ -30,11 +31,17 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
         properties.put(typeProperty.getName(), typeProperty);
 
-        TitanKey conceptProperty = (TitanKey) graph.getType(OntologyRepository.CONCEPT_PROPERTY_NAME);
-        if (conceptProperty == null) {
-            conceptProperty = graph.makeType().name(OntologyRepository.CONCEPT_PROPERTY_NAME).dataType(String.class).unique(Direction.IN).indexed(Vertex.class).makePropertyKey();
+        TitanKey dataTypeProperty = (TitanKey) graph.getType(OntologyRepository.DATA_TYPE_PROPERTY_NAME);
+        if (dataTypeProperty == null) {
+            dataTypeProperty = graph.makeType().name(OntologyRepository.DATA_TYPE_PROPERTY_NAME).dataType(String.class).unique(Direction.OUT).makePropertyKey();
         }
-        properties.put(conceptProperty.getName(), conceptProperty);
+        properties.put(dataTypeProperty.getName(), dataTypeProperty);
+
+        TitanKey ontologyTitleProperty = (TitanKey) graph.getType(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME);
+        if (ontologyTitleProperty == null) {
+            ontologyTitleProperty = graph.makeType().name(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+        }
+        properties.put(ontologyTitleProperty.getName(), ontologyTitleProperty);
 
         // concept edges
         TitanLabel hasPropertyEdge = (TitanLabel) graph.getType(OntologyRepository.HAS_PROPERTY_LABEL_NAME);
@@ -88,19 +95,19 @@ public abstract class Base extends RedDawnCommandLineBase {
 
         graph.commit();
 
-        Iterator<Vertex> artifactIter = graph.getVertices(conceptProperty.getName(), OntologyRepository.ARTIFACT_TYPE).iterator();
+        Iterator<Vertex> artifactIter = graph.getVertices(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME, OntologyRepository.ARTIFACT_TYPE).iterator();
         TitanVertex artifact;
         if (artifactIter.hasNext()) {
             artifact = (TitanVertex) artifactIter.next();
         } else {
             artifact = (TitanVertex) graph.addVertex(null);
             artifact.setProperty(typeProperty.getName(), OntologyRepository.CONCEPT_TYPE);
-            artifact.addProperty(conceptProperty, OntologyRepository.ARTIFACT_TYPE);
+            artifact.setProperty(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME, OntologyRepository.ARTIFACT_TYPE);
         }
-        findOrAddEdge(artifact, typeProperty, hasPropertyEdge);
-        findOrAddEdge(artifact, subTypeProperty, hasPropertyEdge);
-        findOrAddEdge(artifact, titleProperty, hasPropertyEdge);
-        findOrAddEdge(artifact, geoLocationProperty, hasPropertyEdge);
+        addPropertyToConcept(graph, artifact, typeProperty.getName(), OntologyRepository.STRING_PROPERTY_TYPE);
+        addPropertyToConcept(graph, artifact, subTypeProperty.getName(), OntologyRepository.STRING_PROPERTY_TYPE);
+        addPropertyToConcept(graph, artifact, titleProperty.getName(), OntologyRepository.STRING_PROPERTY_TYPE);
+        addPropertyToConcept(graph, artifact, geoLocationProperty.getName(), OntologyRepository.GEOLOCATION_PROPERTY_TYPE);
 
         graph.commit();
 
@@ -119,36 +126,36 @@ public abstract class Base extends RedDawnCommandLineBase {
 
         graph.commit();
 
-        Iterator<Vertex> termMentionIter = graph.getVertices(conceptProperty.getName(), OntologyRepository.TERM_MENTION_TYPE).iterator();
+        Iterator<Vertex> termMentionIter = graph.getVertices(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE).iterator();
         TitanVertex termMention;
         if (termMentionIter.hasNext()) {
             termMention = (TitanVertex) termMentionIter.next();
         } else {
             termMention = (TitanVertex) graph.addVertex(null);
             termMention.setProperty(typeProperty.getName(), OntologyRepository.CONCEPT_TYPE);
-            termMention.addProperty(conceptProperty, OntologyRepository.TERM_MENTION_TYPE);
+            termMention.addProperty(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME, OntologyRepository.TERM_MENTION_TYPE);
         }
-        findOrAddEdge(termMention, typeProperty, hasPropertyEdge);
-        findOrAddEdge(termMention, subTypeProperty, hasPropertyEdge);
-        findOrAddEdge(termMention, rowKeyProperty, hasPropertyEdge);
-        findOrAddEdge(termMention, columnFamilyNameProperty, hasPropertyEdge);
-        findOrAddEdge(termMention, titleProperty, hasPropertyEdge);
+        addPropertyToConcept(graph, termMention, typeProperty.getName(), OntologyRepository.STRING_PROPERTY_TYPE);
+        addPropertyToConcept(graph, termMention, subTypeProperty.getName(), OntologyRepository.STRING_PROPERTY_TYPE);
+        addPropertyToConcept(graph, termMention, rowKeyProperty.getName(), OntologyRepository.STRING_PROPERTY_TYPE);
+        addPropertyToConcept(graph, termMention, columnFamilyNameProperty.getName(), OntologyRepository.STRING_PROPERTY_TYPE);
+        addPropertyToConcept(graph, termMention, titleProperty.getName(), OntologyRepository.STRING_PROPERTY_TYPE);
 
         graph.commit();
 
         // Entity concept
-        Iterator<Vertex> entityIter = graph.getVertices(conceptProperty.getName(), OntologyRepository.ENTITY_TYPE).iterator();
+        Iterator<Vertex> entityIter = graph.getVertices(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME, OntologyRepository.ENTITY_TYPE).iterator();
         TitanVertex entity;
         if (entityIter.hasNext()) {
             entity = (TitanVertex) entityIter.next();
         } else {
             entity = (TitanVertex) graph.addVertex(null);
             entity.setProperty(typeProperty.getName(), OntologyRepository.CONCEPT_TYPE);
-            entity.addProperty(conceptProperty, OntologyRepository.ENTITY_TYPE);
+            entity.addProperty(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME, OntologyRepository.ENTITY_TYPE);
         }
-        findOrAddEdge(entity, typeProperty, hasPropertyEdge);
-        findOrAddEdge(entity, subTypeProperty, hasPropertyEdge);
-        findOrAddEdge(entity, titleProperty, hasPropertyEdge);
+        addPropertyToConcept(graph, entity, typeProperty.getName(), OntologyRepository.STRING_PROPERTY_TYPE);
+        addPropertyToConcept(graph, entity, subTypeProperty.getName(), OntologyRepository.STRING_PROPERTY_TYPE);
+        addPropertyToConcept(graph, entity, titleProperty.getName(), OntologyRepository.STRING_PROPERTY_TYPE);
 
         graph.commit();
 
@@ -172,18 +179,17 @@ public abstract class Base extends RedDawnCommandLineBase {
 
     protected abstract int defineOntology(TitanGraph graph, TitanVertex entity);
 
-    protected TitanVertex getOrCreateType(TitanGraph graph, TitanVertex parent, String typeName) {
-        Iterator<Vertex> iter = graph.getVertices(OntologyRepository.CONCEPT_PROPERTY_NAME, typeName).iterator();
+    protected TitanVertex getOrCreateConcept(TitanGraph graph, TitanVertex parent, String conceptName) {
+        Iterator<Vertex> iter = graph.getVertices(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME, conceptName).iterator();
         TitanVertex vertex;
         if (iter.hasNext()) {
             vertex = (TitanVertex) iter.next();
         } else {
             vertex = (TitanVertex) graph.addVertex(null);
             vertex.setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.CONCEPT_TYPE);
-            vertex.setProperty(OntologyRepository.TITLE_PROPERTY_NAME, typeName);
-            vertex.addProperty(OntologyRepository.CONCEPT_PROPERTY_NAME, typeName);
-            findOrAddEdge(vertex, parent, OntologyRepository.IS_A_LABEL_NAME);
+            vertex.setProperty(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME, conceptName);
         }
+        findOrAddEdge(vertex, parent, OntologyRepository.IS_A_LABEL_NAME);
         return vertex;
     }
 
@@ -191,7 +197,8 @@ public abstract class Base extends RedDawnCommandLineBase {
         TitanLabel relationshipLabel = (TitanLabel) graph.getType(relationshipName);
         if (relationshipLabel == null) {
             relationshipLabel = graph.makeType().name(relationshipName).directed().makeEdgeLabel();
-            relationshipLabel.setProperty(OntologyRepository.TITLE_PROPERTY_NAME, relationshipName);
+            relationshipLabel.setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.RELATIONSHIP_TYPE);
+            relationshipLabel.setProperty(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME, relationshipName);
         }
 
         TitanLabel hasEdgeLabel = this.edges.get(OntologyRepository.HAS_EDGE_LABEL_NAME);
@@ -204,6 +211,29 @@ public abstract class Base extends RedDawnCommandLineBase {
     }
 
     protected void findOrAddEdge(TitanVertex fromVertex, TitanVertex toVertex, String edgeLabel) {
+        Iterator<Edge> possibleEdgeMatches = fromVertex.getEdges(Direction.OUT, edgeLabel).iterator();
+        while (possibleEdgeMatches.hasNext()) {
+            Edge possibleEdgeMatch = possibleEdgeMatches.next();
+            Vertex possibleMatch = possibleEdgeMatch.getVertex(Direction.IN);
+            if (possibleMatch.getId().equals(toVertex.getId())) {
+                return;
+            }
+        }
         fromVertex.addEdge(edgeLabel, toVertex);
+    }
+
+    protected TitanVertex addPropertyToConcept(TitanGraph graph, TitanVertex concept, String propertyName, String dataType) {
+        Iterator<Vertex> iter = graph.getVertices(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME, propertyName).iterator();
+        TitanVertex propertyVertex;
+        if (iter.hasNext()) {
+            propertyVertex = (TitanVertex) iter.next();
+        } else {
+            propertyVertex = (TitanVertex) graph.addVertex(null);
+            propertyVertex.setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.PROPERTY_TYPE);
+            propertyVertex.setProperty(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME, propertyName);
+            propertyVertex.setProperty(OntologyRepository.DATA_TYPE_PROPERTY_NAME, dataType);
+        }
+        findOrAddEdge(concept, propertyVertex, OntologyRepository.HAS_PROPERTY_LABEL_NAME);
+        return propertyVertex;
     }
 }

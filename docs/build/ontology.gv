@@ -1,0 +1,34 @@
+digraph {
+	splines=curved;
+	sep="+50,50";
+	overlap=scalexy;
+	nodesep=0.6;
+
+	{ rank=min; "Entity";}
+	"Entity" [
+		label=<<B>Entity</B><BR/>title: string<BR/>subType: string<BR/>type: string>
+	];
+	"Person" [
+		label=<<B>Person</B><BR/>birthDate: date>
+	];
+	{ rank=same; }
+	"Person" -> "Entity" [color=black;];
+	"Organization" [
+		label=<<B>Organization</B>>
+	];
+	"Company" [
+		label=<<B>Company</B>>
+	];
+	{ rank=same; }
+	"Company" -> "Organization" [color=black;];
+	{ rank=same; "Company";}
+	"Organization" -> "Entity" [color=black;];
+	"Location" [
+		label=<<B>Location</B>>
+	];
+	{ rank=same; }
+	"Location" -> "Entity" [color=black;];
+	{ rank=same; "Person";"Organization";"Location";}
+	"Person" -> "Person" [ label = "knows"; color=lightgrey; ];
+	"Person" -> "Company" [ label = "worksAt"; color=lightgrey; ];
+}

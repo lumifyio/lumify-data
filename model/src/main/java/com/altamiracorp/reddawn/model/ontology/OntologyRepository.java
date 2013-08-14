@@ -13,9 +13,10 @@ import java.util.List;
 
 public class OntologyRepository {
     public static final String TYPE_PROPERTY_NAME = "type";
-    public static final String CONCEPT_PROPERTY_NAME = "concept";
     public static final String SUBTYPE_PROPERTY_NAME = "subType";
+    public static final String DATA_TYPE_PROPERTY_NAME = "dataType";
     public static final String TITLE_PROPERTY_NAME = "title";
+    public static final String ONTOLOGY_TITLE_PROPERTY_NAME = "ontologyTitle";
     public static final String GEO_LOCATION_PROPERTY_NAME = "geoLocation";
     public static final String ROW_KEY_PROPERTY_NAME = "_rowKey";
     public static final String COLUMN_FAMILY_NAME_PROPERTY_NAME = "_columnFamilyName";
@@ -26,16 +27,22 @@ public class OntologyRepository {
     public static final String ARTIFACT_TYPE = "Artifact";
     public static final String TERM_MENTION_TYPE = "TermMention";
     public static final String ENTITY_TYPE = "Entity";
+    public static final String PROPERTY_TYPE = "Property";
+    public static final String RELATIONSHIP_TYPE = "Relationship";
 
     public static final String HAS_PROPERTY_LABEL_NAME = "hasProperty";
     public static final String HAS_EDGE_LABEL_NAME = "hasEdge";
     public static final String IS_A_LABEL_NAME = "isA";
     public static final String HAS_TERM_MENTION_LABEL_NAME = "hasTermMention";
 
+    public static final String DATE_PROPERTY_TYPE = "date";
+    public static final String STRING_PROPERTY_TYPE = "string";
+    public static final String GEOLOCATION_PROPERTY_TYPE = "geoLocation";
+
     public Concept getEntityConcept(GraphSession graphSession) {
         Iterator<Vertex> vertices = graphSession.getGraph().query()
                 .has(TYPE_PROPERTY_NAME, CONCEPT_TYPE)
-                .has(CONCEPT_PROPERTY_NAME, ENTITY_TYPE)
+                .has(ONTOLOGY_TITLE_PROPERTY_NAME, ENTITY_TYPE)
                 .vertices()
                 .iterator();
         if (vertices.hasNext()) {
