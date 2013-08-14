@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.model.ontology;
 
 import com.altamiracorp.reddawn.model.GraphSession;
-import com.altamiracorp.reddawn.model.graph.GraphNode;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
@@ -94,11 +94,11 @@ public class OntologyRepository {
     }
 
     public Concept getConceptByName(GraphSession graphSession, String title) {
-        GraphNode node = graphSession.findNodeByExactTitleAndType(title, CONCEPT_TYPE);
-        if (node == null) {
+        GraphVertex vertex = graphSession.findVertexByExactTitleAndType(title, CONCEPT_TYPE);
+        if (vertex == null) {
             return null;
         }
-        return new GraphNodeConcept(node);
+        return new GraphVertexConcept(vertex);
     }
 
     public List<Relationship> getRelationships(GraphSession graphSession, String sourceConceptTypeId, String destConceptTypeId) {

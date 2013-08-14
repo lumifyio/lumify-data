@@ -1,14 +1,14 @@
 package com.altamiracorp.reddawn.model;
 
-import com.altamiracorp.reddawn.model.graph.GraphNode;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.tinkerpop.blueprints.Vertex;
 
 import java.util.Set;
 
-public class TitanGraphNode extends GraphNode {
+public class TitanGraphVertex extends GraphVertex {
     private final Vertex vertex;
 
-    public TitanGraphNode(Vertex vertex) {
+    public TitanGraphVertex(Vertex vertex) {
         this.vertex = vertex;
     }
 
@@ -18,7 +18,7 @@ public class TitanGraphNode extends GraphNode {
     }
 
     @Override
-    public GraphNode setProperty(String key, Object value) {
+    public GraphVertex setProperty(String key, Object value) {
         this.vertex.setProperty(key, value);
         return this;
     }

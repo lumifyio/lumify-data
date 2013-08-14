@@ -11,10 +11,10 @@ import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
 import com.altamiracorp.reddawn.web.routes.graph.*;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
-import com.altamiracorp.reddawn.web.routes.node.NodeProperties;
-import com.altamiracorp.reddawn.web.routes.node.NodeRelationshipRemoval;
-import com.altamiracorp.reddawn.web.routes.node.NodeRelationships;
-import com.altamiracorp.reddawn.web.routes.node.NodeToNodeRelationship;
+import com.altamiracorp.reddawn.web.routes.vertex.VertexProperties;
+import com.altamiracorp.reddawn.web.routes.vertex.VertexRelationshipRemoval;
+import com.altamiracorp.reddawn.web.routes.vertex.VertexRelationships;
+import com.altamiracorp.reddawn.web.routes.vertex.VertexToVertexRelationship;
 import com.altamiracorp.reddawn.web.routes.ontology.ConceptList;
 import com.altamiracorp.reddawn.web.routes.ontology.RelationshipList;
 import com.altamiracorp.reddawn.web.routes.resource.ResourceGet;
@@ -68,16 +68,16 @@ public class Router extends HttpServlet {
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.post("/entity/create", authenticator, EntityCreate.class);
 
-        app.get("/node/{graphNodeId}/properties", authenticator, NodeProperties.class);
-        app.get("/node/{graphNodeId}/relationships", authenticator, NodeRelationships.class);
-        app.get("/node/relationship", authenticator, NodeToNodeRelationship.class);
-        app.get("/node/removeRelationship", authenticator, NodeRelationshipRemoval.class);
+        app.get("/node/{graphNodeId}/properties", authenticator, VertexProperties.class);
+        app.get("/node/{graphNodeId}/relationships", authenticator, VertexRelationships.class);
+        app.get("/node/relationship", authenticator, VertexToVertexRelationship.class);
+        app.get("/node/removeRelationship", authenticator, VertexRelationshipRemoval.class);
 
-        app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedNodes.class);
-        app.get("/graph/{graphNodeId}/relatedResolvedNodes", authenticator, GraphRelatedResolvedNodes.class);
-        app.get("/graph/node/search", authenticator, GraphNodeSearch.class);
+        app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedVertices.class);
+        app.get("/graph/{graphNodeId}/relatedResolvedNodes", authenticator, GraphRelatedResolvedVertices.class);
+        app.get("/graph/node/search", authenticator, GraphVertexSearch.class);
         app.get("/graph/node/geoLocationSearch", authenticator, GraphGeoLocationSearch.class);
-        app.get("/graph/node/{graphNodeId}", authenticator, GraphGetNode.class);
+        app.get("/graph/node/{graphNodeId}", authenticator, GraphGetVertex.class);
 
         app.get("/workspace/", authenticator, WorkspaceList.class);
         app.post("/workspace/save", authenticator, WorkspaceSave.class);

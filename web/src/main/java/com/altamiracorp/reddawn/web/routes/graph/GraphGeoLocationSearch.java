@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.web.routes.graph;
 
 import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.model.graph.GraphNode;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
@@ -31,10 +31,10 @@ public class GraphGeoLocationSearch implements Handler, AppAware {
         double longitude = Double.parseDouble(request.getParameter("lon"));
         double radius = Double.parseDouble(request.getParameter("radius"));
 
-        List<GraphNode> nodes = graphRepository.findByGeoLocation(session.getGraphSession(), latitude, longitude, radius);
+        List<GraphVertex> nodes = graphRepository.findByGeoLocation(session.getGraphSession(), latitude, longitude, radius);
 
         JSONObject results = new JSONObject();
-        results.put("nodes", GraphNode.toJson(nodes));
+        results.put("nodes", GraphVertex.toJson(nodes));
         new Responder(response).respondWith(results);
     }
 }

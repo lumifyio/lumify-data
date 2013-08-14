@@ -4,8 +4,8 @@ import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.entityHighlight.TermAndTermMentionOffsetItem;
 import com.altamiracorp.reddawn.model.GraphSession;
 import com.altamiracorp.reddawn.model.RowKeyHelper;
-import com.altamiracorp.reddawn.model.graph.GraphNode;
-import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
@@ -48,12 +48,12 @@ public class EntityCreate implements Handler, AppAware {
         long mentionEnd = Long.parseLong(getRequiredParameter(request, "mentionEnd"));
         String sign = getRequiredParameter(request, "sign");
         String conceptId = getRequiredParameter(request, "conceptId");
-        GraphNode conceptVertex = graphRepository.findNode(session.getGraphSession(), conceptId);
+        GraphVertex conceptVertex = graphRepository.findVertex(session.getGraphSession(), conceptId);
 
         // optional parameters
         String objectSign = request.getParameter("objectSign");
 
-        GraphNode resolvedNode = null;
+        GraphVertex resolvedNode = null;
         if (objectSign != null && objectSign.length() > 0) {
             objectSign = UrlUtils.urlDecode(objectSign);
             resolvedNode = getObjectGraphNode(session.getGraphSession(), objectSign, conceptVertex);
@@ -61,7 +61,7 @@ public class EntityCreate implements Handler, AppAware {
         TermAndTermMention termAndTermMention = getTermAndTermMention(currentUser, session, artifactKey, mentionStart, mentionEnd, sign, conceptVertex, resolvedNode);
 
         if (resolvedNode != null) {
-            graphRepository.saveRelationship(session.getGraphSession(), termAndTermMention.getTermMention().getGraphNodeId(), resolvedNode.getId(), "isA");
+            graphRepository.saveRelationship(session.getGraphSession(), termAndTermMention.getTermMention().getGraphVertexId(), resolvedNode.getId(), "isA");
         }
 
         artifactRepository.touchRow(session.getModelSession(), new ArtifactRowKey(artifactKey));
@@ -70,15 +70,15 @@ public class EntityCreate implements Handler, AppAware {
         new Responder(response).respondWith(offsetItem.toJson());
     }
 
-    private GraphNode getObjectGraphNode(GraphSession session, String title, GraphNode conceptVertex) {
-        GraphNode graphNode = graphRepository.findNodeByTitleAndType(session, title, OntologyRepository.ENTITY_TYPE);
+    private GraphVertex getObjectGraphNode(GraphSession session, String title, GraphVertex conceptVertex) {
+        GraphVertex graphNode = graphRepository.findVertexByTitleAndType(session, title, OntologyRepository.ENTITY_TYPE);
         if (graphNode == null) {
-            graphNode = new GraphNodeImpl()
+            graphNode = new GraphVertexImpl()
                     .setProperty(OntologyRepository.TITLE_PROPERTY_NAME, title)
                     .setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.ENTITY_TYPE)
                     .setProperty(OntologyRepository.SUBTYPE_PROPERTY_NAME, conceptVertex.getId());
-            String graphNodeId = graphRepository.saveNode(session, graphNode);
-            return new GraphNodeImpl(graphNodeId)
+            String graphNodeId = graphRepository.saveVertex(session, graphNode);
+            return new GraphVertexImpl(graphNodeId)
                     .setProperty(OntologyRepository.TITLE_PROPERTY_NAME, title)
                     .setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.ENTITY_TYPE)
                     .setProperty(OntologyRepository.SUBTYPE_PROPERTY_NAME, conceptVertex.getId());
@@ -86,7 +86,7 @@ public class EntityCreate implements Handler, AppAware {
         return graphNode;
     }
 
-    private TermAndTermMention getTermAndTermMention(User currentUser, RedDawnSession session, String artifactKey, long mentionStart, long mentionEnd, String sign, GraphNode conceptVertex, GraphNode resolvedNode) {
+    private TermAndTermMention getTermAndTermMention(User currentUser, RedDawnSession session, String artifactKey, long mentionStart, long mentionEnd, String sign, GraphVertex conceptVertex, GraphVertex resolvedNode) {
         String conceptLabel = StringUtils.join(ontologyRepository.getConceptPath(session.getGraphSession(), conceptVertex.getId()), "/");
         TermRowKey termRowKey = getTermRowKey(session, sign, conceptLabel);
         TermAndTermMention termAndTermMention = termRepository.findMention(session.getModelSession(), termRowKey, artifactKey, mentionStart, mentionEnd);
@@ -102,13 +102,13 @@ public class EntityCreate implements Handler, AppAware {
             term.addTermMention(termMention);
             termAndTermMention = new TermAndTermMention(term, termMention);
             termRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), termAndTermMention.getTerm(), termAndTermMention.getTermMention(), conceptVertex.getId());
-            LOGGER.info("New graph node for term mention created with node id: " + termAndTermMention.getTermMention().getGraphNodeId());
+            LOGGER.info("New graph node for term mention created with node id: " + termAndTermMention.getTermMention().getGraphVertexId());
         }
 
-        termAndTermMention.getTermMention().setGraphSubTypeNodeId(conceptVertex.getId());
+        termAndTermMention.getTermMention().setGraphSubTypeVertexId(conceptVertex.getId());
 
         if (resolvedNode != null) {
-            termAndTermMention.getTermMention().setResolvedGraphNodeId(resolvedNode.getId());
+            termAndTermMention.getTermMention().setResolvedGraphVertexId(resolvedNode.getId());
             termAndTermMention.getTermMention().setResolvedSign((String) resolvedNode.getProperty(OntologyRepository.TITLE_PROPERTY_NAME));
         }
         termRepository.save(session.getModelSession(), termAndTermMention.getTerm());

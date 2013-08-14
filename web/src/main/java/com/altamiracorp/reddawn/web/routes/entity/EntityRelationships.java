@@ -46,8 +46,8 @@ public class EntityRelationships implements Handler, AppAware {
 
         for (GraphRelationship graphRelationship : graphRelationships) {
                 JSONObject rel = new JSONObject();
-                rel.put("from", graphRelationship.getSourceNodeId());
-                rel.put("to", graphRelationship.getDestNodeId());
+                rel.put("from", graphRelationship.getSourceVertexId());
+                rel.put("to", graphRelationship.getDestVertexId());
                 rel.put("relationshipType", graphRelationship.getLabel());
                 resultsJson.put(rel);
         }

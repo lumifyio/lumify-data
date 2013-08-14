@@ -2,8 +2,8 @@ package com.altamiracorp.reddawn.ucd.artifact;
 
 import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
-import com.altamiracorp.reddawn.model.graph.GraphNode;
-import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 
 import javax.imageio.ImageIO;
@@ -132,23 +132,23 @@ public class ArtifactRepository extends Repository<Artifact> {
     }
 
     public void saveToGraph(Session session, GraphSession graphSession, Artifact artifact) {
-        GraphNode node = new GraphNodeImpl();
-        String oldRowKey = artifact.getGenericMetadata().getGraphNodeId();
-        node.setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.ARTIFACT_TYPE);
-        node.setProperty(OntologyRepository.SUBTYPE_PROPERTY_NAME, artifact.getType().toString().toLowerCase());
-        node.setProperty(OntologyRepository.ROW_KEY_PROPERTY_NAME, artifact.getRowKey().toString());
+        GraphVertex vertex = new GraphVertexImpl();
+        String oldRowKey = artifact.getGenericMetadata().getGraphVertexId();
+        vertex.setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.ARTIFACT_TYPE);
+        vertex.setProperty(OntologyRepository.SUBTYPE_PROPERTY_NAME, artifact.getType().toString().toLowerCase());
+        vertex.setProperty(OntologyRepository.ROW_KEY_PROPERTY_NAME, artifact.getRowKey().toString());
         if (artifact.getDynamicMetadata().getLatitude() != null) {
             double latitude = artifact.getDynamicMetadata().getLatitude();
             double longitude = artifact.getDynamicMetadata().getLongitude();
-            node.setProperty(OntologyRepository.GEO_LOCATION_PROPERTY_NAME, new GraphGeoLocation(latitude, longitude));
+            vertex.setProperty(OntologyRepository.GEO_LOCATION_PROPERTY_NAME, new GraphGeoLocation(latitude, longitude));
         }
         if (artifact.getGenericMetadata().getSubject() != null) {
-            node.setProperty(OntologyRepository.TITLE_PROPERTY_NAME, artifact.getGenericMetadata().getSubject());
+            vertex.setProperty(OntologyRepository.TITLE_PROPERTY_NAME, artifact.getGenericMetadata().getSubject());
         }
 
-        String nodeId = graphSession.save(node);
-        if (!nodeId.equals(oldRowKey)) {
-            artifact.getGenericMetadata().setGraphNodeId(nodeId);
+        String vertexId = graphSession.save(vertex);
+        if (!vertexId.equals(oldRowKey)) {
+            artifact.getGenericMetadata().setGraphVertexId(vertexId);
             this.save(session, artifact);
         }
     }
