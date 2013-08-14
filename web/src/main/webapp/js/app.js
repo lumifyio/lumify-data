@@ -230,7 +230,7 @@ define([
                                 return self.trigger(document, 'error', { message: err.toString() });
                             }
 
-                            console.log(data);
+                            console.log('setup: ', data);
 
                             nodes.push({
                                 graphNodeId: data.id,
@@ -498,7 +498,6 @@ define([
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
-console.log ('app.js -> relationships', relationships);
                 self.trigger(document, 'relationshipsLoaded', { relationships: relationships });
             });
         };

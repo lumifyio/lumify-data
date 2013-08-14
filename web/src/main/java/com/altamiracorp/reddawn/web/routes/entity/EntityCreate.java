@@ -111,7 +111,6 @@ public class EntityCreate implements Handler, AppAware {
 
         if (resolvedNode != null) {
             termAndTermMention.getTermMention().setResolvedGraphVertexId(resolvedNode.getId());
-            termAndTermMention.getTermMention().setResolvedSign((String) resolvedNode.getProperty(PropertyName.TITLE));
         }
         termRepository.save(session.getModelSession(), termAndTermMention.getTerm());
         return termAndTermMention;

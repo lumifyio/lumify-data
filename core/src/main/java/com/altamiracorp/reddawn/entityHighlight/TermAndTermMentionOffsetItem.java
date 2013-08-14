@@ -56,10 +56,6 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
     }
 
     public String getTitle() {
-        String resolvedSign = termAndTermMention.getTermMention().getResolvedSign();
-        if (resolvedSign != null) {
-            return resolvedSign;
-        }
         return termAndTermMention.getTerm().getRowKey().getSign();
     }
 
