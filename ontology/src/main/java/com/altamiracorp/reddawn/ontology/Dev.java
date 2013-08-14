@@ -20,19 +20,19 @@ public class Dev extends Base {
     @Override
     protected int defineOntology(TitanGraph graph, TitanVertex entity) {
         TitanVertex person = getOrCreateType(graph, entity, PERSON_TYPE);
-        person.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "f3ee34c83989653f9ed5abf9c1d138abda75951b0e9682b7e6965f545d6ebf20");
-        person.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgba(0, 102, 255, 0.2)");
+        person.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "bb94e4ffc8290bd0d07a919a010a4c5c69eb820d3ed4b6442da0fd217d74d058");
+        person.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgb(0, 102, 255)");
 
         TitanVertex org = getOrCreateType(graph, entity, ORGANIZATION_TYPE);
         org.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "8777a8592b14db5a7d4d151d9887f9500077adbfac7e30fecd987093299602da");
-        org.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgba(0, 255, 102, 0.2)");
+        org.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgb(0, 255, 102)");
         TitanVertex company = getOrCreateType(graph, org, COMPANY_TYPE);
         company.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "8777a8592b14db5a7d4d151d9887f9500077adbfac7e30fecd987093299602da");
-        company.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgba(0, 255, 102, 0.2)");
+        company.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgb(0, 255, 102)");
 
         TitanVertex location = getOrCreateType(graph, entity, LOCATION_TYPE);
-        location.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "caffdc4a603c968ca4a6392aeceaca380c02231459d9ba7240f807eaf0775c65");
-        location.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgba(204, 255, 0, 0.2)");
+        location.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "698ca9f70bbfce7bf7a4bdd5cdb8348d9062b31fa8085cc11b75f747e1b5c86b");
+        location.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgb(204, 255, 0)");
 
         graph.commit();
 
