@@ -16,7 +16,7 @@ public class GraphNodeConcept extends Concept {
 
     @Override
     public String getTitle() {
-        return (String) graphNode.getProperty(PropertyName.TITLE);
+        return (String) graphNode.getProperty(PropertyName.ONTOLOGY_TITLE);
     }
 
     @Override
