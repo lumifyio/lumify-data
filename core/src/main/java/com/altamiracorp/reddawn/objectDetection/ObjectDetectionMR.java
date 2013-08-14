@@ -19,6 +19,8 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -141,11 +143,14 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
     }
 
     public static class ArtifactObjectDetectionMapper extends ObjectDetectionMapper<Artifact> {
+        private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactObjectDetectionMapper.class);
+
         public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
             if (artifact.getType() != ArtifactType.IMAGE) {
                 return;
             }
 
+            LOGGER.info("Detecting objects of concept " + classifierConcept + " for artifact " + rowKey.toString());
             List<DetectedObject> detectedObjects = objectDetector.detectObjects(session, artifact, classifierPath);
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
@@ -157,7 +162,10 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
     }
 
     public static class VideoFrameObjectDetectionMapper extends ObjectDetectionMapper<VideoFrame> {
+        private static final Logger LOGGER = LoggerFactory.getLogger(VideoFrameObjectDetectionMapper.class);
+
         public void map(Text rowKey, VideoFrame videoFrame, Context context) throws IOException, InterruptedException {
+            LOGGER.info("Detecting objects of concept " + classifierConcept + " for video frame " + rowKey.toString());
             List<DetectedObject> detectedObjects = objectDetector.detectObjects(session, videoFrame, classifierPath);
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
