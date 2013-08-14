@@ -15,6 +15,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.filecache.DistributedCache;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -49,6 +50,8 @@ public class ClassifyMR extends ConfigurableMapJobBase {
     public static class ClassifyMapper extends Mapper<Text, SubFrame, Text, Artifact> {
         private static final String CLASSIFIER_CLASS = "classifierClass";
         private static final String CLASSIFIER_PATH = "classifierPath";
+        private static final String CLASS_MAPPING_PATH = "classMappingPath";
+        private static final String DEFAULT_CLASS_MAPPING_PATH = "hdfs:///conf/vaast/classMap.json";
         private static final String DEFAULT_CLASSIFIER_PATH = "hdfs:///conf/vaast/";
         private static final String USE_SPARSE = "useSparse";
         private static final Boolean DEFAULT_USE_SPARSE = true;
@@ -63,6 +66,9 @@ public class ClassifyMR extends ConfigurableMapJobBase {
             try {
                 session = RedDawnSession.create(context);
                 classifier = context.getConfiguration().getClass(CLASSIFIER_CLASS, SvmClassifier.class, Classifier.class).newInstance();
+
+                FileSystem fs = FileSystem.get(context.getConfiguration());
+                classifier.setup(fs.open(new Path(context.getConfiguration().get(CLASS_MAPPING_PATH,DEFAULT_CLASS_MAPPING_PATH))),resolveClassifierPath(context));
             } catch (Exception e) {
                 throw new IOException(e);
             }
