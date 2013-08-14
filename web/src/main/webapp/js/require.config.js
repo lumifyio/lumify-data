@@ -48,3 +48,11 @@ cytoscapePlugins.forEach(function(plugin) {
   require.shim.cytoscape.deps = require.shim.cytoscape.deps || [];
   require.shim.cytoscape.deps.push(plugin);
 });
+
+
+// For testing to use this configuration test/runner/main.js
+if ('define' in window) {
+    define([], function() {
+        return require;
+    });
+}
