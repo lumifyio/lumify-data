@@ -22,6 +22,7 @@ public class Dev extends Base {
         person.setProperty(PropertyName.COLOR.toString(), "rgb(0, 102, 255)");
         graph.commit();
         addPropertyToConcept(graph, person, "birthDate", PropertyType.DATE);
+        addPropertyToConcept(graph, person, PropertyName.GLYPH_ICON.toString(), PropertyType.IMAGE);
 
         TitanVertex org = getOrCreateConcept(graph, entity, ORGANIZATION_TYPE);
         org.setProperty(PropertyName.GLYPH_ICON.toString(), "8777a8592b14db5a7d4d151d9887f9500077adbfac7e30fecd987093299602da");

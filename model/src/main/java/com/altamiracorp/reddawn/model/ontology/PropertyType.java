@@ -4,6 +4,7 @@ public enum PropertyType {
     DATE("date"),
     STRING("string"),
     GEO_LOCATION("geoLocation"),
+    IMAGE("image"),
     CURRENCY("currency");
 
     private final String text;
