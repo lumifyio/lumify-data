@@ -37,7 +37,8 @@ public class OntologyRepository {
 
     public static final String DATE_PROPERTY_TYPE = "date";
     public static final String STRING_PROPERTY_TYPE = "string";
-    public static final String GEOLOCATION_PROPERTY_TYPE = "geoLocation";
+    public static final String GEO_LOCATION_PROPERTY_TYPE = "geoLocation";
+    public static final String CURRENCY_PROPERTY_TYPE = "currency";
 
     public Concept getEntityConcept(GraphSession graphSession) {
         Iterator<Vertex> vertices = graphSession.getGraph().query()

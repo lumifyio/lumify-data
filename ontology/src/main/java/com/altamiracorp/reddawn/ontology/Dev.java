@@ -10,9 +10,6 @@ public class Dev extends Base {
     public static final String COMPANY_TYPE = "Company";
     public static final String LOCATION_TYPE = "Location";
 
-    public static final String KNOWS_RELATIONSHIP_TYPE = "knows";
-    public static final String WORKS_AT_RELATIONSHIP_TYPE = "worksAt";
-
     public static void main(String[] args) throws Exception {
         new Dev().run(args);
     }
@@ -27,18 +24,24 @@ public class Dev extends Base {
         TitanVertex org = getOrCreateConcept(graph, entity, ORGANIZATION_TYPE);
         org.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "8777a8592b14db5a7d4d151d9887f9500077adbfac7e30fecd987093299602da");
         org.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgba(0, 255, 102, 0.2)");
+        addPropertyToConcept(graph, org, "formationDate", OntologyRepository.DATE_PROPERTY_TYPE);
+
         TitanVertex company = getOrCreateConcept(graph, org, COMPANY_TYPE);
         company.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "8777a8592b14db5a7d4d151d9887f9500077adbfac7e30fecd987093299602da");
         company.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgba(0, 255, 102, 0.2)");
+        addPropertyToConcept(graph, company, "netIncome", OntologyRepository.CURRENCY_PROPERTY_TYPE);
 
         TitanVertex location = getOrCreateConcept(graph, entity, LOCATION_TYPE);
         location.setProperty(OntologyRepository.GLYPH_ICON_PROPERTY_NAME, "caffdc4a603c968ca4a6392aeceaca380c02231459d9ba7240f807eaf0775c65");
         location.setProperty(OntologyRepository.COLOR_PROPERTY_NAME, "rgba(204, 255, 0, 0.2)");
+        addPropertyToConcept(graph, location, "geoLocation", OntologyRepository.GEO_LOCATION_PROPERTY_TYPE);
 
         graph.commit();
 
-        getOrCreateRelationshipType(graph, person, person, KNOWS_RELATIONSHIP_TYPE);
-        getOrCreateRelationshipType(graph, person, company, WORKS_AT_RELATIONSHIP_TYPE);
+        getOrCreateRelationshipType(graph, person, person, "knows");
+        getOrCreateRelationshipType(graph, person, company, "worksAt");
+        getOrCreateRelationshipType(graph, person, location, "livesAt");
+        getOrCreateRelationshipType(graph, org, location, "headquarteredAt");
 
         return 0;
     }

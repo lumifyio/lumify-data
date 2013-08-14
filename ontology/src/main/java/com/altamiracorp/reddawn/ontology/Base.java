@@ -107,7 +107,7 @@ public abstract class Base extends RedDawnCommandLineBase {
         addPropertyToConcept(graph, artifact, typeProperty.getName(), OntologyRepository.STRING_PROPERTY_TYPE);
         addPropertyToConcept(graph, artifact, subTypeProperty.getName(), OntologyRepository.STRING_PROPERTY_TYPE);
         addPropertyToConcept(graph, artifact, titleProperty.getName(), OntologyRepository.STRING_PROPERTY_TYPE);
-        addPropertyToConcept(graph, artifact, geoLocationProperty.getName(), OntologyRepository.GEOLOCATION_PROPERTY_TYPE);
+        addPropertyToConcept(graph, artifact, geoLocationProperty.getName(), OntologyRepository.GEO_LOCATION_PROPERTY_TYPE);
 
         graph.commit();
 
