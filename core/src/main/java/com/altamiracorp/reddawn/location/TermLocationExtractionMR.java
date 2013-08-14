@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.location;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
-import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.geoNames.GeoNameRepository;
 import com.altamiracorp.reddawn.ucd.AccumuloTermInputFormat;
@@ -15,8 +15,6 @@ import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 public class TermLocationExtractionMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(TermLocationExtractionMR.class.getName());
@@ -37,30 +35,17 @@ public class TermLocationExtractionMR extends ConfigurableMapJobBase {
         return AccumuloModelOutputFormat.class;
     }
 
-    public static class TermLocationExtractorMapper extends Mapper<Text, Term, Text, Term> {
+    public static class TermLocationExtractorMapper extends RedDawnMapper<Text, Term, Text, Term> {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "termLocationExtractorClass";
-        private RedDawnSession session;
         GeoNameRepository geoNameRepository = new GeoNameRepository();
         SimpleTermLocationExtractor simpleTermLocationExtractor = new SimpleTermLocationExtractor();
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            super.setup(context);
-            session = ConfigurableMapJobBase.createRedDawnSession(context);
-            LOGGER.info("Beginning term location extraction");
-        }
-
-        @Override
-        protected void map(Text key, Term term, Context context) throws IOException, InterruptedException {
-            try {
-                Term updatedTerm = simpleTermLocationExtractor.GetTermWithLocationLookup(session.getModelSession(), geoNameRepository, term);
-                if (updatedTerm != null) {
-                    LOGGER.info("Extracting location from: " + term.getRowKey().toString());
-                    context.write(new Text(Term.TABLE_NAME), updatedTerm);
-                }
-
-            } catch (Exception e) {
-                throw new IOException(e);
+        protected void safeMap(Text key, Term term, Context context) throws Exception {
+            Term updatedTerm = simpleTermLocationExtractor.GetTermWithLocationLookup(getSession().getModelSession(), geoNameRepository, term);
+            if (updatedTerm != null) {
+                LOGGER.info("Extracting location from: " + term.getRowKey().toString());
+                context.write(new Text(Term.TABLE_NAME), updatedTerm);
             }
         }
 

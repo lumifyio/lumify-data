@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.textExtraction;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
+import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.Column;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
@@ -14,7 +15,6 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 
@@ -33,39 +33,35 @@ public class TextExtractorConsolidationMR extends ConfigurableMapJobBase {
         return TextExtractorConsolidationMapper.class;
     }
 
-    public static class TextExtractorConsolidationMapper extends Mapper<Text, Artifact, Text, Artifact> {
+    public static class TextExtractorConsolidationMapper extends RedDawnMapper<Text, Artifact, Text, Artifact> {
 
         @Override
-        public void map(Text rowKey, Artifact artifact, Context context) throws IOException {
-            try {
-                LOGGER.info("Consolidating extracted text for artifact: " + artifact.getRowKey().toString());
-                StringBuilder consolidatedText = new StringBuilder();
-                Iterator<Column> columnIterator = artifact.getArtifactExtractedText().getColumns().iterator();
-                while (columnIterator.hasNext()) {
-                    consolidatedText.append(columnIterator.next().getValue().toString());
-                    if (columnIterator.hasNext()) {
-                        consolidatedText.append("\n\n");
-                    }
+        public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
+            LOGGER.info("Consolidating extracted text for artifact: " + artifact.getRowKey().toString());
+            StringBuilder consolidatedText = new StringBuilder();
+            Iterator<Column> columnIterator = artifact.getArtifactExtractedText().getColumns().iterator();
+            while (columnIterator.hasNext()) {
+                consolidatedText.append(columnIterator.next().getValue().toString());
+                if (columnIterator.hasNext()) {
+                    consolidatedText.append("\n\n");
                 }
-
-                if (StringUtils.isBlank(consolidatedText.toString())) {
-                    artifact.getContent().setDocExtractedText((artifact.getGenericMetadata().getFileName()
-                            + "."
-                            + artifact.getGenericMetadata().getFileExtension()).getBytes());
-                } else {
-                    artifact.getContent().setDocExtractedText(consolidatedText.toString().getBytes());
-                }
-
-                context.write(new Text(Artifact.TABLE_NAME), artifact);
-            } catch (Exception e) {
-                throw new IOException(e);
             }
+
+            if (StringUtils.isBlank(consolidatedText.toString())) {
+                artifact.getContent().setDocExtractedText((artifact.getGenericMetadata().getFileName()
+                        + "."
+                        + artifact.getGenericMetadata().getFileExtension()).getBytes());
+            } else {
+                artifact.getContent().setDocExtractedText(consolidatedText.toString().getBytes());
+            }
+
+            context.write(new Text(Artifact.TABLE_NAME), artifact);
         }
 
     }
 
     @Override
-    protected boolean hasConfigurableClassname (){
+    protected boolean hasConfigurableClassname() {
         return false;
     }
 
