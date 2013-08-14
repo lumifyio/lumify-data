@@ -35,5 +35,6 @@ com.altamiracorp.reddawn.entityExtraction.EntityExtractionMR \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
+--failOnFirstError \
 --classname=com.altamiracorp.reddawn.entityExtraction.OpenNlpDictionaryEntityExtractor \
 --config=nlpConfPathPrefix=file://$(cd ${DIR}/.. && pwd)

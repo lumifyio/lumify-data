@@ -17,6 +17,7 @@ import org.apache.hadoop.util.Tool;
 public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase implements Tool {
     private Class clazz;
     private String[] config;
+    private boolean failOnFirstError = false;
 
     @Override
     protected Options getOptions() {
@@ -43,6 +44,13 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
                         .create('D')
         );
 
+        options.addOption(
+                OptionBuilder
+                        .withLongOpt("failOnFirstError")
+                        .withDescription("Enables failing on the first error that occurs")
+                        .create()
+        );
+
         return options;
     }
 
@@ -59,6 +67,9 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
         }
 
         config = cmd.getOptionValues("config");
+        if (cmd.hasOption("failOnFirstError")) {
+            failOnFirstError = true;
+        }
     }
 
     protected boolean hasConfigurableClassname() {
@@ -73,6 +84,7 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
         job.getConfiguration().set(AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
         job.getConfiguration().set(AccumuloSession.USERNAME, getUsername());
         job.getConfiguration().set(AccumuloSession.PASSWORD, new String(getPassword()));
+        job.getConfiguration().setBoolean("failOnFirstError", failOnFirstError);
         if (getBlurControllerLocation() != null) {
             job.getConfiguration().set(BlurSearchProvider.BLUR_CONTROLLER_LOCATION, getBlurControllerLocation());
         }

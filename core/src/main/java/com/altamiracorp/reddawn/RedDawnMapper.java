@@ -10,11 +10,13 @@ public abstract class RedDawnMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Ma
     private static final Logger LOGGER = LoggerFactory.getLogger(RedDawnMapper.class.getName());
 
     private RedDawnSession session;
+    private boolean failOnFirstError;
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
         session = ConfigurableMapJobBase.createRedDawnSession(context);
+        failOnFirstError = context.getConfiguration().getBoolean("failOnFirstError", false);
     }
 
     @Override
@@ -23,7 +25,9 @@ public abstract class RedDawnMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Ma
             safeMap(key, value, context);
         } catch (Exception e) {
             LOGGER.error("map error", e);
-            throw new IOException(e);
+            if (failOnFirstError) {
+                throw new IOException(e);
+            }
         }
     }
 

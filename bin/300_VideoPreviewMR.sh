@@ -34,4 +34,6 @@ com.altamiracorp.reddawn.videoPreview.VideoPreviewMR \
 --blurPath=hdfs://${ip}/blur \
 --graph.storage.index.search.hostname=${ip} \
 --username=root \
---password=password
+--password=password \
+--failOnFirstError
+

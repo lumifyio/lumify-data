@@ -36,4 +36,5 @@ com.altamiracorp.reddawn.location.TermLocationExtractionMR \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
+--failOnFirstError \
 --classname=com.altamiracorp.reddawn.location.TermLocationExtractionMR
