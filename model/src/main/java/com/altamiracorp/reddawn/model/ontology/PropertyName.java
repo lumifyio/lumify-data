@@ -1,9 +1,9 @@
 package com.altamiracorp.reddawn.model.ontology;
 
 public enum PropertyName {
-    TYPE("type"),
-    SUBTYPE("subType"),
-    DATA_TYPE("dataType"),
+    TYPE("_type"),
+    SUBTYPE("_subType"),
+    DATA_TYPE("_dataType"),
     TITLE("title"),
     ONTOLOGY_TITLE("ontologyTitle"),
     GEO_LOCATION("geoLocation"),
