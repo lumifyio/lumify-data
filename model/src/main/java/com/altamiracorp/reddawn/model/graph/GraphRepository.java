@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.model.graph;
 
 import com.altamiracorp.reddawn.model.GraphSession;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,8 +13,8 @@ public class GraphRepository {
         return graphSession.findNode(graphNodeId);
     }
 
-    public GraphNode findNodeByTitleAndType(GraphSession graphSession, String graphNodeTitle, String graphNodeType) {
-        return graphSession.findNodeByExactTitleAndType(graphNodeTitle, graphNodeType);
+    public GraphNode findNodeByTitleAndType(GraphSession graphSession, String graphNodeTitle, VertexType type) {
+        return graphSession.findNodeByExactTitleAndType(graphNodeTitle, type);
     }
 
     public List<GraphNode> getRelatedNodes(GraphSession graphSession, String graphNodeId) {
@@ -64,7 +65,7 @@ public class GraphRepository {
         return graphSession.searchNodesByTitle(query);
     }
 
-    public List<GraphNode> searchNodesByTitleAndType(GraphSession graphSession, String query, String type) {
+    public List<GraphNode> searchNodesByTitleAndType(GraphSession graphSession, String query, VertexType type) {
         return graphSession.searchNodesByTitleAndType(query, type);
     }
 

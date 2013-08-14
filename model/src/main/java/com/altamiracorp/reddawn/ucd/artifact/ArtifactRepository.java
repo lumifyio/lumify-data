@@ -5,6 +5,8 @@ import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -134,16 +136,16 @@ public class ArtifactRepository extends Repository<Artifact> {
     public void saveToGraph(Session session, GraphSession graphSession, Artifact artifact) {
         GraphNode node = new GraphNodeImpl();
         String oldRowKey = artifact.getGenericMetadata().getGraphNodeId();
-        node.setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.ARTIFACT_TYPE);
-        node.setProperty(OntologyRepository.SUBTYPE_PROPERTY_NAME, artifact.getType().toString().toLowerCase());
-        node.setProperty(OntologyRepository.ROW_KEY_PROPERTY_NAME, artifact.getRowKey().toString());
+        node.setProperty(PropertyName.TYPE.toString(), VertexType.ARTIFACT.toString());
+        node.setProperty(PropertyName.SUBTYPE.toString(), artifact.getType().toString().toLowerCase());
+        node.setProperty(PropertyName.ROW_KEY.toString(), artifact.getRowKey().toString());
         if (artifact.getDynamicMetadata().getLatitude() != null) {
             double latitude = artifact.getDynamicMetadata().getLatitude();
             double longitude = artifact.getDynamicMetadata().getLongitude();
-            node.setProperty(OntologyRepository.GEO_LOCATION_PROPERTY_NAME, new GraphGeoLocation(latitude, longitude));
+            node.setProperty(PropertyName.GEO_LOCATION.toString(), new GraphGeoLocation(latitude, longitude));
         }
         if (artifact.getGenericMetadata().getSubject() != null) {
-            node.setProperty(OntologyRepository.TITLE_PROPERTY_NAME, artifact.getGenericMetadata().getSubject());
+            node.setProperty(PropertyName.TITLE.toString(), artifact.getGenericMetadata().getSubject());
         }
 
         String nodeId = graphSession.save(node);

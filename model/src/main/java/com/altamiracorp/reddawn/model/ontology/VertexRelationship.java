@@ -16,7 +16,7 @@ public class VertexRelationship extends Relationship {
 
     @Override
     public String getTitle() {
-        return getVertex().getProperty(OntologyRepository.TITLE_PROPERTY_NAME);
+        return getVertex().getProperty(PropertyName.TITLE.toString());
     }
 
     public Vertex getVertex() {

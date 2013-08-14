@@ -8,6 +8,8 @@ import com.altamiracorp.reddawn.model.graph.GraphNode;
 import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.ucd.term.*;
@@ -71,17 +73,17 @@ public class EntityCreate implements Handler, AppAware {
     }
 
     private GraphNode getObjectGraphNode(GraphSession session, String title, GraphNode conceptVertex) {
-        GraphNode graphNode = graphRepository.findNodeByTitleAndType(session, title, OntologyRepository.ENTITY_TYPE);
+        GraphNode graphNode = graphRepository.findNodeByTitleAndType(session, title, VertexType.ENTITY);
         if (graphNode == null) {
             graphNode = new GraphNodeImpl()
-                    .setProperty(OntologyRepository.TITLE_PROPERTY_NAME, title)
-                    .setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.ENTITY_TYPE)
-                    .setProperty(OntologyRepository.SUBTYPE_PROPERTY_NAME, conceptVertex.getId());
+                    .setProperty(PropertyName.TITLE.toString(), title)
+                    .setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString())
+                    .setProperty(PropertyName.SUBTYPE.toString(), conceptVertex.getId());
             String graphNodeId = graphRepository.saveNode(session, graphNode);
             return new GraphNodeImpl(graphNodeId)
-                    .setProperty(OntologyRepository.TITLE_PROPERTY_NAME, title)
-                    .setProperty(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.ENTITY_TYPE)
-                    .setProperty(OntologyRepository.SUBTYPE_PROPERTY_NAME, conceptVertex.getId());
+                    .setProperty(PropertyName.TITLE.toString(), title)
+                    .setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString())
+                    .setProperty(PropertyName.SUBTYPE.toString(), conceptVertex.getId());
         }
         return graphNode;
     }
@@ -109,7 +111,7 @@ public class EntityCreate implements Handler, AppAware {
 
         if (resolvedNode != null) {
             termAndTermMention.getTermMention().setResolvedGraphNodeId(resolvedNode.getId());
-            termAndTermMention.getTermMention().setResolvedSign((String) resolvedNode.getProperty(OntologyRepository.TITLE_PROPERTY_NAME));
+            termAndTermMention.getTermMention().setResolvedSign((String) resolvedNode.getProperty(PropertyName.TITLE));
         }
         termRepository.save(session.getModelSession(), termAndTermMention.getTerm());
         return termAndTermMention;

@@ -1,7 +1,9 @@
 package com.altamiracorp.reddawn.ontology;
 
 import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
-import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
+import com.altamiracorp.reddawn.model.ontology.LabelName;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
@@ -31,7 +33,7 @@ public class GenerateGraph extends RedDawnCommandLineBase {
         out.println("\tnodesep=0.6;");
         out.println();
 
-        Vertex entityConcept = graph.getVertices(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME, OntologyRepository.ENTITY_TYPE).iterator().next();
+        Vertex entityConcept = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ENTITY.toString()).iterator().next();
         out.println("\t{ rank=min; \"Entity\";}");
         writeConcept(out, entityConcept);
         writeRelationships(out, graph);
@@ -42,20 +44,20 @@ public class GenerateGraph extends RedDawnCommandLineBase {
     }
 
     private void writeRelationships(PrintStream out, TitanGraph graph) {
-        Iterator<Vertex> relationships = graph.getVertices(OntologyRepository.TYPE_PROPERTY_NAME, OntologyRepository.RELATIONSHIP_TYPE).iterator();
+        Iterator<Vertex> relationships = graph.getVertices(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString()).iterator();
         while (relationships.hasNext()) {
             Vertex relationship = relationships.next();
-            String relationshipName = relationship.getProperty(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME);
+            String relationshipName = relationship.getProperty(PropertyName.ONTOLOGY_TITLE.toString());
 
             Iterator<Vertex> inConcepts = relationship.getVertices(Direction.IN).iterator();
             while (inConcepts.hasNext()) {
                 Vertex inConcept = inConcepts.next();
-                String inConceptName = inConcept.getProperty(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME);
+                String inConceptName = inConcept.getProperty(PropertyName.ONTOLOGY_TITLE.toString());
 
                 Iterator<Vertex> outConcepts = relationship.getVertices(Direction.OUT).iterator();
                 while (outConcepts.hasNext()) {
                     Vertex outConcept = outConcepts.next();
-                    String outConceptName = outConcept.getProperty(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME);
+                    String outConceptName = outConcept.getProperty(PropertyName.ONTOLOGY_TITLE.toString());
                     out.println("\t\"" + inConceptName + "\" -> \"" + outConceptName + "\" [ label = \"" + relationshipName + "\"; color=lightgrey; ];");
                 }
             }
@@ -63,19 +65,19 @@ public class GenerateGraph extends RedDawnCommandLineBase {
     }
 
     private void writeConcept(PrintStream out, Vertex concept) {
-        String conceptName = concept.getProperty(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME);
+        String conceptName = concept.getProperty(PropertyName.ONTOLOGY_TITLE.toString());
         String propertiesHtml = getConceptPropertiesHtml(concept);
         out.println("\t\"" + conceptName + "\" [");
         out.println("\t\tlabel=<<B>" + conceptName + "</B>" + propertiesHtml + ">");
         out.println("\t];");
 
         StringBuilder rankList = new StringBuilder();
-        Iterator<Vertex> childConcepts = concept.getVertices(Direction.IN, OntologyRepository.IS_A_LABEL_NAME).iterator();
+        Iterator<Vertex> childConcepts = concept.getVertices(Direction.IN, LabelName.IS_A.toString()).iterator();
         while (childConcepts.hasNext()) {
             Vertex childConcept = childConcepts.next();
             writeConcept(out, childConcept);
 
-            String childConceptName = childConcept.getProperty(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME);
+            String childConceptName = childConcept.getProperty(PropertyName.ONTOLOGY_TITLE.toString());
             out.println("\t\"" + childConceptName + "\" -> \"" + conceptName + "\" [color=black;];");
             rankList.append("\"" + childConceptName + "\";");
         }
@@ -85,11 +87,11 @@ public class GenerateGraph extends RedDawnCommandLineBase {
 
     private String getConceptPropertiesHtml(Vertex concept) {
         StringBuilder result = new StringBuilder();
-        Iterator<Vertex> properties = concept.getVertices(Direction.OUT, OntologyRepository.HAS_PROPERTY_LABEL_NAME).iterator();
+        Iterator<Vertex> properties = concept.getVertices(Direction.OUT, LabelName.HAS_PROPERTY.toString()).iterator();
         while (properties.hasNext()) {
             Vertex childProperty = properties.next();
-            String propertyName = childProperty.getProperty(OntologyRepository.ONTOLOGY_TITLE_PROPERTY_NAME);
-            String propertyDataType = childProperty.getProperty(OntologyRepository.DATA_TYPE_PROPERTY_NAME);
+            String propertyName = childProperty.getProperty(PropertyName.ONTOLOGY_TITLE.toString());
+            String propertyDataType = childProperty.getProperty(PropertyName.DATA_TYPE.toString());
             result.append("<BR/>" + propertyName + ": " + propertyDataType);
         }
         return result.toString();
