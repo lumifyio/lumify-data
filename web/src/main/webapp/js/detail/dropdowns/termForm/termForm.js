@@ -162,7 +162,7 @@ define([
                 self.allConcepts = self.flattenConcepts(rootConcept);
                 self.select('conceptSelector').html(conceptsTemplate({
                     concepts: self.allConcepts,
-                    selectedConceptId: mentionNodeInfo && mentionNodeInfo.subType || ''
+                    selectedConceptId: mentionNodeInfo && mentionNodeInfo._subType || ''
                 }));
             });
         };

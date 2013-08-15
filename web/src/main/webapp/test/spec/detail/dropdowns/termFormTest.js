@@ -89,7 +89,7 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
 
         it("should open form for existing entity", function() {
 
-            this.setupParentForExisting('offered by Amazon <span class="entity subType-1" data-info=\'\'>Web</span> Services');
+            this.setupParentForExisting('offered by Amazon <span class="entity subType-1">Web</span> Services');
 
             this.Component.teardownAll();
 
