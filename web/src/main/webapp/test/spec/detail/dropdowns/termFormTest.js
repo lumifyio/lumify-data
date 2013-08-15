@@ -27,7 +27,7 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
                                      "title":"Web",
                                      "graphNodeId":"80736",
                                      "start":110,
-                                     "subType":"44",
+                                     "_subType":"44",
                                      "_rowKey":"Web\\x1FOpenNlpDictionary\\x1FPerson",
                                      "type":"TermMention",
                                      "end":113
