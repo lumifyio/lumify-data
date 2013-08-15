@@ -78,7 +78,7 @@ define([
             var newClass = li.data('selector');
             if (newClass) {
                 content.addClass('highlight-' + newClass);
-            }
+            } else this.removeHighlightClasses();
             useDefaultStyle = false;
 
             this.applyHighlightStyle();
