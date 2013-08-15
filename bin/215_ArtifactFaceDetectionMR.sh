@@ -36,7 +36,6 @@ com.altamiracorp.reddawn.objectDetection.ObjectDetectionMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.reddawn.objectDetection.OpenCVObjectDetector \
 -DopenCVConfPathPrefix=file://$(cd ${DIR}/.. && pwd) \
 -Dclassifier.file=haarcascade_frontalface_alt.xml \
 -Dclassifier.concept=face \
