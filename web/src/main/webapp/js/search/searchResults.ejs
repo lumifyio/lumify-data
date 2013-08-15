@@ -2,8 +2,8 @@
 <li class="<%= result.className %>" data-info="<%= JSON.stringify({
       '_rowKey': result._rowKey,
       'graphNodeId': result.graphNodeId,
-      'type': type,
-      'subType': subType,
+      '_type': _type,
+      '_subType': _subType,
       'title': result.title
     }) %>"><a href="<%= result.url %>"><%= result.title || "No title available" %>
       <ul>

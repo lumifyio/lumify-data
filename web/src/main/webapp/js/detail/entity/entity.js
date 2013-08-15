@@ -36,7 +36,7 @@ define([
                 }
 
                 var glyphIconHref = '';
-                var concept = conceptMap[self.attr.data.subType];
+                var concept = conceptMap[self.attr.data._subType];
                 if(concept) {
                     glyphIconHref = concept.glyphIconHref;
                 }
@@ -60,8 +60,8 @@ define([
                 properties: {
                     title: this.attr.data.originalTitle || this.attr.data.title || 'No Title',
                     graphNodeId: this.attr.data.graphNodeId,
-                    type: this.attr.data.type,
-                    subType: this.attr.data.subType,
+                    _type: this.attr.data._type,
+                    _subType: this.attr.data._subType,
                     _rowKey: this.attr.data._rowKey
                 }
             };
@@ -86,7 +86,7 @@ define([
                     relationshipTplData.dataInfo = JSON.stringify({
                         source: relationship.relationship.sourceNodeId,
                         target: relationship.relationship.destNodeId,
-                        type: 'relationship'
+                        _type: 'relationship'
                     });
 
                     relationship.node.properties.graphNodeId = relationship.node.id;
@@ -101,7 +101,6 @@ define([
 
                     relationshipsTplData.push(relationshipTplData);
                 });
-
                 self.select('relationshipsSelector').html(relationshipsTemplate({relationships: relationshipsTplData }))
             });
         };

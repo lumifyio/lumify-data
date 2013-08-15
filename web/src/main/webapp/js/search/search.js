@@ -124,8 +124,8 @@ define([
                     entities.nodes.forEach(function(entity) {
                         entity.sign = entity.properties['title'];
                         entity.graphNodeId = entity.id;
-                        self.searchResults.entity[entity.properties['subType']] = self.searchResults.entity[entity.properties['subType']] || [];
-                        self.searchResults.entity[entity.properties['subType']].push(entity);
+                        self.searchResults.entity[entity.properties['_subType']] = self.searchResults.entity[entity.properties['_subType']] || [];
+                        self.searchResults.entity[entity.properties['_subType']].push(entity);
                     });
                     self.trigger('entitySearchResults', self.searchResults.entity);
                 });
@@ -148,11 +148,11 @@ define([
             $target.addClass('active');
 
             var itemPath = $target.attr('item-path').split('.');
-            var type = itemPath[0];
-            var subType = itemPath[1];
+            var _type = itemPath[0];
+            var _subType = itemPath[1];
             this.trigger('showSearchResults', {
-                type: type,
-                subType: subType
+                _type: _type,
+                _subType: _subType
             });
         };
 
@@ -160,15 +160,15 @@ define([
             console.log("Showing search results: ", data);
 
             var $searchResults = this.select('searchResultsSelector');
-            data.results = this.searchResults[data.type][data.subType] || [];
+            data.results = this.searchResults[data._type][data._subType] || [];
 
             data.results.forEach(function(result) {
-                if(data.type == 'artifact') {
+                if(data._type == 'artifact') {
                     result.title = result.subject;
-                } else if(data.type == 'entity') {
+                } else if(data._type == 'entity') {
                     result.title = result.sign;
                 } else {
-                    result.title = 'Error: unknown type: ' + data.type;
+                    result.title = 'Error: unknown type: ' + data._type;
                 }
 
                 // Check if this result is in the graph/map
@@ -178,7 +178,7 @@ define([
                     if ( nodeState.inGraph ) classes.push('graph-displayed');
                     if ( nodeState.inMap ) classes.push('map-displayed');
                 }
-                if (data.subType === 'video' || data.subType === 'image') {
+                if (data._subType === 'video' || data._subType === 'image') {
                     classes.push('has_preview');
                 }
                 result.className = classes.join(' ');
@@ -258,18 +258,18 @@ define([
                     info = li.data('info'),
                     _rowKey = info._rowKey;
 
-                if ((info.subType === 'video' || info.subType === 'image') && !li.data('preview-loaded')) {
+                if ((info._subType === 'video' || info._subType === 'image') && !li.data('preview-loaded')) {
                     li.addClass('preview-loading');
                     previews.generatePreview(_rowKey, null, function(poster, frames) {
                         li.removeClass('preview-loading')
                           .data('preview-loaded', true);
 
-                        if(info.subType === 'video') {
+                        if(info._subType === 'video') {
                             VideoScrubber.attachTo(li.find('.preview'), {
                                 posterFrameUrl: poster,
                                 videoPreviewImageUrl: frames
                             });
-                        } else if(info.subType === 'image') {
+                        } else if(info._subType === 'image') {
                             li.find('.preview').html("<img src='" + poster + "' />");
                         }
                     });
@@ -336,7 +336,7 @@ define([
             var self = this;
             (data.nodes || []).forEach(function(node) {
                 // Only care about node search results and location updates
-                if ( (node.type && node.subType) || node.location || node.locations ) {
+                if ( (node._type && node._subType) || node.location || node.locations ) {
                     var inGraph = true;
                     var inMap = !!(node.location || (node.locations && node.locations.length));
                     _currentNodes[node.graphNodeId] = { inGraph:inGraph, inMap:inMap };
@@ -382,8 +382,8 @@ define([
                                 title: info.title,
                                 graphNodeId: info.graphNodeId,
                                 _rowKey: info._rowKey,
-                                subType: info.subType,
-                                type: info.type,
+                                _subType: info._subType,
+                                _type: info._type,
                                 dropPosition: dropPosition
                             }]
                         });

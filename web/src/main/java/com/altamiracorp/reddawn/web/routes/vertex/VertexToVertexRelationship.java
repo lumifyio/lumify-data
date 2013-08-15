@@ -62,15 +62,15 @@ public class VertexToVertexRelationship implements Handler, AppAware {
         }
 
         obj.put(prefix + "Id", id);
-        obj.put(prefix + "SubType", graphVertex.getProperty("subType"));
+        obj.put(prefix + "SubType", graphVertex.getProperty("_subType"));
 
         if (graphVertex.getProperty("title") != "") {
             obj.put(prefix + "Title", graphVertex.getProperty("title"));
         } else {
-            obj.put(prefix + "Title", graphVertex.getProperty("type"));
+            obj.put(prefix + "Title", graphVertex.getProperty("_type"));
         }
 
-        obj.put(prefix + "Type", graphVertex.getProperty("type"));
+        obj.put(prefix + "Type", graphVertex.getProperty("_type"));
         return obj;
     }
 }
