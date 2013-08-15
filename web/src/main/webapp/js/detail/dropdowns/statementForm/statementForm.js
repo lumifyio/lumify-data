@@ -65,7 +65,7 @@ define([
                 }
             });
 
-            applyToElement.addClass('concepticon-' + el.data('info').subType);
+            applyToElement.addClass('concepticon-' + el.data('info')._subType);
         };
 
         this.onInputChange = function (e) {
@@ -114,8 +114,8 @@ define([
 
             self.select('statementLabelSelector').typeahead({
                 source: function (query, callback) {
-                    var sourceConceptTypeId = self.attr.sourceTerm.data('info').subType;
-                    var destConceptTypeId = self.attr.destTerm.data('info').subType;
+                    var sourceConceptTypeId = self.attr.sourceTerm.data('info')._subType;
+                    var destConceptTypeId = self.attr.destTerm.data('info')._subType;
                     self.statementService.relationships(sourceConceptTypeId, destConceptTypeId, function (err, results) {
                         if (err) {
                             console.error('Error', err);

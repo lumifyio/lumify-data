@@ -143,20 +143,20 @@ define([
                                 // Dim 
                                 // (when dropdown is opened and it wasn't this entity)
                                 stylesheet.addRule(
-                                    '.highlight-' + style.selector + ' .dropdown .entity.subType-' + concept.id, 
+                                    '.highlight-' + style.selector + ' .dropdown .entity.subType-' + concept.id,
                                     definition(STATES.DIM)
                                 );
 
                                 // Default style (or focused)
                                 stylesheet.addRule(
                                     '.highlight-' + style.selector + ' .entity.subType-' + concept.id + ',' +
-                                    '.highlight-' + style.selector + ' .dropdown .focused.subType-' + concept.id, 
+                                    '.highlight-' + style.selector + ' .dropdown .focused.subType-' + concept.id,
                                     definition(STATES.NORMAL)
                                 );
 
                                 // Drag-drop hover
                                 stylesheet.addRule(
-                                    '.highlight-' + style.selector + ' .drop-hover.subType-' + concept.id, 
+                                    '.highlight-' + style.selector + ' .drop-hover.subType-' + concept.id,
                                     definition(STATES.HOVER)
                                 );
 
@@ -179,7 +179,7 @@ define([
                 text = selection.type === 'Range' ? $.trim(selection.toString()) : '';
 
             // Ignore selection events within the dropdown
-            if ( selection.type == 'None' || 
+            if ( selection.type == 'None' ||
                  $(selection.anchorNode).is('.underneath') ||
                  $(selection.anchorNode).parents('.underneath').length ||
                  $(selection.focusNode).is('.underneath') ||

@@ -206,7 +206,7 @@ define([
 
         this.updateNodeLocation = function(node) {
             var self = this;
-            if(node.type == 'artifact') {
+            if(node._type == 'artifact') {
                 this.ucdService.getArtifactById(node._rowKey, function(err, artifact) {
                     if(err) {
                         console.error('Error', err);

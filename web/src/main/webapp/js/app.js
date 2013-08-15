@@ -218,8 +218,8 @@ define([
                         ),
                         graphNodeId: info.graphNodeId,
                         _rowKey: info._rowKey,
-                        subType: info.subType,
-                        type: info.type,
+                        _subType: info.subType,
+                        _type: info.type,
                         dropPosition: dropPosition
                     }];
 
@@ -235,8 +235,8 @@ define([
                             nodes.push({
                                 graphNodeId: data.id,
                                 title: data.properties.title || 'No title available',
-                                type: data.properties._type,
-                                subType: data.properties._subType,
+                                _type: data.properties._type,
+                                _subType: data.properties._subType,
                                 dropPosition: {
                                     x: dropPosition.x + droppable.width()/10,
                                     y: dropPosition.y

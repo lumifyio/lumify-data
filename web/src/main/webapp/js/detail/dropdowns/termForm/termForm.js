@@ -33,7 +33,7 @@ define([
             
             var info = $(this.attr.mentionNode).removeClass('focused').data('info');
             if (info) {
-                this.updateConceptLabel(info.subType);
+                this.updateConceptLabel(info._subType);
             }
             
             // Remove extra textNodes

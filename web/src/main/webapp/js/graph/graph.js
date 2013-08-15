@@ -97,13 +97,13 @@ define([
 
                     var cyNodeData = {
                         group: 'nodes',
-                        classes: $.trim('concept-' + node.subType + ' ' + node.type),
+                        classes: $.trim('concept-' + node._subType + ' ' + node._type),
                         data: {
                             id: node.graphNodeId,
                             _rowKey: node._rowKey,
                             graphNodeId: node.graphNodeId,
-                            subType: node.subType,
-                            type: node.type,
+                            _subType: node._subType,
+                            _type: node._type,
                             title: title,
                             originalTitle: node.title,
                         },
@@ -131,7 +131,7 @@ define([
                         });
                     }
 
-                    if (node.type === 'artifact') {
+                    if (node._type === 'artifact') {
                         previews.generatePreview(node._rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
                             if (dataUri) {
                                 cyNode.css('background-image', dataUri);
@@ -157,8 +157,8 @@ define([
                 var nodesToDelete = $.map(cy.nodes().filter(':selected'), function(node) {
                     return {
                         graphNodeId: node.data('graphNodeId'),
-                        type: node.data('type'),
-                        subType: node.data('subType')
+                        _type: node.data('_type'),
+                        _subType: node.data('_subType')
                     };
                 });
 
@@ -225,7 +225,7 @@ define([
                 _rowKey: currentNodeRK,
                 graphNodeId: graphNodeId,
                 originalPosition: currentNodeOriginalPosition,
-                type : menu.data("currentNodeType")
+                _type : menu.data("currentNodeType")
             };
             return data;
         }
@@ -329,7 +329,7 @@ define([
                 menu.data("currentNodeGraphNodeId",event.cyTarget.data('graphNodeId'));
                 menu.data("currentNodePositionX", event.cyTarget.position ('x'));
                 menu.data("currentNodePositionY", event.cyTarget.position ('y'));
-                menu.data("currentNodeType", event.cyTarget.data('type'));
+                menu.data("currentNodeType", event.cyTarget.data('_type'));
                 if (event.cy.nodes().filter(':selected').length > 1) {
                     return false;
                 }
@@ -527,7 +527,7 @@ define([
                                 relationshipType: relationship.relationshipType,
                                 source: relationship.from,
                                 target: relationship.to,
-                                type: 'relationship',
+                                _type: 'relationship',
                                 id: (relationship.from + relationship.to + relationship.relationshipType)
                             },
                         });

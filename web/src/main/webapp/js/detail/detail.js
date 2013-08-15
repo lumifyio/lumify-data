@@ -60,7 +60,7 @@ define([
             }
 
             var self = this,
-                moduleName = $.isArray(data) ? 'multiple' : data.type;
+                moduleName = $.isArray(data) ? 'multiple' : data._type;
 
             // Attach specific module based on the object selected
             if (moduleName != "artifact" && moduleName != "relationship" && moduleName != "multiple") {
