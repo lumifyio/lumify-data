@@ -30,14 +30,16 @@ define([
             if (this.promoted && this.promoted.length) {
                 this.demoteSpanToTextNode(this.promoted);
             }
-            
+
             var info = $(this.attr.mentionNode).removeClass('focused').data('info');
             if (info) {
-                this.updateConceptLabel(info._subType);
+                this.updateConceptLabel('subType-' + info._subType);
             }
             
             // Remove extra textNodes
-            this.node.parentNode.normalize();
+            if (this.node.parentNode) {
+                this.node.parentNode.normalize();
+            }
         });
 
         this.after('initialize', function() {
@@ -96,7 +98,7 @@ define([
 
                 var node = $(this.promoted || this.attr.mentionNode),
                     labels = this.allConcepts.map(function(c) { 
-                        return c.conceptLabel; 
+                        return 'subType-' + c.id; 
                     });
 
                 node.removeClass(labels.join(' '))
@@ -125,7 +127,9 @@ define([
             }
 
             node.html(dropdownTemplate({
-                sign: sign,
+                // Promoted span might have been auto-expanded to avoid nested
+                // spans
+                sign: this.promoted ? this.promoted.text() : sign,
                 objectSign: objectSign || '',
                 buttonText: existingEntity ? 'Update' : 'Create'
             }));
@@ -230,31 +234,59 @@ define([
 
         this.promoteSelectionToSpan = function() {
             var textNode = this.node,
-                range = this.attr.selection.range;
+                range = this.attr.selection.range,
+                el,
+                tempTextNode;
 
             range.startContainer.splitText(range.startOffset);
             if (range.endOffset < range.endContainer.textContent.length) {
                 range.endContainer.splitText(range.endOffset);
             }
 
-            // TODO: handle case where selection includes existing entity
-            while (textNode && textNode.textContent !== this.attr.sign) {
-                textNode = textNode.previousSibling;
+            var span = document.createElement('span');
+            span.className = 'entity focused';
+
+            // Special case where the start/end is inside an inner span
+            // (surroundsContents will fail so expand the selection
+            if (/entity/.test(range.startContainer.parentNode.className)) {
+                el = range.startContainer.parentNode;
+                var previous = el.previousSibling;
+
+                if (previous && previous.nodeType === 3) {
+                    range.setStart(previous, previous.textContent.length);
+                } else {
+                    tempTextNode = document.createTextNode('');
+                    el.parentNode.insertBefore(tempTextNode, el);
+                    range.setStart(tempTextNode, 0);
+                }
             }
-            if (!textNode) return;
+            if (/entity/.test(range.endContainer.parentNode.className)) {
+                el = range.endContainer.parentNode;
+                var next = el.nextSibling;
 
-            var span = $('<span>').text(textNode.textContent)
-                              .addClass('entity focused')
-                              .insertBefore(textNode);
+                if (next && next.nodeType === 3) {
+                    range.setEnd(next, 0);
+                } else {
+                    tempTextNode = document.createTextNode('');
+                    if (next) {
+                        el.parentNode.insertBefore(tempTextNode, next);
+                    } else {
+                        el.appendChild(tempTextNode);
+                    }
+                    range.setEnd(tempTextNode, 0);
+                }
+            }
+            range.surroundContents(span);
 
-            textNode.parentNode.removeChild(textNode);
-            return span;
+            return $(span).find('.entity').addClass('focused').end();
         };
 
         this.demoteSpanToTextNode = function(node) {
-            var textNode = document.createTextNode(node.text());
 
-            node.parent().get(0).insertBefore(textNode, node[0]);
+            while (node[0].childNodes.length) {
+                $(node[0].childNodes[0]).removeClass('focused');
+                node[0].parentNode.insertBefore(node[0].childNodes[0], node[0]);
+            }
             node.remove();
         };
     }
