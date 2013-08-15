@@ -230,13 +230,13 @@ define([
                                 return self.trigger(document, 'error', { message: err.toString() });
                             }
 
-                            console.log('setup: ', data);
+                            console.log(data);
 
                             nodes.push({
                                 graphNodeId: data.id,
                                 title: data.properties.title || 'No title available',
-                                type: data.properties.type,
-                                subType: data.properties.subType,
+                                type: data.properties._type,
+                                subType: data.properties._subType,
                                 dropPosition: {
                                     x: dropPosition.x + droppable.width()/10,
                                     y: dropPosition.y
