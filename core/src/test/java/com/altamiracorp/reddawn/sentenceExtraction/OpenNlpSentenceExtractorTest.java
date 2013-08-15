@@ -4,12 +4,14 @@ import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,33 +22,28 @@ import java.util.Iterator;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
+import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class)
 public class OpenNlpSentenceExtractorTest {
     private OpenNlpSentenceExtractor extractor;
-    private String sentenceModelFile = "en-sent.bin";
     private Date createDate = new Date();
+    private Context context;
 
     @Before
     public void setUp() throws IOException {
-        extractor = new OpenNlpSentenceExtractor() {
-            @Override
-            public void setup(Mapper<Text, Artifact, Text, Sentence>.Context context) throws IOException {
-                InputStream sentenceModelIn = Thread.currentThread()
-                        .getContextClassLoader()
-                        .getResourceAsStream(sentenceModelFile);
-                SentenceModel sentenceModel = new SentenceModel(sentenceModelIn);
-                setSentenceDetector(new SentenceDetectorME(sentenceModel));
-                setMaxLength(1000);
-            }
-
+        extractor = new OpenNlpSentenceExtractor(){
             @Override
             protected Date getDate() {
                 return createDate;
             }
         };
+        context = Mockito.mock(Context.class);
+        Configuration config = new Configuration();
+        config.set("nlpConfPathPrefix",Thread.currentThread().getContextClassLoader().getResource("fs/").toString());
+        when(context.getConfiguration()).thenReturn(config);
 
-        extractor.setup(null);
+        extractor.setup(context);
     }
 
     @Test

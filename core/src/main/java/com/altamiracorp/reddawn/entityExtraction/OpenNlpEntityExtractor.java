@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class OpenNlpEntityExtractor implements EntityExtractor {
+public abstract class OpenNlpEntityExtractor extends EntityExtractor {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenNlpEntityExtractor.class.getName());
 
     private FileSystem fs;
@@ -41,8 +41,8 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
 
     @Override
     public void setup(Context context) throws IOException {
-        this.pathPrefix = context.getConfiguration().get(PATH_PREFIX_CONFIG,
-                DEFAULT_PATH_PREFIX);
+        setPathPrefix(context.getConfiguration().get(PATH_PREFIX_CONFIG,
+                DEFAULT_PATH_PREFIX));
         this.fs = FileSystem.get(context.getConfiguration());
 
         setTokenizer(loadTokenizer());
@@ -74,7 +74,7 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         for (TokenNameFinder finder : finders) {
             Span[] foundSpans = finder.find(tokenList);
             for (Span span : foundSpans) {
-                Term term = createTerm(sentence, charOffset, span, tokenList, tokenListPositions);
+                Term term = createTerm(sentence,span, tokenList, tokenListPositions);
                 terms.add(term);
             }
             finder.clearAdaptiveData();
@@ -82,47 +82,22 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         return terms;
     }
 
-    private Term createTerm(Sentence sentence, Long charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
-        String sign = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
-        Long termMentionStart = charOffset + tokenListPositions[foundName.getStart()].getStart();
-        Long termMentionEnd = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
-
-        String concept = openNlpTypeToConcept(foundName.getType());
-        TermRowKey termKey = new TermRowKey(sign, getModelName(), mapConceptName(concept));
-        TermMention termMention = new TermMention()
-                .setArtifactKey(sentence.getData().getArtifactId())
-                .setArtifactKeySign(sentence.getData().getArtifactId())
-                .setAuthor(EXTRACTOR_ID)
-                .setMentionStart(termMentionStart)
-                .setMentionEnd(termMentionEnd)
-                .setSentenceText(sentence.getData().getText())
-                .setSentenceTokenOffset(sentence.getRowKey().getStartOffset())
-                .setArtifactType(sentence.getMetadata().getArtifactType());
-
-        if (sentence.getMetadata().getArtifactSubject() != null) {
-            termMention.setArtifactSubject(sentence.getMetadata().getArtifactSubject());
-        }
-
-        setSecurityMarking(termMention, sentence);
-        Term term = new Term(termKey)
-                .addTermMention(termMention);
-        return term;
+    private Term createTerm(Sentence sentence, Span foundName, String[] tokens, Span[] tokenListPositions) {
+        String name = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
+        int nameStart = tokenListPositions[foundName.getStart()].getStart();
+        int nameEnd = tokenListPositions[foundName.getEnd() - 1].getEnd();
+        return createTerm(sentence,name,foundName.getType(),nameStart,nameEnd);
     }
 
-    protected String mapConceptName(String concept) {
-        return concept.substring(0, 1).toUpperCase() + concept.substring(1);
-    }
-
-    private void setSecurityMarking(TermMention termMention, Sentence sentence) {
-        String securityMarking = sentence.getMetadata().getSecurityMarking();
-        if (securityMarking != null) {
-            termMention.setSecurityMarking(sentence.getMetadata().getSecurityMarking());
-        }
-    }
 
     protected abstract List<TokenNameFinder> loadFinders() throws IOException;
 
     protected abstract String getModelName();
+
+    @Override
+    protected String getExtractorId () {
+        return EXTRACTOR_ID;
+    }
 
     protected String getPathPrefix() {
         return this.pathPrefix;
@@ -156,8 +131,8 @@ public abstract class OpenNlpEntityExtractor implements EntityExtractor {
         this.tokenizer = tokenizer;
     }
 
-    private String openNlpTypeToConcept(String type) {
-        return type; // TODO create a mapping for OpenNLP to UCD concepts
+    protected void setPathPrefix(String pathPrefix) {
+        this.pathPrefix = pathPrefix;
     }
 
 }

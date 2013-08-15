@@ -94,6 +94,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>libphonenumber</artifactId>
+            <version>5.7</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.blur</groupId>
             <artifactId>blur-thrift</artifactId>
             <version>${blur-version}</version>
