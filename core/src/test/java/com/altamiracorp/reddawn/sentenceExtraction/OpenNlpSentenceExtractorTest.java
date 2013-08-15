@@ -37,6 +37,7 @@ public class OpenNlpSentenceExtractorTest {
                         .getResourceAsStream(sentenceModelFile);
                 SentenceModel sentenceModel = new SentenceModel(sentenceModelIn);
                 setSentenceDetector(new SentenceDetectorME(sentenceModel));
+                setMaxLength(1000);
             }
 
             @Override

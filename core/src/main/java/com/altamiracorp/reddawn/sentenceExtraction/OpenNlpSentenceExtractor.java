@@ -90,6 +90,10 @@ public class OpenNlpSentenceExtractor implements SentenceExtractor {
         this.sentenceDetector = sentenceDetector;
     }
 
+    protected void setMaxLength (int maxLength) {
+        this.maxLength = maxLength;
+    }
+
     protected Date getDate() {
         return new Date();
     }
