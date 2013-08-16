@@ -60,12 +60,7 @@ define([
             }
 
             var self = this,
-                moduleName = $.isArray(data) ? 'multiple' : data._type;
-
-            // Attach specific module based on the object selected
-            if (moduleName != "artifact" && moduleName != "relationship" && moduleName != "multiple") {
-                moduleName = "entity";
-            }
+                moduleName = (($.isArray(data) ? 'multiple' : data._type) || 'entity').toLowerCase();
 
             require([
                 'detail/' + moduleName + '/' + moduleName,

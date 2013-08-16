@@ -16,13 +16,12 @@ define([
             { name: 'Colors', selector:'colors' }
         ],
         DEFAULT = 2,
-        useDefaultStyle = true,
-        entityService = new EntityService();
-
+        useDefaultStyle = true;
 
     return withHighlighting;
 
     function withHighlighting() {
+        this.entityService = new EntityService();
 
         this.highlightButton = function() {
             return highlightButtonTemplate({
@@ -48,14 +47,26 @@ define([
 
         this.after('teardown', function() {
             $(document).off('selectionchange.detail');
+            $(document).off('ignoreSelectionChanges.detail');
+            $(document).off('resumeSelectionChanges.detail');
             $(document).off('termCreated');
             this.highlightNode.off('scrollstop');
         });
 
         this.after('initialize', function() {
+            var self = this;
+
             this.highlightNode = this.$node.closest('.content');
 
-            $(document).on('selectionchange.detail', this.onSelectionChange.bind(this));
+            // Allow components to disable selection listening
+            $(document).on('ignoreSelectionChanges.detail', function() {
+                $(document).off('selectionchange.detail');
+            });
+            $(document).on('resumeSelectionChanges.detail', function() {
+                $(document).off('selectionchange.detail').on('selectionchange.detail', self.onSelectionChange.bind(self));
+            });
+            $(document).trigger('resumeSelectionChanges');
+
             this.highlightNode.on('scrollstop', this.updateEntityAndArtifactDraggables.bind(this));
             this.on('click', {
                 resolvableSelector: this.onResolvableClicked,
@@ -123,7 +134,7 @@ define([
 
             if (!style.styleApplied) {
 
-                entityService.concepts(function(err, concepts) {
+                this.entityService.concepts(function(err, concepts) {
                     var styleFile = 'tpl!detail/highlight-styles/' + style.selector + '.css';
                     require([styleFile], function(tpl) {
                         function apply(concept) {
@@ -222,36 +233,44 @@ define([
                     return;
                 }
 
-                // Find which way the selection was travelling (which is the
-                // furthest element in document
-                var end = focus, endOffset = sel.focusOffset;
-                if (text.indexOf(anchor[0].textContent.substring(sel.anchorOffset, 1)) > 
-                    text.indexOf(focus[0].textContent.substring(sel.focusOffset, 1))) {
-                    end = anchor;
-                    endOffset = sel.anchorOffset;
+                if (sel.rangeCount === 0) return;
+
+                var range = sel.getRangeAt(0);
+
+                // Avoid adding dropdown inside of entity
+                var endContainer = range.endContainer;
+                while (/entity/.test(endContainer.parentNode.className)) {
+                    endContainer = endContainer.parentNode;
                 }
 
-                // Move to first space in end so as to not break up word when
-                // splitting
-                var i = Math.max(endOffset - 1, 0), character = '', whitespaceCheck = /^[^\s]$/;
-                do {
-                    character = end[0].textContent.substring(++i, i+1);
-                } while (whitespaceCheck.test(character));
+                var isEndTextNode = endContainer.nodeType === 1;
+                if (isEndTextNode) {
+                    this.dropdownEntity(true, endContainer, sel, text);
+                } else {
 
-                end[0].splitText(i);
-                this.dropdownEntity(end, sel, text);
+                    // Move to first space in end so as to not break up word when splitting
+                    var i = Math.max(range.endOffset - 1, 0), character = '', whitespaceCheck = /^[^\s]$/;
+                    do {
+                        character = endContainer.textContent.substring(++i, i+1);
+                    } while (whitespaceCheck.test(character));
+
+                    endContainer.splitText(i);
+                    this.dropdownEntity(true, endContainer, sel, text);
+                }
+
             }
-        }, 500);
+        }, 750);
 
-        this.dropdownEntity = function(insertAfterNode, sel, text) {
+        this.dropdownEntity = function(creating, insertAfterNode, sel, text) {
             this.tearDownDropdowns();
 
             var form = $('<div class="underneath"/>');
-            insertAfterNode.after(form);
+            $(insertAfterNode).after(form);
             TermForm.attachTo(form, {
                 sign: text,
                 selection: sel && { anchor:sel.anchorNode, focus:sel.focusNode, anchorOffset: sel.anchorOffset, focusOffset: sel.focusOffset, range:sel.rangeCount && sel.getRangeAt(0).cloneRange() },
                 mentionNode: insertAfterNode,
+                existing: !creating,
                 artifactKey: this.attr.data._rowKey
             });
         };
@@ -261,7 +280,7 @@ define([
             if ($target.is('.underneath') || $target.parents('.underneath').length) {
                 return;
             }
-            _.defer(this.dropdownEntity.bind(this), $target);
+            _.defer(this.dropdownEntity.bind(this), false, $target);
         };
 
         this.updateEntityAndArtifactDraggables = function() {
