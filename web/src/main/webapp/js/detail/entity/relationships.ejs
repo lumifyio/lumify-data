@@ -5,9 +5,13 @@
 <% relationships.forEach(function(relationship) { %>
 
     <li class="relationship" data-info='<%= relationship.dataInfo %>'>
-        <span class="<%- relationship.sourceNode.properties._type == 'artifact' ? 'artifact' : 'entity' %> <%= relationship.sourceNode.properties._subType %>" data-info='<%- JSON.stringify(relationship.sourceNode.properties) %>'><%- relationship.sourceNode.properties.title || 'No Title' %></span>
+    <span class="<%= relationship.sourceNode.cssClasses %>" 
+      data-info='<%- JSON.stringify(relationship.sourceNode.properties) %>'
+      ><%- relationship.sourceNode.properties.title || 'No Title' %></span>
         <%= relationship.relationship.label %>
-        <span class="<%- relationship.destNode.properties._type == 'artifact' ? 'artifact' : 'entity' %> <%= relationship.destNode.properties._subType %>" data-info='<%- JSON.stringify(relationship.destNode.properties) %>'><%- relationship.destNode.properties.title || 'No Title' %></span>
+    <span class="<%= relationship.destNode.cssClasses %>" 
+      data-info='<%- JSON.stringify(relationship.destNode.properties) %>'
+      ><%- relationship.destNode.properties.title || 'No Title' %></span>
     </li>
 <% }); %>
 </ul>

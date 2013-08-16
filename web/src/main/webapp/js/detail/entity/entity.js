@@ -81,9 +81,9 @@ define([
                 var relationshipsTplData = [];
 
                 relationships.forEach(function(relationship) {
-                    var relationshipTplData = {};
-                    relationshipTplData.relationship = relationship.relationship;
-                    relationshipTplData.dataInfo = JSON.stringify({
+                    var data = {};
+                    data.relationship = relationship.relationship;
+                    data.dataInfo = JSON.stringify({
                         source: relationship.relationship.sourceNodeId,
                         target: relationship.relationship.destNodeId,
                         _type: 'relationship',
@@ -93,16 +93,22 @@ define([
                     relationship.node.properties.graphNodeId = relationship.node.id;
 
                     if(nodeInfo.id == relationship.relationship.sourceNodeId) {
-                        relationshipTplData.sourceNode = nodeInfo;
-                        relationshipTplData.destNode = relationship.node;
+                        data.sourceNode = nodeInfo;
+                        data.sourceNode.cssClasses = self.classesForNode(nodeInfo);
+
+                        data.destNode = relationship.node;
+                        data.destNode.cssClasses = self.classesForNode(relationship.node);
                     } else {
-                        relationshipTplData.sourceNode = relationship.node;
-                        relationshipTplData.destNode = nodeInfo;
+                        data.sourceNode = relationship.node;
+                        data.sourceNode.cssClasses = self.classesForNode(relationship.node);
+
+                        data.destNode = nodeInfo;
+                        data.destNode.cssClasses = self.classesForNode(nodeInfo);
                     }
 
-                    relationshipsTplData.push(relationshipTplData);
+                    relationshipsTplData.push(data);
                 });
-                self.select('relationshipsSelector').html(relationshipsTemplate({relationships: relationshipsTplData }))
+                self.select('relationshipsSelector').html(relationshipsTemplate({relationships: relationshipsTplData }));
             });
         };
 

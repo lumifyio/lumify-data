@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 250_SentenceExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -8,7 +9,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh ontology)
+classpath=$(${DIR}/classpath.sh core)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
@@ -23,18 +24,18 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
--Xmx1024M \
-com.altamiracorp.reddawn.cmdline.ResourceImport \
+-Xmx1g \
+-XX:MaxPermSize=512m \
+com.altamiracorp.reddawn.entityExtraction.EntityExtractionMR \
 --zookeeperInstanceName=reddawn \
+--zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
 --graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
---zookeeperServerNames=${ip} \
 --username=root \
 --password=password \
-${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_003_user@2x.png \
-${DIR}/../web/src/main/webapp/img/pin@2x.png \
-${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_263_bank@2x.png \
-${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_010_envelope@2x.png \
-${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_139_phone@2x.png
+--failOnFirstError \
+--classname=com.altamiracorp.reddawn.entityExtraction.RegexEntityExtractor \
+-DregularExpression="(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b" \
+-DentityType=emailAddress

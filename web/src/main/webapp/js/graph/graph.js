@@ -262,7 +262,13 @@ define([
                     data.padding.l += border;
                     data.padding.t += border;
                     data.padding.b += border;
+
+                    // Temporarily adjust max zoom 
+                    // prevents extreme closeup when one node
+                    var maxZoom = cy._private.maxZoom;
+                    cy._private.maxZoom *= 0.5;
                     cy.fit(undefined, data.padding);
+                    cy._private.maxZoom = maxZoom;
                 }
             });
         };

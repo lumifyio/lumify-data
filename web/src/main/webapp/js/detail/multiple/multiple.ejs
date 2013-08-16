@@ -4,7 +4,7 @@
   <ul>
     <% nodes.forEach(function(node) { %>
     <li>
-        <span class="<%- node._type == 'artifact' ? 'artifact' : 'entity' %> <%= node._subType %>" data-info='<%- JSON.stringify(node) %>'><%- node.originalTitle || node.title || 'No Title' %></span>
+        <span class="<%= getClasses(node) %>" data-info='<%- JSON.stringify(node) %>'><%- node.originalTitle || node.title || 'No Title' %></span>
     </li>
     <% }); %>
   </ul>
