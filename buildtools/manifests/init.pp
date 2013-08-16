@@ -2,10 +2,7 @@ class buildtools($tmpdir="/usr/local/src") {
   $antVersion = '1.9.2'
   $mavenVersion = '3.0.5'
 
-  exec { 'epel':
-    command => '/bin/rpm -ivH http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm',
-    unless => '/bin/rpm -q epel-release-6-8',
-  }
+  include epel
 
   package { 'yasm' :
     ensure => present,
