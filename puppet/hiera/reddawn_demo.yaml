@@ -1,4 +1,10 @@
 ---
+hadoop_masters:
+  - 10.0.3.51
+hadoop_slaves:
+  - 10.0.3.101
+  - 10.0.3.102
+  - 10.0.3.103
 accumulo_example_config: 3GB/native-standalone
 accumulo_masters:
   - 10.0.3.51
