@@ -74,7 +74,7 @@ public abstract class OpenNlpEntityExtractor extends EntityExtractor {
         for (TokenNameFinder finder : finders) {
             Span[] foundSpans = finder.find(tokenList);
             for (Span span : foundSpans) {
-                Term term = createTerm(sentence,span, tokenList, tokenListPositions);
+                Term term = createTerm(sentence, charOffset, span, tokenList, tokenListPositions);
                 terms.add(term);
             }
             finder.clearAdaptiveData();
@@ -82,11 +82,11 @@ public abstract class OpenNlpEntityExtractor extends EntityExtractor {
         return terms;
     }
 
-    private Term createTerm(Sentence sentence, Span foundName, String[] tokens, Span[] tokenListPositions) {
+    private Term createTerm(Sentence sentence, Long charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
         String name = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
         int nameStart = tokenListPositions[foundName.getStart()].getStart();
         int nameEnd = tokenListPositions[foundName.getEnd() - 1].getEnd();
-        return createTerm(sentence,name,foundName.getType(),nameStart,nameEnd);
+        return createTerm(sentence, charOffset, name,foundName.getType(),nameStart,nameEnd);
     }
 
 

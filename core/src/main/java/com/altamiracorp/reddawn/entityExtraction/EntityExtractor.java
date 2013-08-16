@@ -19,8 +19,7 @@ public abstract class EntityExtractor {
 
     abstract String getExtractorId ();
 
-    protected Term createTerm(Sentence sentence, String entityName, String entityType, int entityStart, int entityEnd) {
-        Long charOffset = sentence.getData().getStart();
+    protected Term createTerm(Sentence sentence, Long charOffset, String entityName, String entityType, int entityStart, int entityEnd) {
         Long termMentionStart = charOffset + entityStart;
         Long termMentionEnd = charOffset + entityEnd;
 
