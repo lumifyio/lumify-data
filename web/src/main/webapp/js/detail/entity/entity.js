@@ -86,7 +86,8 @@ define([
                     relationshipTplData.dataInfo = JSON.stringify({
                         source: relationship.relationship.sourceNodeId,
                         target: relationship.relationship.destNodeId,
-                        _type: 'relationship'
+                        _type: 'relationship',
+                        relationshipType: relationship.relationship.label
                     });
 
                     relationship.node.properties.graphNodeId = relationship.node.id;
@@ -136,7 +137,7 @@ define([
         this.onDetailedObjectClicked = function(evt) {
             var self = this;
             var $target = $(evt.target);
-
+console.log ('onDetailedObjectClicked -> data', $target.data('info'));
             this.trigger(document, 'searchResultSelected', $target.data('info'));
 
             evt.stopPropagation();
