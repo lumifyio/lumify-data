@@ -4,23 +4,23 @@
 # list the matching AWS instances including attached and unattached
 # EBS volumes, show the size of the volumes with "-v"
 
-reddisk_tag_value_or_filename = ARGV[0]
+project_tag_value_or_filename = ARGV[0]
 if ['-v', '--volume-size'].include?(ARGV[1])
   volume_size = true
 end
 
-if File.readable?(reddisk_tag_value_or_filename)
-  instance_ids = File.read(reddisk_tag_value_or_filename).lines.collect {|line| line.match(/# (i-.*)$/).captures[0]}
+if File.readable?(project_tag_value_or_filename)
+  instance_ids = File.read(project_tag_value_or_filename).lines.collect {|line| line.match(/# (i-.*)$/).captures[0]}
 else
   states = ['pending', 'running', 'shutting-down', 'terminated', 'stopping', 'stopped'] - ['terminated']
   state_filters = states.collect {|state| "--filter \"instance-state-name=#{state}\""}.join(' ')
-  output = `ec2-describe-instances --filter "tag:reddisk=#{reddisk_tag_value_or_filename}" #{state_filters}`
+  output = `ec2-describe-instances --filter "tag:Project=#{project_tag_value_or_filename}" #{state_filters}`
   instance_ids = output.lines.select {|line| line.match(/^INSTANCE/)}.collect {|line| line.split[1]}
 
   other_volumes = {}
   statuses = ['creating', 'available', 'in-use', 'deleting', 'deleted', 'error'] - ['in-use']
   status_filters = statuses.collect {|status| "--filter \"status=#{status}\""}.join(' ')
-  output = `ec2-describe-volumes --filter "tag:reddisk=#{reddisk_tag_value_or_filename}" #{status_filters}`
+  output = `ec2-describe-volumes --filter "tag:Project=#{project_tag_value_or_filename}" #{status_filters}`
   output.lines.each do |line|
     case line.split[0]
     when 'VOLUME'

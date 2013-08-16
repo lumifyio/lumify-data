@@ -253,7 +253,7 @@ ARGV.each do |filename|
 
       volume_ids = ebs_volumes(name, ebs)
       volume_ids.each do |volume_id|
-        tag(volume_id, {:reddisk => prefix})
+        tag(volume_id, {:Project => prefix})
       end
 
       cloud_config = """
@@ -281,11 +281,11 @@ ARGV.each do |filename|
                                  :user_data => user_data,
                                  :placement_group => placement_group
                                 )
-      tag(instance_id, {:reddisk => prefix})
+      tag(instance_id, {:Project => prefix})
       tag(instance_id, {:aliases => aliases.join(',')}) if aliases
 
       volume_id = get_volume_id(instance_id)
-      tag(volume_id, {:Name => "#{name}_vol0", :reddisk => prefix})
+      tag(volume_id, {:Name => "#{name}_vol0", :Project => prefix})
 
       # TODO: poll for ready?
       sleep(10)
