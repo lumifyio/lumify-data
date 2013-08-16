@@ -97,8 +97,8 @@ define([
             if (this.allConcepts && this.allConcepts.length) {
 
                 var node = $(this.promoted || this.attr.mentionNode),
-                    labels = this.allConcepts.map(function(c) { 
-                        return 'subType-' + c.id; 
+                    labels = this.allConcepts.map(function(c) {
+                        return c.id;
                     });
 
                 node.removeClass(labels.join(' '))
