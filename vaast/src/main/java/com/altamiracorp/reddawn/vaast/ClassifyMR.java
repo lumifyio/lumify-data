@@ -11,6 +11,7 @@ import com.altamiracorp.reddawn.vaast.model.subFrames.SubFrameRowKey;
 import com.altamiracorp.vaast.core.classifier.Classifier;
 import com.altamiracorp.vaast.core.classifier.SvmClassifier;
 import com.altamiracorp.vaast.core.exception.VaastRangeException;
+import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -21,6 +22,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.util.ToolRunner;
 
 import java.io.File;
 import java.io.IOException;
@@ -139,5 +141,12 @@ public class ClassifyMR extends ConfigurableMapJobBase {
             }
         }
 
+    }
+
+    public static void main(String[] args) throws Exception {
+        int res = ToolRunner.run(CachedConfiguration.getInstance(), new SubFrameMR(), args);
+        if (res != 0) {
+            System.exit(res);
+        }
     }
 }

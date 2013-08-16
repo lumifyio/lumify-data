@@ -34,7 +34,7 @@ public class SubFrameMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class<? extends Mapper> getMapperClass(Job job, Class clazz) {
-        return SubFrameMapper.class;  //To change body of implemented methods use File | Settings | File Templates.
+        return SubFrameMapper.class;
     }
 
     public static class SubFrameMapper extends Mapper<Text, AverageFrame, Text, SubFrame> {
@@ -88,7 +88,7 @@ public class SubFrameMR extends ConfigurableMapJobBase {
     }
 
     @Override
-    public boolean hasConfigurableClassname() {
+    protected boolean hasConfigurableClassname() {
         return false;
     }
 

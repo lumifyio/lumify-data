@@ -7,6 +7,7 @@ import com.altamiracorp.reddawn.vaast.model.subFrames.SubFrame;
 import com.altamiracorp.reddawn.vaast.model.subFrames.SubFrameRepository;
 import com.altamiracorp.vaast.core.measurement.GaussianMatrix;
 import com.altamiracorp.vaast.core.measurement.Matrix;
+import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -14,6 +15,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.util.ToolRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -73,5 +75,13 @@ public class SparsifyMR extends ConfigurableMapJobBase {
             job.getConfiguration().setClass(MATRIX_CLASS, matrixClass, Matrix.class);
         }
 
+
+    }
+
+    public static void main(String[] args) throws Exception {
+        int res = ToolRunner.run(CachedConfiguration.getInstance(), new SparsifyMR(), args);
+        if (res != 0) {
+            System.exit(res);
+        }
     }
 }
