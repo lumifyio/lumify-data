@@ -54,16 +54,17 @@
     </repositories>
 
 	<properties>
-		<blur-version>0.2.0-incubating-SNAPSHOT</blur-version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<accumulo-version>1.4.3</accumulo-version>
-		<hadoop-version>0.20.2-cdh3u6</hadoop-version>
-		<zookeeper-version>3.3.5</zookeeper-version>
-		<jetty-version>8.1.11.v20130520</jetty-version>
-        <site.config.location>conf/maven/site</site.config.location>
-        <javadoc.stylesheetfile>conf/maven/javadoc/stylesheet.css</javadoc.stylesheetfile>
-        <maven.build.timestamp.format>EEE MMM dd HH:mm z yyyy</maven.build.timestamp.format>
+      <blur-version>0.2.0-incubating-SNAPSHOT</blur-version>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+      <accumulo-version>1.4.3</accumulo-version>
+      <hadoop-version>0.20.2-cdh3u6</hadoop-version>
+      <zookeeper-version>3.3.5</zookeeper-version>
+      <jetty-version>8.1.11.v20130520</jetty-version>
+      <site.config.location>conf/maven/site</site.config.location>
+      <javadoc.stylesheetfile>conf/maven/javadoc/stylesheet.css</javadoc.stylesheetfile>
+      <maven.build.timestamp.format>EEE MMM dd HH:mm z yyyy</maven.build.timestamp.format>
+      <classpath-filename>${project.build.directory}/.classpath.${user.name}</classpath-filename>
 	</properties>
 
     <distributionManagement>
@@ -142,7 +143,7 @@
                             <goal>build-classpath</goal>
                         </goals>
                         <configuration>
-                            <outputFile>${project.build.directory}/.classpath</outputFile>
+                            <outputFile>${classpath-filename}</outputFile>
                         </configuration>
                     </execution>
                 </executions>
