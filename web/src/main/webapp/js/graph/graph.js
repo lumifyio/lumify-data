@@ -4,23 +4,33 @@ define([
     'flight/lib/component',
     'cytoscape',
     './renderer',
+    './stylesheet',
+    './contextmenu/withGraphContextMenuItems',
     'tpl!./graph',
     'util/throttle',
     'util/previews',
-    'util/retina'
+    'service/ucd',
+    'util/retina',
+    'util/withContextMenu'
 ], function(
     defineComponent,
     cytoscape,
     Renderer,
+    stylesheet,
+    withGraphContextMenuItems,
     template,
     throttle,
     previews,
-    retina) {
+    UCD,
+    retina,
+    withContextMenu) {
     'use strict';
 
-    return defineComponent(Graph);
+    return defineComponent(Graph, withContextMenu, withGraphContextMenuItems);
 
     function Graph() {
+        this.ucd = new UCD();
+
         var callbackQueue = [];
         var LAYOUT_OPTIONS = {
             // Customize layout options
@@ -33,8 +43,8 @@ define([
             emptyGraphSelector: '.empty-graph',
             graphToolsSelector: '.ui-cytoscape-panzoom',
             contextMenuSelector: '.graph-context-menu',
-            contextMenuItemSelector: '.graph-context-menu a',
-            nodeContextMenuSelector: '.node-context-menu'
+            nodeContextMenuSelector: '.node-context-menu',
+            edgeContextMenuSelector: '.edge-context-menu'
         });
 
         this.cy = function(callback) {
@@ -50,6 +60,7 @@ define([
         };
 
         this.addNodes = function(nodes, opts) {
+            console.log('addNodes:', nodes);
             var options = $.extend({ fit:false }, opts);
             var addedNodes = [];
             var self = this;
@@ -67,7 +78,7 @@ define([
                         });
                         var updates = $.map(cy.nodes(), function(node) {
                             return {
-                                rowKey: node.data('rowKey'),
+                                graphNodeId: node.data('graphNodeId'),
                                 graphPosition: retina.pixelsToPoints(node.position())
                             };
                         });
@@ -78,19 +89,21 @@ define([
                 cy.layout(opts);
 
                 nodes.forEach(function(node) {
-                    var title = node.title;
+                    console.log('adding node:', node);
+                    var title = node.title || 'unknown';
                     if (title.length > 15) {
                         title = title.substring(0, 10) + "...";
                     }
 
                     var cyNodeData = {
                         group: 'nodes',
-                        classes: $.trim(node.subType + ' ' + node.type),
+                        classes: $.trim('concept-' + node._subType + ' ' + node._type),
                         data: {
-                            id: node.rowKey,
-                            rowKey: node.rowKey,
-                            subType: node.subType,
-                            type: node.type,
+                            id: node.graphNodeId,
+                            _rowKey: node._rowKey,
+                            graphNodeId: node.graphNodeId,
+                            _subType: node._subType,
+                            _type: node._type,
                             title: title,
                             originalTitle: node.title,
                         },
@@ -113,13 +126,13 @@ define([
 
                     if (needsUpdate) {
                         addedNodes.push({
-                            rowKey: node.rowKey,
+                            graphNodeId: node.graphNodeId,
                             graphPosition: retina.pixelsToPoints(cyNode.position())
                         });
                     }
 
-                    if (node.type === 'artifact') {
-                        previews.generatePreview(node.rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
+                    if (node._type === 'artifact') {
+                        previews.generatePreview(node._rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
                             if (dataUri) {
                                 cyNode.css('background-image', dataUri);
                             }
@@ -143,9 +156,9 @@ define([
             this.cy(function(cy) {
                 var nodesToDelete = $.map(cy.nodes().filter(':selected'), function(node) {
                     return {
-                        rowKey: node.data('rowKey'),
-                        type: node.data('type'),
-                        subType: node.data('subType')
+                        graphNodeId: node.data('graphNodeId'),
+                        _type: node.data('_type'),
+                        _subType: node.data('_subType')
                     };
                 });
 
@@ -157,7 +170,7 @@ define([
             this.cy(function(cy) {
                 var matchingNodes = cy.nodes().filter(function(idx, node) {
                     return data.nodes.filter(function(nodeToDelete) { 
-                        return node.data('rowKey') == nodeToDelete.rowKey; 
+                        return node.data('graphNodeId') == nodeToDelete.graphNodeId; 
                     }).length > 0;
                 });
                 matchingNodes.remove();
@@ -175,7 +188,7 @@ define([
                     .forEach(function(updatedNode) {
                         cy.nodes()
                             .filter(function(idx, node) {
-                                return node.data('rowKey') === updatedNode.rowKey;
+                                return node.data('graphNodeId') === updatedNode.graphNodeId;
                             })
                             .each(function(idx, node) {
                                 node.position( retina.pointsToPixels(updatedNode.graphPosition) );
@@ -185,29 +198,6 @@ define([
         };
 
 
-        this.onContextMenu = function(event) {
-            var target = $(event.target),
-                name = target.data('func'),
-                functionName = name && 'onContextMenu' + name.substring(0, 1).toUpperCase() + name.substring(1),
-                func = functionName && this[functionName],
-                args = target.data('args');
-
-
-            if (func) {
-                if (!args) {
-                    args = [];
-                }
-                func.apply(this, args);
-            } else {
-                console.error('No function exists for context menu command: ' + functionName);
-            }
-
-            setTimeout(function() {
-                target.blur();
-                this.select('contextMenuSelector').blur().parent().removeClass('open');
-                this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
-            }.bind(this), 0);
-        };
 
         this.onContextMenuZoom = function(level) {
             this.cy(function(cy) {
@@ -215,21 +205,48 @@ define([
             });
         };
 
+        this.onContextMenuLoadResolvedRelatedItems = function() {
+            var data = this.setupLoadRelatedItems();
+            this.onLoadRelatedSelected(true, data);
+        };
+
         this.onContextMenuLoadRelatedItems = function () {
+            var data = this.setupLoadRelatedItems();
+            this.onLoadRelatedSelected(false, data);
+        };
+
+        this.setupLoadRelatedItems = function() {
             var menu = this.select('nodeContextMenuSelector');
             var currentNodeRK = menu.data('currentNodeRowKey');
+            var graphNodeId = menu.data('currentNodeGraphNodeId');
             var position = {x: menu.data ('currentNodePositionX'), y: menu.data ('currentNodePositionY')};
             var currentNodeOriginalPosition = retina.pixelsToPoints(position);
-            var data = { rowKey : currentNodeRK,
-                         originalPosition: currentNodeOriginalPosition,
-                         type : menu.data("currentNodeType")};
-            this.trigger (document, 'loadRelatedSelected', data);
-        };
+            var data = {
+                _rowKey: currentNodeRK,
+                graphNodeId: graphNodeId,
+                originalPosition: currentNodeOriginalPosition,
+                _type : menu.data("currentNodeType")
+            };
+            return data;
+        }
+
+        this.onContextMenuDeleteEdge = function () {
+            var menu = this.select('edgeContextMenuSelector');
+            var edgeId = menu.data('edgeId');
+            this.cy(function(cy) {
+                this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), menu.data('relationshipType'), function(err) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+                    cy.remove (cy.getElementById (edgeId));
+                })
+            });
+        }
 
         this.onContextMenuFitToWindow = function() {
             this.fit();
         };
-
 
         this.fit = function() {
             this.trigger(document, 'requestGraphPadding');
@@ -270,7 +287,7 @@ define([
                         }
                         var updates = $.map(cy.nodes(), function(node) {
                             return {
-                                rowKey: node.data('rowKey'),
+                                graphNodeId: node.data('graphNodeId'),
                                 graphPosition: retina.pixelsToPoints(node.position())
                             };
                         });
@@ -290,19 +307,34 @@ define([
 
         this.graphContextTap = function(event) {
             var menu;
+            // TODO: create different nodeContext menus for nodes/edges
             if (event.cyTarget == event.cy){
                 menu = this.select ('contextMenuSelector');
                 this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
+                this.select('edgeContextMenuSelector').blur().parent().removeClass('open');
+            } else if (event.cyTarget.group ('edges') == 'edges') {
+                menu = this.select ('edgeContextMenuSelector');
+                menu.data("edgeId", event.cyTarget.data('id'));
+                menu.data("sourceId",event.cyTarget.data('source'));
+                menu.data("targetId",event.cyTarget.data('target'));
+                menu.data("relationshipType", event.cyTarget.data('relationshipType'));
+                if (event.cy.nodes().filter(':selected').length > 1) {
+                    return false;
+                }
+                this.select('nodeContextMenuSelector').blur().parent().removeClass('open');
+                this.select('contextMenuSelector').blur().parent().removeClass('open');
             } else {
                 menu = this.select ('nodeContextMenuSelector');
-                menu.data("currentNodeRowKey",event.cyTarget.data('rowKey'));
+                menu.data("currentNodeRowKey",event.cyTarget.data('_rowKey'));
+                menu.data("currentNodeGraphNodeId",event.cyTarget.data('graphNodeId'));
                 menu.data("currentNodePositionX", event.cyTarget.position ('x'));
                 menu.data("currentNodePositionY", event.cyTarget.position ('y'));
-                menu.data("currentNodeType", event.cyTarget.data('type'));
+                menu.data("currentNodeType", event.cyTarget.data('_type'));
                 if (event.cy.nodes().filter(':selected').length > 1) {
                     return false;
                 }
                 this.select('contextMenuSelector').blur().parent().removeClass('open');
+                this.select('edgeContextMenuSelector').blur().parent().removeClass('open');
             }
 
             // Show/Hide the layout selection menu item
@@ -312,39 +344,13 @@ define([
                 menu.find('.layout-multi').hide();
             }
 
-            // TODO: extract this context menu viewport fitting
-            var offset = this.$node.offset(),
-            padding = 10,
-            windowSize = { x: $(window).width(), y: $(window).height() },
-            menuSize = { x: menu.outerWidth(), y: menu.outerHeight() },
-            submenu = menu.find('li.dropdown-submenu ul'),
-            submenuSize = menuSize,// { x:submenu.outerWidth(), y:submenu.outerHeight() },
-            placement = {
-                left: Math.min(
-                    event.originalEvent.pageX - offset.left,
-                    windowSize.x - offset.left - menuSize.x - padding
-                ),
-                top: Math.min(
-                    event.originalEvent.pageY - offset.top,
-                    windowSize.y - offset.top - menuSize.y - padding
-                )
-            },
-            submenuPlacement = { left:'100%', right:'auto', top:0, bottom:'auto' };
-
-            if ((placement.left + menuSize.x + submenuSize.x + padding) > windowSize.x) {
-                submenuPlacement = $.extend(submenuPlacement, { right: '100%', left:'auto' });
-            }
-            if ((placement.top + menuSize.y + (submenu.children('li').length * 26) + padding) > windowSize.y) {
-                submenuPlacement = $.extend(submenuPlacement, { top: 'auto', bottom:'0' });
-            }
-
-            menu.parent('div').css($.extend({ position:'absolute' }, placement));
-            submenu.css(submenuPlacement);
-
-            menu.dropdown('toggle');
+            this.toggleMenu({positionUsingEvent:event}, menu);
         };
 
         this.graphSelect = throttle('selection', 100, function(event) {
+            if (this.creatingStatement) {
+                return event.cy.elements().unselect();
+            }
             this.updateNodeSelections(event.cy);
         });
 
@@ -441,11 +447,12 @@ define([
                 dy = p.y - originalPosition.y,
                 distance = Math.sqrt(dx * dx + dy * dy);
 
+            if (distance === 0) return;
             if (distance < 5) {
-                target.select();
-                if (distance < 1) {
-                    return;
+                if (!event.originalEvent.shiftKey) {
+                    event.cy.$(':selected').unselect();
                 }
+                target.select();
             }
 
             // Cache these positions since data attr could be overidden
@@ -459,7 +466,8 @@ define([
             var graphMovedNodesData = {
                 nodes: $.map(nodes, function(node) {
                     return {
-                        rowKey: node.data('rowKey'),
+                        _rowKey: node.data('_rowKey'),
+                        graphNodeId: node.data('id'),
                         graphPosition: node.data('targetPosition')
                     };
                 })
@@ -478,6 +486,11 @@ define([
                 var noNodes = cy.nodes().length === 0;
 
                 this.select('emptyGraphSelector').toggle(noNodes);
+                cy.panningEnabled(!noNodes)
+                    .zoomingEnabled(!noNodes)
+                    .boxSelectionEnabled(!noNodes)
+                    .graphPaperEnabled(!noNodes);
+
                 if (noNodes) {
                     cy.reset();
                 }
@@ -506,34 +519,77 @@ define([
             this.cy(function(cy) {
                 if (relationshipData.relationships != null){
                     var relationshipEdges = [];
-
                     relationshipData.relationships.forEach(function(relationship) {
                         relationshipEdges.push ({
                             group: "edges",
                             data: {
-                                rowKey: relationship.from + "->" + relationship.to,
+                                _rowKey: relationship.from + "->" + relationship.to,
                                 relationshipType: relationship.relationshipType,
                                 source: relationship.from,
                                 target: relationship.to,
-                                type: 'relationship',
-                                id: (relationship.from < relationship.to ? relationship.from + relationship.to : relationship.to + relationship.from)
+                                _type: 'relationship',
+                                id: (relationship.from + relationship.to + relationship.relationshipType)
                             },
-                            classes: (relationship.bidirectional ? 'bidirectional' : '')
                         });
-
                     });
                     cy.add(relationshipEdges);
                 }
             });
         };
 
+        this.onLoadRelatedSelected = function(resolvedOnly, data) {
+            var self = this;
+
+            if ($.isArray(data) && data.length == 1){
+                data = data[0];
+            }
+
+            console.log('Getting related nodes for:', data);
+
+            var xOffset = 100, yOffset = 100;
+            var x = data.originalPosition.x;
+            var y = data.originalPosition.y;
+
+            this.ucd.getRelatedNodes(data.graphNodeId, resolvedOnly, function(err, nodes) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+                nodes = nodes.nodes;
+
+                nodes = nodes.map(function(node, index) {
+                    if (index % 10 === 0) {
+                        y += yOffset;
+                    }
+                    return $.extend({}, node.properties, {
+                        graphNodeId: node.id,
+                        graphPosition: {
+                            x: x + xOffset * (index % 10 + 1),
+                            y: y
+                        },
+                        selected: true
+                    });
+                });
+
+                console.log('trigger nodes', nodes);
+
+                self.trigger(document, 'addNodes', {
+                    nodes: nodes
+                });
+            });
+        };
+
+        this.onMenubarToggleDisplay = function(e, data) {
+            if (data.name === 'graph') {
+                this.cy(function(cy) {
+                    cy.renderer().notify({type:'viewport'});
+                });
+            }
+        };
+
         this.after('initialize', function() {
             var self = this;
             this.$node.html(template({}));
-
-
-            this.select('contextMenuItemSelector').on('click', this.onContextMenu.bind(this));
-            this.select('nodeContextMenuSelector').on('click', this.onContextMenu.bind(this));
 
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'nodesAdded', this.onNodesAdded);
@@ -541,93 +597,28 @@ define([
             this.on(document, 'nodesUpdated', this.onNodesUpdated);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
             this.on(document, 'graphPaddingResponse', this.onGraphPadding);
+            this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);
+
+            stylesheet(function(style) {
+                self.initializeGraph(style);
+            });
+
+        });
+
+        this.initializeGraph = function(style) {
+            var self = this;
 
             cytoscape("renderer", "red-dawn", Renderer);
             cytoscape({
                 showOverlay: false,
                 minZoom: 1 / 4,
                 maxZoom: 4,
+                hideEdgesOnViewport: true,
                 container: this.select('cytoscapeContainerSelector').css({height:'100%'})[0],
                 renderer: {
                     name: 'red-dawn'
                 },
-                style: cytoscape.stylesheet()
-                  // TODO: get the list of types and subTypes
-                  .selector('node.person')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_003_user@2x.png'
-                    })
-                  .selector('node.location,node.place')
-                    .css({
-                      'background-image': '/img/pin@2x.png',
-                      'width': 35 * retina.devicePixelRatio,
-                      'height': 35 * retina.devicePixelRatio,
-                      'border-color': 'white',
-                      'shape': 'none',
-                      'border-width': 0
-                    })
-                  .selector('node.organization,node.organisation')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_263_bank@2x.png',
-                      'shape': 'roundrectangle'
-                    })
-                  .selector('node.document')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
-                      'shape': 'rectangle',
-                      'width': 60 * retina.devicePixelRatio,
-                      'height': 60 * 1.2 * retina.devicePixelRatio,
-                      'border-color': '#ccc',
-                      'border-width': 1
-                    })
-                  .selector('node.video')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
-                      'shape': 'movieStrip',
-                      'width': 60 * 1.3 * retina.devicePixelRatio,
-                      'height': 60 * retina.devicePixelRatio,
-                      'border-color': '#ccc',
-                      'border-width': 1
-                    })
-                  .selector('node.image')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
-                      'shape': 'rectangle',
-                      'width': 60 * 1.3 * retina.devicePixelRatio,
-                      'height': 60 * retina.devicePixelRatio,
-                      'border-color': '#ccc',
-                      'border-width': 1
-                    })
-                  .selector('node')
-                    .css({
-                      'width': 30 * retina.devicePixelRatio,
-                      'height': 30 * retina.devicePixelRatio,
-                      'content': 'data(title)',
-                      'font-family': 'helvetica',
-                      'font-size': 18 * retina.devicePixelRatio,
-                      'text-outline-width': 2,
-                      'text-outline-color': 'white',
-                      'text-valign': 'bottom',
-                      'color': '#999'
-                    })
-                  .selector(':selected')
-                    .css({
-                      'background-color': '#0088cc',
-                      'border-color': '#0088cc',
-                      'line-color': '#000',
-                      'color': '#0088cc'
-                    })
-                  .selector('edge')
-                    .css({
-                      'width': 2,
-                      'target-arrow-shape': 'triangle'
-                    })
-                  .selector('.bidirectional')
-                    .css ({
-                      'width': 2,
-                      'target-arrow-shape': 'triangle',
-                      'source-arrow-shape': 'triangle'
-                    }),
+                style: style,
 
                 ready: function(){
                     var cy = this;
@@ -688,7 +679,7 @@ define([
                     }, 100);
                 }
             });
-        });
+        };
     }
 
 });

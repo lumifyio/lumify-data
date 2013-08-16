@@ -1,9 +1,13 @@
 package com.altamiracorp.reddawn.ucd.term;
 
 import com.altamiracorp.reddawn.model.*;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
+import com.altamiracorp.reddawn.model.graph.GraphRelationship;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndexRepository;
-import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,7 +16,6 @@ import java.util.List;
 
 public class TermRepository extends Repository<Term> {
     private ArtifactTermIndexRepository artifactTermIndexRepository = new ArtifactTermIndexRepository();
-    private SentenceRepository sentenceRepository = new SentenceRepository();
 
     @Override
     public Term fromRow(Row row) {
@@ -87,5 +90,53 @@ public class TermRepository extends Repository<Term> {
             }
             save(session, term);
         }
+    }
+
+    public void saveToGraph(Session session, GraphSession graphSession, Term term, TermMention termMention, String conceptId) {
+        String oldGraphVertexId = termMention.getGraphVertexId();
+        GraphVertex vertex = new GraphVertexImpl();
+        vertex.setProperty(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString());
+        vertex.setProperty(PropertyName.SUBTYPE.toString(), conceptId);
+        vertex.setProperty(PropertyName.ROW_KEY.toString(), term.getRowKey().toString());
+        vertex.setProperty(PropertyName.COLUMN_FAMILY_NAME.toString(), termMention.getColumnFamilyName());
+        vertex.setProperty(PropertyName.TITLE.toString(), term.getRowKey().getSign());
+
+        String vertexId = graphSession.save(vertex);
+        if (!vertexId.equals(oldGraphVertexId) || !termMention.getGraphSubTypeVertexeId().equals(conceptId)) {
+            termMention.setGraphSubTypeVertexId(conceptId);
+            termMention.setGraphVertexId(vertexId);
+            this.save(session, term);
+        }
+
+        List<GraphVertex> artifactVertices = graphSession.findBy(PropertyName.ROW_KEY.toString(), termMention.getArtifactKey());
+        if (artifactVertices.size() == 0) {
+            throw new RuntimeException("Could not find artifact \"" + termMention.getArtifactKey() + "\" to link term mention to");
+        }
+        if (artifactVertices.size() > 1) {
+            throw new RuntimeException("Multiple artifact vertices found \"" + termMention.getArtifactKey() + "\"");
+        }
+
+        GraphRelationship artifactRelationship = new GraphRelationship(null, artifactVertices.get(0).getId(), vertexId, "hasTermMention");
+        graphSession.save(artifactRelationship);
+    }
+
+    public TermAndTermMention findMention(Session session, TermRowKey termRowKey, String artifactKey, long mentionStart, long mentionEnd) {
+        Term term = findByRowKey(session, termRowKey.toString());
+        if (term == null) {
+            return null;
+        }
+        for (TermMention termMention : term.getTermMentions()) {
+            if (!termMention.getArtifactKey().equals(artifactKey)) {
+                continue;
+            }
+            if (termMention.getMentionStart() != mentionStart) {
+                continue;
+            }
+            if (termMention.getMentionEnd() != mentionEnd) {
+                continue;
+            }
+            return new TermAndTermMention(term, termMention);
+        }
+        return null;
     }
 }

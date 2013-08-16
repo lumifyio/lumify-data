@@ -28,7 +28,7 @@ public class TermRepositoryTest {
     @Test
     public void testTermRowKey() {
       TermRowKey rowKeyString = new TermRowKey("Bob", "CTA", "Person");
-      assertEquals("bob\u001FCTA\u001FPerson", rowKeyString.toString());
+      assertEquals("Bob\u001FCTA\u001FPerson", rowKeyString.toString());
     }
 
     @Test
@@ -140,7 +140,7 @@ public class TermRepositoryTest {
 
         assertEquals(1, session.tables.get(Term.TABLE_NAME).size());
         Row row = session.tables.get(Term.TABLE_NAME).get(0);
-        assertEquals("testsign\u001FtestModelKey\u001FtestConceptLabel", row.getRowKey().toString());
+        assertEquals("testSign\u001FtestModelKey\u001FtestConceptLabel", row.getRowKey().toString());
 
         assertEquals(3, row.getColumnFamilies().size());
 

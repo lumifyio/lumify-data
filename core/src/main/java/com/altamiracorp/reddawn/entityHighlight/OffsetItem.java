@@ -9,20 +9,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class OffsetItem {
-    public abstract Long getStart();
+    public abstract long getStart();
 
-    public abstract Long getEnd();
+    public abstract long getEnd();
 
     public abstract String getType();
 
     public abstract String getRowKey();
+
+    public String getGraphVertexId() {
+        return null;
+    }
+
+    public String getResolvedGraphVertexId() {
+        return null;
+    }
 
     public JSONObject getInfoJson() {
         try {
             JSONObject infoJson = new JSONObject();
             infoJson.put("start", getStart());
             infoJson.put("end", getEnd());
-            infoJson.put("rowKey", RowKeyHelper.jsonEncode(getRowKey()));
+            infoJson.put("_rowKey", RowKeyHelper.jsonEncode(getRowKey()));
+            if (getGraphVertexId() != null) {
+                infoJson.put("graphNodeId", getGraphVertexId());
+            }
+            if (getResolvedGraphVertexId() != null) {
+                infoJson.put("resolvedGraphNodeId", getResolvedGraphVertexId());
+            }
             infoJson.put("type", getType());
             return infoJson;
         } catch (JSONException e) {
@@ -33,6 +47,9 @@ public abstract class OffsetItem {
     public List<String> getCssClasses() {
         ArrayList<String> classes = new ArrayList<String>();
         classes.add(getType());
+        if (getResolvedGraphVertexId() != null) {
+            classes.add("resolved");
+        }
         return classes;
     }
 
@@ -54,5 +71,9 @@ public abstract class OffsetItem {
 
     public boolean shouldHighlight() {
         return true;
+    }
+
+    public String getTitle() {
+        return null;
     }
 }

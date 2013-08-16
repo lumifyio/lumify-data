@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.location;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
+import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.Row;
 import com.altamiracorp.reddawn.ucd.AccumuloTermInputFormat;
@@ -39,7 +40,7 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
         return AccumuloModelOutputFormat.class;
     }
 
-    public static class ArtifactLocationExtractorMapper extends Mapper<Text, Term, Text, Row> {
+    public static class ArtifactLocationExtractorMapper extends RedDawnMapper<Text, Term, Text, Row> {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "artifactLocationExtractorClass";
         private ArtifactLocationExtractor entityExtractor;
 
@@ -56,15 +57,11 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
             }
         }
 
-        public void map(Text rowKey, Term term, Context context) throws IOException, InterruptedException {
+        public void safeMap(Text rowKey, Term term, Context context) throws Exception {
             LOGGER.info("Extracting location from : " + term.getRowKey().toString());
 
-            try {
-                Collection<Artifact> artifacts = entityExtractor.extract(term);
-                writeArtifacts(context, artifacts);
-            } catch (Exception e) {
-                throw new IOException(e);
-            }
+            Collection<Artifact> artifacts = entityExtractor.extract(term);
+            writeArtifacts(context, artifacts);
         }
 
         private void writeArtifacts(Mapper.Context context, Collection<Artifact> artifacts) throws IOException, InterruptedException {

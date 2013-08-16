@@ -1,4 +1,11 @@
 #!/bin/bash
+# require: 215_ArtifactFaceDetectionMR.sh
+# require: 215_VideoFrameFaceDetectionMR.sh
+# require: 300_VideoPreviewMR.sh
+# require: 710_TermMentionToTitanMR.sh
+# require: 600_ArtifactLocationExtractionMR.sh
+# require: 790_ArtifactHighlighting.sh
+# require: 800_BlurSearchIndexBuilder.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -28,6 +35,7 @@ com.altamiracorp.reddawn.web.Server \
 --zookeeperInstanceName=reddawn \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
+--graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --zookeeperServerNames=${ip} \
 --username=root \

@@ -30,7 +30,7 @@ import java.util.Iterator;
 
 public class FileImport extends RedDawnCommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileImport.class.getName());
-    private static final long MAX_SIZE_OF_INLINE_FILE = 1 * 1024 * 1024; // 1MiB
+    private static final long MAX_SIZE_OF_INLINE_FILE = 512 * 1024; // 512kiB
     private static final String MAPPING_JSON_FILE_NAME_SUFFIX = ".mapping.json";
     private ArtifactRepository artifactRepository = new ArtifactRepository();
     private String directory;
@@ -99,8 +99,9 @@ public class FileImport extends RedDawnCommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         File directory = new File(getDirectory());
-        if(!datasetExists(getDirectory())) {
+        if (!datasetExists(getDirectory())) {
             String dataset = getDatasetName(getDirectory());
+            LOGGER.info("using dataset: " + dataset);
             dataset += ".zip";
             downloadDataset(dataset);
             extractDataset(dataset);
@@ -190,11 +191,11 @@ public class FileImport extends RedDawnCommandLineBase {
         return source;
     }
 
-    private String getDatasetName(String dir){
-        int second= dir.lastIndexOf('/', (dir.length() - 3));
+    private String getDatasetName(String dir) {
+        int second = dir.lastIndexOf('/', (dir.length() - 3));
         String set;
-        if(dir.charAt((dir.length() - 1)) == '/')  {
-            int last= dir.lastIndexOf('/');
+        if (dir.charAt((dir.length() - 1)) == '/') {
+            int last = dir.lastIndexOf('/');
             set = dir.substring(second, last);
         } else {
             set = dir.substring(second);
@@ -208,8 +209,8 @@ public class FileImport extends RedDawnCommandLineBase {
         return (file.exists() || (dir.equals("sample/directory")));
     }
 
-    private void downloadDataset(String dataset){
-        try{
+    private void downloadDataset(String dataset) {
+        try {
             String amazon = "https://s3.amazonaws.com/RedDawn/DataSets";
             URL aws = new URL(amazon + dataset);
             URLConnection connect = aws.openConnection();
@@ -220,12 +221,12 @@ public class FileImport extends RedDawnCommandLineBase {
             FileOutputStream out = new FileOutputStream(repo + dataset);
             byte[] outStream = new byte[4096];
             int count;
-            while((count = in.read(outStream)) >= 0){
+            while ((count = in.read(outStream)) >= 0) {
                 out.write(outStream, 0, count);
             }
             in.close();
             out.close();
-        } catch(IOException e) {
+        } catch (IOException e) {
             LOGGER.info("Error pulling dataset from AWS");
             LOGGER.info("Dataset does not exist.  " +
                     "\nPlease choose from the following options:" +
@@ -242,23 +243,23 @@ public class FileImport extends RedDawnCommandLineBase {
         }
     }
 
-    private void extractDataset(String dataset){
-            String repo = getDirectory();
-            String set = dataset.substring(1, (dataset.length()-4));
-            String zipString = repo.substring(0, (repo.length()-1)) + dataset;
-            if(directory.charAt(directory.length()-1) != '/'){
-                repo += "/";
-                repo = repo + "/unzip_" + set + "/";
-            } else {
-                repo = repo + "unzip_" + set + "/";
-            }
-            try {
-                ZipFile zipped = new ZipFile(zipString);
-                zipped.extractAll(repo);
-                this.directory = repo;
-            } catch (ZipException e) {
-                LOGGER.info("Error in extracting zip file");
-                e.printStackTrace();
-            }
+    private void extractDataset(String dataset) {
+        String repo = getDirectory();
+        String set = dataset.substring(1, (dataset.length() - 4));
+        String zipString = repo.substring(0, (repo.length() - 1)) + dataset;
+        if (directory.charAt(directory.length() - 1) != '/') {
+            repo += "/";
+            repo = repo + "/unzip_" + set + "/";
+        } else {
+            repo = repo + "unzip_" + set + "/";
+        }
+        try {
+            ZipFile zipped = new ZipFile(zipString);
+            zipped.extractAll(repo);
+            this.directory = repo;
+        } catch (ZipException e) {
+            LOGGER.info("Error in extracting zip file");
+            e.printStackTrace();
+        }
     }
 }

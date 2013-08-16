@@ -31,11 +31,6 @@ public class OpenNlpDictionaryRegistryTest {
 
         Dictionary dictionary = dictionaryRegistry.buildDictionary(inputStream, caseSensitive);
 
-        Iterator itr = dictionary.iterator();
-        while(itr.hasNext()) {
-            System.out.println(itr.next().toString());
-        }
-
         assertTrue(dictionary.contains(new StringList("Awesome", "Token")));
         assertTrue(dictionary.contains(new StringList("awesome", "token")));
         assertTrue(dictionary.contains(new StringList("hello", "world")));

@@ -1,13 +1,11 @@
 package com.altamiracorp.reddawn.model;
 
-import com.altamiracorp.reddawn.ucd.statement.Statement;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public abstract class Repository<T> {
+public abstract class Repository<T extends Row> {
     public abstract T fromRow(Row row);
 
     public abstract Row toRow(T obj);
@@ -19,7 +17,9 @@ public abstract class Repository<T> {
         if (row == null) {
             return null;
         }
-        return fromRow(row);
+        T r = fromRow(row);
+        r.setDirtyBits(false);
+        return r;
     }
 
     public T findByRowKey(Session session, String rowKey, Map<String, String> columnsToReturn) {
@@ -27,7 +27,9 @@ public abstract class Repository<T> {
         if (row == null) {
             return null;
         }
-        return fromRow(row);
+        T r = fromRow(row);
+        r.setDirtyBits(false);
+        return r;
     }
 
     public List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(Session session, String rowKey, long colFamOffset,
@@ -72,7 +74,9 @@ public abstract class Repository<T> {
     public List<T> fromRows(Collection<Row> rows) {
         ArrayList<T> results = new ArrayList<T>();
         for (Row row : rows) {
-            results.add(fromRow(row));
+            T r = fromRow(row);
+            r.setDirtyBits(false);
+            results.add(r);
         }
         return results;
     }
@@ -81,7 +85,11 @@ public abstract class Repository<T> {
         session.deleteRow(getTableName(), rowKey);
     }
 
-    public List<Row> findByRowStartsWithList (List<String> rowKeyPrefixes, Session session){
+    public List<Row> findByRowStartsWithList(List<String> rowKeyPrefixes, Session session) {
         return session.findByRowStartsWithList(getTableName(), rowKeyPrefixes, session.getQueryUser());
+    }
+
+    public void touchRow(Session session, RowKey rowKey) {
+        session.touchRow(getTableName(), rowKey, session.getQueryUser());
     }
 }

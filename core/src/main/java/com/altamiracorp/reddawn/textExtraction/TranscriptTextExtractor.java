@@ -7,6 +7,8 @@ import com.altamiracorp.reddawn.ucd.artifact.VideoTranscript;
 import org.apache.hadoop.mapreduce.Mapper;
 
 public class TranscriptTextExtractor implements TextExtractor {
+    private static final String NAME = "transcriptTextExtractor";
+
     @Override
     public void setup(Mapper.Context context) {
     }
@@ -26,6 +28,11 @@ public class TranscriptTextExtractor implements TextExtractor {
     @Override
     public VideoFrameExtractedInfo extract(Session session, VideoFrame videoFrame) throws Exception {
         return null;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
 }

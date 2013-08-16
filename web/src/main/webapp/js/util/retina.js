@@ -23,12 +23,24 @@ define([], function() {
             updateRatio(getRatio());
         };
         this.pixelsToPoints = function(position) {
+            if(!position) {
+                return {
+                    x: 0,
+                    y: 0
+                }
+            }
             return {
                 x: position.x / self.devicePixelRatio,
                 y: position.y / self.devicePixelRatio
             };
         };
         this.pointsToPixels = function(position) {
+            if(!position) {
+                return {
+                    x: 0,
+                    y: 0
+                }
+            }
             return {
                 x: position.x * self.devicePixelRatio,
                 y: position.y * self.devicePixelRatio

@@ -1,6 +1,12 @@
 package com.altamiracorp.reddawn.ucd.artifact;
 
 import com.altamiracorp.reddawn.model.*;
+import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
+import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -38,6 +44,9 @@ public class ArtifactRepository extends Repository<Artifact> {
             } else if (columnFamily.getColumnFamilyName().equals(ArtifactDetectedObjects.NAME)) {
                 Collection<Column> columns = columnFamily.getColumns();
                 artifact.addColumnFamily(new ArtifactDetectedObjects().addColumns(columns));
+            } else if (columnFamily.getColumnFamilyName().equals(ArtifactExtractedText.NAME)) {
+                Collection<Column> columns = columnFamily.getColumns();
+                artifact.addColumnFamily(new ArtifactExtractedText().addColumns(columns));
             } else {
                 artifact.addColumnFamily(columnFamily);
             }
@@ -122,5 +131,27 @@ public class ArtifactRepository extends Repository<Artifact> {
             throw new RuntimeException("Video preview image path not set.");
         }
         return session.loadFile(path);
+    }
+
+    public void saveToGraph(Session session, GraphSession graphSession, Artifact artifact) {
+        GraphVertex vertex = new GraphVertexImpl();
+        String oldRowKey = artifact.getGenericMetadata().getGraphVertexId();
+        vertex.setProperty(PropertyName.TYPE.toString(), VertexType.ARTIFACT.toString());
+        vertex.setProperty(PropertyName.SUBTYPE.toString(), artifact.getType().toString().toLowerCase());
+        vertex.setProperty(PropertyName.ROW_KEY.toString(), artifact.getRowKey().toString());
+        if (artifact.getDynamicMetadata().getLatitude() != null) {
+            double latitude = artifact.getDynamicMetadata().getLatitude();
+            double longitude = artifact.getDynamicMetadata().getLongitude();
+            vertex.setProperty(PropertyName.GEO_LOCATION.toString(), new GraphGeoLocation(latitude, longitude));
+        }
+        if (artifact.getGenericMetadata().getSubject() != null) {
+            vertex.setProperty(PropertyName.TITLE.toString(), artifact.getGenericMetadata().getSubject());
+        }
+
+        String vertexId = graphSession.save(vertex);
+        if (!vertexId.equals(oldRowKey)) {
+            artifact.getGenericMetadata().setGraphVertexId(vertexId);
+            this.save(session, artifact);
+        }
     }
 }

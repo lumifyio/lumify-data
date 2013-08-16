@@ -12,6 +12,19 @@
     cursor: pointer;
   }
 
+  .generic-draggable {
+    cursor: pointer;
+  }
+
+  .fake-link {
+    color: #08c;
+
+    &:hover {
+      color: #079;
+      text-decoration: underline;
+    }
+  }
+
   .underneath {
     @import "dropdown";
   }
@@ -35,6 +48,30 @@
 
   .text {
     word-wrap: break-word;
+
+    .sentence {
+      .transition(~"color ease-in 0.2s");
+    }
+
+    @fade-color: #ddd;
+    @normal-color: #333;
+
+    // When entities are being dragged
+    &.drag-focus, &.dropdown {
+      .sentence { color: @fade-color; }
+      .sentence .entity { color:@normal-color; }
+    }
+
+    .ui-draggable-dragging { white-space: nowrap; }
+
+    // When dropdown is opened
+    &.dropdown .sentence .entity { 
+      color:@fade-color;
+
+      &.focused {
+        color: @normal-color;
+      }
+    }
   }
 
   .multiple {
@@ -61,6 +98,7 @@
     background-size: 100% 100%;
     background-repeat: no-repeat;
     display: inline-block;
+    max-width: 100%;
 
     img {
       -webkit-transition: -webkit-filter ease-out 0.2s;

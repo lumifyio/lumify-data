@@ -113,7 +113,7 @@ public class SentenceRepositoryTest {
         assertEquals(1, row.getColumnFamilies().size());
         ColumnFamily sentenceTermColumnFamily = (ColumnFamily)row.getColumnFamilies().iterator().next();
         assertEquals("urn\u001Fsha256\u001Fe390d2499bc929d96066164b132f6a45dd48a6dd5187713162804bfa45b9950f", sentenceTermColumnFamily.getColumnFamilyName());
-        assertEquals("bob jenkins\u001FONLP\u001FPerson", sentenceTermColumnFamily.get(SentenceTerm.TERM_ID).toString());
+        assertEquals("Bob Jenkins\u001FONLP\u001FPerson", sentenceTermColumnFamily.get(SentenceTerm.TERM_ID).toString());
     }
 
     @Test

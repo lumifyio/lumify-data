@@ -53,13 +53,13 @@ public class RouteTest {
 
     @Test
     public void testComplexComponentAttributeSetting() {
-        Route r = new Route(Method.GET, path + "/{model}/edit/{id}", handler);
+        Route r = new Route(Method.GET, path + "/{model}/edit/{_id}", handler);
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getMethod()).thenReturn("GET");
         when(request.getRequestURI()).thenReturn(path + "/person/edit/25");
         assertTrue(r.isMatch(request));
         verify(request).setAttribute("model", "person");
-        verify(request).setAttribute("id", "25");
+        verify(request).setAttribute("_id", "25");
     }
 
     @Test

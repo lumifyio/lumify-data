@@ -12,7 +12,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -314,6 +313,14 @@ public class AccumuloSession extends Session {
         return new ArrayList<String>(this.connector.tableOperations().list());
     }
 
+    // TODO change this to use an accumulo touch command. Accumulo doesn't have one yet though.
+    @Override
+    public void touchRow(String tableName, RowKey rowKey, QueryUser queryUser) {
+        Row row = findByRowKey(tableName, rowKey.toString(), queryUser);
+        row.setDirtyBits(true);
+        save(row);
+    }
+
     public long getMaxMemory() {
         return maxMemory;
     }
@@ -343,8 +350,10 @@ public class AccumuloSession extends Session {
         Collection<ColumnFamily> columnFamilies = row.getColumnFamilies();
         for (ColumnFamily columnFamily : columnFamilies) {
             for (Column column : columnFamily.getColumns()) {
-                Value value = new Value(column.getValue().toBytes());
-                mutation.put(columnFamily.getColumnFamilyName(), column.getName(), value);
+                if (column.isDirty()) {
+                    Value value = new Value(column.getValue().toBytes());
+                    mutation.put(columnFamily.getColumnFamilyName(), column.getName(), value);
+                }
             }
         }
         return mutation;

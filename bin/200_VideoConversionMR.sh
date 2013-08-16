@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 150_ContentTypeExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -32,7 +33,9 @@ com.altamiracorp.reddawn.videoConversion.VideoConversionMR \
 --hadoopUrl=hdfs://${ip}:8020 \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
+--graph.storage.index.search.hostname=${ip} \
 --username=root \
 --password=password \
+--failOnFirstError \
 -Dffmpeg.bin.dir=${ffmpegDir} \
 -Dccextractor.bin.dir=${ccextractorDir}

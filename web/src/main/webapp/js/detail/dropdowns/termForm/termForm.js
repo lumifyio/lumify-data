@@ -26,54 +26,28 @@ define([
             conceptSelector: 'select'
         });
 
-        this.highlightTerm = function(data) {
-            var mentionNode = $(this.attr.mentionNode),
-                termExists = mentionNode.is('.entity'),
-                associatedObjectExists = this.objectRowKeySpan.length,
-                associatedObject = data.info.objectRowKey;
-
-            if ( associatedObjectExists ) {
-
-                this.objectRowKeySpan.data('info', data.info);
-
-            } else if ( termExists && associatedObject ) {
-
-                mentionNode.wrap( $('<span>')
-                    .data('info', data.info)
-                    .addClass(data.cssClasses.join(' ')));
-
-            } else if ( termExists ) {
-
-                mentionNode.data('info', data.info);
-
-            } else {
-
-                // Must be a new term (possibly with an associated object)
-                var textNode = this.node.previousSibling,
-                    offset = this.attr.selection[
-                        this.attr.selection.anchor === textNode ? 'anchorOffset' : 'focusOffset'
-                    ];
-
-                // Split textnode into just the selection
-                textNode.splitText(offset);
-                textNode = this.node.previousSibling;
-
-                // Remove textnode
-                textNode.parentNode.removeChild(textNode);
-
-                // Add new term node
-                $('<span>')
-                    .text(this.attr.sign)
-                    .data('info', data.info)
-                    .addClass(data.cssClasses.join(' '))
-                    .insertBefore(this.$node);
-
-                this.trigger(document, 'termCreated', data);
+        this.after('teardown', function() {
+            if (this.promoted && this.promoted.length) {
+                this.demoteSpanToTextNode(this.promoted);
             }
-        };
+            
+            var info = $(this.attr.mentionNode).removeClass('focused').data('info');
+            if (info) {
+                this.updateConceptLabel(info._subType);
+            }
+            
+            // Remove extra textNodes
+            this.node.parentNode.normalize();
+        });
+
+        this.after('initialize', function() {
+            this.setupContent();
+            this.registerEvents();
+        });
 
         this.onCreateTermClicked = function(event) {
             var self = this,
+                $mentionNode = $(this.attr.mentionNode),
                 sentence = this.$node.parents('.sentence'),
                 sentenceInfo = sentence.data('info'),
                 sign = this.select('signSelector').text(),
@@ -81,93 +55,131 @@ define([
                 mentionStart = sentenceInfo.start + sentence.text().indexOf(sign),
                 parameters = {
                     sign: sign,
-                    conceptLabel: this.select('conceptSelector').val(),
-                    sentenceRowKey: sentenceInfo.rowKey,
+                    conceptId: this.select('conceptSelector').val(),
                     artifactKey: this.attr.artifactKey,
                     mentionStart: mentionStart,
                     mentionEnd: mentionStart + sign.length
                 };
 
-            if ( !parameters.conceptLabel || parameters.conceptLabel.length === 0) {
+            if ( !parameters.conceptId || parameters.conceptId.length === 0) {
                 this.select('conceptSelector').focus();
                 return;
             }
 
-            if (this.objectRowKey) {
-                parameters.objectRowKey = this.objectRowKey.value;
+            if (newObjectSign.length) {
+                parameters.objectSign = newObjectSign;
+                $mentionNode.attr('title', newObjectSign);
             }
 
-            if (newObjectSign.length) {
-                parameters.newObjectSign = newObjectSign;
-            }
+            $mentionNode.addClass('resolved');
 
             this.entityService.createTerm(parameters, function(err, data) {
                 if (err) {
                     self.trigger(document, 'error', err);
                 } else {
                     self.highlightTerm(data);
+                    console.log(data);
+                    self.trigger(document, 'termCreated', data);
                     _.defer(self.teardown.bind(self));
                 }
             });
         };
 
-        this.after('initialize', function() {
+        this.onConceptChanged = function(event) {
+            var select = $(event.target);
+            
+            this.updateConceptLabel(select.val());
+        };
+
+        this.updateConceptLabel = function(conceptLabel) {
+            if (this.allConcepts && this.allConcepts.length) {
+
+                var node = $(this.promoted || this.attr.mentionNode),
+                    labels = this.allConcepts.map(function(c) { 
+                        return c.conceptLabel; 
+                    });
+
+                node.removeClass(labels.join(' '))
+                    .addClass(conceptLabel);
+            }
+        };
+
+        this.setupContent = function() {
             var self = this,
                 node = this.$node,
                 mentionNode = $(this.attr.mentionNode),
-                objectRowKeySpan = null,
-                objectRowKey = null;
+                sign = this.attr.sign || mentionNode.text(),
+                data = mentionNode.data('info'),
+                title = $.trim(data && data.title || ''),
+                existingEntity = mentionNode.addClass('focused').hasClass('entity'),
+                objectSign = '';
 
-            mentionNode
-                .parents('.sentence').addClass('focused')
-                .parents('.text').addClass('focus');
+            this.graphNodeId = data && data.graphNodeId;
 
-            // Find first parent (including self) with objectRowKey
-            mentionNode.parents('.entity').addBack('.entity').toArray().reverse().forEach(function(obj) {
-                var node = $(obj),
-                    info = node.data('info');
+            if (this.attr.selection && !existingEntity) {
+                this.promoted = this.promoteSelectionToSpan();
+            }
 
-                if (info && info.objectRowKey) {
-                    objectRowKeySpan = node;
-                    objectRowKey = info.objectRowKey;
-                    return false;
-                }
-            });
-
-            this.objectRowKeySpan = $(objectRowKeySpan);
-            this.objectRowKey = objectRowKey;
+            if (mentionNode.hasClass('resolved')) {
+                objectSign = title;
+            }
 
             node.html(dropdownTemplate({
-                type: 'Set type of term',
-                sign: this.attr.sign || mentionNode.text(),
-                objectSign: objectRowKey && objectRowKey.sign || '',
-                finishMessage: (mentionNode.hasClass('term') ? 'Update Term' : 'Create Term')
+                sign: sign,
+                objectSign: objectSign || '',
+                buttonText: existingEntity ? 'Update' : 'Create'
             }));
+        };
 
+        this.registerEvents = function() {
 
-            _.defer(function() {
-                self.setupObjectTypeAhead();
-                self.loadConcepts();
+            this.on('opened', function() {
+                this.setupObjectTypeAhead();
+                this.loadConcepts();
+            });
+
+            this.on('change', {
+                conceptSelector: this.onConceptChanged
             });
 
             this.on('click', {
                 entityConceptMenuSelector: this.onEntityConceptSelected,
                 createTermButtonSelector: this.onCreateTermClicked
             });
-        });
-
+        };
 
         this.loadConcepts = function() {
             var self = this;
-            self.entityService.concepts(function(err, concepts) {
+            self.allConcepts = [];
+            self.entityService.concepts(function(err, rootConcept) {
                 var mentionNode = $(self.attr.mentionNode),
                     mentionNodeInfo = mentionNode.data('info');
 
+                self.allConcepts = self.flattenConcepts(rootConcept);
                 self.select('conceptSelector').html(conceptsTemplate({
-                    concepts:concepts,
-                    selectedConceptLabel:mentionNodeInfo && mentionNodeInfo.subType || ''
+                    concepts: self.allConcepts,
+                    selectedConceptId: mentionNodeInfo && mentionNodeInfo.subType || ''
                 }));
             });
+        };
+
+        this.flattenConcepts = function(concept) {
+            var childIdx, child, grandChildIdx;
+            var flattenedConcepts = [];
+            for(childIdx in concept.children) {
+                child = concept.children[childIdx];
+                if(concept.flattenedTitle) {
+                    child.flattenedTitle = concept.flattenedTitle + "/" + child.title;
+                } else {
+                    child.flattenedTitle = child.title;
+                }
+                flattenedConcepts.push(child);
+                var grandChildren = this.flattenConcepts(child);
+                for(grandChildIdx in grandChildren) {
+                    flattenedConcepts.push(grandChildren[grandChildIdx]);
+                }
+            }
+            return flattenedConcepts;
         };
 
         this.setupObjectTypeAhead = function() {
@@ -175,9 +187,10 @@ define([
 
             self.select('objectSignSelector').typeahead({
                 source: function(query, callback) {
-                    self.ucd.entitySearch(query.toLowerCase(), function(err, entities) {
+                    self.ucd.entitySearch(query, function(err, entities) {
                         if(err) {
                             console.error('Error', err);
+                            callback([]);
                             return self.trigger(document, 'error', { message: err.toString() });
                         }
 
@@ -187,35 +200,62 @@ define([
                         var entityArrays = types.map(function(type) { return entities[type]; });
                         var all = Array.prototype.concat.apply([], entityArrays);
 
-                        // Typeahead just expects list of strings, give
-                        // these objects some string like behavior using
-                        // the "sign" property
-                        all.forEach(function(entity) {
-                            $.extend(entity, {
-                                toString: function () {
-                                    return JSON.stringify(this);
-                                },
-                                toLowerCase: function () {
-                                    return this.sign.toLowerCase();
-                                },
-                                indexOf: function (string) {
-                                    return String.prototype.indexOf.apply(this.sign, arguments);
-                                },
-                                replace: function (string) {
-                                    return String.prototype.replace.apply(this.sign + ' (' + this.conceptLabel + ')', arguments);
-                                }
-                            });
-                        });
-
-                        callback(all);
+                        callback(all.map(function(e) {
+                            return e.properties.title;
+                        }));
                     });
                     return;
-                }, 
-                updater: function (item) {
-                    item = JSON.parse(item);
-                    return item && item.sign || '';
                 }
             });
+        };
+
+        this.highlightTerm = function(data) {
+            var mentionNode = $(this.attr.mentionNode),
+                updatingEntity = mentionNode.is('.entity');
+
+
+            if (updatingEntity) {
+
+                mentionNode.data('info', data.info);
+                // TODO: remove classes and reapply
+
+            } else if (this.promoted) {
+
+                this.promoted.data('info', data.info)
+                             .addClass(data.cssClasses.join(' '))
+                             .removeClass('focused');
+                this.promoted = null;
+            }
+        };
+
+        this.promoteSelectionToSpan = function() {
+            var textNode = this.node,
+                range = this.attr.selection.range;
+
+            range.startContainer.splitText(range.startOffset);
+            if (range.endOffset < range.endContainer.textContent.length) {
+                range.endContainer.splitText(range.endOffset);
+            }
+
+            // TODO: handle case where selection includes existing entity
+            while (textNode && textNode.textContent !== this.attr.sign) {
+                textNode = textNode.previousSibling;
+            }
+            if (!textNode) return;
+
+            var span = $('<span>').text(textNode.textContent)
+                              .addClass('entity focused')
+                              .insertBefore(textNode);
+
+            textNode.parentNode.removeChild(textNode);
+            return span;
+        };
+
+        this.demoteSpanToTextNode = function(node) {
+            var textNode = document.createTextNode(node.text());
+
+            node.parent().get(0).insertBefore(textNode, node[0]);
+            node.remove();
         };
     }
 });

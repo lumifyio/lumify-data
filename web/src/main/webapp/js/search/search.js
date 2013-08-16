@@ -41,11 +41,24 @@ define([
         };
 
         this.onEntitySearchResults = function(evt, entities) {
+            var self = this;
+            console.log('onEntitySearchResults', entities);
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            $searchResultsSummary.find('.badge').removeClass('loading').text('0');
-            $searchResultsSummary.find('.person .badge').removeClass('loading').text((entities.person || []).length);
-            $searchResultsSummary.find('.location .badge').removeClass('loading').text((entities.location || []).length);
-            $searchResultsSummary.find('.organization .badge').removeClass('loading').text((entities.organization || []).length);
+            this.entityService.concepts(function(err, rootConcept) {
+                rootConcept.children.forEach(function(concept) {
+                    self.onEntitySearchResultsForConcept($searchResultsSummary, concept, entities);
+                });
+            });
+        };
+
+        this.onEntitySearchResultsForConcept = function($searchResultsSummary, concept, entities) {
+            var self = this;
+            $searchResultsSummary.find('.concept-' + concept.id + ' .badge').removeClass('loading').text((entities[concept.id] || []).length);
+            if(concept.children && concept.children.length > 0) {
+                concept.children.forEach(function(childConcept) {
+                    self.onEntitySearchResultsForConcept($searchResultsSummary, childConcept, entities);
+                });
+            }
         };
 
         this.onFormSearch = function(evt) {
@@ -61,6 +74,18 @@ define([
             }
             this.trigger('search', { query: query });
             return false;
+        };
+
+        this.getConceptChildrenHtml = function(concept, indent) {
+            var self = this;
+            var html = "";
+            concept.children.forEach(function(concept) {
+                html += '<li item-path="entity.' + concept.id + '" class="concept-' + concept.id + '"><a href="#" style="padding-left:' + indent + 'px;">' + concept.title + '<span class="badge"></span></a></li>';
+                if(concept.children && concept.children.length > 0) {
+                    html += self.getConceptChildrenHtml(concept, indent + 15);
+                }
+            });
+            return html;
         };
 
         this.doSearch = function(evt, query) {
@@ -79,7 +104,8 @@ define([
 
             $searchResults.hide();
             this.entityService.concepts(function(err, concepts) {
-                $searchResultsSummary.html(summaryTemplate({concepts:concepts}));
+                var resultsHtml = self.getConceptChildrenHtml(concepts, 15);
+                $searchResultsSummary.html(summaryTemplate({ resultsHtml: resultsHtml }));
                 $('.badge', $searchResultsSummary).addClass('loading');
                 this.ucd.artifactSearch(query, function(err, artifacts) {
                     if(err) {
@@ -89,13 +115,19 @@ define([
                     self.searchResults.artifact = artifacts;
                     self.trigger('artifactSearchResults', artifacts);
                 });
-                this.ucd.entitySearch(query, function(err, entities) {
+                this.ucd.graphNodeSearch(query, function(err, entities) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
-                    self.searchResults.entity = entities;
-                    self.trigger('entitySearchResults', entities);
+                    self.searchResults.entity = {};
+                    entities.nodes.forEach(function(entity) {
+                        entity.sign = entity.properties['title'];
+                        entity.graphNodeId = entity.id;
+                        self.searchResults.entity[entity.properties['_subType']] = self.searchResults.entity[entity.properties['_subType']] || [];
+                        self.searchResults.entity[entity.properties['_subType']].push(entity);
+                    });
+                    self.trigger('entitySearchResults', self.searchResults.entity);
                 });
             }.bind(this));
         };
@@ -116,11 +148,11 @@ define([
             $target.addClass('active');
 
             var itemPath = $target.attr('item-path').split('.');
-            var type = itemPath[0];
-            var subType = itemPath[1];
+            var _type = itemPath[0];
+            var _subType = itemPath[1];
             this.trigger('showSearchResults', {
-                type: type,
-                subType: subType
+                _type: _type,
+                _subType: _subType
             });
         };
 
@@ -128,25 +160,25 @@ define([
             console.log("Showing search results: ", data);
 
             var $searchResults = this.select('searchResultsSelector');
-            data.results = this.searchResults[data.type][data.subType] || [];
+            data.results = this.searchResults[data._type][data._subType] || [];
 
             data.results.forEach(function(result) {
-                if(data.type == 'artifact') {
+                if(data._type == 'artifact') {
                     result.title = result.subject;
-                } else if(data.type == 'entity') {
+                } else if(data._type == 'entity') {
                     result.title = result.sign;
                 } else {
-                    result.title = 'Error: unknown type: ' + data.type;
+                    result.title = 'Error: unknown type: ' + data._type;
                 }
 
                 // Check if this result is in the graph/map
-                var classes = [encodeURIComponent(result.rowKey)];
-                var nodeState = _currentNodes[result.rowKey];
+                var classes = ['gId' + encodeURIComponent(result.graphNodeId)];
+                var nodeState = _currentNodes[result.graphNodeId];
                 if (nodeState) {
                     if ( nodeState.inGraph ) classes.push('graph-displayed');
                     if ( nodeState.inMap ) classes.push('map-displayed');
                 }
-                if (data.subType === 'video' || data.subType === 'image') {
+                if (data._subType === 'video' || data._subType === 'image') {
                     classes.push('has_preview');
                 }
                 result.className = classes.join(' ');
@@ -224,20 +256,20 @@ define([
             lisVisible.each(function() {
                 var li = $(this),
                     info = li.data('info'),
-                    rowKey = info.rowKey;
+                    _rowKey = info._rowKey;
 
-                if ((info.subType === 'video' || info.subType === 'image') && !li.data('preview-loaded')) {
+                if ((info._subType === 'video' || info._subType === 'image') && !li.data('preview-loaded')) {
                     li.addClass('preview-loading');
-                    previews.generatePreview(rowKey, null, function(poster, frames) {
+                    previews.generatePreview(_rowKey, null, function(poster, frames) {
                         li.removeClass('preview-loading')
                           .data('preview-loaded', true);
 
-                        if(info.subType === 'video') {
+                        if(info._subType === 'video') {
                             VideoScrubber.attachTo(li.find('.preview'), {
                                 posterFrameUrl: poster,
                                 videoPreviewImageUrl: frames
                             });
-                        } else if(info.subType === 'image') {
+                        } else if(info._subType === 'image') {
                             li.find('.preview').html("<img src='" + poster + "' />");
                         }
                     });
@@ -272,7 +304,8 @@ define([
             this.on(document, 'nodesAdded', this.onNodesUpdated);
             this.on(document, 'nodesUpdated', this.onNodesUpdated);
             this.on(document, 'nodesDeleted', this.onNodesDeleted);
-            this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
+            this.on(document, 'switchWorkspace', this.onWorkspaceClear);
+            this.on(document, 'workspaceDeleted', this.onWorkspaceClear);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
 
             this.select('searchResultsSelector').droppable({ accept:'.search-results *' });
@@ -285,15 +318,15 @@ define([
         // Track changes to nodes so we display the "Displayed in Graph" icon
         // in search results
         var _currentNodes = {};
-        this.toggleSearchResultIcon = function(rowKey, inGraph, inMap) {
+        this.toggleSearchResultIcon = function(graphNodeId, inGraph, inMap) {
             this.$node
-                .find('li.' + encodeURIComponent(rowKey).replace(/(['"(%.])/g,"\\$1"))
+                .find('li.gId' + encodeURIComponent(graphNodeId))
                 .toggleClass('graph-displayed', inGraph)
                 .toggleClass('map-displayed', inMap);
         };
 
         // Switching workspaces should clear the icon state and nodes
-        this.onSwitchWorkspace = function() {
+        this.onWorkspaceClear = function() {
             this.$node.find('li.graph-displayed').removeClass('graph-displayed');
             this.$node.find('li.map-displayed').removeClass('map-displayed');
             _currentNodes = {};
@@ -303,11 +336,11 @@ define([
             var self = this;
             (data.nodes || []).forEach(function(node) {
                 // Only care about node search results and location updates
-                if ( (node.type && node.subType) || node.location || node.locations ) {
+                if ( (node._type && node._subType) || node.location || node.locations ) {
                     var inGraph = true;
                     var inMap = !!(node.location || (node.locations && node.locations.length));
-                    _currentNodes[node.rowKey] = { inGraph:inGraph, inMap:inMap };
-                    self.toggleSearchResultIcon(node.rowKey, inGraph, inMap);
+                    _currentNodes[node.graphNodeId] = { inGraph:inGraph, inMap:inMap };
+                    self.toggleSearchResultIcon(node.graphNodeId, inGraph, inMap);
                 }
             });
         };
@@ -315,8 +348,8 @@ define([
         this.onNodesDeleted = function(event, data) {
             var self = this;
             (data.nodes || []).forEach(function(node) {
-                delete _currentNodes[node.rowKey];
-                self.toggleSearchResultIcon(node.rowKey, false, false);
+                delete _currentNodes[node.graphNodeId];
+                self.toggleSearchResultIcon(node.graphNodeId, false, false);
             });
         };
 
@@ -347,9 +380,10 @@ define([
                         self.trigger(document, 'addNodes', {
                             nodes: [{
                                 title: info.title,
-                                rowKey: info.rowKey.replace(/\\[x](1f)/ig, '\u001f'),
-                                subType: info.subType,
-                                type: info.type,
+                                graphNodeId: info.graphNodeId,
+                                _rowKey: info._rowKey,
+                                _subType: info._subType,
+                                _type: info._type,
                                 dropPosition: dropPosition
                             }]
                         });

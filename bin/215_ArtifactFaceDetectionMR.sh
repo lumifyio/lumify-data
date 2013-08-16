@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 150_ContentTypeExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -30,10 +31,11 @@ com.altamiracorp.reddawn.objectDetection.ObjectDetectionMR \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
+--graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
---classname=com.altamiracorp.reddawn.objectDetection.OpenCVObjectDetector \
+--failOnFirstError \
 -DopenCVConfPathPrefix=file://$(cd ${DIR}/.. && pwd) \
 -Dclassifier.file=haarcascade_frontalface_alt.xml \
 -Dclassifier.concept=face \

@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 250_SentenceExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -29,8 +30,10 @@ com.altamiracorp.reddawn.entityExtraction.EntityExtractionMR \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
+--graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
+--failOnFirstError \
 --classname=com.altamiracorp.reddawn.entityExtraction.OpenNlpMaximumEntropyEntityExtractor \
 --config=nlpConfPathPrefix=file://$(cd ${DIR}/.. && pwd)

@@ -11,9 +11,9 @@ function(UCD, html2canvas, template) {
 
     var PREVIEW_CACHE = {};
 
-    function Preview(rowKey, options, callback) {
+    function Preview(_rowKey, options, callback) {
         this.options = options || {};
-        this.rowKey = rowKey;
+        this._rowKey = _rowKey;
         this.callback = this._cacheResult(callback);
     }
 
@@ -22,7 +22,7 @@ function(UCD, html2canvas, template) {
         return function() {
             var args = jQuery.makeArray(arguments);
             if (args.length) {
-                PREVIEW_CACHE[self.rowKey] = args;
+                PREVIEW_CACHE[self._rowKey] = args;
             }
             callback.apply(undefined, args);
 
@@ -33,7 +33,7 @@ function(UCD, html2canvas, template) {
     };
 
     Preview.prototype.start = function() {
-        new UCD().getArtifactById(this.rowKey, function(err, artifact) {
+        new UCD().getArtifactById(this._rowKey, function(err, artifact) {
             if (err) {
                 console.error(err);
                 this.callback();
@@ -60,7 +60,7 @@ function(UCD, html2canvas, template) {
         }, opts);
     }
     PreviewQueue.prototype.addTask = function(task) {
-        var cache = PREVIEW_CACHE[task.rowKey];
+        var cache = PREVIEW_CACHE[task._rowKey];
         if (cache) {
             task.callback.apply(null, cache);
         } else {
@@ -115,13 +115,13 @@ function(UCD, html2canvas, template) {
         /**
          * Add a preview generation task to the queue
          *
-         * @param rowKey The artifact rowKey
+         * @param _rowKey The artifact _rowKey
          * @param opts Options for preview generation
          * @param opts.width Width of the preview image preferred
          * @param opts.queueName Optional queue name to use
          * @param callback Task completion notification callback
          */
-        generatePreview: function(rowKey, opts, callback) {
+        generatePreview: function(_rowKey, opts, callback) {
             var options = $.extend({
                 width: 200,
                 queueName: 'default'
@@ -135,7 +135,7 @@ function(UCD, html2canvas, template) {
             delete options.queueOptions;
             delete options.queueName;
 
-            queue.addTask( new Preview(rowKey, options, callback) );
+            queue.addTask( new Preview(_rowKey, options, callback) );
         }
     };
 });

@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.videoPreview;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
-import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
@@ -10,13 +10,10 @@ import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 public class VideoPreviewMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoPreviewMR.class.getName());
@@ -37,28 +34,17 @@ public class VideoPreviewMR extends ConfigurableMapJobBase {
         return AccumuloModelOutputFormat.class;
     }
 
-    public static class VideoPreviewMapper extends Mapper<Text, Artifact, Text, Artifact> {
-        private RedDawnSession session;
+    public static class VideoPreviewMapper extends RedDawnMapper<Text, Artifact, Text, Artifact> {
         private ViewPreviewGenerator viewPreviewGenerator = new ViewPreviewGenerator();
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            super.setup(context);
-            session = ConfigurableMapJobBase.createRedDawnSession(context);
-        }
-
-        @Override
-        public void map(Text rowKey, Artifact artifact, Context context) throws IOException, InterruptedException {
-            try {
-                if (artifact.getType() != ArtifactType.VIDEO) {
-                    return;
-                }
-                LOGGER.info("Creating video preview for artifact: " + artifact.getRowKey().toString());
-                viewPreviewGenerator.createPreview(session, artifact);
-                context.write(new Text(Artifact.TABLE_NAME), artifact);
-            } catch (Exception e) {
-                throw new IOException(e);
+        public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
+            if (artifact.getType() != ArtifactType.VIDEO) {
+                return;
             }
+            LOGGER.info("Creating video preview for artifact: " + artifact.getRowKey().toString());
+            viewPreviewGenerator.createPreview(getSession(), artifact);
+            context.write(new Text(Artifact.TABLE_NAME), artifact);
         }
     }
 

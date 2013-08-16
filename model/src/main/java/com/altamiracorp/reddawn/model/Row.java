@@ -63,4 +63,10 @@ public class Row<TRowKey extends RowKey> {
         }
         return result.toString();
     }
+
+    public void setDirtyBits(boolean val) {
+        for (ColumnFamily columnFamily : getColumnFamilies()) {
+            columnFamily.setDirtyBit(val);
+        }
+    }
 }

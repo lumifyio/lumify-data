@@ -4,7 +4,6 @@ import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.GeoLocation;
 import com.altamiracorp.reddawn.model.RowKeyHelper;
 import com.altamiracorp.reddawn.model.Value;
-import com.altamiracorp.reddawn.ucd.object.UcdObjectRowKey;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,7 +22,10 @@ public class TermMention extends ColumnFamily {
     public static final String ARTIFACT_SUBJECT = "atc:artifactSubject";
     public static final String SENTENCE_TEXT = "atc:sentenceText";
     public static final String SENTENCE_OFFSET = "atc:sentenceOffset";
-    public static final String OBJECT_ROW_KEY = "atc:objectRowKey";
+    public static final String GRAPH_VERTEX_ID = "atc:graphNodeId";
+    public static final String RESOLVED_GRAPH_VERTEX_ID = "atc:resolvedGraphNodeId";
+    public static final String RESOLVED_SIGN = "atc:resolvedSign";
+    public static final String GRAPH_SUB_TYPE_VERTEX_ID = "atc:resolvedSubTypeNodeId";
 
     public TermMention() {
         super(null);
@@ -105,6 +107,33 @@ public class TermMention extends ColumnFamily {
 
     public TermMention setAuthor(String author) {
         set(AUTHOR, author);
+        return this;
+    }
+
+    public String getResolvedGraphVertexId() {
+        return Value.toString(get(RESOLVED_GRAPH_VERTEX_ID));
+    }
+
+    public TermMention setResolvedGraphVertexId(String resolvedGraphVertexId) {
+        set(RESOLVED_GRAPH_VERTEX_ID, resolvedGraphVertexId);
+        return this;
+    }
+
+    public String getGraphSubTypeVertexeId() {
+        return Value.toString(get(GRAPH_SUB_TYPE_VERTEX_ID));
+    }
+
+    public TermMention setGraphSubTypeVertexId(String subTypeVertexId) {
+        set(GRAPH_SUB_TYPE_VERTEX_ID, subTypeVertexId);
+        return this;
+    }
+
+    public String getResolvedSign() {
+        return Value.toString(get(RESOLVED_SIGN));
+    }
+
+    public TermMention setResolvedSign(String resolvedSign) {
+        set(RESOLVED_SIGN, resolvedSign);
         return this;
     }
 
@@ -246,23 +275,6 @@ public class TermMention extends ColumnFamily {
         return setDate(date.getTime());
     }
 
-    public UcdObjectRowKey getObjectRowKey() {
-        String rowKey = Value.toString(get(OBJECT_ROW_KEY));
-        if (rowKey == null) {
-            return null;
-        }
-        return new UcdObjectRowKey(rowKey);
-    }
-
-    public TermMention setObjectRowKey(String objectRowKey) {
-        set(OBJECT_ROW_KEY, objectRowKey);
-        return this;
-    }
-
-    public TermMention setObjectRowKey(UcdObjectRowKey objectRowKey) {
-        return setObjectRowKey(objectRowKey.toString());
-    }
-
     @Override
     public JSONObject toJson() {
         try {
@@ -282,5 +294,14 @@ public class TermMention extends ColumnFamily {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String getGraphVertexId() {
+        return Value.toString(get(GRAPH_VERTEX_ID));
+    }
+
+    public TermMention setGraphVertexId(String graphVertexId) {
+        set(GRAPH_VERTEX_ID, graphVertexId);
+        return this;
     }
 }

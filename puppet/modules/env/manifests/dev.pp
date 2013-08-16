@@ -3,6 +3,7 @@ class env::dev {
   include role::accumulo::pseudo
   include role::blur::pseudo
   include role::oozie::pseudo
+  include role::elasticsearch::pseudo
 
   # TODO: configure firewall rules
   service { 'iptables' :
