@@ -35,5 +35,6 @@ com.altamiracorp.reddawn.cmdline.ResourceImport \
 --password=password \
 ${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_003_user@2x.png \
 ${DIR}/../web/src/main/webapp/img/pin@2x.png \
-${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_263_bank@2x.png
-
+${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_263_bank@2x.png \
+${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_010_envelope@2x.png \
+${DIR}/../web/src/main/webapp/img/glyphicons/glyphicons_139_phone@2x.png
