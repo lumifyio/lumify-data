@@ -1,8 +1,16 @@
 class macro {
   define download ($url = $title, $path) {
+    $hiera_proxy_url = hiera('proxy_url', nil)
+
+    if ($hiera_proxy_url != nil) {
+      $curl_options = "${url} -s -L -o ${path} --proxy ${hiera_proxy_url}"
+    } else {
+      $curl_options = "${url} -s -L -o ${path}"
+    }
+
     exec { "download-${url}" :
       cwd     => '/tmp',
-      command => "/usr/bin/curl ${url} -s -L -o ${path}",
+      command => "/usr/bin/curl ${curl_options}",
       creates => $path,
       unless  => "/usr/bin/test -f ${path}",
     }
