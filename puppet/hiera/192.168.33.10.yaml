@@ -1,4 +1,8 @@
 ---
+hadoop_masters:
+  - localhost
+hadoop_slaves:
+  - localhost
 accumulo_example_config: 512MB/native-standalone
 accumulo_masters:
   - %{ipaddress_eth1}

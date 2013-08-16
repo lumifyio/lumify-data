@@ -24,8 +24,13 @@ rule_number=$(iptables -L -n --line-numbers | awk '/tcp dpt:22/ {print $1}')
 iptables -I INPUT ${rule_number} -p tcp -m state --state NEW -m tcp --dport 8140 -j ACCEPT
 service iptables save
 
-# start the puppetmaster service
-service puppetmaster start
+cat >> /etc/puppet/puppet.conf <<EO_PUPPET_CONF
+
+[master]
+    modulepath = \$confdir/modules:/usr/share/puppet/modules:\$confdir/reddawn-modules:\$confdir/puppet-modules
+EO_PUPPET_CONF
+
+./update.sh start
 
 # run puppet once in the forground
 puppet agent -t
