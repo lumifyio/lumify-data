@@ -216,8 +216,13 @@ define([
 
             if (updatingEntity) {
 
-                mentionNode.data('info', data.info);
-                // TODO: remove classes and reapply
+                mentionNode.data('info', data.info)
+                           .removeClass('subType-44')
+                           .removeClass('subType-52')
+                           .removeClass('subType-60')
+                           .removeClass('subType-68')
+                           .addClass(data.cssClasses.join(' '))
+                           .removeClass('focused');
 
             } else if (this.promoted) {
 
