@@ -204,7 +204,7 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    void initializeTable(String tableName) {
+    public void initializeTable(String tableName) {
         LOGGER.info("initializeTable: " + tableName);
         try {
             if (!connector.tableOperations().exists(tableName)) {

@@ -73,7 +73,7 @@ public class TermAndTermMentionOffsetItem extends OffsetItem implements Comparab
             JSONObject infoJson = super.getInfoJson();
             infoJson.put("title", getTitle());
             if (getSubType() != null) {
-                infoJson.put("subType", getSubType());
+                infoJson.put("_subType", getSubType());
             }
             return infoJson;
         } catch (JSONException e) {

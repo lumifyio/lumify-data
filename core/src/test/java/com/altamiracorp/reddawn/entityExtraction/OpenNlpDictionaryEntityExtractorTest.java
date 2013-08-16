@@ -12,6 +12,7 @@ import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,75 +21,37 @@ import org.junit.runners.JUnit4;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class)
-public class OpenNlpDictionaryEntityExtractorTest {
+public class OpenNlpDictionaryEntityExtractorTest extends BaseExtractorTest{
 
     private OpenNlpDictionaryEntityExtractor extractor;
     private Context context;
-    private String tokenizerModelFile = "en-token.bin";
-    private Map<String, String> finderDictionaryFiles = new HashMap<String, String>();
 
     private String text = "This is a sentence that is going to tell you about a guy named "
             + "Bob Robertson who lives in Boston, MA and works for a company called Altamira Corporation";
 
     @Before
     public void setUp() throws IOException {
-        setUpDictionaryFiles();
         context = mock(Context.class);
-        extractor = new OpenNlpDictionaryEntityExtractor() {
-
-            @Override
-            public void setup(Context context) throws IOException {
-                setFinders(loadFinders());
-                setTokenizer(loadTokenizer());
-            }
-
-            @Override
-            protected List<TokenNameFinder> loadFinders() throws IOException {
-                List<TokenNameFinder> finders = new ArrayList<TokenNameFinder>();
-                for (Entry<String, String> finderDictionaryFileEntry : finderDictionaryFiles.entrySet()) {
-                    InputStream finderDictionaryIn = Thread
-                            .currentThread()
-                            .getContextClassLoader()
-                            .getResourceAsStream(finderDictionaryFileEntry.getValue());
-                    Dictionary finderDictionary = new Dictionary(finderDictionaryIn);
-                    finders.add(new DictionaryNameFinder(finderDictionary, finderDictionaryFileEntry.getKey()));
-                }
-
-                return finders;
-            }
-
-            @Override
-            protected Tokenizer loadTokenizer() throws IOException {
-                InputStream tokenizerModelIn = Thread.currentThread()
-                        .getContextClassLoader()
-                        .getResourceAsStream(tokenizerModelFile);
-                TokenizerModel tokenizerModel = new TokenizerModel(tokenizerModelIn);
-                return new TokenizerME(tokenizerModel);
-            }
-        };
+        Configuration config = new Configuration();
+        config.set("nlpConfPathPrefix",Thread.currentThread().getContextClassLoader().getResource("fs/").toString());
+        when(context.getConfiguration()).thenReturn(config);
+        extractor = new OpenNlpDictionaryEntityExtractor();
     }
 
     @Test
     public void testEntityExtraction() throws Exception {
         extractor.setup(context);
-        ArtifactRowKey artifactRowKey = ArtifactRowKey.build(text.getBytes());
-        SentenceRowKey sentenceRowKey = new SentenceRowKey(artifactRowKey.toString(), 0, 100);
-        Sentence sentence = new Sentence(sentenceRowKey);
-        sentence.getData().setArtifactId(artifactRowKey.toString());
-        sentence.getData().setText(text);
-        sentence.getData().setStart(0L);
-        sentence.getData().setEnd(100L);
-        sentence.getMetadata().setArtifactSubject("testSubject");
-        sentence.getMetadata().setArtifactType(ArtifactType.DOCUMENT);
-        Collection<Term> terms = extractor.extract(sentence);
+        Collection<Term> terms = extractor.extract(createSentence(text));
         List<String> extractedTerms = new ArrayList<String>();
         for (Term term : terms) {
             extractedTerms.add(term.getRowKey().getSign() + "-" + term.getRowKey().getConceptLabel());
@@ -98,40 +61,23 @@ public class OpenNlpDictionaryEntityExtractorTest {
 
     @Test
     public void testEntityExtractionSetsMentionRelativeToArtifactNotSentence() throws Exception {
-        extractor.setup(context);
-        ArtifactRowKey artifactRowKey = ArtifactRowKey.build(text.getBytes());
-        SentenceRowKey sentenceRowKey = new SentenceRowKey(artifactRowKey.toString(), 100, 200);
-        Sentence sentence = new Sentence(sentenceRowKey);
-        sentence.getData().setArtifactId(artifactRowKey.toString());
-        sentence.getData().setText(text);
-        sentence.getData().setStart(100L);
-        sentence.getData().setEnd(200L);
-        sentence.getMetadata().setArtifactSubject("testSubject");
-        sentence.getMetadata().setArtifactType(ArtifactType.DOCUMENT);
-        Collection<Term> terms = extractor.extract(sentence);
+        extractor.setup(context);;
+        Collection<Term> terms = extractor.extract(createSentence(text));
         Term firstTerm = terms.iterator().next();
-        assertEquals("Altamira Corporation\u001FOpenNlpDictionary\u001FOrganization", firstTerm.getRowKey().toString());
+        assertEquals("Bob Robertson\u001FOpenNlpDictionary\u001FPerson",firstTerm.getRowKey().toString());
         TermMention firstTermMention = firstTerm.getTermMentions().get(0);
-        assertEquals((Long)232L, firstTermMention.getMentionStart());
-        assertEquals((Long)252L, firstTermMention.getMentionEnd());
+        assertEquals((Long)163L, firstTermMention.getMentionStart());
+        assertEquals((Long)176L, firstTermMention.getMentionEnd());
     }
 
     @Test
     public void testEntityExtractionSetsSecurityMarking() throws Exception {
         extractor.setup(context);
-        ArtifactRowKey artifactRowKey = ArtifactRowKey.build(text.getBytes());
-        SentenceRowKey sentenceRowKey = new SentenceRowKey(artifactRowKey.toString(), 100, 200);
-        Sentence sentence = new Sentence(sentenceRowKey);
-        sentence.getData().setArtifactId(artifactRowKey.toString());
-        sentence.getData().setText(text);
-        sentence.getData().setStart(100L);
-        sentence.getData().setEnd(200L);
+        Sentence sentence = createSentence(text);
         sentence.getMetadata().setSecurityMarking("U");
-        sentence.getMetadata().setArtifactSubject("testSubject");
-        sentence.getMetadata().setArtifactType(ArtifactType.DOCUMENT);
         Collection<Term> terms = extractor.extract(sentence);
         Term firstTerm = terms.iterator().next();
-        assertEquals("Altamira Corporation\u001FOpenNlpDictionary\u001FOrganization", firstTerm.getRowKey().toString());
+        assertEquals("Bob Robertson\u001FOpenNlpDictionary\u001FPerson",firstTerm.getRowKey().toString());
         TermMention firstTermMention = firstTerm.getTermMentions().get(0);
         assertEquals("U", firstTermMention.getSecurityMarking());
     }
@@ -140,13 +86,6 @@ public class OpenNlpDictionaryEntityExtractorTest {
         assertTrue("A person wasn't found", terms.contains("Bob Robertson-Person"));
         assertTrue("A location wasn't found", terms.contains("Boston , MA-Location"));
         assertTrue("An organization wasn't found", terms.contains("Altamira Corporation-Organization"));
-
-    }
-
-    private void setUpDictionaryFiles() {
-        finderDictionaryFiles.put("location", "en-ner-location.dict");
-        finderDictionaryFiles.put("person", "en-ner-person.dict");
-        finderDictionaryFiles.put("organization", "en-ner-organization.dict");
     }
 
 }

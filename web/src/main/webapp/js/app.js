@@ -218,8 +218,8 @@ define([
                         ),
                         graphNodeId: info.graphNodeId,
                         _rowKey: info._rowKey,
-                        _subType: info.subType,
-                        _type: info.type,
+                        _subType: info._subType,
+                        _type: info._type,
                         dropPosition: dropPosition
                     }];
 

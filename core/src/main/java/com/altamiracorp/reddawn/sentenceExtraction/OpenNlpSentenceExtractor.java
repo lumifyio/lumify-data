@@ -38,7 +38,7 @@ public class OpenNlpSentenceExtractor implements SentenceExtractor {
         String pathPrefix = context.getConfiguration().get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX);
         FileSystem fs = FileSystem.get(context.getConfiguration());
         setSentenceDetector(loadSentenceDetector(fs, pathPrefix));
-        maxLength = Integer.parseInt(context.getConfiguration().get(SENTENCE_LENGTH_LIMIT,DEFAULT_SENTENCE_LENGTH_LIMIT));
+        setMaxLength(Integer.parseInt(context.getConfiguration().get(SENTENCE_LENGTH_LIMIT,DEFAULT_SENTENCE_LENGTH_LIMIT)));
     }
 
     @Override

@@ -9,7 +9,9 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>core</artifactId>
+    <groupId>com.altamiracorp.reddawn</groupId>
+    
+	<artifactId>core</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>Core</name>
 
@@ -91,6 +93,12 @@
             <groupId>org.opencv</groupId>
             <artifactId>opencv</artifactId>
             <version>2.4.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.libphonenumber</groupId>
+            <artifactId>libphonenumber</artifactId>
+            <version>5.7</version>
         </dependency>
 
         <dependency>
