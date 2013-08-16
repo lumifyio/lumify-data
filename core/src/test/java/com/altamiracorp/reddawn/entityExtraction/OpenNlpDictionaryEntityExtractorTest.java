@@ -63,11 +63,16 @@ public class OpenNlpDictionaryEntityExtractorTest extends BaseExtractorTest{
     public void testEntityExtractionSetsMentionRelativeToArtifactNotSentence() throws Exception {
         extractor.setup(context);;
         Collection<Term> terms = extractor.extract(createSentence(text));
-        Term firstTerm = terms.iterator().next();
-        assertEquals("Bob Robertson\u001FOpenNlpDictionary\u001FPerson",firstTerm.getRowKey().toString());
-        TermMention firstTermMention = firstTerm.getTermMentions().get(0);
-        assertEquals((Long)163L, firstTermMention.getMentionStart());
-        assertEquals((Long)176L, firstTermMention.getMentionEnd());
+        boolean found = false;
+        for (Term term : terms) {
+            if (term.getRowKey().toString().equals("Bob Robertson\u001FOpenNlpDictionary\u001FPerson")) {
+                found = true;
+                assertEquals((Long)163L, term.getTermMentions().get(0).getMentionStart());
+                assertEquals((Long)176L, term.getTermMentions().get(0).getMentionEnd());
+                break;
+            }
+        }
+        assertTrue("Expected name not found!",found);
     }
 
     @Test
@@ -76,10 +81,15 @@ public class OpenNlpDictionaryEntityExtractorTest extends BaseExtractorTest{
         Sentence sentence = createSentence(text);
         sentence.getMetadata().setSecurityMarking("U");
         Collection<Term> terms = extractor.extract(sentence);
-        Term firstTerm = terms.iterator().next();
-        assertEquals("Bob Robertson\u001FOpenNlpDictionary\u001FPerson",firstTerm.getRowKey().toString());
-        TermMention firstTermMention = firstTerm.getTermMentions().get(0);
-        assertEquals("U", firstTermMention.getSecurityMarking());
+        boolean found = false;
+        for (Term term : terms) {
+            if (term.getRowKey().toString().equals("Bob Robertson\u001FOpenNlpDictionary\u001FPerson")) {
+                found = true;
+                assertEquals("U", term.getTermMentions().get(0).getSecurityMarking());
+                break;
+            }
+        }
+        assertTrue("Expected name not found!",found);
     }
 
     private void validateOutput(List<String> terms) {
