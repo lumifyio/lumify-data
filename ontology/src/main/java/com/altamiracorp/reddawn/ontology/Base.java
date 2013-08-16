@@ -15,9 +15,9 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.apache.commons.cli.CommandLine;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.awt.*;
+import java.util.*;
+import java.util.List;
 
 public abstract class Base extends RedDawnCommandLineBase {
     protected Map<String, TitanKey> properties = new HashMap<String, TitanKey>();
@@ -246,4 +246,64 @@ public abstract class Base extends RedDawnCommandLineBase {
 
         return propertyVertex;
     }
+
+    protected List<String> generateColorPalette(int number) {
+        List<String> palette = new ArrayList<String>(number);
+
+        float hue = 0f;
+        float inc = 1.0f / number;
+        for (int i = 0; i < number; i++) {
+            palette.add(toRGB(hue, 0.6f, 0.4f));
+            hue += inc;
+        }
+
+        return palette;
+    }
+
+    public static String toRGB(float h, float s, float l)
+    {
+       float q = 0;
+
+        if (l < 0.5)
+            q = l * (1 + s);
+        else
+            q = (l + s) - (s * l);
+
+        float p = 2 * l - q;
+
+        float r = Math.max(0, HueToRGB(p, q, h + (1.0f / 3.0f)));
+        float g = Math.max(0, HueToRGB(p, q, h));
+        float b = Math.max(0, HueToRGB(p, q, h - (1.0f / 3.0f)));
+
+        r = Math.min(r, 1.0f) * 255f;
+        g = Math.min(g, 1.0f) * 255f;
+        b = Math.min(b, 1.0f) * 255f;
+
+        return "rgb(" + (int)r + ", " + (int) g + ", " + (int) b + ")";
+    }
+
+    private static float HueToRGB(float p, float q, float h)
+    {
+        if (h < 0) h += 1;
+
+        if (h > 1 ) h -= 1;
+
+        if (6 * h < 1)
+        {
+            return p + ((q - p) * 6 * h);
+        }
+
+        if (2 * h < 1 )
+        {
+            return  q;
+        }
+
+        if (3 * h < 2)
+        {
+            return p + ( (q - p) * 6 * ((2.0f / 3.0f) - h) );
+        }
+
+        return p;
+    }
+
 }
