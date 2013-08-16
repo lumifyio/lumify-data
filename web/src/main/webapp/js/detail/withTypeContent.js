@@ -17,6 +17,20 @@ define(['service/ucd'], function(UCD) {
             this.$node.html('Loading...');
         });
 
+        this.classesForNode = function(node) {
+            var cls = [],
+                props = node.properties || node;
+
+            if (props._type == 'artifact') {
+                cls.push('artifact');
+                cls.push(props._subType);
+            } else {
+                cls.push('entity');
+                cls.push('subType-' + props._subType);
+            }
+            return cls.join(' ');
+        };
+
         this.cancel = function() {
             this._xhrs.forEach(function(xhr) {
                 if (xhr.state() !== 'complete') {
