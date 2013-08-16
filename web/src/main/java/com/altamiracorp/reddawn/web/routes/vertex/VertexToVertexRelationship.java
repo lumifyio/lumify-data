@@ -67,10 +67,10 @@ public class VertexToVertexRelationship implements Handler, AppAware {
         if (graphVertex.getProperty("title") != "") {
             obj.put(prefix + "Title", graphVertex.getProperty("title"));
         } else {
-            obj.put(prefix + "Title", graphVertex.getProperty("_type"));
+            obj.put(prefix + "Title", graphVertex.getProperty("_type").toString().toLowerCase());
         }
 
-        obj.put(prefix + "Type", graphVertex.getProperty("_type"));
+        obj.put(prefix + "Type", graphVertex.getProperty("_type").toString().toLowerCase());
         return obj;
     }
 }

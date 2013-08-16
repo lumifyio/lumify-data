@@ -25,12 +25,16 @@ if [ -d ${DIR}/../${dir} ]; then
   fi
 
   if [ "${run_mvn}" == 'true' ]; then
-    mvn_output="$(cd ${DIR}/.. && mvn clean package -Dmaven.test.skip=true)"
+    echo 'running maven to calculate the classpath...' >&2
+    mvn_output="$(cd ${DIR}/.. && mvn clean package -DskipTests)"
     mvn_exit=$?
     if [ ${mvn_exit} -ne 0 ]; then
       echo "${mvn_output}"
       exit ${mvn_exit}
     fi
+    echo 'maven finished.' >&2
+  else
+    echo 'not running maven, using cached classpath.' >&2
   fi
 
   if [ -f ${DIR}/../${dir}/target/.classpath ]; then
