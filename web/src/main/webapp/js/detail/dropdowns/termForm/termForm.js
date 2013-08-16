@@ -33,7 +33,7 @@ define([
 
             var info = $(this.attr.mentionNode).removeClass('focused').data('info');
             if (info) {
-                this.updateConceptLabel('subType-' + info._subType);
+                this.updateConceptLabel(info._subType);
             }
             
             // Remove extra textNodes
@@ -93,16 +93,17 @@ define([
             this.updateConceptLabel(select.val());
         };
 
-        this.updateConceptLabel = function(conceptLabel) {
+        this.updateConceptLabel = function(conceptId, node) {
             if (this.allConcepts && this.allConcepts.length) {
 
-                var node = $(this.promoted || this.attr.mentionNode),
+                node = $(node || this.promoted || this.attr.mentionNode);
+                var classPrefix = 'subType-',
                     labels = this.allConcepts.map(function(c) {
-                        return c.id;
+                        return classPrefix + c.id;
                     });
 
                 node.removeClass(labels.join(' '))
-                    .addClass(conceptLabel);
+                    .addClass(classPrefix + conceptId);
             }
         };
 
@@ -224,13 +225,8 @@ define([
 
             if (updatingEntity) {
 
-                mentionNode.data('info', data.info)
-                           .removeClass('subType-44')
-                           .removeClass('subType-52')
-                           .removeClass('subType-60')
-                           .removeClass('subType-68')
-                           .addClass(data.cssClasses.join(' '))
-                           .removeClass('focused');
+                this.updateConceptLabel(data.cssClasses.join(' '), mentionNode);
+                mentionNode.data('info', data.info).removeClass('focused');
 
             } else if (this.promoted) {
 

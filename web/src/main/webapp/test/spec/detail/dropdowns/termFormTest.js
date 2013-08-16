@@ -190,13 +190,13 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
 
             var span = this.$parentNode.find('span.entity');
 
-            this.component.select('conceptSelector').val('subType-1').change();
+            this.component.select('conceptSelector').val('1').change();
             expect(span.attr('class')).to
                 .contain('entity')
                 .contain('focused')
                 .contain('subType-1');
 
-            this.component.select('conceptSelector').val('subType-2').change();
+            this.component.select('conceptSelector').val('2').change();
             expect(span.attr('class')).to
                 .contain('subType-2')
                 .not.contain('subType-1');
