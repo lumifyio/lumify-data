@@ -1,5 +1,16 @@
 node "ip-10-0-3-10" {
-  notify { "i am the puppet master" : }
+  include buildtools::epel
+
+  package { "tinyproxy" :
+    ensure => present,
+    require => Exec["epel"],
+  }
+
+  service { "tinyproxy" :
+    enable => true,
+    ensure => running,
+    require => Package["tinyproxy"],
+  }
 }
 
 node "ip-10-0-3-50" {
