@@ -11,14 +11,17 @@ public class ArtifactDetectedObjects extends ColumnFamily {
 
     public static final String NAME = "atc:Artifact_Detected_Objects";
 
-
     public ArtifactDetectedObjects() {
         super(NAME);
     }
 
-    public void addDetectedObject(String concept, String model, int x1, int y1, int x2, int y2) {
+    public void addDetectedObject(String concept, String model, int x1, int y1, int x2, int y2, String time) {
         String columnName = RowKeyHelper.buildMinor(concept, model, Integer.toString(x1), Integer.toString(y1), Integer.toString(x2), Integer.toString(y2));
-        this.set(columnName, "");
+        this.set(columnName,time);
+    }
+
+    public void addDetectedObject(String concept, String model, int x1, int y1, int x2, int y2) {
+        this.addDetectedObject(concept, model, x1, y1, x2, y2, "");
     }
 
     @Override

@@ -47,7 +47,7 @@ public abstract class Session {
     abstract List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser,
                                                                                 long colFamOffset, long colFamLimit, String colFamRegex);
 
-    abstract void initializeTable(String tableName);
+    public abstract void initializeTable(String tableName);
 
     public abstract void deleteTable(String tableName);
 
