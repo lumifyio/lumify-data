@@ -140,7 +140,7 @@ define([
                 locations.forEach(function(location) {
                     var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
                     var marker = new mxn.Marker(pt);
-                    marker.setAttribute('_rowKey', node._rowKey);
+                    marker.setAttribute('graphNodeId', node.graphNodeId);
                     if (retina.devicePixelRatio > 1) {
                         marker.setIcon('/img/small_pin@2x.png', [26, 52], [13, 52]);
                     } else {
@@ -196,7 +196,7 @@ define([
             this.map(function(map) {
                 map.markers
                     .filter(function(marker) {
-                        return marker.getAttribute('_rowKey') == node._rowKey;
+                        return marker.getAttribute('graphNodeId') == node.graphNodeId;
                     })
                     .forEach(function(marker) {
                         map.removeMarker(marker);
