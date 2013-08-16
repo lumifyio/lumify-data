@@ -27,7 +27,12 @@ public abstract class GraphVertex {
             json.put("id", getId());
             JSONObject propertiesJson = new JSONObject();
             for (String key : getPropertyKeys()) {
-                propertiesJson.put(key, getProperty(key));
+                if (key.equals("_type")){
+                    propertiesJson.put(key, getProperty(key).toString().toLowerCase());
+                }
+                else {
+                    propertiesJson.put(key, getProperty(key));
+                }
             }
             json.put("properties", propertiesJson);
             return json;
