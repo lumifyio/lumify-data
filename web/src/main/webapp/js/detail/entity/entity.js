@@ -137,7 +137,6 @@ define([
         this.onDetailedObjectClicked = function(evt) {
             var self = this;
             var $target = $(evt.target);
-console.log ('onDetailedObjectClicked -> data', $target.data('info'));
             this.trigger(document, 'searchResultSelected', $target.data('info'));
 
             evt.stopPropagation();
