@@ -113,13 +113,17 @@ define([
                 sign = this.attr.sign || mentionNode.text(),
                 data = mentionNode.data('info'),
                 title = $.trim(data && data.title || ''),
-                existingEntity = mentionNode.addClass('focused').hasClass('entity'),
+                existingEntity = this.attr.existing ? mentionNode.addClass('focused').hasClass('entity') : false,
                 objectSign = '';
 
             this.graphNodeId = data && data.graphNodeId;
 
             if (this.attr.selection && !existingEntity) {
+                this.trigger(document, 'ignoreSelectionChanges.detail');
                 this.promoted = this.promoteSelectionToSpan();
+                setTimeout(function() {
+                    self.trigger(document, 'resumeSelectionChanges.detail');
+                }, 10);
             }
 
             if (mentionNode.hasClass('resolved')) {
@@ -243,13 +247,13 @@ define([
                 el,
                 tempTextNode;
 
-            range.startContainer.splitText(range.startOffset);
-            if (range.endOffset < range.endContainer.textContent.length) {
-                range.endContainer.splitText(range.endOffset);
-            }
 
             var span = document.createElement('span');
             span.className = 'entity focused';
+
+            var newRange = document.createRange();
+            newRange.setStart(range.startContainer, range.startOffset);
+            newRange.setEnd(range.endContainer, range.endOffset);
 
             // Special case where the start/end is inside an inner span
             // (surroundsContents will fail so expand the selection
@@ -258,11 +262,11 @@ define([
                 var previous = el.previousSibling;
 
                 if (previous && previous.nodeType === 3) {
-                    range.setStart(previous, previous.textContent.length);
+                    newRange.setStart(previous, previous.textContent.length);
                 } else {
                     tempTextNode = document.createTextNode('');
                     el.parentNode.insertBefore(tempTextNode, el);
-                    range.setStart(tempTextNode, 0);
+                    newRange.setStart(tempTextNode, 0);
                 }
             }
             if (/entity/.test(range.endContainer.parentNode.className)) {
@@ -270,7 +274,7 @@ define([
                 var next = el.nextSibling;
 
                 if (next && next.nodeType === 3) {
-                    range.setEnd(next, 0);
+                    newRange.setEnd(next, 0);
                 } else {
                     tempTextNode = document.createTextNode('');
                     if (next) {
@@ -278,10 +282,10 @@ define([
                     } else {
                         el.appendChild(tempTextNode);
                     }
-                    range.setEnd(tempTextNode, 0);
+                    newRange.setEnd(tempTextNode, 0);
                 }
             }
-            range.surroundContents(span);
+            newRange.surroundContents(span);
 
             return $(span).find('.entity').addClass('focused').end();
         };

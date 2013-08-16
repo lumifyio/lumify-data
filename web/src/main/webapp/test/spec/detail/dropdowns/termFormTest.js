@@ -1,6 +1,10 @@
 
 describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
 
+    afterEach(function() {
+        this.$parentNode.remove();
+    });
+
     beforeEach(function() {
         var self = this;
 
@@ -151,6 +155,15 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
             expect(this.$parentNode.find('.entity').eq(1).attr('class')).to
                 .contain('entity')
                 .not.contain('focused');
+        });
+
+        it("should accept selections with existing entity at the start", function() {
+
+            this.setupParentForSelection('Some text before <span class="entity subType-2">Jo[hnny</span> Appleseed] is a person');
+
+            expect(this.parentNode.childNodes[0].textContent).to.equal('Some text before ');
+            expect(this.parentNode.childNodes[1].innerHTML).to.equal('<span class="entity subType-2 focused">Johnny</span> Appleseed');
+
         });
 
         it("should accept selections that don't encompass an inner span", function() {
