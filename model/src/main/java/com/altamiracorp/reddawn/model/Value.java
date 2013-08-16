@@ -28,6 +28,10 @@ public class Value {
             return longToBytes((Long) value);
         }
 
+        if (value instanceof Integer) {
+            return intToBytes((Integer)value);
+        }
+
         if (value instanceof Double) {
             return doubleToBytes((Double) value);
         }
@@ -59,6 +63,10 @@ public class Value {
         return ByteBuffer.allocate(8).putLong(value).array();
     }
 
+    private byte[] intToBytes(Integer value) {
+        return ByteBuffer.allocate(4).putInt(value).array();
+    }
+
     public byte[] toBytes() {
         return this.value;
     }
@@ -75,6 +83,13 @@ public class Value {
             throw new RuntimeException("toDouble failed. Expected 8 bytes found " + this.value.length);
         }
         return ByteBuffer.wrap(this.value).getDouble();
+    }
+
+    public Integer toInteger() {
+        if (this.value.length != 4) {
+            throw new RuntimeException("toInteger failed. Expected 4 bytes found " + this.value.length);
+        }
+        return ByteBuffer.wrap(this.value).getInt();
     }
 
     @Override
@@ -108,6 +123,13 @@ public class Value {
             return null;
         }
         return value.toDouble();
+    }
+
+    public static Integer toInteger (Value value) {
+        if (value == null) {
+            return null;
+        }
+        return value.toInteger();
     }
 
     public static JSONObject toJson(Value value) {
