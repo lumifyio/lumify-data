@@ -38,6 +38,7 @@ class tesseract($prefix="/usr/local", $tmpdir="/usr/local/src") {
     cwd     => $srcdir,
     command => $cmd,
     environment => "PKG_CONFIG_PATH=${prefix}/lib/pkgconfig",
+    timeout => 0,
     creates => "${prefix}/lib/libtesseract.a",
     require => Macro::Extract['extract-tesseract'],
   }
