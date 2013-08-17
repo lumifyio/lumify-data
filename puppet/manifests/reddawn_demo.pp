@@ -14,6 +14,12 @@ node "ip-10-0-3-10" {
     require => Package["tinyproxy"],
   }
 
+  exec { "tinyproxy-configure-loglevel" :
+    command => "/bin/sed -i 's/LogLevel Info/LogLevel Connect/' /etc/tinyproxy/tinyproxy.conf",
+    unless => "/bin/grep -q 'LogLevel Connect' /etc/tinyproxy/tinyproxy.conf",
+    require => Package["tinyproxy"],
+  }
+
   exec { "tinyproxy-configure-allow" :
     command => "/bin/sed -i 's|Allow 127.0.0.1|Allow 10.0.3.0/24|' /etc/tinyproxy/tinyproxy.conf",
     unless => "/bin/grep -q 'Allow 10.0.3.0/24' /etc/tinyproxy/tinyproxy.conf",
