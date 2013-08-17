@@ -15,7 +15,7 @@ class ffmpeg ($prefix="/usr/local", $tmpdir="/usr/local/src") {
   macro::git-clone { "ffmpeg-clone":
     url     => "http://git.videolan.org/git/ffmpeg.git",
     path    => $srcdir,
-    options => "--depth 1",
+    timeout => 600,
   }
 
   macro::git-checkout { 'ffmpeg-checkout':

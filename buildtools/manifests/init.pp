@@ -53,6 +53,10 @@ class buildtools($tmpdir="/usr/local/src") {
     ensure => present,
   }
 
+  package { 'unzip':
+    ensure => present,
+  }
+
   macro::download { 'ant-download':
     url  => "http://www.us.apache.org/dist/ant/binaries/apache-ant-${antVersion}-bin.tar.gz",
     path => "${tmpdir}/apache-ant-${antVersion}-bin.tar.gz",

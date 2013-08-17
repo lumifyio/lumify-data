@@ -68,7 +68,7 @@ class macro {
     }
   }
 
-  define git-clone ($url = $title, $options = "", $path) {
+  define git-clone ($url = $title, $options = "", $path, $timeout = 300) {
     $hiera_proxy_url = hiera('proxy_url', nil)
     if ($hiera_proxy_url != nil) {
       $git_environment = "http_proxy=${hiera_proxy_url}"
@@ -79,6 +79,7 @@ class macro {
     exec { "git clone ${options} ${url}" :
       command => "/usr/bin/git clone ${options} ${url} ${path}",
       environment => "${git_environment}",
+      timeout => ${timeout},
       creates => "${path}/.git",
       require => Package['git'],
     }

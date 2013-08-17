@@ -7,7 +7,6 @@ class ffmpeg::x264($prefix="/usr/local", $tmpdir="/usr/local/src") {
   macro::git-clone { "x264-clone":
     url     => "http://git.videolan.org/git/x264.git",
     path    => $srcdir,
-    options => "--depth 1",
   }
 
   macro::git-checkout { 'x264-checkout':
