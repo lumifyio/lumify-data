@@ -56,5 +56,5 @@ node "ip-10-0-3-103" {
 }
 
 node "ip-10-0-3-200" {
-  include role::webapp
+  include role::web::server
 }

@@ -1,3 +1,3 @@
-class role::webapp {
+class role::web::server {
   notify { "i will run the webapp" : }
 }
