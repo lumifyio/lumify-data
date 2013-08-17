@@ -13,7 +13,7 @@ class ffmpeg ($prefix="/usr/local", $tmpdir="/usr/local/src") {
   $bindir = "${prefix}/bin"
 
   macro::git-clone { "ffmpeg-clone":
-    url     => "git://source.ffmpeg.org/ffmpeg",
+    url     => "http://git.videolan.org/git/ffmpeg.git",
     path    => $srcdir,
     options => "--depth 1",
   }

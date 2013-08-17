@@ -5,7 +5,7 @@ class ffmpeg::libfdkaac($prefix="/usr/local", $tmpdir="/usr/local/src") {
   $srcdir = "${tmpdir}/fdk-aac"
 
   macro::git-clone { "libfdkaac-clone":
-    url     => "git://github.com/mstorsjo/fdk-aac.git",
+    url     => "http://github.com/mstorsjo/fdk-aac.git",
     path    => $srcdir,
     options => "--depth 1",
   }

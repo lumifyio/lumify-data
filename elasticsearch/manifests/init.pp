@@ -116,7 +116,7 @@ class elasticsearch(
   }
 
   macro::git-clone { "elasticsearch-servicewrapper-clone":
-    url     => "git://github.com/elasticsearch/elasticsearch-servicewrapper.git",
+    url     => "http://github.com/elasticsearch/elasticsearch-servicewrapper.git",
     path    => "${tmpdir}/elasticsearch-servicewrapper",
     options => "--depth 1",
   }
