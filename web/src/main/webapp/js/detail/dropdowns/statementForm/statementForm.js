@@ -2,9 +2,10 @@ define([
     'flight/lib/component',
     '../withDropdown',
     'tpl!./statementForm',
+    'tpl!./relationship-options',
     'service/statement',
     'underscore'
-], function (defineComponent, withDropdown, statementFormTemplate, StatementService, _) {
+], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, StatementService, _) {
     'use strict';
 
     return defineComponent(StatementForm, withDropdown);
@@ -20,7 +21,8 @@ define([
             termLabelsSelector: '.src-term span, .dest-term span',
             createStatementButtonSelector: '.create-statement',
             statementLabelSelector: '.statement-label',
-            invertAnchorSelector: 'a.invert'
+            invertAnchorSelector: 'a.invert',
+            relationshipSelector: 'select'
         });
 
         this.after('initialize', function () {
@@ -29,7 +31,6 @@ define([
                 dest: this.attr.destTerm.text()
             }));
 
-
             this.applyTermClasses(this.attr.sourceTerm, this.select('sourceTermSelector'));
             this.applyTermClasses(this.attr.destTerm, this.select('destTermSelector'));
 
@@ -37,7 +38,7 @@ define([
             this.attr.destTerm.addClass('focused');
 
             this.select('createStatementButtonSelector').attr('disabled', true);
-            this.setupLabelTypeAhead();
+            this.getRelationshipLabels ();
 
             this.on('click', {
                 createStatementButtonSelector: this.onCreateStatement,
@@ -68,14 +69,19 @@ define([
             applyToElement.addClass('concepticon-' + el.data('info')._subType);
         };
 
-        this.onInputChange = function (e) {
+        this.onSelection = function (e) {
+            if (this.select('relationshipSelector').val() == ''){
+                this.select('createStatementButtonSelector')
+                                .attr('disabled', true);
+                return;
+            }
             this.select('createStatementButtonSelector')
-                .attr('disabled', $.trim($(e.target).val()).length === 0);
+                .attr('disabled', false);
         };
 
         this.onOpened = function () {
-            this.select('statementLabelSelector')
-                .on('change keyup', this.onInputChange.bind(this))
+            this.select('relationshipSelector')
+                .on('change', this.onSelection.bind(this))
                 .focus();
         };
 
@@ -90,7 +96,7 @@ define([
                 parameters = {
                     sourceGraphNodeId: this.attr.sourceTerm.data('info').graphNodeId,
                     destGraphNodeId: this.attr.destTerm.data('info').graphNodeId,
-                    predicateLabel: this.select('statementLabelSelector').val()
+                    predicateLabel: this.select('relationshipSelector').val()
                 };
 
             if (this.select('formSelector').hasClass('invert')) {
@@ -109,27 +115,20 @@ define([
             });
         };
 
-        this.setupLabelTypeAhead = function () {
+        this.getRelationshipLabels = function () {
             var self = this;
-
-            self.select('statementLabelSelector').typeahead({
-                source: function (query, callback) {
-                    var sourceConceptTypeId = self.attr.sourceTerm.data('info')._subType;
-                    var destConceptTypeId = self.attr.destTerm.data('info')._subType;
-                    self.statementService.relationships(sourceConceptTypeId, destConceptTypeId, function (err, results) {
-                        if (err) {
-                            console.error('Error', err);
-                            callback([]);
-                            return self.trigger(document, 'error', { message: err.toString() });
-                        }
-
-                        console.log('relationships results:', results);
-                        callback(results.relationships.map(function (p) {
-                            return p.title;
-                        }));
-                    });
-                    return;
+            var sourceConceptTypeId = self.attr.sourceTerm.data('info')._subType;
+            var destConceptTypeId = self.attr.destTerm.data('info')._subType;
+            self.statementService.relationships (sourceConceptTypeId, destConceptTypeId, function (err, results){
+                if (err) {
+                    console.error ('Error', err);
+                    return self.trigger (document, 'error', { message: err.toString () });
                 }
+
+                console.log ('relationships results', results);
+                self.select('relationshipSelector').html(relationshipTypeTemplate({
+                    relationships: results.relationships || ''
+                }));
             });
         };
     }
