@@ -94,6 +94,11 @@ define([
         };
 
         this.updateConceptLabel = function(conceptLabel) {
+            if (conceptLabel == '') {
+                this.select('createTermButtonSelector').attr('disabled', true);
+                return;
+            }
+            this.select('createTermButtonSelector').attr('disabled', false);
             if (this.allConcepts && this.allConcepts.length) {
 
                 var node = $(this.promoted || this.attr.mentionNode),
@@ -164,6 +169,10 @@ define([
                     concepts: self.allConcepts,
                     selectedConceptId: mentionNodeInfo && mentionNodeInfo._subType || ''
                 }));
+
+                if (self.select('conceptSelector').val() == '') {
+                    self.select('createTermButtonSelector').attr('disabled', true);
+                }
             });
         };
 
