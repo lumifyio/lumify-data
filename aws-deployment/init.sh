@@ -36,6 +36,8 @@ rule_number=$(iptables -L -n --line-numbers | awk '/tcp dpt:22/ {print $1}')
 iptables -I INPUT ${rule_number} -p tcp -m state --state NEW -m tcp --dport 8080 -j ACCEPT
 service iptables save
 
+# TODO: firewall rules for the cluster services
+
 heading 'configure puppet'
 cat >> /etc/puppet/puppet.conf <<EO_PUPPET_CONF
 
