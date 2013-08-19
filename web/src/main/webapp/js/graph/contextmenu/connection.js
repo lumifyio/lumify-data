@@ -145,7 +145,7 @@ define([
                                     input = $(connectionTemplate({})).appendTo('body')
                                         .css({
                                             left: (center.left - 50) + 'px',
-                                            top: (center.top - 15) + 'px',
+                                            top: (center.top - 25) + 'px',
                                             width: '175px',
                                             position: 'absolute',
                                             zIndex: 100,
