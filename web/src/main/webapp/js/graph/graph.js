@@ -319,7 +319,6 @@ define([
             data.padding.l += border;
             data.padding.t += border;
             data.padding.b += border;
-            console.log('updating', this.graphPadding);
             this.graphPadding = data.padding;
         };
 
@@ -637,8 +636,6 @@ define([
                 data = data[0];
             }
 
-            console.log('Getting related nodes for:', data);
-
             var xOffset = 100, yOffset = 100;
             var x = data.originalPosition.x;
             var y = data.originalPosition.y;
@@ -664,11 +661,7 @@ define([
                     });
                 });
 
-                console.log('trigger nodes', nodes);
-
-                self.trigger(document, 'addNodes', {
-                    nodes: nodes
-                });
+                self.trigger(document, 'addNodes', { nodes: nodes });
             });
         };
 
