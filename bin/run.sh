@@ -9,6 +9,7 @@ done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 import_directory=${DIR}/../data/import
+import_zipfile=""
 minimum_n=0
 
 while [ $# -gt 0 ]; do
@@ -16,11 +17,11 @@ while [ $# -gt 0 ]; do
   if [ $? -eq 0 ]; then
     minimum_n="$1"
   else
-    import_directory="$1"
+    import_directory="$2"
+    import_zipfile="$1"
   fi
   shift
 done
-
 for step in $(ls ${DIR}/[0-9][0-9][0-9]_*.sh | sort); do
   step_n=$(basename ${step} | awk -F _ '{print $1}')
   [ ${step_n} -ge ${minimum_n} ] || continue
@@ -33,7 +34,7 @@ for step in $(ls ${DIR}/[0-9][0-9][0-9]_*.sh | sort); do
 
   echo "${step}" | grep -Eq '_FileImport.sh$'
   if [ $? -eq 0 ]; then
-    time ${step} ${import_directory}
+    time ${step} ${import_zipfile} ${import_directory}
   else
     time ${step}
   fi
