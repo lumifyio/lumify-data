@@ -100,7 +100,7 @@ public class TermRepository extends Repository<Term> {
         vertex.setProperty(PropertyName.ROW_KEY.toString(), term.getRowKey().toString());
         vertex.setProperty(PropertyName.COLUMN_FAMILY_NAME.toString(), termMention.getColumnFamilyName());
         vertex.setProperty(PropertyName.TITLE.toString(), term.getRowKey().getSign());
-        vertex.setProperty(PropertyName.SOURCE.toString(), termMention.getArtifactSubject());
+        vertex.setProperty(PropertyName.SOURCE.toString(), termMention.getArtifactSubject() == null ? "" : termMention.getArtifactSubject());
 
         String vertexId = graphSession.save(vertex);
         if (!vertexId.equals(oldGraphVertexId) || !termMention.getGraphSubTypeVertexeId().equals(conceptId)) {
