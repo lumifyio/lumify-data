@@ -49,7 +49,10 @@ define([
 
                 this.after('initialize', function() {
                     this.entityService.concepts = function(callback) {
-                        callback(undefined, {children:[{id:1, title:'First'}, {id:2, title:'Second'}]});
+                        callback(undefined, {children:[
+                            {id:1, title:'First', color:'rgb(255,0,0)', glyphIconHref:'first-icon'}, 
+                            {id:2, title:'Second', color:'rgb(0,0,255)', glyphIconHref:'second-icon'}
+                        ]});
                     };
                 });
 
@@ -91,6 +94,37 @@ define([
                 };
             }
         });
+
+
+
+        it("should highlight artifacts", function(done) {
+            this.component.$node.html('<span class="artifact"></span>');
+
+            setTimeout(function() {
+                var e = this.component.$node.find('.artifact');
+
+                expect(e.eq(0).css('border-bottom-color')).to.equal('rgb(255, 0, 0)');
+
+                done();
+            }.bind(this), 500);
+        });
+
+
+        it("should highlight entities", function(done) {
+            this.component.$node.html('<span class="entity subType-1"></span>');
+            this.component.$node.append('<span class="entity subType-2"></span>');
+            setTimeout(function() {
+                var e = this.component.$node.find('.entity');
+
+                expect(e.eq(0).css('border-bottom-color')).to.equal('rgb(255, 0, 0)');
+                expect(e.eq(1).css('border-bottom-color')).to.equal('rgb(0, 0, 255)');
+
+                done();
+            }.bind(this), 500);
+        });
+
+
+
 
         it('should create dropdown after selection', function(done) {
             

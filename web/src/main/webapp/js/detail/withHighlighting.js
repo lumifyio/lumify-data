@@ -144,30 +144,28 @@ define([
                                         HOVER: 1,
                                         DIM: 2
                                     },
+                                    className = concept.className || 'entity.subType-' + concept.id,
                                     definition = function(state) {
                                         return tpl({ STATES:STATES, state:state, concept:concept, colorjs:colorjs });
                                     };
 
-                                // TODO: add 1) drop-hover style for statement
-                                // creation, 2) icons, 3) focused style
-
                                 // Dim 
                                 // (when dropdown is opened and it wasn't this entity)
                                 stylesheet.addRule(
-                                    '.highlight-' + style.selector + ' .dropdown .entity.subType-' + concept.id,
+                                    '.highlight-' + style.selector + ' .dropdown .' + className,
                                     definition(STATES.DIM)
                                 );
 
                                 // Default style (or focused)
                                 stylesheet.addRule(
-                                    '.highlight-' + style.selector + ' .entity.subType-' + concept.id + ',' +
-                                    '.highlight-' + style.selector + ' .dropdown .focused.subType-' + concept.id,
+                                    '.highlight-' + style.selector + ' .' + className +',' +
+                                    '.highlight-' + style.selector + ' .dropdown .focused.' + className,
                                     definition(STATES.NORMAL)
                                 );
 
                                 // Drag-drop hover
                                 stylesheet.addRule(
-                                    '.highlight-' + style.selector + ' .drop-hover.subType-' + concept.id,
+                                    '.highlight-' + style.selector + ' .drop-hover.' + className,
                                     definition(STATES.HOVER)
                                 );
 
@@ -178,6 +176,15 @@ define([
                             }
                         }
                         apply(concepts);
+
+                        // Artifacts
+                        apply({
+                            id: 'artifact',
+                            className: 'artifact',
+                            color: 'rgb(255,0,0)',
+                            glyphIconHref: '/img/glyphicons/glyphicons_036_file@2x.png'
+                        });
+
                         style.styleApplied = true;
                     });
                 });
