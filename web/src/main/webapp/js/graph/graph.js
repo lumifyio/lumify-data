@@ -197,6 +197,53 @@ define([
             });
         };
 
+        this.onExistingNodesAdded = function(evt, data) {
+            var self = this;
+            this.cy(function(cy) {
+
+                // FIXME: support multiple dragging
+                var el = cy.getElementById( data.nodes[0].graphNodeId ),
+                    p = retina.pixelsToPoints(el.renderedPosition()),
+                    dragging = $('.ui-draggable-dragging:not(.clone-node)'),
+                    position = dragging.position(),
+                    offset = dragging.offset(),
+                    graphOffset = this.$node.offset();
+
+                if (dragging.length != 1) return;
+
+                var cloned = dragging.clone()
+                    .css({width:'auto'})
+                    .addClass('clone-node')
+                    .insertAfter(dragging);
+
+                // Is existing element visible (not covered by search/detail panes)
+                this.focusGraphToNode(el, function() {
+                    var p = retina.pixelsToPoints(el.renderedPosition());
+
+                    // Adjust rendered position to page coordinate system
+                    p.x += graphOffset.left;
+                    p.y += graphOffset.top;
+
+                    // Move draggable coordinates from top/left to center
+                    offset.left += cloned.outerWidth(true) / 2;
+                    offset.top += cloned.outerHeight(true) / 2;
+
+                    cloned
+                        .animate({
+                            left: (position.left + (p.x-offset.left))  + 'px',
+                            top: (position.top +  (p.y-offset.top)) + 'px'
+                        }, {
+                            complete: function() {
+                                cloned.addClass('shrink');
+                                _.delay(function() { 
+                                    cloned.remove(); 
+                                }, 1000); 
+                            }
+                        });
+                });
+            });
+        };
+
 
 
         this.onContextMenuZoom = function(level) {
@@ -249,28 +296,37 @@ define([
         };
 
         this.fit = function() {
-            this.trigger(document, 'requestGraphPadding');
-        };
-
-        this.onGraphPadding = function(e, data) {
             this.cy(function(cy) {
                 if( cy.elements().size() === 0 ){
                     cy.reset();
-                } else {
-                    var border = 20;
-                    data.padding.r += this.select('graphToolsSelector').outerWidth(true);
-                    data.padding.l += border;
-                    data.padding.t += border;
-                    data.padding.b += border;
-
+                } else if (this.graphPadding) {
                     // Temporarily adjust max zoom 
                     // prevents extreme closeup when one node
                     var maxZoom = cy._private.maxZoom;
                     cy._private.maxZoom *= 0.5;
-                    cy.fit(undefined, data.padding);
+                    cy.fit(undefined, $.extend({}, this.graphPadding));
                     cy._private.maxZoom = maxZoom;
                 }
             });
+        };
+
+        this.onGraphPaddingUpdated = function(e, data) {
+            var border = 20;
+            this.graphPaddingRight = data.padding.r;
+            this.updatePanZoomLocation();
+
+            data.padding.r += this.select('graphToolsSelector').outerWidth(true);
+            data.padding.l += border;
+            data.padding.t += border;
+            data.padding.b += border;
+            console.log('updating', this.graphPadding);
+            this.graphPadding = data.padding;
+        };
+
+        this.updatePanZoomLocation = function() {
+            if (this.panZoom) {
+                this.panZoom.css({ right: (this.graphPaddingRight||0) + 'px' });
+            }
         };
 
         this.onContextMenuLayout = function(layout, opts) {
@@ -302,6 +358,37 @@ define([
                 }, LAYOUT_OPTIONS[layout] || {});
 
                 cy.layout(opts);
+            });
+        };
+
+
+        this.focusGraphToNode = function(el, callback) {
+            var position = retina.pixelsToPoints(el.renderedPosition()),
+                padding = $.extend({}, this.graphPadding),
+                extraHPadding = el.width() / 2 + 5,
+                extraVPadding = el.height() / 2 + 5,
+                width = this.$node.width(),
+                height = this.$node.height(),
+                panToView = { x:0, y:0 };
+
+            padding.l += extraHPadding; padding.r += extraHPadding; 
+            padding.t += extraVPadding; padding.b += extraVPadding;
+
+            if (position.x < padding.l) {
+                panToView.x = padding.l - position.x;
+            } else if (position.x > width - padding.r) {
+                panToView.x = (width - padding.r) - position.x;
+            }
+
+            if (position.y < padding.t) {
+                panToView.y = padding.t - position.y;
+            } else if (position.y > height - padding.b) {
+                panToView.y = (height - padding.b) - position.y;
+            }
+
+            this.cy(function(cy) {
+                cy.panBy(retina.pointsToPixels(panToView));
+                callback();
             });
         };
 
@@ -601,8 +688,9 @@ define([
             this.on(document, 'nodesAdded', this.onNodesAdded);
             this.on(document, 'nodesDeleted', this.onNodesDeleted);
             this.on(document, 'nodesUpdated', this.onNodesUpdated);
+            this.on(document, 'existingNodesAdded', this.onExistingNodesAdded);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
-            this.on(document, 'graphPaddingResponse', this.onGraphPadding);
+            this.on(document, 'graphPaddingUpdated', this.onGraphPaddingUpdated);
             this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);
 
             stylesheet(function(style) {
@@ -657,13 +745,9 @@ define([
                         self.fit();
                     });
 
-                    var panZoom = self.select('graphToolsSelector');
-                    self.on(document, 'detailPaneResize', function(e, data) {
-                        panZoom.css({
-                            right: data.width + 'px'
-                        });
-                    });
-
+                    self.panZoom = self.select('graphToolsSelector');
+                    self.updatePanZoomLocation();
+                    
                     cy.on({
                         tap: self.graphTap.bind(self),
                         cxttap: self.graphContextTap.bind(self),

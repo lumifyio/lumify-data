@@ -158,9 +158,9 @@ define([
         };
 
         this.onShowSearchResults = function(evt, data) {
-            console.log("Showing search results: ", data);
+            var self = this,
+                $searchResults = this.select('searchResultsSelector');
 
-            var $searchResults = this.select('searchResultsSelector');
             data.results = this.searchResults[data._type][data._subType] || [];
 
             data.results.forEach(function(result) {
@@ -188,7 +188,10 @@ define([
             // Add splitbar to search results
             $searchResults.resizable({
                 handles: 'e',
-                minWidth: 50
+                minWidth: 50,
+                resize: function() {
+                    self.trigger(document, 'paneResized');
+                }
             });
             
             // Update content
