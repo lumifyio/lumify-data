@@ -107,6 +107,7 @@ public class FileImport extends RedDawnCommandLineBase {
                         .withArgName("zipfile")
                         .create()
         );
+
         return options;
     }
 

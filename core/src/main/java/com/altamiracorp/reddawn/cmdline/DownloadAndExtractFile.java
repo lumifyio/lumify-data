@@ -85,6 +85,7 @@ System.out.println("Args:" + args[1]);
                         .withArgName("path")
                         .create()
         );
+
         options.addOption(
                 OptionBuilder
                         .withArgName("z")

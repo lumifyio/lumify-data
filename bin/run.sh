@@ -22,7 +22,6 @@ while [ $# -gt 0 ]; do
   fi
   shift
 done
-
 for step in $(ls ${DIR}/[0-9][0-9][0-9]_*.sh | sort); do
   step_n=$(basename ${step} | awk -F _ '{print $1}')
   [ ${step_n} -ge ${minimum_n} ] || continue

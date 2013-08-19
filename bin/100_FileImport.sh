@@ -26,6 +26,7 @@ else
   ip=192.168.33.10
 fi
 
+
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
