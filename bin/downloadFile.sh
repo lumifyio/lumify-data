@@ -20,6 +20,7 @@ else
   dir=${DIR}/../data/import
 fi
 
+
 if [ "${VIRTUALIZATION_DISABLED}" = 'true' ]; then
   ip=$(ifconfig eth0 | awk -F ':| +' '/inet addr/ {print $4}')
 else
@@ -29,7 +30,7 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.cmdline.FileImport \
+com.altamiracorp.reddawn.cmdline.DownloadAndExtractFile \
 --directory=${dir} \
 --zipfile=$1 \
 --zookeeperInstanceName=reddawn \
