@@ -76,9 +76,6 @@ EO_YUM_CONF
   ssh ${SSH_OPTS} ${other_host} yum -y install puppet
   ssh ${SSH_OPTS} ${other_host} chkconfig puppet on
 
-  heading "${other_host}: run puppet once in the forground"
-  ssh ${SSH_OPTS} ${other_host} 'puppet agent -t || true'
-
-  heading "${other_host}: run puppet as a service"
-  ssh ${SSH_OPTS} ${other_host} service puppet start
+  heading "${other_host}: run_puppet.sh
+  ./run_puppet.sh ${other_host} > run_puppet.${other_host}.log &
 done
