@@ -63,6 +63,7 @@ public class Dev extends Base {
         getOrCreateRelationshipType(graph, person, location, "livesAt");
         getOrCreateRelationshipType(graph, org, location, "headquarteredAt");
         getOrCreateRelationshipType(graph, org, emailAddress, "hasEmailAddress");
+        getOrCreateRelationshipType(graph, org, phoneNumber, "hasPhoneNumber");
         getOrCreateRelationshipType(graph, person, emailAddress, "hasEmailAddress");
         getOrCreateRelationshipType(graph, person, phoneNumber, "hasPhoneNumber");
 
