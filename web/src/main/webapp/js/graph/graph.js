@@ -275,7 +275,7 @@ define([
                 _type : menu.data("currentNodeType")
             };
             return data;
-        }
+        };
 
         this.onContextMenuDeleteEdge = function () {
             var menu = this.select('edgeContextMenuSelector');
@@ -287,9 +287,9 @@ define([
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
                     cy.remove (cy.getElementById (edgeId));
-                })
+                });
             });
-        }
+        };
 
         this.onContextMenuFitToWindow = function() {
             this.fit();
@@ -610,7 +610,7 @@ define([
 
         this.onRelationshipsLoaded = function(evt, relationshipData) {
             this.cy(function(cy) {
-                if (relationshipData.relationships != null){
+                if (relationshipData.relationships) {
                     var relationshipEdges = [];
                     relationshipData.relationships.forEach(function(relationship) {
                         relationshipEdges.push ({
