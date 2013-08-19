@@ -123,6 +123,7 @@ define([
                     self.searchResults.entity = {};
                     entities.nodes.forEach(function(entity) {
                         entity.sign = entity.properties['title'];
+                        entity.source = entity.properties['source'];
                         entity.graphNodeId = entity.id;
                         self.searchResults.entity[entity.properties['_subType']] = self.searchResults.entity[entity.properties['_subType']] || [];
                         self.searchResults.entity[entity.properties['_subType']].push(entity);

@@ -127,6 +127,12 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
         properties.put(columnFamilyNameProperty.getName(), columnFamilyNameProperty);
 
+        TitanKey sourceProperty = (TitanKey) graph.getType(PropertyName.SOURCE.toString());
+        if (sourceProperty == null) {
+            sourceProperty = graph.makeType().name(PropertyName.SOURCE.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
+        }
+        properties.put(sourceProperty.getName(), sourceProperty);
+
         graph.commit();
 
         Iterator<Vertex> termMentionIter = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.TERM_MENTION.toString()).iterator();
@@ -143,6 +149,7 @@ public abstract class Base extends RedDawnCommandLineBase {
         addPropertyToConcept(graph, termMention, rowKeyProperty.getName(), PropertyType.STRING);
         addPropertyToConcept(graph, termMention, columnFamilyNameProperty.getName(), PropertyType.STRING);
         addPropertyToConcept(graph, termMention, titleProperty.getName(), PropertyType.STRING);
+        addPropertyToConcept(graph, termMention, sourceProperty.getName(),PropertyType.STRING);
 
         graph.commit();
 
