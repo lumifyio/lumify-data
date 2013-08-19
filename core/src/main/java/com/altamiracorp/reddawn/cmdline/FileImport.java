@@ -38,6 +38,7 @@ public class FileImport extends RedDawnCommandLineBase {
     private String source;
     private static String[] arguments;
     private Boolean downloadZip;
+    private String zipfile;
 
     public static void main(String[] args) throws Exception {
         arguments = args;
@@ -64,6 +65,7 @@ public class FileImport extends RedDawnCommandLineBase {
         }
         if(cmd.hasOption("zipfile")){
             this.downloadZip = true;
+            this.zipfile = (String) cmd.getArgList().get(0);
         }
     }
 
@@ -114,8 +116,13 @@ public class FileImport extends RedDawnCommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         File directory = new File(getDirectory());
-        if (!datasetExists(getDirectory()) || this.downloadZip) {
+        if (this.downloadZip && datasetExists(getDirectory() + "/" + zipfile)) {
+            this.directory = this.directory + "/" + this.zipfile;
+            directory = new File(getDirectory());
+        } else if (!datasetExists(getDirectory()) || this.downloadZip) {
             getDataset(arguments);
+            this.directory = this.directory + "/" + this.zipfile;
+            directory = new File(getDirectory());
         }
         String pattern = getPattern();
         RedDawnSession redDawnSession = createRedDawnSession();
