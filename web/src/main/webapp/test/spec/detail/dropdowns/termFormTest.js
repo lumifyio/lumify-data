@@ -1,6 +1,10 @@
 
 describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
 
+    afterEach(function() {
+        this.$parentNode.remove();
+    });
+
     beforeEach(function() {
         var self = this;
 
@@ -153,6 +157,15 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
                 .not.contain('focused');
         });
 
+        it("should accept selections with existing entity at the start", function() {
+
+            this.setupParentForSelection('Some text before <span class="entity subType-2">Jo[hnny</span> Appleseed] is a person');
+
+            expect(this.parentNode.childNodes[0].textContent).to.equal('Some text before ');
+            expect(this.parentNode.childNodes[1].innerHTML).to.equal('<span class="entity subType-2 focused">Johnny</span> Appleseed');
+
+        });
+
         it("should accept selections that don't encompass an inner span", function() {
 
             this.setupParentForSelection('offered by [Amazon <span class="entity subType-2">Web]</span> Services');
@@ -177,13 +190,13 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
 
             var span = this.$parentNode.find('span.entity');
 
-            this.component.select('conceptSelector').val('subType-1').change();
+            this.component.select('conceptSelector').val('1').change();
             expect(span.attr('class')).to
                 .contain('entity')
                 .contain('focused')
                 .contain('subType-1');
 
-            this.component.select('conceptSelector').val('subType-2').change();
+            this.component.select('conceptSelector').val('2').change();
             expect(span.attr('class')).to
                 .contain('subType-2')
                 .not.contain('subType-1');

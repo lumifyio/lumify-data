@@ -1,3 +1,4 @@
 class role::blur::pseudo {
-  include blur
+  include controller
+  include shard
 }

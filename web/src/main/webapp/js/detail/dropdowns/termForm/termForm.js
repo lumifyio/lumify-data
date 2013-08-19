@@ -33,7 +33,7 @@ define([
 
             var info = $(this.attr.mentionNode).removeClass('focused').data('info');
             if (info) {
-                this.updateConceptLabel('subType-' + info._subType);
+                this.updateConceptLabel(info._subType);
             }
             
             // Remove extra textNodes
@@ -93,21 +93,23 @@ define([
             this.updateConceptLabel(select.val());
         };
 
-        this.updateConceptLabel = function(conceptLabel) {
-            if (conceptLabel == '') {
+        this.updateConceptLabel = function(conceptId, node) {
+            if (conceptId == '') {
                 this.select('createTermButtonSelector').attr('disabled', true);
                 return;
             }
             this.select('createTermButtonSelector').attr('disabled', false);
+
             if (this.allConcepts && this.allConcepts.length) {
 
-                var node = $(this.promoted || this.attr.mentionNode),
+                node = $(node || this.promoted || this.attr.mentionNode);
+                var classPrefix = 'subType-',
                     labels = this.allConcepts.map(function(c) {
-                        return c.id;
+                        return classPrefix + c.id;
                     });
 
                 node.removeClass(labels.join(' '))
-                    .addClass(conceptLabel);
+                    .addClass(classPrefix + conceptId);
             }
         };
 
@@ -118,13 +120,17 @@ define([
                 sign = this.attr.sign || mentionNode.text(),
                 data = mentionNode.data('info'),
                 title = $.trim(data && data.title || ''),
-                existingEntity = mentionNode.addClass('focused').hasClass('entity'),
+                existingEntity = this.attr.existing ? mentionNode.addClass('focused').hasClass('entity') : false,
                 objectSign = '';
 
             this.graphNodeId = data && data.graphNodeId;
 
             if (this.attr.selection && !existingEntity) {
+                this.trigger(document, 'ignoreSelectionChanges.detail');
                 this.promoted = this.promoteSelectionToSpan();
+                setTimeout(function() {
+                    self.trigger(document, 'resumeSelectionChanges.detail');
+                }, 10);
             }
 
             if (mentionNode.hasClass('resolved')) {
@@ -229,13 +235,8 @@ define([
 
             if (updatingEntity) {
 
-                mentionNode.data('info', data.info)
-                           .removeClass('subType-44')
-                           .removeClass('subType-52')
-                           .removeClass('subType-60')
-                           .removeClass('subType-68')
-                           .addClass(data.cssClasses.join(' '))
-                           .removeClass('focused');
+                this.updateConceptLabel(data.cssClasses.join(' '), mentionNode);
+                mentionNode.data('info', data.info).removeClass('focused');
 
             } else if (this.promoted) {
 
@@ -252,13 +253,13 @@ define([
                 el,
                 tempTextNode;
 
-            range.startContainer.splitText(range.startOffset);
-            if (range.endOffset < range.endContainer.textContent.length) {
-                range.endContainer.splitText(range.endOffset);
-            }
 
             var span = document.createElement('span');
             span.className = 'entity focused';
+
+            var newRange = document.createRange();
+            newRange.setStart(range.startContainer, range.startOffset);
+            newRange.setEnd(range.endContainer, range.endOffset);
 
             // Special case where the start/end is inside an inner span
             // (surroundsContents will fail so expand the selection
@@ -267,11 +268,11 @@ define([
                 var previous = el.previousSibling;
 
                 if (previous && previous.nodeType === 3) {
-                    range.setStart(previous, previous.textContent.length);
+                    newRange.setStart(previous, previous.textContent.length);
                 } else {
                     tempTextNode = document.createTextNode('');
                     el.parentNode.insertBefore(tempTextNode, el);
-                    range.setStart(tempTextNode, 0);
+                    newRange.setStart(tempTextNode, 0);
                 }
             }
             if (/entity/.test(range.endContainer.parentNode.className)) {
@@ -279,7 +280,7 @@ define([
                 var next = el.nextSibling;
 
                 if (next && next.nodeType === 3) {
-                    range.setEnd(next, 0);
+                    newRange.setEnd(next, 0);
                 } else {
                     tempTextNode = document.createTextNode('');
                     if (next) {
@@ -287,10 +288,10 @@ define([
                     } else {
                         el.appendChild(tempTextNode);
                     }
-                    range.setEnd(tempTextNode, 0);
+                    newRange.setEnd(tempTextNode, 0);
                 }
             }
-            range.surroundContents(span);
+            newRange.surroundContents(span);
 
             return $(span).find('.entity').addClass('focused').end();
         };

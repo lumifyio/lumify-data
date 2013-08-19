@@ -16,13 +16,12 @@ define([
             { name: 'Colors', selector:'colors' }
         ],
         DEFAULT = 2,
-        useDefaultStyle = true,
-        entityService = new EntityService();
-
+        useDefaultStyle = true;
 
     return withHighlighting;
 
     function withHighlighting() {
+        this.entityService = new EntityService();
 
         this.highlightButton = function() {
             return highlightButtonTemplate({
@@ -48,15 +47,25 @@ define([
 
         this.after('teardown', function() {
             $(document).off('selectionchange.detail');
+            $(document).off('ignoreSelectionChanges.detail');
+            $(document).off('resumeSelectionChanges.detail');
             $(document).off('termCreated');
-            this.highlightNode.off('scrollstop');
+            this.highlightNode().off('scrollstop');
         });
 
         this.after('initialize', function() {
-            this.highlightNode = this.$node.closest('.content');
+            var self = this;
 
-            $(document).on('selectionchange.detail', this.onSelectionChange.bind(this));
-            this.highlightNode.on('scrollstop', this.updateEntityAndArtifactDraggables.bind(this));
+            // Allow components to disable selection listening
+            $(document).on('ignoreSelectionChanges.detail', function() {
+                $(document).off('selectionchange.detail');
+            });
+            $(document).on('resumeSelectionChanges.detail', function() {
+                $(document).off('selectionchange.detail').on('selectionchange.detail', self.onSelectionChange.bind(self));
+            });
+            $(document).trigger('resumeSelectionChanges');
+
+            this.highlightNode().on('scrollstop', this.updateEntityAndArtifactDraggables.bind(this));
             this.on('click', {
                 resolvableSelector: this.onResolvableClicked,
                 highlightTypeSelector: this.onHighlightTypeClicked
@@ -70,7 +79,7 @@ define([
             var target = $(evt.target),
                 li = target.parents('li'),
                 ul = li.parent('ul'),
-                content = this.highlightNode;
+                content = this.highlightNode();
 
             ul.find('.checked').not(li).removeClass('checked');
             li.addClass('checked');
@@ -84,13 +93,16 @@ define([
             this.applyHighlightStyle();
         };
 
+        this.highlightNode = function() {
+            return this.$node.closest('.content');
+        };
 
         this.getActiveStyle = function() {
             if (useDefaultStyle) {
                 return DEFAULT;
             }
 
-            var content = this.highlightNode,
+            var content = this.highlightNode(),
                 index = 0;
             $.each( content.attr('class').split(/\s+/), function(_, item) {
                 var match = item.match(/^highlight-(.+)$/);
@@ -108,7 +120,7 @@ define([
         };
 
         this.removeHighlightClasses = function() {
-            var content = this.highlightNode;
+            var content = this.highlightNode();
             $.each( content.attr('class').split(/\s+/), function(index, item) {
                 if (item.match(/^highlight-(.+)$/)) {
                     content.removeClass(item);
@@ -119,11 +131,11 @@ define([
         this.applyHighlightStyle = function() {
             var style = HIGHLIGHT_STYLES[this.getActiveStyle()];
             this.removeHighlightClasses();
-            this.highlightNode.addClass('highlight-' + style.selector);
+            this.highlightNode().addClass('highlight-' + style.selector);
 
             if (!style.styleApplied) {
 
-                entityService.concepts(function(err, concepts) {
+                this.entityService.concepts(function(err, concepts) {
                     var styleFile = 'tpl!detail/highlight-styles/' + style.selector + '.css';
                     require([styleFile], function(tpl) {
                         function apply(concept) {
@@ -133,30 +145,28 @@ define([
                                         HOVER: 1,
                                         DIM: 2
                                     },
+                                    className = concept.className || 'entity.subType-' + concept.id,
                                     definition = function(state) {
                                         return tpl({ STATES:STATES, state:state, concept:concept, colorjs:colorjs });
                                     };
 
-                                // TODO: add 1) drop-hover style for statement
-                                // creation, 2) icons, 3) focused style
-
                                 // Dim 
                                 // (when dropdown is opened and it wasn't this entity)
                                 stylesheet.addRule(
-                                    '.highlight-' + style.selector + ' .dropdown .entity.subType-' + concept.id,
+                                    '.highlight-' + style.selector + ' .dropdown .' + className,
                                     definition(STATES.DIM)
                                 );
 
                                 // Default style (or focused)
                                 stylesheet.addRule(
-                                    '.highlight-' + style.selector + ' .entity.subType-' + concept.id + ',' +
-                                    '.highlight-' + style.selector + ' .dropdown .focused.subType-' + concept.id,
+                                    '.highlight-' + style.selector + ' .' + className +',' +
+                                    '.highlight-' + style.selector + ' .dropdown .focused.' + className,
                                     definition(STATES.NORMAL)
                                 );
 
                                 // Drag-drop hover
                                 stylesheet.addRule(
-                                    '.highlight-' + style.selector + ' .drop-hover.subType-' + concept.id,
+                                    '.highlight-' + style.selector + ' .drop-hover.' + className,
                                     definition(STATES.HOVER)
                                 );
 
@@ -167,6 +177,15 @@ define([
                             }
                         }
                         apply(concepts);
+
+                        // Artifacts
+                        apply({
+                            id: 'artifact',
+                            className: 'artifact',
+                            color: 'rgb(255,0,0)',
+                            glyphIconHref: '/img/glyphicons/glyphicons_036_file@2x.png'
+                        });
+
                         style.styleApplied = true;
                     });
                 });
@@ -222,36 +241,44 @@ define([
                     return;
                 }
 
-                // Find which way the selection was travelling (which is the
-                // furthest element in document
-                var end = focus, endOffset = sel.focusOffset;
-                if (text.indexOf(anchor[0].textContent.substring(sel.anchorOffset, 1)) > 
-                    text.indexOf(focus[0].textContent.substring(sel.focusOffset, 1))) {
-                    end = anchor;
-                    endOffset = sel.anchorOffset;
+                if (sel.rangeCount === 0) return;
+
+                var range = sel.getRangeAt(0);
+
+                // Avoid adding dropdown inside of entity
+                var endContainer = range.endContainer;
+                while (/entity/.test(endContainer.parentNode.className)) {
+                    endContainer = endContainer.parentNode;
                 }
 
-                // Move to first space in end so as to not break up word when
-                // splitting
-                var i = Math.max(endOffset - 1, 0), character = '', whitespaceCheck = /^[^\s]$/;
-                do {
-                    character = end[0].textContent.substring(++i, i+1);
-                } while (whitespaceCheck.test(character));
+                var isEndTextNode = endContainer.nodeType === 1;
+                if (isEndTextNode) {
+                    this.dropdownEntity(true, endContainer, sel, text);
+                } else {
 
-                end[0].splitText(i);
-                this.dropdownEntity(end, sel, text);
+                    // Move to first space in end so as to not break up word when splitting
+                    var i = Math.max(range.endOffset - 1, 0), character = '', whitespaceCheck = /^[^\s]$/;
+                    do {
+                        character = endContainer.textContent.substring(++i, i+1);
+                    } while (whitespaceCheck.test(character));
+
+                    endContainer.splitText(i);
+                    this.dropdownEntity(true, endContainer, sel, text);
+                }
+
             }
-        }, 500);
+        }, 750);
 
-        this.dropdownEntity = function(insertAfterNode, sel, text) {
+        this.dropdownEntity = function(creating, insertAfterNode, sel, text) {
             this.tearDownDropdowns();
 
             var form = $('<div class="underneath"/>');
-            insertAfterNode.after(form);
+            $(insertAfterNode).after(form);
             TermForm.attachTo(form, {
                 sign: text,
                 selection: sel && { anchor:sel.anchorNode, focus:sel.focusNode, anchorOffset: sel.anchorOffset, focusOffset: sel.focusOffset, range:sel.rangeCount && sel.getRangeAt(0).cloneRange() },
                 mentionNode: insertAfterNode,
+                existing: !creating,
                 artifactKey: this.attr.data._rowKey
             });
         };
@@ -261,7 +288,7 @@ define([
             if ($target.is('.underneath') || $target.parents('.underneath').length) {
                 return;
             }
-            _.defer(this.dropdownEntity.bind(this), $target);
+            _.defer(this.dropdownEntity.bind(this), false, $target);
         };
 
         this.updateEntityAndArtifactDraggables = function() {

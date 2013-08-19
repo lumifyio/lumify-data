@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.altamiracorp.reddawn</groupId>
     <artifactId>reddawn</artifactId>
@@ -19,7 +20,7 @@
         <module>model-titan</module>
         <module>dictionary-seed</module>
         <module>crawler</module>
-    <module>oozie</module>
+        <module>oozie</module>
         <module>ontology</module>
     </modules>
 
@@ -28,19 +29,19 @@
             <id>com.cloudera</id>
             <url>https://repository.cloudera.com/content/repositories/releases/</url>
         </repository>
-		<repository>
-			<id>red-dawn-releases</id>
-			<url>http://nic-mvnproxy.nearinfinity.com:8080/artifactory/libs-release/</url>
-		</repository>
-		<repository>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-			<id>red-dawn-snapshots</id>
-			<url>http://nic-mvnproxy.nearinfinity.com:8080/artifactory/libs-snapshot/</url>
-		</repository>
+        <repository>
+            <id>red-dawn-releases</id>
+            <url>http://nic-mvnproxy.nearinfinity.com:8080/artifactory/libs-release/</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+            <id>red-dawn-snapshots</id>
+            <url>http://nic-mvnproxy.nearinfinity.com:8080/artifactory/libs-snapshot/</url>
+        </repository>
         <repository>
             <id>info-bliki-repository</id>
             <url>http://gwtwiki.googlecode.com/svn/maven-repository/</url>
@@ -53,18 +54,19 @@
         </repository>
     </repositories>
 
-	<properties>
-		<blur-version>0.2.0-incubating-SNAPSHOT</blur-version>
+    <properties>
+        <blur-version>0.2.0-incubating-SNAPSHOT</blur-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<accumulo-version>1.4.3</accumulo-version>
-		<hadoop-version>0.20.2-cdh3u6</hadoop-version>
-		<zookeeper-version>3.3.5</zookeeper-version>
-		<jetty-version>8.1.11.v20130520</jetty-version>
+        <accumulo-version>1.4.3</accumulo-version>
+        <hadoop-version>0.20.2-cdh3u6</hadoop-version>
+        <zookeeper-version>3.3.5</zookeeper-version>
+        <jetty-version>8.1.11.v20130520</jetty-version>
         <site.config.location>conf/maven/site</site.config.location>
         <javadoc.stylesheetfile>conf/maven/javadoc/stylesheet.css</javadoc.stylesheetfile>
         <maven.build.timestamp.format>EEE MMM dd HH:mm z yyyy</maven.build.timestamp.format>
-	</properties>
+        <classpath-filename>${project.build.directory}/.classpath.${user.name}</classpath-filename>
+    </properties>
 
     <distributionManagement>
         <site>
@@ -73,40 +75,40 @@
         </site>
     </distributionManagement>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-		        <groupId>org.apache.accumulo</groupId>
-		        <artifactId>accumulo-core</artifactId>
-		        <version>${accumulo-version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.slf4j</groupId>
-						<artifactId>slf4j-api</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.slf4j</groupId>
-						<artifactId>slf4j-log4j12</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>javax.servlet</groupId>
-						<artifactId>servlet-api</artifactId>
-					</exclusion>
-				</exclusions>
-	     	</dependency>
-			<dependency>
-		        <groupId>org.apache.hadoop</groupId>
-		        <artifactId>hadoop-client</artifactId>
-		        <version>${hadoop-version}</version>
-		    </dependency>
-		    <dependency>
-		      <groupId>org.json</groupId>
-		      <artifactId>json</artifactId>
-		      <version>20090211</version>
-		    </dependency>
-		</dependencies>
-	</dependencyManagement>
-	
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.accumulo</groupId>
+                <artifactId>accumulo-core</artifactId>
+                <version>${accumulo-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.servlet</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-client</artifactId>
+                <version>${hadoop-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.json</groupId>
+                <artifactId>json</artifactId>
+                <version>20090211</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -142,7 +144,7 @@
                             <goal>build-classpath</goal>
                         </goals>
                         <configuration>
-                            <outputFile>${project.build.directory}/.classpath</outputFile>
+                            <outputFile>${classpath-filename}</outputFile>
                         </configuration>
                     </execution>
                 </executions>
