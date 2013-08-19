@@ -50,13 +50,11 @@ define([
             $(document).off('ignoreSelectionChanges.detail');
             $(document).off('resumeSelectionChanges.detail');
             $(document).off('termCreated');
-            this.highlightNode.off('scrollstop');
+            this.highlightNode().off('scrollstop');
         });
 
         this.after('initialize', function() {
             var self = this;
-
-            this.highlightNode = this.$node.closest('.content');
 
             // Allow components to disable selection listening
             $(document).on('ignoreSelectionChanges.detail', function() {
@@ -67,7 +65,7 @@ define([
             });
             $(document).trigger('resumeSelectionChanges');
 
-            this.highlightNode.on('scrollstop', this.updateEntityAndArtifactDraggables.bind(this));
+            this.highlightNode().on('scrollstop', this.updateEntityAndArtifactDraggables.bind(this));
             this.on('click', {
                 resolvableSelector: this.onResolvableClicked,
                 highlightTypeSelector: this.onHighlightTypeClicked
@@ -81,7 +79,7 @@ define([
             var target = $(evt.target),
                 li = target.parents('li'),
                 ul = li.parent('ul'),
-                content = this.highlightNode;
+                content = this.highlightNode();
 
             ul.find('.checked').not(li).removeClass('checked');
             li.addClass('checked');
@@ -95,13 +93,16 @@ define([
             this.applyHighlightStyle();
         };
 
+        this.highlightNode = function() {
+            return this.$node.closest('.content');
+        };
 
         this.getActiveStyle = function() {
             if (useDefaultStyle) {
                 return DEFAULT;
             }
 
-            var content = this.highlightNode,
+            var content = this.highlightNode(),
                 index = 0;
             $.each( content.attr('class').split(/\s+/), function(_, item) {
                 var match = item.match(/^highlight-(.+)$/);
@@ -119,7 +120,7 @@ define([
         };
 
         this.removeHighlightClasses = function() {
-            var content = this.highlightNode;
+            var content = this.highlightNode();
             $.each( content.attr('class').split(/\s+/), function(index, item) {
                 if (item.match(/^highlight-(.+)$/)) {
                     content.removeClass(item);
@@ -130,7 +131,7 @@ define([
         this.applyHighlightStyle = function() {
             var style = HIGHLIGHT_STYLES[this.getActiveStyle()];
             this.removeHighlightClasses();
-            this.highlightNode.addClass('highlight-' + style.selector);
+            this.highlightNode().addClass('highlight-' + style.selector);
 
             if (!style.styleApplied) {
 
