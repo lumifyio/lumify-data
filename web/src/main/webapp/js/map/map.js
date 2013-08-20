@@ -42,9 +42,9 @@ define([
             this.on(document, 'mapEndZoom', this.onMapEndPan);
             this.on(document, 'mapUpdateBoundingBox', this.onMapUpdateBoundingBox);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
-            this.on(document, 'nodesAdded', this.onNodesAdded);
-            this.on(document, 'nodesUpdated', this.onNodesUpdated);
-            this.on(document, 'nodesDeleted', this.onNodesDeleted);
+            this.on(document, 'verticesAdded', this.onVerticesAdded);
+            this.on(document, 'verticesUpdated', this.onVerticesUpdated);
+            this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'windowResize', this.onMapEndPan);
             this.on(document, 'syncEnded', this.onSyncEnded);
         });
@@ -112,42 +112,42 @@ define([
                 }
                 workspaceData.data.nodes.forEach(function(node) {
                     if(node.location || node.locations) {
-                        self.updateOrAddNode(node);
+                        self.updateOrAddVertex(node);
                     }
                 });
             });
         };
 
-        this.onNodesAdded = function(evt, data) {
+        this.onVerticesAdded = function(evt, data) {
             var self = this;
-            data.nodes.forEach(function(node) {
-                self.updateOrAddNode(node);
-                self.updateNodeLocation(node);
+            data.vertices.forEach(function(vertex) {
+                self.updateOrAddVertex(vertex);
+                self.updateVertexLocation(vertex);
             });
         };
 
-        this.updateOrAddNode = function(node) {
+        this.updateOrAddVertex = function(vertex) {
             var self = this;
-            if(!node.location && !node.locations) {
+            if(!vertex.location && !vertex.locations) {
                 return;
             }
 
             this.map(function(map) {
-                this.deleteNode(node);
+                this.deleteVertex(vertex);
 
-                var locations = $.isArray(node.locations) ? node.locations : [ node.location ];
+                var locations = $.isArray(vertex.locations) ? vertex.locations : [ vertex.location ];
 
                 locations.forEach(function(location) {
                     var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
                     var marker = new mxn.Marker(pt);
-                    marker.setAttribute('graphNodeId', node.graphNodeId);
+                    marker.setAttribute('graphVertexId', vertex.graphVertexId);
                     if (retina.devicePixelRatio > 1) {
                         marker.setIcon('/img/small_pin@2x.png', [26, 52], [13, 52]);
                     } else {
                         marker.setIcon('/img/small_pin.png', [13, 26], [6,26]);
                     }
                     marker.click.addHandler(function(eventType, marker) {
-                        self.trigger(document, 'searchResultSelected', [ node ]);
+                        self.trigger(document, 'searchResultSelected', [ vertex ]);
                     });
                     map.addMarker(marker);
                 });
@@ -158,17 +158,17 @@ define([
             });
         };
 
-        this.onNodesUpdated = function(evt, data) {
+        this.onVerticesUpdated = function(evt, data) {
             var self = this;
-            data.nodes.forEach(function(node) {
-                self.updateOrAddNode(node);
+            data.vertices.forEach(function(vertex) {
+                self.updateOrAddVertex(vertex);
             });
         };
 
-        this.onNodesDeleted = function(evt, data) {
+        this.onVerticesDeleted = function(evt, data) {
             var self = this;
-            data.nodes.forEach(function(node) {
-                self.deleteNode(node);
+            data.vertices.forEach(function(vertex) {
+                self.deleteVertex(vertex);
             });
 
             this.fit();
@@ -190,13 +190,13 @@ define([
         };
 
 
-        this.deleteNode = function(node) {
+        this.deleteVertex = function(vertex) {
             var self = this;
 
             this.map(function(map) {
                 map.markers
                     .filter(function(marker) {
-                        return marker.getAttribute('graphNodeId') == node.graphNodeId;
+                        return marker.getAttribute('graphVertexId') == vertex.graphVertexId;
                     })
                     .forEach(function(marker) {
                         map.removeMarker(marker);
@@ -204,10 +204,10 @@ define([
             });
         };
 
-        this.updateNodeLocation = function(node) {
+        this.updateVertexLocation = function(vertex) {
             var self = this;
-            if(node._type == 'artifact') {
-                this.ucdService.getArtifactById(node._rowKey, function(err, artifact) {
+            if(vertex._type == 'artifact') {
+                this.ucdService.getArtifactById(vertex._rowKey, function(err, artifact) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
@@ -215,21 +215,21 @@ define([
 
                     if(artifact && artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) {
 
-                        node.location = {
+                        vertex.location = {
                             latitude: artifact.Dynamic_Metadata.latitude,
                             longitude: artifact.Dynamic_Metadata.longitude
                         };
 
-                        var nodesUpdateData = {
-                            nodes: [node]
+                        var verticesUpdateData = {
+                            vertices: [vertex]
                         };
-                        self.trigger(document, 'updateNodes', nodesUpdateData);
+                        self.trigger(document, 'updateVertices', verticesUpdateData);
                     } else {
                         self.invalidMap();
                     }
                 });
             } else {
-                this.ucdService.getGraphNodeById(node.graphNodeId, function(err, entity) {
+                this.ucdService.getGraphVertexById(vertex.graphVertexId, function(err, entity) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
@@ -248,15 +248,15 @@ define([
                         }
                     });
 
-                    node.locations = locations;
+                    vertex.locations = locations;
                     if (locations.length === 0) {
                         self.invalidMap();
                     }
 
-                    var nodesUpdateData = {
-                        nodes: [node]
+                    var verticesUpdateData = {
+                        vertices: [vertex]
                     };
-                    self.trigger(document, 'updateNodes', nodesUpdateData);
+                    self.trigger(document, 'updateVertices', verticesUpdateData);
                 });
             }
         };
@@ -437,7 +437,7 @@ define([
                         function(err, data) {
                             self.endRegionSelection();
                             if (!err) {
-                                self.trigger(document, 'addNodes', data);
+                                self.trigger(document, 'addVertices', data);
                             }
                         }
                     );

@@ -28,7 +28,7 @@ define([
 
         this.after('teardown', function() {
             if (this.promoted && this.promoted.length) {
-                this.demoteSpanToTextNode(this.promoted);
+                this.demoteSpanToTextVertex(this.promoted);
             }
 
             var info = $(this.attr.mentionNode).removeClass('focused').data('info');
@@ -93,7 +93,7 @@ define([
             this.updateConceptLabel(select.val());
         };
 
-        this.updateConceptLabel = function(conceptId, node) {
+        this.updateConceptLabel = function(conceptId, vertex) {
             if (conceptId == '') {
                 this.select('createTermButtonSelector').attr('disabled', true);
                 return;
@@ -102,28 +102,28 @@ define([
 
             if (this.allConcepts && this.allConcepts.length) {
 
-                node = $(node || this.promoted || this.attr.mentionNode);
+                vertex = $(vertex || this.promoted || this.attr.mentionNode);
                 var classPrefix = 'subType-',
                     labels = this.allConcepts.map(function(c) {
                         return classPrefix + c.id;
                     });
 
-                node.removeClass(labels.join(' '))
+                vertex.removeClass(labels.join(' '))
                     .addClass(classPrefix + conceptId);
             }
         };
 
         this.setupContent = function() {
             var self = this,
-                node = this.$node,
-                mentionNode = $(this.attr.mentionNode),
-                sign = this.attr.sign || mentionNode.text(),
-                data = mentionNode.data('info'),
+                vertex = this.$node,
+                mentionVertex = $(this.attr.mentionNode),
+                sign = this.attr.sign || mentionVertex.text(),
+                data = mentionVertex.data('info'),
                 title = $.trim(data && data.title || ''),
-                existingEntity = this.attr.existing ? mentionNode.addClass('focused').hasClass('entity') : false,
+                existingEntity = this.attr.existing ? mentionVertex.addClass('focused').hasClass('entity') : false,
                 objectSign = '';
 
-            this.graphNodeId = data && data.graphNodeId;
+            this.graphVertexId = data && data.graphVertexId;
 
             if (this.attr.selection && !existingEntity) {
                 this.trigger(document, 'ignoreSelectionChanges.detail');
@@ -133,11 +133,11 @@ define([
                 }, 10);
             }
 
-            if (mentionNode.hasClass('resolved')) {
+            if (mentionVertex.hasClass('resolved')) {
                 objectSign = title;
             }
 
-            node.html(dropdownTemplate({
+            vertex.html(dropdownTemplate({
                 // Promoted span might have been auto-expanded to avoid nested
                 // spans
                 sign: this.promoted ? this.promoted.text() : sign,
@@ -167,13 +167,13 @@ define([
             var self = this;
             self.allConcepts = [];
             self.entityService.concepts(function(err, rootConcept) {
-                var mentionNode = $(self.attr.mentionNode),
-                    mentionNodeInfo = mentionNode.data('info');
+                var mentionVertex = $(self.attr.mentionNode),
+                    mentionVertexInfo = mentionVertex.data('info');
 
                 self.allConcepts = self.flattenConcepts(rootConcept);
                 self.select('conceptSelector').html(conceptsTemplate({
                     concepts: self.allConcepts,
-                    selectedConceptId: mentionNodeInfo && mentionNodeInfo._subType || ''
+                    selectedConceptId: mentionVertexInfo && mentionVertexInfo._subType || ''
                 }));
 
                 if (self.select('conceptSelector').val() == '') {
@@ -229,14 +229,14 @@ define([
         };
 
         this.highlightTerm = function(data) {
-            var mentionNode = $(this.attr.mentionNode),
-                updatingEntity = mentionNode.is('.entity');
+            var mentionVertex = $(this.attr.mentionNode),
+                updatingEntity = mentionVertex.is('.entity');
 
 
             if (updatingEntity) {
 
-                this.updateConceptLabel(data.cssClasses.join(' '), mentionNode);
-                mentionNode.data('info', data.info).removeClass('focused');
+                this.updateConceptLabel(data.cssClasses.join(' '), mentionVertex);
+                mentionVertex.data('info', data.info).removeClass('focused');
 
             } else if (this.promoted) {
 
@@ -248,7 +248,7 @@ define([
         };
 
         this.promoteSelectionToSpan = function() {
-            var textNode = this.node,
+            var textVertex = this.node,
                 range = this.attr.selection.range,
                 el,
                 tempTextNode;
@@ -296,13 +296,13 @@ define([
             return $(span).find('.entity').addClass('focused').end();
         };
 
-        this.demoteSpanToTextNode = function(node) {
+        this.demoteSpanToTextVertex = function(vertex) {
 
-            while (node[0].childNodes.length) {
-                $(node[0].childNodes[0]).removeClass('focused');
-                node[0].parentNode.insertBefore(node[0].childNodes[0], node[0]);
+            while (vertex[0].childNodes.length) {
+                $(vertex[0].childNodes[0]).removeClass('focused');
+                vertex[0].parentNode.insertBefore(vertex[0].childNodes[0], vertex[0]);
             }
-            node.remove();
+            vertex.remove();
         };
     }
 });

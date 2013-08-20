@@ -20,11 +20,11 @@ public class ArtifactSearchResultTest {
     String sampleSubject = "mySubject";
     Date sampleDate = mock(Date.class);
     String sampleSource = "mySource";
-    String graphNodeId = "myGraphNodeId";
+    String graphVertexId = "myGraphVertexId";
 
     @Before
     public void setUp() throws Exception {
-        asr = new ArtifactSearchResult(sampleRowKey, sampleSubject, sampleDate, sampleSource, ArtifactType.DOCUMENT, graphNodeId);
+        asr = new ArtifactSearchResult(sampleRowKey, sampleSubject, sampleDate, sampleSource, ArtifactType.DOCUMENT, graphVertexId);
     }
 
     @Test
@@ -55,13 +55,13 @@ public class ArtifactSearchResultTest {
     @Test
     public void testGetGraphNodeId() throws Exception {
         String result = asr.getGraphVertexId();
-        assertEquals(graphNodeId, result);
+        assertEquals(graphVertexId, result);
     }
 
     @Test
     public void testToString() throws Exception {
         String expectedToString = "rowKey: " + sampleRowKey + ", subject: " + sampleSubject +
-                ", publishedDate: " + sampleDate + ", source: " + sampleSource + ", graphVertexId: " + graphNodeId;
+                ", publishedDate: " + sampleDate + ", source: " + sampleSource + ", graphVertexId: " + graphVertexId;
         String result = asr.toString();
         assertEquals(expectedToString, result);
     }

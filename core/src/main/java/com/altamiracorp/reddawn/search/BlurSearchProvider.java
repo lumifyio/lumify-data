@@ -24,7 +24,7 @@ public class BlurSearchProvider implements SearchProvider {
     private static final String TEXT_COLUMN_NAME = "text";
     private static final String SUBJECT_COLUMN_NAME = "subject";
     private static final String PUBLISHED_DATE_COLUMN_NAME = "publishedDate";
-    private static final String GRAPH_VERTEX_ID_COLUMN_NAME = "graphNodeId";
+    private static final String GRAPH_VERTEX_ID_COLUMN_NAME = "graphVertexId";
     private static final String SOURCE_COLUMN_NAME = "source";
     private static final String ARTIFACT_TYPE = "type";
     private static final String TERM_BLUR_TABLE_NAME = "term";

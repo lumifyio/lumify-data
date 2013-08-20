@@ -68,16 +68,16 @@ public class Router extends HttpServlet {
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.post("/entity/create", authenticator, EntityCreate.class);
 
-        app.get("/node/{graphNodeId}/properties", authenticator, VertexProperties.class);
-        app.get("/node/{graphNodeId}/relationships", authenticator, VertexRelationships.class);
-        app.get("/node/relationship", authenticator, VertexToVertexRelationship.class);
-        app.get("/node/removeRelationship", authenticator, VertexRelationshipRemoval.class);
+        app.get("/vertex/{graphVertexId}/properties", authenticator, VertexProperties.class);
+        app.get("/vertex/{graphVertexId}/relationships", authenticator, VertexRelationships.class);
+        app.get("/vertex/relationship", authenticator, VertexToVertexRelationship.class);
+        app.get("/vertex/removeRelationship", authenticator, VertexRelationshipRemoval.class);
 
-        app.get("/graph/{graphNodeId}/relatedNodes", authenticator, GraphRelatedVertices.class);
-        app.get("/graph/{graphNodeId}/relatedResolvedNodes", authenticator, GraphRelatedResolvedVertices.class);
-        app.get("/graph/node/search", authenticator, GraphVertexSearch.class);
-        app.get("/graph/node/geoLocationSearch", authenticator, GraphGeoLocationSearch.class);
-        app.get("/graph/node/{graphNodeId}", authenticator, GraphGetVertex.class);
+        app.get("/graph/{graphVertexId}/relatedVertices", authenticator, GraphRelatedVertices.class);
+        app.get("/graph/{graphVertexId}/relatedResolvedVertices", authenticator, GraphRelatedResolvedVertices.class);
+        app.get("/graph/vertex/search", authenticator, GraphVertexSearch.class);
+        app.get("/graph/vertex/geoLocationSearch", authenticator, GraphGeoLocationSearch.class);
+        app.get("/graph/vertex/{graphVertexId}", authenticator, GraphGetVertex.class);
 
         app.get("/workspace/", authenticator, WorkspaceList.class);
         app.post("/workspace/save", authenticator, WorkspaceSave.class);

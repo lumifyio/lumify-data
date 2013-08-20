@@ -4,26 +4,26 @@
 
 <h2>
 <% var data = JSON.stringify({
-      graphNodeId : relationshipData.sourceId,
+      graphVertexId : relationshipData.sourceId,
       title : relationshipData.sourceTitle,
       _type : relationshipData.sourceType,
       _rowKey : relationshipData.sourceRowKey,
       _subType : relationshipData.sourceSubType}); %>
 
-<span class="node-to-node-relationship generic-draggable fake-link" data-info='<%- data %>' >
+<span class="vertex-to-vertex-relationship generic-draggable fake-link" data-info='<%- data %>' >
         <%= relationshipData.sourceTitle || "No title available" %>
 </span>
 
 ->
 
 <% var data = JSON.stringify({
-      graphNodeId : relationshipData.targetId,
+      graphVertexId : relationshipData.targetId,
       title : relationshipData.targetTitle,
       _type : relationshipData.targetType,
       _rowKey : relationshipData.targetRowKey,
       _subType : relationshipData.targetSubType}); %>
 
-<span class="node-to-node-relationship generic-draggable fake-link" data-info='<%- data %>'>
+<span class="vertex-to-vertex-relationship generic-draggable fake-link" data-info='<%- data %>'>
         <%= relationshipData.targetTitle || "No title available" %>
 </span>
 </h2>

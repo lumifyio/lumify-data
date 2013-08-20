@@ -99,9 +99,9 @@ define([
             this.trigger(document, 'menubarToggleDisplay', { name: searchPane.data(DATA_MENUBAR_NAME) });
             this.trigger(document, 'menubarToggleDisplay', { name: graphPane.data(DATA_MENUBAR_NAME) });
 
-            this.on(document, 'addNodes', this.onAddNodes);
-            this.on(document, 'updateNodes', this.onUpdateNodes);
-            this.on(document, 'deleteNodes', this.onDeleteNodes);
+            this.on(document, 'addVertices', this.onAddVertices);
+            this.on(document, 'updateVertices', this.onUpdateVertices);
+            this.on(document, 'deleteVertices', this.onDeleteVertices);
 
             this.on(document, 'refreshRelationships', this.refreshRelationships);
 
@@ -211,21 +211,21 @@ define([
                             y: parseInt(Math.random() * droppable.height(), 10)
                         };
 
-                    var nodes = [{
+                    var vertices = [{
                         title: $.trim(
                             info.title || 
                             // Only get the direct children textnode
                             draggable.clone().children().remove().end().text()
                         ),
-                        graphNodeId: info.graphNodeId,
+                        graphVertexId: info.graphVertexId,
                         _rowKey: info._rowKey,
                         _subType: info._subType,
                         _type: info._type,
                         dropPosition: dropPosition
                     }];
 
-                    if(info.resolvedGraphNodeId) {
-                        this.ucdService.getGraphNodeById(info.resolvedGraphNodeId, function(err, data) {
+                    if(info.resolvedGraphVertexId) {
+                        this.ucdService.getGraphVertexById(info.resolvedGraphVertexId, function(err, data) {
                             if(err) {
                                 console.error('Error', err);
                                 return self.trigger(document, 'error', { message: err.toString() });
@@ -233,8 +233,8 @@ define([
 
                             console.log(data);
 
-                            nodes.push({
-                                graphNodeId: data.id,
+                            vertices.push({
+                                graphVertexId: data.id,
                                 title: data.properties.title || 'No title available',
                                 _type: data.properties._type,
                                 _subType: data.properties._subType,
@@ -244,13 +244,13 @@ define([
                                 }
                             });
 
-                            self.trigger(document, 'addNodes', {
-                                nodes: nodes
+                            self.trigger(document, 'addVertices', {
+                                vertices: vertices
                             });
                         });
                     } else {
-                        self.trigger(document, 'addNodes', {
-                            nodes: nodes
+                        self.trigger(document, 'addVertices', {
+                            vertices: vertices
                         });
                     }
                 }.bind(this)
@@ -347,36 +347,36 @@ define([
             this.trigger(document, 'workspaceSave', this.workspaceData.data);
         };
 
-        this.onUpdateNodes = function(evt, data) {
+        this.onUpdateVertices = function(evt, data) {
 
             this.workspace(function(ws) {
                 var undoData = {
                     noUndo: true,
-                    nodes: []
+                    vertices: []
                 };
                 var redoData = {
                     noUndo: true,
-                    nodes: []
+                    vertices: []
                 };
-                data.nodes.forEach(function(node) {
-                    var matchingWorkspaceNodes = ws.data.nodes.filter(function(workspaceNode) {
-                        return workspaceNode.graphNodeId == node.graphNodeId;
+                data.vertices.forEach(function(vertex) {
+                    var matchingWorkspaceVertices = ws.data.nodes.filter(function(workspaceVertex) {
+                        return workspaceVertex.graphVertexId == vertex.graphVertexId;
                     });
 
-                    matchingWorkspaceNodes.forEach(function(workspaceNode) {
-                        undoData.nodes.push(JSON.parse(JSON.stringify(workspaceNode)));
-                        $.extend(workspaceNode, node);
-                        redoData.nodes.push(JSON.parse(JSON.stringify(workspaceNode)));
+                    matchingWorkspaceVertices.forEach(function(workspaceVertex) {
+                        undoData.vertices.push(JSON.parse(JSON.stringify(workspaceVertex)));
+                        $.extend(workspaceVertex, vertex);
+                        redoData.vertices.push(JSON.parse(JSON.stringify(workspaceVertex)));
                     });
                 });
 
                 if(!data.noUndo) {
-                    undoManager.performedAction( 'Update ' + undoData.nodes.length + ' nodes', {
+                    undoManager.performedAction( 'Update ' + undoData.vertices.length + ' vertices', {
                         undo: function() {
-                            this.trigger(document, 'updateNodes', undoData);
+                            this.trigger(document, 'updateVertices', undoData);
                         },
                         redo: function() {
-                            this.trigger(document, 'updateNodes', redoData);
+                            this.trigger(document, 'updateVertices', redoData);
                         },
                         bind: this
                     });
@@ -384,61 +384,61 @@ define([
 
                 this.setWorkspaceDirty();
 
-                this.trigger(document, 'nodesUpdated', data);
+                this.trigger(document, 'verticesUpdated', data);
             });
         };
 
-        this.onAddNodes = function(evt, data) {
+        this.onAddVertices = function(evt, data) {
             this.workspace(function(ws) {
-                var allNodes = this.workspaceData.data.nodes,
+                var allVertices = this.workspaceData.data.nodes,
                     added = [],
                     existing = [],
                     win = $(window);
 
                 // FIXME: How should we store nodes in the workspace? 
-                // currently mapping { id:[graphNodeId], properties:{} } 
-                // to { graphNodeId:..., [properties] }
-                data.nodes = data.nodes.map(function(n) {
-                    var node = n;
+                // currently mapping { id:[graphVertexId], properties:{} }
+                // to { graphVertexId:..., [properties] }
+                data.vertices = data.vertices.map(function(n) {
+                    var vertex = n;
                     if (n.properties) {
-                        node = n.properties;
-                        node.graphNodeId = n.id;
+                        vertex = n.properties;
+                        vertex.graphVertexId = n.id;
                     }
                     // Legacy names
-                    node._rowKey = encodeURIComponent((node._rowKey || node.rowKey || node.rowkey || '').replace(/\\[x](1f)/ig, '\u001f'));
+                    vertex._rowKey = encodeURIComponent((vertex._rowKey || vertex.rowKey || vertex.rowkey || '').replace(/\\[x](1f)/ig, '\u001f'));
 
-                    if ( !node.dropPosition && !node.graphPosition) {
-                        node.dropPosition = {
+                    if ( !vertex.dropPosition && !vertex.graphPosition) {
+                        vertex.dropPosition = {
                             x: parseInt(Math.random() * win.width(), 10),
                             y: parseInt(Math.random() * win.height(), 10)
                         };
                     }
-                    return node;
+                    return vertex;
                 });
 
                 // Check if already in workspace
-                data.nodes.forEach(function(node) {
-                    if (ws.data.nodes.filter(function(n) { return n.graphNodeId === node.graphNodeId; }).length === 0) {
-                        added.push(node);
-                        ws.data.nodes.push(node);
+                data.vertices.forEach(function(vertex) {
+                    if (ws.data.nodes.filter(function(n) { return n.graphVertexId === vertex.graphVertexId; }).length === 0) {
+                        added.push(vertex);
+                        ws.data.nodes.push(vertex);
                     } else {
-                        existing.push(node);
+                        existing.push(vertex);
                     }
                 });
 
-                if (existing.length) this.trigger(document, 'existingNodesAdded', { nodes:existing });
+                if (existing.length) this.trigger(document, 'existingVerticesAdded', { vertices:existing });
 
                 if (added.length === 0) return;
 
                 if(!data.noUndo) {
                     var dataClone = JSON.parse(JSON.stringify(data));
                     dataClone.noUndo = true;
-                    undoManager.performedAction( 'Add ' + dataClone.nodes.length + ' nodes', {
+                    undoManager.performedAction( 'Add ' + dataClone.vertices.length + ' vertices', {
                         undo: function() {
-                            this.trigger(document, 'deleteNodes', dataClone);
+                            this.trigger(document, 'deleteVertices', dataClone);
                         },
                         redo: function() {
-                            this.trigger(document, 'addNodes', dataClone);
+                            this.trigger(document, 'addVertices', dataClone);
                         },
                         bind: this
                     });
@@ -448,27 +448,27 @@ define([
 
                 this.refreshRelationships ();
 
-                this.trigger(document, 'nodesAdded', { nodes:added } );
+                this.trigger(document, 'verticesAdded', { vertices:added } );
             });
         };
 
-        this.onDeleteNodes = function(evt, data) {
+        this.onDeleteVertices = function(evt, data) {
             var self = this;
 
             this.workspace(function(ws) {
 
                 // get all the workspace nodes to delete (used by the undo manager)
-                var workspaceNodesToDelete = ws.data.nodes
-                    .filter(function(workspaceNode) {
-                        return data.nodes.filter(function(dataNode) {
-                            return workspaceNode.graphNodeId == dataNode.graphNodeId;
+                var workspaceVerticesToDelete = ws.data.nodes
+                    .filter(function(workspaceVertex) {
+                        return data.vertices.filter(function(dataVertex) {
+                            return workspaceVertex.graphVertexId == dataVertex.graphVertexId;
                         }).length > 0;
                     });
 
                 // remove all workspace nodes from list
                 ws.data.nodes = ws.data.nodes
                     .filter(function(workspaceNode) {
-                        return workspaceNodesToDelete.filter(function(workspaceNodeToDelete) {
+                        return workspaceVerticesToDelete.filter(function(workspaceNodeToDelete) {
                             return workspaceNode._rowKey == workspaceNodeToDelete._rowKey;
                         }).length === 0;
                     });
@@ -476,14 +476,14 @@ define([
                 if(!data.noUndo) {
                     var undoDataClone = JSON.parse(JSON.stringify({
                         noUndo: true,
-                        nodes: workspaceNodesToDelete
+                        vertices: workspaceVerticesToDelete
                     }));
-                    undoManager.performedAction( 'Delete ' + data.nodes.length + ' nodes', {
+                    undoManager.performedAction( 'Delete ' + data.vertices.length + ' nodes', {
                         undo: function() {
-                            self.trigger(document, 'addNodes', undoDataClone);
+                            self.trigger(document, 'addVertices', undoDataClone);
                         },
                         redo: function() {
-                            self.trigger(document, 'deleteNodes', undoDataClone);
+                            self.trigger(document, 'deleteVertices', undoDataClone);
                         },
                         bind: this
                     });
@@ -491,7 +491,7 @@ define([
 
                 this.setWorkspaceDirty();
 
-                this.trigger(document, 'nodesDeleted', data);
+                this.trigger(document, 'verticesDeleted', data);
             });
         };
 
@@ -514,7 +514,7 @@ define([
            }
            return this.workspaceData.data.nodes
                .map(function(node) {
-                   return node.graphNodeId;
+                   return node.graphVertexId;
                });
         };
 
@@ -524,7 +524,7 @@ define([
             }
             return this.workspaceData.data.nodes
                 .map(function(node) {
-                    return node.graphNodeId;
+                    return node.graphVertexId;
                 });
         };
 
@@ -533,11 +533,11 @@ define([
                 return [];
             }
             return this.workspaceData.data.nodes
-                .filter(function(node) {
-                    return node.type == 'artifact';
+                .filter(function(vertex) {
+                    return vertex.type == 'artifact';
                 })
-                .map(function(node) {
-                    return node.graphNodeId;
+                .map(function(vertex) {
+                    return vertex.graphVertexId;
                 });
         };
 
