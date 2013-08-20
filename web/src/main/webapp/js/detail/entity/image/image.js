@@ -24,14 +24,16 @@ define([
 
             this.$node.html(template({src:this.attr.defaultIconSrc}));
 
-            this.node.ondragover = function () { return false; };
-            this.node.ondragenter = function () { this.className = 'file-hover'; return false; };
-            this.node.ondragleave = function() { this.className = ''; return false; };
-            this.node.ondrop = function (e) {
-                this.className = '';
-                e.preventDefault();
-                self.trigger('filesdropped', {files:e.dataTransfer.files});
-            };
+            if (/entity/i.test(this.attr.data._type)) {
+                this.node.ondragover = function () { this.className = 'file-hover'; return false; };
+                this.node.ondragenter = function () { this.className = 'file-hover'; return false; };
+                this.node.ondragleave = function() { this.className = ''; return false; };
+                this.node.ondrop = function (e) {
+                    this.className = '';
+                    e.preventDefault();
+                    self.trigger('filesdropped', {files:e.dataTransfer.files});
+                };
+            }
         });
 
         this.uploadFiles = function(event, data) {
