@@ -49,11 +49,12 @@ public class RegexEntityExtractor extends EntityExtractor {
         Matcher matcher = pattern.matcher(sentence.getData().getText());
 
         while (matcher.find()) {
-            Integer entityStart = matcher.start();
-            Integer entityEnd = matcher.end();
-            String entityName = matcher.group();
-            Term term = createTerm(sentence,sentence.getData().getStart(),entityName,entityType,entityStart,entityEnd);
-            terms.add(term);
+            terms.add(createTerm(sentence,
+                    sentence.getData().getStart(),
+                    matcher.group(),
+                    entityType,
+                    matcher.start(),
+                    matcher.end()));
         }
         return terms;
     }

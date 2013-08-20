@@ -12,8 +12,8 @@ public class Dev extends Base {
     public static final String ORGANIZATION_TYPE = "Organization";
     public static final String COMPANY_TYPE = "Company";
     public static final String LOCATION_TYPE = "Location";
-    public static final String PHONE_NUMBER_TYPE = "PhoneNumber";
-    public static final String EMAIL_ADDRESS_TYPE = "EmailAddress";
+    public static final String PHONE_NUMBER_TYPE = "Phone Number";
+    public static final String EMAIL_ADDRESS_TYPE = "Email Address";
 
     public static void main(String[] args) throws Exception {
         new Dev().run(args);

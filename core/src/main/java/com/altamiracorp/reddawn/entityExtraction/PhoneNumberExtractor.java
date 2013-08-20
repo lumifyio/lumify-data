@@ -15,7 +15,7 @@ import java.util.Collection;
 public class PhoneNumberExtractor extends EntityExtractor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PhoneNumberExtractor.class);
-    private static final String ENTITY_TYPE = "phoneNumber";
+    private static final String ENTITY_TYPE = "Phone Number";
     private static final String MODEL_NAME = "libphonenumber";
     private static final String EXTRACTOR_ID = "PhoneNumber";
     private static final String DEFAULT_REGION_CODE = "defaultRegionCode";
