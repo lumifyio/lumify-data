@@ -69,4 +69,15 @@ public class Row<TRowKey extends RowKey> {
             columnFamily.setDirtyBit(val);
         }
     }
+
+    public void update(Row<TRowKey> newRow) {
+        for (ColumnFamily newColumnFamily : newRow.getColumnFamilies()) {
+            ColumnFamily existingColumnFamily = get(newColumnFamily.getColumnFamilyName());
+            if (existingColumnFamily == null) {
+                addColumnFamily(newColumnFamily);
+            } else {
+                existingColumnFamily.update(newColumnFamily);
+            }
+        }
+    }
 }

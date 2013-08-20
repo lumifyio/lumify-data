@@ -346,12 +346,15 @@ public class AccumuloSession extends Session {
     }
 
     public static Mutation createMutationFromRow(Row row) {
-        Mutation mutation = new Mutation(row.getRowKey().toString());
+        Mutation mutation = null;
         Collection<ColumnFamily> columnFamilies = row.getColumnFamilies();
         for (ColumnFamily columnFamily : columnFamilies) {
             for (Column column : columnFamily.getColumns()) {
                 if (column.isDirty()) {
                     Value value = new Value(column.getValue().toBytes());
+                    if (mutation == null) {
+                        mutation = new Mutation(row.getRowKey().toString());
+                    }
                     mutation.put(columnFamily.getColumnFamilyName(), column.getName(), value);
                 }
             }

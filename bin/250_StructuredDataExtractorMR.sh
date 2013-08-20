@@ -1,8 +1,6 @@
 #!/bin/bash
-# require: 100_GeoNamesImport.sh
-# require: 250_StructuredDataExtractorMR.sh
-# require: 300_DictionaryEntityExtractionMR.sh
-# require: 300_EntityExtractionMR.sh
+# require: 080_Ontology.sh
+# require: 249_TextExtractorConsolidationMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -28,14 +26,13 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.location.TermLocationExtractionMR \
+com.altamiracorp.reddawn.structuredDataExtraction.StructuredDataExtractionMR \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
 --graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
---username=root \
---password=password \
 --failOnFirstError \
---classname=com.altamiracorp.reddawn.location.TermLocationExtractionMR
+--username=root \
+--password=password

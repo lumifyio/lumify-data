@@ -78,4 +78,10 @@ public class ColumnFamily {
             column.setDirty(val);
         }
     }
+
+    public void update(ColumnFamily newColumnFamily) {
+        for (Column newColumn : newColumnFamily.getColumns()) {
+            addColumn(newColumn);
+        }
+    }
 }
