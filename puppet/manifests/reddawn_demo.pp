@@ -34,28 +34,54 @@ node "ip-10-0-3-10" {
 }
 
 node "ip-10-0-3-50" {
+  include my_fw
+  include hadoop::fw::namenode
+  include hadoop::fw::jobtracker
+  include blur::fw::controller
   include role::hadoop::namenode # includes jobtracker
   include role::blur::controller
 }
 
 node "ip-10-0-3-51" {
+  include my_fw
+  include hadoop::fw::secondarynamenode
+  include accumulo::fw::master
+  include accumulo::fw::gc
   include role::hadoop::secondarynamenode
   include role::accumulo::head
 }
 
 node "ip-10-0-3-101" {
+  include my_fw
+  include hadoop::fw::datanode
+  include hadoop::fw::tasktracker
+  include accumulo::fw::tserver
+  include accumulo::fw::logger
+  include blur::fw::shard
   include role::hadoop::datanode # includes zookeeper, tasktracker, and native tools
   include role::accumulo::node
   include role::blur::shard
 }
 
 node "ip-10-0-3-102" {
+  include my_fw
+  include hadoop::fw::datanode
+  include hadoop::fw::tasktracker
+  include accumulo::fw::tserver
+  include accumulo::fw::logger
+  include blur::fw::shard
   include role::hadoop::datanode
   include role::accumulo::node
   include role::blur::shard
 }
 
 node "ip-10-0-3-103" {
+  include my_fw
+  include hadoop::fw::datanode
+  include hadoop::fw::tasktracker
+  include accumulo::fw::tserver
+  include accumulo::fw::logger
+  include blur::fw::shard
   include role::hadoop::datanode
   include role::accumulo::node
   include role::blur::shard
