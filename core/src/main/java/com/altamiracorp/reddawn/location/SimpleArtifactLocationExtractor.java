@@ -24,6 +24,8 @@ public class SimpleArtifactLocationExtractor implements ArtifactLocationExtracto
             if (geoLocation != null) {
                 Artifact artifact = new Artifact(termMention.getArtifactKey());
                 artifact.getDynamicMetadata().setGeolocation(geoLocation);
+                artifact.getDynamicMetadata().setGeoLocationPopulation(termMention.getGeoLocationPopulation());
+                artifact.getDynamicMetadata().setGeoLocationTitle(termMention.getGeoLocationTitle());
                 result.add(artifact);
             }
         }

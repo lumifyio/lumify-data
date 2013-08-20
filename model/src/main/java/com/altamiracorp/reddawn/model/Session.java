@@ -2,6 +2,8 @@ package com.altamiracorp.reddawn.model;
 
 import com.altamiracorp.reddawn.model.dbpedia.DBPedia;
 import com.altamiracorp.reddawn.model.geoNames.GeoName;
+import com.altamiracorp.reddawn.model.geoNames.GeoNameAdmin1Code;
+import com.altamiracorp.reddawn.model.geoNames.GeoNameCountryInfo;
 import com.altamiracorp.reddawn.model.resources.Resource;
 import com.altamiracorp.reddawn.model.videoFrames.VideoFrame;
 import com.altamiracorp.reddawn.model.workspace.Workspace;
@@ -62,6 +64,8 @@ public abstract class Session {
 
         initializeTable(Workspace.TABLE_NAME);
         initializeTable(GeoName.TABLE_NAME);
+        initializeTable(GeoNameAdmin1Code.TABLE_NAME);
+        initializeTable(GeoNameCountryInfo.TABLE_NAME);
         initializeTable(VideoFrame.TABLE_NAME);
         initializeTable(DBPedia.TABLE_NAME);
         initializeTable(Resource.TABLE_NAME);
@@ -103,6 +107,8 @@ public abstract class Session {
 
         deleteTable(Workspace.TABLE_NAME);
         deleteTable(GeoName.TABLE_NAME);
+        deleteTable(GeoNameAdmin1Code.TABLE_NAME);
+        deleteTable(GeoNameCountryInfo.TABLE_NAME);
         deleteTable(VideoFrame.TABLE_NAME);
         deleteTable(DBPedia.TABLE_NAME);
         deleteTable(Resource.TABLE_NAME);

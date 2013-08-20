@@ -2,10 +2,7 @@ package com.altamiracorp.reddawn.location;
 
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
-import com.altamiracorp.reddawn.model.geoNames.GeoName;
-import com.altamiracorp.reddawn.model.geoNames.GeoNameMetadata;
-import com.altamiracorp.reddawn.model.geoNames.GeoNameRepository;
-import com.altamiracorp.reddawn.model.geoNames.GeoNameRowKey;
+import com.altamiracorp.reddawn.model.geoNames.*;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
@@ -24,7 +21,11 @@ import java.util.List;
 public class GeoNamesImport extends RedDawnCommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesImport.class.getName());
     private GeoNameRepository geoNameRepository = new GeoNameRepository();
+    private GeoNameAdmin1CodeRepository geoNameAdmin1CodeRepository = new GeoNameAdmin1CodeRepository();
+    private GeoNameCountryInfoRepository geoNameCountryInfoRepository = new GeoNameCountryInfoRepository();
     private String fileName;
+    private String admin1CodeFileName;
+    private String countryInfoFileName;
 
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new GeoNamesImport(), args);
@@ -37,6 +38,8 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
     protected void processOptions(CommandLine cmd) throws Exception {
         super.processOptions(cmd);
         this.fileName = cmd.getOptionValue("filename");
+        this.admin1CodeFileName = cmd.getOptionValue("admin1code");
+        this.countryInfoFileName = cmd.getOptionValue("countryinfo");
     }
 
     @Override
@@ -45,9 +48,28 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
 
         options.addOption(
                 OptionBuilder
-                        .withArgName("d")
                         .withLongOpt("filename")
                         .withDescription("The GeoNames file to import")
+                        .isRequired()
+                        .hasArg(true)
+                        .withArgName("filename")
+                        .create()
+        );
+
+        options.addOption(
+                OptionBuilder
+                        .withLongOpt("admin1code")
+                        .withDescription("The GeoNames admin1 code file to import")
+                        .isRequired()
+                        .hasArg(true)
+                        .withArgName("filename")
+                        .create()
+        );
+
+        options.addOption(
+                OptionBuilder
+                        .withLongOpt("countryinfo")
+                        .withDescription("The GeoNames Country Info file to import")
                         .isRequired()
                         .hasArg(true)
                         .withArgName("filename")
@@ -65,11 +87,19 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
         File f = new File(this.fileName);
         writeFile(redDawnSession, new FileInputStream(f));
 
+        File admin1CodeFile = new File(this.admin1CodeFileName);
+        writeAdmin1CodeFile(redDawnSession, new FileInputStream(admin1CodeFile));
+
+        File countryInfoFile = new File(this.countryInfoFileName);
+        writeCountryInfoFile(redDawnSession, new FileInputStream(countryInfoFile));
+
         redDawnSession.close();
         return 0;
     }
 
     private void writeFile(RedDawnSession redDawnSession, InputStream in) throws IOException, MutationsRejectedException {
+        LOGGER.info("Importing GeoNames.");
+
         BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
         String line;
         int count = 0;
@@ -168,5 +198,85 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
             metadata.setAdmin4Code(admin4Code);
         }
         return geoName;
+    }
+
+
+    private void writeAdmin1CodeFile(RedDawnSession redDawnSession, InputStream in) throws IOException, MutationsRejectedException {
+        LOGGER.info("Importing GeoNames Admin1 Codes.");
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
+        String line;
+        int count = 0;
+        List<GeoNameAdmin1Code> admin1Codes = new ArrayList<GeoNameAdmin1Code>();
+        while ((line = br.readLine()) != null) {
+            admin1Codes.add(lineToAdmin1Code(redDawnSession, line));
+            count++;
+            if ((count % 1000) == 0) {
+                geoNameAdmin1CodeRepository.saveMany(redDawnSession.getModelSession(), admin1Codes);
+                admin1Codes.clear();
+                LOGGER.info("Imported " + count + " of ~4000  items.");
+            }
+        }
+        geoNameAdmin1CodeRepository.saveMany(redDawnSession.getModelSession(), admin1Codes);
+        admin1Codes.clear();
+        LOGGER.info("Imported " + count + " of ~4000  items.");
+
+        LOGGER.info("Saved " + count + " records");
+    }
+
+    private GeoNameAdmin1Code lineToAdmin1Code(RedDawnSession redDawnSession, String line) {
+        String[] parts = line.split("\t");
+        String keyString = parts[0];
+        String title = parts[1];
+
+        String[] keyStringParts = keyString.split("\\.");
+        String countryCode = keyStringParts[0];
+        String admin1Code = keyStringParts[1];
+
+        GeoNameAdmin1CodeRowKey key = new GeoNameAdmin1CodeRowKey(countryCode, admin1Code);
+        GeoNameAdmin1Code result = new GeoNameAdmin1Code(key);
+        result.getMetadata().setTitle(title);
+        return result;
+    }
+
+    private void writeCountryInfoFile(RedDawnSession redDawnSession, InputStream in) throws IOException, MutationsRejectedException {
+        LOGGER.info("Importing GeoNames Country Info.");
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
+        String line;
+        int count = 0;
+        List<GeoNameCountryInfo> countryInfos = new ArrayList<GeoNameCountryInfo>();
+        while ((line = br.readLine()) != null) {
+            GeoNameCountryInfo countryInfo = lineToCountryInfo(redDawnSession, line);
+            if (countryInfo == null) {
+                continue;
+            }
+            countryInfos.add(countryInfo);
+            count++;
+            if ((count % 100) == 0) {
+                geoNameCountryInfoRepository.saveMany(redDawnSession.getModelSession(), countryInfos);
+                countryInfos.clear();
+                LOGGER.info("Imported " + count + " of ~400  items.");
+            }
+        }
+        geoNameCountryInfoRepository.saveMany(redDawnSession.getModelSession(), countryInfos);
+        countryInfos.clear();
+        LOGGER.info("Imported " + count + " of ~400  items.");
+
+        LOGGER.info("Saved " + count + " records");
+    }
+
+    private GeoNameCountryInfo lineToCountryInfo(RedDawnSession redDawnSession, String line) {
+        if (line.startsWith("#")) {
+            return null;
+        }
+        String[] parts = line.split("\t");
+        String countryCode = parts[0];
+        String title = parts[4];
+
+        GeoNameCountryInfoRowKey key = new GeoNameCountryInfoRowKey(countryCode);
+        GeoNameCountryInfo result = new GeoNameCountryInfo(key);
+        result.getMetadata().setTitle(title);
+        return result;
     }
 }

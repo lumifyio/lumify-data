@@ -26,6 +26,8 @@ public class TermMention extends ColumnFamily {
     public static final String RESOLVED_GRAPH_VERTEX_ID = "atc:resolvedGraphNodeId";
     public static final String RESOLVED_SIGN = "atc:resolvedSign";
     public static final String GRAPH_SUB_TYPE_VERTEX_ID = "atc:resolvedSubTypeNodeId";
+    public static final String GEO_LOCATION_TITLE = "atc:geoLocationTitle";
+    public static final String GEO_LOCATION_POPULATION = "atc:geoLocationPopulation";
 
     public TermMention() {
         super(null);
@@ -156,6 +158,24 @@ public class TermMention extends ColumnFamily {
 
     public TermMention setGeoLocation(Double lat, Double lon) {
         return setGeoLocation(GeoLocation.getGeoLocation(lat, lon));
+    }
+
+    public TermMention setGeoLocationTitle(String geoLocationTitle) {
+        set(GEO_LOCATION_TITLE, geoLocationTitle);
+        return this;
+    }
+
+    public String getGeoLocationTitle() {
+        return Value.toString(get(GEO_LOCATION_TITLE));
+    }
+
+    public TermMention setGeoLocationPopulation(Long geoLocationPopulation) {
+        set(GEO_LOCATION_POPULATION, geoLocationPopulation);
+        return this;
+    }
+
+    public Long getGeoLocationPopulation() {
+        return Value.toLong(get(GEO_LOCATION_POPULATION));
     }
 
     public String getMention() {
