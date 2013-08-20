@@ -45,6 +45,9 @@ cat >> /etc/puppet/puppet.conf <<EO_PUPPET_CONF
     modulepath = \$confdir/modules:/usr/share/puppet/modules:\$confdir/reddawn-modules:\$confdir/puppet-modules
 EO_PUPPET_CONF
 
+heading 'install PuppetLabs modules'
+puppet module install puppetlabs/firewall
+
 heading 'install our configuration and modules, start the puppetmaster service'
 ./update.sh start
 

@@ -37,7 +37,7 @@ public class FileImport extends RedDawnCommandLineBase {
     private String pattern;
     private String source;
     private static String[] arguments;
-    private Boolean downloadZip;
+    private boolean downloadZip;
     private String zipfile;
 
     public static void main(String[] args) throws Exception {

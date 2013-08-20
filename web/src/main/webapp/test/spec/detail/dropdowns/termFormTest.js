@@ -43,8 +43,16 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
         this.setupParentForSelection = function(sentenceText) {
             self.$parentNode = $('<span/>')
                 .addClass('sentence')
+                .data('info', { start: 0 })
                 .html(sentenceText)
                 .appendTo('body');
+
+            var mentionNode = self.$parentNode[0].childNodes[self.$parentNode[0].childNodes.length-1];
+            if (mentionNode.nodeType != 1 || !$(mentionNode).hasClass('entity')) {
+                mentionNode = undefined;
+            } else {
+                $(mentionNode).data('info', { _subType: 1});
+            }
 
             self.$node = $('<div class="dropdown"/>').appendTo(this.$parentNode);
             self.parentNode = this.$parentNode.get(0);
@@ -82,7 +90,8 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
                 selection: {
                     range: range
                 },
-                sign: range.toString()
+                sign: range.toString(),
+                mentionNode: mentionNode
             });
             self.componentConfiguration();
         };
@@ -178,8 +187,12 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
 
             this.setupParentForSelection('offered by [Amazon <span class="entity subType-2">W]eb</span>');
 
+            expect(this.parentNode.childNodes[1].className).to.equal('entity focused');
             expect(this.parentNode.childNodes[1].innerHTML)
                 .to.equal('Amazon <span class="entity subType-2 focused">Web</span>');
+
+            // Don't preselect value based on inner span
+            expect(this.$node.find('select').val()).to.equal("");
 
             expect(this.$node.find('.sign').text()).to.equal('Amazon Web');
         });
@@ -202,6 +215,20 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
                 .not.contain('subType-1');
 
             this.Component.teardownAll();
+        });
+    });
+
+    describe('#highlightTerm', function() {
+
+        xit("should change highlighted term to loaded concept", function() {
+
+            this.setupParentForSelection('offered by [Amazon <span class="entity subType-2">W]eb</span>');
+
+            expect(this.parentNode.childNodes[1].innerHTML)
+                .to.equal('Amazon <span class="entity subType-2 focused">Web</span>');
+
+            // TODO: click create term
+
         });
     });
 });

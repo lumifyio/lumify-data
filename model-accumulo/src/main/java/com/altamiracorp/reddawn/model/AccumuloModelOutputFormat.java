@@ -40,7 +40,9 @@ public class AccumuloModelOutputFormat extends OutputFormat<Text, Row> {
         @Override
         public void write(Text text, Row row) throws IOException, InterruptedException {
             Mutation mutation = AccumuloSession.createMutationFromRow(row);
-            this.recordWriter.write(text, mutation);
+            if (mutation != null) {
+                this.recordWriter.write(text, mutation);
+            }
         }
 
         @Override

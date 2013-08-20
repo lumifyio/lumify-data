@@ -73,8 +73,6 @@ define([
                 $mentionNode.attr('title', newObjectSign);
             }
 
-            $mentionNode.addClass('resolved');
-
             this.entityService.createTerm(parameters, function(err, data) {
                 if (err) {
                     self.trigger(document, 'error', err);
@@ -133,7 +131,7 @@ define([
                 }, 10);
             }
 
-            if (mentionVertex.hasClass('resolved')) {
+            if (existingEntity && mentionVertex.hasClass('resolved')) {
                 objectSign = title;
             }
 
@@ -171,12 +169,17 @@ define([
                     mentionVertexInfo = mentionVertex.data('info');
 
                 self.allConcepts = self.flattenConcepts(rootConcept);
+                
                 self.select('conceptSelector').html(conceptsTemplate({
                     concepts: self.allConcepts,
+<<<<<<< HEAD
                     selectedConceptId: mentionVertexInfo && mentionVertexInfo._subType || ''
+=======
+                    selectedConceptId: (self.attr.existing && mentionNodeInfo && mentionNodeInfo._subType) || ''
+>>>>>>> 83e8ac6eab4f063e6ba1e17d02c9879ff15f5b83
                 }));
 
-                if (self.select('conceptSelector').val() == '') {
+                if (self.select('conceptSelector').val() === '') {
                     self.select('createTermButtonSelector').attr('disabled', true);
                 }
             });
@@ -229,9 +232,14 @@ define([
         };
 
         this.highlightTerm = function(data) {
+<<<<<<< HEAD
             var mentionVertex = $(this.attr.mentionNode),
                 updatingEntity = mentionVertex.is('.entity');
 
+=======
+            var mentionNode = $(this.attr.mentionNode),
+                updatingEntity = this.attr.existing;
+>>>>>>> 83e8ac6eab4f063e6ba1e17d02c9879ff15f5b83
 
             if (updatingEntity) {
 

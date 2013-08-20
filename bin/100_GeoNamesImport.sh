@@ -22,8 +22,12 @@ fi
 
 if [ "$1" != '' ]; then
   filename=$1
+  admin1codeFilename=$2
+  countryInfoFilename=$3
 else
   filename=${DIR}/../data/allCountries.txt
+  admin1codeFilename=${DIR}/../data/admin1CodesASCII.txt
+  countryInfoFilename=${DIR}/../data/countryInfo.txt
 fi
 
 java \
@@ -38,4 +42,6 @@ com.altamiracorp.reddawn.location.GeoNamesImport \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
---filename=${filename}
+--filename=${filename} \
+--admin1code=${admin1codeFilename} \
+--countryinfo=${countryInfoFilename}

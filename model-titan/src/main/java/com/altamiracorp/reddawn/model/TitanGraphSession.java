@@ -1,8 +1,8 @@
 package com.altamiracorp.reddawn.model;
 
 import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
-import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.ontology.LabelName;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
@@ -79,6 +79,10 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public String save(GraphVertex vertex) {
         Vertex v = null;
+        if (vertex instanceof TitanGraphVertex) {
+            return vertex.getId(); // properties are already set
+        }
+
         if (vertex.getId() != null) {
             v = this.graph.getVertex(vertex.getId());
         }
@@ -312,7 +316,11 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public GraphVertex findGraphVertex(String graphVertexId) {
-        return new TitanGraphVertex(findVertex(graphVertexId));
+        Vertex vertex = findVertex(graphVertexId);
+        if (vertex == null) {
+            return null;
+        }
+        return new TitanGraphVertex(vertex);
     }
 
     @Override

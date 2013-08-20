@@ -47,6 +47,7 @@ define([
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'windowResize', this.onMapEndPan);
             this.on(document, 'syncEnded', this.onSyncEnded);
+            this.on(document, 'existingNodesAdded', this.onExistingNodesAdded);
         });
 
         this.map = function(callback) {
@@ -55,6 +56,40 @@ define([
             } else {
                 callbackQueue.push( callback );
             }
+        };
+
+        this.locationToPixels = function(map, point) {
+            var width = this.$node.width(),
+                height = this.$node.height(),
+                bounds = map.getBounds(),
+                swLat = bounds.sw.latConv(),
+                swLon = bounds.sw.lonConv(),
+                neLat = bounds.ne.latConv(),
+                neLon = bounds.ne.lonConv();
+
+            var crossesMeridian = bounds.sw.lon > bounds.ne.lon;
+
+            return {
+
+                // If the bounds spans the 180° meridian fix the span
+                left: Math.round(
+                    width * (
+                        crossesMeridian ?
+
+                        ((180 - bounds.sw.lon) + (point.lon + 180)) / 
+                        ((180 - bounds.sw.lon) + (bounds.ne.lon + 180)) :
+
+                        (point.lon - bounds.sw.lon) / (bounds.ne.lon - bounds.sw.lon)
+                    )
+                ),
+                
+                // Not an exact latitude -> y calculation for mercador but close enough
+                top: Math.round(
+                    height * (
+                        1 - (point.lat - bounds.sw.lat) / (bounds.ne.lat - bounds.sw.lat)
+                    )
+                )
+            };
         };
 
         this.registerForContextMenuEvent = function() {
@@ -85,6 +120,72 @@ define([
                     self.endRegionSelection();
                 }
             });
+        };
+
+        this.onExistingNodesAdded = function(evt, data) {
+            if (this.$node.closest('.visible').length === 0) return;
+
+            var dragging = $('.ui-draggable-dragging:not(.clone-node)'),
+                position = dragging.position(),
+                mapOffset = this.$node.offset(),
+                offset = dragging.offset(),
+                graphOffset = this.$node.offset();
+
+            if (dragging.length != 1) return;
+
+            var cloned = dragging.clone()
+                                 .css({width:'auto'})
+                                 .addClass('clone-node')
+                                 .insertAfter(dragging);
+
+            this.map(function(map) {
+
+                var points = [];
+                map.markers.forEach(function(marker) {
+                    window.marker = marker;
+                    data.nodes.forEach(function(node) {
+                        if (marker.getAttribute('graphNodeId') === node.graphNodeId) {
+                            points.push(marker.location);
+                        }
+                    });
+                });
+
+                if (points.length === 0) return;
+
+                if (!map.getBounds().contains(points[0]) || map.getZoom() < 3) {
+                    var zoom = map.getZoom();
+                    map.centerAndZoomOnPoints(points);
+                    var afterZoom = map.getZoom(); 
+                    map.setZoom(Math.max(3, afterZoom > zoom ? zoom : afterZoom));
+                }
+
+                _.delay(function() {
+                    var p = this.locationToPixels(map, points[0]);
+
+                    // Adjust rendered position to page coordinate system
+                    p.left += mapOffset.left;
+                    p.top += mapOffset.top;
+
+                    // Move draggable coordinates from top/left to center
+                    offset.left += cloned.outerWidth(true) / 2;
+                    offset.top += cloned.outerHeight(true) / 2;
+
+                    cloned
+                        .animate({
+                            left: (position.left + (p.left-offset.left))  + 'px',
+                            top: (position.top +  (p.top-offset.top)) + 'px'
+                        }, {
+                            complete: function() {
+                                cloned.addClass('shrink');
+                                _.delay(function() { 
+                                    cloned.remove(); 
+                                }, 1000); 
+                            }
+                        });
+                }.bind(this), 100);
+
+            });
+
         };
 
         this.onSyncEnded = function() {

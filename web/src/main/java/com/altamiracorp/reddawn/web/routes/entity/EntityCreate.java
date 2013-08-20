@@ -78,12 +78,14 @@ public class EntityCreate implements Handler, AppAware {
             graphVertex = new GraphVertexImpl()
                     .setProperty(PropertyName.TITLE.toString(), title)
                     .setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString())
-                    .setProperty(PropertyName.SUBTYPE.toString(), conceptVertex.getId());
+                    .setProperty(PropertyName.SUBTYPE.toString(), conceptVertex.getId())
+                    .setProperty(PropertyName.SOURCE.toString(), "Analyst Resolved Entity");
             String graphVertexId = graphRepository.saveVertex(session, graphVertex);
             return new GraphVertexImpl(graphVertexId)
                     .setProperty(PropertyName.TITLE.toString(), title)
                     .setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString())
-                    .setProperty(PropertyName.SUBTYPE.toString(), conceptVertex.getId());
+                    .setProperty(PropertyName.SUBTYPE.toString(), conceptVertex.getId())
+                    .setProperty(PropertyName.SOURCE.toString(), "Analyst Resolved Entity");
         }
         return graphVertex;
     }

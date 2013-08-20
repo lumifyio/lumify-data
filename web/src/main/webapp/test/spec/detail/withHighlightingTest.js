@@ -54,6 +54,12 @@ define([
                             {id:2, title:'Second', color:'rgb(0,0,255)', glyphIconHref:'second-icon'}
                         ]});
                     };
+                    this.entityService.createTerm = function(p, callback) {
+                        callback(undefined, {
+                            info: {},
+                            cssClasses: ['subType-1']
+                        });
+                    };
                 });
 
                 this.update = function(str) {
