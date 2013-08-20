@@ -18,6 +18,8 @@ public class ArtifactDynamicMetadata extends ColumnFamily {
     public static final String SOURCE_LABEL = "source_label";
     public static final String STRUCTURED_ANNOTATION_OBJECT = "structured_annotation_object";
     public static final String UNSTRUCTURED_ANNOTATION_OBJECT = "unstructured_annotation_object";
+    public static final String GEO_LOCATION_TITLE = "atc:geoLocationTitle";
+    public static final String GEO_LOCATION_POPULATION = "atc:geoLocationPopulation";
 
     public ArtifactDynamicMetadata() {
         super(NAME);
@@ -74,6 +76,24 @@ public class ArtifactDynamicMetadata extends ColumnFamily {
 
     public Double getLongitude() {
         return GeoLocation.getLongitude(getGeoLocation());
+    }
+
+    public ArtifactDynamicMetadata setGeoLocationTitle(String geoLocationTitle) {
+        set(GEO_LOCATION_TITLE, geoLocationTitle);
+        return this;
+    }
+
+    public String getGeoLocationTitle() {
+        return Value.toString(get(GEO_LOCATION_TITLE));
+    }
+
+    public ArtifactDynamicMetadata setGeoLocationPopulation(Long geoLocationPopulation) {
+        set(GEO_LOCATION_POPULATION, geoLocationPopulation);
+        return this;
+    }
+
+    public Long getGeoLocationPopulation() {
+        return Value.toLong(get(GEO_LOCATION_POPULATION));
     }
 
     public String getProvenanceId() {

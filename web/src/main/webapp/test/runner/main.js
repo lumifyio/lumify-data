@@ -2,7 +2,6 @@ var tests = Object.keys(window.__karma__.files).filter(function (file) {
     return (/^\/base\/test\/spec\/.*\.js$/).test(file);
 });
 
-//var applyConfiguration = require.config.bind(require);
 requirejs(['/base/js/require.config.js'], function(cfg) {
 
     var requireConfig = $.extend(true, {}, cfg, {
