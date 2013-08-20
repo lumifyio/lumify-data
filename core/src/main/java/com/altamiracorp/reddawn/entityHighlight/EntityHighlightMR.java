@@ -17,7 +17,6 @@ import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 
 public class EntityHighlightMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityHighlightMR.class.getName());
-    private static final Text KEY_ARTIFACT_TABLE = new Text(Artifact.TABLE_NAME);
 
     @Override
     protected Class getMapperClass(Job job, Class clazz) {
@@ -37,6 +36,7 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
 
     public static class EntityHighlightMapper extends RedDawnMapper<Text, Artifact, Text, Artifact> {
         private EntityHighlighter entityHighlighter = new EntityHighlighter();
+        private static final Text KEY_ARTIFACT_TABLE = new Text(Artifact.TABLE_NAME);
 
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
