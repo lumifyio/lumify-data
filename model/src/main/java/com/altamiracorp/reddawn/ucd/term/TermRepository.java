@@ -42,7 +42,7 @@ public class TermRepository extends Repository<Term> {
         return Term.TABLE_NAME;
     }
 
-    public Collection<Term> findByArtifactRowKey(Session session, String artifactRowKey) {
+    public List<Term> findByArtifactRowKey(Session session, String artifactRowKey) {
         ArrayList<Term> terms = new ArrayList<Term>();
         ArtifactTermIndex artifactTermIndex = artifactTermIndexRepository.findByRowKey(session, artifactRowKey);
         if (artifactTermIndex == null) {
@@ -56,6 +56,21 @@ public class TermRepository extends Repository<Term> {
             terms.add(term);
         }
         return terms;
+    }
+
+    public List<TermAndTermMention> findByTermMentionsArtifactRowKey(Session session, String artifactRowKey) {
+        List<Term> terms = findByArtifactRowKey(session, artifactRowKey);
+        ArrayList<TermAndTermMention> termAndTermMentions = new ArrayList<TermAndTermMention>();
+
+        for (Term term : terms) {
+            for (TermMention termMention : term.getTermMentions()) {
+                if (termMention.getArtifactKey().equals(artifactRowKey)) {
+                    termAndTermMentions.add(new TermAndTermMention(term, termMention));
+                }
+            }
+        }
+
+        return termAndTermMentions;
     }
 
     public List<ColumnFamily> findMentions(Session session, String rowKey, long colFamOffset, long colFamLimit) {
