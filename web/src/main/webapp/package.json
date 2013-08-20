@@ -7,7 +7,7 @@
     "test": "test"
   },
   "dependencies": {
-    "karma": "~0.9.2",
+    "karma": "0.9.8",
     "karma-chrome-launcher": "0.0.1",
     "karma-coffee-preprocessor": "~0.0.1",
     "karma-coverage": "0.0.2",

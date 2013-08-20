@@ -29,6 +29,8 @@ fi
 
 java \
 -Dfile.encoding=UTF-8 \
+-Djava.security.krb5.realm= \
+-Djava.security.krb5.kdc= \
 -classpath ${classpath} \
 -Xmx1024M \
 com.altamiracorp.reddawn.web.Server \
