@@ -6,7 +6,7 @@ digraph {
 
 	{ rank=min; "Entity";}
 	"Entity" [
-		label=<<B>Entity</B><BR/>title: string<BR/>subType: string<BR/>type: string>
+		label=<<B>Entity</B><BR/>_glyphIcon: image<BR/>title: string<BR/>_subType: string<BR/>_type: string>
 	];
 	"Person" [
 		label=<<B>Person</B><BR/>birthDate: date>
@@ -28,9 +28,23 @@ digraph {
 	];
 	{ rank=same; }
 	"Location" -> "Entity" [color=black;];
-	{ rank=same; "Person";"Organization";"Location";}
+	"Phone Number" [
+		label=<<B>Phone Number</B>>
+	];
+	{ rank=same; }
+	"Phone Number" -> "Entity" [color=black;];
+	"Email Address" [
+		label=<<B>Email Address</B><BR/>active: string>
+	];
+	{ rank=same; }
+	"Email Address" -> "Entity" [color=black;];
+	{ rank=same; "Person";"Organization";"Location";"Phone Number";"Email Address";}
+	"Organization" -> "Email Address" [ label = "hasEmailAddress"; color=lightgrey; ];
+	"Person" -> "Email Address" [ label = "hasEmailAddress"; color=lightgrey; ];
+	"Person" -> "Location" [ label = "livesAt"; color=lightgrey; ];
 	"Person" -> "Person" [ label = "knows"; color=lightgrey; ];
+	"Organization" -> "Phone Number" [ label = "hasPhoneNumber"; color=lightgrey; ];
+	"Person" -> "Phone Number" [ label = "hasPhoneNumber"; color=lightgrey; ];
 	"Organization" -> "Location" [ label = "headquarteredAt"; color=lightgrey; ];
 	"Person" -> "Company" [ label = "worksAt"; color=lightgrey; ];
-	"Person" -> "Location" [ label = "livesAt"; color=lightgrey; ];
 }
