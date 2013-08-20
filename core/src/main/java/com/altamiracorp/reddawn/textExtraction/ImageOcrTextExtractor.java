@@ -8,6 +8,7 @@ import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
+import net.sourceforge.vietocr.ImageHelper;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.awt.image.BufferedImage;
@@ -37,6 +38,9 @@ public class ImageOcrTextExtractor implements TextExtractor {
         }
 
         BufferedImage image = artifactRepository.getRawAsImage(session, artifact);
+        if (image == null){
+            return null;
+        }
         String ocrResults = extractTextFromImage(image);
         if (ocrResults == null) {
             return null;
@@ -64,7 +68,8 @@ public class ImageOcrTextExtractor implements TextExtractor {
     }
 
     private String extractTextFromImage(BufferedImage image) throws TesseractException {
-        String ocrResults = tesseract.doOCR(image);
+        BufferedImage grayImage = ImageHelper.convertImageToGrayscale(image);
+        String ocrResults = tesseract.doOCR(grayImage);
         if (ocrResults == null || ocrResults.trim().length() == 0) {
             return null;
         }

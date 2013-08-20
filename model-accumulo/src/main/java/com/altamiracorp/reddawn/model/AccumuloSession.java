@@ -204,7 +204,7 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    void initializeTable(String tableName) {
+    public void initializeTable(String tableName) {
         LOGGER.info("initializeTable: " + tableName);
         try {
             if (!connector.tableOperations().exists(tableName)) {
@@ -317,6 +317,7 @@ public class AccumuloSession extends Session {
     @Override
     public void touchRow(String tableName, RowKey rowKey, QueryUser queryUser) {
         Row row = findByRowKey(tableName, rowKey.toString(), queryUser);
+        row.setDirtyBits(true);
         save(row);
     }
 
@@ -349,8 +350,10 @@ public class AccumuloSession extends Session {
         Collection<ColumnFamily> columnFamilies = row.getColumnFamilies();
         for (ColumnFamily columnFamily : columnFamilies) {
             for (Column column : columnFamily.getColumns()) {
-                Value value = new Value(column.getValue().toBytes());
-                mutation.put(columnFamily.getColumnFamilyName(), column.getName(), value);
+                if (column.isDirty()) {
+                    Value value = new Value(column.getValue().toBytes());
+                    mutation.put(columnFamily.getColumnFamilyName(), column.getName(), value);
+                }
             }
         }
         return mutation;

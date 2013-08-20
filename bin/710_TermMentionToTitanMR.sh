@@ -1,5 +1,7 @@
 #!/bin/bash
-# require: 300_DictionaryEntityExtractionMR.sh, 300_EntityExtractionMR.sh, 700_ArtifactToTitanMR.sh
+# require: 300_DictionaryEntityExtractionMR.sh
+# require: 300_EntityExtractionMR.sh
+# require: 700_ArtifactToTitanMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -33,4 +35,5 @@ com.altamiracorp.reddawn.graph.TermMentionToTitanMR \
 --graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
---password=password
+--password=password \
+--failOnFirstError

@@ -1,8 +1,11 @@
 package com.altamiracorp.reddawn.web.routes.entity;
 
 import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.model.graph.GraphNode;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
+import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
+import com.altamiracorp.reddawn.model.ontology.PropertyType;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
@@ -28,9 +31,9 @@ public class EntitySearch implements Handler, AppAware {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         String query = request.getParameter("q");
         RedDawnSession session = app.getRedDawnSession(request);
-        List<GraphNode> nodes = graphRepository.searchNodesByTitleAndType(session.getGraphSession(), query, GraphRepository.ENTITY_TYPE);
+        List<GraphVertex> nodes = graphRepository.searchVerticesByTitleAndType(session.getGraphSession(), query, VertexType.ENTITY);
         JSONObject results = new JSONObject();
-        results.put("nodes", GraphNode.toJson(nodes));
+        results.put("nodes", GraphVertex.toJson(nodes));
         new Responder(response).respondWith(results);
     }
 }

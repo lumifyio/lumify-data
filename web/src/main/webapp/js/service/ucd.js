@@ -20,22 +20,24 @@ function(ServiceBase) {
         }, callback);
     };
 
-    Ucd.prototype.deleteEdge = function(sourceId, targetId, callback) {
+    Ucd.prototype.deleteEdge = function(sourceId, targetId, label, callback) {
         return this._ajaxGet({
             url: '/node/removeRelationship',
             data: {
                 sourceId: sourceId,
-                targetId: targetId
+                targetId: targetId,
+                label: label
             }
         }, callback);
     };
 
-    Ucd.prototype.getNodeToNodeRelationshipDetails = function (source, target, callback){
+    Ucd.prototype.getNodeToNodeRelationshipDetails = function (source, target, label, callback){
         return this._ajaxGet({
             url: 'node/relationship',
             data: {
                 source: source,
-                target: target
+                target: target,
+                label: label
             }
         }, callback);
     };
@@ -96,15 +98,12 @@ function(ServiceBase) {
         return this._ajaxGet({ url: 'graph/' + encodeURIComponent(graphNodeId) + (resolvedOnly ? '/relatedResolvedNodes' : '/relatedNodes') }, callback);
     };
 
-    Ucd.prototype.entityRelationships = function (id, options, callback) {
-        return this._relationships("entity", id, options, callback);
-    };
-
     Ucd.prototype.getNodeRelationships = function(graphNodeId, callback) {
         return this._ajaxGet({ url: 'node/' + encodeURIComponent(graphNodeId) + '/relationships'}, callback);
     }
 
     Ucd.prototype.getNodeProperties = function(graphNodeId, callback) {
+        console.log('getNodeProperties:', graphNodeId);
         return this._ajaxGet({ url: 'node/' + encodeURIComponent(graphNodeId) + '/properties'}, callback);
     }
 

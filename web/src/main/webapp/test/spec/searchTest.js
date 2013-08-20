@@ -3,6 +3,9 @@ describeComponent('search/search', function(Search) {
 
     beforeEach(function() {
         setupComponent();
+        this.component.entityService.concepts = function(callback) {
+            callback(undefined, {children:[]});
+        };
     });
 
     describe('#onFormSearch', function() {
@@ -39,17 +42,23 @@ describeComponent('search/search', function(Search) {
             this.component.ucd.artifactSearch = function(query) {
                 artifactSearchQuery = query;
             };
-            this.component.ucd.entitySearch = function(query) {
+            this.component.ucd.graphNodeSearch = function(query) {
                 entitySearchQuery = query;
+            };
+
+            this.component.entityService.concepts = function(callback) {
+
+                callback(undefined, { children:[] });
+
+                expect(artifactSearchQuery).not.to.be.null;
+                expect(artifactSearchQuery.query).to.equal(query.query);
+                expect(entitySearchQuery).not.to.be.null;
+                expect(entitySearchQuery.query).to.equal(query.query);
+                done();
             };
 
             this.component.doSearch(evt, query);
 
-            expect(artifactSearchQuery).not.to.be.null;
-            expect(artifactSearchQuery.query).to.equal(query.query);
-            expect(entitySearchQuery).not.to.be.null;
-            expect(entitySearchQuery.query).to.equal(query.query);
-            done();
         });
 
     });

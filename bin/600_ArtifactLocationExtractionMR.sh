@@ -34,4 +34,5 @@ com.altamiracorp.reddawn.location.ArtifactLocationExtractorMR \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
+--failOnFirstError \
 --classname=com.altamiracorp.reddawn.location.SimpleArtifactLocationExtractor \

@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.model;
 public class Column {
     private final String name;
     private final Value value;
+    private boolean dirty;
 
     public Column(String name, Object value) {
         this.name = name;
@@ -15,6 +16,14 @@ public class Column {
 
     public Value getValue() {
         return this.value;
+    }
+
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
     }
 
     @Override

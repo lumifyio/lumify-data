@@ -9,15 +9,16 @@ done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 dir=$1
+filename=${DIR}/../${dir}/target/.classpath.$(id -un)
 
 if [ -d ${DIR}/../${dir} ]; then
   if [ "${RUN_MVN}" != '' ]; then
     run_mvn='true'
-  elif [ ! -f ${DIR}/../${dir}/target/.classpath ]; then
+  elif [ ! -f ${filename} ]; then
     run_mvn='true'
   else
     for pom in $(find ${DIR}/.. -name 'pom.xml'); do
-      if [ ${pom} -nt ${DIR}/../${dir}/target/.classpath ]; then
+      if [ ${pom} -nt ${filename} ]; then
         run_mvn='true'
         break
       fi
@@ -25,23 +26,27 @@ if [ -d ${DIR}/../${dir} ]; then
   fi
 
   if [ "${run_mvn}" == 'true' ]; then
-    mvn_output="$(cd ${DIR}/.. && mvn clean package -Dmaven.test.skip=true)"
+    echo 'running maven to calculate the classpath...' >&2
+    mvn_output="$(cd ${DIR}/.. && mvn clean compile -DskipTests)"
     mvn_exit=$?
     if [ ${mvn_exit} -ne 0 ]; then
       echo "${mvn_output}"
       exit ${mvn_exit}
     fi
+    echo 'maven finished.' >&2
+  else
+    echo 'not running maven, using cached classpath.' >&2
   fi
 
-  if [ -f ${DIR}/../${dir}/target/.classpath ]; then
+  if [ -f ${filename} ]; then
     if [ -d ${DIR}/../${dir}/target/classes ]; then
-      echo "${DIR}/../${dir}/target/classes:$(cat ${DIR}/../${dir}/target/.classpath)"
+      echo "${DIR}/../${dir}/target/classes:$(cat ${filename})"
     else
       echo "${dir}/target/classes not found"
       exit 3
     fi
   else
-    echo "${dir}/target/.classpath not found"
+    echo "${filename} not found"
     exit 2
   fi
 else

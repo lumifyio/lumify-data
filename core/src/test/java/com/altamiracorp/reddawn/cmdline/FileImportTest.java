@@ -6,7 +6,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -16,10 +20,13 @@ public class FileImportTest {
 
     private FileImport fileImport;
     private CommandLine mockCl;
+    private LinkedList<String> argList;
 
     @Before
     public void setUp() {
         fileImport = new FileImport();
+        argList = new LinkedList<String>();
+        argList.add ("zip file");
         mockCl = mock(CommandLine.class);
         when(mockCl.getOptionValue(anyString())).thenReturn("something");
     }
@@ -29,12 +36,14 @@ public class FileImportTest {
         when(mockCl.getOptionValue("directory")).thenReturn("sample/directory");
         when(mockCl.getOptionValue("source")).thenReturn("Sample Source");
         when(mockCl.getOptionValue("pattern")).thenReturn("Sample Pattern");
+        when(mockCl.getArgList()).thenReturn(argList);
         when(mockCl.hasOption(anyString())).thenReturn(true);
 
         fileImport.processOptions(mockCl);
         assertEquals(fileImport.getSource(), "Sample Source");
         assertEquals(fileImport.getPattern(), "Sample Pattern");
         assertEquals(fileImport.getDirectory(), "sample/directory");
+        assertEquals(fileImport.getZipfile(), "zip file");
     }
 
     @Test

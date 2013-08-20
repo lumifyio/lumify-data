@@ -1,10 +1,10 @@
 package com.altamiracorp.reddawn.sentenceExtraction;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
+import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -37,7 +37,7 @@ public class SentenceExtractionMR extends ConfigurableMapJobBase {
         return AccumuloModelOutputFormat.class;
     }
 
-    public static class SentenceExtractorMapper extends Mapper<Text, Artifact, Text, Sentence> {
+    public static class SentenceExtractorMapper extends RedDawnMapper<Text, Artifact, Text, Sentence> {
         private SentenceExtractor sentenceExtractor;
         public static final String CONF_SENTENCE_EXTRACTOR_CLASS = "sentenceExtractorClass";
 
@@ -55,19 +55,15 @@ public class SentenceExtractionMR extends ConfigurableMapJobBase {
         }
 
         @Override
-        protected void map(Text key, Artifact artifact, Context context) throws IOException, InterruptedException {
+        protected void safeMap(Text key, Artifact artifact, Context context) throws Exception {
             if (artifact.getGenericMetadata().getMappingJson() != null) {
                 return;
             }
 
             LOGGER.info("Extracting sentences for artifact: " + artifact.getRowKey().toString());
 
-            try {
-                Collection<Sentence> sentences = sentenceExtractor.extractSentences(artifact);
-                writeSentences(context, sentences);
-            } catch (Exception e) {
-                throw new IOException(e);
-            }
+            Collection<Sentence> sentences = sentenceExtractor.extractSentences(artifact);
+            writeSentences(context, sentences);
         }
 
         private void writeSentences(Mapper.Context context, Collection<Sentence> sentences) throws IOException, InterruptedException {

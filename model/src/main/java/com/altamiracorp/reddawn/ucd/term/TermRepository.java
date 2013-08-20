@@ -1,12 +1,13 @@
 package com.altamiracorp.reddawn.ucd.term;
 
 import com.altamiracorp.reddawn.model.*;
-import com.altamiracorp.reddawn.model.graph.GraphNode;
-import com.altamiracorp.reddawn.model.graph.GraphNodeImpl;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndexRepository;
-import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,7 +16,6 @@ import java.util.List;
 
 public class TermRepository extends Repository<Term> {
     private ArtifactTermIndexRepository artifactTermIndexRepository = new ArtifactTermIndexRepository();
-    private SentenceRepository sentenceRepository = new SentenceRepository();
 
     @Override
     public Term fromRow(Row row) {
@@ -92,30 +92,32 @@ public class TermRepository extends Repository<Term> {
         }
     }
 
-    public void saveToGraph(Session session, GraphSession graphSession, Term term, TermMention termMention) {
-        String suggestedNodeId = termMention.getGraphNodeId();
-        GraphNode node = new GraphNodeImpl(suggestedNodeId);
-        node.setProperty("type", "termMention");
-        node.setProperty("subType", term.getRowKey().getConceptLabel());
-        node.setProperty(GraphSession.PROPERTY_NAME_ROW_KEY, term.getRowKey().toString());
-        node.setProperty("_columnFamilyName", termMention.getColumnFamilyName());
-        node.setProperty(GraphSession.PROPERTY_NAME_TITLE, term.getRowKey().getSign());
+    public void saveToGraph(Session session, GraphSession graphSession, Term term, TermMention termMention, String conceptId) {
+        String oldGraphVertexId = termMention.getGraphVertexId();
+        GraphVertex vertex = new GraphVertexImpl();
+        vertex.setProperty(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString());
+        vertex.setProperty(PropertyName.SUBTYPE.toString(), conceptId);
+        vertex.setProperty(PropertyName.ROW_KEY.toString(), term.getRowKey().toString());
+        vertex.setProperty(PropertyName.COLUMN_FAMILY_NAME.toString(), termMention.getColumnFamilyName());
+        vertex.setProperty(PropertyName.TITLE.toString(), term.getRowKey().getSign());
+        vertex.setProperty(PropertyName.SOURCE.toString(), termMention.getArtifactSubject() == null ? "" : termMention.getArtifactSubject());
 
-        String nodeId = graphSession.save(node);
-        if (!nodeId.equals(suggestedNodeId)) {
-            termMention.setGraphNodeId(nodeId);
+        String vertexId = graphSession.save(vertex);
+        if (!vertexId.equals(oldGraphVertexId) || !termMention.getGraphSubTypeVertexeId().equals(conceptId)) {
+            termMention.setGraphSubTypeVertexId(conceptId);
+            termMention.setGraphVertexId(vertexId);
             this.save(session, term);
         }
 
-        List<GraphNode> artifactNodes = graphSession.findBy(GraphSession.PROPERTY_NAME_ROW_KEY, termMention.getArtifactKey());
-        if (artifactNodes.size() == 0) {
+        List<GraphVertex> artifactVertices = graphSession.findBy(PropertyName.ROW_KEY.toString(), termMention.getArtifactKey());
+        if (artifactVertices.size() == 0) {
             throw new RuntimeException("Could not find artifact \"" + termMention.getArtifactKey() + "\" to link term mention to");
         }
-        if (artifactNodes.size() > 1) {
-            throw new RuntimeException("Multiple artifact nodes found \"" + termMention.getArtifactKey() + "\"");
+        if (artifactVertices.size() > 1) {
+            throw new RuntimeException("Multiple artifact vertices found \"" + termMention.getArtifactKey() + "\"");
         }
 
-        GraphRelationship artifactRelationship = new GraphRelationship(null, artifactNodes.get(0).getId(), nodeId, "artifactToTermMention");
+        GraphRelationship artifactRelationship = new GraphRelationship(null, artifactVertices.get(0).getId(), vertexId, "hasTermMention");
         graphSession.save(artifactRelationship);
     }
 

@@ -1,0 +1,50 @@
+digraph {
+	splines=curved;
+	sep="+50,50";
+	overlap=scalexy;
+	nodesep=0.6;
+
+	{ rank=min; "Entity";}
+	"Entity" [
+		label=<<B>Entity</B><BR/>_glyphIcon: image<BR/>title: string<BR/>_subType: string<BR/>_type: string>
+	];
+	"Person" [
+		label=<<B>Person</B><BR/>birthDate: date>
+	];
+	{ rank=same; }
+	"Person" -> "Entity" [color=black;];
+	"Organization" [
+		label=<<B>Organization</B><BR/>formationDate: date>
+	];
+	"Company" [
+		label=<<B>Company</B><BR/>netIncome: currency>
+	];
+	{ rank=same; }
+	"Company" -> "Organization" [color=black;];
+	{ rank=same; "Company";}
+	"Organization" -> "Entity" [color=black;];
+	"Location" [
+		label=<<B>Location</B><BR/>geoLocation: geoLocation>
+	];
+	{ rank=same; }
+	"Location" -> "Entity" [color=black;];
+	"Phone Number" [
+		label=<<B>Phone Number</B>>
+	];
+	{ rank=same; }
+	"Phone Number" -> "Entity" [color=black;];
+	"Email Address" [
+		label=<<B>Email Address</B><BR/>active: string>
+	];
+	{ rank=same; }
+	"Email Address" -> "Entity" [color=black;];
+	{ rank=same; "Person";"Organization";"Location";"Phone Number";"Email Address";}
+	"Organization" -> "Email Address" [ label = "hasEmailAddress"; color=lightgrey; ];
+	"Person" -> "Email Address" [ label = "hasEmailAddress"; color=lightgrey; ];
+	"Person" -> "Location" [ label = "livesAt"; color=lightgrey; ];
+	"Person" -> "Person" [ label = "knows"; color=lightgrey; ];
+	"Organization" -> "Phone Number" [ label = "hasPhoneNumber"; color=lightgrey; ];
+	"Person" -> "Phone Number" [ label = "hasPhoneNumber"; color=lightgrey; ];
+	"Organization" -> "Location" [ label = "headquarteredAt"; color=lightgrey; ];
+	"Person" -> "Company" [ label = "worksAt"; color=lightgrey; ];
+}

@@ -5,7 +5,7 @@
   </a>
   <ul class="highlight-options dropdown-menu">
     <% styles.forEach(function(style, i) { %>
-    <li class="<%= i === activeStyle ? 'checked' : '' %>" data-cls="<%= style.cls || '' %>"><a href="#"><%= style.name %></a></li>
+    <li class="<%= i === activeStyle ? 'checked' : '' %>" data-selector="<%= style.selector || '' %>"><a href="#"><%= style.name %></a></li>
     <% }); %>
   </ul>
 </div>

@@ -23,7 +23,9 @@ public class AccumuloHelper {
 
     private static void addColumnFamilyToMutation(Mutation mutation, ColumnFamily columnFamily) {
         for (Column column : columnFamily.getColumns()) {
-            addColumnToMutation(mutation, column, columnFamily.getColumnFamilyName());
+            if (column.isDirty()) {
+                addColumnToMutation(mutation, column, columnFamily.getColumnFamilyName());
+            }
         }
     }
 
@@ -45,7 +47,6 @@ public class AccumuloHelper {
         }
         return rows;
     }
-
 
 
     public static List<ColumnFamily> scannerToColumnFamiliesFilteredByRegex(Scanner scanner,
@@ -110,6 +111,7 @@ public class AccumuloHelper {
             String columnNameString = accumuloColumn.getKey().getColumnQualifier().toString();
             columnFamily.set(columnNameString, accumuloValueToObject(accumuloColumn.getValue()));
         }
+        row.setDirtyBits(false);
         return row;
     }
 

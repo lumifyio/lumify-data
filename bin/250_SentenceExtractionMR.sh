@@ -34,5 +34,6 @@ com.altamiracorp.reddawn.sentenceExtraction.SentenceExtractionMR \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
+--failOnFirstError \
 --classname=com.altamiracorp.reddawn.sentenceExtraction.OpenNlpSentenceExtractor \
 --config=nlpConfPathPrefix=file://$(cd ${DIR}/.. && pwd)

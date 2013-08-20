@@ -2,88 +2,76 @@ var tests = Object.keys(window.__karma__.files).filter(function (file) {
     return (/^\/base\/test\/spec\/.*\.js$/).test(file);
 });
 
-// TODO: This duplicates index.html 'require' variable. Load that and override baseUrl
+//var applyConfiguration = require.config.bind(require);
+requirejs(['/base/js/require.config.js'], function(cfg) {
 
-var cytoscapePlugins = [
-  'jquery.cytoscape-panzoom'
-];
+    var requireConfig = $.extend(true, {}, cfg, {
 
-var requireConfig = {
+        // Karma serves files from '/base'
+        baseUrl: '/base/js',
 
-    // Karma serves files from '/base'
-    baseUrl: '/base/js',
-    
-    paths: {
-        flight: '../libs/flight',
-        text: '../libs/requirejs-text/text',
-        ejs:  '../libs/ejs/ejs',
-        tpl: '../libs/requirejs-ejs-plugin/rejs',
-        cytoscape: '../libs/cytoscape/cytoscape',
+        paths: {
+            chai: '../libs/chai/chai',
+            sinon: '../libs/sinon/lib/sinon',
+            'sinon-chai': '../libs/sinon-chai/lib/sinon-chai',
+            'flight-mocha': '../libs/flight-mocha/lib/flight-mocha'
+        },
 
-        chai: '../libs/chai/chai',
-        sinon: '../libs/sinon/lib/sinon',
-        'sinon-chai': '../libs/sinon-chai/lib/sinon-chai',
-        'flight-mocha': '../libs/flight-mocha/lib/flight-mocha'
-    },
+        shim: {
+            sinon: { exports: 'sinon' }
+        },
 
-    shim: {
-        ejs: { exports: 'ejs' },
-        cytoscape: { exports: 'cytoscape', deps:[] },
-        sinon: { exports: 'sinon' }
-    },
+        deps: [ 
+            'chai', 
+            'sinon', 
+            '../libs/es5-shim/es5-shim',
+            '../libs/es5-shim/es5-sham'  
+        ],
 
-    deps: [ 
-        'chai', 
-        'sinon', 
-        '../libs/es5-shim/es5-shim',
-        '../libs/es5-shim/es5-sham'  
-    ],
+        callback: function(chai, sinon) {
+            sinon.spy = sinon.spy || {};
 
-    callback: function(chai, sinon) {
-        sinon.spy = sinon.spy || {};
+            require([
+                    'sinon-chai', 
+                    'sinon/util/event',
+                    'sinon/call',
+                    'sinon/stub',
+                    'sinon/spy',
+                    'sinon/mock',
+                    'flight-mocha'
+            ], function(sinonChai) {
 
-        require([
-                'sinon-chai', 
-                'sinon/util/event',
-                'sinon/call',
-                'sinon/stub',
-                'sinon/spy',
-                'sinon/mock',
-                'flight-mocha'
-        ], function(sinonChai) {
+                // Use sinon as mocking framework
+                chai.use(sinonChai);
 
-            // Use sinon as mocking framework
-            chai.use(sinonChai);
+                // Expose as global variables
+                global.chai = chai;
+                global.sinon = sinon;
 
-            // Expose as global variables
-            global.chai = chai;
-            global.sinon = sinon;
+                // Globals for assertions
+                assert = chai.assert;
+                expect = chai.expect;
 
-            // Globals for assertions
-            assert = chai.assert;
-            expect = chai.expect;
+                // Use the twitter flight interface to mocha
+                mocha.ui('flight-mocha');
+                mocha.options.globals.push( "ejs", "cytoscape", "DEBUG" );
 
-            // Use the twitter flight interface to mocha
-            mocha.ui('flight-mocha');
-            mocha.options.globals.push( "ejs", "cytoscape", "DEBUG" );
+                // Run tests after loading
+                if (tests.length) {
+                    require(tests, function() {
+                        window.__karma__.start();
+                    });
+                } else window.__karma__.start();
+            });
 
-            // Run tests after loading
-            if (tests.length) {
-                require(tests, function() {
-                    window.__karma__.start();
-                });
-            } else window.__karma__.start();
-        });
+        }
 
-    }
-};
+    });
+    requireConfig.deps = requireConfig.deps.concat(cfg.deps);
+    delete requireConfig.urlArgs;
 
-cytoscapePlugins.forEach(function(plugin) {
-  requireConfig.paths[plugin] = '../libs/cytoscape/' + plugin;
-  requireConfig.shim[plugin] = { exports: 'jQuery' };
-  requireConfig.shim.cytoscape.deps = requireConfig.shim.cytoscape.deps || [];
-  requireConfig.shim.cytoscape.deps.push(plugin);
+    window.require = requirejs;
+    requirejs.config(requireConfig);
 });
 
-require.config(requireConfig);
 

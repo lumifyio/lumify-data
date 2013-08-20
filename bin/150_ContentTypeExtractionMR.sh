@@ -33,4 +33,5 @@ com.altamiracorp.reddawn.contentTypeExtraction.ContentTypeExtractionMR \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
+--failOnFirstError \
 --classname=com.altamiracorp.reddawn.contentTypeExtraction.TikaContentTypeExtractor

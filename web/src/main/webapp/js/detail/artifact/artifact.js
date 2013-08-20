@@ -41,8 +41,8 @@ define([
                 }
 
                 artifact.dataInfo = JSON.stringify({
-                    type: 'artifact',
-                    subType: artifact.type,
+                    _type: 'artifact',
+                    _subType: artifact.type,
                     graphNodeId: artifact.Generic_Metadata['atc:graph_node_id'],
                     _rowKey: artifact.key.value
                 });

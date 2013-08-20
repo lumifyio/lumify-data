@@ -1,5 +1,4 @@
 #!/bin/bash
-# require: 100_DBPediaMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -15,8 +14,8 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
-if [ "$1" != '' ]; then
-  dir=$1
+if [ "$2" != '' ]; then
+  dir=$2
 else
   dir=${DIR}/../data/import
 fi
@@ -27,10 +26,13 @@ else
   ip=192.168.33.10
 fi
 
+
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 com.altamiracorp.reddawn.cmdline.FileImport \
+--directory=${dir} \
+--zipfile=$1 \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
@@ -38,5 +40,4 @@ com.altamiracorp.reddawn.cmdline.FileImport \
 --graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
---password=password \
---directory=${dir}
+--password=password

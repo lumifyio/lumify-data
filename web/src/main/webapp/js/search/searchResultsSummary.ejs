@@ -6,6 +6,4 @@
 
 <li class="nav-header">Entities</li>
 
-<% concepts.forEach(function(concept) { %>
-<li item-path="entity.<%= concept.conceptLabel %>" class="<%= concept.conceptLabel %>"><a href="#"><%= concept.ui %><span class="badge"></span></a></li>
-<% }); %>
+<%- resultsHtml %>

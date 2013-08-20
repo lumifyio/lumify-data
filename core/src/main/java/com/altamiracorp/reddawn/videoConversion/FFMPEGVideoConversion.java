@@ -41,7 +41,6 @@ public class FFMPEGVideoConversion {
         ffmpeg(new String[]{
                 "-i", file.getAbsolutePath(),
                 "-vn",
-                //"-ac", "2",
                 "-ar", "44100",
                 "-ab", "320k",
                 "-f", "mp3",
@@ -144,7 +143,6 @@ public class FFMPEGVideoConversion {
                 "-threads", "2",
                 "-vf", "scale=720:480",
                 "-acodec", "libvorbis",
-                "-b:a", "128k",
                 "-f", "webm",
                 webmFile.getAbsolutePath()
         });

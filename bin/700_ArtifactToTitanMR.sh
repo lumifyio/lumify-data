@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 080_Ontology.sh
 # require: 150_ContentTypeExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
@@ -33,4 +34,5 @@ com.altamiracorp.reddawn.graph.ArtifactToTitanMR \
 --graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
---password=password
+--password=password \
+--failOnFirstError

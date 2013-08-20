@@ -1,5 +1,6 @@
 #!/bin/bash
-# require: 700_ArtifactToTitanMR.sh, 710_TermMentionToTitanMR.sh
+# require: 700_ArtifactToTitanMR.sh
+# require: 710_TermMentionToTitanMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -33,4 +34,6 @@ com.altamiracorp.reddawn.entityHighlight.EntityHighlightMR \
 --graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
---password=password
+--password=password \
+--failOnFirstError
+

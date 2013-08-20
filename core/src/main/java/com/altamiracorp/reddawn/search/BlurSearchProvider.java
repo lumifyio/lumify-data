@@ -24,7 +24,7 @@ public class BlurSearchProvider implements SearchProvider {
     private static final String TEXT_COLUMN_NAME = "text";
     private static final String SUBJECT_COLUMN_NAME = "subject";
     private static final String PUBLISHED_DATE_COLUMN_NAME = "publishedDate";
-    private static final String GRAPH_NODE_ID_COLUMN_NAME = "graphNodeId";
+    private static final String GRAPH_VERTEX_ID_COLUMN_NAME = "graphNodeId";
     private static final String SOURCE_COLUMN_NAME = "source";
     private static final String ARTIFACT_TYPE = "type";
     private static final String TERM_BLUR_TABLE_NAME = "term";
@@ -110,7 +110,7 @@ public class BlurSearchProvider implements SearchProvider {
         String id = artifact.getRowKey().toString();
         String publishedDate = dateFormat.format(artifact.getPublishedDate());
         String source = artifact.getGenericMetadata().getSource();
-        String graphNodeId = artifact.getGenericMetadata().getGraphNodeId();
+        String graphVertexId = artifact.getGenericMetadata().getGraphVertexId();
 
         if (text == null) {
             text = "";
@@ -124,8 +124,8 @@ public class BlurSearchProvider implements SearchProvider {
         columns.add(new Column(SUBJECT_COLUMN_NAME, subject));
         columns.add(new Column(PUBLISHED_DATE_COLUMN_NAME, publishedDate));
         columns.add(new Column(ARTIFACT_TYPE, artifact.getType().toString()));
-        if (graphNodeId != null) {
-            columns.add(new Column(GRAPH_NODE_ID_COLUMN_NAME, graphNodeId));
+        if (graphVertexId != null) {
+            columns.add(new Column(GRAPH_VERTEX_ID_COLUMN_NAME, graphVertexId));
         }
         if (source != null) {
             columns.add(new Column(SOURCE_COLUMN_NAME, source));
@@ -172,7 +172,7 @@ public class BlurSearchProvider implements SearchProvider {
             assert record.getFamily().equals(GENERIC_COLUMN_FAMILY_NAME);
             Date publishedDate = null;
             String source = null;
-            String graphNodeId = null;
+            String graphVertexId = null;
             ArtifactType artifactType = ArtifactType.DOCUMENT;
 
             for (Column column : record.getColumns()) {
@@ -184,12 +184,12 @@ public class BlurSearchProvider implements SearchProvider {
                     source = column.getValue();
                 } else if (column.getName().equals(ARTIFACT_TYPE)) {
                     artifactType = ArtifactType.valueOf(column.getValue());
-                } else if (column.getName().equals(GRAPH_NODE_ID_COLUMN_NAME)) {
-                    graphNodeId = column.getValue();
+                } else if (column.getName().equals(GRAPH_VERTEX_ID_COLUMN_NAME)) {
+                    graphVertexId = column.getValue();
                 }
             }
 
-            ArtifactSearchResult result = new ArtifactSearchResult(rowId, subject, publishedDate, source, artifactType, graphNodeId);
+            ArtifactSearchResult result = new ArtifactSearchResult(rowId, subject, publishedDate, source, artifactType, graphVertexId);
             results.add(result);
         }
         return results;

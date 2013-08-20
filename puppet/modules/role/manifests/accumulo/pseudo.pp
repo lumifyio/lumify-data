@@ -1,3 +1,4 @@
 class role::accumulo::pseudo {
-  include accumulo
+  include "head"
+  include "node"
 }

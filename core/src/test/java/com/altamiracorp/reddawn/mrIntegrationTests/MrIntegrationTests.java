@@ -9,8 +9,6 @@ import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceTerm;
-import com.altamiracorp.reddawn.ucd.statement.Statement;
-import com.altamiracorp.reddawn.ucd.statement.StatementRepository;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import org.apache.accumulo.core.client.AccumuloException;
@@ -69,14 +67,6 @@ public class MrIntegrationTests {
         Session session = createModelSession();
         TermRepository termRepository = new TermRepository();
         List<Term> rows = termRepository.findAll(session);
-        assertEquals(4751, rows.size());
-    }
-
-    @Test
-    public void testStatementCounts() throws AccumuloSecurityException, AccumuloException {
-        Session session = createModelSession();
-        StatementRepository statementRepository = new StatementRepository();
-        List<Statement> rows = statementRepository.findAll(session);
         assertEquals(4751, rows.size());
     }
 

@@ -1,49 +1,52 @@
 package com.altamiracorp.reddawn.model;
 
-import com.altamiracorp.reddawn.model.graph.GraphNode;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
+import com.tinkerpop.blueprints.Graph;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 public abstract class GraphSession {
-    public static final String PROPERTY_NAME_ROW_KEY = "_rowKey";
-    public static final String PROPERTY_NAME_TITLE = "title";
-    public static final String PROPERTY_NAME_GEO_LOCATION = "geoLocation";
-
-    public abstract String save(GraphNode node);
+    public abstract String save(GraphVertex vertex);
 
     public abstract String save(GraphRelationship relationship);
 
-    public abstract List<GraphNode> findBy(String key, String value);
+    public abstract List<GraphVertex> findBy(String key, String value);
 
-    public abstract List<GraphNode> getRelatedNodes(String graphNodeId);
+    public abstract List<GraphVertex> getRelatedVertices(String graphVertexId);
 
-    public abstract List<GraphNode> getResolvedRelatedNodes(String graphNodeId);
+    public abstract List<GraphVertex> getResolvedRelatedVertices(String graphVertexId);
 
-    public abstract HashMap<String, HashSet<String>> getRelationships(List<String> allIds);
+    public abstract List<GraphRelationship> getRelationships(List<String> allIds);
 
-    public abstract GraphNode findNode(String graphNodeId);
+    public abstract GraphVertex findGraphVertex(String graphVertexId);
 
     public abstract void close();
 
     public abstract void deleteSearchIndex();
 
-    public abstract HashMap<String, String> getEdgeProperties(String sourceNode, String destNode);
+    public abstract HashMap<String, String> getEdgeProperties(String sourceVertex, String destVertex, String label);
 
-    public abstract Map<String, String> getProperties(String graphNodeId);
+    public abstract Map<String, String> getProperties(String graphVertexId);
 
-    public abstract Map<GraphRelationship, GraphNode> getRelationships(String graphNodeId);
+    public abstract Map<GraphRelationship, GraphVertex> getRelationships(String graphVertexId);
 
-    public abstract List<GraphNode> findByGeoLocation(double latitude, double longitude, double radius);
+    public abstract List<GraphVertex> findByGeoLocation(double latitude, double longitude, double radius);
 
-    public abstract List<GraphNode> searchNodesByTitle(String query);
+    public abstract List<GraphVertex> searchVerticesByTitle(String query);
 
-    public abstract List<GraphNode> searchNodesByTitleAndType(String query, String type);
+    public abstract Graph getGraph();
 
-    public abstract GraphNode findNodeByExactTitleAndType(String graphNodeTitle, String graphNodeType);
+    public abstract List<GraphVertex> searchVerticesByTitleAndType(String query, VertexType type);
 
-    public abstract void removeRelationship(String source, String target);
+    public abstract GraphVertex findVertexByExactTitleAndType(String graphVertexTitle, VertexType graphVertexType);
+
+    public abstract GraphVertex findVertexByOntologyTitleAndType(String title, VertexType concept);
+
+    public abstract void removeRelationship(String source, String target, String label);
+
+    public abstract void commit();
 }

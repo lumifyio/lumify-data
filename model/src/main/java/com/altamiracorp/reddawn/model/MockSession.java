@@ -140,7 +140,7 @@ public class MockSession extends Session {
     }
 
     @Override
-    void initializeTable(String tableName) {
+    public void initializeTable(String tableName) {
         this.tables.put(tableName, new ArrayList<Row>());
     }
 

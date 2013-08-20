@@ -1,9 +1,11 @@
 package com.altamiracorp.reddawn.graph;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
-import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.Row;
+import com.altamiracorp.reddawn.model.ontology.Concept;
+import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.ucd.AccumuloTermInputFormat;
 import com.altamiracorp.reddawn.ucd.term.Term;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
@@ -17,8 +19,6 @@ import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 public class TermMentionToTitanMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(TermMentionToTitanMR.class.getName());
@@ -39,31 +39,22 @@ public class TermMentionToTitanMR extends ConfigurableMapJobBase {
         return AccumuloModelOutputFormat.class;
     }
 
-    public static class TermToTitan extends Mapper<Text, Term, Text, Row> {
-        private RedDawnSession session;
+    public static class TermToTitan extends RedDawnMapper<Text, Term, Text, Row> {
         private TermRepository termRepository = new TermRepository();
+        private OntologyRepository ontologyRepository = new OntologyRepository();
 
-        @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            super.setup(context);
-            session = ConfigurableMapJobBase.createRedDawnSession(context);
-        }
-
-        public void map(Text rowKey, Term term, Context context) throws IOException, InterruptedException {
+        public void safeMap(Text rowKey, Term term, Context context) throws Exception {
             LOGGER.info("Adding term to titan: " + term.getRowKey().toString());
-            try {
-                for (TermMention termMention : term.getTermMentions()) {
-                    termRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), term, termMention);
+            for (TermMention termMention : term.getTermMentions()) {
+                String conceptLabel = term.getRowKey().getConceptLabel();
+                Concept concept = ontologyRepository.getConceptByName(getSession().getGraphSession(), conceptLabel);
+                if (concept == null) {
+                    throw new RuntimeException("Could not find concept: " + conceptLabel);
                 }
-            } catch (Exception e) {
-                throw new IOException(e);
-            }
-        }
 
-        @Override
-        protected void cleanup(Context context) throws IOException, InterruptedException {
-            session.close();
-            super.cleanup(context);
+                termRepository.saveToGraph(getSession().getModelSession(), getSession().getGraphSession(), term, termMention, concept.getId());
+            }
+            getSession().getGraphSession().commit();
         }
     }
 

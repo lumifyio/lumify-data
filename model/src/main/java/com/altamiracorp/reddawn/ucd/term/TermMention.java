@@ -22,9 +22,10 @@ public class TermMention extends ColumnFamily {
     public static final String ARTIFACT_SUBJECT = "atc:artifactSubject";
     public static final String SENTENCE_TEXT = "atc:sentenceText";
     public static final String SENTENCE_OFFSET = "atc:sentenceOffset";
-    public static final String GRAPH_NODE_ID = "atc:graphNodeId";
-    public static final String RESOLVED_GRAPH_NODE_ID = "atc:resolvedGraphNodeId";
+    public static final String GRAPH_VERTEX_ID = "atc:graphNodeId";
+    public static final String RESOLVED_GRAPH_VERTEX_ID = "atc:resolvedGraphNodeId";
     public static final String RESOLVED_SIGN = "atc:resolvedSign";
+    public static final String GRAPH_SUB_TYPE_VERTEX_ID = "atc:resolvedSubTypeNodeId";
 
     public TermMention() {
         super(null);
@@ -109,12 +110,21 @@ public class TermMention extends ColumnFamily {
         return this;
     }
 
-    public String getResolvedGraphNodeId() {
-        return Value.toString(get(RESOLVED_GRAPH_NODE_ID));
+    public String getResolvedGraphVertexId() {
+        return Value.toString(get(RESOLVED_GRAPH_VERTEX_ID));
     }
 
-    public TermMention setResolvedGraphNodeId(String resolvedGraphNodeId) {
-        set(RESOLVED_GRAPH_NODE_ID, resolvedGraphNodeId);
+    public TermMention setResolvedGraphVertexId(String resolvedGraphVertexId) {
+        set(RESOLVED_GRAPH_VERTEX_ID, resolvedGraphVertexId);
+        return this;
+    }
+
+    public String getGraphSubTypeVertexeId() {
+        return Value.toString(get(GRAPH_SUB_TYPE_VERTEX_ID));
+    }
+
+    public TermMention setGraphSubTypeVertexId(String subTypeVertexId) {
+        set(GRAPH_SUB_TYPE_VERTEX_ID, subTypeVertexId);
         return this;
     }
 
@@ -286,12 +296,12 @@ public class TermMention extends ColumnFamily {
         }
     }
 
-    public String getGraphNodeId() {
-        return Value.toString(get(GRAPH_NODE_ID));
+    public String getGraphVertexId() {
+        return Value.toString(get(GRAPH_VERTEX_ID));
     }
 
-    public TermMention setGraphNodeId(String graphNodeId) {
-        set(GRAPH_NODE_ID, graphNodeId);
+    public TermMention setGraphVertexId(String graphVertexId) {
+        set(GRAPH_VERTEX_ID, graphVertexId);
         return this;
     }
 }

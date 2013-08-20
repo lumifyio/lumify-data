@@ -26,11 +26,11 @@ public class StatementCreate implements Handler, AppAware {
         RedDawnSession session = app.getRedDawnSession(request);
 
         // validate parameters
-        String sourceGraphNodeId = URLDecoder.decode(getRequiredParameter(request, "sourceGraphNodeId"), "UTF-8");
-        String destGraphNodeId = URLDecoder.decode(getRequiredParameter(request, "destGraphNodeId"), "UTF-8");
+        String sourceGraphVertexId = URLDecoder.decode(getRequiredParameter(request, "sourceGraphNodeId"), "UTF-8");
+        String destGraphVertexId = URLDecoder.decode(getRequiredParameter(request, "destGraphNodeId"), "UTF-8");
         String predicateLabel = getRequiredParameter(request, "predicateLabel");
 
-        GraphRelationship relationship = graphRepository.saveRelationship(session.getGraphSession(), sourceGraphNodeId, destGraphNodeId, predicateLabel);
+        GraphRelationship relationship = graphRepository.saveRelationship(session.getGraphSession(), sourceGraphVertexId, destGraphVertexId, predicateLabel);
 
         LOGGER.info("Statement created:\n" + relationship.toJson().toString(2));
 

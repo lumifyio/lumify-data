@@ -54,14 +54,14 @@ public class ArtifactSearchResultTest {
 
     @Test
     public void testGetGraphNodeId() throws Exception {
-        String result = asr.getGraphNodeId();
+        String result = asr.getGraphVertexId();
         assertEquals(graphNodeId, result);
     }
 
     @Test
     public void testToString() throws Exception {
         String expectedToString = "rowKey: " + sampleRowKey + ", subject: " + sampleSubject +
-                ", publishedDate: " + sampleDate + ", source: " + sampleSource + ", graphNodeId: " + graphNodeId;
+                ", publishedDate: " + sampleDate + ", source: " + sampleSource + ", graphVertexId: " + graphNodeId;
         String result = asr.toString();
         assertEquals(expectedToString, result);
     }

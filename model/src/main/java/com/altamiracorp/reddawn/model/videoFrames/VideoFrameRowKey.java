@@ -21,4 +21,8 @@ public class VideoFrameRowKey extends RowKey {
     public Long getTime() {
         return Long.parseLong(this.toString().split(":")[1]);
     }
+
+    public String getArtifactRowKey () {
+        return this.toString().split(":")[0];
+    }
 }

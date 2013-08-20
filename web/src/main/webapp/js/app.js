@@ -66,7 +66,7 @@ define([
             this.on(document, 'message', this.onMessage);
             this.on(document, 'searchResultSelected', this.onSearchResultSelection);
             this.on(document, 'syncStarted', this.onSyncStarted);
-            this.on(document, 'requestGraphPadding', this.onRequestGraphPadding);
+            this.on(document, 'paneResized', this.onInternalPaneResize);
 
             var content = $(appTemplate({})),
                 menubarPane = content.filter('.menubar-pane'),
@@ -87,9 +87,9 @@ define([
             Keyboard.attachTo(document);
 
             // Configure splitpane resizing
-            resizable(searchPane, 'e');
-            resizable(workspacesPane, 'e');
-            resizable(detailPane, 'w', 4, 500, this.onDetailResize.bind(this));
+            resizable(searchPane, 'e', undefined, undefined, this.onPaneResize.bind(this));
+            resizable(workspacesPane, 'e', undefined, undefined, this.onPaneResize.bind(this));
+            resizable(detailPane, 'w', 4, 500, this.onPaneResize.bind(this));
 
             this.$node.html(content);
 
@@ -117,6 +117,7 @@ define([
 
             this.loadActiveWorkspace();
             this.setupWindowResizeTrigger();
+            this.triggerPaneResized();
         });
 
         var resizeTimeout;
@@ -211,11 +212,15 @@ define([
                         };
 
                     var nodes = [{
-                        title: info.title || draggable.text(),
+                        title: $.trim(
+                            info.title || 
+                            // Only get the direct children textnode
+                            draggable.clone().children().remove().end().text()
+                        ),
                         graphNodeId: info.graphNodeId,
                         _rowKey: info._rowKey,
-                        subType: info.subType,
-                        type: info.type,
+                        _subType: info._subType,
+                        _type: info._type,
                         dropPosition: dropPosition
                     }];
 
@@ -231,8 +236,8 @@ define([
                             nodes.push({
                                 graphNodeId: data.id,
                                 title: data.properties.title || 'No title available',
-                                type: data.properties.type,
-                                subType: data.properties.subType,
+                                _type: data.properties._type,
+                                _subType: data.properties._subType,
                                 dropPosition: {
                                     x: dropPosition.x + droppable.width()/10,
                                     y: dropPosition.y
@@ -387,6 +392,7 @@ define([
             this.workspace(function(ws) {
                 var allNodes = this.workspaceData.data.nodes,
                     added = [],
+                    existing = [],
                     win = $(window);
 
                 // FIXME: How should we store nodes in the workspace? 
@@ -415,8 +421,12 @@ define([
                     if (ws.data.nodes.filter(function(n) { return n.graphNodeId === node.graphNodeId; }).length === 0) {
                         added.push(node);
                         ws.data.nodes.push(node);
+                    } else {
+                        existing.push(node);
                     }
                 });
+
+                if (existing.length) this.trigger(document, 'existingNodesAdded', { nodes:existing });
 
                 if (added.length === 0) return;
 
@@ -578,18 +588,33 @@ define([
                 detailPane.removeClass('visible').addClass('collapsed');
             }
 
-            this.trigger(document, 'detailPaneResize', { width: width });
+            this.triggerPaneResized();
         };
 
-        this.onDetailResize = function(e, ui) {
+        this.onInternalPaneResize = function() {
+            this.triggerPaneResized();
+        };
+
+        this.onPaneResize = function(e, ui) {
             var COLLAPSE_TOLERANCE = 50,
                 width = ui.size.width,
                 shouldCollapse = width < COLLAPSE_TOLERANCE;
 
-            this.trigger(document, 'detailPaneResize', { 
-                width: shouldCollapse ? 0 : width
-            });
             $(e.target).toggleClass('collapsed', shouldCollapse);
+
+            this.triggerPaneResized();
+        };
+
+        this.triggerPaneResized = function() {
+            var searchWidth = this.select('searchSelector').filter('.visible:not(.collapsed)').outerWidth(true) || 0,
+                searchResultsWidth = searchWidth > 0 ? $('.search-results:visible:not(.collapsed)').outerWidth(true) || 0 : 0,
+                detailWidth = this.select('detailPaneSelector').filter('.visible:not(.collapsed)').outerWidth(true) || 0,
+                padding = {
+                    l:searchWidth + searchResultsWidth, r:detailWidth,
+                    t:0, b:0
+                };
+
+            this.trigger(document, 'graphPaddingUpdated', { padding: padding });
         };
 
 
@@ -619,7 +644,6 @@ define([
 
                     if ( !name ) {
                         if ( isDetail ) {
-                            self.trigger('detailPaneResize', { width:0, syncToRemote:false });
                             return detailPane.addClass('collapsed').removeClass('visible');
                         }
                         return console.warn('No ' + DATA_MENUBAR_NAME + ' attribute, unable to collapse');
@@ -637,7 +661,7 @@ define([
             handles: handles,
             minWidth: minWidth || 150,
             maxWidth: maxWidth || 300,
-            resize: callback
+            resize: callback 
         });
     }
 

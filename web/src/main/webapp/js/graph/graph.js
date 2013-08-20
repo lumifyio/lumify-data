@@ -4,6 +4,7 @@ define([
     'flight/lib/component',
     'cytoscape',
     './renderer',
+    './stylesheet',
     './contextmenu/withGraphContextMenuItems',
     'tpl!./graph',
     'util/throttle',
@@ -15,6 +16,7 @@ define([
     defineComponent,
     cytoscape,
     Renderer,
+    stylesheet,
     withGraphContextMenuItems,
     template,
     throttle,
@@ -95,13 +97,13 @@ define([
 
                     var cyNodeData = {
                         group: 'nodes',
-                        classes: $.trim(node.subType + ' ' + node.type),
+                        classes: $.trim('concept-' + node._subType + ' ' + node._type),
                         data: {
                             id: node.graphNodeId,
                             _rowKey: node._rowKey,
                             graphNodeId: node.graphNodeId,
-                            subType: node.subType,
-                            type: node.type,
+                            _subType: node._subType,
+                            _type: node._type,
                             title: title,
                             originalTitle: node.title,
                         },
@@ -129,7 +131,7 @@ define([
                         });
                     }
 
-                    if (node.type === 'artifact') {
+                    if (node._type === 'artifact') {
                         previews.generatePreview(node._rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
                             if (dataUri) {
                                 cyNode.css('background-image', dataUri);
@@ -155,8 +157,8 @@ define([
                 var nodesToDelete = $.map(cy.nodes().filter(':selected'), function(node) {
                     return {
                         graphNodeId: node.data('graphNodeId'),
-                        type: node.data('type'),
-                        subType: node.data('subType')
+                        _type: node.data('_type'),
+                        _subType: node.data('_subType')
                     };
                 });
 
@@ -195,6 +197,53 @@ define([
             });
         };
 
+        this.onExistingNodesAdded = function(evt, data) {
+            var self = this;
+            this.cy(function(cy) {
+
+                // FIXME: support multiple dragging
+                var el = cy.getElementById( data.nodes[0].graphNodeId ),
+                    p = retina.pixelsToPoints(el.renderedPosition()),
+                    dragging = $('.ui-draggable-dragging:not(.clone-node)'),
+                    position = dragging.position(),
+                    offset = dragging.offset(),
+                    graphOffset = this.$node.offset();
+
+                if (dragging.length != 1) return;
+
+                var cloned = dragging.clone()
+                    .css({width:'auto'})
+                    .addClass('clone-node')
+                    .insertAfter(dragging);
+
+                // Is existing element visible (not covered by search/detail panes)
+                this.focusGraphToNode(el, function() {
+                    var p = retina.pixelsToPoints(el.renderedPosition());
+
+                    // Adjust rendered position to page coordinate system
+                    p.x += graphOffset.left;
+                    p.y += graphOffset.top;
+
+                    // Move draggable coordinates from top/left to center
+                    offset.left += cloned.outerWidth(true) / 2;
+                    offset.top += cloned.outerHeight(true) / 2;
+
+                    cloned
+                        .animate({
+                            left: (position.left + (p.x-offset.left))  + 'px',
+                            top: (position.top +  (p.y-offset.top)) + 'px'
+                        }, {
+                            complete: function() {
+                                cloned.addClass('shrink');
+                                _.delay(function() { 
+                                    cloned.remove(); 
+                                }, 1000); 
+                            }
+                        });
+                });
+            });
+        };
+
 
 
         this.onContextMenuZoom = function(level) {
@@ -223,46 +272,60 @@ define([
                 _rowKey: currentNodeRK,
                 graphNodeId: graphNodeId,
                 originalPosition: currentNodeOriginalPosition,
-                type : menu.data("currentNodeType")
+                _type : menu.data("currentNodeType")
             };
             return data;
-        }
+        };
 
         this.onContextMenuDeleteEdge = function () {
             var menu = this.select('edgeContextMenuSelector');
             var edgeId = menu.data('edgeId');
             this.cy(function(cy) {
-                this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), function(err) {
+                this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), menu.data('relationshipType'), function(err) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
                     cy.remove (cy.getElementById (edgeId));
-                })
+                });
             });
-        }
+        };
 
         this.onContextMenuFitToWindow = function() {
             this.fit();
         };
 
         this.fit = function() {
-            this.trigger(document, 'requestGraphPadding');
-        };
-
-        this.onGraphPadding = function(e, data) {
             this.cy(function(cy) {
                 if( cy.elements().size() === 0 ){
                     cy.reset();
-                } else {
-                    var border = 20;
-                    data.padding.r += this.select('graphToolsSelector').outerWidth(true);
-                    data.padding.l += border;
-                    data.padding.t += border;
-                    data.padding.b += border;
-                    cy.fit(undefined, data.padding);
+                } else if (this.graphPadding) {
+                    // Temporarily adjust max zoom 
+                    // prevents extreme closeup when one node
+                    var maxZoom = cy._private.maxZoom;
+                    cy._private.maxZoom *= 0.5;
+                    cy.fit(undefined, $.extend({}, this.graphPadding));
+                    cy._private.maxZoom = maxZoom;
                 }
             });
+        };
+
+        this.onGraphPaddingUpdated = function(e, data) {
+            var border = 20;
+            this.graphPaddingRight = data.padding.r;
+            this.updatePanZoomLocation();
+
+            data.padding.r += this.select('graphToolsSelector').outerWidth(true);
+            data.padding.l += border;
+            data.padding.t += border;
+            data.padding.b += border;
+            this.graphPadding = data.padding;
+        };
+
+        this.updatePanZoomLocation = function() {
+            if (this.panZoom) {
+                this.panZoom.css({ right: (this.graphPaddingRight||0) + 'px' });
+            }
         };
 
         this.onContextMenuLayout = function(layout, opts) {
@@ -297,6 +360,37 @@ define([
             });
         };
 
+
+        this.focusGraphToNode = function(el, callback) {
+            var position = retina.pixelsToPoints(el.renderedPosition()),
+                padding = $.extend({}, this.graphPadding),
+                extraHPadding = el.width() / 2 + 5,
+                extraVPadding = el.height() / 2 + 5,
+                width = this.$node.width(),
+                height = this.$node.height(),
+                panToView = { x:0, y:0 };
+
+            padding.l += extraHPadding; padding.r += extraHPadding; 
+            padding.t += extraVPadding; padding.b += extraVPadding;
+
+            if (position.x < padding.l) {
+                panToView.x = padding.l - position.x;
+            } else if (position.x > width - padding.r) {
+                panToView.x = (width - padding.r) - position.x;
+            }
+
+            if (position.y < padding.t) {
+                panToView.y = padding.t - position.y;
+            } else if (position.y > height - padding.b) {
+                panToView.y = (height - padding.b) - position.y;
+            }
+
+            this.cy(function(cy) {
+                cy.panBy(retina.pointsToPixels(panToView));
+                callback();
+            });
+        };
+
         this.graphTap = throttle('selection', 100, function(event) {
             if (event.cyTarget === event.cy) {
                 this.trigger(document, 'searchResultSelected');
@@ -315,6 +409,7 @@ define([
                 menu.data("edgeId", event.cyTarget.data('id'));
                 menu.data("sourceId",event.cyTarget.data('source'));
                 menu.data("targetId",event.cyTarget.data('target'));
+                menu.data("relationshipType", event.cyTarget.data('relationshipType'));
                 if (event.cy.nodes().filter(':selected').length > 1) {
                     return false;
                 }
@@ -326,7 +421,7 @@ define([
                 menu.data("currentNodeGraphNodeId",event.cyTarget.data('graphNodeId'));
                 menu.data("currentNodePositionX", event.cyTarget.position ('x'));
                 menu.data("currentNodePositionY", event.cyTarget.position ('y'));
-                menu.data("currentNodeType", event.cyTarget.data('type'));
+                menu.data("currentNodeType", event.cyTarget.data('_type'));
                 if (event.cy.nodes().filter(':selected').length > 1) {
                     return false;
                 }
@@ -514,7 +609,7 @@ define([
 
         this.onRelationshipsLoaded = function(evt, relationshipData) {
             this.cy(function(cy) {
-                if (relationshipData.relationships != null){
+                if (relationshipData.relationships) {
                     var relationshipEdges = [];
                     relationshipData.relationships.forEach(function(relationship) {
                         relationshipEdges.push ({
@@ -524,12 +619,10 @@ define([
                                 relationshipType: relationship.relationshipType,
                                 source: relationship.from,
                                 target: relationship.to,
-                                type: 'relationship',
-                                id: (relationship.from + relationship.to)
+                                _type: 'relationship',
+                                id: (relationship.from + relationship.to + relationship.relationshipType)
                             },
-                            classes: (relationship.bidirectional ? 'bidirectional' : '')
                         });
-
                     });
                     cy.add(relationshipEdges);
                 }
@@ -542,8 +635,6 @@ define([
             if ($.isArray(data) && data.length == 1){
                 data = data[0];
             }
-
-            console.log('Getting related nodes for:', data);
 
             var xOffset = 100, yOffset = 100;
             var x = data.originalPosition.x;
@@ -570,11 +661,7 @@ define([
                     });
                 });
 
-                console.log('trigger nodes', nodes);
-
-                self.trigger(document, 'addNodes', {
-                    nodes: nodes
-                });
+                self.trigger(document, 'addNodes', { nodes: nodes });
             });
         };
 
@@ -594,9 +681,19 @@ define([
             this.on(document, 'nodesAdded', this.onNodesAdded);
             this.on(document, 'nodesDeleted', this.onNodesDeleted);
             this.on(document, 'nodesUpdated', this.onNodesUpdated);
+            this.on(document, 'existingNodesAdded', this.onExistingNodesAdded);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
-            this.on(document, 'graphPaddingResponse', this.onGraphPadding);
+            this.on(document, 'graphPaddingUpdated', this.onGraphPaddingUpdated);
             this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);
+
+            stylesheet(function(style) {
+                self.initializeGraph(style);
+            });
+
+        });
+
+        this.initializeGraph = function(style) {
+            var self = this;
 
             cytoscape("renderer", "red-dawn", Renderer);
             cytoscape({
@@ -608,105 +705,7 @@ define([
                 renderer: {
                     name: 'red-dawn'
                 },
-                style: cytoscape.stylesheet()
-                  // TODO: get the list of types and subTypes
-                  .selector('node.person')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_003_user@2x.png'
-                    })
-                  .selector('node.location,node.place')
-                    .css({
-                      'background-image': '/img/pin@2x.png',
-                      'width': 35 * retina.devicePixelRatio,
-                      'height': 35 * retina.devicePixelRatio,
-                      'border-color': 'white',
-                      'shape': 'none',
-                      'border-width': 0
-                    })
-                  .selector('node.organization,node.organisation')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_263_bank@2x.png',
-                      'shape': 'roundrectangle'
-                    })
-                  .selector('node.document')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
-                      'shape': 'rectangle',
-                      'width': 60 * retina.devicePixelRatio,
-                      'height': 60 * 1.2 * retina.devicePixelRatio,
-                      'border-color': '#ccc',
-                      'border-width': 1
-                    })
-                  .selector('node.video')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
-                      'shape': 'movieStrip',
-                      'width': 60 * 1.3 * retina.devicePixelRatio,
-                      'height': 60 * retina.devicePixelRatio,
-                      'border-color': '#ccc',
-                      'border-width': 1
-                    })
-                  .selector('node.image')
-                    .css({
-                      'background-image': '/img/glyphicons/glyphicons_036_file@2x.png',
-                      'shape': 'rectangle',
-                      'width': 60 * 1.3 * retina.devicePixelRatio,
-                      'height': 60 * retina.devicePixelRatio,
-                      'border-color': '#ccc',
-                      'border-width': 1
-                    })
-                  .selector('node')
-                    .css({
-                      'width': 30 * retina.devicePixelRatio,
-                      'height': 30 * retina.devicePixelRatio,
-                      'content': 'data(title)',
-                      'font-family': 'helvetica',
-                      'font-size': 18 * retina.devicePixelRatio,
-                      'text-outline-width': 2,
-                      'text-outline-color': 'white',
-                      'text-valign': 'bottom',
-                      'color': '#999'
-                    })
-                  .selector('node.termMention')
-                    .css({
-                      'width': 15 * retina.devicePixelRatio,
-                      'height': 15 * retina.devicePixelRatio,
-                      'text-outline-width': 1,
-                      'font-size': 9 * retina.devicePixelRatio
-                    })
-                  .selector(':selected')
-                    .css({
-                      'background-color': '#0088cc',
-                      'border-color': '#0088cc',
-                      'line-color': '#000',
-                      'color': '#0088cc'
-                    })
-                  .selector('edge')
-                    .css({
-                      'width': 2,
-                      'target-arrow-shape': 'triangle'
-                    })
-                  .selector('edge.label')
-                    .css({
-                      'content': 'data(label)',
-                      'font-size': 12 * retina.devicePixelRatio,
-                      'color': '#0088cc',
-                      'text-outline-color': 'white',
-                      'text-outline-width': 4,
-                    })
-                  .selector('edge.temp')
-                    .css({
-                      'width': 4,
-                      'line-color': '#0088cc',
-                      'line-style': 'dotted',
-                      'target-arrow-color': '#0088cc'
-                    })
-                  .selector('.bidirectional')
-                    .css ({
-                      'width': 2,
-                      'target-arrow-shape': 'triangle',
-                      'source-arrow-shape': 'triangle'
-                    }),
+                style: style,
 
                 ready: function(){
                     var cy = this;
@@ -739,13 +738,9 @@ define([
                         self.fit();
                     });
 
-                    var panZoom = self.select('graphToolsSelector');
-                    self.on(document, 'detailPaneResize', function(e, data) {
-                        panZoom.css({
-                            right: data.width + 'px'
-                        });
-                    });
-
+                    self.panZoom = self.select('graphToolsSelector');
+                    self.updatePanZoomLocation();
+                    
                     cy.on({
                         tap: self.graphTap.bind(self),
                         cxttap: self.graphContextTap.bind(self),
@@ -767,7 +762,7 @@ define([
                     }, 100);
                 }
             });
-        });
+        };
     }
 
 });

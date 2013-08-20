@@ -38,10 +38,11 @@ function git_archive {
 modules_tgz=$(git_archive modules .. puppet)
 puppet_modules_tgz=$(git_archive puppet-modules ../puppet/puppet-modules)
 
-# TODO: puppet manifests for each node
 # TODO: jars for M/R, bin scripts for M/R, webapp
 
 scp ${SSH_OPTS} init.sh \
+                run_puppet.sh \
+                update.sh \
                 ${hosts_file} \
                 ${modules_tgz} \
                 ${puppet_modules_tgz} \
