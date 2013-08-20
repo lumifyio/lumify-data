@@ -1,13 +1,14 @@
 
 define([
     'flight/lib/component',
+    './image/image',
     '../withTypeContent',
     '../withHighlighting',
     'tpl!./entity',
     'tpl!./properties',
     'tpl!./relationships',
     'service/entity'
-], function(defineComponent, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, EntityService) {
+], function(defineComponent, Image, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, EntityService) {
 
     'use strict';
 
@@ -35,18 +36,19 @@ define([
                     return self.trigger(document, 'error', err);
                 }
 
-                var glyphIconHref = '';
                 var concept = conceptMap[self.attr.data._subType];
-                if(concept) {
-                    glyphIconHref = concept.glyphIconHref;
-                }
 
                 self.$node.html(template({
                     title: self.attr.data.originalTitle || self.attr.data.title || 'No Title',
                     highlightButton: self.highlightButton(),
-                    glyphIconHref: glyphIconHref,
                     id: self.attr.data.id || self.attr.data.graphNodeId
                 }));
+
+                Image.attachTo(self.select('glyphIconSelector'), {
+                    data: self.attr.data,
+                    service: self.entityService,
+                    defaultIconSrc: concept && concept.glyphIconHref || ''
+                });
 
                 self.loadEntity();
             });
