@@ -82,5 +82,5 @@ EO_YUM_CONF
   ssh ${SSH_OPTS} ${other_host} chkconfig puppet on
 
   heading "${other_host}: run_puppet.sh"
-  ./run_puppet.sh ${other_host} > run_puppet.${other_host}.log &
+  ./run_puppet.sh ${other_host} &> run_puppet.${other_host}.log &
 done
