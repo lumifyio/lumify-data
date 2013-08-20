@@ -33,10 +33,14 @@ public class SimpleArtifactLocationExtractorTest {
                 .setArtifactKey("artifactKey")
                 .setMentionStart(33L)
                 .setMentionEnd(44L)
-                .setGeoLocation("POINT(44.45,-77.33)"));
+                .setGeoLocation("POINT(44.45,-77.33)")
+                .setGeoLocationPopulation(100L)
+                .setGeoLocationTitle("Reston, Virginia, United States"));
         Collection<Artifact> artifacts = simpleArtifactLocationExtractor.extract(term);
         assertEquals(1, artifacts.size());
         Artifact artifact = artifacts.iterator().next();
         assertEquals("POINT(44.45,-77.33)", artifact.getDynamicMetadata().getGeoLocation());
+        assertEquals("Reston, Virginia, United States", artifact.getDynamicMetadata().getGeoLocationTitle());
+        assertEquals(100L, artifact.getDynamicMetadata().getGeoLocationPopulation().longValue());
     }
 }
