@@ -1,3 +1,6 @@
+class my_fw {
+}
+
 resources { 'firewall' :
   purge => true,
 }

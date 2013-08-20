@@ -4,21 +4,22 @@ class my_fw::pre {
   }
 
   firewall { '000 accept all icmp' :
-    proto   => 'icmp',
-    action  => 'accept',
+    proto   => icmp,
+    action  => accept,
   } ->
   firewall { '001 accept all to lo interface' :
-    proto   => 'all',
-    iniface => 'lo',
-    action  => 'accept',
+    proto   => all,
+    iniface => lo,
+    action  => accept,
   } ->
   firewall { '002 accept related established rules' :
-    proto   => 'all',
+    proto   => all,
     state   => ['RELATED', 'ESTABLISHED'],
-    action  => 'accept',
+    action  => accept,
   } ->
   firewall { '003 accept ssh' :
-    proto  => 'tcp',
-    action => 'accept',
+    proto  => tcp,
+    port   => 22,
+    action => accept,
   }
 }
