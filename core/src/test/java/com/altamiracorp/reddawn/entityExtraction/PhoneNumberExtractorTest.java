@@ -43,12 +43,12 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest{
 
         assertTrue("Incorrect number of phone numbers extracted", termList.size() == 2);
         Term firstTerm = termList.get(0);
-        assertEquals("First phone number not correctly extracted", "+14106782230\u001Flibphonenumber\u001FPhoneNumber", firstTerm.getRowKey().toString());
+        assertEquals("First phone number not correctly extracted", "+14106782230\u001Flibphonenumber\u001FPhone Number", firstTerm.getRowKey().toString());
         assertEquals((Long)133L,firstTerm.getTermMentions().get(0).getMentionStart());
         assertEquals((Long)145L,firstTerm.getTermMentions().get(0).getMentionEnd());
 
         Term secondTerm = termList.get(1);
-        assertEquals("Second phone number not correctly extracted", "+442074370478\u001Flibphonenumber\u001FPhoneNumber", termList.get(1).getRowKey().toString());
+        assertEquals("Second phone number not correctly extracted", "+442074370478\u001Flibphonenumber\u001FPhone Number", termList.get(1).getRowKey().toString());
         assertEquals((Long)184L,secondTerm.getTermMentions().get(0).getMentionStart());
         assertEquals((Long)203L,secondTerm.getTermMentions().get(0).getMentionEnd());
     }
@@ -60,12 +60,12 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest{
 
         assertTrue("Incorrect number of phone numbers extracted", termList.size() == 2);
         Term firstTerm = termList.get(0);
-        assertEquals("First phone number not correctly extracted", "+14106782230\u001Flibphonenumber\u001FPhoneNumber", firstTerm.getRowKey().toString());
+        assertEquals("First phone number not correctly extracted", "+14106782230\u001Flibphonenumber\u001FPhone Number", firstTerm.getRowKey().toString());
         assertEquals((Long)134L,firstTerm.getTermMentions().get(0).getMentionStart());
         assertEquals((Long)146L,firstTerm.getTermMentions().get(0).getMentionEnd());
 
         Term secondTerm = termList.get(1);
-        assertEquals("Second phone number not correctly extracted", "+442074370478\u001Flibphonenumber\u001FPhoneNumber", termList.get(1).getRowKey().toString());
+        assertEquals("Second phone number not correctly extracted", "+442074370478\u001Flibphonenumber\u001FPhone Number", termList.get(1).getRowKey().toString());
         assertEquals((Long)186L,secondTerm.getTermMentions().get(0).getMentionStart());
         assertEquals((Long)205L,secondTerm.getTermMentions().get(0).getMentionEnd());
     }
