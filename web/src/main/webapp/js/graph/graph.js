@@ -198,6 +198,8 @@ define([
         };
 
         this.onExistingNodesAdded = function(evt, data) {
+            if (this.$node.closest('.visible').length === 0) return;
+
             var self = this;
             this.cy(function(cy) {
 

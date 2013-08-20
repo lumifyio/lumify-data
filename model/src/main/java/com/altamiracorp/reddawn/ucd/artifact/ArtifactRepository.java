@@ -4,7 +4,6 @@ import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
-import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 
@@ -133,9 +132,17 @@ public class ArtifactRepository extends Repository<Artifact> {
         return session.loadFile(path);
     }
 
-    public void saveToGraph(Session session, GraphSession graphSession, Artifact artifact) {
-        GraphVertex vertex = new GraphVertexImpl();
-        String oldRowKey = artifact.getGenericMetadata().getGraphVertexId();
+    public GraphVertex saveToGraph(Session session, GraphSession graphSession, Artifact artifact) {
+        GraphVertex vertex = null;
+        String oldGraphVertexId = artifact.getGenericMetadata().getGraphVertexId();
+        if (oldGraphVertexId != null) {
+            vertex = graphSession.findGraphVertex(oldGraphVertexId);
+        }
+
+        if (vertex == null) {
+            vertex = new GraphVertexImpl();
+        }
+
         vertex.setProperty(PropertyName.TYPE.toString(), VertexType.ARTIFACT.toString());
         vertex.setProperty(PropertyName.SUBTYPE.toString(), artifact.getType().toString().toLowerCase());
         vertex.setProperty(PropertyName.ROW_KEY.toString(), artifact.getRowKey().toString());
@@ -149,9 +156,11 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
 
         String vertexId = graphSession.save(vertex);
-        if (!vertexId.equals(oldRowKey)) {
+        if (!vertexId.equals(oldGraphVertexId)) {
             artifact.getGenericMetadata().setGraphVertexId(vertexId);
             this.save(session, artifact);
         }
+
+        return vertex;
     }
 }

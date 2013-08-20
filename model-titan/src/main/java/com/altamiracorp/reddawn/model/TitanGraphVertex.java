@@ -1,6 +1,8 @@
 package com.altamiracorp.reddawn.model;
 
+import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.tinkerpop.blueprints.Vertex;
 
 import java.util.Set;
@@ -19,7 +21,13 @@ public class TitanGraphVertex extends GraphVertex {
 
     @Override
     public GraphVertex setProperty(String key, Object value) {
-        this.vertex.setProperty(key, value);
+        if (value instanceof GraphGeoLocation) {
+            GraphGeoLocation loc = (GraphGeoLocation) value;
+            value = Geoshape.point(loc.getLatitude(), loc.getLongitude());
+        }
+        if (!value.equals(getProperty(key))) {
+            this.vertex.setProperty(key, value);
+        }
         return this;
     }
 
