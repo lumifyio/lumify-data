@@ -16,7 +16,8 @@
     </a>
     <br/>
 <% } %>
-
+                        <b>Source: </b><%= artifact.source || 'Unknown' %>
+                        <br/>
 <% if(artifact.type == 'video') { %>
   <div class="preview"/>
 <% } %>
