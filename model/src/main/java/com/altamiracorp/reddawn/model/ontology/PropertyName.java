@@ -10,7 +10,8 @@ public enum PropertyName {
     ROW_KEY("_rowKey"),
     COLUMN_FAMILY_NAME("_columnFamilyName"),
     GLYPH_ICON("_glyphIcon"),
-    COLOR("_color");
+    COLOR("_color"),
+    SOURCE("source");
 
     private final String text;
 

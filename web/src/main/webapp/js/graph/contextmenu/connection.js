@@ -1,8 +1,10 @@
 
 define([
     'util/retina',
-    'service/statement'
-], function(retina, StatementService) {
+    'service/statement',
+    'tpl!./relationship-options',
+    'tpl!./connection'
+], function(retina, StatementService, relationshipTypeTemplate, connectionTemplate) {
 
     return Connection;
 
@@ -11,6 +13,23 @@ define([
         if (!this.statementService) {
             this.statementService = new StatementService();
         }
+
+        this.getRelationshipLabels = function (source, dest) {
+            var self = this;
+            var sourceConceptTypeId = source.data('_subType');
+            var destConceptTypeId = dest.data('_subType');
+            self.statementService.relationships (sourceConceptTypeId, destConceptTypeId, function (err, results){
+                if (err) {
+                    console.error ('Error', err);
+                    return self.trigger (document, 'error', { message: err.toString () });
+                }
+
+                console.log ('relationships results', results);
+                $(".concept-label").html(relationshipTypeTemplate({
+                    relationships: results.relationships || ''
+                }));
+            });
+        };
 
         this.onContextMenuConnect = function() {
             var menu = this.select('nodeContextMenuSelector');
@@ -109,7 +128,7 @@ define([
                                 if (edge.hasClass('label')) {
                                     complete();
                                 } else {
-                                    instructions.text('Describe the relationship, then press [Enter]');
+                                    instructions.text('Select the relationship, then press [Enter]');
                                     cy.off(mouseEvents);
 
                                     var srcPosition = retina.pixelsToPoints(cy.getElementById(edge.data('source')).renderedPosition()),
@@ -123,23 +142,17 @@ define([
                                         .zoomingEnabled(false)
                                         .boxSelectionEnabled(false);
 
-                                    input = $('<input placeholder="Enter label" type="text">')
+                                    input = $(connectionTemplate({})).appendTo('body')
                                         .css({
                                             left: (center.left - 50) + 'px',
-                                            top: (center.top - 15) + 'px',
-                                            width: '100px',
+                                            top: (center.top - 25) + 'px',
+                                            width: '175px',
                                             position: 'absolute',
                                             zIndex: 100,
                                             textAlign: 'center'
                                         })
-                                        .appendTo(document.body)
                                         .on({
                                             keydown: function(e) {
-                                                if (e.which === $.ui.keyCode.TAB) {
-                                                    e.preventDefault();
-                                                    return false;
-                                                }
-
                                                 var val = $.trim($(this).val());
                                                 if (e.which === $.ui.keyCode.ENTER && val.length) {
                                                     complete(val);
@@ -148,6 +161,7 @@ define([
                                         });
                                     _.defer(input.focus.bind(input));
                                     edge.addClass('label');
+                                    self.getRelationshipLabels (cy.getElementById(edge.data('source')), cy.getElementById(edge.data('target')));
                                 }
                             } else {
                                 complete();

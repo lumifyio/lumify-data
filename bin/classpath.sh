@@ -46,7 +46,7 @@ if [ -d ${DIR}/../${dir} ]; then
       exit 3
     fi
   else
-    echo "${dir}/target/.classpath not found"
+    echo "${filename} not found"
     exit 2
   fi
 else

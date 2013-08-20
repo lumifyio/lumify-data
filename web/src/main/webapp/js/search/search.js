@@ -123,6 +123,7 @@ define([
                     self.searchResults.entity = {};
                     entities.nodes.forEach(function(entity) {
                         entity.sign = entity.properties['title'];
+                        entity.source = entity.properties['source'];
                         entity.graphNodeId = entity.id;
                         self.searchResults.entity[entity.properties['_subType']] = self.searchResults.entity[entity.properties['_subType']] || [];
                         self.searchResults.entity[entity.properties['_subType']].push(entity);
@@ -157,9 +158,9 @@ define([
         };
 
         this.onShowSearchResults = function(evt, data) {
-            console.log("Showing search results: ", data);
+            var self = this,
+                $searchResults = this.select('searchResultsSelector');
 
-            var $searchResults = this.select('searchResultsSelector');
             data.results = this.searchResults[data._type][data._subType] || [];
 
             data.results.forEach(function(result) {
@@ -187,7 +188,10 @@ define([
             // Add splitbar to search results
             $searchResults.resizable({
                 handles: 'e',
-                minWidth: 50
+                minWidth: 50,
+                resize: function() {
+                    self.trigger(document, 'paneResized');
+                }
             });
             
             // Update content

@@ -36,6 +36,8 @@ rule_number=$(iptables -L -n --line-numbers | awk '/tcp dpt:22/ {print $1}')
 iptables -I INPUT ${rule_number} -p tcp -m state --state NEW -m tcp --dport 8080 -j ACCEPT
 service iptables save
 
+# TODO: firewall rules for the cluster services
+
 heading 'configure puppet'
 cat >> /etc/puppet/puppet.conf <<EO_PUPPET_CONF
 
@@ -76,9 +78,6 @@ EO_YUM_CONF
   ssh ${SSH_OPTS} ${other_host} yum -y install puppet
   ssh ${SSH_OPTS} ${other_host} chkconfig puppet on
 
-  heading "${other_host}: run puppet once in the forground"
-  ssh ${SSH_OPTS} ${other_host} 'puppet agent -t || true'
-
-  heading "${other_host}: run puppet as a service"
-  ssh ${SSH_OPTS} ${other_host} service puppet start
+  heading "${other_host}: run_puppet.sh
+  ./run_puppet.sh ${other_host} > run_puppet.${other_host}.log &
 done

@@ -50,13 +50,11 @@ define([
             $(document).off('ignoreSelectionChanges.detail');
             $(document).off('resumeSelectionChanges.detail');
             $(document).off('termCreated');
-            this.highlightNode.off('scrollstop');
+            this.highlightNode().off('scrollstop');
         });
 
         this.after('initialize', function() {
             var self = this;
-
-            this.highlightNode = this.$node.closest('.content');
 
             // Allow components to disable selection listening
             $(document).on('ignoreSelectionChanges.detail', function() {
@@ -67,7 +65,7 @@ define([
             });
             $(document).trigger('resumeSelectionChanges');
 
-            this.highlightNode.on('scrollstop', this.updateEntityAndArtifactDraggables.bind(this));
+            this.highlightNode().on('scrollstop', this.updateEntityAndArtifactDraggables.bind(this));
             this.on('click', {
                 resolvableSelector: this.onResolvableClicked,
                 highlightTypeSelector: this.onHighlightTypeClicked
@@ -81,7 +79,7 @@ define([
             var target = $(evt.target),
                 li = target.parents('li'),
                 ul = li.parent('ul'),
-                content = this.highlightNode;
+                content = this.highlightNode();
 
             ul.find('.checked').not(li).removeClass('checked');
             li.addClass('checked');
@@ -95,13 +93,16 @@ define([
             this.applyHighlightStyle();
         };
 
+        this.highlightNode = function() {
+            return this.$node.closest('.content');
+        };
 
         this.getActiveStyle = function() {
             if (useDefaultStyle) {
                 return DEFAULT;
             }
 
-            var content = this.highlightNode,
+            var content = this.highlightNode(),
                 index = 0;
             $.each( content.attr('class').split(/\s+/), function(_, item) {
                 var match = item.match(/^highlight-(.+)$/);
@@ -119,7 +120,7 @@ define([
         };
 
         this.removeHighlightClasses = function() {
-            var content = this.highlightNode;
+            var content = this.highlightNode();
             $.each( content.attr('class').split(/\s+/), function(index, item) {
                 if (item.match(/^highlight-(.+)$/)) {
                     content.removeClass(item);
@@ -130,7 +131,7 @@ define([
         this.applyHighlightStyle = function() {
             var style = HIGHLIGHT_STYLES[this.getActiveStyle()];
             this.removeHighlightClasses();
-            this.highlightNode.addClass('highlight-' + style.selector);
+            this.highlightNode().addClass('highlight-' + style.selector);
 
             if (!style.styleApplied) {
 
@@ -144,30 +145,28 @@ define([
                                         HOVER: 1,
                                         DIM: 2
                                     },
+                                    className = concept.className || 'entity.subType-' + concept.id,
                                     definition = function(state) {
                                         return tpl({ STATES:STATES, state:state, concept:concept, colorjs:colorjs });
                                     };
 
-                                // TODO: add 1) drop-hover style for statement
-                                // creation, 2) icons, 3) focused style
-
                                 // Dim 
                                 // (when dropdown is opened and it wasn't this entity)
                                 stylesheet.addRule(
-                                    '.highlight-' + style.selector + ' .dropdown .entity.subType-' + concept.id,
+                                    '.highlight-' + style.selector + ' .dropdown .' + className,
                                     definition(STATES.DIM)
                                 );
 
                                 // Default style (or focused)
                                 stylesheet.addRule(
-                                    '.highlight-' + style.selector + ' .entity.subType-' + concept.id + ',' +
-                                    '.highlight-' + style.selector + ' .dropdown .focused.subType-' + concept.id,
+                                    '.highlight-' + style.selector + ' .' + className +',' +
+                                    '.highlight-' + style.selector + ' .dropdown .focused.' + className,
                                     definition(STATES.NORMAL)
                                 );
 
                                 // Drag-drop hover
                                 stylesheet.addRule(
-                                    '.highlight-' + style.selector + ' .drop-hover.subType-' + concept.id,
+                                    '.highlight-' + style.selector + ' .drop-hover.' + className,
                                     definition(STATES.HOVER)
                                 );
 
@@ -178,6 +177,15 @@ define([
                             }
                         }
                         apply(concepts);
+
+                        // Artifacts
+                        apply({
+                            id: 'artifact',
+                            className: 'artifact',
+                            color: 'rgb(255,0,0)',
+                            glyphIconHref: '/img/glyphicons/glyphicons_036_file@2x.png'
+                        });
+
                         style.styleApplied = true;
                     });
                 });

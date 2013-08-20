@@ -60,7 +60,9 @@ define([
             }
 
             var self = this,
-                moduleName = (($.isArray(data) ? 'multiple' : data._type) || 'entity').toLowerCase();
+                moduleName = (($.isArray(data) ? 'multiple' :
+                    (data._type != 'artifact' && data._type != 'relationship') ? 'entity' : data._type ) || 'entity')
+                    .toLowerCase();
 
             require([
                 'detail/' + moduleName + '/' + moduleName,
