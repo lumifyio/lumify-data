@@ -55,6 +55,7 @@ node "ip-10-0-3-101" {
   include my_fw
   include hadoop::fw::datanode
   include hadoop::fw::tasktracker
+  include zookeeper::fw::node
   include accumulo::fw::tserver
   include accumulo::fw::logger
   include blur::fw::shard
@@ -67,6 +68,7 @@ node "ip-10-0-3-102" {
   include my_fw
   include hadoop::fw::datanode
   include hadoop::fw::tasktracker
+  include zookeeper::fw::node
   include accumulo::fw::tserver
   include accumulo::fw::logger
   include blur::fw::shard
@@ -79,6 +81,7 @@ node "ip-10-0-3-103" {
   include my_fw
   include hadoop::fw::datanode
   include hadoop::fw::tasktracker
+  include zookeeper::fw::node
   include accumulo::fw::tserver
   include accumulo::fw::logger
   include blur::fw::shard
@@ -88,5 +91,7 @@ node "ip-10-0-3-103" {
 }
 
 node "ip-10-0-3-200" {
+  include my_fw
+  include jetty::fw::server
   include role::web::server
 }
