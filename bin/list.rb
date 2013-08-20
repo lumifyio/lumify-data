@@ -89,7 +89,7 @@ end
 
 if other_volumes && other_volumes.size > 0
   puts
-  other_volumes.each do |volume_id, h|
+  other_volumes.sort_by {|volume_id, h| h[:Name]}.each do |volume_id, h|
     volume_line = '%s %-9s %6s %-9s %s' % [volume_id, nil, h[:size] + 'GB', h[:status], h[:Name]]
     puts volume_line.strip
   end
