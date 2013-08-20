@@ -208,6 +208,10 @@ public class FileImport extends RedDawnCommandLineBase {
         return source;
     }
 
+    public String getZipfile () {
+        return zipfile;
+    }
+
     private void getDataset(String[] args) {
         try {
             int res = ToolRunner.run(CachedConfiguration.getInstance(), new DownloadAndExtractFile(), args);
