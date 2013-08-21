@@ -33,4 +33,8 @@ public class GraphVertexImpl extends GraphVertex {
     public Object getProperty(String propertyKey) {
         return properties.get(propertyKey);
     }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }

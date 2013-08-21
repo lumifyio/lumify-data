@@ -3,6 +3,7 @@ package com.altamiracorp.reddawn.model;
 import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
 import com.altamiracorp.reddawn.model.ontology.LabelName;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
@@ -96,6 +97,9 @@ public class TitanGraphSession extends GraphSession {
                 val = Geoshape.point(loc.getLatitude(), loc.getLongitude());
             }
             v.setProperty(propertyKey, val);
+        }
+        if (vertex instanceof GraphVertexImpl) {
+            ((GraphVertexImpl) vertex).setId("" + v.getId());
         }
         return "" + v.getId();
     }
