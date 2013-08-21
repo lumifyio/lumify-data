@@ -110,6 +110,7 @@ define([
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'workspaceSave', this.onSaveWorkspace);
             this.on(document, 'workspaceDeleted', this.onWorkspaceDeleted);
+            this.on(document, 'workspaceDeleting', this.onWorkspaceDeleting);
 
             this.on(document, 'mapCenter', this.onMapAction);
 
@@ -329,8 +330,18 @@ define([
             this.drainWorkspaceQueue();
         };
 
+        this.onWorkspaceDeleting = function (evt, data) {
+            if (this.workspaceRowKey == data._rowKey) {
+                var instructions = $('<div>')
+                                .text("Deleting current workspace...")
+                                .addClass('instructions')
+                                .appendTo(this.$node);
+            }
+        }
+
         this.onWorkspaceDeleted = function(evt, data) {
             if (this.workspaceRowKey == data._rowKey) {
+                $(".instructions").remove();
                 this.workspaceRowKey = null;
                 this.loadActiveWorkspace();
             }
