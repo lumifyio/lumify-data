@@ -23,13 +23,13 @@
   <property>
      <!-- specify this so that running 'hadoop namenode -format' formats the right dir -->
      <name>dfs.name.dir</name>
-     <value><%= Dir['/data[0-9]'].map{|d| d + '/hdfs/name'}.join(',') %></value>
+     <value><%= @data_directories.split(',').map{|d| d + '/hdfs/name'}.join(',') %></value>
      <final>true</final>
   </property>
 
   <property>
      <name>dfs.data.dir</name>
-     <value><%= Dir['/data[0-9]'].map{|d| d + '/hdfs/data'}.join(',') %></value>
+     <value><%= @data_directories.split(',').map{|d| d + '/hdfs/data'}.join(',') %></value>
      <final>true</final>
   </property>
 

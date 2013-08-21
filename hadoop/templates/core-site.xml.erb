@@ -10,7 +10,7 @@
 
   <property>
      <name>hadoop.tmp.dir</name>
-     <value><%= Dir['/data[0-9]'].map{|d| d + '/hadoop/tmp'}.join(',') %></value>
+     <value><%= @data_directories.split(',').map{|d| d + '/hadoop/tmp'}.join(',') %></value>
      <final>true</final>
   </property>
 

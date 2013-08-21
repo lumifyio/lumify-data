@@ -22,7 +22,7 @@ class hadoop {
     owner    => "root",
     group    => "root",
     force    => true,
-    require  => Package['hadoop-0.20'],
+    require  => [ Package['hadoop-0.20'], File['/data0/hadoop'] ],
   }
 
   file { "/etc/hadoop/conf/hdfs-site.xml":
@@ -31,7 +31,7 @@ class hadoop {
     owner    => "root",
     group    => "root",
     force    => true,
-    require  => Package['hadoop-0.20'],
+    require  => [ Package['hadoop-0.20'], File['/data0/hdfs'] ],
   }
 
   file { "/etc/hadoop/conf/mapred-site.xml":
@@ -40,7 +40,7 @@ class hadoop {
     owner    => "root",
     group    => "root",
     force    => true,
-    require  => Package['hadoop-0.20'],
+    require  => [ Package['hadoop-0.20'], File['/data0/mapred'] ],
   }
 
   file { "hadoop-masters-config":
@@ -77,7 +77,7 @@ class hadoop {
   file { [ '/data0/hadoop', '/data0/hadoop/tmp' ] :
     ensure  => directory,
     owner   => 'hdfs',
-    group   => 'hadoop'
+    group   => 'hadoop',
     mode    => 'u=rwx,g=rx,o=',
     require => File['/data0'],
   }
@@ -85,7 +85,7 @@ class hadoop {
   file { [ '/data0/hdfs', '/data0/hdfs/name', '/data0/hdfs/data' ] :
     ensure  => directory,
     owner   => 'hdfs',
-    group   => 'hadoop'
+    group   => 'hadoop',
     mode    => 'u=rwx,g=rx,o=',
     require => File['/data0'],
   }
@@ -93,7 +93,7 @@ class hadoop {
   file { [ '/data0/mapred', '/data0/mapred/local' ] :
     ensure  => directory,
     owner   => 'mapred',
-    group   => 'hadoop'
+    group   => 'hadoop',
     mode    => 'u=rwx,g=rx,o=',
     require => File['/data0'],
   }

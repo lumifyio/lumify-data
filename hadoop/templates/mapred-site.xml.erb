@@ -10,7 +10,7 @@
 
   <property>
      <name>mapred.local.dir</name>
-     <value><%= Dir['/data[0-9]'].map{|d| d + '/mapred/local'}.join(',') %></value>
+     <value><%= @data_directories.split(',').map{|d| d + '/mapred/local'}.join(',') %></value>
      <final>true</final>
   </property>
 
