@@ -4,22 +4,34 @@
   "subject": "People Zip Codes",
   "columns": [
     {
+      "type": "term",
       "modelKey": "structuredData",
-      "conceptLabel": "person",
+      "conceptLabel": "Person",
       "relationships": [
         {
-          "predicateModelKey": "urn:mil.army.dsc:schema:dataspace",
-          "predicateLabel": "livesAt",
+          "label": "livesAt",
           "target": 1
+        }
+      ],
+      "properties": [
+        {
+          "name": "birthDate",
+          "target": 2
         }
       ]
     },
     {
+      "type": "term",
       "modelKey": "structuredData",
-      "conceptLabel": "location"
+      "conceptLabel": "Location"
     },
     {
-      "skip": true
+      "type": "property",
+      "dataType": "date",
+      "format": "MM/dd/yyyy"
+    },
+    {
+      "type": "none"
     }
   ]
 }

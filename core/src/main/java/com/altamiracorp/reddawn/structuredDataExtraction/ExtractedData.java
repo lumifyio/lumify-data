@@ -1,22 +1,21 @@
 package com.altamiracorp.reddawn.structuredDataExtraction;
 
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
-import com.altamiracorp.reddawn.ucd.term.Term;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExtractedData {
-    private List<Term> terms = new ArrayList<Term>();
+    private List<TermAndGraphVertex> termsAndGraphVertices = new ArrayList<TermAndGraphVertex>();
     private List<Sentence> sentences = new ArrayList<Sentence>();
     private List<StructuredDataRelationship> relationships = new ArrayList<StructuredDataRelationship>();
 
-    public void addTerms(List<Term> terms) {
-        this.terms.addAll(terms);
+    public void addTermAndGraphVertex(List<TermAndGraphVertex> termAndGraphVertexes) {
+        this.termsAndGraphVertices.addAll(termAndGraphVertexes);
     }
 
-    public List<Term> getTerms() {
-        return terms;
+    public List<TermAndGraphVertex> getTermsAndGraphVertices() {
+        return termsAndGraphVertices;
     }
 
     public void addSentence(Sentence sentence) {

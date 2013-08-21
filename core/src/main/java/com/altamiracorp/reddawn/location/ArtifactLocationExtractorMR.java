@@ -4,9 +4,10 @@ import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.Row;
-import com.altamiracorp.reddawn.ucd.AccumuloTermInputFormat;
+import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
-import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
+import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -18,15 +19,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.List;
 
 public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactLocationExtractorMR.class.getName());
 
     @Override
     protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
-        AccumuloTermInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
-        return AccumuloTermInputFormat.class;
+        AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+        return AccumuloArtifactInputFormat.class;
     }
 
     @Override
@@ -40,8 +41,9 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
         return AccumuloModelOutputFormat.class;
     }
 
-    public static class ArtifactLocationExtractorMapper extends RedDawnMapper<Text, Term, Text, Row> {
+    public static class ArtifactLocationExtractorMapper extends RedDawnMapper<Text, Artifact, Text, Row> {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "artifactLocationExtractorClass";
+        private TermRepository termRepository = new TermRepository();
         private ArtifactLocationExtractor entityExtractor;
 
         @Override
@@ -57,17 +59,12 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
             }
         }
 
-        public void safeMap(Text rowKey, Term term, Context context) throws Exception {
-            LOGGER.info("Extracting location from : " + term.getRowKey().toString());
+        public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
+            LOGGER.info("Extracting location from: " + artifact.getRowKey().toString());
 
-            Collection<Artifact> artifacts = entityExtractor.extract(term);
-            writeArtifacts(context, artifacts);
-        }
-
-        private void writeArtifacts(Mapper.Context context, Collection<Artifact> artifacts) throws IOException, InterruptedException {
-            for (Artifact artifact : artifacts) {
-                context.write(new Text(Artifact.TABLE_NAME), artifact);
-            }
+            List<TermAndTermMention> termAndTermMentions = termRepository.findByTermMentionsArtifactRowKey(getSession().getModelSession(), artifact.getRowKey().toString());
+            entityExtractor.extract(artifact, termAndTermMentions);
+            context.write(new Text(Artifact.TABLE_NAME), artifact);
         }
 
         public static void init(Job job, Class<? extends ArtifactLocationExtractor> entityExtractor) {

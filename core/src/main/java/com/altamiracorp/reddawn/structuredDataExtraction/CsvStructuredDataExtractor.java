@@ -1,11 +1,17 @@
 package com.altamiracorp.reddawn.structuredDataExtraction;
 
+import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceData;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceMetadata;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceTerm;
 import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
 import com.altamiracorp.reddawn.ucd.term.TermMention;
 import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import com.altamiracorp.reddawn.util.LineReader;
@@ -28,7 +34,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
     private static final String EXTRACTOR_ID = "CsvStructuredData";
 
     @Override
-    public ExtractedData extract(Artifact artifact, String text, JSONObject mappingJson) throws IOException, JSONException {
+    public ExtractedData extract(RedDawnSession session, Artifact artifact, String text, JSONObject mappingJson) throws IOException, JSONException {
         ExtractedData extractedData = new ExtractedData();
 
         int row = 0;
@@ -57,19 +63,23 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
             }
 
             if (row >= skipRows) {
-                Sentence sentence = createSentence(artifact, lastOffset, line, securityMarking);
-                extractedData.addSentence(sentence);
-
-                List<Term> terms = getTerms(artifact, sentence, columns, mappingJson);
-                extractedData.addTerms(terms);
-
-                List<StructuredDataRelationship> relationships = getRelationships(artifact, sentence, terms, mappingJson);
-                extractedData.addRelationships(relationships);
+                processLine(extractedData, artifact, lastOffset, line, columns, securityMarking, mappingJson);
             }
             row++;
             lastOffset = reader.getOffset();
         }
         return extractedData;
+    }
+
+    private void processLine(ExtractedData extractedData, Artifact artifact, int offset, String line, List<String> columns, String securityMarking, JSONObject mappingJson) throws JSONException {
+        Sentence sentence = createSentence(artifact, offset, line, securityMarking);
+        extractedData.addSentence(sentence);
+
+        List<TermAndGraphVertex> termsAndGraphVertices = getTermsAndGraphVertices(artifact, sentence, columns, mappingJson);
+        extractedData.addTermAndGraphVertex(termsAndGraphVertices);
+
+        List<StructuredDataRelationship> relationships = getRelationships(artifact, sentence, termsAndGraphVertices, mappingJson);
+        extractedData.addRelationships(relationships);
     }
 
     private Sentence createSentence(Artifact artifact, int startOffset, String line, String securityMarking) {
@@ -94,46 +104,80 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
         return new Date();
     }
 
-    private List<Term> getTerms(Artifact artifact, Sentence sentence, List<String> line, JSONObject mappingJson) throws JSONException {
+    private List<TermAndGraphVertex> getTermsAndGraphVertices(Artifact artifact, Sentence sentence, List<String> line, JSONObject mappingJson) throws JSONException {
+        List<TermAndGraphVertex> termsAndGraphVertices = new ArrayList<TermAndGraphVertex>();
         JSONArray mappingColumnsJson = (JSONArray) mappingJson.get("columns");
-        ArrayList<Term> terms = new ArrayList<Term>();
         long offset = sentence.getRowKey().getStartOffset();
         for (int i = 0; i < line.size(); i++) {
             JSONObject columnMappingJson = mappingColumnsJson.getJSONObject(i);
             String sign = line.get(i);
-            if (columnMappingJson.has("skip") && columnMappingJson.getBoolean("skip")) {
-                terms.add(null);
-            } else {
-                String modelKey = columnMappingJson.getString("modelKey");
-                String conceptLabel = columnMappingJson.getString("conceptLabel");
+            String type = columnMappingJson.getString("type");
+            TermAndGraphVertex termAndGraphVertex = null;
+            if (type.equals("term")) {
+                termAndGraphVertex = createTermAndGraphVertex(artifact, offset, sentence, sign, columnMappingJson);
 
-                // TODO these offsets need to be fixed. If the csv file has quotes or other characters which CsvListReader removes this will be wrong
-                Long termMentionStart = offset;
-                Long termMentionEnd = offset + sign.length();
-
-                TermRowKey termKey = new TermRowKey(sign, modelKey, conceptLabel);
-                TermMention termMention = new TermMention()
-                        .setArtifactKey(artifact.getRowKey().toString())
-                        .setArtifactKeySign(artifact.getRowKey().toString())
-                        .setAuthor(EXTRACTOR_ID)
-                        .setMentionStart(termMentionStart)
-                        .setMentionEnd(termMentionEnd)
-                        .setSentenceText(sentence.getData().getText())
-                        .setSentenceTokenOffset(sentence.getRowKey().getStartOffset())
-                        .setArtifactSubject(sentence.getMetadata().getArtifactSubject())
-                        .setArtifactType(sentence.getMetadata().getArtifactType());
-                setSecurityMarking(termMention, sentence);
-                Term term = new Term(termKey)
-                        .addTermMention(termMention);
-                SentenceTerm sentenceTerm = new SentenceTerm(termMention)
-                        .setTermId(term);
-                sentence.addSentenceTerm(sentenceTerm);
-                terms.add(term);
+                if (columnMappingJson.has("properties")) {
+                    JSONArray propertiesMappingJson = columnMappingJson.getJSONArray("properties");
+                    for (int propIndex = 0; propIndex < propertiesMappingJson.length(); propIndex++) {
+                        JSONObject propertyMappingJson = propertiesMappingJson.getJSONObject(propIndex);
+                        int target = propertyMappingJson.getInt("target");
+                        String name = propertyMappingJson.getString("name");
+                        JSONObject targetPropertyMappingJson = mappingColumnsJson.getJSONObject(target);
+                        String columnData = line.get(target);
+                        Object propertyValue = getPropertyValue(targetPropertyMappingJson, columnData);
+                        termAndGraphVertex.getGraphVertex().setProperty(name, propertyValue);
+                    }
+                }
             }
+            termsAndGraphVertices.add(termAndGraphVertex);
 
             offset += sign.length() + ",".length();
         }
-        return terms;
+
+        return termsAndGraphVertices;
+    }
+
+    private Object getPropertyValue(JSONObject propertyMappingJson, String columnData) {
+        // TODO: convert data types
+        return columnData;
+    }
+
+    private TermAndGraphVertex createTermAndGraphVertex(Artifact artifact, long offset, Sentence sentence, String sign, JSONObject columnMappingJson) throws JSONException {
+        TermAndGraphVertex termAndGraphVertex;
+        String modelKey = columnMappingJson.getString("modelKey");
+        String conceptLabel = columnMappingJson.getString("conceptLabel");
+
+        // TODO these offsets need to be fixed. If the csv file has quotes or other characters which CsvListReader removes this will be wrong
+        Long termMentionStart = offset;
+        Long termMentionEnd = offset + sign.length();
+
+        TermRowKey termKey = new TermRowKey(sign, modelKey, conceptLabel);
+        TermMention termMention = new TermMention()
+                .setArtifactKey(artifact.getRowKey().toString())
+                .setArtifactKeySign(artifact.getRowKey().toString())
+                .setAuthor(EXTRACTOR_ID)
+                .setMentionStart(termMentionStart)
+                .setMentionEnd(termMentionEnd)
+                .setSentenceText(sentence.getData().getText())
+                .setSentenceTokenOffset(sentence.getRowKey().getStartOffset())
+                .setArtifactSubject(sentence.getMetadata().getArtifactSubject())
+                .setArtifactType(sentence.getMetadata().getArtifactType());
+        setSecurityMarking(termMention, sentence);
+        Term term = new Term(termKey)
+                .addTermMention(termMention);
+        SentenceTerm sentenceTerm = new SentenceTerm(termMention)
+                .setTermId(term);
+        sentence.addSentenceTerm(sentenceTerm);
+
+        GraphVertex vertex = new GraphVertexImpl();
+        vertex.setProperty(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString());
+        vertex.setProperty(PropertyName.ROW_KEY.toString(), term.getRowKey().toString());
+        vertex.setProperty(PropertyName.COLUMN_FAMILY_NAME.toString(), termMention.getColumnFamilyName());
+        vertex.setProperty(PropertyName.TITLE.toString(), term.getRowKey().getSign());
+        vertex.setProperty(PropertyName.SOURCE.toString(), termMention.getArtifactSubject() == null ? "" : termMention.getArtifactSubject());
+
+        termAndGraphVertex = new TermAndGraphVertex(new TermAndTermMention(term, termMention), vertex);
+        return termAndGraphVertex;
     }
 
     private void setSecurityMarking(TermMention termMention, Sentence sentence) {
@@ -143,7 +187,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
         }
     }
 
-    private List<StructuredDataRelationship> getRelationships(Artifact artifact, Sentence sentence, List<Term> terms, JSONObject mappingJson) throws JSONException {
+    private List<StructuredDataRelationship> getRelationships(Artifact artifact, Sentence sentence, List<TermAndGraphVertex> termAndGraphVertexes, JSONObject mappingJson) throws JSONException {
         List<StructuredDataRelationship> relationships = new ArrayList<StructuredDataRelationship>();
         JSONArray mappingColumnsJson = (JSONArray) mappingJson.get("columns");
         for (int columnIndex = 0; columnIndex < mappingColumnsJson.length(); columnIndex++) {
@@ -152,22 +196,19 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
                 continue;
             }
             JSONArray mappingRelationshipsJson = mappingColumnJson.getJSONArray("relationships");
-            Term firstTerm = terms.get(columnIndex);
+            TermAndGraphVertex firstTermAndGraphVertex = termAndGraphVertexes.get(columnIndex);
             for (int relationshipIndex = 0; relationshipIndex < mappingRelationshipsJson.length(); relationshipIndex++) {
                 JSONObject mappingRelationshipJson = mappingRelationshipsJson.getJSONObject(relationshipIndex);
-                relationships.add(createRelationship(artifact, sentence, firstTerm, terms, mappingRelationshipJson));
+                int targetColumn = mappingRelationshipJson.getInt("target");
+                TermAndGraphVertex secondTermAndGraphVertex = termAndGraphVertexes.get(targetColumn);
+                relationships.add(createRelationship(firstTermAndGraphVertex, secondTermAndGraphVertex, mappingRelationshipJson));
             }
         }
         return relationships;
     }
 
-    private StructuredDataRelationship createRelationship(Artifact artifact, Sentence sentence, Term firstTerm, List<Term> terms, JSONObject mappingRelationshipJson) throws JSONException {
+    private StructuredDataRelationship createRelationship(TermAndGraphVertex firstTerm, TermAndGraphVertex secondTerm, JSONObject mappingRelationshipJson) throws JSONException {
         String label = mappingRelationshipJson.getString("label");
-        int targetColumn = mappingRelationshipJson.getInt("target");
-        Term secondTerm = terms.get(targetColumn);
-
-        TermMention termMentionSource = firstTerm.getTermMentions().get(0);
-        TermMention termMentionDest = secondTerm.getTermMentions().get(0);
-        return new StructuredDataRelationship(termMentionSource, termMentionDest, label);
+        return new StructuredDataRelationship(firstTerm, secondTerm, label);
     }
 }

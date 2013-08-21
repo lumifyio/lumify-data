@@ -66,6 +66,10 @@ define([
                 'text-outline-width': 1,
                 'font-size': 9 * retina.devicePixelRatio
             })
+            .selector('node.entity')
+            .css({
+                'font-weight': 'bold'
+            })
             .selector(':selected')
             .css({
                 'background-color': '#0088cc',

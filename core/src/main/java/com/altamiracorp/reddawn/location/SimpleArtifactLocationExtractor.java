@@ -1,13 +1,11 @@
 package com.altamiracorp.reddawn.location;
 
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
-import com.altamiracorp.reddawn.ucd.term.Term;
-import com.altamiracorp.reddawn.ucd.term.TermMention;
+import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 public class SimpleArtifactLocationExtractor implements ArtifactLocationExtractor {
     @Override
@@ -16,20 +14,26 @@ public class SimpleArtifactLocationExtractor implements ArtifactLocationExtracto
     }
 
     @Override
-    public Collection<Artifact> extract(Term term) throws Exception {
-        ArrayList<Artifact> result = new ArrayList<Artifact>();
+    public void extract(Artifact artifact, List<TermAndTermMention> termAndTermMentions) throws Exception {
+        TermAndTermMention largest = null;
 
-        for (TermMention termMention : term.getTermMentions()) {
-            String geoLocation = termMention.getGeoLocation();
-            if (geoLocation != null) {
-                Artifact artifact = new Artifact(termMention.getArtifactKey());
-                artifact.getDynamicMetadata().setGeolocation(geoLocation);
-                artifact.getDynamicMetadata().setGeoLocationPopulation(termMention.getGeoLocationPopulation());
-                artifact.getDynamicMetadata().setGeoLocationTitle(termMention.getGeoLocationTitle());
-                result.add(artifact);
+        for (TermAndTermMention termAndTermMention : termAndTermMentions) {
+            if (termAndTermMention.getTermMention().getGeoLocation() != null) {
+                if (largest == null) {
+                    largest = termAndTermMention;
+                    continue;
+                }
+                if (termAndTermMention.getTermMention().getGeoLocationPopulation() > largest.getTermMention().getGeoLocationPopulation()) {
+                    largest = termAndTermMention;
+                    continue;
+                }
             }
         }
 
-        return result;
+        if (largest != null) {
+            artifact.getDynamicMetadata().setGeolocation(largest.getTermMention().getGeoLocation());
+            artifact.getDynamicMetadata().setGeoLocationPopulation(largest.getTermMention().getGeoLocationPopulation());
+            artifact.getDynamicMetadata().setGeoLocationTitle(largest.getTermMention().getGeoLocationTitle());
+        }
     }
 }
