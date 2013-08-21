@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 250_StructuredDataExtractorMR.sh
 # require: 700_ArtifactToTitanMR.sh
 # require: 710_TermMentionToTitanMR.sh
 

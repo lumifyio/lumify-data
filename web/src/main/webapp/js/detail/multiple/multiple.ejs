@@ -1,10 +1,12 @@
 <div class="multiple">
-  <h1><%= nodes.length %> objects selected</h1>
+  <h1><%= vertices.length %> objects selected</h1>
 
   <ul>
-    <% nodes.forEach(function(node) { %>
+    <% vertices.forEach(function(vertex) { %>
     <li>
-        <span class="<%= getClasses(node) %>" data-info='<%- JSON.stringify(node) %>'><%- node.originalTitle || node.title || 'No Title' %></span>
+        <% if (vertex._type != 'relationship') { %>
+            <span class="<%= getClasses(vertex) %>" data-info='<%- JSON.stringify(vertex) %>'><%- vertex.originalTitle || vertex.title || 'No title available' %></span>
+        <% } %>
     </li>
     <% }); %>
   </ul>

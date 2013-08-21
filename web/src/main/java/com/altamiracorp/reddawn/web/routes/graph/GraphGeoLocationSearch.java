@@ -31,10 +31,10 @@ public class GraphGeoLocationSearch implements Handler, AppAware {
         double longitude = Double.parseDouble(request.getParameter("lon"));
         double radius = Double.parseDouble(request.getParameter("radius"));
 
-        List<GraphVertex> nodes = graphRepository.findByGeoLocation(session.getGraphSession(), latitude, longitude, radius);
+        List<GraphVertex> vertices = graphRepository.findByGeoLocation(session.getGraphSession(), latitude, longitude, radius);
 
         JSONObject results = new JSONObject();
-        results.put("nodes", GraphVertex.toJson(nodes));
+        results.put("vertices", GraphVertex.toJson(vertices));
         new Responder(response).respondWith(results);
     }
 }

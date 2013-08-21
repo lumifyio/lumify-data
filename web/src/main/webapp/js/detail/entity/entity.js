@@ -42,10 +42,10 @@ define([
                 }
 
                 self.$node.html(template({
-                    title: self.attr.data.originalTitle || self.attr.data.title || 'No Title',
+                    title: self.attr.data.originalTitle || self.attr.data.title || 'No title avaliable',
                     highlightButton: self.highlightButton(),
                     glyphIconHref: glyphIconHref,
-                    id: self.attr.data.id || self.attr.data.graphNodeId
+                    id: self.attr.data.id || self.attr.data.graphVertexId
                 }));
 
                 self.loadEntity();
@@ -55,18 +55,18 @@ define([
 
         this.loadEntity = function() {
             var self = this;
-            var nodeInfo = {
-                id: this.attr.data.id || this.attr.data.graphNodeId,
+            var vertexInfo = {
+                id: this.attr.data.id || this.attr.data.graphVertexId,
                 properties: {
-                    title: this.attr.data.originalTitle || this.attr.data.title || 'No Title',
-                    graphNodeId: this.attr.data.graphNodeId,
+                    title: this.attr.data.originalTitle || this.attr.data.title || 'No title avaliable',
+                    graphVertexId: this.attr.data.graphVertexId,
                     _type: this.attr.data._type,
                     _subType: this.attr.data._subType,
                     _rowKey: this.attr.data._rowKey
                 }
             };
 
-            this.getProperties(this.attr.data.id || this.attr.data.graphNodeId, function(properties) {
+            this.getProperties(this.attr.data.id || this.attr.data.graphVertexId, function(properties) {
                 for(var i=0; i<properties.length; i++) {
                     var property = properties[i];
                     if(property.key == '_glyphIcon') {
@@ -77,33 +77,33 @@ define([
                 self.select('propertiesSelector').html(propertiesTemplate({properties: properties}));
             });
 
-            this.getRelationships(this.attr.data.id || this.attr.data.graphNodeId, function(relationships) {
+            this.getRelationships(this.attr.data.id || this.attr.data.graphVertexId, function(relationships) {
                 var relationshipsTplData = [];
 
                 relationships.forEach(function(relationship) {
                     var data = {};
                     data.relationship = relationship.relationship;
                     data.dataInfo = JSON.stringify({
-                        source: relationship.relationship.sourceNodeId,
-                        target: relationship.relationship.destNodeId,
+                        source: relationship.relationship.sourceVertexId,
+                        target: relationship.relationship.destVertexId,
                         _type: 'relationship',
                         relationshipType: relationship.relationship.label
                     });
 
-                    relationship.node.properties.graphNodeId = relationship.node.id;
+                    relationship.vertex.properties.graphVertexId = relationship.vertex.id;
 
-                    if(nodeInfo.id == relationship.relationship.sourceNodeId) {
-                        data.sourceNode = nodeInfo;
-                        data.sourceNode.cssClasses = self.classesForNode(nodeInfo);
+                    if(vertexInfo.id == relationship.relationship.sourceVertexId) {
+                        data.sourceVertex = vertexInfo;
+                        data.sourceVertex.cssClasses = self.classesForVertex(vertexInfo);
 
-                        data.destNode = relationship.node;
-                        data.destNode.cssClasses = self.classesForNode(relationship.node);
+                        data.destVertex = relationship.vertex;
+                        data.destVertex.cssClasses = self.classesForVertex(relationship.vertex);
                     } else {
-                        data.sourceNode = relationship.node;
-                        data.sourceNode.cssClasses = self.classesForNode(relationship.node);
+                        data.sourceVertex = relationship.vertex;
+                        data.sourceVertex.cssClasses = self.classesForVertex(relationship.vertex);
 
-                        data.destNode = nodeInfo;
-                        data.destNode.cssClasses = self.classesForNode(nodeInfo);
+                        data.destVertex = vertexInfo;
+                        data.destVertex.cssClasses = self.classesForVertex(vertexInfo);
                     }
 
                     relationshipsTplData.push(data);
@@ -112,10 +112,10 @@ define([
             });
         };
 
-        this.getProperties = function(graphNodeId, callback) {
+        this.getProperties = function(graphVertexId, callback) {
             var self = this;
 
-            this.handleCancelling(this.ucdService.getNodeProperties(encodeURIComponent(graphNodeId), function(err, properties) {
+            this.handleCancelling(this.ucdService.getVertexProperties(encodeURIComponent(graphVertexId), function(err, properties) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
@@ -126,10 +126,10 @@ define([
             }));
         };
 
-        this.getRelationships = function(graphNodeId, callback) {
+        this.getRelationships = function(graphVertexId, callback) {
             var self = this;
 
-            this.handleCancelling(this.ucdService.getNodeRelationships(encodeURIComponent(graphNodeId), function(err, relationships) {
+            this.handleCancelling(this.ucdService.getVertexRelationships(encodeURIComponent(graphVertexId), function(err, relationships) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });

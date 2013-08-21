@@ -115,16 +115,16 @@ define([
                     self.searchResults.artifact = artifacts;
                     self.trigger('artifactSearchResults', artifacts);
                 });
-                this.ucd.graphNodeSearch(query, function(err, entities) {
+                this.ucd.graphVertexSearch(query, function(err, entities) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
                     self.searchResults.entity = {};
-                    entities.nodes.forEach(function(entity) {
+                    entities.vertices.forEach(function(entity) {
                         entity.sign = entity.properties['title'];
                         entity.source = entity.properties['source'];
-                        entity.graphNodeId = entity.id;
+                        entity.graphVertexId = entity.id;
                         self.searchResults.entity[entity.properties['_subType']] = self.searchResults.entity[entity.properties['_subType']] || [];
                         self.searchResults.entity[entity.properties['_subType']].push(entity);
                     });
@@ -173,11 +173,11 @@ define([
                 }
 
                 // Check if this result is in the graph/map
-                var classes = ['gId' + encodeURIComponent(result.graphNodeId)];
-                var nodeState = _currentNodes[result.graphNodeId];
-                if (nodeState) {
-                    if ( nodeState.inGraph ) classes.push('graph-displayed');
-                    if ( nodeState.inMap ) classes.push('map-displayed');
+                var classes = ['gId' + encodeURIComponent(result.graphVertexId)];
+                var vertexState = _currentVertices[result.graphVertexId];
+                if (vertexState) {
+                    if ( vertexState.inGraph ) classes.push('graph-displayed');
+                    if ( vertexState.inMap ) classes.push('map-displayed');
                 }
                 if (data._subType === 'video' || data._subType === 'image') {
                     classes.push('has_preview');
@@ -305,9 +305,9 @@ define([
 
             this.select('searchResultsScrollSelector').on('scroll', this.onResultsScroll.bind(this));
 
-            this.on(document, 'nodesAdded', this.onNodesUpdated);
-            this.on(document, 'nodesUpdated', this.onNodesUpdated);
-            this.on(document, 'nodesDeleted', this.onNodesDeleted);
+            this.on(document, 'verticesAdded', this.onVerticesUpdated);
+            this.on(document, 'verticesUpdated', this.onVerticesUpdated);
+            this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'switchWorkspace', this.onWorkspaceClear);
             this.on(document, 'workspaceDeleted', this.onWorkspaceClear);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
@@ -316,44 +316,44 @@ define([
         });
 
         this.onWorkspaceLoaded = function(evt, workspace) {
-            this.onNodesUpdated(evt, workspace.data || {});
+            this.onVerticesUpdated(evt, workspace.data || {});
         };
 
-        // Track changes to nodes so we display the "Displayed in Graph" icon
+        // Track changes to vertices so we display the "Displayed in Graph" icon
         // in search results
-        var _currentNodes = {};
-        this.toggleSearchResultIcon = function(graphNodeId, inGraph, inMap) {
+        var _currentVertices = {};
+        this.toggleSearchResultIcon = function(graphVertexId, inGraph, inMap) {
             this.$node
-                .find('li.gId' + encodeURIComponent(graphNodeId))
+                .find('li.gId' + encodeURIComponent(graphVertexId))
                 .toggleClass('graph-displayed', inGraph)
                 .toggleClass('map-displayed', inMap);
         };
 
-        // Switching workspaces should clear the icon state and nodes
+        // Switching workspaces should clear the icon state and vertices
         this.onWorkspaceClear = function() {
             this.$node.find('li.graph-displayed').removeClass('graph-displayed');
             this.$node.find('li.map-displayed').removeClass('map-displayed');
-            _currentNodes = {};
+            _currentVertices = {};
         };
 
-        this.onNodesUpdated = function(event, data) {
+        this.onVerticesUpdated = function(event, data) {
             var self = this;
-            (data.nodes || []).forEach(function(node) {
-                // Only care about node search results and location updates
-                if ( (node._type && node._subType) || node.location || node.locations ) {
+            (data.vertices || []).forEach(function(vertex) {
+                // Only care about vertex search results and location updates
+                if ( (vertex._type && vertex._subType) || vertex.location || vertex.locations ) {
                     var inGraph = true;
-                    var inMap = !!(node.location || (node.locations && node.locations.length));
-                    _currentNodes[node.graphNodeId] = { inGraph:inGraph, inMap:inMap };
-                    self.toggleSearchResultIcon(node.graphNodeId, inGraph, inMap);
+                    var inMap = !!(vertex.location || (vertex.locations && vertex.locations.length));
+                    _currentVertices[vertex.graphVertexId] = { inGraph:inGraph, inMap:inMap };
+                    self.toggleSearchResultIcon(vertex.graphVertexId, inGraph, inMap);
                 }
             });
         };
 
-        this.onNodesDeleted = function(event, data) {
+        this.onVerticesDeleted = function(event, data) {
             var self = this;
-            (data.nodes || []).forEach(function(node) {
-                delete _currentNodes[node.graphNodeId];
-                self.toggleSearchResultIcon(node.graphNodeId, false, false);
+            (data.vertices || []).forEach(function(vertex) {
+                delete _currentVertices[vertex.graphVertexId];
+                self.toggleSearchResultIcon(vertex.graphVertexId, false, false);
             });
         };
 
@@ -381,10 +381,10 @@ define([
                             offset = this.offset(),
                             dropPosition = { x:offset.left, y:offset.top };
 
-                        self.trigger(document, 'addNodes', {
-                            nodes: [{
+                        self.trigger(document, 'addVertices', {
+                            vertices: [{
                                 title: info.title,
-                                graphNodeId: info.graphNodeId,
+                                graphVertexId: info.graphVertexId,
                                 _rowKey: info._rowKey,
                                 _subType: info._subType,
                                 _type: info._type,

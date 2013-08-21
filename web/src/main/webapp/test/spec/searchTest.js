@@ -42,7 +42,7 @@ describeComponent('search/search', function(Search) {
             this.component.ucd.artifactSearch = function(query) {
                 artifactSearchQuery = query;
             };
-            this.component.ucd.graphNodeSearch = function(query) {
+            this.component.ucd.graphVertexSearch = function(query) {
                 entitySearchQuery = query;
             };
 

@@ -17,9 +17,9 @@ define(['service/ucd'], function(UCD) {
             this.$node.html('Loading...');
         });
 
-        this.classesForNode = function(node) {
+        this.classesForVertex = function(vertex) {
             var cls = [],
-                props = node.properties || node;
+                props = vertex.properties || vertex;
 
             if (props._type == 'artifact') {
                 cls.push('artifact');
