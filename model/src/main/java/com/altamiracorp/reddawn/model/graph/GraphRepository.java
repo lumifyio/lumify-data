@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.model.graph;
 
 import com.altamiracorp.reddawn.model.GraphSession;
+import com.altamiracorp.reddawn.model.ontology.LabelName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 
 import java.util.HashMap;
@@ -40,6 +41,10 @@ public class GraphRepository {
         return save(graphSession, relationship);
     }
 
+    public GraphRelationship saveRelationship(GraphSession graphSession, String sourceGraphVertexId, String destGraphVertexId, LabelName label) {
+        return saveRelationship(graphSession, sourceGraphVertexId, destGraphVertexId, label.toString());
+    }
+
     public String saveVertex(GraphSession graphSession, GraphVertex graphVertex) {
         return graphSession.save(graphVertex);
     }
@@ -75,5 +80,20 @@ public class GraphRepository {
     public void removeRelationship(GraphSession graphSession, String source, String target, String label) {
         graphSession.removeRelationship(source, target, label);
         return;
+    }
+
+    public GraphRelationship findOrAddRelationship(GraphSession graphSession, String sourceVertexId, String targetVertexId, String label) {
+        Map<GraphRelationship, GraphVertex> relationships = getRelationships(graphSession, sourceVertexId);
+        for (Map.Entry<GraphRelationship, GraphVertex> relationship : relationships.entrySet()) {
+            if (relationship.getValue().getId().equals(targetVertexId) &&
+                    relationship.getKey().getLabel().equals(label)) {
+                return relationship.getKey();
+            }
+        }
+        return null;
+    }
+
+    public GraphRelationship findOrAddRelationship(GraphSession graphSession, String sourceVertexId, String targetVertexId, LabelName label) {
+        return findOrAddRelationship(graphSession, sourceVertexId, targetVertexId, label.toString());
     }
 }

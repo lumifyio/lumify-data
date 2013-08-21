@@ -165,6 +165,7 @@ public abstract class Base extends RedDawnCommandLineBase {
         addPropertyToConcept(graph, entity, subTypeProperty.getName(), PropertyType.STRING);
         addPropertyToConcept(graph, entity, titleProperty.getName(), PropertyType.STRING);
         addPropertyToConcept(graph, entity, PropertyName.GLYPH_ICON.toString(), PropertyType.IMAGE);
+        getOrCreateRelationshipType(graph, entity, artifact, LabelName.HAS_IMAGE.toString());
 
         graph.commit();
 

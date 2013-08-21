@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import java.util.Date;
 
 public class Artifact extends Row<ArtifactRowKey> {
+    public static final long MAX_SIZE_OF_INLINE_FILE = 512 * 1024; // 512kiB
     public static final String TABLE_NAME = "Artifact";
 
     public Artifact(RowKey rowKey) {

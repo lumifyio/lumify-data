@@ -53,4 +53,8 @@ public abstract class GraphVertex {
             setProperty(propertyKey, newGraphVertex.getProperty(propertyKey));
         }
     }
+
+    public void setProperty(PropertyName propertyName, String value) {
+        setProperty(propertyName.toString(), value);
+    }
 }
