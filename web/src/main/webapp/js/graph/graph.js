@@ -65,6 +65,10 @@ define([
             var addedVertices = [];
             var self = this;
 
+            if ($(".instructions").length > 0) {
+                $(".instructions").text ('Related Entities Added');
+            }
+
             this.cy(function(cy) {
                 var existingVertices = $.map(cy.nodes(), function (vertex){
                     vertex.lock();
@@ -631,6 +635,10 @@ define([
         };
 
         this.onLoadRelatedSelected = function(resolvedOnly, data) {
+            var instructions = $('<div>')
+                .text("Loading...")
+                .addClass('instructions')
+                .appendTo(this.$node);
             var self = this;
 
             if ($.isArray(data) && data.length == 1){
@@ -727,7 +735,10 @@ define([
                         minZoom: options.minZoom,
                         maxZoom: options.maxZoom
                     }).focus().on({
-                        click: function() { this.focus(); },
+                        click: function() {
+                                    this.focus();
+                                    $(".instructions").remove();
+                                },
                         keydown: self.onKeyHandler.bind(self),
                         keyup: self.onKeyHandler.bind(self)
                     });

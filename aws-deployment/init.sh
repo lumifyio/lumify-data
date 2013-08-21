@@ -35,8 +35,7 @@ iptables -I INPUT ${rule_number} -p tcp -m state --state NEW -m tcp --dport 8140
 rule_number=$(iptables -L -n --line-numbers | awk '/tcp dpt:22/ {print $1}')
 iptables -I INPUT ${rule_number} -p tcp -m state --state NEW -m tcp --dport 8080 -j ACCEPT
 service iptables save
-
-# TODO: firewall rules for the cluster services
+# TODO: use puppet to configure iptables now since it will later
 
 heading 'configure puppet'
 cat >> /etc/puppet/puppet.conf <<EO_PUPPET_CONF
@@ -56,6 +55,10 @@ puppet agent -t || true
 
 heading 'run puppet as a service'
 service puppet start
+
+heading 'stage webserver artifcats'
+www_host=$(awk '/www/ {print $1}' ${hosts_file})
+scp ${SSH_OPTS} *.war ${www_host}:
 
 
 for other_host in $(awk -v localhost=$(hostname) '$2!=localhost {print $1}' ${hosts_file}); do

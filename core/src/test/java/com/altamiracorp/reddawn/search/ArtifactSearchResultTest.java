@@ -53,7 +53,7 @@ public class ArtifactSearchResultTest {
     }
 
     @Test
-    public void testGetGraphNodeId() throws Exception {
+    public void testGetGraphVertexId() throws Exception {
         String result = asr.getGraphVertexId();
         assertEquals(graphVertexId, result);
     }

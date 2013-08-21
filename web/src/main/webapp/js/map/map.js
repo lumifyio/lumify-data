@@ -123,6 +123,7 @@ define([
         };
 
         this.onExistingVerticesAdded = function(evt, data) {
+            var self = this;
             if (this.$node.closest('.visible').length === 0) return;
 
             var dragging = $('.ui-draggable-dragging:not(.clone-vertex)'),
@@ -132,11 +133,6 @@ define([
                 graphOffset = this.$node.offset();
 
             if (dragging.length != 1) return;
-
-            var cloned = dragging.clone()
-                                 .css({width:'auto'})
-                                 .addClass('clone-vertex')
-                                 .insertAfter(dragging);
 
             this.map(function(map) {
 
@@ -150,7 +146,15 @@ define([
                     });
                 });
 
-                if (points.length === 0) return;
+                if (points.length === 0) {
+                    self.invalidMap ();
+                    return;
+                }
+
+                var cloned = dragging.clone()
+                                 .css({width:'auto'})
+                                 .addClass('clone-vertex')
+                                 .insertAfter(dragging);
 
                 if (!map.getBounds().contains(points[0]) || map.getZoom() < 3) {
                     var zoom = map.getZoom();
@@ -183,9 +187,7 @@ define([
                             }
                         });
                 }.bind(this), 100);
-
             });
-
         };
 
         this.onSyncEnded = function() {

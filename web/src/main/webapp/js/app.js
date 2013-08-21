@@ -441,8 +441,10 @@ define([
                 });
 
                 if (existing.length) this.trigger(document, 'existingVerticesAdded', { vertices:existing });
-
-                if (added.length === 0) return;
+                if (added.length === 0) {
+                    $(".graph-pane .instructions").text("No New Vertices Added");
+                    return;
+                }
 
                 if(!data.noUndo) {
                     var dataClone = JSON.parse(JSON.stringify(data));
