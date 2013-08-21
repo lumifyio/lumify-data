@@ -90,7 +90,7 @@ define([
 
                 vertices.forEach(function(vertex) {
                     console.log('adding vertex:', vertex);
-                    var title = vertex.title || 'unknown';
+                    var title = vertex.title || 'No title available';
                     if (title.length > 15) {
                         title = title.substring(0, 10) + "...";
                     }
