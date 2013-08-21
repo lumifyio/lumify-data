@@ -31,6 +31,20 @@ node "ip-10-0-3-10" {
     ensure => running,
     require => [ Exec["tinyproxy-configure-port"], Exec["tinyproxy-configure-allow"] ],
   }
+
+  include my_fw
+
+  firewall { '008 allow tinyproxy' :
+    proto  => tcp,
+    port   => 8080,
+    action => accept,
+  }
+
+  firewall { '009 allow puppetmaster' :
+    proto  => tcp,
+    port   => 8140,
+    action => accept,
+  }
 }
 
 node "ip-10-0-3-50" {
