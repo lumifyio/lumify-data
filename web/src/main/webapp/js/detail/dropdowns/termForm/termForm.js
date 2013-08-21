@@ -172,11 +172,7 @@ define([
                 
                 self.select('conceptSelector').html(conceptsTemplate({
                     concepts: self.allConcepts,
-<<<<<<< HEAD
-                    selectedConceptId: mentionVertexInfo && mentionVertexInfo._subType || ''
-=======
-                    selectedConceptId: (self.attr.existing && mentionNodeInfo && mentionNodeInfo._subType) || ''
->>>>>>> 83e8ac6eab4f063e6ba1e17d02c9879ff15f5b83
+                    selectedConceptId: (self.attr.existing && mentionVertexInfo && mentionVertexInfo._subType) || ''
                 }));
 
                 if (self.select('conceptSelector').val() === '') {
