@@ -38,9 +38,9 @@ public class ConceptList implements Handler, AppAware {
         JSONObject result = new JSONObject();
         result.put("id", concept.getId());
         result.put("title", concept.getTitle());
-        if (concept.getGlyphIconResourceRowKey() != null) {
-            result.put("glyphIconResourceRowKey", concept.getGlyphIconResourceRowKey());
-            result.put("glyphIconHref", getGlyphUrl(request, concept.getGlyphIconResourceRowKey()));
+        if (concept.getGlyphIcon() != null) {
+            result.put("glyphIconResourceRowKey", concept.getGlyphIcon());
+            result.put("glyphIconHref", concept.getGlyphIcon());
         }
         if (concept.getColor() != null) {
             result.put("color", concept.getColor());
@@ -57,10 +57,6 @@ public class ConceptList implements Handler, AppAware {
         }
 
         return result;
-    }
-
-    public static String getGlyphUrl(HttpServletRequest request, String resourceKey) {
-        return UrlUtils.getRootRef(request) + "/resource/" + resourceKey;
     }
 
     @Override

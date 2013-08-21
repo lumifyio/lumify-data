@@ -20,7 +20,7 @@ public class GraphVertexConcept extends Concept {
     }
 
     @Override
-    public String getGlyphIconResourceRowKey() {
+    public String getGlyphIcon() {
         return (String) graphVertex.getProperty(PropertyName.GLYPH_ICON);
     }
 

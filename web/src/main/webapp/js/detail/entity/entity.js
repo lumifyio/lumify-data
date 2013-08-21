@@ -72,7 +72,7 @@ define([
                 for(var i=0; i<properties.length; i++) {
                     var property = properties[i];
                     if(property.key == '_glyphIcon') {
-                        self.select('glyphIconSelector').attr('src', '/resource/' + property.value);
+                        self.select('glyphIconSelector').attr('src', property.value);
                         break;
                     }
                 }

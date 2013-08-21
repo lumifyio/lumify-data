@@ -18,7 +18,7 @@ public class VertexConcept extends Concept {
     }
 
     @Override
-    public String getGlyphIconResourceRowKey() {
+    public String getGlyphIcon() {
         return getVertex().getProperty(PropertyName.GLYPH_ICON.toString());
     }
 
