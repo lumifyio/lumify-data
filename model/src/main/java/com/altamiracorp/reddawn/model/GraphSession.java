@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.model;
 
-import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.tinkerpop.blueprints.Graph;
 
@@ -49,4 +49,6 @@ public abstract class GraphSession {
     public abstract void removeRelationship(String source, String target, String label);
 
     public abstract void commit();
+
+    public abstract List<List<GraphVertex>> findPath(GraphVertex sourceVertex, GraphVertex destVertex, int depth);
 }

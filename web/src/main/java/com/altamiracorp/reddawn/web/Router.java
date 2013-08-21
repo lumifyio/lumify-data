@@ -73,6 +73,7 @@ public class Router extends HttpServlet {
         app.get("/vertex/relationship", authenticator, VertexToVertexRelationship.class);
         app.get("/vertex/removeRelationship", authenticator, VertexRelationshipRemoval.class);
 
+        app.get("/graph/findPath", authenticator, GraphFindPath.class);
         app.get("/graph/{graphVertexId}/relatedVertices", authenticator, GraphRelatedVertices.class);
         app.get("/graph/{graphVertexId}/relatedResolvedVertices", authenticator, GraphRelatedResolvedVertices.class);
         app.get("/graph/vertex/search", authenticator, GraphVertexSearch.class);

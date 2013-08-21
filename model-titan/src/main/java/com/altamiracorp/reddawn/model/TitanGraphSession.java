@@ -18,6 +18,8 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
+import com.tinkerpop.pipes.PipeFunction;
+import com.tinkerpop.pipes.branch.LoopPipe;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -173,6 +175,14 @@ public class TitanGraphSession extends GraphSession {
         ArrayList<GraphVertex> results = new ArrayList<GraphVertex>();
         for (Vertex vertex : vertices) {
             results.add(new TitanGraphVertex(vertex));
+        }
+        return results;
+    }
+
+    private List<List<GraphVertex>> toGraphVerticesPath(Iterable<Iterable<Vertex>> paths) {
+        ArrayList<List<GraphVertex>> results = new ArrayList<List<GraphVertex>>();
+        for (Iterable<Vertex> path : paths) {
+            results.add(toGraphVertices(path));
         }
         return results;
     }
@@ -347,6 +357,44 @@ public class TitanGraphSession extends GraphSession {
         GremlinPipeline gremlinPipeline = new GremlinPipeline(vertex).map();
 
         return (Map<String, String>) gremlinPipeline.toList().get(0);
+    }
+
+    @Override
+    public List<List<GraphVertex>> findPath(GraphVertex sourceVertex, GraphVertex destVertex, final int depth) {
+        Vertex source = getVertex(sourceVertex);
+        final String destVertexId = destVertex.getId();
+        GremlinPipeline gremlinPipeline = new GremlinPipeline(source)
+                .both()
+                .loop(
+                        1,
+                        new PipeFunction<LoopPipe.LoopBundle, Boolean>() {
+                            @Override
+                            public Boolean compute(LoopPipe.LoopBundle argument) {
+                                return argument.getLoops() <= depth;
+                            }
+                        },
+                        new PipeFunction<LoopPipe.LoopBundle, Boolean>() {
+                            @Override
+                            public Boolean compute(LoopPipe.LoopBundle argument) {
+                                if (argument.getObject() instanceof Vertex) {
+                                    Vertex v = (Vertex) argument.getObject();
+                                    return ("" + v.getId()).equals(destVertexId);
+                                }
+                                return false;
+                            }
+                        }
+                )
+                .path();
+
+        Iterable<Iterable<Vertex>> paths = (Iterable<Iterable<Vertex>>) gremlinPipeline.toList();
+        return toGraphVerticesPath(paths);
+    }
+
+    private Vertex getVertex(GraphVertex v) {
+        if (v instanceof TitanGraphVertex) {
+            return ((TitanGraphVertex) v).getVertex();
+        }
+        return this.graph.getVertex(v.getId());
     }
 
     @Override

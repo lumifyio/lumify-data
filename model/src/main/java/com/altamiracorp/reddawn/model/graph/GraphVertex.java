@@ -48,6 +48,14 @@ public abstract class GraphVertex {
         return results;
     }
 
+    public static JSONArray toJsonPath(List<List<GraphVertex>> paths) {
+        JSONArray results = new JSONArray();
+        for (List<GraphVertex> path : paths) {
+            results.put(toJson(path));
+        }
+        return results;
+    }
+
     public void update(GraphVertex newGraphVertex) {
         for (String propertyKey : newGraphVertex.getPropertyKeys()) {
             setProperty(propertyKey, newGraphVertex.getProperty(propertyKey));

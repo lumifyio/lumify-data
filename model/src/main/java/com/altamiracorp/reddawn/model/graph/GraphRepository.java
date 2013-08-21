@@ -76,4 +76,8 @@ public class GraphRepository {
         graphSession.removeRelationship(source, target, label);
         return;
     }
+
+    public List<List<GraphVertex>> findPath(GraphSession graphSession, GraphVertex sourceVertex, GraphVertex destVertex, int depth) {
+        return graphSession.findPath(sourceVertex, destVertex, depth);
+    }
 }
