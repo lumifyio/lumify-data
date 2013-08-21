@@ -21,6 +21,7 @@ define([
         this.defaultAttrs({
             entityConceptMenuSelector: '.underneath .dropdown-menu a',
             createTermButtonSelector: '.create-term',
+            termNameInputSelector: 'input',
             signSelector: '.sign',
             objectSignSelector: '.object-sign',
             conceptSelector: 'select'
@@ -46,6 +47,13 @@ define([
             this.setupContent();
             this.registerEvents();
         });
+
+        this.onInputKeyUp = function (event) {
+            switch (event.which) {
+                case $.ui.keyCode.ENTER:
+                    this.onCreateTermClicked(event);
+            }
+        }
 
         this.onCreateTermClicked = function(event) {
             var self = this,
@@ -159,6 +167,10 @@ define([
                 entityConceptMenuSelector: this.onEntityConceptSelected,
                 createTermButtonSelector: this.onCreateTermClicked
             });
+
+            this.on('keyup', {
+                termNameInputSelector: this.onInputKeyUp
+            })
         };
 
         this.loadConcepts = function() {
