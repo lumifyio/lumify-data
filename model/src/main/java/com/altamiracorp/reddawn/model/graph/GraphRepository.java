@@ -90,7 +90,7 @@ public class GraphRepository {
                 return relationship.getKey();
             }
         }
-        return null;
+        return this.saveRelationship(graphSession, sourceVertexId, targetVertexId, label);
     }
 
     public GraphRelationship findOrAddRelationship(GraphSession graphSession, String sourceVertexId, String targetVertexId, LabelName label) {

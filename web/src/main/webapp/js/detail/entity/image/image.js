@@ -36,12 +36,11 @@ define([
                 this.node.ondrop = function (e) {
                     $(this).removeClass('file-hover');
                     e.preventDefault();
-                    
                     if (e.dataTransfer.files.length === 1) {
                         var file = e.dataTransfer.files[0];
 
                         if (self.attr.acceptedTypesRegex.test(file.type)) {
-                            return self.trigger('filesdropped', {file:file});
+                            return self.uploadFiles(e, { file: file });
                         }
                     }
 

@@ -68,6 +68,7 @@ public class GraphVertexUploadImage implements Handler, AppAware {
         );
         artifact.getGenericMetadata().setSource("User Upload");
         artifact.getGenericMetadata().setMimeType(mimeType);
+        artifact.getGenericMetadata().setSubject("Image of " + entityVertex.getProperty(PropertyName.TITLE));
         artifactRepository.save(session.getModelSession(), artifact);
         artifact = artifactRepository.findByRowKey(session.getModelSession(), artifact.getRowKey().toString());
         GraphVertex artifactVertex = null;
