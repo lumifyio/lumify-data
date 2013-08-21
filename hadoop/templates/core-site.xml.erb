@@ -5,11 +5,13 @@
   <property>
     <name>fs.default.name</name>
     <value>hdfs://<%= @namenode_ipaddress %>:8020</value>
+    <final>true</final>
   </property>
 
   <property>
      <name>hadoop.tmp.dir</name>
-     <value>/var/lib/hadoop-0.20/cache/${user.name}</value>
+     <value><%= Dir['/data[0-9]'].map{|d| d + '/hadoop/tmp'}.join(',') %></value>
+     <final>true</final>
   </property>
 
   <!-- OOZIE proxy user setting -->
