@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.structuredDataExtraction;
 
+import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.json.JSONObject;
@@ -9,5 +10,5 @@ public abstract class StructuredDataExtractorBase {
 
     }
 
-    public abstract ExtractedData extract(Artifact artifact, String text, JSONObject mappingJson) throws Exception;
+    public abstract ExtractedData extract(RedDawnSession session, Artifact artifact, String text, JSONObject mappingJson) throws Exception;
 }

@@ -30,7 +30,7 @@ public class GraphVertexSearch implements Handler, AppAware {
         RedDawnSession session = app.getRedDawnSession(request);
         List<GraphVertex> vertices = graphRepository.searchVerticesByTitle(session.getGraphSession(), query);
         JSONObject results = new JSONObject();
-        results.put("nodes", GraphVertex.toJson(vertices));
+        results.put("vertices", GraphVertex.toJson(vertices));
         new Responder(response).respondWith(results);
     }
 }

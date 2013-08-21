@@ -13,13 +13,13 @@ define([
     function Relationship() {
 
         this.defaultAttrs({
-            nodeToNodeRelationshipSelector: '.node-to-node-relationship',
+            vertexToVertexRelationshipSelector: '.vertex-to-vertex-relationship',
         });
 
         this.after('initialize', function() {
 
             this.on('click', {
-                nodeToNodeRelationshipSelector: this.onNodeToNodeRelationshipClicked
+                vertexToVertexRelationshipSelector: this.onVertexToVertexRelationshipClicked
             });
 
             var data = this.attr.data;
@@ -31,7 +31,7 @@ define([
             var self = this,
                 data = this.attr.data;
 
-            this.ucdService.getNodeToNodeRelationshipDetails (data.source, data.target, data.relationshipType, function (err, relationshipData){
+            this.ucdService.getVertexToVertexRelationshipDetails (data.source, data.target, data.relationshipType, function (err, relationshipData){
                 if (err) {
                     console.error ('Error', err);
                     return self.trigger (document, 'error', { message: err.toString () });
@@ -45,7 +45,7 @@ define([
             });
         };
 
-        this.onNodeToNodeRelationshipClicked = function(evt) {
+        this.onVertexToVertexRelationshipClicked = function(evt) {
             var self = this;
             var $target = $(evt.target);
 

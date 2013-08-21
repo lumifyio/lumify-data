@@ -75,7 +75,7 @@ public class ArtifactSearch implements Handler, AppAware {
         artifactJson.put("url", ArtifactByRowKey.getUrl(request, artifactSearchResult.getRowKey()));
         artifactJson.put("_rowKey", artifactSearchResult.getRowKey());
         artifactJson.put("subject", artifactSearchResult.getSubject());
-        artifactJson.put("graphNodeId", artifactSearchResult.getGraphVertexId());
+        artifactJson.put("graphVertexId", artifactSearchResult.getGraphVertexId());
         Date publishedDate = artifactSearchResult.getPublishedDate();
         if (publishedDate != null) {
             artifactJson.put("publishedDate", publishedDate.getTime());

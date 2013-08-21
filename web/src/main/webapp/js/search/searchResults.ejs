@@ -1,8 +1,9 @@
 <% results.forEach(function(result) { %>
+
 <li class="<%= result.className %>" data-info="<%= JSON.stringify({
       '_rowKey': result._rowKey,
-      'graphNodeId': result.graphNodeId,
-      '_type': _type,
+      'graphVertexId': result.graphVertexId,
+      '_type': (_type == 'entity' ? result.properties._type : _type) ,
       '_subType': _subType,
       'title': result.title
     }) %>"><a href="<%= result.url %>"><%= result.title || "No title available" %>

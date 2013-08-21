@@ -14,7 +14,7 @@ define([
     function Multiple() {
 
         this.after('initialize', function() {
-            this.$node.html(template({getClasses:this.classesForNode, nodes:this.attr.data}));
+            this.$node.html(template({getClasses:this.classesForVertex, vertices:this.attr.data}));
             this.updateEntityAndArtifactDraggables();
         });
     }

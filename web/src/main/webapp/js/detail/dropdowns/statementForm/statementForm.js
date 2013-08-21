@@ -94,15 +94,15 @@ define([
         this.onCreateStatement = function (event) {
             var self = this,
                 parameters = {
-                    sourceGraphNodeId: this.attr.sourceTerm.data('info').graphNodeId,
-                    destGraphNodeId: this.attr.destTerm.data('info').graphNodeId,
+                    sourceGraphVertexId: this.attr.sourceTerm.data('info').graphVertexId,
+                    destGraphVertexId: this.attr.destTerm.data('info').graphVertexId,
                     predicateLabel: this.select('relationshipSelector').val()
                 };
 
             if (this.select('formSelector').hasClass('invert')) {
-                var swap = parameters.sourceGraphNodeId;
-                parameters.sourceGraphNodeId = parameters.destGraphNodeId;
-                parameters.destGraphNodeId = swap;
+                var swap = parameters.sourceGraphVertexId;
+                parameters.sourceGraphVertexId = parameters.destGraphVertexId;
+                parameters.destGraphVertexId = swap;
             }
 
             this.statementService.createStatement(parameters, function (err, data) {

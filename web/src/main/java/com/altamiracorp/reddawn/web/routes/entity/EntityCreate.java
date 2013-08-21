@@ -55,15 +55,15 @@ public class EntityCreate implements Handler, AppAware {
         // optional parameters
         String objectSign = request.getParameter("objectSign");
 
-        GraphVertex resolvedNode = null;
+        GraphVertex resolvedVertex = null;
         if (objectSign != null && objectSign.length() > 0) {
             objectSign = UrlUtils.urlDecode(objectSign);
-            resolvedNode = getObjectGraphNode(session.getGraphSession(), objectSign, conceptVertex);
+            resolvedVertex = getObjectGraphVertex(session.getGraphSession(), objectSign, conceptVertex);
         }
-        TermAndTermMention termAndTermMention = getTermAndTermMention(currentUser, session, artifactKey, mentionStart, mentionEnd, sign, conceptVertex, resolvedNode);
+        TermAndTermMention termAndTermMention = getTermAndTermMention(currentUser, session, artifactKey, mentionStart, mentionEnd, sign, conceptVertex, resolvedVertex);
 
-        if (resolvedNode != null) {
-            graphRepository.saveRelationship(session.getGraphSession(), termAndTermMention.getTermMention().getGraphVertexId(), resolvedNode.getId(), "isA");
+        if (resolvedVertex != null) {
+            graphRepository.saveRelationship(session.getGraphSession(), termAndTermMention.getTermMention().getGraphVertexId(), resolvedVertex.getId(), "isA");
         }
 
         artifactRepository.touchRow(session.getModelSession(), new ArtifactRowKey(artifactKey));
@@ -72,25 +72,25 @@ public class EntityCreate implements Handler, AppAware {
         new Responder(response).respondWith(offsetItem.toJson());
     }
 
-    private GraphVertex getObjectGraphNode(GraphSession session, String title, GraphVertex conceptVertex) {
-        GraphVertex graphNode = graphRepository.findVertexByTitleAndType(session, title, VertexType.ENTITY);
-        if (graphNode == null) {
-            graphNode = new GraphVertexImpl()
+    private GraphVertex getObjectGraphVertex(GraphSession session, String title, GraphVertex conceptVertex) {
+        GraphVertex graphVertex = graphRepository.findVertexByTitleAndType(session, title, VertexType.ENTITY);
+        if (graphVertex == null) {
+            graphVertex = new GraphVertexImpl()
                     .setProperty(PropertyName.TITLE.toString(), title)
                     .setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString())
                     .setProperty(PropertyName.SUBTYPE.toString(), conceptVertex.getId())
                     .setProperty(PropertyName.SOURCE.toString(), "Analyst Resolved Entity");
-            String graphNodeId = graphRepository.saveVertex(session, graphNode);
-            return new GraphVertexImpl(graphNodeId)
+            String graphVertexId = graphRepository.saveVertex(session, graphVertex);
+            return new GraphVertexImpl(graphVertexId)
                     .setProperty(PropertyName.TITLE.toString(), title)
                     .setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString())
                     .setProperty(PropertyName.SUBTYPE.toString(), conceptVertex.getId())
                     .setProperty(PropertyName.SOURCE.toString(), "Analyst Resolved Entity");
         }
-        return graphNode;
+        return graphVertex;
     }
 
-    private TermAndTermMention getTermAndTermMention(User currentUser, RedDawnSession session, String artifactKey, long mentionStart, long mentionEnd, String sign, GraphVertex conceptVertex, GraphVertex resolvedNode) {
+    private TermAndTermMention getTermAndTermMention(User currentUser, RedDawnSession session, String artifactKey, long mentionStart, long mentionEnd, String sign, GraphVertex conceptVertex, GraphVertex resolvedVertex) {
         String conceptLabel = StringUtils.join(ontologyRepository.getConceptPath(session.getGraphSession(), conceptVertex.getId()), "/");
         TermRowKey termRowKey = getTermRowKey(session, sign, conceptLabel);
         TermAndTermMention termAndTermMention = termRepository.findMention(session.getModelSession(), termRowKey, artifactKey, mentionStart, mentionEnd);
@@ -106,13 +106,13 @@ public class EntityCreate implements Handler, AppAware {
             term.addTermMention(termMention);
             termAndTermMention = new TermAndTermMention(term, termMention);
             termRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), termAndTermMention.getTerm(), termAndTermMention.getTermMention(), conceptVertex.getId());
-            LOGGER.info("New graph node for term mention created with node id: " + termAndTermMention.getTermMention().getGraphVertexId());
+            LOGGER.info("New graph vertex for term mention created with vertex id: " + termAndTermMention.getTermMention().getGraphVertexId());
         }
 
         termAndTermMention.getTermMention().setGraphSubTypeVertexId(conceptVertex.getId());
 
-        if (resolvedNode != null) {
-            termAndTermMention.getTermMention().setResolvedGraphVertexId(resolvedNode.getId());
+        if (resolvedVertex != null) {
+            termAndTermMention.getTermMention().setResolvedGraphVertexId(resolvedVertex.getId());
         }
         termRepository.save(session.getModelSession(), termAndTermMention.getTerm());
         return termAndTermMention;

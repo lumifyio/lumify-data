@@ -30,13 +30,13 @@ public class VertexRelationships implements Handler, AppAware {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = this.app.getRedDawnSession(request);
 
-        Map<GraphRelationship, GraphVertex> relationships = graphRepository.getRelationships(session.getGraphSession(), (String) request.getAttribute("graphNodeId"));
+        Map<GraphRelationship, GraphVertex> relationships = graphRepository.getRelationships(session.getGraphSession(), (String) request.getAttribute("graphVertexId"));
 
         JSONArray responseJson = new JSONArray();
         for(Map.Entry<GraphRelationship, GraphVertex> relationship : relationships.entrySet()) {
             JSONObject relationshipJson = new JSONObject();
             relationshipJson.put("relationship", relationship.getKey().toJson());
-            relationshipJson.put("node", relationship.getValue().toJson());
+            relationshipJson.put("vertex", relationship.getValue().toJson());
             responseJson.put(relationshipJson);
         }
 

@@ -46,8 +46,12 @@ define([
         };
 
         this.onDelete = function( event ) {
-            var _rowKey = $(event.target).parents('li').data('_rowKey');
+            var _rowKey = $(event.target).parents('li').data('_rowKey'),
+                loading = $("<span>")
+                            .addClass("badge")
+                            .addClass("loading");
             this.trigger(document, 'workspaceDeleting', { _rowKey: _rowKey });
+            $(event.target).replaceWith(loading);
             this.workspaceService.delete(_rowKey, function() {
                 this.trigger(document, 'workspaceDeleted', { _rowKey: _rowKey });
                 this.loadWorkspaceList.apply(this, arguments);

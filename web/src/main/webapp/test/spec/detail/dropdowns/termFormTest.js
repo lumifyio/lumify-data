@@ -29,7 +29,7 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
                 mentionNode: self.$parentNode.find('.entity')
                                  .data('info', {
                                      "title":"Web",
-                                     "graphNodeId":"80736",
+                                     "graphVertexId":"80736",
                                      "start":110,
                                      "_subType":"44",
                                      "_rowKey":"Web\\x1FOpenNlpDictionary\\x1FPerson",

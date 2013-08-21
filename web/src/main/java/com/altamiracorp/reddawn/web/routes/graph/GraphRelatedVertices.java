@@ -28,9 +28,9 @@ public class GraphRelatedVertices implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
-        String graphNodeId = (String) request.getAttribute("graphNodeId");
+        String graphVertexId = (String) request.getAttribute("graphVertexId");
 
-        List<GraphVertex> graphVertices = graphRepository.getRelatedVertices(session.getGraphSession(), graphNodeId);
+        List<GraphVertex> graphVertices = graphRepository.getRelatedVertices(session.getGraphSession(), graphVertexId);
 
         JSONObject json = new JSONObject();
         JSONArray verticesJson = new JSONArray();
@@ -38,7 +38,7 @@ public class GraphRelatedVertices implements Handler, AppAware {
             JSONObject graphVertexJson = graphVertex.toJson();
             verticesJson.put(graphVertexJson);
         }
-        json.put("nodes", verticesJson);
+        json.put("vertices", verticesJson);
         new Responder(response).respondWith(json);
 
         chain.next(request, response);

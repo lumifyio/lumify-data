@@ -27,10 +27,9 @@ public abstract class GraphVertex {
             json.put("id", getId());
             JSONObject propertiesJson = new JSONObject();
             for (String key : getPropertyKeys()) {
-                if (key.equals("_type")){
+                if (key.equals("_type")) {
                     propertiesJson.put(key, getProperty(key).toString().toLowerCase());
-                }
-                else {
+                } else {
                     propertiesJson.put(key, getProperty(key));
                 }
             }
@@ -47,5 +46,11 @@ public abstract class GraphVertex {
             results.put(vertex.toJson());
         }
         return results;
+    }
+
+    public void update(GraphVertex newGraphVertex) {
+        for (String propertyKey : newGraphVertex.getPropertyKeys()) {
+            setProperty(propertyKey, newGraphVertex.getProperty(propertyKey));
+        }
     }
 }

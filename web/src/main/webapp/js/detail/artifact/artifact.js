@@ -43,7 +43,7 @@ define([
                 artifact.dataInfo = JSON.stringify({
                     _type: 'artifact',
                     _subType: artifact.type,
-                    graphNodeId: artifact.Generic_Metadata['atc:graph_node_id'],
+                    graphVertexId: artifact.Generic_Metadata['atc:graph_vertex_id'],
                     _rowKey: artifact.key.value
                 });
 

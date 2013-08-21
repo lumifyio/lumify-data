@@ -32,10 +32,10 @@ public abstract class OffsetItem {
             infoJson.put("end", getEnd());
             infoJson.put("_rowKey", RowKeyHelper.jsonEncode(getRowKey()));
             if (getGraphVertexId() != null) {
-                infoJson.put("graphNodeId", getGraphVertexId());
+                infoJson.put("graphVertexId", getGraphVertexId());
             }
             if (getResolvedGraphVertexId() != null) {
-                infoJson.put("resolvedGraphNodeId", getResolvedGraphVertexId());
+                infoJson.put("resolvedGraphVertexId", getResolvedGraphVertexId());
             }
             infoJson.put("type", getType());
             return infoJson;

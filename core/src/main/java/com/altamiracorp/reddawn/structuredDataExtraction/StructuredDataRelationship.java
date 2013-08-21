@@ -1,24 +1,22 @@
 package com.altamiracorp.reddawn.structuredDataExtraction;
 
-import com.altamiracorp.reddawn.ucd.term.TermMention;
-
 public class StructuredDataRelationship {
-    private TermMention termMentionSource;
-    private TermMention termMentionDest;
+    private TermAndGraphVertex source;
+    private TermAndGraphVertex dest;
     private String label;
 
-    public StructuredDataRelationship(TermMention termMentionSource, TermMention termMentionDest, String label) {
-        this.termMentionSource = termMentionSource;
-        this.termMentionDest = termMentionDest;
+    public StructuredDataRelationship(TermAndGraphVertex termMentionSource, TermAndGraphVertex termMentionDest, String label) {
+        this.source = termMentionSource;
+        this.dest = termMentionDest;
         this.label = label;
     }
 
-    public TermMention getTermMentionSource() {
-        return termMentionSource;
+    public TermAndGraphVertex getSource() {
+        return source;
     }
 
-    public TermMention getTermMentionDest() {
-        return termMentionDest;
+    public TermAndGraphVertex getDest() {
+        return dest;
     }
 
     public String getLabel() {

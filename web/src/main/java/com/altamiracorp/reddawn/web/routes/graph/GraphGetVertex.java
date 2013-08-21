@@ -25,8 +25,8 @@ public class GraphGetVertex implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
-        String graphNodeId = (String) request.getAttribute("graphNodeId");
-        GraphVertex vertex = graphRepository.findVertex(session.getGraphSession(), graphNodeId);
+        String graphVertexId = (String) request.getAttribute("graphVertexId");
+        GraphVertex vertex = graphRepository.findVertex(session.getGraphSession(), graphVertexId);
         new Responder(response).respondWith(vertex.toJson());
     }
 }

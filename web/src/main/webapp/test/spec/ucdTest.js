@@ -17,10 +17,10 @@ define(['service/ucd'], function(UCD) {
 		it('should have some functions', function () {
 			var ucd = new UCD({});
 			expect(ucd.artifactSearch).to.be.a("function");
-			expect(ucd.graphNodeSearch).to.be.a("function");
+			expect(ucd.graphVertexSearch).to.be.a("function");
 			expect(ucd.getArtifactById).to.be.a("function");
-			expect(ucd.getGraphNodeById).to.be.a("function");
-            expect(ucd._resolveUrl("graph/node/search")).to.be.equal("/graph/node/search");
+			expect(ucd.getGraphVertexById).to.be.a("function");
+            expect(ucd._resolveUrl("graph/vertex/search")).to.be.equal("/graph/vertex/search");
 		});
 
     });
