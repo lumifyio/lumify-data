@@ -274,7 +274,8 @@ define([
                             return;
                         }
                     }
-                    self.loadWorkspace(workspaces[0]._rowKey); // backwards compatibility when no current workspace
+                    // backwards compatibility when no current workspace
+                    self.loadWorkspace(workspaces[0]._rowKey);
                 }
             });
         };
