@@ -441,7 +441,7 @@ define([
 
                 if (existing.length) this.trigger(document, 'existingVerticesAdded', { vertices:existing });
                 if (added.length === 0) {
-                    $(".instructions").text("No New Vertices Added");
+                    $(".graph-pane .instructions").text("No New Vertices Added");
                     return;
                 }
 
