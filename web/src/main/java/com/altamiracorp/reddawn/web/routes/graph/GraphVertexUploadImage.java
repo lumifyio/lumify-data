@@ -18,6 +18,7 @@ import com.altamiracorp.web.HandlerChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,21 +43,31 @@ public class GraphVertexUploadImage implements Handler, AppAware {
         }
         Part file = files.get(0);
 
+        String mimeType = "image";
+        if (file.getContentType() != null) {
+            mimeType = file.getContentType();
+        }
+
+        long fileSize = file.getSize();
+
+        String fileName = file.getName();
+
         GraphVertex entityVertex = graphRepository.findVertex(session.getGraphSession(), graphNodeId);
         if (entityVertex == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
 
+        InputStream fileInputStream = file.getInputStream();
         Artifact artifact = artifactRepository.createArtifactFromInputStream(
                 session.getModelSession(),
-                file.getSize(),
-                file.getInputStream(),
-                file.getName(),
+                fileSize,
+                fileInputStream,
+                fileName,
                 new Date().getTime()
         );
         artifact.getGenericMetadata().setSource("User Upload");
-        artifact.getGenericMetadata().setMimeType("image");
+        artifact.getGenericMetadata().setMimeType(mimeType);
         artifactRepository.save(session.getModelSession(), artifact);
         artifact = artifactRepository.findByRowKey(session.getModelSession(), artifact.getRowKey().toString());
         GraphVertex artifactVertex = null;
