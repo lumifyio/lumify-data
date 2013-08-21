@@ -297,7 +297,9 @@ define([
         };
 
         this.onSwitchWorkspace = function(evt, data) {
-            this.loadWorkspace(data._rowKey);
+            if (data._rowKey != this.workspaceRowKey) {
+                this.loadWorkspace(data._rowKey);
+            }
         };
 
         this.onSaveWorkspace = function(evt, workspace) {
