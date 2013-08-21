@@ -202,7 +202,11 @@ define([
 
                                 if (updatedNode._glyphIcon) {
                                     node.css('background-image', updatedNode._glyphIcon);
+                                    node.data()._glyphIcon = updatedNode._glyphIcon;
                                 }
+
+                                // TODO: update other properties? (title needs
+                                // truncation...
                             });
                     });
             });
