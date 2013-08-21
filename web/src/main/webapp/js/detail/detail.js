@@ -67,8 +67,8 @@ define([
             require([
                 'detail/' + moduleName + '/' + moduleName,
             ], function(Module) {
-                var node = self.select('detailTypeContentSelector');
-                (self.typeContentModule = Module).attachTo(node, { data:data });
+                var vertex = self.select('detailTypeContentSelector');
+                (self.typeContentModule = Module).attachTo(vertex, { data:data });
             });
         };
     }

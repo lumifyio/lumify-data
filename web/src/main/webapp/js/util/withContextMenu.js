@@ -43,13 +43,13 @@ define([], function() {
                 submenuSize = menuSize,
                 placement = {
                     left: Math.min(
-                        position.positionInNode ?
-                            position.positionInNode.x : (position.positionUsingEvent.originalEvent.pageX - offset.left),
+                        position.positionInVertex ?
+                            position.positionInVertex.x : (position.positionUsingEvent.originalEvent.pageX - offset.left),
                         windowSize.x - offset.left - menuSize.x - padding
                     ),
                     top: Math.min(
-                        position.positionInNode ?
-                            position.positionInNode.y : (position.positionUsingEvent.originalEvent.pageY - offset.top),
+                        position.positionInVertex ?
+                            position.positionInVertex.y : (position.positionUsingEvent.originalEvent.pageY - offset.top),
                         windowSize.y - offset.top - menuSize.y - padding
                     )
                 },

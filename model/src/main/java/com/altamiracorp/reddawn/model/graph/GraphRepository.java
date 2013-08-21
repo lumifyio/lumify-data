@@ -96,4 +96,7 @@ public class GraphRepository {
     public GraphRelationship findOrAddRelationship(GraphSession graphSession, String sourceVertexId, String targetVertexId, LabelName label) {
         return findOrAddRelationship(graphSession, sourceVertexId, targetVertexId, label.toString());
     }
+   public List<List<GraphVertex>> findPath(GraphSession graphSession, GraphVertex sourceVertex, GraphVertex destVertex, int depth) {
+        return graphSession.findPath(sourceVertex, destVertex, depth);
+    }
 }

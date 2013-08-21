@@ -32,16 +32,16 @@ define([
         };
 
         this.onContextMenuConnect = function() {
-            var menu = this.select('nodeContextMenuSelector');
-            var graphNodeId = menu.data('currentNodeGraphNodeId');
+            var menu = this.select('vertexContextMenuSelector');
+            var graphVertexId = menu.data('currentVertexGraphVertexId');
 
             this.creatingStatement = true;
 
 
             this.cy(function(cy) {
                 var self = this,
-                    sourceNode = cy.getElementById(graphNodeId),
-                    title = sourceNode.data('originalTitle'),
+                    sourceVertex = cy.getElementById(graphVertexId),
+                    title = sourceVertex.data('originalTitle'),
                     beginText = 'Select item to connect to "' + title + '"',
                     instructions = $('<div>')
                         .text(beginText) 
@@ -67,8 +67,8 @@ define([
                             edge.data('label', 'Saving...');
 
                             var parameters = {
-                                sourceGraphNodeId: graphNodeId,
-                                destGraphNodeId: targetGraphId,
+                                sourceGraphVertexId: graphVertexId,
+                                destGraphVertexId: targetGraphId,
                                 predicateLabel: val
                             };
 
@@ -97,7 +97,7 @@ define([
                     mouseEvents = {
                         mouseover: function(event) {
                             if (event.cy == event.cyTarget) return;
-                            if (event.cyTarget.id() === graphNodeId) return;
+                            if (event.cyTarget.id() === graphVertexId) return;
                             if (!event.cyTarget.is('node')) return;
 
 
@@ -108,7 +108,7 @@ define([
                               group: 'edges',
                               classes: 'temp',
                               data: {
-                                  source: graphNodeId,
+                                  source: graphVertexId,
                                   target: targetGraphId
                               }
                             });

@@ -24,11 +24,12 @@ define([
             this.on({
                 fileprogress: this.onUpdateProgress.bind(this),
                 filecomplete: this.onUploadComplete.bind(this),
+                fileerror: this.onUploadError.bind(this),
                 iconUpdated: this.onUpdateIcon.bind(this)
             });
 
             this.$node.css({
-                backgroundImage: 'url(' + (self.attr.data._glyphIcon || this.attr.defaultIconSrc) + ')'
+                backgroundImage: 'url(' + (this.attr.data._glyphIcon || this.attr.defaultIconSrc) + ')'
             });
             this.$node.html(template({}));
 
@@ -68,15 +69,16 @@ define([
                 reader = new FileReader();
 
             reader.onload = function (event) {
-                if (file.size < MAX_PREVIEW_FILE_SIZE) {
-                    self.$node.css({
-                        backgroundImage: 'url(' + event.target.result + ')'
-                    });
-                }
-                self.draw(0);
+                self.$node.css({
+                    backgroundImage: 'url(' + event.target.result + ')'
+                });
             };
 
-            reader.readAsDataURL(file);
+            if (file.size < MAX_PREVIEW_FILE_SIZE) {
+                reader.readAsDataURL(file);
+            }
+
+            this.draw(0);
         };
 
         this.uploadFile = function(file) {
@@ -87,14 +89,16 @@ define([
 
             // TODO: move to entityService
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/graph/node/' + this.attr.data.graphNodeId + '/uploadImage');
+            xhr.open('POST', '/graph/vertex/' + this.attr.data.graphVertexId + '/uploadImage');
             xhr.onload = function(event) {
-                var result = JSON.parse(xhr.responseText);
-                self.trigger('fileprogress', { complete: 1.0 });
-                self.trigger('filecomplete', { node:result });
+                if (xhr.status === 200) {
+                    var result = JSON.parse(xhr.responseText);
+                    self.trigger('filecomplete', { vertex:result });
+                } else {
+                    self.trigger('fileerror', { status:xhr.status, response:xhr.responseText });
+                }
             };
             xhr.onerror = function() {
-                self.draw(1);
                 console.error(arguments);
             };
 
@@ -108,12 +112,12 @@ define([
             };
 
             this.manualAnimation = false;
+            this.firstProgressUpdate = true;
             xhr.send(formData);
         };
 
         this.handleFileDrop = function(file) {
             this.previewFile(file);
-            this.firstProgressUpdate = true;
             this.uploadFile(file);
         };
 
@@ -140,39 +144,61 @@ define([
 
             c.beginPath();
             c.moveTo(centerX, centerY);
-            c.arc(centerX, centerY, radius, - Math.PI / 2, 2 * Math.PI * complete - (Math.PI / 2), false);
+            c.arc(centerX, centerY, radius, - Math.PI / 2, 2 * Math.PI * Math.min(1.0, complete) - (Math.PI / 2), false);
             c.fillStyle = 'rgba(255,255,255,0.8)';
             c.fill();
 
             if (complete >= 1.0) {
                 setTimeout(function() {
-                    c.clearRect(0,0,canvas.width, canvas.height);
+                    c.clearRect(0, 0, canvas.width, canvas.height);
                 }, 250);
             }
         };
 
+        this.onUploadError = function() {
+            this.ctx.clearRect(0,0,this.canvas[0].width, this.canvas[0].height);
+            this.$node.css({
+                backgroundImage: 'url(' + (this.attr.data._glyphIcon || this.attr.defaultIconSrc) + ')'
+            });
+        };
+
         this.onUploadComplete = function(event, data) {
+            var self = this;
+
+            if (!this.animateManuallyIfNecessary(1.0)) {
+                this.draw(1.0);
+            }
 
             this.$node.css({
-                backgroundImage: 'url(' + data.node.properties._glyphIcon + ')'
+                backgroundImage: 'url(' + data.vertex.properties._glyphIcon + ')'
             });
             
             // FIXME: this should be necessary, convert all workspace code to
             // new id, properties:{} format
-            var node = data.node;
-            if (data.node.properties) {
-                node = data.node.properties;
-                node.graphNodeId = data.node.id;
+            var vertex = data.vertex;
+            if (data.vertex.properties) {
+                vertex = data.vertex.properties;
+                vertex.graphVertexId = data.vertex.id;
             }
-            this.trigger(document, 'updateNodes', { nodes:[node] });
+            this.trigger(document, 'updateVertices', { vertices:[vertex] });
         };
 
         this.onUpdateProgress = function(event, data) {
             var self = this;
 
-            if (this.manualAnimation) return;
+            if (this.animateManuallyIfNecessary(data.complete)) {
+                return;
+            }
 
-            if (this.firstProgressUpdate && data.complete >= 1.0) {
+            this.draw(data.complete);
+        };
+
+        this.animateManuallyIfNecessary = function(complete) {
+            var self = this;
+
+            if (this.manualAnimation) return true;
+
+            if (this.firstProgressUpdate && complete >= 1.0) {
                 this.manualAnimation = true;
                 var startedUpload = Date.now();
 
@@ -183,13 +209,13 @@ define([
                     self.draw(complete);
                     if (complete <= 1) {
                         requestAnimationFrame(draw);
-                    }
+                    } else self.draw(1.0);
                 });
-                return;
+                return true;
             }
             this.firstProgressUpdate = false;
 
-            this.draw(data.complete);
+            return false;
         };
     }
 });

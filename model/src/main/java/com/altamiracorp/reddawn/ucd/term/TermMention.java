@@ -22,10 +22,10 @@ public class TermMention extends ColumnFamily {
     public static final String ARTIFACT_SUBJECT = "atc:artifactSubject";
     public static final String SENTENCE_TEXT = "atc:sentenceText";
     public static final String SENTENCE_OFFSET = "atc:sentenceOffset";
-    public static final String GRAPH_VERTEX_ID = "atc:graphNodeId";
-    public static final String RESOLVED_GRAPH_VERTEX_ID = "atc:resolvedGraphNodeId";
+    public static final String GRAPH_VERTEX_ID = "atc:graphVertexId";
+    public static final String RESOLVED_GRAPH_VERTEX_ID = "atc:resolvedGraphVertexId";
     public static final String RESOLVED_SIGN = "atc:resolvedSign";
-    public static final String GRAPH_SUB_TYPE_VERTEX_ID = "atc:resolvedSubTypeNodeId";
+    public static final String GRAPH_SUB_TYPE_VERTEX_ID = "atc:resolvedSubTypeVertexId";
     public static final String GEO_LOCATION_TITLE = "atc:geoLocationTitle";
     public static final String GEO_LOCATION_POPULATION = "atc:geoLocationPopulation";
 

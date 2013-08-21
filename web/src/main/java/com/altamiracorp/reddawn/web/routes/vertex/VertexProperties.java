@@ -28,7 +28,7 @@ public class VertexProperties implements Handler, AppAware {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = this.app.getRedDawnSession(request);
 
-        Map<String, String> properties = graphRepository.getProperties(session.getGraphSession(), (String) request.getAttribute("graphNodeId"));
+        Map<String, String> properties = graphRepository.getProperties(session.getGraphSession(), (String) request.getAttribute("graphVertexId"));
 
         JSONArray resultsJson = new JSONArray();
         for(Map.Entry<String, String> property : properties.entrySet()) {

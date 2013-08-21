@@ -31,9 +31,9 @@ public class EntitySearch implements Handler, AppAware {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         String query = request.getParameter("q");
         RedDawnSession session = app.getRedDawnSession(request);
-        List<GraphVertex> nodes = graphRepository.searchVerticesByTitleAndType(session.getGraphSession(), query, VertexType.ENTITY);
+        List<GraphVertex> vertices = graphRepository.searchVerticesByTitleAndType(session.getGraphSession(), query, VertexType.ENTITY);
         JSONObject results = new JSONObject();
-        results.put("nodes", GraphVertex.toJson(nodes));
+        results.put("vertices", GraphVertex.toJson(vertices));
         new Responder(response).respondWith(results);
     }
 }

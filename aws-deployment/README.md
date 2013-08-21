@@ -22,9 +22,11 @@ aws-deploy
 1. manually configure an Elastic IP for the web server
 1. add a security group to the web server that allows inbound traffic:
 
-    ec2-describe-instances --filter 'tag:aliases=www*' | awk '/^INSTANCE/ {print $2} /^GROUP/ {print $2, $3}'
-    ec2-describe-group --filter 'group-name=http*'
-    ec2-modify-instance-attribute <instance id> --group-id <existing group id> --group-id <existing group id> --group-id <new group id>
+```
+ec2-describe-instances --filter 'tag:aliases=www*' | awk '/^INSTANCE/ {print $2} /^GROUP/ {print $2, $3}'
+ec2-describe-group --filter 'group-name=http*'
+ec2-modify-instance-attribute <instance id> --group-id <existing group id> --group-id <existing group id> --group-id <new group id>
+```
 
 turning it off
 ==============

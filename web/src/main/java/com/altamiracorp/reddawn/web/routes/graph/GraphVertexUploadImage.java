@@ -36,7 +36,7 @@ public class GraphVertexUploadImage implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
-        String graphNodeId = (String) request.getAttribute("graphNodeId");
+        String graphVertexId = (String) request.getAttribute("graphVertexId");
         List<Part> files = new ArrayList<Part>(request.getParts());
         if (files.size() != 1) {
             throw new RuntimeException("Wrong number of uploaded files. Expected 1 got " + files.size());
@@ -52,7 +52,7 @@ public class GraphVertexUploadImage implements Handler, AppAware {
 
         String fileName = file.getName();
 
-        GraphVertex entityVertex = graphRepository.findVertex(session.getGraphSession(), graphNodeId);
+        GraphVertex entityVertex = graphRepository.findVertex(session.getGraphSession(), graphVertexId);
         if (entityVertex == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;

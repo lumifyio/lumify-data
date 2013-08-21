@@ -1,7 +1,8 @@
 
 define([
 
-    './connection'
+    './connection',
+    './findPath'
 
     // Add context menu mixins here...
 
