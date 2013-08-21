@@ -6,6 +6,9 @@ define([
 
     'use strict';
 
+    // Limit previews to 1MB since it's a dataUri
+    var MAX_PREVIEW_FILE_SIZE = 1024 * 1024; 
+
     return defineComponent(Image);
 
     function Image() {
@@ -19,17 +22,17 @@ define([
             var self = this;
 
             this.on({
-                filesdropped: this.uploadFiles.bind(this),
-                fileprogress: this.updateProgress.bind(this)
+                fileprogress: this.onUpdateProgress.bind(this),
+                filecomplete: this.onUploadComplete.bind(this),
+                iconUpdated: this.onUpdateIcon.bind(this)
             });
 
             this.$node.css({
-                backgroundImage: 'url(' + this.attr.defaultIconSrc + ')'
+                backgroundImage: 'url(' + (self.attr.data._glyphIcon || this.attr.defaultIconSrc) + ')'
             });
             this.$node.html(template({}));
 
             if (/entity/i.test(this.attr.data._type)) {
-                // http://html5demos.com/dnd-upload#view-source
                 this.node.ondragover = function () { $(this).addClass('file-hover'); return false; };
                 this.node.ondragenter = function () { $(this).addClass('file-hover'); return false; };
                 this.node.ondragleave = function() { $(this).removeClass('file-hover'); return false; };
@@ -40,60 +43,86 @@ define([
                         var file = e.dataTransfer.files[0];
 
                         if (self.attr.acceptedTypesRegex.test(file.type)) {
-                            return self.uploadFiles(e, { file: file });
+                            return self.handleFileDrop(file);
                         }
                     }
 
-                    // TODO: shake the image
+                    $(this).addClass('shake');
+                    setTimeout(function() {
+                        $(this).removeClass('shake');
+                    }, 1000);
                 };
             }
         });
+
+        this.onUpdateIcon = function(e, data) {
+            if (data.src !== this.attr.data._glyphIcon) {
+                this.$node.css({
+                    backgroundImage: 'url(' + data.src + ')'
+                });
+            }
+        };
 
         this.previewFile = function(file) {
             var self = this, 
                 reader = new FileReader();
 
             reader.onload = function (event) {
-                self.$node.css({
-                    backgroundImage: 'url(' + event.target.result + ')'
-                });
+                if (file.size < MAX_PREVIEW_FILE_SIZE) {
+                    self.$node.css({
+                        backgroundImage: 'url(' + event.target.result + ')'
+                    });
+                }
+                self.draw(0);
             };
 
             reader.readAsDataURL(file);
         };
 
-        this.uploadFiles = function(event, data) {
-
+        this.uploadFile = function(file) {
             var self = this,
-                formData = new FormData(),
-                file = data.file;
+                formData = new FormData();
 
             formData.append('file', file);
-            this.previewFile(file);
 
             // TODO: move to entityService
             var xhr = new XMLHttpRequest();
             xhr.open('POST', '/graph/node/' + this.attr.data.graphNodeId + '/uploadImage');
-            xhr.onload = function() {
+            xhr.onload = function(event) {
+                var result = JSON.parse(xhr.responseText);
                 self.trigger('fileprogress', { complete: 1.0 });
+                self.trigger('filecomplete', { node:result });
             };
             xhr.onerror = function() {
+                self.draw(1);
                 console.error(arguments);
             };
 
             xhr.upload.onprogress = function (event) {
                 if (event.lengthComputable) {
                     var complete = (event.loaded / event.total || 0);
-                    self.trigger('fileprogress', { complete: complete });
+                    if (complete < 1.0) {
+                        self.trigger('fileprogress', { complete: complete });
+                    }
                 }
             };
 
             this.manualAnimation = false;
-            this.startedUpload = Date.now();
             xhr.send(formData);
         };
 
+        this.handleFileDrop = function(file) {
+            this.previewFile(file);
+            this.firstProgressUpdate = true;
+            this.uploadFile(file);
+        };
+
         this.draw = function(complete) {
+            if (!this.ctx) {
+                this.canvas = this.select('canvasSelector');
+                this.ctx = this.canvas[0].getContext('2d');
+            }
+
             var c = this.ctx, canvas = this.canvas[0];
             canvas.width = this.canvas.width();
             canvas.height = this.canvas.height();
@@ -118,32 +147,47 @@ define([
             if (complete >= 1.0) {
                 setTimeout(function() {
                     c.clearRect(0,0,canvas.width, canvas.height);
-                }, 500);
+                }, 250);
             }
         };
 
-        this.updateProgress = function(event, data) {
+        this.onUploadComplete = function(event, data) {
+
+            this.$node.css({
+                backgroundImage: 'url(' + data.node.properties._glyphIcon + ')'
+            });
+            
+            // FIXME: this should be necessary, convert all workspace code to
+            // new id, properties:{} format
+            var node = data.node;
+            if (data.node.properties) {
+                node = data.node.properties;
+                node.graphNodeId = data.node.id;
+            }
+            this.trigger(document, 'updateNodes', { nodes:[node] });
+        };
+
+        this.onUpdateProgress = function(event, data) {
             var self = this;
 
             if (this.manualAnimation) return;
 
-            if (!this.ctx) {
-                this.canvas = this.select('canvasSelector');
-                this.ctx = this.canvas[0].getContext('2d');
-                if (data.complete >= 1.0) {
-                    this.manualAnimation = true;
-                    // Animate manually, fast upload
-                    requestAnimationFrame(function draw() {
-                        var now = Date.now();
-                        var complete = (now - self.startedUpload) / 500;
-                        self.draw(complete);
-                        if (complete <= 1) {
-                            requestAnimationFrame(draw);
-                        }
-                    });
-                    return;
-                }
+            if (this.firstProgressUpdate && data.complete >= 1.0) {
+                this.manualAnimation = true;
+                var startedUpload = Date.now();
+
+                // Animate manually, fast upload
+                requestAnimationFrame(function draw() {
+                    var now = Date.now();
+                    var complete = (now - startedUpload) / 500;
+                    self.draw(complete);
+                    if (complete <= 1) {
+                        requestAnimationFrame(draw);
+                    }
+                });
+                return;
             }
+            this.firstProgressUpdate = false;
 
             this.draw(data.complete);
         };

@@ -104,6 +104,7 @@ define([
                             graphNodeId: node.graphNodeId,
                             _subType: node._subType,
                             _type: node._type,
+                            _glyphIcon: node._glyphIcon,
                             title: title,
                             originalTitle: node.title,
                         },
@@ -123,6 +124,10 @@ define([
                     }
 
                     var cyNode = cy.add(cyNodeData);
+
+                    if (node._glyphIcon) {
+                        cyNode.css('background-image', node._glyphIcon);
+                    }
 
                     if (needsUpdate) {
                         addedNodes.push({
@@ -184,14 +189,20 @@ define([
             var self = this;
             this.cy(function(cy) {
                 data.nodes
-                    .filter(function(updatedNode) { return updatedNode.graphPosition; })
                     .forEach(function(updatedNode) {
                         cy.nodes()
                             .filter(function(idx, node) {
                                 return node.data('graphNodeId') === updatedNode.graphNodeId;
                             })
                             .each(function(idx, node) {
-                                node.position( retina.pointsToPixels(updatedNode.graphPosition) );
+
+                                if (updatedNode.graphPosition) {
+                                    node.position( retina.pointsToPixels(updatedNode.graphPosition) );
+                                }
+
+                                if (updatedNode._glyphIcon) {
+                                    node.css('background-image', updatedNode._glyphIcon);
+                                }
                             });
                     });
             });
