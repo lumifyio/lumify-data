@@ -38,7 +38,18 @@ function git_archive {
 modules_tgz=$(git_archive modules .. puppet)
 puppet_modules_tgz=$(git_archive puppet-modules ../puppet/puppet-modules)
 
-# TODO: jars for M/R, bin scripts for M/R, webapp
+echo 'running maven...'
+mvn_output="$(cd ..; mvn clean install package -DskipTests)"
+mvn_exit=$?
+if [ ${mvn_exit} -ne 0 ]; then
+  echo "${mvn_output}"
+  exit ${mvn_exit}
+else
+  echo 'maven done.'
+fi
+war_files=$(find .. -name '*.war')
+
+# TODO: jars for M/R, bin scripts for M/R
 
 scp ${SSH_OPTS} init.sh \
                 run_puppet.sh \
@@ -46,6 +57,7 @@ scp ${SSH_OPTS} init.sh \
                 ${hosts_file} \
                 ${modules_tgz} \
                 ${puppet_modules_tgz} \
+                ${war_files} \
                 root@${elastic_ip}:
 
 rm ${modules_tgz}
