@@ -19,6 +19,12 @@ aws-deploy
 1. ssh to the puppet server (forwarding your ssh agent): `ssh -A root@<puppet-server-elastic-ip>`
 1. install out software on the puppet server all the other cluster nodes: `./init.sh cluster_name_hosts`
 1. monitor the progress of the other nodes: `tail -f run_puppet.*.log`
+1. manually configure an Elastic IP for the web server
+1. add a security group to the web server that allows inbound traffic:
+
+    ec2-describe-instances --filter 'tag:aliases=www*' | awk '/^INSTANCE/ {print $2} /^GROUP/ {print $2, $3}'
+    ec2-describe-group --filter 'group-name=http*'
+    ec2-modify-instance-attribute <instance id> --group-id <existing group id> --group-id <existing group id> --group-id <new group id>
 
 turning it off
 ==============
