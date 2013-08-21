@@ -15,9 +15,7 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.apache.commons.cli.CommandLine;
 
-import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 public abstract class Base extends RedDawnCommandLineBase {
     protected Map<String, TitanKey> properties = new HashMap<String, TitanKey>();
@@ -149,7 +147,7 @@ public abstract class Base extends RedDawnCommandLineBase {
         addPropertyToConcept(graph, termMention, rowKeyProperty.getName(), PropertyType.STRING);
         addPropertyToConcept(graph, termMention, columnFamilyNameProperty.getName(), PropertyType.STRING);
         addPropertyToConcept(graph, termMention, titleProperty.getName(), PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, sourceProperty.getName(),PropertyType.STRING);
+        addPropertyToConcept(graph, termMention, sourceProperty.getName(), PropertyType.STRING);
 
         graph.commit();
 
@@ -236,6 +234,12 @@ public abstract class Base extends RedDawnCommandLineBase {
     }
 
     protected TitanVertex addPropertyToConcept(TitanGraph graph, TitanVertex concept, String propertyName, PropertyType dataType) {
+        TitanKey typeProperty = (TitanKey) graph.getType(propertyName);
+        if (typeProperty == null) {
+            typeProperty = graph.makeType().name(propertyName).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+        }
+        properties.put(typeProperty.getName(), typeProperty);
+
         Iterator<Vertex> iter = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), propertyName).iterator();
         TitanVertex propertyVertex;
         if (iter.hasNext()) {
@@ -267,9 +271,8 @@ public abstract class Base extends RedDawnCommandLineBase {
         return palette;
     }
 
-    public static String toRGB(float h, float s, float l)
-    {
-       float q = 0;
+    public static String toRGB(float h, float s, float l) {
+        float q = 0;
 
         if (l < 0.5)
             q = l * (1 + s);
@@ -286,28 +289,24 @@ public abstract class Base extends RedDawnCommandLineBase {
         g = Math.min(g, 1.0f) * 255f;
         b = Math.min(b, 1.0f) * 255f;
 
-        return "rgb(" + (int)r + ", " + (int) g + ", " + (int) b + ")";
+        return "rgb(" + (int) r + ", " + (int) g + ", " + (int) b + ")";
     }
 
-    private static float HueToRGB(float p, float q, float h)
-    {
+    private static float HueToRGB(float p, float q, float h) {
         if (h < 0) h += 1;
 
-        if (h > 1 ) h -= 1;
+        if (h > 1) h -= 1;
 
-        if (6 * h < 1)
-        {
+        if (6 * h < 1) {
             return p + ((q - p) * 6 * h);
         }
 
-        if (2 * h < 1 )
-        {
-            return  q;
+        if (2 * h < 1) {
+            return q;
         }
 
-        if (3 * h < 2)
-        {
-            return p + ( (q - p) * 6 * ((2.0f / 3.0f) - h) );
+        if (3 * h < 2) {
+            return p + ((q - p) * 6 * ((2.0f / 3.0f) - h));
         }
 
         return p;
