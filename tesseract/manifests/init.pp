@@ -9,8 +9,9 @@ class tesseract($prefix="/usr/local", $tmpdir="/usr/local/src") {
     url  => "https://tesseract-ocr.googlecode.com/files/tesseract-ocr-3.02.02.tar.gz",
     path => "${tmpdir}/tesseract-ocr-3.02.02.tar.gz",
   } -> macro::extract { 'extract-tesseract':
-    file => "${tmpdir}/tesseract-ocr-3.02.02.tar.gz",
-    path => $tmpdir,
+    file    => "${tmpdir}/tesseract-ocr-3.02.02.tar.gz",
+    path    => $tmpdir,
+    creates => $srcdir,
   }
 
   file { "${prefix}/share/tessdata/":

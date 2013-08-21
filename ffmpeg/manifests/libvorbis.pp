@@ -9,16 +9,17 @@ class ffmpeg::libvorbis($prefix="/usr/local", $tmpdir="/usr/local/src") {
     url  => "http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.3.tar.gz",
     path => "${tmpdir}/libvorbis-1.3.3.tar.gz",
   } -> macro::extract { 'extract-libvorbis':
-    file => "${tmpdir}/libvorbis-1.3.3.tar.gz",
-    path => $tmpdir,
+    file    => "${tmpdir}/libvorbis-1.3.3.tar.gz",
+    path    => $tmpdir,
+    creates => $srcdir,
   }
-  
+
   $configure  = "${srcdir}/configure --prefix=${prefix} --with-ogg=${prefix}"
   $make       = "/usr/bin/make"
   $install    = "/usr/bin/make install"
   $distclean  = "/usr/bin/make distclean"
   $cmd        = "${configure} && ${make} && ${install} && ${distclean}"
-  
+
   exec { 'libvorbis-build' :
     cwd     => $srcdir,
     command => $cmd,

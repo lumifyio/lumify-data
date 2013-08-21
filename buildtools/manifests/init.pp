@@ -61,8 +61,9 @@ class buildtools($tmpdir="/usr/local/src") {
     url  => "http://www.us.apache.org/dist/ant/binaries/apache-ant-${antVersion}-bin.tar.gz",
     path => "${tmpdir}/apache-ant-${antVersion}-bin.tar.gz",
   } -> macro::extract { 'ant-extract':
-    file => "${tmpdir}/apache-ant-${antVersion}-bin.tar.gz",
-    path => $tmpdir,
+    file    => "${tmpdir}/apache-ant-${antVersion}-bin.tar.gz",
+    path    => $tmpdir,
+    creates => "${tmpdir}/apache-ant-${antVersion}",
   }
 
   $ant_home = "${tmpdir}/apache-ant-${antVersion}"
@@ -80,8 +81,9 @@ class buildtools($tmpdir="/usr/local/src") {
     url  => "http://www.us.apache.org/dist/maven/binaries/apache-maven-${mavenVersion}-bin.tar.gz",
     path => "${tmpdir}/apache-maven-${mavenVersion}-bin.tar.gz",
   } -> macro::extract { 'maven-extract':
-    file => "${tmpdir}/apache-maven-${mavenVersion}-bin.tar.gz",
-    path => $tmpdir,
+    file    => "${tmpdir}/apache-maven-${mavenVersion}-bin.tar.gz",
+    path    => $tmpdir,
+    creates => "${tmpdir}/apache-maven-${mavenVersion}",
   }
 
   $mvn_home = "${tmpdir}/apache-maven-${mavenVersion}"

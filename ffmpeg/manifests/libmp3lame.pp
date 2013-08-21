@@ -8,8 +8,9 @@ class ffmpeg::libmp3lame($prefix="/usr/local", $tmpdir="/usr/local/src") {
     url     => "http://downloads.sourceforge.net/project/lame/lame/3.99/lame-3.99.5.tar.gz",
     path    => "${tmpdir}/lame-3.99.5.tar.gz",
   } -> macro::extract { 'extract-libmp3lame':
-    file => "${tmpdir}/lame-3.99.5.tar.gz",
-    path => $tmpdir,
+    file    => "${tmpdir}/lame-3.99.5.tar.gz",
+    path    => $tmpdir,
+    creates => $srcdir,
   }
 
   $configure  = "${srcdir}/configure --prefix=${prefix} --bindir=${prefix}/bin --enable-nasm"

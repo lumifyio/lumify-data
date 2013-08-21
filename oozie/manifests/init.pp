@@ -20,6 +20,7 @@ class oozie($prefix = "/usr/lib/oozie") {
   } -> macro::extract { $downloadpath:
     type    => "zip",
     path    => "${prefix}/libext",
+    creates => "${prefix}/libext/ext-2.2",
     require => File["oozie-extjs-dir"],
   }
 }

@@ -9,16 +9,17 @@ class ffmpeg::libtheora($prefix="/usr/local", $tmpdir="/usr/local/src") {
     url     => "http://downloads.xiph.org/releases/theora/libtheora-1.1.1.tar.gz",
     path    => "${tmpdir}/libtheora-1.1.1.tar.gz",
   } -> macro::extract { 'extract-libtheora':
-    file => "${tmpdir}/libtheora-1.1.1.tar.gz",
-    path => $tmpdir,
+    file    => "${tmpdir}/libtheora-1.1.1.tar.gz",
+    path    => $tmpdir,
+    creates => $srcdir,
   }
-  
+
   $configure  = "${srcdir}/configure --prefix=${prefix} --with-ogg=${prefix} --disable-examples --disable-sdltest --disable-vorbistest"
   $make       = "/usr/bin/make"
   $install    = "/usr/bin/make install"
   $distclean  = "/usr/bin/make distclean"
   $cmd        = "${configure} && ${make} && ${install} && ${distclean}"
-  
+
   exec { 'libtheora-build' :
     cwd => $srcdir,
     command => $cmd,

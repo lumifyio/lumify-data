@@ -11,9 +11,10 @@ class ccextractor (
     url  => "http://downloads.sourceforge.net/project/ccextractor/ccextractor/${version}/ccextractor.src.${version}.zip",
     path => "${tmpdir}/ccextractor.src.${version}.zip",
   } -> macro::extract { 'extract-ccextractor':
-    file => "${tmpdir}/ccextractor.src.${version}.zip",
-    type => "zip",
-    path => $tmpdir,
+    file    => "${tmpdir}/ccextractor.src.${version}.zip",
+    type    => "zip",
+    path    => $tmpdir,
+    creates => "${tmpdir}/ccextractor.${version}",
   }
 
   exec { "build-ccextractor":

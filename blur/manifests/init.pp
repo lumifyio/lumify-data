@@ -36,6 +36,7 @@ class blur (
   macro::extract { $downloadpath:
     path    => $installdir,
     require => File[$downloadpath],
+    creates => "${installdir}/apache-blur-0.2.0-incubating-SNAPSHOT",
   }
 
   file { $homelink:

@@ -8,8 +8,9 @@ class ffmpeg::libopus($prefix="/usr/local", $tmpdir="/usr/local/src") {
     url     => "http://downloads.xiph.org/releases/opus/opus-1.0.3.tar.gz",
     path    => "${tmpdir}/opus-1.0.3.tar.gz",
   } -> macro::extract { 'extract-libopus':
-    file => "${tmpdir}/opus-1.0.3.tar.gz",
-    path => $tmpdir,
+    file    => "${tmpdir}/opus-1.0.3.tar.gz",
+    path    => $tmpdir,
+    creates => $srcdir,
   }
 
   $configure  = "${srcdir}/configure --prefix=${prefix}"

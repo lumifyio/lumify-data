@@ -8,8 +8,9 @@ class tesseract::leptonica($prefix="/usr/local", $tmpdir="/usr/local/src") {
     url  => "http://www.leptonica.org/source/leptonica-1.69.tar.gz",
     path => "${tmpdir}/leptonica-1.69.tar.gz",
   } -> macro::extract { 'extract-leptonica':
-    file => "${tmpdir}/leptonica-1.69.tar.gz",
-    path => $tmpdir,
+    file    => "${tmpdir}/leptonica-1.69.tar.gz",
+    path    => $tmpdir,
+    creates => $srcdir,
   }
 
   $configure  = "${srcdir}/configure --prefix=${prefix}"

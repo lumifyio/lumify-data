@@ -30,7 +30,8 @@ class elasticsearch(
     path    => $downloadpath,
     require => User[$user],
   } -> macro::extract { $downloadpath:
-    path  => $installdir,
+    path    => $installdir,
+    creates => "${installdir}/elasticsearch-${version}",
   }
 
   file { $homelink:

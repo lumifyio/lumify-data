@@ -33,7 +33,8 @@ class accumulo(
     path    => $downloadpath,
     require => User[$user],
   } -> macro::extract { $downloadpath:
-    path  => $installdir,
+    path    => $installdir,
+    creates => "${installdir}/accumulo-${version}",
   }
 
   file { $homelink:

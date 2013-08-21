@@ -12,8 +12,9 @@ class opencv($tmpdir="/usr/local/src") {
     url  => "http://downloads.sourceforge.net/project/opencvlibrary/opencv-unix/${$opencvVersion}/opencv-${opencvVersion}.tar.gz",
     path => "${tmpdir}/opencv-${opencvVersion}.tar.gz",
   } -> macro::extract { 'extract-opencv':
-    file => "${tmpdir}/opencv-${opencvVersion}.tar.gz",
-    path => $tmpdir,
+    file    => "${tmpdir}/opencv-${opencvVersion}.tar.gz",
+    path    => $tmpdir,
+    creates => "${tmpdir}/opencv-${opencvVersion}",
   }
 
   # problem with our distribution of cmake that doesn't set the JNI_FOUND property

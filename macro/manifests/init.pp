@@ -16,18 +16,28 @@ class macro {
     }
   }
 
-  define extract ($file = $title, $type=undef, $user='root', $group='root', $path, $options='') {
+  define extract ($file = $title, $type=undef, $user='root', $group='root', $path, $options='', $creates='') {
     case $type {
       'zip':   { $cmd = "/usr/bin/unzip -qo ${options}" }
       'gzip':  { $cmd = "/bin/gunzip ${options}" }
       default: { $cmd = "/bin/tar ${options} -xzf" }
     }
 
-    exec { "extract-${file}" :
-      cwd     => $path,
-      command => "${cmd} ${file}",
-      user    => $user,
-      group   => $group,
+    if ($creates == '') {
+      exec { "extract-${file}" :
+        cwd     => $path,
+        command => "${cmd} ${file}",
+        user    => $user,
+        group   => $group,
+      }
+    } else {
+      exec { "extract-${file}" :
+        cwd     => $path,
+        command => "${cmd} ${file}",
+        creates => $creates,
+        user    => $user,
+        group   => $group,
+      }
     }
   }
 
