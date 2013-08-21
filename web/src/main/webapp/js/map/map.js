@@ -47,7 +47,7 @@ define([
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'windowResize', this.onMapEndPan);
             this.on(document, 'syncEnded', this.onSyncEnded);
-            this.on(document, 'existingNodesAdded', this.onExistingNodesAdded);
+            this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
         });
 
         this.map = function(callback) {
@@ -99,7 +99,7 @@ define([
                 if (map.api == 'googlev3') {
                     google.maps.event.addListener(map.getMap(), 'rightclick', function(e) {
                         self.toggleMenu({
-                            positionInNode:e.pixel
+                            positionInVertex:e.pixel
                         });
                     });
                 } else {
@@ -122,10 +122,10 @@ define([
             });
         };
 
-        this.onExistingNodesAdded = function(evt, data) {
+        this.onExistingVerticesAdded = function(evt, data) {
             if (this.$node.closest('.visible').length === 0) return;
 
-            var dragging = $('.ui-draggable-dragging:not(.clone-node)'),
+            var dragging = $('.ui-draggable-dragging:not(.clone-vertex)'),
                 position = dragging.position(),
                 mapOffset = this.$node.offset(),
                 offset = dragging.offset(),
@@ -135,7 +135,7 @@ define([
 
             var cloned = dragging.clone()
                                  .css({width:'auto'})
-                                 .addClass('clone-node')
+                                 .addClass('clone-vertex')
                                  .insertAfter(dragging);
 
             this.map(function(map) {
@@ -143,8 +143,8 @@ define([
                 var points = [];
                 map.markers.forEach(function(marker) {
                     window.marker = marker;
-                    data.nodes.forEach(function(node) {
-                        if (marker.getAttribute('graphNodeId') === node.graphNodeId) {
+                    data.vertices.forEach(function(vertex) {
+                        if (marker.getAttribute('graphVertexId') === vertex.graphVertexId) {
                             points.push(marker.location);
                         }
                     });
@@ -208,12 +208,12 @@ define([
             this.map(function(map) {
                 map.removeAllMarkers();
 
-                if (workspaceData.data === undefined || workspaceData.data.nodes === undefined) {
+                if (workspaceData.data === undefined || workspaceData.data.vertices === undefined) {
                     return;
                 }
-                workspaceData.data.nodes.forEach(function(node) {
-                    if(node.location || node.locations) {
-                        self.updateOrAddVertex(node);
+                workspaceData.data.vertices.forEach(function(vertex) {
+                    if(vertex.location || vertex.locations) {
+                        self.updateOrAddVertex(vertex);
                     }
                 });
             });

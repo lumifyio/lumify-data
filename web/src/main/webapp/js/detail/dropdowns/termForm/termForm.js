@@ -228,14 +228,8 @@ define([
         };
 
         this.highlightTerm = function(data) {
-<<<<<<< HEAD
             var mentionVertex = $(this.attr.mentionNode),
-                updatingEntity = mentionVertex.is('.entity');
-
-=======
-            var mentionNode = $(this.attr.mentionNode),
                 updatingEntity = this.attr.existing;
->>>>>>> 83e8ac6eab4f063e6ba1e17d02c9879ff15f5b83
 
             if (updatingEntity) {
 

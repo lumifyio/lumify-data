@@ -121,7 +121,7 @@ define([
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
                     self.searchResults.entity = {};
-                    entities.nodes.forEach(function(entity) {
+                    entities.vertices.forEach(function(entity) {
                         entity.sign = entity.properties['title'];
                         entity.source = entity.properties['source'];
                         entity.graphVertexId = entity.id;
@@ -319,7 +319,7 @@ define([
             this.onVerticesUpdated(evt, workspace.data || {});
         };
 
-        // Track changes to nodes so we display the "Displayed in Graph" icon
+        // Track changes to vertices so we display the "Displayed in Graph" icon
         // in search results
         var _currentVertices = {};
         this.toggleSearchResultIcon = function(graphVertexId, inGraph, inMap) {
@@ -329,7 +329,7 @@ define([
                 .toggleClass('map-displayed', inMap);
         };
 
-        // Switching workspaces should clear the icon state and nodes
+        // Switching workspaces should clear the icon state and vertices
         this.onWorkspaceClear = function() {
             this.$node.find('li.graph-displayed').removeClass('graph-displayed');
             this.$node.find('li.map-displayed').removeClass('map-displayed');
@@ -339,7 +339,7 @@ define([
         this.onVerticesUpdated = function(event, data) {
             var self = this;
             (data.vertices || []).forEach(function(vertex) {
-                // Only care about node search results and location updates
+                // Only care about vertex search results and location updates
                 if ( (vertex._type && vertex._subType) || vertex.location || vertex.locations ) {
                     var inGraph = true;
                     var inMap = !!(vertex.location || (vertex.locations && vertex.locations.length));

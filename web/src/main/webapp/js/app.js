@@ -282,7 +282,7 @@ define([
             var self = this;
             self.workspaceRowKey = workspaceRowKey;
             if(self.workspaceRowKey == null) {
-                self.trigger(document, 'workspaceLoaded', { data: { nodes: [] } });
+                self.trigger(document, 'workspaceLoaded', { data: { vertices: [] } });
                 return;
             }
 
@@ -322,7 +322,7 @@ define([
         this.onWorkspaceLoaded = function(evt, data) {
             this.workspaceData = data || {};
             this.workspaceData.data = this.workspaceData.data || {};
-            this.workspaceData.data.nodes = this.workspaceData.data.nodes || [];
+            this.workspaceData.data.vertices = this.workspaceData.data.vertices || [];
 
             undoManager.reset();
             this.refreshRelationships();
@@ -359,7 +359,7 @@ define([
                     vertices: []
                 };
                 data.vertices.forEach(function(vertex) {
-                    var matchingWorkspaceVertices = ws.data.nodes.filter(function(workspaceVertex) {
+                    var matchingWorkspaceVertices = ws.data.vertices.filter(function(workspaceVertex) {
                         return workspaceVertex.graphVertexId == vertex.graphVertexId;
                     });
 
@@ -390,12 +390,12 @@ define([
 
         this.onAddVertices = function(evt, data) {
             this.workspace(function(ws) {
-                var allVertices = this.workspaceData.data.nodes,
+                var allVertices = this.workspaceData.data.vertices,
                     added = [],
                     existing = [],
                     win = $(window);
 
-                // FIXME: How should we store nodes in the workspace? 
+                // FIXME: How should we store vertices in the workspace?
                 // currently mapping { id:[graphVertexId], properties:{} }
                 // to { graphVertexId:..., [properties] }
                 data.vertices = data.vertices.map(function(n) {
@@ -418,9 +418,9 @@ define([
 
                 // Check if already in workspace
                 data.vertices.forEach(function(vertex) {
-                    if (ws.data.nodes.filter(function(n) { return n.graphVertexId === vertex.graphVertexId; }).length === 0) {
+                    if (ws.data.vertices.filter(function(n) { return n.graphVertexId === vertex.graphVertexId; }).length === 0) {
                         added.push(vertex);
-                        ws.data.nodes.push(vertex);
+                        ws.data.vertices.push(vertex);
                     } else {
                         existing.push(vertex);
                     }
@@ -457,19 +457,19 @@ define([
 
             this.workspace(function(ws) {
 
-                // get all the workspace nodes to delete (used by the undo manager)
-                var workspaceVerticesToDelete = ws.data.nodes
+                // get all the workspace vertices to delete (used by the undo manager)
+                var workspaceVerticesToDelete = ws.data.vertices
                     .filter(function(workspaceVertex) {
                         return data.vertices.filter(function(dataVertex) {
                             return workspaceVertex.graphVertexId == dataVertex.graphVertexId;
                         }).length > 0;
                     });
 
-                // remove all workspace nodes from list
-                ws.data.nodes = ws.data.nodes
-                    .filter(function(workspaceNode) {
-                        return workspaceVerticesToDelete.filter(function(workspaceNodeToDelete) {
-                            return workspaceNode._rowKey == workspaceNodeToDelete._rowKey;
+                // remove all workspace vertices from list
+                ws.data.vertices = ws.data.vertices
+                    .filter(function(workspaceVertex) {
+                        return workspaceVerticesToDelete.filter(function(workspaceVerticesToDelete) {
+                            return workspaceVertex._rowKey == workspaceVerticesToDelete._rowKey;
                         }).length === 0;
                     });
 
@@ -478,7 +478,7 @@ define([
                         noUndo: true,
                         vertices: workspaceVerticesToDelete
                     }));
-                    undoManager.performedAction( 'Delete ' + data.vertices.length + ' nodes', {
+                    undoManager.performedAction( 'Delete ' + data.vertices.length + ' vertices', {
                         undo: function() {
                             self.trigger(document, 'addVertices', undoDataClone);
                         },
@@ -509,30 +509,30 @@ define([
         };
 
         this.getIds = function () {
-           if (this.workspaceData.data === undefined || this.workspaceData.data.nodes === undefined) {
+           if (this.workspaceData.data === undefined || this.workspaceData.data.vertices === undefined) {
                return [];
            }
-           return this.workspaceData.data.nodes
-               .map(function(node) {
-                   return node.graphVertexId;
+           return this.workspaceData.data.vertices
+               .map(function(vertex) {
+                   return vertex.graphVertexId;
                });
         };
 
         this.getEntityIds = function() {
-            if (this.workspaceData.data === undefined || this.workspaceData.data.nodes === undefined) {
+            if (this.workspaceData.data === undefined || this.workspaceData.data.vertices === undefined) {
                 return [];
             }
-            return this.workspaceData.data.nodes
-                .map(function(node) {
-                    return node.graphVertexId;
+            return this.workspaceData.data.vertices
+                .map(function(vertex) {
+                    return vertex.graphVertexId;
                 });
         };
 
         this.getArtifactIds = function() {
-            if (this.workspaceData.data === undefined || this.workspaceData.data.nodes === undefined) {
+            if (this.workspaceData.data === undefined || this.workspaceData.data.vertices === undefined) {
                 return [];
             }
-            return this.workspaceData.data.nodes
+            return this.workspaceData.data.vertices
                 .filter(function(vertex) {
                     return vertex.type == 'artifact';
                 })

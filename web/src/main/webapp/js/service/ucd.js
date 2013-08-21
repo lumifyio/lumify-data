@@ -44,7 +44,7 @@ function(ServiceBase) {
 
     Ucd.prototype.locationSearch = function(lat, lon, radiuskm, callback) {
         return this._ajaxGet({
-            url: 'graph/vertexgeoLocationSearch',
+            url: 'graph/vertex/geoLocationSearch',
             data: {
                 lat: lat,
                 lon: lon,

@@ -66,15 +66,15 @@ define([
             var self = this;
 
             this.cy(function(cy) {
-                var existingVertices = $.map(cy.nodes(), function (node){
-                    node.lock();
+                var existingVertices = $.map(cy.nodes(), function (vertex){
+                    vertex.lock();
                 });
                 var opts = $.extend({
                     name:'grid',
                     fit: false,
                     stop: function() {
-                        $.map(cy.nodes(), function (node) {
-                            node.unlock();
+                        $.map(cy.nodes(), function (vertex) {
+                            vertex.unlock();
                         });
                         var updates = $.map(cy.nodes(), function(vertex) {
                             return {
@@ -302,7 +302,7 @@ define([
                     cy.reset();
                 } else if (this.graphPadding) {
                     // Temporarily adjust max zoom 
-                    // prevents extreme closeup when one node
+                    // prevents extreme closeup when one vertex
                     var maxZoom = cy._private.maxZoom;
                     cy._private.maxZoom *= 0.5;
                     cy.fit(undefined, $.extend({}, this.graphPadding));
@@ -598,11 +598,11 @@ define([
 
         this.onWorkspaceLoaded = function(evt, workspace) {
             this.resetGraph();
-            if (workspace.data && workspace.data.nodes) {
-                workspace.data.nodes.forEach(function(node){
-                    node.selected = false;
+            if (workspace.data && workspace.data.vertices) {
+                workspace.data.vertices.forEach(function(vertex){
+                    vertex.selected = false;
                 });
-                this.addVertices(workspace.data.nodes, { fit:true });
+                this.addVertices(workspace.data.vertices, { fit:true });
             }
 
             this.checkEmptyGraph();

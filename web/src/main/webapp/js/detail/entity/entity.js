@@ -94,16 +94,16 @@ define([
 
                     if(vertexInfo.id == relationship.relationship.sourceVertexId) {
                         data.sourceVertex = vertexInfo;
-                        data.sourceVertex.cssClasses = self.classesForNode(vertexInfo);
+                        data.sourceVertex.cssClasses = self.classesForVertex(vertexInfo);
 
                         data.destVertex = relationship.vertex;
-                        data.destVertex.cssClasses = self.classesForNode(relationship.vertex);
+                        data.destVertex.cssClasses = self.classesForVertex(relationship.vertex);
                     } else {
                         data.sourceVertex = relationship.vertex;
-                        data.sourceVertex.cssClasses = self.classesForNode(relationship.vertex);
+                        data.sourceVertex.cssClasses = self.classesForVertex(relationship.vertex);
 
                         data.destVertex = vertexInfo;
-                        data.destVertex.cssClasses = self.classesForNode(vertexInfo);
+                        data.destVertex.cssClasses = self.classesForVertex(vertexInfo);
                     }
 
                     relationshipsTplData.push(data);
