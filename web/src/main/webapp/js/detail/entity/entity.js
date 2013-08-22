@@ -7,9 +7,9 @@ define([
     'tpl!./entity',
     'tpl!./properties',
     'tpl!./relationships',
+    'tpl!./propertiesDropdown',
     'service/ontology',
-    'sf'
-], function(defineComponent, Image, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, OntologyService, sf) {
+], function(defineComponent, Image, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, propertiesDropdownTemplate, OntologyService, sf) {
 
     'use strict';
 
@@ -17,19 +17,24 @@ define([
 
     return defineComponent(Entity, withTypeContent, withHighlighting);
 
-    function Entity() {
+    function Entity(withDropdown) {
 
         this.defaultAttrs({
             glyphIconSelector: '.entity-glyphIcon',
             propertiesSelector: '.entity-properties',
             relationshipsSelector: '.entity-relationships',
-            detailedObjectSelector: '.entity, .artifact, .relationship'
+            detailedObjectSelector: '.entity, .artifact, .relationship',
+            addNewPropertiesSelector: '.add-new-properties',
+            addPropertySelector: '.add-property',
+            addNewPropertyFormSelector: '.property-form',
+            propertySelector: 'select'
         });
 
         this.after('initialize', function() {
             var self = this;
             this.on('click', {
-                detailedObjectSelector: this.onDetailedObjectClicked
+                detailedObjectSelector: this.onDetailedObjectClicked,
+                addNewPropertiesSelector: this.onAddNewPropertiesClicked
             });
 
             ontologyService.concepts(function(err, concepts) {
@@ -199,6 +204,34 @@ define([
             this.trigger(document, 'searchResultSelected', $target.data('info'));
 
             evt.stopPropagation();
-        }
+        };
+
+        this.onAddNewPropertiesClicked = function (evt){
+            var self = this;
+            self.select('addNewPropertyFormSelector').show();
+
+            self.ontologyService.propertiesByConceptId(self.attr.data._subType, function (err, properties){
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+
+                var propertiesList = [];
+
+                properties.list.forEach (function (property){
+                    if (property.title.charAt(0) != '_'){
+                        var data = {
+                            title: property.title,
+                            displayName: property.displayName
+                        }
+                        propertiesList.push (data);
+                    }
+                });
+
+                self.select('propertySelector').html(propertiesDropdownTemplate({
+                    properties: propertiesList || ''
+                }));
+            });
+        };
     }
 });
