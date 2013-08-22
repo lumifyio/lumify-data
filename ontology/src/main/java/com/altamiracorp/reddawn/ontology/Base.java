@@ -175,13 +175,7 @@ public abstract class Base extends RedDawnCommandLineBase {
         graph.commit();
 
         // Artifact to TermMention relationship
-        TitanLabel hasTermMention = (TitanLabel) graph.getType(LabelName.HAS_TERM_MENTION.toString());
-        if (hasTermMention == null) {
-            hasTermMention = graph.makeType().name(LabelName.HAS_TERM_MENTION.toString()).directed().makeEdgeLabel();
-        }
-        edges.put(hasTermMention.getName(), hasTermMention);
-        artifact.addEdge(hasEdgeEdge, hasTermMention);
-        findOrAddEdge(hasTermMention, termMention, hasEdgeEdge);
+        getOrCreateRelationshipType(graph, artifact, termMention, LabelName.HAS_TERM_MENTION.toString(), "has term mention");
 
         graph.commit();
 
