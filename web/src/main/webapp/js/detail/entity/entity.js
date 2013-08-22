@@ -9,6 +9,7 @@ define([
     'tpl!./relationships',
     'tpl!./propertiesDropdown',
     'service/ontology',
+    'sf'
 ], function(defineComponent, Image, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, propertiesDropdownTemplate, OntologyService, sf) {
 
     'use strict';
