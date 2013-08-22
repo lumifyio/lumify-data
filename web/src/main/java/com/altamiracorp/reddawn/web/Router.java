@@ -11,12 +11,12 @@ import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
 import com.altamiracorp.reddawn.web.routes.graph.*;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
+import com.altamiracorp.reddawn.web.routes.statement.Relationships;
 import com.altamiracorp.reddawn.web.routes.vertex.VertexProperties;
 import com.altamiracorp.reddawn.web.routes.vertex.VertexRelationshipRemoval;
 import com.altamiracorp.reddawn.web.routes.vertex.VertexRelationships;
 import com.altamiracorp.reddawn.web.routes.vertex.VertexToVertexRelationship;
 import com.altamiracorp.reddawn.web.routes.ontology.ConceptList;
-import com.altamiracorp.reddawn.web.routes.ontology.RelationshipList;
 import com.altamiracorp.reddawn.web.routes.resource.ResourceGet;
 import com.altamiracorp.reddawn.web.routes.statement.StatementCreate;
 import com.altamiracorp.reddawn.web.routes.user.MeGet;
@@ -52,7 +52,6 @@ public class Router extends HttpServlet {
         }
 
         app.get("/ontology/concept/", ConceptList.class);
-        app.get("/ontology/relationship/", RelationshipList.class);
 
         app.get("/resource/{_rowKey}", ResourceGet.class);
 
@@ -63,6 +62,7 @@ public class Router extends HttpServlet {
         app.get("/artifact/{_rowKey}", authenticator, ArtifactByRowKey.class);
 
         app.post("/statement/create", authenticator, StatementCreate.class);
+        app.get("/statement/relationship/", Relationships.class);
 
         app.post("/entity/relationships", authenticator, EntityRelationships.class);
         app.get("/entity/search", authenticator, EntitySearch.class);
