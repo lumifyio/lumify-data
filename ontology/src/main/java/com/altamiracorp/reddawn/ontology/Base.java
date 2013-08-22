@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.ontology;
 
 import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
+import com.altamiracorp.reddawn.model.TitanGraphVertex;
 import com.altamiracorp.reddawn.model.ontology.LabelName;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.PropertyType;
@@ -8,7 +9,6 @@ import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanKey;
 import com.thinkaurelius.titan.core.TitanLabel;
-import com.thinkaurelius.titan.core.TitanVertex;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
@@ -102,11 +102,11 @@ public abstract class Base extends RedDawnCommandLineBase {
         graph.commit();
 
         Iterator<Vertex> artifactIter = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ARTIFACT.toString()).iterator();
-        TitanVertex artifact;
+        TitanGraphVertex artifact;
         if (artifactIter.hasNext()) {
-            artifact = (TitanVertex) artifactIter.next();
+            artifact = new TitanGraphVertex(artifactIter.next());
         } else {
-            artifact = (TitanVertex) graph.addVertex(null);
+            artifact = new TitanGraphVertex(graph.addVertex(null));
             artifact.setProperty(typeProperty.getName(), VertexType.CONCEPT.toString());
             artifact.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ARTIFACT.toString());
         }
@@ -139,14 +139,14 @@ public abstract class Base extends RedDawnCommandLineBase {
         graph.commit();
 
         Iterator<Vertex> termMentionIter = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.TERM_MENTION.toString()).iterator();
-        TitanVertex termMention;
+        TitanGraphVertex termMention;
         if (termMentionIter.hasNext()) {
-            termMention = (TitanVertex) termMentionIter.next();
+            termMention = new TitanGraphVertex(termMentionIter.next());
         } else {
-            termMention = (TitanVertex) graph.addVertex(null);
-            termMention.setProperty(typeProperty.getName(), VertexType.CONCEPT.toString());
-            termMention.addProperty(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.TERM_MENTION.toString());
+            termMention = new TitanGraphVertex(graph.addVertex(null));
         }
+        termMention.setProperty(typeProperty.getName(), VertexType.CONCEPT.toString());
+        termMention.addProperty(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.TERM_MENTION.toString());
         addPropertyToConcept(graph, termMention, typeProperty.getName(), "Type", PropertyType.STRING);
         addPropertyToConcept(graph, termMention, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
         addPropertyToConcept(graph, termMention, rowKeyProperty.getName(), "Rowkey", PropertyType.STRING);
@@ -158,14 +158,15 @@ public abstract class Base extends RedDawnCommandLineBase {
 
         // Entity concept
         Iterator<Vertex> entityIter = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ENTITY.toString()).iterator();
-        TitanVertex entity;
+        TitanGraphVertex entity;
         if (entityIter.hasNext()) {
-            entity = (TitanVertex) entityIter.next();
+            entity = new TitanGraphVertex(entityIter.next());
         } else {
-            entity = (TitanVertex) graph.addVertex(null);
-            entity.setProperty(typeProperty.getName(), VertexType.CONCEPT.toString());
-            entity.addProperty(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ENTITY.toString());
+            entity = new TitanGraphVertex(graph.addVertex(null));
         }
+        entity.setProperty(typeProperty.getName(), VertexType.CONCEPT.toString());
+        entity.addProperty(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ENTITY.toString());
+
         addPropertyToConcept(graph, entity, typeProperty.getName(), "Type", PropertyType.STRING);
         addPropertyToConcept(graph, entity, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
         addPropertyToConcept(graph, entity, titleProperty.getName(), "Title", PropertyType.STRING);
@@ -186,23 +187,23 @@ public abstract class Base extends RedDawnCommandLineBase {
         return returnCode;
     }
 
-    protected abstract int defineOntology(TitanGraph graph, TitanVertex entity);
+    protected abstract int defineOntology(TitanGraph graph, TitanGraphVertex entity);
 
-    protected TitanVertex getOrCreateConcept(TitanGraph graph, TitanVertex parent, String conceptName) {
+    protected TitanGraphVertex getOrCreateConcept(TitanGraph graph, TitanGraphVertex parent, String conceptName) {
         Iterator<Vertex> iter = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), conceptName).iterator();
-        TitanVertex vertex;
+        TitanGraphVertex vertex;
         if (iter.hasNext()) {
-            vertex = (TitanVertex) iter.next();
+            vertex = new TitanGraphVertex(iter.next());
         } else {
-            vertex = (TitanVertex) graph.addVertex(null);
-            vertex.setProperty(PropertyName.TYPE.toString(), VertexType.CONCEPT.toString());
-            vertex.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), conceptName);
+            vertex = new TitanGraphVertex(graph.addVertex(null));
         }
+        vertex.setProperty(PropertyName.TYPE.toString(), VertexType.CONCEPT.toString());
+        vertex.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), conceptName);
         findOrAddEdge(vertex, parent, LabelName.IS_A.toString());
         return vertex;
     }
 
-    protected void getOrCreateRelationshipType(TitanGraph graph, TitanVertex fromVertex, TitanVertex toVertex, String relationshipName, String displayName) {
+    protected void getOrCreateRelationshipType(TitanGraph graph, TitanGraphVertex fromVertex, TitanGraphVertex toVertex, String relationshipName, String displayName) {
         TitanLabel relationshipLabel = (TitanLabel) graph.getType(relationshipName);
         if (relationshipLabel == null) {
             relationshipLabel = graph.makeType().name(relationshipName).directed().makeEdgeLabel();
@@ -213,28 +214,28 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
 
         TitanLabel hasEdgeLabel = this.edges.get(LabelName.HAS_EDGE.toString());
-        findOrAddEdge(fromVertex, relationshipLabel, hasEdgeLabel);
-        findOrAddEdge(relationshipLabel, toVertex, hasEdgeLabel);
+        findOrAddEdge(fromVertex, new TitanGraphVertex(relationshipLabel), hasEdgeLabel);
+        findOrAddEdge(new TitanGraphVertex(relationshipLabel), toVertex, hasEdgeLabel);
         graph.commit();
     }
 
-    protected void findOrAddEdge(TitanVertex fromVertex, TitanVertex toVertex, TitanLabel edgeLabel) {
+    protected void findOrAddEdge(TitanGraphVertex fromVertex, TitanGraphVertex toVertex, TitanLabel edgeLabel) {
         findOrAddEdge(fromVertex, toVertex, edgeLabel.getName());
     }
 
-    protected void findOrAddEdge(TitanVertex fromVertex, TitanVertex toVertex, String edgeLabel) {
-        Iterator<Edge> possibleEdgeMatches = fromVertex.getEdges(Direction.OUT, edgeLabel).iterator();
+    protected void findOrAddEdge(TitanGraphVertex fromVertex, TitanGraphVertex toVertex, String edgeLabel) {
+        Iterator<Edge> possibleEdgeMatches = fromVertex.getVertex().getEdges(Direction.OUT, edgeLabel).iterator();
         while (possibleEdgeMatches.hasNext()) {
             Edge possibleEdgeMatch = possibleEdgeMatches.next();
-            Vertex possibleMatch = possibleEdgeMatch.getVertex(Direction.IN);
+            TitanGraphVertex possibleMatch = new TitanGraphVertex(possibleEdgeMatch.getVertex(Direction.IN));
             if (possibleMatch.getId().equals(toVertex.getId())) {
                 return;
             }
         }
-        fromVertex.addEdge(edgeLabel, toVertex);
+        fromVertex.getVertex().addEdge(edgeLabel, toVertex.getVertex());
     }
 
-    protected TitanVertex addPropertyToConcept(TitanGraph graph, TitanVertex concept, String propertyName, String displayName, PropertyType dataType) {
+    protected TitanGraphVertex addPropertyToConcept(TitanGraph graph, TitanGraphVertex concept, String propertyName, String displayName, PropertyType dataType) {
         TitanKey typeProperty = (TitanKey) graph.getType(propertyName);
         if (typeProperty == null) {
             Class vertexDataType = String.class;
@@ -258,17 +259,17 @@ public abstract class Base extends RedDawnCommandLineBase {
         properties.put(typeProperty.getName(), typeProperty);
 
         Iterator<Vertex> iter = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), propertyName).iterator();
-        TitanVertex propertyVertex;
+        TitanGraphVertex propertyVertex;
         if (iter.hasNext()) {
-            propertyVertex = (TitanVertex) iter.next();
+            propertyVertex = new TitanGraphVertex(iter.next());
         } else {
-            propertyVertex = (TitanVertex) graph.addVertex(null);
-            propertyVertex.setProperty(PropertyName.TYPE.toString(), VertexType.PROPERTY.toString());
-            propertyVertex.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), propertyName);
-            propertyVertex.setProperty(PropertyName.DATA_TYPE.toString(), dataType.toString());
-            propertyVertex.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
-            graph.commit();
+            propertyVertex = new TitanGraphVertex(graph.addVertex(null));
         }
+        propertyVertex.setProperty(PropertyName.TYPE.toString(), VertexType.PROPERTY.toString());
+        propertyVertex.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), propertyName);
+        propertyVertex.setProperty(PropertyName.DATA_TYPE.toString(), dataType.toString());
+        propertyVertex.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
+        graph.commit();
 
         findOrAddEdge(concept, propertyVertex, LabelName.HAS_PROPERTY.toString());
         graph.commit();

@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.model;
 
 import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.thinkaurelius.titan.core.TitanVertex;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.tinkerpop.blueprints.Vertex;
 
@@ -42,5 +43,9 @@ public class TitanGraphVertex extends GraphVertex {
 
     public Vertex getVertex() {
         return vertex;
+    }
+
+    public void addProperty(String key, Object attribute) {
+        ((TitanVertex) this.vertex).addProperty(key, attribute);
     }
 }
