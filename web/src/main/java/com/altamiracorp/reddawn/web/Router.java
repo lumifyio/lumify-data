@@ -5,6 +5,7 @@ import com.altamiracorp.reddawn.web.routes.admin.AdminTables;
 import com.altamiracorp.reddawn.web.routes.artifact.*;
 import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
+import com.altamiracorp.reddawn.web.routes.vertex.VertexAddProperty;
 import com.altamiracorp.reddawn.web.routes.entity.EntityCreate;
 import com.altamiracorp.reddawn.web.routes.entity.EntityRelationships;
 import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
@@ -73,6 +74,7 @@ public class Router extends HttpServlet {
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.post("/entity/create", authenticator, EntityCreate.class);
 
+        app.post("/vertex/{graphVertexId}/property/add", authenticator, VertexAddProperty.class);
         app.get("/vertex/{graphVertexId}/properties", authenticator, VertexProperties.class);
         app.get("/vertex/{graphVertexId}/relationships", authenticator, VertexRelationships.class);
         app.get("/vertex/relationship", authenticator, VertexToVertexRelationship.class);
