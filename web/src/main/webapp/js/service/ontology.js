@@ -1,0 +1,126 @@
+define(
+    [
+        'service/serviceBase'
+    ],
+    function (ServiceBase) {
+
+        function OntologyService() {
+            ServiceBase.call(this);
+            return this;
+        }
+
+        OntologyService.prototype = Object.create(ServiceBase.prototype);
+
+        var cachedConcepts;
+        OntologyService.prototype.concepts = function (callback) {
+            if (cachedConcepts) {
+                return callback(null, cachedConcepts);
+            }
+
+            this._ajaxGet({
+                url: 'ontology/concept'
+            }, function (err, response) {
+                if (err) {
+                    return callback(err);
+                }
+
+                cachedConcepts = {
+                    tree: response,
+                    byId: buildConceptMapById(response, {}),
+                    byTitle: flattenConcepts(response)
+                };
+
+                return callback(null, cachedConcepts);
+            });
+
+            function buildConceptMapById(concept, map) {
+                map[concept.id] = concept;
+                if (concept.children) {
+                    for (var i = 0; i < concept.children.length; i++) {
+                        buildConceptMapById(concept.children[i], map);
+                    }
+                }
+                return map;
+            }
+
+            function flattenConcepts(concept) {
+                var childIdx, child, grandChildIdx;
+                var flattenedConcepts = [];
+                for (childIdx in concept.children) {
+                    child = concept.children[childIdx];
+                    if (concept.flattenedTitle) {
+                        child.flattenedTitle = concept.flattenedTitle + "/" + child.title;
+                    } else {
+                        child.flattenedTitle = child.title;
+                    }
+                    flattenedConcepts.push(child);
+                    var grandChildren = flattenConcepts(child);
+                    for (grandChildIdx in grandChildren) {
+                        flattenedConcepts.push(grandChildren[grandChildIdx]);
+                    }
+                }
+                return flattenedConcepts;
+            }
+        };
+
+        var cachedRelationships;
+        OntologyService.prototype.relationships = function (callback) {
+            if (cachedRelationships) {
+                return callback(null, cachedRelationships);
+            }
+
+            this._ajaxGet({
+                url: 'ontology/relationship'
+            }, function (err, response) {
+                if (err) {
+                    return callback(err);
+                }
+
+                cachedRelationships = {
+                    list: response.relationships,
+                    byTitle: buildRelationshipsByTitle(response.relationships)
+                };
+                return callback(null, cachedRelationships);
+            });
+
+            function buildRelationshipsByTitle(relationships) {
+                var result = {};
+                relationships.forEach(function(relationship) {
+                    result[relationship.title] = relationship;
+                });
+                return result;
+            }
+        };
+
+        var cachedProperties;
+        OntologyService.prototype.properties = function (callback) {
+            if (cachedProperties) {
+                return callback(null, cachedProperties);
+            }
+
+            this._ajaxGet({
+                url: 'ontology/property'
+            }, function (err, response) {
+                if (err) {
+                    return callback(err);
+                }
+
+                cachedProperties = {
+                    list: response.properties,
+                    byTitle: buildPropertiesByTitle(response.properties)
+                };
+                return callback(null, cachedProperties);
+            });
+
+            function buildPropertiesByTitle(properties) {
+                var result = {};
+                properties.forEach(function(property) {
+                    result[property.title] = property;
+                });
+                return result;
+            }
+        };
+
+        return OntologyService;
+    });
+

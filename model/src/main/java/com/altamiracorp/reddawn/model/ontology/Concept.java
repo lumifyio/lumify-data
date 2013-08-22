@@ -1,12 +1,36 @@
 package com.altamiracorp.reddawn.model.ontology;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public abstract class Concept {
 
     public abstract String getId();
 
     public abstract String getTitle();
 
-    public abstract String getGlyphIcon();
+    public abstract String getGlyphIconResourceRowKey();
 
     public abstract String getColor();
+
+    public abstract String getDisplayName();
+
+    public JSONObject toJson() {
+        try {
+            JSONObject result = new JSONObject();
+            result.put("id", getId());
+            result.put("title", getTitle());
+            result.put("displayName", getDisplayName());
+            if (getGlyphIconResourceRowKey() != null) {
+                result.put("glyphIconResourceRowKey", getGlyphIconResourceRowKey());
+                result.put("glyphIconHref", "/resource/" + getGlyphIconResourceRowKey());
+            }
+            if (getColor() != null) {
+                result.put("color", getColor());
+            }
+            return result;
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

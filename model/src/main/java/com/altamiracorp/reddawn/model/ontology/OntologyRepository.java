@@ -12,6 +12,19 @@ import java.util.Iterator;
 import java.util.List;
 
 public class OntologyRepository {
+    public List<Relationship> getRelationshipLabels(GraphSession graphSession) {
+        List<Relationship> relationships = new ArrayList<Relationship>();
+        Iterator<Vertex> vertices = graphSession.getGraph().query()
+                .has(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString())
+                .vertices()
+                .iterator();
+        while (vertices.hasNext()) {
+            Vertex vertex = vertices.next();
+            relationships.add(new VertexRelationship(vertex));
+        }
+        return relationships;
+    }
+
     public Concept getEntityConcept(GraphSession graphSession) {
         Iterator<Vertex> vertices = graphSession.getGraph().query()
                 .has(PropertyName.TYPE.toString(), VertexType.CONCEPT.toString())

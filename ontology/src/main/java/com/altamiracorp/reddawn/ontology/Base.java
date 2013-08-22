@@ -63,12 +63,17 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
         edges.put(isAEdge.getName(), isAEdge);
 
-        // Artifact concept
         TitanKey subTypeProperty = (TitanKey) graph.getType(PropertyName.SUBTYPE.toString());
         if (subTypeProperty == null) {
             subTypeProperty = graph.makeType().name(PropertyName.SUBTYPE.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
         }
         properties.put(subTypeProperty.getName(), subTypeProperty);
+
+        TitanKey displayNameProperty = (TitanKey) graph.getType(PropertyName.DISPLAY_NAME.toString());
+        if (displayNameProperty == null) {
+            displayNameProperty = graph.makeType().name(PropertyName.DISPLAY_NAME.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+        }
+        properties.put(displayNameProperty.getName(), displayNameProperty);
 
         TitanKey titleProperty = (TitanKey) graph.getType(PropertyName.TITLE.toString());
         if (titleProperty == null) {
@@ -105,10 +110,10 @@ public abstract class Base extends RedDawnCommandLineBase {
             artifact.setProperty(typeProperty.getName(), VertexType.CONCEPT.toString());
             artifact.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ARTIFACT.toString());
         }
-        addPropertyToConcept(graph, artifact, typeProperty.getName(), PropertyType.STRING);
-        addPropertyToConcept(graph, artifact, subTypeProperty.getName(), PropertyType.STRING);
-        addPropertyToConcept(graph, artifact, titleProperty.getName(), PropertyType.STRING);
-        addPropertyToConcept(graph, artifact, geoLocationProperty.getName(), PropertyType.GEO_LOCATION);
+        addPropertyToConcept(graph, artifact, typeProperty.getName(), "type", PropertyType.STRING);
+        addPropertyToConcept(graph, artifact, subTypeProperty.getName(), "subtype", PropertyType.STRING);
+        addPropertyToConcept(graph, artifact, titleProperty.getName(), "title", PropertyType.STRING);
+        addPropertyToConcept(graph, artifact, geoLocationProperty.getName(), "geo-location", PropertyType.GEO_LOCATION);
 
         graph.commit();
 
@@ -142,12 +147,12 @@ public abstract class Base extends RedDawnCommandLineBase {
             termMention.setProperty(typeProperty.getName(), VertexType.CONCEPT.toString());
             termMention.addProperty(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.TERM_MENTION.toString());
         }
-        addPropertyToConcept(graph, termMention, typeProperty.getName(), PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, subTypeProperty.getName(), PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, rowKeyProperty.getName(), PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, columnFamilyNameProperty.getName(), PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, titleProperty.getName(), PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, sourceProperty.getName(), PropertyType.STRING);
+        addPropertyToConcept(graph, termMention, typeProperty.getName(), "type", PropertyType.STRING);
+        addPropertyToConcept(graph, termMention, subTypeProperty.getName(), "subtype", PropertyType.STRING);
+        addPropertyToConcept(graph, termMention, rowKeyProperty.getName(), "rowkey", PropertyType.STRING);
+        addPropertyToConcept(graph, termMention, columnFamilyNameProperty.getName(), "column family", PropertyType.STRING);
+        addPropertyToConcept(graph, termMention, titleProperty.getName(), "title", PropertyType.STRING);
+        addPropertyToConcept(graph, termMention, sourceProperty.getName(), "source", PropertyType.STRING);
 
         graph.commit();
 
@@ -161,11 +166,11 @@ public abstract class Base extends RedDawnCommandLineBase {
             entity.setProperty(typeProperty.getName(), VertexType.CONCEPT.toString());
             entity.addProperty(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ENTITY.toString());
         }
-        addPropertyToConcept(graph, entity, typeProperty.getName(), PropertyType.STRING);
-        addPropertyToConcept(graph, entity, subTypeProperty.getName(), PropertyType.STRING);
-        addPropertyToConcept(graph, entity, titleProperty.getName(), PropertyType.STRING);
-        addPropertyToConcept(graph, entity, PropertyName.GLYPH_ICON.toString(), PropertyType.IMAGE);
-        getOrCreateRelationshipType(graph, entity, artifact, LabelName.HAS_IMAGE.toString());
+        addPropertyToConcept(graph, entity, typeProperty.getName(), "type", PropertyType.STRING);
+        addPropertyToConcept(graph, entity, subTypeProperty.getName(), "subtype", PropertyType.STRING);
+        addPropertyToConcept(graph, entity, titleProperty.getName(), "title", PropertyType.STRING);
+        addPropertyToConcept(graph, entity, PropertyName.GLYPH_ICON.toString(), "glyph icon", PropertyType.IMAGE);
+        getOrCreateRelationshipType(graph, entity, artifact, LabelName.HAS_IMAGE.toString(), "has image");
 
         graph.commit();
 
@@ -203,12 +208,13 @@ public abstract class Base extends RedDawnCommandLineBase {
         return vertex;
     }
 
-    protected void getOrCreateRelationshipType(TitanGraph graph, TitanVertex fromVertex, TitanVertex toVertex, String relationshipName) {
+    protected void getOrCreateRelationshipType(TitanGraph graph, TitanVertex fromVertex, TitanVertex toVertex, String relationshipName, String displayName) {
         TitanLabel relationshipLabel = (TitanLabel) graph.getType(relationshipName);
         if (relationshipLabel == null) {
             relationshipLabel = graph.makeType().name(relationshipName).directed().makeEdgeLabel();
             relationshipLabel.setProperty(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString());
             relationshipLabel.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), relationshipName);
+            relationshipLabel.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
             graph.commit();
         }
 
@@ -234,7 +240,7 @@ public abstract class Base extends RedDawnCommandLineBase {
         fromVertex.addEdge(edgeLabel, toVertex);
     }
 
-    protected TitanVertex addPropertyToConcept(TitanGraph graph, TitanVertex concept, String propertyName, PropertyType dataType) {
+    protected TitanVertex addPropertyToConcept(TitanGraph graph, TitanVertex concept, String propertyName, String displayName, PropertyType dataType) {
         TitanKey typeProperty = (TitanKey) graph.getType(propertyName);
         if (typeProperty == null) {
             typeProperty = graph.makeType().name(propertyName).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
@@ -250,6 +256,7 @@ public abstract class Base extends RedDawnCommandLineBase {
             propertyVertex.setProperty(PropertyName.TYPE.toString(), VertexType.PROPERTY.toString());
             propertyVertex.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), propertyName);
             propertyVertex.setProperty(PropertyName.DATA_TYPE.toString(), dataType.toString());
+            propertyVertex.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
             graph.commit();
         }
 

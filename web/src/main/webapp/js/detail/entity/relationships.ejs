@@ -8,7 +8,7 @@
     <span class="<%= relationship.sourceVertex.cssClasses %>"
       data-info="<%= JSON.stringify(relationship.sourceVertex.properties) %>"
       ><%- relationship.sourceVertex.properties.title || 'No Title' %></span>
-        <%= relationship.relationship.label %>
+        <%= relationship.displayName %>
     <span class="<%= relationship.destVertex.cssClasses %>"
       data-info='<%= JSON.stringify(relationship.destVertex.properties) %>'
       ><%- relationship.destVertex.properties.title || 'No Title' %></span>

@@ -20,12 +20,17 @@ public class GraphVertexConcept extends Concept {
     }
 
     @Override
-    public String getGlyphIcon() {
+    public String getGlyphIconResourceRowKey() {
         return (String) graphVertex.getProperty(PropertyName.GLYPH_ICON);
     }
 
     @Override
     public String getColor() {
         return (String) graphVertex.getProperty(PropertyName.COLOR);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return (String) graphVertex.getProperty(PropertyName.DISPLAY_NAME);
     }
 }

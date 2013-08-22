@@ -18,13 +18,18 @@ public class VertexConcept extends Concept {
     }
 
     @Override
-    public String getGlyphIcon() {
+    public String getGlyphIconResourceRowKey() {
         return getVertex().getProperty(PropertyName.GLYPH_ICON.toString());
     }
 
     @Override
     public String getColor() {
         return getVertex().getProperty(PropertyName.COLOR.toString());
+    }
+
+    @Override
+    public String getDisplayName() {
+        return getVertex().getProperty(PropertyName.DISPLAY_NAME.toString());
     }
 
     public Vertex getVertex() {
