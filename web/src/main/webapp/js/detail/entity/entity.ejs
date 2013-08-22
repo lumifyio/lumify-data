@@ -1,12 +1,16 @@
 
-<div class="btn-toolbar">
-  <%- highlightButton %>
+<div class="entity-background">
+  <div class="entity-glyphIcon"/>
+
+  <h1><%= title %></h1>
+
+  <div class="btn-toolbar">
+    <%- highlightButton %>
+  </div>
 </div>
 
-<h2><div class="entity-glyphIcon"/><%= title %></h2>
+<ul class="nav-with-background nav nav-list">
+  <li class="nav-header properties">Properties<span class="badge loading"/></li>
+  <li class="nav-header relationships">Relationships<span class="badge loading"/></li>
+</ul>
 
-<h3>Properties</h3>
-<div class="entity-properties">Loading...</div>
-
-<h3>Relationships</h3>
-<div class="entity-relationships">Loading...</div>

@@ -2,7 +2,7 @@
   <%- highlightButton %>
 </div>
 
-<h2>
+<h1>
 <% var data = JSON.stringify({
       graphVertexId : relationshipData.sourceId,
       title : relationshipData.sourceTitle,
@@ -14,7 +14,7 @@
         <%= relationshipData.sourceTitle || "No title available" %>
 </span>
 
-->
+&#8674;
 
 <% var data = JSON.stringify({
       graphVertexId : relationshipData.targetId,
@@ -26,12 +26,10 @@
 <span class="vertex-to-vertex-relationship generic-draggable fake-link" data-info='<%- data %>'>
         <%= relationshipData.targetTitle || "No title available" %>
 </span>
-</h2>
-<h3>Properties</h3>
-<div class="properties">
+</h1>
+
+<ul class="nav nav-list">
   <% relationshipData.properties.forEach(function(property) {%>
-        <li>
-        <%= property.key%>: <%= property.value%>
-        </li>
-      <%}); %>
-</div>
+        <li><strong><%= property.key%></strong><%= property.value %></li>
+  <%}); %>
+</ul>

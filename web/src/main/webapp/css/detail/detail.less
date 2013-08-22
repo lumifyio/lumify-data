@@ -1,6 +1,7 @@
 @import "../util/lists.less";
 @import "../util/constants.less";
 @import "../util/selection.less";
+@import "../util/badge-loading";
 @import "highlighting";
 
 .content {
@@ -108,22 +109,100 @@
     margin-top: 1em;
   }
 
-  .entity-glyphIcon {
-    width: 30%;
-    display: block;
-    position: relative;
-    height: 2em;
+  .badge {
     float: right;
-    background-color: inherit;
+  }
+
+  .nav-list {
+    margin: 0 -1em;
+    padding-top: 1em;
+    clear: both;
+
+    strong {
+      text-transform: uppercase;
+      font-size: 11px;
+      margin-right: 5px;
+      color: #999;
+      text-shadow: 0 1px 0 white;
+    }
+
+    .buttons {
+      margin-bottom: 0.5em; 
+      text-align: left;
+      button {
+        .opacity(50);
+        &:hover { .opacity(100); }
+      }
+    }
+  }
+  .nav-with-background {
+    margin: 118px -1em;
+  }
+
+  .entity-background {
+    position: absolute;
+    width: 100%;
+    height: 150px;
+    top: 0;
+    margin: 0 -1em;
+    padding: 0 1em;
+    border-bottom: 3px solid #0088cc;
+    .box-sizing(border-box);
+
+    .btn-toolbar {
+      z-index: 4;
+      .opacity(40);
+      &:hover {
+        .opacity(100);
+      }
+    }
+
+    h1 {
+      color: white;
+      position: absolute;
+      bottom: 0;
+      text-shadow: 0 1px 1px black;
+      font-size: 200%;
+    }
+  }
+
+  h1 {
+    color: #555;
+    text-shadow: 0 2px 0 white;
+    font-size: 150%;
+    line-height: 1.3em;
+  }
+
+  li.relationships { margin-top: 0; }
+
+  li.relationship {
+    margin-bottom: 1em;
+
+    .relationship {
+      font-variant: small-caps;
+      &:hover {
+        text-decoration: underline;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .entity-glyphIcon {
+    position: absolute;
+    margin: 0 -1em;
+    width: 100%;
+    height: 100%;
     background-size: contain;
     background-repeat: no-repeat;
-    background-position: center bottom;
-    margin-left: 10px;
+    background-position: center center;
+    background-color: #444;
     
     &.shake {
       .shake;
     }
     &.upload-available {
+      background-size: cover;
+
       &.uploading input {
         display: none;
       }

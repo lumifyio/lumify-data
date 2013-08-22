@@ -1,24 +1,10 @@
-<ul>
 <% properties.forEach(function(property) { %>
-    <li class="entity-property">
-        <%= property.displayName %>: 
-        <%= property.value %>
+    <li class="property">
+      <strong><%= property.displayName %></strong><%= property.value %>
     </li>
 <% }); %>
-</ul>
 
-<div class="buttons">
-    <button class="add-new-properties btn btn-small btn-primary">Add New Properties</button>
-</div>
+  <li class="buttons">
+    <button class="add-new-properties btn btn-mini btn-default">Add Property</button>
+  </li>
 
-<div class="property-form" style="display:none">
-  <select>
-    <option>Loading...</option>
-  </select>
-
-  <input class="property-value"></input>
-
-  <div class="buttons">
-    <button class="add-property btn btn-small btn-primary">Add</button>
-  </div>
-</div>

@@ -7,11 +7,11 @@ define([
     'tpl!./entity',
     'tpl!./properties',
     'tpl!./relationships',
-    'tpl!./propertiesDropdown',
+    'detail/dropdowns/propertyForm/propForm',
     'service/ontology',
     'service/vertex',
     'sf'
-], function(defineComponent, Image, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, propertiesDropdownTemplate, OntologyService, VertexService, sf) {
+], function(defineComponent, Image, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, PropertyForm, OntologyService, sf, VertexService) {
 
     'use strict';
 
@@ -24,20 +24,20 @@ define([
 
         this.defaultAttrs({
             glyphIconSelector: '.entity-glyphIcon',
-            propertiesSelector: '.entity-properties',
-            relationshipsSelector: '.entity-relationships',
-            detailedObjectSelector: '.entity, .artifact, .relationship',
+            propertiesSelector: '.properties',
+            relationshipsSelector: '.relationships',
             addNewPropertiesSelector: '.add-new-properties',
-            addPropertySelector: '.add-property',
-            addNewPropertyFormSelector: '.property-form',
-            propertySelector: '.property-form select',
-            propertyValueSelector: '.property-form .property-value'
+            addPropertySelector: '.add-property'
+        });
+
+        this.after('teardown', function() {
+            this.$node.off('click.paneClick');
         });
 
         this.after('initialize', function() {
             var self = this;
+            this.$node.on('click.paneClick', this.onPaneClicked.bind(this));
             this.on('click', {
-                detailedObjectSelector: this.onDetailedObjectClicked,
                 addNewPropertiesSelector: this.onAddNewPropertiesClicked,
                 addPropertySelector: this.onAddPropertyClicked
             });
@@ -129,7 +129,10 @@ define([
 
                         relationshipsTplData.push(data);
                     });
-                    return self.select('relationshipsSelector').html(relationshipsTemplate({relationships: relationshipsTplData }));
+
+                    self.select('relationshipsSelector')
+                        .after(relationshipsTemplate({relationships:relationshipsTplData}))
+                        .find('.loading').remove();
                 });
             });
         };
@@ -208,39 +211,27 @@ define([
             }));
         };
 
-        this.onDetailedObjectClicked = function(evt) {
-            var self = this;
+        this.onPaneClicked = function(evt) {
             var $target = $(evt.target);
-            this.trigger(document, 'searchResultSelected', $target.data('info'));
 
-            evt.stopPropagation();
+            if ($target.not('.add-new-properties') && $target.parents('.underneath').length === 0) {
+                PropertyForm.teardownAll();
+            }
+
+            if ($target.is('.entity, .artifact, span.relationship')) {
+                this.trigger(document, 'searchResultSelected', $target.data('info'));
+                evt.stopPropagation();
+            }
+
         };
 
         this.onAddNewPropertiesClicked = function (evt){
-            var self = this;
-            self.select('addNewPropertyFormSelector').show();
 
-            self.ontologyService.propertiesByConceptId(self.attr.data._subType, function (err, properties){
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
+            var root = $('<div class="underneath">').insertAfter(evt.target);
 
-                var propertiesList = [];
-
-                properties.list.forEach (function (property){
-                    if (property.title.charAt(0) != '_'){
-                        var data = {
-                            title: property.title,
-                            displayName: property.displayName
-                        }
-                        propertiesList.push (data);
-                    }
-                });
-
-                self.select('propertySelector').html(propertiesDropdownTemplate({
-                    properties: propertiesList || ''
-                }));
+            PropertyForm.attachTo(root, {
+                service: ontologyService,
+                data: this.attr.data
             });
         };
 
