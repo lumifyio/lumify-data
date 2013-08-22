@@ -1,4 +1,4 @@
-package com.altamiracorp.reddawn.web.routes.ontology;
+package com.altamiracorp.reddawn.web.routes.statement;
 
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
-public class RelationshipList implements Handler, AppAware {
+public class Relationships implements Handler, AppAware {
     private OntologyRepository ontologyRepository = new OntologyRepository();
     private WebApp app;
 

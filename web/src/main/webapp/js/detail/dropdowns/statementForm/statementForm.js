@@ -4,8 +4,9 @@ define([
     'tpl!./statementForm',
     'tpl!./relationship-options',
     'service/statement',
+    'service/ontology',
     'underscore'
-], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, StatementService, _) {
+], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, StatementService, OntologyService, _) {
     'use strict';
 
     return defineComponent(StatementForm, withDropdown);
@@ -13,6 +14,7 @@ define([
 
     function StatementForm() {
         this.statementService = new StatementService();
+        this.ontologyService = new OntologyService();
 
         this.defaultAttrs({
             formSelector: '.form',

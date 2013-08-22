@@ -6,7 +6,7 @@ aws
 1. manually create required VPC, subnet, security group, and ssh keypair AWS resources
 1. configure the [aws](https://github.com/dsingley/aws) scripts
 1. define the cluster nodes in an `*_instances.txt` file
-1. use `bin/spinup.rb` to instantate the EC2 resources defined in the `*_instances.txt` file
+1. use `bin/spinup.rb` to instantiate the EC2 resources defined in the `*_instances.txt` file
 
 puppet
 ------
@@ -17,7 +17,7 @@ aws-deploy
 1. manually configure an Elastic IP for the puppet server
 1. push our software to the puppet server: `./push.sh <puppet-server-elastic-ip> ../aws/cluster_name_hosts`
 1. ssh to the puppet server (forwarding your ssh agent): `ssh -A root@<puppet-server-elastic-ip>`
-1. install out software on the puppet server all the other cluster nodes: `./init.sh cluster_name_hosts`
+1. install our software on the puppet server and via puppet on all the other cluster nodes: `./init.sh cluster_name_hosts`
 1. monitor the progress of the other nodes: `tail -f run_puppet.*.log`
 1. manually configure an Elastic IP for the web server
 1. add a security group to the web server that allows inbound traffic:

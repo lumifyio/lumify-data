@@ -2,7 +2,7 @@
 define([
     'flight/lib/component',
     'service/ucd',
-    'service/entity',
+    'service/ontology',
     'util/previews',
     'util/video/scrubber',
     'tpl!./search',
@@ -10,14 +10,14 @@ define([
     'tpl!./searchResults',
     'tpl!util/alert',
     'util/jquery.ui.draggable.multiselect',
-], function(defineComponent, UCD, EntityService, previews, VideoScrubber, template, summaryTemplate, resultsTemplate, alertTemplate) {
+], function(defineComponent, UCD, OntologyService, previews, VideoScrubber, template, summaryTemplate, resultsTemplate, alertTemplate) {
     'use strict';
 
     return defineComponent(Search);
 
     function Search() {
         this.ucd = new UCD();
-        this.entityService = new EntityService();
+        this.ontologyService = new OntologyService();
 		this.currentQuery = null;
 
         this.defaultAttrs({
@@ -44,8 +44,8 @@ define([
             var self = this;
             console.log('onEntitySearchResults', entities);
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            this.entityService.concepts(function(err, rootConcept) {
-                rootConcept.children.forEach(function(concept) {
+            this.ontologyService.concepts(function(err, concepts) {
+                concepts.tree.children.forEach(function(concept) {
                     self.onEntitySearchResultsForConcept($searchResultsSummary, concept, entities);
                 });
             });
@@ -103,8 +103,8 @@ define([
             var $searchResults = this.select('searchResultsSelector');
 
             $searchResults.hide();
-            this.entityService.concepts(function(err, concepts) {
-                var resultsHtml = self.getConceptChildrenHtml(concepts, 15);
+            this.ontologyService.concepts(function(err, concepts) {
+                var resultsHtml = self.getConceptChildrenHtml(concepts.tree, 15);
                 $searchResultsSummary.html(summaryTemplate({ resultsHtml: resultsHtml }));
                 $('.badge', $searchResultsSummary).addClass('loading');
                 this.ucd.artifactSearch(query, function(err, artifacts) {

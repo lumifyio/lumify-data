@@ -7,8 +7,9 @@ define([
     'tpl!./concept-options',
     'service/ucd',
     'service/entity',
+    'service/ontology',
     'underscore'
-], function(defineComponent, withDropdown, dropdownTemplate, conceptsTemplate, Ucd, EntityService, _) {
+], function(defineComponent, withDropdown, dropdownTemplate, conceptsTemplate, Ucd, EntityService, OntologyService, _) {
     'use strict';
 
     return defineComponent(TermForm, withDropdown);
@@ -16,6 +17,7 @@ define([
 
     function TermForm() {
         this.entityService = new EntityService();
+        this.ontologyService = new OntologyService();
         this.ucd = new Ucd();
 
         this.defaultAttrs({
@@ -176,11 +178,11 @@ define([
         this.loadConcepts = function() {
             var self = this;
             self.allConcepts = [];
-            self.entityService.concepts(function(err, rootConcept) {
+            self.ontologyService.concepts(function(err, concepts) {
                 var mentionVertex = $(self.attr.mentionNode),
                     mentionVertexInfo = mentionVertex.data('info');
 
-                self.allConcepts = self.flattenConcepts(rootConcept);
+                self.allConcepts = concepts.byTitle;
                 
                 self.select('conceptSelector').html(conceptsTemplate({
                     concepts: self.allConcepts,
@@ -191,25 +193,6 @@ define([
                     self.select('createTermButtonSelector').attr('disabled', true);
                 }
             });
-        };
-
-        this.flattenConcepts = function(concept) {
-            var childIdx, child, grandChildIdx;
-            var flattenedConcepts = [];
-            for(childIdx in concept.children) {
-                child = concept.children[childIdx];
-                if(concept.flattenedTitle) {
-                    child.flattenedTitle = concept.flattenedTitle + "/" + child.title;
-                } else {
-                    child.flattenedTitle = child.title;
-                }
-                flattenedConcepts.push(child);
-                var grandChildren = this.flattenConcepts(child);
-                for(grandChildIdx in grandChildren) {
-                    flattenedConcepts.push(grandChildren[grandChildIdx]);
-                }
-            }
-            return flattenedConcepts;
         };
 
         this.setupObjectTypeAhead = function() {

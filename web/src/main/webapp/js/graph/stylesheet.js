@@ -1,11 +1,11 @@
 
 define([
     'cytoscape',
-    'service/entity',
+    'service/ontology',
     'util/retina'
-], function(cytoscape, EntityService, retina) {
+], function(cytoscape, OntologyService, retina) {
 
-    var service = new EntityService(),
+    var ontologyService = new OntologyService(),
         style = cytoscape.stylesheet();
 
     return load;
@@ -98,8 +98,8 @@ define([
                 'target-arrow-color': '#0088cc'
             });
 
-        service.concepts(function(err, concepts) {
-            concepts.children.forEach(apply);
+        ontologyService.concepts(function(err, concepts) {
+            concepts.tree.children.forEach(apply);
 
             styleReady(style);
         });

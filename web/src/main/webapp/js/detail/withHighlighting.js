@@ -6,8 +6,9 @@ define([
     'tpl!detail/toolbar/highlight',
     'util/css-stylesheet',
     'colorjs',
-    'service/entity'
-], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, colorjs, EntityService) {
+    'service/entity',
+    'service/ontology'
+], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, colorjs, EntityService, OntologyService) {
 
     var HIGHLIGHT_STYLES = [
             { name: 'None' },
@@ -22,6 +23,7 @@ define([
 
     function withHighlighting() {
         this.entityService = new EntityService();
+        this.ontologyService = new OntologyService();
 
         this.highlightButton = function() {
             return highlightButtonTemplate({
@@ -135,7 +137,7 @@ define([
 
             if (!style.styleApplied) {
 
-                this.entityService.concepts(function(err, concepts) {
+                this.ontologyService.concepts(function(err, concepts) {
                     var styleFile = 'tpl!detail/highlight-styles/' + style.selector + '.css';
                     require([styleFile], function(tpl) {
                         function apply(concept) {
@@ -176,7 +178,7 @@ define([
                                 concept.children.forEach(apply);
                             }
                         }
-                        apply(concepts);
+                        apply(concepts.tree);
 
                         // Artifacts
                         apply({
