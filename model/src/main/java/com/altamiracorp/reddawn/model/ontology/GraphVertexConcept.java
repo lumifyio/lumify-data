@@ -28,4 +28,9 @@ public class GraphVertexConcept extends Concept {
     public String getColor() {
         return (String) graphVertex.getProperty(PropertyName.COLOR);
     }
+
+    @Override
+    public String getDisplayName() {
+        return (String) graphVertex.getProperty(PropertyName.DISPLAY_NAME);
+    }
 }

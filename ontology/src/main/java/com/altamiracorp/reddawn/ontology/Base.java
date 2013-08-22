@@ -213,7 +213,7 @@ public abstract class Base extends RedDawnCommandLineBase {
             relationshipLabel = graph.makeType().name(relationshipName).directed().makeEdgeLabel();
             relationshipLabel.setProperty(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString());
             relationshipLabel.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), relationshipName);
-            relationshipLabel.setProperty(PropertyName.DISPLAY_NAME.toString(), relationshipName);
+            relationshipLabel.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
             graph.commit();
         }
 

@@ -19,6 +19,11 @@ public class VertexRelationship extends Relationship {
         return getVertex().getProperty(PropertyName.ONTOLOGY_TITLE.toString());
     }
 
+    @Override
+    public String getDisplayName() {
+        return getVertex().getProperty(PropertyName.DISPLAY_NAME.toString());
+    }
+
     public Vertex getVertex() {
         return vertex;
     }

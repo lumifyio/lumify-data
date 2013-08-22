@@ -11,16 +11,17 @@ import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
 import com.altamiracorp.reddawn.web.routes.graph.*;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
+import com.altamiracorp.reddawn.web.routes.ontology.ConceptList;
+import com.altamiracorp.reddawn.web.routes.ontology.RelationshipLabelList;
+import com.altamiracorp.reddawn.web.routes.resource.ResourceGet;
 import com.altamiracorp.reddawn.web.routes.statement.Relationships;
+import com.altamiracorp.reddawn.web.routes.statement.StatementCreate;
+import com.altamiracorp.reddawn.web.routes.user.MeGet;
+import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
 import com.altamiracorp.reddawn.web.routes.vertex.VertexProperties;
 import com.altamiracorp.reddawn.web.routes.vertex.VertexRelationshipRemoval;
 import com.altamiracorp.reddawn.web.routes.vertex.VertexRelationships;
 import com.altamiracorp.reddawn.web.routes.vertex.VertexToVertexRelationship;
-import com.altamiracorp.reddawn.web.routes.ontology.ConceptList;
-import com.altamiracorp.reddawn.web.routes.resource.ResourceGet;
-import com.altamiracorp.reddawn.web.routes.statement.StatementCreate;
-import com.altamiracorp.reddawn.web.routes.user.MeGet;
-import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceByRowKey;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceDelete;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceList;
@@ -52,6 +53,7 @@ public class Router extends HttpServlet {
         }
 
         app.get("/ontology/concept/", ConceptList.class);
+        app.get("/ontology/relationship/", RelationshipLabelList.class);
 
         app.get("/resource/{_rowKey}", ResourceGet.class);
 

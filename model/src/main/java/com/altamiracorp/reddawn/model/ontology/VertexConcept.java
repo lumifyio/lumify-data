@@ -27,6 +27,11 @@ public class VertexConcept extends Concept {
         return getVertex().getProperty(PropertyName.COLOR.toString());
     }
 
+    @Override
+    public String getDisplayName() {
+        return getVertex().getProperty(PropertyName.DISPLAY_NAME.toString());
+    }
+
     public Vertex getVertex() {
         return this.vertex;
     }
