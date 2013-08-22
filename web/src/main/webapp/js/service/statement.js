@@ -20,19 +20,6 @@ define(
             });
         };
 
-        StatementService.prototype.relationships = function (sourceConceptTypeId, destConceptTypeId, callback) {
-            console.log('getting relationships (sourceConceptTypeId:', sourceConceptTypeId, ', destConceptTypeId:', destConceptTypeId, ')');
-            this._ajaxGet({
-                url: 'ontology/relationship',
-                data: {
-                    sourceConceptTypeId: sourceConceptTypeId,
-                    destConceptTypeId: destConceptTypeId
-                }
-            }, function (err, response) {
-                callback(err, response);
-            });
-        };
-
         return StatementService;
     });
 

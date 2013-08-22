@@ -4,8 +4,9 @@ define([
     'tpl!./statementForm',
     'tpl!./relationship-options',
     'service/statement',
+    'service/ontology',
     'underscore'
-], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, StatementService, _) {
+], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, StatementService, OntologyService, _) {
     'use strict';
 
     return defineComponent(StatementForm, withDropdown);
@@ -13,6 +14,7 @@ define([
 
     function StatementForm() {
         this.statementService = new StatementService();
+        this.ontologyService = new OntologyService();
 
         this.defaultAttrs({
             formSelector: '.form',
@@ -119,7 +121,7 @@ define([
             var self = this;
             var sourceConceptTypeId = self.attr.sourceTerm.data('info')._subType;
             var destConceptTypeId = self.attr.destTerm.data('info')._subType;
-            self.statementService.relationships (sourceConceptTypeId, destConceptTypeId, function (err, results){
+            self.ontologyService.relationships (sourceConceptTypeId, destConceptTypeId, function (err, results){
                 if (err) {
                     console.error ('Error', err);
                     return self.trigger (document, 'error', { message: err.toString () });

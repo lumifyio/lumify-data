@@ -6,12 +6,12 @@ define([
     'tpl!./entity',
     'tpl!./properties',
     'tpl!./relationships',
-    'service/entity'
-], function(defineComponent, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, EntityService) {
+    'service/ontology'
+], function(defineComponent, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, OntologyService) {
 
     'use strict';
 
-    var entityService = new EntityService();
+    var ontologyService = new OntologyService();
 
     return defineComponent(Entity, withTypeContent, withHighlighting);
 
@@ -30,13 +30,13 @@ define([
                 detailedObjectSelector: this.onDetailedObjectClicked
             });
 
-            entityService.concepts(function(err, concepts, conceptMap) {
+            ontologyService.concepts(function(err, concepts) {
                 if (err) {
                     return self.trigger(document, 'error', err);
                 }
 
                 var glyphIconHref = '';
-                var concept = conceptMap[self.attr.data._subType];
+                var concept = concepts.byId[self.attr.data._subType];
                 if(concept) {
                     glyphIconHref = concept.glyphIconHref;
                 }
