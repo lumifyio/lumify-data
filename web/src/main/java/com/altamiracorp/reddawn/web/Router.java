@@ -13,6 +13,7 @@ import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
 import com.altamiracorp.reddawn.web.routes.ontology.ConceptList;
 import com.altamiracorp.reddawn.web.routes.ontology.PropertyList;
+import com.altamiracorp.reddawn.web.routes.ontology.PropertyListByConceptId;
 import com.altamiracorp.reddawn.web.routes.ontology.RelationshipLabelList;
 import com.altamiracorp.reddawn.web.routes.resource.ResourceGet;
 import com.altamiracorp.reddawn.web.routes.statement.Relationships;
@@ -52,6 +53,7 @@ public class Router extends HttpServlet {
             authenticator = DevBasicAuthenticator.class;
         }
 
+        app.get("/ontology/concept/{conceptId}/properties", PropertyListByConceptId.class);
         app.get("/ontology/concept/", ConceptList.class);
         app.get("/ontology/property/", PropertyList.class);
         app.get("/ontology/relationship/", RelationshipLabelList.class);

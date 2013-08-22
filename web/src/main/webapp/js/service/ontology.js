@@ -132,15 +132,31 @@ define(
                 };
                 return callback(null, cachedProperties);
             });
-
-            function buildPropertiesByTitle(properties) {
-                var result = {};
-                properties.forEach(function(property) {
-                    result[property.title] = property;
-                });
-                return result;
-            }
         };
+
+        OntologyService.prototype.propertiesByConceptId = function (conceptId, callback) {
+            this._ajaxGet({
+                url: 'ontology/concept/' + conceptId + '/properties'
+            }, function (err, response) {
+                if (err) {
+                    return callback(err);
+                }
+
+                var props = {
+                    list: response.properties,
+                    byTitle: buildPropertiesByTitle(response.properties)
+                };
+                return callback(null, props);
+            });
+        };
+
+        function buildPropertiesByTitle(properties) {
+            var result = {};
+            properties.forEach(function(property) {
+                result[property.title] = property;
+            });
+            return result;
+        }
 
         return OntologyService;
     });
