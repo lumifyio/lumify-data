@@ -1,8 +1,9 @@
 
 define([
     'flight/lib/component',
-    'tpl!./image'
-], function(defineComponent, template) {
+    'tpl!./image',
+    'underscore'
+], function(defineComponent, template, _) {
 
     'use strict';
 
@@ -15,7 +16,8 @@ define([
 
         this.defaultAttrs({
             canvasSelector: 'canvas',
-            acceptedTypesRegex: /image\/[jpe?g|png]/i 
+            fileSelector: 'input',
+            acceptedTypesRegex: /^image\/(jpe?g|png)$/i 
         });
 
         this.after('initialize', function() {
@@ -33,28 +35,53 @@ define([
             });
             this.$node.html(template({}));
 
+            this.select('fileSelector').on({
+                click: function() { self.$node.addClass('file-hover'); this.value = null; },
+                change: this.onFileChange.bind(this)
+            });
+
+
             if (/entity/i.test(this.attr.data._type)) {
+                this.$node.addClass('upload-available');
+                this.$node.on({
+                    mouseenter: function() { $(this).addClass('file-hover'); },
+                    mouseleave: function() { $(this).removeClass('file-hover'); }
+                });
                 this.node.ondragover = function () { $(this).addClass('file-hover'); return false; };
                 this.node.ondragenter = function () { $(this).addClass('file-hover'); return false; };
                 this.node.ondragleave = function() { $(this).removeClass('file-hover'); return false; };
                 this.node.ondrop = function (e) {
-                    $(this).removeClass('file-hover');
                     e.preventDefault();
-                    if (e.dataTransfer.files.length === 1) {
-                        var file = e.dataTransfer.files[0];
 
-                        if (self.attr.acceptedTypesRegex.test(file.type)) {
-                            return self.handleFileDrop(file);
-                        }
-                    }
+                    if (self.$node.hasClass('uploading')) return;
 
-                    $(this).addClass('shake');
-                    setTimeout(function() {
-                        $(this).removeClass('shake');
-                    }, 1000);
+                    self.handleFilesDropped(e.dataTransfer.files);
                 };
             }
         });
+
+        this.onFileChange = function(e) {
+            this.handleFilesDropped(e.target.files);
+        };
+
+        this.handleFilesDropped = function(files) {
+            this.$node.removeClass('file-hover');
+            if (files.length === 1) {
+                var file = files[0];
+
+                if (this.attr.acceptedTypesRegex.test(file.type)) {
+                    this.$node.addClass('uploading');
+                    return _.defer(function() {
+                        this.handleFileDrop(file);
+                    }.bind(this));
+                }
+            }
+
+            this.$node.addClass('shake');
+            setTimeout(function() {
+                this.$node.removeClass('shake');
+            }.bind(this), 1000);
+        };
 
         this.onUpdateIcon = function(e, data) {
             if (data.src !== this.attr.data._glyphIcon) {
@@ -156,17 +183,17 @@ define([
         };
 
         this.onUploadError = function() {
-            this.ctx.clearRect(0,0,this.canvas[0].width, this.canvas[0].height);
             this.$node.css({
                 backgroundImage: 'url(' + (this.attr.data._glyphIcon || this.attr.defaultIconSrc) + ')'
             });
+            this.cleanup(false);
         };
 
         this.onUploadComplete = function(event, data) {
             var self = this;
 
             if (!this.animateManuallyIfNecessary(1.0)) {
-                this.draw(1.0);
+                this.cleanup(true);
             }
 
             this.$node.css({
@@ -206,16 +233,27 @@ define([
                 requestAnimationFrame(function draw() {
                     var now = Date.now();
                     var complete = (now - startedUpload) / 500;
-                    self.draw(complete);
                     if (complete <= 1) {
+                        self.draw(complete);
                         requestAnimationFrame(draw);
-                    } else self.draw(1.0);
+                    } else {
+                        self.cleanup(true);
+                    }
                 });
                 return true;
             }
             this.firstProgressUpdate = false;
 
             return false;
+        };
+
+        this.cleanup = function(success) {
+            if (success) {
+                this.draw(1.0);
+            } else {
+                this.ctx.clearRect(0,0,this.canvas[0].width, this.canvas[0].height);
+            }
+            this.$node.removeClass('uploading');
         };
     }
 });
