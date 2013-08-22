@@ -50,8 +50,8 @@ public class GraphRelationship {
             JSONObject json = new JSONObject();
             json.put("id", getId());
             json.put("label", getLabel());
-            json.put("sourceNodeId", getSourceVertexId());
-            json.put("destNodeId", getDestVertexId());
+            json.put("sourceVertexId", getSourceVertexId());
+            json.put("destVertexId", getDestVertexId());
 
             JSONObject propertiesJson = new JSONObject();
             for (Map.Entry<String, Object> property : this.properties.entrySet()) {
