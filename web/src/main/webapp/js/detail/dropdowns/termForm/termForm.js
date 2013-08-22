@@ -23,6 +23,7 @@ define([
         this.defaultAttrs({
             entityConceptMenuSelector: '.underneath .dropdown-menu a',
             createTermButtonSelector: '.create-term',
+            buttonDivSelector: '.buttons',
             termNameInputSelector: 'input',
             signSelector: '.sign',
             objectSignSelector: '.object-sign',
@@ -71,8 +72,12 @@ define([
                     artifactKey: this.attr.artifactKey,
                     mentionStart: mentionStart,
                     mentionEnd: mentionStart + sign.length
-                };
-
+                },
+                $loading = $("<span>")
+                    .addClass("badge")
+                    .addClass("loading");
+            this.select('buttonDivSelector').prepend($loading);
+            this.select('createTermButtonSelector').addClass('disabled');
             if ( !parameters.conceptId || parameters.conceptId.length === 0) {
                 this.select('conceptSelector').focus();
                 return;
