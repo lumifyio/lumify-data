@@ -101,7 +101,7 @@ define([
 
                     var cyNodeData = {
                         group: 'nodes',
-                        classes: $.trim('concept-' + vertex._subType + ' ' + vertex._type),
+                        classes: $.trim('concept-' + vertex._subType + ' ' + (vertex._type || '') + (vertex._glyphIcon ? ' hasCustomGlyph' : '')),
                         data: {
                             id: vertex.graphVertexId,
                             _rowKey: vertex._rowKey,
@@ -207,6 +207,7 @@ define([
                                 if (updatedVertex._glyphIcon) {
                                     vertex.css('background-image', updatedVertex._glyphIcon);
                                     vertex.data()._glyphIcon = updatedVertex._glyphIcon;
+                                    vertex.addClass('hasCustomGlyph');
                                 }
 
                                 // TODO: update other properties? (title needs
