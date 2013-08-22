@@ -25,6 +25,19 @@ public class OntologyRepository {
         return relationships;
     }
 
+    public List<Property> getProperties(GraphSession graphSession) {
+        List<Property> properties = new ArrayList<Property>();
+        Iterator<Vertex> vertices = graphSession.getGraph().query()
+                .has(PropertyName.TYPE.toString(), VertexType.PROPERTY.toString())
+                .vertices()
+                .iterator();
+        while (vertices.hasNext()) {
+            Vertex vertex = vertices.next();
+            properties.add(new VertexProperty(vertex));
+        }
+        return properties;
+    }
+
     public Concept getEntityConcept(GraphSession graphSession) {
         Iterator<Vertex> vertices = graphSession.getGraph().query()
                 .has(PropertyName.TYPE.toString(), VertexType.CONCEPT.toString())

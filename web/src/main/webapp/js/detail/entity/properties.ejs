@@ -2,7 +2,7 @@
 <% properties.forEach(function(property) { %>
     <% if (property.key.charAt(0) != '_') {%>
     <li class="entity-property">
-        <%= property.key %>
+        <%= property.displayName %>: 
         <%= property.value %>
     </li>
     <% } %>

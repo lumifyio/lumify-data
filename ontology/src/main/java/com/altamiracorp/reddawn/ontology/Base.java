@@ -110,10 +110,10 @@ public abstract class Base extends RedDawnCommandLineBase {
             artifact.setProperty(typeProperty.getName(), VertexType.CONCEPT.toString());
             artifact.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ARTIFACT.toString());
         }
-        addPropertyToConcept(graph, artifact, typeProperty.getName(), "type", PropertyType.STRING);
-        addPropertyToConcept(graph, artifact, subTypeProperty.getName(), "subtype", PropertyType.STRING);
-        addPropertyToConcept(graph, artifact, titleProperty.getName(), "title", PropertyType.STRING);
-        addPropertyToConcept(graph, artifact, geoLocationProperty.getName(), "geo-location", PropertyType.GEO_LOCATION);
+        addPropertyToConcept(graph, artifact, typeProperty.getName(), "Type", PropertyType.STRING);
+        addPropertyToConcept(graph, artifact, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
+        addPropertyToConcept(graph, artifact, titleProperty.getName(), "Title", PropertyType.STRING);
+        addPropertyToConcept(graph, artifact, geoLocationProperty.getName(), "Geo-location", PropertyType.GEO_LOCATION);
 
         graph.commit();
 
@@ -147,12 +147,12 @@ public abstract class Base extends RedDawnCommandLineBase {
             termMention.setProperty(typeProperty.getName(), VertexType.CONCEPT.toString());
             termMention.addProperty(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.TERM_MENTION.toString());
         }
-        addPropertyToConcept(graph, termMention, typeProperty.getName(), "type", PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, subTypeProperty.getName(), "subtype", PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, rowKeyProperty.getName(), "rowkey", PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, columnFamilyNameProperty.getName(), "column family", PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, titleProperty.getName(), "title", PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, sourceProperty.getName(), "source", PropertyType.STRING);
+        addPropertyToConcept(graph, termMention, typeProperty.getName(), "Type", PropertyType.STRING);
+        addPropertyToConcept(graph, termMention, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
+        addPropertyToConcept(graph, termMention, rowKeyProperty.getName(), "Rowkey", PropertyType.STRING);
+        addPropertyToConcept(graph, termMention, columnFamilyNameProperty.getName(), "Column family", PropertyType.STRING);
+        addPropertyToConcept(graph, termMention, titleProperty.getName(), "Title", PropertyType.STRING);
+        addPropertyToConcept(graph, termMention, sourceProperty.getName(), "Source", PropertyType.STRING);
 
         graph.commit();
 
@@ -166,9 +166,9 @@ public abstract class Base extends RedDawnCommandLineBase {
             entity.setProperty(typeProperty.getName(), VertexType.CONCEPT.toString());
             entity.addProperty(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ENTITY.toString());
         }
-        addPropertyToConcept(graph, entity, typeProperty.getName(), "type", PropertyType.STRING);
-        addPropertyToConcept(graph, entity, subTypeProperty.getName(), "subtype", PropertyType.STRING);
-        addPropertyToConcept(graph, entity, titleProperty.getName(), "title", PropertyType.STRING);
+        addPropertyToConcept(graph, entity, typeProperty.getName(), "Type", PropertyType.STRING);
+        addPropertyToConcept(graph, entity, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
+        addPropertyToConcept(graph, entity, titleProperty.getName(), "Title", PropertyType.STRING);
         addPropertyToConcept(graph, entity, PropertyName.GLYPH_ICON.toString(), "glyph icon", PropertyType.IMAGE);
         getOrCreateRelationshipType(graph, entity, artifact, LabelName.HAS_IMAGE.toString(), "has image");
 

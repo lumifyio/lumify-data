@@ -69,24 +69,42 @@ define([
             };
 
             this.getProperties(this.attr.data.id || this.attr.data.graphVertexId, function(properties) {
-//                self.ontologyService.properties(function(err, ontologyProperties) {
-//                    if(err) {
-//                        console.error('Error', err);
-//                        return self.trigger(document, 'error', { message: err.toString() });
-//                    }
-//
-//                    console.log('ontologyProperties', ontologyProperties);
-//                    console.log('properties', properties);
-
-                for(var i=0; i<properties.length; i++) {
-                    var property = properties[i];
-                    if(property.key == '_glyphIcon') {
-                        self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: property.value });
-                        break;
-                        }
+                self.ontologyService.properties(function(err, ontologyProperties) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
                     }
-                    self.select('propertiesSelector').html(propertiesTemplate({properties: properties}));
-//                });
+
+                    console.log('ontologyProperties', ontologyProperties);
+                    console.log('properties', properties);
+
+                    var propertiesTpl = [];
+                    for(var i=0; i<properties.length; i++) {
+                        var property = properties[i];
+                        var displayName;
+                        var ontologyProperty = ontologyProperties.byTitle[property.key];
+                        if (ontologyProperty) {
+                            displayName = ontologyProperty.displayName;
+                        } else {
+                            displayName = property.key;
+                        }
+
+                        var data = {
+                            key: property.key,
+                            value: property.value,
+                            displayName: displayName
+                        };
+
+                        propertiesTpl.push (data);
+
+                        if(property.key == '_glyphIcon') {
+                            self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: property.value });
+                            break;
+                        }
+
+                    }
+                    self.select('propertiesSelector').html(propertiesTemplate({properties: propertiesTpl}));
+                });
             });
 
             this.getRelationships(this.attr.data.id || this.attr.data.graphVertexId, function(relationships) {
