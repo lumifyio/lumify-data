@@ -1,11 +1,14 @@
 package com.altamiracorp.reddawn.structuredDataExtraction;
 
 import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.model.Session;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
+import com.altamiracorp.reddawn.textExtraction.ArtifactExtractedInfo;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.ucd.sentence.Sentence;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceData;
 import com.altamiracorp.reddawn.ucd.sentence.SentenceMetadata;
@@ -21,10 +24,10 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
+import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,6 +35,34 @@ import java.util.List;
 public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvStructuredDataExtractor.class.getName());
     private static final String EXTRACTOR_ID = "CsvStructuredData";
+
+    ArtifactRepository artifactRepository = new ArtifactRepository();
+
+    @Override
+    public ArtifactExtractedInfo extractText(Session session, Artifact artifact) throws Exception {
+        JSONObject mappingJson = artifact.getGenericMetadata().getMappingJson();
+        InputStream raw = artifactRepository.getRaw(session, artifact);
+        try {
+            StringWriter writer = new StringWriter();
+            CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
+            CsvListReader csvReader = new CsvListReader(new InputStreamReader(raw), csvPrefs);
+            CsvListWriter csvWriter = new CsvListWriter(writer, csvPrefs);
+            List<String> line;
+            while ((line = csvReader.read()) != null) {
+                csvWriter.write(line);
+            }
+            csvWriter.close();
+
+            ArtifactExtractedInfo extractedInfo = new ArtifactExtractedInfo();
+            extractedInfo.setText(writer.toString());
+            if (mappingJson.has("subject")) {
+                artifact.getGenericMetadata().setSubject(mappingJson.getString("subject"));
+            }
+            return extractedInfo;
+        } finally {
+            raw.close();
+        }
+    }
 
     @Override
     public ExtractedData extract(RedDawnSession session, Artifact artifact, String text, JSONObject mappingJson) throws IOException, JSONException {
@@ -42,10 +73,6 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
         String securityMarking = "U";
         if (mappingJson.has("securityMarking")) {
             securityMarking = mappingJson.getString("securityMarking");
-        }
-
-        if (mappingJson.has("subject")) {
-            artifact.getGenericMetadata().setSubject(mappingJson.getString("subject"));
         }
 
         CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;

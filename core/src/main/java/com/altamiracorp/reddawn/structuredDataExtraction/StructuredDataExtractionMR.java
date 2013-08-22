@@ -3,12 +3,14 @@ package com.altamiracorp.reddawn.structuredDataExtraction;
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
+import com.altamiracorp.reddawn.model.Value;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.ontology.Concept;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.textExtraction.StructuredDataTextExtractor;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
@@ -51,24 +53,18 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
     }
 
     public static class StructuredDataExtractorMapper extends RedDawnMapper<Text, Artifact, Text, Sentence> {
-        private HashMap<String, StructuredDataExtractorBase> structuredDataExtrators = new HashMap<String, StructuredDataExtractorBase>();
         private ArtifactRepository artifactRepository = new ArtifactRepository();
         private SentenceRepository sentenceRepository = new SentenceRepository();
         private TermRepository termRepository = new TermRepository();
         private OntologyRepository ontologyRepository = new OntologyRepository();
         private GraphRepository graphRepository = new GraphRepository();
-
-        public StructuredDataExtractorMapper() {
-            structuredDataExtrators.put("csv", new CsvStructuredDataExtractor());
-        }
+        private StructuredDataFactory structedDataFactory;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
             super.setup(context);
             try {
-                for (StructuredDataExtractorBase structuredDataExtractor : structuredDataExtrators.values()) {
-                    structuredDataExtractor.setup(context);
-                }
+                structedDataFactory = new StructuredDataFactory(context);
             } catch (Exception e) {
                 throw new IOException(e);
             }
@@ -80,14 +76,15 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
             if (mappingJson == null) {
                 return;
             }
-            String text = artifact.getContent().getDocExtractedTextString();
-            if (text == null || text.length() == 0) {
+            Value textValue = artifact.getArtifactExtractedText().get(StructuredDataTextExtractor.NAME);
+            if (textValue == null || textValue.toString().length() == 0) {
                 return;
             }
+            String text = textValue.toString();
             String structuredDataType = mappingJson.getString("type");
             LOGGER.info("Extracting structured data from: " + artifact.getRowKey().toString() + ", type: " + structuredDataType);
 
-            StructuredDataExtractorBase structuredDataExtractor = structuredDataExtrators.get(structuredDataType);
+            StructuredDataExtractorBase structuredDataExtractor = structedDataFactory.get(structuredDataType);
             if (structuredDataExtractor != null) {
                 ExtractedData extractedData = structuredDataExtractor.extract(getSession(), artifact, text, mappingJson);
 
@@ -169,6 +166,9 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                 String sourceVertexId = relationship.getSource().getGraphVertex().getId();
                 String destVertexId = relationship.getDest().getGraphVertex().getId();
                 String label = relationship.getLabel();
+                if (sourceVertexId == null || destVertexId == null || label == null) {
+                    throw new RuntimeException("Invalid relationship: " + sourceVertexId + " -> " + label + " -> " + destVertexId);
+                }
                 GraphRelationship graphRelationship = new GraphRelationship(null, sourceVertexId, destVertexId, label);
                 getSession().getGraphSession().save(graphRelationship);
             }

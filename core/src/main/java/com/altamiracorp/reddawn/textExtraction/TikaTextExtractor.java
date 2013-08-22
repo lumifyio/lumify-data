@@ -17,7 +17,6 @@ import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
-import org.apache.tika.sax.ToHTMLContentHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -94,6 +93,9 @@ public class TikaTextExtractor implements TextExtractor {
     @Override
     public ArtifactExtractedInfo extract(Session session, Artifact artifact) throws Exception {
         if (artifact.getType() != ArtifactType.DOCUMENT && artifact.getType() != ArtifactType.IMAGE) {
+            return null;
+        }
+        if (artifact.getGenericMetadata().getMappingJson() != null) {
             return null;
         }
 
@@ -244,7 +246,7 @@ public class TikaTextExtractor implements TextExtractor {
         return host;
     }
 
-    private boolean isHtml (Artifact artifact) {
+    private boolean isHtml(Artifact artifact) {
         return artifact.getGenericMetadata().getMimeType().contains("text")
                 || artifact.getGenericMetadata().getMimeType().contains("html");
     }

@@ -1,9 +1,5 @@
 #!/bin/bash
-# require: 225_TextExtractionMR_OCR.sh
-# require: 225_TextExtractionMR_Tika.sh
-# require: 225_TextExtractionMR_Transcript.sh
-# require: 225_TextExtractionMR_StructuredData.sh
-# require: 230_TextExtractionMR_VideoFrameTextCombiner.sh
+# require: 150_ContentTypeExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -28,7 +24,7 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.textExtraction.TextExtractorConsolidationMR \
+com.altamiracorp.reddawn.textExtraction.TextExtractionMR \
 --zookeeperInstanceName=reddawn \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
@@ -37,5 +33,5 @@ com.altamiracorp.reddawn.textExtraction.TextExtractorConsolidationMR \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
---failOnFirstError
-
+--failOnFirstError \
+--classname=com.altamiracorp.reddawn.textExtraction.StructuredDataTextExtractor

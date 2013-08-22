@@ -67,7 +67,7 @@ public class EntityHighlighter {
                 continue;
             }
 
-            while (endOffsets.size() > 0 && endOffsets.peek() < offsetItem.getStart()) {
+            while (endOffsets.size() > 0 && endOffsets.peek() <= offsetItem.getStart()) {
                 int end = endOffsets.poll();
                 result.append(text.substring(lastStart - textStartOffset, end - textStartOffset));
                 result.append("</span>");
