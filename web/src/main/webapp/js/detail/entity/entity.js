@@ -11,7 +11,7 @@ define([
     'service/ontology',
     'service/vertex',
     'sf'
-], function(defineComponent, Image, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, PropertyForm, OntologyService, sf, VertexService) {
+], function(defineComponent, Image, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, PropertyForm, OntologyService, VertexService, sf) {
 
     'use strict';
 
@@ -41,6 +41,7 @@ define([
                 addNewPropertiesSelector: this.onAddNewPropertiesClicked,
                 addPropertySelector: this.onAddPropertyClicked
             });
+            this.on('addProperty', this.onAddProperty);
 
             ontologyService.concepts(function(err, concepts) {
                 if (err) {
@@ -179,7 +180,9 @@ define([
                     }
 
                 }
-                self.select('propertiesSelector').html(propertiesTemplate({properties: propertiesTpl}));
+                self.select('propertiesSelector')
+                    .after(propertiesTemplate({properties: propertiesTpl}))
+                    .remove();
             });
         };
 
@@ -235,26 +238,28 @@ define([
             });
         };
 
-        this.onAddPropertyClicked = function (evt){
-            var self = this,
-                vertexId = this.attr.data.id,
-                propertyName = this.select('propertySelector').val(),
-                value = $.trim(this.select('propertyValueSelector').val());
-            self.select('propertyValueSelector').removeClass('validation-error');
+        this.onAddProperty = function(event, data) {
+            var self = this;
 
-            vertexService.setProperty (vertexId, propertyName, value, function (err, properties){
-                if(err) {
-                    if (err.xhr.status == 400){
-                        console.error('Validation error');
-                        self.select('propertyValueSelector').addClass('validation-error');
-                        return;
+            vertexService.setProperty(
+                    this.attr.data.id, 
+                    data.property.name,
+                    data.property.value, 
+                    function (err, properties){
+                        if(err) {
+                            if (err.xhr.status == 400){
+                                console.error('Validation error');
+                                self.trigger(self.$node.find('.underneath'), 'addPropertyError');
+                                return;
+                            }
+                            console.error('Error', err);
+                            return self.trigger(document, 'error', { message: err.toString() });
+                        }
+
+                        self.displayProperties (properties);
                     }
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-
-                self.displayProperties (properties);
-            });
-        }
+            );
+        };
     }
 });
+

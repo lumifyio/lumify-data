@@ -11,10 +11,17 @@ define([
     function PropertyForm() {
 
         this.defaultAttrs({
-            propertySelector: 'select'
+            propertySelector: 'select',
+            propertyValueSelector: '.property-value',
+            addPropertySelector: '.add-property'
         });
 
         this.after('initialize', function() {
+
+            this.on('click', {
+                addPropertySelector: this.onAddPropertyClicked
+            });
+            this.on('addPropertyError', this.onAddPropertyError);
 
             this.$node.html(template({}));
 
@@ -44,5 +51,25 @@ define([
             });
 
         });
+
+        this.onAddPropertyError = function(event) {
+            this.select('propertyValueSelector').addClass('validation-error');
+        };
+
+        this.onAddPropertyClicked = function (evt){
+            var vertexId = this.attr.data.id,
+                propertyName = this.select('propertySelector').val(),
+                value = $.trim(this.select('propertyValueSelector').val());
+
+            this.select('propertyValueSelector').removeClass('validation-error');
+            if (propertyName.length && value.length) {
+                this.trigger('addProperty', { 
+                    property: {
+                        name: propertyName,
+                        value: value
+                    }
+                });
+            }
+        };
     }
 });

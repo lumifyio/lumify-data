@@ -126,10 +126,10 @@
       text-shadow: 0 1px 0 white;
     }
 
-    .buttons {
+    li.buttons {
       margin-bottom: 0.5em; 
       text-align: left;
-      button {
+      & > button {
         .opacity(50);
         &:hover { .opacity(100); }
       }
@@ -137,6 +137,12 @@
   }
   .nav-with-background {
     margin: 118px -1em;
+
+    .underneath {
+      .buttons {
+        text-align: right;
+      }
+    }
   }
 
   .entity-background {
