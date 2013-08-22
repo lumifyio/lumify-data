@@ -2,8 +2,9 @@
 define([
     'flight/lib/component',
     'tpl!./image',
-    'underscore'
-], function(defineComponent, template, _) {
+    'underscore',
+    'util/retina'
+], function(defineComponent, template, _, retina) {
 
     'use strict';
 
@@ -154,18 +155,21 @@ define([
                 this.ctx = this.canvas[0].getContext('2d');
             }
 
-            var c = this.ctx, canvas = this.canvas[0];
-            canvas.width = this.canvas.width();
-            canvas.height = this.canvas.height();
-            // TODO: make retina
+            var c = this.ctx, 
+                canvas = this.canvas[0],
+                w = this.canvas.width(),
+                h = this.canvas.height();
+            canvas.width = w * retina.devicePixelRatio;
+            canvas.height = h * retina.devicePixelRatio;
+            this.canvas.css({ width: w, height: h });
 
             var centerX = canvas.width / 2;
             var centerY = canvas.height / 2;
-            var radius = Math.min(canvas.width, canvas.height) / 2 * 0.75;
+            var radius = Math.min(canvas.width, canvas.height) / 2 * 0.3;
 
             c.beginPath();
             c.moveTo(centerX, centerY);
-            c.arc(centerX, centerY, radius + 2, - Math.PI / 2, 2 * Math.PI - (Math.PI / 2), false);
+            c.arc(centerX, centerY, radius + 2 * retina.devicePixelRatio, - Math.PI / 2, 2 * Math.PI - (Math.PI / 2), false);
             c.fillStyle = 'rgba(0,0,0,0.5)';
             c.fill();
 
