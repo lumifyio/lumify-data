@@ -23,9 +23,11 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
     private GeoNameRepository geoNameRepository = new GeoNameRepository();
     private GeoNameAdmin1CodeRepository geoNameAdmin1CodeRepository = new GeoNameAdmin1CodeRepository();
     private GeoNameCountryInfoRepository geoNameCountryInfoRepository = new GeoNameCountryInfoRepository();
+    private GeoNamePostalCodeRepository geoNamePostalCodeRepository = new GeoNamePostalCodeRepository();
     private String fileName;
     private String admin1CodeFileName;
     private String countryInfoFileName;
+    private String postalCodeFileName;
 
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new GeoNamesImport(), args);
@@ -40,6 +42,7 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
         this.fileName = cmd.getOptionValue("filename");
         this.admin1CodeFileName = cmd.getOptionValue("admin1code");
         this.countryInfoFileName = cmd.getOptionValue("countryinfo");
+        this.postalCodeFileName = cmd.getOptionValue("postalcode");
     }
 
     @Override
@@ -76,6 +79,16 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
                         .create()
         );
 
+        options.addOption(
+                OptionBuilder
+                        .withLongOpt("postalcode")
+                        .withDescription("The GeoNames Postal Codes file to import")
+                        .isRequired()
+                        .hasArg(true)
+                        .withArgName("filename")
+                        .create()
+        );
+
         return options;
     }
 
@@ -93,6 +106,9 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
         File countryInfoFile = new File(this.countryInfoFileName);
         writeCountryInfoFile(redDawnSession, new FileInputStream(countryInfoFile));
 
+        File postalCodeFile = new File(this.postalCodeFileName);
+        writePostalCodeFile (redDawnSession, new FileInputStream(postalCodeFile));
+
         redDawnSession.close();
         return 0;
     }
@@ -105,7 +121,7 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
         int count = 0;
         List<GeoName> geoNames = new ArrayList<GeoName>();
         while ((line = br.readLine()) != null) {
-            geoNames.add(lineToGeoName(redDawnSession, line));
+            geoNames.add(lineToGeoName(line));
             count++;
             if ((count % 1000) == 0) {
                 geoNameRepository.saveMany(redDawnSession.getModelSession(), geoNames);
@@ -143,7 +159,7 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
      * 17 timezone          : the timezone id (see file timeZone.txt) varchar(40)
      * 18 modification date : date of last modification in yyyy-MM-dd format
      */
-    private GeoName lineToGeoName(RedDawnSession redDawnSession, String line) {
+    private GeoName lineToGeoName(String line) {
         String[] parts = line.split("\t");
         String id = parts[0];
         String name = parts[1];
@@ -209,7 +225,7 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
         int count = 0;
         List<GeoNameAdmin1Code> admin1Codes = new ArrayList<GeoNameAdmin1Code>();
         while ((line = br.readLine()) != null) {
-            admin1Codes.add(lineToAdmin1Code(redDawnSession, line));
+            admin1Codes.add(lineToAdmin1Code(line));
             count++;
             if ((count % 1000) == 0) {
                 geoNameAdmin1CodeRepository.saveMany(redDawnSession.getModelSession(), admin1Codes);
@@ -224,7 +240,7 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
         LOGGER.info("Saved " + count + " records");
     }
 
-    private GeoNameAdmin1Code lineToAdmin1Code(RedDawnSession redDawnSession, String line) {
+    private GeoNameAdmin1Code lineToAdmin1Code(String line) {
         String[] parts = line.split("\t");
         String keyString = parts[0];
         String title = parts[1];
@@ -247,7 +263,7 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
         int count = 0;
         List<GeoNameCountryInfo> countryInfos = new ArrayList<GeoNameCountryInfo>();
         while ((line = br.readLine()) != null) {
-            GeoNameCountryInfo countryInfo = lineToCountryInfo(redDawnSession, line);
+            GeoNameCountryInfo countryInfo = lineToCountryInfo(line);
             if (countryInfo == null) {
                 continue;
             }
@@ -266,7 +282,7 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
         LOGGER.info("Saved " + count + " records");
     }
 
-    private GeoNameCountryInfo lineToCountryInfo(RedDawnSession redDawnSession, String line) {
+    private GeoNameCountryInfo lineToCountryInfo(String line) {
         if (line.startsWith("#")) {
             return null;
         }
@@ -278,5 +294,54 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
         GeoNameCountryInfo result = new GeoNameCountryInfo(key);
         result.getMetadata().setTitle(title);
         return result;
+    }
+
+    private void writePostalCodeFile(RedDawnSession redDawnSession, FileInputStream in) throws IOException, MutationsRejectedException {
+        LOGGER.info("Importing GeoNames Postal Code Info.");
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
+        String line;
+        int count = 0;
+        List<GeoNamePostalCode> postalCodes = new ArrayList<GeoNamePostalCode>();
+        while ((line = br.readLine()) != null) {
+            GeoNamePostalCode postalCode = lineToPostalCode(line);
+            if (postalCode == null) {
+                continue;
+            }
+            postalCodes.add(postalCode);
+            count++;
+            if ((count % 100) == 0) {
+                geoNamePostalCodeRepository.saveMany(redDawnSession.getModelSession(), postalCodes);
+                postalCodes.clear();
+                LOGGER.info("Imported " + count + " of ~43630  items.");
+            }
+        }
+        geoNamePostalCodeRepository.saveMany(redDawnSession.getModelSession(), postalCodes);
+        postalCodes.clear();
+        LOGGER.info("Imported " + count + " of ~43630  items.");
+
+        LOGGER.info("Saved " + count + " records");
+    }
+
+    private GeoNamePostalCode lineToPostalCode(String line) {
+        if (line.startsWith("#")) {
+            return null;
+        }
+        String[] parts = line.split("\t");
+        String countryCode = parts[0];
+        String postalCodeString = parts[1];
+        String placeName = parts[2];
+        String admin1Name = parts[3];
+        String latitude = parts[9];
+        String longitude = parts[10];
+
+        GeoNamePostalCodeRowKey key = new GeoNamePostalCodeRowKey(countryCode, postalCodeString);
+        GeoNamePostalCode postalCode = new GeoNamePostalCode(key);
+        postalCode.getMetadata().setPlaceName(placeName);
+        postalCode.getMetadata().setAdmin1Code(admin1Name);
+        postalCode.getMetadata().setLatitude(Double.parseDouble(latitude));
+        postalCode.getMetadata().setLongitude(Double.parseDouble(longitude));
+
+        return postalCode;
     }
 }

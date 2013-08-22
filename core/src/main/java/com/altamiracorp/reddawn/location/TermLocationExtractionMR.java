@@ -3,6 +3,8 @@ package com.altamiracorp.reddawn.location;
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
+import com.altamiracorp.reddawn.model.geoNames.GeoNamePostalCodeMetadata;
+import com.altamiracorp.reddawn.model.geoNames.GeoNamePostalCodeRepository;
 import com.altamiracorp.reddawn.model.geoNames.GeoNameRepository;
 import com.altamiracorp.reddawn.ucd.AccumuloTermInputFormat;
 import com.altamiracorp.reddawn.ucd.term.Term;
@@ -38,11 +40,17 @@ public class TermLocationExtractionMR extends ConfigurableMapJobBase {
     public static class TermLocationExtractorMapper extends RedDawnMapper<Text, Term, Text, Term> {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "termLocationExtractorClass";
         GeoNameRepository geoNameRepository = new GeoNameRepository();
+        GeoNamePostalCodeRepository geoNamePostalCodeRepository = new GeoNamePostalCodeRepository();
         SimpleTermLocationExtractor simpleTermLocationExtractor = new SimpleTermLocationExtractor();
 
         @Override
         protected void safeMap(Text key, Term term, Context context) throws Exception {
-            Term updatedTerm = simpleTermLocationExtractor.GetTermWithLocationLookup(getSession().getModelSession(), geoNameRepository, term);
+            Term updatedTerm;
+            if (simpleTermLocationExtractor.isPostalCode(term)) {
+                updatedTerm = simpleTermLocationExtractor.GetTermWithPostalCodeLookup(getSession().getModelSession(), geoNamePostalCodeRepository, term);
+            } else {
+                 updatedTerm = simpleTermLocationExtractor.GetTermWithLocationLookup(getSession().getModelSession(), geoNameRepository, term);
+            }
             if (updatedTerm != null) {
                 LOGGER.info("Extracting location from: " + term.getRowKey().toString());
                 context.write(new Text(Term.TABLE_NAME), updatedTerm);

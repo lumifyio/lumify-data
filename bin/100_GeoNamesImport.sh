@@ -24,10 +24,12 @@ if [ "$1" != '' ]; then
   filename=$1
   admin1codeFilename=$2
   countryInfoFilename=$3
+  postalCodeFilename=$4
 else
   filename=${DIR}/../data/allCountries.txt
   admin1codeFilename=${DIR}/../data/admin1CodesASCII.txt
   countryInfoFilename=${DIR}/../data/countryInfo.txt
+  postalCodeFilename=${DIR}/../data/postalCodes.txt
 fi
 
 java \
@@ -44,4 +46,5 @@ com.altamiracorp.reddawn.location.GeoNamesImport \
 --password=password \
 --filename=${filename} \
 --admin1code=${admin1codeFilename} \
---countryinfo=${countryInfoFilename}
+--countryinfo=${countryInfoFilename} \
+--postalcode=${postalCodeFilename}
