@@ -236,6 +236,8 @@ ARGV.each do |filename|
       log("\n" + '# ' + Time.now.strftime('%Y-%m-%d %H:%M:%S'))
       log('# ' + line)
 
+      # TODO: support not adding any additional storage
+
       instance_type, storage, ip, name, field5, field6 = line.split(/\s+/)
       if field6
         aliases = field5.split(/,/)
