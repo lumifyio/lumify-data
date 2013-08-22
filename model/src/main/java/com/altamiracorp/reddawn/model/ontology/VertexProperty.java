@@ -24,6 +24,11 @@ public class VertexProperty extends Property {
         return getVertex().getProperty(PropertyName.DISPLAY_NAME.toString());
     }
 
+    @Override
+    public String getDataType() {
+        return getVertex().getProperty(PropertyName.DATA_TYPE.toString());
+    }
+
     public Vertex getVertex() {
         return vertex;
     }

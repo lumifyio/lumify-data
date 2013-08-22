@@ -7,8 +7,9 @@ define([
     'tpl!./entity',
     'tpl!./properties',
     'tpl!./relationships',
-    'service/ontology'
-], function(defineComponent, Image, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, OntologyService) {
+    'service/ontology',
+    'sf'
+], function(defineComponent, Image, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, OntologyService, sf) {
 
     'use strict';
 
@@ -75,27 +76,33 @@ define([
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
 
-                    console.log('ontologyProperties', ontologyProperties);
-                    console.log('properties', properties);
-
                     var propertiesTpl = [];
                     for(var i=0; i<properties.length; i++) {
                         var property = properties[i];
                         var displayName;
+                        var value;
                         var ontologyProperty = ontologyProperties.byTitle[property.key];
                         if (ontologyProperty) {
                             displayName = ontologyProperty.displayName;
+                            if(ontologyProperty.dataType == 'date') {
+                                value = sf("{0:yyyy/MM/dd}", new Date(property.value));
+                            } else {
+                                value = property.value;
+                            }
                         } else {
                             displayName = property.key;
+                            value = property.value;
                         }
 
                         var data = {
                             key: property.key,
-                            value: property.value,
+                            value: value,
                             displayName: displayName
                         };
 
-                        propertiesTpl.push (data);
+                        if(property.key.charAt(0) != '_') {
+                            propertiesTpl.push(data);
+                        }
 
                         if(property.key == '_glyphIcon') {
                             self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: property.value });

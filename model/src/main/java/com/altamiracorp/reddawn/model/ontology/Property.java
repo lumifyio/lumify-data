@@ -13,6 +13,8 @@ public abstract class Property {
 
     public abstract String getDisplayName();
 
+    public abstract String getDataType();
+
     public static JSONArray toJson(List<Property> properties) {
         JSONArray json = new JSONArray();
         for (Property property : properties) {
@@ -27,6 +29,7 @@ public abstract class Property {
             json.put("id", getId());
             json.put("title", getTitle());
             json.put("displayName", getDisplayName());
+            json.put("dataType", getDataType());
             return json;
         } catch (JSONException e) {
             throw new RuntimeException(e);
