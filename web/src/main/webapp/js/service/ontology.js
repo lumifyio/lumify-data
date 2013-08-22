@@ -11,9 +11,20 @@ define(
 
         OntologyService.prototype = Object.create(ServiceBase.prototype);
 
+        OntologyService.prototype.clearCaches = function() {
+            cachedConcepts = null;
+            cachedRelationships = null;
+            cachedProperties = null;
+        };
+
         var cachedConcepts;
-        OntologyService.prototype.concepts = function (callback) {
-            if (cachedConcepts) {
+        OntologyService.prototype.concepts = function (refresh, callback) {
+            if (typeof refresh === 'function') {
+                callback = refresh;
+                refresh = false;
+            }
+
+            if (!refresh && cachedConcepts) {
                 return callback(null, cachedConcepts);
             }
 
@@ -64,8 +75,13 @@ define(
         };
 
         var cachedRelationships;
-        OntologyService.prototype.relationships = function (callback) {
-            if (cachedRelationships) {
+        OntologyService.prototype.relationships = function (refresh, callback) {
+            if (typeof refresh === 'function') {
+                callback = refresh;
+                refresh = false;
+            }
+
+            if (!refresh && cachedRelationships) {
                 return callback(null, cachedRelationships);
             }
 
@@ -93,8 +109,13 @@ define(
         };
 
         var cachedProperties;
-        OntologyService.prototype.properties = function (callback) {
-            if (cachedProperties) {
+        OntologyService.prototype.properties = function (refresh, callback) {
+            if (typeof refresh === 'function') {
+                callback = refresh;
+                refresh = false;
+            }
+
+            if (!refresh && cachedProperties) {
                 return callback(null, cachedProperties);
             }
 

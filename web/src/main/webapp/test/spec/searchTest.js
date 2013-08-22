@@ -3,9 +3,7 @@ describeComponent('search/search', function(Search) {
 
     beforeEach(function() {
         setupComponent();
-        this.component.entityService.concepts = function(callback) {
-            callback(undefined, {children:[]});
-        };
+        this.component.ontologyService.clearCaches();
     });
 
     describe('#onFormSearch', function() {
@@ -46,15 +44,16 @@ describeComponent('search/search', function(Search) {
                 entitySearchQuery = query;
             };
 
-            this.component.entityService.concepts = function(callback) {
+            this.component.ontologyService._ajaxGet = function(prop, callback) {
+                if (prop.url == 'ontology/concept') {
+                    callback(undefined, { children:[] });
 
-                callback(undefined, { children:[] });
-
-                expect(artifactSearchQuery).not.to.be.null;
-                expect(artifactSearchQuery.query).to.equal(query.query);
-                expect(entitySearchQuery).not.to.be.null;
-                expect(entitySearchQuery.query).to.equal(query.query);
-                done();
+                    expect(artifactSearchQuery).not.to.be.null;
+                    expect(artifactSearchQuery.query).to.equal(query.query);
+                    expect(entitySearchQuery).not.to.be.null;
+                    expect(entitySearchQuery.query).to.equal(query.query);
+                    done();
+                }
             };
 
             this.component.doSearch(evt, query);

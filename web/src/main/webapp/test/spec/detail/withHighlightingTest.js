@@ -48,11 +48,14 @@ define([
             function WithHighlightingTest() {
 
                 this.after('initialize', function() {
-                    this.entityService.concepts = function(callback) {
-                        callback(undefined, {children:[
-                            {id:1, title:'First', color:'rgb(255,0,0)', glyphIconHref:'first-icon'}, 
-                            {id:2, title:'Second', color:'rgb(0,0,255)', glyphIconHref:'second-icon'}
-                        ]});
+                    this.ontologyService.clearCaches();
+                    this.ontologyService._ajaxGet = function(prop, callback) {
+                        if (prop.url == 'ontology/concept') {
+                            callback(undefined, {children:[
+                                {id:1, title:'First', color:'rgb(255,0,0)', glyphIconHref:'first-icon'}, 
+                                {id:2, title:'Second', color:'rgb(0,0,255)', glyphIconHref:'second-icon'}
+                            ]});
+                        }
                     };
                     this.entityService.createTerm = function(p, callback) {
                         callback(undefined, {
