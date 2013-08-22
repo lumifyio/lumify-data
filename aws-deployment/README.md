@@ -17,7 +17,7 @@ aws-deploy
 1. manually configure an Elastic IP for the puppet server
 1. push our software to the puppet server: `./push.sh <puppet-server-elastic-ip> ../aws/cluster_name_hosts`
 1. ssh to the puppet server (forwarding your ssh agent): `ssh -A root@<puppet-server-elastic-ip>`
-1. install out software on the puppet server all the other cluster nodes: `./init.sh cluster_name_hosts`
+1. install our software on the puppet server and via puppet on all the other cluster nodes: `./init.sh cluster_name_hosts`
 1. monitor the progress of the other nodes: `tail -f run_puppet.*.log`
 1. manually configure an Elastic IP for the web server
 1. add a security group to the web server that allows inbound traffic:
