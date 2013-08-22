@@ -20,6 +20,19 @@ function(ServiceBase) {
 		});
 	};
 
+    EntityService.prototype.addProperty = function(vertexId, propertyName, value, callback) {
+        this._ajaxPost({
+            url: 'entity/property/add',
+            data: {
+                vertexId: vertexId,
+                propertyName: propertyName,
+                value: value
+            }
+        },function (err, response) {
+            callback (err,response);
+        });
+    };
+
     return EntityService;
 });
 
