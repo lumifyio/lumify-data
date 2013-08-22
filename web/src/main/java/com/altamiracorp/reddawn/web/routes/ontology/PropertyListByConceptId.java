@@ -21,9 +21,10 @@ public class PropertyListByConceptId implements Handler, AppAware {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
+        String conceptId = (String) request.getAttribute("conceptId");
         RedDawnSession session = app.getRedDawnSession(request);
 
-        List<Property> properties = ontologyRepository.getProperties(session.getGraphSession());
+        List<Property> properties = ontologyRepository.getPropertiesByConceptId(session.getGraphSession(), conceptId);
 
         JSONObject json = new JSONObject();
         json.put("properties", Property.toJson(properties));

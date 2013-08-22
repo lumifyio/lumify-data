@@ -141,4 +141,30 @@ public class OntologyRepository {
         }
         return relationships;
     }
+
+    public List<Property> getPropertiesByConceptId(GraphSession graphSession, String conceptVertexId) {
+        Vertex conceptVertex = graphSession.getGraph().getVertex(conceptVertexId);
+        if (conceptVertex == null) {
+            throw new RuntimeException("Could not find concept: " + conceptVertexId);
+        }
+        return getPropertiesByConceptId(graphSession, conceptVertex);
+    }
+
+    private List<Property> getPropertiesByConceptId(GraphSession graphSession, Vertex conceptVertex) {
+        List<Property> properties = new ArrayList<Property>();
+
+        Iterator<Vertex> propertyVertices = conceptVertex.getVertices(Direction.OUT, LabelName.HAS_PROPERTY.toString()).iterator();
+        while (propertyVertices.hasNext()) {
+            Vertex propertyVertex = propertyVertices.next();
+            properties.add(new VertexProperty(propertyVertex));
+        }
+
+        Vertex parentConceptVertex = getParentConceptVertex(conceptVertex);
+        if (parentConceptVertex != null) {
+            List<Property> parentProperties = getPropertiesByConceptId(graphSession, parentConceptVertex);
+            properties.addAll(parentProperties);
+        }
+
+        return properties;
+    }
 }

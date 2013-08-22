@@ -41,6 +41,7 @@ define(
                     byTitle: flattenConcepts(response)
                 };
 
+                console.log('concepts', cachedConcepts);
                 return callback(null, cachedConcepts);
             });
 
@@ -96,6 +97,8 @@ define(
                     list: response.relationships,
                     byTitle: buildRelationshipsByTitle(response.relationships)
                 };
+                console.log('relationships', cachedRelationships);
+
                 return callback(null, cachedRelationships);
             });
 
@@ -130,6 +133,8 @@ define(
                     list: response.properties,
                     byTitle: buildPropertiesByTitle(response.properties)
                 };
+                console.log('properties', cachedProperties);
+
                 return callback(null, cachedProperties);
             });
         };
@@ -146,6 +151,8 @@ define(
                     list: response.properties,
                     byTitle: buildPropertiesByTitle(response.properties)
                 };
+                console.log('propertiesByConceptId', props);
+
                 return callback(null, props);
             });
         };
