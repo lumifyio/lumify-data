@@ -121,7 +121,7 @@ define([
             var self = this;
             var sourceConceptTypeId = self.attr.sourceTerm.data('info')._subType;
             var destConceptTypeId = self.attr.destTerm.data('info')._subType;
-            self.ontologyService.relationships (sourceConceptTypeId, destConceptTypeId, function (err, results){
+            self.statementService.relationships (sourceConceptTypeId, destConceptTypeId, function (err, results){
                 if (err) {
                     console.error ('Error', err);
                     return self.trigger (document, 'error', { message: err.toString () });

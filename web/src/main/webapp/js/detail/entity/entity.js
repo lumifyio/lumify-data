@@ -136,7 +136,7 @@ define([
                 }
 
                 console.log("Relationships:", relationships);
-                callback(relationships);
+                return callback(relationships);
             }));
         };
 
