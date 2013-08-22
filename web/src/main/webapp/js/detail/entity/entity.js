@@ -9,12 +9,14 @@ define([
     'tpl!./relationships',
     'tpl!./propertiesDropdown',
     'service/ontology',
+    'service/vertex',
     'sf'
-], function(defineComponent, Image, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, propertiesDropdownTemplate, OntologyService, sf) {
+], function(defineComponent, Image, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, propertiesDropdownTemplate, OntologyService, VertexService, sf) {
 
     'use strict';
 
     var ontologyService = new OntologyService();
+    var vertexService = new VertexService();
 
     return defineComponent(Entity, withTypeContent, withHighlighting);
 
@@ -28,14 +30,16 @@ define([
             addNewPropertiesSelector: '.add-new-properties',
             addPropertySelector: '.add-property',
             addNewPropertyFormSelector: '.property-form',
-            propertySelector: 'select'
+            propertySelector: '.property-form select',
+            propertyValueSelector: '.property-form .property-value'
         });
 
         this.after('initialize', function() {
             var self = this;
             this.on('click', {
                 detailedObjectSelector: this.onDetailedObjectClicked,
-                addNewPropertiesSelector: this.onAddNewPropertiesClicked
+                addNewPropertiesSelector: this.onAddNewPropertiesClicked,
+                addPropertySelector: this.onAddPropertyClicked
             });
 
             ontologyService.concepts(function(err, concepts) {
@@ -76,48 +80,7 @@ define([
             };
 
             this.getProperties(this.attr.data.id || this.attr.data.graphVertexId, function(properties) {
-                self.ontologyService.properties(function(err, ontologyProperties) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-
-                    var propertiesTpl = [];
-                    for(var i=0; i<properties.length; i++) {
-                        var property = properties[i];
-                        var displayName;
-                        var value;
-                        var ontologyProperty = ontologyProperties.byTitle[property.key];
-                        if (ontologyProperty) {
-                            displayName = ontologyProperty.displayName;
-                            if(ontologyProperty.dataType == 'date') {
-                                value = sf("{0:yyyy/MM/dd}", new Date(property.value));
-                            } else {
-                                value = property.value;
-                            }
-                        } else {
-                            displayName = property.key;
-                            value = property.value;
-                        }
-
-                        var data = {
-                            key: property.key,
-                            value: value,
-                            displayName: displayName
-                        };
-
-                        if(property.key.charAt(0) != '_') {
-                            propertiesTpl.push(data);
-                        }
-
-                        if(property.key == '_glyphIcon') {
-                            self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: property.value });
-                            break;
-                        }
-
-                    }
-                    self.select('propertiesSelector').html(propertiesTemplate({properties: propertiesTpl}));
-                });
+                self.displayProperties (properties);
             });
 
             this.getRelationships(this.attr.data.id || this.attr.data.graphVertexId, function(relationships) {
@@ -168,6 +131,52 @@ define([
                     });
                     return self.select('relationshipsSelector').html(relationshipsTemplate({relationships: relationshipsTplData }));
                 });
+            });
+        };
+
+        this.displayProperties = function (properties){
+            var self = this;
+            ontologyService.properties(function(err, ontologyProperties) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+
+                var propertiesTpl = [];
+                for(var i=0; i<properties.length; i++) {
+                    var property = properties[i];
+                    var displayName;
+                    var value;
+                    var ontologyProperty = ontologyProperties.byTitle[property.key];
+                    if (ontologyProperty) {
+                        displayName = ontologyProperty.displayName;
+                        if(ontologyProperty.dataType == 'date') {
+                            value = sf("{0:yyyy/MM/dd}", new Date(property.value));
+                        } else {
+                            value = property.value;
+                        }
+                    } else {
+                        displayName = property.key;
+                        value = property.value;
+                    }
+
+                    var data = {
+                        key: property.key,
+                        value: value,
+                        displayName: displayName
+                    };
+
+                    if(property.key.charAt(0) != '_') {
+                        propertiesTpl.push(data);
+                    }
+
+                    if(property.key == '_glyphIcon') {
+                        self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: property.value });
+                        break;
+                    }
+
+                }
+                self.select('propertiesSelector').html(propertiesTemplate({properties: propertiesTpl}));
             });
         };
 
@@ -234,5 +243,27 @@ define([
                 }));
             });
         };
+
+        this.onAddPropertyClicked = function (evt){
+            var self = this,
+                vertexId = this.attr.data.id,
+                propertyName = this.select('propertySelector').val(),
+                value = $.trim(this.select('propertyValueSelector').val());
+            self.select('propertyValueSelector').removeClass('validation-error');
+
+            vertexService.setProperty (vertexId, propertyName, value, function (err, properties){
+                if(err) {
+                    if (err.xhr.status == 400){
+                        console.error('Validation error');
+                        self.select('propertyValueSelector').addClass('validation-error');
+                        return;
+                    }
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+
+                self.displayProperties (properties);
+            });
+        }
     }
 });

@@ -4,12 +4,17 @@ import com.altamiracorp.reddawn.model.GraphSession;
 import com.altamiracorp.reddawn.model.ontology.LabelName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.tinkerpop.blueprints.Vertex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class GraphRepository {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GraphRepository.class.getName());
+
+
     public GraphVertex findVertex(GraphSession graphSession, String graphVertexId) {
         return graphSession.findGraphVertex(graphVertexId);
     }
@@ -104,7 +109,14 @@ public class GraphRepository {
 
     public void setProperty(GraphSession graphSession, String vertexId, String propertyName, Object value) {
         Vertex vertex = graphSession.getGraph().getVertex(vertexId);
+
+        // TODO: without removing first the property nulls out, this property has to do with Accumulo + Titan
+        //       integration in a single row mutation
+        vertex.removeProperty(propertyName);
+        graphSession.commit();
+
         vertex.setProperty(propertyName, value);
+        LOGGER.info("set property of vertex: " + vertex.getId() + ", property name: " + propertyName + ", value: " + value);
         graphSession.commit();
     }
 }
