@@ -50,11 +50,11 @@ define([
         this.onDelete = function( event ) {
             var currentRowKey = this.select('listSelector').find('li.active').data('_rowKey');
             var _rowKey = $(event.target).parents('li').data('_rowKey'),
-                loading = $("<span>")
+                $loading = $("<span>")
                             .addClass("badge")
                             .addClass("loading");
             this.trigger(document, 'workspaceDeleting', { _rowKey: _rowKey });
-            $(event.target).replaceWith(loading);
+            $(event.target).replaceWith($loading);
             this.workspaceService.delete(_rowKey, function() {
                 this.loadWorkspaceList(function () {
                     this.trigger(document, 'workspaceDeleted', { _rowKey: _rowKey });
