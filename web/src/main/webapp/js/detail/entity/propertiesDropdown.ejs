@@ -1,0 +1,12 @@
+<% console.log ('properties', properties);
+if (properties.length == 0) { %>
+    <option value =''>No valid properties</option>
+<% }
+else
+{ %>
+    <option value=''>Select a property...</option>
+    <% properties.forEach(function(property) { %>
+    <option
+        value="<%= property.title%>"><%= property.displayName %></option>
+<% })}; %>
+

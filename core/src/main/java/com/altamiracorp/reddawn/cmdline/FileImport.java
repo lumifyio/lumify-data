@@ -1,18 +1,14 @@
 package com.altamiracorp.reddawn.cmdline;
 
 import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.model.SaveFileResults;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -23,14 +19,13 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Iterator;
 
 public class FileImport extends RedDawnCommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileImport.class.getName());
-    private static final long MAX_SIZE_OF_INLINE_FILE = 512 * 1024; // 512kiB
     private static final String MAPPING_JSON_FILE_NAME_SUFFIX = ".mapping.json";
     private ArtifactRepository artifactRepository = new ArtifactRepository();
     private String directory;
@@ -63,7 +58,7 @@ public class FileImport extends RedDawnCommandLineBase {
         } else {
             this.source = "File Import";
         }
-        if(cmd.hasOption("zipfile")){
+        if (cmd.hasOption("zipfile")) {
             this.downloadZip = true;
             this.zipfile = (String) cmd.getArgList().get(0);
         }
@@ -159,35 +154,16 @@ public class FileImport extends RedDawnCommandLineBase {
     }
 
     private void writeFile(RedDawnSession redDawnSession, File file, JSONObject mappingJson) throws IOException, MutationsRejectedException {
-        Artifact artifact;
         if (file.getName().startsWith(".")) {
             return;
         }
-        if (file.length() > MAX_SIZE_OF_INLINE_FILE) {
-            FileInputStream fileInputStreamData = new FileInputStream(file);
-            try {
-                SaveFileResults saveResults = artifactRepository.saveFile(redDawnSession.getModelSession(), fileInputStreamData);
-                artifact = new Artifact(saveResults.getRowKey());
-                artifact.getGenericMetadata()
-                        .setHdfsFilePath(saveResults.getFullPath())
-                        .setFileSize(file.length());
-            } finally {
-                fileInputStreamData.close();
-            }
-        } else {
-            artifact = new Artifact();
-            byte[] data = FileUtils.readFileToByteArray(file);
-            artifact.getContent().setDocArtifactBytes(data);
-            artifact.getGenericMetadata().setFileSize((long) data.length);
-        }
-
-        artifact.getContent()
-                .setSecurity("U"); // TODO configurable?
-        artifact.getGenericMetadata()
-                .setFileName(FilenameUtils.getBaseName(file.getName()))
-                .setFileExtension(FilenameUtils.getExtension(file.getName()))
-                .setFileTimestamp(file.lastModified())
-                .setSource(this.source);
+        Artifact artifact = artifactRepository.createArtifactFromInputStream(
+                redDawnSession.getModelSession(),
+                file.length(),
+                new FileInputStream(file),
+                file.getName(),
+                file.lastModified());
+        artifact.getGenericMetadata().setSource(this.source);
         if (mappingJson != null) {
             artifact.getGenericMetadata().setMappingJson(mappingJson);
         }
@@ -208,7 +184,7 @@ public class FileImport extends RedDawnCommandLineBase {
         return source;
     }
 
-    public String getZipfile () {
+    public String getZipfile() {
         return zipfile;
     }
 

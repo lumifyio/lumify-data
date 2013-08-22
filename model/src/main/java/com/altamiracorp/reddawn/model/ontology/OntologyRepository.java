@@ -12,6 +12,49 @@ import java.util.Iterator;
 import java.util.List;
 
 public class OntologyRepository {
+    public List<Relationship> getRelationshipLabels(GraphSession graphSession) {
+        List<Relationship> relationships = new ArrayList<Relationship>();
+        Iterator<Vertex> vertices = graphSession.getGraph().query()
+                .has(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString())
+                .vertices()
+                .iterator();
+        while (vertices.hasNext()) {
+            Vertex vertex = vertices.next();
+            relationships.add(new VertexRelationship(vertex));
+        }
+        return relationships;
+    }
+
+    public List<Property> getProperties(GraphSession graphSession) {
+        List<Property> properties = new ArrayList<Property>();
+        Iterator<Vertex> vertices = graphSession.getGraph().query()
+                .has(PropertyName.TYPE.toString(), VertexType.PROPERTY.toString())
+                .vertices()
+                .iterator();
+        while (vertices.hasNext()) {
+            Vertex vertex = vertices.next();
+            properties.add(new VertexProperty(vertex));
+        }
+        return properties;
+    }
+
+    public Property getProperty(GraphSession graphSession, String propertyName) {
+        Iterator<Vertex> properties = graphSession.getGraph().query()
+                .has(PropertyName.TYPE.toString(), VertexType.PROPERTY.toString())
+                .has(PropertyName.ONTOLOGY_TITLE.toString(), propertyName)
+                .vertices()
+                .iterator();
+        if (properties.hasNext()) {
+            Property property = new VertexProperty(properties.next());
+            if (properties.hasNext()) {
+                throw new RuntimeException("Too many \"" + VertexType.ENTITY + "\" properties");
+            }
+            return property;
+        } else {
+            throw new RuntimeException("Could not find \"" + VertexType.ENTITY + "\" property");
+        }
+    }
+
     public Concept getEntityConcept(GraphSession graphSession) {
         Iterator<Vertex> vertices = graphSession.getGraph().query()
                 .has(PropertyName.TYPE.toString(), VertexType.CONCEPT.toString())
@@ -114,5 +157,31 @@ public class OntologyRepository {
             relationships.add(new VertexRelationship(relationshipType));
         }
         return relationships;
+    }
+
+    public List<Property> getPropertiesByConceptId(GraphSession graphSession, String conceptVertexId) {
+        Vertex conceptVertex = graphSession.getGraph().getVertex(conceptVertexId);
+        if (conceptVertex == null) {
+            throw new RuntimeException("Could not find concept: " + conceptVertexId);
+        }
+        return getPropertiesByConceptId(graphSession, conceptVertex);
+    }
+
+    private List<Property> getPropertiesByConceptId(GraphSession graphSession, Vertex conceptVertex) {
+        List<Property> properties = new ArrayList<Property>();
+
+        Iterator<Vertex> propertyVertices = conceptVertex.getVertices(Direction.OUT, LabelName.HAS_PROPERTY.toString()).iterator();
+        while (propertyVertices.hasNext()) {
+            Vertex propertyVertex = propertyVertices.next();
+            properties.add(new VertexProperty(propertyVertex));
+        }
+
+        Vertex parentConceptVertex = getParentConceptVertex(conceptVertex);
+        if (parentConceptVertex != null) {
+            List<Property> parentProperties = getPropertiesByConceptId(graphSession, parentConceptVertex);
+            properties.addAll(parentProperties);
+        }
+
+        return properties;
     }
 }

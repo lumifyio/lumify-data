@@ -39,7 +39,7 @@ modules_tgz=$(git_archive modules .. puppet)
 puppet_modules_tgz=$(git_archive puppet-modules ../puppet/puppet-modules)
 
 echo 'running maven...'
-mvn_output="$(cd ..; mvn clean install package -DskipTests)"
+mvn_output="$(cd ..; mvn clean install -DskipTests)"
 mvn_exit=$?
 if [ ${mvn_exit} -ne 0 ]; then
   echo "${mvn_output}"
@@ -51,7 +51,8 @@ war_files=$(find .. -name '*.war')
 
 # TODO: jars for M/R, bin scripts for M/R
 
-scp ${SSH_OPTS} init.sh \
+scp ${SSH_OPTS} ../aws/bin-ec2/setup_disks.sh \
+                init.sh \
                 run_puppet.sh \
                 update.sh \
                 ${hosts_file} \

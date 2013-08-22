@@ -5,19 +5,20 @@ import com.altamiracorp.reddawn.web.routes.admin.AdminTables;
 import com.altamiracorp.reddawn.web.routes.artifact.*;
 import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
+import com.altamiracorp.reddawn.web.routes.vertex.*;
+import com.altamiracorp.reddawn.web.routes.vertex.VertexSetProperty;
 import com.altamiracorp.reddawn.web.routes.entity.EntityCreate;
 import com.altamiracorp.reddawn.web.routes.entity.EntityRelationships;
 import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
 import com.altamiracorp.reddawn.web.routes.graph.*;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
-import com.altamiracorp.reddawn.web.routes.statement.Relationships;
-import com.altamiracorp.reddawn.web.routes.vertex.VertexProperties;
-import com.altamiracorp.reddawn.web.routes.vertex.VertexRelationshipRemoval;
-import com.altamiracorp.reddawn.web.routes.vertex.VertexRelationships;
-import com.altamiracorp.reddawn.web.routes.vertex.VertexToVertexRelationship;
 import com.altamiracorp.reddawn.web.routes.ontology.ConceptList;
+import com.altamiracorp.reddawn.web.routes.ontology.PropertyList;
+import com.altamiracorp.reddawn.web.routes.ontology.PropertyListByConceptId;
+import com.altamiracorp.reddawn.web.routes.ontology.RelationshipLabelList;
 import com.altamiracorp.reddawn.web.routes.resource.ResourceGet;
+import com.altamiracorp.reddawn.web.routes.statement.Relationships;
 import com.altamiracorp.reddawn.web.routes.statement.StatementCreate;
 import com.altamiracorp.reddawn.web.routes.user.MeGet;
 import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
@@ -26,11 +27,9 @@ import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceDelete;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceList;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceSave;
 import com.altamiracorp.web.Handler;
+import org.eclipse.jetty.server.Request;
 
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class Router extends HttpServlet {
+    private static final MultipartConfigElement MULTI_PART_CONFIG = new MultipartConfigElement(System.getProperty("java.io.tmpdir"));
     private WebApp app;
     final File rootDir = new File("./web/src/main/webapp");
 
@@ -51,7 +51,10 @@ public class Router extends HttpServlet {
             authenticator = DevBasicAuthenticator.class;
         }
 
+        app.get("/ontology/concept/{conceptId}/properties", PropertyListByConceptId.class);
         app.get("/ontology/concept/", ConceptList.class);
+        app.get("/ontology/property/", PropertyList.class);
+        app.get("/ontology/relationship/", RelationshipLabelList.class);
 
         app.get("/resource/{_rowKey}", ResourceGet.class);
 
@@ -68,6 +71,7 @@ public class Router extends HttpServlet {
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.post("/entity/create", authenticator, EntityCreate.class);
 
+        app.post("/vertex/{graphVertexId}/property/set", authenticator, VertexSetProperty.class);
         app.get("/vertex/{graphVertexId}/properties", authenticator, VertexProperties.class);
         app.get("/vertex/{graphVertexId}/relationships", authenticator, VertexRelationships.class);
         app.get("/vertex/relationship", authenticator, VertexToVertexRelationship.class);
@@ -78,6 +82,7 @@ public class Router extends HttpServlet {
         app.get("/graph/{graphVertexId}/relatedResolvedVertices", authenticator, GraphRelatedResolvedVertices.class);
         app.get("/graph/vertex/search", authenticator, GraphVertexSearch.class);
         app.get("/graph/vertex/geoLocationSearch", authenticator, GraphGeoLocationSearch.class);
+        app.post("/graph/vertex/{graphVertexId}/uploadImage", authenticator, GraphVertexUploadImage.class);
         app.get("/graph/vertex/{graphVertexId}", authenticator, GraphGetVertex.class);
 
         app.get("/workspace/", authenticator, WorkspaceList.class);
@@ -105,6 +110,10 @@ public class Router extends HttpServlet {
     @Override
     public void service(ServletRequest req, ServletResponse resp) throws ServletException, IOException {
         try {
+            if (req.getContentType() != null && req.getContentType().startsWith("multipart/form-data")) {
+                req.setAttribute(Request.__MULTIPART_CONFIG_ELEMENT, MULTI_PART_CONFIG);
+            }
+
             HttpServletResponse httpResponse = (HttpServletResponse) resp;
             httpResponse.addHeader("Accept-Ranges", "bytes");
             app.handle((HttpServletRequest) req, httpResponse);

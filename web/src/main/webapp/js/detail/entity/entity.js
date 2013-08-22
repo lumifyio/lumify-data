@@ -1,13 +1,16 @@
 
 define([
     'flight/lib/component',
+    './image/image',
     '../withTypeContent',
     '../withHighlighting',
     'tpl!./entity',
     'tpl!./properties',
     'tpl!./relationships',
-    'service/ontology'
-], function(defineComponent, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, OntologyService) {
+    'tpl!./propertiesDropdown',
+    'service/ontology',
+    'sf'
+], function(defineComponent, Image, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, propertiesDropdownTemplate, OntologyService, sf) {
 
     'use strict';
 
@@ -15,19 +18,24 @@ define([
 
     return defineComponent(Entity, withTypeContent, withHighlighting);
 
-    function Entity() {
+    function Entity(withDropdown) {
 
         this.defaultAttrs({
             glyphIconSelector: '.entity-glyphIcon',
             propertiesSelector: '.entity-properties',
             relationshipsSelector: '.entity-relationships',
-            detailedObjectSelector: '.entity, .artifact, .relationship'
+            detailedObjectSelector: '.entity, .artifact, .relationship',
+            addNewPropertiesSelector: '.add-new-properties',
+            addPropertySelector: '.add-property',
+            addNewPropertyFormSelector: '.property-form',
+            propertySelector: 'select'
         });
 
         this.after('initialize', function() {
             var self = this;
             this.on('click', {
-                detailedObjectSelector: this.onDetailedObjectClicked
+                detailedObjectSelector: this.onDetailedObjectClicked,
+                addNewPropertiesSelector: this.onAddNewPropertiesClicked
             });
 
             ontologyService.concepts(function(err, concepts) {
@@ -35,18 +43,19 @@ define([
                     return self.trigger(document, 'error', err);
                 }
 
-                var glyphIconHref = '';
                 var concept = concepts.byId[self.attr.data._subType];
-                if(concept) {
-                    glyphIconHref = concept.glyphIconHref;
-                }
 
                 self.$node.html(template({
                     title: self.attr.data.originalTitle || self.attr.data.title || 'No title avaliable',
                     highlightButton: self.highlightButton(),
-                    glyphIconHref: glyphIconHref,
                     id: self.attr.data.id || self.attr.data.graphVertexId
                 }));
+
+                Image.attachTo(self.select('glyphIconSelector'), {
+                    data: self.attr.data,
+                    service: self.entityService,
+                    defaultIconSrc: concept && concept.glyphIconHref || ''
+                });
 
                 self.loadEntity();
             });
@@ -67,48 +76,98 @@ define([
             };
 
             this.getProperties(this.attr.data.id || this.attr.data.graphVertexId, function(properties) {
-                for(var i=0; i<properties.length; i++) {
-                    var property = properties[i];
-                    if(property.key == '_glyphIcon') {
-                        self.select('glyphIconSelector').attr('src', '/resource/' + property.value);
-                        break;
+                self.ontologyService.properties(function(err, ontologyProperties) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
                     }
-                }
-                self.select('propertiesSelector').html(propertiesTemplate({properties: properties}));
+
+                    var propertiesTpl = [];
+                    for(var i=0; i<properties.length; i++) {
+                        var property = properties[i];
+                        var displayName;
+                        var value;
+                        var ontologyProperty = ontologyProperties.byTitle[property.key];
+                        if (ontologyProperty) {
+                            displayName = ontologyProperty.displayName;
+                            if(ontologyProperty.dataType == 'date') {
+                                value = sf("{0:yyyy/MM/dd}", new Date(property.value));
+                            } else {
+                                value = property.value;
+                            }
+                        } else {
+                            displayName = property.key;
+                            value = property.value;
+                        }
+
+                        var data = {
+                            key: property.key,
+                            value: value,
+                            displayName: displayName
+                        };
+
+                        if(property.key.charAt(0) != '_') {
+                            propertiesTpl.push(data);
+                        }
+
+                        if(property.key == '_glyphIcon') {
+                            self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: property.value });
+                            break;
+                        }
+
+                    }
+                    self.select('propertiesSelector').html(propertiesTemplate({properties: propertiesTpl}));
+                });
             });
 
             this.getRelationships(this.attr.data.id || this.attr.data.graphVertexId, function(relationships) {
-                var relationshipsTplData = [];
-
-                relationships.forEach(function(relationship) {
-                    var data = {};
-                    data.relationship = relationship.relationship;
-                    data.dataInfo = JSON.stringify({
-                        source: relationship.relationship.sourceVertexId,
-                        target: relationship.relationship.destVertexId,
-                        _type: 'relationship',
-                        relationshipType: relationship.relationship.label
-                    });
-
-                    relationship.vertex.properties.graphVertexId = relationship.vertex.id;
-
-                    if(vertexInfo.id == relationship.relationship.sourceVertexId) {
-                        data.sourceVertex = vertexInfo;
-                        data.sourceVertex.cssClasses = self.classesForVertex(vertexInfo);
-
-                        data.destVertex = relationship.vertex;
-                        data.destVertex.cssClasses = self.classesForVertex(relationship.vertex);
-                    } else {
-                        data.sourceVertex = relationship.vertex;
-                        data.sourceVertex.cssClasses = self.classesForVertex(relationship.vertex);
-
-                        data.destVertex = vertexInfo;
-                        data.destVertex.cssClasses = self.classesForVertex(vertexInfo);
+                self.ontologyService.relationships(function(err, ontologyRelationships) {
+                    if(err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
                     }
 
-                    relationshipsTplData.push(data);
+                    var relationshipsTplData = [];
+
+                    relationships.forEach(function(relationship) {
+                        var ontologyRelationship = ontologyRelationships.byTitle[relationship.relationship.label];
+                        var displayName;
+                        if(ontologyRelationship) {
+                            displayName = ontologyRelationship.displayName;
+                        } else {
+                            displayName = relationship.relationship.label;
+                        }
+
+                        var data = {};
+                        data.displayName = displayName;
+                        data.relationship = relationship.relationship;
+                        data.dataInfo = JSON.stringify({
+                            source: relationship.relationship.sourceVertexId,
+                            target: relationship.relationship.destVertexId,
+                            _type: 'relationship',
+                            relationshipType: relationship.relationship.label
+                        });
+
+                        relationship.vertex.properties.graphVertexId = relationship.vertex.id;
+
+                        if(vertexInfo.id == relationship.relationship.sourceVertexId) {
+                            data.sourceVertex = vertexInfo;
+                            data.sourceVertex.cssClasses = self.classesForVertex(vertexInfo);
+
+                            data.destVertex = relationship.vertex;
+                            data.destVertex.cssClasses = self.classesForVertex(relationship.vertex);
+                        } else {
+                            data.sourceVertex = relationship.vertex;
+                            data.sourceVertex.cssClasses = self.classesForVertex(relationship.vertex);
+
+                            data.destVertex = vertexInfo;
+                            data.destVertex.cssClasses = self.classesForVertex(vertexInfo);
+                        }
+
+                        relationshipsTplData.push(data);
+                    });
+                    return self.select('relationshipsSelector').html(relationshipsTemplate({relationships: relationshipsTplData }));
                 });
-                self.select('relationshipsSelector').html(relationshipsTemplate({relationships: relationshipsTplData }));
             });
         };
 
@@ -146,6 +205,34 @@ define([
             this.trigger(document, 'searchResultSelected', $target.data('info'));
 
             evt.stopPropagation();
-        }
+        };
+
+        this.onAddNewPropertiesClicked = function (evt){
+            var self = this;
+            self.select('addNewPropertyFormSelector').show();
+
+            self.ontologyService.propertiesByConceptId(self.attr.data._subType, function (err, properties){
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+
+                var propertiesList = [];
+
+                properties.list.forEach (function (property){
+                    if (property.title.charAt(0) != '_'){
+                        var data = {
+                            title: property.title,
+                            displayName: property.displayName
+                        }
+                        propertiesList.push (data);
+                    }
+                });
+
+                self.select('propertySelector').html(propertiesDropdownTemplate({
+                    properties: propertiesList || ''
+                }));
+            });
+        };
     }
 });

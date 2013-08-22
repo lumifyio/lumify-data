@@ -1,10 +1,24 @@
 <ul>
 <% properties.forEach(function(property) { %>
-    <% if (property.key.charAt(0) != '_') {%>
     <li class="entity-property">
-        <%= property.key %>
+        <%= property.displayName %>: 
         <%= property.value %>
     </li>
-    <% } %>
 <% }); %>
 </ul>
+
+<div class="buttons">
+    <button class="add-new-properties btn btn-small btn-primary">Add New Properties</button>
+</div>
+
+<div class="property-form" style="display:none">
+  <select>
+    <option>Loading...</option>
+  </select>
+
+  <input></input>
+
+  <div class="buttons">
+    <button class="add-property btn btn-small btn-primary">Add</button>
+  </div>
+</div>

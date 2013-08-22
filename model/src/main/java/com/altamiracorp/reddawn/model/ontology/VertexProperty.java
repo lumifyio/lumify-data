@@ -2,10 +2,10 @@ package com.altamiracorp.reddawn.model.ontology;
 
 import com.tinkerpop.blueprints.Vertex;
 
-public class VertexRelationship extends Relationship {
+public class VertexProperty extends Property {
     private final Vertex vertex;
 
-    public VertexRelationship(Vertex vertex) {
+    public VertexProperty(Vertex vertex) {
         this.vertex = vertex;
     }
 
@@ -22,6 +22,11 @@ public class VertexRelationship extends Relationship {
     @Override
     public String getDisplayName() {
         return getVertex().getProperty(PropertyName.DISPLAY_NAME.toString());
+    }
+
+    @Override
+    public PropertyType getDataType() {
+        return PropertyType.convert((String) getVertex().getProperty(PropertyName.DATA_TYPE.toString()));
     }
 
     public Vertex getVertex() {

@@ -1,7 +1,9 @@
 package com.altamiracorp.reddawn.model.graph;
 
 import com.altamiracorp.reddawn.model.GraphSession;
+import com.altamiracorp.reddawn.model.ontology.LabelName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
+import com.tinkerpop.blueprints.Vertex;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +40,10 @@ public class GraphRepository {
     public GraphRelationship saveRelationship(GraphSession graphSession, String sourceGraphVertexId, String destGraphVertexId, String label) {
         GraphRelationship relationship = new GraphRelationship(null, sourceGraphVertexId, destGraphVertexId, label);
         return save(graphSession, relationship);
+    }
+
+    public GraphRelationship saveRelationship(GraphSession graphSession, String sourceGraphVertexId, String destGraphVertexId, LabelName label) {
+        return saveRelationship(graphSession, sourceGraphVertexId, destGraphVertexId, label.toString());
     }
 
     public String saveVertex(GraphSession graphSession, GraphVertex graphVertex) {
@@ -77,7 +83,28 @@ public class GraphRepository {
         return;
     }
 
+    public GraphRelationship findOrAddRelationship(GraphSession graphSession, String sourceVertexId, String targetVertexId, String label) {
+        Map<GraphRelationship, GraphVertex> relationships = getRelationships(graphSession, sourceVertexId);
+        for (Map.Entry<GraphRelationship, GraphVertex> relationship : relationships.entrySet()) {
+            if (relationship.getValue().getId().equals(targetVertexId) &&
+                    relationship.getKey().getLabel().equals(label)) {
+                return relationship.getKey();
+            }
+        }
+        return this.saveRelationship(graphSession, sourceVertexId, targetVertexId, label);
+    }
+
+    public GraphRelationship findOrAddRelationship(GraphSession graphSession, String sourceVertexId, String targetVertexId, LabelName label) {
+        return findOrAddRelationship(graphSession, sourceVertexId, targetVertexId, label.toString());
+    }
+
     public List<List<GraphVertex>> findPath(GraphSession graphSession, GraphVertex sourceVertex, GraphVertex destVertex, int depth) {
         return graphSession.findPath(sourceVertex, destVertex, depth);
+    }
+
+    public void setProperty(GraphSession graphSession, String vertexId, String propertyName, Object value) {
+        Vertex vertex = graphSession.getGraph().getVertex(vertexId);
+        vertex.setProperty(propertyName, value);
+        graphSession.commit();
     }
 }

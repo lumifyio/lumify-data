@@ -152,3 +152,20 @@ body .search-result-dragging {
 .mode-select-pane {
     padding-left: 300px;
 }
+
+.file-hover {
+  &.uploading:after, &.uploading:hover:after {
+    display: none;
+  }
+  &:after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.2) url(/img/drop-items.png) no-repeat center center;
+    background-size: 60% auto;
+    .opacity(90);
+    .border-radius(8px);
+    .transition(~"background ease-in 1s");
+  }
+}

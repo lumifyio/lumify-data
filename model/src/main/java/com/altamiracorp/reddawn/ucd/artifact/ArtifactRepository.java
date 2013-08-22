@@ -6,6 +6,8 @@ import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -162,5 +164,35 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
 
         return vertex;
+    }
+
+    public Artifact createArtifactFromInputStream(Session session, long size, InputStream in, String fileName, long fileTimestamp) throws IOException {
+        Artifact artifact;
+
+        if (size > Artifact.MAX_SIZE_OF_INLINE_FILE) {
+            try {
+                SaveFileResults saveResults = saveFile(session, in);
+                artifact = new Artifact(saveResults.getRowKey());
+                artifact.getGenericMetadata()
+                        .setHdfsFilePath(saveResults.getFullPath())
+                        .setFileSize(size);
+            } finally {
+                in.close();
+            }
+        } else {
+            artifact = new Artifact();
+            byte[] data = IOUtils.toByteArray(in);
+            artifact.getContent().setDocArtifactBytes(data);
+            artifact.getGenericMetadata().setFileSize((long) data.length);
+        }
+
+        artifact.getContent()
+                .setSecurity("U"); // TODO configurable?
+        artifact.getGenericMetadata()
+                .setFileName(FilenameUtils.getBaseName(fileName))
+                .setFileExtension(FilenameUtils.getExtension(fileName))
+                .setFileTimestamp(fileTimestamp);
+
+        return artifact;
     }
 }

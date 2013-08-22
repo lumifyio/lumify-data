@@ -4,7 +4,6 @@ import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.web.routes.RouteTestBase;
 import org.json.JSONObject;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +38,7 @@ public class ArtifactByRowKeyTest extends RouteTestBase {
         artifactByRowKey.handle(mockRequest, mockResponse, mockHandlerChain);
 
         JSONObject responseJson = new JSONObject(responseStringWriter.getBuffer().toString());
-        assertEquals(ArtifactRawByRowKey.getUrl(mockRequest, artifactRowKey), responseJson.getString("rawUrl"));
+        assertEquals(ArtifactRawByRowKey.getUrl(artifactRowKey), responseJson.getString("rawUrl"));
         assertEquals(artifactRowKey.toString(), responseJson.getJSONObject("key").getString("value"));
         assertEquals("document", responseJson.getString("type"));
     }

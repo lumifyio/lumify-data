@@ -26,7 +26,8 @@ var require = {
     html2canvas: '../libs/html2canvas/html2canvas',
     videojs: '../libs/video.js/video',
     underscore: '../libs/underscore/underscore',
-    colorjs: '../libs/color-js/color'
+    colorjs: '../libs/color-js/color',
+    sf: '../libs/sf/sf'
   },
   shim: {
     ejs: { exports: 'ejs' },

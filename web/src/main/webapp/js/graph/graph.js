@@ -101,13 +101,14 @@ define([
 
                     var cyNodeData = {
                         group: 'nodes',
-                        classes: $.trim('concept-' + vertex._subType + ' ' + vertex._type),
+                        classes: $.trim('concept-' + vertex._subType + ' ' + (vertex._type || '') + (vertex._glyphIcon ? ' hasCustomGlyph' : '')),
                         data: {
                             id: vertex.graphVertexId,
                             _rowKey: vertex._rowKey,
                             graphVertexId: vertex.graphVertexId,
                             _subType: vertex._subType,
                             _type: vertex._type,
+                            _glyphIcon: vertex._glyphIcon,
                             title: title,
                             originalTitle: vertex.title,
                         },
@@ -127,6 +128,10 @@ define([
                     }
 
                     var cyNode = cy.add(cyNodeData);
+
+                    if (vertex._glyphIcon) {
+                        cyNode.css('background-image', vertex._glyphIcon);
+                    }
 
                     if (needsUpdate) {
                         addedVertices.push({
@@ -188,14 +193,25 @@ define([
             var self = this;
             this.cy(function(cy) {
                 data.vertices
-                    .filter(function(updatedVertex) { return updatedVertex.graphPosition; })
                     .forEach(function(updatedVertex) {
                         cy.nodes()
                             .filter(function(idx, vertex) {
                                 return vertex.data('graphVertexId') === updatedVertex.graphVertexId;
                             })
                             .each(function(idx, vertex) {
-                                vertex.position( retina.pointsToPixels(updatedVertex.graphPosition) );
+
+                                if (updatedVertex.graphPosition) {
+                                    vertex.position( retina.pointsToPixels(updatedVertex.graphPosition) );
+                                }
+
+                                if (updatedVertex._glyphIcon) {
+                                    vertex.css('background-image', updatedVertex._glyphIcon);
+                                    vertex.data()._glyphIcon = updatedVertex._glyphIcon;
+                                    vertex.addClass('hasCustomGlyph');
+                                }
+
+                                // TODO: update other properties? (title needs
+                                // truncation...
                             });
                     });
             });

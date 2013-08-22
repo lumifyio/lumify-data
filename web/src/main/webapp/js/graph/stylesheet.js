@@ -70,6 +70,11 @@ define([
             .css({
                 'font-weight': 'bold'
             })
+            .selector('node.hasCustomGlyph')
+            .css({
+                'width': 60 * retina.devicePixelRatio,
+                'height': 60 * retina.devicePixelRatio,
+            })
             .selector(':selected')
             .css({
                 'background-color': '#0088cc',

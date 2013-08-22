@@ -4,6 +4,7 @@ public enum LabelName {
     HAS_PROPERTY("hasProperty"),
     HAS_EDGE("hasEdge"),
     IS_A("isA"),
+    HAS_IMAGE("hasImage"),
     HAS_TERM_MENTION("hasTermMention");
 
     private final String text;

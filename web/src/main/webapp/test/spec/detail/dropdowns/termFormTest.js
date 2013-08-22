@@ -9,8 +9,10 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
         var self = this;
 
         this.componentConfiguration = function() {
-            self.component.entityService.concepts = function(callback) {
-                callback(undefined, {children:[{id:1, title:'First'}, {id:2, title:'Second'}]});
+            self.component.ontologyService._ajaxGet = function(prop, callback) {
+                if (prop.url == 'ontology/concept') {
+                    callback(undefined, {children:[{id:1, title:'First'}, {id:2, title:'Second'}]});
+                }
             };
             self.parentNode.normalize();
             self.component.trigger('opened');

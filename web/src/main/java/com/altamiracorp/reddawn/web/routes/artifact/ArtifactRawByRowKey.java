@@ -29,8 +29,8 @@ public class ArtifactRawByRowKey implements Handler, AppAware {
     ArtifactRepository artifactRepository = new ArtifactRepository();
     private WebApp app;
 
-    public static String getUrl(HttpServletRequest request, ArtifactRowKey artifactKey) {
-        return UrlUtils.getRootRef(request) + "/artifact/" + UrlUtils.urlEncode(artifactKey.toString()) + "/raw";
+    public static String getUrl(ArtifactRowKey artifactKey) {
+        return "/artifact/" + UrlUtils.urlEncode(artifactKey.toString()) + "/raw";
     }
 
     @Override

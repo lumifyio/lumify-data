@@ -35,16 +35,7 @@ public class ConceptList implements Handler, AppAware {
     }
 
     private JSONObject buildJsonTree(HttpServletRequest request, RedDawnSession session, Concept concept) throws JSONException {
-        JSONObject result = new JSONObject();
-        result.put("id", concept.getId());
-        result.put("title", concept.getTitle());
-        if (concept.getGlyphIconResourceRowKey() != null) {
-            result.put("glyphIconResourceRowKey", concept.getGlyphIconResourceRowKey());
-            result.put("glyphIconHref", getGlyphUrl(request, concept.getGlyphIconResourceRowKey()));
-        }
-        if (concept.getColor() != null) {
-            result.put("color", concept.getColor());
-        }
+        JSONObject result = concept.toJson();
 
         List<Concept> childConcepts = ontologyRepository.getChildConcepts(session.getGraphSession(), concept);
         if (childConcepts.size() > 0) {
@@ -57,10 +48,6 @@ public class ConceptList implements Handler, AppAware {
         }
 
         return result;
-    }
-
-    public static String getGlyphUrl(HttpServletRequest request, String resourceKey) {
-        return UrlUtils.getRootRef(request) + "/resource/" + resourceKey;
     }
 
     @Override

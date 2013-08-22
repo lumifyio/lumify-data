@@ -19,6 +19,10 @@ function heading {
 heading 'configure enviornment name resolution'
 grep -q $(hostname) /etc/hosts || cat ${hosts_file} >> /etc/hosts
 
+heading 'install LVM'
+yum -y install lvm2
+# TODO: reboot?
+
 heading 'add the PuppetLabs yum repo, install and enable puppet'
 rpm -ivh ${PUPPETLABS_RPM_URL}
 yum -y install puppet-server
@@ -66,18 +70,29 @@ for other_host in $(awk -v localhost=$(hostname) '$2!=localhost {print $1}' ${ho
   scp ${SSH_OPTS} ${hosts_file} ${other_host}:
   ssh ${SSH_OPTS} ${other_host} "grep -q ${other_host} /etc/hosts || cat ${hosts_file} >> /etc/hosts"
 
+  heading "${other_host}: configure yum to use the proxy"
+  cat <<EO_YUM_CONF | ssh ${SSH_OPTS} ${other_host} 'cat >> /etc/yum.conf'
+
+proxy=http://$(hostname):8080
+EO_YUM_CONF
+
+  heading "${other_host}: install LVM"
+  ssh ${SSH_OPTS} ${other_host} yum -y install lvm2
+  # TODO: reboot?
+
+  heading "${other_host}: setup instance store disks"
+  scp ${SSH_OPTS} setup_disks.sh ${other_host}:
+  ssh ${SSH_OPTS} ${other_host} './setup_disks.sh instance 2>&1 | tee setup_disks.instance.log'
+
+  # heading "${other_host}: setup EBS disks"
+  # ssh ${SSH_OPTS} ${other_host} './setup_disks.sh ebs 2>&1 | tee setup_disks.ebs.log'
+
   heading "${other_host}: disable IPv6"
   ssh ${SSH_OPTS} ${other_host} sysctl -w net.ipv6.conf.all.disable_ipv6=1
   cat <<EO_SYSCTL_CONF | ssh ${SSH_OPTS} ${other_host} 'cat >> /etc/sysctl.conf'
 
 net.ipv6.conf.all.disable_ipv6 = 1
 EO_SYSCTL_CONF
-
-  heading "${other_host}: configure yum to use the proxy"
-  cat <<EO_YUM_CONF | ssh ${SSH_OPTS} ${other_host} 'cat >> /etc/yum.conf'
-
-proxy=http://$(hostname):8080
-EO_YUM_CONF
 
   heading "${other_host}: add the PuppetLabs yum repo, install and enable puppet"
   ssh ${SSH_OPTS} ${other_host} http_proxy=http://$(hostname):8080 rpm -ivh ${PUPPETLABS_RPM_URL}
@@ -87,3 +102,6 @@ EO_YUM_CONF
   heading "${other_host}: run_puppet.sh"
   ./run_puppet.sh ${other_host} &> run_puppet.${other_host}.log &
 done
+
+# TODO: format HDFS, start services
+# TODO: initalize Accumulo, start services

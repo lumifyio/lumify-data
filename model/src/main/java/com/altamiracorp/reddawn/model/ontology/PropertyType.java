@@ -17,4 +17,13 @@ public enum PropertyType {
     public String toString() {
         return this.text;
     }
+
+    public static PropertyType convert(String property) {
+        for (PropertyType pt : PropertyType.values()) {
+            if (pt.toString().equalsIgnoreCase(property)) {
+                return pt;
+            }
+        }
+        return PropertyType.valueOf(property);
+    }
 }
