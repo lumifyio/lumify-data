@@ -9,6 +9,7 @@ import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,17 +28,22 @@ public class VertexProperties implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = this.app.getRedDawnSession(request);
+        String graphVertexId = (String) request.getAttribute("graphVertexId");
 
-        Map<String, String> properties = graphRepository.getProperties(session.getGraphSession(), (String) request.getAttribute("graphVertexId"));
+        Map<String, String> properties = graphRepository.getProperties(session.getGraphSession(), graphVertexId);
+        JSONArray resultsJson = propertiesToJson(properties);
 
+        new Responder(response).respondWith(resultsJson);
+    }
+
+    public static JSONArray propertiesToJson(Map<String, String> properties) throws JSONException {
         JSONArray resultsJson = new JSONArray();
-        for(Map.Entry<String, String> property : properties.entrySet()) {
+        for (Map.Entry<String, String> property : properties.entrySet()) {
             JSONObject propertyJson = new JSONObject();
             propertyJson.put("key", property.getKey());
             propertyJson.put("value", property.getValue());
             resultsJson.put(propertyJson);
         }
-
-        new Responder(response).respondWith(resultsJson);
+        return resultsJson;
     }
 }

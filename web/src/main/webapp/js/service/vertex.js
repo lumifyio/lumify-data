@@ -10,9 +10,9 @@ define(
 
         VertexService.prototype = Object.create(ServiceBase.prototype);
 
-        VertexService.prototype.addProperty = function (vertexId, propertyName, value, callback) {
+        VertexService.prototype.setProperty = function (vertexId, propertyName, value, callback) {
             this._ajaxPost({
-                url: 'vertex/' + vertexId + '/property/add',
+                url: 'vertex/' + vertexId + '/property/set',
                 data: {
                     propertyName: propertyName,
                     value: value

@@ -38,6 +38,23 @@ public class OntologyRepository {
         return properties;
     }
 
+    public Property getProperty(GraphSession graphSession, String propertyName) {
+        Iterator<Vertex> properties = graphSession.getGraph().query()
+                .has(PropertyName.TYPE.toString(), VertexType.PROPERTY.toString())
+                .has(PropertyName.ONTOLOGY_TITLE.toString(), propertyName)
+                .vertices()
+                .iterator();
+        if (properties.hasNext()) {
+            Property property = new VertexProperty(properties.next());
+            if (properties.hasNext()) {
+                throw new RuntimeException("Too many \"" + VertexType.ENTITY + "\" properties");
+            }
+            return property;
+        } else {
+            throw new RuntimeException("Could not find \"" + VertexType.ENTITY + "\" property");
+        }
+    }
+
     public Concept getEntityConcept(GraphSession graphSession) {
         Iterator<Vertex> vertices = graphSession.getGraph().query()
                 .has(PropertyName.TYPE.toString(), VertexType.CONCEPT.toString())
