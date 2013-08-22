@@ -1,7 +1,7 @@
 #!/bin/bash
 
-INSTANCE_STORE_LETTERS='bcde'
-EBS_LETTERS='fghijklmnopqrstuvwxyz'
+INSTANCE_STORE_LETTERS='fghi'   # red disk was 'bcde'
+EBS_LETTERS='jklmnopqrstuvwxyz' # red disk was 'fghijklmnopqrstuvwxyz'
 VG_NAME=ebs
 LV_NAME=data
 
@@ -68,11 +68,11 @@ function _instance {
   for instance_store_disk in $(fdisk -l | grep "Disk /dev/xvd[${INSTANCE_STORE_LETTERS}]" | awk '{print $2}' | sed -e 's/://'); do
     fdisk -l | grep "${instance_store_disk}1" &>/dev/null
     if [ $? -ne 0 ]; then
-      n=$((${n} + 1))
-
       _partition ${instance_store_disk}
       _format ${instance_store_disk}1 ${label_prefix}-i${n}
       _mount ${label_prefix}-i${n} /data${n} noatime
+
+      n=$((${n} + 1))
     fi
   done
 }
@@ -80,6 +80,8 @@ function _instance {
 # prepare and use any not previously configure EBS volumes
 # adding them to a single /data logical volume backed filesystem
 function _ebs {
+  local label_prefix=$(_octet4)
+
   for ebs_disk in $(fdisk -l | grep "Disk /dev/xvd[${EBS_LETTERS}]" | awk '{print $2}' | sed -e 's/://'); do
     fdisk -l | grep "${ebs_disk}1" &>/dev/null
     if [ $? -ne 0 ]; then
