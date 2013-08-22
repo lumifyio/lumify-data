@@ -107,6 +107,10 @@ public class GraphRepository {
         return graphSession.findPath(sourceVertex, destVertex, depth);
     }
 
+    public void remove(GraphSession graphSession, String graphVertexId) {
+        graphSession.remove(graphVertexId);
+    }
+
     public void setProperty(GraphSession graphSession, String vertexId, String propertyName, Object value) {
         Vertex vertex = graphSession.getGraph().getVertex(vertexId);
 

@@ -63,6 +63,7 @@ public class EntityCreate implements Handler, AppAware {
         long mentionEnd = Long.parseLong(getRequiredParameter(request, "mentionEnd"));
         String sign = getRequiredParameter(request, "sign");
         String conceptId = getRequiredParameter(request, "conceptId");
+        String graphVertexId = request.getParameter("graphVertexId");
 
         // optional parameters
         String objectSign = request.getParameter("objectSign");
@@ -73,7 +74,7 @@ public class EntityCreate implements Handler, AppAware {
             objectSign = UrlUtils.urlDecode(objectSign);
             resolvedVertex = getObjectGraphVertex(session.getGraphSession(), objectSign, conceptVertex);
         }
-        TermAndTermMention termAndTermMention = getTermAndTermMention(currentUser, session, artifactKey, mentionStart, mentionEnd, sign, conceptVertex, resolvedVertex);
+        TermAndTermMention termAndTermMention = getTermAndTermMention(currentUser, session, artifactKey, mentionStart, mentionEnd, sign, conceptVertex, resolvedVertex, graphVertexId);
 
         if (resolvedVertex != null) {
             graphRepository.saveRelationship(session.getGraphSession(), termAndTermMention.getTermMention().getGraphVertexId(), resolvedVertex.getId(), "isA");
@@ -104,9 +105,16 @@ public class EntityCreate implements Handler, AppAware {
         return graphVertex;
     }
 
-    private TermAndTermMention getTermAndTermMention(User currentUser, RedDawnSession session, String artifactKey, long mentionStart, long mentionEnd, String sign, GraphVertex conceptVertex, GraphVertex resolvedVertex) {
+    private TermAndTermMention getTermAndTermMention(User currentUser, RedDawnSession session, String artifactKey, long mentionStart, long mentionEnd, String sign, GraphVertex conceptVertex, GraphVertex resolvedVertex, String graphVertexId) {
         String conceptLabel = StringUtils.join(ontologyRepository.getConceptPath(session.getGraphSession(), conceptVertex.getId()), "/");
-        TermRowKey termRowKey = getTermRowKey(session, sign, conceptLabel);
+        TermRowKey termRowKey;
+        GraphVertex vertex = graphRepository.findVertex(session.getGraphSession(), graphVertexId);
+        if (vertex != null && vertex.getProperty(PropertyName.ROW_KEY) != null) {
+            termRowKey = new TermRowKey(vertex.getProperty(PropertyName.ROW_KEY).toString());
+        }
+        else {
+            termRowKey = getTermRowKey(session, sign, conceptLabel);
+        }
         TermAndTermMention termAndTermMention = termRepository.findMention(session.getModelSession(), termRowKey, artifactKey, mentionStart, mentionEnd);
         if (termAndTermMention == null) {
             LOGGER.info("No existing term mention found... Creating... artifactKey: " + artifactKey);

@@ -417,6 +417,15 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
+    public void remove(String graphVertexId) {
+        Vertex vertex = this.graph.getVertex(graphVertexId);
+        if (vertex == null) {
+            throw new RuntimeException("Could not find vertex with id: " + graphVertexId);
+        }
+        vertex.remove();
+    }
+
+    @Override
     public Graph getGraph() {
         return graph;
     }
