@@ -28,15 +28,16 @@ import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvStructuredDataExtractor.class.getName());
     private static final String EXTRACTOR_ID = "CsvStructuredData";
+    private Map<String, SimpleDateFormat> dateFormatCache = new HashMap<String, SimpleDateFormat>();
 
-    ArtifactRepository artifactRepository = new ArtifactRepository();
+    private ArtifactRepository artifactRepository = new ArtifactRepository();
 
     @Override
     public ArtifactExtractedInfo extractText(Session session, Artifact artifact) throws Exception {
@@ -65,7 +66,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
     }
 
     @Override
-    public ExtractedData extract(RedDawnSession session, Artifact artifact, String text, JSONObject mappingJson) throws IOException, JSONException {
+    public ExtractedData extract(RedDawnSession session, Artifact artifact, String text, JSONObject mappingJson) throws IOException, JSONException, ParseException {
         ExtractedData extractedData = new ExtractedData();
 
         int row = 0;
@@ -98,7 +99,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
         return extractedData;
     }
 
-    private void processLine(ExtractedData extractedData, Artifact artifact, int offset, String line, List<String> columns, String securityMarking, JSONObject mappingJson) throws JSONException {
+    private void processLine(ExtractedData extractedData, Artifact artifact, int offset, String line, List<String> columns, String securityMarking, JSONObject mappingJson) throws JSONException, ParseException {
         Sentence sentence = createSentence(artifact, offset, line, securityMarking);
         extractedData.addSentence(sentence);
 
@@ -131,7 +132,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
         return new Date();
     }
 
-    private List<TermAndGraphVertex> getTermsAndGraphVertices(Artifact artifact, Sentence sentence, List<String> line, JSONObject mappingJson) throws JSONException {
+    private List<TermAndGraphVertex> getTermsAndGraphVertices(Artifact artifact, Sentence sentence, List<String> line, JSONObject mappingJson) throws JSONException, ParseException {
         List<TermAndGraphVertex> termsAndGraphVertices = new ArrayList<TermAndGraphVertex>();
         JSONArray mappingColumnsJson = (JSONArray) mappingJson.get("columns");
         long offset = sentence.getRowKey().getStartOffset();
@@ -164,9 +165,33 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
         return termsAndGraphVertices;
     }
 
-    private Object getPropertyValue(JSONObject propertyMappingJson, String columnData) {
-        // TODO: convert data types
-        return columnData;
+    private Object getPropertyValue(JSONObject propertyMappingJson, String columnData) throws JSONException, ParseException {
+        String dataType = propertyMappingJson.getString("dataType");
+        if (dataType.equals("date")) {
+            return getPropertyValueDate(propertyMappingJson, columnData);
+        } else {
+            return columnData;
+        }
+    }
+
+    private Object getPropertyValueDate(JSONObject propertyMappingJson, String columnData) throws JSONException, ParseException {
+        String format = propertyMappingJson.getString("format");
+        SimpleDateFormat sdf;
+        if (format != null) {
+            sdf = dateFormatCache.get(format);
+            if (sdf == null) {
+                sdf = new SimpleDateFormat(format);
+                dateFormatCache.put(format, sdf);
+            }
+        } else {
+            sdf = dateFormatCache.get("<default>");
+            if (sdf == null) {
+                sdf = new SimpleDateFormat();
+                dateFormatCache.put("<default>", sdf);
+            }
+        }
+
+        return sdf.parse(columnData);
     }
 
     private TermAndGraphVertex createTermAndGraphVertex(Artifact artifact, long offset, Sentence sentence, String sign, JSONObject columnMappingJson) throws JSONException {

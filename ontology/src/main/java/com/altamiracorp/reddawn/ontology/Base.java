@@ -237,7 +237,23 @@ public abstract class Base extends RedDawnCommandLineBase {
     protected TitanVertex addPropertyToConcept(TitanGraph graph, TitanVertex concept, String propertyName, String displayName, PropertyType dataType) {
         TitanKey typeProperty = (TitanKey) graph.getType(propertyName);
         if (typeProperty == null) {
-            typeProperty = graph.makeType().name(propertyName).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+            Class vertexDataType = String.class;
+            switch (dataType) {
+                case DATE:
+                    vertexDataType = Date.class;
+                    break;
+                case CURRENCY:
+                    vertexDataType = Double.class;
+                    break;
+                case IMAGE:
+                case STRING:
+                    vertexDataType = String.class;
+                    break;
+                case GEO_LOCATION:
+                    vertexDataType = Geoshape.class;
+                    break;
+            }
+            typeProperty = graph.makeType().name(propertyName).dataType(vertexDataType).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
         }
         properties.put(typeProperty.getName(), typeProperty);
 
