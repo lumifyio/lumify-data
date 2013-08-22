@@ -66,6 +66,10 @@ scp ${SSH_OPTS} *.war ${www_host}:
 
 
 for other_host in $(awk -v localhost=$(hostname) '$2!=localhost {print $1}' ${hosts_file}); do
+  heading "${other_host}: configure enviornment name resolution"
+  scp ${SSH_OPTS} ${hosts_file} ${other_host}:
+  ssh ${SSH_OPTS} ${other_host} "grep -q ${other_host} /etc/hosts || cat ${hosts_file} >> /etc/hosts"
+
   heading "${other_host}: configure yum to use the proxy"
   cat <<EO_YUM_CONF | ssh ${SSH_OPTS} ${other_host} 'cat >> /etc/yum.conf'
 
@@ -82,10 +86,6 @@ EO_YUM_CONF
 
   # heading "${other_host}: setup EBS disks"
   # ssh ${SSH_OPTS} ${other_host} './setup_disks.sh ebs 2>&1 | tee setup_disks.ebs.log'
-
-  heading "${other_host}: configure enviornment name resolution"
-  scp ${SSH_OPTS} ${hosts_file} ${other_host}:
-  ssh ${SSH_OPTS} ${other_host} "grep -q ${other_host} /etc/hosts || cat ${hosts_file} >> /etc/hosts"
 
   heading "${other_host}: disable IPv6"
   ssh ${SSH_OPTS} ${other_host} sysctl -w net.ipv6.conf.all.disable_ipv6=1
