@@ -78,7 +78,7 @@ class hadoop {
     ensure  => directory,
     owner   => 'hdfs',
     group   => 'hadoop',
-    mode    => 'u=rwx,g=rx,o=',
+    mode    => 'u=rwx,g=rwx,o=',
     require => File['/data0'],
   }
 
