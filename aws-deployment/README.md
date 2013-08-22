@@ -6,7 +6,7 @@ aws
 1. manually create required VPC, subnet, security group, and ssh keypair AWS resources
 1. configure the [aws](https://github.com/dsingley/aws) scripts
 1. define the cluster nodes in an `*_instances.txt` file
-1. use `bin/spinup.rb` to instantate the EC2 resources defined in the `*_instances.txt` file
+1. use `bin/spinup.rb` to instantiate the EC2 resources defined in the `*_instances.txt` file
 
 puppet
 ------
