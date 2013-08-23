@@ -601,8 +601,7 @@ define([
                 this.select('emptyGraphSelector').toggle(noVertices);
                 cy.panningEnabled(!noVertices)
                     .zoomingEnabled(!noVertices)
-                    .boxSelectionEnabled(!noVertices)
-                    .graphPaperEnabled(!noVertices);
+                    .boxSelectionEnabled(!noVertices);
 
                 if (noVertices) {
                     cy.reset();
