@@ -4,7 +4,7 @@ class zookeeper {
     require => Package['hadoop-0.20'],
   }
 
-  $zookeeper_nodes = hiera_array('zookeeper_nodes')
+  $zookeeper_nodes = hiera_hash('zookeeper_nodes')
 
   file { 'hadoop-zookeeper-config':
     path    => '/etc/zookeeper/zoo.cfg',
