@@ -77,6 +77,8 @@ define([
                 $loading = $("<span>")
                     .addClass("badge")
                     .addClass("loading");
+
+            // TODO: extract button loading and disabling to withDropdown mixin
             this.select('buttonDivSelector').prepend($loading);
             this.select('createTermButtonSelector').addClass('disabled');
             if ( !parameters.conceptId || parameters.conceptId.length === 0) {
