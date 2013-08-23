@@ -70,11 +70,19 @@ define([
         }
 
         this.switchActive = function( rowKey ) {
+            var self = this;
+
             this.select( 'workspaceListItemSelector' )
                 .removeClass('active')
                 .each(function() {
                     if ($(this).data('_rowKey') == rowKey) {
                         $(this).addClass('active');
+                        self.trigger(document, 'onWorkspaceSwitched', {
+                            workspace: {
+                                name: $(this).text(),
+                                _rowKey: rowKey
+                            }
+                        });
                         return false;
                     }
                 });

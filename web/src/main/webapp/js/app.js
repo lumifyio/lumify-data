@@ -5,6 +5,7 @@ define([
     'menubar/menubar',
     'search/search',
     'workspaces/workspaces',
+    'workspaces/overlay',
     'users/users',
     'graph/graph',
     'detail/detail',
@@ -13,7 +14,7 @@ define([
     'service/ucd',
     'util/keyboard',
     'util/undoManager'
-], function(appTemplate, defineComponent, Menubar, Search, Workspaces, Users, Graph, Detail, Map, WorkspaceService, UcdService, Keyboard, undoManager) {
+], function(appTemplate, defineComponent, Menubar, Search, Workspaces, WorkspaceOverlay, Users, Graph, Detail, Map, WorkspaceService, UcdService, Keyboard, undoManager) {
     'use strict';
 
     return defineComponent(App);
@@ -34,6 +35,7 @@ define([
             menubarSelector: '.menubar-pane',
             searchSelector: '.search-pane',
             workspacesSelector: '.workspaces-pane',
+            workspaceOverlaySelector: '.workspace-overlay',
             usersSelector: '.users-pane',
             graphSelector: '.graph-pane',
             mapSelector: '.map-pane',
@@ -85,6 +87,7 @@ define([
             Detail.attachTo(detailPane.find('.content'));
             Map.attachTo(mapPane);
             Keyboard.attachTo(document);
+            WorkspaceOverlay.attachTo(content.filter('.workspace-overlay'));
 
             // Configure splitpane resizing
             resizable(searchPane, 'e', undefined, undefined, this.onPaneResize.bind(this));
