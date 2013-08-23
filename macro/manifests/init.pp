@@ -95,6 +95,7 @@ class macro {
     }
   }
 
+  # TODO: avoid unnecessary execution
   define git-checkout ($branch = $title, $path) {
     exec { "git checkout ${path} ${branch}" :
       command => "/usr/bin/git checkout ${branch}",
