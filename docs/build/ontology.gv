@@ -44,10 +44,12 @@ digraph {
 	"Person" -> "Email Address" [ label = "hasEmailAddress"; color=lightgrey; ];
 	"Person" -> "Location" [ label = "livesAt"; color=lightgrey; ];
 	"Person" -> "Person" [ label = "knows"; color=lightgrey; ];
+	"Entity" -> "Artifact" [ label = "hasImage"; color=lightgrey; ];
 	"Company" -> "Phone Number" [ label = "hasPhoneNumber"; color=lightgrey; ];
 	"Organization" -> "Phone Number" [ label = "hasPhoneNumber"; color=lightgrey; ];
 	"Person" -> "Phone Number" [ label = "hasPhoneNumber"; color=lightgrey; ];
 	"Company" -> "Location" [ label = "headquarteredAt"; color=lightgrey; ];
 	"Organization" -> "Location" [ label = "headquarteredAt"; color=lightgrey; ];
 	"Person" -> "Company" [ label = "worksAt"; color=lightgrey; ];
+	"Artifact" -> "TermMention" [ label = "hasTermMention"; color=lightgrey; ];
 }
