@@ -57,24 +57,44 @@ function _octet4 {
   echo $(ifconfig eth0 | grep 'inet addr' | awk '{print $2}' | sed -e 's/.*\.//')
 }
 
-# prepare and use any not previously configured Instance Storage devices as /data[1-4]
+# setup a single instance store disk (to be run in parallel)
+function _instance_store_disk {
+  local instance_store_disk=$1
+  local label_prefix=$2
+  local n=$3
+  local log_file=$4
+
+  exec 4<&1           # save a reference to stdout
+  exec &> ${log_file} # write everthing else to the log file
+
+  echo "starting setup of instance store disk: ${instance_store_disk}" >&4
+
+  _partition ${instance_store_disk}
+  _format ${instance_store_disk}1 ${label_prefix}-i${n}
+  _mount ${label_prefix}-i${n} /data${n} noatime
+
+  echo "finished setup of instance store disk: ${instance_store_disk}" >&4
+}
+
+# prepare and use any not previously configured Instance Storage devices as /data[0-3]
 # assumes use for Hadoop with 'noatime' mount option
 function _instance {
   local label_prefix=$(_octet4)
   local n=$(awk '/-i[1234]/ {print $2}' /etc/fstab | sort | tail -1 | sed -e 's/\/data//')
   [ "${n}" != '' ] || n=0
   local instance_store_disk
+  local background_pids
 
   for instance_store_disk in $(fdisk -l | grep "Disk /dev/xvd[${INSTANCE_STORE_LETTERS}]" | awk '{print $2}' | sed -e 's/://'); do
     fdisk -l | grep "${instance_store_disk}1" &>/dev/null
     if [ $? -ne 0 ]; then
-      _partition ${instance_store_disk}
-      _format ${instance_store_disk}1 ${label_prefix}-i${n}
-      _mount ${label_prefix}-i${n} /data${n} noatime
+      _instance_store_disk ${instance_store_disk} ${label_prefix} ${n} $(basename $0 .sh).instance.${label_prefix}-i${n}.log &
+      background_pids="${background_pids} $!"
 
       n=$((${n} + 1))
     fi
   done
+  wait ${background_pids}
 }
 
 # prepare and use any not previously configure EBS volumes
