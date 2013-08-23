@@ -79,7 +79,7 @@ class hadoop {
     owner   => 'hdfs',
     group   => 'hadoop',
     mode    => 'u=rwx,g=rwx,o=',
-    require => File['/data0'],
+    require =>  [ File['/data0'], Package['hadoop-0.20'] ],
   }
 
   file { [ '/data0/hdfs', '/data0/hdfs/name', '/data0/hdfs/data' ] :
@@ -87,7 +87,7 @@ class hadoop {
     owner   => 'hdfs',
     group   => 'hadoop',
     mode    => 'u=rwx,g=rx,o=',
-    require => File['/data0'],
+    require =>  [ File['/data0'], Package['hadoop-0.20'] ],
   }
 
   file { [ '/data0/mapred', '/data0/mapred/local' ] :
@@ -95,6 +95,6 @@ class hadoop {
     owner   => 'mapred',
     group   => 'hadoop',
     mode    => 'u=rwx,g=rx,o=',
-    require => File['/data0'],
+    require =>  [ File['/data0'], Package['hadoop-0.20'] ],
   }
 }
