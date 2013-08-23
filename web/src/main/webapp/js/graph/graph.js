@@ -726,6 +726,7 @@ define([
                 minZoom: 1 / 4,
                 maxZoom: 4,
                 hideEdgesOnViewport: true,
+                graphPaperEnabled: false, // :( sorry chris
                 container: this.select('cytoscapeContainerSelector').css({height:'100%'})[0],
                 renderer: {
                     name: 'red-dawn'
