@@ -137,7 +137,7 @@ define([
                 existingEntity = this.attr.existing ? mentionVertex.addClass('focused').hasClass('entity') : false,
                 objectSign = '';
 
-            this.graphVertexId = data && data.graphVertexId;
+            this.graphVertexId = existingEntity && data && data.graphVertexId;
 
             if (this.attr.selection && !existingEntity) {
                 this.trigger(document, 'ignoreSelectionChanges.detail');
