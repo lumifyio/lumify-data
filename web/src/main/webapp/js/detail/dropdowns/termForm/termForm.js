@@ -69,7 +69,7 @@ define([
                 parameters = {
                     sign: sign,
                     conceptId: this.select('conceptSelector').val(),
-                    vertexId: this.vertexGraphId,
+                    graphVertexId: this.graphVertexId,
                     artifactKey: this.attr.artifactKey,
                     mentionStart: mentionStart,
                     mentionEnd: mentionStart + sign.length
