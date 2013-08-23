@@ -61,6 +61,7 @@ node "ip-10-0-3-51" {
   include hadoop::fw::secondarynamenode
   include accumulo::fw::master
   include accumulo::fw::gc
+  include accumulo::fw::monitor
   include role::hadoop::secondarynamenode
   include role::accumulo::head
 }
