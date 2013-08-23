@@ -55,6 +55,7 @@ scp ${SSH_OPTS} ../aws/bin-ec2/setup_disks.sh \
                 init.sh \
                 run_puppet.sh \
                 update.sh \
+                setup_ssh.sh \
                 ${hosts_file} \
                 ${modules_tgz} \
                 ${puppet_modules_tgz} \
