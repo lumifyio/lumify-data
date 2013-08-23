@@ -3,6 +3,7 @@
 
 <% results.forEach(function(result) { %>
 <li class="<%= selected === result._rowKey ? 'active' : '' %>" 
+    data-title="<%= result.title %>"
     data-_row-key="<%= result._rowKey %>"
     ><a href="#"><button class="delete btn btn-mini btn-danger">Delete</button><span><%= result.title || result._rowKey %></span></a></li>
 <% }); %>

@@ -67,7 +67,7 @@ define([
 
         this.onWorkspaceLoad = function ( event, data ) {
             this.switchActive( data.id );
-        }
+        };
 
         this.switchActive = function( rowKey ) {
             var self = this;
@@ -77,11 +77,8 @@ define([
                 .each(function() {
                     if ($(this).data('_rowKey') == rowKey) {
                         $(this).addClass('active');
-                        self.trigger(document, 'onWorkspaceSwitched', {
-                            workspace: {
-                                name: $(this).text(),
-                                _rowKey: rowKey
-                            }
+                        self.trigger(document, 'workspaceSwitched', {
+                            workspace: $(this).data()
                         });
                         return false;
                     }
