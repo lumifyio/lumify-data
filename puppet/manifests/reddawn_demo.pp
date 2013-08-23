@@ -57,6 +57,9 @@ node "ip-10-0-3-50" {
 }
 
 node "ip-10-0-3-51" {
+  package { 'hadoop-zookeeper' :
+    ensure => present,
+  }
   include my_fw
   include hadoop::fw::secondarynamenode
   include accumulo::fw::master
