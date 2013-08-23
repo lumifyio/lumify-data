@@ -1,4 +1,6 @@
 #!/bin/bash
+# group: video
+# group: image
 # require: 150_ContentTypeExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"

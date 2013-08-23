@@ -1,4 +1,5 @@
 #!/bin/bash
+# group: video
 # require: 200_VideoConversionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"

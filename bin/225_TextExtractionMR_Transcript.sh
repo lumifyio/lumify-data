@@ -1,4 +1,5 @@
 #!/bin/bash
+# group: video
 # require: 210_VideoFrameTextExtractionMR_OCR.sh
 
 SOURCE="${BASH_SOURCE[0]}"

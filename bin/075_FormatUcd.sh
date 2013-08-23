@@ -1,4 +1,5 @@
 #!/bin/bash
+# group: format
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do

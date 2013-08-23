@@ -1,4 +1,5 @@
 #!/bin/bash
+# require: 075_FormatUcd.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
