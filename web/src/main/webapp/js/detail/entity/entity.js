@@ -38,8 +38,7 @@ define([
             var self = this;
             this.$node.on('click.paneClick', this.onPaneClicked.bind(this));
             this.on('click', {
-                addNewPropertiesSelector: this.onAddNewPropertiesClicked,
-                addPropertySelector: this.onAddPropertyClicked
+                addNewPropertiesSelector: this.onAddNewPropertiesClicked
             });
             this.on('addProperty', this.onAddProperty);
 
@@ -147,11 +146,10 @@ define([
                 }
 
                 var propertiesTpl = [];
-                for(var i=0; i<properties.length; i++) {
-                    var property = properties[i];
-                    var displayName;
-                    var value;
-                    var ontologyProperty = ontologyProperties.byTitle[property.key];
+                properties.forEach(function(property) {
+                    var displayName, value,
+                        ontologyProperty = ontologyProperties.byTitle[property.key];
+
                     if (ontologyProperty) {
                         displayName = ontologyProperty.displayName;
                         if(ontologyProperty.dataType == 'date') {
@@ -170,19 +168,20 @@ define([
                         displayName: displayName
                     };
 
-                    if(property.key.charAt(0) != '_') {
+                    if(/^[^_]/.test(property.key)) {
                         propertiesTpl.push(data);
                     }
 
-                    if(property.key == '_glyphIcon') {
+                    if(property.key === '_glyphIcon') {
                         self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: property.value });
-                        break;
                     }
+                });
 
-                }
-                self.select('propertiesSelector')
-                    .after(propertiesTemplate({properties: propertiesTpl}))
-                    .remove();
+                var header = self.select('propertiesSelector'),
+                    props = propertiesTemplate({properties:propertiesTpl});
+
+                header.nextUntil('.relationships').remove();
+                header.after(props).hide();
             });
         };
 
@@ -195,7 +194,6 @@ define([
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
 
-                console.log("Properties:", properties);
                 callback(properties);
             }));
         };
@@ -209,7 +207,6 @@ define([
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
 
-                console.log("Relationships:", relationships);
                 return callback(relationships);
             }));
         };
@@ -249,7 +246,7 @@ define([
                         if(err) {
                             if (err.xhr.status == 400){
                                 console.error('Validation error');
-                                self.trigger(self.$node.find('.underneath'), 'addPropertyError');
+                                self.trigger(self.$node.find('.underneath'), 'addPropertyError', {});
                                 return;
                             }
                             console.error('Error', err);
