@@ -100,9 +100,11 @@
     background-repeat: no-repeat;
     display: inline-block;
     max-width: 100%;
+    position: relative;
 
-    img {
-      -webkit-transition: -webkit-filter ease-out 0.2s;
+    .facebox {
+      position: absolute;
+      .box-shadow(~"#2D6987 0px 0px 0px 1px, rgba(255,255,255,0.4) 0 0 0 2px, #2D6987 0px 0px 8px 5px");
     }
   }
   .detected-object {
