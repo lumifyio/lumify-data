@@ -76,6 +76,8 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
                 TermMention existingTermMention = termMentionRepository.findByRowKey(getSession().getModelSession(), termMention.getRowKey().toString());
                 if (existingTermMention != null) {
                     existingTermMention.update(termMention);
+                } else {
+                    existingTermMention = termMention;
                 }
 
                 termMentionRepository.save(getSession().getModelSession(), existingTermMention);

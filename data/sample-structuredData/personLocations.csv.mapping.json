@@ -5,7 +5,7 @@
   "columns": [
     {
       "type": "term",
-      "conceptLabel": "Person",
+      "conceptLabel": "person",
       "relationships": [
         {
           "label": "livesAt",
@@ -21,7 +21,7 @@
     },
     {
       "type": "term",
-      "conceptLabel": "Location"
+      "conceptLabel": "location"
     },
     {
       "type": "property",

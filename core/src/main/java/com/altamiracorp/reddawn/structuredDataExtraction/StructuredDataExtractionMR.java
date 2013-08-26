@@ -102,6 +102,9 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                 }
 
                 Concept concept = ontologyRepository.getConceptByName(getSession().getGraphSession(), termAndGraphVertex.getTermMention().getMetadata().getConcept());
+                if (concept == null) {
+                    throw new RuntimeException("Could not find concept: " + termAndGraphVertex.getTermMention().getMetadata().getConcept());
+                }
                 termAndGraphVertex.getTermMention().getMetadata().setConceptGraphVertexId(concept.getId());
 
                 String termRowKey = termAndGraphVertex.getTermMention().getRowKey().toString();
