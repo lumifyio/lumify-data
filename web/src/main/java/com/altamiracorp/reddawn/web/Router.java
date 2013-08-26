@@ -79,7 +79,6 @@ public class Router extends HttpServlet {
 
         app.get("/graph/findPath", authenticator, GraphFindPath.class);
         app.get("/graph/{graphVertexId}/relatedVertices", authenticator, GraphRelatedVertices.class);
-        app.get("/graph/{graphVertexId}/relatedResolvedVertices", authenticator, GraphRelatedResolvedVertices.class);
         app.get("/graph/vertex/search", authenticator, GraphVertexSearch.class);
         app.get("/graph/vertex/geoLocationSearch", authenticator, GraphGeoLocationSearch.class);
         app.post("/graph/vertex/{graphVertexId}/uploadImage", authenticator, GraphVertexUploadImage.class);

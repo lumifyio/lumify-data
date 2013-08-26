@@ -18,8 +18,6 @@ public abstract class GraphSession {
 
     public abstract List<GraphVertex> getRelatedVertices(String graphVertexId);
 
-    public abstract List<GraphVertex> getResolvedRelatedVertices(String graphVertexId);
-
     public abstract List<GraphRelationship> getRelationships(List<String> allIds);
 
     public abstract GraphVertex findGraphVertex(String graphVertexId);

@@ -132,23 +132,6 @@ public abstract class Base extends RedDawnCommandLineBase {
 
         graph.commit();
 
-        Iterator<Vertex> termMentionIter = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.TERM_MENTION.toString()).iterator();
-        TitanGraphVertex termMention;
-        if (termMentionIter.hasNext()) {
-            termMention = new TitanGraphVertex(termMentionIter.next());
-        } else {
-            termMention = new TitanGraphVertex(graph.addVertex(null));
-        }
-        termMention.setProperty(typeProperty.getName(), VertexType.CONCEPT.toString());
-        termMention.addProperty(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.TERM_MENTION.toString());
-        addPropertyToConcept(graph, termMention, typeProperty.getName(), "Type", PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, rowKeyProperty.getName(), "Rowkey", PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, titleProperty.getName(), "Title", PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, sourceProperty.getName(), "Source", PropertyType.STRING);
-
-        graph.commit();
-
         // Entity concept
         Iterator<Vertex> entityIter = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ENTITY.toString()).iterator();
         TitanGraphVertex entity;
@@ -169,7 +152,7 @@ public abstract class Base extends RedDawnCommandLineBase {
         graph.commit();
 
         // Artifact to TermMention relationship
-        getOrCreateRelationshipType(graph, artifact, termMention, LabelName.HAS_TERM_MENTION.toString(), "has term mention");
+        getOrCreateRelationshipType(graph, artifact, entity, LabelName.HAS_ENTITY.toString(), "has entity");
 
         graph.commit();
 

@@ -28,7 +28,7 @@ public class TermMentionOffsetItem extends OffsetItem implements Comparable<Term
 
     @Override
     public String getType() {
-        return VertexType.TERM_MENTION.toString();
+        return VertexType.ENTITY.toString();
     }
 
     public String getConceptGraphVertexId() {

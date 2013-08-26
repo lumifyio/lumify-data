@@ -173,7 +173,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
                 .setConcept(conceptLabel);
 
         GraphVertex vertex = new GraphVertexImpl();
-        vertex.setProperty(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString());
+        vertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
         vertex.setProperty(PropertyName.ROW_KEY.toString(), termMention.getRowKey().toString());
         vertex.setProperty(PropertyName.TITLE.toString(), sign);
         vertex.setProperty(PropertyName.SOURCE.toString(), artifact.getGenericMetadata().getSubject() == null ? "" : artifact.getGenericMetadata().getSubject());

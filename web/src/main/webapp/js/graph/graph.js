@@ -273,14 +273,9 @@ define([
             });
         };
 
-        this.onContextMenuLoadResolvedRelatedItems = function() {
-            var data = this.setupLoadRelatedItems();
-            this.onLoadRelatedSelected(true, data);
-        };
-
         this.onContextMenuLoadRelatedItems = function () {
             var data = this.setupLoadRelatedItems();
-            this.onLoadRelatedSelected(false, data);
+            this.onLoadRelatedSelected(data);
         };
 
         this.setupLoadRelatedItems = function() {
@@ -662,7 +657,7 @@ define([
             });
         };
 
-        this.onLoadRelatedSelected = function(resolvedOnly, data) {
+        this.onLoadRelatedSelected = function(data) {
             var instructions = $('<div>')
                 .text("Loading...")
                 .addClass('instructions')
@@ -677,7 +672,7 @@ define([
             var x = data.originalPosition.x;
             var y = data.originalPosition.y;
 
-            this.ucd.getRelatedVertices(data.graphVertexId, resolvedOnly, function(err, vertices) {
+            this.ucd.getRelatedVertices(data.graphVertexId, function(err, vertices) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });

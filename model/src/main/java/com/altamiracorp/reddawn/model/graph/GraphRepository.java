@@ -87,10 +87,6 @@ public class GraphRepository {
         return graphSession.searchVerticesByTitleAndType(query, type);
     }
 
-    public List<GraphVertex> getResolvedRelatedVertices(GraphSession graphSession, String graphVertexId) {
-        return graphSession.getResolvedRelatedVertices(graphVertexId);
-    }
-
     public void removeRelationship(GraphSession graphSession, String source, String target, String label) {
         graphSession.removeRelationship(source, target, label);
         return;

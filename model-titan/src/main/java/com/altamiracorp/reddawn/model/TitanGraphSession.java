@@ -4,7 +4,6 @@ import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
-import com.altamiracorp.reddawn.model.ontology.LabelName;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
@@ -196,46 +195,10 @@ public class TitanGraphSession extends GraphSession {
                 .bothE()
                 .bothV()
                 .toList();
-        vertices.addAll(new GremlinPipeline(vertex)
-                .bothE()
-                .bothV()
-                .in(LabelName.IS_A.toString())
-                .toList());
         for (Vertex v : vertices) {
             results.add(new TitanGraphVertex(v));
         }
 
-        return results;
-    }
-
-    @Override
-    public List<GraphVertex> getResolvedRelatedVertices(String graphVertexId) {
-        Vertex vertex = this.graph.getVertex(graphVertexId);
-
-        List<Vertex> resolvedVertices = new GremlinPipeline(vertex)
-                .both()
-                .hasNot(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString())
-                .toList();
-        resolvedVertices.addAll(new GremlinPipeline(vertex)
-                .both()
-                .has(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString())
-                .both()
-                .hasNot(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString())
-                .toList());
-        resolvedVertices.addAll(new GremlinPipeline(vertex)
-                .both()
-                .has(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString())
-                .as("mentions")
-                .both()
-                .hasNot(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString())
-                .hasNot("id", vertex.getId())
-                .back("mentions")
-                .toList());
-
-        List<GraphVertex> results = new ArrayList<GraphVertex>();
-        for (Vertex v : resolvedVertices) {
-            results.add(new TitanGraphVertex(v));
-        }
         return results;
     }
 
