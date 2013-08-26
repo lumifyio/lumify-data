@@ -36,7 +36,7 @@ define([
             resolvableSelector: '.text .entity',
             highlightTypeSelector: '.highlight-options a',
             highlightedWordsSelector: '.entity, .term, .artifact',
-            draggablesSelector: '.entity, .term, .artifact, .generic-draggable'
+            draggablesSelector: '.resolved, .artifact, .generic-draggable'
         });
 
         // Automatically refresh draggables when request completes
