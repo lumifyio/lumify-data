@@ -69,4 +69,9 @@ public abstract class OffsetItem {
     public String getTitle() {
         return null;
     }
+
+    @Override
+    public String toString() {
+        return "rowKey: " + getRowKey() + ", start: " + getStart() + ", end: " + getEnd() + ", title: " + getTitle();
+    }
 }
