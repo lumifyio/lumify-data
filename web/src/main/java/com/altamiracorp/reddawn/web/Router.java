@@ -5,8 +5,6 @@ import com.altamiracorp.reddawn.web.routes.admin.AdminTables;
 import com.altamiracorp.reddawn.web.routes.artifact.*;
 import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
-import com.altamiracorp.reddawn.web.routes.vertex.*;
-import com.altamiracorp.reddawn.web.routes.vertex.VertexSetProperty;
 import com.altamiracorp.reddawn.web.routes.entity.EntityCreate;
 import com.altamiracorp.reddawn.web.routes.entity.EntityRelationships;
 import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
@@ -22,6 +20,7 @@ import com.altamiracorp.reddawn.web.routes.statement.Relationships;
 import com.altamiracorp.reddawn.web.routes.statement.StatementCreate;
 import com.altamiracorp.reddawn.web.routes.user.MeGet;
 import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
+import com.altamiracorp.reddawn.web.routes.vertex.*;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceByRowKey;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceDelete;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceList;
@@ -76,6 +75,7 @@ public class Router extends HttpServlet {
         app.get("/vertex/{graphVertexId}/relationships", authenticator, VertexRelationships.class);
         app.get("/vertex/relationship", authenticator, VertexToVertexRelationship.class);
         app.get("/vertex/removeRelationship", authenticator, VertexRelationshipRemoval.class);
+        app.get("/vertex/multiple", authenticator, VertexMultiple.class);
 
         app.get("/graph/findPath", authenticator, GraphFindPath.class);
         app.get("/graph/{graphVertexId}/relatedVertices", authenticator, GraphRelatedVertices.class);

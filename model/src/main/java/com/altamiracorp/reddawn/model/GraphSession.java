@@ -24,6 +24,8 @@ public abstract class GraphSession {
 
     public abstract GraphVertex findGraphVertex(String graphVertexId);
 
+    public abstract List<GraphVertex> findGraphVertices(String[] vertexIds);
+
     public abstract void close();
 
     public abstract void deleteSearchIndex();

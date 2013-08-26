@@ -22,6 +22,15 @@ define(
             });
         };
 
+        VertexService.prototype.getMultiple = function(vertexIds, callback) {
+            this._ajaxGet({
+                url: 'vertex/multiple',
+                data: {
+                    vertexIds: vertexIds
+                }
+            }, callback);
+        };
+
         return VertexService;
     });
 

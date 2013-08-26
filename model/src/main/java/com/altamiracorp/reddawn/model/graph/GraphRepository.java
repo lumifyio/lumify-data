@@ -19,6 +19,10 @@ public class GraphRepository {
         return graphSession.findGraphVertex(graphVertexId);
     }
 
+    public List<GraphVertex> findVertices(GraphSession graphSession, String[] vertexIds) {
+        return graphSession.findGraphVertices(vertexIds);
+    }
+
     public GraphVertex findVertexByTitleAndType(GraphSession graphSession, String graphVertexTitle, VertexType type) {
         return graphSession.findVertexByExactTitleAndType(graphVertexTitle, type);
     }

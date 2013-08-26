@@ -338,6 +338,15 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
+    public List<GraphVertex> findGraphVertices(String[] vertexIds) {
+        ArrayList<GraphVertex> vertices = new ArrayList<GraphVertex>();
+        for (String vertexId : vertexIds) {
+            vertices.add(findGraphVertex(vertexId));
+        }
+        return vertices;
+    }
+
+    @Override
     public void close() {
         this.graph.commit();
         this.graph.shutdown();
