@@ -165,7 +165,7 @@ public abstract class Base extends RedDawnCommandLineBase {
 
     protected abstract int defineOntology(TitanGraph graph, TitanGraphVertex entity);
 
-    protected TitanGraphVertex getOrCreateConcept(TitanGraph graph, TitanGraphVertex parent, String conceptName) {
+    protected TitanGraphVertex getOrCreateConcept(TitanGraph graph, TitanGraphVertex parent, String conceptName, String displayName) {
         Iterator<Vertex> iter = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), conceptName).iterator();
         TitanGraphVertex vertex;
         if (iter.hasNext()) {
@@ -175,6 +175,7 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
         vertex.setProperty(PropertyName.TYPE.toString(), VertexType.CONCEPT.toString());
         vertex.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), conceptName);
+        vertex.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
         findOrAddEdge(vertex, parent, LabelName.IS_A.toString());
         return vertex;
     }

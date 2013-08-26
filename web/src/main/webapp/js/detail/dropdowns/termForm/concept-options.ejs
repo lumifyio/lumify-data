@@ -2,5 +2,5 @@
 <% concepts.forEach(function(concept) { %>
 <option 
   <% if (concept.id == selectedConceptId) { %>selected<% } %>
-  value="<%= concept.id %>"><%= concept.flattenedTitle %></option>
+  value="<%= concept.id %>"><%= concept.displayName%></option>
 <% }); %>
