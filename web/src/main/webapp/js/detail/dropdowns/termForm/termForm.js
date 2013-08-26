@@ -66,7 +66,7 @@ define([
                 newObjectSign = $.trim(this.select('objectSignSelector').val()),
                 mentionStart = dataInfo.start,
                 parameters = {
-                    sign: sign,
+                    sign: newObjectSign,
                     conceptId: this.select('conceptSelector').val(),
                     graphVertexId: this.graphVertexId,
                     artifactKey: this.attr.artifactKey,
