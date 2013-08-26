@@ -104,6 +104,9 @@ public class Artifact extends Row<ArtifactRowKey> {
     }
 
     public ArtifactType getType() {
+        if (getGenericMetadata().getMimeType() == null) {
+            return null;
+        }
         if (getGenericMetadata().getMimeType().toLowerCase().contains("video")
                 || getGenericMetadata().getMimeType().toLowerCase().contains("mp4"))
             return ArtifactType.VIDEO;
