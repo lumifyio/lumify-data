@@ -1,11 +1,9 @@
-
-
 define([
     'flight/lib/component',
     '../withTypeContent',
     '../withHighlighting',
     'tpl!./multiple'
-], function(defineComponent, withTypeContent, withHighlighting, template) {
+], function (defineComponent, withTypeContent, withHighlighting, template) {
 
     'use strict';
 
@@ -13,8 +11,12 @@ define([
 
     function Multiple() {
 
-        this.after('initialize', function() {
-            this.$node.html(template({getClasses:this.classesForVertex, vertices:this.attr.data}));
+        this.after('initialize', function () {
+            var vertices = this.attr.data
+                .filter(function (v) {
+                    return v._type != 'relationship';
+                });
+            this.$node.html(template({getClasses: this.classesForVertex, vertices: vertices}));
             this.updateEntityAndArtifactDraggables();
         });
     }

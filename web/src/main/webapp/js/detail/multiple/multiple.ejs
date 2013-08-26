@@ -4,9 +4,7 @@
   <ul>
     <% vertices.forEach(function(vertex) { %>
     <li>
-        <% if (vertex._type != 'relationship') { %>
-            <span class="<%= getClasses(vertex) %>" data-info='<%- JSON.stringify(vertex) %>'><%- vertex.originalTitle || vertex.title || 'No title available' %></span>
-        <% } %>
+        <span class="<%= getClasses(vertex) %>" data-info='<%- JSON.stringify(vertex) %>'><%- vertex.originalTitle || vertex.title || 'No title available' %></span>
     </li>
     <% }); %>
   </ul>
