@@ -62,6 +62,10 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
         }
 
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
+            if (artifact.getGenericMetadata().getMappingJson() != null) {
+                LOGGER.info("Skipping extracting entities from artifact: " + artifact.getRowKey().toString() + " (cause: structured data)");
+                return;
+            }
             LOGGER.info("Extracting entities from artifact: " + artifact.getRowKey().toString());
 
             String artifactText = artifact.getContent().getDocExtractedTextString();

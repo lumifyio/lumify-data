@@ -134,24 +134,26 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                 }
                 TermMention termMention = termAndGraphVertex.getTermMention();
                 if (termMention.getMetadata().getGraphVertexId() == null) {
-                    String conceptLabel = termAndGraphVertex.getTermMention().getMetadata().getConcept();
-                    Concept concept = conceptMap.get(conceptLabel);
-                    if (concept == null) {
-                        concept = ontologyRepository.getConceptByName(getSession().getGraphSession(), conceptLabel);
+                    if (termAndGraphVertex.getGraphVertex().getId() == null) {
+                        String conceptLabel = termAndGraphVertex.getTermMention().getMetadata().getConcept();
+                        Concept concept = conceptMap.get(conceptLabel);
                         if (concept == null) {
-                            throw new RuntimeException("Could not find concept: " + conceptLabel);
+                            concept = ontologyRepository.getConceptByName(getSession().getGraphSession(), conceptLabel);
+                            if (concept == null) {
+                                throw new RuntimeException("Could not find concept: " + conceptLabel);
+                            }
+                            conceptMap.put(conceptLabel, concept);
                         }
-                        conceptMap.put(conceptLabel, concept);
+
+                        termAndGraphVertex.getGraphVertex().setProperty(PropertyName.SUBTYPE.toString(), concept.getId());
+                        graphRepository.saveVertex(getSession().getGraphSession(), termAndGraphVertex.getGraphVertex());
+                        getSession().getGraphSession().commit();
                     }
 
-                    termAndGraphVertex.getGraphVertex().setProperty(PropertyName.SUBTYPE.toString(), concept.getId());
-                    String vertexId = graphRepository.saveVertex(getSession().getGraphSession(), termAndGraphVertex.getGraphVertex());
-                    getSession().getGraphSession().commit();
-
-                    termMention.getMetadata().setGraphVertexId(vertexId);
+                    termMention.getMetadata().setGraphVertexId(termAndGraphVertex.getGraphVertex().getId());
                     termMentionRepository.save(getSession().getModelSession(), termAndGraphVertex.getTermMention());
 
-                    GraphRelationship artifactRelationship = new GraphRelationship(null, artifactVertex.getId(), vertexId, "hasTermMention");
+                    GraphRelationship artifactRelationship = new GraphRelationship(null, artifactVertex.getId(), termAndGraphVertex.getGraphVertex().getId(), "hasTermMention");
                     getSession().getGraphSession().save(artifactRelationship);
                 } else {
                     GraphVertex existingGraphVertex = getSession().getGraphSession().findGraphVertex(termMention.getMetadata().getGraphVertexId());

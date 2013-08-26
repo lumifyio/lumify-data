@@ -68,6 +68,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
         CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
         LineReader reader = new LineReader(new StringReader(text));
         String line;
+        Map<String, GraphVertex> allGraphVertex = new HashMap<String, GraphVertex>();
         int lastOffset = 0;
         while ((line = reader.readLine()) != null) {
             if (line.length() == 0) {
@@ -80,7 +81,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
             }
 
             if (row >= skipRows) {
-                processLine(extractedData, artifact, lastOffset, columns, mappingJson);
+                processLine(extractedData, artifact, lastOffset, columns, allGraphVertex, mappingJson);
             }
             row++;
             lastOffset = reader.getOffset();
@@ -88,15 +89,15 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
         return extractedData;
     }
 
-    private void processLine(ExtractedData extractedData, Artifact artifact, int offset, List<String> columns, JSONObject mappingJson) throws JSONException, ParseException {
-        List<TermAndGraphVertex> termsAndGraphVertices = getTermsAndGraphVertices(artifact, offset, columns, mappingJson);
+    private void processLine(ExtractedData extractedData, Artifact artifact, int offset, List<String> columns, Map<String, GraphVertex> allGraphVertex, JSONObject mappingJson) throws JSONException, ParseException {
+        List<TermAndGraphVertex> termsAndGraphVertices = getTermsAndGraphVertices(artifact, offset, columns, allGraphVertex, mappingJson);
         extractedData.addTermAndGraphVertex(termsAndGraphVertices);
 
         List<StructuredDataRelationship> relationships = getRelationships(termsAndGraphVertices, mappingJson);
         extractedData.addRelationships(relationships);
     }
 
-    private List<TermAndGraphVertex> getTermsAndGraphVertices(Artifact artifact, int offset, List<String> line, JSONObject mappingJson) throws JSONException, ParseException {
+    private List<TermAndGraphVertex> getTermsAndGraphVertices(Artifact artifact, int offset, List<String> line, Map<String, GraphVertex> allGraphVertex, JSONObject mappingJson) throws JSONException, ParseException {
         List<TermAndGraphVertex> termsAndGraphVertices = new ArrayList<TermAndGraphVertex>();
         JSONArray mappingColumnsJson = (JSONArray) mappingJson.get("columns");
         for (int i = 0; i < line.size(); i++) {
@@ -105,7 +106,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
             String type = columnMappingJson.getString("type");
             TermAndGraphVertex termAndGraphVertex = null;
             if (type.equals("term")) {
-                termAndGraphVertex = createTermAndGraphVertex(artifact, offset, sign, columnMappingJson);
+                termAndGraphVertex = createTermAndGraphVertex(artifact, offset, sign, allGraphVertex, columnMappingJson);
 
                 if (columnMappingJson.has("properties")) {
                     JSONArray propertiesMappingJson = columnMappingJson.getJSONArray("properties");
@@ -157,7 +158,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
         return sdf.parse(columnData);
     }
 
-    private TermAndGraphVertex createTermAndGraphVertex(Artifact artifact, int offset, String sign, JSONObject columnMappingJson) throws JSONException {
+    private TermAndGraphVertex createTermAndGraphVertex(Artifact artifact, int offset, String sign, Map<String, GraphVertex> allGraphVertex, JSONObject columnMappingJson) throws JSONException {
         TermAndGraphVertex termAndGraphVertex;
         String conceptLabel = columnMappingJson.getString("conceptLabel");
 
@@ -172,11 +173,16 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
                 .setSign(sign)
                 .setConcept(conceptLabel);
 
-        GraphVertex vertex = new GraphVertexImpl();
-        vertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
-        vertex.setProperty(PropertyName.ROW_KEY.toString(), termMention.getRowKey().toString());
-        vertex.setProperty(PropertyName.TITLE.toString(), sign);
-        vertex.setProperty(PropertyName.SOURCE.toString(), artifact.getGenericMetadata().getSubject() == null ? "" : artifact.getGenericMetadata().getSubject());
+
+        GraphVertex vertex = allGraphVertex.get(sign);
+        if (vertex == null) {
+            vertex = new GraphVertexImpl();
+            vertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
+            vertex.setProperty(PropertyName.ROW_KEY.toString(), termMention.getRowKey().toString());
+            vertex.setProperty(PropertyName.TITLE.toString(), sign);
+            vertex.setProperty(PropertyName.SOURCE.toString(), artifact.getGenericMetadata().getSubject() == null ? "" : artifact.getGenericMetadata().getSubject());
+            allGraphVertex.put(sign, vertex);
+        }
 
         termAndGraphVertex = new TermAndGraphVertex(termMention, vertex);
         return termAndGraphVertex;
