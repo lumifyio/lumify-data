@@ -312,6 +312,18 @@ define([
             });
         };
 
+        this.onContextMenuRemoveItem = function (){
+            var menu = this.select('vertexContextMenuSelector');
+            var vertices = [];
+            var data = {
+                _subType: menu.data("currentVertexSubtype"),
+                _type: menu.data("currentVertexType"),
+                graphVertexId: menu.data('currentVertexGraphVertexId')
+            };
+            vertices.push (data);
+            this.trigger (document,'deleteVertices', {vertices: vertices});
+        };
+
         this.onContextMenuFitToWindow = function() {
             this.fit();
         };
@@ -443,6 +455,7 @@ define([
                 menu.data("currentVertexPositionX", event.cyTarget.position ('x'));
                 menu.data("currentVertexPositionY", event.cyTarget.position ('y'));
                 menu.data("currentVertexType", event.cyTarget.data('_type'));
+                menu.data("currentVertexSubtype", event.cyTarget.data('_subType'));
                 if (event.cy.nodes().filter(':selected').length > 1) {
                     return false;
                 }
