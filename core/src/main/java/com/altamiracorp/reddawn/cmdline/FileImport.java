@@ -111,12 +111,12 @@ public class FileImport extends RedDawnCommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         File directory = new File(getDirectory());
-        if (this.downloadZip && datasetExists(getDirectory() + "/" + zipfile)) {
-            this.directory = this.directory + "/" + this.zipfile;
+        if (getDownloadZip() && datasetExists(getDirectory() + "/" + getZipfile())) {
+            this.directory = getDirectory() + "/" + getZipfile();
             directory = new File(getDirectory());
-        } else if ((!datasetExists(getDirectory()) || this.downloadZip) && !directory.exists()) {
+        } else if ((!datasetExists(getDirectory() + "/" + getZipfile()) || getDownloadZip()) && !getZipfile().contains("import")/*&& !directory.exists()*/) {
             getDataset(arguments);
-            this.directory = this.directory + "/" + this.zipfile;
+            this.directory = getDirectory() + "/" + getZipfile();
             directory = new File(getDirectory());
         }
         String pattern = getPattern();
@@ -186,6 +186,10 @@ public class FileImport extends RedDawnCommandLineBase {
 
     public String getZipfile() {
         return zipfile;
+    }
+
+    public Boolean getDownloadZip() {
+        return downloadZip;
     }
 
     private void getDataset(String[] args) {
