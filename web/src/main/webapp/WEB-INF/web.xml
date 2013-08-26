@@ -16,8 +16,43 @@
         <param-name>map.tileServer.port</param-name>
         <param-value>9999</param-value>
     </context-param>
+    <context-param>
+        <param-name>hadoop.url</param-name>
+        <param-value>hdfs://192.168.33.10:8020</param-value>
+    </context-param>
+    <context-param>
+        <param-name>zookeeper.instanceName</param-name>
+        <param-value>reddawn</param-value>
+    </context-param>
+    <context-param>
+        <param-name>zookeeper.serverNames</param-name>
+        <param-value>192.168.33.10</param-value>
+    </context-param>
+    <context-param>
+        <param-name>accumulo.username</param-name>
+        <param-value>root</param-value>
+    </context-param>
+    <context-param>
+        <param-name>accumulo.password</param-name>
+        <param-value>password</param-value>
+    </context-param>
+    <context-param>
+        <param-name>blur.controllerLocation</param-name>
+        <param-value>192.168.33.10:40010</param-value>
+    </context-param>  
+    <context-param>
+        <param-name>blur.path</param-name>
+        <param-value>hdfs://192.168.33.10/blur</param-value>
+    </context-param>
+    <context-param>
+        <param-name>graph.search.hostname</param-name>
+        <param-value>192.168.33.10</param-value>
+    </context-param>    
 
-
+    <listener>
+        <listener-class>com.altamiracorp.reddawn.web.ApplicationBootstrap</listener-class>
+    </listener>
+    
     <servlet>
         <servlet-name>red-dawn</servlet-name>
         <servlet-class>com.altamiracorp.reddawn.web.Router</servlet-class>

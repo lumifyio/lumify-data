@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.web;
 
-import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
+import java.net.InetSocketAddress;
+
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -11,8 +11,7 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-import javax.servlet.http.HttpServletRequest;
-import java.net.InetSocketAddress;
+import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
 
 public class Server extends RedDawnCommandLineBase {
 
@@ -56,11 +55,7 @@ public class Server extends RedDawnCommandLineBase {
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
-        // TODO refactor this
-        WebSessionFactory.setServer(this);
-        WebSessionFactory.createRedDawnSession(null).getModelSession().initializeTables();
-
-        InetSocketAddress addr = new InetSocketAddress("0.0.0.0", this.port);
+        InetSocketAddress addr = new InetSocketAddress("0.0.0.0", port);
         org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(addr);
 
         WebAppContext webAppContext = new WebAppContext();
@@ -79,10 +74,5 @@ public class Server extends RedDawnCommandLineBase {
         server.join();
 
         return 0;
-    }
-
-    public RedDawnSession createRedDawnSession(HttpServletRequest request) {
-        // TODO create a reddawn session based on user in request object.
-        return super.createRedDawnSession();
     }
 }

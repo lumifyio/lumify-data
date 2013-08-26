@@ -1,16 +1,6 @@
 package com.altamiracorp.reddawn;
 
-import com.altamiracorp.reddawn.model.*;
-import com.altamiracorp.reddawn.search.BlurSearchProvider;
-import com.altamiracorp.reddawn.search.SearchProvider;
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.apache.accumulo.core.client.Connector;
-import org.apache.accumulo.core.client.ZooKeeperInstance;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.mapreduce.TaskInputOutputContext;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.IOException;
 import java.net.URI;
@@ -18,13 +8,49 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.ZooKeeperInstance;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.mapreduce.TaskInputOutputContext;
+
+import com.altamiracorp.reddawn.model.AccumuloQueryUser;
+import com.altamiracorp.reddawn.model.AccumuloSession;
+import com.altamiracorp.reddawn.model.GraphSession;
+import com.altamiracorp.reddawn.model.Session;
+import com.altamiracorp.reddawn.model.TitanGraphSession;
+import com.altamiracorp.reddawn.search.BlurSearchProvider;
+import com.altamiracorp.reddawn.search.SearchProvider;
+
+
 public class RedDawnSession {
     private Session modelSession;
     private SearchProvider searchProvider;
     private GraphSession graphSession;
 
+    private static Properties applicationProps = new Properties();
+
     private RedDawnSession() {
 
+    }
+
+    /**
+     * Store the extracted web application context properties
+     * @param props
+     */
+    public static void setApplicationProperties(final Properties props) {
+        checkNotNull(props);
+        applicationProps = props;
+    }
+
+    /**
+     * Creates a {@link RedDawnSession} with the extracted web context properties
+     * @return The created session
+     */
+    public static RedDawnSession create() {
+        return create(applicationProps, null);
     }
 
     public static RedDawnSession create(Properties props, TaskInputOutputContext context) {
@@ -68,7 +94,7 @@ public class RedDawnSession {
 
         Configuration hadoopConfiguration = new Configuration();
         String hdfsRootDir = props.getProperty(AccumuloSession.HADOOP_URL);
-        FileSystem hdfsFileSystem = DistributedFileSystem.get(new URI(hdfsRootDir), hadoopConfiguration, "hadoop");
+        FileSystem hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), hadoopConfiguration, "hadoop");
 
         AccumuloQueryUser queryUser = new AccumuloQueryUser();
         return new AccumuloSession(connector, hdfsFileSystem, hdfsRootDir, queryUser, context);
@@ -79,11 +105,11 @@ public class RedDawnSession {
     }
 
     public Session getModelSession() {
-        return this.modelSession;
+        return modelSession;
     }
 
     public SearchProvider getSearchProvider() {
-        return this.searchProvider;
+        return searchProvider;
     }
 
     public GraphSession getGraphSession() {

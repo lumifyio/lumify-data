@@ -1,17 +1,13 @@
 package com.altamiracorp.reddawn.web;
 
-import com.altamiracorp.reddawn.RedDawnSession;
-
 import javax.servlet.http.HttpServletRequest;
 
-public class WebSessionFactory {
-    private static Server server;
+import com.altamiracorp.reddawn.RedDawnSession;
 
-    public static void setServer(Server server) {
-        WebSessionFactory.server = server;
-    }
+public class WebSessionFactory {
 
     public static RedDawnSession createRedDawnSession(HttpServletRequest request) {
-        return server.createRedDawnSession(request);
+        // TODO create a reddawn session based on user in request object.
+        return RedDawnSession.create();
     }
 }
