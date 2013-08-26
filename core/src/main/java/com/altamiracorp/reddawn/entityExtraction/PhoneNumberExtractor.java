@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class PhoneNumberExtractor extends EntityExtractor {
-    private static final String ENTITY_TYPE = "Phone Number";
+    private static final String ENTITY_TYPE = "phoneNumber";
     private static final String DEFAULT_REGION_CODE = "defaultRegionCode";
     private static final String DEFAULT_DEFAULT_REGION_CODE = "US";
 

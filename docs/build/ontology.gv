@@ -8,48 +8,48 @@ digraph {
 	"Entity" [
 		label=<<B>Entity</B><BR/>_glyphIcon: image<BR/>title: string<BR/>_subType: string<BR/>_type: string>
 	];
-	"Person" [
-		label=<<B>Person</B><BR/>birthDate: date>
+	"person" [
+		label=<<B>person</B><BR/>birthDate: date>
 	];
 	{ rank=same; }
-	"Person" -> "Entity" [color=black;];
-	"Organization" [
-		label=<<B>Organization</B><BR/>formationDate: date>
+	"person" -> "Entity" [color=black;];
+	"organization" [
+		label=<<B>organization</B><BR/>formationDate: date>
 	];
-	"Company" [
-		label=<<B>Company</B><BR/>netIncome: currency>
-	];
-	{ rank=same; }
-	"Company" -> "Organization" [color=black;];
-	{ rank=same; "Company";}
-	"Organization" -> "Entity" [color=black;];
-	"Location" [
-		label=<<B>Location</B><BR/>geoLocation: geoLocation>
+	"company" [
+		label=<<B>company</B><BR/>netIncome: currency>
 	];
 	{ rank=same; }
-	"Location" -> "Entity" [color=black;];
-	"Phone Number" [
-		label=<<B>Phone Number</B>>
+	"company" -> "organization" [color=black;];
+	{ rank=same; "company";}
+	"organization" -> "Entity" [color=black;];
+	"location" [
+		label=<<B>location</B><BR/>geoLocation: geoLocation>
 	];
 	{ rank=same; }
-	"Phone Number" -> "Entity" [color=black;];
-	"Email Address" [
-		label=<<B>Email Address</B><BR/>active: string>
+	"location" -> "Entity" [color=black;];
+	"phoneNumber" [
+		label=<<B>phoneNumber</B>>
 	];
 	{ rank=same; }
-	"Email Address" -> "Entity" [color=black;];
-	{ rank=same; "Person";"Organization";"Location";"Phone Number";"Email Address";}
-	"Company" -> "Email Address" [ label = "hasEmailAddress"; color=lightgrey; ];
-	"Organization" -> "Email Address" [ label = "hasEmailAddress"; color=lightgrey; ];
-	"Person" -> "Email Address" [ label = "hasEmailAddress"; color=lightgrey; ];
-	"Person" -> "Location" [ label = "livesAt"; color=lightgrey; ];
-	"Person" -> "Person" [ label = "knows"; color=lightgrey; ];
+	"phoneNumber" -> "Entity" [color=black;];
+	"emailAddress" [
+		label=<<B>emailAddress</B><BR/>active: string>
+	];
+	{ rank=same; }
+	"emailAddress" -> "Entity" [color=black;];
+	{ rank=same; "person";"organization";"location";"phoneNumber";"emailAddress";}
 	"Entity" -> "Artifact" [ label = "hasImage"; color=lightgrey; ];
-	"Company" -> "Phone Number" [ label = "hasPhoneNumber"; color=lightgrey; ];
-	"Organization" -> "Phone Number" [ label = "hasPhoneNumber"; color=lightgrey; ];
-	"Person" -> "Phone Number" [ label = "hasPhoneNumber"; color=lightgrey; ];
-	"Company" -> "Location" [ label = "headquarteredAt"; color=lightgrey; ];
-	"Organization" -> "Location" [ label = "headquarteredAt"; color=lightgrey; ];
-	"Person" -> "Company" [ label = "worksAt"; color=lightgrey; ];
-	"Artifact" -> "TermMention" [ label = "hasTermMention"; color=lightgrey; ];
+	"company" -> "phoneNumber" [ label = "hasPhoneNumber"; color=lightgrey; ];
+	"organization" -> "phoneNumber" [ label = "hasPhoneNumber"; color=lightgrey; ];
+	"person" -> "phoneNumber" [ label = "hasPhoneNumber"; color=lightgrey; ];
+	"company" -> "location" [ label = "headquarteredAt"; color=lightgrey; ];
+	"organization" -> "location" [ label = "headquarteredAt"; color=lightgrey; ];
+	"person" -> "company" [ label = "worksAt"; color=lightgrey; ];
+	"Artifact" -> "Entity" [ label = "hasTermMention"; color=lightgrey; ];
+	"company" -> "emailAddress" [ label = "hasEmailAddress"; color=lightgrey; ];
+	"organization" -> "emailAddress" [ label = "hasEmailAddress"; color=lightgrey; ];
+	"person" -> "emailAddress" [ label = "hasEmailAddress"; color=lightgrey; ];
+	"person" -> "location" [ label = "livesAt"; color=lightgrey; ];
+	"person" -> "person" [ label = "knows"; color=lightgrey; ];
 }

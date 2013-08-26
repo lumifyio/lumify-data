@@ -8,12 +8,12 @@ import com.thinkaurelius.titan.core.TitanGraph;
 import java.util.List;
 
 public class Dev extends Base {
-    public static final String PERSON_TYPE = "Person";
-    public static final String ORGANIZATION_TYPE = "Organization";
-    public static final String COMPANY_TYPE = "Company";
-    public static final String LOCATION_TYPE = "Location";
-    public static final String PHONE_NUMBER_TYPE = "Phone Number";
-    public static final String EMAIL_ADDRESS_TYPE = "Email Address";
+    public static final String PERSON_TYPE = "person";
+    public static final String ORGANIZATION_TYPE = "organization";
+    public static final String COMPANY_TYPE = "company";
+    public static final String LOCATION_TYPE = "location";
+    public static final String PHONE_NUMBER_TYPE = "phoneNumber";
+    public static final String EMAIL_ADDRESS_TYPE = "emailAddress";
 
     public static void main(String[] args) throws Exception {
         new Dev().run(args);

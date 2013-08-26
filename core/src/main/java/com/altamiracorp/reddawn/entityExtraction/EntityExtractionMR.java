@@ -68,6 +68,9 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
             Collection<TermMention> termMentions = entityExtractor.extract(artifact, artifactText);
             for (TermMention termMention : termMentions) {
                 Concept concept = ontologyRepository.getConceptByName(getSession().getGraphSession(), termMention.getMetadata().getConcept());
+                if (concept == null) {
+                    throw new RuntimeException("Could not find concept: " + termMention.getMetadata().getConcept());
+                }
                 termMention.getMetadata().setConceptGraphVertexId(concept.getId());
 
                 TermMention existingTermMention = termMentionRepository.findByRowKey(getSession().getModelSession(), termMention.getRowKey().toString());
