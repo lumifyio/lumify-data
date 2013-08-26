@@ -80,7 +80,7 @@ define([
             var self = this;
             var html = "";
             concept.children.forEach(function(concept) {
-                html += '<li item-path="entity.' + concept.id + '" class="concept-' + concept.id + '"><a href="#" style="padding-left:' + indent + 'px;">' + concept.title + '<span class="badge"></span></a></li>';
+                html += '<li item-path="entity.' + concept.id + '" class="concept-' + concept.id + '"><a href="#" style="padding-left:' + indent + 'px;">' + concept.displayName + '<span class="badge"></span></a></li>';
                 if(concept.children && concept.children.length > 0) {
                     html += self.getConceptChildrenHtml(concept, indent + 15);
                 }
