@@ -48,7 +48,8 @@ public class WorkspaceSave implements Handler, AppAware {
 
         workspaceRepository.save(session.getModelSession(), workspace);
         JSONObject resultJson = new JSONObject();
-        resultJson.put("workspaceId", workspace.getRowKey().toString());
+        resultJson.put("_rowKey", workspace.getRowKey().toString());
+        resultJson.put("title", workspace.getMetadata().getTitle());
 
         new Responder(response).respondWith(resultJson);
     }

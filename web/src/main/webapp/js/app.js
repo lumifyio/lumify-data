@@ -321,7 +321,7 @@ define([
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
-				self.workspaceRowKey = data.workspaceId;
+				self.workspaceRowKey = data._rowKey;
                 self.trigger(document, 'workspaceSaved', data);
             });
         };

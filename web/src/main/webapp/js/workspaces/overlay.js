@@ -43,6 +43,10 @@ define([
             clearTimeout(this.updateTimer);
             this.lastSaved = Date.now();
 
+            if (data.title) {
+                this.select('nameSelector').text(data.title);
+            }
+
             var prefix = 'last saved ',
                 subtitle = this.select('subtitleSelector').text(prefix + 'moments ago'),
                 setTimer = function() {

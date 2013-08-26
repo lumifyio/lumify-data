@@ -3,8 +3,9 @@ define([
     'flight/lib/component',
     'service/workspace',
     'tpl!./workspaces',
-    'tpl!./list'
-], function(defineComponent, WorkspaceService, workspacesTemplate, listTemplate) {
+    'tpl!./list',
+    'tpl!./item'
+], function(defineComponent, WorkspaceService, workspacesTemplate, listTemplate, itemTemplate) {
     'use strict';
 
     return defineComponent(Workspaces);
@@ -34,8 +35,8 @@ define([
             var data = { title: title };
             this.workspaceService.saveNew(data, function (err, workspace) {
 				this.loadWorkspaceList(function () {
-				    this.onWorkspaceLoad(null, workspace);
-				    this.trigger( document, 'switchWorkspace', { _rowKey: workspace.workspaceId });
+                    this.onWorkspaceLoad(null, workspace);
+                    this.trigger( document, 'switchWorkspace', { _rowKey: workspace._rowKey });
 				}.bind(this));
 			}.bind(this));
         };
@@ -67,6 +68,18 @@ define([
 
         this.onWorkspaceLoad = function ( event, data ) {
             this.switchActive( data.id );
+        };
+
+        this.onWorkspaceSaved = function ( event, data ) {
+            var li = this.select('workspaceListItemSelector').filter(function() {
+                return $(this).data('_rowKey') == data._rowKey;
+            });
+            if (li.length === 0) {
+                $(itemTemplate({
+                    workspace: data,
+                    selected: data._rowKey
+                })).insertAfter( this.$node.find('li.nav-header') );
+            }
         };
 
         this.switchActive = function( rowKey ) {
@@ -102,8 +115,8 @@ define([
         };
 
         this.after( 'initialize', function() {
-            this.loadWorkspaceList();
             this.on( document, 'workspaceLoaded', this.onWorkspaceLoad );
+            this.on( document, 'workspaceSaved', this.onWorkspaceSaved );
             this.on( 'click', {
                 workspaceListItemSelector: this.onWorkspaceItemClick,
                 addNewSelector: this.onAddNew,
@@ -112,6 +125,8 @@ define([
             this.on( 'keyup', {
                 addNewInputSelector: this.onInputKeyUp
             });
+
+            this.loadWorkspaceList();
         });
     }
 
