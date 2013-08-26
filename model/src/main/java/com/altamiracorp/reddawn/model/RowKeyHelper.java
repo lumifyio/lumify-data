@@ -12,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 public class RowKeyHelper {
     public static final char MINOR_FIELD_SEPARATOR = (char) 0x1f;
     public static final char MAJOR_FIELD_SEPARATOR = (char) 0x1e;
+    public static final int OFFSET_WIDTH = 16;
 
     public static String buildMinor(String... parts) {
         return StringUtils.join(parts, MINOR_FIELD_SEPARATOR);

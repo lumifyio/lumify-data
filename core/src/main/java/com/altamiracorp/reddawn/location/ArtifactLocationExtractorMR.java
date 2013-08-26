@@ -4,10 +4,10 @@ import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.Row;
+import com.altamiracorp.reddawn.model.termMention.TermMention;
+import com.altamiracorp.reddawn.model.termMention.TermMentionRepository;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
-import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
-import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -43,8 +43,8 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
 
     public static class ArtifactLocationExtractorMapper extends RedDawnMapper<Text, Artifact, Text, Row> {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "artifactLocationExtractorClass";
-        private TermRepository termRepository = new TermRepository();
         private ArtifactLocationExtractor entityExtractor;
+        private TermMentionRepository termMentionRepository = new TermMentionRepository();
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -62,7 +62,7 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
             LOGGER.info("Extracting location from: " + artifact.getRowKey().toString());
 
-            List<TermAndTermMention> termAndTermMentions = termRepository.findByTermMentionsArtifactRowKey(getSession().getModelSession(), artifact.getRowKey().toString());
+            List<TermMention> termAndTermMentions = termMentionRepository.findByArtifactRowKey(getSession().getModelSession(), artifact.getRowKey().toString());
             entityExtractor.extract(artifact, termAndTermMentions);
             context.write(new Text(Artifact.TABLE_NAME), artifact);
         }

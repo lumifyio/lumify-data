@@ -2,8 +2,7 @@ package com.altamiracorp.reddawn.location;
 
 import com.altamiracorp.reddawn.model.Session;
 import com.altamiracorp.reddawn.model.geoNames.*;
-import com.altamiracorp.reddawn.ucd.term.Term;
-import com.altamiracorp.reddawn.ucd.term.TermMention;
+import com.altamiracorp.reddawn.model.termMention.TermMention;
 
 import java.util.regex.Pattern;
 
@@ -13,39 +12,36 @@ public class SimpleTermLocationExtractor {
     private GeoNameAdmin1CodeRepository geoNameAdmin1CodeRepository = new GeoNameAdmin1CodeRepository();
     private GeoNameCountryInfoRepository geoNameCountryInfoRepository = new GeoNameCountryInfoRepository();
 
-    public Term GetTermWithLocationLookup(Session session, GeoNameRepository geoNameRepository, Term term) {
-        String sign = term.getRowKey().getSign();
+    public TermMention GetTermWithLocationLookup(Session session, GeoNameRepository geoNameRepository, TermMention termMention) {
+        String sign = termMention.getMetadata().getSign();
         GeoName geoName = geoNameRepository.findBestMatch(session, sign);
         Boolean termIsNotInGeoNames = geoName == null;
         if (termIsNotInGeoNames) return null;
 
-        return populateTermMentions(term,
+        return populateTermMentions(termMention,
                 geoName.getMetadata().getLatitude(),
                 geoName.getMetadata().getLongitude(),
-                getTitleFromGeoName(session,geoName),
+                getTitleFromGeoName(session, geoName),
                 geoName.getMetadata().getPopulation());
     }
 
-    public Term GetTermWithPostalCodeLookup(Session session, GeoNamePostalCodeRepository geoNamePostalCodeRepository, Term term) {
+    public TermMention GetTermWithPostalCodeLookup(Session session, GeoNamePostalCodeRepository geoNamePostalCodeRepository, TermMention termMention) {
         //we are assuming all US zip codes at this point!
-        String zip = term.getRowKey().getSign().length() == 5 ? term.getRowKey().getSign() : term.getRowKey().getSign().substring(0,5);
+        String zip = termMention.getMetadata().getSign().length() == 5 ? termMention.getMetadata().getSign() : termMention.getMetadata().getSign().substring(0, 5);
         GeoNamePostalCode postalCode = geoNamePostalCodeRepository.findByUSZipCode(session, zip);
         Boolean termIsNotValidPostalCode = postalCode == null;
         if (termIsNotValidPostalCode) return null;
-        return populateTermMentions(term,
+        return populateTermMentions(termMention,
                 postalCode.getMetadata().getLatitude(),
                 postalCode.getMetadata().getLongitude(),
                 getTitleFromPostalCode(postalCode),
                 POSTAL_CODE_POPULATION);
     }
 
-    private Term populateTermMentions(Term term, Double latitude, Double longitude, String title, Long population) {
-        for (TermMention termMention : term.getTermMentions()) {
-            termMention.setGeoLocation(latitude,longitude);
-            termMention.setGeoLocationTitle(title);
-            termMention.setGeoLocationPopulation(population);
-        }
-
+    private TermMention populateTermMentions(TermMention term, Double latitude, Double longitude, String title, Long population) {
+        term.getMetadata().setGeoLocation(latitude, longitude);
+        term.getMetadata().setGeoLocationTitle(title);
+        term.getMetadata().setGeoLocationPopulation(population);
         return term;
     }
 
@@ -76,11 +72,11 @@ public class SimpleTermLocationExtractor {
         return sb.toString();
     }
 
-    public boolean isPostalCode (Term term) {
-        return isPostalCode(term.getRowKey().getSign());
+    public boolean isPostalCode(TermMention termMention) {
+        return isPostalCode(termMention.getMetadata().getSign());
     }
 
-    private boolean isPostalCode (String location) {
-        return Pattern.matches(POSTAL_CODE_REGEX,location);
+    private boolean isPostalCode(String location) {
+        return Pattern.matches(POSTAL_CODE_REGEX, location);
     }
 }

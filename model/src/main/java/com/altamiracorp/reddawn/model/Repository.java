@@ -32,19 +32,8 @@ public abstract class Repository<T extends Row> {
         return r;
     }
 
-    public List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(Session session, String rowKey, long colFamOffset,
-                                                                              long colFamLimit, String colFamRegex) {
-        return session.findByRowKeyWithColumnFamilyRegexOffsetAndLimit(getTableName(), rowKey, session.getQueryUser(), colFamOffset,
-                colFamLimit, colFamRegex);
-    }
-
     public List<T> findByRowStartsWith(Session session, String rowKeyPrefix) {
         Collection<Row> rows = session.findByRowStartsWith(getTableName(), rowKeyPrefix, session.getQueryUser());
-        return fromRows(rows);
-    }
-
-    public List<T> findByRowKeyRegex(Session session, String rowKeyRegex) {
-        Collection<Row> rows = session.findByRowKeyRegex(getTableName(), rowKeyRegex, session.getQueryUser());
         return fromRows(rows);
     }
 
@@ -83,13 +72,5 @@ public abstract class Repository<T extends Row> {
 
     public void delete(Session session, RowKey rowKey) {
         session.deleteRow(getTableName(), rowKey);
-    }
-
-    public List<Row> findByRowStartsWithList(List<String> rowKeyPrefixes, Session session) {
-        return session.findByRowStartsWithList(getTableName(), rowKeyPrefixes, session.getQueryUser());
-    }
-
-    public void touchRow(Session session, RowKey rowKey) {
-        session.touchRow(getTableName(), rowKey, session.getQueryUser());
     }
 }

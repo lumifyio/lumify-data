@@ -6,13 +6,11 @@ import com.altamiracorp.reddawn.model.geoNames.GeoNameAdmin1Code;
 import com.altamiracorp.reddawn.model.geoNames.GeoNameCountryInfo;
 import com.altamiracorp.reddawn.model.geoNames.GeoNamePostalCode;
 import com.altamiracorp.reddawn.model.resources.Resource;
+import com.altamiracorp.reddawn.model.termMention.TermMention;
 import com.altamiracorp.reddawn.model.videoFrames.VideoFrame;
 import com.altamiracorp.reddawn.model.workspace.Workspace;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
-import com.altamiracorp.reddawn.ucd.sentence.Sentence;
-import com.altamiracorp.reddawn.ucd.term.Term;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,11 +57,9 @@ public abstract class Session {
     public void initializeTables() {
         LOGGER.info("initializeTables");
         initializeTable(Artifact.TABLE_NAME);
-        initializeTable(Term.TABLE_NAME);
-        initializeTable(Sentence.TABLE_NAME);
-        initializeTable(ArtifactTermIndex.TABLE_NAME);
 
         initializeTable(Workspace.TABLE_NAME);
+        initializeTable(TermMention.TABLE_NAME);
         initializeTable(GeoName.TABLE_NAME);
         initializeTable(GeoNameAdmin1Code.TABLE_NAME);
         initializeTable(GeoNameCountryInfo.TABLE_NAME);
@@ -103,11 +99,9 @@ public abstract class Session {
     public void deleteTables() {
         LOGGER.info("deleteTables");
         deleteTable(Artifact.TABLE_NAME);
-        deleteTable(Term.TABLE_NAME);
-        deleteTable(Sentence.TABLE_NAME);
-        deleteTable(ArtifactTermIndex.TABLE_NAME);
 
         deleteTable(Workspace.TABLE_NAME);
+        deleteTable(TermMention.TABLE_NAME);
         deleteTable(GeoName.TABLE_NAME);
         deleteTable(GeoNameAdmin1Code.TABLE_NAME);
         deleteTable(GeoNameCountryInfo.TABLE_NAME);

@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.model.graph;
 
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,5 +65,13 @@ public abstract class GraphVertex {
 
     public void setProperty(PropertyName propertyName, String value) {
         setProperty(propertyName.toString(), value);
+    }
+
+    public void setType(VertexType vertexType) {
+        setType(vertexType.toString());
+    }
+
+    public void setType(String vertexType) {
+        setProperty(PropertyName.TYPE, vertexType);
     }
 }

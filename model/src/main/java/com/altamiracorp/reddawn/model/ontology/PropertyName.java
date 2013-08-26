@@ -9,7 +9,6 @@ public enum PropertyName {
     DISPLAY_NAME("displayName"),
     GEO_LOCATION("geoLocation"),
     ROW_KEY("_rowKey"),
-    COLUMN_FAMILY_NAME("_columnFamilyName"),
     GLYPH_ICON("_glyphIcon"),
     COLOR("_color"),
     SOURCE("source");

@@ -1,7 +1,6 @@
 package com.altamiracorp.reddawn.model.dbpedia;
 
 import com.altamiracorp.reddawn.model.*;
-import com.altamiracorp.reddawn.ucd.term.TermRowKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,28 +80,5 @@ public class DBPediaRepository extends Repository<DBPedia> {
             }
         }
         return null;
-    }
-
-    public TermRowKey findTermRowKeyByDBPediaRowKey(Session session, String dbpediaRowKey) {
-        Map<String, String> columnsToReturn = new HashMap<String, String>();
-        columnsToReturn.put(DBPediaLabel.NAME, DBPediaLabel.LABEL_COLUMN);
-        columnsToReturn.put(DBPediaInstanceTypes.NAME, "*");
-
-        DBPedia dbpedia = findByRowKey(session, dbpediaRowKey, columnsToReturn);
-        if (dbpedia == null) {
-            return null;
-        }
-
-        String sign = dbpedia.getLabel().getLabel();
-        if (sign == null || sign.length() == 0) {
-            return null;
-        }
-
-        String conceptLabel = getConceptLabel(dbpedia);
-        if (conceptLabel == null || conceptLabel.length() == 0) {
-            return null;
-        }
-
-        return new TermRowKey(sign, TermRowKey.DBPEDIA_MODEL_KEY, conceptLabel);
     }
 }

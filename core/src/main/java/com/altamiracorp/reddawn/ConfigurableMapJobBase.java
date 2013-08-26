@@ -5,7 +5,7 @@ import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.AccumuloSession;
 import com.altamiracorp.reddawn.model.TitanGraphSession;
 import com.altamiracorp.reddawn.search.BlurSearchProvider;
-import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.commons.cli.CommandLine;
@@ -115,7 +115,7 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
         if (outputFormatClass != null) {
             job.setOutputFormatClass(outputFormatClass);
         }
-        AccumuloModelOutputFormat.init(job, getUsername(), getPassword(), getZookeeperInstanceName(), getZookeeperServerNames(), Term.TABLE_NAME);
+        AccumuloModelOutputFormat.init(job, getUsername(), getPassword(), getZookeeperInstanceName(), getZookeeperServerNames(), Artifact.TABLE_NAME);
 
         job.waitForCompletion(true);
         return job.isSuccessful() ? 0 : 1;
@@ -133,11 +133,11 @@ public abstract class ConfigurableMapJobBase extends RedDawnCommandLineBase impl
         return RedDawnSession.create(context);
     }
 
-    protected String[] getConfig () {
+    protected String[] getConfig() {
         return this.config;
     }
 
-    protected Class getClazz () {
+    protected Class getClazz() {
         return this.clazz;
     }
 }

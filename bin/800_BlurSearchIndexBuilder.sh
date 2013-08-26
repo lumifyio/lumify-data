@@ -1,7 +1,6 @@
 #!/bin/bash
 # require: 249_TextExtractorConsolidationMR.sh
 # require: 250_StructuredDataExtractorMR.sh
-# require: 700_ArtifactToTitanMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do

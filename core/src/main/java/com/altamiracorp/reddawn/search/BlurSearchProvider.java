@@ -2,7 +2,6 @@ package com.altamiracorp.reddawn.search;
 
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
-import com.altamiracorp.reddawn.ucd.term.Term;
 import org.apache.blur.thirdparty.thrift_0_9_0.TException;
 import org.apache.blur.thrift.BlurClient;
 import org.apache.blur.thrift.generated.*;
@@ -27,10 +26,6 @@ public class BlurSearchProvider implements SearchProvider {
     private static final String GRAPH_VERTEX_ID_COLUMN_NAME = "graphVertexId";
     private static final String SOURCE_COLUMN_NAME = "source";
     private static final String ARTIFACT_TYPE = "type";
-    private static final String TERM_BLUR_TABLE_NAME = "term";
-    private static final String SHA_COLUMN_FAMILY_NAME = "sha";
-    private static final String SIGN_COLUMN_NAME = "sign";
-    private static final String CONCEPT_LABEL_COLUMN_NAME = "conceptLabel";
 
     private Blur.Iface client;
     private String blurPath;
@@ -69,7 +64,7 @@ public class BlurSearchProvider implements SearchProvider {
         AnalyzerDefinition ad = new AnalyzerDefinition();
         try {
             List<String> tableList = this.client.tableList();
-            String[] blurTables = new String[]{TERM_BLUR_TABLE_NAME, ARTIFACT_BLUR_TABLE_NAME};
+            String[] blurTables = new String[]{ARTIFACT_BLUR_TABLE_NAME};
 
             for (String blurTable : blurTables) {
                 if (!tableList.contains(blurTable)) {
@@ -198,7 +193,6 @@ public class BlurSearchProvider implements SearchProvider {
     @Override
     public void deleteTables() {
         deleteTable(ARTIFACT_BLUR_TABLE_NAME);
-        deleteTable(TERM_BLUR_TABLE_NAME);
     }
 
     private void deleteTable(String tableName) {
@@ -209,43 +203,5 @@ public class BlurSearchProvider implements SearchProvider {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void add(Term term) throws Exception {
-        if (term.getRowKey().toString() == null) {
-            return;
-        }
-
-        LOGGER.info("Adding term \"" + term.getRowKey().toString() + "\" for partial term search");
-        String id = term.getRowKey().toString();
-        String sign = term.getRowKey().getSign();
-        String conceptLabel = term.getRowKey().getConceptLabel();
-        if (sign == null) {
-            sign = "";
-        }
-
-        List<Column> columns = new ArrayList<Column>();
-        columns.add(new Column(SIGN_COLUMN_NAME, sign));
-        columns.add(new Column(CONCEPT_LABEL_COLUMN_NAME, conceptLabel));
-
-        Record record = new Record();
-        record.setRecordId(id);
-        record.setFamily(SHA_COLUMN_FAMILY_NAME);
-        record.setColumns(columns);
-
-        RecordMutation recordMutation = new RecordMutation();
-        recordMutation.setRecord(record);
-        recordMutation.setRecordMutationType(RecordMutationType.REPLACE_ENTIRE_RECORD);
-
-        List<RecordMutation> recordMutations = new ArrayList<RecordMutation>();
-        recordMutations.add(recordMutation);
-
-        RowMutation mutation = new RowMutation();
-        mutation.setTable(TERM_BLUR_TABLE_NAME);
-        mutation.setRowId(id);
-        mutation.setRowMutationType(RowMutationType.REPLACE_ROW);
-        mutation.setRecordMutations(recordMutations);
-
-        client.mutate(mutation);
     }
 }

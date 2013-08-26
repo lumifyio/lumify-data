@@ -1,10 +1,8 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
-import com.altamiracorp.reddawn.ucd.sentence.Sentence;
-import com.altamiracorp.reddawn.ucd.sentence.SentenceRowKey;
-import com.altamiracorp.reddawn.ucd.term.Term;
-import com.altamiracorp.reddawn.ucd.term.TermMention;
-import com.altamiracorp.reddawn.ucd.term.TermRowKey;
+import com.altamiracorp.reddawn.model.termMention.TermMention;
+import com.altamiracorp.reddawn.model.termMention.TermMentionRowKey;
+import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
@@ -15,8 +13,6 @@ import opennlp.tools.util.Span;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Mapper.Context;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,8 +22,6 @@ import java.util.Collection;
 import java.util.List;
 
 public abstract class OpenNlpEntityExtractor extends EntityExtractor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenNlpEntityExtractor.class.getName());
-
     private FileSystem fs;
     private String pathPrefix;
 
@@ -37,7 +31,6 @@ public abstract class OpenNlpEntityExtractor extends EntityExtractor {
     private static final String PATH_PREFIX_CONFIG = "nlpConfPathPrefix";
     private static final String DEFAULT_PATH_PREFIX = "hdfs://";
     private static final int NEW_LINE_CHARACTER_LENGTH = 1;
-    private static final String EXTRACTOR_ID = "OpenNLP";
 
     @Override
     public void setup(Context context) throws IOException {
@@ -50,54 +43,46 @@ public abstract class OpenNlpEntityExtractor extends EntityExtractor {
     }
 
     @Override
-    public Collection<Term> extract(Sentence sentence)
+    public Collection<TermMention> extract(Artifact artifact, String text)
             throws Exception {
-        SentenceRowKey sentenceRowKey = sentence.getRowKey();
-        String text = sentence.getData().getText();
-        LOGGER.info("Extracting entities from sentence: " + sentenceRowKey.toString());
-        ArrayList<Term> terms = new ArrayList<Term>();
         ObjectStream<String> untokenizedLineStream = new PlainTextByLineStream(new StringReader(text));
+        ArrayList<TermMention> termMentions = new ArrayList<TermMention>();
         String line;
-        Long charOffset = sentence.getData().getStart();
+        int charOffset = 0;
         while ((line = untokenizedLineStream.read()) != null) {
-            ArrayList<Term> newTerms = processLine(sentence, line, charOffset);
-            terms.addAll(newTerms);
+            ArrayList<TermMention> newTermMentions = processLine(artifact, line, charOffset);
+            termMentions.addAll(newTermMentions);
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
         }
-        return terms;
+        return termMentions;
     }
 
-    private ArrayList<Term> processLine(Sentence sentence, String line, Long charOffset) {
-        ArrayList<Term> terms = new ArrayList<Term>();
+    private ArrayList<TermMention> processLine(Artifact artifact, String line, int charOffset) {
+        ArrayList<TermMention> termMentions = new ArrayList<TermMention>();
         String tokenList[] = tokenizer.tokenize(line);
         Span[] tokenListPositions = tokenizer.tokenizePos(line);
         for (TokenNameFinder finder : finders) {
             Span[] foundSpans = finder.find(tokenList);
             for (Span span : foundSpans) {
-                Term term = createTerm(sentence, charOffset, span, tokenList, tokenListPositions);
-                terms.add(term);
+                TermMention termMention = createTermMention(artifact, charOffset, span, tokenList, tokenListPositions);
+                termMentions.add(termMention);
             }
             finder.clearAdaptiveData();
         }
-        return terms;
+        return termMentions;
     }
 
-    private Term createTerm(Sentence sentence, Long charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
+    private TermMention createTermMention(Artifact artifact, int charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {
         String name = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
-        int nameStart = tokenListPositions[foundName.getStart()].getStart();
-        int nameEnd = tokenListPositions[foundName.getEnd() - 1].getEnd();
-        return createTerm(sentence, charOffset, name,foundName.getType(),nameStart,nameEnd);
+        int start = charOffset + tokenListPositions[foundName.getStart()].getStart();
+        int end = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
+        TermMention termMention = new TermMention(new TermMentionRowKey(artifact.getRowKey().toString(), start, end));
+        termMention.getMetadata().setSign(name);
+        termMention.getMetadata().setConcept(foundName.getType());
+        return termMention;
     }
-
 
     protected abstract List<TokenNameFinder> loadFinders() throws IOException;
-
-    protected abstract String getModelName();
-
-    @Override
-    protected String getExtractorId () {
-        return EXTRACTOR_ID;
-    }
 
     protected String getPathPrefix() {
         return this.pathPrefix;

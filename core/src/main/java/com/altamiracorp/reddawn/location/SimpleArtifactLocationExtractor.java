@@ -1,7 +1,7 @@
 package com.altamiracorp.reddawn.location;
 
+import com.altamiracorp.reddawn.model.termMention.TermMention;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
-import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
@@ -14,26 +14,26 @@ public class SimpleArtifactLocationExtractor implements ArtifactLocationExtracto
     }
 
     @Override
-    public void extract(Artifact artifact, List<TermAndTermMention> termAndTermMentions) throws Exception {
-        TermAndTermMention largest = null;
+    public void extract(Artifact artifact, List<TermMention> termMentions) throws Exception {
+        TermMention largest = null;
 
-        for (TermAndTermMention termAndTermMention : termAndTermMentions) {
-            if (termAndTermMention.getTermMention().getGeoLocation() != null) {
+        for (TermMention termMention : termMentions) {
+            if (termMention.getMetadata().getGeoLocation() != null) {
                 if (largest == null) {
-                    largest = termAndTermMention;
+                    largest = termMention;
                     continue;
                 }
-                if (termAndTermMention.getTermMention().getGeoLocationPopulation() > largest.getTermMention().getGeoLocationPopulation()) {
-                    largest = termAndTermMention;
+                if (termMention.getMetadata().getGeoLocationPopulation() > largest.getMetadata().getGeoLocationPopulation()) {
+                    largest = termMention;
                     continue;
                 }
             }
         }
 
         if (largest != null) {
-            artifact.getDynamicMetadata().setGeolocation(largest.getTermMention().getGeoLocation());
-            artifact.getDynamicMetadata().setGeoLocationPopulation(largest.getTermMention().getGeoLocationPopulation());
-            artifact.getDynamicMetadata().setGeoLocationTitle(largest.getTermMention().getGeoLocationTitle());
+            artifact.getDynamicMetadata().setGeolocation(largest.getMetadata().getGeoLocation());
+            artifact.getDynamicMetadata().setGeoLocationPopulation(largest.getMetadata().getGeoLocationPopulation());
+            artifact.getDynamicMetadata().setGeoLocationTitle(largest.getMetadata().getGeoLocationTitle());
         }
     }
 }

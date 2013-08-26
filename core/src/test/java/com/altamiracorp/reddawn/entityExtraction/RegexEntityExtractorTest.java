@@ -1,6 +1,6 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
-import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.model.termMention.TermMention;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.junit.Before;
@@ -40,14 +40,14 @@ public class RegexEntityExtractorTest extends BaseExtractorTest {
     @Test
     public void testRegularExpressionExtraction() throws Exception {
         extractor.setup(context);
-        ArrayList<Term> terms = new ArrayList<Term>(extractor.extract(createSentence(textWith)));
+        ArrayList<TermMention> terms = new ArrayList<TermMention>(extractor.extract(createArtifact(textWith), textWith));
         assertEquals("Not enough terms extracted", 2, terms.size());
         boolean found = false;
-        for (Term term : terms) {
+        for (TermMention term : terms) {
             if (term.getRowKey().toString().equals("bob@gmail.com\u001FRegularExpression\u001FEmailAddress")) {
                 found = true;
-                assertEquals((Long) 159L, term.getTermMentions().get(0).getMentionStart());
-                assertEquals((Long) 172L, term.getTermMentions().get(0).getMentionEnd());
+                assertEquals(159L, term.getRowKey().getStartOffset());
+                assertEquals(172L, term.getRowKey().getEndOffset());
             }
         }
         assertTrue("Expected entity not found", found);
@@ -56,23 +56,23 @@ public class RegexEntityExtractorTest extends BaseExtractorTest {
     @Test
     public void testRegularExpressionExtractionWithNewlines() throws Exception {
         extractor.setup(context);
-        ArrayList<Term> terms = new ArrayList<Term>(extractor.extract(createSentence(textWithNewlines)));
+        ArrayList<TermMention> terms = new ArrayList<TermMention>(extractor.extract(createArtifact(textWithNewlines), textWithNewlines));
         assertEquals("Not enough terms extracted", 2, terms.size());
         boolean found = false;
-        for (Term term : terms) {
+        for (TermMention term : terms) {
             if (term.getRowKey().toString().equals("bob@gmail.com\u001FRegularExpression\u001FEmailAddress")) {
                 found = true;
-                assertEquals((Long) 160L, term.getTermMentions().get(0).getMentionStart());
-                assertEquals((Long) 173L, term.getTermMentions().get(0).getMentionEnd());
+                assertEquals(160L, term.getRowKey().getStartOffset());
+                assertEquals(173L, term.getRowKey().getEndOffset());
             }
         }
         assertTrue("Expected entity not found", found);
     }
 
     @Test
-    public void testNegativeRegularExpressionExtraction () throws Exception {
+    public void testNegativeRegularExpressionExtraction() throws Exception {
         extractor.setup(context);
-        Collection<Term> terms = extractor.extract(createSentence(textWithout));
+        Collection<TermMention> terms = extractor.extract(createArtifact(textWithout), textWithout);
         assertTrue(terms.isEmpty());
     }
 }

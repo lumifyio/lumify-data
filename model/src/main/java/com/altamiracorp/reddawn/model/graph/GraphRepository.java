@@ -55,6 +55,10 @@ public class GraphRepository {
         return saveRelationship(graphSession, sourceGraphVertexId, destGraphVertexId, label.toString());
     }
 
+    public GraphRelationship saveRelationship(GraphSession graphSession, GraphVertex sourceGraphVertex, GraphVertex destGraphVertex, LabelName label) {
+        return saveRelationship(graphSession, sourceGraphVertex.getId(), destGraphVertex.getId(), label);
+    }
+
     public String saveVertex(GraphSession graphSession, GraphVertex graphVertex) {
         return graphSession.save(graphVertex);
     }
@@ -105,6 +109,10 @@ public class GraphRepository {
 
     public GraphRelationship findOrAddRelationship(GraphSession graphSession, String sourceVertexId, String targetVertexId, LabelName label) {
         return findOrAddRelationship(graphSession, sourceVertexId, targetVertexId, label.toString());
+    }
+
+    public GraphRelationship findOrAddRelationship(GraphSession graphSession, GraphVertex sourceVertex, GraphVertex targetVertex, LabelName label) {
+        return findOrAddRelationship(graphSession, sourceVertex.getId(), targetVertex.getId(), label);
     }
 
     public List<List<GraphVertex>> findPath(GraphSession graphSession, GraphVertex sourceVertex, GraphVertex destVertex, int depth) {

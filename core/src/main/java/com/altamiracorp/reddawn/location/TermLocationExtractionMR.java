@@ -3,11 +3,10 @@ package com.altamiracorp.reddawn.location;
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
-import com.altamiracorp.reddawn.model.geoNames.GeoNamePostalCodeMetadata;
+import com.altamiracorp.reddawn.model.AccumuloTermMentionInputFormat;
 import com.altamiracorp.reddawn.model.geoNames.GeoNamePostalCodeRepository;
 import com.altamiracorp.reddawn.model.geoNames.GeoNameRepository;
-import com.altamiracorp.reddawn.ucd.AccumuloTermInputFormat;
-import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.model.termMention.TermMention;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -23,8 +22,8 @@ public class TermLocationExtractionMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
-        AccumuloTermInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
-        return AccumuloTermInputFormat.class;
+        AccumuloTermMentionInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+        return AccumuloTermMentionInputFormat.class;
     }
 
     @Override
@@ -37,23 +36,23 @@ public class TermLocationExtractionMR extends ConfigurableMapJobBase {
         return AccumuloModelOutputFormat.class;
     }
 
-    public static class TermLocationExtractorMapper extends RedDawnMapper<Text, Term, Text, Term> {
+    public static class TermLocationExtractorMapper extends RedDawnMapper<Text, TermMention, Text, TermMention> {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "termLocationExtractorClass";
         GeoNameRepository geoNameRepository = new GeoNameRepository();
         GeoNamePostalCodeRepository geoNamePostalCodeRepository = new GeoNamePostalCodeRepository();
         SimpleTermLocationExtractor simpleTermLocationExtractor = new SimpleTermLocationExtractor();
 
         @Override
-        protected void safeMap(Text key, Term term, Context context) throws Exception {
-            Term updatedTerm;
-            if (simpleTermLocationExtractor.isPostalCode(term)) {
-                updatedTerm = simpleTermLocationExtractor.GetTermWithPostalCodeLookup(getSession().getModelSession(), geoNamePostalCodeRepository, term);
+        protected void safeMap(Text key, TermMention termMention, Context context) throws Exception {
+            TermMention updatedTerm;
+            if (simpleTermLocationExtractor.isPostalCode(termMention)) {
+                updatedTerm = simpleTermLocationExtractor.GetTermWithPostalCodeLookup(getSession().getModelSession(), geoNamePostalCodeRepository, termMention);
             } else {
-                 updatedTerm = simpleTermLocationExtractor.GetTermWithLocationLookup(getSession().getModelSession(), geoNameRepository, term);
+                updatedTerm = simpleTermLocationExtractor.GetTermWithLocationLookup(getSession().getModelSession(), geoNameRepository, termMention);
             }
             if (updatedTerm != null) {
-                LOGGER.info("Extracting location from: " + term.getRowKey().toString());
-                context.write(new Text(Term.TABLE_NAME), updatedTerm);
+                LOGGER.info("Extracting location from: " + termMention.getRowKey().toString());
+                context.write(new Text(TermMention.TABLE_NAME), updatedTerm);
             }
         }
 

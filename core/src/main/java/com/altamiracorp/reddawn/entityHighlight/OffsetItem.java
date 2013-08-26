@@ -21,10 +21,6 @@ public abstract class OffsetItem {
         return null;
     }
 
-    public String getResolvedGraphVertexId() {
-        return null;
-    }
-
     public JSONObject getInfoJson() {
         try {
             JSONObject infoJson = new JSONObject();
@@ -33,9 +29,6 @@ public abstract class OffsetItem {
             infoJson.put("_rowKey", RowKeyHelper.jsonEncode(getRowKey()));
             if (getGraphVertexId() != null) {
                 infoJson.put("graphVertexId", getGraphVertexId());
-            }
-            if (getResolvedGraphVertexId() != null) {
-                infoJson.put("resolvedGraphVertexId", getResolvedGraphVertexId());
             }
             infoJson.put("type", getType());
             return infoJson;
@@ -47,7 +40,7 @@ public abstract class OffsetItem {
     public List<String> getCssClasses() {
         ArrayList<String> classes = new ArrayList<String>();
         classes.add(getType());
-        if (getResolvedGraphVertexId() != null) {
+        if (getGraphVertexId() != null) {
             classes.add("resolved");
         }
         return classes;

@@ -124,12 +124,6 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
         properties.put(rowKeyProperty.getName(), rowKeyProperty);
 
-        TitanKey columnFamilyNameProperty = (TitanKey) graph.getType(PropertyName.COLUMN_FAMILY_NAME.toString());
-        if (columnFamilyNameProperty == null) {
-            columnFamilyNameProperty = graph.makeType().name(PropertyName.COLUMN_FAMILY_NAME.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
-        }
-        properties.put(columnFamilyNameProperty.getName(), columnFamilyNameProperty);
-
         TitanKey sourceProperty = (TitanKey) graph.getType(PropertyName.SOURCE.toString());
         if (sourceProperty == null) {
             sourceProperty = graph.makeType().name(PropertyName.SOURCE.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
@@ -150,7 +144,6 @@ public abstract class Base extends RedDawnCommandLineBase {
         addPropertyToConcept(graph, termMention, typeProperty.getName(), "Type", PropertyType.STRING);
         addPropertyToConcept(graph, termMention, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
         addPropertyToConcept(graph, termMention, rowKeyProperty.getName(), "Rowkey", PropertyType.STRING);
-        addPropertyToConcept(graph, termMention, columnFamilyNameProperty.getName(), "Column family", PropertyType.STRING);
         addPropertyToConcept(graph, termMention, titleProperty.getName(), "Title", PropertyType.STRING);
         addPropertyToConcept(graph, termMention, sourceProperty.getName(), "Source", PropertyType.STRING);
 

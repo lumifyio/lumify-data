@@ -31,7 +31,7 @@ public class SearchIndexBuilderMR extends ConfigurableMapJobBase {
         protected void setup(Context context) throws IOException, InterruptedException {
             super.setup(context);
             try {
-                searchProvider = (SearchProvider) context.getConfiguration().getClass(CONF_SEARCH_INDEX_BUILDER_CLASS, NullSearchProvider.class).newInstance();
+                searchProvider = (SearchProvider) context.getConfiguration().getClass(CONF_SEARCH_INDEX_BUILDER_CLASS, null).newInstance();
                 searchProvider.setup(context);
             } catch (InstantiationException e) {
                 throw new IOException(e);

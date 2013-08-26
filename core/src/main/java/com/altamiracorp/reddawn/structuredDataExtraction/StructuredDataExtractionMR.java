@@ -10,15 +10,12 @@ import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.ontology.Concept;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
+import com.altamiracorp.reddawn.model.termMention.TermMention;
+import com.altamiracorp.reddawn.model.termMention.TermMentionRepository;
 import com.altamiracorp.reddawn.textExtraction.StructuredDataTextExtractor;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.reddawn.ucd.sentence.Sentence;
-import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
-import com.altamiracorp.reddawn.ucd.term.Term;
-import com.altamiracorp.reddawn.ucd.term.TermMention;
-import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
@@ -52,12 +49,11 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
         return AccumuloModelOutputFormat.class;
     }
 
-    public static class StructuredDataExtractorMapper extends RedDawnMapper<Text, Artifact, Text, Sentence> {
+    public static class StructuredDataExtractorMapper extends RedDawnMapper<Text, Artifact, Text, Artifact> {
         private ArtifactRepository artifactRepository = new ArtifactRepository();
-        private SentenceRepository sentenceRepository = new SentenceRepository();
-        private TermRepository termRepository = new TermRepository();
         private OntologyRepository ontologyRepository = new OntologyRepository();
         private GraphRepository graphRepository = new GraphRepository();
+        private TermMentionRepository termMentionRepository = new TermMentionRepository();
         private StructuredDataFactory structedDataFactory;
 
         @Override
@@ -99,20 +95,23 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
 
         private void saveToUcd(Artifact artifact, ExtractedData extractedData) {
             artifactRepository.save(getSession().getModelSession(), artifact);
-            sentenceRepository.saveMany(getSession().getModelSession(), extractedData.getSentences());
 
             for (TermAndGraphVertex termAndGraphVertex : extractedData.getTermsAndGraphVertices()) {
                 if (termAndGraphVertex == null) {
                     continue;
                 }
-                String termRowKey = termAndGraphVertex.getTermAndTermMention().getTerm().getRowKey().toString();
-                Term existingTerm = termRepository.findByRowKey(getSession().getModelSession(), termRowKey);
+
+                Concept concept = ontologyRepository.getConceptByName(getSession().getGraphSession(), termAndGraphVertex.getTermMention().getMetadata().getConcept());
+                termAndGraphVertex.getTermMention().getMetadata().setConceptGraphVertexId(concept.getId());
+
+                String termRowKey = termAndGraphVertex.getTermMention().getRowKey().toString();
+                TermMention existingTerm = termMentionRepository.findByRowKey(getSession().getModelSession(), termRowKey);
                 if (existingTerm != null) {
-                    existingTerm.update(termAndGraphVertex.getTermAndTermMention().getTerm());
-                    termRepository.save(getSession().getModelSession(), existingTerm);
-                    termAndGraphVertex.getTermAndTermMention().getTerm().update(existingTerm);
+                    existingTerm.update(termAndGraphVertex.getTermMention());
+                    termMentionRepository.save(getSession().getModelSession(), existingTerm);
+                    termAndGraphVertex.getTermMention().update(existingTerm);
                 } else {
-                    termRepository.save(getSession().getModelSession(), termAndGraphVertex.getTermAndTermMention().getTerm());
+                    termMentionRepository.save(getSession().getModelSession(), termAndGraphVertex.getTermMention());
                 }
             }
         }
@@ -130,9 +129,9 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                 if (termAndGraphVertex == null) {
                     continue;
                 }
-                TermMention termMention = termAndGraphVertex.getTermAndTermMention().getTermMention();
-                if (termMention.getGraphVertexId() == null) {
-                    String conceptLabel = termAndGraphVertex.getTermAndTermMention().getTerm().getRowKey().getConceptLabel();
+                TermMention termMention = termAndGraphVertex.getTermMention();
+                if (termMention.getMetadata().getGraphVertexId() == null) {
+                    String conceptLabel = termAndGraphVertex.getTermMention().getMetadata().getConcept();
                     Concept concept = conceptMap.get(conceptLabel);
                     if (concept == null) {
                         concept = ontologyRepository.getConceptByName(getSession().getGraphSession(), conceptLabel);
@@ -146,14 +145,13 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                     String vertexId = graphRepository.saveVertex(getSession().getGraphSession(), termAndGraphVertex.getGraphVertex());
                     getSession().getGraphSession().commit();
 
-                    termMention.setGraphSubTypeVertexId(concept.getId());
-                    termMention.setGraphVertexId(vertexId);
-                    termRepository.save(getSession().getModelSession(), termAndGraphVertex.getTermAndTermMention().getTerm());
+                    termMention.getMetadata().setGraphVertexId(vertexId);
+                    termMentionRepository.save(getSession().getModelSession(), termAndGraphVertex.getTermMention());
 
                     GraphRelationship artifactRelationship = new GraphRelationship(null, artifactVertex.getId(), vertexId, "hasTermMention");
                     getSession().getGraphSession().save(artifactRelationship);
                 } else {
-                    GraphVertex existingGraphVertex = getSession().getGraphSession().findGraphVertex(termMention.getGraphVertexId());
+                    GraphVertex existingGraphVertex = getSession().getGraphSession().findGraphVertex(termMention.getMetadata().getGraphVertexId());
                     existingGraphVertex.update(termAndGraphVertex.getGraphVertex());
                     getSession().getGraphSession().commit();
                 }

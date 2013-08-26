@@ -170,6 +170,7 @@ public class FileImport extends RedDawnCommandLineBase {
 
         LOGGER.info("Writing artifact: " + artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension() + " (rowId: " + artifact.getRowKey().toString() + ")");
         artifactRepository.save(redDawnSession.getModelSession(), artifact);
+        artifactRepository.saveToGraph(redDawnSession.getModelSession(), redDawnSession.getGraphSession(), artifact);
     }
 
     public String getDirectory() {

@@ -2,9 +2,8 @@ package com.altamiracorp.reddawn.web.routes;
 
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.Session;
+import com.altamiracorp.reddawn.model.termMention.TermMentionRepository;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.reddawn.ucd.sentence.SentenceRepository;
-import com.altamiracorp.reddawn.ucd.term.TermRepository;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.HandlerChain;
 import org.mockito.Mockito;
@@ -28,8 +27,7 @@ public abstract class RouteTestBase {
     public ServletOutputStream mockResponseOutputStream;
 
     public ArtifactRepository mockArtifactRepository;
-    public TermRepository mockTermRepository;
-    public SentenceRepository mockSentenceRepository;
+    public TermMentionRepository mockTermMentionRepository;
 
     public void setUp() throws Exception {
         responseStringWriter = new StringWriter();
@@ -43,8 +41,7 @@ public abstract class RouteTestBase {
         mockModelSession = Mockito.mock(Session.class);
 
         mockArtifactRepository = Mockito.mock(ArtifactRepository.class);
-        mockTermRepository = Mockito.mock(TermRepository.class);
-        mockSentenceRepository = Mockito.mock(SentenceRepository.class);
+        mockTermMentionRepository = Mockito.mock(TermMentionRepository.class);
 
         //request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
         when(mockRequest.getScheme()).thenReturn("http");

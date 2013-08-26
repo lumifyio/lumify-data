@@ -5,7 +5,6 @@
   "columns": [
     {
       "type": "term",
-      "modelKey": "structuredData",
       "conceptLabel": "Person",
       "relationships": [
         {
@@ -22,7 +21,6 @@
     },
     {
       "type": "term",
-      "modelKey": "structuredData",
       "conceptLabel": "Location"
     },
     {

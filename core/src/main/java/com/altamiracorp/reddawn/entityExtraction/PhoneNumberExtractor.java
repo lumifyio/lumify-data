@@ -1,23 +1,18 @@
 package com.altamiracorp.reddawn.entityExtraction;
 
-import com.altamiracorp.reddawn.ucd.sentence.Sentence;
-import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.model.termMention.TermMention;
+import com.altamiracorp.reddawn.model.termMention.TermMentionRowKey;
+import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.google.i18n.phonenumbers.PhoneNumberMatch;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import org.apache.hadoop.mapreduce.Mapper.Context;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class PhoneNumberExtractor extends EntityExtractor {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PhoneNumberExtractor.class);
     private static final String ENTITY_TYPE = "Phone Number";
-    private static final String MODEL_NAME = "libphonenumber";
-    private static final String EXTRACTOR_ID = "PhoneNumber";
     private static final String DEFAULT_REGION_CODE = "defaultRegionCode";
     private static final String DEFAULT_DEFAULT_REGION_CODE = "US";
 
@@ -31,38 +26,24 @@ public class PhoneNumberExtractor extends EntityExtractor {
     }
 
     @Override
-    public Collection<Term> extract(Sentence sentence) throws Exception {
-        LOGGER.info("Extracting phone numbers from sentence: " + sentence.getRowKey().toString());
-        Iterable<PhoneNumberMatch> phoneNumbers = phoneNumberUtil.findNumbers(sentence.getData().getText(), defaultRegionCode);
+    public Collection<TermMention> extract(Artifact artifact, String text) throws Exception {
+        Iterable<PhoneNumberMatch> phoneNumbers = phoneNumberUtil.findNumbers(text, defaultRegionCode);
 
-        ArrayList<Term> terms = new ArrayList<Term>();
+        ArrayList<TermMention> termMentions = new ArrayList<TermMention>();
         for (PhoneNumberMatch phoneNumber : phoneNumbers) {
-            terms.add(createTerm(sentence, sentence.getData().getStart(), phoneNumber));
+            termMentions.add(createTerm(artifact, phoneNumber));
         }
 
-        return terms;
+        return termMentions;
     }
 
-    @Override
-    protected String getModelName() {
-        return MODEL_NAME;
-    }
-
-    @Override
-    String getExtractorId() {
-        return EXTRACTOR_ID;
-    }
-
-    private Term createTerm(Sentence sentence, Long charOffset, PhoneNumberMatch phoneNumber) {
-        return createTerm(sentence,
-                charOffset,
-                phoneNumberUtil.format(phoneNumber.number(), PhoneNumberUtil.PhoneNumberFormat.E164),
-                getEntityType(),
-                phoneNumber.start(),
-                phoneNumber.end());
-    }
-
-    protected String getEntityType() {
-        return ENTITY_TYPE;
+    private TermMention createTerm(Artifact artifact, PhoneNumberMatch phoneNumber) {
+        String name = phoneNumberUtil.format(phoneNumber.number(), PhoneNumberUtil.PhoneNumberFormat.E164);
+        int start = phoneNumber.start();
+        int end = phoneNumber.end();
+        TermMention termMention = new TermMention(new TermMentionRowKey(artifact.getRowKey().toString(), start, end));
+        termMention.getMetadata().setSign(name);
+        termMention.getMetadata().setConcept(ENTITY_TYPE);
+        return termMention;
     }
 }

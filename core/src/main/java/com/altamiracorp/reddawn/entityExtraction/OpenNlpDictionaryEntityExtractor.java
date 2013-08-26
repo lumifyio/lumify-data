@@ -10,9 +10,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
-
-    private static final String MODEL = "OpenNlpDictionary";
-
     private OpenNlpDictionaryRegistry dictionaryRegistry;
 
     @Override
@@ -22,11 +19,6 @@ public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
             finders.add(new DictionaryNameFinder(dictionaryEntry.getValue(), dictionaryEntry.getKey()));
         }
         return finders;
-    }
-
-    @Override
-    protected String getModelName() {
-        return MODEL;
     }
 
     private OpenNlpDictionaryRegistry getDictionaryRegistry() throws IOException {

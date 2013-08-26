@@ -36,9 +36,4 @@ public class OpenNlpMaximumEntropyEntityExtractor extends OpenNlpEntityExtractor
 
         return finders;
     }
-
-    @Override
-    protected String getModelName() {
-        return MODEL;
-    }
 }

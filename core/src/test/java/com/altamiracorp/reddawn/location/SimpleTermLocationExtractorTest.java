@@ -4,9 +4,8 @@ import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.model.geoNames.GeoName;
 import com.altamiracorp.reddawn.model.geoNames.GeoNameMetadata;
 import com.altamiracorp.reddawn.model.geoNames.GeoNameRepository;
+import com.altamiracorp.reddawn.model.termMention.TermMention;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRepository;
-import com.altamiracorp.reddawn.ucd.term.Term;
-import com.altamiracorp.reddawn.ucd.term.TermMention;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,14 +33,11 @@ public class SimpleTermLocationExtractorTest {
         addGeoName("baltimore", 2, 300L, 87.1, -61.1);
         addGeoName("baltimore", 3, 200L, 97.1, -71.1);
         SimpleTermLocationExtractor simpleTermLocationExtractor = new SimpleTermLocationExtractor();
-        Term termIn = new Term("baltimore", "CDC", "Location");
-        termIn.addTermMention(new TermMention().setArtifactKey("artifact1"));
-        termIn.addTermMention(new TermMention().setArtifactKey("artifact2"));
-        Term termOut = simpleTermLocationExtractor.GetTermWithLocationLookup(session, geoNameRepository, termIn);
+        TermMention termIn = new TermMention();
+        termIn.getMetadata().setSign("baltimore");
+        TermMention termOut = simpleTermLocationExtractor.GetTermWithLocationLookup(session, geoNameRepository, termIn);
         assertNotNull(termOut);
-        for (TermMention termMention : termOut.getTermMentions()) {
-            assertEquals("POINT(87.1,-61.1)", termMention.getGeoLocation());
-        }
+        assertEquals("POINT(87.1,-61.1)", termOut.getMetadata().getGeoLocation());
     }
 
     private void addGeoName(String rowKey, int id, Long population, Double latitude, Double longitude) {

@@ -1,19 +1,19 @@
 package com.altamiracorp.reddawn.structuredDataExtraction;
 
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
-import com.altamiracorp.reddawn.ucd.term.TermAndTermMention;
+import com.altamiracorp.reddawn.model.termMention.TermMention;
 
 public class TermAndGraphVertex {
-    private TermAndTermMention termAndTermMention;
+    private TermMention termMention;
     private GraphVertex graphVertex;
 
-    public TermAndGraphVertex(TermAndTermMention termAndTermMention, GraphVertex graphVertex) {
-        this.termAndTermMention = termAndTermMention;
+    public TermAndGraphVertex(TermMention termMention, GraphVertex graphVertex) {
+        this.termMention = termMention;
         this.graphVertex = graphVertex;
     }
 
-    public TermAndTermMention getTermAndTermMention() {
-        return termAndTermMention;
+    public TermMention getTermMention() {
+        return termMention;
     }
 
     public GraphVertex getGraphVertex() {

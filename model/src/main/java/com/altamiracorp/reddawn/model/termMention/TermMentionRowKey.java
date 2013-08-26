@@ -1,25 +1,24 @@
-package com.altamiracorp.reddawn.ucd.sentence;
+package com.altamiracorp.reddawn.model.termMention;
 
 import com.altamiracorp.reddawn.model.RowKey;
+import com.altamiracorp.reddawn.model.RowKeyHelper;
 import org.apache.commons.lang.StringUtils;
 
-public class SentenceRowKey extends RowKey {
-    private static final int LEFT_PAD = 16;
-
-    public SentenceRowKey(String rowKey) {
+public class TermMentionRowKey extends RowKey {
+    public TermMentionRowKey(String rowKey) {
         super(rowKey);
     }
 
-    public SentenceRowKey(String artifactRowKey, long startOffset, long endOffset) {
-        super(buildKey(artifactRowKey, startOffset, endOffset));
+    public TermMentionRowKey(String artifactRowKey, long startOffset, long endOffset) {
+        this(buildKey(artifactRowKey, startOffset, endOffset));
     }
 
     private static String buildKey(String artifactRowKey, long startOffset, long endOffset) {
         return artifactRowKey
                 + ":"
-                + StringUtils.leftPad(Long.toString(endOffset), LEFT_PAD, '0')
+                + StringUtils.leftPad(Long.toString(endOffset), RowKeyHelper.OFFSET_WIDTH, '0')
                 + ":"
-                + StringUtils.leftPad(Long.toString(startOffset), LEFT_PAD, '0');
+                + StringUtils.leftPad(Long.toString(startOffset), RowKeyHelper.OFFSET_WIDTH, '0');
     }
 
     public String getArtifactRowKey() {
@@ -35,13 +34,13 @@ public class SentenceRowKey extends RowKey {
         return result;
     }
 
-    public Long getStartOffset() {
+    public long getStartOffset() {
         String[] keyElements = this.toString().split(":");
         String startOffsetPadded = keyElements[keyElements.length - 1];
         return Long.parseLong(startOffsetPadded);
     }
 
-    public Long getEndOffset() {
+    public long getEndOffset() {
         String[] keyElements = this.toString().split(":");
         String startOffsetPadded = keyElements[keyElements.length - 2];
         return Long.parseLong(startOffsetPadded);

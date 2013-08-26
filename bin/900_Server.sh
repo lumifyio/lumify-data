@@ -2,7 +2,6 @@
 # require: 215_ArtifactFaceDetectionMR.sh
 # require: 215_VideoFrameFaceDetectionMR.sh
 # require: 300_VideoPreviewMR.sh
-# require: 710_TermMentionToTitanMR.sh
 # require: 600_ArtifactLocationExtractionMR.sh
 # require: 790_ArtifactHighlighting.sh
 # require: 800_BlurSearchIndexBuilder.sh
