@@ -146,7 +146,9 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
 
         vertex.setProperty(PropertyName.TYPE.toString(), VertexType.ARTIFACT.toString());
-        vertex.setProperty(PropertyName.SUBTYPE.toString(), artifact.getType().toString().toLowerCase());
+        if (artifact.getType() != null) {
+            vertex.setProperty(PropertyName.SUBTYPE.toString(), artifact.getType().toString().toLowerCase());
+        }
         vertex.setProperty(PropertyName.ROW_KEY.toString(), artifact.getRowKey().toString());
         if (artifact.getDynamicMetadata().getLatitude() != null) {
             double latitude = artifact.getDynamicMetadata().getLatitude();
