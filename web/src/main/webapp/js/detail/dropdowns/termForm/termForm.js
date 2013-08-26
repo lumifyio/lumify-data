@@ -61,18 +61,18 @@ define([
         this.onCreateTermClicked = function(event) {
             var self = this,
                 $mentionNode = $(this.attr.mentionNode),
-                sentence = this.$node.parents('.sentence'),
-                sentenceInfo = sentence.data('info'),
+                dataInfo = $mentionNode.data('info'),
                 sign = this.select('signSelector').text(),
                 newObjectSign = $.trim(this.select('objectSignSelector').val()),
-                mentionStart = sentenceInfo.start + sentence.text().indexOf(sign),
+                mentionStart = dataInfo.start,
                 parameters = {
                     sign: sign,
                     conceptId: this.select('conceptSelector').val(),
                     graphVertexId: this.graphVertexId,
                     artifactKey: this.attr.artifactKey,
                     mentionStart: mentionStart,
-                    mentionEnd: mentionStart + sign.length
+                    mentionEnd: dataInfo.end,
+                    artifactId: this.attr.artifactId
                 },
                 $loading = $("<span>")
                     .addClass("badge")

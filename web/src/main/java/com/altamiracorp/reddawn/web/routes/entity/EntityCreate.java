@@ -6,12 +6,14 @@ import com.altamiracorp.reddawn.entityHighlight.TermMentionOffsetItem;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
+import com.altamiracorp.reddawn.model.ontology.LabelName;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.model.termMention.TermMention;
 import com.altamiracorp.reddawn.model.termMention.TermMentionRepository;
 import com.altamiracorp.reddawn.model.termMention.TermMentionRowKey;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;
@@ -50,6 +52,7 @@ public class EntityCreate implements Handler, AppAware {
 
         // required parameters
         String artifactKey = getRequiredParameter(request, "artifactKey");
+        String artifactId = getRequiredParameter(request, "artifactId");
         long mentionStart = Long.parseLong(getRequiredParameter(request, "mentionStart"));
         long mentionEnd = Long.parseLong(getRequiredParameter(request, "mentionEnd"));
         String sign = getRequiredParameter(request, "sign");
@@ -72,13 +75,17 @@ public class EntityCreate implements Handler, AppAware {
         resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
         resolvedVertex.setProperty(PropertyName.TITLE, sign);
 
+        graphRepository.saveVertex(session.getGraphSession(), resolvedVertex);
+
+        graphRepository.saveRelationship(session.getGraphSession(), artifactId, resolvedVertex.getId(), LabelName.HAS_ENTITY);
+
         TermMention termMention = termMentionRepository.findByRowKey(session.getModelSession(), termMentionRowKey.toString());
         if (termMention == null) {
             termMention = new TermMention(termMentionRowKey);
         }
         termMention.getMetadata()
                 .setSign(sign)
-                .setConcept((String) conceptVertex.getProperty(PropertyName.TITLE))
+                .setConcept((String) conceptVertex.getProperty(PropertyName.DISPLAY_NAME))
                 .setConceptGraphVertexId(conceptVertex.getId())
                 .setGraphVertexId(resolvedVertex.getId());
         termMentionRepository.save(session.getModelSession(), termMention);

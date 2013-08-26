@@ -62,6 +62,8 @@ public class TermMentionOffsetItem extends OffsetItem implements Comparable<Term
         try {
             JSONObject infoJson = super.getInfoJson();
             infoJson.put("title", getTitle());
+            infoJson.put("start", getStart());
+            infoJson.put("end", getEnd());
             if (getConceptGraphVertexId() != null) {
                 infoJson.put("_subType", getConceptGraphVertexId());
             }
