@@ -36,6 +36,7 @@ define([
             }
 
             var info = $(this.attr.mentionNode).removeClass('focused').data('info');
+
             if (info) {
                 this.updateConceptLabel(info._subType);
             }
@@ -61,17 +62,29 @@ define([
         this.onCreateTermClicked = function(event) {
             var self = this,
                 $mentionNode = $(this.attr.mentionNode),
-                dataInfo = $mentionNode.data('info'),
                 sign = this.select('signSelector').text(),
                 newObjectSign = $.trim(this.select('objectSignSelector').val()),
-                mentionStart = dataInfo.start,
-                parameters = {
+                mentionStart,
+                mentionEnd,
+                graphVertexId;
+
+            if (this.attr.existing){
+                var dataInfo = $mentionNode.data('info');
+                mentionStart = dataInfo.start;
+                mentionEnd = dataInfo.end;
+                graphVertexId = this.graphVertexId;
+            } else {
+                mentionStart = this.selectedStart;
+                mentionEnd = this.selectedEnd;
+            }
+
+            var parameters = {
                     sign: newObjectSign,
                     conceptId: this.select('conceptSelector').val(),
-                    graphVertexId: this.graphVertexId,
+                    graphVertexId: graphVertexId,
                     artifactKey: this.attr.artifactKey,
                     mentionStart: mentionStart,
-                    mentionEnd: dataInfo.end,
+                    mentionEnd: mentionEnd,
                     artifactId: this.attr.artifactId
                 },
                 $loading = $("<span>")
@@ -254,13 +267,20 @@ define([
                 el,
                 tempTextNode;
 
-
             var span = document.createElement('span');
             span.className = 'entity focused';
 
             var newRange = document.createRange();
             newRange.setStart(range.startContainer, range.startOffset);
             newRange.setEnd(range.endContainer, range.endOffset);
+
+            var r = range.cloneRange();
+            r.selectNodeContents($(".detail-pane .text").get(0));
+            r.setEnd(range.startContainer, range.startOffset);
+            var l = r.toString().length;
+
+            this.selectedStart = l;
+            this.selectedEnd = l + range.toString().length;
 
             // Special case where the start/end is inside an inner span
             // (surroundsContents will fail so expand the selection
