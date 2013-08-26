@@ -24,14 +24,18 @@ width: 175px;
 .search-results-summary {
 }
 
-.search-results {
+
+.search-results, .search-filters {
   .pin-left-split;
 
-  z-index: 100;  // so it floats above graph
-  word-wrap: break-word;
   width: 265px;
   padding-right: 4px;
   background: @pane-background;
+  z-index: 100;  // so it floats above graph
+}
+
+.search-results {
+  word-wrap: break-word;
   text-align: right;
 
   ul {

@@ -1,0 +1,13 @@
+<li class="newrow">
+  <select class="property-filters">
+    <option value="">Add filter property</option>
+    <% properties.forEach(function(property) { %>
+      <% if (/^[^_]/.test(property.title)) { %>
+    <option data-info="<%= JSON.stringify(property)%>" 
+            value="<%= property.id %>"><%= property.displayName || property.title %></option>
+      <% } %>
+    <% }); %>
+  </select>
+  <div class="configuration">
+  </div>
+</li>

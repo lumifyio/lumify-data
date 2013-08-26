@@ -78,12 +78,22 @@ function(ServiceBase) {
         return this._relationships("artifact", id, options, callback);
     };
 
-    Ucd.prototype.entitySearch = function (query, callback) {
-        return this._search("entity", query, callback);
+    Ucd.prototype.entitySearch = function (query, filters, callback) {
+        return this._search('entity/search', query, callback);
     };
 
-    Ucd.prototype.graphVertexSearch = function (query, callback) {
-        return this._search("graph/vertex", query, callback);
+    Ucd.prototype.graphVertexSearch = function (query, filters, callback) {
+        if (typeof filters === 'function') {
+            callback = filters;
+        }
+
+        return this._ajaxGet({ 
+            url: 'graph/vertex/search',
+            data: {
+                q: query.query || query,
+                filter: JSON.stringify(filters || [])
+            }
+        }, callback);
     };
 
     Ucd.prototype.getGraphVertexById = function (id, callback) {
