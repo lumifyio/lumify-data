@@ -44,10 +44,10 @@ public class RegexEntityExtractorTest extends BaseExtractorTest {
         assertEquals("Not enough terms extracted", 2, terms.size());
         boolean found = false;
         for (TermMention term : terms) {
-            if (term.getRowKey().toString().equals("bob@gmail.com\u001FRegularExpression\u001FEmailAddress")) {
+            if (term.getMetadata().getConcept().equals("emailAddress") && term.getMetadata().getSign().equals("bob@gmail.com")) {
                 found = true;
-                assertEquals(159L, term.getRowKey().getStartOffset());
-                assertEquals(172L, term.getRowKey().getEndOffset());
+                assertEquals(59L, term.getRowKey().getStartOffset());
+                assertEquals(72L, term.getRowKey().getEndOffset());
             }
         }
         assertTrue("Expected entity not found", found);
@@ -60,10 +60,10 @@ public class RegexEntityExtractorTest extends BaseExtractorTest {
         assertEquals("Not enough terms extracted", 2, terms.size());
         boolean found = false;
         for (TermMention term : terms) {
-            if (term.getRowKey().toString().equals("bob@gmail.com\u001FRegularExpression\u001FEmailAddress")) {
+            if (term.getMetadata().getSign().equals("bob@gmail.com") && term.getMetadata().getConcept().equals("emailAddress")) {
                 found = true;
-                assertEquals(160L, term.getRowKey().getStartOffset());
-                assertEquals(173L, term.getRowKey().getEndOffset());
+                assertEquals(60L, term.getRowKey().getStartOffset());
+                assertEquals(73L, term.getRowKey().getEndOffset());
             }
         }
         assertTrue("Expected entity not found", found);

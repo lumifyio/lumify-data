@@ -40,8 +40,8 @@ public class OpenNlpDictionaryEntityExtractorTest extends BaseExtractorTest {
         extractor.setup(context);
         List<TermMention> terms = extractor.extract(createArtifact(text), text);
         assertEquals(3, terms.size());
-        assertEquals("Altamira Corporation", terms.get(0).getMetadata().getSign());
-        assertEquals("Bob Robertson", terms.get(1).getMetadata().getSign());
+        assertEquals("Bob Robertson", terms.get(0).getMetadata().getSign());
+        assertEquals("Altamira Corporation", terms.get(1).getMetadata().getSign());
         assertEquals("Boston , MA", terms.get(2).getMetadata().getSign());
     }
 
