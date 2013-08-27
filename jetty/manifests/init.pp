@@ -71,9 +71,14 @@ class jetty(
     require => [ File['/etc/init.d/jetty'], Exec['jetty-disable-contexts'], Exec['jetty-disable-webapps'] ],
   }
 
-  exec { 'jetty-deploy-wars' :
-    command => '/bin/mv -f /root/*.war /opt/jetty/webapps',
-    onlyif  => '/bin/ls /root/*.war',
-    require => Service['jetty'],
+  file { '/root/deploy-webapps.sh' :
+   source => 'puppet:///modules/jetty/deploy-webapps.sh',
+   mode => 'u=rwx,go=',
+  }
+
+  exec { 'jetty-deploy-webapps' :
+    cwd     => '/root',
+    command => '/root/deploy-webapps.sh',
+    require => [ Service['jetty'], File['/root/deploy-webapps.sh'] ],
   }
 }
