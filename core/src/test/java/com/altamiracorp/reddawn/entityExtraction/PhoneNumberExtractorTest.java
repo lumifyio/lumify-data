@@ -39,14 +39,14 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest {
 
         assertTrue("Incorrect number of phone numbers extracted", termList.size() == 2);
         TermMention firstTerm = termList.get(0);
-        assertEquals("First phone number not correctly extracted", "+14106782230\u001Flibphonenumber\u001FPhone Number", firstTerm.getRowKey().toString());
-        assertEquals(133L, firstTerm.getRowKey().getStartOffset());
-        assertEquals(145L, firstTerm.getRowKey().getEndOffset());
+        assertEquals("First phone number not correctly extracted", "+14106782230", firstTerm.getMetadata().getSign());
+        assertEquals(33, firstTerm.getRowKey().getStartOffset());
+        assertEquals(45, firstTerm.getRowKey().getEndOffset());
 
         TermMention secondTerm = termList.get(1);
-        assertEquals("Second phone number not correctly extracted", "+442074370478\u001Flibphonenumber\u001FPhone Number", termList.get(1).getRowKey().toString());
-        assertEquals(184L, secondTerm.getRowKey().getStartOffset());
-        assertEquals(203L, secondTerm.getRowKey().getEndOffset());
+        assertEquals("Second phone number not correctly extracted", "+442074370478", secondTerm.getMetadata().getSign());
+        assertEquals(84, secondTerm.getRowKey().getStartOffset());
+        assertEquals(103, secondTerm.getRowKey().getEndOffset());
     }
 
     @Test
@@ -56,14 +56,14 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest {
 
         assertTrue("Incorrect number of phone numbers extracted", termList.size() == 2);
         TermMention firstTerm = termList.get(0);
-        assertEquals("First phone number not correctly extracted", "+14106782230\u001Flibphonenumber\u001FPhone Number", firstTerm.getRowKey().toString());
-        assertEquals(134L, firstTerm.getRowKey().getStartOffset());
-        assertEquals(146L, firstTerm.getRowKey().getEndOffset());
+        assertEquals("First phone number not correctly extracted", "+14106782230", firstTerm.getMetadata().getSign());
+        assertEquals(34, firstTerm.getRowKey().getStartOffset());
+        assertEquals(46, firstTerm.getRowKey().getEndOffset());
 
         TermMention secondTerm = termList.get(1);
-        assertEquals("Second phone number not correctly extracted", "+442074370478\u001Flibphonenumber\u001FPhone Number", termList.get(1).getRowKey().toString());
-        assertEquals(186L, secondTerm.getRowKey().getStartOffset());
-        assertEquals(205L, secondTerm.getRowKey().getEndOffset());
+        assertEquals("Second phone number not correctly extracted", "+442074370478", secondTerm.getMetadata().getSign());
+        assertEquals(86, secondTerm.getRowKey().getStartOffset());
+        assertEquals(105, secondTerm.getRowKey().getEndOffset());
     }
 
     @Test
