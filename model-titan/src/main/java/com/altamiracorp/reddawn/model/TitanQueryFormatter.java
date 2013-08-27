@@ -41,17 +41,22 @@ public class TitanQueryFormatter {
             throw new RuntimeException("'values' is required for data type 'date'");
         }
 
+        if (values.isNull(0))
+            return pipeline;
+
         Date value = Property.DATE_FORMAT.parse(values.getString(0));
         if (predicate.equals("range")) {
             if (values.length() != 2) {
                 throw new RuntimeException("'range' requires 2 values, found " + values.length());
             }
+
             Date value1 = Property.DATE_FORMAT.parse(values.getString(1));
             return pipeline.interval(propertyName, value, value1);
         } else {
             if (values.length() != 1) {
                 throw new RuntimeException(String.format("'%s' requires 1 value, found %d", predicate, values.length()));
             }
+
             Tokens.T comparison = tokenMap.get(predicate);
             if (comparison != null)
                 return pipeline.has(propertyName, comparison, value);
@@ -69,6 +74,9 @@ public class TitanQueryFormatter {
         if (values == null) {
             throw new RuntimeException("'values' is required for data type 'number'");
         }
+        if (values.isNull(0))
+            return pipeline;
+
         double value = values.getDouble(0);
 
         if (predicate.equals("range")) {
@@ -99,6 +107,10 @@ public class TitanQueryFormatter {
         if (values.length() != 1) {
             throw new RuntimeException("'contains' requires 1 value, found " + values.length());
         }
+
+        if (values.isNull(0))
+            return pipeline;
+
         final String value = values.getString(0).toLowerCase();
 
         return pipeline.filter(new PipeFunction<Vertex, Boolean>() {

@@ -152,11 +152,6 @@ public class GraphVertexSearchTest extends RouteTestBase {
         assertFilteredCorrectly(filteredVertices, "person1");
     }
 
-    private void assertFilteredCorrectly(List<GraphVertex> filteredVertices, String expectedName) {
-        assertEquals(1, filteredVertices.size());
-        assertEquals(expectedName, filteredVertices.get(0).getProperty(PropertyName.TITLE));
-    }
-
     @Test
     public void testFilter_number_isEqual() throws Exception {
         JSONArray filterJson =
@@ -179,6 +174,11 @@ public class GraphVertexSearchTest extends RouteTestBase {
                 "values", new JSONArray("[400, 600]"));
         List<GraphVertex> filteredVertices = runFilter(filterJson);
         assertFilteredCorrectly(filteredVertices, "person1");
+    }
+
+    private void assertFilteredCorrectly(List<GraphVertex> filteredVertices, String expectedName) {
+        assertEquals(1, filteredVertices.size());
+        assertEquals(expectedName, filteredVertices.get(0).getProperty(PropertyName.TITLE));
     }
 
     private List<GraphVertex> runFilter(JSONArray filterJson) throws JSONException, ParseException {
