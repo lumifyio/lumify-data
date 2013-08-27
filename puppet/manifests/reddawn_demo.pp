@@ -77,9 +77,11 @@ node "ip-10-0-3-101" {
   include accumulo::fw::tserver
   include accumulo::fw::logger
   include blur::fw::shard
+  include elasticsearch::fw::node
   include role::hadoop::datanode # includes zookeeper, tasktracker, and native tools
   include role::accumulo::node
   include role::blur::shard
+  include elasticsearch
 }
 
 node "ip-10-0-3-102" {
@@ -90,9 +92,11 @@ node "ip-10-0-3-102" {
   include accumulo::fw::tserver
   include accumulo::fw::logger
   include blur::fw::shard
+  include elasticsearch::fw::node
   include role::hadoop::datanode
   include role::accumulo::node
   include role::blur::shard
+  include elasticsearch
 }
 
 node "ip-10-0-3-103" {
@@ -103,9 +107,11 @@ node "ip-10-0-3-103" {
   include accumulo::fw::tserver
   include accumulo::fw::logger
   include blur::fw::shard
+  include elasticsearch::fw::node
   include role::hadoop::datanode
   include role::accumulo::node
   include role::blur::shard
+  include elasticsearch
 }
 
 node "ip-10-0-3-200" {
