@@ -118,4 +118,13 @@ node "ip-10-0-3-200" {
   include my_fw
   include jetty::fw::server
   include role::web::server
+
+  $hadoop_masters = hiera_array('hadoop_masters')
+  $hadoop_slaves = hiera_array('hadoop_slaves')
+  $zookeeper_nodes = hiera_hash('zookeeper_nodes')
+
+  file { '/opt/reddawn/config/configuration.properties' :
+    ensure => file,
+    content => template('env/cluster/configuration.properties.erb'),
+  }
 }
