@@ -102,10 +102,10 @@ public abstract class Base extends RedDawnCommandLineBase {
         graph.commit();
 
         TitanGraphVertex artifact = getOrCreateConcept(graph, rootConcept, VertexType.ARTIFACT.toString(), "Artifact");
-        addPropertyToConcept(graph, artifact, typeProperty.getName(), "Type", PropertyType.STRING);
-        addPropertyToConcept(graph, artifact, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
-        addPropertyToConcept(graph, artifact, titleProperty.getName(), "Title", PropertyType.STRING);
-        addPropertyToConcept(graph, artifact, geoLocationProperty.getName(), "Geo-location", PropertyType.GEO_LOCATION);
+        addPropertyTo(graph, artifact, typeProperty.getName(), "Type", PropertyType.STRING);
+        addPropertyTo(graph, artifact, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
+        addPropertyTo(graph, artifact, titleProperty.getName(), "Title", PropertyType.STRING);
+        addPropertyTo(graph, artifact, geoLocationProperty.getName(), "Geo-location", PropertyType.GEO_LOCATION);
         graph.commit();
 
         // TermMention concept
@@ -125,10 +125,11 @@ public abstract class Base extends RedDawnCommandLineBase {
 
         // Entity concept
         TitanGraphVertex entity = getOrCreateConcept(graph, rootConcept, VertexType.ENTITY.toString(), "Entity");
-        addPropertyToConcept(graph, entity, typeProperty.getName(), "Type", PropertyType.STRING);
-        addPropertyToConcept(graph, entity, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
-        addPropertyToConcept(graph, entity, titleProperty.getName(), "Title", PropertyType.STRING);
-        addPropertyToConcept(graph, entity, PropertyName.GLYPH_ICON.toString(), "glyph icon", PropertyType.IMAGE);
+        addPropertyTo(graph, entity, typeProperty.getName(), "Type", PropertyType.STRING);
+        addPropertyTo(graph, entity, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
+        addPropertyTo(graph, entity, titleProperty.getName(), "Title", PropertyType.STRING);
+        addPropertyTo(graph, entity, PropertyName.GLYPH_ICON.toString(), "glyph icon", PropertyType.IMAGE);
+
         getOrCreateRelationshipType(graph, entity, artifact, LabelName.HAS_IMAGE.toString(), "has image");
         graph.commit();
 
@@ -160,6 +161,20 @@ public abstract class Base extends RedDawnCommandLineBase {
         if (parent != null) {
             findOrAddEdge(vertex, parent, LabelName.IS_A.toString());
         }
+        return vertex;
+    }
+
+    protected TitanGraphVertex getRelationship (TitanGraph graph, String relationshipLabel, String displayName) {
+        Iterator<Vertex> iter = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), relationshipLabel).iterator();
+        TitanGraphVertex vertex;
+        if (iter.hasNext()) {
+            vertex = new TitanGraphVertex(iter.next());
+        } else {
+            vertex = new TitanGraphVertex(graph.addVertex(null));
+        }
+        vertex.setProperty(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString());
+        vertex.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), relationshipLabel);
+        vertex.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
         return vertex;
     }
 
@@ -195,7 +210,7 @@ public abstract class Base extends RedDawnCommandLineBase {
         fromVertex.getVertex().addEdge(edgeLabel, toVertex.getVertex());
     }
 
-    protected TitanGraphVertex addPropertyToConcept(TitanGraph graph, TitanGraphVertex concept, String propertyName, String displayName, PropertyType dataType) {
+    protected TitanGraphVertex addPropertyTo(TitanGraph graph, TitanGraphVertex vertex, String propertyName, String displayName, PropertyType dataType) {
         TitanKey typeProperty = (TitanKey) graph.getType(propertyName);
         if (typeProperty == null) {
             Class vertexDataType = String.class;
@@ -231,7 +246,7 @@ public abstract class Base extends RedDawnCommandLineBase {
         propertyVertex.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
         graph.commit();
 
-        findOrAddEdge(concept, propertyVertex, LabelName.HAS_PROPERTY.toString());
+        findOrAddEdge(vertex, propertyVertex, LabelName.HAS_PROPERTY.toString());
         graph.commit();
 
         return propertyVertex;

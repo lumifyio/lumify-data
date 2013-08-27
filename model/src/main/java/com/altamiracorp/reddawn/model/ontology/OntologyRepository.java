@@ -155,21 +155,21 @@ public class OntologyRepository {
         if (conceptVertex == null) {
             throw new RuntimeException("Could not find concept: " + conceptVertexId);
         }
-        return getPropertiesByConceptId(graphSession, conceptVertex);
+        return getPropertiesByVertex(graphSession, conceptVertex);
     }
 
-    private List<Property> getPropertiesByConceptId(GraphSession graphSession, Vertex conceptVertex) {
+    private List<Property> getPropertiesByVertex(GraphSession graphSession, Vertex vertex) {
         List<Property> properties = new ArrayList<Property>();
 
-        Iterator<Vertex> propertyVertices = conceptVertex.getVertices(Direction.OUT, LabelName.HAS_PROPERTY.toString()).iterator();
+        Iterator<Vertex> propertyVertices = vertex.getVertices(Direction.OUT, LabelName.HAS_PROPERTY.toString()).iterator();
         while (propertyVertices.hasNext()) {
             Vertex propertyVertex = propertyVertices.next();
             properties.add(new VertexProperty(propertyVertex));
         }
 
-        Vertex parentConceptVertex = getParentConceptVertex(conceptVertex);
+        Vertex parentConceptVertex = getParentConceptVertex(vertex);
         if (parentConceptVertex != null) {
-            List<Property> parentProperties = getPropertiesByConceptId(graphSession, parentConceptVertex);
+            List<Property> parentProperties = getPropertiesByVertex(graphSession, parentConceptVertex);
             properties.addAll(parentProperties);
         }
 
@@ -196,5 +196,30 @@ public class OntologyRepository {
         List<Concept> children = getChildConcepts(graphSession, concept);
         concepts.addAll(children);
         return concepts;
+    }
+
+    public List<Property> getPropertiesByRelationship (GraphSession graphSession, String relationshipLabel) {
+        Vertex relationshipVertex = getRelationshipVertexId(graphSession, relationshipLabel);
+        if (relationshipVertex == null) {
+            throw new RuntimeException("Could not find relationship: " + relationshipLabel);
+        }
+        return getPropertiesByVertex(graphSession, relationshipVertex);
+    }
+
+    private Vertex getRelationshipVertexId (GraphSession graphSession, String relationshipLabel) {
+        Iterator<Vertex> vertices = graphSession.getGraph().query()
+                .has(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString())
+                .has(PropertyName.ONTOLOGY_TITLE.toString(), relationshipLabel)
+                .vertices()
+                .iterator();
+        if (vertices.hasNext()) {
+            Vertex vertex = vertices.next();
+            if (vertices.hasNext()) {
+                throw new RuntimeException("Too many \"" + VertexType.RELATIONSHIP + "\" vertices");
+            }
+            return vertex;
+        } else {
+            throw new RuntimeException("Could not find \"" + VertexType.RELATIONSHIP + "\" vertex");
+        }
     }
 }
