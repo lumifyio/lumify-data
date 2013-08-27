@@ -133,6 +133,13 @@ public class TitanQueryFormatter {
         }
     }
 
+    /**
+     * Create a Gremlin pipeline from a JSON array of JSON objects.
+     *
+     * @param vertices    Vertices to start the pipeline on
+     * @param filtersJson JSON array of objects to filter
+     * @return Gremlin pipeline for filtering
+     */
     public GremlinPipeline<Vertex, Vertex> createQueryPipeline(Iterable<Vertex> vertices, JSONArray filtersJson) {
         checkNotNull(vertices, "Vertices cannot be null");
         checkNotNull(filtersJson, "JSON filter cannot be null");
