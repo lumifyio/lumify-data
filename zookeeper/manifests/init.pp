@@ -12,4 +12,11 @@ class zookeeper {
     content => template('zookeeper/zoo.cfg.erb'),
     require => Package['hadoop-zookeeper-server'],
   }
+
+  file { 'hadoop-zookeeper-myid':
+    path    => '/var/zookeeper/myid',
+    ensure  => file,
+    content => template('zookeeper/myid.erb'),
+    require => Package['hadoop-zookeeper-server'],
+  }
 }
