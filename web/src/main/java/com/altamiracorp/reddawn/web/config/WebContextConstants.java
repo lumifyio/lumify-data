@@ -13,6 +13,7 @@ public final class WebContextConstants {
     public static final String BLUR_CONTROLLER = "blur.controllerLocation";
     public static final String BLUR_PATH = "blur.path";
     public static final String GRAPH_SEARCH_HOSTNAME = "graph.search.hostname";
+    public static final String APP_CONFIG_PATH = "application.configPath";
 
     private WebContextConstants() {
 
