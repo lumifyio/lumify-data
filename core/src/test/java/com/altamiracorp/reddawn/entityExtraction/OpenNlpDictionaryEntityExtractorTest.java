@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -40,9 +41,14 @@ public class OpenNlpDictionaryEntityExtractorTest extends BaseExtractorTest {
         extractor.setup(context);
         List<TermMention> terms = extractor.extract(createArtifact(text), text);
         assertEquals(3, terms.size());
-        assertEquals("Bob Robertson", terms.get(0).getMetadata().getSign());
-        assertEquals("Altamira Corporation", terms.get(1).getMetadata().getSign());
-        assertEquals("Boston , MA", terms.get(2).getMetadata().getSign());
+        ArrayList<String> signs = new ArrayList<String>();
+        for (TermMention term : terms) {
+            signs.add(term.getMetadata().getSign());
+        }
+
+        assertTrue("Bob Robertson not found", signs.contains("Bob Robertson"));
+        assertTrue("Altamira Corporation not found", signs.contains("Altamira Corporation"));
+        assertTrue("Boston , MA not found", signs.contains("Boston , MA"));
     }
 
     @Test
