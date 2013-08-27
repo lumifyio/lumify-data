@@ -14,6 +14,7 @@ class blur (
 
   $java_home = hiera("java_home")
   $hadoop_home = hiera("hadoop_home")
+  $zookeeper_nodes = hiera_hash('zookeeper_nodes')
 
   $homedir = "${installdir}/apache-blur-${version}"
   $homelink = "${installdir}/apache-blur"
@@ -70,6 +71,12 @@ class blur (
   file { "${configdir}/blur-env.sh":
     ensure  => file,
     content => template("blur/blur-env.sh.erb"),
+    require => Exec["copy-config"],
+  }
+
+  file { "${configdir}/blur-site.properties":
+    ensure  => file,
+    content => template("blur/blur-site.properties.erb"),
     require => Exec["copy-config"],
   }
 
