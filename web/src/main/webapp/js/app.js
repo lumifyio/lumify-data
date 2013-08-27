@@ -579,6 +579,7 @@ define([
             if (data.name == 'search' && !pane.hasClass('visible')) {
                 var self = this;
                 pane.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
+                    pane.off('transitionend webkitTransitionEnd oTransitionEnd otransitionend');
                     self.trigger(document, 'focusSearchField');
                 });
             }

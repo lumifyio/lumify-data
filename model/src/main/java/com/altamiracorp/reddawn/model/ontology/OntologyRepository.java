@@ -184,4 +184,14 @@ public class OntologyRepository {
 
         return properties;
     }
+
+    public Property getPropertyById(GraphSession graphSession, int propertyId) {
+        List<Property> properties = getProperties(graphSession);
+        for (Property property : properties) {
+            if (property.getId().equals("" + propertyId)) {
+                return property;
+            }
+        }
+        return null;
+    }
 }

@@ -5,12 +5,13 @@ define([
     'service/ontology',
     'util/previews',
     'util/video/scrubber',
+    './filters/filters',
     'tpl!./search',
     'tpl!./searchResultsSummary',
     'tpl!./searchResults',
     'tpl!util/alert',
     'util/jquery.ui.draggable.multiselect',
-], function(defineComponent, UCD, OntologyService, previews, VideoScrubber, template, summaryTemplate, resultsTemplate, alertTemplate) {
+], function(defineComponent, UCD, OntologyService, previews, VideoScrubber, Filters, template, summaryTemplate, resultsTemplate, alertTemplate) {
     'use strict';
 
     return defineComponent(Search);
@@ -28,7 +29,9 @@ define([
             searchSummaryResultItemSelector: '.search-results-summary li',
             searchResultsScrollSelector: '.search-results ul.nav',
             searchResultItemLinkSelector: '.search-results li a',
-            searchResultsSelector: '.search-results'
+            searchResultsSelector: '.search-results',
+            filtersSelector: '.search-filters',
+            filtersContentSelector: '.search-filters ul.nav'
         });
 
         this.searchResults = null;
@@ -63,7 +66,6 @@ define([
 
         this.onFormSearch = function(evt) {
             evt.preventDefault();
-            this.searchResults = {};
             var $searchQueryValidation = this.select('searchQueryValidationSelector');
             $searchQueryValidation.html('');
 
@@ -89,48 +91,62 @@ define([
         };
 
         this.doSearch = function(evt, query) {
-			//added for sync effect
-			if (!this.searchResults) {
-				this.searchResults = {};
-			}
-			
+            if (!this.searchResults) {
+                this.searchResults = {};
+            }
 			if (this.select('searchQuerySelector').val() != query.query) {
 				this.select('searchQuerySelector').val(query.query);
 			}
 			
             var self = this;
-            var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            var $searchResults = this.select('searchResultsSelector');
 
-            $searchResults.hide();
             this.ontologyService.concepts(function(err, concepts) {
-                var resultsHtml = self.getConceptChildrenHtml(concepts.tree, 15);
-                $searchResultsSummary.html(summaryTemplate({ resultsHtml: resultsHtml }));
-                $('.badge', $searchResultsSummary).addClass('loading');
-                this.ucd.artifactSearch(query, function(err, artifacts) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-                    self.searchResults.artifact = artifacts;
-                    self.trigger('artifactSearchResults', artifacts);
-                });
-                this.ucd.graphVertexSearch(query, function(err, entities) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-                    self.searchResults.entity = {};
-                    entities.vertices.forEach(function(entity) {
-                        entity.sign = entity.properties['title'];
-                        entity.source = entity.properties['source'];
-                        entity.graphVertexId = entity.id;
-                        self.searchResults.entity[entity.properties['_subType']] = self.searchResults.entity[entity.properties['_subType']] || [];
-                        self.searchResults.entity[entity.properties['_subType']].push(entity);
-                    });
-                    self.trigger('entitySearchResults', self.searchResults.entity);
-                });
+                this.updateConceptSections(concepts);
+                this.searchArtifacts(query);
+                this.searchEntities(query);
             }.bind(this));
+        };
+
+        this.updateConceptSections = function(concepts) {
+            var $searchResultsSummary = this.select('searchResultsSummarySelector'),
+                $searchResults = this.select('searchResultsSelector'),
+                resultsHtml = this.getConceptChildrenHtml(concepts.tree, 15);
+
+            $searchResultsSummary.html(summaryTemplate({ resultsHtml: resultsHtml }));
+            $('.badge', $searchResultsSummary).addClass('loading');
+        };
+
+        this.searchArtifacts = function(query) {
+            var self = this;
+
+            this.ucd.artifactSearch(query, function(err, artifacts) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+                self.searchResults.artifact = artifacts;
+                self.trigger('artifactSearchResults', artifacts);
+            });
+        };
+
+        this.searchEntities = function(query) {
+            var self = this;
+
+            this.ucd.graphVertexSearch(query || this.select('searchQuerySelector').val(), this.filters, function(err, entities) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+                self.searchResults.entity = {};
+                entities.vertices.forEach(function(entity) {
+                    entity.sign = entity.properties.title;
+                    entity.source = entity.properties.source;
+                    entity.graphVertexId = entity.id;
+                    self.searchResults.entity[entity.properties._subType] = self.searchResults.entity[entity.properties._subType] || [];
+                    self.searchResults.entity[entity.properties._subType].push(entity);
+                });
+                self.trigger('entitySearchResults', self.searchResults.entity);
+            });
         };
 
         this.onSummaryResultItemClick = function(evt) {
@@ -163,6 +179,8 @@ define([
 
             data.results = this.searchResults[data._type][data._subType] || [];
 
+            this.select('filtersSelector').hide();
+
             data.results.forEach(function(result) {
                 if(data._type == 'artifact') {
                     result.title = result.subject;
@@ -185,15 +203,8 @@ define([
                 result.className = classes.join(' ');
             });
 
-            // Add splitbar to search results
-            $searchResults.resizable({
-                handles: 'e',
-                minWidth: 50,
-                resize: function() {
-                    self.trigger(document, 'paneResized');
-                }
-            });
-            
+            this.makeResizable($searchResults);
+
             // Update content
             $searchResults.find('ul').html(resultsTemplate(data));
 
@@ -209,6 +220,19 @@ define([
             }
         };
 
+        this.makeResizable = function(node) {
+            var self = this;
+
+            // Add splitbar to search results
+            node.resizable({
+                handles: 'e',
+                minWidth: 50,
+                resize: function() {
+                    self.trigger(document, 'paneResized');
+                }
+            });
+        };
+
 		this.onKeyUp = function (evt) {
 			var query = this.select('searchQuerySelector').val();
 			if (query != this.currentQuery) {
@@ -216,6 +240,17 @@ define([
 				this.currentQuery = query;
 			}
 		};
+
+        this.onQueryFocus = function (evt, data) {
+            Filters.attachTo(this.select('filtersContentSelector'));
+
+            var filters = this.select('filtersSelector');
+
+            this.makeResizable(filters);
+            filters.show();
+            this.select('searchResultsSelector').hide();
+            this.$node.find('.search-results-summary .active').removeClass('active');
+        };
 		
 		this.onQueryChange = function (evt, data) {
 			if (!data.remoteEvent) {
@@ -283,9 +318,12 @@ define([
 
 
         this.after('initialize', function() {
+            this.searchResults = {};
             this.$node.html(template({}));
 
             this.select('searchResultsSelector').hide();
+
+            this.on('filterschange', this.onFiltersChange);
 
             this.on(document,'search', this.doSearch);
             this.on('artifactSearchResults', this.onArtifactSearchResults);
@@ -303,6 +341,7 @@ define([
 				searchQuerySelector: this.onKeyUp
 			});
 
+            this.select('searchQuerySelector').on('focus', this.onQueryFocus.bind(this));
             this.select('searchResultsScrollSelector').on('scroll', this.onResultsScroll.bind(this));
 
             this.on(document, 'verticesAdded', this.onVerticesUpdated);
@@ -317,6 +356,19 @@ define([
 
         this.onWorkspaceLoaded = function(evt, workspace) {
             this.onVerticesUpdated(evt, workspace.data || {});
+        };
+
+        this.onFiltersChange = function(evt, data) {
+            this.filters = data.filters;
+            
+            var query = this.select('searchQuerySelector').val() || '*';
+
+            // TODO: star query is broken for entities
+            if (this.$node.find('.search-results-summary li').length) {
+                this.searchEntities(query);
+            } else {
+                this.trigger(document, 'search', { query:query });
+            }
         };
 
         // Track changes to vertices so we display the "Displayed in Graph" icon

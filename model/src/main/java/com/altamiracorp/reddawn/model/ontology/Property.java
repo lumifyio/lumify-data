@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 public abstract class Property {
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
     public abstract String getId();
 
@@ -45,7 +45,7 @@ public abstract class Property {
         Object value = valueStr;
         switch (dateType) {
             case DATE:
-                value = dateFormat.parse(valueStr);
+                value = DATE_FORMAT.parse(valueStr);
                 break;
         }
         return value;
