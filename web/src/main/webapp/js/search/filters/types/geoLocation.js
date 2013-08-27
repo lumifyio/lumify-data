@@ -30,7 +30,7 @@ define([
 
         this.isValid = function() {
             return _.every(this.getValues(), function(v) {
-                return _.isNumber(makeNumber(v));
+                return v.length && _.isNumber(makeNumber(v));
             });
         };
     }

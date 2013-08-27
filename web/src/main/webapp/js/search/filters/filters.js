@@ -52,13 +52,16 @@ define([
             var self = this,
                 target = $(event.target),
                 property = target.find(':selected').data('info'),
-                li = target.closest('li');
+                li = target.closest('li'),
+                addRemoveOption = target.find('option').eq(0);
 
             if (!property || !property.dataType) {
-                li.addClass('newrow');
-                li.next('.newrow').remove();
-                return this.teardownFilter(target.next('.configuration'));
+                this.teardownFilter(target.next('.configuration'));
+                li.remove();
+                return;
             }
+
+            addRemoveOption.text('Remove filter');
 
             require(['search/filters/types/' + property.dataType], function(FilterItem) {
                 var node = target.next('.configuration');
@@ -85,7 +88,9 @@ define([
             if (instanceInfo && instanceInfo.length) {
                 instanceInfo.forEach(function(info) {
                     delete self.currentFilters[info.instance.attr.id];
-                    self.notifyOfFilters();
+                    if (info.instance.isValid && info.instance.isValid()) {
+                        self.notifyOfFilters();
+                    }
                     info.instance.teardown();
                 });
             }

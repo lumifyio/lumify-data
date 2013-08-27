@@ -12,7 +12,7 @@ define([
         this.after('initialize', function() {
             var self = this;
 
-            this.$node.html(template({}));
+            this.$node.html(template({property:this.attr.property}));
 
             this.select('inputSelector').focus();
 
