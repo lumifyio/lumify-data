@@ -55,8 +55,7 @@ public class GraphVertexSearchTest extends RouteTestBase {
                         "predicate", "<",
                         "values", new JSONArray("['1977-10-30']"));
         List<GraphVertex> filteredVertices = runFilter(filterJson);
-        assertEquals(1, filteredVertices.size());
-        assertEquals("person2", filteredVertices.get(0).getProperty(PropertyName.TITLE));
+        assertFilteredCorrectly(filteredVertices, "person2");
     }
 
     @Test
@@ -68,8 +67,7 @@ public class GraphVertexSearchTest extends RouteTestBase {
                         "predicate", "<=",
                         "values", new JSONArray("['1977-01-30']"));
         List<GraphVertex> filteredVertices = runFilter(filterJson);
-        assertEquals(1, filteredVertices.size());
-        assertEquals("person2", filteredVertices.get(0).getProperty(PropertyName.TITLE));
+        assertFilteredCorrectly(filteredVertices, "person2");
     }
 
     @Test
@@ -81,8 +79,7 @@ public class GraphVertexSearchTest extends RouteTestBase {
                         "predicate", ">",
                         "values", new JSONArray("['1977-10-30']"));
         List<GraphVertex> filteredVertices = runFilter(filterJson);
-        assertEquals(1, filteredVertices.size());
-        assertEquals("person1", filteredVertices.get(0).getProperty(PropertyName.TITLE));
+        assertFilteredCorrectly(filteredVertices, "person1");
     }
     @Test
     public void testFilter_date_isAfterEqual() throws Exception {
@@ -93,8 +90,7 @@ public class GraphVertexSearchTest extends RouteTestBase {
                         "predicate", ">=",
                         "values", new JSONArray("['1978-10-30']"));
         List<GraphVertex> filteredVertices = runFilter(filterJson);
-        assertEquals(1, filteredVertices.size());
-        assertEquals("person1", filteredVertices.get(0).getProperty(PropertyName.TITLE));
+        assertFilteredCorrectly(filteredVertices, "person1");
     }
 
     @Test
@@ -106,8 +102,7 @@ public class GraphVertexSearchTest extends RouteTestBase {
                         "predicate", "equal",
                         "values", new JSONArray("['1977-01-30']"));
         List<GraphVertex> filteredVertices = runFilter(filterJson);
-        assertEquals(1, filteredVertices.size());
-        assertEquals("person2", filteredVertices.get(0).getProperty(PropertyName.TITLE));
+        assertFilteredCorrectly(filteredVertices, "person2");
     }
 
     @Test
@@ -119,21 +114,18 @@ public class GraphVertexSearchTest extends RouteTestBase {
                         "predicate", "range",
                         "values", new JSONArray("['1977-01-28', '1977-02-15']"));
         List<GraphVertex> filteredVertices = runFilter(filterJson);
-        assertEquals(1, filteredVertices.size());
-        assertEquals("person2", filteredVertices.get(0).getProperty(PropertyName.TITLE));
+        assertFilteredCorrectly(filteredVertices, "person2");
     }
 
     @Test
     public void testFilter_string_contains() throws Exception {
-
         JSONArray filterJson =
                 createFilterArray(
                         "propertyName", "alias",
                         "propertyDataType", "string",
                         "values", new JSONArray("['bob']"));
         List<GraphVertex> filteredVertices = runFilter(filterJson);
-        assertEquals(1, filteredVertices.size());
-        assertEquals("person2", filteredVertices.get(0).getProperty(PropertyName.TITLE));
+        assertFilteredCorrectly(filteredVertices, "person2");
     }
 
     @Test
@@ -145,8 +137,7 @@ public class GraphVertexSearchTest extends RouteTestBase {
                         "predicate", "<",
                         "values", new JSONArray("[400]"));
         List<GraphVertex> filteredVertices = runFilter(filterJson);
-        assertEquals(1, filteredVertices.size());
-        assertEquals("person2", filteredVertices.get(0).getProperty(PropertyName.TITLE));
+        assertFilteredCorrectly(filteredVertices, "person2");
     }
 
     @Test
@@ -158,8 +149,12 @@ public class GraphVertexSearchTest extends RouteTestBase {
                         "predicate", ">",
                         "values", new JSONArray("['400']"));
         List<GraphVertex> filteredVertices = runFilter(filterJson);
+        assertFilteredCorrectly(filteredVertices, "person1");
+    }
+
+    private void assertFilteredCorrectly(List<GraphVertex> filteredVertices, String expectedName) {
         assertEquals(1, filteredVertices.size());
-        assertEquals("person1", filteredVertices.get(0).getProperty(PropertyName.TITLE));
+        assertEquals(expectedName, filteredVertices.get(0).getProperty(PropertyName.TITLE));
     }
 
     @Test
@@ -183,8 +178,7 @@ public class GraphVertexSearchTest extends RouteTestBase {
                 "predicate", "range",
                 "values", new JSONArray("[400, 600]"));
         List<GraphVertex> filteredVertices = runFilter(filterJson);
-        assertEquals(1, filteredVertices.size());
-        assertEquals("person1", filteredVertices.get(0).getProperty(PropertyName.TITLE));
+        assertFilteredCorrectly(filteredVertices, "person1");
     }
 
     private List<GraphVertex> runFilter(JSONArray filterJson) throws JSONException, ParseException {
