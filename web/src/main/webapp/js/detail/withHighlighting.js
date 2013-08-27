@@ -222,7 +222,7 @@ define([
         };
 
         this.handleSelectionChange = _.debounce(function() {
-            this.tearDownDropdowns();
+//            this.tearDownDropdowns();
 
             var sel = window.getSelection(),
                 text = sel && sel.type === 'Range' ? $.trim(sel.toString()) : '';
