@@ -68,8 +68,11 @@ public class EntityCreate implements Handler, AppAware {
         if (resolvedGraphVertexId != null) {
             resolvedVertex = graphRepository.findVertex(session.getGraphSession(), resolvedGraphVertexId);
         } else {
-            resolvedVertex = new GraphVertexImpl();
-            resolvedVertex.setType(VertexType.ENTITY);
+            resolvedVertex = graphRepository.findVertexByTitleAndType(session.getGraphSession(), sign, VertexType.ENTITY);
+            if (resolvedVertex == null){
+                resolvedVertex = new GraphVertexImpl();
+                resolvedVertex.setType(VertexType.ENTITY);
+            }
             resolvedVertex.setProperty(PropertyName.ROW_KEY, termMentionRowKey.toString());
         }
         resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
