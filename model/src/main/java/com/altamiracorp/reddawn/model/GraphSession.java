@@ -53,4 +53,6 @@ public abstract class GraphSession {
     public abstract void remove(String graphVertexId);
 
     public abstract List<List<GraphVertex>> findPath(GraphVertex sourceVertex, GraphVertex destVertex, int depth);
+
+    public abstract GraphVertex findVertexByRowKey(String rowKey);
 }

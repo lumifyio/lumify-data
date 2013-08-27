@@ -2,7 +2,11 @@ package com.altamiracorp.reddawn.contentTypeExtraction;
 
 import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.RedDawnMapper;
+import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
+import com.altamiracorp.reddawn.model.graph.GraphRepository;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
@@ -39,6 +43,7 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
 
     public static class ContentTypeExtractorMapper extends RedDawnMapper<Text, Artifact, Text, Artifact> {
         private ArtifactRepository artifactRepository = new ArtifactRepository();
+        private GraphRepository graphRepository = new GraphRepository();
         public static final String CONF_CONTENT_TYPE_EXTRACTOR_CLASS = "contentTypeExtractorClass";
         private ContentTypeExtractor contentTypeExtractor;
 
@@ -57,6 +62,8 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
 
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
+            RedDawnSession redDawnSession = createRedDawnSession(context);
+
             LOGGER.info("Extracting content type from artifact: " + artifact.getRowKey().toString());
             InputStream in = artifactRepository.getRaw(getSession().getModelSession(), artifact);
             if (in == null) {
@@ -67,6 +74,13 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
                 LOGGER.warn("No content type set for artifact: " + artifact.getRowKey().toString());
             }
             artifact.getGenericMetadata().setMimeType(contentType);
+
+            GraphVertex graphVertex = graphRepository.findVertexByRowKey(redDawnSession.getGraphSession(), artifact.getRowKey().toString());
+            if (graphVertex != null) {
+                graphVertex.setProperty(PropertyName.SUBTYPE.toString(), artifact.getType().toString().toLowerCase());
+                redDawnSession.getGraphSession().commit();
+            }
+
             context.write(new Text(Artifact.TABLE_NAME), artifact);
         }
     }
