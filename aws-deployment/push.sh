@@ -56,9 +56,11 @@ scp ${SSH_OPTS} ../aws/bin-ec2/setup_disks.sh \
                 run_puppet.sh \
                 update.sh \
                 setup_ssh.sh \
+                start_*.sh \
                 ${hosts_file} \
                 ${modules_tgz} \
                 ${puppet_modules_tgz} \
+                application.xml \
                 ${war_files} \
                 root@${elastic_ip}:
 

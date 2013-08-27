@@ -62,7 +62,7 @@ service puppet start
 
 heading 'stage webserver artifcats'
 www_host=$(awk '/www/ {print $1}' ${hosts_file})
-scp ${SSH_OPTS} *.war ${www_host}:
+scp ${SSH_OPTS} *.xml *.war ${www_host}:
 
 
 for other_host in $(awk -v localhost=$(hostname) '$2!=localhost {print $1}' ${hosts_file}); do
