@@ -42,8 +42,7 @@ public class GraphVertexSearch implements Handler, AppAware {
 
         resolvePropertyIds(session, filterJson);
 
-        List<GraphVertex> vertices = graphRepository.searchVerticesByTitle(session.getGraphSession(), query);
-        vertices = filterVertices(vertices, filterJson);
+        List<GraphVertex> vertices = graphRepository.searchVerticesByTitle(session.getGraphSession(), query, filterJson);
         JSONObject results = new JSONObject();
         results.put("vertices", GraphVertex.toJson(vertices));
         new Responder(response).respondWith(results);
@@ -93,15 +92,15 @@ public class GraphVertexSearch implements Handler, AppAware {
 
         switch (propertyDateType) {
             case DATE:
-                return isFiltered_Date(vertex, filterJson, propertyName);
+                return isFilteredDate(vertex, filterJson, propertyName);
             case CURRENCY:
-                return isFiltered_Number(vertex, filterJson, propertyName);
+                return isFilteredNumber(vertex, filterJson, propertyName);
             default:
-                return isFiltered_String(vertex, filterJson, propertyName);
+                return isFilteredString(vertex, filterJson, propertyName);
         }
     }
 
-    private static boolean isFiltered_Date(GraphVertex vertex, JSONObject filterJson, String propertyName) throws JSONException, ParseException {
+    private static boolean isFilteredDate(GraphVertex vertex, JSONObject filterJson, String propertyName) throws JSONException, ParseException {
         String predicate = filterJson.optString("predicate");
         if (predicate == null) {
             throw new RuntimeException("'predicate' is required for data type 'date'");
@@ -158,7 +157,7 @@ public class GraphVertexSearch implements Handler, AppAware {
         return true;
     }
 
-    private static boolean isFiltered_Number(GraphVertex vertex, JSONObject filterJson, String propertyName) throws JSONException, ParseException {
+    private static boolean isFilteredNumber(GraphVertex vertex, JSONObject filterJson, String propertyName) throws JSONException, ParseException {
         String predicate = filterJson.optString("predicate");
         if (predicate == null) {
             throw new RuntimeException("'predicate' is required for data type 'number'");
@@ -215,7 +214,7 @@ public class GraphVertexSearch implements Handler, AppAware {
         return true;
     }
 
-    private static boolean isFiltered_String(GraphVertex vertex, JSONObject filterJson, String propertyName) throws JSONException {
+    private static boolean isFilteredString(GraphVertex vertex, JSONObject filterJson, String propertyName) throws JSONException {
         JSONArray values = filterJson.optJSONArray("values");
         if (values == null) {
             throw new RuntimeException("'values' is required for data type 'string'");

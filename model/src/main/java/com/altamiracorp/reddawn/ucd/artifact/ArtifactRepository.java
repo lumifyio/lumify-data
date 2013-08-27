@@ -3,7 +3,7 @@ package com.altamiracorp.reddawn.ucd.artifact;
 import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
-import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
+import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 import org.apache.commons.io.FilenameUtils;
@@ -142,7 +142,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
 
         if (vertex == null) {
-            vertex = new GraphVertexImpl();
+            vertex = new InMemoryGraphVertex();
         }
 
         vertex.setProperty(PropertyName.TYPE.toString(), VertexType.ARTIFACT.toString());

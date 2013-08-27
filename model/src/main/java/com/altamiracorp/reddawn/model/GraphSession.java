@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.tinkerpop.blueprints.Graph;
+import org.json.JSONArray;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +39,7 @@ public abstract class GraphSession {
 
     public abstract List<GraphVertex> findByGeoLocation(double latitude, double longitude, double radius);
 
-    public abstract List<GraphVertex> searchVerticesByTitle(String query);
+    public abstract List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson);
 
     public abstract Graph getGraph();
 

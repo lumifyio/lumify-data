@@ -3,7 +3,7 @@ package com.altamiracorp.reddawn.ucd.term;
 import com.altamiracorp.reddawn.model.*;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
-import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
+import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.ucd.artifactTermIndex.ArtifactTermIndex;
@@ -126,7 +126,7 @@ public class TermRepository extends Repository<Term> {
         }
 
         if (vertex == null) {
-            vertex = new GraphVertexImpl();
+            vertex = new InMemoryGraphVertex();
         }
 
         vertex.setProperty(PropertyName.TYPE.toString(), VertexType.TERM_MENTION.toString());

@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,6 @@ import com.altamiracorp.reddawn.model.GraphSession;
 import com.altamiracorp.reddawn.model.RowKeyHelper;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
-import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
@@ -90,13 +90,13 @@ public class EntityCreate implements Handler, AppAware {
     private GraphVertex getObjectGraphVertex(GraphSession session, String title, GraphVertex conceptVertex) {
         GraphVertex graphVertex = graphRepository.findVertexByTitleAndType(session, title, VertexType.ENTITY);
         if (graphVertex == null) {
-            graphVertex = new GraphVertexImpl()
+            graphVertex = new InMemoryGraphVertex()
                     .setProperty(PropertyName.TITLE.toString(), title)
                     .setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString())
                     .setProperty(PropertyName.SUBTYPE.toString(), conceptVertex.getId())
                     .setProperty(PropertyName.SOURCE.toString(), "Analyst Resolved Entity");
             String graphVertexId = graphRepository.saveVertex(session, graphVertex);
-            return new GraphVertexImpl(graphVertexId)
+            return new InMemoryGraphVertex(graphVertexId)
                     .setProperty(PropertyName.TITLE.toString(), title)
                     .setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString())
                     .setProperty(PropertyName.SUBTYPE.toString(), conceptVertex.getId())
