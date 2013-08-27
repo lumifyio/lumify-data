@@ -7,7 +7,7 @@ import org.apache.hadoop.mapreduce.Mapper.Context;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,7 +34,7 @@ public class RegexEntityExtractor extends EntityExtractor {
     }
 
     @Override
-    Collection<TermMention> extract(Artifact artifact, String text) throws Exception {
+    List<TermMention> extract(Artifact artifact, String text) throws Exception {
         ArrayList<TermMention> terms = new ArrayList<TermMention>();
         Matcher matcher = pattern.matcher(text);
 

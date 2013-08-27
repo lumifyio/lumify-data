@@ -9,7 +9,7 @@ import org.apache.hadoop.mapreduce.Mapper.Context;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 public class PhoneNumberExtractor extends EntityExtractor {
     private static final String ENTITY_TYPE = "phoneNumber";
@@ -26,7 +26,7 @@ public class PhoneNumberExtractor extends EntityExtractor {
     }
 
     @Override
-    public Collection<TermMention> extract(Artifact artifact, String text) throws Exception {
+    public List<TermMention> extract(Artifact artifact, String text) throws Exception {
         Iterable<PhoneNumberMatch> phoneNumbers = phoneNumberUtil.findNumbers(text, defaultRegionCode);
 
         ArrayList<TermMention> termMentions = new ArrayList<TermMention>();

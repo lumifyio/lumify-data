@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public abstract class OpenNlpEntityExtractor extends EntityExtractor {
@@ -43,7 +42,7 @@ public abstract class OpenNlpEntityExtractor extends EntityExtractor {
     }
 
     @Override
-    public Collection<TermMention> extract(Artifact artifact, String text)
+    public List<TermMention> extract(Artifact artifact, String text)
             throws Exception {
         ObjectStream<String> untokenizedLineStream = new PlainTextByLineStream(new StringReader(text));
         ArrayList<TermMention> termMentions = new ArrayList<TermMention>();

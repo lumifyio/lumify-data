@@ -43,20 +43,20 @@ public class OpenNlpMEEntityExtractorTest extends BaseExtractorTest {
         for (TermMention term : terms) {
             extractedTerms.put(term.getMetadata().getSign() + "-" + term.getMetadata().getConcept(), term);
         }
-        assertTrue("A person wasn't found", extractedTerms.containsKey("Bob Robertson-Person"));
-        TermMention bobRobertsonMentions = extractedTerms.get("Bob Robertson-Person");
-        assertEquals(131, bobRobertsonMentions.getRowKey().getStartOffset());
-        assertEquals(144, bobRobertsonMentions.getRowKey().getEndOffset());
+        assertTrue("A person wasn't found", extractedTerms.containsKey("Bob Robertson-person"));
+        TermMention bobRobertsonMentions = extractedTerms.get("Bob Robertson-person");
+        assertEquals(31, bobRobertsonMentions.getRowKey().getStartOffset());
+        assertEquals(44, bobRobertsonMentions.getRowKey().getEndOffset());
 
 
-        assertTrue("A location wasn't found", extractedTerms.containsKey("Benghazi-Location"));
-        TermMention benghaziMentions = extractedTerms.get("Benghazi-Location");
-        assertEquals(289, benghaziMentions.getRowKey().getStartOffset());
-        assertEquals(297, benghaziMentions.getRowKey().getEndOffset());
+        assertTrue("A location wasn't found", extractedTerms.containsKey("Benghazi-location"));
+        TermMention benghaziMentions = extractedTerms.get("Benghazi-location");
+        assertEquals(189, benghaziMentions.getRowKey().getStartOffset());
+        assertEquals(197, benghaziMentions.getRowKey().getEndOffset());
 
-        assertTrue("An organization wasn't found", extractedTerms.containsKey("CNN-Organization"));
-        TermMention cnnMentions = extractedTerms.get("CNN-Organization");
-        assertEquals(251, cnnMentions.getRowKey().getStartOffset());
-        assertEquals(254, cnnMentions.getRowKey().getEndOffset());
+        assertTrue("An organization wasn't found", extractedTerms.containsKey("CNN-organization"));
+        TermMention cnnMentions = extractedTerms.get("CNN-organization");
+        assertEquals(151, cnnMentions.getRowKey().getStartOffset());
+        assertEquals(154, cnnMentions.getRowKey().getEndOffset());
     }
 }

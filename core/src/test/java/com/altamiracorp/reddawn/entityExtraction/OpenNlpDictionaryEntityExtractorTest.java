@@ -10,6 +10,7 @@ import org.junit.runners.JUnit4;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -37,23 +38,24 @@ public class OpenNlpDictionaryEntityExtractorTest extends BaseExtractorTest {
     @Test
     public void testEntityExtraction() throws Exception {
         extractor.setup(context);
-        Collection<TermMention> terms = extractor.extract(createArtifact(text), text);
-        assertTrue("A person wasn't found", terms.contains("Bob Robertson-Person"));
-        assertTrue("A location wasn't found", terms.contains("Boston , MA-Location"));
-        assertTrue("An organization wasn't found", terms.contains("Altamira Corporation-Organization"));
+        List<TermMention> terms = extractor.extract(createArtifact(text), text);
+        assertEquals(3, terms.size());
+        assertEquals("Altamira Corporation", terms.get(0).getMetadata().getSign());
+        assertEquals("Bob Robertson", terms.get(1).getMetadata().getSign());
+        assertEquals("Boston , MA", terms.get(2).getMetadata().getSign());
     }
 
     @Test
     public void testEntityExtractionSetsMentionRelativeToArtifactNotSentence() throws Exception {
         extractor.setup(context);
-        ;
+
         Collection<TermMention> terms = extractor.extract(createArtifact(text), text);
         boolean found = false;
         for (TermMention term : terms) {
-            if (term.getRowKey().toString().equals("Bob Robertson\u001FOpenNlpDictionary\u001FPerson")) {
+            if (term.getMetadata().getSign().equals("Bob Robertson")) {
                 found = true;
-                assertEquals(163L, term.getRowKey().getStartOffset());
-                assertEquals(176L, term.getRowKey().getEndOffset());
+                assertEquals(63, term.getRowKey().getStartOffset());
+                assertEquals(76, term.getRowKey().getEndOffset());
                 break;
             }
         }
