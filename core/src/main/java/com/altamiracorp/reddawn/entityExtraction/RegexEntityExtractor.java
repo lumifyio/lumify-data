@@ -45,6 +45,7 @@ public class RegexEntityExtractor extends EntityExtractor {
             TermMention termMention = new TermMention(new TermMentionRowKey(artifact.getRowKey().toString(), start, end));
             termMention.getMetadata().setConcept(entityType);
             termMention.getMetadata().setSign(name);
+            terms.add (termMention);
         }
         return terms;
     }
