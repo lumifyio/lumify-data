@@ -38,4 +38,4 @@ com.altamiracorp.reddawn.entityExtraction.EntityExtractionMR \
 --failOnFirstError \
 --classname=com.altamiracorp.reddawn.entityExtraction.RegexEntityExtractor \
 -DregularExpression="\b\d{5}-\d{4}\b|\b\d{5}\b" \
--DentityType="Location"
+-DentityType="location"
