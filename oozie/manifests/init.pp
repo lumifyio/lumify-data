@@ -23,4 +23,25 @@ class oozie($prefix = "/usr/lib/oozie") {
     creates => "${prefix}/libext/ext-2.2",
     require => File["oozie-extjs-dir"],
   }
+
+  file { '/etc/oozie/jobs' :
+    ensure => directory,
+    require => Package['oozie'],
+  }
+
+  $hadoop_masters = hiera_array('hadoop_masters')
+  $hadoop_slaves = hiera_array('hadoop_slaves')
+  $zookeeper_nodes = hiera_hash('zookeeper_nodes')
+
+  file { '/etc/oozie/jobs/job-common.properties' :
+    ensure => file,
+    content => template('oozie/job-common.properties.erb'),
+    require => File['/etc/oozie/jobs'],
+  }
+
+  file { '/etc/oozie/jobs/job-common.xml' :
+    ensure => file,
+    content => template('oozie/job-common.xml.erb'),
+    require => File['/etc/oozie/jobs'],
+  }
 }

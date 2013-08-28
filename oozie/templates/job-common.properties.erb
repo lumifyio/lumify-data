@@ -1,0 +1,50 @@
+#Base properties for every workflow
+nameNode=hdfs://<%= @hadoop_masters[0] %>:8020
+jobTracker=<%= @hadoop_masters[0] %>:8021
+queueName=default
+numMapTasks=<%= @hadoop_slaves.count %>
+jobRoot=oozie-jobs
+workflowRoot=${jobRoot}/workflows
+coordinatorRoot=${jobRoot}/coordinators
+oozie.libpath=/user/${user.name}/oozie-libs
+
+#Custom launcher for our Accumulo based MR jobs
+launcherClass=com.altamiracorp.reddawn.oozie.AccumuloMRMain
+
+#Non-MR jobs need these!
+zookeeperInstanceNameProp=reddawn
+zookeeperServerNamesProp=<%= @zookeeper_nodes.values.join(',') %>
+usernameProp=root
+passwordProp=password
+hadoopUrlProp=${nameNode}
+blurControllerLocationProp=<%= @hadoop_masters[0] %>:40010
+blurPathProp=${nameNode}/blur
+
+#File import related
+fileImportDir=/vagrant/data/import
+geoNamesFile=/vagrant/data/allCountries.txt
+
+
+##### Accumulo Init Properties #####
+
+#Artifact
+tableArtifact=Artifact
+inputFormatArtifact=com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat
+
+#Term
+tableTerm=Term
+inputFormatTerm=com.altamiracorp.reddawn.ucd.AccumuloTermInputFormat
+
+#Sentence
+tableSentence=Sentence
+inputFormatSentence=com.altamiracorp.reddawn.ucd.AccumuloSentenceInputFormat
+
+#Object
+tableObject=Object
+
+#Statement
+tableStatement=Statement
+
+#VideoFrame
+tableVideoFrame=atc_VideoFrame
+inputFormatVideoFrame=com.altamiracorp.reddawn.model.AccumuloVideoFrameInputFormat
