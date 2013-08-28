@@ -1,9 +1,11 @@
 package com.altamiracorp.reddawn.web.config;
 
 /**
- * Constants for web application context parameters
+ * Constants for web application configuration parameters
  */
-public final class WebContextConstants {
+public final class WebConfigConstants {
+
+    public static final String APP_CONFIG_PATH = "application.configPath";
 
     public static final String HADOOP_URL = "hadoop.url";
     public static final String ZK_INSTANCENAME = "zookeeper.instanceName";
@@ -13,9 +15,12 @@ public final class WebContextConstants {
     public static final String BLUR_CONTROLLER = "blur.controllerLocation";
     public static final String BLUR_PATH = "blur.path";
     public static final String GRAPH_SEARCH_HOSTNAME = "graph.search.hostname";
-    public static final String APP_CONFIG_PATH = "application.configPath";
+    public static final String MAP_PROVIDER = "map.provider";
+    public static final String MAP_ACCESS_KEY = "map.apiKey";
+    public static final String MAP_TILE_SERVER_HOST = "map.tileServer.hostName";
+    public static final String MAP_TILE_SERVER_PORT = "map.tileServer.port";
 
-    private WebContextConstants() {
+    private WebConfigConstants() {
 
     }
 }

@@ -1,21 +1,24 @@
 package com.altamiracorp.reddawn.web;
 
-import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.web.App;
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
+import java.util.Enumeration;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
+
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+
+import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.web.App;
+import com.google.inject.Injector;
 
 
 public class WebApp extends App {
     private static final String RED_DAWN_SESSION = "redDawnSession";
 
-    public WebApp(ServletConfig servletConfig) {
-        super(servletConfig);
+    public WebApp(final ServletConfig servletConfig, final Injector injector) {
+        super(servletConfig, injector);
 
         Enumeration initParamNames = servletConfig.getInitParameterNames();
         while (initParamNames.hasMoreElements()) {
