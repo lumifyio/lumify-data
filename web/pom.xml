@@ -91,6 +91,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.atteo</groupId>
+            <artifactId>evo-inflector</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
     </dependencies>
 	<build>
 	  <plugins>
