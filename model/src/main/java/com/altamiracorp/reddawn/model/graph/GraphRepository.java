@@ -87,6 +87,7 @@ public class GraphRepository {
     }
 
     public List<GraphVertex> findByGeoLocation(GraphSession graphSession, double latitude, double longitude, double radius) {
+        LOGGER.info("findByGeoLocation latitude: " + latitude + ", longitude: " + longitude + ", radius: " + radius);
         return graphSession.findByGeoLocation(latitude, longitude, radius);
     }
 

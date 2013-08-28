@@ -4,10 +4,14 @@ import com.altamiracorp.reddawn.ConfigurableMapJobBase;
 import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.Row;
+import com.altamiracorp.reddawn.model.graph.GraphRepository;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.termMention.TermMention;
 import com.altamiracorp.reddawn.model.termMention.TermMentionRepository;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -45,6 +49,7 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "artifactLocationExtractorClass";
         private ArtifactLocationExtractor entityExtractor;
         private TermMentionRepository termMentionRepository = new TermMentionRepository();
+        private GraphRepository graphRepository = new GraphRepository();
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -64,7 +69,22 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
 
             List<TermMention> termAndTermMentions = termMentionRepository.findByArtifactRowKey(getSession().getModelSession(), artifact.getRowKey().toString());
             entityExtractor.extract(artifact, termAndTermMentions);
+            updateGraphVertex(artifact);
             context.write(new Text(Artifact.TABLE_NAME), artifact);
+        }
+
+        private void updateGraphVertex(Artifact artifact) {
+            String graphVertexId = artifact.getGenericMetadata().getGraphVertexId();
+            if (graphVertexId != null) {
+                GraphVertex vertex = graphRepository.findVertex(getSession().getGraphSession(), graphVertexId);
+                if (vertex != null) {
+                    Double lat = artifact.getDynamicMetadata().getLatitude();
+                    Double lon = artifact.getDynamicMetadata().getLongitude();
+                    if (lat != null && lon != null) {
+                        vertex.setProperty(PropertyName.GEO_LOCATION, Geoshape.point(lat, lon));
+                    }
+                }
+            }
         }
 
         public static void init(Job job, Class<? extends ArtifactLocationExtractor> entityExtractor) {
