@@ -1,11 +1,19 @@
 package com.altamiracorp.reddawn.cmdline;
 
 import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.model.TitanGraphVertex;
+import com.altamiracorp.reddawn.model.graph.GraphRepository;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
+import com.altamiracorp.reddawn.model.ontology.PropertyType;
+import com.altamiracorp.reddawn.model.ontology.VertexType;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.util.ToolRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -18,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OwlImport extends RedDawnCommandLineBase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OwlImport.class.getName());
+    private OntologyRepository ontologyRepository = new OntologyRepository();
+    private GraphRepository graphRepository = new GraphRepository();
     private String inFileName;
 
     public static void main(String[] args) throws Exception {
@@ -88,12 +99,20 @@ public class OwlImport extends RedDawnCommandLineBase {
         Element subClassOf = getSingleChildElement(classElem, "http://www.w3.org/2000/01/rdf-schema#", "subClassOf");
         String subClassOfResource = subClassOf.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource");
         List<Element> propertyElems = getChildElements(classElem, "http://altamiracorp.com/ontology#", "property");
-        System.out.println("importClassElement: about: " + about + ", labelText: " + labelText + ", subClassOfResource: " + subClassOfResource);
+
+        String parentName = getName(subClassOfResource);
+
+        LOGGER.info("importClassElement: about: " + about + ", labelText: " + labelText + ", parentName: " + parentName);
+        GraphVertex parent = ontologyRepository.getGraphVertexByTitleAndType(session.getGraphSession(), parentName, VertexType.CONCEPT);
+        TitanGraphVertex concept = getOrCreateConcept(session.getGraphSession(), parent, about, labelText);
+
         for (Element propertyElem : propertyElems) {
             String propertyName = propertyElem.getAttributeNS("http://altamiracorp.com/ontology#", "name");
             String propertyValue = propertyElem.getTextContent().trim();
-            System.out.println("  " + propertyName + " = " + propertyValue);
+            LOGGER.info("  " + propertyName + " = " + propertyValue);
+            concept.setProperty(propertyName, propertyValue);
         }
+        session.getGraphSession().commit();
     }
 
     private void importDatatypePropertyElement(RedDawnSession session, Element datatypePropertyElem) {
@@ -105,7 +124,14 @@ public class OwlImport extends RedDawnCommandLineBase {
         Element rangeElem = getSingleChildElement(datatypePropertyElem, "http://www.w3.org/2000/01/rdf-schema#", "range");
         String rangeResource = rangeElem.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource");
 
-        System.out.println("importDatatypePropertyElement: about: " + about + ", labelText: " + labelText + ", domainResource: " + domainResource + ", rangeResource: " + rangeResource);
+        String domainResourceName = getName(domainResource);
+        String rangeResourceName = getName(rangeResource);
+
+        LOGGER.info("importDatatypePropertyElement: about: " + about + ", labelText: " + labelText + ", domainResourceName: " + domainResourceName + ", rangeResourceName: " + rangeResourceName);
+        GraphVertex domain = ontologyRepository.getGraphVertexByTitle(session.getGraphSession(), domainResourceName);
+        PropertyType propertyType = PropertyType.convert(rangeResourceName);
+
+        addPropertyTo(session.getGraphSession(), domain, about, labelText, propertyType);
     }
 
     private void importObjectPropertyElement(RedDawnSession session, Element objectPropertyElem) {
@@ -117,7 +143,14 @@ public class OwlImport extends RedDawnCommandLineBase {
         Element rangeElem = getSingleChildElement(objectPropertyElem, "http://www.w3.org/2000/01/rdf-schema#", "range");
         String rangeResource = rangeElem.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource");
 
-        System.out.println("importObjectPropertyElement: about: " + about + ", labelText: " + labelText + ", domainResource: " + domainResource + ", rangeResource: " + rangeResource);
+        String domainResourceName = getName(domainResource);
+        String rangeResourceName = getName(rangeResource);
+
+        LOGGER.info("importObjectPropertyElement: about: " + about + ", labelText: " + labelText + ", domainResourceName: " + domainResourceName + ", rangeResourceName: " + rangeResourceName);
+        GraphVertex domain = ontologyRepository.getGraphVertexByTitle(session.getGraphSession(), domainResourceName);
+        GraphVertex range = ontologyRepository.getGraphVertexByTitle(session.getGraphSession(), rangeResourceName);
+
+        getOrCreateRelationshipType(session.getGraphSession(), domain, range, about, labelText);
     }
 
     private Element getSingleChildElement(Element elem, String ns, String localName) {
@@ -143,5 +176,18 @@ public class OwlImport extends RedDawnCommandLineBase {
             }
         }
         return childElems;
+    }
+
+    private String getName(String s) {
+        if (s.startsWith("#")) {
+            return s.substring("#".length());
+        }
+        if (s.startsWith("http://altamiracorp.com/ontology/")) {
+            return s.substring("http://altamiracorp.com/ontology/".length());
+        }
+        if (s.startsWith("http://altamiracorp.com/datatype/")) {
+            return s.substring("http://altamiracorp.com/datatype/".length());
+        }
+        return s;
     }
 }

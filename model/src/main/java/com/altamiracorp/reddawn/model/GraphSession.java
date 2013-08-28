@@ -47,6 +47,8 @@ public abstract class GraphSession {
 
     public abstract GraphVertex findVertexByOntologyTitleAndType(String title, VertexType concept);
 
+    public abstract GraphVertex findVertexByOntologyTitle(String title);
+
     public abstract void removeRelationship(String source, String target, String label);
 
     public abstract void commit();

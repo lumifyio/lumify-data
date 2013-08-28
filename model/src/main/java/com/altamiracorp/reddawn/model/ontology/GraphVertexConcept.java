@@ -33,4 +33,8 @@ public class GraphVertexConcept extends Concept {
     public String getDisplayName() {
         return (String) graphVertex.getProperty(PropertyName.DISPLAY_NAME);
     }
+
+    public GraphVertex getGraphVertex() {
+        return graphVertex;
+    }
 }

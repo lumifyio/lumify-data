@@ -115,6 +115,14 @@ public class OntologyRepository {
         return new GraphVertexConcept(vertex);
     }
 
+    public GraphVertex getGraphVertexByTitleAndType(GraphSession graphSession, String title, VertexType type) {
+        return graphSession.findVertexByOntologyTitleAndType(title, type);
+    }
+
+    public GraphVertex getGraphVertexByTitle(GraphSession graphSession, String title) {
+        return graphSession.findVertexByOntologyTitle(title);
+    }
+
     public List<Relationship> getRelationships(GraphSession graphSession, String sourceConceptTypeId, String destConceptTypeId) {
         VertexConcept sourceConcept = (VertexConcept) getConceptById(graphSession, sourceConceptTypeId);
         if (sourceConcept == null) {
@@ -198,7 +206,7 @@ public class OntologyRepository {
         return concepts;
     }
 
-    public List<Property> getPropertiesByRelationship (GraphSession graphSession, String relationshipLabel) {
+    public List<Property> getPropertiesByRelationship(GraphSession graphSession, String relationshipLabel) {
         Vertex relationshipVertex = getRelationshipVertexId(graphSession, relationshipLabel);
         if (relationshipVertex == null) {
             throw new RuntimeException("Could not find relationship: " + relationshipLabel);
@@ -206,7 +214,7 @@ public class OntologyRepository {
         return getPropertiesByVertex(graphSession, relationshipVertex);
     }
 
-    private Vertex getRelationshipVertexId (GraphSession graphSession, String relationshipLabel) {
+    private Vertex getRelationshipVertexId(GraphSession graphSession, String relationshipLabel) {
         Iterator<Vertex> vertices = graphSession.getGraph().query()
                 .has(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString())
                 .has(PropertyName.ONTOLOGY_TITLE.toString(), relationshipLabel)
