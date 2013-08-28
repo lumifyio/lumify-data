@@ -3,15 +3,15 @@ package com.altamiracorp.reddawn.model.graph;
 import java.util.HashMap;
 import java.util.Set;
 
-public class InMemoryGraphVertex extends GraphVertex {
+public class GraphVertexImpl extends GraphVertex {
     private String id;
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 
-    public InMemoryGraphVertex() {
+    public GraphVertexImpl() {
         this.id = null;
     }
 
-    public InMemoryGraphVertex(String id) {
+    public GraphVertexImpl(String id) {
         this.id = id;
     }
 

@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
+import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,13 +90,13 @@ public class EntityCreate implements Handler, AppAware {
     private GraphVertex getObjectGraphVertex(GraphSession session, String title, GraphVertex conceptVertex) {
         GraphVertex graphVertex = graphRepository.findVertexByTitleAndType(session, title, VertexType.ENTITY);
         if (graphVertex == null) {
-            graphVertex = new InMemoryGraphVertex()
+            graphVertex = new GraphVertexImpl()
                     .setProperty(PropertyName.TITLE.toString(), title)
                     .setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString())
                     .setProperty(PropertyName.SUBTYPE.toString(), conceptVertex.getId())
                     .setProperty(PropertyName.SOURCE.toString(), "Analyst Resolved Entity");
             String graphVertexId = graphRepository.saveVertex(session, graphVertex);
-            return new InMemoryGraphVertex(graphVertexId)
+            return new GraphVertexImpl(graphVertexId)
                     .setProperty(PropertyName.TITLE.toString(), title)
                     .setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString())
                     .setProperty(PropertyName.SUBTYPE.toString(), conceptVertex.getId())
