@@ -123,8 +123,13 @@ node "ip-10-0-3-200" {
   $hadoop_slaves = hiera_array('hadoop_slaves')
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')
 
+  file { [ '/opt', '/opt/reddawn', '/opt/reddawn/config' ] :
+    ensure => directory,
+  }
+
   file { '/opt/reddawn/config/configuration.properties' :
     ensure => file,
     content => template('env/cluster/configuration.properties.erb'),
+    require => File['/opt/reddawn/config'],
   }
 }

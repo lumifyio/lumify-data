@@ -2,10 +2,7 @@ package com.altamiracorp.reddawn.ontology;
 
 import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
 import com.altamiracorp.reddawn.model.TitanGraphVertex;
-import com.altamiracorp.reddawn.model.ontology.LabelName;
-import com.altamiracorp.reddawn.model.ontology.PropertyName;
-import com.altamiracorp.reddawn.model.ontology.PropertyType;
-import com.altamiracorp.reddawn.model.ontology.VertexType;
+import com.altamiracorp.reddawn.model.ontology.*;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanKey;
 import com.thinkaurelius.titan.core.TitanLabel;
@@ -101,20 +98,14 @@ public abstract class Base extends RedDawnCommandLineBase {
 
         graph.commit();
 
-        Iterator<Vertex> artifactIter = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ARTIFACT.toString()).iterator();
-        TitanGraphVertex artifact;
-        if (artifactIter.hasNext()) {
-            artifact = new TitanGraphVertex(artifactIter.next());
-        } else {
-            artifact = new TitanGraphVertex(graph.addVertex(null));
-            artifact.setProperty(typeProperty.getName(), VertexType.CONCEPT.toString());
-            artifact.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ARTIFACT.toString());
-        }
+        TitanGraphVertex rootConcept = getOrCreateConcept(graph, null, OntologyRepository.ROOT_CONCEPT_NAME, OntologyRepository.ROOT_CONCEPT_NAME);
+        graph.commit();
+
+        TitanGraphVertex artifact = getOrCreateConcept(graph, rootConcept, VertexType.ARTIFACT.toString(), "Artifact");
         addPropertyToConcept(graph, artifact, typeProperty.getName(), "Type", PropertyType.STRING);
         addPropertyToConcept(graph, artifact, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
         addPropertyToConcept(graph, artifact, titleProperty.getName(), "Title", PropertyType.STRING);
         addPropertyToConcept(graph, artifact, geoLocationProperty.getName(), "Geo-location", PropertyType.GEO_LOCATION);
-
         graph.commit();
 
         // TermMention concept
@@ -133,22 +124,12 @@ public abstract class Base extends RedDawnCommandLineBase {
         graph.commit();
 
         // Entity concept
-        Iterator<Vertex> entityIter = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ENTITY.toString()).iterator();
-        TitanGraphVertex entity;
-        if (entityIter.hasNext()) {
-            entity = new TitanGraphVertex(entityIter.next());
-        } else {
-            entity = new TitanGraphVertex(graph.addVertex(null));
-        }
-        entity.setProperty(typeProperty.getName(), VertexType.CONCEPT.toString());
-        entity.addProperty(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ENTITY.toString());
-
+        TitanGraphVertex entity = getOrCreateConcept(graph, rootConcept, VertexType.ENTITY.toString(), "Entity");
         addPropertyToConcept(graph, entity, typeProperty.getName(), "Type", PropertyType.STRING);
         addPropertyToConcept(graph, entity, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
         addPropertyToConcept(graph, entity, titleProperty.getName(), "Title", PropertyType.STRING);
         addPropertyToConcept(graph, entity, PropertyName.GLYPH_ICON.toString(), "glyph icon", PropertyType.IMAGE);
         getOrCreateRelationshipType(graph, entity, artifact, LabelName.HAS_IMAGE.toString(), "has image");
-
         graph.commit();
 
         // Artifact to TermMention relationship
@@ -176,7 +157,9 @@ public abstract class Base extends RedDawnCommandLineBase {
         vertex.setProperty(PropertyName.TYPE.toString(), VertexType.CONCEPT.toString());
         vertex.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), conceptName);
         vertex.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
-        findOrAddEdge(vertex, parent, LabelName.IS_A.toString());
+        if (parent != null) {
+            findOrAddEdge(vertex, parent, LabelName.IS_A.toString());
+        }
         return vertex;
     }
 

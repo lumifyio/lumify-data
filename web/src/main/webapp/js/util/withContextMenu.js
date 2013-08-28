@@ -6,8 +6,12 @@ define([], function() {
     function withContextMenu() {
 
         this.after('initialize', function() {
-            this.$node.find('.dropdown-menu a').on('click', this.onContextMenuClick.bind(this));
+            this.bindContextMenuClickEvent();
         });
+
+        this.bindContextMenuClickEvent = function() {
+            this.$node.find('.dropdown-menu a').on('click', this.onContextMenuClick.bind(this));
+        };
 
         this.onContextMenuClick = function(event) {
             var target = $(event.target),
@@ -15,7 +19,6 @@ define([], function() {
                 functionName = name && 'onContextMenu' + name.substring(0, 1).toUpperCase() + name.substring(1),
                 func = functionName && this[functionName],
                 args = target.data('args');
-
 
             if (func) {
                 if (!args) {
@@ -54,7 +57,6 @@ define([], function() {
                     )
                 },
                 submenuPlacement = { left:'100%', right:'auto', top:0, bottom:'auto' };
-
             if ((placement.left + menuSize.x + submenuSize.x + padding) > windowSize.x) {
                 submenuPlacement = $.extend(submenuPlacement, { right: '100%', left:'auto' });
             }

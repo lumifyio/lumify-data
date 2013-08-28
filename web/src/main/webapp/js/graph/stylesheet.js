@@ -104,7 +104,7 @@ define([
             });
 
         ontologyService.concepts(function(err, concepts) {
-            concepts.tree.children.forEach(apply);
+            concepts.entityConcept.children.forEach(apply);
 
             styleReady(style);
         });

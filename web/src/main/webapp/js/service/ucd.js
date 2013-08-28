@@ -100,8 +100,13 @@ function(ServiceBase) {
         return this._get("graph/vertex", id, callback);
     };
 
-    Ucd.prototype.getRelatedVertices = function(graphVertexId, callback) {
-        return this._ajaxGet({ url: 'graph/' + encodeURIComponent(graphVertexId) + '/relatedVertices' }, callback);
+    Ucd.prototype.getRelatedVertices = function(data, callback) {
+        return this._ajaxGet({
+            url: 'graph/' + encodeURIComponent(data.graphVertexId) + '/relatedVertices',
+            data: {
+                limitParentConceptId: data.limitParentConceptId
+            }
+        }, callback);
     };
 
     Ucd.prototype.getVertexRelationships = function(graphVertexId, callback) {
