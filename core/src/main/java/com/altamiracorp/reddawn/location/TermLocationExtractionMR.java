@@ -6,7 +6,11 @@ import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.AccumuloTermMentionInputFormat;
 import com.altamiracorp.reddawn.model.geoNames.GeoNamePostalCodeRepository;
 import com.altamiracorp.reddawn.model.geoNames.GeoNameRepository;
+import com.altamiracorp.reddawn.model.graph.GraphRepository;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.termMention.TermMention;
+import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -38,12 +42,15 @@ public class TermLocationExtractionMR extends ConfigurableMapJobBase {
 
     public static class TermLocationExtractorMapper extends RedDawnMapper<Text, TermMention, Text, TermMention> {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "termLocationExtractorClass";
-        GeoNameRepository geoNameRepository = new GeoNameRepository();
-        GeoNamePostalCodeRepository geoNamePostalCodeRepository = new GeoNamePostalCodeRepository();
-        SimpleTermLocationExtractor simpleTermLocationExtractor = new SimpleTermLocationExtractor();
+        private GeoNameRepository geoNameRepository = new GeoNameRepository();
+        private GraphRepository graphRepository = new GraphRepository();
+        private GeoNamePostalCodeRepository geoNamePostalCodeRepository = new GeoNamePostalCodeRepository();
+        private SimpleTermLocationExtractor simpleTermLocationExtractor = new SimpleTermLocationExtractor();
 
         @Override
         protected void safeMap(Text key, TermMention termMention, Context context) throws Exception {
+            LOGGER.info("Extracting location from: " + termMention.getRowKey().toString());
+
             TermMention updatedTerm;
             if (simpleTermLocationExtractor.isPostalCode(termMention)) {
                 updatedTerm = simpleTermLocationExtractor.GetTermWithPostalCodeLookup(getSession().getModelSession(), geoNamePostalCodeRepository, termMention);
@@ -51,8 +58,22 @@ public class TermLocationExtractionMR extends ConfigurableMapJobBase {
                 updatedTerm = simpleTermLocationExtractor.GetTermWithLocationLookup(getSession().getModelSession(), geoNameRepository, termMention);
             }
             if (updatedTerm != null) {
-                LOGGER.info("Extracting location from: " + termMention.getRowKey().toString());
+                updateGraphVertex(updatedTerm);
                 context.write(new Text(TermMention.TABLE_NAME), updatedTerm);
+            }
+        }
+
+        private void updateGraphVertex(TermMention termMention) {
+            String graphVertexId = termMention.getMetadata().getGraphVertexId();
+            if (graphVertexId != null) {
+                GraphVertex vertex = graphRepository.findVertex(getSession().getGraphSession(), graphVertexId);
+                if (vertex != null) {
+                    Double lat = termMention.getMetadata().getLatitude();
+                    Double lon = termMention.getMetadata().getLongitude();
+                    if (lat != null && lon != null) {
+                        vertex.setProperty(PropertyName.GEO_LOCATION, Geoshape.point(lat, lon));
+                    }
+                }
             }
         }
 

@@ -11,7 +11,7 @@ define(
 
         OntologyService.prototype = Object.create(ServiceBase.prototype);
 
-        OntologyService.prototype.clearCaches = function() {
+        OntologyService.prototype.clearCaches = function () {
             cachedConcepts = null;
             cachedRelationships = null;
             cachedProperties = null;
@@ -35,15 +35,36 @@ define(
                     return callback(err);
                 }
 
+                var entityConcept = findConceptByTitle(response, 'Entity');
+                var artifactConcept = findConceptByTitle(response, 'Artifact');
+
                 cachedConcepts = {
                     tree: response,
+                    entityConcept: entityConcept,
+                    artifactConcept: artifactConcept,
                     byId: buildConceptMapById(response, {}),
-                    byTitle: flattenConcepts(response)
+                    byTitle: flattenConcepts(entityConcept)
                 };
 
                 console.log('concepts', cachedConcepts);
                 return callback(null, cachedConcepts);
             });
+
+            function findConceptByTitle(concept, title) {
+                if (concept.title == title) {
+                    return concept;
+                }
+                if (concept.children) {
+                    for (var i = 0; i < concept.children.length; i++) {
+                        var child = concept.children[i];
+                        var c = findConceptByTitle(child, title);
+                        if (c) {
+                            return c;
+                        }
+                    }
+                }
+                return null;
+            }
 
             function buildConceptMapById(concept, map) {
                 map[concept.id] = concept;
@@ -62,8 +83,10 @@ define(
                     child = concept.children[childIdx];
                     if (concept.flattenedTitle) {
                         child.flattenedTitle = concept.flattenedTitle + "/" + child.title;
+                        child.flattenedDisplayName = concept.flattenedDisplayName + "/" + child.displayName;
                     } else {
                         child.flattenedTitle = child.title;
+                        child.flattenedDisplayName = child.displayName;
                     }
                     flattenedConcepts.push(child);
                     var grandChildren = flattenConcepts(child);
@@ -104,7 +127,7 @@ define(
 
             function buildRelationshipsByTitle(relationships) {
                 var result = {};
-                relationships.forEach(function(relationship) {
+                relationships.forEach(function (relationship) {
                     result[relationship.title] = relationship;
                 });
                 return result;
@@ -157,9 +180,27 @@ define(
             });
         };
 
+        OntologyService.prototype.propertiesByRelationshipLabel = function (relationshipLabel, callback) {
+            this._ajaxGet({
+                url: 'ontology/' + relationshipLabel + '/properties'
+            }, function (err, response) {
+                if (err) {
+                    return callback(err);
+                }
+
+                var props = {
+                    list: response.properties,
+                    byTitle: buildPropertiesByTitle(response.properties)
+                };
+                console.log('propertiesByRelationshipLabel', props);
+
+                return callback(null, props);
+            });
+        };
+
         function buildPropertiesByTitle(properties) {
             var result = {};
-            properties.forEach(function(property) {
+            properties.forEach(function (property) {
                 result[property.title] = property;
             });
             return result;

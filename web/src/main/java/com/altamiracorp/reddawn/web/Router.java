@@ -11,10 +11,8 @@ import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
 import com.altamiracorp.reddawn.web.routes.graph.*;
 import com.altamiracorp.reddawn.web.routes.map.MapInitHandler;
 import com.altamiracorp.reddawn.web.routes.map.MapTileHandler;
-import com.altamiracorp.reddawn.web.routes.ontology.ConceptList;
-import com.altamiracorp.reddawn.web.routes.ontology.PropertyList;
-import com.altamiracorp.reddawn.web.routes.ontology.PropertyListByConceptId;
-import com.altamiracorp.reddawn.web.routes.ontology.RelationshipLabelList;
+import com.altamiracorp.reddawn.web.routes.ontology.*;
+import com.altamiracorp.reddawn.web.routes.relationship.SetRelationshipProperty;
 import com.altamiracorp.reddawn.web.routes.resource.ResourceGet;
 import com.altamiracorp.reddawn.web.routes.statement.Relationships;
 import com.altamiracorp.reddawn.web.routes.statement.StatementCreate;
@@ -51,6 +49,7 @@ public class Router extends HttpServlet {
         }
 
         app.get("/ontology/concept/{conceptId}/properties", PropertyListByConceptId.class);
+        app.get("/ontology/{relationshipLabel}/properties", PropertyListByRelationshipLabel.class);
         app.get("/ontology/concept/", ConceptList.class);
         app.get("/ontology/property/", PropertyList.class);
         app.get("/ontology/relationship/", RelationshipLabelList.class);
@@ -62,6 +61,7 @@ public class Router extends HttpServlet {
         app.get("/artifact/{_rowKey}/poster-frame", authenticator, ArtifactPosterFrameByRowKey.class);
         app.get("/artifact/{_rowKey}/video-preview", authenticator, ArtifactVideoPreviewImageByRowKey.class);
         app.get("/artifact/{_rowKey}", authenticator, ArtifactByRowKey.class);
+        app.post("/artifact/import", authenticator, ArtifactImport.class);
 
         app.post("/statement/create", authenticator, StatementCreate.class);
         app.get("/statement/relationship/", Relationships.class);
@@ -76,6 +76,8 @@ public class Router extends HttpServlet {
         app.get("/vertex/relationship", authenticator, VertexToVertexRelationship.class);
         app.get("/vertex/removeRelationship", authenticator, VertexRelationshipRemoval.class);
         app.get("/vertex/multiple", authenticator, VertexMultiple.class);
+
+        app.post("/relationship/property/set", authenticator, SetRelationshipProperty.class);
 
         app.get("/graph/findPath", authenticator, GraphFindPath.class);
         app.get("/graph/{graphVertexId}/relatedVertices", authenticator, GraphRelatedVertices.class);

@@ -3,7 +3,7 @@ package com.altamiracorp.reddawn.structuredDataExtraction;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.Session;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
-import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
+import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.model.termMention.TermMention;
@@ -176,7 +176,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
 
         GraphVertex vertex = allGraphVertex.get(sign);
         if (vertex == null) {
-            vertex = new GraphVertexImpl();
+            vertex = new InMemoryGraphVertex();
             vertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
             vertex.setProperty(PropertyName.ROW_KEY.toString(), termMention.getRowKey().toString());
             vertex.setProperty(PropertyName.TITLE.toString(), sign);

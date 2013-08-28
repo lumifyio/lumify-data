@@ -5,7 +5,7 @@ import com.altamiracorp.reddawn.entityHighlight.EntityHighlightWorker;
 import com.altamiracorp.reddawn.entityHighlight.TermMentionOffsetItem;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
-import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
+import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.reddawn.model.ontology.LabelName;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
@@ -13,7 +13,6 @@ import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.model.termMention.TermMention;
 import com.altamiracorp.reddawn.model.termMention.TermMentionRepository;
 import com.altamiracorp.reddawn.model.termMention.TermMentionRowKey;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;
@@ -70,7 +69,7 @@ public class EntityCreate implements Handler, AppAware {
         } else {
             resolvedVertex = graphRepository.findVertexByTitleAndType(session.getGraphSession(), sign, VertexType.ENTITY);
             if (resolvedVertex == null){
-                resolvedVertex = new GraphVertexImpl();
+                resolvedVertex = new InMemoryGraphVertex();
                 resolvedVertex.setType(VertexType.ENTITY);
             }
             resolvedVertex.setProperty(PropertyName.ROW_KEY, termMentionRowKey.toString());

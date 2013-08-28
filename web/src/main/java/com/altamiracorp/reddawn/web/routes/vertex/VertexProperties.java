@@ -30,7 +30,7 @@ public class VertexProperties implements Handler, AppAware {
         RedDawnSession session = this.app.getRedDawnSession(request);
         String graphVertexId = (String) request.getAttribute("graphVertexId");
 
-        Map<String, String> properties = graphRepository.getProperties(session.getGraphSession(), graphVertexId);
+        Map<String, String> properties = graphRepository.getVertexProperties(session.getGraphSession(), graphVertexId);
         JSONArray resultsJson = propertiesToJson(properties);
 
         new Responder(response).respondWith(resultsJson);

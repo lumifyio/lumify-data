@@ -34,7 +34,7 @@ public class VertexToVertexRelationship implements Handler, AppAware {
         String target = request.getParameter("target");
         String label = request.getParameter("label");
 
-        HashMap<String, String> properties = graphRepository.getEdgeProperties(session.getGraphSession(), source, target, label);
+        Map<String, String> properties = graphRepository.getEdgeProperties(session.getGraphSession(), source, target, label);
         GraphVertex sourceVertex = graphRepository.findVertex(session.getGraphSession(), source);
         GraphVertex targetVertex = graphRepository.findVertex(session.getGraphSession(), target);
 

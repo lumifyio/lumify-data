@@ -1,39 +1,26 @@
 package com.altamiracorp.reddawn.cmdline;
 
+import com.altamiracorp.reddawn.FileImporter;
 import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.ucd.artifact.Artifact;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
-import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
-import org.apache.commons.io.filefilter.TrueFileFilter;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.hadoop.util.ToolRunner;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Iterator;
 
 public class FileImport extends RedDawnCommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileImport.class.getName());
-    private static final String MAPPING_JSON_FILE_NAME_SUFFIX = ".mapping.json";
-    private ArtifactRepository artifactRepository = new ArtifactRepository();
     private String directory;
     private String pattern;
     private String source;
     private static String[] arguments;
     private boolean downloadZip;
     private String zipfile;
+    private FileImporter fileImporter = new FileImporter();
 
     public static void main(String[] args) throws Exception {
         arguments = args;
@@ -111,66 +98,37 @@ public class FileImport extends RedDawnCommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         File directory = new File(getDirectory());
-        if (getDownloadZip() && datasetExists(getDirectory() + "/" + getZipfile())) {
-            this.directory = getDirectory() + "/" + getZipfile();
-            directory = new File(getDirectory());
-        } else if ((!datasetExists(getDirectory() + "/" + getZipfile()) || getDownloadZip()) && !getZipfile().contains("import")/*&& !directory.exists()*/) {
-            getDataset(arguments);
-            this.directory = getDirectory() + "/" + getZipfile();
-            directory = new File(getDirectory());
+        if (getZipfile() != null) {
+            String dirZip = getDirectory() + "/" + getZipfile();
+            if (getZipfile().contains("/")){
+                dirZip = getZipfile();
+                this.directory = getZipfile();
+                arguments[0] = getZipfile();
+                if(getZipfile().lastIndexOf("/") == getZipfile().length()-1){
+                    this.zipfile = getZipfile().substring(getZipfile().lastIndexOf("/", (getZipfile().length()-2)));
+                } else {
+                    this.zipfile = getZipfile().substring((getZipfile().lastIndexOf("/")+1));
+                }
+                arguments[1] = this.zipfile;
+                getDataset(arguments);
+            }
+            if (getDownloadZip() && datasetExists(dirZip)) {
+                this.directory = dirZip;
+                directory = new File(getDirectory());
+            } else if ((!datasetExists(dirZip) || getDownloadZip()) && !getZipfile().contains("import")) {
+                getDataset(arguments);
+                this.directory = dirZip;
+                directory = new File(getDirectory());
+            }
         }
         String pattern = getPattern();
         RedDawnSession redDawnSession = createRedDawnSession();
         redDawnSession.getModelSession().initializeTables();
 
-        IOFileFilter fileFilter = new WildcardFileFilter(pattern);
-        IOFileFilter directoryFilter = TrueFileFilter.INSTANCE;
-        Iterator<File> fileIterator = FileUtils.iterateFiles(directory, fileFilter, directoryFilter);
-
-        while (fileIterator.hasNext()) {
-            File f = fileIterator.next();
-            if (f.isFile() && !f.getName().endsWith(MAPPING_JSON_FILE_NAME_SUFFIX)) {
-                JSONObject mappingJson = readMappingJsonFile(f);
-                writeFile(redDawnSession, f, mappingJson);
-            }
-        }
+        fileImporter.writeDirectory(redDawnSession, directory, pattern, source);
 
         redDawnSession.close();
         return 0;
-    }
-
-    private JSONObject readMappingJsonFile(File f) throws JSONException, IOException {
-        File mappingJsonFile = new File(f.getAbsolutePath() + MAPPING_JSON_FILE_NAME_SUFFIX);
-        JSONObject mappingJson = null;
-        if (mappingJsonFile.exists()) {
-            FileInputStream mappingJsonFileIn = new FileInputStream(mappingJsonFile);
-            try {
-                mappingJson = new JSONObject(IOUtils.toString(mappingJsonFileIn));
-            } finally {
-                mappingJsonFileIn.close();
-            }
-        }
-        return mappingJson;
-    }
-
-    private void writeFile(RedDawnSession redDawnSession, File file, JSONObject mappingJson) throws IOException, MutationsRejectedException {
-        if (file.getName().startsWith(".")) {
-            return;
-        }
-        Artifact artifact = artifactRepository.createArtifactFromInputStream(
-                redDawnSession.getModelSession(),
-                file.length(),
-                new FileInputStream(file),
-                file.getName(),
-                file.lastModified());
-        artifact.getGenericMetadata().setSource(this.source);
-        if (mappingJson != null) {
-            artifact.getGenericMetadata().setMappingJson(mappingJson);
-        }
-
-        LOGGER.info("Writing artifact: " + artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension() + " (rowId: " + artifact.getRowKey().toString() + ")");
-        artifactRepository.save(redDawnSession.getModelSession(), artifact);
-        artifactRepository.saveToGraph(redDawnSession.getModelSession(), redDawnSession.getGraphSession(), artifact);
     }
 
     public String getDirectory() {

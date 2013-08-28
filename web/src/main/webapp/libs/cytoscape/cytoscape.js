@@ -8379,7 +8379,9 @@ var cytoscape;
 
 		// Primary key
 		r.registerBinding(r.data.container, "mousedown", function(e) { 
-            if (!r.data.container.contains(e.target)) return;
+            if (!(r.data._processWindowMouseEvents = r.data.container.contains(e.target))) {
+                return;
+            }
 
 			e.preventDefault();
 			r.hoverData.capture = true;
@@ -8524,7 +8526,7 @@ var cytoscape;
 		}, false);
 		
 		r.registerBinding(window, "mousemove", function(e) {
-            if (!r.data.container.contains(e.target)) return;
+            if (!r.data._processWindowMouseEvents) return;
 
 			var preventDefault = false;
 			var capture = r.hoverData.capture;
@@ -8679,7 +8681,9 @@ var cytoscape;
 		}, false);
 		
 		r.registerBinding(window, "mouseup", function(e) {
-            if (!r.data.container.contains(e.target)) return;
+            if (r.data._processWindowMouseEvents) {
+                r.data._processWindowMouseEvents = false;
+            } else return;
 
 			// console.log('--\nmouseup', e)
 

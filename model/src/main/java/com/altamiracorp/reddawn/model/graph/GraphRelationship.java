@@ -45,6 +45,10 @@ public class GraphRelationship {
         return properties.get(propertyKey);
     }
 
+    public void setProperty (String key, String value) {
+        properties.put(key, value);
+    }
+
     public JSONObject toJson() {
         try {
             JSONObject json = new JSONObject();

@@ -178,7 +178,7 @@ define([
                                 concept.children.forEach(apply);
                             }
                         }
-                        apply(concepts.tree);
+                        apply(concepts.entityConcept);
 
                         // Artifacts
                         apply({
@@ -222,7 +222,6 @@ define([
         };
 
         this.handleSelectionChange = _.debounce(function() {
-//            this.tearDownDropdowns();
 
             var sel = window.getSelection(),
                 text = sel && sel.type === 'Range' ? $.trim(sel.toString()) : '';

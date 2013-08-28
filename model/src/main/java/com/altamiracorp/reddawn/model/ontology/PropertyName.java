@@ -11,7 +11,10 @@ public enum PropertyName {
     ROW_KEY("_rowKey"),
     GLYPH_ICON("_glyphIcon"),
     COLOR("_color"),
-    SOURCE("source");
+    SOURCE("source"),
+    START_DATE("startDate"),
+    END_DATE("endDate"),
+    RELATIONSHIP_TYPE("relationshipType");
 
     private final String text;
 

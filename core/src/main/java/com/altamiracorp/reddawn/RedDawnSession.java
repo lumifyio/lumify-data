@@ -1,13 +1,8 @@
 package com.altamiracorp.reddawn;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Properties;
-
+import com.altamiracorp.reddawn.model.*;
+import com.altamiracorp.reddawn.search.BlurSearchProvider;
+import com.altamiracorp.reddawn.search.SearchProvider;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -16,21 +11,20 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 
-import com.altamiracorp.reddawn.model.AccumuloQueryUser;
-import com.altamiracorp.reddawn.model.AccumuloSession;
-import com.altamiracorp.reddawn.model.GraphSession;
-import com.altamiracorp.reddawn.model.Session;
-import com.altamiracorp.reddawn.model.TitanGraphSession;
-import com.altamiracorp.reddawn.search.BlurSearchProvider;
-import com.altamiracorp.reddawn.search.SearchProvider;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Properties;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 
 public class RedDawnSession {
+    private static Properties applicationProps = new Properties();
     private Session modelSession;
     private SearchProvider searchProvider;
     private GraphSession graphSession;
-
-    private static Properties applicationProps = new Properties();
 
     private RedDawnSession() {
 
@@ -38,6 +32,7 @@ public class RedDawnSession {
 
     /**
      * Store the extracted web application context properties
+     *
      * @param props
      */
     public static void setApplicationProperties(final Properties props) {
@@ -47,6 +42,7 @@ public class RedDawnSession {
 
     /**
      * Creates a {@link RedDawnSession} with the extracted web context properties
+     *
      * @return The created session
      */
     public static RedDawnSession create() {
@@ -66,7 +62,7 @@ public class RedDawnSession {
     }
 
     private static GraphSession createGraphSession(Properties props) {
-        return new TitanGraphSession(props);
+        return new TitanGraphSession(props, new TitanQueryFormatter());
     }
 
     public static RedDawnSession create(TaskInputOutputContext context) {

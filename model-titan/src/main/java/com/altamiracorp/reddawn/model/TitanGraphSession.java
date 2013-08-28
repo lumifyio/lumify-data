@@ -3,7 +3,7 @@ package com.altamiracorp.reddawn.model;
 import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
-import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
+import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
@@ -24,14 +24,15 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class TitanGraphSession extends GraphSession {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TitanGraphSession.class.getName());
+import static com.google.common.base.Preconditions.checkNotNull;
 
+public class TitanGraphSession extends GraphSession {
     public static final String STORAGE_BACKEND_KEY = "graph.storage.backend";
     public static final String STORAGE_TABLE_NAME_KEY = "graph.storage.tablename";
     public static final String STORAGE_INDEX_SEARCH_BACKEND = "graph.storage.index.search.backend";
@@ -39,14 +40,18 @@ public class TitanGraphSession extends GraphSession {
     public static final String DEFAULT_STORAGE_TABLE_NAME = "atc_titan";
     public static final String DEFAULT_BACKEND_NAME = AccumuloStorageManager.class.getName();
     public static final String DEFAULT_SEARCH_NAME = "elasticsearch";
+    private static final Logger LOGGER = LoggerFactory.getLogger(TitanGraphSession.class.getName());
     private static final String DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME = "titan";
     private static final Integer DEFAULT_STORAGE_INDEX_SEARCH_PORT = 9300;
+
     private final TitanGraph graph;
     private Properties localConf;
+    private final TitanQueryFormatter queryFormatter;
 
-    public TitanGraphSession(Properties props) {
-        super();
+    public TitanGraphSession(Properties props, TitanQueryFormatter queryFormatter) {
+        checkNotNull(queryFormatter, "Query formatter cannot be null");
         localConf = props;
+        this.queryFormatter = queryFormatter;
         PropertiesConfiguration conf = new PropertiesConfiguration();
         conf.setProperty("storage.backend", props.getProperty(STORAGE_BACKEND_KEY, DEFAULT_BACKEND_NAME));
         conf.setProperty("storage.tablename", props.getProperty(STORAGE_TABLE_NAME_KEY, DEFAULT_STORAGE_TABLE_NAME));
@@ -99,8 +104,8 @@ public class TitanGraphSession extends GraphSession {
             }
             v.setProperty(propertyKey, val);
         }
-        if (vertex instanceof GraphVertexImpl) {
-            ((GraphVertexImpl) vertex).setId("" + v.getId());
+        if (vertex instanceof InMemoryGraphVertex) {
+            ((InMemoryGraphVertex) vertex).setId("" + v.getId());
         }
         return "" + v.getId();
     }
@@ -130,6 +135,7 @@ public class TitanGraphSession extends GraphSession {
         for (String propertyKey : relationship.getPropertyKeys()) {
             edge.setProperty(propertyKey, relationship.getProperty(propertyKey));
         }
+        graph.commit();
         return "" + edge.getId();
     }
 
@@ -151,7 +157,8 @@ public class TitanGraphSession extends GraphSession {
         return edgeList;
     }
 
-    private Edge findEdge(String sourceId, String destId, String label) {
+    @Override
+    public Edge findEdge(String sourceId, String destId, String label) {
         Vertex sourceVertex = this.graph.getVertex(sourceId);
         Iterable<Edge> edges = sourceVertex.getEdges(Direction.OUT);
         for (Edge edge : edges) {
@@ -227,11 +234,10 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public HashMap<String, String> getEdgeProperties(String sourceVertex, String destVertex, String label) {
-        HashMap<String, String> properties = new HashMap<String, String>();
+    public Map<String, String> getEdgeProperties(String sourceVertex, String destVertex, String label) {
+        Map<String, String> properties = new HashMap<String, String>();
         Edge e = findEdge(sourceVertex, destVertex, label);
         if (e != null) {
-            properties.put("Relationship Type", e.getLabel());
             for (String property : e.getPropertyKeys()) {
                 properties.put(property, e.getProperty(property).toString());
             }
@@ -249,11 +255,13 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<GraphVertex> searchVerticesByTitle(String query) {
+    public List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson) {
         Iterable<Vertex> r = graph.query()
-                .has(PropertyName.TITLE.toString(), Text.CONTAINS, query)
+                .has(PropertyName.TITLE.toString(), Text.CONTAINS, title)
                 .vertices();
-        return toGraphVertices(r);
+
+        GremlinPipeline<Vertex, Vertex> queryPipeline = queryFormatter.createQueryPipeline(r, filterJson);
+        return toGraphVertices(queryPipeline.toList());
     }
 
     @Override
@@ -292,12 +300,12 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public GraphVertex findVertexByRowKey (String rowKey) {
+    public GraphVertex findVertexByRowKey(String rowKey) {
         Iterable<Vertex> r = graph.query()
                 .has(PropertyName.ROW_KEY.toString(), rowKey)
                 .vertices();
         ArrayList<GraphVertex> graphVertices = toGraphVertices(r);
-        if (graphVertices.size() > 0){
+        if (graphVertices.size() > 0) {
             return graphVertices.get(0);
         }
         return null;
@@ -336,7 +344,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public Map<String, String> getProperties(String graphVertexId) {
+    public Map<String, String> getVertexProperties(String graphVertexId) {
         Vertex vertex = this.graph.getVertex(graphVertexId);
         GremlinPipeline gremlinPipeline = new GremlinPipeline(vertex).map();
 

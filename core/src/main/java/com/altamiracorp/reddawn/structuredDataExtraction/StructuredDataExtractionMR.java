@@ -8,6 +8,7 @@ import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.ontology.Concept;
+import com.altamiracorp.reddawn.model.ontology.LabelName;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.termMention.TermMention;
@@ -153,7 +154,7 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                     termMention.getMetadata().setGraphVertexId(termAndGraphVertex.getGraphVertex().getId());
                     termMentionRepository.save(getSession().getModelSession(), termAndGraphVertex.getTermMention());
 
-                    GraphRelationship artifactRelationship = new GraphRelationship(null, artifactVertex.getId(), termAndGraphVertex.getGraphVertex().getId(), "hasTermMention");
+                    GraphRelationship artifactRelationship = new GraphRelationship(null, artifactVertex.getId(), termAndGraphVertex.getGraphVertex().getId(), LabelName.HAS_ENTITY.toString());
                     getSession().getGraphSession().save(artifactRelationship);
                 } else {
                     GraphVertex existingGraphVertex = getSession().getGraphSession().findGraphVertex(termMention.getMetadata().getGraphVertexId());

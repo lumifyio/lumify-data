@@ -63,7 +63,7 @@ public abstract class GraphVertex {
         }
     }
 
-    public void setProperty(PropertyName propertyName, String value) {
+    public void setProperty(PropertyName propertyName, Object value) {
         setProperty(propertyName.toString(), value);
     }
 

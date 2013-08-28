@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class OntologyRepository {
+    public static final String ROOT_CONCEPT_NAME = "rootConcept";
+
     public List<Relationship> getRelationshipLabels(GraphSession graphSession) {
         List<Relationship> relationships = new ArrayList<Relationship>();
         Iterator<Vertex> vertices = graphSession.getGraph().query()
@@ -55,20 +57,20 @@ public class OntologyRepository {
         }
     }
 
-    public Concept getEntityConcept(GraphSession graphSession) {
+    public Concept getRootConcept(GraphSession graphSession) {
         Iterator<Vertex> vertices = graphSession.getGraph().query()
                 .has(PropertyName.TYPE.toString(), VertexType.CONCEPT.toString())
-                .has(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ENTITY.toString())
+                .has(PropertyName.ONTOLOGY_TITLE.toString(), OntologyRepository.ROOT_CONCEPT_NAME)
                 .vertices()
                 .iterator();
         if (vertices.hasNext()) {
             Concept concept = new VertexConcept(vertices.next());
             if (vertices.hasNext()) {
-                throw new RuntimeException("Too many \"" + VertexType.ENTITY + "\" concepts");
+                throw new RuntimeException("Too many \"" + OntologyRepository.ROOT_CONCEPT_NAME + "\" concepts");
             }
             return concept;
         } else {
-            throw new RuntimeException("Could not find \"" + VertexType.ENTITY + "\" concept");
+            throw new RuntimeException("Could not find \"" + OntologyRepository.ROOT_CONCEPT_NAME + "\" concept");
         }
     }
 
@@ -91,17 +93,6 @@ public class OntologyRepository {
             return null;
         }
         return new VertexConcept(conceptVertex);
-    }
-
-    public List<String> getConceptPath(GraphSession graphSession, String conceptVertexId) {
-        ArrayList<String> path = new ArrayList<String>();
-        Vertex conceptVertex = graphSession.getGraph().getVertex(conceptVertexId);
-        path.add((String) conceptVertex.getProperty(PropertyName.TITLE.toString()));
-        while ((conceptVertex = getParentConceptVertex(conceptVertex)) != null) {
-            path.add(0, (String) conceptVertex.getProperty(PropertyName.TITLE.toString()));
-        }
-        path.remove(0); // removes the "Entity" from the path.
-        return path;
     }
 
     private Vertex getParentConceptVertex(Vertex conceptVertex) {
@@ -164,21 +155,21 @@ public class OntologyRepository {
         if (conceptVertex == null) {
             throw new RuntimeException("Could not find concept: " + conceptVertexId);
         }
-        return getPropertiesByConceptId(graphSession, conceptVertex);
+        return getPropertiesByVertex(graphSession, conceptVertex);
     }
 
-    private List<Property> getPropertiesByConceptId(GraphSession graphSession, Vertex conceptVertex) {
+    private List<Property> getPropertiesByVertex(GraphSession graphSession, Vertex vertex) {
         List<Property> properties = new ArrayList<Property>();
 
-        Iterator<Vertex> propertyVertices = conceptVertex.getVertices(Direction.OUT, LabelName.HAS_PROPERTY.toString()).iterator();
+        Iterator<Vertex> propertyVertices = vertex.getVertices(Direction.OUT, LabelName.HAS_PROPERTY.toString()).iterator();
         while (propertyVertices.hasNext()) {
             Vertex propertyVertex = propertyVertices.next();
             properties.add(new VertexProperty(propertyVertex));
         }
 
-        Vertex parentConceptVertex = getParentConceptVertex(conceptVertex);
+        Vertex parentConceptVertex = getParentConceptVertex(vertex);
         if (parentConceptVertex != null) {
-            List<Property> parentProperties = getPropertiesByConceptId(graphSession, parentConceptVertex);
+            List<Property> parentProperties = getPropertiesByVertex(graphSession, parentConceptVertex);
             properties.addAll(parentProperties);
         }
 
@@ -193,5 +184,42 @@ public class OntologyRepository {
             }
         }
         return null;
+    }
+
+    public List<Concept> getConceptByIdAndChildren(GraphSession graphSession, String conceptId) {
+        ArrayList<Concept> concepts = new ArrayList<Concept>();
+        Concept concept = getConceptById(graphSession, conceptId);
+        if (concept == null) {
+            return null;
+        }
+        concepts.add(concept);
+        List<Concept> children = getChildConcepts(graphSession, concept);
+        concepts.addAll(children);
+        return concepts;
+    }
+
+    public List<Property> getPropertiesByRelationship (GraphSession graphSession, String relationshipLabel) {
+        Vertex relationshipVertex = getRelationshipVertexId(graphSession, relationshipLabel);
+        if (relationshipVertex == null) {
+            throw new RuntimeException("Could not find relationship: " + relationshipLabel);
+        }
+        return getPropertiesByVertex(graphSession, relationshipVertex);
+    }
+
+    private Vertex getRelationshipVertexId (GraphSession graphSession, String relationshipLabel) {
+        Iterator<Vertex> vertices = graphSession.getGraph().query()
+                .has(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString())
+                .has(PropertyName.ONTOLOGY_TITLE.toString(), relationshipLabel)
+                .vertices()
+                .iterator();
+        if (vertices.hasNext()) {
+            Vertex vertex = vertices.next();
+            if (vertices.hasNext()) {
+                throw new RuntimeException("Too many \"" + VertexType.RELATIONSHIP + "\" vertices");
+            }
+            return vertex;
+        } else {
+            throw new RuntimeException("Could not find \"" + VertexType.RELATIONSHIP + "\" vertex");
+        }
     }
 }

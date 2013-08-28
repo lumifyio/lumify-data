@@ -2,8 +2,11 @@ package com.altamiracorp.reddawn.model.graph;
 
 import com.altamiracorp.reddawn.model.GraphSession;
 import com.altamiracorp.reddawn.model.ontology.LabelName;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +17,9 @@ import java.util.Map;
 public class GraphRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphRepository.class.getName());
 
+    public Edge findEdge (GraphSession graphSession, String sourceId, String destId, String label){
+        return graphSession.findEdge (sourceId, destId, label);
+    }
 
     public GraphVertex findVertex(GraphSession graphSession, String graphVertexId) {
         return graphSession.findGraphVertex(graphVertexId);
@@ -52,6 +58,7 @@ public class GraphRepository {
 
     public GraphRelationship saveRelationship(GraphSession graphSession, String sourceGraphVertexId, String destGraphVertexId, String label) {
         GraphRelationship relationship = new GraphRelationship(null, sourceGraphVertexId, destGraphVertexId, label);
+        relationship.setProperty(PropertyName.RELATIONSHIP_TYPE.toString(), label);
         return save(graphSession, relationship);
     }
 
@@ -67,24 +74,25 @@ public class GraphRepository {
         return graphSession.save(graphVertex);
     }
 
-    public Map<String, String> getProperties(GraphSession graphSession, String graphVertexId) {
-        return graphSession.getProperties(graphVertexId);
+    public Map<String, String> getVertexProperties(GraphSession graphSession, String graphVertexId) {
+        return graphSession.getVertexProperties(graphVertexId);
     }
 
     public Map<GraphRelationship, GraphVertex> getRelationships(GraphSession graphSession, String graphVertexId) {
         return graphSession.getRelationships(graphVertexId);
     }
 
-    public HashMap<String, String> getEdgeProperties(GraphSession graphSession, String sourceVertex, String destVertex, String label) {
+    public Map<String, String> getEdgeProperties(GraphSession graphSession, String sourceVertex, String destVertex, String label) {
         return graphSession.getEdgeProperties(sourceVertex, destVertex, label);
     }
 
     public List<GraphVertex> findByGeoLocation(GraphSession graphSession, double latitude, double longitude, double radius) {
+        LOGGER.info("findByGeoLocation latitude: " + latitude + ", longitude: " + longitude + ", radius: " + radius);
         return graphSession.findByGeoLocation(latitude, longitude, radius);
     }
 
-    public List<GraphVertex> searchVerticesByTitle(GraphSession graphSession, String query) {
-        return graphSession.searchVerticesByTitle(query);
+    public List<GraphVertex> searchVerticesByTitle(GraphSession graphSession, String title, JSONArray filterJson) {
+        return graphSession.searchVerticesByTitle(title, filterJson);
     }
 
     public List<GraphVertex> searchVerticesByTitleAndType(GraphSession graphSession, String query, VertexType type) {
@@ -123,7 +131,7 @@ public class GraphRepository {
         graphSession.remove(graphVertexId);
     }
 
-    public void setProperty(GraphSession graphSession, String vertexId, String propertyName, Object value) {
+    public void setPropertyVertex(GraphSession graphSession, String vertexId, String propertyName, Object value) {
         Vertex vertex = graphSession.getGraph().getVertex(vertexId);
 
         // TODO: without removing first the property nulls out, this property has to do with Accumulo + Titan
@@ -133,6 +141,16 @@ public class GraphRepository {
 
         vertex.setProperty(propertyName, value);
         LOGGER.info("set property of vertex: " + vertex.getId() + ", property name: " + propertyName + ", value: " + value);
+        graphSession.commit();
+    }
+
+    public void setPropertyEdge(GraphSession graphSession, String sourceId, String destId, String label,  String propertyName, Object value) {
+        Edge edge = findEdge(graphSession, sourceId, destId, label);
+        // TODO: without removing first the property nulls out, this property has to do with Accumulo + Titan
+        //       integration in a single row mutation
+        edge.removeProperty(propertyName);
+        edge.setProperty(propertyName, value);
+        LOGGER.info("set property of vertex: " + edge.getId() + ", property name: " + propertyName + ", value: " + value);
         graphSession.commit();
     }
 }
