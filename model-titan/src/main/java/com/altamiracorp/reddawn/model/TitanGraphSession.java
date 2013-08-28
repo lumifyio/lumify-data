@@ -3,7 +3,7 @@ package com.altamiracorp.reddawn.model;
 import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
-import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
+import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
@@ -104,8 +104,8 @@ public class TitanGraphSession extends GraphSession {
             }
             v.setProperty(propertyKey, val);
         }
-        if (vertex instanceof GraphVertexImpl) {
-            ((GraphVertexImpl) vertex).setId("" + v.getId());
+        if (vertex instanceof InMemoryGraphVertex) {
+            ((InMemoryGraphVertex) vertex).setId("" + v.getId());
         }
         return "" + v.getId();
     }

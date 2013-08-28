@@ -5,7 +5,7 @@ import com.altamiracorp.reddawn.entityHighlight.EntityHighlightWorker;
 import com.altamiracorp.reddawn.entityHighlight.TermMentionOffsetItem;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
-import com.altamiracorp.reddawn.model.graph.GraphVertexImpl;
+import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.reddawn.model.ontology.LabelName;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
@@ -69,7 +69,7 @@ public class EntityCreate implements Handler, AppAware {
         } else {
             resolvedVertex = graphRepository.findVertexByTitleAndType(session.getGraphSession(), sign, VertexType.ENTITY);
             if (resolvedVertex == null){
-                resolvedVertex = new GraphVertexImpl();
+                resolvedVertex = new InMemoryGraphVertex();
                 resolvedVertex.setType(VertexType.ENTITY);
             }
             resolvedVertex.setProperty(PropertyName.ROW_KEY, termMentionRowKey.toString());
