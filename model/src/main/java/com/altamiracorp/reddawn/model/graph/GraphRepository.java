@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.model.GraphSession;
 import com.altamiracorp.reddawn.model.ontology.LabelName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.tinkerpop.blueprints.Vertex;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,8 +84,8 @@ public class GraphRepository {
         return graphSession.findByGeoLocation(latitude, longitude, radius);
     }
 
-    public List<GraphVertex> searchVerticesByTitle(GraphSession graphSession, String query) {
-        return graphSession.searchVerticesByTitle(query);
+    public List<GraphVertex> searchVerticesByTitle(GraphSession graphSession, String title, JSONArray filterJson) {
+        return graphSession.searchVerticesByTitle(title, filterJson);
     }
 
     public List<GraphVertex> searchVerticesByTitleAndType(GraphSession graphSession, String query, VertexType type) {

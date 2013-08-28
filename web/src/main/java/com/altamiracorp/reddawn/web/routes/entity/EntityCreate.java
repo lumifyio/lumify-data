@@ -13,7 +13,6 @@ import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.model.termMention.TermMention;
 import com.altamiracorp.reddawn.model.termMention.TermMentionRepository;
 import com.altamiracorp.reddawn.model.termMention.TermMentionRowKey;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;

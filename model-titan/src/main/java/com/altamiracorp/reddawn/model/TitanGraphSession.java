@@ -24,14 +24,15 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class TitanGraphSession extends GraphSession {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TitanGraphSession.class.getName());
+import static com.google.common.base.Preconditions.checkNotNull;
 
+public class TitanGraphSession extends GraphSession {
     public static final String STORAGE_BACKEND_KEY = "graph.storage.backend";
     public static final String STORAGE_TABLE_NAME_KEY = "graph.storage.tablename";
     public static final String STORAGE_INDEX_SEARCH_BACKEND = "graph.storage.index.search.backend";
@@ -39,14 +40,18 @@ public class TitanGraphSession extends GraphSession {
     public static final String DEFAULT_STORAGE_TABLE_NAME = "atc_titan";
     public static final String DEFAULT_BACKEND_NAME = AccumuloStorageManager.class.getName();
     public static final String DEFAULT_SEARCH_NAME = "elasticsearch";
+    private static final Logger LOGGER = LoggerFactory.getLogger(TitanGraphSession.class.getName());
     private static final String DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME = "titan";
     private static final Integer DEFAULT_STORAGE_INDEX_SEARCH_PORT = 9300;
+
     private final TitanGraph graph;
     private Properties localConf;
+    private final TitanQueryFormatter queryFormatter;
 
-    public TitanGraphSession(Properties props) {
-        super();
+    public TitanGraphSession(Properties props, TitanQueryFormatter queryFormatter) {
+        checkNotNull(queryFormatter, "Query formatter cannot be null");
         localConf = props;
+        this.queryFormatter = queryFormatter;
         PropertiesConfiguration conf = new PropertiesConfiguration();
         conf.setProperty("storage.backend", props.getProperty(STORAGE_BACKEND_KEY, DEFAULT_BACKEND_NAME));
         conf.setProperty("storage.tablename", props.getProperty(STORAGE_TABLE_NAME_KEY, DEFAULT_STORAGE_TABLE_NAME));
@@ -249,11 +254,13 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<GraphVertex> searchVerticesByTitle(String query) {
+    public List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson) {
         Iterable<Vertex> r = graph.query()
-                .has(PropertyName.TITLE.toString(), Text.CONTAINS, query)
+                .has(PropertyName.TITLE.toString(), Text.CONTAINS, title)
                 .vertices();
-        return toGraphVertices(r);
+
+        GremlinPipeline<Vertex, Vertex> queryPipeline = queryFormatter.createQueryPipeline(r, filterJson);
+        return toGraphVertices(queryPipeline.toList());
     }
 
     @Override
