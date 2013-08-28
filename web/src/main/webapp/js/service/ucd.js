@@ -78,8 +78,8 @@ function(ServiceBase) {
         return this._relationships("artifact", id, options, callback);
     };
 
-    Ucd.prototype.entitySearch = function (query, filters, callback) {
-        return this._search('entity/search', query, callback);
+    Ucd.prototype.entitySearch = function (query, callback) {
+        return this._search('entity', query, callback);
     };
 
     Ucd.prototype.graphVertexSearch = function (query, filters, callback) {
