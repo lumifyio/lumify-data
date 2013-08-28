@@ -12,9 +12,9 @@
   See the License for the specific language governing permissions and
   limitations under the License. See accompanying LICENSE file.
 -->
-<workflow-app xmlns="uri:oozie:workflow:0.1" name="geonames-import-wf">
-    <start to="geonames-import-node"/>
-    <action name="geonames-import-node">
+<workflow-app xmlns="uri:oozie:workflow:0.1" name="file-import-wf">
+    <start to="file-import-node"/>
+    <action name="file-import-node">
         <java>
             <job-tracker>${jobTracker}</job-tracker>
             <name-node>${nameNode}</name-node>
@@ -26,7 +26,7 @@
                     <value>${queueName}</value>
                 </property>
             </configuration>
-			<main-class>com.altamiracorp.reddawn.location.GeoNamesImport</main-class>
+			<main-class>${ontologyClass}</main-class>
 			<arg>--zookeeperInstanceName=${zookeeperInstanceNameProp}</arg>
 			<arg>--zookeeperServerNames=${zookeeperServerNamesProp}</arg>
 			<arg>--blurControllerLocation=${blurControllerLocationProp}</arg>
@@ -34,7 +34,7 @@
 			<arg>--hadoopUrl=${hadoopUrlProp}</arg>
 			<arg>--username=${usernameProp}</arg>
 			<arg>--password=${passwordProp}</arg>
-			<arg>--filename=${geoNamesFile}</arg>
+			<arg>--directory=${fileImportDir}</arg>
 			<arg>--graph.storage.index.search.hostname=${graphStorageIndexSearchHostnameProp}</arg>
         </java>
         <ok to="end"/>

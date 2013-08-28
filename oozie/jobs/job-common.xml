@@ -28,6 +28,10 @@
         <name>blurPath</name>
         <value>hdfs://192.168.33.10:8020/blur</value>
     </property>
+    <property>
+        <name>graph.storage.index.search.hostname</name>
+        <value>192.168.33.10</value>
+    </property>
 	<property>
         <name>mapreduce.outputformat.class</name>
         <value>com.altamiracorp.reddawn.model.AccumuloModelOutputFormat</value>
@@ -36,5 +40,9 @@
         <name>mapred.reduce.tasks</name>
         <value>0</value>
     </property>
+	<property>
+		<name>mapred.child.java.opts</name>
+		<value>-Xms1024M -Xmx1024M -XX:MaxPermSize=512M</value>
+	</property>
 </configuration>
 	

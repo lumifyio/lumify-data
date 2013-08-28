@@ -34,6 +34,7 @@
 			<arg>--hadoopUrl=${hadoopUrlProp}</arg>
 			<arg>--username=${usernameProp}</arg>
 			<arg>--password=${passwordProp}</arg>
+			<arg>--graph.storage.index.search.hostname=${graphStorageIndexSearchHostnameProp}</arg>
 			<arg>--directory=${fileImportDir}</arg>
         </java>
         <ok to="end"/>

@@ -40,11 +40,11 @@
                 </property>
 				<property>
 					<name>tableName</name>
-                    <value>${tableTerm}</value>
+                    <value>${tableArtifact}</value>
 				</property>
 				<property>
 			        <name>mapreduce.inputformat.class</name>
-			        <value>${inputFormatTerm}</value>
+			        <value>${inputFormatArtifact}</value>
 			    </property>
 				<property>
 			        <name>oozie.launcher.action.main.class</name>

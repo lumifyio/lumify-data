@@ -35,52 +35,126 @@
             <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/video-frame-text</app-path>
 			<propagate-configuration/>
         </sub-workflow>
+        <ok to="artifact-face-detection-node"/>
+        <error to="fail"/>
+    </action>
+    <action name="artifact-face-detection-node">
+		<sub-workflow>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/face-detection</app-path>
+			<propagate-configuration/>
+			<configuration>
+				<property>
+					<name>objectDetectionMapper</name>
+					<value>com.altamiracorp.reddawn.objectDetection.ObjectDetectionMR$ArtifactObjectDetectionMapper</value>
+				</property>
+				<property>
+					<name>objectDetectionInputFormat</name>
+					<value>${inputFormatArtifact}</value>
+				</property>
+				<property>
+					<name>objectDetectionTableName</name>
+					<value>${tableArtifact}</value>
+				</property>
+			</configuration>
+        </sub-workflow>
+        <ok to="video-frame-face-detection-node"/>
+        <error to="fail"/>
+    </action>
+    <action name="video-frame-face-detection-node">
+		<sub-workflow>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/face-detection</app-path>
+			<propagate-configuration/>
+			<configuration>
+				<property>
+					<name>objectDetectionMapper</name>
+					<value>com.altamiracorp.reddawn.objectDetection.ObjectDetectionMR$VideoFrameObjectDetectionMapper</value>
+				</property>
+				<property>
+					<name>objectDetectionInputFormat</name>
+					<value>${inputFormatVideoFrame}</value>
+				</property>
+				<property>
+					<name>objectDetectionTableName</name>
+					<value>${tableVideoFrame}</value>
+				</property>
+			</configuration>
+        </sub-workflow>
         <ok to="text-ocr-node"/>
         <error to="fail"/>
     </action>
     <action name="text-ocr-node">
 		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/text-ocr</app-path>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/text-extraction</app-path>
 			<propagate-configuration/>
+			<configuration>
+				<property>
+					<name>textExtractor</name>
+					<value>com.altamiracorp.reddawn.textExtraction.ImageOcrTextExtractor</value>
+				</property>
+			</configuration>
         </sub-workflow>
         <ok to="text-tika-node"/>
         <error to="fail"/>
     </action>
     <action name="text-tika-node">
 		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/text-tika</app-path>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/text-extraction</app-path>
 			<propagate-configuration/>
+			<configuration>
+				<property>
+					<name>textExtractor</name>
+					<value>com.altamiracorp.reddawn.textExtraction.TikaTextExtractor</value>
+				</property>
+			</configuration>
+        </sub-workflow>
+        <ok to="text-structured-data-node"/>
+        <error to="fail"/>
+    </action>
+    <action name="text-structured-data-node">
+		<sub-workflow>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/text-extraction</app-path>
+			<propagate-configuration/>
+			<configuration>
+				<property>
+					<name>textExtractor</name>
+					<value>com.altamiracorp.reddawn.textExtraction.StructuredDataTextExtractor</value>
+				</property>
+			</configuration>
         </sub-workflow>
         <ok to="text-transcript-node"/>
         <error to="fail"/>
     </action>
     <action name="text-transcript-node">
 		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/text-transcript</app-path>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/text-extraction</app-path>
 			<propagate-configuration/>
+			<configuration>
+				<property>
+					<name>textExtractor</name>
+					<value>com.altamiracorp.reddawn.textExtraction.TranscriptTextExtractor</value>
+				</property>
+			</configuration>
         </sub-workflow>
         <ok to="video-frame-text-combiner-node"/>
         <error to="fail"/>
     </action>
     <action name="video-frame-text-combiner-node">
-		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/video-frame-text-combiner</app-path>
+		<sub-workflow>  
+			 <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/text-extraction</app-path>
 			<propagate-configuration/>
+			<configuration>
+				<property>
+					<name>textExtractor</name>
+				    <value>com.altamiracorp.reddawn.textExtraction.VideoFrameTextCombinerTextExtractor</value>
+				</property>
+			</configuration>
         </sub-workflow>
-        <ok to="text-allelsefails-node"/>
+        <ok to="text-consolidation-node"/>
         <error to="fail"/>
     </action>
-    <action name="text-allelsefails-node">
+    <action name="text-consolidation-node">
 		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/text-allelsefails</app-path>
-			<propagate-configuration/>
-        </sub-workflow>
-        <ok to="sentence-node"/>
-        <error to="fail"/>
-    </action>
-    <action name="sentence-node">
-		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/sentence</app-path>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/text-consolidation</app-path>
 			<propagate-configuration/>
         </sub-workflow>
         <ok to="structured-data-node"/>
@@ -91,29 +165,69 @@
             <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/structured-data</app-path>
 			<propagate-configuration/>
         </sub-workflow>
-        <ok to="blur-search-index-builder-node"/>
-        <error to="fail"/>
-    </action>
-    <action name="blur-search-index-builder-node">
-		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/blur-search-index-builder</app-path>
-			<propagate-configuration/>
-        </sub-workflow>
         <ok to="entity-dictionary-node"/>
         <error to="fail"/>
     </action>
     <action name="entity-dictionary-node">
 		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/entity-dictionary</app-path>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/entity-extraction</app-path>
 			<propagate-configuration/>
+			<configuration>
+				<property>
+					<name>entityExtractor</name>
+				    <value>com.altamiracorp.reddawn.entityExtraction.OpenNlpDictionaryEntityExtractor</value>
+				</property>
+			</configuration>
         </sub-workflow>
         <ok to="entity-me-node"/>
         <error to="fail"/>
     </action>
     <action name="entity-me-node">
 		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/entity-me</app-path>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/entity-extraction</app-path>
 			<propagate-configuration/>
+			<configuration>
+				<property>
+					<name>entityExtractor</name>
+				    <value>com.altamiracorp.reddawn.entityExtraction.OpenNlpMaximumEntropyEntityExtractor</value>
+				</property>
+			</configuration>
+        </sub-workflow>
+        <ok to="entity-email-node"/>
+        <error to="fail"/>
+    </action>
+    <action name="entity-email-node">
+		<sub-workflow>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/entity-extraction</app-path>
+			<propagate-configuration/>
+			<configuration>
+				<property>
+					<name>entityExtractor</name>
+				    <value>com.altamiracorp.reddawn.entityExtraction.RegexEntityExtractor</value>
+				</property>
+				<property>
+					<name>regularExpression</name>
+				    <value>(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b</value>
+				</property>
+				<property>
+					<name>entityType</name>
+				    <value>emailAddress</value>
+				</property>
+			</configuration>
+        </sub-workflow>
+        <ok to="entity-phone-number-node"/>
+        <error to="fail"/>
+    </action>
+    <action name="entity-phone-number-node">
+		<sub-workflow>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/entity-extraction</app-path>
+			<propagate-configuration/>
+			<configuration>
+				<property>
+					<name>entityExtractor</name>
+				    <value>com.altamiracorp.reddawn.entityExtraction.PhoneNumberExtractor</value>
+				</property>
+			</configuration>
         </sub-workflow>
         <ok to="video-preview-node"/>
         <error to="fail"/>
@@ -121,30 +235,6 @@
     <action name="video-preview-node">
 		<sub-workflow>
             <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/video-preview</app-path>
-			<propagate-configuration/>
-        </sub-workflow>
-        <ok to="blur-term-index-builder-node"/>
-        <error to="fail"/>
-    </action>
-    <action name="blur-term-index-builder-node">
-		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/blur-term-index-builder</app-path>
-			<propagate-configuration/>
-        </sub-workflow>
-        <ok to="artifact-highlighting-node"/>
-        <error to="fail"/>
-    </action>
-    <action name="artifact-highlighting-node">
-		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/artifact-highlighting</app-path>
-			<propagate-configuration/>
-        </sub-workflow>
-        <ok to="statement-node"/>
-        <error to="fail"/>
-    </action>
-    <action name="statement-node">
-		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/statement</app-path>
 			<propagate-configuration/>
         </sub-workflow>
         <ok to="term-location-node"/>
@@ -161,6 +251,22 @@
     <action name="artifact-location-node">
 		<sub-workflow>
             <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/artifact-location</app-path>
+			<propagate-configuration/>
+        </sub-workflow>
+        <ok to="artifact-highlighting-node"/>
+        <error to="fail"/>
+    </action>
+    <action name="artifact-highlighting-node">
+		<sub-workflow>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/artifact-highlighting</app-path>
+			<propagate-configuration/>
+        </sub-workflow>
+        <ok to="blur-search-index-builder-node"/>
+        <error to="fail"/>
+    </action>
+    <action name="blur-search-index-builder-node">
+		<sub-workflow>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/blur-search-index-builder</app-path>
 			<propagate-configuration/>
         </sub-workflow>
         <ok to="end"/>
