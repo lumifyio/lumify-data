@@ -12,6 +12,9 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.*;
+//import java.lang.reflect.Proxy;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -22,8 +25,6 @@ public class DownloadAndExtractFile extends RedDawnCommandLineBase {
     private String storage;
 
     public static void main(String[] args) throws Exception {
-System.out.println("Args:" + args[0]);
-System.out.println("Args:" + args[1]);
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new DownloadAndExtractFile(), args);
         if (res != 0) {
             System.exit(res);
@@ -108,7 +109,7 @@ System.out.println("Args:" + args[1]);
     private String getZipfileName(String dir) {
         int slash = dir.lastIndexOf('/', (dir.length() - 3));
         String set;
-        if (dir.charAt((dir.length() - 1)) == '/') {
+        if (dir.charAt((dir.length()-1)) == '/') {
             int last = dir.lastIndexOf('/');
             set = dir.substring(slash, last);
         } else {
@@ -122,7 +123,23 @@ System.out.println("Args:" + args[1]);
         try {
             String amazon = "https://s3.amazonaws.com/RedDawn/DataSets/";
             URL aws = new URL(amazon + zipfile);
-            URLConnection connect = aws.openConnection();
+            URLConnection connect;
+            if(System.getenv("http_proxy") != null){
+                String httpproxy = System.getenv("http_proxy");
+                String protocol  = httpproxy.substring(0, httpproxy.lastIndexOf("/"));
+                String ip        = httpproxy.substring((httpproxy.lastIndexOf("/")+1), httpproxy.lastIndexOf(":"));
+                String port      = httpproxy.substring(httpproxy.lastIndexOf(":")+1);
+                int portnumber = Integer.parseInt(port);
+                if(!protocol.contains("s")){
+                    Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(ip, portnumber));
+                    connect = aws.openConnection(proxy);
+                } else {
+                    connect = null;
+                    LOGGER.info("Cannot create a secure proxy request.");
+                }
+            } else{
+                connect = aws.openConnection();
+            }
             InputStream in = connect.getInputStream();
             FileOutputStream out = new FileOutputStream(storage + zipfile);
             byte[] outStream = new byte[4096];
