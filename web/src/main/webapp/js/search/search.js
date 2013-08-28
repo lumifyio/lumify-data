@@ -48,7 +48,7 @@ define([
             console.log('onEntitySearchResults', entities);
             var $searchResultsSummary = this.select('searchResultsSummarySelector');
             this.ontologyService.concepts(function(err, concepts) {
-                concepts.tree.children.forEach(function(concept) {
+                concepts.entityConcept.children.forEach(function(concept) {
                     self.onEntitySearchResultsForConcept($searchResultsSummary, concept, entities);
                 });
             });
@@ -110,7 +110,7 @@ define([
         this.updateConceptSections = function(concepts) {
             var $searchResultsSummary = this.select('searchResultsSummarySelector'),
                 $searchResults = this.select('searchResultsSelector'),
-                resultsHtml = this.getConceptChildrenHtml(concepts.tree, 15);
+                resultsHtml = this.getConceptChildrenHtml(concepts.entityConcept, 15);
 
             $searchResultsSummary.html(summaryTemplate({ resultsHtml: resultsHtml }));
             $('.badge', $searchResultsSummary).addClass('loading');

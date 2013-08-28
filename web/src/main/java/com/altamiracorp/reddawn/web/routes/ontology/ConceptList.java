@@ -9,7 +9,6 @@ import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
-import com.altamiracorp.web.utils.UrlUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,9 +25,9 @@ public class ConceptList implements Handler, AppAware {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
 
-        Concept entityConcept = ontologyRepository.getEntityConcept(session.getGraphSession());
+        Concept rootConcept = ontologyRepository.getRootConcept(session.getGraphSession());
 
-        JSONObject result = buildJsonTree(request, session, entityConcept);
+        JSONObject result = buildJsonTree(request, session, rootConcept);
 
         new Responder(response).respondWith(result);
         chain.next(request, response);

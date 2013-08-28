@@ -178,7 +178,7 @@ define([
                                 concept.children.forEach(apply);
                             }
                         }
-                        apply(concepts.tree);
+                        apply(concepts.entityConcept);
 
                         // Artifacts
                         apply({

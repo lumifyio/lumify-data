@@ -10,6 +10,7 @@ define([
     'util/throttle',
     'util/previews',
     'service/ucd',
+    'service/ontology',
     'util/retina',
     'util/withContextMenu'
 ], function(
@@ -22,6 +23,7 @@ define([
     throttle,
     previews,
     UCD,
+    OntologyService,
     retina,
     withContextMenu) {
     'use strict';
@@ -30,6 +32,7 @@ define([
 
     function Graph() {
         this.ucd = new UCD();
+        this.ontologyService = new OntologyService();
 
         var callbackQueue = [];
         var LAYOUT_OPTIONS = {
@@ -275,6 +278,12 @@ define([
 
         this.onContextMenuLoadRelatedItems = function () {
             var data = this.setupLoadRelatedItems();
+            this.onLoadRelatedSelected(data);
+        };
+
+        this.onContextMenuLoadRelatedItemsOfConcept = function(conceptId) {
+            var data = this.setupLoadRelatedItems();
+            data.limitParentConceptId = conceptId;
             this.onLoadRelatedSelected(data);
         };
 
@@ -672,7 +681,7 @@ define([
             var x = data.originalPosition.x;
             var y = data.originalPosition.y;
 
-            this.ucd.getRelatedVertices(data.graphVertexId, function(err, vertices) {
+            this.ucd.getRelatedVertices(data, function(err, vertices) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
@@ -707,8 +716,6 @@ define([
 
         this.after('initialize', function() {
             var self = this;
-            this.$node.html(template({}));
-
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'verticesAdded', this.onVerticesAdded);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
@@ -718,10 +725,23 @@ define([
             this.on(document, 'graphPaddingUpdated', this.onGraphPaddingUpdated);
             this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);
 
-            stylesheet(function(style) {
-                self.initializeGraph(style);
-            });
+            this.ontologyService.concepts(function(err, concepts) {
+                if (err) {
+                    return self.trigger(document, 'error', err);
+                }
 
+                var templateData = {
+                    firstLevelConcepts: concepts.entityConcept.children,
+                    artifactConcept: concepts.artifactConcept
+                };
+                console.log('context menu data', templateData);
+                self.$node.html(template(templateData));
+                self.bindContextMenuClickEvent();
+
+                stylesheet(function(style) {
+                    self.initializeGraph(style);
+                });
+            });
         });
 
         this.initializeGraph = function(style) {
