@@ -135,6 +135,7 @@ public class TitanGraphSession extends GraphSession {
         for (String propertyKey : relationship.getPropertyKeys()) {
             edge.setProperty(propertyKey, relationship.getProperty(propertyKey));
         }
+        graph.commit();
         return "" + edge.getId();
     }
 
@@ -156,7 +157,8 @@ public class TitanGraphSession extends GraphSession {
         return edgeList;
     }
 
-    private Edge findEdge(String sourceId, String destId, String label) {
+    @Override
+    public Edge findEdge(String sourceId, String destId, String label) {
         Vertex sourceVertex = this.graph.getVertex(sourceId);
         Iterable<Edge> edges = sourceVertex.getEdges(Direction.OUT);
         for (Edge edge : edges) {
@@ -232,11 +234,10 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public HashMap<String, String> getEdgeProperties(String sourceVertex, String destVertex, String label) {
-        HashMap<String, String> properties = new HashMap<String, String>();
+    public Map<String, String> getEdgeProperties(String sourceVertex, String destVertex, String label) {
+        Map<String, String> properties = new HashMap<String, String>();
         Edge e = findEdge(sourceVertex, destVertex, label);
         if (e != null) {
-            properties.put("Relationship Type", e.getLabel());
             for (String property : e.getPropertyKeys()) {
                 properties.put(property, e.getProperty(property).toString());
             }
@@ -299,12 +300,12 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public GraphVertex findVertexByRowKey (String rowKey) {
+    public GraphVertex findVertexByRowKey(String rowKey) {
         Iterable<Vertex> r = graph.query()
                 .has(PropertyName.ROW_KEY.toString(), rowKey)
                 .vertices();
         ArrayList<GraphVertex> graphVertices = toGraphVertices(r);
-        if (graphVertices.size() > 0){
+        if (graphVertices.size() > 0) {
             return graphVertices.get(0);
         }
         return null;
@@ -343,7 +344,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public Map<String, String> getProperties(String graphVertexId) {
+    public Map<String, String> getVertexProperties(String graphVertexId) {
         Vertex vertex = this.graph.getVertex(graphVertexId);
         GremlinPipeline gremlinPipeline = new GremlinPipeline(vertex).map();
 

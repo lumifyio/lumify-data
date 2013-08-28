@@ -3,10 +3,10 @@ package com.altamiracorp.reddawn.model;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import org.json.JSONArray;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,9 +29,9 @@ public abstract class GraphSession {
 
     public abstract void deleteSearchIndex();
 
-    public abstract HashMap<String, String> getEdgeProperties(String sourceVertex, String destVertex, String label);
+    public abstract Map<String, String> getEdgeProperties(String sourceVertex, String destVertex, String label);
 
-    public abstract Map<String, String> getProperties(String graphVertexId);
+    public abstract Map<String, String> getVertexProperties(String graphVertexId);
 
     public abstract Map<GraphRelationship, GraphVertex> getRelationships(String graphVertexId);
 
@@ -56,4 +56,6 @@ public abstract class GraphSession {
     public abstract List<List<GraphVertex>> findPath(GraphVertex sourceVertex, GraphVertex destVertex, int depth);
 
     public abstract GraphVertex findVertexByRowKey(String rowKey);
+
+    public abstract Edge findEdge(String sourceId, String destId, String label);
 }
