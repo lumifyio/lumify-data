@@ -41,9 +41,9 @@ public class VertexSetProperty implements Handler, AppAware {
             return;
         }
 
-        graphRepository.setProperty(session.getGraphSession(), graphVertexId, propertyName, value);
+        graphRepository.setPropertyVertex(session.getGraphSession(), graphVertexId, propertyName, value);
 
-        Map<String, String> properties = graphRepository.getProperties(session.getGraphSession(), graphVertexId);
+        Map<String, String> properties = graphRepository.getVertexProperties(session.getGraphSession(), graphVertexId);
         JSONArray resultsJson = VertexProperties.propertiesToJson(properties);
         new Responder(response).respondWith(resultsJson);
     }
