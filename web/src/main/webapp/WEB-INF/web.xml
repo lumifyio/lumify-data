@@ -1,54 +1,5 @@
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
     <context-param>
-        <param-name>map.provider</param-name>
-        <param-value>googlev3</param-value>
-        <!--<param-value>leaflet</param-value>-->
-    </context-param>
-    <context-param>
-        <param-name>map.apiKey</param-name>
-        <param-value>AIzaSyCauz3KEz7k8zxOjPW4plTuVQv_CFGFMd4</param-value>
-    </context-param>
-    <context-param>
-        <param-name>map.tileServer.hostName</param-name>
-        <param-value>localhost</param-value>
-    </context-param>
-    <context-param>
-        <param-name>map.tileServer.port</param-name>
-        <param-value>9999</param-value>
-    </context-param>
-    <context-param>
-        <param-name>hadoop.url</param-name>
-        <param-value>hdfs://192.168.33.10:8020</param-value>
-    </context-param>
-    <context-param>
-        <param-name>zookeeper.instanceName</param-name>
-        <param-value>reddawn</param-value>
-    </context-param>
-    <context-param>
-        <param-name>zookeeper.serverNames</param-name>
-        <param-value>192.168.33.10</param-value>
-    </context-param>
-    <context-param>
-        <param-name>accumulo.username</param-name>
-        <param-value>root</param-value>
-    </context-param>
-    <context-param>
-        <param-name>accumulo.password</param-name>
-        <param-value>password</param-value>
-    </context-param>
-    <context-param>
-        <param-name>blur.controllerLocation</param-name>
-        <param-value>192.168.33.10:40010</param-value>
-    </context-param>  
-    <context-param>
-        <param-name>blur.path</param-name>
-        <param-value>hdfs://192.168.33.10/blur</param-value>
-    </context-param>
-    <context-param>
-        <param-name>graph.search.hostname</param-name>
-        <param-value>192.168.33.10</param-value>
-    </context-param>
-    <context-param>
         <param-name>application.configPath</param-name>
         <param-value>/opt/reddawn/config/configuration.properties</param-value>
     </context-param>    
