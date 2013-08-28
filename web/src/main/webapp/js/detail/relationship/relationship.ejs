@@ -29,7 +29,7 @@
 </h1>
 
 <ul class="nav nav-list">
-  <% relationshipData.properties.forEach(function(property) {%>
-        <li><strong><%= property.key%></strong><%= property.value %></li>
-  <%}); %>
+  <li class="nav-header properties">Properties<span class="badge loading"/></li>
 </ul>
+
+<button class="add-relationship-properties btn btn-mini btn-default">Add Property</button>

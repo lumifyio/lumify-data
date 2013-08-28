@@ -180,6 +180,24 @@ define(
             });
         };
 
+        OntologyService.prototype.propertiesByRelationshipLabel = function (relationshipLabel, callback) {
+            this._ajaxGet({
+                url: 'ontology/' + relationshipLabel + '/properties'
+            }, function (err, response) {
+                if (err) {
+                    return callback(err);
+                }
+
+                var props = {
+                    list: response.properties,
+                    byTitle: buildPropertiesByTitle(response.properties)
+                };
+                console.log('propertiesByRelationshipLabel', props);
+
+                return callback(null, props);
+            });
+        };
+
         function buildPropertiesByTitle(properties) {
             var result = {};
             properties.forEach(function (property) {
