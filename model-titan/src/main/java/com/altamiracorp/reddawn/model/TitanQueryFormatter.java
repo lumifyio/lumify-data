@@ -30,13 +30,17 @@ public class TitanQueryFormatter {
         tokenMap.put("=", Tokens.T.eq);
     }
 
+    private static final String RANGE = "range";
+    private static final String VALUES = "values";
+    private static final String PREDICATE = "predicate";
+
     private static GremlinPipeline filterDate(GremlinPipeline pipeline, JSONObject filterJson, String propertyName) throws JSONException, ParseException {
-        String predicate = filterJson.optString("predicate");
+        String predicate = filterJson.optString(PREDICATE);
         if (predicate == null) {
             throw new RuntimeException("'predicate' is required for data type 'date'");
         }
 
-        JSONArray values = filterJson.optJSONArray("values");
+        JSONArray values = filterJson.optJSONArray(VALUES);
         if (values == null) {
             throw new RuntimeException("'values' is required for data type 'date'");
         }
@@ -45,17 +49,15 @@ public class TitanQueryFormatter {
             return pipeline;
 
         Date value = Property.DATE_FORMAT.parse(values.getString(0));
-        if (predicate.equals("range")) {
+        if (predicate.equals(RANGE)) {
             if (values.length() != 2) {
-                throw new RuntimeException("'range' requires 2 values, found " + values.length());
+                throw new RuntimeException(String.format("'%s' requires 2 values, found %d", predicate, values.length()));
             }
 
-            Date value1 = Property.DATE_FORMAT.parse(values.getString(1));
-            return pipeline.interval(propertyName, value, value1);
+            Date otherValue = Property.DATE_FORMAT.parse(values.getString(1));
+            return pipeline.interval(propertyName, value, otherValue);
         } else {
-            if (values.length() != 1) {
-                throw new RuntimeException(String.format("'%s' requires 1 value, found %d", predicate, values.length()));
-            }
+            throwIfMissingValue(predicate, values);
 
             Tokens.T comparison = tokenMap.get(predicate);
             if (comparison != null)
@@ -65,12 +67,12 @@ public class TitanQueryFormatter {
     }
 
     private static GremlinPipeline filterNumber(GremlinPipeline pipeline, JSONObject filterJson, String propertyName) throws JSONException, ParseException {
-        String predicate = filterJson.optString("predicate");
+        String predicate = filterJson.optString(PREDICATE);
         if (predicate == null) {
             throw new RuntimeException("'predicate' is required for data type 'number'");
         }
 
-        JSONArray values = filterJson.optJSONArray("values");
+        JSONArray values = filterJson.optJSONArray(VALUES);
         if (values == null) {
             throw new RuntimeException("'values' is required for data type 'number'");
         }
@@ -79,17 +81,15 @@ public class TitanQueryFormatter {
 
         double value = values.getDouble(0);
 
-        if (predicate.equals("range")) {
+        if (predicate.equals(RANGE)) {
             if (values.length() != 2) {
-                throw new RuntimeException("'range' requires 2 values, found " + values.length());
+                throw new RuntimeException(String.format("'%s' requires 2 values, found %d", predicate, values.length()));
             }
 
-            double value1 = values.getDouble(1);
-            return pipeline.interval(propertyName, value, value1);
+            double otherValue = values.getDouble(1);
+            return pipeline.interval(propertyName, value, otherValue);
         } else {
-            if (values.length() != 1) {
-                throw new RuntimeException(String.format("'%s' requires 1 value, found %d", predicate, values.length()));
-            }
+            throwIfMissingValue(predicate, values);
 
             Tokens.T comparison = tokenMap.get(predicate);
             if (comparison != null)
@@ -98,8 +98,14 @@ public class TitanQueryFormatter {
         }
     }
 
+    private static void throwIfMissingValue(String predicate, JSONArray values) {
+        if (values.length() != 1) {
+            throw new RuntimeException(String.format("'%s' requires 1 value, found %d", predicate, values.length()));
+        }
+    }
+
     private static GremlinPipeline filterString(GremlinPipeline<Vertex, Vertex> pipeline, JSONObject filterJson, final String propertyName) throws JSONException {
-        JSONArray values = filterJson.optJSONArray("values");
+        JSONArray values = filterJson.optJSONArray(VALUES);
         if (values == null) {
             throw new RuntimeException("'values' is required for data type 'string'");
         }
@@ -123,7 +129,12 @@ public class TitanQueryFormatter {
     }
 
     private GremlinPipeline<Vertex, Vertex> addFilter(JSONObject filterJson, GremlinPipeline<Vertex, Vertex> pipeline) {
-        PropertyType propertyDateType = PropertyType.convert(filterJson.optString("propertyDataType"));
+        String propertyDataType = filterJson.optString("propertyDataType");
+        if (propertyDataType == null) {
+            throw new RuntimeException("Could not find 'propertyDataType' on filter JSON.");
+        }
+
+        PropertyType propertyDateType = PropertyType.convert(propertyDataType);
         String propertyName = filterJson.optString("propertyName");
         if (propertyName == null) {
             throw new RuntimeException("Could not find 'propertyName' to filter on.");

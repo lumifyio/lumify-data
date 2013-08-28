@@ -25,7 +25,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
-public class GraphVertexSearchTest extends RouteTestBase {
+public class TitanQueryFormatterTest extends RouteTestBase {
     private Graph graph;
 
     @Before
