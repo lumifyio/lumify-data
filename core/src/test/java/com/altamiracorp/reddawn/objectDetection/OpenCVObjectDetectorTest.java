@@ -26,7 +26,7 @@ public class OpenCVObjectDetectorTest {
 
     @Test
     public void testObjectDetection() throws IOException {
-        /*OpenCVObjectDetector objectDetector = new OpenCVObjectDetector();
+        OpenCVObjectDetector objectDetector = new OpenCVObjectDetector();
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         BufferedImage bImage = ImageIO.read(cl.getResourceAsStream(TEST_IMAGE));
 
@@ -37,7 +37,7 @@ public class OpenCVObjectDetectorTest {
         assertEquals("X1 incorrect", 434, detectedObject.getX1());
         assertEquals("Y1 incorrect", 117, detectedObject.getY1());
         assertEquals("X2 incorrect", 637, detectedObject.getX2());
-        assertEquals("Y2 incorrect", 320, detectedObject.getY2());*/
+        assertEquals("Y2 incorrect", 320, detectedObject.getY2());
     }
 
 }
