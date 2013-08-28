@@ -50,8 +50,11 @@ else
 fi
 
 war_files=$(find .. -name '*.war')
-oozie_libs_tgz=/tmp/oozie-libs.tgz
-(cd ../oozie; tar czf ${oozie_libs_tgz} oozie-libs)
+
+datetime=$(date +"%Y%m%dT%H%M")
+githash=$(cd ../oozie/target; git log -n 1 --format='%h')
+oozie_libs_tgz="/tmp/oozie-libs-${datetime}-${githash}.tgz"
+(cd ../oozie/target; tar czf ${oozie_libs_tgz} oozie-libs)
 
 scp ${SSH_OPTS} ../aws/bin-ec2/setup_disks.sh \
                 init.sh \
