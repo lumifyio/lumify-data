@@ -37,6 +37,7 @@ function git_archive {
 
 modules_tgz=$(git_archive modules .. puppet)
 puppet_modules_tgz=$(git_archive puppet-modules ../puppet/puppet-modules)
+oozie_jobs_tgz=$(git_archive oozie-jobs .. oozie/jobs)
 
 echo 'running maven...'
 mvn_output="$(cd ..; mvn clean install -DskipTests)"
@@ -47,9 +48,10 @@ if [ ${mvn_exit} -ne 0 ]; then
 else
   echo 'maven done.'
 fi
-war_files=$(find .. -name '*.war')
 
-# TODO: jars for M/R, bin scripts for M/R
+war_files=$(find .. -name '*.war')
+oozie_libs_tgz=/tmp/oozie-libs.tgz
+(cd ../oozie; tar czf ${oozie_libs_tgz} oozie-libs)
 
 scp ${SSH_OPTS} ../aws/bin-ec2/setup_disks.sh \
                 init.sh \
@@ -60,9 +62,13 @@ scp ${SSH_OPTS} ../aws/bin-ec2/setup_disks.sh \
                 ${hosts_file} \
                 ${modules_tgz} \
                 ${puppet_modules_tgz} \
+                ${oozie_jobs_tgz} \
+                ${oozie_libs_tgz} \
                 application.xml \
                 ${war_files} \
                 root@${elastic_ip}:
 
 rm ${modules_tgz}
 rm ${puppet_modules_tgz}
+rm ${oozie_jobs_tgz}
+rm ${oozie_libs_tgz}
