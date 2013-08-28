@@ -13,8 +13,9 @@ define([
     'service/workspace',
     'service/ucd',
     'util/keyboard',
-    'util/undoManager'
-], function(appTemplate, defineComponent, Menubar, Search, Workspaces, WorkspaceOverlay, Users, Graph, Detail, Map, WorkspaceService, UcdService, Keyboard, undoManager) {
+    'util/undoManager',
+    'underscore'
+], function(appTemplate, defineComponent, Menubar, Search, Workspaces, WorkspaceOverlay, Users, Graph, Detail, Map, WorkspaceService, UcdService, Keyboard, undoManager, _) {
     'use strict';
 
     return defineComponent(App);
@@ -90,8 +91,8 @@ define([
             WorkspaceOverlay.attachTo(content.filter('.workspace-overlay'));
 
             // Configure splitpane resizing
-            resizable(searchPane, 'e', undefined, undefined, this.onPaneResize.bind(this));
-            resizable(workspacesPane, 'e', undefined, undefined, this.onPaneResize.bind(this));
+            resizable(searchPane, 'e', 160, 200, this.onPaneResize.bind(this));
+            resizable(workspacesPane, 'e', undefined, 200, this.onPaneResize.bind(this));
             resizable(detailPane, 'w', 4, 500, this.onPaneResize.bind(this));
 
             this.$node.html(content);
@@ -561,6 +562,7 @@ define([
         };
 
         this.toggleDisplay = function(e, data) {
+            var SLIDE_OUT = 'search workspaces';
             var pane = this.select(data.name + 'Selector');
 
             if (data.name === 'graph' && !pane.hasClass('visible')) {
@@ -576,11 +578,20 @@ define([
                 ]);
             }
 
-            if (data.name == 'search' && !pane.hasClass('visible')) {
-                var self = this;
+            if (SLIDE_OUT.indexOf(data.name) >= 0) {
+                var self = this, 
+                    visible = pane.hasClass('visible');
+
                 pane.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
                     pane.off('transitionend webkitTransitionEnd oTransitionEnd otransitionend');
-                    self.trigger(document, 'focusSearchField');
+
+                    if (!visible && data.name == 'search') {
+                        _.delay(function() {
+                            self.trigger(document, 'focusSearchField');
+                        }, 250);
+                    }
+
+                    self.triggerPaneResized();
                 });
             }
 
@@ -621,17 +632,37 @@ define([
                 shouldCollapse = width < COLLAPSE_TOLERANCE;
 
             $(e.target).toggleClass('collapsed', shouldCollapse);
+            $(e.target).toggleClass('visible', !shouldCollapse);
 
             this.triggerPaneResized();
         };
 
         this.triggerPaneResized = function() {
-            var searchWidth = this.select('searchSelector').filter('.visible:not(.collapsed)').outerWidth(true) || 0,
-                searchResultsWidth = searchWidth > 0 ? $('.search-results:visible:not(.collapsed)').outerWidth(true) || 0 : 0,
-                detailWidth = this.select('detailPaneSelector').filter('.visible:not(.collapsed)').outerWidth(true) || 0,
+            var searchWidth = this.select('searchSelector')
+                    .filter('.visible:not(.collapsed)')
+                    .outerWidth(true) || 0,
+
+                searchResultsWidth = searchWidth > 0 ? 
+                    $('.search-results:visible:not(.collapsed)')
+                        .outerWidth(true) || 0 : 0,
+
+                searchFiltersWidth = searchWidth > 0 ? 
+                    $('.search-filters:visible:not(.collapsed)')
+                        .outerWidth(true) || 0 : 0,
+
+                workspacesWidth = this.select('workspacesSelector')
+                    .filter('.visible:not(.collapsed)')
+                    .outerWidth(true) || 0,
+
+                detailWidth = this.select('detailPaneSelector')
+                    .filter('.visible:not(.collapsed)')
+                    .outerWidth(true) || 0,
+
                 padding = {
-                    l:searchWidth + searchResultsWidth, r:detailWidth,
-                    t:0, b:0
+                    l:searchWidth + searchResultsWidth + searchFiltersWidth + workspacesWidth, 
+                    r:detailWidth,
+                    t:0, 
+                    b:0
                 };
 
             this.trigger(document, 'graphPaddingUpdated', { padding: padding });

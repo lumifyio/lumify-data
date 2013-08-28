@@ -226,7 +226,8 @@ define([
             // Add splitbar to search results
             node.resizable({
                 handles: 'e',
-                minWidth: 50,
+                minWidth: 200,
+                maxWidth: 350, 
                 resize: function() {
                     self.trigger(document, 'paneResized');
                 }
