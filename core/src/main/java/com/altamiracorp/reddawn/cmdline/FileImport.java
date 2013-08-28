@@ -98,13 +98,28 @@ public class FileImport extends RedDawnCommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         File directory = new File(getDirectory());
-        if (getDownloadZip() && datasetExists(getDirectory() + "/" + getZipfile())) {
-            this.directory = getDirectory() + "/" + getZipfile();
-            directory = new File(getDirectory());
-        } else if (getZipfile() != null && (!datasetExists(getDirectory() + "/" + getZipfile()) || getDownloadZip()) && !getZipfile().contains("import")/*&& !directory.exists()*/) {
-            getDataset(arguments);
-            this.directory = getDirectory() + "/" + getZipfile();
-            directory = new File(getDirectory());
+        if (getZipfile() != null) {
+            String dirZip = getDirectory() + "/" + getZipfile();
+            if (getZipfile().contains("/")){
+                dirZip = getZipfile();
+                this.directory = getZipfile();
+                arguments[0] = getZipfile();
+                if(getZipfile().lastIndexOf("/") == getZipfile().length()-1){
+                    this.zipfile = getZipfile().substring(getZipfile().lastIndexOf("/", (getZipfile().length()-2)));
+                } else {
+                    this.zipfile = getZipfile().substring((getZipfile().lastIndexOf("/")+1));
+                }
+                arguments[1] = this.zipfile;
+                getDataset(arguments);
+            }
+            if (getDownloadZip() && datasetExists(dirZip)) {
+                this.directory = dirZip;
+                directory = new File(getDirectory());
+            } else if ((!datasetExists(dirZip) || getDownloadZip()) && !getZipfile().contains("import")) {
+                getDataset(arguments);
+                this.directory = dirZip;
+                directory = new File(getDirectory());
+            }
         }
         String pattern = getPattern();
         RedDawnSession redDawnSession = createRedDawnSession();

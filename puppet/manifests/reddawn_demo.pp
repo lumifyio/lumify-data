@@ -52,8 +52,10 @@ node "ip-10-0-3-50" {
   include hadoop::fw::namenode
   include hadoop::fw::jobtracker
   include blur::fw::controller
+  include oozie::fw::server
   include role::hadoop::namenode # includes jobtracker
   include role::blur::controller
+  include oozie
 }
 
 node "ip-10-0-3-51" {

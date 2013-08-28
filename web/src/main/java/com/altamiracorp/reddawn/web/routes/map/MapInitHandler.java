@@ -1,16 +1,24 @@
 package com.altamiracorp.reddawn.web.routes.map;
 
-import com.altamiracorp.web.MustacheTemplateHandler;
-import org.apache.commons.io.IOUtils;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.io.IOUtils;
+
+import com.altamiracorp.reddawn.web.config.MapConfig;
+import com.altamiracorp.web.MustacheTemplateHandler;
+import com.google.inject.Inject;
+
 public class MapInitHandler extends MustacheTemplateHandler {
-    public MapInitHandler() throws IOException {
+    private final MapConfig config;
+
+
+    @Inject
+    public MapInitHandler(final MapConfig config) throws IOException {
         super();
+        this.config = config;
     }
 
     @Override
@@ -25,13 +33,12 @@ public class MapInitHandler extends MustacheTemplateHandler {
     @Override
     protected Object getModel(HttpServletRequest request) {
         MapInitModel model = new MapInitModel();
-        ServletContext servletContext = request.getServletContext();
 
-        model.mapProvider = servletContext.getInitParameter("map.provider");
+        model.mapProvider = config.getMapProvider();
         if (model.mapProvider == null) {
             model.mapProvider = "leaflet";
         }
-        model.apiKey = servletContext.getInitParameter("map.apiKey");
+        model.apiKey = config.getMapAccessKey();
         return model;
     }
 
