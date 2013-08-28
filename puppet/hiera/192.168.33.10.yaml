@@ -9,6 +9,6 @@ accumulo_masters:
 accumulo_slaves:
   - %{ipaddress_eth1}
 zookeeper_nodes:
-  1: localhost:2181
+  1: %{ipaddress_eth1}:2181
 namenode_ipaddress: %{ipaddress_eth1}
 elasticsearch_publishaddress: %{ipaddress_eth1}
