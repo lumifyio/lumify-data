@@ -13,7 +13,8 @@ public enum PropertyName {
     COLOR("_color"),
     SOURCE("source"),
     START_DATE("startDate"),
-    END_DATE("endDate");
+    END_DATE("endDate"),
+    RELATIONSHIP_TYPE("relationshipType");
 
     private final String text;
 

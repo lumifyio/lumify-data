@@ -60,6 +60,12 @@ public abstract class Base extends RedDawnCommandLineBase {
         }
         edges.put(isAEdge.getName(), isAEdge);
 
+        TitanKey relationshipType = (TitanKey) graph.getType(PropertyName.RELATIONSHIP_TYPE.toString());
+        if (relationshipType == null){
+            relationshipType = graph.makeType().name(PropertyName.RELATIONSHIP_TYPE.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+        }
+        properties.put(relationshipType.getName(), relationshipType);
+
         TitanKey subTypeProperty = (TitanKey) graph.getType(PropertyName.SUBTYPE.toString());
         if (subTypeProperty == null) {
             subTypeProperty = graph.makeType().name(PropertyName.SUBTYPE.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
@@ -164,7 +170,7 @@ public abstract class Base extends RedDawnCommandLineBase {
         return vertex;
     }
 
-    protected TitanGraphVertex getRelationship (TitanGraph graph, String relationshipLabel, String displayName) {
+    protected TitanGraphVertex getRelationship(TitanGraph graph, String relationshipLabel, String displayName) {
         Iterator<Vertex> iter = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), relationshipLabel).iterator();
         TitanGraphVertex vertex;
         if (iter.hasNext()) {
@@ -250,6 +256,11 @@ public abstract class Base extends RedDawnCommandLineBase {
         graph.commit();
 
         return propertyVertex;
+    }
+
+    protected TitanGraphVertex addPropertyTo(TitanGraph graph, String relationshipLabel, String propertyName, String displayName, PropertyType dataType) {
+        TitanGraphVertex vertex = getRelationship(graph, relationshipLabel, displayName);
+        return addPropertyTo(graph, vertex, propertyName, displayName, dataType);
     }
 
     protected List<String> generateColorPalette(int number) {

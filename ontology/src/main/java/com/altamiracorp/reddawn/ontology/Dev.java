@@ -70,25 +70,18 @@ public class Dev extends Base {
         getOrCreateRelationshipType(graph, company, emailAddress, "hasEmailAddress", "has email address");
         getOrCreateRelationshipType(graph, company, phoneNumber, "hasPhoneNumber", "has phone number");
 
-        TitanGraphVertex knows = getRelationship(graph,"knows", "knows");
-        TitanGraphVertex worksAt = getRelationship(graph,"worksAt", "works at");
-        TitanGraphVertex livesAt = getRelationship(graph, "livesAt", "lives at");
-        TitanGraphVertex hasEmailAddress = getRelationship(graph, "hasEmailAddress", "has email address");
-        TitanGraphVertex headquarteredAt = getRelationship(graph, "headquarteredAt", "headquartered at");
-        TitanGraphVertex hasPhoneNumber = getRelationship(graph, "hasPhoneNumber", "has phone number");
-
-        addPropertyTo(graph, knows, PropertyName.START_DATE.toString(), "Start date", PropertyType.DATE);
-        addPropertyTo(graph, knows, PropertyName.END_DATE.toString(), "End date", PropertyType.DATE);
-        addPropertyTo(graph, worksAt, PropertyName.START_DATE.toString(), "Start date", PropertyType.DATE);
-        addPropertyTo(graph, worksAt, PropertyName.END_DATE.toString(), "End date", PropertyType.DATE);
-        addPropertyTo(graph, livesAt, PropertyName.START_DATE.toString(), "Start date", PropertyType.DATE);
-        addPropertyTo(graph, livesAt, PropertyName.END_DATE.toString(), "End date", PropertyType.DATE);
-        addPropertyTo(graph, hasEmailAddress, PropertyName.START_DATE.toString(), "Start date", PropertyType.DATE);
-        addPropertyTo(graph, hasEmailAddress, PropertyName.END_DATE.toString(), "End date", PropertyType.DATE);
-        addPropertyTo(graph, headquarteredAt, PropertyName.START_DATE.toString(), "Start date", PropertyType.DATE);
-        addPropertyTo(graph, headquarteredAt, PropertyName.END_DATE.toString(), "End date", PropertyType.DATE);
-        addPropertyTo(graph, hasPhoneNumber, PropertyName.START_DATE.toString(), "Start date", PropertyType.DATE);
-        addPropertyTo(graph, hasPhoneNumber, PropertyName.END_DATE.toString(), "End date", PropertyType.DATE);
+        addPropertyTo(graph, "knows", PropertyName.START_DATE.toString(), "Start date", PropertyType.DATE);
+        addPropertyTo(graph, "knows", PropertyName.END_DATE.toString(), "End date", PropertyType.DATE);
+        addPropertyTo(graph, "worksAt", PropertyName.START_DATE.toString(), "Start date", PropertyType.DATE);
+        addPropertyTo(graph, "worksAt", PropertyName.END_DATE.toString(), "End date", PropertyType.DATE);
+        addPropertyTo(graph, "livesAt", PropertyName.START_DATE.toString(), "Start date", PropertyType.DATE);
+        addPropertyTo(graph, "livesAt", PropertyName.END_DATE.toString(), "End date", PropertyType.DATE);
+        addPropertyTo(graph, "hasEmailAddress", PropertyName.START_DATE.toString(), "Start date", PropertyType.DATE);
+        addPropertyTo(graph, "hasEmailAddress", PropertyName.END_DATE.toString(), "End date", PropertyType.DATE);
+        addPropertyTo(graph, "headquarteredAt", PropertyName.START_DATE.toString(), "Start date", PropertyType.DATE);
+        addPropertyTo(graph, "headquarteredAt", PropertyName.END_DATE.toString(), "End date", PropertyType.DATE);
+        addPropertyTo(graph, "hasPhoneNumber", PropertyName.START_DATE.toString(), "Start date", PropertyType.DATE);
+        addPropertyTo(graph, "hasPhoneNumber", PropertyName.END_DATE.toString(), "End date", PropertyType.DATE);
 
 
         return 0;
