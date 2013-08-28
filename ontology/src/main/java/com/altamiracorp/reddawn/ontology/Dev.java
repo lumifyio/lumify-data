@@ -66,9 +66,6 @@ public class Dev extends Base {
         getOrCreateRelationshipType(graph, org, location, "headquarteredAt", "headquartered at");
         getOrCreateRelationshipType(graph, org, emailAddress, "hasEmailAddress", "has email address");
         getOrCreateRelationshipType(graph, org, phoneNumber, "hasPhoneNumber", "has phone number");
-        getOrCreateRelationshipType(graph, company, location, "headquarteredAt", "headquartered at");
-        getOrCreateRelationshipType(graph, company, emailAddress, "hasEmailAddress", "has email address");
-        getOrCreateRelationshipType(graph, company, phoneNumber, "hasPhoneNumber", "has phone number");
 
         addPropertyTo(graph, "knows", PropertyName.START_DATE.toString(), "Start date", PropertyType.DATE);
         addPropertyTo(graph, "knows", PropertyName.END_DATE.toString(), "End date", PropertyType.DATE);
