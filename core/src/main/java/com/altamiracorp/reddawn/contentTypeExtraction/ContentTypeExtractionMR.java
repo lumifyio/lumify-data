@@ -62,8 +62,6 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
 
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
-            RedDawnSession redDawnSession = createRedDawnSession(context);
-
             LOGGER.info("Extracting content type from artifact: " + artifact.getRowKey().toString());
             InputStream in = artifactRepository.getRaw(getSession().getModelSession(), artifact);
             if (in == null) {
@@ -75,10 +73,10 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
             }
             artifact.getGenericMetadata().setMimeType(contentType);
 
-            GraphVertex graphVertex = graphRepository.findVertexByRowKey(redDawnSession.getGraphSession(), artifact.getRowKey().toString());
+            GraphVertex graphVertex = graphRepository.findVertexByRowKey(getSession().getGraphSession(), artifact.getRowKey().toString());
             if (graphVertex != null) {
                 graphVertex.setProperty(PropertyName.SUBTYPE.toString(), artifact.getType().toString().toLowerCase());
-                redDawnSession.getGraphSession().commit();
+                getSession().getGraphSession().commit();
             }
 
             context.write(new Text(Artifact.TABLE_NAME), artifact);
