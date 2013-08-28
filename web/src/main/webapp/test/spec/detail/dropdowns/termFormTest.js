@@ -108,7 +108,7 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
 
             this.Component.teardownAll();
 
-            expect(this.$parentNode.find('span.entity').attr('class')).to.contain('subType-44').not.contain('focused');
+            expect(this.$parentNode.find('span.entity').attr('class')).to.contain('subType-1').not.contain('focused');
         });
 
 
@@ -155,7 +155,7 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
             this.setupParentForSelection('<span class="entity subType-2">Jo[hnny</span> <span class="entity">App]leseed</span> is a person');
             expect(this.parentNode.childNodes[0].innerHTML)
                 .to.equal('<span class="entity subType-2 focused">Johnny</span> <span class="entity focused">Appleseed</span>');
-            
+
             this.Component.teardownAll();
 
             expect(this.$parentNode.find('.entity').eq(0).attr('class')).to
