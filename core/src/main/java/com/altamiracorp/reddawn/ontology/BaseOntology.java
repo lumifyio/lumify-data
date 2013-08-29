@@ -128,6 +128,9 @@ public class BaseOntology {
             Concept concept = ontologyRepository.getConceptByName(session.getGraphSession(), VertexType.ARTIFACT.toString());
             return concept != null; // todo should check for more
         } catch (Exception e) {
+            if (e.getMessage().contains(PropertyName.ONTOLOGY_TITLE.toString())) {
+                return false;
+            }
             throw new RuntimeException(e);
         }
     }
