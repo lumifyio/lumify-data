@@ -82,6 +82,14 @@ define([
                 'line-color': '#000',
                 'color': '#0088cc'
             })
+            .selector('node.focus')
+            .css({
+                'border-width': 5 * retina.devicePixelRatio,
+                'border-color': '#a5e1ff',
+                'color': '#00547e',
+                'font-weight': 'bold',
+                'font-size': 20 * retina.devicePixelRatio
+            })
             .selector('edge')
             .css({
                 'width': 2,
