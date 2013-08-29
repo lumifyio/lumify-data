@@ -43,10 +43,9 @@ public class TitanGraphSession extends GraphSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(TitanGraphSession.class.getName());
     private static final String DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME = "titan";
     private static final Integer DEFAULT_STORAGE_INDEX_SEARCH_PORT = 9300;
-
     private final TitanGraph graph;
-    private Properties localConf;
     private final TitanQueryFormatter queryFormatter;
+    private Properties localConf;
 
     public TitanGraphSession(Properties props, TitanQueryFormatter queryFormatter) {
         checkNotNull(queryFormatter, "Query formatter cannot be null");
@@ -331,8 +330,10 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public void close() {
-        this.graph.commit();
-        this.graph.shutdown();
+        if (this.graph.isOpen()) {
+            this.graph.commit();
+            this.graph.shutdown();
+        }
     }
 
     @Override
