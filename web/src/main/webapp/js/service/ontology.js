@@ -23,32 +23,28 @@ define(
                 callback = refresh;
                 refresh = false;
             }
+            if (!callback) callback = function() { };
 
             if (!refresh && cachedConcepts) {
-                return callback(null, cachedConcepts);
+                cachedConcepts.done(function(v) {callback(null, v); });
+                return cachedConcepts;
             }
 
-            this._ajaxGet({
+            cachedConcepts = this._ajaxGet({
                 url: 'ontology/concept'
-            }, function (err, response) {
-                if (err) {
-                    return callback(err);
-                }
-
+            }).then(function(response) {
                 var entityConcept = findConceptByTitle(response, 'Entity');
                 var artifactConcept = findConceptByTitle(response, 'Artifact');
-
-                cachedConcepts = {
+                return {
                     tree: response,
                     entityConcept: entityConcept,
                     artifactConcept: artifactConcept,
                     byId: buildConceptMapById(response, {}),
                     byTitle: flattenConcepts(entityConcept)
                 };
+            }).always(function(data) {callback(null, data); });
 
-                console.log('concepts', cachedConcepts);
-                return callback(null, cachedConcepts);
-            });
+            return cachedConcepts;
 
             function findConceptByTitle(concept, title) {
                 if (concept.title == title) {
@@ -104,26 +100,23 @@ define(
                 callback = refresh;
                 refresh = false;
             }
+            if (!callback) callback = function() { };
 
             if (!refresh && cachedRelationships) {
-                return callback(null, cachedRelationships);
+                cachedRelationships.done(function(v) {callback(null, v); });
+                return cachedRelationships;
             }
 
-            this._ajaxGet({
+            cachedRelationships = this._ajaxGet({
                 url: 'ontology/relationship'
-            }, function (err, response) {
-                if (err) {
-                    return callback(err);
-                }
-
-                cachedRelationships = {
+            }).then(function(response) {
+                return {
                     list: response.relationships,
                     byTitle: buildRelationshipsByTitle(response.relationships)
                 };
-                console.log('relationships', cachedRelationships);
+            }).always(function(data) {callback(null, data); });
 
-                return callback(null, cachedRelationships);
-            });
+            return cachedRelationships;
 
             function buildRelationshipsByTitle(relationships) {
                 var result = {};
@@ -140,30 +133,27 @@ define(
                 callback = refresh;
                 refresh = false;
             }
+            if (!callback) callback = function() { };
 
             if (!refresh && cachedProperties) {
-                return callback(null, cachedProperties);
+                cachedProperties.done(function(v) {callback(null, v); });
+                return cachedProperties;
             }
 
-            this._ajaxGet({
+            cachedProperties = this._ajaxGet({
                 url: 'ontology/property'
-            }, function (err, response) {
-                if (err) {
-                    return callback(err);
-                }
-
-                cachedProperties = {
+            }).then(function(response) {
+                return {
                     list: response.properties,
                     byTitle: buildPropertiesByTitle(response.properties)
                 };
-                console.log('properties', cachedProperties);
+            }).always(function(data) {callback(null, data); });
 
-                return callback(null, cachedProperties);
-            });
+            return cachedProperties;
         };
 
         OntologyService.prototype.propertiesByConceptId = function (conceptId, callback) {
-            this._ajaxGet({
+            return this._ajaxGet({
                 url: 'ontology/concept/' + conceptId + '/properties'
             }, function (err, response) {
                 if (err) {

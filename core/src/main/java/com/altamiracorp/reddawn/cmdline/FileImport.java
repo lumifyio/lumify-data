@@ -98,7 +98,7 @@ public class FileImport extends RedDawnCommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         File directory = new File(getDirectory());
-        if (getZipfile() != null) {
+        if (getZipfile() != null && !getZipfile().contains("import")) {
             String dirZip = getDirectory() + "/" + getZipfile();
             if (getZipfile().contains("/")){
                 dirZip = getZipfile();
@@ -115,7 +115,7 @@ public class FileImport extends RedDawnCommandLineBase {
             if (getDownloadZip() && datasetExists(dirZip)) {
                 this.directory = dirZip;
                 directory = new File(getDirectory());
-            } else if ((!datasetExists(dirZip) || getDownloadZip()) && !getZipfile().contains("import")) {
+            } else if (!datasetExists(dirZip) || getDownloadZip()) {
                 getDataset(arguments);
                 this.directory = dirZip;
                 directory = new File(getDirectory());
