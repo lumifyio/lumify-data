@@ -11,7 +11,6 @@ define([
 
     return defineComponent(StatementForm, withDropdown);
 
-
     function StatementForm() {
         this.statementService = new StatementService();
         this.ontologyService = new OntologyService();
@@ -127,10 +126,38 @@ define([
                     return self.trigger (document, 'error', { message: err.toString () });
                 }
 
-                console.log ('relationships results', results);
-                self.select('relationshipSelector').html(relationshipTypeTemplate({
-                    relationships: results.relationships || ''
-                }));
+                self.displayRelationships (results.relationships);
+            });
+        };
+
+        this.displayRelationships = function (relationships) {
+            var self = this;
+            self.ontologyService.relationships(function(err, ontologyRelationships) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+
+                var relationshipsTpl = [];
+
+                relationships.forEach(function(relationship) {
+                    var ontologyRelationship = ontologyRelationships.byTitle[relationship.title];
+                    var displayName;
+                    if(ontologyRelationship) {
+                        displayName = ontologyRelationship.displayName;
+                    } else {
+                        displayName = relationship.title;
+                    }
+
+                    var data = {
+                        title: relationship.title,
+                        displayName: displayName
+                    };
+
+                    relationshipsTpl.push(data);
+                });
+
+                self.select('relationshipSelector').html(relationshipTypeTemplate({ relationships: relationshipsTpl }));
             });
         };
     }
