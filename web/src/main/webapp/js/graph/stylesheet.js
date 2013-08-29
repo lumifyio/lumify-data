@@ -66,10 +66,6 @@ define([
                 'text-outline-width': 1,
                 'font-size': 9 * retina.devicePixelRatio
             })
-            .selector('node.entity')
-            .css({
-                'font-weight': 'bold'
-            })
             .selector('node.hasCustomGlyph')
             .css({
                 'width': 60 * retina.devicePixelRatio,
