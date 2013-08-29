@@ -70,6 +70,7 @@ define([
             .css({
                 'width': 60 * retina.devicePixelRatio,
                 'height': 60 * retina.devicePixelRatio,
+                'background-image': 'data(_glyphIcon)'
             })
             .selector(':selected')
             .css({
