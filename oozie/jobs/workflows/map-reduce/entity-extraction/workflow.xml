@@ -12,7 +12,7 @@
   See the License for the specific language governing permissions and
   limitations under the License. See accompanying LICENSE file.
 -->
-<workflow-app xmlns="uri:oozie:workflow:0.1" name="text-tika-map-reduce-wf">
+<workflow-app xmlns="uri:oozie:workflow:0.1" name="entity-extraction-map-reduce-wf">
     <start to="mr-node"/>
     <action name="mr-node">
         <map-reduce>
@@ -28,12 +28,12 @@
                 </property>
                 <property>
                     <name>mapreduce.map.class</name>
-                    <value>com.altamiracorp.reddawn.textExtraction.TextExtractionMR$TextExtractorMapper</value>
+                    <value>com.altamiracorp.reddawn.entityExtraction.EntityExtractionMR$EntityExtractorMapper</value>
                 </property>
-                <property>
-                    <name>textExtractorClass</name>
-                    <value>com.altamiracorp.reddawn.textExtraction.TikaTextExtractor</value>
-                </property>
+				<property>
+			        <name>entityExtractorClass</name>
+			        <value>${entityExtractor}</value>
+			    </property>
                 <property>
                     <name>mapred.map.tasks</name>
                     <value>${numMapTasks}</value>
@@ -50,6 +50,16 @@
 			        <name>oozie.launcher.action.main.class</name>
 			        <value>${launcherClass}</value>
 			    </property>
+			
+				<!--thanks, poor design of oozie -->
+				<property>
+					<name>regularExpression</name>
+				    <value>${regularExpression}</value>
+				</property>
+				<property>
+					<name>entityType</name>
+				    <value>${entityType}</value>
+				</property>	
             </configuration>
         </map-reduce>
         <ok to="end"/>

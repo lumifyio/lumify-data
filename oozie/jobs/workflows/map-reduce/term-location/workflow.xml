@@ -36,7 +36,7 @@
                 </property>
 				<property>
 					<name>tableName</name>
-                    <value>${tableTerm}</value>
+                    <value>${tableTermMention}</value>
 				</property>
 				<property>
 			        <name>mapreduce.inputformat.class</name>

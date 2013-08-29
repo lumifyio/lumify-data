@@ -11,7 +11,7 @@ define(
         VertexService.prototype = Object.create(ServiceBase.prototype);
 
         VertexService.prototype.setProperty = function (vertexId, propertyName, value, callback) {
-            this._ajaxPost({
+            return this._ajaxPost({
                 url: 'vertex/' + vertexId + '/property/set',
                 data: {
                     propertyName: propertyName,
@@ -23,7 +23,7 @@ define(
         };
 
         VertexService.prototype.getMultiple = function(vertexIds, callback) {
-            this._ajaxGet({
+            return this._ajaxGet({
                 url: 'vertex/multiple',
                 data: {
                     vertexIds: vertexIds

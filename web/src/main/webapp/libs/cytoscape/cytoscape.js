@@ -8526,7 +8526,9 @@ var cytoscape;
 		}, false);
 		
 		r.registerBinding(window, "mousemove", function(e) {
-            if (!r.data._processWindowMouseEvents) return;
+            if (!r.data._processWindowMouseEvents && !r.data.container.contains(e.target)) {
+                return;
+            }
 
 			var preventDefault = false;
 			var capture = r.hoverData.capture;
@@ -8683,7 +8685,9 @@ var cytoscape;
 		r.registerBinding(window, "mouseup", function(e) {
             if (r.data._processWindowMouseEvents) {
                 r.data._processWindowMouseEvents = false;
-            } else return;
+            } else if (!r.data.container.contains(e.target)) {
+                return;
+            }
 
 			// console.log('--\nmouseup', e)
 

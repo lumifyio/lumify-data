@@ -12,7 +12,7 @@
   See the License for the specific language governing permissions and
   limitations under the License. See accompanying LICENSE file.
 -->
-<workflow-app xmlns="uri:oozie:workflow:0.1" name="sentence-map-reduce-wf">
+<workflow-app xmlns="uri:oozie:workflow:0.1" name="text-extraction-map-reduce-wf">
     <start to="mr-node"/>
     <action name="mr-node">
         <map-reduce>
@@ -28,11 +28,11 @@
                 </property>
                 <property>
                     <name>mapreduce.map.class</name>
-                    <value>com.altamiracorp.reddawn.sentenceExtraction.SentenceExtractionMR$SentenceExtractorMapper</value>
+                    <value>com.altamiracorp.reddawn.textExtraction.TextExtractionMR$TextExtractorMapper</value>
                 </property>
                 <property>
-                    <name>sentenceExtractorClass</name>
-                    <value>com.altamiracorp.reddawn.sentenceExtraction.OpenNlpSentenceExtractor</value>
+                    <name>textExtractorClass</name>
+                    <value>${textExtractor}</value>
                 </property>
                 <property>
                     <name>mapred.map.tasks</name>

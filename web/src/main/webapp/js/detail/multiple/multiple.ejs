@@ -1,13 +1,14 @@
 <div class="multiple">
-  <h1><%= vertices.length %> objects selected</h1>
 
-  <ul>
-    <% vertices.forEach(function(vertex) { %>
+  <ul class="nav nav-bar">
+    <li class="nav-header"><%= vertices.length %> objects selected</li>
+
     <li>
-        <span class="<%= getClasses(vertex) %>" data-info='<%- JSON.stringify(vertex) %>'><%- vertex.originalTitle || vertex.title || 'No title available' %></span>
+      <% vertices.forEach(function(vertex, i) { %>
+    <span class="<%= getClasses(vertex) %>" data-info='<%- JSON.stringify(vertex) %>'><%- vertex.originalTitle || vertex.title || 'No title available' %></span><% if ( i != vertices.length - 1) { %>, <% } %>
+      <% }); %>
     </li>
-    <% }); %>
-  </ul>
 
-  <div class="histogram">Loading...</div>
+    <li class="nav-header histogram">Histograms<span class="badge loading"/></li>
+  </ul>
 </div>
