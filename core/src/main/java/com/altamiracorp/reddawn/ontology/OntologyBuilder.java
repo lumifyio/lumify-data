@@ -189,9 +189,13 @@ public class OntologyBuilder {
     }
 
     TitanKey getOrCreateTitanKey(PropertyName type, Map<String, TitanKey> properties) {
+        return getOrCreateTitanKey(type, properties, String.class);
+    }
+
+    TitanKey getOrCreateTitanKey(PropertyName type, Map<String, TitanKey> properties, Class<?> clazz) {
         TitanKey typeProperty = (TitanKey) graph.getType(type.toString());
         if (typeProperty == null) {
-            typeProperty = graph.makeType().name(type.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+            typeProperty = graph.makeType().name(type.toString()).dataType(clazz).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
         }
         properties.put(typeProperty.getName(), typeProperty);
         return typeProperty;

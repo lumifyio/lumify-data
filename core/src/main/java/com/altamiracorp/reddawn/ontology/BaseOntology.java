@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanKey;
 import com.thinkaurelius.titan.core.TitanLabel;
+import com.thinkaurelius.titan.core.attribute.Geoshape;
 
 import java.util.Map;
 
@@ -44,7 +45,7 @@ public class BaseOntology {
         builder.getOrCreateTitanKey(PropertyName.GLYPH_ICON, properties);
 
         builder.getOrCreateTitanKey(PropertyName.COLOR, properties);
-        TitanKey geoLocationProperty = builder.getOrCreateTitanKey(PropertyName.GEO_LOCATION, properties);
+        TitanKey geoLocationProperty = builder.getOrCreateTitanKey(PropertyName.GEO_LOCATION, properties, Geoshape.class);
 
         graph.commit();
 
