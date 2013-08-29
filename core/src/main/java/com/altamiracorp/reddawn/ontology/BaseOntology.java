@@ -23,33 +23,33 @@ public class BaseOntology {
 
         TitanKey dataTypeProperty = (TitanKey) graph.getType(PropertyName.DATA_TYPE.toString());
         if (dataTypeProperty == null) {
-            dataTypeProperty = graph.makeType().name(PropertyName.DATA_TYPE.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
+            graph.makeType().name(PropertyName.DATA_TYPE.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
         }
 
         TitanKey ontologyTitleProperty = (TitanKey) graph.getType(PropertyName.ONTOLOGY_TITLE.toString());
         if (ontologyTitleProperty == null) {
-            ontologyTitleProperty = graph.makeType().name(PropertyName.ONTOLOGY_TITLE.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+            graph.makeType().name(PropertyName.ONTOLOGY_TITLE.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
         }
 
         // concept edges
         TitanLabel hasPropertyEdge = (TitanLabel) graph.getType(LabelName.HAS_PROPERTY.toString());
         if (hasPropertyEdge == null) {
-            hasPropertyEdge = graph.makeType().name(LabelName.HAS_PROPERTY.toString()).directed().makeEdgeLabel();
+            graph.makeType().name(LabelName.HAS_PROPERTY.toString()).directed().makeEdgeLabel();
         }
 
         TitanLabel hasEdgeEdge = (TitanLabel) graph.getType(LabelName.HAS_EDGE.toString());
         if (hasEdgeEdge == null) {
-            hasEdgeEdge = graph.makeType().name(LabelName.HAS_EDGE.toString()).directed().makeEdgeLabel();
+            graph.makeType().name(LabelName.HAS_EDGE.toString()).directed().makeEdgeLabel();
         }
 
         TitanLabel isAEdge = (TitanLabel) graph.getType(LabelName.IS_A.toString());
         if (isAEdge == null) {
-            isAEdge = graph.makeType().name(LabelName.IS_A.toString()).directed().makeEdgeLabel();
+            graph.makeType().name(LabelName.IS_A.toString()).directed().makeEdgeLabel();
         }
 
         TitanKey relationshipType = (TitanKey) graph.getType(PropertyName.RELATIONSHIP_TYPE.toString());
         if (relationshipType == null) {
-            relationshipType = graph.makeType().name(PropertyName.RELATIONSHIP_TYPE.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+            graph.makeType().name(PropertyName.RELATIONSHIP_TYPE.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
         }
 
         TitanKey subTypeProperty = (TitanKey) graph.getType(PropertyName.SUBTYPE.toString());
@@ -59,7 +59,7 @@ public class BaseOntology {
 
         TitanKey displayNameProperty = (TitanKey) graph.getType(PropertyName.DISPLAY_NAME.toString());
         if (displayNameProperty == null) {
-            displayNameProperty = graph.makeType().name(PropertyName.DISPLAY_NAME.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+            graph.makeType().name(PropertyName.DISPLAY_NAME.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
         }
 
         TitanKey titleProperty = (TitanKey) graph.getType(PropertyName.TITLE.toString());
@@ -69,12 +69,12 @@ public class BaseOntology {
 
         TitanKey glyphIconProperty = (TitanKey) graph.getType(PropertyName.GLYPH_ICON.toString());
         if (glyphIconProperty == null) {
-            glyphIconProperty = graph.makeType().name(PropertyName.GLYPH_ICON.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
+            graph.makeType().name(PropertyName.GLYPH_ICON.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
         }
 
         TitanKey colorProperty = (TitanKey) graph.getType(PropertyName.COLOR.toString());
         if (colorProperty == null) {
-            colorProperty = graph.makeType().name(PropertyName.COLOR.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
+            graph.makeType().name(PropertyName.COLOR.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
         }
 
         TitanKey geoLocationProperty = (TitanKey) graph.getType(PropertyName.GEO_LOCATION.toString());
@@ -97,12 +97,12 @@ public class BaseOntology {
         // TermMention concept
         TitanKey rowKeyProperty = (TitanKey) graph.getType(PropertyName.ROW_KEY.toString());
         if (rowKeyProperty == null) {
-            rowKeyProperty = graph.makeType().name(PropertyName.ROW_KEY.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+            graph.makeType().name(PropertyName.ROW_KEY.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
         }
 
         TitanKey sourceProperty = (TitanKey) graph.getType(PropertyName.SOURCE.toString());
         if (sourceProperty == null) {
-            sourceProperty = graph.makeType().name(PropertyName.SOURCE.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
+            graph.makeType().name(PropertyName.SOURCE.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
         }
 
         graph.commit();
@@ -125,11 +125,9 @@ public class BaseOntology {
 
     public boolean isOntologyDefined(RedDawnSession session) {
         try {
-            return ontologyRepository.getProperty(session.getGraphSession(), PropertyName.SOURCE.toString()) != null; // todo should check for more
+            Concept concept = ontologyRepository.getConceptByName(session.getGraphSession(), VertexType.ARTIFACT.toString());
+            return concept != null; // todo should check for more
         } catch (Exception e) {
-            if (e.getMessage().contains("invalid property")) {
-                return false;
-            }
             throw new RuntimeException(e);
         }
     }

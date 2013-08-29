@@ -159,8 +159,10 @@ public class OwlImport extends RedDawnCommandLineBase {
         LOGGER.info("importDatatypePropertyElement: about: " + about + ", labelText: " + labelText + ", domainResourceName: " + domainResourceName + ", rangeResourceName: " + rangeResourceName);
         GraphVertex domain = ontologyRepository.getGraphVertexByTitle(session.getGraphSession(), domainResourceName);
         PropertyType propertyType = PropertyType.convert(rangeResourceName);
+        session.getGraphSession().commit();
 
         ontologyRepository.addPropertyTo(session.getGraphSession(), domain, about, labelText, propertyType);
+        session.getGraphSession().commit();
     }
 
     private void importObjectPropertyElement(RedDawnSession session, Element objectPropertyElem) {
@@ -180,6 +182,7 @@ public class OwlImport extends RedDawnCommandLineBase {
         GraphVertex range = ontologyRepository.getGraphVertexByTitle(session.getGraphSession(), rangeResourceName);
 
         ontologyRepository.getOrCreateRelationshipType(session.getGraphSession(), domain, range, about, labelText);
+        session.getGraphSession().commit();
     }
 
     private Element getSingleChildElement(Element elem, String ns, String localName) {
