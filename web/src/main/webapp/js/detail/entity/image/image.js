@@ -31,9 +31,7 @@ define([
                 iconUpdated: this.onUpdateIcon.bind(this)
             });
 
-            this.$node.css({
-                backgroundImage: 'url(' + (this.attr.data._glyphIcon || this.attr.defaultIconSrc) + ')'
-            });
+            this.updateImageBackground();
             this.$node.html(template({}));
 
             this.select('fileSelector').on({
@@ -42,24 +40,29 @@ define([
             });
 
 
-            if (/entity/i.test(this.attr.data._type)) {
-                this.$node.addClass('upload-available');
-                this.$node.on({
-                    mouseenter: function() { $(this).addClass('file-hover'); },
-                    mouseleave: function() { $(this).removeClass('file-hover'); }
-                });
-                this.node.ondragover = function () { $(this).addClass('file-hover'); return false; };
-                this.node.ondragenter = function () { $(this).addClass('file-hover'); return false; };
-                this.node.ondragleave = function() { $(this).removeClass('file-hover'); return false; };
-                this.node.ondrop = function (e) {
-                    e.preventDefault();
+            this.$node.addClass('upload-available');
+            this.$node.on({
+                mouseenter: function() { $(this).addClass('file-hover'); },
+                mouseleave: function() { $(this).removeClass('file-hover'); }
+            });
+            this.node.ondragover = function () { $(this).addClass('file-hover'); return false; };
+            this.node.ondragenter = function () { $(this).addClass('file-hover'); return false; };
+            this.node.ondragleave = function() { $(this).removeClass('file-hover'); return false; };
+            this.node.ondrop = function (e) {
+                e.preventDefault();
 
-                    if (self.$node.hasClass('uploading')) return;
+                if (self.$node.hasClass('uploading')) return;
 
-                    self.handleFilesDropped(e.dataTransfer.files);
-                };
-            }
+                self.handleFilesDropped(e.dataTransfer.files);
+            };
         });
+
+        this.updateImageBackground = function(src) {
+            this.$node.css({
+                backgroundImage: 'url(' + (src || this.attr.data._glyphIcon || this.attr.defaultIconSrc) + ')'
+            });
+            this.$node.toggleClass('custom-image', !!(src || this.attr.data._glyphIcon));
+        };
 
         this.onFileChange = function(e) {
             this.handleFilesDropped(e.target.files);
@@ -86,9 +89,7 @@ define([
 
         this.onUpdateIcon = function(e, data) {
             if (data.src !== this.attr.data._glyphIcon) {
-                this.$node.css({
-                    backgroundImage: 'url(' + data.src + ')'
-                });
+                this.updateImageBackground(data.src);
             }
         };
 
@@ -97,9 +98,7 @@ define([
                 reader = new FileReader();
 
             reader.onload = function (event) {
-                self.$node.css({
-                    backgroundImage: 'url(' + event.target.result + ')'
-                });
+                self.updateImageBackground(event.target.result);
             };
 
             if (file.size < MAX_PREVIEW_FILE_SIZE) {
@@ -187,9 +186,7 @@ define([
         };
 
         this.onUploadError = function() {
-            this.$node.css({
-                backgroundImage: 'url(' + (this.attr.data._glyphIcon || this.attr.defaultIconSrc) + ')'
-            });
+            this.updateImageBackground();
             this.cleanup(false);
         };
 
@@ -200,9 +197,7 @@ define([
                 this.cleanup(true);
             }
 
-            this.$node.css({
-                backgroundImage: 'url(' + data.vertex.properties._glyphIcon + ')'
-            });
+            this.updateImageBackground(data.vertex.properties._glyphIcon);
             
             // FIXME: this should be necessary, convert all workspace code to
             // new id, properties:{} format
