@@ -6,6 +6,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -108,19 +109,20 @@ public final class Configuration implements MapConfig, ApplicationConfig {
     /**
      * Attempts to parse the application configuration file located at the
      * specified filesystem path
-     * @param filePath The path to the configuration file, not null or empty
+     * @param fileUrl The URL to the configuration file, not null or empty
      * @return A {@link Configuration} object that contains the parsed configuration values
      */
-    public static Configuration loadConfigurationFile(final String filePath) {
-        checkNotNull(filePath, "The specified file path was null");
-        checkArgument(!filePath.isEmpty(), "The specified file path was empty");
+    public static Configuration loadConfigurationFile(final String fileUrl) {
+        checkNotNull(fileUrl, "The specified file URL was null");
+        checkArgument(!fileUrl.isEmpty(), "The specified file URL was empty");
 
         final Properties prop = new Properties();
 
         try {
-            prop.load(new FileInputStream(filePath));
+            URL url = new URL(fileUrl);
+            prop.load(url.openStream());
         } catch (FileNotFoundException e) {
-            LOGGER.error("Could not find file to load at: " + filePath, e);
+            LOGGER.error("Could not find file to load at: " + fileUrl, e);
             throw new RuntimeException(e);
         } catch (IOException e) {
             LOGGER.error("Error occurred while loading file", e);
