@@ -15,13 +15,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class Session {
     private static final Logger LOGGER = LoggerFactory.getLogger(Session.class.getName());
+    private static final List<String> tables = Arrays.asList(
+            Artifact.TABLE_NAME,
+            Workspace.TABLE_NAME,
+            TermMention.TABLE_NAME,
+            GeoName.TABLE_NAME,
+            GeoNameAdmin1Code.TABLE_NAME,
+            GeoNameCountryInfo.TABLE_NAME,
+            GeoNamePostalCode.TABLE_NAME,
+            VideoFrame.TABLE_NAME,
+            DBPedia.TABLE_NAME,
+            Resource.TABLE_NAME,
+            "atc_titan");// see com.altamiracorp.reddawn.model.TitanGraphSession
     private QueryUser queryUser;
     private String dbpediaSourceArtifactRowKey;
 
@@ -56,19 +65,9 @@ public abstract class Session {
 
     public void initializeTables() {
         LOGGER.info("initializeTables");
-        initializeTable(Artifact.TABLE_NAME);
-
-        initializeTable(Workspace.TABLE_NAME);
-        initializeTable(TermMention.TABLE_NAME);
-        initializeTable(GeoName.TABLE_NAME);
-        initializeTable(GeoNameAdmin1Code.TABLE_NAME);
-        initializeTable(GeoNameCountryInfo.TABLE_NAME);
-        initializeTable(GeoNamePostalCode.TABLE_NAME);
-        initializeTable(VideoFrame.TABLE_NAME);
-        initializeTable(DBPedia.TABLE_NAME);
-        initializeTable(Resource.TABLE_NAME);
-
-        initializeTable("atc_titan"); // see com.altamiracorp.reddawn.model.TitanGraphSession
+        for (String table : tables) {
+            initializeTable(table);
+        }
 
         addDbpediaSourceArtifact();
     }
@@ -98,19 +97,9 @@ public abstract class Session {
 
     public void deleteTables() {
         LOGGER.info("deleteTables");
-        deleteTable(Artifact.TABLE_NAME);
-
-        deleteTable(Workspace.TABLE_NAME);
-        deleteTable(TermMention.TABLE_NAME);
-        deleteTable(GeoName.TABLE_NAME);
-        deleteTable(GeoNameAdmin1Code.TABLE_NAME);
-        deleteTable(GeoNameCountryInfo.TABLE_NAME);
-        deleteTable(GeoNamePostalCode.TABLE_NAME);
-        deleteTable(VideoFrame.TABLE_NAME);
-        deleteTable(DBPedia.TABLE_NAME);
-        deleteTable(Resource.TABLE_NAME);
-
-        deleteTable("atc_titan"); // see com.altamiracorp.reddawn.model.TitanGraphSession
+        for (String table : tables) {
+            deleteTable(table);
+        }
     }
 
     public abstract SaveFileResults saveFile(InputStream in);

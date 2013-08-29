@@ -187,4 +187,22 @@ public class OntologyBuilder {
 
         return p;
     }
+
+    TitanKey getOrCreateTitanKey(PropertyName type, Map<String, TitanKey> properties) {
+        TitanKey typeProperty = (TitanKey) graph.getType(type.toString());
+        if (typeProperty == null) {
+            typeProperty = graph.makeType().name(type.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+        }
+        properties.put(typeProperty.getName(), typeProperty);
+        return typeProperty;
+    }
+
+    TitanLabel createConceptEdge(LabelName hasProperty, Map<String, TitanLabel> edges) {
+        TitanLabel hasPropertyEdge = (TitanLabel) graph.getType(hasProperty.toString());
+        if (hasPropertyEdge == null) {
+            hasPropertyEdge = graph.makeType().name(hasProperty.toString()).directed().makeEdgeLabel();
+        }
+        edges.put(hasPropertyEdge.getName(), hasPropertyEdge);
+        return hasPropertyEdge;
+    }
 }

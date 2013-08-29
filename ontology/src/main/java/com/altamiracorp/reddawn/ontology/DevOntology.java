@@ -35,9 +35,6 @@ public class DevOntology {
         this.builder = new OntologyBuilder(graph);
     }
 
-    public static void main(String[] args) throws Exception {
-    }
-
     public void defineOntology() {
         TitanGraphVertex rootConcept = builder.getOrCreateConcept(null, OntologyRepository.ROOT_CONCEPT_NAME, OntologyRepository.ROOT_CONCEPT_NAME);
         TitanGraphVertex entity = builder.getOrCreateConcept(rootConcept, VertexType.ENTITY.toString(), VertexType.ENTITY.toString());

@@ -3,7 +3,6 @@ package com.altamiracorp.reddawn.web;
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloSession;
 import com.altamiracorp.reddawn.model.TitanGraphSession;
-import com.altamiracorp.reddawn.ontology.BaseOntology;
 import com.altamiracorp.reddawn.search.BlurSearchProvider;
 import com.altamiracorp.reddawn.web.config.ApplicationConfig;
 import com.altamiracorp.reddawn.web.config.Configuration;
@@ -12,7 +11,6 @@ import com.altamiracorp.reddawn.web.config.WebConfigConstants;
 import com.altamiracorp.reddawn.web.guice.modules.Bootstrap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.thinkaurelius.titan.core.TitanGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +24,7 @@ import java.util.Properties;
  * initialization and destruction
  */
 public final class ApplicationBootstrap implements ServletContextListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationBootstrap.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationBootstrap.class);
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -48,8 +46,7 @@ public final class ApplicationBootstrap implements ServletContextListener {
         }
 
         RedDawnSession redDawnSession = RedDawnSession.create();
-        createBaseOntology(redDawnSession);
-        redDawnSession.getModelSession().initializeTables();
+        redDawnSession.initialize();
     }
 
     @Override
@@ -85,14 +82,5 @@ public final class ApplicationBootstrap implements ServletContextListener {
 
         RedDawnSession.setApplicationProperties(props);
         RedDawnSession.create().getModelSession().initializeTables();
-    }
-
-    private void createBaseOntology(RedDawnSession redDawnSession){
-        TitanGraph graph = (TitanGraph)redDawnSession.getGraphSession().getGraph();
-        BaseOntology baseOntology = new BaseOntology(graph);
-        if (!baseOntology.isOntologyDefined()){
-            LOGGER.info("Base ontology not defined. Creating a new ontology.");
-            baseOntology.defineOntology();
-        }
     }
 }
