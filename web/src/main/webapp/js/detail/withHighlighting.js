@@ -11,7 +11,7 @@ define([
 ], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, colorjs, EntityService, OntologyService) {
 
     var HIGHLIGHT_STYLES = [
-            { name: 'None' },
+            { name: 'None', selector:'none' },
             { name: 'Icons', selector:'icons' },
             { name: 'Underline', selector:'underline' },
             { name: 'Colors', selector:'colors' }
@@ -101,6 +101,9 @@ define([
 
         this.getActiveStyle = function() {
             if (useDefaultStyle) {
+                if (typeof this.attr.highlightStyle !== 'undefined') {
+                    return this.attr.highlightStyle;
+                }
                 return DEFAULT;
             }
 

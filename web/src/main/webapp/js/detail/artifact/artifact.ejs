@@ -1,11 +1,20 @@
 
 <div class="btn-toolbar">
+
   <%- highlightButton %>
 
   <div class="btn-group">
-    <a class="btn btn-small" href="<%= artifact.rawUrl %>" target="_blank">View</a>
-    <a class="btn btn-small" href="<%= artifact.rawUrl %>?download=true" target="_blank">Download</a>
+    <a class="btn btn-small dropdown-toggle" href="#" data-toggle="dropdown"><i class="icon-share"></i>
+      <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+      <li><a class="" href="<%= artifact.rawUrl %>" target="_blank">Open <%= artifact.Generic_Metadata.file_extension %> <%= artifact.type %></a></li>
+      <li><a class="" href="<%= artifact.rawUrl %>?download=true" target="_blank">Download <%= artifact.Generic_Metadata.file_extension %> <%= artifact.type %></a></li>
+    </ul>
   </div>
+
+  <a class="btn btn-small" target="_blank" href="/#v=<%= artifact.Generic_Metadata['atc:graph_vertex_id'] %>" ><i class="icon-fullscreen"></i></a>
+
 </div>
 
 <h1 class="generic-draggable" data-info='<%= artifact.dataInfo %>'><%= artifact.Generic_Metadata.subject || 'No title available' %></h1>
