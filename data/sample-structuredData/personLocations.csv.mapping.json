@@ -1,35 +1,35 @@
 {
-  "type": "csv",
-  "skipRows": 1,
-  "subject": "People Zip Codes",
-  "columns": [
-    {
-      "type": "term",
-      "conceptLabel": "person",
-      "relationships": [
+    "type": "csv",
+    "skipRows": 1,
+    "subject": "People Zip Codes",
+    "columns": [
         {
-          "label": "livesAt",
-          "target": 1
-        }
-      ],
-      "properties": [
+            "type": "term",
+            "conceptLabel": "person",
+            "relationships": [
+                {
+                    "label": "personLivesAtLocation",
+                    "target": 1
+                }
+            ],
+            "properties": [
+                {
+                    "name": "birthDate",
+                    "target": 2
+                }
+            ]
+        },
         {
-          "name": "birthDate",
-          "target": 2
+            "type": "term",
+            "conceptLabel": "location"
+        },
+        {
+            "type": "property",
+            "dataType": "date",
+            "format": "MM/dd/yyyy"
+        },
+        {
+            "type": "none"
         }
-      ]
-    },
-    {
-      "type": "term",
-      "conceptLabel": "location"
-    },
-    {
-      "type": "property",
-      "dataType": "date",
-      "format": "MM/dd/yyyy"
-    },
-    {
-      "type": "none"
-    }
-  ]
+    ]
 }

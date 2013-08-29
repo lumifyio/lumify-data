@@ -1,9 +1,10 @@
 package com.altamiracorp.reddawn.model.ontology;
 
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public abstract class Concept {
+public abstract class Concept extends GraphVertex {
 
     public abstract String getId();
 

@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.model.ontology;
 
 import com.altamiracorp.reddawn.model.GraphSession;
+import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
@@ -10,21 +11,16 @@ import com.tinkerpop.pipes.PipeFunction;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class OntologyRepository {
     public static final String ROOT_CONCEPT_NAME = "rootConcept";
 
     public List<Relationship> getRelationshipLabels(GraphSession graphSession) {
-        List<Relationship> relationships = new ArrayList<Relationship>();
-        Iterator<Vertex> vertices = graphSession.getGraph().query()
+        Iterable<Vertex> vertices = graphSession.getGraph().query()
                 .has(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString())
-                .vertices()
-                .iterator();
-        while (vertices.hasNext()) {
-            Vertex vertex = vertices.next();
-            relationships.add(new VertexRelationship(vertex));
-        }
-        return relationships;
+                .vertices();
+        return toRelationships(graphSession, vertices);
     }
 
     public List<Property> getProperties(GraphSession graphSession) {
@@ -147,15 +143,44 @@ public class OntologyRepository {
                 })
                 .back("edgeTypes")
                 .toList();
-        return toRelationships(relationshipTypes);
+        return toRelationships(graphSession, relationshipTypes);
     }
 
-    private List<Relationship> toRelationships(List<Vertex> relationshipTypes) {
+    private List<Relationship> toRelationships(GraphSession graphSession, Iterable<Vertex> relationshipTypes) {
         ArrayList<Relationship> relationships = new ArrayList<Relationship>();
-        for (Vertex relationshipType : relationshipTypes) {
-            relationships.add(new VertexRelationship(relationshipType));
+        for (Vertex vertex : relationshipTypes) {
+            Concept[] relatedConcepts = getRelationshipRelatedConcepts(graphSession, vertex);
+            relationships.add(new VertexRelationship(vertex, relatedConcepts[0], relatedConcepts[1]));
         }
         return relationships;
+    }
+
+    private Concept[] getRelationshipRelatedConcepts(GraphSession graphSession, Vertex vertex) {
+        Concept[] sourceAndDestConcept = new Concept[2];
+        String vertexId = "" + vertex.getId();
+        Map<GraphRelationship, GraphVertex> related = graphSession.getRelationships("" + vertex.getId());
+        for (Map.Entry<GraphRelationship, GraphVertex> relatedVertex : related.entrySet()) {
+            String type = (String) relatedVertex.getValue().getProperty(PropertyName.TYPE);
+            if (type.equals(VertexType.CONCEPT.toString())) {
+                String destVertexId = relatedVertex.getKey().getDestVertexId();
+                String sourceVertexId = relatedVertex.getKey().getSourceVertexId();
+                if (sourceVertexId.equals(vertexId)) {
+                    if (sourceAndDestConcept[0] != null) {
+                        throw new RuntimeException("Invalid relationship '" + vertex.getProperty(PropertyName.ONTOLOGY_TITLE.toString()) + "'. Wrong number of related concepts.");
+                    }
+                    sourceAndDestConcept[0] = new GraphVertexConcept(relatedVertex.getValue());
+                } else if (destVertexId.equals(vertexId)) {
+                    if (sourceAndDestConcept[1] != null) {
+                        throw new RuntimeException("Invalid relationship '" + vertex.getProperty(PropertyName.ONTOLOGY_TITLE.toString()) + "'. Wrong number of related concepts.");
+                    }
+                    sourceAndDestConcept[1] = new GraphVertexConcept(relatedVertex.getValue());
+                }
+            }
+        }
+        if (sourceAndDestConcept[0] == null || sourceAndDestConcept[1] == null) {
+            throw new RuntimeException("Invalid relationship '" + vertex.getProperty(PropertyName.ONTOLOGY_TITLE.toString()) + "'. Wrong number of related concepts.");
+        }
+        return sourceAndDestConcept;
     }
 
     public List<Property> getPropertiesByConceptId(GraphSession graphSession, String conceptVertexId) {
@@ -179,6 +204,26 @@ public class OntologyRepository {
         if (parentConceptVertex != null) {
             List<Property> parentProperties = getPropertiesByVertex(graphSession, parentConceptVertex);
             properties.addAll(parentProperties);
+        }
+
+        return properties;
+    }
+
+    public List<Property> getPropertiesByConceptIdNoRecursion(GraphSession graphSession, String conceptVertexId) {
+        Vertex conceptVertex = graphSession.getGraph().getVertex(conceptVertexId);
+        if (conceptVertex == null) {
+            throw new RuntimeException("Could not find concept: " + conceptVertexId);
+        }
+        return getPropertiesByVertexNoRecursion(graphSession, conceptVertex);
+    }
+
+    private List<Property> getPropertiesByVertexNoRecursion(GraphSession graphSession, Vertex vertex) {
+        List<Property> properties = new ArrayList<Property>();
+
+        Iterator<Vertex> propertyVertices = vertex.getVertices(Direction.OUT, LabelName.HAS_PROPERTY.toString()).iterator();
+        while (propertyVertices.hasNext()) {
+            Vertex propertyVertex = propertyVertices.next();
+            properties.add(new VertexProperty(propertyVertex));
         }
 
         return properties;

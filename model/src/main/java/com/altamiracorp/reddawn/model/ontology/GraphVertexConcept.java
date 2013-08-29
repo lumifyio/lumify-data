@@ -2,6 +2,8 @@ package com.altamiracorp.reddawn.model.ontology;
 
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 
+import java.util.Set;
+
 public class GraphVertexConcept extends Concept {
     private final GraphVertex graphVertex;
 
@@ -15,8 +17,24 @@ public class GraphVertexConcept extends Concept {
     }
 
     @Override
+    public GraphVertex setProperty(String key, Object value) {
+        graphVertex.setProperty(key, value);
+        return this;
+    }
+
+    @Override
+    public Set<String> getPropertyKeys() {
+        return graphVertex.getPropertyKeys();
+    }
+
+    @Override
+    public Object getProperty(String propertyKey) {
+        return graphVertex.getProperty(propertyKey);
+    }
+
+    @Override
     public String getTitle() {
-        return (String) graphVertex.getProperty(PropertyName.TITLE);
+        return (String) graphVertex.getProperty(PropertyName.ONTOLOGY_TITLE);
     }
 
     @Override

@@ -1,6 +1,9 @@
 package com.altamiracorp.reddawn.model.ontology;
 
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.tinkerpop.blueprints.Vertex;
+
+import java.util.Set;
 
 public class VertexConcept extends Concept {
     private final Vertex vertex;
@@ -11,6 +14,22 @@ public class VertexConcept extends Concept {
 
     public String getId() {
         return getVertex().getId().toString();
+    }
+
+    @Override
+    public GraphVertex setProperty(String key, Object value) {
+        this.vertex.setProperty(key, value);
+        return this;
+    }
+
+    @Override
+    public Set<String> getPropertyKeys() {
+        return this.vertex.getPropertyKeys();
+    }
+
+    @Override
+    public Object getProperty(String propertyKey) {
+        return this.vertex.getProperty(propertyKey);
     }
 
     public String getTitle() {
