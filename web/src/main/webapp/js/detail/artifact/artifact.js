@@ -5,8 +5,9 @@ define([
     './image/image',
     '../withTypeContent',
     '../withHighlighting',
+    'detail/dropdowns/entityForm/entityForm',
     'tpl!./artifact'
-], function(defineComponent, VideoScrubber, Image, withTypeContent, withHighlighting, template) {
+], function(defineComponent, VideoScrubber, Image, withTypeContent, withHighlighting, EntityForm, template) {
 
     'use strict';
 
@@ -68,7 +69,13 @@ define([
         };
 
         this.onDetectedObjectClicked = function(event) {
-            console.log('Clicked', event);
+            var root = $('<div class="underneath">').insertAfter('.detected-object-labels');
+
+            EntityForm.attachTo(root, {
+                sign: '',
+                artifactData: this.attr.data,
+                coords: $(event.target).data('info').coords
+            });
         };
 
         this.onDetectedObjectHover = function(event) {
