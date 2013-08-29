@@ -12,7 +12,8 @@ define([
     'service/ucd',
     'service/ontology',
     'util/retina',
-    'util/withContextMenu'
+    'util/withContextMenu',
+    'underscore'
 ], function(
     defineComponent,
     cytoscape,
@@ -25,7 +26,8 @@ define([
     UCD,
     OntologyService,
     retina,
-    withContextMenu) {
+    withContextMenu,
+    _) {
     'use strict';
 
     return defineComponent(Graph, withContextMenu, withGraphContextMenuItems);
@@ -96,7 +98,6 @@ define([
                 cy.layout(opts);
 
                 vertices.forEach(function(vertex) {
-                    console.log('adding vertex:', vertex);
                     var title = vertex.title || 'No title available';
                     if (title.length > 15) {
                         title = title.substring(0, 10) + "...";
@@ -132,10 +133,6 @@ define([
 
                     var cyNode = cy.add(cyNodeData);
 
-                    if (vertex._glyphIcon) {
-                        cyNode.css('background-image', vertex._glyphIcon);
-                    }
-
                     if (needsUpdate) {
                         addedVertices.push({
                             graphVertexId: vertex.graphVertexId,
@@ -143,12 +140,14 @@ define([
                         });
                     }
 
-                    if (vertex._type === 'artifact') {
-                        previews.generatePreview(vertex._rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
-                            if (dataUri) {
-                                cyNode.css('background-image', dataUri);
-                            }
-                        });
+                    if (vertex._type === 'artifact' && /^(image|video)$/i.test(vertex._subType)) {
+                        _.delay(function() {
+                            previews.generatePreview(vertex._rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
+                                if (dataUri) {
+                                    cyNode.css('background-image', dataUri);
+                                }
+                            });
+                        }, 500);
                     }
                 });
 

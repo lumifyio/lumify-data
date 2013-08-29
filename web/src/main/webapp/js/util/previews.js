@@ -56,7 +56,7 @@ function(UCD, html2canvas, template) {
         this.items = [];
         this.executing = [];
         this.options = $.extend({
-            maxConcurrent: 10
+            maxConcurrent: 1
         }, opts);
     }
     PreviewQueue.prototype.addTask = function(task) {
