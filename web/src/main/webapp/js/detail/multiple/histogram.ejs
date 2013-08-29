@@ -1,15 +1,4 @@
-<h3>By Property</h3>
-<ul>
-    <% Object.keys(byProperty).filter(shouldDisplay).forEach(function(propertyName) { %>
-        <li>
-            <h4><%= getPropertyDisplayName(propertyName) %></h4>
-            <ul>
-                <% Object.keys(byProperty[propertyName]).sort(sortPropertyValues.bind(null, propertyName)).forEach(function(propertyValue) { %>
-                    <li>
-                        <%= getPropertyValueDisplay(propertyName, propertyValue) %> : <%= byProperty[propertyName][propertyValue].length %>
-                    </li>
-                <% }) %>
-            </ul>
-        </li>
-    <% }) %>
-</ul>
+<li class="nav-header histogram"><%= displayName %></li>
+<li>
+  <div class="svg-container"></div>
+</li>

@@ -27,14 +27,16 @@ var require = {
     videojs: '../libs/video.js/video',
     underscore: '../libs/underscore/underscore',
     colorjs: '../libs/color-js/color',
-    sf: '../libs/sf/sf'
+    sf: '../libs/sf/sf',
+    d3: '../libs/d3/d3.v3'
   },
   shim: {
     ejs: { exports: 'ejs' },
     cytoscape: { exports: 'cytoscape', deps:['arbor'] },
     html2canvas: { exports: 'html2canvas' },
     videojs: { exports: 'videojs' },
-	underscore: { exports: '_' }
+	underscore: { exports: '_' },
+    d3: { exports: 'd3' }
   },
   deps : ['reddawn']
 };

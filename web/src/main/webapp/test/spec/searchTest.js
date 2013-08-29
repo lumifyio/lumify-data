@@ -46,7 +46,17 @@ describeComponent('search/search', function(Search) {
 
             this.component.ontologyService._ajaxGet = function(prop, callback) {
                 if (prop.url == 'ontology/concept') {
-                    callback(undefined, { children:[] });
+                    callback(undefined, {
+                        children:[
+                            {
+                                id:100,
+                                title:'Entity',
+                                color:'rgb(255,0,0)',
+                                glyphIconHref:'first-icon',
+                                children:[]
+                            }
+                        ]
+                    });
 
                     expect(artifactSearchQuery).not.to.be.null;
                     expect(artifactSearchQuery.query).to.equal(query.query);

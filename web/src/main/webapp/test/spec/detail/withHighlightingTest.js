@@ -51,10 +51,26 @@ define([
                     this.ontologyService.clearCaches();
                     this.ontologyService._ajaxGet = function(prop, callback) {
                         if (prop.url == 'ontology/concept') {
-                            callback(undefined, {children:[
-                                {id:1, title:'First', color:'rgb(255,0,0)', glyphIconHref:'first-icon'}, 
-                                {id:2, title:'Second', color:'rgb(0,0,255)', glyphIconHref:'second-icon'}
-                            ]});
+                            callback(undefined, {
+                                children:[
+                                    {
+                                        id:100,
+                                        title:'Entity',
+                                        color:'rgb(255,0,0)',
+                                        glyphIconHref:'first-icon',
+                                        children:[
+                                            {id:1, title:'First', color:'rgb(255,0,0)', glyphIconHref:'first-icon'},
+                                            {id:2, title:'Second', color:'rgb(0,0,255)', glyphIconHref:'second-icon'}
+                                        ]
+                                    },
+                                    {
+                                        id:101,
+                                        title:'Artifact',
+                                        color:'rgb(255,0,0)',
+                                        glyphIconHref:'first-icon'
+                                    }
+                                ]
+                            });
                         }
                     };
                     this.entityService.createTerm = function(p, callback) {

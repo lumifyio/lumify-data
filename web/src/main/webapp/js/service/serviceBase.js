@@ -44,6 +44,7 @@ define(['atmosphere'],
             options.type = options.type || "GET";
             options.dataType = options.dataType || this._resolveDataType();
             options.resolvedUrl = options.resolvedUrl || this._resolveUrl(options.url);
+            callback = callback || function() {};
 
             options.success = options.success || function(results) {
                 return callback(null, results);

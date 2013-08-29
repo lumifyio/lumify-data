@@ -133,12 +133,6 @@ public class GraphRepository {
 
     public void setPropertyVertex(GraphSession graphSession, String vertexId, String propertyName, Object value) {
         Vertex vertex = graphSession.getGraph().getVertex(vertexId);
-
-        // TODO: without removing first the property nulls out, this property has to do with Accumulo + Titan
-        //       integration in a single row mutation
-        vertex.removeProperty(propertyName);
-        graphSession.commit();
-
         vertex.setProperty(propertyName, value);
         LOGGER.info("set property of vertex: " + vertex.getId() + ", property name: " + propertyName + ", value: " + value);
         graphSession.commit();
