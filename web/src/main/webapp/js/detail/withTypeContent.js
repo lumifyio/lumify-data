@@ -28,6 +28,8 @@ define(['service/ucd'], function(UCD) {
                 cls.push('entity');
                 cls.push('subType-' + props._subType);
             }
+            cls.push('gId-' + (vertex.id || props.graphNodeId));
+
             return cls.join(' ');
         };
 

@@ -347,6 +347,26 @@ define([
             });
         };
 
+        this.nodesForGraphIds = function(cy, nodeIds) {
+            var selector = nodeIds.map(function(nodeId) { 
+                return '#' + nodeId; 
+            }).join(',');
+
+            return cy.nodes(selector);
+        };
+
+        this.onFocusGraphNodes = function(e, data) {
+            this.cy(function(cy) {
+                this.nodesForGraphIds(cy, data.nodeIds).addClass('focus');
+            });
+        };
+
+        this.onDefocusGraphNodes = function(e, data) {
+            this.cy(function(cy) {
+                this.nodesForGraphIds(cy, data.nodeIds).removeClass('focus');
+            });
+        };
+
         this.onGraphPaddingUpdated = function(e, data) {
             var border = 20;
             this.graphPaddingRight = data.padding.r;
@@ -724,6 +744,8 @@ define([
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
             this.on(document, 'graphPaddingUpdated', this.onGraphPaddingUpdated);
             this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);
+            this.on(document, 'focusGraphNodes', this.onFocusGraphNodes);
+            this.on(document, 'defocusGraphNodes', this.onDefocusGraphNodes);
 
             this.ontologyService.concepts(function(err, concepts) {
                 if (err) {
