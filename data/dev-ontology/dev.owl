@@ -9,7 +9,7 @@
     <!-- Concept: person -->
     <owl:Class rdf:about="person">
         <rdfs:label xml:lang="en">Person</rdfs:label>
-        <atc:property atc:name="color">rgb(163, 40, 40)</atc:property>
+        <atc:property atc:name="_color">rgb(163, 40, 40)</atc:property>
         <atc:property atc:name="glyphIconFileName">glyphicons_003_user@2x.png</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
@@ -22,7 +22,7 @@
     <!-- Concept: organization -->
     <owl:Class rdf:about="organization">
         <rdfs:label xml:lang="en">Organization</rdfs:label>
-        <atc:property atc:name="color">rgb(163, 163, 40)</atc:property>
+        <atc:property atc:name="_color">rgb(163, 163, 40)</atc:property>
         <atc:property atc:name="glyphIconFileName">glyphicons_263_bank@2x.png</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
@@ -35,7 +35,7 @@
     <!-- Concept: company -->
     <owl:Class rdf:about="company">
         <rdfs:label xml:lang="en">Company</rdfs:label>
-        <atc:property atc:name="color">rgb(163, 163, 40)</atc:property>
+        <atc:property atc:name="_color">rgb(163, 163, 40)</atc:property>
         <atc:property atc:name="glyphIconFileName">glyphicons_263_bank@2x.png</atc:property>
         <rdfs:subClassOf rdf:resource="#organization"/>
     </owl:Class>
@@ -48,7 +48,7 @@
     <!-- Concept: location -->
     <owl:Class rdf:about="location">
         <rdfs:label xml:lang="en">Location</rdfs:label>
-        <atc:property atc:name="color">rgb(40, 163, 163)</atc:property>
+        <atc:property atc:name="_color">rgb(40, 163, 163)</atc:property>
         <atc:property atc:name="glyphIconFileName">pin@2x.png</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
@@ -61,7 +61,7 @@
     <!-- Concept: phone number -->
     <owl:Class rdf:about="phoneNumber">
         <rdfs:label xml:lang="en">Phone Number</rdfs:label>
-        <atc:property atc:name="color">rgb(40, 40, 163)</atc:property>
+        <atc:property atc:name="_color">rgb(40, 40, 163)</atc:property>
         <atc:property atc:name="glyphIconFileName">glyphicons_139_phone@2x.png</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
@@ -69,7 +69,7 @@
     <!-- Concept: email address -->
     <owl:Class rdf:about="emailAddress">
         <rdfs:label xml:lang="en">Email Address</rdfs:label>
-        <atc:property atc:name="color">rgb(40, 40, 163)</atc:property>
+        <atc:property atc:name="_color">rgb(40, 40, 163)</atc:property>
         <atc:property atc:name="glyphIconFileName">glyphicons_139_phone@2x.png</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>

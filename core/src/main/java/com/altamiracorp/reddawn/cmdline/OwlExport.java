@@ -38,7 +38,6 @@ public class OwlExport extends RedDawnCommandLineBase {
     private Namespace NS_RDFS = Namespace.getNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
     private Namespace NS_ATC = Namespace.getNamespace("atc", "http://altamiracorp.com/ontology#");
     private String NS_XML_URI = "http://www.w3.org/XML/1998/namespace";
-    private String NS_XMLNS_URI = "http://www.w3.org/2000/xmlns/";
 
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new OwlExport(), args);
@@ -153,6 +152,15 @@ public class OwlExport extends RedDawnCommandLineBase {
         classElem.appendChild(createLabelElement(doc, concept.getDisplayName()));
 
         for (String propertyName : concept.getPropertyKeys()) {
+            if (propertyName.equals(PropertyName.ONTOLOGY_TITLE.toString())) {
+                continue;
+            }
+            if (propertyName.equals(PropertyName.DISPLAY_NAME.toString())) {
+                continue;
+            }
+            if (propertyName.equals(PropertyName.TYPE.toString())) {
+                continue;
+            }
             classElem.appendChild(createPropertyElement(doc, propertyName, concept.getProperty(propertyName)));
         }
         if (parentConcept != null) {

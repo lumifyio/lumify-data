@@ -1,11 +1,12 @@
 package com.altamiracorp.reddawn.cmdline;
 
 import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.model.graph.GraphRepository;
+import com.altamiracorp.reddawn.model.Session;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.ontology.Concept;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.model.ontology.PropertyType;
+import com.altamiracorp.reddawn.model.resources.ResourceRepository;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -27,8 +28,9 @@ import java.util.List;
 public class OwlImport extends RedDawnCommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(OwlImport.class.getName());
     private OntologyRepository ontologyRepository = new OntologyRepository();
-    private GraphRepository graphRepository = new GraphRepository();
+    private ResourceRepository resourceRepository = new ResourceRepository();
     private String inFileName;
+    private File inDir;
 
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new OwlImport(), args);
@@ -66,6 +68,7 @@ public class OwlImport extends RedDawnCommandLineBase {
         session.getModelSession().initializeTables();
 
         File inFile = new File(inFileName);
+        inDir = inFile.getParentFile();
 
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
         dbFactory.setNamespaceAware(true);
@@ -109,9 +112,22 @@ public class OwlImport extends RedDawnCommandLineBase {
             String propertyName = propertyElem.getAttributeNS("http://altamiracorp.com/ontology#", "name");
             String propertyValue = propertyElem.getTextContent().trim();
             LOGGER.info("  " + propertyName + " = " + propertyValue);
+            if (propertyName.equals("glyphIconFileName")) {
+                propertyName = "_glyphIcon";
+                propertyValue = importGlyphIconFile(session.getModelSession(), propertyValue);
+            }
             concept.setProperty(propertyName, propertyValue);
         }
         session.getGraphSession().commit();
+    }
+
+    private String importGlyphIconFile(Session session, String fileName) {
+        File f = new File(inDir, fileName);
+
+        LOGGER.info("  importing file: " + fileName);
+        String id = resourceRepository.importFile(session, f.getAbsolutePath());
+        LOGGER.info("  resource key: " + id);
+        return id;
     }
 
     private void importDatatypePropertyElement(RedDawnSession session, Element datatypePropertyElem) {
