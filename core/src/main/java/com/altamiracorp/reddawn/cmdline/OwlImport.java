@@ -95,8 +95,8 @@ public class OwlImport extends RedDawnCommandLineBase {
     }
 
     private void importClassElement(RedDawnSession session, Element classElem) {
-        String about = classElem.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
-        Element labelElem = getSingleChildElement(classElem, "http://www.w3.org/2000/01/rdf-schema#", "label");
+        String about = getName(classElem.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about"));
+        Element labelElem = getEnglishLanguageLabel(classElem);
         String labelText = labelElem.getTextContent().trim();
         Element subClassOf = getSingleChildElement(classElem, "http://www.w3.org/2000/01/rdf-schema#", "subClassOf");
         String subClassOfResource = subClassOf.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource");
@@ -124,6 +124,17 @@ public class OwlImport extends RedDawnCommandLineBase {
         session.getGraphSession().commit();
     }
 
+    private Element getEnglishLanguageLabel(Element elem) {
+        List<Element> childElems = getChildElements(elem, "http://www.w3.org/2000/01/rdf-schema#", "label");
+        for (Element childElem : childElems) {
+            String attr = childElem.getAttributeNS(OwlExport.NS_XML_URI, "lang");
+            if (attr.equals("en")) {
+                return childElem;
+            }
+        }
+        throw new RuntimeException("Could not find english label on element " + elem.getTagName());
+    }
+
     private String importGlyphIconFile(Session session, String fileName) {
         File f = new File(inDir, fileName);
 
@@ -135,7 +146,7 @@ public class OwlImport extends RedDawnCommandLineBase {
 
     private void importDatatypePropertyElement(RedDawnSession session, Element datatypePropertyElem) {
         String about = datatypePropertyElem.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
-        Element labelElem = getSingleChildElement(datatypePropertyElem, "http://www.w3.org/2000/01/rdf-schema#", "label");
+        Element labelElem = getEnglishLanguageLabel(datatypePropertyElem);
         String labelText = labelElem.getTextContent().trim();
         Element domainElem = getSingleChildElement(datatypePropertyElem, "http://www.w3.org/2000/01/rdf-schema#", "domain");
         String domainResource = domainElem.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource");
@@ -154,7 +165,7 @@ public class OwlImport extends RedDawnCommandLineBase {
 
     private void importObjectPropertyElement(RedDawnSession session, Element objectPropertyElem) {
         String about = objectPropertyElem.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
-        Element labelElem = getSingleChildElement(objectPropertyElem, "http://www.w3.org/2000/01/rdf-schema#", "label");
+        Element labelElem = getEnglishLanguageLabel(objectPropertyElem);
         String labelText = labelElem.getTextContent().trim();
         Element domainElem = getSingleChildElement(objectPropertyElem, "http://www.w3.org/2000/01/rdf-schema#", "domain");
         String domainResource = domainElem.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource");
@@ -177,7 +188,7 @@ public class OwlImport extends RedDawnCommandLineBase {
             return null;
         }
         if (childElems.size() > 1) {
-            throw new RuntimeException("More than one child found with " + ns + ":" + localName);
+            throw new RuntimeException("More than one child found with " + ns + ":" + localName + " on element " + elem.getTagName());
         }
         return childElems.get(0);
     }
@@ -200,12 +211,12 @@ public class OwlImport extends RedDawnCommandLineBase {
         if (s.startsWith("#")) {
             return s.substring("#".length());
         }
-        if (s.startsWith("http://altamiracorp.com/ontology/")) {
-            return s.substring("http://altamiracorp.com/ontology/".length());
+
+        int lastSlash = s.lastIndexOf('/');
+        if (lastSlash > 0) {
+            return s.substring(lastSlash + 1);
         }
-        if (s.startsWith("http://altamiracorp.com/datatype/")) {
-            return s.substring("http://altamiracorp.com/datatype/".length());
-        }
+
         return s;
     }
 }

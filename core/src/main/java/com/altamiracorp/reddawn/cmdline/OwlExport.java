@@ -37,7 +37,7 @@ public class OwlExport extends RedDawnCommandLineBase {
     private Namespace NS_OWL = Namespace.getNamespace("owl", "http://www.w3.org/2002/07/owl#");
     private Namespace NS_RDFS = Namespace.getNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
     private Namespace NS_ATC = Namespace.getNamespace("atc", "http://altamiracorp.com/ontology#");
-    private String NS_XML_URI = "http://www.w3.org/XML/1998/namespace";
+    public static String NS_XML_URI = "http://www.w3.org/XML/1998/namespace";
 
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new OwlExport(), args);
