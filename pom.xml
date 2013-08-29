@@ -21,7 +21,6 @@
         <module>dictionary-seed</module>
         <module>crawler</module>
         <module>oozie</module>
-        <module>ontology</module>
     </modules>
 
     <repositories>

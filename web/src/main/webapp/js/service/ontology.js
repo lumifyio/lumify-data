@@ -33,8 +33,8 @@ define(
             cachedConcepts = this._ajaxGet({
                 url: 'ontology/concept'
             }).then(function(response) {
-                var entityConcept = findConceptByTitle(response, 'Entity');
-                var artifactConcept = findConceptByTitle(response, 'Artifact');
+                var entityConcept = findConceptByTitle(response, 'entity');
+                var artifactConcept = findConceptByTitle(response, 'artifact');
                 return {
                     tree: response,
                     entityConcept: entityConcept,

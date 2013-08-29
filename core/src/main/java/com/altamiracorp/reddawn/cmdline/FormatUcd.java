@@ -19,8 +19,10 @@ public class FormatUcd extends RedDawnCommandLineBase {
         session.getModelSession().deleteTables();
         session.getSearchProvider().deleteTables();
         session.getGraphSession().deleteSearchIndex();
-        session.getModelSession().initializeTables();
-        session.getSearchProvider().initializeTables();
+        session.close();
+
+        session = createRedDawnSession();
+        session.initialize();
 
         session.close();
         return 0;

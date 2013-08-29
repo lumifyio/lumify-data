@@ -32,6 +32,10 @@ public class VertexSetProperty implements Handler, AppAware {
         String valueStr = request.getParameter("value");
 
         Property property = ontologyRepository.getProperty(session.getGraphSession(), propertyName);
+        if (property == null) {
+            throw new RuntimeException("Could not find property: " + propertyName);
+        }
+
         Object value;
         try {
             value = property.convertString(valueStr);

@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn;
 
 import com.altamiracorp.reddawn.model.*;
+import com.altamiracorp.reddawn.ontology.BaseOntology;
 import com.altamiracorp.reddawn.search.BlurSearchProvider;
 import com.altamiracorp.reddawn.search.SearchProvider;
 import org.apache.accumulo.core.client.AccumuloException;
@@ -10,6 +11,8 @@ import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapreduce.TaskInputOutputContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -21,6 +24,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 
 public class RedDawnSession {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedDawnSession.class);
     private static Properties applicationProps = new Properties();
     private Session modelSession;
     private SearchProvider searchProvider;
@@ -110,5 +114,21 @@ public class RedDawnSession {
 
     public GraphSession getGraphSession() {
         return graphSession;
+    }
+
+    public void initialize() {
+        getSearchProvider().initializeTables();
+        getModelSession().initializeTables();
+        createBaseOntology();
+    }
+
+    private void createBaseOntology() {
+        BaseOntology baseOntology = new BaseOntology();
+        if (!baseOntology.isOntologyDefined(this)) {
+            LOGGER.info("Base ontology not defined. Creating a new ontology.");
+            baseOntology.defineOntology(this);
+        } else {
+            LOGGER.info("Base ontology already defined.");
+        }
     }
 }

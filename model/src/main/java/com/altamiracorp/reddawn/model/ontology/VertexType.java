@@ -1,11 +1,11 @@
 package com.altamiracorp.reddawn.model.ontology;
 
 public enum VertexType {
-    CONCEPT("Concept"),
-    ARTIFACT("Artifact"),
-    ENTITY("Entity"),
-    PROPERTY("Property"),
-    RELATIONSHIP("Relationship");
+    CONCEPT("concept"),
+    ARTIFACT("artifact"),
+    ENTITY("entity"),
+    PROPERTY("property"),
+    RELATIONSHIP("relationship");
 
     private final String text;
 

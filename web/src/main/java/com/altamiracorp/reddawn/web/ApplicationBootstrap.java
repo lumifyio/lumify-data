@@ -1,14 +1,5 @@
 package com.altamiracorp.reddawn.web;
 
-import java.util.Properties;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloSession;
 import com.altamiracorp.reddawn.model.TitanGraphSession;
@@ -20,13 +11,20 @@ import com.altamiracorp.reddawn.web.config.WebConfigConstants;
 import com.altamiracorp.reddawn.web.guice.modules.Bootstrap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import java.util.Properties;
 
 /**
  * Responsible for defining behavior corresponding to web servlet context
  * initialization and destruction
  */
 public final class ApplicationBootstrap implements ServletContextListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationBootstrap.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationBootstrap.class);
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -46,6 +44,9 @@ public final class ApplicationBootstrap implements ServletContextListener {
         } else {
             LOGGER.error("Servlet context could not be acquired!");
         }
+
+        RedDawnSession redDawnSession = RedDawnSession.create();
+        redDawnSession.initialize();
     }
 
     @Override

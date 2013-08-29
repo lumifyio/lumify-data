@@ -1,7 +1,7 @@
-package com.altamiracorp.reddawn.ontology;
+package com.altamiracorp.reddawn.cmdline;
 
-import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
 import com.altamiracorp.reddawn.model.ontology.LabelName;
+import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.thinkaurelius.titan.core.TitanGraph;
@@ -33,8 +33,8 @@ public class GenerateGraph extends RedDawnCommandLineBase {
         out.println("\tnodesep=0.6;");
         out.println();
 
-        Vertex entityConcept = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), VertexType.ENTITY.toString()).iterator().next();
-        out.println("\t{ rank=min; \"Entity\";}");
+        Vertex entityConcept = graph.getVertices(PropertyName.ONTOLOGY_TITLE.toString(), OntologyRepository.ROOT_CONCEPT_NAME).iterator().next();
+        out.println("\t{ rank=min; \"" + OntologyRepository.ROOT_CONCEPT_NAME + "\";}");
         writeConcept(out, entityConcept);
         writeRelationships(out, graph);
 

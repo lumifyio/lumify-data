@@ -65,7 +65,7 @@ public class OwlImport extends RedDawnCommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         RedDawnSession session = createRedDawnSession();
-        session.getModelSession().initializeTables();
+        session.initialize();
 
         File inFile = new File(inFileName);
         inDir = inFile.getParentFile();
@@ -106,6 +106,9 @@ public class OwlImport extends RedDawnCommandLineBase {
 
         LOGGER.info("importClassElement: about: " + about + ", labelText: " + labelText + ", parentName: " + parentName);
         Concept parent = ontologyRepository.getConceptByName(session.getGraphSession(), parentName);
+        if (parent == null) {
+            throw new RuntimeException("Could not find parent " + parentName + " for " + about);
+        }
         Concept concept = ontologyRepository.getOrCreateConcept(session.getGraphSession(), parent, about, labelText);
 
         for (Element propertyElem : propertyElems) {

@@ -11,7 +11,6 @@ import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
-import com.tinkerpop.blueprints.Edge;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +35,10 @@ public class SetRelationshipProperty implements Handler, AppAware {
         String destId = request.getParameter("dest");
 
         Property property = ontologyRepository.getProperty(session.getGraphSession(), propertyName);
+        if (property == null) {
+            throw new RuntimeException("Could not find property: " + propertyName);
+        }
+
         Object value;
         try {
             value = property.convertString(valueStr);

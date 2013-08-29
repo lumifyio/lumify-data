@@ -68,7 +68,7 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
                 LOGGER.warn("No data found for artifact: " + artifact.getRowKey().toString());
             }
             String contentType = contentTypeExtractor.extract(in, artifact.getGenericMetadata().getFileExtension());
-            if (contentType == "") {
+            if (contentType.equals("")) {
                 LOGGER.warn("No content type set for artifact: " + artifact.getRowKey().toString());
             }
             artifact.getGenericMetadata().setMimeType(contentType);

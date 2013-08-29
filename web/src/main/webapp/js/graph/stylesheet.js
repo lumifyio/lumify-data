@@ -66,10 +66,6 @@ define([
                 'text-outline-width': 1,
                 'font-size': 9 * retina.devicePixelRatio
             })
-            .selector('node.entity')
-            .css({
-                'font-weight': 'bold'
-            })
             .selector('node.hasCustomGlyph')
             .css({
                 'width': 60 * retina.devicePixelRatio,
@@ -81,6 +77,14 @@ define([
                 'border-color': '#0088cc',
                 'line-color': '#000',
                 'color': '#0088cc'
+            })
+            .selector('node.focus')
+            .css({
+                'border-width': 5 * retina.devicePixelRatio,
+                'border-color': '#a5e1ff',
+                'color': '#00547e',
+                'font-weight': 'bold',
+                'font-size': 20 * retina.devicePixelRatio
             })
             .selector('edge')
             .css({

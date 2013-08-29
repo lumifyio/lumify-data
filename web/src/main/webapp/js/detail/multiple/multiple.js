@@ -61,12 +61,14 @@ define([
                         container = self.select('listSelector')
                             .append(template)
                             .find('.svg-container')
-                            .last(),
+                            .last()
+                            .on('mouseenter mouseleave', 'g', self.histogramHover.bind(self)),
                         data = Object.keys(byProperty[name])
                             .map(function(key) { 
                                 return { 
                                     key:key, 
-                                    number:byProperty[name][key].length
+                                    number:byProperty[name][key].length,
+                                    graphNodeIds: _.pluck(byProperty[name][key], 'id')
                                 };
                             }),
                         width = container.width(),
@@ -83,7 +85,8 @@ define([
                             .selectAll(".bar")
                             .data(data)
                             .enter()
-                            .append("g");
+                            .append("g")
+                            .attr('data-info', function(d) { return JSON.stringify($.extend({ property:name }, d)); });
 
                     svg.append("rect")
                         .attr("class", "bar")
@@ -130,6 +133,8 @@ define([
                 if (propertyName == '_type' || propertyName == '_subType') {
                     return true;
                 } else if (/^[_]/.test(propertyName)) {
+                    return false;
+                } else if (propertyName == 'geoLocation') {
                     return false;
                 }
                 return true;
@@ -188,5 +193,13 @@ define([
                 hash[binName].push(val);
             }
         });
+
+
+        this.histogramHover = function(event, object) {
+            var data = $(event.target).closest('g').data('info'),
+                eventName = event.type === 'mouseenter' ? 'focus' : 'defocus';
+
+            this.trigger(document, eventName + 'GraphNodes', { nodeIds:data.graphNodeIds });
+        };
     }
 });

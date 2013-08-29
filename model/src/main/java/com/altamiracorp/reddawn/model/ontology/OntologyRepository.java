@@ -48,11 +48,11 @@ public class OntologyRepository {
         if (properties.hasNext()) {
             Property property = new VertexProperty(properties.next());
             if (properties.hasNext()) {
-                throw new RuntimeException("Too many \"" + VertexType.ENTITY + "\" properties");
+                throw new RuntimeException("Too many \"" + propertyName + "\" properties");
             }
             return property;
         } else {
-            throw new RuntimeException("Could not find \"" + VertexType.ENTITY + "\" property");
+            return null;
         }
     }
 
