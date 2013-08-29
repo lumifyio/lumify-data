@@ -15046,6 +15046,15 @@ var cytoscape;
         var nodes = cy.nodes();
         var edges = cy.edges();
         var container = cy.container();
+
+        if (nodes.length < 2) {
+            cy.one("layoutready", params.ready);
+            cy.trigger("layoutready");
+            
+            cy.one("layoutstop", params.stop);
+            cy.trigger("layoutstop");
+            return;
+        }
         
         var width = container.clientWidth * pixelScale;
         var height = container.clientHeight * pixelScale;
