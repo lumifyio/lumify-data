@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.ontology;
 
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.ontology.*;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanKey;
 import com.thinkaurelius.titan.core.TitanLabel;
@@ -93,6 +94,10 @@ public class BaseOntology {
         ontologyRepository.addPropertyTo(redDawnSession.getGraphSession(), artifact, titleProperty.getName(), "Title", PropertyType.STRING);
         ontologyRepository.addPropertyTo(redDawnSession.getGraphSession(), artifact, geoLocationProperty.getName(), "Geo-location", PropertyType.GEO_LOCATION);
         graph.commit();
+
+        ontologyRepository.getOrCreateConcept(redDawnSession.getGraphSession(), artifact, ArtifactType.DOCUMENT.toString(), "Document");
+        ontologyRepository.getOrCreateConcept(redDawnSession.getGraphSession(), artifact, ArtifactType.IMAGE.toString(), "Image");
+        ontologyRepository.getOrCreateConcept(redDawnSession.getGraphSession(), artifact, ArtifactType.VIDEO.toString(), "Video");
 
         // TermMention concept
         TitanKey rowKeyProperty = (TitanKey) graph.getType(PropertyName.ROW_KEY.toString());

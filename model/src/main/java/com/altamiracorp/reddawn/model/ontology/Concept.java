@@ -1,10 +1,13 @@
 package com.altamiracorp.reddawn.model.ontology;
 
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.tinkerpop.blueprints.Vertex;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public abstract class Concept extends GraphVertex {
+
+    private Object vertex;
 
     public abstract String getId();
 
@@ -15,6 +18,8 @@ public abstract class Concept extends GraphVertex {
     public abstract String getColor();
 
     public abstract String getDisplayName();
+
+    public abstract Vertex getVertex();
 
     public JSONObject toJson() {
         try {

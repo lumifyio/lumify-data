@@ -11,7 +11,22 @@ digraph {
 	"artifact" [
 		label=<<B>artifact</B><BR/>_type: string<BR/>_subType: string<BR/>title: string<BR/>geoLocation: geoLocation>
 	];
+	"document" [
+		label=<<B>document</B>>
+	];
 	{ rank=same; }
+	"document" -> "artifact" [color=black;];
+	"image" [
+		label=<<B>image</B>>
+	];
+	{ rank=same; }
+	"image" -> "artifact" [color=black;];
+	"video" [
+		label=<<B>video</B>>
+	];
+	{ rank=same; }
+	"video" -> "artifact" [color=black;];
+	{ rank=same; "document";"image";"video";}
 	"artifact" -> "rootConcept" [color=black;];
 	"entity" [
 		label=<<B>entity</B><BR/>_subType: string<BR/>title: string<BR/>_glyphIcon: image<BR/>_type: string>

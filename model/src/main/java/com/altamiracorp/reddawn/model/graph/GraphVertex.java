@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.model.graph;
 
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
+import com.tinkerpop.blueprints.Vertex;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,6 +11,8 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class GraphVertex {
+    private Vertex vertex;
+
     public abstract String getId();
 
     public abstract GraphVertex setProperty(String key, Object value);
@@ -73,5 +76,9 @@ public abstract class GraphVertex {
 
     public void setType(String vertexType) {
         setProperty(PropertyName.TYPE, vertexType);
+    }
+
+    public Vertex getVertex() {
+        return vertex;
     }
 }

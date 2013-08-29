@@ -233,6 +233,61 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
+    public List<Vertex> getRelationships(Concept sourceConcept, final Concept destConcept) {
+        List<Vertex> sourceAndParents = getConceptParents(sourceConcept);
+        List<Vertex> destAndParents = getConceptParents(destConcept);
+
+        List<Vertex> allRelationshipTypes = new ArrayList<Vertex>();
+        for (Vertex s : sourceAndParents) {
+            for (Vertex d : destAndParents) {
+                allRelationshipTypes.addAll(getRelationshipsShallow(s, d));
+            }
+        }
+
+        return allRelationshipTypes;
+    }
+
+    private List<Vertex> getRelationshipsShallow(Vertex source, final Vertex dest) {
+        return new GremlinPipeline(source)
+                .outE(LabelName.HAS_EDGE.toString())
+                .inV()
+                .as("edgeTypes")
+                .outE(LabelName.HAS_EDGE.toString())
+                .inV()
+                .filter(new PipeFunction<Vertex, Boolean>() {
+                    @Override
+                    public Boolean compute(Vertex vertex) {
+                        return vertex.getId().equals(dest.getId());
+                    }
+                })
+                .back("edgeTypes")
+                .toList();
+    }
+
+    private List<Vertex> getConceptParents(Concept concept) {
+        ArrayList<Vertex> results = new ArrayList<Vertex>();
+        results.add(concept.getVertex());
+        Vertex v = concept.getVertex();
+        while ((v = getParentConceptVertex(v)) != null) {
+            results.add(v);
+        }
+        return results;
+    }
+
+    @Override
+    public Vertex getParentConceptVertex(Vertex conceptVertex) {
+        Iterator<Vertex> parents = conceptVertex.getVertices(Direction.OUT, LabelName.IS_A.toString()).iterator();
+        if (!parents.hasNext()) {
+            return null;
+        }
+        Vertex v = parents.next();
+        if (parents.hasNext()) {
+            throw new RuntimeException("Unexpected number of parents for concept: " + conceptVertex.getProperty(PropertyName.TITLE.toString()));
+        }
+        return v;
+    }
+
+    @Override
     public List<GraphVertex> findBy(String key, String value) {
         Iterable<Vertex> vertices = this.graph.getVertices(key, value);
         return toGraphVertices(vertices);

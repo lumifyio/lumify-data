@@ -2,11 +2,13 @@ package com.altamiracorp.reddawn.model;
 
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.ontology.Concept;
 import com.altamiracorp.reddawn.model.ontology.Property;
 import com.altamiracorp.reddawn.model.ontology.PropertyType;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
+import com.tinkerpop.blueprints.Vertex;
 import org.json.JSONArray;
 
 import java.util.List;
@@ -68,4 +70,8 @@ public abstract class GraphSession {
     public abstract void findOrAddEdge(GraphVertex fromVertex, GraphVertex toVertex, String edgeLabel);
 
     public abstract GraphVertex getOrCreateRelationshipType(String relationshipName);
+
+    public abstract List<Vertex> getRelationships(Concept sourceConcept, Concept destConcept);
+
+    public abstract Vertex getParentConceptVertex(Vertex vertex);
 }
