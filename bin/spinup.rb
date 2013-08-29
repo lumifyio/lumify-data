@@ -236,8 +236,6 @@ ARGV.each do |filename|
       log("\n" + '# ' + Time.now.strftime('%Y-%m-%d %H:%M:%S'))
       log('# ' + line)
 
-      # TODO: support not adding any additional storage
-
       instance_type, storage, ip, name, field5, field6 = line.split(/\s+/)
       if field6
         aliases = field5.split(/,/)
@@ -253,9 +251,13 @@ ARGV.each do |filename|
       ebs, instance_storage = storage.split(',')
       label_prefix = name.match(/-(\d+)$/).captures[0]
 
-      volume_ids = ebs_volumes(name, ebs)
-      volume_ids.each do |volume_id|
-        tag(volume_id, {:Project => prefix})
+      if ebs == '0'
+        volume_ids = []
+      else
+        volume_ids = ebs_volumes(name, ebs)
+        volume_ids.each do |volume_id|
+          tag(volume_id, {:Project => prefix})
+        end
       end
 
       cloud_config = """
