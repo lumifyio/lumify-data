@@ -310,7 +310,7 @@ public class OntologyRepository {
     }
 
     public Property addPropertyTo(GraphSession graphSession, String relationshipLabel, String propertyName, String displayName, PropertyType dataType) {
-        Relationship vertex = getOrCreateRelationship(graphSession, relationshipLabel, displayName);
+        Relationship vertex = getRelationshipByName(graphSession, relationshipLabel);
         return addPropertyTo(graphSession, vertex, propertyName, displayName, dataType);
     }
 
@@ -339,10 +339,8 @@ public class OntologyRepository {
 
     public GraphVertex getOrCreateRelationshipType(GraphSession graphSession, GraphVertex fromVertex, GraphVertex toVertex, String relationshipName, String displayName) {
         GraphVertex relationshipLabel = graphSession.getOrCreateRelationshipType(relationshipName);
-        if (relationshipLabel == null) {
-            relationshipLabel.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
-            graphSession.commit();
-        }
+        relationshipLabel.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
+        graphSession.commit();
 
         findOrAddEdge(graphSession, fromVertex, relationshipLabel, LabelName.HAS_EDGE.toString());
         findOrAddEdge(graphSession, relationshipLabel, toVertex, LabelName.HAS_EDGE.toString());

@@ -175,7 +175,10 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public Property getOrCreatePropertyType(String name, PropertyType dataType) {
         TitanKey typeProperty = (TitanKey) graph.getType(name);
-        if (typeProperty == null) {
+        VertexProperty v;
+        if (typeProperty != null) {
+            v = new VertexProperty(typeProperty);
+        } else {
             Class vertexDataType = String.class;
             switch (dataType) {
                 case DATE:
@@ -192,12 +195,12 @@ public class TitanGraphSession extends GraphSession {
                     vertexDataType = Geoshape.class;
                     break;
             }
-            typeProperty = graph.makeType().name(name).dataType(vertexDataType).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
-            typeProperty.setProperty(PropertyName.TYPE.toString(), VertexType.PROPERTY.toString());
-            typeProperty.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), name);
-            typeProperty.setProperty(PropertyName.DATA_TYPE.toString(), dataType.toString());
+            v = new VertexProperty(graph.makeType().name(name).dataType(vertexDataType).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey());
         }
-        return new VertexProperty(typeProperty);
+        v.setProperty(PropertyName.TYPE.toString(), VertexType.PROPERTY.toString());
+        v.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), name);
+        v.setProperty(PropertyName.DATA_TYPE.toString(), dataType.toString());
+        return v;
     }
 
     @Override
@@ -219,12 +222,15 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public GraphVertex getOrCreateRelationshipType(String relationshipName) {
         TitanType relationshipLabel = graph.getType(relationshipName);
-        if (relationshipLabel == null) {
-            relationshipLabel = graph.makeType().name(relationshipName).directed().makeEdgeLabel();
-            relationshipLabel.setProperty(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString());
-            relationshipLabel.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), relationshipName);
+        TitanGraphVertex v;
+        if (relationshipLabel != null) {
+            v = new TitanGraphVertex(relationshipLabel);
+        } else {
+            v = new TitanGraphVertex(graph.makeType().name(relationshipName).directed().makeEdgeLabel());
         }
-        return new TitanGraphVertex(relationshipLabel);
+        v.setProperty(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString());
+        v.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), relationshipName);
+        return v;
     }
 
     @Override
