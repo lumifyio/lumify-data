@@ -243,16 +243,16 @@ public class ArtifactRepositoryTest {
     }
 
     @Test
-    public void testArtifactTypeUsingContentType () {
+    public void testArtifactTypeUsingContentType() {
         Artifact artifact = new Artifact();
 
         artifact.getGenericMetadata().setMimeType("video");
-        assertEquals ("VIDEO", artifact.getType().toString());
+        assertEquals("video", artifact.getType().toString());
 
         artifact.getGenericMetadata().setMimeType("text/html");
-        assertEquals ("DOCUMENT", artifact.getType().toString());
+        assertEquals("document", artifact.getType().toString());
 
         artifact.getGenericMetadata().setMimeType("application.mp4");
-        assertEquals("VIDEO", artifact.getType().toString());
+        assertEquals("video", artifact.getType().toString());
     }
 }
