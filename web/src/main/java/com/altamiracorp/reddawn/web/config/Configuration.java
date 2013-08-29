@@ -3,9 +3,9 @@ package com.altamiracorp.reddawn.web.config;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -109,40 +109,52 @@ public final class Configuration implements MapConfig, ApplicationConfig {
     /**
      * Attempts to parse the application configuration file located at the
      * specified filesystem path
-     * @param fileUrl The URL to the configuration file, not null or empty
+     * @param configUrl The URL to the configuration file, not null or empty
+     * @param credentialsUrl The URL to the credentials file, not null or empty
      * @return A {@link Configuration} object that contains the parsed configuration values
      */
-    public static Configuration loadConfigurationFile(final String fileUrl) {
-        checkNotNull(fileUrl, "The specified file URL was null");
-        checkArgument(!fileUrl.isEmpty(), "The specified file URL was empty");
+    public static Configuration loadConfigurationFile(final String configUrl, final String credentialsUrl) {
+        checkNotNull(configUrl, "The specified config file URL was null");
+        checkArgument(!configUrl.isEmpty(), "The specified config file URL was empty");
+        checkNotNull(credentialsUrl, "The specified credentials URL was null");
+        checkArgument(!credentialsUrl.isEmpty(), "The specified credentials URL was empty");
 
-        final Properties prop = new Properties();
+        LOGGER.debug(String.format("Attemping to load configuration file: %s and credentials file: %s", configUrl, credentialsUrl));
 
-        try {
-            URL url = new URL(fileUrl);
-            prop.load(url.openStream());
-        } catch (FileNotFoundException e) {
-            LOGGER.error("Could not find file to load at: " + fileUrl, e);
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            LOGGER.error("Error occurred while loading file", e);
-            throw new RuntimeException(e);
-        }
+        final Properties mergedProps = new Properties();
+
+        processFile(configUrl, mergedProps);
+        processFile(credentialsUrl, mergedProps);
 
         // Extract the expected configuration properties
-        nameNodeUrl = prop.getProperty(WebConfigConstants.HADOOP_URL, UNKNOWN_STRING);
-        zkInstanceName = prop.getProperty(WebConfigConstants.ZK_INSTANCENAME, UNKNOWN_STRING);
-        zkServerNames = prop.getProperty(WebConfigConstants.ZK_SERVERS, UNKNOWN_STRING);
-        dataStoreUserName = prop.getProperty(WebConfigConstants.ACCUMULO_USER, UNKNOWN_STRING);
-        dataStorePassword = prop.getProperty(WebConfigConstants.ACCUMULO_PASSWORD, UNKNOWN_STRING);
-        searchIndexController = prop.getProperty(WebConfigConstants.BLUR_CONTROLLER, UNKNOWN_STRING);
-        searchIndexStoragePath = prop.getProperty(WebConfigConstants.BLUR_PATH, UNKNOWN_STRING);
-        graphSearchIndexHostname = prop.getProperty(WebConfigConstants.GRAPH_SEARCH_HOSTNAME, UNKNOWN_STRING);
-        mapProvider = prop.getProperty(WebConfigConstants.MAP_PROVIDER, UNKNOWN_STRING);
-        mapAccessKey = prop.getProperty(WebConfigConstants.MAP_ACCESS_KEY, UNKNOWN_STRING);
-        mapTileServerHostname = prop.getProperty(WebConfigConstants.MAP_TILE_SERVER_HOST, UNKNOWN_STRING);
-        mapTileServerPort = Integer.parseInt(prop.getProperty(WebConfigConstants.MAP_TILE_SERVER_PORT, UNKNOWN_INT));
+        nameNodeUrl = mergedProps.getProperty(WebConfigConstants.HADOOP_URL, UNKNOWN_STRING);
+        zkInstanceName = mergedProps.getProperty(WebConfigConstants.ZK_INSTANCENAME, UNKNOWN_STRING);
+        zkServerNames = mergedProps.getProperty(WebConfigConstants.ZK_SERVERS, UNKNOWN_STRING);
+        dataStoreUserName = mergedProps.getProperty(WebConfigConstants.ACCUMULO_USER, UNKNOWN_STRING);
+        dataStorePassword = mergedProps.getProperty(WebConfigConstants.ACCUMULO_PASSWORD, UNKNOWN_STRING);
+        searchIndexController = mergedProps.getProperty(WebConfigConstants.BLUR_CONTROLLER, UNKNOWN_STRING);
+        searchIndexStoragePath = mergedProps.getProperty(WebConfigConstants.BLUR_PATH, UNKNOWN_STRING);
+        graphSearchIndexHostname = mergedProps.getProperty(WebConfigConstants.GRAPH_SEARCH_HOSTNAME, UNKNOWN_STRING);
+        mapProvider = mergedProps.getProperty(WebConfigConstants.MAP_PROVIDER, UNKNOWN_STRING);
+        mapAccessKey = mergedProps.getProperty(WebConfigConstants.MAP_ACCESS_KEY, UNKNOWN_STRING);
+        mapTileServerHostname = mergedProps.getProperty(WebConfigConstants.MAP_TILE_SERVER_HOST, UNKNOWN_STRING);
+        mapTileServerPort = Integer.parseInt(mergedProps.getProperty(WebConfigConstants.MAP_TILE_SERVER_PORT, UNKNOWN_INT));
 
         return new Configuration();
+    }
+
+    private static void processFile(final String fileUrl, final Properties props) {
+        try {
+            final URL url = new URL(fileUrl);
+            props.load(url.openStream());
+        } catch (MalformedURLException e) {
+            LOGGER.error("Could not create URL object for malformed URL: " + fileUrl, e);
+            throw new RuntimeException(e);
+        } catch (FileNotFoundException e) {
+            LOGGER.info("Could not find file to load: " + fileUrl);
+        } catch (IOException e) {
+            LOGGER.error("Error occurred while loading file: " + fileUrl, e);
+            throw new RuntimeException(e);
+        }
     }
 }

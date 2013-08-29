@@ -5,7 +5,8 @@ package com.altamiracorp.reddawn.web.config;
  */
 public final class WebConfigConstants {
 
-    public static final String APP_CONFIG_PATH = "application.configPath";
+    public static final String APP_CONFIG_LOCATION = "application.config.location";
+    public static final String APP_CREDENTIALS_LOCATION = "application.config.credentials.location";
 
     public static final String HADOOP_URL = "hadoop.url";
     public static final String ZK_INSTANCENAME = "zookeeper.instanceName";

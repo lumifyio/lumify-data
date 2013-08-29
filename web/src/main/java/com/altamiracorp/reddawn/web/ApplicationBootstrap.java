@@ -58,14 +58,16 @@ public final class ApplicationBootstrap implements ServletContextListener {
     private Configuration fetchApplicationConfiguration(final ServletContext context) {
         // Extract the required context parameters from the deployment descriptor
         final ParameterExtractor extractor = new ParameterExtractor(context);
-        extractor.extractParamAsProperty(WebConfigConstants.APP_CONFIG_PATH, WebConfigConstants.APP_CONFIG_PATH);
+        extractor.extractParamAsProperty(WebConfigConstants.APP_CONFIG_LOCATION, WebConfigConstants.APP_CONFIG_LOCATION);
+        extractor.extractParamAsProperty(WebConfigConstants.APP_CREDENTIALS_LOCATION, WebConfigConstants.APP_CREDENTIALS_LOCATION);
 
         final Properties appConfigProps = extractor.getApplicationProperties();
 
-        // Find the location of the application configuration file and process it
-        final String filePath = appConfigProps.getProperty(WebConfigConstants.APP_CONFIG_PATH);
+        // Find the location of the application configuration and credential files and process them
+        final String configLocation = appConfigProps.getProperty(WebConfigConstants.APP_CONFIG_LOCATION);
+        final String credentialsLocation = appConfigProps.getProperty(WebConfigConstants.APP_CREDENTIALS_LOCATION);
 
-        return Configuration.loadConfigurationFile(filePath);
+        return Configuration.loadConfigurationFile(configLocation, credentialsLocation);
     }
 
 

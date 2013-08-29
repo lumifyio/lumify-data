@@ -1,7 +1,11 @@
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
     <context-param>
-        <param-name>application.configPath</param-name>
+        <param-name>application.config.location</param-name>
         <param-value>file:///opt/reddawn/config/configuration.properties</param-value>
+    </context-param>
+    <context-param>
+        <param-name>application.config.credentials.location</param-name>
+        <param-value>file:///opt/reddawn/config/credentials.properties</param-value>
     </context-param>    
 
     <listener>
