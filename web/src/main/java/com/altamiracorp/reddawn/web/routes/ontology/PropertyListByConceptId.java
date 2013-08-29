@@ -27,7 +27,7 @@ public class PropertyListByConceptId implements Handler, AppAware {
         List<Property> properties = ontologyRepository.getPropertiesByConceptId(session.getGraphSession(), conceptId);
 
         JSONObject json = new JSONObject();
-        json.put("properties", Property.toJson(properties));
+        json.put("properties", Property.toJsonProperties(properties));
 
         new Responder(response).respondWith(json);
     }

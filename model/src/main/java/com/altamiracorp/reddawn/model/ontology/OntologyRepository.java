@@ -2,7 +2,9 @@ package com.altamiracorp.reddawn.model.ontology;
 
 import com.altamiracorp.reddawn.model.GraphSession;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
+import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class OntologyRepository {
+    private GraphRepository graphRepository = new GraphRepository();
     public static final String ROOT_CONCEPT_NAME = "rootConcept";
 
     public List<Relationship> getRelationshipLabels(GraphSession graphSession) {
@@ -149,16 +152,15 @@ public class OntologyRepository {
     private List<Relationship> toRelationships(GraphSession graphSession, Iterable<Vertex> relationshipTypes) {
         ArrayList<Relationship> relationships = new ArrayList<Relationship>();
         for (Vertex vertex : relationshipTypes) {
-            Concept[] relatedConcepts = getRelationshipRelatedConcepts(graphSession, vertex);
+            Concept[] relatedConcepts = getRelationshipRelatedConcepts(graphSession, "" + vertex.getId(), (String) vertex.getProperty(PropertyName.ONTOLOGY_TITLE.toString()));
             relationships.add(new VertexRelationship(vertex, relatedConcepts[0], relatedConcepts[1]));
         }
         return relationships;
     }
 
-    private Concept[] getRelationshipRelatedConcepts(GraphSession graphSession, Vertex vertex) {
+    private Concept[] getRelationshipRelatedConcepts(GraphSession graphSession, String vertexId, String ontologyTitle) {
         Concept[] sourceAndDestConcept = new Concept[2];
-        String vertexId = "" + vertex.getId();
-        Map<GraphRelationship, GraphVertex> related = graphSession.getRelationships("" + vertex.getId());
+        Map<GraphRelationship, GraphVertex> related = graphSession.getRelationships(vertexId);
         for (Map.Entry<GraphRelationship, GraphVertex> relatedVertex : related.entrySet()) {
             String type = (String) relatedVertex.getValue().getProperty(PropertyName.TYPE);
             if (type.equals(VertexType.CONCEPT.toString())) {
@@ -166,19 +168,19 @@ public class OntologyRepository {
                 String sourceVertexId = relatedVertex.getKey().getSourceVertexId();
                 if (sourceVertexId.equals(vertexId)) {
                     if (sourceAndDestConcept[0] != null) {
-                        throw new RuntimeException("Invalid relationship '" + vertex.getProperty(PropertyName.ONTOLOGY_TITLE.toString()) + "'. Wrong number of related concepts.");
+                        throw new RuntimeException("Invalid relationship '" + ontologyTitle + "'. Wrong number of related concepts.");
                     }
                     sourceAndDestConcept[0] = new GraphVertexConcept(relatedVertex.getValue());
                 } else if (destVertexId.equals(vertexId)) {
                     if (sourceAndDestConcept[1] != null) {
-                        throw new RuntimeException("Invalid relationship '" + vertex.getProperty(PropertyName.ONTOLOGY_TITLE.toString()) + "'. Wrong number of related concepts.");
+                        throw new RuntimeException("Invalid relationship '" + ontologyTitle + "'. Wrong number of related concepts.");
                     }
                     sourceAndDestConcept[1] = new GraphVertexConcept(relatedVertex.getValue());
                 }
             }
         }
         if (sourceAndDestConcept[0] == null || sourceAndDestConcept[1] == null) {
-            throw new RuntimeException("Invalid relationship '" + vertex.getProperty(PropertyName.ONTOLOGY_TITLE.toString()) + "'. Wrong number of related concepts.");
+            throw new RuntimeException("Invalid relationship '" + ontologyTitle + "'. Wrong number of related concepts.");
         }
         return sourceAndDestConcept;
     }
@@ -274,5 +276,78 @@ public class OntologyRepository {
         } else {
             throw new RuntimeException("Could not find \"" + VertexType.RELATIONSHIP + "\" vertex");
         }
+    }
+
+    public Concept getOrCreateConcept(GraphSession graphSession, Concept parent, String conceptName, String displayName) {
+        Concept concept = getConceptByName(graphSession, conceptName);
+        if (concept == null) {
+            InMemoryGraphVertex graphVertex = new InMemoryGraphVertex();
+            String id = graphRepository.saveVertex(graphSession, graphVertex);
+            concept = getConceptById(graphSession, id);
+        }
+        concept.setProperty(PropertyName.TYPE.toString(), VertexType.CONCEPT.toString());
+        concept.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), conceptName);
+        concept.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
+        if (parent != null) {
+            graphRepository.findOrAddRelationship(graphSession, concept, parent, LabelName.IS_A);
+        }
+        return concept;
+    }
+
+    protected void findOrAddEdge(GraphSession graphSession, GraphVertex fromVertex, GraphVertex toVertex, String edgeLabel) {
+        graphSession.findOrAddEdge(fromVertex, toVertex, edgeLabel);
+    }
+
+    public Property addPropertyTo(GraphSession graphSession, GraphVertex vertex, String propertyName, String displayName, PropertyType dataType) {
+        Property property = graphSession.getOrCreatePropertyType(propertyName, dataType);
+        property.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
+        graphSession.commit();
+
+        findOrAddEdge(graphSession, vertex, property, LabelName.HAS_PROPERTY.toString());
+        graphSession.commit();
+
+        return property;
+    }
+
+    public Property addPropertyTo(GraphSession graphSession, String relationshipLabel, String propertyName, String displayName, PropertyType dataType) {
+        Relationship vertex = getOrCreateRelationship(graphSession, relationshipLabel, displayName);
+        return addPropertyTo(graphSession, vertex, propertyName, displayName, dataType);
+    }
+
+    public Relationship getRelationshipByName(GraphSession graphSession, String title) {
+        GraphVertex vertex = graphSession.findVertexByOntologyTitleAndType(title, VertexType.RELATIONSHIP);
+        if (vertex == null) {
+            return null;
+        }
+        Concept[] relatedConcepts = getRelationshipRelatedConcepts(graphSession, vertex.getId(), (String) vertex.getProperty(PropertyName.ONTOLOGY_TITLE));
+        return new GraphVertexRelationship(vertex, relatedConcepts[0], relatedConcepts[1]);
+    }
+
+    protected Relationship getOrCreateRelationship(GraphSession graphSession, String relationshipLabel, String displayName) {
+        Relationship relationship = getRelationshipByName(graphSession, relationshipLabel);
+        if (relationship == null) {
+            InMemoryGraphVertex graphVertex = new InMemoryGraphVertex();
+            graphVertex.setProperty(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString());
+            graphVertex.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), relationshipLabel);
+            graphRepository.saveVertex(graphSession, graphVertex);
+            graphSession.commit();
+            relationship = getRelationshipByName(graphSession, relationshipLabel);
+        }
+        relationship.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
+        return relationship;
+    }
+
+    public GraphVertex getOrCreateRelationshipType(GraphSession graphSession, GraphVertex fromVertex, GraphVertex toVertex, String relationshipName, String displayName) {
+        GraphVertex relationshipLabel = graphSession.getOrCreateRelationshipType(relationshipName);
+        if (relationshipLabel == null) {
+            relationshipLabel.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
+            graphSession.commit();
+        }
+
+        findOrAddEdge(graphSession, fromVertex, relationshipLabel, LabelName.HAS_EDGE.toString());
+        findOrAddEdge(graphSession, relationshipLabel, toVertex, LabelName.HAS_EDGE.toString());
+        graphSession.commit();
+
+        return relationshipLabel;
     }
 }

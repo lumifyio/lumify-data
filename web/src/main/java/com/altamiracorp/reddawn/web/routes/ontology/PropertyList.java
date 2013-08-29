@@ -26,7 +26,7 @@ public class PropertyList implements Handler, AppAware {
         List<Property> properties = ontologyRepository.getProperties(session.getGraphSession());
 
         JSONObject json = new JSONObject();
-        json.put("properties", Property.toJson(properties));
+        json.put("properties", Property.toJsonProperties(properties));
 
         new Responder(response).respondWith(json);
     }

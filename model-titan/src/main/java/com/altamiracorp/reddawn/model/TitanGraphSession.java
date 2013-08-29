@@ -4,11 +4,12 @@ import com.altamiracorp.reddawn.model.graph.GraphGeoLocation;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.reddawn.model.ontology.PropertyName;
-import com.altamiracorp.reddawn.model.ontology.VertexType;
+import com.altamiracorp.reddawn.model.ontology.*;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
+import com.thinkaurelius.titan.core.TitanKey;
+import com.thinkaurelius.titan.core.TitanType;
 import com.thinkaurelius.titan.core.attribute.Geo;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.thinkaurelius.titan.core.attribute.Text;
@@ -169,6 +170,61 @@ public class TitanGraphSession extends GraphSession {
             }
         }
         return null;
+    }
+
+    @Override
+    public Property getOrCreatePropertyType(String name, PropertyType dataType) {
+        TitanKey typeProperty = (TitanKey) graph.getType(name);
+        if (typeProperty == null) {
+            Class vertexDataType = String.class;
+            switch (dataType) {
+                case DATE:
+                    vertexDataType = Date.class;
+                    break;
+                case CURRENCY:
+                    vertexDataType = Double.class;
+                    break;
+                case IMAGE:
+                case STRING:
+                    vertexDataType = String.class;
+                    break;
+                case GEO_LOCATION:
+                    vertexDataType = Geoshape.class;
+                    break;
+            }
+            typeProperty = graph.makeType().name(name).dataType(vertexDataType).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+            typeProperty.setProperty(PropertyName.TYPE.toString(), VertexType.PROPERTY.toString());
+            typeProperty.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), name);
+            typeProperty.setProperty(PropertyName.DATA_TYPE.toString(), dataType.toString());
+        }
+        return new VertexProperty(typeProperty);
+    }
+
+    @Override
+    public void findOrAddEdge(GraphVertex fromVertex, GraphVertex toVertex, String edgeLabel) {
+        Vertex titanFromVertex = getVertex(fromVertex);
+        Vertex titanToVertex = getVertex(toVertex);
+
+        Iterator<Edge> possibleEdgeMatches = titanFromVertex.getEdges(Direction.OUT, edgeLabel).iterator();
+        while (possibleEdgeMatches.hasNext()) {
+            Edge possibleEdgeMatch = possibleEdgeMatches.next();
+            TitanGraphVertex possibleMatch = new TitanGraphVertex(possibleEdgeMatch.getVertex(Direction.IN));
+            if (possibleMatch.getId().equals(toVertex.getId())) {
+                return;
+            }
+        }
+        titanFromVertex.addEdge(edgeLabel, titanToVertex);
+    }
+
+    @Override
+    public GraphVertex getOrCreateRelationshipType(String relationshipName) {
+        TitanType relationshipLabel = graph.getType(relationshipName);
+        if (relationshipLabel == null) {
+            relationshipLabel = graph.makeType().name(relationshipName).directed().makeEdgeLabel();
+            relationshipLabel.setProperty(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString());
+            relationshipLabel.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), relationshipName);
+        }
+        return new TitanGraphVertex(relationshipLabel);
     }
 
     @Override

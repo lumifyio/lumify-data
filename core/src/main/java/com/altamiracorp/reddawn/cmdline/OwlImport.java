@@ -1,12 +1,11 @@
 package com.altamiracorp.reddawn.cmdline;
 
 import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.model.TitanGraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.ontology.Concept;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.model.ontology.PropertyType;
-import com.altamiracorp.reddawn.model.ontology.VertexType;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -103,8 +102,8 @@ public class OwlImport extends RedDawnCommandLineBase {
         String parentName = getName(subClassOfResource);
 
         LOGGER.info("importClassElement: about: " + about + ", labelText: " + labelText + ", parentName: " + parentName);
-        GraphVertex parent = ontologyRepository.getGraphVertexByTitleAndType(session.getGraphSession(), parentName, VertexType.CONCEPT);
-        TitanGraphVertex concept = null; // todo getOrCreateConcept(session.getGraphSession(), parent, about, labelText);
+        Concept parent = ontologyRepository.getConceptByName(session.getGraphSession(), parentName);
+        Concept concept = ontologyRepository.getOrCreateConcept(session.getGraphSession(), parent, about, labelText);
 
         for (Element propertyElem : propertyElems) {
             String propertyName = propertyElem.getAttributeNS("http://altamiracorp.com/ontology#", "name");
@@ -131,7 +130,7 @@ public class OwlImport extends RedDawnCommandLineBase {
         GraphVertex domain = ontologyRepository.getGraphVertexByTitle(session.getGraphSession(), domainResourceName);
         PropertyType propertyType = PropertyType.convert(rangeResourceName);
 
-        // todo addPropertyTo(session.getGraphSession(), domain, about, labelText, propertyType);
+        ontologyRepository.addPropertyTo(session.getGraphSession(), domain, about, labelText, propertyType);
     }
 
     private void importObjectPropertyElement(RedDawnSession session, Element objectPropertyElem) {
@@ -150,7 +149,7 @@ public class OwlImport extends RedDawnCommandLineBase {
         GraphVertex domain = ontologyRepository.getGraphVertexByTitle(session.getGraphSession(), domainResourceName);
         GraphVertex range = ontologyRepository.getGraphVertexByTitle(session.getGraphSession(), rangeResourceName);
 
-        // todo getOrCreateRelationshipType(session.getGraphSession(), domain, range, about, labelText);
+        ontologyRepository.getOrCreateRelationshipType(session.getGraphSession(), domain, range, about, labelText);
     }
 
     private Element getSingleChildElement(Element elem, String ns, String localName) {

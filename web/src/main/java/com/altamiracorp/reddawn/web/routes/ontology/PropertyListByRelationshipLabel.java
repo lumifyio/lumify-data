@@ -28,7 +28,7 @@ public class PropertyListByRelationshipLabel implements Handler, AppAware {
         List<Property> properties = ontologyRepository.getPropertiesByRelationship(session.getGraphSession(), relationshipLabel);
 
         JSONObject json = new JSONObject();
-        json.put("properties", Property.toJson(properties));
+        json.put("properties", Property.toJsonProperties(properties));
 
         new Responder(response).respondWith(json);
     }
