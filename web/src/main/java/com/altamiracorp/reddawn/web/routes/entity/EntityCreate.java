@@ -56,6 +56,10 @@ public class EntityCreate implements Handler, AppAware {
         long mentionEnd = Long.parseLong(getRequiredParameter(request, "mentionEnd"));
         String sign = getRequiredParameter(request, "sign");
         String conceptId = getRequiredParameter(request, "conceptId");
+        String boundingBox = "x1: " + getOptionalParameter(request, "coordsX1") +
+                             ", x2: " + getOptionalParameter(request, "coordsX2") +
+                             ", y1: " + getOptionalParameter(request, "coordsY1") +
+                             ", y2: " + getOptionalParameter(request, "coordsY2");
 
         // optional parameters
         String resolvedGraphVertexId = request.getParameter("graphVertexId");
@@ -74,6 +78,11 @@ public class EntityCreate implements Handler, AppAware {
             }
             resolvedVertex.setProperty(PropertyName.ROW_KEY, termMentionRowKey.toString());
         }
+
+        if (boundingBox != null) {
+            resolvedVertex.setProperty(PropertyName.BOUNDING_BOX.toString(), boundingBox);
+        }
+
         resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
         resolvedVertex.setProperty(PropertyName.TITLE, sign);
 
@@ -103,6 +112,14 @@ public class EntityCreate implements Handler, AppAware {
         String parameter = request.getParameter(parameterName);
         if (parameter == null) {
             throw new RuntimeException("'" + parameterName + "' is required.");
+        }
+        return UrlUtils.urlDecode(parameter);
+    }
+
+    public static String getOptionalParameter(HttpServletRequest request, String parameterName) {
+        String parameter = request.getParameter(parameterName);
+        if (parameter == null) {
+            return null;
         }
         return UrlUtils.urlDecode(parameter);
     }
