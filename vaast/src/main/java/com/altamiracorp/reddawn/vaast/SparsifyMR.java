@@ -9,6 +9,7 @@ import com.altamiracorp.vaast.core.measurement.GaussianMatrix;
 import com.altamiracorp.vaast.core.measurement.Matrix;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
@@ -62,12 +63,15 @@ public class SparsifyMR extends ConfigurableMapJobBase {
 
         @Override
         public void map(Text rowKey, SubFrame subFrame, Context context) throws IOException{
+            InputStream subFrameRaw = subFrameRepository.getRaw(session.getModelSession(),subFrame);
             try {
-                byte[] sparseBytes = matrix.generateSparse(subFrameRepository.getRaw(session.getModelSession(),subFrame));
+                byte[] sparseBytes = matrix.generateSparse(subFrameRaw);
                 subFrameRepository.saveSparseSubFrame(session.getModelSession(),subFrame,new ByteArrayInputStream(sparseBytes));
                 context.write(new Text(SubFrame.TABLE_NAME),subFrame);
             } catch (Exception e) {
                 throw new IOException(e);
+            } finally {
+                IOUtils.closeQuietly(subFrameRaw);
             }
         }
 
