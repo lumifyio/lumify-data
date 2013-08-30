@@ -1,11 +1,12 @@
 package com.altamiracorp.reddawn.web.routes.workspace;
 
 import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.model.user.User;
 import com.altamiracorp.reddawn.model.workspace.Workspace;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRepository;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRowKey;
+import com.altamiracorp.reddawn.web.DevBasicAuthenticator;
 import com.altamiracorp.reddawn.web.Responder;
-import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
@@ -19,13 +20,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class WorkspaceSave implements Handler, AppAware {
-	private static final String DEFAULT_WORKSPACE_TITLE = "Default";
-	private WorkspaceRepository workspaceRepository = new WorkspaceRepository();
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(WorkspaceSave.class.getName());
-	private WebApp app;
+    private static final String DEFAULT_WORKSPACE_TITLE = "Default";
+    private WorkspaceRepository workspaceRepository = new WorkspaceRepository();
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(WorkspaceSave.class.getName());
+    private WebApp app;
 
-	@Override
+    @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
         String data = request.getParameter("data");
@@ -33,14 +34,14 @@ public class WorkspaceSave implements Handler, AppAware {
 
         Workspace workspace;
         if (workspaceRowKeyString == null) {
-            workspace = handleNew (request);
-        } else { 
-            workspace  = new Workspace(new WorkspaceRowKey(workspaceRowKeyString));
+            workspace = handleNew(request);
+        } else {
+            workspace = new Workspace(new WorkspaceRowKey(workspaceRowKeyString));
         }
 
         LOGGER.info("Saving workspace: " + workspace.getRowKey() + "\ntitle: " + workspace.getMetadata().getTitle() + "\ndata: " + data);
 
-        
+
         if (data != null) {
             workspace.getContent().setData(data);
         }
@@ -54,24 +55,24 @@ public class WorkspaceSave implements Handler, AppAware {
         new Responder(response).respondWith(resultJson);
     }
 
-	public Workspace handleNew(HttpServletRequest request) {
-		User currentUser = User.getUser(request);
-		WorkspaceRowKey workspaceRowKey = new WorkspaceRowKey(
-				currentUser.getId(), String.valueOf(System.currentTimeMillis()));
-		Workspace workspace = new Workspace(workspaceRowKey);
-		String title = request.getParameter("title");
+    public Workspace handleNew(HttpServletRequest request) {
+        User currentUser = DevBasicAuthenticator.getUser(request);
+        WorkspaceRowKey workspaceRowKey = new WorkspaceRowKey(
+                currentUser.getRowKey().toString(), String.valueOf(System.currentTimeMillis()));
+        Workspace workspace = new Workspace(workspaceRowKey);
+        String title = request.getParameter("title");
 
-		if (title != null) {
-			workspace.getMetadata().setTitle(title);
-		} else {
-			workspace.getMetadata().setTitle(DEFAULT_WORKSPACE_TITLE);
-		}
+        if (title != null) {
+            workspace.getMetadata().setTitle(title);
+        } else {
+            workspace.getMetadata().setTitle(DEFAULT_WORKSPACE_TITLE);
+        }
 
-		return workspace;
-	}
+        return workspace;
+    }
 
-	@Override
-	public void setApp(App app) {
-		this.app = (WebApp) app;
-	}
+    @Override
+    public void setApp(App app) {
+        this.app = (WebApp) app;
+    }
 }

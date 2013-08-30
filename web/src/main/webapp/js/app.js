@@ -66,7 +66,7 @@ define([
 
             this.on(document, 'error', this.onError);
             this.on(document, 'menubarToggleDisplay', this.toggleDisplay);
-            this.on(document, 'message', this.onMessage);
+            this.on(document, 'chatMessage', this.onChatMessage);
             this.on(document, 'searchResultSelected', this.onSearchResultSelection);
             this.on(document, 'syncStarted', this.onSyncStarted);
             this.on(document, 'paneResized', this.onInternalPaneResize);
@@ -610,7 +610,7 @@ define([
             pane.toggleClass('visible');
         };
 
-        this.onMessage = function(e, data) {
+        this.onChatMessage = function(e, data) {
             if (!this.select('usersSelector').hasClass('visible')) {
                 this.trigger(document, 'menubarToggleDisplay', { name: this.select('usersSelector').data(DATA_MENUBAR_NAME) });
             }

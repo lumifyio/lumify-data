@@ -4,7 +4,6 @@ import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.workspace.Workspace;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRepository;
 import com.altamiracorp.reddawn.web.Responder;
-import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
@@ -24,9 +23,8 @@ public class WorkspaceList implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
-        User currentUser = User.getUser(request);
 
-        Collection<Workspace> workspaces = workspaceRepository.findByUserId(session.getModelSession(), currentUser.getId());
+        Collection<Workspace> workspaces = workspaceRepository.findAll(session.getModelSession());
 
         JSONArray resultsJSON = new JSONArray();
         for (Workspace workspace : workspaces) {

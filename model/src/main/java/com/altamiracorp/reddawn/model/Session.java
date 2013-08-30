@@ -7,6 +7,7 @@ import com.altamiracorp.reddawn.model.geoNames.GeoNameCountryInfo;
 import com.altamiracorp.reddawn.model.geoNames.GeoNamePostalCode;
 import com.altamiracorp.reddawn.model.resources.Resource;
 import com.altamiracorp.reddawn.model.termMention.TermMention;
+import com.altamiracorp.reddawn.model.user.User;
 import com.altamiracorp.reddawn.model.videoFrames.VideoFrame;
 import com.altamiracorp.reddawn.model.workspace.Workspace;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
@@ -30,6 +31,7 @@ public abstract class Session {
             VideoFrame.TABLE_NAME,
             DBPedia.TABLE_NAME,
             Resource.TABLE_NAME,
+            User.TABLE_NAME,
             "atc_titan");// see com.altamiracorp.reddawn.model.TitanGraphSession
     private QueryUser queryUser;
     private String dbpediaSourceArtifactRowKey;

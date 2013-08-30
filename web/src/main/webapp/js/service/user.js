@@ -1,83 +1,49 @@
-
 define(
-[
-    'service/serviceBase'
-],
-function(ServiceBase, atmosphere) {
-    function UserService() {
-        ServiceBase.call(this);
+    [
+        'service/serviceBase'
+    ],
+    function (ServiceBase, atmosphere) {
+        function UserService() {
+            ServiceBase.call(this);
 
-        return this;
-    }
+            return this;
+        }
 
-    UserService.prototype = Object.create(ServiceBase.prototype);
+        UserService.prototype = Object.create(ServiceBase.prototype);
 
-    UserService.prototype.getOnline = function (callback, onUserChange, onChatMessage) {
-		var self = this;
-		var result = {};
-		
-		self._ajaxGet({
-            url: 'user/me'
-        }, function (err, response) {
-			
-			if (err) {
-				return callback(err);
-			}
-			
-			result.user = response.user;
+        UserService.prototype.getOnline = function (callback, onUserChange, onChatMessage) {
+            var self = this;
+            var result = {};
 
-			self.getCurrentUsers(function (err, users) {
-				result.users = users;
-				return callback(err,result);
-			});
-		});
-    };
+            self._ajaxGet({
+                url: 'user/me'
+            }, function (err, response) {
 
-	UserService.prototype.subscribeToChatChannel = function (userId,onmessage) {
-		var chatRequest = {
-			url: "/messaging/pubsub/user-" + userId,
-			transport: "websocket",
-			timeout: 3600000,
-			contentType: "text/html;charset=ISO-8859-1",
-			onMessage: function (response) {
-				var data = JSON.parse(response.responseBody);
-				onmessage(null,data);
-			},
-			onError: function (response) {
-				onmessage(response.error,null);
-			}
-		};
-		this.getSocket().subscribe(chatRequest);
-	};
-	
-	UserService.prototype.subscribeToUserChangeChannel = function (userId,onmessage) {
-		var userChangeRequest = {
-			url: "/messaging/pubsub/userChanges",
-			transport: "websocket",
-			contentType: "text/html;charset=ISO-8859-1",
-			onMessage: function (response) {
-				var data = JSON.parse(response.responseBody);
-				onmessage(null,data);
-			},
-			onError: function (response) {
-				onmessage(response.error,null);
-			}
-		};
-		this.getSocket().subscribe(userChangeRequest);
-	};
-	
-	UserService.prototype.getCurrentUsers = function (callback) {
-		this._ajaxGet({
-            url: 'messaging/user'
-        }, function (err, response) {
-			if (err) {
-				return callback(err);
-			}
-			
-			return callback(null,response.users);
-		});
-	}
+                if (err) {
+                    return callback(err);
+                }
 
-    return UserService;
-});
+                result.user = response;
+
+                self.getCurrentUsers(function (err, users) {
+                    result.users = users;
+                    return callback(err, result);
+                });
+            });
+        };
+
+        UserService.prototype.getCurrentUsers = function (callback) {
+            this._ajaxGet({
+                url: '/user/'
+            }, function (err, response) {
+                if (err) {
+                    return callback(err);
+                }
+
+                return callback(null, response.users);
+            });
+        }
+
+        return UserService;
+    });
 
