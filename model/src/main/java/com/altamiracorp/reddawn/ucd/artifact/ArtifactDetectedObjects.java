@@ -41,6 +41,7 @@ public class ArtifactDetectedObjects extends ColumnFamily {
                 coordsJson.put("x2", parts[4]);
                 coordsJson.put("y2", parts[5]);
                 columnJson.put("coords", coordsJson);
+                columnJson.put("_rowKey", column.getName());
                 detectedObjects.put(columnJson);
             }
 

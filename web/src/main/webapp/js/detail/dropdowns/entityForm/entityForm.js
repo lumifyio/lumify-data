@@ -119,10 +119,8 @@ define([
                     graphVertexId: $resolvedVertex.graphVertexId,
                     artifactKey: this.attr.artifactData._rowKey,
                     artifactId: this.attr.artifactData.graphVertexId,
-                    coordsX1: this.attr.coords.x1,
-                    coordsX2: this.attr.coords.x2,
-                    coordsY1: this.attr.coords.y1,
-                    coordsY2: this.attr.coords.y2
+                    coords: JSON.stringify (this.attr.coords),
+                    detectedObjectRowKey: this.attr.detectedObjectRowKey
                 },
                 $loading = $("<span>")
                     .addClass("badge")

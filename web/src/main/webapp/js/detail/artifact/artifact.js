@@ -63,7 +63,8 @@ define([
             EntityForm.attachTo(root, {
                 sign: '',
                 artifactData: this.attr.data,
-                coords: $(event.target).data('tag').coords
+                coords: $(event.target).data('tag').coords,
+                detectedObjectRowKey: $(event.target).data('tag')._rowKey
             });
         };
 
