@@ -24,7 +24,7 @@ define([
             createEntityButtonSelector: '.create-entity',
             buttonDivSelector: '.buttons',
             entityNameInputSelector: 'input',
-            labelSelector: '.detected-object-labels .label'
+            draggablesSelector: '.resolved'
         });
 
         this.after('initialize', function() {
@@ -136,8 +136,11 @@ define([
                 if (err) {
                     self.trigger(document, 'error', err);
                 } else {
-                    console.log(data);
-                    $('.detected-object-labels .label').addClass('resolved');
+                    $('.detected-object-labels .label').addClass('entity resolved generic-draggable');
+                    var temp = [];
+                    var info = JSON.stringify(data.info);
+                    $('.detected-object-labels .label').data('info', data.info);
+                    self.trigger(document, 'termCreated', data);
                     _.defer(self.teardown.bind(self));
                 }
             });

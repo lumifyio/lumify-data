@@ -74,15 +74,15 @@ define([
             EntityForm.attachTo(root, {
                 sign: '',
                 artifactData: this.attr.data,
-                coords: $(event.target).data('info').coords
+                coords: $(event.target).data('tag').coords
             });
         };
 
         this.onDetectedObjectHover = function(event) {
             if (event.type == 'mouseenter') {
-                this.trigger(document, 'DetectedObjectEnter', $(event.target).data('info'));
+                this.trigger(document, 'DetectedObjectEnter', $(event.target).data('tag'));
             } else {
-                this.trigger(document, 'DetectedObjectLeave', $(event.target).data('info'));
+                this.trigger(document, 'DetectedObjectLeave', $(event.target).data('tag'));
             }
         };
 
@@ -107,6 +107,5 @@ define([
                 src: artifact.rawUrl
             });
         };
-
     }
 });

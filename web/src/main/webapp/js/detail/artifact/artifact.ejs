@@ -33,7 +33,7 @@
 <div class='detected-object-labels'>
 <% if(artifact['atc:Artifact_Detected_Objects']) { %>
   <% artifact['atc:Artifact_Detected_Objects'].detectedObjects.forEach(function(object) { %>
-  <a class="label label-info detected-object" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.concept %></a>
+  <a class="label label-info detected-object" data-tag="<%= JSON.stringify(object) %>" href="#"><%= object.concept %></a>
   <% }); %>
 <% } %>
 </div>

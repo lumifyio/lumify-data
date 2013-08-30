@@ -325,6 +325,7 @@ define([
                     hoverClass: 'drop-hover',
                     tolerance: 'pointer',
                     accept: function(el) {
+console.log ('droppable entity');
                         var item = $(el),
                             isEntity = item.is('.entity');
 
