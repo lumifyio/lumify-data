@@ -1,7 +1,6 @@
 package com.altamiracorp.reddawn.web.routes.entity;
 
 import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.entityHighlight.EntityHighlightWorker;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
@@ -15,17 +14,11 @@ import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
-import com.google.common.util.concurrent.MoreExecutors;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class EntityObjectDetectionCreate implements Handler, AppAware {
     private WebApp app;
@@ -52,7 +45,7 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
             resolvedVertex = graphRepository.findVertex(session.getGraphSession(), resolvedGraphVertexId);
         } else {
             resolvedVertex = graphRepository.findVertexByTitleAndType(session.getGraphSession(), sign, VertexType.ENTITY);
-            if (resolvedVertex == null){
+            if (resolvedVertex == null) {
                 resolvedVertex = new InMemoryGraphVertex();
                 resolvedVertex.setType(VertexType.ENTITY);
             }
@@ -67,7 +60,7 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
 
         graphRepository.saveRelationship(session.getGraphSession(), artifactId, resolvedVertex.getId(), LabelName.HAS_ENTITY);
 
-        JSONObject obj = toJson (resolvedVertex);
+        JSONObject obj = toJson(resolvedVertex);
 
         new Responder(response).respondWith(obj);
     }
@@ -85,10 +78,10 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         return UrlUtils.urlDecode(parameter);
     }
 
-    private JSONObject toJson (GraphVertex vertex) throws JSONException {
+    private JSONObject toJson(GraphVertex vertex) throws JSONException {
         JSONObject obj = new JSONObject();
         obj.put("graphVertexId", vertex.getId());
-        for (String property : vertex.getPropertyKeys()){
+        for (String property : vertex.getPropertyKeys()) {
             obj.put(property, vertex.getProperty(property));
         }
         return obj;
