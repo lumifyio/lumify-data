@@ -58,7 +58,7 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
 
         graphRepository.saveVertex(session.getGraphSession(), resolvedVertex);
 
-        graphRepository.saveRelationship(session.getGraphSession(), artifactId, resolvedVertex.getId(), LabelName.HAS_ENTITY);
+        graphRepository.saveRelationship(session.getGraphSession(), artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF);
 
         JSONObject obj = toJson(resolvedVertex);
 

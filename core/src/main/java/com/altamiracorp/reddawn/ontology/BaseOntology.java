@@ -96,8 +96,9 @@ public class BaseOntology {
         graph.commit();
 
         ontologyRepository.getOrCreateConcept(redDawnSession.getGraphSession(), artifact, ArtifactType.DOCUMENT.toString(), "Document");
-        ontologyRepository.getOrCreateConcept(redDawnSession.getGraphSession(), artifact, ArtifactType.IMAGE.toString(), "Image");
         ontologyRepository.getOrCreateConcept(redDawnSession.getGraphSession(), artifact, ArtifactType.VIDEO.toString(), "Video");
+
+        Concept image = ontologyRepository.getOrCreateConcept(redDawnSession.getGraphSession(), artifact, ArtifactType.IMAGE.toString(), "Image");
 
         // TermMention concept
         TitanKey rowKeyProperty = (TitanKey) graph.getType(PropertyName.ROW_KEY.toString());
@@ -121,11 +122,15 @@ public class BaseOntology {
         ontologyRepository.addPropertyTo(redDawnSession.getGraphSession(), entity, PropertyName.BOUNDING_BOX.toString(), "Bounding Box", PropertyType.STRING);
 
         ontologyRepository.getOrCreateRelationshipType(redDawnSession.getGraphSession(), entity, artifact, LabelName.HAS_IMAGE.toString(), "has image");
+
+        graph.commit();
+
+        // Image to Entity relationship
+        ontologyRepository.getOrCreateRelationshipType(redDawnSession.getGraphSession(), image, entity, LabelName.CONTAINS_IMAGE_OF.toString(), "contains image of");
         graph.commit();
 
         // Artifact to TermMention relationship
         ontologyRepository.getOrCreateRelationshipType(redDawnSession.getGraphSession(), artifact, entity, LabelName.HAS_ENTITY.toString(), "has entity");
-
         graph.commit();
     }
 
