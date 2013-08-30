@@ -37,6 +37,7 @@ function git_archive {
 
 modules_tgz=$(git_archive modules .. puppet)
 puppet_modules_tgz=$(git_archive puppet-modules ../puppet/puppet-modules)
+conf_tgz=$(git_archive conf .. 'conf/opencv conf/opennlp')
 oozie_jobs_tgz=$(git_archive oozie-jobs .. oozie/jobs)
 
 echo 'running maven...'
@@ -65,6 +66,7 @@ scp ${SSH_OPTS} ../aws/bin-ec2/setup_disks.sh \
                 ${hosts_file} \
                 ${modules_tgz} \
                 ${puppet_modules_tgz} \
+                ${conf_tgz} \
                 ${oozie_jobs_tgz} \
                 ${oozie_libs_tgz} \
                 application.xml \
@@ -73,5 +75,6 @@ scp ${SSH_OPTS} ../aws/bin-ec2/setup_disks.sh \
 
 rm ${modules_tgz}
 rm ${puppet_modules_tgz}
+rm ${conf_tgz}
 rm ${oozie_jobs_tgz}
 rm ${oozie_libs_tgz}
