@@ -178,7 +178,7 @@ public class BlurSearchProvider implements SearchProvider {
                 } else if (column.getName().equals(SOURCE_COLUMN_NAME)) {
                     source = column.getValue();
                 } else if (column.getName().equals(ARTIFACT_TYPE)) {
-                    artifactType = ArtifactType.valueOf(column.getValue());
+                    artifactType = ArtifactType.convert(column.getValue());
                 } else if (column.getName().equals(GRAPH_VERTEX_ID_COLUMN_NAME)) {
                     graphVertexId = column.getValue();
                 }

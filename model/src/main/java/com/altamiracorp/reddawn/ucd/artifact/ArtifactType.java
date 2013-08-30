@@ -15,4 +15,13 @@ public enum ArtifactType {
     public String toString() {
         return this.text;
     }
+
+    public static ArtifactType convert(String property) {
+        for (ArtifactType at : ArtifactType.values()) {
+            if (at.toString().equalsIgnoreCase(property)) {
+                return at;
+            }
+        }
+        return ArtifactType.valueOf(property);
+    }
 }
