@@ -71,6 +71,10 @@ define([
             this.on(document, 'syncStarted', this.onSyncStarted);
             this.on(document, 'paneResized', this.onInternalPaneResize);
 
+            // Prevent the fragment identifier from changing after an anchor
+            // with href="#" not stopPropagation'ed
+            $(document).on('click', 'a', this.trapAnchorClicks.bind(this));
+
             var content = $(appTemplate({})),
                 menubarPane = content.filter('.menubar-pane'),
                 searchPane = content.filter('.search-pane').data(DATA_MENUBAR_NAME, 'search'),
@@ -124,6 +128,14 @@ define([
             this.setupWindowResizeTrigger();
             this.triggerPaneResized();
         });
+
+        this.trapAnchorClicks = function(e) {
+            var $target = $(e.target);
+
+            if ($target.is('a') && $target.attr('href') === '#') {
+                e.preventDefault();
+            }
+        };
 
         var resizeTimeout;
         this.setupWindowResizeTrigger = function() {

@@ -26,6 +26,10 @@ define([
             this.preventDropEventsFromPropagating();
             
             this.$node.html(template({}));
+
+            if (this.attr.loadGraphVertexData) {
+                this.onSearchResultSelected(null, [this.attr.loadGraphVertexData]);
+            }
         });
 
 
@@ -68,7 +72,7 @@ define([
                 'detail/' + moduleName + '/' + moduleName,
             ], function(Module) {
                 var vertex = self.select('detailTypeContentSelector');
-                (self.typeContentModule = Module).attachTo(vertex, { data:data });
+                (self.typeContentModule = Module).attachTo(vertex, { data:data, highlightStyle:self.attr.highlightStyle });
             });
         };
     }

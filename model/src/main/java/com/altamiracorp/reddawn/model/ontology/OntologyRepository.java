@@ -7,8 +7,6 @@ import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.gremlin.java.GremlinPipeline;
-import com.tinkerpop.pipes.PipeFunction;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -94,18 +92,6 @@ public class OntologyRepository {
         return new VertexConcept(conceptVertex);
     }
 
-    private Vertex getParentConceptVertex(Vertex conceptVertex) {
-        Iterator<Vertex> parents = conceptVertex.getVertices(Direction.OUT, LabelName.IS_A.toString()).iterator();
-        if (!parents.hasNext()) {
-            return null;
-        }
-        Vertex v = parents.next();
-        if (parents.hasNext()) {
-            throw new RuntimeException("Unexpected number of parents for concept: " + conceptVertex.getProperty(PropertyName.TITLE.toString()));
-        }
-        return v;
-    }
-
     public Concept getConceptByName(GraphSession graphSession, String title) {
         GraphVertex vertex = graphSession.findVertexByOntologyTitleAndType(title, VertexType.CONCEPT);
         if (vertex == null) {
@@ -123,29 +109,22 @@ public class OntologyRepository {
     }
 
     public List<Relationship> getRelationships(GraphSession graphSession, String sourceConceptTypeId, String destConceptTypeId) {
-        VertexConcept sourceConcept = (VertexConcept) getConceptById(graphSession, sourceConceptTypeId);
+        Concept sourceConcept = getConceptById(graphSession, sourceConceptTypeId);
         if (sourceConcept == null) {
-            throw new RuntimeException("Could not find concept: " + sourceConceptTypeId);
+            sourceConcept = getConceptByName(graphSession, sourceConceptTypeId);
+            if (sourceConcept == null) {
+                throw new RuntimeException("Could not find concept: " + sourceConceptTypeId);
+            }
         }
-        final VertexConcept destConcept = (VertexConcept) getConceptById(graphSession, destConceptTypeId);
+        Concept destConcept = getConceptById(graphSession, destConceptTypeId);
         if (destConcept == null) {
-            throw new RuntimeException("Could not find concept: " + destConceptTypeId);
+            destConcept = getConceptByName(graphSession, destConceptTypeId);
+            if (destConcept == null) {
+                throw new RuntimeException("Could not find concept: " + destConceptTypeId);
+            }
         }
 
-        List<Vertex> relationshipTypes = new GremlinPipeline(sourceConcept.getVertex())
-                .outE(LabelName.HAS_EDGE.toString())
-                .inV()
-                .as("edgeTypes")
-                .outE(LabelName.HAS_EDGE.toString())
-                .inV()
-                .filter(new PipeFunction<Vertex, Boolean>() {
-                    @Override
-                    public Boolean compute(Vertex vertex) {
-                        return vertex.getId().toString().equals(destConcept.getId());
-                    }
-                })
-                .back("edgeTypes")
-                .toList();
+        List<Vertex> relationshipTypes = graphSession.getRelationships(sourceConcept, destConcept);
         return toRelationships(graphSession, relationshipTypes);
     }
 
@@ -202,7 +181,7 @@ public class OntologyRepository {
             properties.add(new VertexProperty(propertyVertex));
         }
 
-        Vertex parentConceptVertex = getParentConceptVertex(vertex);
+        Vertex parentConceptVertex = graphSession.getParentConceptVertex(vertex);
         if (parentConceptVertex != null) {
             List<Property> parentProperties = getPropertiesByVertex(graphSession, parentConceptVertex);
             properties.addAll(parentProperties);

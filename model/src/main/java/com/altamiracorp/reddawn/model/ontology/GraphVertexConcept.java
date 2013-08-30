@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.model.ontology;
 
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.tinkerpop.blueprints.Vertex;
 
 import java.util.Set;
 
@@ -50,6 +51,11 @@ public class GraphVertexConcept extends Concept {
     @Override
     public String getDisplayName() {
         return (String) graphVertex.getProperty(PropertyName.DISPLAY_NAME);
+    }
+
+    @Override
+    public Vertex getVertex() {
+        return graphVertex.getVertex();
     }
 
     public GraphVertex getGraphVertex() {

@@ -134,4 +134,10 @@ node "ip-10-0-3-200" {
     content => template('env/cluster/configuration.properties.erb'),
     require => File['/opt/reddawn/config'],
   }
+
+  file { '/opt/reddawn/config/credentials.properties-EXAMPLE' :
+    ensure => file,
+    source => 'puppet:///modules/env/cluster/credentials.properties-EXAMPLE',
+    require => File['/opt/reddawn/config'],
+  }
 }

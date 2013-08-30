@@ -54,17 +54,6 @@ define([
                     self[artifact.type + 'Setup'](artifact);
                 }
 
-                if (self.attr.data.entityOfInterest) {
-                    // TODO: add some extra highlighting and scroll to this entity row key => self.attr.data.entityOfInterest);
-
-                    /*
-                    var n = self.$node.find('.entitcreateStatementy')
-                        .filter(function() { 
-                            // Different escaping is breaking this
-                            return $(this).data('info')._rowKey === self.attr.data.entityOfInterest;
-                        });
-                    */
-                }
             }));
         };
 

@@ -26,9 +26,34 @@ function(compose, registry, advice, withLogging, debug) {
     debug.enable(true);
     DEBUG.events.logAll();
 
-    require(['app'], function(App) {
-        App.attachTo('#app');
-    });
+    var ids = graphVertexIdsToOpen();
+
+    if (ids && ids.length) {
+        require(['appFullscreenDetails'], function(FullscreenDetailApp) {
+            FullscreenDetailApp.attachTo('#app', {
+                graphVertexIds: ids
+            });
+        });
+    } else {
+        require(['app'], function(App) {
+            App.attachTo('#app');
+        });
+    }
+
+
+    function graphVertexIdsToOpen() {
+        // http://...#v=1,2,3
+
+        var h = location.hash;
+
+        if (!h || h.length === 0) return;
+
+        var m = h.match(/^#?v=(.+)$/);
+
+        if (m && m.length === 2 && m[1].length) {
+            return m[1].split(',');
+        }
+    }
 });
 
 
