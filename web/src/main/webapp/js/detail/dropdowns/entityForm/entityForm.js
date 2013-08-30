@@ -118,8 +118,6 @@ define([
                     conceptId: this.select('conceptSelector').val(),
                     graphVertexId: $resolvedVertex.graphVertexId,
                     artifactKey: this.attr.artifactData._rowKey,
-                    mentionStart: 0,
-                    mentionEnd: 0,
                     artifactId: this.attr.artifactData.graphVertexId,
                     coordsX1: this.attr.coords.x1,
                     coordsX2: this.attr.coords.x2,
@@ -132,14 +130,12 @@ define([
 
             this.select('createEntityButtonSelector').addClass('disabled');
 
-            this.entityService.createTerm(parameters, function(err, data) {
+            this.entityService.createEntity(parameters, function(err, data) {
                 if (err) {
                     self.trigger(document, 'error', err);
                 } else {
                     $('.detected-object-labels .label').addClass('entity resolved generic-draggable');
-                    var temp = [];
-                    var info = JSON.stringify(data.info);
-                    $('.detected-object-labels .label').data('info', data.info);
+                    $('.detected-object-labels .label').data('info', data);
                     self.trigger(document, 'termCreated', data);
                     _.defer(self.teardown.bind(self));
                 }

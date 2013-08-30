@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.altamiracorp.reddawn.web.routes.entity.EntityObjectDetectionCreate;
+import com.altamiracorp.reddawn.web.routes.entity.EntityTermCreate;
 import org.eclipse.jetty.server.Request;
 
 import com.altamiracorp.reddawn.web.routes.admin.AdminQuery;
@@ -24,7 +26,6 @@ import com.altamiracorp.reddawn.web.routes.artifact.ArtifactSearch;
 import com.altamiracorp.reddawn.web.routes.artifact.ArtifactVideoPreviewImageByRowKey;
 import com.altamiracorp.reddawn.web.routes.chat.ChatNew;
 import com.altamiracorp.reddawn.web.routes.chat.ChatPostMessage;
-import com.altamiracorp.reddawn.web.routes.entity.EntityCreate;
 import com.altamiracorp.reddawn.web.routes.entity.EntityRelationships;
 import com.altamiracorp.reddawn.web.routes.entity.EntitySearch;
 import com.altamiracorp.reddawn.web.routes.graph.GraphFindPath;
@@ -97,7 +98,8 @@ public class Router extends HttpServlet {
 
         app.post("/entity/relationships", authenticator, EntityRelationships.class);
         app.get("/entity/search", authenticator, EntitySearch.class);
-        app.post("/entity/create", authenticator, EntityCreate.class);
+        app.post("/entity/createTerm", authenticator, EntityTermCreate.class);
+        app.post("/entity/createEntity", authenticator, EntityObjectDetectionCreate.class);
 
         app.post("/vertex/{graphVertexId}/property/set", authenticator, VertexSetProperty.class);
         app.get("/vertex/{graphVertexId}/properties", authenticator, VertexProperties.class);

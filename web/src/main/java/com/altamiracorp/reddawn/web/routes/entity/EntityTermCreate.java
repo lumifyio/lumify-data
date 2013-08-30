@@ -32,8 +32,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class EntityCreate implements Handler, AppAware {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EntityCreate.class.getName());
+public class EntityTermCreate implements Handler, AppAware {
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntityTermCreate.class.getName());
     private static final String MODEL_KEY = "manual";
     private WebApp app;
     private TermMentionRepository termMentionRepository = new TermMentionRepository();
@@ -56,12 +56,6 @@ public class EntityCreate implements Handler, AppAware {
         long mentionEnd = Long.parseLong(getRequiredParameter(request, "mentionEnd"));
         String sign = getRequiredParameter(request, "sign");
         String conceptId = getRequiredParameter(request, "conceptId");
-        String boundingBox = "x1: " + getOptionalParameter(request, "coordsX1") +
-                             ", x2: " + getOptionalParameter(request, "coordsX2") +
-                             ", y1: " + getOptionalParameter(request, "coordsY1") +
-                             ", y2: " + getOptionalParameter(request, "coordsY2");
-
-        // optional parameters
         String resolvedGraphVertexId = request.getParameter("graphVertexId");
 
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactKey, mentionStart, mentionEnd);
@@ -77,10 +71,6 @@ public class EntityCreate implements Handler, AppAware {
                 resolvedVertex.setType(VertexType.ENTITY);
             }
             resolvedVertex.setProperty(PropertyName.ROW_KEY, termMentionRowKey.toString());
-        }
-
-        if (boundingBox != null) {
-            resolvedVertex.setProperty(PropertyName.BOUNDING_BOX.toString(), boundingBox);
         }
 
         resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
@@ -112,14 +102,6 @@ public class EntityCreate implements Handler, AppAware {
         String parameter = request.getParameter(parameterName);
         if (parameter == null) {
             throw new RuntimeException("'" + parameterName + "' is required.");
-        }
-        return UrlUtils.urlDecode(parameter);
-    }
-
-    public static String getOptionalParameter(HttpServletRequest request, String parameterName) {
-        String parameter = request.getParameter(parameterName);
-        if (parameter == null) {
-            return null;
         }
         return UrlUtils.urlDecode(parameter);
     }
