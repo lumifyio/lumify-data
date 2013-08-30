@@ -60,9 +60,9 @@ puppet agent -t || true
 heading 'run puppet as a service'
 service puppet start
 
-heading 'stage oozie artifcats'
+heading 'stage conf and oozie artifcats'
 jobtracker_host=$(awk '/jobtracker/ {print $1}' ${hosts_file})
-scp ${SSH_OPTS} oozie-*.tgz ${jobtracker_host}:
+scp ${SSH_OPTS} conf-*.tgz oozie-*.tgz ${jobtracker_host}:
 
 heading 'stage webserver artifcats'
 www_host=$(awk '/www/ {print $1}' ${hosts_file})
