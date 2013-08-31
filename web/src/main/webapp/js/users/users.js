@@ -29,22 +29,21 @@ define([
 
             this.on(document, 'newUserOnline', this.onNewUserOnline);
             this.on(document, 'userOnlineStatusChanged', this.onUserOnlineStatusChanged);
-            this.on(document, 'userSelected', this.onUserSelected);
             this.on(document, 'chatMessage', this.onChatMessage);
             this.on(document, 'socketMessage', this.onSocketMessage);
+            this.on(document, 'chatCreated', this.onChatCreated);
             this.on('click', {
                 userListItemSelector: this.onUserListItemClicked
             });
 
             this.doGetOnline();
-            //setInterval(this.doGetOnline.bind(this), 500); // TODO use long polling
         });
 
         this.onUserListItemClicked = function (evt) {
             evt.preventDefault();
 
             var $target = $(evt.target).parents('li');
-            var userId = $target.data('userid');
+            var userData = $target.data('userdata');
 
             $target.find('.badge').text('');
 
@@ -52,7 +51,7 @@ define([
                 return;
             }
 
-            this.trigger(document, 'userSelected', { id: userId });
+            this.trigger(document, 'userSelected', userData);
         };
 
         this.onNewUserOnline = function (evt, userData) {
@@ -62,48 +61,38 @@ define([
             $usersList.find('li.status-' + userData.status).after(html);
         };
 
-        this.onUserSelected = function (evt, userData) {
-            this.createOrActivateConversation(userData.id, { activate: true });
+        this.onChatCreated = function (evt, chat) {
+            this.createOrActivateConversation(chat);
         };
 
-        this.createOrActivateConversation = function (userId, options) {
+        this.createOrActivateConversation = function (chat) {
+            console.log('createOrActivateConversation', chat);
             var $usersList = this.select('usersListSelector');
-            var activeChat = $usersList.find('li.conversation-' + userId);
+            var activeChat = $usersList.find('li.conversation-' + chat.rowKey);
 
-            if (!activeChat.length) {
-                activeChat = $usersList.find('li.online.user-' + userId).clone();
+            if (!activeChat.length && chat.users) {
+                activeChat = $usersList.find('li.online.user-' + chat.users[0].rowKey);
                 if (!activeChat.length) {
                     return;
                 }
-                activeChat.addClass('conversation-' + userId);
+                activeChat = activeChat.clone();
+                activeChat.addClass('conversation-' + chat.rowKey);
                 $usersList.find('li.conversations').after(activeChat);
             }
 
-            if (options && options.activate) {
-                $usersList.find('.active').removeClass('active');
-                activeChat.addClass('active');
-            }
+            $usersList.find('.active').removeClass('active');
+            activeChat.addClass('active');
         };
 
         this.onChatMessage = function (evt, message) {
-            var id;
+            console.log('onChatMessage', message);
+            var chat = {
+                rowKey: message.chatRowKey,
+                users: [message.from]
+            };
+            this.createOrActivateConversation(chat);
 
-            switch (message.type) {
-
-                case 'chatMessage':
-                    id = message.from.id;
-                    break;
-                case 'syncRequest':
-                case 'syncRequestAcceptance':
-                case 'syncRequestRejection':
-                    id = message.initiatorId;
-                    break;
-
-            }
-
-            this.createOrActivateConversation(id);
-
-            var badge = this.select('usersListSelector').find('li.conversation-' + id + ':not(.active) .badge');
+            var badge = this.select('usersListSelector').find('li.conversation-' + message.chatRowKey + ':not(.active) .badge');
             badge.text(+badge.text() + 1);
         };
 

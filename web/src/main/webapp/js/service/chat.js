@@ -11,18 +11,15 @@ define(
 
         ChatService.prototype = Object.create(ServiceBase.prototype);
 
-        ChatService.prototype.sendChatMessage = function (userRowKey, myUserRowKey, message, callback) {
+        ChatService.prototype.sendChatMessage = function (messageData, callback) {
+            messageData.postDate = Date.now();
             var data = {
                 type: 'chatMessage',
-                data: {
-                    to: userRowKey,
-                    from: myUserRowKey,
-                    message: message,
-                    postDate: Date.now()
-                }
+                data: messageData
             };
 
             this.socketPush(data);
+            return callback(null, messageData);
         };
 
         ChatService.prototype.sendSyncRequest = function (syncRequest, callback) {

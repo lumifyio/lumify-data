@@ -1,5 +1,5 @@
-<div class="chat-window" id="chat-window-<%= user.rowKey %>" chat-id="<%= user.rowKey %>">
-    <div class="to"><%= users.map(function(user) { return user.rowKey; }).join(', ') %></div>
+<div class="chat-window" id="chat-window-<%= chat.rowKey %>" data-chatrowkey="<%= chat.rowKey %>">
+    <div class="to"><%= chat.users.map(function(user) { return user.userName; }).join(', ') %></div>
 
     <div class="chat-messages"></div>
 

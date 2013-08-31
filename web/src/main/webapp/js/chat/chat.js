@@ -23,7 +23,7 @@ define([
             this.on(document, 'userSelected', this.onUserSelected);
             this.on(document, 'chatMessage', this.onChatMessage);
             this.on(document, 'socketMessage', this.onSocketMessage);
-            this.on('createChatWindow', this.onCreateChatWindow);
+            this.on(document, 'chatCreated', this.onChatCreated);
             this.on('submit', {
                 newMessageFormSelector: this.onNewMessageFormSubmit
             });
@@ -33,50 +33,83 @@ define([
             this.currentUser = data.user;
         };
 
-        this.onUserSelected = function (evt, data) {
-            if (this.openChats[data.rowKey]) {
+        this.findChatByUserRowKey = function (userRowKey) {
+            var self = this;
+            var chatRowKey = Object.keys(this.openChats).filter(function (chatRowKey) {
+                var chat = self.openChats[chatRowKey];
+                return chat.users.some(function (u) {
+                    return u.rowKey == userRowKey;
+                });
+            });
+            if (chatRowKey.length > 0) {
+                return self.openChats[chatRowKey[0]];
+            }
+            return null;
+        };
+
+        this.onUserSelected = function (evt, userData) {
+            var chat = this.findChatByUserRowKey(userData.rowKey);
+            if (chat) {
                 this.select('chatWindowSelector').hide();
-                return $('#chat-window-' + data.rowKey).show().find('.message').focus();
+                return $('#chat-window-' + chat.rowKey).show().find('.message').focus();
             }
 
-            data.activate = true;
-            this.trigger('createChatWindow', data);
+            var chat = {
+                rowKey: Date.now(),
+                users: [userData]
+            };
+            this.openChats[chat.rowKey] = chat;
+            console.log('onUserSelected chatCreated', chat);
+            this.trigger(document, 'chatCreated', chat);
         };
 
-        this.onCreateChatWindow = function (evt, user) {
-            this.createOrFocusChat(user, {activate: user.activate});
+        this.onChatCreated = function (evt, chat) {
+            console.log('onChatCreated', chat);
+            this.createChatWindowAndFocus(chat);
         };
 
-        this.createOrFocusChat = function (user, options) {
-            if (!this.openChats[user.rowKey]) {
-                this.openChats[user.rowKey] = user;
-                var dom = $(chatWindowTemplate({ user: user, users: [this.currentUser, user]}));
-                dom.hide().appendTo(this.$node);
+        this.createChatWindowAndFocus = function (chat) {
+            if (!chat.windowCreated) {
+                var html = $(chatWindowTemplate({ chat: chat }));
+                html.hide().appendTo(this.$node);
+                chat.windowCreated = true;
             }
 
-            if (options && options.activate) {
-                this.select('chatWindowSelector').hide();
-                $('#chat-window-' + user.rowKey).show().find('.message').focus();
-                this.trigger(document, 'userSelected', user);
-            }
+            this.select('chatWindowSelector').hide();
+            $('#chat-window-' + chat.rowKey).show().find('.message').focus();
         };
 
-        this.addMessage = function (userId, message) {
-            this.checkChatWindow(userId);
-            var $chatWindow = $('#chat-window-' + userId);
+        this.addMessage = function (messageData) {
+            console.log('addMessage', messageData);
+            if (messageData.tempId) {
+                $('#' + messageData.tempId).remove();
+            }
+            this.checkChatWindow(messageData);
+            var $chatWindow = $('#chat-window-' + messageData.chatRowKey);
             var data = {
-                message: message
+                messageData: messageData
             };
             $chatWindow.find('.chat-messages').append(chatMessageTemplate(data));
 
             this.scrollWindowToBottom($chatWindow);
         };
 
-        this.checkChatWindow = function (userId) {
-            var $chatWindow = $('#chat-window-' + userId);
+        this.checkChatWindow = function (messageData) {
+            var $chatWindow = $('#chat-window-' + messageData.chatRowKey);
+            console.log('checkChatWindow', messageData, $chatWindow);
             if ($chatWindow.length === 0) {
-                this.trigger('createChatWindow', { rowKey: userId, activate: true });
-                $chatWindow = $('#chat-window-' + userId);
+                var chat = this.openChats[messageData.chatRowKey];
+                if (!chat) {
+                    chat = {
+                        rowKey: messageData.chatRowKey,
+                        users: [messageData.from]
+                    };
+                    this.openChats[messageData.chatRowKey] = chat;
+                    this.trigger(document, 'chatCreated', chat);
+                } else {
+                    this.createChatWindowAndFocus(chat);
+                }
+                return;
             }
 
             this.scrollWindowToBottom($chatWindow);
@@ -86,7 +119,7 @@ define([
             console.log('scrollWindowToBottom', chatWindow);
             clearTimeout(this.scrollTimeout);
             this.scrollTimeout = setTimeout(function () {
-                var bottom = chatWindow[0].scrollHeight - chatWindow.height();
+                var bottom = chatWindow.get(0).scrollHeight - chatWindow.height();
                 chatWindow.clearQueue().animate({scrollTop: bottom}, 'fast');
             }, 100);
         };
@@ -96,13 +129,15 @@ define([
 
             switch (data.type) {
                 case 'chatMessage':
+                    console.log('onSocketMessage: chatMessage:', data);
                     self.trigger(document, 'chatMessage', data.data);
                     break;
             }
         };
 
         this.onChatMessage = function (evt, message) {
-            this.addMessage(message.from, message);
+            console.log('onChatMessage', message);
+            this.addMessage(message);
         };
 
         this.onNewMessageFormSubmit = function (evt) {
@@ -113,28 +148,27 @@ define([
             var $chatWindow = $target.parents('.chat-window');
             var $messageInput = $('.message', $target);
 
-            var message = $messageInput.val();
-            var chatId = $chatWindow.attr('chat-id');
-            var chat = this.openChats[chatId];
+            var chatRowKey = $chatWindow.data('chatrowkey');
+            var chat = this.openChats[chatRowKey];
 
             var tempId = 'chat-message-temp-' + Date.now();
 
             // add a temporary message to create the feel of responsiveness
-            this.addMessage(chatId, {
-                to: chatId,
-                from: self.currentUser.rowKey,
-                message: message,
+            var messageData = {
+                chatRowKey: chatRowKey,
+                from: self.currentUser,
+                message: $messageInput.val(),
                 postDate: null,
                 tempId: tempId
-            });
+            };
+            this.addMessage(messageData);
 
-            this.chatService.sendChatMessage(chatId, self.currentUser.rowKey, message, function (err, message) {
+            this.chatService.sendChatMessage(messageData, function (err, messageData) {
                 if (err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
-                $('#' + tempId).remove();
-                return self.addMessage(chatId, message);
+                return 0;
             });
 
             $messageInput.val('');
