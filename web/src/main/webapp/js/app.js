@@ -71,6 +71,7 @@ define([
             this.on(document, 'verticesSelected', this.onVerticesSelected);
             this.on(document, 'syncStarted', this.onSyncStarted);
             this.on(document, 'paneResized', this.onInternalPaneResize);
+            this.on(document, 'toggleGraphDimensions', this.onToggleGraphDimensions);
 
             // Prevent the fragment identifier from changing after an anchor
             // with href="#" not stopPropagation'ed
@@ -553,6 +554,25 @@ define([
                 .map(function(vertex) {
                     return vertex.graphVertexId;
                 });
+        };
+
+        this.onToggleGraphDimensions = function(e) {
+            var self = this,
+                node = this.$node.find('.graph-pane');
+
+            require(['graph/3d/graph'], function(Graph3D) {
+                if (!self._graphDimensions || self._graphDimensions === 2) {
+                    Graph.teardownAll();
+                    Graph3D.attachTo(node);
+                    self._graphDimensions = 3;
+                } else {
+                    Graph3D.teardownAll();
+                    Graph.attachTo(node);
+                    self._graphDimensions = 2;
+                }
+
+                self.loadActiveWorkspace();
+            });
         };
 
         this.toggleDisplay = function(e, data) {

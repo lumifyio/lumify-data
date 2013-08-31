@@ -835,6 +835,10 @@ define([
             }
         };
 
+        this.after('teardown', function() {
+            this.$node.empty();
+        });
+
         this.after('initialize', function() {
             var self = this;
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);

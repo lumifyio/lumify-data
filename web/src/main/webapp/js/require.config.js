@@ -27,16 +27,22 @@ var require = {
     colorjs: '../libs/color-js/color',
     sf: '../libs/sf/sf',
     d3: '../libs/d3/d3.v3',
+    three: '../libs/3djs/src/three/lib/three',
+    'three-trackball' : '../libs/3djs/src/three/plugins/TrackballControls',
+    'three-stats' : '../libs/3djs/src/three/lib/stats',
+    '3djs': '../libs/3djs/src/3djs',
     intercom: '../libs/intercom/intercom.amd'
   },
   shim: {
     ejs: { exports: 'ejs' },
+    three: { exports: 'THREE' },
+    'three-trackball': { exports: 'THREE', deps:['three'] },
+    'three-stats': { exports: 'Stats', deps:['three'] },
     cytoscape: { exports: 'cytoscape', deps:['arbor'] },
     colorjs: { init: function() { return this.net.brehaut.Color; } },
     videojs: { exports: 'videojs' },
 	underscore: { exports: '_' },
     d3: { exports: 'd3' }
-  },
   deps : ['lumify']
 };
 
