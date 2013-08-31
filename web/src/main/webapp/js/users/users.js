@@ -12,7 +12,6 @@ define([
     function Users() {
         this.usersService = new UsersService();
         this.currentUserRowKey = null;
-        this.onlineUsers = [];
 
         this.defaultAttrs({
             usersListSelector: '.users-list',
@@ -58,6 +57,7 @@ define([
             console.log('onNewUserOnline', userData);
             var $usersList = this.select('usersListSelector');
             var html = userListItemTemplate({ user: userData });
+            console.log('li.status-' + userData.status);
             $usersList.find('li.status-' + userData.status).after(html);
         };
 
@@ -116,7 +116,7 @@ define([
 
             switch (data.type) {
                 case 'userStatusChange':
-                    self.updateUser(data);
+                    self.updateUser(data.data);
                     break;
             }
         };
@@ -124,7 +124,6 @@ define([
         this.updateUsers = function (users) {
             var self = this;
             users.forEach(self.updateUser.bind(this));
-            self.onlineUsers = users;
         };
 
         this.updateUser = function (user) {
@@ -132,13 +131,12 @@ define([
             if (user.rowKey == self.currentUserRowKey) {
                 return;
             }
-            var currentOnlineUsers = self.onlineUsers.filter(function (u) {
-                return u.rowKey == user.rowKey;
-            });
-            var currentOnlineUser = currentOnlineUsers.length ? currentOnlineUsers[0] : null;
-            if (!currentOnlineUser) {
+
+            var $usersList = self.select('usersListSelector');
+            var $user = $('.user-' + user.rowKey, $usersList);
+            if ($user.length == 0) {
                 self.trigger(document, 'newUserOnline', user);
-            } else if (currentOnlineUser.status != user.status) {
+            } else if (!$user.hasClass(user.status)) {
                 self.trigger(document, 'userOnlineStatusChanged', user);
             }
         };
