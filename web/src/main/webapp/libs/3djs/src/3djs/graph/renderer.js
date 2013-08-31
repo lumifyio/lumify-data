@@ -406,7 +406,7 @@ define([
         this._layout = new ForceDirectedLayout( this.graph, {
             iterations: 5000,
             attraction: 5,
-            repulsion: 6,
+            repulsion: 10,
             width: this.domElement.offsetWidth * 0.1,
             height: this.domElement.offsetHeight * 0.1,
             layout: '3d'
