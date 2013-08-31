@@ -76,6 +76,7 @@ define([
                     return;
                 }
                 activeChat = activeChat.clone();
+                activeChat.removeClass('user-' + chat.users[0].rowKey);
                 activeChat.addClass('conversation-' + chat.rowKey);
                 $usersList.find('li.conversations').after(activeChat);
             }

@@ -30,6 +30,7 @@ import java.util.List;
 public class Messaging implements AtmosphereHandler { //extends AbstractReflectorAtmosphereHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(Messaging.class);
     private UserRepository userRepository = new UserRepository();
+    private static RedDawnSession cachedSession;
 
     @Override
     public void onRequest(AtmosphereResource resource) throws IOException {
@@ -93,7 +94,7 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     }
 
     private void setStatus(AtmosphereResource resource, UserStatus status) {
-        RedDawnSession session = WebSessionFactory.createRedDawnSession(resource.getRequest());
+        RedDawnSession session = getRedDawnSession(resource);
         try {
             User user = DevBasicAuthenticator.getUser(resource.getRequest().getSession());
             user.getMetadata().setStatus(status);
@@ -108,5 +109,15 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
         } finally {
             session.close();
         }
+    }
+
+    private RedDawnSession getRedDawnSession(AtmosphereResource resource) {
+        // TODO: should we create a new session each time?
+        if (cachedSession != null) {
+            return cachedSession;
+        }
+        RedDawnSession session = WebSessionFactory.createRedDawnSession(resource.getRequest());
+        cachedSession = session;
+        return session;
     }
 }

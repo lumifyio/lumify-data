@@ -2,8 +2,9 @@ define([
     'flight/lib/component',
     'service/chat',
     'tpl!./chatWindow',
-    'tpl!./chatMessage'
-], function (defineComponent, ChatService, chatWindowTemplate, chatMessageTemplate) {
+    'tpl!./chatMessage',
+    'sf'
+], function (defineComponent, ChatService, chatWindowTemplate, chatMessageTemplate, sf) {
     'use strict';
 
     return defineComponent(Chat);
@@ -55,7 +56,7 @@ define([
             }
 
             var chat = {
-                rowKey: Date.now(),
+                rowKey: userData.rowKey,
                 users: [userData]
             };
             this.openChats[chat.rowKey] = chat;
@@ -89,6 +90,11 @@ define([
             var data = {
                 messageData: messageData
             };
+            if (messageData.postDate) {
+                data.prettyDate = sf('{0:hh:mm:ss tt}', new Date(messageData.postDate));
+            } else {
+                data.prettyDate = 'Pending';
+            }
             $chatWindow.find('.chat-messages').append(chatMessageTemplate(data));
 
             this.scrollWindowToBottom($chatWindow);
