@@ -92,7 +92,12 @@ define([
 
             if (data.relationships) {
                 data.relationships.forEach(function(r) {
-                    graph.node(r.from).connect(graph.node(r.to));
+                    var src = graph.node(r.from),
+                        dest = graph.node(r.to);
+                    
+                    if (src && dest) {
+                        src.connect(dest);
+                    }
                 });
 
                 this.graphRenderer.updateGraph();
