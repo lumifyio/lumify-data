@@ -111,12 +111,11 @@ define([
 
         this.onCreateEntityClicked = function (event) {
             var self = this,
-                $resolvedVertex = $(this.attr.resolvedVertex),
                 newSign = $.trim(this.select('entitySignSelector').val()),
                 parameters = {
                     sign: newSign,
                     conceptId: this.select('conceptSelector').val(),
-                    graphVertexId: $resolvedVertex.graphVertexId,
+                    graphVertexId: this.attr.graphVertexId,
                     artifactKey: this.attr.artifactData._rowKey,
                     artifactId: this.attr.artifactData.graphVertexId,
                     coords: JSON.stringify (this.attr.coords),

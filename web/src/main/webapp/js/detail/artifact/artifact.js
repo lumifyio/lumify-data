@@ -60,19 +60,22 @@ define([
         this.onDetectedObjectClicked = function(event) {
             var root = $('<div class="underneath">').insertAfter('.detected-object-labels');
 
+            var tagInfo = $(event.target).data('info');
+
             EntityForm.attachTo(root, {
                 sign: '',
                 artifactData: this.attr.data,
-                coords: $(event.target).data('tag').coords,
-                detectedObjectRowKey: $(event.target).data('tag')._rowKey
+                coords: tagInfo.coords,
+                detectedObjectRowKey: tagInfo._rowKey,
+                graphVertexId: tagInfo.graphVertexId
             });
         };
 
         this.onDetectedObjectHover = function(event) {
             if (event.type == 'mouseenter') {
-                this.trigger(document, 'DetectedObjectEnter', $(event.target).data('tag'));
+                this.trigger(document, 'DetectedObjectEnter', $(event.target).data('info'));
             } else {
-                this.trigger(document, 'DetectedObjectLeave', $(event.target).data('tag'));
+                this.trigger(document, 'DetectedObjectLeave', $(event.target).data('info'));
             }
         };
 

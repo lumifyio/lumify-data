@@ -152,7 +152,9 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
             List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), artifact, classifierPath);
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
-                    artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL, detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());
+                    artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL,
+                            Integer.toString(detectedObject.getX1()), Integer.toString(detectedObject.getY1()),
+                            Integer.toString(detectedObject.getX2()), Integer.toString(detectedObject.getY2()));
                 }
                 context.write(new Text(Artifact.TABLE_NAME), artifact);
             }

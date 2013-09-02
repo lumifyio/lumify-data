@@ -33,9 +33,9 @@ define([
 
 
         this.onHover = function(event, data) {
-            var box = this.select('boxSelector'),
-                image = this.select('imageSelector'),
-                width = image.width(),
+            var box = this.select('boxSelector');
+            var image = this.select('imageSelector');
+            var width = image.width(),
                 height = image.height(),
                 aspectWidth = width / image[0].naturalWidth,
                 aspectHeight = height / image[0].naturalHeight,
@@ -44,7 +44,6 @@ define([
                 h = (c.y2 - c.y1) * aspectHeight,
                 x = c.x1 * aspectWidth,
                 y = c.y1 * aspectHeight;
-
             box.hide().css({
                 width: w,
                 height: h,
