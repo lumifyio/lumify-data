@@ -151,10 +151,13 @@ define([
     
 
     GraphRenderer.prototype._updateGeometry = function () {
-        //this.geometry.verticesNeedUpdate = true;
-        //this._sprites[0].verticesNeedUpdate = true;
-        this.pickingGeometry.verticesNeedUpdate = true;
-        this.lineGeometry.verticesNeedUpdate = true;
+        if (this._pickingParticleSystem) {
+            this._pickingParticleSystem.geometry.verticesNeedUpdate = true;
+        }
+
+        if (this._lines) {
+            this._lines.geometry.verticesNeedUpdate = true;
+        }
     };
 
 
@@ -211,7 +214,11 @@ define([
 
             controls.update();
 
-            if (needsUpdateGeometry) {
+            if (self.graph.needsUpdate) {
+                self._handleGraphNeedsUpdate();
+                self.graph.needsUpdate = false;
+                self._updateGeometry();
+            } else if (needsUpdateGeometry) {
                 self._updateGeometry();
             }
 
@@ -229,6 +236,145 @@ define([
     };
 
 
+    GraphRenderer.prototype._handleGraphNeedsUpdate = function () {
+        var nodes = this.graph.nodes,
+            len = nodes.length,
+            pickingData = this._pickingData || [],
+            pickingGeometry;
+
+        pickingData.length = 0;
+        if (this._pickingParticleSystem) {
+            pickingGeometry = this._pickingParticleSystem.geometry;
+            pickingGeometry.vertices.length = 0;
+            pickingGeometry.colors.length = 0;
+        } else {
+            pickingGeometry = new THREE.Geometry();
+        }
+
+
+        for (var i = 0; i < len; i++) {
+            var node = nodes[i],
+                vertex = node.position;
+
+            if ( !vertex ) {
+                vertex = new THREE.Vector3();
+                vertex.x = 500 * Math.random() - 250;
+                vertex.y = 500 * Math.random() - 250;
+                vertex.z = 500 * Math.random() - 250;
+                node.position = vertex;
+            }
+
+            if (node._sprite && !node.needsUpdate) {
+                // do nothing
+            } else if (node._sprite && node.needsUpdate) {
+                this._scene.remove(node._sprite);
+                node._hasline = false;
+                this._scene.add(this._spriteForNode(node));
+            } else {
+                this._scene.add(this._spriteForNode(node));
+            }
+            node.needsUpdate = false;
+
+            pickingGeometry.vertices.push( vertex );
+
+            // TODO: generate these
+            pickingGeometry.colors.push(new THREE.Color(i));
+            pickingData[i] = node.id;
+        }
+
+        if (this._pickingParticleSystem) {
+            this._pickingParticleSystem.geometry = pickingGeometry;
+        } else {
+            var pickingMaterial = new THREE.ParticleBasicMaterial({ 
+                size: 100,
+                vertexColors: true
+            });
+
+            this._pickingParticleSystem = new THREE.ParticleSystem( 
+                pickingGeometry,
+                pickingMaterial 
+            );
+            this._pickingScene.add(this._pickingParticleSystem);
+            //this._scene.add(this._pickingParticleSystem);
+        }
+
+        // TODO: remove nodes that were removed
+
+        this.graph.calculateEdges();
+
+        var edges = this.graph.edges,
+            edgesLength = edges.length,
+            geometry = new THREE.Geometry();
+
+        // TODO: reuse line
+        if (this._lines) {
+            this._scene.remove(this._lines);
+            this._lines = null;
+        }
+        if (edgesLength) {
+            this._lines = new THREE.Line(
+                geometry,
+                new THREE.LineBasicMaterial( { color: 0x000000 } )
+            );
+            for (var edgeIndex = 0; edgeIndex < edgesLength; edgeIndex++) {
+                var edge = edges[edgeIndex];
+
+                geometry.vertices.push( edge.source.position );
+                geometry.vertices.push( edge.target.position );
+            }
+            this._scene.add(this._lines);
+        }
+
+        this._layout.init();
+        this._layout.recalculate();
+    };
+
+    GraphRenderer.prototype._spriteForNode = function(node) {
+        var texture = THREE.ImageUtils.loadTexture( node.data.icon );
+        texture.needsUpdate = true;
+
+        var spriteMaterial = new THREE.SpriteMaterial({
+            map: texture,
+            useScreenCoordinates:false,
+            alignment: THREE.SpriteAlignment.center,
+            transparent: true
+        });
+        var sprite = new THREE.Sprite(spriteMaterial);
+        sprite.name = node.data.label;
+        sprite.scale.set( node.data.iconWidth, node.data.iconHeight, 1.0 ); 
+        sprite.position = node.position;
+
+        var canvas = document.createElement('canvas');
+        canvas.width = 400;
+        canvas.height = node.data.iconHeight + 125;
+        var context = canvas.getContext('2d');
+        var fontsize = 40;
+        context.font = fontsize + "px Helvetica";
+        var metrics = context.measureText( node.data.label );
+        var textWidth = metrics.width;
+        context.fillStyle = "rgba(128, 128, 128, 1.0)";
+        context.fillText(node.data.label, canvas.width / 2 - textWidth / 2, canvas.height - fontsize * 0.5);
+
+
+        var textTexture = new THREE.Texture(canvas); 
+        textTexture.needsUpdate = true;
+
+        var textSpriteMaterial = new THREE.SpriteMaterial({
+            map: textTexture,
+            useScreenCoordinates:false,
+            alignment: THREE.SpriteAlignment.center,
+            color: 0xffffff  
+        });
+        var textSprite = new THREE.Sprite(textSpriteMaterial);
+        textSprite.scale.set( canvas.width, canvas.height, 1.0 );
+        textSprite.position = new THREE.Vector3(0, 0, 0);
+        sprite.add(textSprite);
+
+        node._sprite = sprite;
+
+        return sprite;
+    };
+
 
 
     GraphRenderer.prototype._setupScene = function () {
@@ -236,177 +382,15 @@ define([
         this._scene = new THREE.Scene();
         this._pickingScene = new THREE.Scene();
 
-        var nodes = this._createNodes();
-        var lines = this._createLines();
-
-        this._scene.add( lines );
-        //this._scene.add( nodes );
-        for (var i = 0; i < nodes.length; i++) {
-            this._scene.add(nodes[i]);
-        }
-
         this._camera.position.z = 2400;
     };
-
-    GraphRenderer.prototype.updateGraph = function () {
-        var self = this;
-
-        clearTimeout(this._layouttimer);
-        this._setupScene();
-        this._layout.stop_calculating();
-
-        self._layouttimer = setTimeout(function() {
-            self._setupLayout();
-        }, 500);
-    };
-
-
-    GraphRenderer.prototype._createNodes = function () {
-
-        var nodes = this.graph.nodes,
-            len = nodes.length,
-            geometry = new THREE.Geometry(),
-            material = new THREE.ParticleBasicMaterial({ 
-                size: 120,
-                vertexColors: true,
-                transparent: true 
-            }),
-            pickingGeometry = new THREE.Geometry(),
-            pickingMaterial = new THREE.ParticleBasicMaterial({ 
-                size: 100,
-                vertexColors: true
-            }),
-            pickingData = this._pickingData,
-            colors = [],
-            pickingColors = [],
-            sprites = [];
-
-
-        for (var i = 0; i < len; i++) {
-
-            var vertex = nodes[i].position;
-            if ( !vertex ) {
-                vertex = new THREE.Vector3();
-
-                vertex.x = 500 * Math.random() - 250;
-                vertex.y = 500 * Math.random() - 250;
-                vertex.z = 500 * Math.random() - 250;
-
-                nodes[i].position = vertex;
-            }
-
-            var texture = THREE.ImageUtils.loadTexture( nodes[i].data.icon );
-            texture.needsUpdate = true;
-
-            var spriteMaterial = new THREE.SpriteMaterial({
-                map: texture,
-                useScreenCoordinates:false,
-                alignment: THREE.SpriteAlignment.center,
-                color: 0xffffff  
-            });
-            var sprite = new THREE.Sprite(spriteMaterial);
-            sprite.scale.set( nodes[i].data.iconWidth, nodes[i].data.iconHeight, 1.0 ); // imageWidth, imageHeight
-            sprite.position = nodes[i].position;
-
-
-            var canvas = document.createElement('canvas');
-            canvas.width = 400;
-            canvas.height = nodes[i].data.iconHeight + 125;
-            var context = canvas.getContext('2d');
-            var fontsize = 40;
-            context.font = fontsize + "px Helvetica";
-            var metrics = context.measureText( nodes[i].data.label );
-            var textWidth = metrics.width;
-            context.fillStyle = "rgba(128, 128, 128, 1.0)";
-            context.fillText(nodes[i].data.label, canvas.width / 2 - textWidth / 2, canvas.height - fontsize * 0.5);
-
-            
-
-            // canvas contents will be used for a texture
-            var textTexture = new THREE.Texture(canvas); 
-            textTexture.needsUpdate = true;
-
-            var textSpriteMaterial = new THREE.SpriteMaterial({
-                map: textTexture,
-                useScreenCoordinates:false,
-                alignment: THREE.SpriteAlignment.center,
-                color: 0xffffff  
-            });
-            var textSprite = new THREE.Sprite(textSpriteMaterial);
-            textSprite.scale.set( canvas.width, canvas.height, 1.0 );
-            textSprite.position = new THREE.Vector3(0, 0, 0);
-            sprite.add(textSprite);
-
-            sprites.push(sprite);
-
-            //sprites.push(textSprite);
-
-
-
-
-            //geometry.vertices.push( vertex );
-
-            //colors[ i ] = new THREE.Color( 0xffffff );
-            //colors[ i ].setHSL( ( vertex.x + 250 ) / len, 1, 0.5 );
-
-            pickingGeometry.vertices.push( vertex );
-
-            pickingColors[ i ] = new THREE.Color( i );
-            pickingData[i] = nodes[i].id;
-        }
-        //geometry.colors = colors;
-        pickingGeometry.colors = pickingColors;
-
-        this._pickingScene.add( 
-            new THREE.ParticleSystem( pickingGeometry, pickingMaterial )
-        );
-
-        //this._scene.add(
-            //new THREE.ParticleSystem( pickingGeometry, pickingMaterial )
-        //);
-
-        this._sprites = sprites;
-
-        //material.color.setHSL( 1.0, 0.2, 0.7 );
-
-        //this.geometry = geometry;
-        this.pickingGeometry = pickingGeometry;
-
-        //return new THREE.ParticleSystem( geometry, material );
-
-        return sprites;
-    };
-
-
-
-    GraphRenderer.prototype._createLines = function () {
-
-        this.graph.calculateEdges();
-
-        var edges = this.graph.edges,
-            len = edges.length,
-            geometry = new THREE.Geometry(),
-            material = new THREE.LineBasicMaterial( { color: 0x000000 } );
-
-        for (var i = 0; i < len; i++) {
-            var edge = edges[i];
-
-            geometry.vertices.push( edge.source.position );
-            geometry.vertices.push( edge.target.position );
-        }
-
-        this.lineGeometry = geometry;
-    
-        return new THREE.Line( geometry, material );
-    };
-    
 
 
     GraphRenderer.prototype._setupLayout = function () {
         this._layout = new ForceDirectedLayout( this.graph, {
             iterations: 5000,
-            attraction: 5,
-            repulsion: 10,
+            attraction: 2,
+            repulsion: 30,
             width: this.domElement.offsetWidth * 0.1,
             height: this.domElement.offsetHeight * 0.1,
             layout: '3d'
@@ -414,7 +398,6 @@ define([
 
         this._layout.init();
     };
-
 
 
     GraphRenderer.prototype.showStats = function () {

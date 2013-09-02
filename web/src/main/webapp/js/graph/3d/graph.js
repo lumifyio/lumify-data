@@ -3,11 +3,33 @@
 define([
     'flight/lib/component',
     'service/ontology',
-    '3djs'
-], function(defineComponent, OntologyService, $3djs) {
+    '3djs',
+    'util/previews'
+], function(defineComponent, OntologyService, $3djs, previews) {
 
+    var imageCache = {};
 
     return defineComponent(Graph3D);
+
+    function loadImage(src) {
+        if (imageCache[src]) {
+            return imageCache[src];
+        }
+
+        var deferred = $.Deferred();
+        imageCache[src] = deferred;
+
+        var image = new Image();
+        image.onload = function() {
+            deferred.resolve(this);
+        };
+        image.onerror = function() {
+            deferred.reject(arguments);
+        };
+        image.src = src;
+        imageCache[src] = deferred.promise();
+        return imageCache[src];
+    }
 
     function Graph3D() {
         this.ontologyService = new OntologyService();
@@ -44,42 +66,58 @@ define([
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
-
         });
+        
+
+        this.addVertices = function(vertices) {
+            var graph = this.graph,
+                deferredImages = [];
+
+            vertices.forEach(function(vertex) {
+                var node = new $3djs.Graph.Node(vertex.graphVertexId);
+
+                node.data = vertex;
+                node.data.icon = vertex._glyphIcon || this.icons[vertex._subType];
+
+                if (node.data.icon) {
+                    deferredImages.push(
+                        loadImage(node.data.icon)
+                            .done(function(image) {
+                                var ratio = image.naturalWidth / image.naturalHeight,
+                                    height = 150;
+
+                                addToGraph(height * ratio, height, node);
+                            })
+                    );
+                } else {
+                    console.warn("No icon set for vertex: ", vertex);
+                }
+            }.bind(this));
+
+            $.when(deferredImages).done(function() {
+                graph.needsUpdate = true;
+            });
+            function addToGraph(width, height, node) {
+                node.data.iconWidth = width;
+                node.data.iconHeight = height;
+                node.data.label = node.data.title || 'No title Available';
+                node.needsUpdate = true;
+                graph.addNode(node);
+            }
+        };
 
         this.onWorkspaceLoaded = function(evt, workspace) {
             var self = this,
                 graph = this.graph;
 
             if (workspace.data && workspace.data.vertices) {
-
-                workspace.data.vertices.forEach(function(vertex){
-                    var node = new $3djs.Graph.Node(vertex.graphVertexId);
-                    node.data = vertex;
-                    node.data.icon = vertex._glyphIcon || self.icons[vertex._subType];
-
-                    if (node.data.icon) {
-                        var image = new Image();
-                        image.onload = function() {
-                            var ratio = this.naturalWidth / this.naturalHeight;
-
-                            node.data.iconHeight = 150;
-                            node.data.iconWidth = node.data.iconHeight * ratio;
-                            node.data.label = node.data.title || 'No title';
-                            graph.addNode(node);
-                        };
-                        image.src = node.data.icon;
-                    } else {
-                        node.data.iconWidth = 100;
-                        node.data.iconHeight = 100;
-                        graph.addNode(node);
-                    }
-                });
-
-                this.graphRenderer.updateGraph();
+                this.addVertices(workspace.data.vertices);
             }
         };
-        this.onVerticesAdded = function() {
+        this.onVerticesAdded = function(event, data) {
+            if (data.vertices) {
+                this.addVertices(data.vertices);
+            }
         };
         this.onVerticesDeleted = function() {
         };
@@ -100,7 +138,9 @@ define([
                     }
                 });
 
-                this.graphRenderer.updateGraph();
+                this.graph.needsUpdate = true;
+
+                //this.graphRenderer.updateGraph();
             }
         };
 
