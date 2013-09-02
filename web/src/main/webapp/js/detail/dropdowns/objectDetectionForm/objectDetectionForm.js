@@ -3,7 +3,7 @@ define([
     'flight/lib/component',
     '../withDropdown',
     'detail/artifact/artifact',
-    'tpl!./entityForm',
+    'tpl!./objectDetectionForm',
     'tpl!detail/dropdowns/termForm/concept-options',
     'service/ucd',
     'service/entity',

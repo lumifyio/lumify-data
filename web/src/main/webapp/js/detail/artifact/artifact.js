@@ -5,9 +5,9 @@ define([
     './image/image',
     '../withTypeContent',
     '../withHighlighting',
-    'detail/dropdowns/entityForm/entityForm',
+    'detail/dropdowns/objectDetectionForm/objectDetectionForm',
     'tpl!./artifact'
-], function(defineComponent, VideoScrubber, Image, withTypeContent, withHighlighting, EntityForm, template) {
+], function(defineComponent, VideoScrubber, Image, withTypeContent, withHighlighting, ObjectDetectionForm, template) {
 
     'use strict';
 
@@ -62,7 +62,7 @@ define([
 
             var tagInfo = $(event.target).data('info');
 
-            EntityForm.attachTo(root, {
+            ObjectDetectionForm.attachTo(root, {
                 sign: '',
                 artifactData: this.attr.data,
                 coords: tagInfo.coords,
