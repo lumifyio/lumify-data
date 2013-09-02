@@ -27,8 +27,8 @@ public class ArtifactDetectedObjects extends ColumnFamily {
         cssClasses.add("label-info");
         cssClasses.add("detected-object");
 
-        JSONObject data = toJson(concept, model, x1, y1, x2, y2);
         String columnName = RowKeyHelper.buildMinor(concept, model, x1, y1, x2, y2);
+        JSONObject data = toJson(concept, model, x1, y1, x2, y2, columnName);
         String value = getDetectedObjectValue(cssClasses, data);
         this.set (columnName, value);
     }
@@ -56,9 +56,8 @@ public class ArtifactDetectedObjects extends ColumnFamily {
 
             for (Column column : getColumns()) {
                 String[] parts = RowKeyHelper.splitOnMinorFieldSeperator(column.getName());
-                JSONObject columnJson = toJson(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]);
+                JSONObject columnJson = toJson(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], column.getName());
                 columnJson.put("tagHtml", column.getValue());
-                columnJson.put("_rowKey", column.getName());
                 detectedObjects.put(columnJson);
             }
 
@@ -69,10 +68,11 @@ public class ArtifactDetectedObjects extends ColumnFamily {
         }
     }
 
-    public JSONObject toJson (String concept, String model, String x1, String y1, String x2, String y2) throws JSONException {
+    public JSONObject toJson (String concept, String model, String x1, String y1, String x2, String y2, String rowKey) throws JSONException {
         JSONObject object = new JSONObject();
         object.put("concept", concept);
         object.put("model", model);
+        object.put("_rowKey", rowKey);
         JSONObject coordsJson = new JSONObject();
         coordsJson.put("x1", x1);
         coordsJson.put("y1", y1);
