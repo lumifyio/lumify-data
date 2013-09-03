@@ -33,7 +33,13 @@ public abstract class GraphVertex {
             for (String key : getPropertyKeys()) {
                 if (key.equals("_type")) {
                     propertiesJson.put(key, getProperty(key).toString().toLowerCase());
-                } else {
+                } else if ( key.equals("geoLocation") ){
+                    String val = getProperty(key).toString();
+                    String[] latlong = val.substring(val.indexOf('[')+1,val.indexOf(']')).split(",");
+                    propertiesJson.put("latitude", latlong[0]);
+                    propertiesJson.put("longitude", latlong[1]);
+                }
+                else {
                     propertiesJson.put(key, getProperty(key));
                 }
             }

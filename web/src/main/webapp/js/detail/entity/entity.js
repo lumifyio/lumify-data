@@ -239,7 +239,7 @@ define([
             var self = this;
 
             vertexService.setProperty(
-                    this.attr.data.id, 
+                    this.attr.data.id || this.attr.data.graphVertexId,
                     data.property.name,
                     data.property.value, 
                     function (err, properties){

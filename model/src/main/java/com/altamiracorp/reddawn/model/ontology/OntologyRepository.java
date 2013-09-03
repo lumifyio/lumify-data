@@ -24,6 +24,17 @@ public class OntologyRepository {
         return toRelationships(graphSession, vertices);
     }
 
+    public String getDisplayNameForLabel (GraphSession graphSession, String relationshipLabel){
+        Iterable<Vertex> vertices = graphSession.getGraph().query()
+                .has(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString())
+                .vertices();
+        for (Vertex vertex : vertices) {
+            if (vertex.getProperty(PropertyName.ONTOLOGY_TITLE.toString()).equals(relationshipLabel))
+                return vertex.getProperty(PropertyName.DISPLAY_NAME.toString());
+        }
+        return null;
+    }
+
     public List<Property> getProperties(GraphSession graphSession) {
         List<Property> properties = new ArrayList<Property>();
         Iterator<Vertex> vertices = graphSession.getGraph().query()

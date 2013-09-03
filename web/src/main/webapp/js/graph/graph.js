@@ -201,7 +201,6 @@ define([
                                 return vertex.data('graphVertexId') === updatedVertex.graphVertexId;
                             })
                             .each(function(idx, vertex) {
-
                                 if (updatedVertex.graphPosition) {
                                     vertex.position( retina.pointsToPixels(updatedVertex.graphPosition) );
                                 }
@@ -212,11 +211,19 @@ define([
                                     vertex.addClass('hasCustomGlyph');
                                 }
 
+                                if (updatedVertex._subType) {
+                                    vertex.data()._subType = updatedVertex._subType;
+                                }
+
+                                vertex._private.classes.length = 0;
+                                vertex.addClass($.trim('concept-' + updatedVertex._subType + ' ' + (updatedVertex._type || '') + (updatedVertex._glyphIcon ? ' hasCustomGlyph' : '')));
+
                                 // TODO: update other properties? (title needs
                                 // truncation...
                             });
                     });
             });
+
         };
 
         this.onExistingVerticesAdded = function(evt, data) {
@@ -371,11 +378,13 @@ define([
             this.graphPaddingRight = data.padding.r;
             this.updatePanZoomLocation();
 
-            data.padding.r += this.select('graphToolsSelector').outerWidth(true);
-            data.padding.l += border;
-            data.padding.t += border;
-            data.padding.b += border;
-            this.graphPadding = data.padding;
+            var padding = $.extend({}, data.padding);
+
+            padding.r += this.select('graphToolsSelector').outerWidth(true);
+            padding.l += border;
+            padding.t += border;
+            padding.b += border;
+            this.graphPadding = padding;
         };
 
         this.updatePanZoomLocation = function() {
