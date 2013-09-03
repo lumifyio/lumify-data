@@ -18,7 +18,6 @@ class elasticsearch(
   $indexdir = "${datadir}/data"
   $workdir = "${datadir}/work"
   $piddir = "/var/run/elasticsearch"
-  $publishaddress = hiera("elasticsearch_publishaddress")
 
   user { $user :
     ensure  => "present",
