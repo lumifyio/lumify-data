@@ -165,18 +165,6 @@ define([
             }
         };
 
-        this.onRequestGraphPadding = function() {
-            var searchWidth = this.select('searchSelector').filter('.visible').outerWidth(true) || 0,
-                searchResultsWidth = searchWidth > 0 ? $('.search-results:visible').outerWidth(true) || 0 : 0,
-                detailWidth = this.select('detailPaneSelector').filter('.visible').outerWidth(true) || 0,
-                padding = {
-                    l:searchWidth + searchResultsWidth, r:detailWidth,
-                    t:0, b:0
-                };
-
-            this.trigger(document, 'graphPaddingResponse', { padding: padding });
-        };
-
         this.setupDroppable = function() {
             var self = this;
 
@@ -650,7 +638,8 @@ define([
         };
 
         this.triggerPaneResized = function() {
-            var searchWidth = this.select('searchSelector')
+            var PANE_BORDER_WIDTH = 6,
+                searchWidth = this.select('searchSelector')
                     .filter('.visible:not(.collapsed)')
                     .outerWidth(true) || 0,
 
@@ -676,6 +665,13 @@ define([
                     t:0, 
                     b:0
                 };
+
+            if (padding.l) {
+                padding.l += PANE_BORDER_WIDTH;
+            }
+            if (padding.r) {
+                padding.r += PANE_BORDER_WIDTH;
+            }
 
             this.trigger(document, 'graphPaddingUpdated', { padding: padding });
         };

@@ -6,6 +6,7 @@ define([
 ], function(defineComponent, template, sf) {
 
     var LAST_SAVED_UPDATE_FREQUENCY_SECONDS = 30;
+    var MENUBAR_WIDTH = 30;
 
     return defineComponent(WorkspaceOverlay);
 
@@ -22,7 +23,12 @@ define([
             this.on(document, 'workspaceSwitched', this.onWorkspaceSwitched);
             this.on(document, 'workspaceSaving', this.onWorkspaceSaving);
             this.on(document, 'workspaceSaved', this.onWorkspaceSaved);
+            this.on(document, 'graphPaddingUpdated', this.onGraphPaddingUpdated);
         });
+
+        this.onGraphPaddingUpdated = function(event, data) {
+            this.$node.css('left', data.padding.l + MENUBAR_WIDTH);
+        };
 
         this.setContent = function(title, subtitle) {
             this.select('nameSelector').text(title);

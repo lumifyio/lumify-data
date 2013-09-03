@@ -371,11 +371,13 @@ define([
             this.graphPaddingRight = data.padding.r;
             this.updatePanZoomLocation();
 
-            data.padding.r += this.select('graphToolsSelector').outerWidth(true);
-            data.padding.l += border;
-            data.padding.t += border;
-            data.padding.b += border;
-            this.graphPadding = data.padding;
+            var padding = $.extend({}, data.padding);
+
+            padding.r += this.select('graphToolsSelector').outerWidth(true);
+            padding.l += border;
+            padding.t += border;
+            padding.b += border;
+            this.graphPadding = padding;
         };
 
         this.updatePanZoomLocation = function() {
