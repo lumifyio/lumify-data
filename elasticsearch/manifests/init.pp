@@ -19,6 +19,12 @@ class elasticsearch(
   $workdir = "${datadir}/work"
   $piddir = "/var/run/elasticsearch"
 
+  if $interfaces =~ /eth1/ {
+    $es_node_ip = $ipaddress_eth1
+  } else {
+    $es_node_ip = $ipaddress_eth0
+  }
+
   user { $user :
     ensure  => "present",
     gid     => $group,
