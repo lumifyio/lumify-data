@@ -201,7 +201,6 @@ define([
                                 return vertex.data('graphVertexId') === updatedVertex.graphVertexId;
                             })
                             .each(function(idx, vertex) {
-
                                 if (updatedVertex.graphPosition) {
                                     vertex.position( retina.pointsToPixels(updatedVertex.graphPosition) );
                                 }
@@ -212,11 +211,19 @@ define([
                                     vertex.addClass('hasCustomGlyph');
                                 }
 
+                                if (updatedVertex._subType) {
+                                    vertex.data()._subType = updatedVertex._subType;
+                                }
+
+                                vertex._private.classes.length = 0;
+                                vertex.addClass($.trim('concept-' + updatedVertex._subType + ' ' + (updatedVertex._type || '') + (updatedVertex._glyphIcon ? ' hasCustomGlyph' : '')));
+
                                 // TODO: update other properties? (title needs
                                 // truncation...
                             });
                     });
             });
+
         };
 
         this.onExistingVerticesAdded = function(evt, data) {
