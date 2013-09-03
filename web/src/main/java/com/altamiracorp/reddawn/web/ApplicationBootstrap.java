@@ -1,5 +1,14 @@
 package com.altamiracorp.reddawn.web;
 
+import java.util.Properties;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloSession;
 import com.altamiracorp.reddawn.model.TitanGraphSession;
@@ -8,17 +17,11 @@ import com.altamiracorp.reddawn.search.ElasticSearchProvider;
 import com.altamiracorp.reddawn.web.config.ApplicationConfig;
 import com.altamiracorp.reddawn.web.config.Configuration;
 import com.altamiracorp.reddawn.web.config.ParameterExtractor;
+import com.altamiracorp.reddawn.web.config.PropertyUtils;
 import com.altamiracorp.reddawn.web.config.WebConfigConstants;
 import com.altamiracorp.reddawn.web.guice.modules.Bootstrap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import java.util.Properties;
 
 /**
  * Responsible for defining behavior corresponding to web servlet context
@@ -35,6 +38,8 @@ public final class ApplicationBootstrap implements ServletContextListener {
 
         if( context != null ) {
             final Configuration config = fetchApplicationConfiguration(context);
+            LOGGER.info("Running application with configuration: " + config);
+
             final Injector injector = Guice.createInjector(new Bootstrap(config));
 
             // Store the injector in the context for a servlet to access later
@@ -74,16 +79,16 @@ public final class ApplicationBootstrap implements ServletContextListener {
 
     private void setupSession(final ApplicationConfig config) {
         final Properties props = new Properties();
-        props.setProperty(AccumuloSession.HADOOP_URL, config.getNamenodeUrl());
-        props.setProperty(AccumuloSession.ZOOKEEPER_INSTANCE_NAME, config.getZookeeperInstanceName());
-        props.setProperty(AccumuloSession.ZOOKEEPER_SERVER_NAMES, config.getZookeeperServerNames());
-        props.setProperty(AccumuloSession.USERNAME, config.getDataStoreUserName());
-        props.setProperty(AccumuloSession.PASSWORD, config.getDataStorePassword());
-        props.setProperty(BlurSearchProvider.BLUR_CONTROLLER_LOCATION, config.getSearchIndexController());
-        props.setProperty(BlurSearchProvider.BLUR_PATH, config.getSearchIndexStoragePath());
-        props.setProperty(TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, config.getGraphSearchIndexHostname());
-        props.setProperty(RedDawnSession.SEARCH_PROVIDER_PROP_KEY, config.getSearchProvider());
-        props.setProperty(ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, config.getElasticSearchLocations());
+        PropertyUtils.setPropertyValue(props, AccumuloSession.HADOOP_URL, config.getNamenodeUrl());
+        PropertyUtils.setPropertyValue(props, AccumuloSession.ZOOKEEPER_INSTANCE_NAME, config.getZookeeperInstanceName());
+        PropertyUtils.setPropertyValue(props, AccumuloSession.ZOOKEEPER_SERVER_NAMES, config.getZookeeperServerNames());
+        PropertyUtils.setPropertyValue(props, AccumuloSession.USERNAME, config.getDataStoreUserName());
+        PropertyUtils.setPropertyValue(props, AccumuloSession.PASSWORD, config.getDataStorePassword());
+        PropertyUtils.setPropertyValue(props, BlurSearchProvider.BLUR_CONTROLLER_LOCATION, config.getSearchIndexController());
+        PropertyUtils.setPropertyValue(props, BlurSearchProvider.BLUR_PATH, config.getSearchIndexStoragePath());
+        PropertyUtils.setPropertyValue(props, TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, config.getGraphSearchIndexHostname());
+        PropertyUtils.setPropertyValue(props, RedDawnSession.SEARCH_PROVIDER_PROP_KEY, config.getSearchProvider());
+        PropertyUtils.setPropertyValue(props, ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, config.getElasticSearchLocations());
 
         RedDawnSession.setApplicationProperties(props);
         RedDawnSession.create().getModelSession().initializeTables();

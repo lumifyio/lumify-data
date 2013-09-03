@@ -9,9 +9,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import com.altamiracorp.reddawn.RedDawnSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Objects;
 
 /**
  * Responsible for parsing application configuration file and providing
@@ -171,5 +172,25 @@ public final class Configuration implements MapConfig, ApplicationConfig {
             LOGGER.error("Error occurred while loading file: " + fileUrl, e);
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+            .add(WebConfigConstants.HADOOP_URL, nameNodeUrl)
+            .add(WebConfigConstants.ZK_INSTANCENAME, zkInstanceName)
+            .add(WebConfigConstants.ZK_SERVERS, zkServerNames)
+            .add(WebConfigConstants.ACCUMULO_USER, dataStoreUserName)
+            .add(WebConfigConstants.ACCUMULO_PASSWORD, dataStorePassword)
+            .add(WebConfigConstants.BLUR_CONTROLLER, searchIndexController)
+            .add(WebConfigConstants.BLUR_PATH, searchIndexStoragePath)
+            .add(WebConfigConstants.GRAPH_SEARCH_HOSTNAME, graphSearchIndexHostname)
+            .add(WebConfigConstants.MAP_PROVIDER, mapProvider)
+            .add(WebConfigConstants.MAP_ACCESS_KEY, mapAccessKey)
+            .add(WebConfigConstants.MAP_TILE_SERVER_HOST, mapTileServerHostname)
+            .add(WebConfigConstants.MAP_TILE_SERVER_PORT, mapTileServerPort)
+            .add(WebConfigConstants.SEARCH_PROVIDER, searchProvider)
+            .add(WebConfigConstants.ELASTIC_SEARCH_LOCATIONS, elasticSearchLocations)
+            .toString();
     }
 }

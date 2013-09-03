@@ -38,13 +38,9 @@ public final class ParameterExtractor {
         checkArgument(!property.isEmpty());
 
         final String contextParamValue = servletContext.getInitParameter(parameter);
+        LOGGER.info(String.format("Extracting context initialization parameter: %s=%s", parameter, contextParamValue));
 
-        if( contextParamValue != null ) {
-            applicationProps.setProperty(property, contextParamValue);
-            LOGGER.info(String.format("Extracted context initialization parameter: %s=%s", parameter, contextParamValue));
-        } else {
-            LOGGER.warn(String.format("Could not find expected parameter: %s", parameter));
-        }
+        PropertyUtils.setPropertyValue(applicationProps, property, contextParamValue);
     }
 
     public Properties getApplicationProperties() {
