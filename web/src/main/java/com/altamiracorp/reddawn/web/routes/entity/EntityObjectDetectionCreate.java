@@ -7,8 +7,8 @@ import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.reddawn.model.ontology.LabelName;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
+import com.altamiracorp.reddawn.objectDetection.ObjectDetectionWorker;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
-import com.altamiracorp.reddawn.ucd.artifact.ArtifactDetectedObjects;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -31,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class EntityObjectDetectionCreate implements Handler, AppAware {
     private WebApp app;
     private GraphRepository graphRepository = new GraphRepository();
-    private ArtifactRepository artifactRepository= new ArtifactRepository();
+    private ArtifactRepository artifactRepository = new ArtifactRepository();
 
     private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
             new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()),
@@ -47,7 +48,12 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         String sign = getRequiredParameter(request, "sign");
         String conceptId = getRequiredParameter(request, "conceptId");
         String resolvedGraphVertexId = request.getParameter("graphVertexId");
-        String boundingBox = getRequiredParameter(request, "coords");
+        String x1 = getRequiredParameter(request, "x1");
+        String y1 = getRequiredParameter(request, "y1");
+        String x2 = getRequiredParameter(request, "x2");
+        String y2 = getRequiredParameter(request, "y2");
+        String boundingBox = "x1: " + x1 + ", y1: " + y1 + ", x2: " + x2 + ", y2: " + y2;
+        String model = getRequiredParameter(request, "model");
         String detectedObjectRowKey = getRequiredParameter(request, "detectedObjectRowKey");
 
         GraphVertex conceptVertex = graphRepository.findVertex(session.getGraphSession(), conceptId);
@@ -72,11 +78,11 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         graphRepository.saveRelationship(session.getGraphSession(), artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF);
 
         Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactRowKey);
-        artifact.getArtifactDetectedObjects().set(detectedObjectRowKey, resolvedVertex.getId());
+        List<String> cssClasses = artifact.getArtifactDetectedObjects().getCssClasses(true);
+        JSONObject infoJson = artifact.getArtifactDetectedObjects().infoJson (conceptId, model, x1, y1, x2, y2, detectedObjectRowKey);
+        JSONObject obj = toJson(resolvedVertex, infoJson);
+        executorService.execute(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, cssClasses, obj));
 
-        artifactRepository.save(session.getModelSession(), artifact);
-
-        JSONObject obj = toJson(resolvedVertex);
 
         new Responder(response).respondWith(obj);
     }
@@ -94,12 +100,11 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         return UrlUtils.urlDecode(parameter);
     }
 
-    private JSONObject toJson(GraphVertex vertex) throws JSONException {
-        JSONObject obj = new JSONObject();
-        obj.put("graphVertexId", vertex.getId());
+    private JSONObject toJson(GraphVertex vertex, JSONObject infoJson) throws JSONException {
+        infoJson.put("graphVertexId", vertex.getId());
         for (String property : vertex.getPropertyKeys()) {
-            obj.put(property, vertex.getProperty(property));
+            infoJson.put(property, vertex.getProperty(property));
         }
-        return obj;
+        return infoJson;
     }
 }

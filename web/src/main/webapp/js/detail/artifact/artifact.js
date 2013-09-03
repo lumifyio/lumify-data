@@ -61,13 +61,13 @@ define([
             var root = $('<div class="underneath">').insertAfter('.detected-object-labels');
 
             var tagInfo = $(event.target).data('info');
-
+            
             ObjectDetectionForm.attachTo(root, {
-                sign: '',
                 artifactData: this.attr.data,
                 coords: tagInfo.coords,
                 detectedObjectRowKey: tagInfo._rowKey,
-                graphVertexId: tagInfo.graphVertexId
+                graphVertexId: tagInfo.graphVertexId,
+                model: tagInfo.model
             });
         };
 

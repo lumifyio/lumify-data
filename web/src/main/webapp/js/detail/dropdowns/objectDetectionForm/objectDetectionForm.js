@@ -10,9 +10,9 @@ define([
     'service/ontology'
 ], function(defineComponent, withDropdown, artifact, template, options, Ucd, EntityService, OntologyService) {
 
-    return defineComponent(EntityForm, withDropdown);
+    return defineComponent(ObjectDetectionForm, withDropdown);
 
-    function EntityForm() {
+    function ObjectDetectionForm() {
         this.ucd = new Ucd ();
         this.ontologyService = new OntologyService ();
         this.entityService = new EntityService ();
@@ -115,10 +115,14 @@ define([
                 parameters = {
                     sign: newSign,
                     conceptId: this.select('conceptSelector').val(),
+                    model: this.attr.model,
                     graphVertexId: this.attr.graphVertexId,
                     artifactKey: this.attr.artifactData._rowKey,
                     artifactId: this.attr.artifactData.graphVertexId,
-                    coords: JSON.stringify (this.attr.coords),
+                    x1: this.attr.coords.x1,
+                    y1: this.attr.coords.y1,
+                    x2: this.attr.coords.x2,
+                    y2: this.attr.coords.y2,
                     detectedObjectRowKey: this.attr.detectedObjectRowKey
                 },
                 $loading = $("<span>")
@@ -131,7 +135,7 @@ define([
                 if (err) {
                     self.trigger(document, 'error', err);
                 } else {
-                    $('.detected-object-labels .label').addClass('entity resolved generic-draggable');
+                    $('.detected-object-labels .label').addClass('entity resolved');
                     $('.detected-object-labels .label').data('info', data);
                     self.trigger(document, 'termCreated', data);
                     _.defer(self.teardown.bind(self));
