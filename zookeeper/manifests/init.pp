@@ -7,9 +7,9 @@ class zookeeper {
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')
 
   if $interfaces =~ /eth1/ {
-    $zookeeper_node_ip = ipaddress_eth1
+    $zookeeper_node_ip = $ipaddress_eth1
   } else {
-    $zookeeper_node_ip = ipaddress_eth0
+    $zookeeper_node_ip = $ipaddress_eth0
   }
 
   file { 'hadoop-zookeeper-config':
