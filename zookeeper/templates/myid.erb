@@ -1,1 +1,1 @@
-<%= @zookeeper_nodes.find {|id, node| node.split(':')[0] == (ipaddress_eth1 ? ipaddress_eth1 : ipaddress)}[0] %>
+<%= @zookeeper_nodes.find {|id, node| node.split(':')[0] == zookeeper_node_ip}[0] %>
