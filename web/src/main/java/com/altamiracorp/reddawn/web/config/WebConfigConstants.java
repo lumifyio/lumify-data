@@ -20,6 +20,8 @@ public final class WebConfigConstants {
     public static final String MAP_ACCESS_KEY = "map.apiKey";
     public static final String MAP_TILE_SERVER_HOST = "map.tileServer.hostName";
     public static final String MAP_TILE_SERVER_PORT = "map.tileServer.port";
+    public static final String SEARCH_PROVIDER = "search.provider";
+    public static final String ELASTIC_SEARCH_LOCATIONS = "elasticsearch.locations";
 
     private WebConfigConstants() {
 

@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
+import com.altamiracorp.reddawn.RedDawnSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +41,8 @@ public final class Configuration implements MapConfig, ApplicationConfig {
     private static String mapProvider;
     private static String mapAccessKey;
     private static String mapTileServerHostname;
+    private static String searchProvider;
+    private static String elasticSearchLocations;
     private static int mapTileServerPort;
 
     private Configuration() {
@@ -84,6 +87,16 @@ public final class Configuration implements MapConfig, ApplicationConfig {
     @Override
     public String getGraphSearchIndexHostname() {
         return graphSearchIndexHostname;
+    }
+
+    @Override
+    public String getSearchProvider() {
+        return searchProvider;
+    }
+
+    @Override
+    public String getElasticSearchLocations() {
+        return elasticSearchLocations;
     }
 
     @Override
@@ -139,6 +152,8 @@ public final class Configuration implements MapConfig, ApplicationConfig {
         mapAccessKey = mergedProps.getProperty(WebConfigConstants.MAP_ACCESS_KEY, UNKNOWN_STRING);
         mapTileServerHostname = mergedProps.getProperty(WebConfigConstants.MAP_TILE_SERVER_HOST, UNKNOWN_STRING);
         mapTileServerPort = Integer.parseInt(mergedProps.getProperty(WebConfigConstants.MAP_TILE_SERVER_PORT, UNKNOWN_INT));
+        searchProvider = mergedProps.getProperty(WebConfigConstants.SEARCH_PROVIDER);
+        elasticSearchLocations = mergedProps.getProperty(WebConfigConstants.ELASTIC_SEARCH_LOCATIONS);
 
         return new Configuration();
     }

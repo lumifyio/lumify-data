@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloSession;
 import com.altamiracorp.reddawn.model.TitanGraphSession;
 import com.altamiracorp.reddawn.search.BlurSearchProvider;
+import com.altamiracorp.reddawn.search.ElasticSearchProvider;
 import com.altamiracorp.reddawn.web.config.ApplicationConfig;
 import com.altamiracorp.reddawn.web.config.Configuration;
 import com.altamiracorp.reddawn.web.config.ParameterExtractor;
@@ -81,6 +82,8 @@ public final class ApplicationBootstrap implements ServletContextListener {
         props.setProperty(BlurSearchProvider.BLUR_CONTROLLER_LOCATION, config.getSearchIndexController());
         props.setProperty(BlurSearchProvider.BLUR_PATH, config.getSearchIndexStoragePath());
         props.setProperty(TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, config.getGraphSearchIndexHostname());
+        props.setProperty(RedDawnSession.SEARCH_PROVIDER_PROP_KEY, config.getSearchProvider());
+        props.setProperty(ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, config.getElasticSearchLocations());
 
         RedDawnSession.setApplicationProperties(props);
         RedDawnSession.create().getModelSession().initializeTables();

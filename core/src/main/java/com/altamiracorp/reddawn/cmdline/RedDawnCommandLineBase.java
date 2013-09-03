@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloSession;
 import com.altamiracorp.reddawn.model.TitanGraphSession;
 import com.altamiracorp.reddawn.search.BlurSearchProvider;
+import com.altamiracorp.reddawn.search.ElasticSearchProvider;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.commons.cli.*;
 import org.apache.hadoop.conf.Configured;
@@ -20,6 +21,8 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
     private String blurControllerLocation;
     private String hadoopUrl;
     private String graphStorageIndexSearchHostname;
+    private String searchProvider;
+    private String elasticSearchLocations;
 
     @Override
     public int run(String[] args) throws Exception {
@@ -56,6 +59,8 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
         this.blurHdfsPath = cmd.getOptionValue("blurPath");
         this.blurControllerLocation = cmd.getOptionValue("blurControllerLocation");
         this.graphStorageIndexSearchHostname = cmd.getOptionValue("graph.storage.index.search.hostname");
+        this.searchProvider = cmd.getOptionValue("search.provider");
+        this.elasticSearchLocations = cmd.getOptionValue("elasticsearch.locations");
     }
 
     protected Options getOptions() {
@@ -148,6 +153,24 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
                         .create()
         );
 
+        options.addOption(
+                OptionBuilder
+                        .withLongOpt("search.provider")
+                        .withDescription("The class name of the SearchProvider implementation")
+                        .hasArg(true)
+                        .withArgName("search.provider")
+                        .create()
+        );
+
+        options.addOption(
+                OptionBuilder
+                        .withLongOpt("elasticsearch.locations")
+                        .withDescription("Comma-separated list hostname:port for each Elastic Search server")
+                        .hasArg(true)
+                        .withArgName("elasticsearch.locations")
+                        .create()
+        );
+
         return options;
     }
 
@@ -166,6 +189,12 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
         }
         if (getGraphStorageIndexSearchHostname() != null) {
             properties.setProperty(TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, getGraphStorageIndexSearchHostname());
+        }
+        if (getSearchProvider() != null) {
+            properties.setProperty(RedDawnSession.SEARCH_PROVIDER_PROP_KEY, getSearchProvider());
+        }
+        if (getElasticSearchLocations() != null) {
+            properties.setProperty(ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, getElasticSearchLocations());
         }
         return RedDawnSession.create(properties, null);
     }
@@ -228,6 +257,22 @@ public abstract class RedDawnCommandLineBase extends Configured implements Tool 
 
     public void setBlurHdfsPath(String blurHdfsPath) {
         this.blurHdfsPath = blurHdfsPath;
+    }
+
+    public String getSearchProvider() {
+        return searchProvider;
+    }
+
+    public void setSearchProvider(String searchProvider) {
+        this.searchProvider = searchProvider;
+    }
+
+    public String getElasticSearchLocations() {
+        return this.elasticSearchLocations;
+    }
+
+    public void setElasticSearchLocations(String elasticSearchLocations) {
+        this.elasticSearchLocations = elasticSearchLocations;
     }
 
     public Authorizations getAuthorizations() {

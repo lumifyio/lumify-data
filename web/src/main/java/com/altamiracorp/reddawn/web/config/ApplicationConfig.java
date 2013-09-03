@@ -12,4 +12,6 @@ public interface ApplicationConfig {
     public String getSearchIndexController();
     public String getSearchIndexStoragePath();
     public String getGraphSearchIndexHostname();
+    public String getSearchProvider();
+    public String getElasticSearchLocations();
 }
