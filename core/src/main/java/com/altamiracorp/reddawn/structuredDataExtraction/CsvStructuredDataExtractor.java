@@ -103,6 +103,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
         for (int i = 0; i < line.size(); i++) {
             JSONObject columnMappingJson = mappingColumnsJson.getJSONObject(i);
             String sign = line.get(i);
+            sign = sign == null ? "" : sign;
             String type = columnMappingJson.getString("type");
             TermAndGraphVertex termAndGraphVertex = null;
             if (type.equals("term")) {
@@ -116,7 +117,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
                         String name = propertyMappingJson.getString("name");
                         JSONObject targetPropertyMappingJson = mappingColumnsJson.getJSONObject(target);
                         String columnData = line.get(target);
-                        Object propertyValue = getPropertyValue(targetPropertyMappingJson, columnData);
+                        Object propertyValue = columnData == null ? "" : getPropertyValue(targetPropertyMappingJson, columnData);
                         termAndGraphVertex.getGraphVertex().setProperty(name, propertyValue);
                     }
                 }
