@@ -18,4 +18,7 @@ zookeeper_nodes:
   2: 10.0.3.102:2181
   3: 10.0.3.103:2181
 namenode_ipaddress: 10.0.3.50
-elasticsearch_publishaddress: %{ipaddress_eth0}
+elasticsearch_locations:
+  - 10.0.3.101:9300
+  - 10.0.3.102:9300
+  - 10.0.3.103:9300
