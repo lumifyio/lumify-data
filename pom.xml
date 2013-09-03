@@ -61,6 +61,7 @@
         <hadoop-version>0.20.2-cdh3u6</hadoop-version>
         <zookeeper-version>3.3.5</zookeeper-version>
         <jetty-version>8.1.11.v20130520</jetty-version>
+        <elasticsearch-version>0.90.0</elasticsearch-version>
         <site.config.location>conf/maven/site</site.config.location>
         <javadoc.stylesheetfile>conf/maven/javadoc/stylesheet.css</javadoc.stylesheetfile>
         <maven.build.timestamp.format>EEE MMM dd HH:mm z yyyy</maven.build.timestamp.format>
@@ -104,6 +105,11 @@
                 <groupId>org.json</groupId>
                 <artifactId>json</artifactId>
                 <version>20090211</version>
+            </dependency>
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${elasticsearch-version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

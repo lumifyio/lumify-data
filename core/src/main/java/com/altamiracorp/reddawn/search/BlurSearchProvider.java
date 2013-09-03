@@ -25,7 +25,7 @@ public class BlurSearchProvider implements SearchProvider {
     private static final String PUBLISHED_DATE_COLUMN_NAME = "publishedDate";
     private static final String GRAPH_VERTEX_ID_COLUMN_NAME = "graphVertexId";
     private static final String SOURCE_COLUMN_NAME = "source";
-    private static final String ARTIFACT_TYPE = "type";
+    private static final String ARTIFACT_TYPE_COLUMN_NAME = "type";
 
     private Blur.Iface client;
     private String blurPath;
@@ -34,10 +34,10 @@ public class BlurSearchProvider implements SearchProvider {
     public void setup(Mapper.Context context) throws Exception {
         String blurControllerLocation = context.getConfiguration().get(BLUR_CONTROLLER_LOCATION, "192.168.33.10:40010");
         String blurPath = context.getConfiguration().get(BLUR_PATH, "192.168.33.10:40010");
-
         init(blurControllerLocation, blurPath);
     }
 
+    @Override
     public void setup(Properties props) {
         String blurControllerLocation = props.getProperty(BLUR_CONTROLLER_LOCATION, "192.168.33.10:40010");
         String blurPath = props.getProperty(BLUR_PATH, "hdfs://192.168.33.10/blur");
@@ -56,6 +56,11 @@ public class BlurSearchProvider implements SearchProvider {
 
         this.blurPath = blurPath;
         this.initializeTables();
+    }
+
+    @Override
+    public void teardown() throws Exception {
+        // noop
     }
 
     @Override
@@ -118,7 +123,7 @@ public class BlurSearchProvider implements SearchProvider {
         columns.add(new Column(TEXT_COLUMN_NAME, text));
         columns.add(new Column(SUBJECT_COLUMN_NAME, subject));
         columns.add(new Column(PUBLISHED_DATE_COLUMN_NAME, publishedDate));
-        columns.add(new Column(ARTIFACT_TYPE, artifact.getType().toString()));
+        columns.add(new Column(ARTIFACT_TYPE_COLUMN_NAME, artifact.getType().toString()));
         if (graphVertexId != null) {
             columns.add(new Column(GRAPH_VERTEX_ID_COLUMN_NAME, graphVertexId));
         }
@@ -177,7 +182,7 @@ public class BlurSearchProvider implements SearchProvider {
                     publishedDate = dateFormat.parse(column.getValue());
                 } else if (column.getName().equals(SOURCE_COLUMN_NAME)) {
                     source = column.getValue();
-                } else if (column.getName().equals(ARTIFACT_TYPE)) {
+                } else if (column.getName().equals(ARTIFACT_TYPE_COLUMN_NAME)) {
                     artifactType = ArtifactType.convert(column.getValue());
                 } else if (column.getName().equals(GRAPH_VERTEX_ID_COLUMN_NAME)) {
                     graphVertexId = column.getValue();
