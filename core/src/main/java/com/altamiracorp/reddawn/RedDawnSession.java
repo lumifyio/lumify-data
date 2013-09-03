@@ -126,7 +126,7 @@ public class RedDawnSession {
     }
 
     public void initialize() {
-        getSearchProvider().initializeTables();
+        getSearchProvider().initializeIndex();
         getModelSession().initializeTables();
         createBaseOntology();
     }

@@ -55,7 +55,7 @@ public class BlurSearchProvider implements SearchProvider {
         this.client = BlurClient.getClient(blurControllerLocation);
 
         this.blurPath = blurPath;
-        this.initializeTables();
+        this.initializeIndex();
     }
 
     @Override
@@ -64,7 +64,7 @@ public class BlurSearchProvider implements SearchProvider {
     }
 
     @Override
-    public void initializeTables() {
+    public void initializeIndex() {
         LOGGER.info("Creating blur tables");
         AnalyzerDefinition ad = new AnalyzerDefinition();
         try {
@@ -196,7 +196,7 @@ public class BlurSearchProvider implements SearchProvider {
     }
 
     @Override
-    public void deleteTables() {
+    public void deleteIndex() {
         deleteTable(ARTIFACT_BLUR_TABLE_NAME);
     }
 

@@ -59,7 +59,7 @@ public class ElasticSearchProvider implements SearchProvider {
             String[] hostPort = esLocation.split(":");
             client.addTransportAddress(new InetSocketTransportAddress(hostPort[0], Integer.parseInt(hostPort[1])));
         }
-        initializeTables();
+        initializeIndex();
     }
 
     @Override
@@ -140,7 +140,7 @@ public class ElasticSearchProvider implements SearchProvider {
     }
 
     @Override
-    public void deleteTables() {
+    public void deleteIndex() {
         DeleteIndexResponse response = client.admin().indices().delete(new DeleteIndexRequest(ES_INDEX)).actionGet();
         if (!response.isAcknowledged()) {
             LOGGER.error("Failed to delete elastic search index named " + ES_INDEX);
@@ -148,7 +148,7 @@ public class ElasticSearchProvider implements SearchProvider {
     }
 
     @Override
-    public void initializeTables() {
+    public void initializeIndex() {
         try {
             IndicesExistsResponse existsResponse = client.admin().indices().exists(new IndicesExistsRequest(ES_INDEX)).actionGet();
             if (existsResponse.isExists()) {
