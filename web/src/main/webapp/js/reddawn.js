@@ -15,12 +15,13 @@ require([
     'flight/lib/registry',
     'flight/lib/advice',
     'flight/lib/logger',
-    'flight/tools/debug/debug',
+    'flight/lib/debug',
 
     'util/visibility',
 
     // Make jQuery plugins available
     'withinScrollable',
+    'removePrefixedClasses',
     'scrollStop'
 ],
 function(compose, registry, advice, withLogging, debug, Visibility) {
@@ -34,13 +35,14 @@ function(compose, registry, advice, withLogging, debug, Visibility) {
 
     if (ids && ids.length) {
         window.isFullscreenDetails = true;
-        $(document.body).addClass('fullscreenDetails');
+        $('html').addClass('fullscreenDetails');
         require(['appFullscreenDetails'], function(FullscreenDetailApp) {
             FullscreenDetailApp.attachTo('#app', {
                 graphVertexIds: ids
             });
         });
     } else {
+        $('html').addClass('fullscreenApp');
         require(['app'], function(App) {
             App.attachTo('#app');
         });

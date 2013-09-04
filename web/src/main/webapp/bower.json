@@ -8,7 +8,7 @@
     "chai": "latest",
     "less.js": "latest",
     "mocha": "latest",
-    "bootstrap": "http://twitter.github.com/bootstrap/assets/bootstrap.zip",
+    "bootstrap": "http://getbootstrap.com/2.3.2/assets/bootstrap.zip",
     "flight-mocha": "latest",
     "sinon-chai": "~2.4.0",
     "sinon": "~1.7.1",

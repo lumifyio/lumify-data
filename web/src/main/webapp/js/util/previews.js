@@ -1,13 +1,12 @@
 
 define([
     'service/ucd',
-    'html2canvas',
     'tpl!./previews'
 ], 
 /**
  * Generate preview screenshots of artifact rendering (with highlighting)
  */
-function(UCD, html2canvas, template) {
+function(UCD, template) {
 
     var PREVIEW_CACHE = {};
 
