@@ -37,7 +37,9 @@ define([
             this.updateEntityAndArtifactDraggables();
 
             var vertexIds = vertices.map(function (v) {
-                return v.id;
+                return v.graphVertexId;
+            }).filter(function (v) {
+                return v !== null && v !== undefined;
             });
 
             var d3_deferred = $.Deferred();

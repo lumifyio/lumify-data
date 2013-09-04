@@ -13,8 +13,16 @@
   limitations under the License. See accompanying LICENSE file.
 -->
 <workflow-app xmlns="uri:oozie:workflow:0.1" name="file-import-wf">
-    <start to="mr-node"/>
-    <action name="mr-node">
+    <start to="files-to-import"/>
+	<decision name="files-to-import">
+	        <switch>
+	            <case to="import-node">
+	              ${fs:exists(fileImportDir)}
+	            </case>
+	            <default to="end"/>
+	        </switch>
+	    </decision>
+    <action name="import-node">
         <map-reduce>
             <job-tracker>${jobTracker}</job-tracker>
             <name-node>${nameNode}</name-node>
@@ -57,7 +65,7 @@
     </action>
 	<action name="file-move">
 		<fs>
-			<move source="${fileImportDir}" target="${fileImportCleanupDir}"/>
+			<move source="${fileImportDir}" target="${fileImportCleanupDir}/${wf:id()}"/>
 		</fs>
 		<ok to="cleanup"/>
 		<error to="fail"/>
