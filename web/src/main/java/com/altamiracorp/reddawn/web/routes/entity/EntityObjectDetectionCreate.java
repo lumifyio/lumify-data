@@ -57,13 +57,18 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         String model = getOptionalParameter(request, "model");
         String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
 
-        GraphVertex resolvedVertex = createGraphVertex (session.getGraphSession(), conceptId, resolvedGraphVertexId, sign, artifactRowKey, boundingBox, artifactId);
+        GraphVertex conceptVertex = graphRepository.findVertex(session.getGraphSession(), conceptId);
+        GraphVertex resolvedVertex = createGraphVertex (session.getGraphSession(), conceptVertex, resolvedGraphVertexId,
+                sign, artifactRowKey, boundingBox, artifactId);
 
         Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactRowKey);
 
         JSONObject obj = new JSONObject();
         if (detectedObjectRowKey == null || model == null){
-            detectedObjectRowKey = artifact.getArtifactDetectedObjects().addDetectedObject(conceptId, "manual", x1, y1, x2, y2, true);
+            model = "manual";
+            detectedObjectRowKey = artifact.getArtifactDetectedObjects().addDetectedObject
+                    (conceptVertex.getProperty("ontologyTitle").toString(), model, x1, y1, x2, y2, true);
+
             artifactRepository.save(session.getModelSession(), artifact);
 
         } else {
@@ -98,8 +103,8 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         return UrlUtils.urlDecode(parameter);
     }
 
-    private GraphVertex createGraphVertex (GraphSession graphSession, String conceptId, String resolvedGraphVertexId, String sign, String artifactRowKey, String boundingBox, String artifactId) {
-        GraphVertex conceptVertex = graphRepository.findVertex(graphSession, conceptId);
+    private GraphVertex createGraphVertex (GraphSession graphSession, GraphVertex conceptVertex, String resolvedGraphVertexId,
+                                           String sign, String artifactRowKey, String boundingBox, String artifactId) {
         GraphVertex resolvedVertex;
         if (resolvedGraphVertexId != null) {
             resolvedVertex = graphRepository.findVertex(graphSession, resolvedGraphVertexId);
