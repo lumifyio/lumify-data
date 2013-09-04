@@ -1,5 +1,6 @@
 #Base properties for every workflow
 nameNode=hdfs://<%= @hadoop_masters[0] %>:8020
+hdfsRoot=hdfs://<%= @hadoop_masters[0] %>
 jobTracker=<%= @hadoop_masters[0] %>:8021
 queueName=default
 numMapTasks=<%= @hadoop_slaves.count %>
@@ -28,8 +29,15 @@ blurPathProp=${nameNode}/blur
 graphStorageIndexSearchHostnameProp=<%= @elasticsearch_locations[0].split(':')[0] %>
 
 #File import related
-fileImportDir=/vagrant/data/import
-geoNamesFile=/vagrant/data/allCountries.txt
+fileImportDir=${hdfsRoot}/import/data/
+fileImportCleanupDir=/import/imported/
+
+#GeoNames import related
+geoNamesRoot=${hdfsRoot}/import/geoNames
+placeNamesDir=${geoNamesRoot}/placeNames/
+admin1CodesDir=${geoNamesRoot}/admin1/
+countryInfoDir=${geoNamesRoot}/countryInfo/
+postalCodesDir=${geoNamesRoot}/postalCodes/
 
 
 ##### Accumulo Init Properties #####
