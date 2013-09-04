@@ -19,7 +19,8 @@ require([
 
     // Make jQuery plugins available
     'withinScrollable',
-    'scrollStop'
+    'scrollStop',
+    'Jcrop'
 ],
 function(compose, registry, advice, withLogging, debug) {
 

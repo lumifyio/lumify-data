@@ -5,7 +5,7 @@
 var jQueryPlugins = {
   atmosphere: '../libs/jquery.atmosphere/jquery.atmosphere',
   withinScrollable: 'util/jquery.within-scrollable',
-  jCrop: '../libs/jquery.jcrop/',
+  Jcrop: '../libs/jquery.jcrop/jquery.Jcrop',
   scrollStop: '../libs/jquery-scrollstop/jquery.scrollstop',
   bigText: '../libs/jquery-bigtext/jquery-bigtext'
 };
