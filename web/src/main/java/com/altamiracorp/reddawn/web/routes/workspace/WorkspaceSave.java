@@ -33,12 +33,6 @@ public class WorkspaceSave implements Handler, AppAware {
         String data = request.getParameter("data");
         String workspaceRowKeyString = (String) request.getAttribute("workspaceRowKey");
 
-        User currentUser = DevBasicAuthenticator.getUser(request);
-        if (!workspaceRowKeyString.equals(currentUser.getMetadata().getCurrentWorkspace())) {
-            currentUser.getMetadata().setCurrentWorkspace(workspaceRowKeyString);
-            userRepository.save(session.getModelSession(), currentUser);
-        }
-
         Workspace workspace;
         if (workspaceRowKeyString == null) {
             workspace = handleNew(request);
@@ -46,8 +40,13 @@ public class WorkspaceSave implements Handler, AppAware {
             workspace = new Workspace(new WorkspaceRowKey(workspaceRowKeyString));
         }
 
-        LOGGER.info("Saving workspace: " + workspace.getRowKey() + "\ntitle: " + workspace.getMetadata().getTitle() + "\ndata: " + data);
+        User currentUser = DevBasicAuthenticator.getUser(request);
+        if (!workspace.getRowKey().toString().equals(currentUser.getMetadata().getCurrentWorkspace())) {
+            currentUser.getMetadata().setCurrentWorkspace(workspace.getRowKey().toString());
+            userRepository.save(session.getModelSession(), currentUser);
+        }
 
+        LOGGER.info("Saving workspace: " + workspace.getRowKey() + "\ntitle: " + workspace.getMetadata().getTitle() + "\ndata: " + data);
 
         if (data != null) {
             workspace.getContent().setData(data);
@@ -72,7 +71,7 @@ public class WorkspaceSave implements Handler, AppAware {
         if (title != null) {
             workspace.getMetadata().setTitle(title);
         } else {
-            workspace.getMetadata().setTitle(DEFAULT_WORKSPACE_TITLE);
+            workspace.getMetadata().setTitle(DEFAULT_WORKSPACE_TITLE + " - " + currentUser.getMetadata().getUserName());
         }
 
         return workspace;
