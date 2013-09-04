@@ -20,21 +20,16 @@ define([
             detailSelector: '.detail-pane .content'
         });
 
-        this.after('teardown', function() {
-            window.onfocus = window.onblur = null;
-        });
-
         this.after('initialize', function() {
             document.title = this.titleForVertices();
-            this._windowHasFocus = true;
+
+            this._windowIsHidden = false;
+            this.on(document, 'window-visibility-change', this.onVisibilityChange);
             this.vertices = [];
 
             this.fullscreenIdentifier = Math.floor((1 + Math.random()) * 0xFFFFFF).toString(16).substring(1);
 
             this.$node.addClass('fullscreen-details');
-
-            window.onfocus = this.onWindowChange.bind(this, true);
-            window.onblur = this.onWindowChange.bind(this, false);
 
             this.vertexService
                 .getMultiple(this.attr.graphVertexIds)
@@ -105,10 +100,9 @@ define([
             });
         };
 
-        this.onWindowChange = function(focus, event) {
-            this._windowHasFocus = focus;
-
-            if (this._windowHasFocus) {
+        this.onVisibilityChange = function(event, data) {
+            this._windowIsHidden = data.hidden;
+            if (data.visible) {
                 clearTimeout(this.timer);
                 document.title = this.titleForVertices();
             }
@@ -123,21 +117,48 @@ define([
                 return;
             }
 
-            if (!this._windowHasFocus) {
-                var i = 0;
-                clearTimeout(this.timer);
-                self.timer = setTimeout(function f() {
-                    document.title = (i++ % 2 === 0) ?  'New object opened' : self.titleForVertices();
-                    self.timer = setTimeout(f, 500);
-                }, 500);
+            var existingVertexIds = _.pluck(this.vertices, 'id');
+            var newVertices = _.reject(vertices, function(v) {
+                return existingVertexIds.indexOf(v) >= 0;
+            });
+
+            if (newVertices.length === 0) {
+                return;
             }
 
-            var newVertices = _.reject(vertices, function(v) {
-                return self.attr.graphVertexIds.indexOf(v) >= 0;
-            });
+            if (this._windowIsHidden) {
+                this.flashTitle(vertices);
+            }
+
             this.vertexService
                 .getMultiple(newVertices)
-                .done(this.handleVerticesLoaded.bind(this));
+                .done(this.handleVerticesLoaded.bind(this))
+                .done(this.flashTitle.bind(this, newVertices));
+        };
+
+        this.flashTitle = function(newVertexIds, newVertices) {
+            var self = this,
+                i = 0;
+
+            if (!newVertices || newVertices.length === 0) return;
+
+            clearTimeout(this.timer);
+
+            if (this._windowIsHidden) {
+                this.timer = setTimeout(function f() {
+                    if (self._windowIsHidden && i++ % 2 === 0) {
+                        document.title = newVertices.length === 1 ? 
+                            ('"' + newVertices[0].properties.title + '" added') :
+                            newVertices.length + ' items added';
+                    } else {
+                        document.title = self.titleForVertices();
+                    }
+
+                    if (self._windowIsHidden) {
+                        self.timer = setTimeout(f, 500);
+                    }
+                }, 500);
+            }
         };
 
         this.titleForVertices = function() {

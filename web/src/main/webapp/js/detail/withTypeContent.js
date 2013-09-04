@@ -62,10 +62,21 @@ define([
             var info = $(event.target).closest('li').data('info');
 
             if (info) {
+                var ids;
+                if ($.isArray(this.attr.data)) {
+                    ids = _.map(
+                            _.reject(this.attr.data, function(v) { 
+                                return v._type === 'relationship'; 
+                            }), function(v) {
+                                return v.id || v.graphVertexId;
+                            });
+                } else {
+                    ids = [this.attr.data.id || this.attr.data.graphVertexId];
+                }
                 intercomInstance.emit('addVertices', {
                     message: JSON.stringify({
                         targetIdentifier: info.identifier,
-                        vertices: [this.attr.data.id || this.attr.data.graphVertexId]
+                        vertices: ids
                     })
                 });
             }

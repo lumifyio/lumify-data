@@ -17,14 +17,18 @@ require([
     'flight/lib/logger',
     'flight/tools/debug/debug',
 
+    'util/visibility',
+
     // Make jQuery plugins available
     'withinScrollable',
     'scrollStop'
 ],
-function(compose, registry, advice, withLogging, debug) {
+function(compose, registry, advice, withLogging, debug, Visibility) {
 
     debug.enable(true);
     DEBUG.events.logAll();
+
+    Visibility.attachTo(document);
 
     var ids = graphVertexIdsToOpen();
 
