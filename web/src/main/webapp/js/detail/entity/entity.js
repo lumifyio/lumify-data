@@ -219,7 +219,7 @@ define([
             }
 
             if ($target.is('.entity, .artifact, span.relationship')) {
-                this.trigger(document, 'searchResultSelected', $target.data('info'));
+                this.trigger('searchResultSelected', $target.data('info'));
                 evt.stopPropagation();
             }
 

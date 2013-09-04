@@ -1,9 +1,10 @@
 
 define([
     'flight/lib/component',
+    'flight/lib/registry',
     'underscore',
     'tpl!./detail'
-], function( defineComponent, _, template) {
+], function( defineComponent, registry, _, template) {
 
     'use strict';
 
@@ -23,6 +24,7 @@ define([
             });
 
             this.on(document, 'searchResultSelected', this.onSearchResultSelected);
+            this.on('searchResultSelected', this.onSearchResultSelectedInPane);
             this.preventDropEventsFromPropagating();
             
             this.$node.html(template({}));
@@ -50,13 +52,23 @@ define([
         };
 
 
+        this.onSearchResultSelectedInPane = function(evt, data) {
+            evt.stopPropagation();
+
+            this.onSearchResultSelected(evt, data);
+        };
+
         this.onSearchResultSelected = function(evt, data) {
             if ($.isArray(data) && data.length === 1) {
                 data = data[0];
             }
 
-            if (this.typeContentModule) {
-                this.typeContentModule.teardownAll();
+            var typeContentNode = this.select('detailTypeContentSelector'),
+                instanceInfos = registry.findInstanceInfoByNode(typeContentNode[0]);
+            if (instanceInfos.length) {
+                instanceInfos.forEach(function(info) {
+                    info.instance.teardown();
+                });
             }
 
             if ( !data || data.length === 0 ) {
@@ -71,10 +83,9 @@ define([
             require([
                 'detail/' + moduleName + '/' + moduleName,
             ], function(Module) {
-                var node = self.select('detailTypeContentSelector');
-                (self.typeContentModule = Module).attachTo(node, { 
-                    data:data,
-                    highlightStyle:self.attr.highlightStyle 
+                Module.attachTo(typeContentNode, { 
+                    data: data,
+                    highlightStyle: self.attr.highlightStyle 
                 });
             });
         };
