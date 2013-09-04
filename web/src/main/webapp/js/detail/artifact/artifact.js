@@ -106,10 +106,9 @@ define([
             var self = this;
             var data = $(event.target).data('info');
 
-            this.$node.off ('mouseenter');
-
-            $('#' + data.id).Jcrop({
-                onSelect: function (x) { self.onSelectImage(x, $(event.target)); }
+            $('.artifactImage').Jcrop({
+                onSelect: function (x) { self.onSelectImage(x, $(event.target)); },
+                onRelease: self.onSelectImageRelease
             });
         }
 
@@ -142,6 +141,10 @@ define([
                 graphVertexId: dataInfo.graphVertexId,
                 model: dataInfo.model
             });
+        }
+
+        this.onSelectImageRelease = function (){
+            ObjectDetectionForm.teardownAll();
         }
      }
 });
