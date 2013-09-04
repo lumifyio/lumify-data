@@ -1,5 +1,23 @@
 package com.altamiracorp.reddawn.videoConversion;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.SaveFileResults;
 import com.altamiracorp.reddawn.model.videoFrames.VideoFrameRepository;
@@ -7,15 +25,7 @@ import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.ucd.artifact.VideoTranscript;
 import com.altamiracorp.reddawn.util.StreamHelper;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class FFMPEGVideoConversion {
     private static final Logger LOGGER = LoggerFactory.getLogger(FFMPEGVideoConversion.class.getName());
@@ -193,47 +203,40 @@ public class FFMPEGVideoConversion {
     }
 
     private void qtFaststart(String[] args) throws IOException, InterruptedException {
-        ArrayList<String> ffmpegArgs = new ArrayList<String>();
-        ffmpegArgs.add("qt-faststart");
-        for (String arg : args) {
-            ffmpegArgs.add(arg);
-        }
-        ProcessBuilder procBuilder = new ProcessBuilder(ffmpegArgs);
-        LOGGER.info("Running: " + arrayToString(ffmpegArgs));
-        Process proc = procBuilder.start();
-        int returnCode = runProc(proc, "qt-faststart");
-        if (returnCode != 0) {
-            throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
-        }
+        executeProgram("qt-faststart", args);
     }
 
     private void ffmpeg(String[] args) throws IOException, InterruptedException {
-        ArrayList<String> ffmpegArgs = new ArrayList<String>();
-        ffmpegArgs.add("ffmpeg");
-        for (String arg : args) {
-            ffmpegArgs.add(arg);
-        }
-        ProcessBuilder procBuilder = new ProcessBuilder(ffmpegArgs);
-        LOGGER.info("Running: " + arrayToString(ffmpegArgs));
-        Process proc = procBuilder.start();
-        int returnCode = runProc(proc, "ffmpeg");
-        if (returnCode != 0) {
-            throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
-        }
+        executeProgram("ffmpeg", args);
     }
 
     private void ccextractor(String[] args) throws IOException, InterruptedException {
-        ArrayList<String> ffmpegArgs = new ArrayList<String>();
-        ffmpegArgs.add("ccextractor");
-        for (String arg : args) {
-            ffmpegArgs.add(arg);
+        executeProgram("ccextractor", args);
+    }
+
+    private void executeProgram(final String programName, final String[] programArgs) throws IOException, InterruptedException {
+        final List<String> arguments = Lists.newArrayList(programName);
+        arguments.addAll(Arrays.asList(programArgs));
+
+        final ProcessBuilder procBuilder = new ProcessBuilder(arguments);
+        final Map<String, String> sortedEnv = new TreeMap<String, String>(procBuilder.environment());
+
+        LOGGER.info("Running: " + arrayToString(arguments));
+
+        if( !sortedEnv.isEmpty() ) {
+            LOGGER.info("Spawned program environment: ");
+            for(final Map.Entry<String, String> entry: sortedEnv.entrySet()) {
+                LOGGER.info(String.format("%s:%s", entry.getKey(), entry.getValue()));
+            }
+        } else {
+            LOGGER.info("Running program environment is empty");
         }
-        ProcessBuilder procBuilder = new ProcessBuilder(ffmpegArgs);
-        LOGGER.info("Running: " + arrayToString(ffmpegArgs));
-        Process proc = procBuilder.start();
-        int returnCode = runProc(proc, "ccextractor");
+
+        final Process proc = procBuilder.start();
+
+        final int returnCode = runProc(proc, programName);
         if (returnCode != 0) {
-            throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(ffmpegArgs));
+            throw new RuntimeException("unexpected return code: " + returnCode + " for command " + arrayToString(arguments));
         }
     }
 
@@ -259,7 +262,7 @@ public class FFMPEGVideoConversion {
         return proc.exitValue();
     }
 
-    private String arrayToString(ArrayList<String> arr) {
+    private String arrayToString(List<String> arr) {
         StringBuilder result = new StringBuilder();
         for (String s : arr) {
             result.append(s).append(' ');
