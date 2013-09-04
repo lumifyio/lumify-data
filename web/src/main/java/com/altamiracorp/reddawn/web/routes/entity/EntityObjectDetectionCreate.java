@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.web.routes.entity;
 
 import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.model.GraphSession;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
@@ -53,36 +54,25 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         String x2 = getRequiredParameter(request, "x2");
         String y2 = getRequiredParameter(request, "y2");
         String boundingBox = "x1: " + x1 + ", y1: " + y1 + ", x2: " + x2 + ", y2: " + y2;
-        String model = getRequiredParameter(request, "model");
-        String detectedObjectRowKey = getRequiredParameter(request, "detectedObjectRowKey");
+        String model = getOptionalParameter(request, "model");
+        String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
 
-        GraphVertex conceptVertex = graphRepository.findVertex(session.getGraphSession(), conceptId);
-        GraphVertex resolvedVertex;
-        if (resolvedGraphVertexId != null) {
-            resolvedVertex = graphRepository.findVertex(session.getGraphSession(), resolvedGraphVertexId);
-        } else {
-            resolvedVertex = graphRepository.findVertexByTitleAndType(session.getGraphSession(), sign, VertexType.ENTITY);
-            if (resolvedVertex == null) {
-                resolvedVertex = new InMemoryGraphVertex();
-                resolvedVertex.setType(VertexType.ENTITY);
-            }
-            resolvedVertex.setProperty(PropertyName.ROW_KEY, artifactRowKey);
-        }
-
-        resolvedVertex.setProperty(PropertyName.BOUNDING_BOX.toString(), boundingBox);
-        resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
-        resolvedVertex.setProperty(PropertyName.TITLE, sign);
-
-        graphRepository.saveVertex(session.getGraphSession(), resolvedVertex);
-
-        graphRepository.saveRelationship(session.getGraphSession(), artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF);
+        GraphVertex resolvedVertex = createGraphVertex (session.getGraphSession(), conceptId, resolvedGraphVertexId, sign, artifactRowKey, boundingBox, artifactId);
 
         Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactRowKey);
-        List<String> cssClasses = artifact.getArtifactDetectedObjects().getCssClasses(true);
-        JSONObject infoJson = artifact.getArtifactDetectedObjects().infoJson (conceptId, model, x1, y1, x2, y2, detectedObjectRowKey);
-        JSONObject obj = toJson(resolvedVertex, infoJson);
-        executorService.execute(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, cssClasses, obj));
 
+        JSONObject obj = new JSONObject();
+        if (detectedObjectRowKey == null || model == null){
+            detectedObjectRowKey = artifact.getArtifactDetectedObjects().addDetectedObject(conceptId, "manual", x1, y1, x2, y2, true);
+            artifactRepository.save(session.getModelSession(), artifact);
+
+        } else {
+            List<String> cssClasses = artifact.getArtifactDetectedObjects().getCssClasses(true);
+            executorService.execute(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, cssClasses, obj));
+        }
+
+        JSONObject infoJson = artifact.getArtifactDetectedObjects().infoJson (conceptId, model, x1, y1, x2, y2, detectedObjectRowKey);
+        obj = toJson(resolvedVertex, infoJson);
 
         new Responder(response).respondWith(obj);
     }
@@ -98,6 +88,39 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
             throw new RuntimeException("'" + parameterName + "' is required.");
         }
         return UrlUtils.urlDecode(parameter);
+    }
+
+    public static String getOptionalParameter(HttpServletRequest request, String parameterName) {
+        String parameter = request.getParameter(parameterName);
+        if (parameter == null) {
+            return null;
+        }
+        return UrlUtils.urlDecode(parameter);
+    }
+
+    private GraphVertex createGraphVertex (GraphSession graphSession, String conceptId, String resolvedGraphVertexId, String sign, String artifactRowKey, String boundingBox, String artifactId) {
+        GraphVertex conceptVertex = graphRepository.findVertex(graphSession, conceptId);
+        GraphVertex resolvedVertex;
+        if (resolvedGraphVertexId != null) {
+            resolvedVertex = graphRepository.findVertex(graphSession, resolvedGraphVertexId);
+        } else {
+            resolvedVertex = graphRepository.findVertexByTitleAndType(graphSession, sign, VertexType.ENTITY);
+            if (resolvedVertex == null) {
+                resolvedVertex = new InMemoryGraphVertex();
+                resolvedVertex.setType(VertexType.ENTITY);
+            }
+            resolvedVertex.setProperty(PropertyName.ROW_KEY, artifactRowKey);
+        }
+
+        resolvedVertex.setProperty(PropertyName.BOUNDING_BOX.toString(), boundingBox);
+        resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
+        resolvedVertex.setProperty(PropertyName.TITLE, sign);
+
+        graphRepository.saveVertex(graphSession, resolvedVertex);
+
+        graphRepository.saveRelationship(graphSession, artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF);
+
+        return resolvedVertex;
     }
 
     private JSONObject toJson(GraphVertex vertex, JSONObject infoJson) throws JSONException {

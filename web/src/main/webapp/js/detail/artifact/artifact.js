@@ -27,6 +27,9 @@ define([
             this.on('click', {
                 detectedObjectSelector: this.onDetectedObjectClicked
             });
+
+            this.$node.on('mouseenter', '.image-preview', this.onImageEnter.bind(this));
+
             this.$node.on('mouseenter mouseleave', '.detected-object', this.onDetectedObjectHover.bind(this));
 
             this.loadArtifact();
@@ -62,18 +65,10 @@ define([
         };
 
         this.onDetectedObjectClicked = function(event) {
-            var root = $('<div class="underneath">').insertAfter('.detected-object-labels');
-
             var tagInfo = $(event.target).data('info');
-            
-            ObjectDetectionForm.attachTo(root, {
-                artifactData: this.attr.data,
-                coords: tagInfo.coords,
-                detectedObjectRowKey: tagInfo._rowKey,
-                graphVertexId: tagInfo.graphVertexId,
-                model: tagInfo.model
-            });
+            this.showForm(tagInfo, this.attr.data);
         };
+
 
         this.onDetectedObjectHover = function(event) {
             if (event.type == 'mouseenter') {
@@ -100,9 +95,47 @@ define([
         };
 
         this.imageSetup = function(artifact) {
-            Image.attachTo(this.select('imagePreviewSelector'), {
-                src: artifact.rawUrl
-            });
+            var data = {
+                src: artifact.rawUrl,
+                id: artifact.Generic_Metadata['atc:graph_vertex_id']
+            };
+            Image.attachTo(this.select('imagePreviewSelector'), { data: data });
         };
-    }
+
+        this.onImageEnter = function(event){
+            var self = this;
+            var data = $(event.target).data('info');
+
+            this.$node.off ('mouseenter');
+
+            $('#' + data.id).Jcrop({
+                onSelect: function (x) { self.onSelectImage(x, data); }
+            });
+        }
+
+        this.onSelectImage = function (coords, data){
+            var dataInfo = {
+                coords: {
+                    x1: coords.x,
+                    x2: coords.x2,
+                    y1: coords.y,
+                    y2: coords.y2
+                }
+            };
+
+            this.showForm(dataInfo, this.attr.data);
+        }
+
+        this.showForm = function (dataInfo, artifactInfo){
+            var root = $('<div class="underneath">').insertAfter('.detected-object-labels');
+
+            ObjectDetectionForm.attachTo (root, {
+                artifactData: artifactInfo,
+                coords: dataInfo.coords,
+                detectedObjectRowKey: dataInfo._rowKey,
+                graphVertexId: dataInfo.graphVertexId,
+                model: dataInfo.model
+            });
+        }
+     }
 });

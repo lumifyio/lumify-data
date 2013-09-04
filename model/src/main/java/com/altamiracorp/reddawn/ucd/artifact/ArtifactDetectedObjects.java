@@ -21,11 +21,12 @@ public class ArtifactDetectedObjects extends ColumnFamily {
         super(NAME);
     }
 
-    public void addDetectedObject(String concept, String model, String x1, String y1, String x2, String y2) throws JSONException {
+    public String addDetectedObject(String concept, String model, String x1, String y1, String x2, String y2, boolean resolved) throws JSONException {
         String columnName = RowKeyHelper.buildMinor(concept, model, x1, y1, x2, y2);
         JSONObject data = infoJson(concept, model, x1, y1, x2, y2, columnName);
-        String value = getDetectedObjectValue(getCssClasses(false), data);
+        String value = getDetectedObjectValue(getCssClasses(resolved), data);
         this.set (columnName, value);
+        return columnName;
     }
 
     public static String getDetectedObjectValue(List<String> cssClasses, JSONObject data) {
