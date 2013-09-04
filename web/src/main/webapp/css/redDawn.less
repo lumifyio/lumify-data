@@ -21,7 +21,13 @@ html, body {
   .fullscreen;
   overflow: hidden;
 
-  &.fullscreen-details {
+}
+
+body.fullscreenDetails {
+  #app {
+    overflow: auto;
+  }
+  .fullscreen-details {
     @import "fullscreenDetails/details";
   }
 }

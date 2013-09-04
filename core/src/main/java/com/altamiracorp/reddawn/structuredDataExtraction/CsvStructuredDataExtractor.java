@@ -12,6 +12,8 @@ import com.altamiracorp.reddawn.textExtraction.ArtifactExtractedInfo;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.util.LineReader;
+import com.thinkaurelius.titan.core.attribute.Geoshape;
+import org.elasticsearch.common.geo.GeoPoint;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,10 +24,7 @@ import org.supercsv.prefs.CsvPreference;
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
     private Map<String, SimpleDateFormat> dateFormatCache = new HashMap<String, SimpleDateFormat>();
@@ -103,6 +102,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
         for (int i = 0; i < line.size(); i++) {
             JSONObject columnMappingJson = mappingColumnsJson.getJSONObject(i);
             String sign = line.get(i);
+            sign = sign == null ? "" : sign;
             String type = columnMappingJson.getString("type");
             TermAndGraphVertex termAndGraphVertex = null;
             if (type.equals("term")) {
@@ -131,9 +131,17 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
 
     private Object getPropertyValue(JSONObject propertyMappingJson, String columnData) throws JSONException, ParseException {
         String dataType = propertyMappingJson.getString("dataType");
+        if ( columnData == null ) {
+            return dataType.equals("date") ? new Date() : "";
+        }
         if (dataType.equals("date")) {
             return getPropertyValueDate(propertyMappingJson, columnData);
-        } else {
+        }
+        else if ( dataType.equals("geoLocation") ) {
+            String[] latlong = columnData.split(",");
+            return Geoshape.point(Float.valueOf(latlong[0]),Float.valueOf(latlong[1]));
+        }
+        else {
             return columnData;
         }
     }

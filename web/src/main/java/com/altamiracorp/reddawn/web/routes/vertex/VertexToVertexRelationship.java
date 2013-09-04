@@ -1,8 +1,10 @@
 package com.altamiracorp.reddawn.web.routes.vertex;
 
 import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
+import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
+import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
@@ -15,11 +17,11 @@ import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 import java.util.Map;
 
 public class VertexToVertexRelationship implements Handler, AppAware {
     private GraphRepository graphRepository = new GraphRepository();
+    private OntologyRepository ontologyRepository = new OntologyRepository();
     private WebApp app;
 
     @Override
@@ -46,7 +48,14 @@ public class VertexToVertexRelationship implements Handler, AppAware {
         for (Map.Entry<String, String> p : properties.entrySet()) {
             JSONObject property = new JSONObject();
             property.put("key", p.getKey());
-            property.put("value", p.getValue());
+            if (p.getKey().equals(PropertyName.RELATIONSHIP_TYPE.toString())) {
+                String displayName = ontologyRepository.getDisplayNameForLabel(session.getGraphSession(), p.getValue());
+                if (displayName == null) {
+                    property.put("value", p.getValue());
+                } else {
+                    property.put("value", displayName);
+                }
+            }
             propertyJson.put(property);
         }
         results.put("properties", propertyJson);
@@ -55,7 +64,7 @@ public class VertexToVertexRelationship implements Handler, AppAware {
     }
 
     private JSONObject resultsToJson(String id, String prefix, GraphVertex graphVertex, JSONObject obj) throws JSONException {
-        if (graphVertex.getProperty("_rowKey") == null){
+        if (graphVertex.getProperty("_rowKey") == null) {
             obj.put(prefix + "RowKey", "");
         } else {
             obj.put(prefix + "RowKey", graphVertex.getProperty("_rowKey"));

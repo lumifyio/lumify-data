@@ -48,7 +48,11 @@ define([
                     _rowKey: artifact.key.value
                 });
 
-                self.$node.html(template({ artifact: self.setupContentHtml(artifact), highlightButton:self.highlightButton() }));
+                self.$node.html(template({ 
+                    artifact: self.setupContentHtml(artifact), 
+                    highlightButton: self.highlightButton(),
+                    fullscreenButton: self.fullscreenButton([artifact.Generic_Metadata['atc:graph_vertex_id']])
+                }));
 
                 if (self[artifact.type + 'Setup']) {
                     self[artifact.type + 'Setup'](artifact);

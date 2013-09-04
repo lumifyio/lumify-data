@@ -14,6 +14,7 @@ import com.altamiracorp.vaast.core.exception.VaastRangeException;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileSystem;
@@ -79,10 +80,10 @@ public class ClassifyMR extends ConfigurableMapJobBase {
 
         @Override
         public void map(Text rowKey, SubFrame subFrame, Context context) throws IOException {
+            InputStream subFrameIn = null;
             try {
                 String artifactRowKey = subFrame.getRowKey().getArtifactRowKey();
                 Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactRowKey);
-                InputStream subFrameIn;
                 if (context.getConfiguration().getBoolean(USE_SPARSE, DEFAULT_USE_SPARSE)) {
                     subFrameIn = subFrameRepository.getSparseRaw(session.getModelSession(), subFrame);
                 } else {
@@ -104,6 +105,8 @@ public class ClassifyMR extends ConfigurableMapJobBase {
                 context.write(new Text(Artifact.TABLE_NAME), artifact);
             } catch (Exception e) {
                 throw new IOException(e);
+            } finally {
+                IOUtils.closeQuietly(subFrameIn);
             }
         }
 
@@ -144,7 +147,7 @@ public class ClassifyMR extends ConfigurableMapJobBase {
     }
 
     public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(CachedConfiguration.getInstance(), new SubFrameMR(), args);
+        int res = ToolRunner.run(CachedConfiguration.getInstance(), new ClassifyMR(), args);
         if (res != 0) {
             System.exit(res);
         }

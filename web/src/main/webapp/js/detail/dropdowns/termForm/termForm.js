@@ -111,6 +111,11 @@ define([
                     self.highlightTerm(data);
                     console.log(data);
                     self.trigger(document, 'termCreated', data);
+
+                    var vertices = [];
+                    vertices.push(data.info);
+                    self.trigger(document, 'verticesUpdated', { vertices: vertices });
+
                     _.defer(self.teardown.bind(self));
                 }
             });

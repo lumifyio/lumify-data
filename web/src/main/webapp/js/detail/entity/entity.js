@@ -52,7 +52,7 @@ define([
                 self.$node.html(template({
                     title: self.attr.data.originalTitle || self.attr.data.title || 'No title avaliable',
                     highlightButton: self.highlightButton(),
-                    id: self.attr.data.id || self.attr.data.graphVertexId
+                    fullscreenButton: self.fullscreenButton([self.attr.data.id || self.attr.data.graphVertexId])
                 }));
 
                 Image.attachTo(self.select('glyphIconSelector'), {
@@ -219,7 +219,7 @@ define([
             }
 
             if ($target.is('.entity, .artifact, span.relationship')) {
-                this.trigger(document, 'searchResultSelected', $target.data('info'));
+                this.trigger('searchResultSelected', $target.data('info'));
                 evt.stopPropagation();
             }
 
@@ -239,7 +239,7 @@ define([
             var self = this;
 
             vertexService.setProperty(
-                    this.attr.data.id, 
+                    this.attr.data.id || this.attr.data.graphVertexId,
                     data.property.name,
                     data.property.value, 
                     function (err, properties){

@@ -18,8 +18,8 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GeoNamesImport extends RedDawnCommandLineBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesImport.class.getName());
+public class GeoNamesImporter extends RedDawnCommandLineBase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesImporter.class.getName());
     private GeoNameRepository geoNameRepository = new GeoNameRepository();
     private GeoNameAdmin1CodeRepository geoNameAdmin1CodeRepository = new GeoNameAdmin1CodeRepository();
     private GeoNameCountryInfoRepository geoNameCountryInfoRepository = new GeoNameCountryInfoRepository();
@@ -30,7 +30,7 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
     private String postalCodeFileName;
 
     public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(CachedConfiguration.getInstance(), new GeoNamesImport(), args);
+        int res = ToolRunner.run(CachedConfiguration.getInstance(), new GeoNamesImporter(), args);
         if (res != 0) {
             System.exit(res);
         }
@@ -159,7 +159,7 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
      * 17 timezone          : the timezone id (see file timeZone.txt) varchar(40)
      * 18 modification date : date of last modification in yyyy-MM-dd format
      */
-    private GeoName lineToGeoName(String line) {
+    public GeoName lineToGeoName(String line) {
         String[] parts = line.split("\t");
         String id = parts[0];
         String name = parts[1];
@@ -240,7 +240,7 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
         LOGGER.info("Saved " + count + " records");
     }
 
-    private GeoNameAdmin1Code lineToAdmin1Code(String line) {
+    public GeoNameAdmin1Code lineToAdmin1Code(String line) {
         String[] parts = line.split("\t");
         String keyString = parts[0];
         String title = parts[1];
@@ -282,7 +282,7 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
         LOGGER.info("Saved " + count + " records");
     }
 
-    private GeoNameCountryInfo lineToCountryInfo(String line) {
+    public GeoNameCountryInfo lineToCountryInfo(String line) {
         if (line.startsWith("#")) {
             return null;
         }
@@ -323,7 +323,7 @@ public class GeoNamesImport extends RedDawnCommandLineBase {
         LOGGER.info("Saved " + count + " records");
     }
 
-    private GeoNamePostalCode lineToPostalCode(String line) {
+    public GeoNamePostalCode lineToPostalCode(String line) {
         if (line.startsWith("#")) {
             return null;
         }

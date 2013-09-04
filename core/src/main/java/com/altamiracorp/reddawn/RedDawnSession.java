@@ -24,7 +24,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 
 public class RedDawnSession {
+    public static final String SEARCH_PROVIDER_PROP_KEY = "search.provider";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RedDawnSession.class);
+    private static final String DEFAULT_SEARCH_PROVIDER = BlurSearchProvider.class.getName();
     private static Properties applicationProps = new Properties();
     private Session modelSession;
     private SearchProvider searchProvider;
@@ -79,9 +82,15 @@ public class RedDawnSession {
     }
 
     private static SearchProvider createSearchProvider(Properties props) {
-        BlurSearchProvider blurSearchProvider = new BlurSearchProvider();
-        blurSearchProvider.setup(props);
-        return blurSearchProvider;
+        String providerClass = props.getProperty(SEARCH_PROVIDER_PROP_KEY, DEFAULT_SEARCH_PROVIDER);
+
+        try {
+            SearchProvider provider = (SearchProvider)Class.forName(providerClass).newInstance();
+            provider.setup(props);
+            return provider;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create search provider instance of class " + providerClass, e);
+        }
     }
 
     private static Session createModelSession(Properties props, TaskInputOutputContext context) throws AccumuloException, AccumuloSecurityException, IOException, URISyntaxException, InterruptedException {
@@ -117,7 +126,7 @@ public class RedDawnSession {
     }
 
     public void initialize() {
-        getSearchProvider().initializeTables();
+        getSearchProvider().initializeIndex();
         getModelSession().initializeTables();
         createBaseOntology();
     }

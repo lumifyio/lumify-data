@@ -5,18 +5,16 @@ import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.model.AccumuloSession;
 import com.altamiracorp.reddawn.model.AccumuloVideoFrameInputFormat;
+import com.altamiracorp.reddawn.model.TitanGraphSession;
 import com.altamiracorp.reddawn.model.videoFrames.VideoFrame;
 import com.altamiracorp.reddawn.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.reddawn.model.videoFrames.VideoFrameRowKey;
 import com.altamiracorp.reddawn.search.BlurSearchProvider;
-import com.altamiracorp.reddawn.ucd.term.Term;
+import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.vaast.model.averageFrames.AverageFrame;
 import com.altamiracorp.reddawn.vaast.model.averageFrames.AverageFrameRepository;
 import com.altamiracorp.reddawn.vaast.model.averageFrames.AverageFrameRowKey;
 import com.altamiracorp.vaast.core.model.AveragedFrame;
-import org.apache.accumulo.core.data.Key;
-import org.apache.accumulo.core.data.Mutation;
-import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.hadoop.io.BytesWritable;
@@ -50,7 +48,11 @@ public class AverageFramesMR extends ConfigurableMapJobBase {
         if (getBlurHdfsPath() != null) {
             job.getConfiguration().set(BlurSearchProvider.BLUR_PATH, getBlurHdfsPath());
         }
+        if (getGraphStorageIndexSearchHostname() != null) {
+            job.getConfiguration().set(TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, getGraphStorageIndexSearchHostname());
+        }
         job.setJarByClass(this.getClass());
+
 
         if (getConfig() != null) {
             for (String config : getConfig()) {
@@ -72,7 +74,7 @@ public class AverageFramesMR extends ConfigurableMapJobBase {
         if (outputFormatClass != null) {
             job.setOutputFormatClass(outputFormatClass);
         }
-        AccumuloModelOutputFormat.init(job, getUsername(), getPassword(), getZookeeperInstanceName(), getZookeeperServerNames(), Term.TABLE_NAME);
+        AccumuloModelOutputFormat.init(job, getUsername(), getPassword(), getZookeeperInstanceName(), getZookeeperServerNames(), Artifact.TABLE_NAME);
 
         job.waitForCompletion(true);
         return job.isSuccessful() ? 0 : 1;

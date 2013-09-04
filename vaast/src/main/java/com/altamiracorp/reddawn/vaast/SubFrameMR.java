@@ -13,12 +13,12 @@ import com.altamiracorp.vaast.core.model.SubSection;
 import com.altamiracorp.vaast.core.model.SubSectionedFrame;
 import com.altamiracorp.vaast.core.util.Util;
 import org.apache.accumulo.core.util.CachedConfiguration;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.pdfbox.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -55,8 +55,8 @@ public class SubFrameMR extends ConfigurableMapJobBase {
 
         @Override
         public void map(Text rowKey, AverageFrame frame, Context context) throws IOException {
+            InputStream frameIn = averageFrameRepository.getRaw(session.getModelSession(), frame);
             try {
-                InputStream frameIn = averageFrameRepository.getRaw(session.getModelSession(), frame);
                 byte[] frameBytes = IOUtils.toByteArray(frameIn);
                 SubFrame subFrame;
                 SubSectionedFrame ssf = Util.subSection(frame.getMetadata().getWidth(),
@@ -82,6 +82,8 @@ public class SubFrameMR extends ConfigurableMapJobBase {
                 }
             } catch (Exception e) {
                 throw new IOException(e);
+            } finally {
+                IOUtils.closeQuietly(frameIn);
             }
         }
 

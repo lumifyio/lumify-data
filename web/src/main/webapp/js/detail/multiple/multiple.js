@@ -7,7 +7,8 @@ define([
     'sf',
     'tpl!./multiple',
     'tpl!./histogram',
-], function (defineComponent, withTypeContent, withHighlighting, VertexService, OntologyService, sf, template, histogramTemplate) {
+    'underscore'
+], function (defineComponent, withTypeContent, withHighlighting, VertexService, OntologyService, sf, template, histogramTemplate, _) {
 
     'use strict';
 
@@ -28,7 +29,11 @@ define([
                 .filter(function (v) {
                     return v._type != 'relationship';
                 });
-            this.$node.html(template({getClasses: this.classesForVertex, vertices: vertices}));
+            this.$node.html(template({
+                getClasses: this.classesForVertex,
+                vertices: vertices,
+                fullscreenButton: self.fullscreenButton(_.pluck(vertices, 'id'))
+            }));
             this.updateEntityAndArtifactDraggables();
 
             var vertexIds = vertices.map(function (v) {
