@@ -32,7 +32,7 @@ class WholeFileRecordReader extends RecordReader<MapWritable, BytesWritable> {
 
     @Override
     public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
-
+        //do nothing
     }
 
     @Override
