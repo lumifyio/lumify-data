@@ -10,31 +10,34 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
-import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.apache.hadoop.mapreduce.lib.input.CombineFileSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 
 import java.io.IOException;
 
 class WholeFileRecordReader extends RecordReader<MapWritable, BytesWritable> {
 
-    private FileSplit fileSplit;
+    private Path file;
     private Configuration conf;
     private MapWritable currentK;
     private BytesWritable currentV;
     private boolean processed = false;
 
-    @Override
-    public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
-        this.fileSplit = (FileSplit)split;
+    public WholeFileRecordReader (CombineFileSplit split, TaskAttemptContext context, Integer idx) {
+        this.file = split.getPath(idx);
         this.conf = context.getConfiguration();
         this.currentK = new MapWritable();
         this.currentV = new BytesWritable();
     }
 
     @Override
+    public void initialize(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
+
+    }
+
+    @Override
     public boolean nextKeyValue() throws IOException, InterruptedException {
         if (!processed) {
-            Path file = fileSplit.getPath();
             FileSystem fs = file.getFileSystem(conf);
             FSDataInputStream in = null;
             try {
