@@ -2,12 +2,13 @@
 
 define([
     'flight/lib/component',
+    'flight/lib/registry',
     'service/vertex',
     'service/ucd',
     'detail/detail',
     'tpl!appFullscreenDetails',
     'underscore'
-], function(defineComponent, VertexService, UCD, Detail, template, _) {
+], function(defineComponent, registry, VertexService, UCD, Detail, template, _) {
 
     return defineComponent(FullscreenDetails);
 
@@ -17,14 +18,16 @@ define([
         this.ucd = new UCD();
 
         this.defaultAttrs({
-            detailSelector: '.detail-pane .content'
+            detailSelector: '.detail-pane .content',
+            closeSelector: '.close-detail-pane'
         });
 
         this.after('initialize', function() {
-            document.title = this.titleForVertices();
+            this.updateTitle();
 
             this._windowIsHidden = false;
             this.on(document, 'window-visibility-change', this.onVisibilityChange);
+            this.on('click', { closeSelector: this.onClose });
             this.vertices = [];
 
             this.fullscreenIdentifier = Math.floor((1 + Math.random()) * 0xFFFFFF).toString(16).substring(1);
@@ -36,8 +39,47 @@ define([
                 .done(this.handleVerticesLoaded.bind(this));
         });
 
+        this.onClose = function(event) {
+            event.preventDefault();
+
+            var self = this,
+                pane = $(event.target).closest('.detail-pane'),
+                node = pane.find('.content');
+                instanceInfos = registry.findInstanceInfoByNode(node[0]);
+
+            if (instanceInfos.length) {
+                instanceInfos.forEach(function(info) {
+                    self.vertices = _.reject(self.vertices, function(v) {
+                        return v.id === info.instance.attr.loadGraphVertexData.graphVertexId;
+                    });
+                    info.instance.teardown();
+                });
+            }
+            pane.remove();
+
+            this.updateLocationHash();
+            this.updateLayout();
+            this.updateTitle();
+        };
+
+        this.updateLocationHash = function() {
+            location.hash = '#v=' + _.pluck(this.vertices, 'id').sort().join(',');
+        };
+
+        this.updateLayout = function() {
+            this.$node
+                .removeClass(_.filter(this.node.className.split(/\s+/), function(name) { 
+                    return (/^split-/).test(name); 
+                }).join(' '))
+                .addClass(this.vertices.length <= 4 ? 'split-' + this.vertices.length : 'split-many');
+        };
+
+        this.updateTitle = function() {
+            document.title = this.titleForVertices();
+        };
+
         this.handleVerticesLoaded = function(vertices) {
-            var artifactTitleDeferred = [], previousCount = this.vertices.length;
+            var artifactTitleDeferred = [];
 
             Detail.teardownAll();
             this.$node.find('.detail-pane').remove();
@@ -77,21 +119,19 @@ define([
                                 .addClass('type-' + v.properties._type + ' subType-' + v.properties._subType)
                                 .find('.content'), {
                     loadGraphVertexData: v.properties,
-                    highlightStyle: 0
+                    highlightStyle: 2
                 });
             }.bind(this));
 
-            location.hash = '#v=' + _.pluck(this.vertices, 'id').sort().join(',');
-
-            this.$node
-                .removeClass('split-many split-' + previousCount)
-                .addClass(this.vertices.length <= 4 ? 'split-' + this.vertices.length : 'split-many');
+            this.updateLocationHash();
+            this.updateLayout();
 
             var self = this;
             $.when.apply(null, artifactTitleDeferred)
              .done(function() {
 
-                document.title = self.titleForVertices();
+                self.updateTitle();
+
 
                 if (!self._commSetup) {
                     self.setupTabCommunications();
@@ -104,7 +144,7 @@ define([
             this._windowIsHidden = data.hidden;
             if (data.visible) {
                 clearTimeout(this.timer);
-                document.title = this.titleForVertices();
+                this.updateTitle();
             }
         };
 
@@ -151,7 +191,7 @@ define([
                             ('"' + newVertices[0].properties.title + '" added') :
                             newVertices.length + ' items added';
                     } else {
-                        document.title = self.titleForVertices();
+                        self.updateTitle();
                     }
 
                     if (self._windowIsHidden) {
