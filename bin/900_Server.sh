@@ -33,11 +33,4 @@ java \
 -classpath ${classpath} \
 -Xmx1024M \
 com.altamiracorp.reddawn.web.Server \
---zookeeperInstanceName=reddawn \
---blurControllerLocation=${ip}:40010 \
---blurPath=hdfs://${ip}/blur \
---graph.storage.index.search.hostname=${ip} \
---hadoopUrl=hdfs://${ip}:8020 \
---zookeeperServerNames=${ip} \
---username=root \
---password=password \
+--port=8080 \

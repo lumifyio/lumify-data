@@ -15,7 +15,9 @@ import com.altamiracorp.reddawn.cmdline.RedDawnCommandLineBase;
 
 public class Server extends RedDawnCommandLineBase {
 
-    private int port;
+    private static final String PORT_OPTION_VALUE = "port";
+    private static final int DEFAULT_SERVER_PORT = 8080;
+    private int serverPort;
 
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new Server(), args);
@@ -26,14 +28,13 @@ public class Server extends RedDawnCommandLineBase {
 
     @Override
     protected Options getOptions() {
-        Options options = super.getOptions();
+        final Options options = new Options();
 
         options.addOption(
                 OptionBuilder
-                        .withArgName("p")
-                        .withLongOpt("port")
+                        .withLongOpt(PORT_OPTION_VALUE)
                         .withDescription("The port to run the server on")
-                        .withArgName("port")
+                        .withArgName("port_number")
                         .hasArg()
                         .create()
         );
@@ -43,19 +44,18 @@ public class Server extends RedDawnCommandLineBase {
 
     @Override
     protected void processOptions(CommandLine cmd) throws Exception {
-        super.processOptions(cmd);
+        final String port = cmd.getOptionValue(PORT_OPTION_VALUE);
 
-        String port = cmd.getOptionValue("port");
         if (port == null) {
-            this.port = 8080;
+            serverPort = DEFAULT_SERVER_PORT;
         } else {
-            this.port = Integer.parseInt(port);
+            serverPort = Integer.parseInt(port);
         }
     }
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
-        InetSocketAddress addr = new InetSocketAddress("0.0.0.0", port);
+        InetSocketAddress addr = new InetSocketAddress("0.0.0.0", serverPort);
         org.eclipse.jetty.server.Server server = new org.eclipse.jetty.server.Server(addr);
 
         WebAppContext webAppContext = new WebAppContext();
