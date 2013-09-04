@@ -129,6 +129,7 @@ define([
                     .addClass("badge")
                     .addClass("loading");
 
+            $('.artifactImage').data('Jcrop').release ();
             this.select('createEntityButtonSelector').addClass('disabled');
 
             this.entityService.createEntity(parameters, function(err, data) {
