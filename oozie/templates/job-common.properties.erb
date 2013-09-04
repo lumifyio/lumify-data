@@ -29,8 +29,9 @@ blurPathProp=${nameNode}/blur
 graphStorageIndexSearchHostnameProp=<%= @elasticsearch_locations[0].split(':')[0] %>
 
 #File import related
-fileImportDir=${hdfsRoot}/import/data/
-fileImportCleanupDir=/import/imported/
+fileImportReadyDir=/import/1-ready/
+fileImportProcessingDir=/import/2-processing/
+fileImportImportedDir=/import/3-imported/
 
 #GeoNames import related
 geoNamesRoot=${hdfsRoot}/import/geoNames
