@@ -58,13 +58,13 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
 
         GraphVertex conceptVertex = graphRepository.findVertex(session.getGraphSession(), conceptId);
-        GraphVertex resolvedVertex = createGraphVertex (session.getGraphSession(), conceptVertex, resolvedGraphVertexId,
+        GraphVertex resolvedVertex = createGraphVertex(session.getGraphSession(), conceptVertex, resolvedGraphVertexId,
                 sign, artifactRowKey, boundingBox, artifactId);
 
         Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactRowKey);
 
         JSONObject obj = new JSONObject();
-        if (detectedObjectRowKey == null || model == null){
+        if (detectedObjectRowKey == null || model == null) {
             model = "manual";
             detectedObjectRowKey = artifact.getArtifactDetectedObjects().addDetectedObject
                     (conceptVertex.getProperty("ontologyTitle").toString(), model, x1, y1, x2, y2, true);
@@ -76,7 +76,7 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
             executorService.execute(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, cssClasses, obj));
         }
 
-        JSONObject infoJson = artifact.getArtifactDetectedObjects().infoJson (conceptId, model, x1, y1, x2, y2, detectedObjectRowKey);
+        JSONObject infoJson = artifact.getArtifactDetectedObjects().infoJson(conceptId, model, x1, y1, x2, y2, detectedObjectRowKey);
         obj = toJson(resolvedVertex, infoJson);
 
         new Responder(response).respondWith(obj);
@@ -103,8 +103,8 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         return UrlUtils.urlDecode(parameter);
     }
 
-    private GraphVertex createGraphVertex (GraphSession graphSession, GraphVertex conceptVertex, String resolvedGraphVertexId,
-                                           String sign, String artifactRowKey, String boundingBox, String artifactId) {
+    private GraphVertex createGraphVertex(GraphSession graphSession, GraphVertex conceptVertex, String resolvedGraphVertexId,
+                                          String sign, String artifactRowKey, String boundingBox, String artifactId) {
         GraphVertex resolvedVertex;
         if (resolvedGraphVertexId != null) {
             resolvedVertex = graphRepository.findVertex(graphSession, resolvedGraphVertexId);
