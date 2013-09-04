@@ -104,7 +104,7 @@ define([
 
         this.onImageEnter = function(event){
             var self = this;
-            var data = $(event.target).data('info');;
+            var data = $(event.target).data('info');
 
             this.$node.off ('mouseenter');
 
