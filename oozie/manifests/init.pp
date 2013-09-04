@@ -32,6 +32,7 @@ class oozie($prefix = "/usr/lib/oozie") {
   $hadoop_masters = hiera_array('hadoop_masters')
   $hadoop_slaves = hiera_array('hadoop_slaves')
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')
+  $elasticsearch_locations = hiera_hash('elasticsearch_locations')
 
   file { '/etc/oozie/jobs/job-common.properties' :
     ensure => file,
