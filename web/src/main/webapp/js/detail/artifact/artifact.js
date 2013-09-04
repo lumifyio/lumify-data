@@ -104,22 +104,25 @@ define([
 
         this.onImageEnter = function(event){
             var self = this;
-            var data = $(event.target).data('info');
+            var data = $(event.target).data('info');;
 
             this.$node.off ('mouseenter');
 
             $('#' + data.id).Jcrop({
-                onSelect: function (x) { self.onSelectImage(x, data); }
+                onSelect: function (x) { self.onSelectImage(x, $(event.target)); }
             });
         }
 
-        this.onSelectImage = function (coords, data){
+        this.onSelectImage = function (coords, imageInfo){
+            var aspectHeight = imageInfo.height()/imageInfo[0].naturalHeight;
+            var aspectWidth = imageInfo.width()/imageInfo[0].naturalWidth;
+
             var dataInfo = {
                 coords: {
-                    x1: coords.x,
-                    x2: coords.x2,
-                    y1: coords.y,
-                    y2: coords.y2
+                    x1: coords.x / aspectWidth,
+                    x2: coords.x2 / aspectWidth,
+                    y1: coords.y / aspectHeight,
+                    y2: coords.y2 / aspectHeight
                 }
             };
 
