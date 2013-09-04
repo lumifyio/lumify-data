@@ -19,7 +19,7 @@ function download_and_upload {
     (cd ${tmp_dir}; unzip -q ${filename})
   fi
 
-  hadoop fs -rmr ${hdfs_path}
+  hadoop fs -rmr ${hdfs_path} || true
   hadoop fs -mkdir ${hdfs_path}
   hadoop fs -put ${tmp_dir}/${extensionless_filename}.txt ${hdfs_path}
 
