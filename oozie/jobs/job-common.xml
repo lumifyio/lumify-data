@@ -44,5 +44,9 @@
 		<name>mapred.child.java.opts</name>
 		<value>-Xms1024M -Xmx1024M -XX:MaxPermSize=512M</value>
 	</property>
+	<property>
+		<name>fs.hdfs.impl</name>
+		<value>org.apache.hadoop.hdfs.DistributedFileSystem</value>
+	</property>
 </configuration>
 	
