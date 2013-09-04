@@ -52,7 +52,7 @@ define([
                 self.$node.html(template({
                     title: self.attr.data.originalTitle || self.attr.data.title || 'No title avaliable',
                     highlightButton: self.highlightButton(),
-                    id: self.attr.data.id || self.attr.data.graphVertexId
+                    fullscreenButton: self.fullscreenButton([self.attr.data.id || self.attr.data.graphVertexId])
                 }));
 
                 Image.attachTo(self.select('glyphIconSelector'), {

@@ -1,11 +1,44 @@
 
+text-align: center;
+
 .detail-pane {
-  max-width: none;
+  text-align: left;
   right: auto;
-  position: static;
   width: auto;
   max-width: none;
+  height: auto;
   background: white;
   padding: 0;
   margin: auto;
+  position: relative;
+  float: none;
+  vertical-align: top;
+  display: inline-block;
+
+  .content {
+    overflow: visible;
+    height: auto;
+  }
+
+  &.type-entity {
+    width: 25em;
+  }
+  &.subType-document {
+    clear: left;
+  }
+}
+
+@media (min-width: 700px) {
+  &.split-2 .type-artifact {
+    display: inline-block;
+    width: 50%;
+  }
+  //.detail-pane { width: 50%; }
+}
+@media (min-width: 800px) {
+  //.detail-pane { width: 50%; }
+
+  &.split-3 {
+   // .detail-pane { width: 33%; }
+  }
 }

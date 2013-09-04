@@ -29,6 +29,8 @@ function(compose, registry, advice, withLogging, debug) {
     var ids = graphVertexIdsToOpen();
 
     if (ids && ids.length) {
+        window.isFullscreenDetails = true;
+        $(document.body).addClass('fullscreenDetails');
         require(['appFullscreenDetails'], function(FullscreenDetailApp) {
             FullscreenDetailApp.attachTo('#app', {
                 graphVertexIds: ids

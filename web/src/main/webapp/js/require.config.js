@@ -28,7 +28,8 @@ var require = {
     underscore: '../libs/underscore/underscore',
     colorjs: '../libs/color-js/color',
     sf: '../libs/sf/sf',
-    d3: '../libs/d3/d3.v3'
+    d3: '../libs/d3/d3.v3',
+    intercom: '../libs/intercom/intercom.amd'
   },
   shim: {
     ejs: { exports: 'ejs' },
