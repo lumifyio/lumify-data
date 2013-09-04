@@ -838,8 +838,3 @@ var module;
 if(module) {
   module.exports.Color = net.brehaut.Color;
 }
-
-if ('define' in window)
-define([], function() {
-    return net.brehaut.Color;
-});
