@@ -3,7 +3,7 @@ define([
     'flight/lib/component',
     'tpl!./image',
     'tpl!util/blur/blur-svg'
-], function(defineComponent, template, blur) {
+], function(defineComponent, template, blur, Jcrop) {
 
     return defineComponent(Image);
 
@@ -16,12 +16,11 @@ define([
         });
 
         this.after('initialize', function() {
-            var html = template({ src: this.attr.src });
+            var html = template({ data: this.attr.data });
 
             this.$node.css({
                 backgroundImage: this.attr.src
             }).html(html);
-
 
             this.on(document, 'DetectedObjectEnter', this.onHover);
             this.on(document, 'DetectedObjectLeave', this.onHoverLeave);
