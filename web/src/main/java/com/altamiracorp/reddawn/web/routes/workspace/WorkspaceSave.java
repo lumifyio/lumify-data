@@ -2,6 +2,7 @@ package com.altamiracorp.reddawn.web.routes.workspace;
 
 import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.user.User;
+import com.altamiracorp.reddawn.model.user.UserRepository;
 import com.altamiracorp.reddawn.model.workspace.Workspace;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRepository;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRowKey;
@@ -20,10 +21,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class WorkspaceSave implements Handler, AppAware {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceSave.class.getName());
     private static final String DEFAULT_WORKSPACE_TITLE = "Default";
     private WorkspaceRepository workspaceRepository = new WorkspaceRepository();
-    private static final Logger LOGGER = LoggerFactory
-            .getLogger(WorkspaceSave.class.getName());
+    private UserRepository userRepository = new UserRepository();
     private WebApp app;
 
     @Override
@@ -31,6 +32,12 @@ public class WorkspaceSave implements Handler, AppAware {
         RedDawnSession session = app.getRedDawnSession(request);
         String data = request.getParameter("data");
         String workspaceRowKeyString = (String) request.getAttribute("workspaceRowKey");
+
+        User currentUser = DevBasicAuthenticator.getUser(request);
+        if (!workspaceRowKeyString.equals(currentUser.getMetadata().getCurrentWorkspace())) {
+            currentUser.getMetadata().setCurrentWorkspace(workspaceRowKeyString);
+            userRepository.save(session.getModelSession(), currentUser);
+        }
 
         Workspace workspace;
         if (workspaceRowKeyString == null) {

@@ -7,6 +7,7 @@ public class UserMetadata extends ColumnFamily {
     public static final String NAME = "metadata";
     public static final String USER_NAME = "userName";
     public static final String STATUS = "status";
+    public static final String CURRENT_WORKSPACE = "current_workspace";
 
     public UserMetadata() {
         super(NAME);
@@ -31,6 +32,15 @@ public class UserMetadata extends ColumnFamily {
 
     public UserMetadata setStatus(UserStatus status) {
         set(STATUS, status.toString());
+        return this;
+    }
+
+    public String getCurrentWorkspace() {
+        return Value.toString(get(CURRENT_WORKSPACE));
+    }
+
+    public UserMetadata setCurrentWorkspace(String currentWorkspace) {
+        set(CURRENT_WORKSPACE, currentWorkspace);
         return this;
     }
 }

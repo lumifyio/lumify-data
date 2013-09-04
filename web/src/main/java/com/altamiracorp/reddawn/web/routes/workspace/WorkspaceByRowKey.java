@@ -1,9 +1,12 @@
 package com.altamiracorp.reddawn.web.routes.workspace;
 
 import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.model.user.User;
+import com.altamiracorp.reddawn.model.user.UserRepository;
 import com.altamiracorp.reddawn.model.workspace.Workspace;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRepository;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRowKey;
+import com.altamiracorp.reddawn.web.DevBasicAuthenticator;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
@@ -17,12 +20,19 @@ import javax.servlet.http.HttpServletResponse;
 
 public class WorkspaceByRowKey implements Handler, AppAware {
     private WorkspaceRepository workspaceRepository = new WorkspaceRepository();
+    private UserRepository userRepository = new UserRepository();
     private WebApp app;
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         RedDawnSession session = app.getRedDawnSession(request);
         WorkspaceRowKey workspaceRowKey = new WorkspaceRowKey((String) request.getAttribute("workspaceRowKey"));
+
+        User currentUser = DevBasicAuthenticator.getUser(request);
+        if (!currentUser.getMetadata().getCurrentWorkspace().equals(workspaceRowKey.toString())) {
+            currentUser.getMetadata().setCurrentWorkspace(workspaceRowKey.toString());
+            userRepository.save(session.getModelSession(), currentUser);
+        }
 
         Workspace workspace = workspaceRepository.findByRowKey(session.getModelSession(), workspaceRowKey.toString());
 

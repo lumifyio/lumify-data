@@ -11,10 +11,13 @@ define(
 
         ChatService.prototype = Object.create(ServiceBase.prototype);
 
-        ChatService.prototype.sendChatMessage = function (messageData, callback) {
+        ChatService.prototype.sendChatMessage = function (users, messageData, callback) {
             messageData.postDate = Date.now();
             var data = {
                 type: 'chatMessage',
+                permissions: {
+                    users: users
+                },
                 data: messageData
             };
 

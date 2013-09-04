@@ -25,6 +25,10 @@
             <param-name>org.atmosphere.cpr.sessionSupport</param-name>
             <param-value>true</param-value>
         </init-param>
+        <init-param>
+            <param-name>org.atmosphere.cpr.broadcastFilterClasses</param-name>
+            <param-value>com.altamiracorp.reddawn.web.MessagingFilter</param-value>
+        </init-param>
     </servlet>
     <servlet-mapping>
         <servlet-name>AtmosphereServlet</servlet-name>

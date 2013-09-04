@@ -169,7 +169,11 @@ define([
             };
             this.addMessage(messageData);
 
-            this.chatService.sendChatMessage(messageData, function (err, messageData) {
+            var userRowKeys = chat.users.map(function (u) {
+                return u.rowKey;
+            });
+
+            this.chatService.sendChatMessage(userRowKeys, messageData, function (err, messageData) {
                 if (err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
