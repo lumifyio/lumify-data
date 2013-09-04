@@ -130,6 +130,9 @@ define([
         }
 
         this.showForm = function (dataInfo, artifactInfo){
+            if ($('.detected-object-labels .underneath').length === 0) {
+                ObjectDetectionForm.teardownAll ();
+            }
             var root = $('<div class="underneath">').insertAfter('.detected-object-labels');
 
             ObjectDetectionForm.attachTo (root, {
