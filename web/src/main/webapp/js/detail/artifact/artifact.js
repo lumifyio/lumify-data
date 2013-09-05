@@ -104,10 +104,9 @@ define([
 
         this.onImageEnter = function(event){
             var self = this;
-            var data = $(event.target).data('info');
 
-            $('.artifactImage').Jcrop({
-                onSelect: function (x) { self.onSelectImage(x, $(event.target)); },
+            $('.artifact').Jcrop({
+                onSelect: function (x) { self.onSelectImage(x, $('.artifact .image')); },
                 onRelease: self.onSelectImageRelease
             });
         }

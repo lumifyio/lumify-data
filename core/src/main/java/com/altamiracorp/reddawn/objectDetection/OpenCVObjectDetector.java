@@ -25,7 +25,8 @@ public class OpenCVObjectDetector extends ObjectDetector {
             faceDetector.detectMultiScale(image, faceDetections);
 
             for (Rect rect : faceDetections.toArray()) {
-                DetectedObject detectedObject = new DetectedObject(rect.x,rect.y,rect.x + rect.width, rect.y + rect.height);
+                DetectedObject detectedObject = new DetectedObject(Integer.toString(rect.x),Integer.toString(rect.y),
+                        Integer.toString(rect.x + rect.width), Integer.toString(rect.y + rect.height));
                 detectedObjectList.add(detectedObject);
             }
         }

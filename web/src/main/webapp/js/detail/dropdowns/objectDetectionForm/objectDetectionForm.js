@@ -135,10 +135,18 @@ define([
                 if (err) {
                     self.trigger(document, 'error', err);
                 } else {
-                    $('.detected-object-labels .label').addClass('entity resolved');
+                    $('.detected-object-labels .label').addClass('entity resolved generic-draggable');
                     $('.detected-object-labels .label').data('info', data);
-                    self.trigger(document, 'termCreated', data);
-                    $('.artifactImage').data('Jcrop').release ();
+
+                    var vertices = [];
+                    vertices.push(data);
+                    self.trigger(document, 'verticesUpdated', { vertices: vertices });
+
+                    if ($('.artifact').data('Jcrop')) {
+                        $('.artifact').data('Jcrop').release ();
+                    } else {
+                        _.defer(self.teardown.bind(self));
+                    }
                 }
             });
         };

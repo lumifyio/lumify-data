@@ -8,6 +8,7 @@ import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.reddawn.model.ontology.LabelName;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
+import com.altamiracorp.reddawn.objectDetection.DetectedObject;
 import com.altamiracorp.reddawn.objectDetection.ObjectDetectionWorker;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
@@ -63,15 +64,22 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
 
         Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactRowKey);
 
+        DetectedObject detectedObject = new DetectedObject(x1, y1, x2, y2);
+        detectedObject.setGraphVertexId(resolvedVertex.getId().toString());
+        detectedObject.setConcept(conceptVertex.getProperty("ontologyTitle").toString());
+
+        List<String> cssClasses = detectedObject.getCssClasses();
+        cssClasses.add("subType-" + conceptId);
+
         if (detectedObjectRowKey == null || model == null) {
             model = "manual";
+            detectedObject.setModel(model);
             detectedObjectRowKey = artifact.getArtifactDetectedObjects().addDetectedObject
-                    (conceptVertex.getProperty("ontologyTitle").toString(), model, x1, y1, x2, y2, true);
+                    (conceptVertex.getProperty("ontologyTitle").toString(), model, x1, y1, x2, y2, cssClasses);
+            detectedObject.setRowKey(detectedObjectRowKey);
         }
 
-        List<String> cssClasses = artifact.getArtifactDetectedObjects().getCssClasses(true);
-        JSONObject infoJson = artifact.getArtifactDetectedObjects().infoJson(conceptId, model, x1, y1, x2, y2, detectedObjectRowKey);
-        JSONObject obj = toJson(resolvedVertex, infoJson);
+        JSONObject obj = toJson(resolvedVertex, detectedObject.getJson());
         executorService.execute(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, cssClasses, obj));
 
         new Responder(response).respondWith(obj);
