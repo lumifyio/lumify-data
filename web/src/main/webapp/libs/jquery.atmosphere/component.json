@@ -1,17 +1,8 @@
 {
-  "name": "jquery.atmosphere",
-  "version": "1.0.13",
-  "main": "./jquery.atmosphere.js",
-  "dependencies": {
-    "jquery": ">1.7.0"
-  },
-  "gitHead": "38bd5faf0aae926d5429a4bcc9f6e02a1da338e7",
-  "readme": "atmosphere\n==========\n\nProxy Repo for jQuery Atmosphere and Bower\n\nMore information available at: https://github.com/Atmosphere/atmosphere",
-  "readmeFilename": "README.md",
-  "_id": "jquery-atmosphere@1.0.13",
-  "description": "atmosphere ==========",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/blittle/atmosphere.git"
-  }
+    "name": "jquery-atmosphere",
+    "version": "1.0.13",
+    "main": "./jquery.atmosphere.js",
+    "dependencies": {
+        "jquery": ">1.7.0"
+    }
 }

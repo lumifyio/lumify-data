@@ -15,13 +15,20 @@
 <workflow-app xmlns="uri:oozie:workflow:0.1" name="file-import-wf">
     <start to="files-to-import"/>
 	<decision name="files-to-import">
-	        <switch>
-	            <case to="import-node">
-	              ${fs:exists(fileImportDir)}
-	            </case>
-	            <default to="end"/>
-	        </switch>
-	    </decision>
+		<switch>
+	    	<case to="file-stage">
+	        	${fs:dirSize(fullFileImportReadyDir) gt 0}
+	        </case>
+	     	<default to="end"/>
+		</switch>
+	</decision>
+	<action name="file-stage">
+		<fs>
+			<move source="${fullFileImportReadyDir}/*" target="${fileImportProcessingDir}/${wf:id()}"/>
+		</fs>
+		<ok to="import-node"/>
+		<error to="fail"/>
+	</action>
     <action name="import-node">
         <map-reduce>
             <job-tracker>${jobTracker}</job-tracker>
@@ -52,7 +59,7 @@
 			    </property>
 				<property>
 			        <name>mapred.input.dir</name>
-			        <value>${fileImportDir}</value>
+			        <value>${fileImportProcessingDir}/${wf:id()}</value>
 			    </property>
 				<property>
 			        <name>oozie.launcher.action.main.class</name>
@@ -65,14 +72,14 @@
     </action>
 	<action name="file-move">
 		<fs>
-			<move source="${fileImportDir}" target="${fileImportCleanupDir}/${wf:id()}"/>
+			<move source="${fullFileImportProcessingDir}/${wf:id()}" target="${fileImportImportedDir}/${wf:id()}"/>
 		</fs>
-		<ok to="cleanup"/>
+		<ok to="processing-cleanup"/>
 		<error to="fail"/>
 	</action>
-	<action name="cleanup">
+	<action name="processing-cleanup">
 		<fs>
-			<delete path="${fileImportDir}"/>
+			<delete path="${fullFileImportProcessingDir}/${wf:id()}"/>
 		</fs>
 		<ok to="end"/>
 		<error to="fail"/>

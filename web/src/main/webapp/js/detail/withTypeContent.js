@@ -26,11 +26,8 @@ define([
             this.$node.empty();
         });
 
-        this.before('initialize', function() {
-            this.$node.html('Loading...');
-        });
-
         this.after('initialize', function() {
+
             if (!window.isFullscreenDetails) {
                 this.on('clearAvailableFullscreenDetails', this.onFullscreenClear);
                 this.on('fullscreenDetailVerticesAvailable', this.onFullscreenAdd);

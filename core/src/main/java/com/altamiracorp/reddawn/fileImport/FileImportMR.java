@@ -42,7 +42,7 @@ public class FileImportMR extends ConfigurableMapJobBase{
                     new ByteArrayInputStream(value.getBytes()),
                     name,
                     lastModified);
-
+            artifactRepository.saveToGraph(getSession().getModelSession(), getSession().getGraphSession(), artifact);
             context.write(new Text(Artifact.TABLE_NAME),artifact);
         }
     }
