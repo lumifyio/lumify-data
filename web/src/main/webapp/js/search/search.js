@@ -271,10 +271,6 @@ define([
 			this.currentQuery = data.query;
 		};
 
-        this.onFocusSearchField = function() {
-            this.select('searchQuerySelector').focus();
-        };
-
         this.close = function(e) {
             this.select('searchResultsSelector').hide();
             this.$node.find('.search-results-summary .active').removeClass('active');
@@ -332,6 +328,7 @@ define([
             this.$node.html(template({}));
 
             this.select('searchResultsSelector').hide();
+            this.select('filtersSelector').hide();
 
             this.on('filterschange', this.onFiltersChange);
             this.$node.on('mouseenter mouseleave', '.search-results li.result-item', this.onHoverSearchResult.bind(this));
@@ -341,7 +338,7 @@ define([
             this.on('entitySearchResults', this.onEntitySearchResults);
             this.on(document,'showSearchResults', this.onShowSearchResults);
 			this.on(document,'searchQueryChanged',this.onQueryChange);
-            this.on(document, 'focusSearchField', this.onFocusSearchField);
+            this.on(document, 'menubarToggleDisplay', this.onMenubarToggle);
             this.on('submit', {
                 searchFormSelector: this.onFormSearch
             });
@@ -367,6 +364,18 @@ define([
 
         this.onWorkspaceLoaded = function(evt, workspace) {
             this.onVerticesUpdated(evt, workspace.data || {});
+        };
+
+        this.onMenubarToggle = function(evt, data) {
+            var pane = this.$node.closest(':data(menubarName)');
+            if (data.name === pane.data('menubarName')) {
+                console.log(pane.hasClass('visible'));
+                if (!pane.hasClass('visible')) {
+                    this.select('searchResultsSelector').hide();
+                    this.$node.find('.search-results-summary .active').removeClass('active');
+                    this.select('filtersSelector').hide();
+                }
+            }
         };
 
         this.onFiltersChange = function(evt, data) {

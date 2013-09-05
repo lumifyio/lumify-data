@@ -104,7 +104,6 @@ define([
             this.setupDroppable();
 
             // Open search when the page is loaded
-            this.trigger(document, 'menubarToggleDisplay', { name: searchPane.data(DATA_MENUBAR_NAME) });
             this.trigger(document, 'menubarToggleDisplay', { name: graphPane.data(DATA_MENUBAR_NAME) });
 
             this.on(document, 'addVertices', this.onAddVertices);
@@ -331,6 +330,10 @@ define([
             this.workspaceData = data || {};
             this.workspaceData.data = this.workspaceData.data || {};
             this.workspaceData.data.vertices = this.workspaceData.data.vertices || [];
+
+            if (this.workspaceData.data.vertices.length === 0) {
+                this.trigger(document, 'menubarToggleDisplay', { name:'search' });
+            }
 
             undoManager.reset();
             this.refreshRelationships();
@@ -584,13 +587,6 @@ define([
 
                 pane.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
                     pane.off('transitionend webkitTransitionEnd oTransitionEnd otransitionend');
-
-                    if (!visible && data.name == 'search') {
-                        _.delay(function() {
-                            self.trigger(document, 'focusSearchField');
-                        }, 250);
-                    }
-
                     self.triggerPaneResized();
                 });
             }
