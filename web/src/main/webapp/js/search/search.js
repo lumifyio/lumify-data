@@ -369,7 +369,6 @@ define([
         this.onMenubarToggle = function(evt, data) {
             var pane = this.$node.closest(':data(menubarName)');
             if (data.name === pane.data('menubarName')) {
-                console.log(pane.hasClass('visible'));
                 if (!pane.hasClass('visible')) {
                     this.select('searchResultsSelector').hide();
                     this.$node.find('.search-results-summary .active').removeClass('active');
