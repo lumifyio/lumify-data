@@ -6,6 +6,7 @@ define([
     'search/search',
     'workspaces/workspaces',
     'workspaces/overlay',
+    'sync/sync',
     'users/users',
     'graph/graph',
     'detail/detail',
@@ -15,7 +16,7 @@ define([
     'util/keyboard',
     'util/undoManager',
     'underscore'
-], function(appTemplate, defineComponent, Menubar, Search, Workspaces, WorkspaceOverlay, Users, Graph, Detail, Map, WorkspaceService, UcdService, Keyboard, undoManager, _) {
+], function(appTemplate, defineComponent, Menubar, Search, Workspaces, WorkspaceOverlay, Sync, Users, Graph, Detail, Map, WorkspaceService, UcdService, Keyboard, undoManager, _) {
     'use strict';
 
     return defineComponent(App);
@@ -84,6 +85,7 @@ define([
                 mapPane = content.filter('.map-pane').data(DATA_MENUBAR_NAME, 'map'),
                 detailPane = content.filter('.detail-pane');
 
+            Sync.attachTo('body');
             Menubar.attachTo(menubarPane.find('.content'));
             Search.attachTo(searchPane.find('.content'));
             Workspaces.attachTo(workspacesPane.find('.content'));

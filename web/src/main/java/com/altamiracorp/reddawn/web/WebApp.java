@@ -1,18 +1,15 @@
 package com.altamiracorp.reddawn.web;
 
-import java.util.Enumeration;
+import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.web.App;
+import com.google.inject.Injector;
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
-
-import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.web.App;
-import com.google.inject.Injector;
+import java.util.Enumeration;
 
 
 public class WebApp extends App {
@@ -36,9 +33,10 @@ public class WebApp extends App {
     }
 
     public void close(ServletRequest request) {
-        RedDawnSession session = (RedDawnSession) request.getAttribute(RED_DAWN_SESSION);
-        if (session != null) {
-            session.close();
-        }
+        // TODO session is held open by WebSessionFactory so we don't close it
+//        RedDawnSession session = (RedDawnSession) request.getAttribute(RED_DAWN_SESSION);
+//        if (session != null) {
+//            session.close();
+//        }
     }
 }

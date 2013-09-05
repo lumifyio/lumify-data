@@ -107,7 +107,8 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
         } catch (Exception ex) {
             LOGGER.error("Could not update status", ex);
         } finally {
-            session.close();
+            // TODO session is held open by getRedDawnSession
+            // session.close();
         }
     }
 

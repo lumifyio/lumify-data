@@ -29,7 +29,7 @@ public class WorkspaceByRowKey implements Handler, AppAware {
         WorkspaceRowKey workspaceRowKey = new WorkspaceRowKey((String) request.getAttribute("workspaceRowKey"));
 
         User currentUser = DevBasicAuthenticator.getUser(request);
-        if (!currentUser.getMetadata().getCurrentWorkspace().equals(workspaceRowKey.toString())) {
+        if (!workspaceRowKey.toString().equals(currentUser.getMetadata().getCurrentWorkspace())) {
             currentUser.getMetadata().setCurrentWorkspace(workspaceRowKey.toString());
             userRepository.save(session.getModelSession(), currentUser);
         }
