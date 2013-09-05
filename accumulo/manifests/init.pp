@@ -89,6 +89,13 @@ class accumulo(
     require => Exec["copy-example-accumulo-config"],
   }
 
+  file { "accumulo-gc-config":
+    path    => "${configdir}/gc",
+    ensure  => file,
+    content => template("accumulo/gc.erb"),
+    require => Exec["copy-example-accumulo-config"],
+  }
+
   file { "accumulo-slaves-config":
     path    => "${configdir}/slaves",
     ensure  => file,
@@ -99,7 +106,7 @@ class accumulo(
   exec { 'change-accumulo-config-file-modes':
     command => '/bin/find ./* -type f -exec chmod 0644 {} \;',
     cwd     => $configdir,
-    require => [File["accumulo-env-config"], File["accumulo-site-config"], File["accumulo-masters-config"], File["accumulo-slaves-config"]],
+    require => [File["accumulo-env-config"], File["accumulo-site-config"], File["accumulo-masters-config"], File["accumulo-gc-config"], File["accumulo-slaves-config"]],
   }
 
   file { $logdir:
