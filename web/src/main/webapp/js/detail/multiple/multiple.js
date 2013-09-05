@@ -12,6 +12,15 @@ define([
 
     'use strict';
 
+    var NO_HISTOGRAM_PROPERTIES = [
+
+        // Would need to bin these intelligently to make useful
+        'geoLocation', 'latitude', 'longitude', 
+
+        // How aften would there actually be two with same title?
+        'title' 
+    ];
+
     return defineComponent(Multiple, withTypeContent, withHighlighting);
 
     function Multiple() {
@@ -141,7 +150,7 @@ define([
                     return true;
                 } else if (/^[_]/.test(propertyName)) {
                     return false;
-                } else if (propertyName == 'geoLocation') {
+                } else if (NO_HISTOGRAM_PROPERTIES.indexOf(propertyName) >= 0) {
                     return false;
                 }
                 return true;
