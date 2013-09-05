@@ -63,21 +63,16 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
 
         Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactRowKey);
 
-        JSONObject obj = new JSONObject();
         if (detectedObjectRowKey == null || model == null) {
             model = "manual";
             detectedObjectRowKey = artifact.getArtifactDetectedObjects().addDetectedObject
                     (conceptVertex.getProperty("ontologyTitle").toString(), model, x1, y1, x2, y2, true);
-
-            artifactRepository.save(session.getModelSession(), artifact);
-
-        } else {
-            List<String> cssClasses = artifact.getArtifactDetectedObjects().getCssClasses(true);
-            executorService.execute(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, cssClasses, obj));
         }
 
+        List<String> cssClasses = artifact.getArtifactDetectedObjects().getCssClasses(true);
         JSONObject infoJson = artifact.getArtifactDetectedObjects().infoJson(conceptId, model, x1, y1, x2, y2, detectedObjectRowKey);
-        obj = toJson(resolvedVertex, infoJson);
+        JSONObject obj = toJson(resolvedVertex, infoJson);
+        executorService.execute(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, cssClasses, obj));
 
         new Responder(response).respondWith(obj);
     }
