@@ -63,6 +63,7 @@ public class ArtifactDetectedObjects extends ColumnFamily {
 
     public JSONObject getInfoJson(String concept, String model, String x1, String y1, String x2, String y2, String rowKey) {
         try {
+            JSONObject obj = new JSONObject();
             JSONObject infoJson = new JSONObject();
             infoJson.put("concept", concept);
             infoJson.put("model", model);
@@ -73,7 +74,8 @@ public class ArtifactDetectedObjects extends ColumnFamily {
             coordsJson.put("x2", x2);
             coordsJson.put("y2", y2);
             infoJson.put("coords", coordsJson);
-            return infoJson;
+            obj.put("info", infoJson);
+            return obj;
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

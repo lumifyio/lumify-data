@@ -1,5 +1,6 @@
 package com.altamiracorp.reddawn.objectDetection;
 
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,6 +14,7 @@ public class DetectedObject {
     private String concept;
     private String graphVertexId;
     private String rowKey;
+    private GraphVertex resolvedVertex;
     private String x1;
     private String y1;
     private String x2;
@@ -57,39 +59,47 @@ public class DetectedObject {
         this.y2 = y2;
     }
 
-    public String getModel (){
+    public String getModel() {
         return model;
     }
 
-    public void setModel (String model){
+    public void setModel(String model) {
         this.model = model;
     }
 
-    public String getConcept (){
+    public String getConcept() {
         return concept;
     }
 
-    public void setConcept (String concept){
+    public void setConcept(String concept) {
         this.concept = concept;
     }
 
-    public String getGraphVertexId (){
+    public String getGraphVertexId() {
         return graphVertexId;
     }
 
-    public void setGraphVertexId (String graphVertexId) {
+    public void setGraphVertexId(String graphVertexId) {
         this.graphVertexId = graphVertexId;
     }
 
-    public String getRowKey (){
+    public String getRowKey() {
         return rowKey;
     }
 
-    public void setRowKey (String rowKey){
+    public void setRowKey(String rowKey) {
         this.rowKey = rowKey;
     }
 
-    public JSONObject getInfoJson () {
+    public GraphVertex getResolvedVertex() {
+        return resolvedVertex;
+    }
+
+    public void setResolvedVertex(GraphVertex resolvedVertex) {
+        this.resolvedVertex = resolvedVertex;
+    }
+
+    public JSONObject getInfoJson() {
         try {
             JSONObject infoJson = new JSONObject();
             infoJson.put("concept", getConcept());
@@ -109,7 +119,15 @@ public class DetectedObject {
 
     public JSONObject getJson() {
         try {
-            JSONObject json = getInfoJson();
+            JSONObject json = new JSONObject();
+            if (resolvedVertex.getId() != null) {
+                GraphVertex vertex = getResolvedVertex();
+                json.put("graphVertexId", resolvedVertex.getId());
+                for (String property : vertex.getPropertyKeys()) {
+                    json.put(property, vertex.getProperty(property));
+                }
+            }
+            json.put("info", getInfoJson());
 
             JSONArray cssClasses = new JSONArray();
             for (String cssClass : getCssClasses()) {

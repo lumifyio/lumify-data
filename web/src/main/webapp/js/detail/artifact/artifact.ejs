@@ -42,7 +42,7 @@
 <div class='detected-object-labels'>
 <% if(artifact['atc:Artifact_Detected_Objects']) { %>
   <% artifact['atc:Artifact_Detected_Objects'].detectedObjects.forEach(function(object) {%>
-  <%- object.tagHtml %><%= object.concept %></a>
+  <%- object.tagHtml %><%= object.info.concept %></a>
   <% }); %>
 <% } %>
 </div>

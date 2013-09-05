@@ -38,7 +38,7 @@ define([
                 height = image.height(),
                 aspectWidth = width / image[0].naturalWidth,
                 aspectHeight = height / image[0].naturalHeight,
-                c = data.coords,
+                c = data.info.coords,
                 w = (c.x2 - c.x1) * aspectWidth,
                 h = (c.y2 - c.y1) * aspectHeight,
                 x = c.x1 * aspectWidth,

@@ -35,12 +35,12 @@ define([
         this.setupContent = function (){
             var self = this,
                 vertex = this.$node,
-                resolvedVertex = $(this.attr.resolvedVertex),
-                entitySign = '',
-                existingEntity = this.attr.existing ? resolvedVertex.hasClass('entity') : false;
+                resolvedVertex = this.attr.resolvedVertex,
+                entitySign = this.attr.resolvedVertex.title || '',
+                existingEntity = this.attr.existing;
 
             vertex.html(template({
-                entitySign: '',
+                entitySign: entitySign,
                 buttonText: existingEntity ? 'Update' : 'Create'
             }));
         };
@@ -93,8 +93,7 @@ define([
             var self = this;
             self.allConcepts = [];
             self.ontologyService.concepts(function(err, concepts) {
-                var resolvedVertex = $(self.attr.resolvedVertex),
-                    resolvedVertexInfo = resolvedVertex.data('info');
+                var resolvedVertexInfo = self.attr.resolvedVertex;
 
                 self.allConcepts = concepts.byTitle;
 
@@ -135,8 +134,22 @@ define([
                 if (err) {
                     self.trigger(document, 'error', err);
                 } else {
-                    $('.detected-object-labels .label').addClass('entity resolved generic-draggable');
-                    $('.detected-object-labels .label').data('info', data);
+                    var resolvedVertex ={
+                        graphVertexId: data.graphVertexId,
+                        _rowKey: data._rowKey,
+                        _subType: data._subType,
+                        _type: data._type,
+                        title: data.title,
+                        info: data.info
+                    };
+                    if (data.newLabel){
+                        $('.detected-object-labels').append($(
+                            '<a class="' + data.cssClasses.join (' ') +
+                            '" data-info=' + JSON.stringify(resolvedVertex) +
+                            ' href="#">' + data.info.concept +'</a>').addClass('entity resolved generic-draggable subType-' + parameters.conceptId));
+                    } else {
+                        $('.detected-object-labels .label').data('info', data);
+                    }
 
                     var vertices = [];
                     vertices.push(data);

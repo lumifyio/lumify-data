@@ -20,7 +20,6 @@ import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
 import com.google.common.util.concurrent.MoreExecutors;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,6 +56,7 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         String boundingBox = "x1: " + x1 + ", y1: " + y1 + ", x2: " + x2 + ", y2: " + y2;
         String model = getOptionalParameter(request, "model");
         String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
+        boolean newLabel = false;
 
         GraphVertex conceptVertex = graphRepository.findVertex(session.getGraphSession(), conceptId);
         GraphVertex resolvedVertex = createGraphVertex(session.getGraphSession(), conceptVertex, resolvedGraphVertexId,
@@ -67,11 +67,13 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         DetectedObject detectedObject = new DetectedObject(x1, y1, x2, y2);
         detectedObject.setGraphVertexId(resolvedVertex.getId().toString());
         detectedObject.setConcept(conceptVertex.getProperty("ontologyTitle").toString());
+        detectedObject.setResolvedVertex(resolvedVertex);
 
         List<String> cssClasses = detectedObject.getCssClasses();
         cssClasses.add("subType-" + conceptId);
 
         if (detectedObjectRowKey == null || model == null) {
+            newLabel = true;
             model = "manual";
             detectedObject.setModel(model);
             detectedObjectRowKey = artifact.getArtifactDetectedObjects().addDetectedObject
@@ -79,8 +81,12 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
             detectedObject.setRowKey(detectedObjectRowKey);
         }
 
-        JSONObject obj = toJson(resolvedVertex, detectedObject.getJson());
+        JSONObject obj = detectedObject.getJson();
         executorService.execute(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, cssClasses, obj));
+
+        if (newLabel) {
+            obj.put("newLabel", true);
+        }
 
         new Responder(response).respondWith(obj);
     }
@@ -129,13 +135,5 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         graphRepository.saveRelationship(graphSession, artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF);
 
         return resolvedVertex;
-    }
-
-    private JSONObject toJson(GraphVertex vertex, JSONObject infoJson) throws JSONException {
-        infoJson.put("graphVertexId", vertex.getId());
-        for (String property : vertex.getPropertyKeys()) {
-            infoJson.put(property, vertex.getProperty(property));
-        }
-        return infoJson;
     }
 }

@@ -116,11 +116,13 @@ define([
             var aspectWidth = imageInfo.width()/imageInfo[0].naturalWidth;
 
             var dataInfo = {
-                coords: {
-                    x1: (coords.x / aspectWidth),
-                    x2: (coords.x2 / aspectWidth),
-                    y1: (coords.y / aspectHeight),
-                    y2: (coords.y2 / aspectHeight)
+                info : {
+                    coords: {
+                        x1: (coords.x / aspectWidth),
+                        x2: (coords.x2 / aspectWidth),
+                        y1: (coords.y / aspectHeight),
+                        y2: (coords.y2 / aspectHeight)
+                    }
                 }
             };
 
@@ -132,13 +134,26 @@ define([
                 ObjectDetectionForm.teardownAll ();
             }
             var root = $('<div class="underneath">').insertAfter('.detected-object-labels');
+            var resolvedVertex = {
+                graphVertexId: dataInfo.graphVertexId,
+                _rowKey: dataInfo._rowKey,
+                _subType: dataInfo._subType,
+                title: dataInfo.title
+            };
+
+            var existing = false;
+            if (dataInfo.graphVertexId){
+                existing = true;
+            }
 
             ObjectDetectionForm.attachTo (root, {
                 artifactData: artifactInfo,
-                coords: dataInfo.coords,
-                detectedObjectRowKey: dataInfo._rowKey,
+                coords: dataInfo.info.coords,
+                detectedObjectRowKey: dataInfo.info._rowKey,
                 graphVertexId: dataInfo.graphVertexId,
-                model: dataInfo.model
+                resolvedVertex: resolvedVertex,
+                model: dataInfo.info.model,
+                existing: existing
             });
         }
 
