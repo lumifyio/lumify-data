@@ -45,7 +45,7 @@
 			<configuration>
 				<property>
 					<name>objectDetectionMapper</name>
-					<value>com.altamiracorp.reddawn.objectDetection.ObjectDetectionMR$ArtifactObjectDetectionMapper</value>
+					<value>${basePackage}.objectDetection.ObjectDetectionMR$ArtifactObjectDetectionMapper</value>
 				</property>
 				<property>
 					<name>objectDetectionInputFormat</name>
@@ -67,7 +67,7 @@
 			<configuration>
 				<property>
 					<name>objectDetectionMapper</name>
-					<value>com.altamiracorp.reddawn.objectDetection.ObjectDetectionMR$VideoFrameObjectDetectionMapper</value>
+					<value>${basePackage}.objectDetection.ObjectDetectionMR$VideoFrameObjectDetectionMapper</value>
 				</property>
 				<property>
 					<name>objectDetectionInputFormat</name>
@@ -89,7 +89,7 @@
 			<configuration>
 				<property>
 					<name>textExtractor</name>
-					<value>com.altamiracorp.reddawn.textExtraction.ImageOcrTextExtractor</value>
+					<value>${basePackage}.textExtraction.ImageOcrTextExtractor</value>
 				</property>
 			</configuration>
         </sub-workflow>
@@ -103,7 +103,7 @@
 			<configuration>
 				<property>
 					<name>textExtractor</name>
-					<value>com.altamiracorp.reddawn.textExtraction.TikaTextExtractor</value>
+					<value>${basePackage}.textExtraction.TikaTextExtractor</value>
 				</property>
 			</configuration>
         </sub-workflow>
@@ -117,7 +117,7 @@
 			<configuration>
 				<property>
 					<name>textExtractor</name>
-					<value>com.altamiracorp.reddawn.textExtraction.StructuredDataTextExtractor</value>
+					<value>${basePackage}.textExtraction.StructuredDataTextExtractor</value>
 				</property>
 			</configuration>
         </sub-workflow>
@@ -131,7 +131,7 @@
 			<configuration>
 				<property>
 					<name>textExtractor</name>
-					<value>com.altamiracorp.reddawn.textExtraction.TranscriptTextExtractor</value>
+					<value>${basePackage}.textExtraction.TranscriptTextExtractor</value>
 				</property>
 			</configuration>
         </sub-workflow>
@@ -145,7 +145,7 @@
 			<configuration>
 				<property>
 					<name>textExtractor</name>
-				    <value>com.altamiracorp.reddawn.textExtraction.VideoFrameTextCombinerTextExtractor</value>
+				    <value>${basePackage}.textExtraction.VideoFrameTextCombinerTextExtractor</value>
 				</property>
 			</configuration>
         </sub-workflow>
@@ -175,7 +175,7 @@
 			<configuration>
 				<property>
 					<name>entityExtractor</name>
-				    <value>com.altamiracorp.reddawn.entityExtraction.OpenNlpDictionaryEntityExtractor</value>
+				    <value>${basePackage}.entityExtraction.OpenNlpDictionaryEntityExtractor</value>
 				</property>
 			</configuration>
         </sub-workflow>
@@ -189,7 +189,7 @@
 			<configuration>
 				<property>
 					<name>entityExtractor</name>
-				    <value>com.altamiracorp.reddawn.entityExtraction.OpenNlpMaximumEntropyEntityExtractor</value>
+				    <value>${basePackage}.entityExtraction.OpenNlpMaximumEntropyEntityExtractor</value>
 				</property>
 			</configuration>
         </sub-workflow>
@@ -203,7 +203,7 @@
 			<configuration>
 				<property>
 					<name>entityExtractor</name>
-				    <value>com.altamiracorp.reddawn.entityExtraction.RegexEntityExtractor</value>
+				    <value>${basePackage}.entityExtraction.RegexEntityExtractor</value>
 				</property>
 				<property>
 					<name>regularExpression</name>
@@ -225,7 +225,7 @@
 			<configuration>
 				<property>
 					<name>entityExtractor</name>
-				    <value>com.altamiracorp.reddawn.entityExtraction.PhoneNumberExtractor</value>
+				    <value>${basePackage}.entityExtraction.PhoneNumberExtractor</value>
 				</property>
 			</configuration>
         </sub-workflow>

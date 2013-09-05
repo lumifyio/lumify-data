@@ -28,11 +28,11 @@
                 </property>
                 <property>
                     <name>mapreduce.map.class</name>
-                    <value>com.altamiracorp.reddawn.location.ArtifactLocationExtractorMR$ArtifactLocationExtractorMapper</value>
+                    <value>${basePackage}.location.ArtifactLocationExtractorMR$ArtifactLocationExtractorMapper</value>
                 </property>
                 <property>
                     <name>artifactLocationExtractorClass</name>
-                    <value>com.altamiracorp.reddawn.location.SimpleArtifactLocationExtractor</value>
+                    <value>${basePackage}.location.SimpleArtifactLocationExtractor</value>
                 </property>
                 <property>
                     <name>mapred.map.tasks</name>

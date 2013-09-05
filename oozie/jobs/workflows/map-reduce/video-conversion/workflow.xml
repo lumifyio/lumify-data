@@ -28,7 +28,7 @@
                 </property>
                 <property>
                     <name>mapreduce.map.class</name>
-                    <value>com.altamiracorp.reddawn.videoConversion.VideoConversionMR$VideoConversionMapper</value>
+                    <value>${basePackage}.videoConversion.VideoConversionMR$VideoConversionMapper</value>
                 </property>
                 <property>
                     <name>mapred.map.tasks</name>
