@@ -7,6 +7,7 @@ define( [], function() {
         create: function(e, ui) {
             var inst = this.data("ui-draggable");
             this.attr("tabindex", "0");
+            this.addClass("multi-select");
 
             if ( inst.options.revert === 'invalid' ) {
 
