@@ -212,7 +212,7 @@ define([
             this.applyDraggable( $searchResults.find('li a') );
             
             if (data.results.length) {
-                $searchResults.show();
+                $searchResults.show().find('.multi-select').focus();
 
                 this.loadVisibleResultPreviews();
             } else {

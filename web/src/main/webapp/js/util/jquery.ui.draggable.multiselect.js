@@ -5,9 +5,32 @@ define( [], function() {
 
 
         create: function(e, ui) {
-            var inst = this.data("ui-draggable");
-            this.attr("tabindex", "0");
-            this.addClass("multi-select");
+            var inst = this.data("ui-draggable"),
+                container = this.closest('ul');
+    
+            if (container.data('initialized') !== true) {
+                container
+                    .data('initialized', true)
+                    .attr('tabindex', '0')
+                    .addClass('multi-select')
+                    .on({
+                        click: function(evt) {
+                            this.focus();
+
+                            if ($(this).is(evt.target)) {
+                                $(this).find('li').removeClass('active');
+                                onSelection(evt, $());
+                            }
+                        },
+                        keydown: function(evt) {
+                            if ((evt.metaKey || evt.ctrlKey) && evt.which === 65) {
+                                evt.preventDefault();
+                                onSelection(evt, $(this).find('li').addClass('active'));
+                            }
+                        }
+                    });
+            }
+
 
             if ( inst.options.revert === 'invalid' ) {
 
@@ -31,7 +54,6 @@ define( [], function() {
 
             this.on('click', function(evt) {
                 evt.preventDefault();
-                this.focus();
 
                 var $target = $(evt.target).parents('li'),
                     list = $target.parent(),
@@ -65,15 +87,6 @@ define( [], function() {
                 list.data('lastSelection', $target);
 
                 onSelection(evt, list.find('.active'));
-            });
-
-            this.on('keyup', function(evt) {
-                if ((evt.metaKey || event.ctrlKey) && evt.which === 65) {
-                    evt.preventDefault();
-                    var allItems = $(evt.target).parents('li').parent().children('li');
-                    allItems.addClass('active');
-                    onSelection(evt, allItems);
-                }
             });
 
             function onSelection(evt, elements) {
