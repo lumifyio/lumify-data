@@ -41,7 +41,7 @@ public class ElasticSearchProvider implements SearchProvider {
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final int ES_QUERY_MAX_SIZE = 100;
 
-    private TransportClient client;
+    private static TransportClient client;
 
     @Override
     public void setup(Properties props) {
@@ -54,11 +54,16 @@ public class ElasticSearchProvider implements SearchProvider {
     }
 
     private void setup(String[] esLocations) {
+        if (client != null) {
+            return;
+        }
+
         client = new TransportClient();
         for (String esLocation : esLocations) {
             String[] locationSocket = esLocation.split(":");
             client.addTransportAddress(new InetSocketTransportAddress(locationSocket[0], Integer.parseInt(locationSocket[1])));
         }
+        
         initializeIndex();
     }
 
@@ -66,6 +71,7 @@ public class ElasticSearchProvider implements SearchProvider {
     public void teardown() throws Exception {
         if (client != null) {
             client.close();
+            client = null;
         }
     }
 
