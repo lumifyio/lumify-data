@@ -56,8 +56,8 @@ public class ElasticSearchProvider implements SearchProvider {
     private void setup(String[] esLocations) {
         client = new TransportClient();
         for (String esLocation : esLocations) {
-            String[] hostPort = esLocation.split(":");
-            client.addTransportAddress(new InetSocketTransportAddress(hostPort[0], Integer.parseInt(hostPort[1])));
+            String[] locationSocket = esLocation.split(":");
+            client.addTransportAddress(new InetSocketTransportAddress(locationSocket[0], Integer.parseInt(locationSocket[1])));
         }
         initializeIndex();
     }
