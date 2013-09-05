@@ -6,6 +6,7 @@ define( [], function() {
 
         create: function(e, ui) {
             var inst = this.data("ui-draggable");
+            this.attr("tabindex", "0");
 
             if ( inst.options.revert === 'invalid' ) {
 
@@ -14,8 +15,8 @@ define( [], function() {
 
                     if (reverted && inst.alsoDragging) {
                         inst.alsoDragging.each(function() {
-                            this.animate(this.data('original').offset(), 
-                                parseInt(inst.options.revertDuration, 10), 
+                            this.animate(this.data('original').offset(),
+                                parseInt(inst.options.revertDuration, 10),
                                 function() {
                                     this.remove();
                                 }
@@ -29,6 +30,7 @@ define( [], function() {
 
             this.on('click', function(evt) {
                 evt.preventDefault();
+                this.focus();
 
                 var $target = $(evt.target).parents('li'),
                     list = $target.parent(),
@@ -61,17 +63,28 @@ define( [], function() {
                 // Keep track of last selected for shift-selection later
                 list.data('lastSelection', $target);
 
-                if ( inst.options.selection ) {
-                    inst.options.selection.call(
-                        inst.element, 
-                        evt, 
-                        $.extend(inst._uiHash(), { 
-                            selected: list.find('.active')
-                        }));
-                }
-
+                onSelection(evt, list.find('.active'));
             });
 
+            this.on('keyup', function(evt) {
+                if ((evt.metaKey || event.ctrlKey) && evt.which === 65) {
+                    evt.preventDefault();
+                    var allItems = $(evt.target).parents('li').parent().children('li');
+                    allItems.addClass('active');
+                    onSelection(evt, allItems);
+                }
+            });
+
+            function onSelection(evt, elements) {
+                if ( inst.options.selection ) {
+                    inst.options.selection.call(
+                        inst.element,
+                        evt,
+                        $.extend(inst._uiHash(), {
+                            selected: elements
+                        }));
+                }
+            }
         },
 
         start: function(e, ui) {
