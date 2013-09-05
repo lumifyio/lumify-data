@@ -589,6 +589,15 @@ define([
                         this.removeSelectedVertices();
                     }
                     break;
+                case 65:
+                    if (down && (event.metaKey || event.ctrlKey)) {
+                        this.cy(function(cy) {
+                            cy.nodes().select();
+                        });
+                    } else {
+                        handled = false;
+                    }
+                    break;
 
                 default:
                     handled = false;
