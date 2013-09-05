@@ -118,10 +118,10 @@ define([
 
             var dataInfo = {
                 coords: {
-                    x1: coords.x / aspectWidth,
-                    x2: coords.x2 / aspectWidth,
-                    y1: coords.y / aspectHeight,
-                    y2: coords.y2 / aspectHeight
+                    x1: (coords.x / aspectWidth),
+                    x2: (coords.x2 / aspectWidth),
+                    y1: (coords.y / aspectHeight),
+                    y2: (coords.y2 / aspectHeight)
                 }
             };
 
