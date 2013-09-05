@@ -75,7 +75,7 @@ define([
                                 return { 
                                     key:key, 
                                     number:byProperty[name][key].length,
-                                    graphNodeIds: _.pluck(byProperty[name][key], 'id')
+                                    vertexIds: _.pluck(byProperty[name][key], 'id')
                                 };
                             }),
                         width = container.width(),
@@ -206,7 +206,7 @@ define([
             var data = $(event.target).closest('g').data('info'),
                 eventName = event.type === 'mouseenter' ? 'focus' : 'defocus';
 
-            this.trigger(document, eventName + 'GraphNodes', { nodeIds:data.graphNodeIds });
+            this.trigger(document, eventName + 'Vertices', { vertexIds:data.vertexIds });
         };
     }
 });

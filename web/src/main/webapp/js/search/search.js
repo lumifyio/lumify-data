@@ -149,6 +149,15 @@ define([
             });
         };
 
+        this.onHoverSearchResult = function(evt) {
+            var info = $(evt.target).closest('li.result-item').data('info');
+            if (evt.type == 'mouseenter' && info && info.graphVertexId) {
+                this.trigger(document, 'focusVertices', { vertexIds:[info.graphVertexId] });
+            } else {
+                this.trigger(document, 'defocusVertices', { vertexIds:[] });
+            }
+        };
+
         this.onSummaryResultItemClick = function(evt) {
             evt.preventDefault();
 
@@ -325,6 +334,7 @@ define([
             this.select('searchResultsSelector').hide();
 
             this.on('filterschange', this.onFiltersChange);
+            this.$node.on('mouseenter mouseleave', '.search-results li.result-item', this.onHoverSearchResult.bind(this));
 
             this.on(document,'search', this.doSearch);
             this.on('artifactSearchResults', this.onArtifactSearchResults);

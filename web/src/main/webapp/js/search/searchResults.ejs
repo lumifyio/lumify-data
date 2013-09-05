@@ -1,6 +1,6 @@
 <% results.forEach(function(result) { %>
 
-<li class="<%= result.className %>" data-info="<%= JSON.stringify({
+<li class="<%= result.className %> result-item" data-info="<%= JSON.stringify({
       '_rowKey': result._rowKey,
       'graphVertexId': result.graphVertexId,
       '_type': (_type == 'entity' ? result.properties._type : _type) ,
