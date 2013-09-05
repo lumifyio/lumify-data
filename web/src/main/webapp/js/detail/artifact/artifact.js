@@ -144,7 +144,9 @@ define([
         }
 
         this.onSelectImageRelease = function (){
-            ObjectDetectionForm.teardownAll();
+            if ($('.detected-object-labels .underneath').length === 0) {
+                ObjectDetectionForm.teardownAll ();
+            }
         }
      }
 });

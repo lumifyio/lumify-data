@@ -139,7 +139,7 @@ define([
                     $('.detected-object-labels .label').addClass('entity resolved');
                     $('.detected-object-labels .label').data('info', data);
                     self.trigger(document, 'termCreated', data);
-                    _.defer(self.teardown.bind(self));
+                    $('.artifactImage').data('Jcrop').release ();
                 }
             });
         };
