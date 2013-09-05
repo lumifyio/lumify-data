@@ -386,11 +386,13 @@ define([
 
                         nodes.animate({
                                 css: { 
-                                    borderWidth:borderWidth,
-                                    opacity: 0.5
+                                    borderWidth: borderWidth,
+                                    // Opacity         1 -> .75
+                                    // borderWidth start -> end
+                                    opacity: 1 - ((borderWidth - start) / (end - start) * 0.25)
                                 }
                             }, { 
-                                duration: 1000,
+                                duration: 1500,
                                 complete: function() {
                                     animate(borderWidth === start ? end : start);
                                 } 
