@@ -39,10 +39,6 @@ define([
                 entitySign = this.attr.resolvedVertex.title || '',
                 existingEntity = this.attr.existing;
 
-            if (!this.attr.detectedObjectRowKey){
-                this.generateTag ();
-            }
-
             vertex.html(template({
                 entitySign: entitySign,
                 buttonText: existingEntity ? 'Update' : 'Create'
