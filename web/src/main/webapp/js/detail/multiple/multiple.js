@@ -7,8 +7,9 @@ define([
     'sf',
     'tpl!./multiple',
     'tpl!./histogram',
+    'util/vertexList/list',
     'underscore'
-], function (defineComponent, withTypeContent, withHighlighting, VertexService, OntologyService, sf, template, histogramTemplate, _) {
+], function (defineComponent, withTypeContent, withHighlighting, VertexService, OntologyService, sf, template, histogramTemplate, VertexList, _) {
 
     'use strict';
 
@@ -29,7 +30,8 @@ define([
 
         this.defaultAttrs({
             histogramSelector: '.multiple .histogram',
-            listSelector: '.multiple .nav'
+            histogramListSelector: '.multiple .nav-bar',
+            vertexListSelector: '.multiple .vertices-list'
         });
 
         this.after('initialize', function () {
@@ -44,6 +46,7 @@ define([
                 fullscreenButton: self.fullscreenButton(_.pluck(vertices, 'id'))
             }));
             this.updateEntityAndArtifactDraggables();
+
 
             var vertexIds = vertices.map(function (v) {
                 return v.graphVertexId;
@@ -60,12 +63,17 @@ define([
                 d3_deferred
             ).done(function(verticesResponse, concepts, properties, d3) {
 
-                var byProperty = calculateByProperty(verticesResponse[0]),
+                var vertices = verticesResponse[0],
+                    byProperty = calculateByProperty(vertices),
                     fn = {
                         getPropertyDisplayName: getPropertyDisplayName.bind(null, properties),
                         getPropertyValueDisplay: getPropertyValueDisplay.bind(null, concepts, properties),
                         sortPropertyValues: sortPropertyValues.bind(null, properties, byProperty)
                     };
+
+                VertexList.attachTo(self.select('vertexListSelector'), {
+                    vertices: vertices
+                });
                 
                 self.select('histogramSelector').remove();
 
@@ -74,7 +82,7 @@ define([
                     var template = histogramTemplate({
                             displayName: fn.getPropertyDisplayName(name)
                         }),
-                        container = self.select('listSelector')
+                        container = self.select('histogramListSelector')
                             .append(template)
                             .find('.svg-container')
                             .last()

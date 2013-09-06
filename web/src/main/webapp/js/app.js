@@ -215,18 +215,9 @@ define([
                             y: parseInt(Math.random() * droppable.height(), 10)
                         };
 
-                    var vertices = [{
-                        title: $.trim(
-                            info.title || 
-                            // Only get the direct children textnode
-                            draggable.clone().children().remove().end().text()
-                        ),
-                        graphVertexId: info.graphVertexId,
-                        _rowKey: info._rowKey,
-                        _subType: info._subType,
-                        _type: info._type,
+                    var vertices = [$.extend({
                         dropPosition: dropPosition
-                    }];
+                    }, info)];
 
                     if(info.resolvedGraphVertexId) {
                         this.ucdService.getGraphVertexById(info.resolvedGraphVertexId, function(err, data) {
@@ -234,8 +225,6 @@ define([
                                 console.error('Error', err);
                                 return self.trigger(document, 'error', { message: err.toString() });
                             }
-
-                            console.log(data);
 
                             vertices.push({
                                 graphVertexId: data.id,

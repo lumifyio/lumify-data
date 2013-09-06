@@ -111,12 +111,12 @@ function(ServiceBase) {
 
     Ucd.prototype.getVertexRelationships = function(graphVertexId, callback) {
         return this._ajaxGet({ url: 'vertex/' + encodeURIComponent(graphVertexId) + '/relationships'}, callback);
-    }
+    };
 
     Ucd.prototype.getVertexProperties = function(graphVertexId, callback) {
         console.log('getVertexProperties:', graphVertexId);
         return this._ajaxGet({ url: 'vertex/' + encodeURIComponent(graphVertexId) + '/properties'}, callback);
-    }
+    };
 
     Ucd.prototype._relationship = function (resource, id, options, callback) {
         var data = {};

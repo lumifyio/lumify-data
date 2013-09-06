@@ -4,15 +4,9 @@
     <%- fullscreenButton %>
   </div>
 
-  <ul class="nav nav-bar">
+  <ul class="histograms nav nav-bar">
     <li class="nav-header"><%= vertices.length %> objects selected</li>
-
-    <li>
-      <% vertices.forEach(function(vertex, i) { %>
-    <span class="<%= getClasses(vertex) %>" data-info='<%- JSON.stringify(vertex) %>'><%- vertex.originalTitle || vertex.title || 'No title available' %></span><% if ( i != vertices.length - 1) { %>, <% } %>
-      <% }); %>
-    </li>
-
     <li class="nav-header histogram">Histograms<span class="badge loading"/></li>
   </ul>
+  <div class="vertices-list"></div>
 </div>
