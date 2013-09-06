@@ -25,23 +25,20 @@ public class ObjectDetectionWorker implements Runnable {
     private final RedDawnSession session;
     private final String artifactKey;
     private final String columnName;
-    private final List<String> cssClass;
     private final JSONObject info;
 
     public ObjectDetectionWorker (final RedDawnSession session, final String artifactKey, final String columnName,
-                                  final List<String> cssClass, final JSONObject info) {
+                                  final JSONObject info) {
         checkNotNull(session);
         checkNotNull(artifactKey);
         checkArgument(!artifactKey.isEmpty(), "The provided artifact key is empty");
         checkNotNull(columnName);
         checkArgument(!columnName.isEmpty(), "The provided column name is empty");
-        checkNotNull(cssClass);
-        checkArgument(!(cssClass.size() < 1), "The provided css classes is empty");
+        checkNotNull(info);
 
         this.session = session;
         this.artifactKey = artifactKey;
         this.columnName = columnName;
-        this.cssClass = cssClass;
         this.info = info;
     }
 
@@ -63,11 +60,9 @@ public class ObjectDetectionWorker implements Runnable {
 
     private boolean modifyObjectDetection (final RedDawnSession session, final Artifact artifact){
         boolean modified = false;
-        ArtifactDetectedObjects artifactDetectedObjects = artifact.getArtifactDetectedObjects();
-        final String detectedObjects = artifactDetectedObjects.getDetectedObjectValue (cssClass, info);
 
-        if (detectedObjects != null && !detectedObjects.isEmpty()) {
-            artifact.getArtifactDetectedObjects().set(columnName, detectedObjects);
+        if (info != null) {
+            artifact.getArtifactDetectedObjects().set(columnName, info);
             artifactRepository.save(session.getModelSession(), artifact);
             modified = true;
         } else {

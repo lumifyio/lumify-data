@@ -56,16 +56,13 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         String y1 = getRequiredParameter(request, "y1");
         String x2 = getRequiredParameter(request, "x2");
         String y2 = getRequiredParameter(request, "y2");
-        String boundingBox = "x1: " + x1 + ", y1: " + y1 + ", x2: " + x2 + ", y2: " + y2;
+        String boundingBox = "x1 " + x1 + ", y1 " + y1 + ", x2 " + x2 + ", y2 " + y2;
         String model = getOptionalParameter(request, "model");
         String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
 
         GraphVertex conceptVertex = graphRepository.findVertex(session.getGraphSession(), conceptId);
         GraphVertex resolvedVertex = createGraphVertex(session.getGraphSession(), conceptVertex, resolvedGraphVertexId,
                 sign, artifactRowKey, boundingBox, artifactId);
-
-        Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactRowKey);
-        ArtifactDetectedObjects artifactDetectedObjects = artifact.getArtifactDetectedObjects();
 
         DetectedObject detectedObject = new DetectedObject(x1, y1, x2, y2);
         detectedObject.setGraphVertexId(resolvedVertex.getId().toString());
@@ -77,22 +74,20 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         }
         detectedObject.setResolvedVertex(resolvedVertex);
 
-        List<String> cssClasses = detectedObject.getCssClasses();
-        cssClasses.add("subType-" + conceptId);
+        Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactRowKey);
 
         if (detectedObjectRowKey == null && model == null) {
             model = "manual";
             detectedObject.setModel(model);
-            detectedObjectRowKey = artifactDetectedObjects.addDetectedObject
-                    (detectedObject.getConcept(), model, x1, y1, x2, y2, cssClasses);
+            detectedObjectRowKey = artifact.getArtifactDetectedObjects().addDetectedObject
+                    (detectedObject.getConcept(), model, x1, y1, x2, y2);
         } else {
-            // HOW TO UPDATE ROW KEY OR DELETE COLUMN FOR CHANGING CONCEPT TYPES
             detectedObject.setModel(model);
         }
 
         detectedObject.setRowKey(detectedObjectRowKey);
         JSONObject obj = detectedObject.getJson();
-        executorService.execute(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, cssClasses, obj));
+        executorService.execute(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, obj));
 
         new Responder(response).respondWith(obj);
     }

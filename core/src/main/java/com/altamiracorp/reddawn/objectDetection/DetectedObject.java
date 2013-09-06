@@ -128,28 +128,9 @@ public class DetectedObject {
                 }
             }
             json.put("info", getInfoJson());
-
-            JSONArray cssClasses = new JSONArray();
-            for (String cssClass : getCssClasses()) {
-                cssClasses.put(cssClass);
-            }
-            json.put("cssClasses", cssClasses);
             return json;
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
     }
-
-    public List<String> getCssClasses() {
-        List<String> classes = new ArrayList<String>();
-        classes.add("label");
-        classes.add("label-info");
-        classes.add("detected-object");
-        if (getGraphVertexId() != null) {
-            classes.add("resolved");
-            classes.add("entity");
-        }
-        return classes;
-    }
-
 }

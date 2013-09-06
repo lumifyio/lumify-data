@@ -18,7 +18,8 @@ define([
         this.defaultAttrs({
             previewSelector: '.preview',
             imagePreviewSelector: '.image-preview',
-            detectedObjectSelector: '.detected-object'
+            detectedObjectSelector: '.detected-object',
+            artifactSelector: '.artifact'
         });
 
         this.after('initialize', function() {
@@ -106,13 +107,14 @@ define([
         this.onImageEnter = function(event){
             var self = this;
 
-            $('.artifact').Jcrop({
-                onSelect: function (x) { self.onSelectImage(x, $('.artifact .image')); },
+            $(this.select('artifactSelector')).Jcrop({
+                onSelect: function (x) { self.onSelectImage(x, self.attr.data); },
                 onRelease: self.onSelectImageRelease
             });
         }
 
-        this.onSelectImage = function (coords, imageInfo){
+        this.onSelectImage = function (coords, artifactInfo){
+            var imageInfo = $('.artifact .image');
             var aspectHeight = imageInfo.height()/imageInfo[0].naturalHeight;
             var aspectWidth = imageInfo.width()/imageInfo[0].naturalWidth;
 
@@ -127,7 +129,7 @@ define([
                 }
             };
 
-            this.showForm(dataInfo, this.attr.data);
+            this.showForm(dataInfo, artifactInfo);
         }
 
         this.showForm = function (dataInfo, artifactInfo){
@@ -146,7 +148,6 @@ define([
             if (dataInfo.graphVertexId){
                 existing = true;
             }
-
             ObjectDetectionForm.attachTo (root, {
                 artifactData: artifactInfo,
                 coords: dataInfo.info.coords,
