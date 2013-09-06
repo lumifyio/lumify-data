@@ -1,10 +1,5 @@
 package com.altamiracorp.reddawn.web.routes.chat.models;
 
-import com.altamiracorp.reddawn.web.messageBus.Message;
-import com.altamiracorp.reddawn.web.messageBus.MessageBus;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.Date;
 
 public class ChatMessage {
@@ -30,34 +25,34 @@ public class ChatMessage {
         return fromUserId;
     }
 
-    public JSONObject toJson(MessageBus messageBus) throws JSONException {
-        JSONObject result = new JSONObject();
-        result.put("from", messageBus.getUser(getFromUserId()).toJson());
-        result.put("postDate", getPostDate());
-        result.put("message", getMessage());
-        return result;
-    }
+//    public JSONObject toJson(MessageBus messageBus) throws JSONException {
+//        JSONObject result = new JSONObject();
+//        result.put("from", messageBus.getUser(getFromUserId()).toJson());
+//        result.put("postDate", getPostDate());
+//        result.put("message", getMessage());
+//        return result;
+//    }
+//
+//    public Message createMessageBusMessage(Chat chat) {
+//        return new ChatMessageBusMessage(chat, this);
+//    }
 
-    public Message createMessageBusMessage(Chat chat) {
-        return new ChatMessageBusMessage(chat, this);
-    }
-
-    private class ChatMessageBusMessage extends Message {
-        private final ChatMessage chatMessage;
-        private final Chat chat;
-
-        public ChatMessageBusMessage(Chat chat, ChatMessage chatMessage) {
-            this.chat = chat;
-            this.chatMessage = chatMessage;
-        }
-
-        @Override
-        public JSONObject toJson(MessageBus messageBus) throws JSONException {
-            JSONObject json = new JSONObject();
-            json.put("type", "chatMessage");
-            json.put("chatId", this.chat.getId());
-            json.put("message", this.chatMessage.toJson(messageBus));
-            return json;
-        }
-    }
+//    private class ChatMessageBusMessage extends Message {
+//        private final ChatMessage chatMessage;
+//        private final Chat chat;
+//
+//        public ChatMessageBusMessage(Chat chat, ChatMessage chatMessage) {
+//            this.chat = chat;
+//            this.chatMessage = chatMessage;
+//        }
+//
+//        @Override
+//        public JSONObject toJson(MessageBus messageBus) throws JSONException {
+//            JSONObject json = new JSONObject();
+//            json.put("type", "chatMessage");
+//            json.put("chatId", this.chat.getId());
+//            json.put("message", this.chatMessage.toJson(messageBus));
+//            return json;
+//        }
+//    }
 }

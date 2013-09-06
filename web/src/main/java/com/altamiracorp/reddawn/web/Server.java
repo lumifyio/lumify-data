@@ -62,12 +62,8 @@ public class Server extends RedDawnCommandLineBase {
         webAppContext.setContextPath("/");
         webAppContext.setWar("./web/src/main/webapp/");
 
-        WebAppContext messagingContext = new WebAppContext();
-        messagingContext.setContextPath("/messaging");
-        messagingContext.setWar("./messaging/src/main/webapp/");
-
         ContextHandlerCollection contexts = new ContextHandlerCollection();
-        contexts.setHandlers(new Handler[]{webAppContext, messagingContext});
+        contexts.setHandlers(new Handler[]{webAppContext});
 
         server.setHandler(contexts);
         server.start();

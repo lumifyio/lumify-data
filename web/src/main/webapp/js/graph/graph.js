@@ -31,7 +31,8 @@ define([
     'use strict';
 
         // Delay before showing hover effect on graph
-    var HOVER_FOCUS_DELAY_SECONDS = 0.25;
+    var HOVER_FOCUS_DELAY_SECONDS = 0.25,
+        MAX_TITLE_LENGTH = 15;
 
     return defineComponent(Graph, withContextMenu, withGraphContextMenuItems);
 
@@ -68,7 +69,6 @@ define([
         };
 
         this.addVertices = function(vertices, opts) {
-            console.log('addVertices:', vertices);
             var options = $.extend({ fit:false }, opts);
             var addedVertices = [];
             var self = this;
@@ -96,31 +96,22 @@ define([
                         });
                         self.trigger(document, 'updateVertices', { vertices:updates });
                     }
-                }, LAYOUT_OPTIONS['grid'] || {});
+                }, LAYOUT_OPTIONS.grid || {});
 
                 cy.layout(opts);
 
                 vertices.forEach(function(vertex) {
-                    var title = vertex.title || 'No title available';
-                    if (title.length > 15) {
-                        title = title.substring(0, 10) + "...";
-                    }
 
                     var cyNodeData = {
                         group: 'nodes',
-                        classes: $.trim('concept-' + vertex._subType + ' ' + (vertex._type || '') + (vertex._glyphIcon ? ' hasCustomGlyph' : '')),
+                        classes: self.classesForVertex(vertex),
                         data: {
                             id: vertex.graphVertexId,
-                            _rowKey: vertex._rowKey,
-                            graphVertexId: vertex.graphVertexId,
-                            _subType: vertex._subType,
-                            _type: vertex._type,
-                            _glyphIcon: vertex._glyphIcon,
-                            title: title,
-                            originalTitle: vertex.title,
                         },
                         selected: !!vertex.selected
                     };
+                    self.updateCyNodeData(cyNodeData.data, vertex);
+
 
                     var needsUpdate = false;
                     if (vertex.graphPosition) {
@@ -166,6 +157,32 @@ define([
             });
         };
 
+        this.classesForVertex = function(vertex) {
+            var cls = [];
+
+            if (vertex._subType) cls.push('concept-' + vertex._subType);
+            if (vertex._type) cls.push(vertex._type);
+            if (vertex._glyphIcon) cls.push('hasCustomGlyph');
+            
+            return cls.join(' ');
+        };
+
+        this.updateCyNodeData = function (data, vertex) {
+            var originalTitle = vertex.title || data.title || 'No title available',
+                title = originalTitle;
+
+            if (title.length > MAX_TITLE_LENGTH) {
+                title = $.trim(title.substring(0, MAX_TITLE_LENGTH)) + "...";
+            }
+
+            var merged = $.extend(data, _.pick(vertex, '_rowKey', '_subType', '_type', '_glyphIcon', 'graphVertexId')); 
+            merged.id = merged.graphVertexId;
+            merged.title = title;
+            merged.originalTitle = originalTitle;
+
+            return merged;
+        };
+
         this.removeSelectedVertices = function() {
             this.cy(function(cy) {
                 var verticesToDelete = $.map(cy.nodes().filter(':selected'), function(vertex) {
@@ -206,16 +223,8 @@ define([
                             .each(function(idx, vertex) {
                                 if (updatedVertex.graphPosition) {
                                     vertex.position( retina.pointsToPixels(updatedVertex.graphPosition) );
-                                }
-
-                                if (updatedVertex._glyphIcon) {
-                                    vertex.css('background-image', updatedVertex._glyphIcon);
-                                    vertex.data()._glyphIcon = updatedVertex._glyphIcon;
-                                    vertex.addClass('hasCustomGlyph');
-                                }
-
-                                if (updatedVertex._subType) {
-                                    vertex.data()._subType = updatedVertex._subType;
+                                    delete updatedVertex.graphPosition;
+                                    delete updatedVertex.dropPosition;
                                 }
 
                                 vertex._private.classes.length = 0;
@@ -227,6 +236,8 @@ define([
 
                                 // TODO: update other properties? (title needs
                                 // truncation...
+                                self.updateCyNodeData(vertex.data(), updatedVertex);
+                                vertex.addClass(self.classesForVertex(updatedVertex));
                             });
                     });
             });
@@ -569,7 +580,6 @@ define([
             var edgeSelection = cy.edges().filter(':selected');
             var info = [];
 
-            console.log('selections: ', selection, edgeSelection);
             selection.each(function(index, vertex) {
                 info.push(vertex.data());
             });
@@ -816,7 +826,6 @@ define([
                     firstLevelConcepts: concepts.entityConcept.children,
                     artifactConcept: concepts.artifactConcept
                 };
-                console.log('context menu data', templateData);
                 self.$node.html(template(templateData));
                 self.bindContextMenuClickEvent();
 

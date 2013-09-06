@@ -1,6 +1,9 @@
 package com.altamiracorp.reddawn.model.workspace;
 
-import com.altamiracorp.reddawn.model.*;
+import com.altamiracorp.reddawn.model.Column;
+import com.altamiracorp.reddawn.model.ColumnFamily;
+import com.altamiracorp.reddawn.model.Repository;
+import com.altamiracorp.reddawn.model.Row;
 
 import java.util.Collection;
 
@@ -32,9 +35,5 @@ public class WorkspaceRepository extends Repository<Workspace> {
     @Override
     public String getTableName() {
         return Workspace.TABLE_NAME;
-    }
-
-    public Collection<Workspace> findByUserId(Session session, String userId) {
-        return findByRowStartsWith(session, userId);
     }
 }

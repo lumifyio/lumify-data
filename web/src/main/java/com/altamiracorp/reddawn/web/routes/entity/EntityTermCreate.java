@@ -7,14 +7,12 @@ import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.reddawn.model.ontology.LabelName;
-import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.model.ontology.PropertyName;
 import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.model.termMention.TermMention;
 import com.altamiracorp.reddawn.model.termMention.TermMentionRepository;
 import com.altamiracorp.reddawn.model.termMention.TermMentionRowKey;
 import com.altamiracorp.reddawn.web.Responder;
-import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
@@ -22,8 +20,6 @@ import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
 import com.google.common.util.concurrent.MoreExecutors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,11 +29,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class EntityTermCreate implements Handler, AppAware {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EntityTermCreate.class.getName());
-    private static final String MODEL_KEY = "manual";
     private WebApp app;
     private TermMentionRepository termMentionRepository = new TermMentionRepository();
-    private OntologyRepository ontologyRepository = new OntologyRepository();
     private GraphRepository graphRepository = new GraphRepository();
 
     private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
@@ -46,7 +39,6 @@ public class EntityTermCreate implements Handler, AppAware {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        User currentUser = User.getUser(request);
         RedDawnSession session = app.getRedDawnSession(request);
 
         // required parameters
@@ -66,7 +58,7 @@ public class EntityTermCreate implements Handler, AppAware {
             resolvedVertex = graphRepository.findVertex(session.getGraphSession(), resolvedGraphVertexId);
         } else {
             resolvedVertex = graphRepository.findVertexByTitleAndType(session.getGraphSession(), sign, VertexType.ENTITY);
-            if (resolvedVertex == null){
+            if (resolvedVertex == null) {
                 resolvedVertex = new InMemoryGraphVertex();
                 resolvedVertex.setType(VertexType.ENTITY);
             }

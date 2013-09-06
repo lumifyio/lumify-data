@@ -19,7 +19,7 @@ import com.altamiracorp.reddawn.web.routes.resource.ResourceGet;
 import com.altamiracorp.reddawn.web.routes.statement.Relationships;
 import com.altamiracorp.reddawn.web.routes.statement.StatementCreate;
 import com.altamiracorp.reddawn.web.routes.user.MeGet;
-import com.altamiracorp.reddawn.web.routes.user.MessagesGet;
+import com.altamiracorp.reddawn.web.routes.user.UserList;
 import com.altamiracorp.reddawn.web.routes.vertex.*;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceByRowKey;
 import com.altamiracorp.reddawn.web.routes.workspace.WorkspaceDelete;
@@ -99,8 +99,9 @@ public class Router extends HttpServlet {
         app.get("/workspace/{workspaceRowKey}", authenticator, WorkspaceByRowKey.class);
         app.delete("/workspace/{workspaceRowKey}", authenticator, WorkspaceDelete.class);
 
-        app.get("/user/messages", authenticator, MessagesGet.class);
+        //app.get("/user/messages", authenticator, MessagesGet.class);
         app.get("/user/me", authenticator, MeGet.class);
+        app.get("/user/", authenticator, UserList.class);
 
         app.get("/map/map-init.js", MapInitHandler.class);
         app.get("/map/{z}/{x}/{y}.png", MapTileHandler.class);

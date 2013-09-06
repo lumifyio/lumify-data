@@ -6,6 +6,7 @@ define([
     'search/search',
     'workspaces/workspaces',
     'workspaces/overlay',
+    'sync/sync',
     'users/users',
     'graph/graph',
     'detail/detail',
@@ -15,7 +16,7 @@ define([
     'util/keyboard',
     'util/undoManager',
     'underscore'
-], function(appTemplate, defineComponent, Menubar, Search, Workspaces, WorkspaceOverlay, Users, Graph, Detail, Map, WorkspaceService, UcdService, Keyboard, undoManager, _) {
+], function(appTemplate, defineComponent, Menubar, Search, Workspaces, WorkspaceOverlay, Sync, Users, Graph, Detail, Map, WorkspaceService, UcdService, Keyboard, undoManager, _) {
     'use strict';
 
     return defineComponent(App);
@@ -66,7 +67,7 @@ define([
 
             this.on(document, 'error', this.onError);
             this.on(document, 'menubarToggleDisplay', this.toggleDisplay);
-            this.on(document, 'message', this.onMessage);
+            this.on(document, 'chatMessage', this.onChatMessage);
             this.on(document, 'searchResultSelected', this.onSearchResultSelection);
             this.on(document, 'syncStarted', this.onSyncStarted);
             this.on(document, 'paneResized', this.onInternalPaneResize);
@@ -84,6 +85,7 @@ define([
                 mapPane = content.filter('.map-pane').data(DATA_MENUBAR_NAME, 'map'),
                 detailPane = content.filter('.detail-pane');
 
+            Sync.attachTo(window);
             Menubar.attachTo(menubarPane.find('.content'));
             Search.attachTo(searchPane.find('.content'));
             Workspaces.attachTo(workspacesPane.find('.content'));
@@ -215,18 +217,9 @@ define([
                             y: parseInt(Math.random() * droppable.height(), 10)
                         };
 
-                    var vertices = [{
-                        title: $.trim(
-                            info.title || 
-                            // Only get the direct children textnode
-                            draggable.clone().children().remove().end().text()
-                        ),
-                        graphVertexId: info.graphVertexId,
-                        _rowKey: info._rowKey,
-                        _subType: info._subType,
-                        _type: info._type,
+                    var vertices = [$.extend({
                         dropPosition: dropPosition
-                    }];
+                    }, info)];
 
                     if(info.resolvedGraphVertexId) {
                         this.ucdService.getGraphVertexById(info.resolvedGraphVertexId, function(err, data) {
@@ -234,8 +227,6 @@ define([
                                 console.error('Error', err);
                                 return self.trigger(document, 'error', { message: err.toString() });
                             }
-
-                            console.log(data);
 
                             vertices.push({
                                 graphVertexId: data.id,
@@ -594,7 +585,7 @@ define([
             pane.toggleClass('visible');
         };
 
-        this.onMessage = function(e, data) {
+        this.onChatMessage = function(e, data) {
             if (!this.select('usersSelector').hasClass('visible')) {
                 this.trigger(document, 'menubarToggleDisplay', { name: this.select('usersSelector').data(DATA_MENUBAR_NAME) });
             }
