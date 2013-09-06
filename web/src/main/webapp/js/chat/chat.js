@@ -12,7 +12,6 @@ define([
     function Chat() {
         this.chatService = new ChatService();
         this.openChats = {};
-        this.currentUser = null;
 
         this.defaultAttrs({
             newMessageFormSelector: 'form.new-message',
@@ -31,7 +30,7 @@ define([
         });
 
         this.onOnlineStatusChanged = function (evt, data) {
-            this.currentUser = data.user;
+            document.currentUser = data.user;
         };
 
         this.findChatByUserRowKey = function (userRowKey) {
@@ -162,7 +161,7 @@ define([
             // add a temporary message to create the feel of responsiveness
             var messageData = {
                 chatRowKey: chatRowKey,
-                from: self.currentUser,
+                from: document.currentUser,
                 message: $messageInput.val(),
                 postDate: null,
                 tempId: tempId

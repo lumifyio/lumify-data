@@ -27,7 +27,6 @@ define([
 
         this.after('initialize', function () {
             console.log("A new sync was created for ", this.attr);
-            this.me = this.attr.me;
 
             this.on(document, 'workspaceSwitched', this.onWorkspaceSwitched);
             this.on(document, 'socketMessage', this.onSocketMessage);
@@ -35,6 +34,7 @@ define([
             for (var i in this.events) {
                 this.on(document, this.events[i], this.onSyncedEvent);
             }
+            SyncCursor.attachTo(window);
         });
 
         this.onWorkspaceSwitched = function (evt, data) {
