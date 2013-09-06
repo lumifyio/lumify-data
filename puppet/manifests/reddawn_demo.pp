@@ -129,6 +129,14 @@ node "ip-10-0-3-200" {
   file { [ '/opt', '/opt/reddawn', '/opt/reddawn/config' ] :
     ensure => directory,
   }
+  
+  file { '/opt/reddawn/logs' :
+    ensure => directory,
+    owner => 'jetty',
+    group => 'jetty',
+    mode => 'u=rwx,g=,o=',
+    require => [ File['/opt/reddawn'], User['jetty'] ],
+  }
 
   file { '/opt/reddawn/config/configuration.properties' :
     ensure => file,
