@@ -1,7 +1,9 @@
 package com.altamiracorp.reddawn.web.routes.entity;
 
 import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.model.Column;
 import com.altamiracorp.reddawn.model.GraphSession;
+import com.altamiracorp.reddawn.model.Value;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.InMemoryGraphVertex;
@@ -11,6 +13,7 @@ import com.altamiracorp.reddawn.model.ontology.VertexType;
 import com.altamiracorp.reddawn.objectDetection.DetectedObject;
 import com.altamiracorp.reddawn.objectDetection.ObjectDetectionWorker;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactDetectedObjects;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
@@ -56,13 +59,13 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         String boundingBox = "x1: " + x1 + ", y1: " + y1 + ", x2: " + x2 + ", y2: " + y2;
         String model = getOptionalParameter(request, "model");
         String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
-        boolean newLabel = false;
 
         GraphVertex conceptVertex = graphRepository.findVertex(session.getGraphSession(), conceptId);
         GraphVertex resolvedVertex = createGraphVertex(session.getGraphSession(), conceptVertex, resolvedGraphVertexId,
                 sign, artifactRowKey, boundingBox, artifactId);
 
         Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactRowKey);
+        ArtifactDetectedObjects artifactDetectedObjects = artifact.getArtifactDetectedObjects();
 
         DetectedObject detectedObject = new DetectedObject(x1, y1, x2, y2);
         detectedObject.setGraphVertexId(resolvedVertex.getId().toString());
@@ -72,21 +75,19 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         List<String> cssClasses = detectedObject.getCssClasses();
         cssClasses.add("subType-" + conceptId);
 
-        if (detectedObjectRowKey == null || model == null) {
-            newLabel = true;
+        if (detectedObjectRowKey == null && model == null) {
             model = "manual";
+        } else {
+            // HOW TO UPDATE ROW KEY OR DELETE COLUMN FOR CHANGING CONCEPT TYPES
             detectedObject.setModel(model);
-            detectedObjectRowKey = artifact.getArtifactDetectedObjects().addDetectedObject
-                    (conceptVertex.getProperty("ontologyTitle").toString(), model, x1, y1, x2, y2, cssClasses);
-            detectedObject.setRowKey(detectedObjectRowKey);
         }
+        detectedObject.setModel(model);
+        detectedObjectRowKey = artifactDetectedObjects.addDetectedObject
+                (conceptVertex.getProperty("ontologyTitle").toString(), model, x1, y1, x2, y2, cssClasses);
+        detectedObject.setRowKey(detectedObjectRowKey);
 
         JSONObject obj = detectedObject.getJson();
         executorService.execute(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, cssClasses, obj));
-
-        if (newLabel) {
-            obj.put("newLabel", true);
-        }
 
         new Responder(response).respondWith(obj);
     }

@@ -142,17 +142,16 @@ define([
                         title: data.title,
                         info: data.info
                     };
-                    if (data.newLabel){
-                        $('.detected-object-labels').append($(
-                            '<a class="' + data.cssClasses.join (' ') +
-                            '" data-info=' + JSON.stringify(resolvedVertex) +
-                            ' href="#">' + data.info.concept +'</a>').addClass('entity resolved generic-draggable subType-' + parameters.conceptId));
-                    } else {
-                        $('.detected-object-labels .label').data('info', data);
+                    if ($('.detected-object-labels .label').hasClass('focused')){
+                        $('.detected-object-labels .focused').remove ();
                     }
+                    $('.detected-object-labels').append($(
+                        '<a class="' + data.cssClasses.join (' ') +
+                        '" data-info=' + JSON.stringify(resolvedVertex) +
+                        ' href="#">' + data.info.concept +'</a>').addClass('entity resolved ui-droppable ui-draggable subType-' + parameters.conceptId));
 
                     var vertices = [];
-                    vertices.push(data);
+                    vertices.push(resolvedVertex);
                     self.trigger(document, 'verticesUpdated', { vertices: vertices });
 
                     if ($('.artifact').data('Jcrop')) {

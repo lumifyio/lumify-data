@@ -66,6 +66,7 @@ define([
 
         this.onDetectedObjectClicked = function(event) {
             var tagInfo = $(event.target).data('info');
+            $(event.target).addClass('focused');
             this.showForm(tagInfo, this.attr.data);
         };
 

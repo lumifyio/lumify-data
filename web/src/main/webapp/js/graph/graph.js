@@ -218,6 +218,10 @@ define([
                                 vertex._private.classes.length = 0;
                                 vertex.addClass($.trim('concept-' + updatedVertex._subType + ' ' + (updatedVertex._type || '') + (updatedVertex._glyphIcon ? ' hasCustomGlyph' : '')));
 
+                                if (updatedVertex.title){
+                                    vertex.data().title = updatedVertex.title;
+                                }
+
                                 // TODO: update other properties? (title needs
                                 // truncation...
                             });
