@@ -24,12 +24,10 @@ define([
         this.after('initialize', function() {
             var self = this;
 
-            this.on({
-                fileprogress: this.onUpdateProgress.bind(this),
-                filecomplete: this.onUploadComplete.bind(this),
-                fileerror: this.onUploadError.bind(this),
-                iconUpdated: this.onUpdateIcon.bind(this)
-            });
+            this.on('fileprogress', this.onUpdateProgress);
+            this.on('filecomplete', this.onUploadComplete);
+            this.on('fileerror', this.onUploadError);
+            this.on('iconUpdated', this.onUpdateIcon);
 
             this.updateImageBackground();
             this.$node.html(template({}));

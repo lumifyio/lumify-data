@@ -83,6 +83,16 @@ public class BaseOntology {
             geoLocationProperty = graph.makeType().name(PropertyName.GEO_LOCATION.toString()).dataType(Geoshape.class).unique(Direction.OUT).indexed("search", Vertex.class).makePropertyKey();
         }
 
+        TitanKey publishedDateProperty = (TitanKey) graph.getType(PropertyName.PUBLISHED_DATE.toString());
+        if (publishedDateProperty == null) {
+            graph.makeType().name(PropertyName.PUBLISHED_DATE.toString()).dataType(Long.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+        }
+
+        TitanKey sourceProperty = (TitanKey) graph.getType(PropertyName.SOURCE.toString());
+        if (sourceProperty == null) {
+            graph.makeType().name(PropertyName.SOURCE.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+        }
+
         graph.commit();
 
         Concept rootConcept = ontologyRepository.getOrCreateConcept(redDawnSession.getGraphSession(), null, OntologyRepository.ROOT_CONCEPT_NAME, OntologyRepository.ROOT_CONCEPT_NAME);
@@ -103,11 +113,6 @@ public class BaseOntology {
         TitanKey rowKeyProperty = (TitanKey) graph.getType(PropertyName.ROW_KEY.toString());
         if (rowKeyProperty == null) {
             graph.makeType().name(PropertyName.ROW_KEY.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
-        }
-
-        TitanKey sourceProperty = (TitanKey) graph.getType(PropertyName.SOURCE.toString());
-        if (sourceProperty == null) {
-            graph.makeType().name(PropertyName.SOURCE.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
         }
 
         graph.commit();

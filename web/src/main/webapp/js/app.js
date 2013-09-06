@@ -106,7 +106,6 @@ define([
             this.setupDroppable();
 
             // Open search when the page is loaded
-            this.trigger(document, 'menubarToggleDisplay', { name: searchPane.data(DATA_MENUBAR_NAME) });
             this.trigger(document, 'menubarToggleDisplay', { name: graphPane.data(DATA_MENUBAR_NAME) });
 
             this.on(document, 'addVertices', this.onAddVertices);
@@ -218,18 +217,9 @@ define([
                             y: parseInt(Math.random() * droppable.height(), 10)
                         };
 
-                    var vertices = [{
-                        title: $.trim(
-                            info.title || 
-                            // Only get the direct children textnode
-                            draggable.clone().children().remove().end().text()
-                        ),
-                        graphVertexId: info.graphVertexId,
-                        _rowKey: info._rowKey,
-                        _subType: info._subType,
-                        _type: info._type,
+                    var vertices = [$.extend({
                         dropPosition: dropPosition
-                    }];
+                    }, info)];
 
                     if(info.resolvedGraphVertexId) {
                         this.ucdService.getGraphVertexById(info.resolvedGraphVertexId, function(err, data) {
@@ -237,8 +227,6 @@ define([
                                 console.error('Error', err);
                                 return self.trigger(document, 'error', { message: err.toString() });
                             }
-
-                            console.log(data);
 
                             vertices.push({
                                 graphVertexId: data.id,
@@ -333,6 +321,10 @@ define([
             this.workspaceData = data || {};
             this.workspaceData.data = this.workspaceData.data || {};
             this.workspaceData.data.vertices = this.workspaceData.data.vertices || [];
+
+            if (this.workspaceData.data.vertices.length === 0) {
+                this.trigger(document, 'menubarToggleDisplay', { name:'search' });
+            }
 
             undoManager.reset();
             this.refreshRelationships();
@@ -586,13 +578,6 @@ define([
 
                 pane.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
                     pane.off('transitionend webkitTransitionEnd oTransitionEnd otransitionend');
-
-                    if (!visible && data.name == 'search') {
-                        _.delay(function() {
-                            self.trigger(document, 'focusSearchField');
-                        }, 250);
-                    }
-
                     self.triggerPaneResized();
                 });
             }

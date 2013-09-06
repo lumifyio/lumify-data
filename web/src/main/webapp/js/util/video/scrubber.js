@@ -78,7 +78,8 @@ define([
                 return;
             }
 
-            var players = videojs.players,
+            var userClickedPlayButton = $(event.target).is('.scrubbing-play-button'),
+                players = videojs.players,
                 video = $(videoTemplate(this.attr));
 
             this.$node.html(video);
@@ -91,7 +92,12 @@ define([
 
             var scrubPercent = this.scrubPercent;
             _.defer(videojs, video[0], { autoplay:true }, function() { 
-                var player = this;
+                if (!userClickedPlayButton) {
+                    var player = this;
+                    player.on("durationchange", durationchange);
+                    player.on("loadedmetadata", durationchange);
+                }
+
                 function durationchange(event) {
                     var duration = player.duration();
                     if (duration > 0.0 && scrubPercent > 0.0) {
@@ -100,8 +106,6 @@ define([
                         player.currentTime(Math.max(0.0, duration * scrubPercent - 1.0));
                     }
                 }
-                player.on("durationchange", durationchange);
-                player.on("loadedmetadata", durationchange);
             });
         };
 

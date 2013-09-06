@@ -5,6 +5,7 @@ import com.altamiracorp.reddawn.RedDawnMapper;
 import com.altamiracorp.reddawn.model.AccumuloModelOutputFormat;
 import com.altamiracorp.reddawn.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.reddawn.ucd.artifact.Artifact;
+import com.altamiracorp.reddawn.ucd.artifact.ArtifactRepository;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -38,7 +39,9 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
 
     public static class TextExtractorMapper extends RedDawnMapper<Text, Artifact, Text, Artifact> {
         public static final String CONF_TEXT_EXTRACTOR_CLASS = "textExtractorClass";
+        public static final Text ARTIFACT_TABLE_NAME = new Text(Artifact.TABLE_NAME);
         private TextExtractor textExtractor;
+        private ArtifactRepository artifactRepository = new ArtifactRepository();
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -65,6 +68,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
 
             if (extractedInfo.getSubject() != null) {
                 artifact.getGenericMetadata().setSubject(extractedInfo.getSubject());
+                artifactRepository.saveToGraph(getSession().getModelSession(),getSession().getGraphSession(),artifact);
             }
 
             if (extractedInfo.getDate() != null) {
@@ -95,7 +99,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
                 artifact.getGenericMetadata().setLoadTimestamp(extractedInfo.getRetrievalTime());
             }
 
-            context.write(new Text(Artifact.TABLE_NAME), artifact);
+            context.write(ARTIFACT_TABLE_NAME, artifact);
         }
 
         private String cleanExtractedText(String extractedText) {

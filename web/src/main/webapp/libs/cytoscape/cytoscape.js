@@ -3923,7 +3923,7 @@ var cytoscape;
 				}
 
 				if( $$.is.number(start) && $$.is.number(end) ){
-					return start + Math.abs(end - start) * percent;
+					return start + (end - start) * percent;
 
 				} else if( $$.is.number(start[0]) && $$.is.number(end[0]) ){ // then assume a colour
 					var c1 = start;

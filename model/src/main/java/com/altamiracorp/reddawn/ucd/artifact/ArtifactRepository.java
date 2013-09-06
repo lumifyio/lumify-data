@@ -159,6 +159,14 @@ public class ArtifactRepository extends Repository<Artifact> {
             vertex.setProperty(PropertyName.TITLE.toString(), artifact.getGenericMetadata().getSubject());
         }
 
+        if (artifact.getGenericMetadata().getSource() != null){
+            vertex.setProperty(PropertyName.SOURCE.toString(), artifact.getGenericMetadata().getSource());
+        }
+
+        if (artifact.getPublishedDate() != null){
+            vertex.setProperty(PropertyName.PUBLISHED_DATE.toString(), artifact.getPublishedDate().getTime());
+        }
+
         String vertexId = graphSession.save(vertex);
         if (!vertexId.equals(oldGraphVertexId)) {
             artifact.getGenericMetadata().setGraphVertexId(vertexId);

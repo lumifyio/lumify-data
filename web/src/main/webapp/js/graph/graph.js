@@ -30,6 +30,10 @@ define([
     _) {
     'use strict';
 
+        // Delay before showing hover effect on graph
+    var HOVER_FOCUS_DELAY_SECONDS = 0.25,
+        MAX_TITLE_LENGTH = 15;
+
     return defineComponent(Graph, withContextMenu, withGraphContextMenuItems);
 
     function Graph() {
@@ -65,7 +69,6 @@ define([
         };
 
         this.addVertices = function(vertices, opts) {
-            console.log('addVertices:', vertices);
             var options = $.extend({ fit:false }, opts);
             var addedVertices = [];
             var self = this;
@@ -93,31 +96,22 @@ define([
                         });
                         self.trigger(document, 'updateVertices', { vertices:updates });
                     }
-                }, LAYOUT_OPTIONS['grid'] || {});
+                }, LAYOUT_OPTIONS.grid || {});
 
                 cy.layout(opts);
 
                 vertices.forEach(function(vertex) {
-                    var title = vertex.title || 'No title available';
-                    if (title.length > 15) {
-                        title = title.substring(0, 10) + "...";
-                    }
 
                     var cyNodeData = {
                         group: 'nodes',
-                        classes: $.trim('concept-' + vertex._subType + ' ' + (vertex._type || '') + (vertex._glyphIcon ? ' hasCustomGlyph' : '')),
+                        classes: self.classesForVertex(vertex),
                         data: {
                             id: vertex.graphVertexId,
-                            _rowKey: vertex._rowKey,
-                            graphVertexId: vertex.graphVertexId,
-                            _subType: vertex._subType,
-                            _type: vertex._type,
-                            _glyphIcon: vertex._glyphIcon,
-                            title: title,
-                            originalTitle: vertex.title,
                         },
                         selected: !!vertex.selected
                     };
+                    self.updateCyNodeData(cyNodeData.data, vertex);
+
 
                     var needsUpdate = false;
                     if (vertex.graphPosition) {
@@ -163,6 +157,32 @@ define([
             });
         };
 
+        this.classesForVertex = function(vertex) {
+            var cls = [];
+
+            if (vertex._subType) cls.push('concept-' + vertex._subType);
+            if (vertex._type) cls.push(vertex._type);
+            if (vertex._glyphIcon) cls.push('hasCustomGlyph');
+            
+            return cls.join(' ');
+        };
+
+        this.updateCyNodeData = function (data, vertex) {
+            var originalTitle = vertex.title || data.title || 'No title available',
+                title = originalTitle;
+
+            if (title.length > MAX_TITLE_LENGTH) {
+                title = $.trim(title.substring(0, MAX_TITLE_LENGTH)) + "...";
+            }
+
+            var merged = $.extend(data, _.pick(vertex, '_rowKey', '_subType', '_type', '_glyphIcon', 'graphVertexId')); 
+            merged.id = merged.graphVertexId;
+            merged.title = title;
+            merged.originalTitle = originalTitle;
+
+            return merged;
+        };
+
         this.removeSelectedVertices = function() {
             this.cy(function(cy) {
                 var verticesToDelete = $.map(cy.nodes().filter(':selected'), function(vertex) {
@@ -203,23 +223,13 @@ define([
                             .each(function(idx, vertex) {
                                 if (updatedVertex.graphPosition) {
                                     vertex.position( retina.pointsToPixels(updatedVertex.graphPosition) );
-                                }
-
-                                if (updatedVertex._glyphIcon) {
-                                    vertex.css('background-image', updatedVertex._glyphIcon);
-                                    vertex.data()._glyphIcon = updatedVertex._glyphIcon;
-                                    vertex.addClass('hasCustomGlyph');
-                                }
-
-                                if (updatedVertex._subType) {
-                                    vertex.data()._subType = updatedVertex._subType;
+                                    delete updatedVertex.graphPosition;
+                                    delete updatedVertex.dropPosition;
                                 }
 
                                 vertex._private.classes.length = 0;
-                                vertex.addClass($.trim('concept-' + updatedVertex._subType + ' ' + (updatedVertex._type || '') + (updatedVertex._glyphIcon ? ' hasCustomGlyph' : '')));
-
-                                // TODO: update other properties? (title needs
-                                // truncation...
+                                self.updateCyNodeData(vertex.data(), updatedVertex);
+                                vertex.addClass(self.classesForVertex(updatedVertex));
                             });
                     });
             });
@@ -353,23 +363,59 @@ define([
             });
         };
 
-        this.nodesForGraphIds = function(cy, nodeIds) {
-            var selector = nodeIds.map(function(nodeId) { 
-                return '#' + nodeId; 
+        this.verticesForGraphIds = function(cy, vertexIds) {
+            var selector = vertexIds.map(function(vertexId) { 
+                return '#' + vertexId; 
             }).join(',');
 
             return cy.nodes(selector);
         };
 
-        this.onFocusGraphNodes = function(e, data) {
+        this.onFocusVertices = function(e, data) {
             this.cy(function(cy) {
-                this.nodesForGraphIds(cy, data.nodeIds).addClass('focus');
+                var vertexIds = data.vertexIds;
+                this.hoverDelay = _.delay(function() {
+                    var nodes = this.verticesForGraphIds(cy, vertexIds)
+                            .css('borderWidth', 0)
+                            .addClass('focus'),
+                        start = 5,
+                        end = 20;
+
+
+                    function animate(borderWidth) {
+                        if (!nodes.hasClass('focus')) {
+                            nodes.css({
+                                borderWidth: 0,
+                                opacity: 1
+                            });
+                            return;
+                        }
+
+                        nodes.animate({
+                                css: { 
+                                    borderWidth: borderWidth,
+                                    // Opacity         1 -> .75
+                                    // borderWidth start -> end
+                                    opacity: 1 - ((borderWidth - start) / (end - start) * 0.25)
+                                }
+                            }, { 
+                                duration: 1500,
+                                complete: function() {
+                                    animate(borderWidth === start ? end : start);
+                                } 
+                            }
+                        );
+                    }
+
+                    animate(end);
+                }.bind(this), HOVER_FOCUS_DELAY_SECONDS * 1000);
             });
         };
 
-        this.onDefocusGraphNodes = function(e, data) {
+        this.onDefocusVertices = function(e, data) {
+            clearTimeout(this.hoverDelay);
             this.cy(function(cy) {
-                this.nodesForGraphIds(cy, data.nodeIds).removeClass('focus');
+                cy.nodes('.focus').removeClass('focus').stop(true, true);
             });
         };
 
@@ -526,7 +572,6 @@ define([
             var edgeSelection = cy.edges().filter(':selected');
             var info = [];
 
-            console.log('selections: ', selection, edgeSelection);
             selection.each(function(index, vertex) {
                 info.push(vertex.data());
             });
@@ -548,6 +593,15 @@ define([
                 case $.ui.keyCode.DELETE:
                     if ( down ) {
                         this.removeSelectedVertices();
+                    }
+                    break;
+                case 65:
+                    if (down && (event.metaKey || event.ctrlKey)) {
+                        this.cy(function(cy) {
+                            cy.nodes().select();
+                        });
+                    } else {
+                        handled = false;
                     }
                     break;
 
@@ -752,8 +806,8 @@ define([
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
             this.on(document, 'graphPaddingUpdated', this.onGraphPaddingUpdated);
             this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);
-            this.on(document, 'focusGraphNodes', this.onFocusGraphNodes);
-            this.on(document, 'defocusGraphNodes', this.onDefocusGraphNodes);
+            this.on(document, 'focusVertices', this.onFocusVertices);
+            this.on(document, 'defocusVertices', this.onDefocusVertices);
 
             this.ontologyService.concepts(function(err, concepts) {
                 if (err) {
@@ -764,7 +818,6 @@ define([
                     firstLevelConcepts: concepts.entityConcept.children,
                     artifactConcept: concepts.artifactConcept
                 };
-                console.log('context menu data', templateData);
                 self.$node.html(template(templateData));
                 self.bindContextMenuClickEvent();
 

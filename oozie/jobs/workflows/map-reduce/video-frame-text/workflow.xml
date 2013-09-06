@@ -28,11 +28,11 @@
                 </property>
                 <property>
                     <name>mapreduce.map.class</name>
-                    <value>com.altamiracorp.reddawn.textExtraction.VideoFrameTextExtractionMR$VideoFrameTextExtractorMapper</value>
+                    <value>${basePackage}.textExtraction.VideoFrameTextExtractionMR$VideoFrameTextExtractorMapper</value>
                 </property>
                 <property>
                     <name>textExtractorClass</name>
-                    <value>com.altamiracorp.reddawn.textExtraction.ImageOcrTextExtractor</value>
+                    <value>${basePackage}.textExtraction.ImageOcrTextExtractor</value>
                 </property>
                 <property>
                     <name>mapred.map.tasks</name>

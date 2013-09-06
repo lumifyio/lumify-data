@@ -12,8 +12,8 @@
   
     $.fn.withinScrollable = function(scrollable) {
         var elems = [];
-        var width = scrollable.width();
-        var height = scrollable.height();
+        var width = scrollable.outerWidth(true);
+        var height = scrollable.outerHeight(true);
         var top = scrollable.scrollTop();
         var left = scrollable.scrollLeft();
 
@@ -26,7 +26,7 @@
     };
 
     function withinScrollable(element, top, left, width, height) {
-        return element.offsetTop >= top && element.offsetTop <= top + height;
+        return (element.offsetTop + element.offsetHeight) >= top && element.offsetTop <= top + height;
     }
   
   

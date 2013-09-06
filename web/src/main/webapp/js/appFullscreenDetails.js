@@ -3,15 +3,21 @@
 define([
     'flight/lib/component',
     'flight/lib/registry',
+    'tpl!./appFullscreenDetails',
     'service/vertex',
     'service/ucd',
     'detail/detail',
-    'tpl!appFullscreenDetails',
     'underscore'
-], function(defineComponent, registry, VertexService, UCD, Detail, template, _) {
+], function(defineComponent, registry, template, VertexService, UCD, Detail, _) {
 
     return defineComponent(FullscreenDetails);
 
+    function filterEntity(v) {
+        return v.properties._type === 'entity';
+    }
+    function filterArtifacts(v) {
+        return v.properties._type === 'artifact';
+    }
 
     function FullscreenDetails() {
         this.vertexService = new VertexService();
@@ -23,6 +29,7 @@ define([
         });
 
         this.after('initialize', function() {
+            this.$node.html(template({}));
             this.updateTitle();
 
             this._windowIsHidden = false;
@@ -67,11 +74,23 @@ define([
         };
 
         this.updateLayout = function() {
+
+            this.$node.toggleClass('onlyone', this.vertices.length === 1);
+
+            var verts = this.vertices.length,
+                entities = _.filter(this.vertices, filterEntity).length,
+                artifacts = _.filter(this.vertices, filterArtifacts).length;
+
             this.$node
-                .removeClass(_.filter(this.node.className.split(/\s+/), function(name) { 
-                    return (/^split-/).test(name); 
-                }).join(' '))
-                .addClass(this.vertices.length <= 4 ? 'split-' + this.vertices.length : 'split-many');
+                .removePrefixedClasses('vertices- entities- artifacts- has- entity-cols-')
+                .addClass([
+                    this.vertices.length <= 4 ? 'vertices-' + this.vertices.length : 'vertices-many',
+                    'entities-' + entities,
+                    'entity-cols-' + _.find([4,3,2,1], function(i) { return entities % i === 0; }),
+                    entities ? 'has-entities' : '',
+                    'artifacts-' + artifacts,
+                    artifacts ? 'has-artifacts' : ''
+                ].join(' '));
         };
 
         this.updateTitle = function() {
@@ -114,7 +133,10 @@ define([
             });
             
             this.vertices.forEach(function(v) {
-                this.$node.append(template({}));
+                var node = v.properties._type === 'entity' ? 
+                    this.$node.find('.entities-container') : this.$node.find('.artifacts-container');
+
+                node.append('<div class="detail-pane visible highlight-none"><div class="content"/></div>');
                 Detail.attachTo(this.$node.find('.detail-pane').last()
                                 .addClass('type-' + v.properties._type + ' subType-' + v.properties._subType)
                                 .find('.content'), {

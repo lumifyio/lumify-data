@@ -1,0 +1,12 @@
+ <coordinator-app name="PeriodicFileImport" 
+	frequency="${coord:minutes(5)}"
+    start="${startTime}" 
+	end="${endTime}" 
+	timezone="UTC"
+    xmlns="uri:oozie:coordinator:0.1">
+	<action>
+		<workflow>
+    		<app-path>${nameNode}/user/${coord:user()}/${workflowRoot}/file-import</app-path>
+        </workflow>
+	</action>     
+</coordinator-app>

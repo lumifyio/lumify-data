@@ -7,7 +7,12 @@ hosts_file=$1
 namenode=$(awk '/ +namenode/ {print $1}' ${hosts_file})
 secondarynamenode=$(awk '/ +secondarynamenode/ {print $1}' ${hosts_file})
 
-#TODO: ssh ${SSH_OPTS} ${namenode} su - hdfs -c 'hadoop namenode -format'
+echo "ssh to ${namenode} and as the hdfs user run: hadoop namenode -format"
+while [ "${ready}" != 'yes' ]; do
+  echo "then type 'yes' and press return"
+  read ready
+done
+
 ssh ${SSH_OPTS} ${namenode} service hadoop-0.20-namenode start
 ssh ${SSH_OPTS} ${secondarynamenode} service hadoop-0.20-secondarynamenode start
 

@@ -7,10 +7,20 @@ define([
     'sf',
     'tpl!./multiple',
     'tpl!./histogram',
+    'util/vertexList/list',
     'underscore'
-], function (defineComponent, withTypeContent, withHighlighting, VertexService, OntologyService, sf, template, histogramTemplate, _) {
+], function (defineComponent, withTypeContent, withHighlighting, VertexService, OntologyService, sf, template, histogramTemplate, VertexList, _) {
 
     'use strict';
+
+    var NO_HISTOGRAM_PROPERTIES = [
+
+        // Would need to bin these intelligently to make useful
+        'geoLocation', 'latitude', 'longitude', 
+
+        // How aften would there actually be two with same title?
+        'title' 
+    ];
 
     return defineComponent(Multiple, withTypeContent, withHighlighting);
 
@@ -20,7 +30,8 @@ define([
 
         this.defaultAttrs({
             histogramSelector: '.multiple .histogram',
-            listSelector: '.multiple .nav'
+            histogramListSelector: '.multiple .nav-bar',
+            vertexListSelector: '.multiple .vertices-list'
         });
 
         this.after('initialize', function () {
@@ -36,8 +47,11 @@ define([
             }));
             this.updateEntityAndArtifactDraggables();
 
+
             var vertexIds = vertices.map(function (v) {
-                return v.id;
+                return v.graphVertexId;
+            }).filter(function (v) {
+                return v !== null && v !== undefined;
             });
 
             var d3_deferred = $.Deferred();
@@ -49,12 +63,17 @@ define([
                 d3_deferred
             ).done(function(verticesResponse, concepts, properties, d3) {
 
-                var byProperty = calculateByProperty(verticesResponse[0]),
+                var vertices = verticesResponse[0],
+                    byProperty = calculateByProperty(vertices),
                     fn = {
                         getPropertyDisplayName: getPropertyDisplayName.bind(null, properties),
                         getPropertyValueDisplay: getPropertyValueDisplay.bind(null, concepts, properties),
                         sortPropertyValues: sortPropertyValues.bind(null, properties, byProperty)
                     };
+
+                VertexList.attachTo(self.select('vertexListSelector'), {
+                    vertices: vertices
+                });
                 
                 self.select('histogramSelector').remove();
 
@@ -63,7 +82,7 @@ define([
                     var template = histogramTemplate({
                             displayName: fn.getPropertyDisplayName(name)
                         }),
-                        container = self.select('listSelector')
+                        container = self.select('histogramListSelector')
                             .append(template)
                             .find('.svg-container')
                             .last()
@@ -73,7 +92,7 @@ define([
                                 return { 
                                     key:key, 
                                     number:byProperty[name][key].length,
-                                    graphNodeIds: _.pluck(byProperty[name][key], 'id')
+                                    vertexIds: _.pluck(byProperty[name][key], 'id')
                                 };
                             }),
                         width = container.width(),
@@ -139,7 +158,7 @@ define([
                     return true;
                 } else if (/^[_]/.test(propertyName)) {
                     return false;
-                } else if (propertyName == 'geoLocation') {
+                } else if (NO_HISTOGRAM_PROPERTIES.indexOf(propertyName) >= 0) {
                     return false;
                 }
                 return true;
@@ -204,7 +223,7 @@ define([
             var data = $(event.target).closest('g').data('info'),
                 eventName = event.type === 'mouseenter' ? 'focus' : 'defocus';
 
-            this.trigger(document, eventName + 'GraphNodes', { nodeIds:data.graphNodeIds });
+            this.trigger(document, eventName + 'Vertices', { vertexIds:data.vertexIds });
         };
     }
 });

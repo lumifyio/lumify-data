@@ -5,28 +5,32 @@
 @import "util/flexbox";
 @import "util/transforms";
 @import "util/video/scrubber";
+@import "util/vertexList/list";
 @import "util/instructions";
+@import "util/jquery-ui-draggable-multiselect";
 
 @import "/libs/bootstrap/less/bootstrap.less";
 @import "/libs/video.js/video-js.css";
 
 @import "sync/sync";
 
-html, body {
+html.fullscreenApp {
   height: 100%;
   overflow: hidden;
-}
 
-#app {
-  .fullscreen;
-  overflow: hidden;
-
-}
-
-body.fullscreenDetails {
-  #app {
-    overflow: auto;
+  body {
+    height: 100%;
+    overflow: hidden;
   }
+
+  #app {
+    .fullscreen;
+    overflow: hidden;
+  }
+}
+
+
+html.fullscreenDetails {
   .fullscreen-details {
     @import "fullscreenDetails/details";
   }
@@ -61,32 +65,30 @@ body.fullscreenDetails {
   }
 }
 
-.users-pane, 
-.search-pane, 
-.workspaces-pane, 
-.detail-pane {
-  .above-graph;
-  position: absolute;
-  background: @pane-background;
+.fullscreenApp {
+  .users-pane, 
+  .search-pane, 
+  .workspaces-pane, 
+  .detail-pane {
+    .above-graph;
+    position: absolute;
+    background: @pane-background;
 
-  // Animation of panes
-  //visibility: hidden;
-  //&.visible { visibility: visible; }
-
-  .content {
-    overflow: auto;
-    height: 100%;
-    .box-sizing(border-box);
+    .content {
+      overflow: auto;
+      height: 100%;
+      .box-sizing(border-box);
+    }
   }
-}
 
-.search-pane, 
-.workspaces-pane,
-.detail-pane {
-  height: 100%;
+  .search-pane, 
+  .workspaces-pane,
+  .detail-pane {
+    height: 100%;
 
-  .ui-resizable-handle {
-    .splitbar;
+    .ui-resizable-handle {
+      .splitbar;
+    }
   }
 }
 
@@ -154,11 +156,13 @@ body .search-result-dragging {
   @import "map/map";
 }
 
-.detail-pane { 
+.fullscreenApp .detail-pane {
   .right-pane;
   visibility: visible;
   right: 0;
+}
 
+.detail-pane { 
   @import "detail/detail";
 }
 @import "detail/preview";
