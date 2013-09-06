@@ -69,7 +69,12 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
 
         DetectedObject detectedObject = new DetectedObject(x1, y1, x2, y2);
         detectedObject.setGraphVertexId(resolvedVertex.getId().toString());
-        detectedObject.setConcept(conceptVertex.getProperty("ontologyTitle").toString());
+
+        if (conceptVertex.getProperty("ontologyTitle").toString().equals("person")){
+            detectedObject.setConcept("face");
+        } else {
+            detectedObject.setConcept(conceptVertex.getProperty("ontologyTitle").toString());
+        }
         detectedObject.setResolvedVertex(resolvedVertex);
 
         List<String> cssClasses = detectedObject.getCssClasses();
@@ -79,7 +84,7 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
             model = "manual";
             detectedObject.setModel(model);
             detectedObjectRowKey = artifactDetectedObjects.addDetectedObject
-                    (conceptVertex.getProperty("ontologyTitle").toString(), model, x1, y1, x2, y2, cssClasses);
+                    (detectedObject.getConcept(), model, x1, y1, x2, y2, cssClasses);
         } else {
             // HOW TO UPDATE ROW KEY OR DELETE COLUMN FOR CHANGING CONCEPT TYPES
             detectedObject.setModel(model);

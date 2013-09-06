@@ -42,12 +42,7 @@
 <div class='detected-object-labels'>
 <% if(artifact['atc:Artifact_Detected_Objects']) { %>
   <% artifact['atc:Artifact_Detected_Objects'].detectedObjects.forEach(function(object) {%>
-  <%- object.tagHtml %><%
-        if (object.info.concept == 'person') {
-            %>face <%
-        } else {
-            %> <%= object.info.concept %><%
-        }%></a>
+  <%- object.tagHtml %><%= object.info.concept %></a>
   <% }); %>
 <% } %>
 </div>
