@@ -1,10 +1,5 @@
 package com.altamiracorp.reddawn.web.routes.chat.models;
 
-import com.altamiracorp.reddawn.web.messageBus.MessageBus;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -28,17 +23,17 @@ public class Chat {
         return userIds;
     }
 
-    public JSONObject toJson(MessageBus messageBus) throws JSONException {
-        JSONArray usersJson = new JSONArray();
-        for (String userId : userIds) {
-            usersJson.put(messageBus.getUser(userId).toJson());
-        }
-
-        JSONObject results = new JSONObject();
-        results.put("id", this.id);
-        results.put("users", usersJson);
-        return results;
-    }
+//    public JSONObject toJson(MessageBus messageBus) throws JSONException {
+//        JSONArray usersJson = new JSONArray();
+//        for (String userId : userIds) {
+//            usersJson.put(messageBus.getUser(userId).toJson());
+//        }
+//
+//        JSONObject results = new JSONObject();
+//        results.put("id", this.id);
+//        results.put("users", usersJson);
+//        return results;
+//    }
 
     public ChatMessage addMessage(String fromUserId, String messageString) {
         ChatMessage message = new ChatMessage(fromUserId, messageString);

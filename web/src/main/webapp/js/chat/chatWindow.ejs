@@ -1,8 +1,7 @@
-<div class="chat-window" id="chat-window-<%= user.id %>" chat-id="<%= user.id %>">
-    <div class="to"><%= users.map(function(user) { return user.id; }).join(', ') %></div>
+<div class="chat-window" id="chat-window-<%= chat.rowKey %>" data-chatrowkey="<%= chat.rowKey %>">
+    <div class="to"><%= chat.users.map(function(user) { return user.userName; }).join(', ') %></div>
 
     <div class="chat-messages"></div>
-    <div class="sync-request"></div>
 
     <form class="new-message">
         <input type="text" class="message" placeholder="Message...">

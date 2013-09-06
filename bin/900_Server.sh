@@ -1,4 +1,5 @@
 #!/bin/bash
+# group: server
 # require: 215_ArtifactFaceDetectionMR.sh
 # require: 215_VideoFrameFaceDetectionMR.sh
 # require: 300_VideoPreviewMR.sh

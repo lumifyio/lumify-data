@@ -1,10 +1,11 @@
 package com.altamiracorp.reddawn.web.routes.workspace;
 
 import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.model.user.User;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRepository;
 import com.altamiracorp.reddawn.model.workspace.WorkspaceRowKey;
+import com.altamiracorp.reddawn.web.DevBasicAuthenticator;
 import com.altamiracorp.reddawn.web.Responder;
-import com.altamiracorp.reddawn.web.User;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
@@ -26,7 +27,7 @@ public class WorkspaceDelete implements Handler, AppAware {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         if (isDeleteAuthorized(request)) {
             RedDawnSession session = app.getRedDawnSession(request);
-            String strRowKey = (String)request.getAttribute("workspaceRowKey");
+            String strRowKey = (String) request.getAttribute("workspaceRowKey");
             WorkspaceRowKey rowKey = new WorkspaceRowKey(strRowKey);
             workspaceRepository.delete(session.getModelSession(), rowKey);
 
@@ -41,13 +42,13 @@ public class WorkspaceDelete implements Handler, AppAware {
 
     @Override
     public void setApp(App app) {
-        this.app = (WebApp)app;
+        this.app = (WebApp) app;
     }
 
     // TODO: Make this workspace delete authorization more robust
     private boolean isDeleteAuthorized(HttpServletRequest request) {
-        User currentUser = User.getUser(request);
-        String strRowKey = (String)request.getAttribute("workspaceRowKey");
-        return strRowKey.startsWith(currentUser.getId());
+        User currentUser = DevBasicAuthenticator.getUser(request);
+        String strRowKey = (String) request.getAttribute("workspaceRowKey");
+        return strRowKey.startsWith(currentUser.getRowKey().toString());
     }
 }
