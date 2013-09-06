@@ -28,11 +28,11 @@
                 </property>
                 <property>
                     <name>mapreduce.map.class</name>
-                    <value>com.altamiracorp.reddawn.search.SearchIndexBuilderMR$SearchMapper</value>
+                    <value>${basePackage}.search.SearchIndexBuilderMR$SearchMapper</value>
                 </property>
                 <property>
                     <name>searchIndexBuilderClass</name>
-                    <value>com.altamiracorp.reddawn.search.BlurSearchProvider</value>
+                    <value>${basePackage}.search.BlurSearchProvider</value>
                 </property>
                 <property>
                     <name>mapred.map.tasks</name>

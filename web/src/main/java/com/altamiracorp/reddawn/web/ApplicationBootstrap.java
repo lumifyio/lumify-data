@@ -91,6 +91,5 @@ public final class ApplicationBootstrap implements ServletContextListener {
         PropertyUtils.setPropertyValue(props, ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, config.getElasticSearchLocations());
 
         RedDawnSession.setApplicationProperties(props);
-        RedDawnSession.create().getModelSession().initializeTables();
     }
 }

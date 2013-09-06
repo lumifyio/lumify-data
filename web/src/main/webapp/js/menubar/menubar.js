@@ -13,6 +13,13 @@ define([
 
         // Add class name of <li> buttons here
         var BUTTONS = 'graph map search workspaces activity users metrics prefs';
+        var TOOLTIPS = {
+            graph: 'Graph',
+            map: 'Map',
+            search: 'Search',
+            workspaces: 'Workspaces',
+            users: 'Chat'
+        };
 
         // Which cannot both be active
         var MUTALLY_EXCLUSIVE_SWITCHES = [ 
@@ -42,6 +49,9 @@ define([
                     });
                 }
                 var icon = this.select(sel);
+                if (name !== 'activity') {
+                    icon.tooltip('hide');
+                }
                 if (isSwitch && icon.hasClass('active')) {
                     return;
                 } else this.trigger(document, 'menubarToggleDisplay', {name:name});
@@ -52,6 +62,15 @@ define([
         
         this.after('initialize', function() {
             this.$node.html(template({}));
+
+            var self = this;
+            Object.keys(TOOLTIPS).forEach(function(selectorClass) {
+                self.$node.find('.' + selectorClass).tooltip({ 
+                    placement: 'right',
+                    title: TOOLTIPS[selectorClass],
+                    delay: { show: 250, hide:0 }
+                });
+            });
             
             Activity.attachTo( this.select('activityIconSelector') );
 

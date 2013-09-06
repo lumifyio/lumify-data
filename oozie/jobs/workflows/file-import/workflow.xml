@@ -43,7 +43,7 @@
                 </property>
                 <property>
                     <name>mapreduce.map.class</name>
-                    <value>com.altamiracorp.reddawn.fileImport.FileImportMR$FileImportMapper</value>
+                    <value>${basePackage}.fileImport.FileImportMR$FileImportMapper</value>
                 </property>
                 <property>
                     <name>mapred.map.tasks</name>
@@ -55,7 +55,7 @@
 				</property>
 				<property>
 			        <name>mapreduce.inputformat.class</name>
-			        <value>com.altamiracorp.reddawn.fileImport.WholeFileInputFormat</value>
+			        <value>${basePackage}.fileImport.WholeFileInputFormat</value>
 			    </property>
 				<property>
 			        <name>mapred.input.dir</name>

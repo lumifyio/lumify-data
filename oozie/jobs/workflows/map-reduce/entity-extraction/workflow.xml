@@ -28,7 +28,7 @@
                 </property>
                 <property>
                     <name>mapreduce.map.class</name>
-                    <value>com.altamiracorp.reddawn.entityExtraction.EntityExtractionMR$EntityExtractorMapper</value>
+                    <value>${basePackage}.entityExtraction.EntityExtractionMR$EntityExtractorMapper</value>
                 </property>
 				<property>
 			        <name>entityExtractorClass</name>

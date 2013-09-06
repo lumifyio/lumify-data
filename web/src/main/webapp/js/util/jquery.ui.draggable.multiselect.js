@@ -5,7 +5,32 @@ define( [], function() {
 
 
         create: function(e, ui) {
-            var inst = this.data("ui-draggable");
+            var inst = this.data("ui-draggable"),
+                container = this.closest('ul');
+    
+            if (container.data('initialized') !== true) {
+                container
+                    .data('initialized', true)
+                    .attr('tabindex', '0')
+                    .addClass('multi-select')
+                    .on({
+                        click: function(evt) {
+                            this.focus();
+
+                            if ($(this).is(evt.target)) {
+                                $(this).find('li').removeClass('active');
+                                onSelection(evt, $());
+                            }
+                        },
+                        keydown: function(evt) {
+                            if ((evt.metaKey || evt.ctrlKey) && evt.which === 65) {
+                                evt.preventDefault();
+                                onSelection(evt, $(this).find('li').addClass('active'));
+                            }
+                        }
+                    });
+            }
+
 
             if ( inst.options.revert === 'invalid' ) {
 
@@ -14,8 +39,8 @@ define( [], function() {
 
                     if (reverted && inst.alsoDragging) {
                         inst.alsoDragging.each(function() {
-                            this.animate(this.data('original').offset(), 
-                                parseInt(inst.options.revertDuration, 10), 
+                            this.animate(this.data('original').offset(),
+                                parseInt(inst.options.revertDuration, 10),
                                 function() {
                                     this.remove();
                                 }
@@ -61,17 +86,19 @@ define( [], function() {
                 // Keep track of last selected for shift-selection later
                 list.data('lastSelection', $target);
 
-                if ( inst.options.selection ) {
-                    inst.options.selection.call(
-                        inst.element, 
-                        evt, 
-                        $.extend(inst._uiHash(), { 
-                            selected: list.find('.active')
-                        }));
-                }
-
+                onSelection(evt, list.find('.active'));
             });
 
+            function onSelection(evt, elements) {
+                if ( inst.options.selection ) {
+                    inst.options.selection.call(
+                        inst.element,
+                        evt,
+                        $.extend(inst._uiHash(), {
+                            selected: elements
+                        }));
+                }
+            }
         },
 
         start: function(e, ui) {

@@ -30,6 +30,9 @@ define([
     _) {
     'use strict';
 
+        // Delay before showing hover effect on graph
+    var HOVER_FOCUS_DELAY_SECONDS = 0.25;
+
     return defineComponent(Graph, withContextMenu, withGraphContextMenuItems);
 
     function Graph() {
@@ -357,23 +360,59 @@ define([
             });
         };
 
-        this.nodesForGraphIds = function(cy, nodeIds) {
-            var selector = nodeIds.map(function(nodeId) { 
-                return '#' + nodeId; 
+        this.verticesForGraphIds = function(cy, vertexIds) {
+            var selector = vertexIds.map(function(vertexId) { 
+                return '#' + vertexId; 
             }).join(',');
 
             return cy.nodes(selector);
         };
 
-        this.onFocusGraphNodes = function(e, data) {
+        this.onFocusVertices = function(e, data) {
             this.cy(function(cy) {
-                this.nodesForGraphIds(cy, data.nodeIds).addClass('focus');
+                var vertexIds = data.vertexIds;
+                this.hoverDelay = _.delay(function() {
+                    var nodes = this.verticesForGraphIds(cy, vertexIds)
+                            .css('borderWidth', 0)
+                            .addClass('focus'),
+                        start = 5,
+                        end = 20;
+
+
+                    function animate(borderWidth) {
+                        if (!nodes.hasClass('focus')) {
+                            nodes.css({
+                                borderWidth: 0,
+                                opacity: 1
+                            });
+                            return;
+                        }
+
+                        nodes.animate({
+                                css: { 
+                                    borderWidth: borderWidth,
+                                    // Opacity         1 -> .75
+                                    // borderWidth start -> end
+                                    opacity: 1 - ((borderWidth - start) / (end - start) * 0.25)
+                                }
+                            }, { 
+                                duration: 1500,
+                                complete: function() {
+                                    animate(borderWidth === start ? end : start);
+                                } 
+                            }
+                        );
+                    }
+
+                    animate(end);
+                }.bind(this), HOVER_FOCUS_DELAY_SECONDS * 1000);
             });
         };
 
-        this.onDefocusGraphNodes = function(e, data) {
+        this.onDefocusVertices = function(e, data) {
+            clearTimeout(this.hoverDelay);
             this.cy(function(cy) {
-                this.nodesForGraphIds(cy, data.nodeIds).removeClass('focus');
+                cy.nodes('.focus').removeClass('focus').stop(true, true);
             });
         };
 
@@ -552,6 +591,15 @@ define([
                 case $.ui.keyCode.DELETE:
                     if ( down ) {
                         this.removeSelectedVertices();
+                    }
+                    break;
+                case 65:
+                    if (down && (event.metaKey || event.ctrlKey)) {
+                        this.cy(function(cy) {
+                            cy.nodes().select();
+                        });
+                    } else {
+                        handled = false;
                     }
                     break;
 
@@ -756,8 +804,8 @@ define([
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
             this.on(document, 'graphPaddingUpdated', this.onGraphPaddingUpdated);
             this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);
-            this.on(document, 'focusGraphNodes', this.onFocusGraphNodes);
-            this.on(document, 'defocusGraphNodes', this.onDefocusGraphNodes);
+            this.on(document, 'focusVertices', this.onFocusVertices);
+            this.on(document, 'defocusVertices', this.onDefocusVertices);
 
             this.ontologyService.concepts(function(err, concepts) {
                 if (err) {

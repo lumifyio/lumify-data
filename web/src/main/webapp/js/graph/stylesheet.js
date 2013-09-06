@@ -41,8 +41,7 @@ define([
                 'shape': 'rectangle',
                 'width': 45 * 1.3 * retina.devicePixelRatio,
                 'height': 45 * retina.devicePixelRatio,
-                'border-color': '#ccc',
-                'border-width': 1
+                'border-color': '#ccc'
             })
             .selector('node.concept-document')
             .css({

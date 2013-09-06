@@ -12,6 +12,15 @@ define([
 
     'use strict';
 
+    var NO_HISTOGRAM_PROPERTIES = [
+
+        // Would need to bin these intelligently to make useful
+        'geoLocation', 'latitude', 'longitude', 
+
+        // How aften would there actually be two with same title?
+        'title' 
+    ];
+
     return defineComponent(Multiple, withTypeContent, withHighlighting);
 
     function Multiple() {
@@ -75,7 +84,7 @@ define([
                                 return { 
                                     key:key, 
                                     number:byProperty[name][key].length,
-                                    graphNodeIds: _.pluck(byProperty[name][key], 'id')
+                                    vertexIds: _.pluck(byProperty[name][key], 'id')
                                 };
                             }),
                         width = container.width(),
@@ -141,7 +150,7 @@ define([
                     return true;
                 } else if (/^[_]/.test(propertyName)) {
                     return false;
-                } else if (propertyName == 'geoLocation') {
+                } else if (NO_HISTOGRAM_PROPERTIES.indexOf(propertyName) >= 0) {
                     return false;
                 }
                 return true;
@@ -206,7 +215,7 @@ define([
             var data = $(event.target).closest('g').data('info'),
                 eventName = event.type === 'mouseenter' ? 'focus' : 'defocus';
 
-            this.trigger(document, eventName + 'GraphNodes', { nodeIds:data.graphNodeIds });
+            this.trigger(document, eventName + 'Vertices', { vertexIds:data.vertexIds });
         };
     }
 });

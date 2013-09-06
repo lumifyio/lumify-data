@@ -28,7 +28,7 @@
                 </property>
                 <property>
                     <name>mapreduce.map.class</name>
-                    <value>com.altamiracorp.reddawn.textExtraction.TextExtractorConsolidationMR$TextExtractorConsolidationMapper</value>
+                    <value>${basePackage}.textExtraction.TextExtractorConsolidationMR$TextExtractorConsolidationMapper</value>
                 </property>
                 <property>
                     <name>mapred.map.tasks</name>

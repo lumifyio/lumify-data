@@ -28,7 +28,7 @@
                 </property>
                 <property>
                     <name>mapreduce.map.class</name>
-                    <value>com.altamiracorp.reddawn.videoPreview.VideoPreviewMR$VideoPreviewMapper</value>
+                    <value>${basePackage}.videoPreview.VideoPreviewMR$VideoPreviewMapper</value>
                 </property>
                 <property>
                     <name>mapred.map.tasks</name>

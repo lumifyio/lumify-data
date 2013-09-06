@@ -1,9 +1,13 @@
 package com.altamiracorp.reddawn;
 
-import com.altamiracorp.reddawn.model.*;
-import com.altamiracorp.reddawn.ontology.BaseOntology;
-import com.altamiracorp.reddawn.search.BlurSearchProvider;
-import com.altamiracorp.reddawn.search.SearchProvider;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -14,13 +18,15 @@ import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Properties;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.altamiracorp.reddawn.model.AccumuloQueryUser;
+import com.altamiracorp.reddawn.model.AccumuloSession;
+import com.altamiracorp.reddawn.model.GraphSession;
+import com.altamiracorp.reddawn.model.Session;
+import com.altamiracorp.reddawn.model.TitanGraphSession;
+import com.altamiracorp.reddawn.model.TitanQueryFormatter;
+import com.altamiracorp.reddawn.ontology.BaseOntology;
+import com.altamiracorp.reddawn.search.BlurSearchProvider;
+import com.altamiracorp.reddawn.search.SearchProvider;
 
 
 public class RedDawnSession {
@@ -58,6 +64,7 @@ public class RedDawnSession {
 
     public static RedDawnSession create(Properties props, TaskInputOutputContext context) {
         try {
+            LOGGER.info(String.format("Creating %s", RedDawnSession.class.getSimpleName()));
             RedDawnSession session = new RedDawnSession();
             session.modelSession = createModelSession(props, context);
             session.searchProvider = createSearchProvider(props);
@@ -95,10 +102,10 @@ public class RedDawnSession {
 
     private static Session createModelSession(Properties props, TaskInputOutputContext context) throws AccumuloException, AccumuloSecurityException, IOException, URISyntaxException, InterruptedException {
         String zookeeperInstanceName = props.getProperty(AccumuloSession.ZOOKEEPER_INSTANCE_NAME);
-        String zookeeperServerName = props.getProperty(AccumuloSession.ZOOKEEPER_SERVER_NAMES);
+        String zookeeperServerLocations = props.getProperty(AccumuloSession.ZOOKEEPER_SERVER_NAMES);
         String username = props.getProperty(AccumuloSession.USERNAME);
         String password = props.getProperty(AccumuloSession.PASSWORD);
-        ZooKeeperInstance zooKeeperInstance = new ZooKeeperInstance(zookeeperInstanceName, zookeeperServerName);
+        ZooKeeperInstance zooKeeperInstance = new ZooKeeperInstance(zookeeperInstanceName, zookeeperServerLocations);
         Connector connector = zooKeeperInstance.getConnector(username, password);
 
         Configuration hadoopConfiguration = new Configuration();

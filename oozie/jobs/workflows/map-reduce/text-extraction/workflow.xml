@@ -28,7 +28,7 @@
                 </property>
                 <property>
                     <name>mapreduce.map.class</name>
-                    <value>com.altamiracorp.reddawn.textExtraction.TextExtractionMR$TextExtractorMapper</value>
+                    <value>${basePackage}.textExtraction.TextExtractionMR$TextExtractorMapper</value>
                 </property>
                 <property>
                     <name>textExtractorClass</name>
