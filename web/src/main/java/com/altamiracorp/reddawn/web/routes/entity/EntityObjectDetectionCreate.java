@@ -77,15 +77,15 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
 
         if (detectedObjectRowKey == null && model == null) {
             model = "manual";
+            detectedObject.setModel(model);
+            detectedObjectRowKey = artifactDetectedObjects.addDetectedObject
+                    (conceptVertex.getProperty("ontologyTitle").toString(), model, x1, y1, x2, y2, cssClasses);
         } else {
             // HOW TO UPDATE ROW KEY OR DELETE COLUMN FOR CHANGING CONCEPT TYPES
             detectedObject.setModel(model);
         }
-        detectedObject.setModel(model);
-        detectedObjectRowKey = artifactDetectedObjects.addDetectedObject
-                (conceptVertex.getProperty("ontologyTitle").toString(), model, x1, y1, x2, y2, cssClasses);
-        detectedObject.setRowKey(detectedObjectRowKey);
 
+        detectedObject.setRowKey(detectedObjectRowKey);
         JSONObject obj = detectedObject.getJson();
         executorService.execute(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, cssClasses, obj));
 

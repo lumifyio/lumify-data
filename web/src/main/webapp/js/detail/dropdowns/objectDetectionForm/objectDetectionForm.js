@@ -39,6 +39,10 @@ define([
                 entitySign = this.attr.resolvedVertex.title || '',
                 existingEntity = this.attr.existing;
 
+            if (!this.attr.detectedObjectRowKey){
+                this.generateTag ();
+            }
+
             vertex.html(template({
                 entitySign: entitySign,
                 buttonText: existingEntity ? 'Update' : 'Create'
@@ -145,10 +149,15 @@ define([
                     if ($('.detected-object-labels .label').hasClass('focused')){
                         $('.detected-object-labels .focused').remove ();
                     }
+
+                    var concept = data.info.concept;
+                    if (data.info.concept == 'person'){
+                        concept = 'face'
+                    }
                     $('.detected-object-labels').append($(
                         '<a class="' + data.cssClasses.join (' ') +
                         '" data-info=' + JSON.stringify(resolvedVertex) +
-                        ' href="#">' + data.info.concept +'</a>').addClass('entity resolved ui-droppable ui-draggable subType-' + parameters.conceptId));
+                        ' href="#">' + concept +'</a>').addClass('entity resolved ui-droppable ui-draggable subType-' + parameters.conceptId));
 
                     var vertices = [];
                     vertices.push(resolvedVertex);
