@@ -625,7 +625,7 @@ define([
         };
 
         this.triggerPaneResized = function() {
-            var PANE_BORDER_WIDTH = 6,
+            var PANE_BORDER_WIDTH = 1,
                 searchWidth = this.select('searchSelector')
                     .filter('.visible:not(.collapsed)')
                     .outerWidth(true) || 0,
