@@ -3,7 +3,7 @@ define([
     'flight/lib/component',
     'tpl!./image',
     'tpl!util/blur/blur-svg'
-], function(defineComponent, template, blur) {
+], function(defineComponent, template, blur, Jcrop) {
 
     return defineComponent(Image);
 
@@ -16,12 +16,11 @@ define([
         });
 
         this.after('initialize', function() {
-            var html = template({ src: this.attr.src });
+            var html = template({ data: this.attr.data });
 
             this.$node.css({
                 backgroundImage: this.attr.src
             }).html(html);
-
 
             this.on(document, 'DetectedObjectEnter', this.onHover);
             this.on(document, 'DetectedObjectLeave', this.onHoverLeave);
@@ -33,18 +32,17 @@ define([
 
 
         this.onHover = function(event, data) {
-            var box = this.select('boxSelector'),
-                image = this.select('imageSelector'),
-                width = image.width(),
+            var box = this.select('boxSelector');
+            var image = this.select('imageSelector');
+            var width = image.width(),
                 height = image.height(),
                 aspectWidth = width / image[0].naturalWidth,
                 aspectHeight = height / image[0].naturalHeight,
-                c = data.coords,
+                c = data.info.coords,
                 w = (c.x2 - c.x1) * aspectWidth,
                 h = (c.y2 - c.y1) * aspectHeight,
                 x = c.x1 * aspectWidth,
                 y = c.y1 * aspectHeight;
-
             box.hide().css({
                 width: w,
                 height: h,

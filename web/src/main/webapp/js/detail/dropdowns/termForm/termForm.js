@@ -181,7 +181,6 @@ define([
         };
 
         this.registerEvents = function() {
-
             this.on('opened', function() {
                 this.setupObjectTypeAhead();
                 this.loadConcepts();
@@ -201,6 +200,7 @@ define([
             })
         };
 
+        // TODO: clean up code; duplicate code in entityForm.js
         this.loadConcepts = function() {
             var self = this;
             self.allConcepts = [];
@@ -221,9 +221,9 @@ define([
             });
         };
 
-        this.setupObjectTypeAhead = function() {
+        // TODO: clean up code; duplicate code in entityForm.js
+        this.setupObjectTypeAhead = function (self, selector) {
             var self = this;
-
             self.select('objectSignSelector').typeahead({
                 source: function(query, callback) {
                     self.ucd.entitySearch(query, function(err, entities) {

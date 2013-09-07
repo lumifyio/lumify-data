@@ -3,9 +3,14 @@ package com.altamiracorp.reddawn.ucd.artifact;
 import com.altamiracorp.reddawn.model.Column;
 import com.altamiracorp.reddawn.model.ColumnFamily;
 import com.altamiracorp.reddawn.model.RowKeyHelper;
+import com.altamiracorp.reddawn.model.Value;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
 
 public class ArtifactDetectedObjects extends ColumnFamily {
 
@@ -15,13 +20,11 @@ public class ArtifactDetectedObjects extends ColumnFamily {
         super(NAME);
     }
 
-    public void addDetectedObject(String concept, String model, int x1, int y1, int x2, int y2, String time) {
-        String columnName = RowKeyHelper.buildMinor(concept, model, Integer.toString(x1), Integer.toString(y1), Integer.toString(x2), Integer.toString(y2));
-        this.set(columnName,time);
-    }
-
-    public void addDetectedObject(String concept, String model, int x1, int y1, int x2, int y2) {
-        this.addDetectedObject(concept, model, x1, y1, x2, y2, "");
+    public String addDetectedObject(String concept, String model, String x1, String y1, String x2, String y2) {
+        String columnName = RowKeyHelper.buildMinor(concept, model, x1, y1, x2, y2);
+        JSONObject data = getInfoJson(concept, model, x1, y1, x2, y2, columnName);
+        this.set(columnName, data);
+        return columnName;
     }
 
     @Override
@@ -31,21 +34,32 @@ public class ArtifactDetectedObjects extends ColumnFamily {
             JSONArray detectedObjects = new JSONArray();
 
             for (Column column : getColumns()) {
-                JSONObject columnJson = new JSONObject();
-                String[] parts = RowKeyHelper.splitOnMinorFieldSeperator(column.getName());
-                columnJson.put("concept", parts[0]);
-                columnJson.put("model", parts[1]);
-                JSONObject coordsJson = new JSONObject();
-                coordsJson.put("x1", parts[2]);
-                coordsJson.put("y1", parts[3]);
-                coordsJson.put("x2", parts[4]);
-                coordsJson.put("y2", parts[5]);
-                columnJson.put("coords", coordsJson);
-                detectedObjects.put(columnJson);
+                column.getValue();
+                detectedObjects.put(column.getValue().toJson(column.getValue()));
             }
 
             result.put("detectedObjects", detectedObjects);
             return result;
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public JSONObject getInfoJson(String concept, String model, String x1, String y1, String x2, String y2, String rowKey) {
+        try {
+            JSONObject obj = new JSONObject();
+            JSONObject infoJson = new JSONObject();
+            infoJson.put("concept", concept);
+            infoJson.put("model", model);
+            infoJson.put("_rowKey", rowKey);
+            JSONObject coordsJson = new JSONObject();
+            coordsJson.put("x1", x1);
+            coordsJson.put("y1", y1);
+            coordsJson.put("x2", x2);
+            coordsJson.put("y2", y2);
+            infoJson.put("coords", coordsJson);
+            obj.put("info", infoJson);
+            return obj;
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

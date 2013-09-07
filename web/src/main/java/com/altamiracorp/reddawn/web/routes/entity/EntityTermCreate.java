@@ -28,7 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class EntityCreate implements Handler, AppAware {
+public class EntityTermCreate implements Handler, AppAware {
     private WebApp app;
     private TermMentionRepository termMentionRepository = new TermMentionRepository();
     private GraphRepository graphRepository = new GraphRepository();
@@ -48,8 +48,6 @@ public class EntityCreate implements Handler, AppAware {
         long mentionEnd = Long.parseLong(getRequiredParameter(request, "mentionEnd"));
         String sign = getRequiredParameter(request, "sign");
         String conceptId = getRequiredParameter(request, "conceptId");
-
-        // optional parameters
         String resolvedGraphVertexId = request.getParameter("graphVertexId");
 
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactKey, mentionStart, mentionEnd);
@@ -66,6 +64,7 @@ public class EntityCreate implements Handler, AppAware {
             }
             resolvedVertex.setProperty(PropertyName.ROW_KEY, termMentionRowKey.toString());
         }
+
         resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
         resolvedVertex.setProperty(PropertyName.TITLE, sign);
 

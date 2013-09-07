@@ -15,8 +15,8 @@ public class VideoFrameDetectedObjects extends ColumnFamily {
         super(NAME);
     }
 
-    public void addDetectedObject(String concept, String model, int x1, int y1, int x2, int y2) {
-        String columnName = RowKeyHelper.buildMinor(concept, model, Integer.toString(x1), Integer.toString(y1), Integer.toString(x2), Integer.toString(y2));
+    public void addDetectedObject(String concept, String model, String x1, String y1, String x2, String y2) {
+        String columnName = RowKeyHelper.buildMinor(concept, model, x1, y1, x2, y2);
         this.set(columnName, "");
     }
 

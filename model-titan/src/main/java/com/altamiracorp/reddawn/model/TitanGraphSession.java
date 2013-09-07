@@ -357,9 +357,8 @@ public class TitanGraphSession extends GraphSession {
             for (String property : e.getPropertyKeys()) {
                 properties.put(property, e.getProperty(property).toString());
             }
-            return properties;
         }
-        return null;
+        return properties;
     }
 
     @Override

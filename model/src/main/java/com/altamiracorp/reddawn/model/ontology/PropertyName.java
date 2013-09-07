@@ -15,6 +15,7 @@ public enum PropertyName {
     START_DATE("startDate"),
     END_DATE("endDate"),
     RELATIONSHIP_TYPE("relationshipType"),
+    BOUNDING_BOX("boundingBox"),
     PUBLISHED_DATE("publishedDate");
 
     private final String text;
