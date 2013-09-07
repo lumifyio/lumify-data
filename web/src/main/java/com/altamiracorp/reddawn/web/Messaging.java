@@ -36,25 +36,22 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     public void onRequest(AtmosphereResource resource) throws IOException {
         AtmosphereRequest req = resource.getRequest();
         if (resource.getRequest().getMethod().equalsIgnoreCase("GET")) {
-            LOGGER.info("onRequest GET");
             onOpen(resource);
             resource.suspend();
         } else if (req.getMethod().equalsIgnoreCase("POST")) {
-            LOGGER.info("onRequest POST");
             resource.getBroadcaster().broadcast(req.getReader().readLine().trim());
         }
     }
 
     @Override
     public void destroy() {
-        LOGGER.info("destroy");
+        LOGGER.debug("destroy");
     }
 
     @Override
     public void onStateChange(AtmosphereResourceEvent event) throws IOException {
         AtmosphereResponse response = ((AtmosphereResourceImpl) event.getResource()).getResponse(false);
 
-        LOGGER.info("{} with event {}", event.getResource().uuid(), event);
         if (event.getMessage() != null && List.class.isAssignableFrom(event.getMessage().getClass())) {
             List<String> messages = List.class.cast(event.getMessage());
             for (String t : messages) {
@@ -76,15 +73,15 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     }
 
     public void onResume(AtmosphereResourceEvent event, AtmosphereResponse response) throws IOException {
-        LOGGER.error("onResume");
+        LOGGER.debug("onResume");
     }
 
     public void onTimeout(AtmosphereResourceEvent event, AtmosphereResponse response) throws IOException {
-        LOGGER.error("onTimeout");
+        LOGGER.debug("onTimeout");
     }
 
     public void onDisconnect(AtmosphereResourceEvent event, AtmosphereResponse response) throws IOException {
-        LOGGER.error("onDisconnect");
+        LOGGER.debug("onDisconnect");
 
         setStatus(event.getResource(), UserStatus.OFFLINE);
     }

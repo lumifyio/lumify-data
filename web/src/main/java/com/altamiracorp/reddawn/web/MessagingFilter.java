@@ -17,6 +17,9 @@ public class MessagingFilter implements PerRequestBroadcastFilter {
         try {
             JSONObject json = new JSONObject("" + originalMessage);
             JSONObject permissionsJson = json.optJSONObject("permissions");
+            if (permissionsJson == null) {
+                return new BroadcastAction(message);
+            }
 
             JSONArray users = permissionsJson.optJSONArray("users");
             if (users != null) {

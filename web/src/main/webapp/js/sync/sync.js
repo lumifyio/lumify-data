@@ -12,13 +12,9 @@ define([
 
         //PUT EVENTS YOU WANT TO SYNC HERE!
         this.events = [
-            'search',
-            'showSearchResults',
-            'searchQueryChanged',
             'verticesAdded',
             'verticesUpdated',
             'verticesDeleted',
-            'menubarToggleDisplay',
             'mapUpdateBoundingBox',
             'syncCursorMove',
             'syncCursorFocus',
@@ -44,6 +40,7 @@ define([
         this.onSocketMessage = function (evt, message) {
             switch (message.type) {
                 case 'sync':
+                    console.log('sync onSocketMessage', message);
                     message.data.eventData.remoteEvent = true;
                     this.trigger(document, message.data.eventName, message.data.eventData);
                     break;
