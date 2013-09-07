@@ -1,6 +1,7 @@
 package com.altamiracorp.reddawn.ontology;
 
 import com.altamiracorp.reddawn.RedDawnSession;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.ontology.*;
 import com.altamiracorp.reddawn.ucd.artifact.ArtifactType;
 import com.thinkaurelius.titan.core.TitanGraph;
@@ -124,14 +125,14 @@ public class BaseOntology {
         ontologyRepository.addPropertyTo(redDawnSession.getGraphSession(), entity, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
         ontologyRepository.addPropertyTo(redDawnSession.getGraphSession(), entity, titleProperty.getName(), "Title", PropertyType.STRING);
         ontologyRepository.addPropertyTo(redDawnSession.getGraphSession(), entity, PropertyName.GLYPH_ICON.toString(), "glyph icon", PropertyType.IMAGE);
-        ontologyRepository.addPropertyTo(redDawnSession.getGraphSession(), entity, PropertyName.BOUNDING_BOX.toString(), "Bounding Box", PropertyType.STRING);
 
         ontologyRepository.getOrCreateRelationshipType(redDawnSession.getGraphSession(), entity, artifact, LabelName.HAS_IMAGE.toString(), "has image");
 
         graph.commit();
 
         // Image to Entity relationship
-        ontologyRepository.getOrCreateRelationshipType(redDawnSession.getGraphSession(), image, entity, LabelName.CONTAINS_IMAGE_OF.toString(), "contains image of");
+        GraphVertex containsImageOf = ontologyRepository.getOrCreateRelationshipType(redDawnSession.getGraphSession(), image, entity, LabelName.CONTAINS_IMAGE_OF.toString(), "contains image of");
+        ontologyRepository.addPropertyTo(redDawnSession.getGraphSession(), containsImageOf, PropertyName.BOUNDING_BOX.toString(), "Bounding Box", PropertyType.STRING);
         graph.commit();
 
         // Artifact to TermMention relationship

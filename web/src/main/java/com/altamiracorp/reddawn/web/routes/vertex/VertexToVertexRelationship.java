@@ -48,13 +48,11 @@ public class VertexToVertexRelationship implements Handler, AppAware {
         for (Map.Entry<String, String> p : properties.entrySet()) {
             JSONObject property = new JSONObject();
             property.put("key", p.getKey());
-            if (p.getKey().equals(PropertyName.RELATIONSHIP_TYPE.toString())) {
-                String displayName = ontologyRepository.getDisplayNameForLabel(session.getGraphSession(), p.getValue());
-                if (displayName == null) {
-                    property.put("value", p.getValue());
-                } else {
-                    property.put("value", displayName);
-                }
+            String displayName = ontologyRepository.getDisplayNameForLabel(session.getGraphSession(), p.getValue());
+            if (displayName == null) {
+                property.put("value", p.getValue());
+            } else {
+                property.put("value", displayName);
             }
             propertyJson.put(property);
         }

@@ -56,7 +56,7 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         String y1 = getRequiredParameter(request, "y1");
         String x2 = getRequiredParameter(request, "x2");
         String y2 = getRequiredParameter(request, "y2");
-        String boundingBox = "x1 " + x1 + ", y1 " + y1 + ", x2 " + x2 + ", y2 " + y2;
+        String boundingBox = "[x1: " + x1 + ", y1: " + y1 + ", x2: " + x2 + ", y2: " + y2 + "]";
         String model = getOptionalParameter(request, "model");
         String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
 
@@ -127,14 +127,14 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
             resolvedVertex.setProperty(PropertyName.ROW_KEY, artifactRowKey);
         }
 
-        resolvedVertex.setProperty(PropertyName.BOUNDING_BOX.toString(), boundingBox);
         resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
         resolvedVertex.setProperty(PropertyName.TITLE, sign);
 
         graphRepository.saveVertex(graphSession, resolvedVertex);
 
         graphRepository.saveRelationship(graphSession, artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF);
-
+        graphRepository.setPropertyEdge(graphSession, artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF.toString()
+                , PropertyName.BOUNDING_BOX.toString(), boundingBox);
         return resolvedVertex;
     }
 }
