@@ -157,7 +157,8 @@ define([
                         $('.detected-object-labels .label').removeClass('focused');
                     } else {
                         // Temporarily creating new a tag to show on ui prior to backend update
-                        var classes = $('.detected-object-labels .label').attr('class') + ' resolved entity focused';
+                        var classes = $('.detected-object-labels .label').attr('class') +
+                                      ' resolved entity focused subType-' + parameters.conceptId;
 
                         $('.detected-object-labels').append($(
                             '<a class="' + classes +
