@@ -12,7 +12,7 @@
     <artifactId>application</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>Red Dawn Web Interface</name>
+    <name>Lumify Web Interface</name>
 
     <dependencies>
         <dependency>

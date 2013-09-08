@@ -8,7 +8,7 @@
 
     <version>1.0-SNAPSHOT</version>
 
-    <name>Red Dawn</name>
+    <name>Lumify</name>
 
     <modules>
         <module>core</module>
