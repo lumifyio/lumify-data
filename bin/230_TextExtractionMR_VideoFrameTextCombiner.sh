@@ -25,8 +25,8 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.textExtraction.TextExtractionMR \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.textExtraction.TextExtractionMR \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
@@ -35,4 +35,4 @@ com.altamiracorp.reddawn.textExtraction.TextExtractionMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.reddawn.textExtraction.VideoFrameTextCombinerTextExtractor
+--classname=com.altamiracorp.lumify.textExtraction.VideoFrameTextCombinerTextExtractor

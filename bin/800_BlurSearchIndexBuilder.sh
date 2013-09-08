@@ -25,8 +25,8 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.search.SearchIndexBuilderMR \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.search.SearchIndexBuilderMR \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
@@ -35,4 +35,4 @@ com.altamiracorp.reddawn.search.SearchIndexBuilderMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.reddawn.search.BlurSearchProvider
+--classname=com.altamiracorp.lumify.search.BlurSearchProvider

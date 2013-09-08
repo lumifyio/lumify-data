@@ -24,8 +24,8 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.cmdline.GenerateGraph \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.cmdline.GenerateGraph \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \

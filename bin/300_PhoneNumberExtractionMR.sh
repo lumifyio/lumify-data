@@ -26,8 +26,8 @@ java \
 -classpath ${classpath} \
 -Xmx1g \
 -XX:MaxPermSize=512m \
-com.altamiracorp.reddawn.entityExtraction.EntityExtractionMR \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.entityExtraction.EntityExtractionMR \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
@@ -36,4 +36,4 @@ com.altamiracorp.reddawn.entityExtraction.EntityExtractionMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.reddawn.entityExtraction.PhoneNumberExtractor \
+--classname=com.altamiracorp.lumify.entityExtraction.PhoneNumberExtractor \

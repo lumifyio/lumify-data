@@ -24,8 +24,8 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.contentTypeExtraction.ContentTypeExtractionMR \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractionMR \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
@@ -34,4 +34,4 @@ com.altamiracorp.reddawn.contentTypeExtraction.ContentTypeExtractionMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.reddawn.contentTypeExtraction.TikaContentTypeExtractor
+--classname=com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor

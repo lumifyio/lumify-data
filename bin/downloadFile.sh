@@ -31,10 +31,10 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.cmdline.DownloadAndExtractFile \
+com.altamiracorp.lumify.cmdline.DownloadAndExtractFile \
 --directory=${dir} \
 --zipfile=$1 \
---zookeeperInstanceName=reddawn \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \

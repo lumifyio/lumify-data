@@ -19,12 +19,12 @@ then
     java \
     -Dfile.encoding=UTF-8 \
     -classpath ${classpath} \
-    com.altamiracorp.reddawn.crawler.WebCrawl
+    com.altamiracorp.lumify.crawler.WebCrawl
     exit
 fi
 
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.crawler.WebCrawl \
+com.altamiracorp.lumify.crawler.WebCrawl \
 "${@}"

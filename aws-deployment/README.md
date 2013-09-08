@@ -10,7 +10,7 @@ aws
 
 puppet
 ------
-1. define the software configuration for the cluser nodes in a Puppet manifest file (e.g. `puppet/manifests/reddawn_demo.pp`)
+1. define the software configuration for the cluser nodes in a Puppet manifest file (e.g. `puppet/manifests/lumify_demo.pp`)
 
 aws-deploy
 ----------

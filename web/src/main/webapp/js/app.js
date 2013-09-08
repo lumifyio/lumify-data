@@ -62,7 +62,7 @@ define([
         };
 
         this.after('initialize', function() {
-            window.reddawnApp = this;
+            window.lumifyApp = this;
 
 
             this.on(document, 'error', this.onError);

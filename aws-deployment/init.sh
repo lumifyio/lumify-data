@@ -45,7 +45,7 @@ heading 'configure puppet'
 cat >> /etc/puppet/puppet.conf <<EO_PUPPET_CONF
 
 [master]
-    modulepath = \$confdir/modules:/usr/share/puppet/modules:\$confdir/reddawn-modules:\$confdir/puppet-modules
+    modulepath = \$confdir/modules:/usr/share/puppet/modules:\$confdir/lumify-modules:\$confdir/puppet-modules
 EO_PUPPET_CONF
 
 heading 'install PuppetLabs modules'

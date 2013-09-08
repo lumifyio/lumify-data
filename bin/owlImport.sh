@@ -24,8 +24,8 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.cmdline.OwlImport \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.cmdline.OwlImport \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \

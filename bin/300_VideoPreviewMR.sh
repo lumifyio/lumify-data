@@ -27,8 +27,8 @@ ffmpegDir=$(dirname $(which ffmpeg))
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.videoPreview.VideoPreviewMR \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.videoPreview.VideoPreviewMR \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --blurControllerLocation=${ip}:40010 \

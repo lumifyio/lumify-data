@@ -35,8 +35,8 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.location.GeoNamesImporter \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.location.GeoNamesImporter \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \

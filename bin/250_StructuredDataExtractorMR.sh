@@ -26,8 +26,8 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.structuredDataExtraction.StructuredDataExtractionMR \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.structuredDataExtraction.StructuredDataExtractionMR \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \

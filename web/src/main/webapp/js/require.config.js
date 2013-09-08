@@ -37,7 +37,7 @@ var require = {
 	underscore: { exports: '_' },
     d3: { exports: 'd3' }
   },
-  deps : ['reddawn']
+  deps : ['lumify']
 };
 
 Object.keys(jQueryPlugins).forEach(function(plugin) {
