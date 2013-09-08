@@ -36,7 +36,7 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>red-dawn</servlet-name>
+        <servlet-name>lumify</servlet-name>
         <servlet-class>com.altamiracorp.lumify.web.Router</servlet-class>
         <init-param>
             <param-name>env</param-name>
@@ -44,7 +44,7 @@
         </init-param>
     </servlet>
     <servlet-mapping>
-        <servlet-name>red-dawn</servlet-name>
+        <servlet-name>lumify</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
 </web-app>

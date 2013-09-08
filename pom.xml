@@ -28,7 +28,7 @@
             <url>https://repository.cloudera.com/content/repositories/releases/</url>
         </repository>
         <repository>
-            <id>red-dawn-releases</id>
+            <id>lumify-releases</id>
             <url>http://nic-mvnproxy.nearinfinity.com:8080/artifactory/libs-release/</url>
         </repository>
         <repository>
@@ -37,7 +37,7 @@
                 <updatePolicy>always</updatePolicy>
                 <checksumPolicy>fail</checksumPolicy>
             </snapshots>
-            <id>red-dawn-snapshots</id>
+            <id>lumify-snapshots</id>
             <url>http://nic-mvnproxy.nearinfinity.com:8080/artifactory/libs-snapshot/</url>
         </repository>
         <repository>

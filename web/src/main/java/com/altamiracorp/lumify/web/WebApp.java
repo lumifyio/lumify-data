@@ -13,7 +13,7 @@ import java.util.Enumeration;
 
 
 public class WebApp extends App {
-    private static final String RED_DAWN_SESSION = "appSession";
+    private static final String APP_SESSION = "appSession";
 
     public WebApp(final ServletConfig servletConfig, final Injector injector) {
         super(servletConfig, injector);
@@ -28,13 +28,13 @@ public class WebApp extends App {
     public AppSession getAppSession(HttpServletRequest request) throws AccumuloSecurityException, AccumuloException {
         // TODO this needs refactoring
         AppSession session = WebSessionFactory.createAppSession(request);
-        request.setAttribute(RED_DAWN_SESSION, session);
+        request.setAttribute(APP_SESSION, session);
         return session;
     }
 
     public void close(ServletRequest request) {
         // TODO session is held open by WebSessionFactory so we don't close it
-//        AppSession session = (AppSession) request.getAttribute(RED_DAWN_SESSION);
+//        AppSession session = (AppSession) request.getAttribute(APP_SESSION);
 //        if (session != null) {
 //            session.close();
 //        }
