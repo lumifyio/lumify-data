@@ -27,7 +27,7 @@
     </div>
 <% } %>
 <div class="source">
-    <b>Source: </b><%= artifact.source || 'Unknown' %>
+    <b>Source: </b><%= artifact.source || vertex.source || (vertex && vertex.properties && vertex.properties.source) || 'Unknown' %>
 </div>
 
 <% if(artifact.type == 'video') { %>
