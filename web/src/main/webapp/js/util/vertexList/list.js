@@ -5,10 +5,11 @@ define([
     'tpl!./list',
     'util/previews',
     'util/video/scrubber',
+    'util/withWorkspaceData',
     'underscore'
-], function(defineComponent, registry, template, previews, VideoScrubber, _) {
+], function(defineComponent, registry, template, previews, VideoScrubber, withWorkspaceData, _) {
 
-    return defineComponent(List);
+    return defineComponent(List, withWorkspaceData);
 
     function List() {
         var _currentVertices = {};
@@ -26,7 +27,7 @@ define([
 
         this.loadCurrentVertices = function() {
             var self = this;
-            (registry.findInstanceInfoByNode($('#app')[0])[0].instance.workspaceData.data.vertices || []).forEach(function(v) {
+            this.getWorkspaceVertices().forEach(function(v) {
                 _currentVertices[v.id || v.graphVertexId] = self.stateForVertex(v);
             });
         };

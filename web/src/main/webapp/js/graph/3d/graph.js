@@ -60,6 +60,11 @@ define([
 
                 self.load3djs();
             });
+
+            if (this.attr.vertices && this.attr.vertices.length) {
+                this.addVertices(this.attr.vertices);
+            }
+
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'verticesAdded', this.onVerticesAdded);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
@@ -95,6 +100,9 @@ define([
             }.bind(this));
 
             $.when(deferredImages).done(function() {
+                if (self.relationships && self.relationships.length) {
+                    self.addEdges(self.relationships);
+                }
                 graph.needsUpdate = true;
             });
             function addToGraph(width, height, node) {
@@ -129,19 +137,28 @@ define([
             var graph = this.graph;
 
             if (data.relationships) {
-                data.relationships.forEach(function(r) {
-                    var src = graph.node(r.from),
-                        dest = graph.node(r.to);
-                    
-                    if (src && dest) {
-                        src.connect(dest);
-                    }
-                });
-
+                this.relationships = data.relationships;
+                this.addEdges(data.relationships);
                 this.graph.needsUpdate = true;
-
-                //this.graphRenderer.updateGraph();
             }
+        };
+
+        this.addEdges = function(relationships) {
+            var graph = this.graph,
+                edges = graph.edges;
+
+            edges.length = 0;
+            relationships.forEach(function(r) {
+                var source = graph.node(r.from),
+                    target = graph.node(r.to);
+
+                if (source && target) {
+                    edges.push({
+                        source: source,
+                        target: target
+                    });
+                }
+            });
         };
 
         this.load3djs = function() {
@@ -152,14 +169,14 @@ define([
             this.graphRenderer = graphRenderer;
             graphRenderer.renderGraph(this.graph);
             graphRenderer.addToRenderLoop();
-            graphRenderer.showStats();
+            //graphRenderer.showStats();
 
             graphRenderer.addEventListener('node_click', function(event) {
                 if (event.content) {
                     var data = graph.node(event.content).data;
-                    self.trigger('searchResultSelected', [data]);
+                    self.trigger('verticesSelected', [data]);
                 } else {
-                    self.trigger('searchResultSelected', []);
+                    self.trigger('verticesSelected', []);
                 }
             }, false);
         };

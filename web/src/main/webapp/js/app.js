@@ -461,7 +461,7 @@ define([
 
                 this.setWorkspaceDirty();
 
-                this.refreshRelationships ();
+                this.refreshRelationships();
 
                 this.trigger(document, 'verticesAdded', { vertices:added } );
             });
@@ -563,15 +563,20 @@ define([
             require(['graph/3d/graph'], function(Graph3D) {
                 if (!self._graphDimensions || self._graphDimensions === 2) {
                     Graph.teardownAll();
-                    Graph3D.attachTo(node);
+                    Graph3D.attachTo(node, {
+                        vertices: self.workspaceData.data.vertices
+                    });
                     self._graphDimensions = 3;
                 } else {
                     Graph3D.teardownAll();
-                    Graph.attachTo(node);
+                    Graph.attachTo(node, {
+                        vertices: self.workspaceData.data.vertices
+                    });
                     self._graphDimensions = 2;
+                    self.triggerPaneResized();
                 }
 
-                self.loadActiveWorkspace();
+                self.refreshRelationships();
             });
         };
 

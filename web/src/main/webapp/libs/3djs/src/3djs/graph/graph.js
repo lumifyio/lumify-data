@@ -44,6 +44,7 @@ define(['./node'], function( Node ) {
                 connLength = connections.length;
 
             for (var c = 0; c < connLength; c++) {
+
                 var destNode = connections[c],
                     key = [node.id, destNode.id].sort().join('|');
 

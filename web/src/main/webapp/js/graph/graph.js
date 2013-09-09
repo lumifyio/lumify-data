@@ -778,7 +778,7 @@ define([
                                 source: relationship.from,
                                 target: relationship.to,
                                 _type: 'relationship',
-                                id: (relationship.from + relationship.to + relationship.relationshipType)
+                                id: (relationship.from + '>' + relationship.to + '|' + relationship.relationshipType)
                             },
                         });
                     });
@@ -853,6 +853,11 @@ define([
             this.on(document, 'focusVertices', this.onFocusVertices);
             this.on(document, 'defocusVertices', this.onDefocusVertices);
 
+            if (self.attr.vertices && self.attr.vertices.length) {
+                this.select('emptyGraphSelector').hide();
+                this.addVertices(self.attr.vertices);
+            }
+
             this.ontologyService.concepts(function(err, concepts) {
                 if (err) {
                     return self.trigger(document, 'error', err);
@@ -864,6 +869,7 @@ define([
                 };
                 self.$node.html(template(templateData));
                 self.bindContextMenuClickEvent();
+                self.checkEmptyGraph();
 
                 stylesheet(function(style) {
                     self.initializeGraph(style);

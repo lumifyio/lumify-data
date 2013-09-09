@@ -30,6 +30,7 @@ define([
     };
 
     GraphRenderer.prototype.teardown = function() {
+        this._layout.stop_calculating();
         this.teardownEvents();
     };
 
@@ -300,7 +301,7 @@ define([
 
         // TODO: remove nodes that were removed
 
-        this.graph.calculateEdges();
+        //this.graph.calculateEdges();
 
         var edges = this.graph.edges,
             edgesLength = edges.length,
@@ -345,7 +346,7 @@ define([
         sprite.position = node.position;
 
         var canvas = document.createElement('canvas');
-        canvas.width = 400;
+        canvas.width = 600;
         canvas.height = node.data.iconHeight + 125;
         var context = canvas.getContext('2d');
         var fontsize = 40;
