@@ -39,7 +39,7 @@ define([
             this.attr.destTerm.addClass('focused');
 
             this.select('createStatementButtonSelector').attr('disabled', true);
-            this.getRelationshipLabels (this.attr.sourceTerm, this.attr.destTerm);
+            this.getRelationshipLabels ();
 
             this.on('click', {
                 createStatementButtonSelector: this.onCreateStatement,
@@ -88,8 +88,13 @@ define([
 
         this.onInvert = function (e) {
             e.preventDefault();
+
+            var sourceTerm = this.attr.sourceTerm;
+            this.attr.sourceTerm = this.attr.destTerm;
+            this.attr.destTerm = sourceTerm;
+
             this.select('formSelector').toggleClass('invert');
-            this.getRelationshipLabels (this.attr.destTerm, this.attr.sourceTerm);
+            this.getRelationshipLabels ();
         };
 
 
@@ -117,10 +122,10 @@ define([
             });
         };
 
-        this.getRelationshipLabels = function (sourceTerm, destTerm) {
+        this.getRelationshipLabels = function () {
             var self = this;
-            var sourceConceptTypeId = sourceTerm.data('info')._subType;
-            var destConceptTypeId = destTerm.data('info')._subType;
+            var sourceConceptTypeId = this.attr.sourceTerm.data('info')._subType;
+            var destConceptTypeId = this.attr.destTerm.data('info')._subType;
             self.statementService.relationships (sourceConceptTypeId, destConceptTypeId, function (err, results){
                 if (err) {
                     console.error ('Error', err);
