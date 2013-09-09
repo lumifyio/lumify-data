@@ -92,7 +92,7 @@ define([
             var vertexInfo = {
                 id: this.attr.data.id || this.attr.data.graphVertexId,
                 properties: {
-                    title: this.attr.data.originalTitle || this.attr.data.title || 'No title avaliable',
+                    title: this.attr.data.originalTitle || this.attr.data.title || 'No title available',
                     graphVertexId: this.attr.data.graphVertexId,
                     _type: this.attr.data._type,
                     _subType: this.attr.data._subType,
