@@ -151,25 +151,21 @@ define([
                     if ($('.detected-object-labels .label').hasClass('focused')){
                         $('.detected-object-labels .focused').text(data.title);
                         $('.detected-object-labels .focused').data('info', data);
-
                         $('.detected-object-labels .focused').removePrefixedClasses('subType-');
-                        $('.detected-object-labels .focused').addClass('subType-' + parameters.conceptId);
-                        $('.detected-object-labels .label').removeClass('focused');
                     } else {
-                        // Temporarily creating new a tag to show on ui prior to backend update
-                        var classes = $('.detected-object-labels .label').attr('class') +
-                                      ' resolved entity focused subType-' + parameters.conceptId;
+                        // Temporarily creating a new tag to show on ui prior to backend update
+                        var classes = $('.detected-object-labels .label').attr('class') + ' focused';
 
                         $('.detected-object-labels').append($(
                             '<a class="' + classes +
                             '" href="#">' + data.title +'</a>')).end();
 
                         $('.detected-object-labels .focused').data('info', data);
-                        $('.detected-object-labels .label').removeClass('focused');
                     }
 
+                    $('.detected-object-labels .focused').addClass('resolved entity subType-' + parameters.conceptId);
+                    $('.detected-object-labels .label').removeClass('focused');
                     self.trigger(document, 'termCreated', data);
-
 
                     var vertices = [];
                     vertices.push(resolvedVertex);
