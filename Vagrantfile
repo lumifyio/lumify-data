@@ -5,7 +5,7 @@ Vagrant.configure('2') do |config|
   config.vm.box = 'centos6.4'
   config.vm.box_url = 'http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-x86_64-v20130427.box'
 
-  config.vm.hostname = 'red-dawn'
+  config.vm.hostname = 'lumify'
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,

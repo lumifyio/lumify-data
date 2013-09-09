@@ -62,7 +62,7 @@ define([
         };
 
         this.after('initialize', function() {
-            window.reddawnApp = this;
+            window.lumifyApp = this;
 
 
             this.on(document, 'error', this.onError);
@@ -85,7 +85,7 @@ define([
                 mapPane = content.filter('.map-pane').data(DATA_MENUBAR_NAME, 'map'),
                 detailPane = content.filter('.detail-pane');
 
-            Sync.attachTo(window);
+//            Sync.attachTo(window);
             Menubar.attachTo(menubarPane.find('.content'));
             Search.attachTo(searchPane.find('.content'));
             Workspaces.attachTo(workspacesPane.find('.content'));

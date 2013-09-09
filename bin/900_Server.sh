@@ -33,5 +33,5 @@ java \
 -Djava.security.krb5.kdc= \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.web.Server \
+com.altamiracorp.lumify.web.Server \
 --port=8080 \

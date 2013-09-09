@@ -1,4 +1,4 @@
-red-dawn
+lumify
 ========
 
 open analytic platform

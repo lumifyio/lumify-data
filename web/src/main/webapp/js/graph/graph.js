@@ -838,7 +838,7 @@ define([
         this.initializeGraph = function(style) {
             var self = this;
 
-            cytoscape("renderer", "red-dawn", Renderer);
+            cytoscape("renderer", "lumify", Renderer);
             cytoscape({
                 showOverlay: false,
                 minZoom: 1 / 4,
@@ -847,7 +847,7 @@ define([
                 graphPaperEnabled: false, // :( sorry chris
                 container: this.select('cytoscapeContainerSelector').css({height:'100%'})[0],
                 renderer: {
-                    name: 'red-dawn'
+                    name: 'lumify'
                 },
                 style: style,
 

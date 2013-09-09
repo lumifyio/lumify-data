@@ -17,4 +17,4 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.search.BlurSearchCommandLine --query="$*"
+com.altamiracorp.lumify.search.BlurSearchCommandLine --query="$*"

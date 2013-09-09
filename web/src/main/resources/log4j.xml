@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd" [
-    <!ENTITY logDir "/opt/reddawn/logs">
+    <!ENTITY logDir "/opt/lumify/logs">
     
     <!-- Pattern: %d{yyyy-MM-dd HH:mm:ss.SSS/zzz} %-5p [%c{3}] %m%n -->
     <!ENTITY pattern "&#37;d{yyyy-MM-dd HH:mm:ss.SSS/zzz} &#37;-5p [&#37;c{3}] &#37;m&#37;n">
@@ -75,12 +75,12 @@
     </appender>    
 
 
-    <logger name="com.altamiracorp.reddawn.web">
+    <logger name="com.altamiracorp.lumify.web">
         <level value="DEBUG" />
         <appender-ref ref="webLog" />
         <appender-ref ref="webLogError" />
     </logger>
-    <logger name="com.altamiracorp.reddawn.model">
+    <logger name="com.altamiracorp.lumify.model">
         <level value="DEBUG" />
         <appender-ref ref="modelLog" />
         <appender-ref ref="modelLogError" />

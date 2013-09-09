@@ -24,8 +24,8 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.cmdline.FormatUcd \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.cmdline.FormatUcd \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \

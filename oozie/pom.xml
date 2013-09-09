@@ -3,11 +3,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>reddawn</artifactId>
-    <groupId>com.altamiracorp.reddawn</groupId>
+    <artifactId>lumify</artifactId>
+    <groupId>com.altamiracorp.lumify</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-  <groupId>com.altamiracorp.reddawn</groupId>
+  <groupId>com.altamiracorp.lumify</groupId>
   <artifactId>oozie</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>oozie</name>
@@ -26,7 +26,7 @@
           <artifactId>accumulo-core</artifactId>
       </dependency>
       <dependency>
-          <groupId>com.altamiracorp.reddawn</groupId>
+          <groupId>com.altamiracorp.lumify</groupId>
           <artifactId>core</artifactId>
 		  <version>${project.version}</version>
 		  <scope>runtime</scope>
