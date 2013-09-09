@@ -259,20 +259,11 @@ define([
                             .each(function(idx, vertex) {
                                 if (updatedVertex.graphPosition) {
                                     vertex.position( retina.pointsToPixels(updatedVertex.graphPosition) );
-                                    delete updatedVertex.graphPosition;
-                                    delete updatedVertex.dropPosition;
+                                    updatedVertex = _.omit(updatedVertex, 'graphPosition', 'dropPosition');
                                 }
 
-                                vertex._private.classes.length = 0;
-                                vertex.addClass($.trim('concept-' + updatedVertex._subType + ' ' + (updatedVertex._type || '') + (updatedVertex._glyphIcon ? ' hasCustomGlyph' : '')));
-
-                                if (updatedVertex.title){
-                                    vertex.data().title = updatedVertex.title;
-                                }
-
-                                // TODO: update other properties? (title needs
-                                // truncation...
                                 self.updateCyNodeData(vertex.data(), updatedVertex);
+                                vertex._private.classes.length = 0;
                                 vertex.addClass(self.classesForVertex(updatedVertex));
                             });
                     });
