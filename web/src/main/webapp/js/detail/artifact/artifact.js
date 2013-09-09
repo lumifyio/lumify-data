@@ -39,12 +39,13 @@ define([
         this.loadArtifact = function() {
             var self = this;
 
-            this.handleCancelling(this.ucdService.getArtifactById(this.attr.data._rowKey || this.attr.data.rowKey, function(err, artifact) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-
+            $.when(
+                this.handleCancelling(this.ucdService.getArtifactById(this.attr.data._rowKey)),
+                this.handleCancelling(this.ucdService.getGraphVertexById(this.attr.data.graphVertexId))
+            ).done(function(artifactResponse, vertexResponse) {
+                var artifact = artifactResponse[0],
+                    vertex = vertexResponse[0];
+                    
                 artifact.dataInfo = JSON.stringify({
                     _type: 'artifact',
                     _subType: artifact.type,
@@ -54,6 +55,7 @@ define([
 
                 self.$node.html(template({ 
                     artifact: self.setupContentHtml(artifact), 
+                    vertex: vertex,
                     highlightButton: self.highlightButton(),
                     fullscreenButton: self.fullscreenButton([artifact.Generic_Metadata['atc:graph_vertex_id']])
                 }));
@@ -61,8 +63,7 @@ define([
                 if (self[artifact.type + 'Setup']) {
                     self[artifact.type + 'Setup'](artifact);
                 }
-
-            }));
+            });
         };
 
         this.onDetectedObjectClicked = function(event) {

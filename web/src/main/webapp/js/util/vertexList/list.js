@@ -46,7 +46,6 @@ define([
                 // Check if this vertex is in the graph/map
                 var classes = ['gId' + encodeURIComponent(v.graphVertexId)];
                 var vertexState = _currentVertices[v.graphVertexId];
-                console.log(v.graphVertexId, _currentVertices);
                 if (vertexState) {
                     if ( vertexState.inGraph ) classes.push('graph-displayed');
                     if ( vertexState.inMap ) classes.push('map-displayed');
@@ -64,6 +63,8 @@ define([
                 .html(template({ vertices: vertices }));
 
             this.attachEvents();
+
+            this.loadVisibleResultPreviews = _.debounce(this.loadVisibleResultPreviews.bind(this), 1000);
             this.loadVisibleResultPreviews();
 
             this.setupDraggables();
@@ -97,6 +98,13 @@ define([
         };
 
         this.onHoverItem = function(evt) {
+            if (this.disableHover === 'defocused') {
+                return;
+            } else if (this.disableHover) {
+                this.disableHover = 'defocused';
+                return this.trigger(document, 'defocusVertices', { vertexIds:[] });
+            }
+
             var info = $(evt.target).closest('.vertex-item').data('info');
             if (evt.type == 'mouseenter' && info && info.graphVertexId) {
                 this.trigger(document, 'focusVertices', { vertexIds:[info.graphVertexId] });
@@ -105,17 +113,20 @@ define([
             }
         };
 
-        var previewTimeout;
         this.onResultsScroll = function(e) {
-            clearTimeout(previewTimeout);
-            previewTimeout = setTimeout(this.loadVisibleResultPreviews.bind(this), 1000);
+            if (!this.disableHover) {
+                this.disableHover = true;
+            }
+
+            this.loadVisibleResultPreviews();
         };
 
         this.loadVisibleResultPreviews = function() {
             var self = this;
 
-            if ( !self.previewQueue ) {
-                self.previewQueue = previews.createQueue('vertexList', { maxConcurrent: 1 });
+            this.disableHover = false;
+            if ( !this.previewQueue ) {
+                this.previewQueue = previews.createQueue('vertexList', { maxConcurrent: 1 });
             }
 
             var lisVisible = this.$node.find('.nav-list').children('li');
@@ -129,7 +140,9 @@ define([
                     _rowKey = info._rowKey;
 
                 if ((info._subType === 'video' || info._subType === 'image' || info._glyphIcon) && !li.data('preview-loaded')) {
-                    li.addClass('preview-loading');
+                    if (li.data('previewloaded')) return;
+
+                    li.data('previewloaded', true).addClass('preview-loading');
 
                     if (info._glyphIcon) {
                         li.removeClass('preview-loading')

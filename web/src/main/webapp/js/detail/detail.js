@@ -85,7 +85,7 @@ define([
             ], function(Module) {
                 Module.attachTo(typeContentNode, { 
                     data: data,
-                    highlightStyle: self.attr.highlightStyle 
+                    highlightStyle: self.attr.highlightStyle
                 });
             });
         };

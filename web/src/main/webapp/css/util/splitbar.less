@@ -1,32 +1,25 @@
 @import "gradient";
 
-.splitbar(@color: #efefef) {
-  @border: darken(@color, 10%);
-  @percent: 2%;
+.splitbar() {
+  @border: darken(@pane-background, 10%);
 
-  .gradient(left, lighten(@color, @percent), darken(@color, @percent));
-  border-width: 0 1px;
-  border-style: solid;
-  border-color: @border;
-
-  &:after {
-    content: '';
-    display: block;
-    position: absolute;
-    height: 10px;
-    width: 2px;
-    background: @border;
-    left: 1px;
-    top: 50%;
-  }
   &:before {
     content: '';
     display: block;
     position: absolute;
-    height: 10px;
-    width: 2px;
+    height: 100%;
+    width: 1px;
     background: @border;
-    left: 4px;
-    top: 50%;
+    left: 10px;
+    top: 0;
   }
+}
+
+.ui-resizable-handle.ui-resizable-e {
+  width: 20px;
+  right: -10px;
+}
+.ui-resizable-handle.ui-resizable-w {
+  width: 20px;
+  left: -10px;
 }

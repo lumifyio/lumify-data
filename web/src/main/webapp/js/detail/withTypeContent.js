@@ -150,6 +150,7 @@ define([
         // changes
         this.handleCancelling = function(xhr) {
             this._xhrs.push(xhr);
+            return xhr;
         };
     }
 });

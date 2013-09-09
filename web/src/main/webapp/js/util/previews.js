@@ -59,12 +59,7 @@ function(UCD, template) {
         }, opts);
     }
     PreviewQueue.prototype.addTask = function(task) {
-        var cache = PREVIEW_CACHE[task._rowKey];
-        if (cache) {
-            task.callback.apply(null, cache);
-        } else {
-            this.items.push( task );
-        }
+        this.items.push( task );
         this.take();
     };
     PreviewQueue.prototype.take = function() {
@@ -72,14 +67,24 @@ function(UCD, template) {
 
         if (this.executing.length < this.options.maxConcurrent) {
             var task = this.items.shift();
-            this.executing.push( task );
+            var cache = PREVIEW_CACHE[task._rowKey];
+            if (cache) {
+                task.callback.apply(null, cache);
+                setTimeout(function() {
+                    this.take();
+                }.bind(this), 50);
+            } else {
+                this.executing.push( task );
 
-            task.taskFinished = function() {
-                this.executing.splice(this.executing.indexOf(task), 1);
-                this.take();
-            }.bind(this);
+                task.taskFinished = function() {
+                    this.executing.splice(this.executing.indexOf(task), 1);
+                    setTimeout(function() {
+                        this.take();
+                    }.bind(this), 50);
+                }.bind(this);
 
-            task.start();
+                task.start();
+            }
         }
     };
     PreviewQueue.prototype.cancel = function() {
