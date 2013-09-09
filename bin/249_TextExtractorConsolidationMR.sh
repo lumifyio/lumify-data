@@ -2,6 +2,7 @@
 # require: 225_TextExtractionMR_OCR.sh
 # require: 225_TextExtractionMR_Tika.sh
 # require: 225_TextExtractionMR_Transcript.sh
+# require: 225_TextExtractionMR_StructuredData.sh
 # require: 230_TextExtractionMR_VideoFrameTextCombiner.sh
 
 SOURCE="${BASH_SOURCE[0]}"
@@ -27,8 +28,8 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.textExtraction.TextExtractorConsolidationMR \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.textExtraction.TextExtractorConsolidationMR \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \

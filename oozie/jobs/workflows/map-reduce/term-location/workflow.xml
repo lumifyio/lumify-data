@@ -28,7 +28,7 @@
                 </property>
                 <property>
                     <name>mapreduce.map.class</name>
-                    <value>com.altamiracorp.reddawn.location.TermLocationExtractionMR$TermLocationExtractorMapper</value>
+                    <value>${basePackage}.location.TermLocationExtractionMR$TermLocationExtractorMapper</value>
                 </property>
                 <property>
                     <name>mapred.map.tasks</name>
@@ -36,7 +36,7 @@
                 </property>
 				<property>
 					<name>tableName</name>
-                    <value>${tableTerm}</value>
+                    <value>${tableTermMention}</value>
 				</property>
 				<property>
 			        <name>mapreduce.inputformat.class</name>

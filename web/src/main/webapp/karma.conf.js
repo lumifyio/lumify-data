@@ -1,125 +1,124 @@
+// Karma configuration
+// Generated on Tue Aug 20 2013 12:03:01 GMT-0500 (CDT)
 
-// karma start --coverage [coverageType]
-var coverageType = 'html';
-var coverage = process.argv.filter(function(a, index) { 
-  if (a == '--coverage') {
-    if ((index + 1) < process.argv.length) {
-      coverageType = process.argv[index+1];
-    }
-    return true;
-  }
-  return false;
-}).length;
+module.exports = function(config) {
 
-
-// base path, that will be used to resolve files and exclude
-basePath = '';
-
-// frameworks to use
-frameworks = ['mocha', 'requirejs'];
-preprocessors = { };
-
-// list of files / patterns to load in the browser
-files = [
-  
-  // Source 
-  {pattern: 'js/**/*.js', included: false},
-
-  // Templates
-  {pattern: 'js/**/*.ejs', included: false},
-
-  // Included libs
-  'libs/jquery/jquery.js',
-  'libs/jquery-ui/jquery-ui-1.10.3.custom.js',
-  'libs/bootstrap/js/bootstrap.js',
-
-  // Libraries
-  {pattern: 'libs/**/*.js', included: false},
-
-  // Test Files
-  {pattern: 'test/spec/**/*.js', included: false},
-
-  // Test runner
-  'test/runner/main.js'
-];
+  // TODO: fix coverage
+  // karma start --coverage [coverageType]
+  //var coverageType = 'html';
+  //var coverage = process.argv.filter(function(a, index) { 
+  //  if (a == '--coverage') {
+  //    if ((index + 1) < process.argv.length) {
+  //      coverageType = process.argv[index+1];
+  //    }
+  //    return true;
+  //  }
+  //  return false;
+  //}).length;
+  //if (coverage) {
+  //  preprocessors['js/**/*.js'] = 'coverage';
+  //
+  //  // The above doesn't include the top level src items
+  //  preprocessors['js/*.js'] = 'coverage';
+  //
+  //  reporters.push('coverage');
+  //
+  //  coverageReporter = {
+  //    type: coverageType,
+  //    dir: 'build/coverage/'
+  //  };
+  //}
 
 
-// list of files to exclude
-exclude = [
-  
-];
+  config.set({
+
+    // base path, that will be used to resolve files and exclude
+    basePath: '',
 
 
-// test results reporter to use
-// possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-reporters = ['progress'];
+    // frameworks to use
+    frameworks: ['mocha', 'requirejs'],
+
+    // list of files / patterns to load in the browser
+    files: [
+
+      // Source 
+      {pattern: 'js/**/*.js', included: false},
+
+      // Templates
+      {pattern: 'js/**/*.ejs', included: false},
+
+      // Included libs
+      'libs/jquery/jquery.js',
+      'libs/jquery-ui/jquery-ui-1.10.3.custom.js',
+      'libs/bootstrap/js/bootstrap.js',
+
+      // Libraries
+      {pattern: 'libs/**/*.js', included: false},
+
+      // Test Files
+      {pattern: 'test/spec/**/*.js', included: false},
+
+      // Test runner
+      'test/runner/main.js'
+    ],
 
 
-if (coverage) {
-  preprocessors['js/**/*.js'] = 'coverage';
-
-  // The above doesn't include the top level src items
-  preprocessors['js/*.js'] = 'coverage';
-
-  reporters.push('coverage');
-
-  coverageReporter = {
-    type: coverageType,
-    dir: 'build/coverage/'
-  };
-}
+    // list of files to exclude
+    exclude: [
+      
+    ],
 
 
-// web server port
-port = 9876;
+    // test results reporter to use
+    // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
+    reporters: ['progress'],
 
 
-// cli runner port
-runnerPort = 9100;
+    // web server port
+    port: 9876,
 
 
-// enable / disable colors in the output (reporters and logs)
-colors = true;
+    // enable / disable colors in the output (reporters and logs)
+    colors: true,
 
 
-// level of logging
-// possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-logLevel = LOG_INFO;
+    // level of logging
+    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
+    logLevel: config.LOG_INFO,
 
 
-// enable / disable watching file and executing tests whenever any file changes
-autoWatch = true;
+    // enable / disable watching file and executing tests whenever any file changes
+    autoWatch: true,
 
 
-// Start these browsers, currently available:
-// - Chrome
-// - ChromeCanary
-// - Firefox
-// - Opera
-// - Safari (only Mac)
-// - PhantomJS
-// - IE (only Windows)
-//browsers = ['Chrome', 'Safari', 'Firefox', 'PhantomJS' ];
-browsers = ['Chrome'];
+    // Start these browsers, currently available:
+    // - Chrome
+    // - ChromeCanary
+    // - Firefox
+    // - Opera
+    // - Safari (only Mac)
+    // - PhantomJS
+    // - IE (only Windows)
+    browsers: ['Chrome'],
 
 
-// If browser does not capture in given timeout [ms], kill it
-captureTimeout = 60000;
+    // If browser does not capture in given timeout [ms], kill it
+    captureTimeout: 60000,
 
 
-// Continuous Integration mode
-// if true, it capture browsers, run tests and exit
-singleRun = false;
+    // Continuous Integration mode
+    // if true, it capture browsers, run tests and exit
+    singleRun: false,
 
-
-// plugins to load
-plugins = [
-  'karma-mocha',
-  'karma-requirejs',
-  'karma-coverage',
-  'karma-chrome-launcher',
-  'karma-safari-launcher',
-  'karma-firefox-launcher',
-  'karma-phantomjs-launcher'
-];
-
+    plugins: [
+      'karma-mocha',
+      'karma-requirejs',
+      'karma-coverage',
+      'karma-chrome-launcher',
+      'karma-safari-launcher',
+      'karma-firefox-launcher',
+      'karma-phantomjs-launcher'
+    ]
+  });
+};

@@ -1,59 +1,70 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.altamiracorp.reddawn</groupId>
-        <artifactId>reddawn</artifactId>
+        <groupId>com.altamiracorp.lumify</groupId>
+        <artifactId>lumify</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>web</artifactId>
+    <artifactId>application</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>Red Dawn Web Interface</name>
+    <name>Lumify Web Interface</name>
 
     <dependencies>
-	    <!--
-		<dependency>
-	        <groupId>org.apache.hadoop</groupId>
-	        <artifactId>hadoop-core</artifactId>
-	    </dependency>
-		-->
-	    <dependency>
+        <dependency>
+            <groupId>org.atmosphere</groupId>
+            <artifactId>atmosphere-runtime</artifactId>
+            <version>2.0.0.RC3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.atmosphere</groupId>
+            <artifactId>atmosphere-annotations</artifactId>
+            <version>2.0.0.RC3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
         </dependency>
-	
+
         <dependency>
-            <groupId>com.altamiracorp.reddawn</groupId>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>core</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
         <dependency>
-            <groupId>com.altamiracorp.reddawn</groupId>
+            <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>web-framework</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
         <dependency>
-            <groupId>com.altamiracorp.reddawn</groupId>
+            <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>model-accumulo</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>1.9.5</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.altamiracorp.reddawn</groupId>
-            <artifactId>messaging</artifactId>
-            <version>1.0-SNAPSHOT</version>
-			<classifier>embedded</classifier>
         </dependency>
 
         <dependency>
@@ -81,62 +92,85 @@
         </dependency>
 
         <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlets</artifactId>
+            <version>${jetty-version}</version>
+        </dependency>
+
+
+        <!--  Test Dependencies -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.9.5</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
             <version>1.5.1</version>
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.atteo</groupId>
+            <artifactId>evo-inflector</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
     </dependencies>
-	<build>
-	  <plugins>
-	    <plugin>
-	      <groupId>org.apache.maven.plugins</groupId>
-	      <artifactId>maven-war-plugin</artifactId>
-	      <version>2.3</version>
-	      <configuration>
-			<warSourceExcludes>node_modules/**,libs/sinon/**,libs/sinon-chai/**,libs/flight-mocha/**,libs/chai/**</warSourceExcludes>
-	      </configuration>
-	    </plugin>
-    	<!--
-        <plugin>
-          <groupId>com.kelveden</groupId>
-          <artifactId>maven-karma-plugin</artifactId>
-          <version>1.2</version>
-          <executions>
-              <execution>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <warSourceExcludes>
+                        node_modules/**,libs/sinon/**,libs/sinon-chai/**,libs/flight-mocha/**,libs/chai/**
+                    </warSourceExcludes>
+                </configuration>
+            </plugin>
+            <!--
+            <plugin>
+              <groupId>com.kelveden</groupId>
+              <artifactId>maven-karma-plugin</artifactId>
+              <version>1.2</version>
+              <executions>
+                  <execution>
+                      <goals>
+                          <goal>start</goal>
+                      </goals>
+                  </execution>
+              </executions>
+              <configuration>
+                  <browsers>Chrome</browsers>
+                  <configFile>${basedir}/src/main/webapp/karma.conf.js</configFile>
+              </configuration>
+            </plugin>
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>exec-maven-plugin</artifactId>
+              <version>1.2.1</version>
+              <executions>
+                <execution>
+                  <id>npm-install</id>
+                  <phase>generate-test-resources</phase>
                   <goals>
-                      <goal>start</goal>
+                    <goal>exec</goal>
                   </goals>
-              </execution>
-          </executions>
-          <configuration>
-              <browsers>Chrome</browsers>
-              <configFile>${basedir}/src/main/webapp/karma.conf.js</configFile>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>1.2.1</version>
-          <executions>
-            <execution>
-              <id>npm-install</id>
-              <phase>generate-test-resources</phase>
-              <goals>
-                <goal>exec</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <executable>npm</executable>
-            <workingDirectory>${basedir}/src/main/webapp</workingDirectory>
-            <arguments>
-              <argument>install</argument>
-            </arguments>
-          </configuration>
-        </plugin>
-    	-->
-      </plugins>
+                </execution>
+              </executions>
+              <configuration>
+                <executable>npm</executable>
+                <workingDirectory>${basedir}/src/main/webapp</workingDirectory>
+                <arguments>
+                  <argument>install</argument>
+                </arguments>
+              </configuration>
+            </plugin>
+            -->
+        </plugins>
     </build>
 </project>

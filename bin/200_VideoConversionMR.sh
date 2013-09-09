@@ -1,4 +1,5 @@
 #!/bin/bash
+# group: video
 # require: 150_ContentTypeExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
@@ -27,8 +28,8 @@ ccextractorDir=$(dirname $(which ccextractor))
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.videoConversion.VideoConversionMR \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.videoConversion.VideoConversionMR \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --blurControllerLocation=${ip}:40010 \

@@ -37,16 +37,47 @@ function git_archive {
 
 modules_tgz=$(git_archive modules .. puppet)
 puppet_modules_tgz=$(git_archive puppet-modules ../puppet/puppet-modules)
+conf_tgz=$(git_archive conf .. 'conf/opencv conf/opennlp')
+oozie_jobs_tgz=$(git_archive oozie-jobs .. oozie/jobs)
 
-# TODO: jars for M/R, bin scripts for M/R, webapp
+echo 'running maven...'
+mvn_output="$(cd ..; mvn clean install -DskipTests)"
+mvn_exit=$?
+if [ ${mvn_exit} -ne 0 ]; then
+  echo "${mvn_output}"
+  exit ${mvn_exit}
+else
+  echo 'maven done.'
+fi
 
-scp ${SSH_OPTS} init.sh \
+war_files=$(find .. -name '*.war')
+
+datetime=$(date +"%Y%m%dT%H%M")
+githash=$(cd ../oozie/target; git log -n 1 --format='%h')
+oozie_libs_tgz="/tmp/oozie-libs-${datetime}-${githash}.tgz"
+(cd ../oozie/target; tar czf ${oozie_libs_tgz} oozie-libs)
+
+scp ${SSH_OPTS} ../aws/bin-ec2/setup_disks.sh \
+                init.sh \
                 run_puppet.sh \
                 update.sh \
+                setup_ssh.sh \
+                start_*.sh \
                 ${hosts_file} \
                 ${modules_tgz} \
                 ${puppet_modules_tgz} \
+                ${conf_tgz} \
+                setup_conf.sh \
+                ${oozie_jobs_tgz} \
+                ${oozie_libs_tgz} \
+                setup_oozie.sh \
+                setup_geonames.sh \
+                application.xml \
+                ${war_files} \
                 root@${elastic_ip}:
 
 rm ${modules_tgz}
 rm ${puppet_modules_tgz}
+rm ${conf_tgz}
+rm ${oozie_jobs_tgz}
+rm ${oozie_libs_tgz}

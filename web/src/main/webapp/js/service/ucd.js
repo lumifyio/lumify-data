@@ -22,7 +22,7 @@ function(ServiceBase) {
 
     Ucd.prototype.deleteEdge = function(sourceId, targetId, label, callback) {
         return this._ajaxGet({
-            url: '/node/removeRelationship',
+            url: '/vertex/removeRelationship',
             data: {
                 sourceId: sourceId,
                 targetId: targetId,
@@ -31,9 +31,9 @@ function(ServiceBase) {
         }, callback);
     };
 
-    Ucd.prototype.getNodeToNodeRelationshipDetails = function (source, target, label, callback){
+    Ucd.prototype.getVertexToVertexRelationshipDetails = function (source, target, label, callback){
         return this._ajaxGet({
-            url: 'node/relationship',
+            url: 'vertex/relationship',
             data: {
                 source: source,
                 target: target,
@@ -44,7 +44,7 @@ function(ServiceBase) {
 
     Ucd.prototype.locationSearch = function(lat, lon, radiuskm, callback) {
         return this._ajaxGet({
-            url: 'graph/node/geoLocationSearch',
+            url: 'graph/vertex/geoLocationSearch',
             data: {
                 lat: lat,
                 lon: lon,
@@ -72,54 +72,46 @@ function(ServiceBase) {
         return this._ajaxGet({
             url: "artifact/" + i + "/raw",
         }, callback);
-    },
-
-    Ucd.prototype.artifactRelationships = function (id, options, callback) {
-        return this._relationships("artifact", id, options, callback);
     };
 
     Ucd.prototype.entitySearch = function (query, callback) {
-        return this._search("entity", query, callback);
+        return this._search('entity', query, callback);
     };
 
-    Ucd.prototype.graphNodeSearch = function (query, callback) {
-        return this._search("graph/node", query, callback);
-    };
-
-    Ucd.prototype.getGraphNodeById = function (id, callback) {
-        return this._get("graph/node", id, callback);
-    };
-
-    Ucd.prototype.getRelatedEntitiesBySubject = function(id, callback) {
-        return this._ajaxGet({ url: 'entity/' + encodeURIComponent(id) + '/relatedEntities' }, callback);
-    };
-
-    Ucd.prototype.getRelatedNodes = function(graphNodeId, resolvedOnly, callback) {
-        return this._ajaxGet({ url: 'graph/' + encodeURIComponent(graphNodeId) + (resolvedOnly ? '/relatedResolvedNodes' : '/relatedNodes') }, callback);
-    };
-
-    Ucd.prototype.getNodeRelationships = function(graphNodeId, callback) {
-        return this._ajaxGet({ url: 'node/' + encodeURIComponent(graphNodeId) + '/relationships'}, callback);
-    }
-
-    Ucd.prototype.getNodeProperties = function(graphNodeId, callback) {
-        console.log('getNodeProperties:', graphNodeId);
-        return this._ajaxGet({ url: 'node/' + encodeURIComponent(graphNodeId) + '/properties'}, callback);
-    }
-
-    Ucd.prototype._relationship = function (resource, id, options, callback) {
-        var data = {};
-        var success = callback;
-        if (callback && $.isFunction(callback)) {
-            data = options;
-        } else if (options && $.isFunction(options)) {
-            success = options;
+    Ucd.prototype.graphVertexSearch = function (query, filters, callback) {
+        if (typeof filters === 'function') {
+            callback = filters;
         }
 
+        return this._ajaxGet({ 
+            url: 'graph/vertex/search',
+            data: {
+                q: query.query || query,
+                filter: JSON.stringify(filters || [])
+            }
+        }, callback);
+    };
+
+    Ucd.prototype.getGraphVertexById = function (id, callback) {
+        return this._get("graph/vertex", id, callback);
+    };
+
+    Ucd.prototype.getRelatedVertices = function(data, callback) {
         return this._ajaxGet({
-            url: resource + id + "/relationships",
-            data: data
-        }, success);
+            url: 'graph/' + encodeURIComponent(data.graphVertexId) + '/relatedVertices',
+            data: {
+                limitParentConceptId: data.limitParentConceptId
+            }
+        }, callback);
+    };
+
+    Ucd.prototype.getVertexRelationships = function(graphVertexId, callback) {
+        return this._ajaxGet({ url: 'vertex/' + encodeURIComponent(graphVertexId) + '/relationships'}, callback);
+    };
+
+    Ucd.prototype.getVertexProperties = function(graphVertexId, callback) {
+        console.log('getVertexProperties:', graphVertexId);
+        return this._ajaxGet({ url: 'vertex/' + encodeURIComponent(graphVertexId) + '/properties'}, callback);
     };
 
     Ucd.prototype._search = function (resource, query, callback) {

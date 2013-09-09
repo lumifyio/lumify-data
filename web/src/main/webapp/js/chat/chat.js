@@ -1,11 +1,10 @@
-
 define([
     'flight/lib/component',
     'service/chat',
-	'sync/sync',
     'tpl!./chatWindow',
-    'tpl!./chatMessage'
-], function(defineComponent, ChatService, Sync, chatWindowTemplate, chatMessageTemplate) {
+    'tpl!./chatMessage',
+    'sf'
+], function (defineComponent, ChatService, chatWindowTemplate, chatMessageTemplate, sf) {
     'use strict';
 
     return defineComponent(Chat);
@@ -17,102 +16,137 @@ define([
 
         this.defaultAttrs({
             newMessageFormSelector: 'form.new-message',
-            chatWindowSelector: '.chat-window',
-			syncRequestSelector: '.sync-request'
+            chatWindowSelector: '.chat-window'
         });
 
-        this.after('initialize', function() {
+        this.after('initialize', function () {
             this.on(document, 'onlineStatusChanged', this.onOnlineStatusChanged);
             this.on(document, 'userSelected', this.onUserSelected);
-            this.on(document, 'message', this.onMessage);
-            this.on('createChatWindow', this.onCreateChatWindow);
+            this.on(document, 'chatMessage', this.onChatMessage);
+            this.on(document, 'socketMessage', this.onSocketMessage);
+            this.on(document, 'chatCreated', this.onChatCreated);
             this.on('submit', {
                 newMessageFormSelector: this.onNewMessageFormSubmit
             });
         });
 
-        this.onOnlineStatusChanged = function(evt, data) {
+        this.onOnlineStatusChanged = function (evt, data) {
             this.currentUser = data.user;
         };
 
-        this.onUserSelected = function(evt, data) {
-            if(this.openChats[data.id]) {
+        this.findChatByUserRowKey = function (userRowKey) {
+            var self = this;
+            var chatRowKey = Object.keys(this.openChats).filter(function (chatRowKey) {
+                var chat = self.openChats[chatRowKey];
+                return chat.users.some(function (u) {
+                    return u.rowKey == userRowKey;
+                });
+            });
+            if (chatRowKey.length > 0) {
+                return self.openChats[chatRowKey[0]];
+            }
+            return null;
+        };
+
+        this.onUserSelected = function (evt, userData) {
+            var chat = this.findChatByUserRowKey(userData.rowKey);
+            if (chat) {
                 this.select('chatWindowSelector').hide();
-                return $('#chat-window-' + data.id).show().find('.message').focus();
+                return $('#chat-window-' + chat.rowKey).show().find('.message').focus();
             }
 
-            data.activate = true;
-            this.trigger('createChatWindow', data);
+            var chat = {
+                rowKey: userData.rowKey,
+                users: [userData]
+            };
+            this.openChats[chat.rowKey] = chat;
+            console.log('onUserSelected chatCreated', chat);
+            this.trigger(document, 'chatCreated', chat);
         };
 
-        this.onCreateChatWindow = function(evt, user) {
-			this.createOrFocusChat(user,{activate: user.activate});
+        this.onChatCreated = function (evt, chat) {
+            console.log('onChatCreated', chat);
+            this.createChatWindowAndFocus(chat);
         };
 
-        this.createOrFocusChat = function(user, options) {
-            if(!this.openChats[user.id]) {
-                this.openChats[user.id] = user;
-                var dom = $(chatWindowTemplate({ user: user , users: [this.currentUser, user]}));
-                dom.hide().appendTo(this.$node);
-				Sync.attachTo(this.select('syncRequestSelector'),{ chatUser : user.id, me : this.currentUser.id});
+        this.createChatWindowAndFocus = function (chat) {
+            if (!chat.windowCreated) {
+                var html = $(chatWindowTemplate({ chat: chat }));
+                html.hide().appendTo(this.$node);
+                chat.windowCreated = true;
             }
 
-            if (options && options.activate) {
-                this.select('chatWindowSelector').hide();
-                $('#chat-window-' + user.id).show().find('.message').focus();
-                this.trigger(document, 'userSelected', user);
-            }
+            this.select('chatWindowSelector').hide();
+            $('#chat-window-' + chat.rowKey).show().find('.message').focus();
         };
 
-        this.addMessage = function(userId, message) {
-			this.checkChatWindow(userId);
-            var $chatWindow = $('#chat-window-' + userId);
-            $chatWindow.find('.chat-messages').append(chatMessageTemplate({
-                message: message
-            }));
+        this.addMessage = function (messageData) {
+            console.log('addMessage', messageData);
+            if (messageData.tempId) {
+                $('#' + messageData.tempId).remove();
+            }
+            this.checkChatWindow(messageData);
+            var $chatWindow = $('#chat-window-' + messageData.chatRowKey);
+            var data = {
+                messageData: messageData
+            };
+            if (messageData.postDate) {
+                data.prettyDate = sf('{0:hh:mm:ss tt}', new Date(messageData.postDate));
+            } else {
+                data.prettyDate = 'Pending';
+            }
+            $chatWindow.find('.chat-messages').append(chatMessageTemplate(data));
 
             this.scrollWindowToBottom($chatWindow);
         };
 
-		this.checkChatWindow = function (userId) {
-            var $chatWindow = $('#chat-window-' + userId);
+        this.checkChatWindow = function (messageData) {
+            var $chatWindow = $('#chat-window-' + messageData.chatRowKey);
+            console.log('checkChatWindow', messageData, $chatWindow);
             if ($chatWindow.length === 0) {
-                this.trigger('createChatWindow', { id:userId, activate:true });
-                $chatWindow = $('#chat-window-' + userId);
-            }	
+                var chat = this.openChats[messageData.chatRowKey];
+                if (!chat) {
+                    chat = {
+                        rowKey: messageData.chatRowKey,
+                        users: [messageData.from]
+                    };
+                    this.openChats[messageData.chatRowKey] = chat;
+                    this.trigger(document, 'chatCreated', chat);
+                } else {
+                    this.createChatWindowAndFocus(chat);
+                }
+                return;
+            }
 
             this.scrollWindowToBottom($chatWindow);
-		};
+        };
 
-        this.scrollWindowToBottom = function(chatWindow) {
+        this.scrollWindowToBottom = function (chatWindow) {
+            console.log('scrollWindowToBottom', chatWindow);
             clearTimeout(this.scrollTimeout);
-            this.scrollTimeout = setTimeout(function() {
-                var bottom = chatWindow[0].scrollHeight - chatWindow.height();
-                chatWindow.clearQueue().animate({scrollTop:bottom}, 'fast');
+            this.scrollTimeout = setTimeout(function () {
+                var bottom = chatWindow.get(0).scrollHeight - chatWindow.height();
+                chatWindow.clearQueue().animate({scrollTop: bottom}, 'fast');
             }, 100);
         };
 
-        this.onMessage = function(evt, message) {
-			switch (message.type) {
-				case 'chatMessage':
-					this.addMessage(message.from.id, message);
-					break;
-				case 'syncRequest':
-					this.checkChatWindow(message.initiatorId);
-					this.trigger('incomingSyncRequest',message);
-					break;
-				case 'syncRequestAcceptance':
-					this.checkChatWindow(message.userIds[0]);
-					this.trigger('incomingSyncAccept',message);
-					break;
-				case 'syncRequestRejection':
-					this.checkChatWindow(message.userIds[0]);
-					this.trigger('incomingSyncReject',message);
-					break;
-			}
+        this.onSocketMessage = function (evt, data) {
+            var self = this;
+
+            switch (data.type) {
+                case 'chatMessage':
+                    console.log('onSocketMessage: chatMessage:', data);
+                    self.trigger(document, 'chatMessage', data.data);
+                    break;
+            }
         };
 
-        this.onNewMessageFormSubmit = function(evt) {
+        this.onChatMessage = function (evt, message) {
+            console.log('onChatMessage', message);
+            this.addMessage(message);
+        };
+
+        this.onNewMessageFormSubmit = function (evt) {
             evt.preventDefault();
 
             var self = this;
@@ -120,27 +154,31 @@ define([
             var $chatWindow = $target.parents('.chat-window');
             var $messageInput = $('.message', $target);
 
-            var message = $messageInput.val();
-            var userId = $chatWindow.attr('chat-id');
-            var chat = this.openChats[userId];
+            var chatRowKey = $chatWindow.data('chatrowkey');
+            var chat = this.openChats[chatRowKey];
 
             var tempId = 'chat-message-temp-' + Date.now();
 
             // add a temporary message to create the feel of responsiveness
-            this.addMessage(userId, {
-                tempId: tempId,
-                from: { id: 'me' },
-                message: message,
-                postDate: null
+            var messageData = {
+                chatRowKey: chatRowKey,
+                from: this.currentUser,
+                message: $messageInput.val(),
+                postDate: null,
+                tempId: tempId
+            };
+            this.addMessage(messageData);
+
+            var userRowKeys = chat.users.map(function (u) {
+                return u.rowKey;
             });
 
-            this.chatService.sendChatMessage(userId, self.currentUser.id, message, function(err, message) {
-                if(err) {
+            this.chatService.sendChatMessage(userRowKeys, messageData, function (err, messageData) {
+                if (err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
-                $('#' + tempId).remove();
-                self.addMessage(userId, message);
+                return 0;
             });
 
             $messageInput.val('');

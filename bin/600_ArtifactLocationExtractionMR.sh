@@ -25,8 +25,8 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.location.ArtifactLocationExtractorMR \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.location.ArtifactLocationExtractorMR \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
@@ -35,4 +35,4 @@ com.altamiracorp.reddawn.location.ArtifactLocationExtractorMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.reddawn.location.SimpleArtifactLocationExtractor \
+--classname=com.altamiracorp.lumify.location.SimpleArtifactLocationExtractor \

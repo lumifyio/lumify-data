@@ -8,7 +8,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh ontology)
+classpath=$(${DIR}/classpath.sh core)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
@@ -24,14 +24,15 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.ontology.GenerateGraph \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.cmdline.GenerateGraph \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
 --graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
---password=password > ${DIR}/../docs/build/ontology.gv
+--password=password \
+--out=${DIR}/../docs/build/ontology.gv
 
 dot ${DIR}/../docs/build/ontology.gv | neato -n -Tsvg -o${DIR}/../docs/build/ontology.svg

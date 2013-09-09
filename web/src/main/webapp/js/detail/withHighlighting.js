@@ -6,11 +6,13 @@ define([
     'tpl!detail/toolbar/highlight',
     'util/css-stylesheet',
     'colorjs',
-    'service/entity'
-], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, colorjs, EntityService) {
+    'service/entity',
+    'service/ontology',
+    'underscore'
+], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, colorjs, EntityService, OntologyService, _) {
 
     var HIGHLIGHT_STYLES = [
-            { name: 'None' },
+            { name: 'None', selector:'none' },
             { name: 'Icons', selector:'icons' },
             { name: 'Underline', selector:'underline' },
             { name: 'Colors', selector:'colors' }
@@ -22,6 +24,7 @@ define([
 
     function withHighlighting() {
         this.entityService = new EntityService();
+        this.ontologyService = new OntologyService();
 
         this.highlightButton = function() {
             return highlightButtonTemplate({
@@ -34,14 +37,14 @@ define([
             resolvableSelector: '.text .entity',
             highlightTypeSelector: '.highlight-options a',
             highlightedWordsSelector: '.entity, .term, .artifact',
-            draggablesSelector: '.entity, .term, .artifact, .generic-draggable'
+            draggablesSelector: '.resolved, .artifact, .generic-draggable'
         });
 
         // Automatically refresh draggables when request completes
         this.before('handleCancelling', function(xhr) {
             var self = this;
-            xhr.success(function() {
-                self.updateEntityAndArtifactDraggables();
+            xhr.always(function() {
+                _.defer(self.updateEntityAndArtifactDraggables.bind(self));
             });
         });
 
@@ -99,6 +102,9 @@ define([
 
         this.getActiveStyle = function() {
             if (useDefaultStyle) {
+                if (typeof this.attr.highlightStyle !== 'undefined') {
+                    return this.attr.highlightStyle;
+                }
                 return DEFAULT;
             }
 
@@ -135,7 +141,7 @@ define([
 
             if (!style.styleApplied) {
 
-                this.entityService.concepts(function(err, concepts) {
+                this.ontologyService.concepts(function(err, concepts) {
                     var styleFile = 'tpl!detail/highlight-styles/' + style.selector + '.css';
                     require([styleFile], function(tpl) {
                         function apply(concept) {
@@ -176,7 +182,7 @@ define([
                                 concept.children.forEach(apply);
                             }
                         }
-                        apply(concepts);
+                        apply(concepts.entityConcept);
 
                         // Artifacts
                         apply({
@@ -220,7 +226,6 @@ define([
         };
 
         this.handleSelectionChange = _.debounce(function() {
-            this.tearDownDropdowns();
 
             var sel = window.getSelection(),
                 text = sel && sel.type === 'Range' ? $.trim(sel.toString()) : '';
@@ -279,7 +284,8 @@ define([
                 selection: sel && { anchor:sel.anchorNode, focus:sel.focusNode, anchorOffset: sel.anchorOffset, focusOffset: sel.focusOffset, range:sel.rangeCount && sel.getRangeAt(0).cloneRange() },
                 mentionNode: insertAfterNode,
                 existing: !creating,
-                artifactKey: this.attr.data._rowKey
+                artifactKey: this.attr.data._rowKey,
+                artifactId: this.attr.data.graphVertexId
             });
         };
 

@@ -19,7 +19,7 @@ then
   java \
   -Dfile.encoding=UTF-8 \
   -classpath ${classpath} \
-  com.altamiracorp.reddawn.dictionary.DictionarySeederDriver \
+  com.altamiracorp.lumify.dictionary.DictionarySeederDriver \
   --help
   exit
 fi
@@ -46,5 +46,5 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.dictionary.DictionarySeederDriver \
+com.altamiracorp.lumify.dictionary.DictionarySeederDriver \
 "${PARAMS[@]}"

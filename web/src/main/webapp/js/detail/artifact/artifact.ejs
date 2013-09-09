@@ -1,21 +1,34 @@
 
 <div class="btn-toolbar">
+
   <%- highlightButton %>
 
   <div class="btn-group">
-    <a class="btn btn-small" href="<%= artifact.rawUrl %>" target="_blank">View</a>
-    <a class="btn btn-small" href="<%= artifact.rawUrl %>?download=true" target="_blank">Download</a>
+    <a class="btn btn-small dropdown-toggle" href="#" data-toggle="dropdown"><i class="icon-share"></i>
+      <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+      <li><a class="" href="<%= artifact.rawUrl %>" target="_blank">Open <%= artifact.Generic_Metadata.file_extension %> <%= artifact.type %></a></li>
+      <li><a class="" href="<%= artifact.rawUrl %>?download=true" target="_blank">Download <%= artifact.Generic_Metadata.file_extension %> <%= artifact.type %></a></li>
+    </ul>
   </div>
+
+  <%- fullscreenButton %>
+
 </div>
 
-<h2 class="generic-draggable" data-info='<%= artifact.dataInfo %>'><%= artifact.Generic_Metadata.subject || 'No title available' %></h2>
-<% if(artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude) { %>
-    <b>Location:</b>
-    <a href="#" class="map-coordinates" latitude="<%= artifact.Dynamic_Metadata.latitude %>" longitude="<%= artifact.Dynamic_Metadata.longitude %>">
-        <%= artifact.Dynamic_Metadata.latitude %>, <%= artifact.Dynamic_Metadata.longitude %>
-    </a>
-    <br/>
+<h1 class="generic-draggable" data-info='<%= artifact.dataInfo %>'><%= artifact.Generic_Metadata.subject || 'No title available' %></h1>
+<% if(artifact.Dynamic_Metadata && artifact.Dynamic_Metadata['atc:geoLocationTitle'] && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) { %>
+    <div class="location">
+        <b>Location:</b>
+        <a href="#" class="map-coordinates" latitude="<%= artifact.Dynamic_Metadata.latitude %>" longitude="<%= artifact.Dynamic_Metadata.longitude %>">
+            <%= artifact.Dynamic_Metadata['atc:geoLocationTitle'] %>
+        </a>
+    </div>
 <% } %>
+<div class="source">
+    <b>Source: </b><%= artifact.source || vertex.source || (vertex && vertex.properties && vertex.properties.source) || 'Unknown' %>
+</div>
 
 <% if(artifact.type == 'video') { %>
   <div class="preview"/>
@@ -26,10 +39,17 @@
   </div>
 <% } %>
 
+<div class='detected-object-labels'>
 <% if(artifact['atc:Artifact_Detected_Objects']) { %>
-  <% artifact['atc:Artifact_Detected_Objects'].detectedObjects.forEach(function(object) { %>
-  <a class="label label-info detected-object" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.concept %></a>
-  <% }); %>
+  <% artifact['atc:Artifact_Detected_Objects'].detectedObjects.forEach(function(object) {
+    console.log ('object', object);
+    if (object.graphVertexId) {
+        var classes = 'label label-info detected-object resolved entity subType-' + object._subType;%>
+        <a class="<%= classes %>" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.title || object.info.concept %></a>
+    <%} else { %>
+        <a class="label label-info detected-object" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.info.title || object.info.concept %></a>
+  <% }}); %>
 <% } %>
+</div>
 
 <div class="text"><%- artifact.contentHtml %></div>

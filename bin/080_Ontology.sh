@@ -1,5 +1,5 @@
 #!/bin/bash
-# require: 076_ResourceImport.sh
+# require: 075_FormatUcd.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -9,7 +9,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh ontology)
+classpath=$(${DIR}/classpath.sh core)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
@@ -25,12 +25,13 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.ontology.Dev \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.cmdline.OwlImport \
+--zookeeperInstanceName=lumify \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
 --graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --zookeeperServerNames=${ip} \
 --username=root \
---password=password
+--password=password \
+--in=${DIR}/../data/dev-ontology/dev.owl

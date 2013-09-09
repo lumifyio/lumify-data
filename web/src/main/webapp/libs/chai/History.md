@@ -1,4 +1,54 @@
 
+1.7.2 / 2013-06-27 
+==================
+
+  * coverage: add coveralls badge
+  * test: [coveralls] add coveralls api integration. testing travis-ci integration
+  * Merge branch 'master' of github.com:chaijs/chai
+  * Merge branch 'feature/bower'
+  * Merge pull request #180 from tricknotes/modify-method-title
+  * Merge pull request #179 from tricknotes/highlight-code-example
+  * Modify method title to include argument name
+  * Fix to highlight code example
+  * bower: granular ignores
+
+1.7.1 / 2013-06-24 
+==================
+
+  * Merge branch 'feature/bower'. #175
+  * bower: add json file
+  * build: browser
+
+1.7.0 / 2013-06-17 
+==================
+
+  * error: remove internal assertion error constructor
+  * core: [assertion-error] replace internal assertion error with dep
+  * deps: add chaijs/assertion-error@1.0.0
+  * docs: fix typo in source file. #174
+  * Merge pull request #174 from piecioshka/master
+  * typo
+  * Merge branch 'master' of github.com:chaijs/chai
+  * pkg: lock mocha/mocha-phantomjs versions (for now)
+  * Merge pull request #173 from chaijs/inspect-fix
+  * Fix `utils.inspect` with custom object-returning inspect()s.
+  * Merge pull request #171 from Bartvds/master
+  * replaced tabs with 2 spaces
+  * added assert.notOk()
+  * Merge pull request #169 from katsgeorgeek/topics/master
+  * Fix comparison objects.
+
+1.6.1 / 2013-06-05 
+==================
+
+  * Merge pull request #168 from katsgeorgeek/topics/master
+  * Add test for different RegExp flags.
+  * Add test for regexp comparison.
+  * Downgrade mocha version for fix running Phantom tests.
+  * Fix comparison equality of two regexps.
+  * Merge pull request #161 from brandonpayton/master
+  * Fix documented name for assert interface's isDefined method
+
 1.6.0 / 2013-04-29 
 ==================
 

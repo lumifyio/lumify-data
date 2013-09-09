@@ -83,6 +83,14 @@ width: 100%;
 .buttons {
   clear: both;
   text-align: right;
+
+  @import "../util/badge-loading.less";
+
+  .badge.loading {
+    float: none;
+    position: relative;
+    top: 0.7em;
+  }
 }
 
 input {

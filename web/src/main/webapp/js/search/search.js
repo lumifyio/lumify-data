@@ -1,55 +1,36 @@
 
 define([
     'flight/lib/component',
+    'flight/lib/registry',
     'service/ucd',
-    'service/entity',
-    'util/previews',
-    'util/video/scrubber',
+    'service/ontology',
+    'util/vertexList/list',
+    './filters/filters',
     'tpl!./search',
     'tpl!./searchResultsSummary',
-    'tpl!./searchResults',
     'tpl!util/alert',
     'util/jquery.ui.draggable.multiselect',
-], function(defineComponent, UCD, EntityService, previews, VideoScrubber, template, summaryTemplate, resultsTemplate, alertTemplate) {
+], function(defineComponent, registry, UCD, OntologyService, VertexList, Filters, template, summaryTemplate, alertTemplate) {
     'use strict';
 
     return defineComponent(Search);
 
     function Search() {
         this.ucd = new UCD();
-        this.entityService = new EntityService();
+        this.ontologyService = new OntologyService();
 		this.currentQuery = null;
 
         this.defaultAttrs({
-            searchFormSelector: '.navbar-search',
-            searchQuerySelector: '.navbar-search .search-query',
-            searchQueryValidationSelector: '.search-query-validation',
-            searchResultsSummarySelector: '.search-results-summary',
-            searchSummaryResultItemSelector: '.search-results-summary li',
-            searchResultsScrollSelector: '.search-results ul.nav',
-            searchResultItemLinkSelector: '.search-results li a',
-            searchResultsSelector: '.search-results'
+            formSelector: '.navbar-search',
+            querySelector: '.navbar-search .search-query',
+            queryValidationSelector: '.search-query-validation',
+            resultsSummarySelector: '.search-results-summary',
+            summaryResultItemSelector: '.search-results-summary li',
+            resultsSelector: '.search-results',
+            filtersSelector: '.search-filters'
         });
 
         this.searchResults = null;
-
-        this.onArtifactSearchResults = function(evt, artifacts) {
-            var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            $searchResultsSummary.find('.document .badge').removeClass('loading').text(artifacts.document.length);
-            $searchResultsSummary.find('.image .badge').removeClass('loading').text(artifacts.image.length);
-            $searchResultsSummary.find('.video .badge').removeClass('loading').text(artifacts.video.length);
-        };
-
-        this.onEntitySearchResults = function(evt, entities) {
-            var self = this;
-            console.log('onEntitySearchResults', entities);
-            var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            this.entityService.concepts(function(err, rootConcept) {
-                rootConcept.children.forEach(function(concept) {
-                    self.onEntitySearchResultsForConcept($searchResultsSummary, concept, entities);
-                });
-            });
-        };
 
         this.onEntitySearchResultsForConcept = function($searchResultsSummary, concept, entities) {
             var self = this;
@@ -63,13 +44,12 @@ define([
 
         this.onFormSearch = function(evt) {
             evt.preventDefault();
-            this.searchResults = {};
-            var $searchQueryValidation = this.select('searchQueryValidationSelector');
+            var $searchQueryValidation = this.select('queryValidationSelector');
             $searchQueryValidation.html('');
 
-            var query = this.select('searchQuerySelector').val();
+            var query = this.select('querySelector').val();
             if(!query) {
-                this.select('searchResultsSummarySelector').empty();
+                this.select('resultsSummarySelector').empty();
                 return $searchQueryValidation.html(alertTemplate({ error: 'Query cannot be empty' }));
             }
             this.trigger('search', { query: query });
@@ -80,7 +60,7 @@ define([
             var self = this;
             var html = "";
             concept.children.forEach(function(concept) {
-                html += '<li item-path="entity.' + concept.id + '" class="concept-' + concept.id + '"><a href="#" style="padding-left:' + indent + 'px;">' + concept.title + '<span class="badge"></span></a></li>';
+                html += '<li item-path="entity.' + concept.id + '" class="concept-' + concept.id + '"><a href="#" style="padding-left:' + indent + 'px;">' + concept.displayName + '<span class="badge"></span></a></li>';
                 if(concept.children && concept.children.length > 0) {
                     html += self.getConceptChildrenHtml(concept, indent + 15);
                 }
@@ -89,48 +69,63 @@ define([
         };
 
         this.doSearch = function(evt, query) {
-			//added for sync effect
-			if (!this.searchResults) {
-				this.searchResults = {};
-			}
-			
-			if (this.select('searchQuerySelector').val() != query.query) {
-				this.select('searchQuerySelector').val(query.query);
+            if (!this.searchResults) {
+                this.searchResults = {};
+            }
+			if (this.select('querySelector').val() != query.query) {
+				this.select('querySelector').val(query.query);
 			}
 			
             var self = this;
-            var $searchResultsSummary = this.select('searchResultsSummarySelector');
-            var $searchResults = this.select('searchResultsSelector');
 
-            $searchResults.hide();
-            this.entityService.concepts(function(err, concepts) {
-                var resultsHtml = self.getConceptChildrenHtml(concepts, 15);
-                $searchResultsSummary.html(summaryTemplate({ resultsHtml: resultsHtml }));
-                $('.badge', $searchResultsSummary).addClass('loading');
-                this.ucd.artifactSearch(query, function(err, artifacts) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-                    self.searchResults.artifact = artifacts;
-                    self.trigger('artifactSearchResults', artifacts);
-                });
-                this.ucd.graphNodeSearch(query, function(err, entities) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-                    self.searchResults.entity = {};
-                    entities.nodes.forEach(function(entity) {
-                        entity.sign = entity.properties['title'];
-                        entity.source = entity.properties['source'];
-                        entity.graphNodeId = entity.id;
-                        self.searchResults.entity[entity.properties['_subType']] = self.searchResults.entity[entity.properties['_subType']] || [];
-                        self.searchResults.entity[entity.properties['_subType']].push(entity);
+            this.ontologyService.concepts(function(err, concepts) {
+                this.updateConceptSections(concepts);
+
+                $.when(
+                    this.ucd.artifactSearch(query),
+                    this.ucd.graphVertexSearch(query || this.select('querySelector').val(), this.filters)
+                ).done(function(artifactSearch, vertexSearch) {
+                    var results = { artifact:artifactSearch[0], entity:{} };
+
+                    // Organize vertexSearch Items
+                    vertexSearch[0].vertices.forEach(function(v) {
+                        var props = v.properties,
+                            type = props._type,
+                            subType = props._subType;
+
+                        if (type === 'artifact') return;
+
+                        if (!results[type]) results[type] = {};
+                        if (!results[type][subType]) results[type][subType] = [];
+
+                        results[type][subType].push(v);
                     });
-                    self.trigger('entitySearchResults', self.searchResults.entity);
+                    self.searchResults = results;
+
+                    Object.keys(results).forEach(function(type) {
+                        if (type === 'artifact') {
+                            Object.keys(results[type]).forEach(function(subType) {
+                                self.$node.find('.' + subType + ' .badge').removeClass('loading').text(results[type][subType].length);
+                            });
+                        }
+                    });
+                    
+                    concepts.byTitle.forEach(function(concept) {
+                        self.onEntitySearchResultsForConcept(self.select('resultsSummarySelector'), concept, results.entity);
+                    });
+
+                }).fail(function() {
+                    self.$node.find('.loading').removeClass('loading').text('!');
                 });
             }.bind(this));
+        };
+
+        this.updateConceptSections = function(concepts) {
+            var $searchResultsSummary = this.select('resultsSummarySelector'),
+                resultsHtml = this.getConceptChildrenHtml(concepts.entityConcept, 15);
+
+            $searchResultsSummary.html(summaryTemplate({ resultsHtml: resultsHtml }));
+            $('.badge', $searchResultsSummary).addClass('loading');
         };
 
         this.onSummaryResultItemClick = function(evt) {
@@ -159,250 +154,127 @@ define([
 
         this.onShowSearchResults = function(evt, data) {
             var self = this,
-                $searchResults = this.select('searchResultsSelector');
+                $searchResults = this.select('resultsSelector'),
+                vertices = (this.searchResults[data._type][data._subType] || []).map(function(v) {
+                    return $.extend({ }, data, v);
+                });
 
-            data.results = this.searchResults[data._type][data._subType] || [];
+            this.hideSearchResults();
+            this.select('filtersSelector').hide();
 
-            data.results.forEach(function(result) {
-                if(data._type == 'artifact') {
-                    result.title = result.subject;
-                } else if(data._type == 'entity') {
-                    result.title = result.sign;
-                } else {
-                    result.title = 'Error: unknown type: ' + data._type;
-                }
+            if (vertices.length) {
+                VertexList.attachTo($searchResults.find('.content'), {
+                    vertices: vertices
+                });
+                this.makeResizable($searchResults);
+                $searchResults.show();
+                $searchResults.find('.multi-select').focus();
+            }
+            this.trigger(document, 'paneResized');
+        };
 
-                // Check if this result is in the graph/map
-                var classes = ['gId' + encodeURIComponent(result.graphNodeId)];
-                var nodeState = _currentNodes[result.graphNodeId];
-                if (nodeState) {
-                    if ( nodeState.inGraph ) classes.push('graph-displayed');
-                    if ( nodeState.inMap ) classes.push('map-displayed');
-                }
-                if (data._subType === 'video' || data._subType === 'image') {
-                    classes.push('has_preview');
-                }
-                result.className = classes.join(' ');
-            });
+        this.makeResizable = function(node) {
+            var self = this;
 
             // Add splitbar to search results
-            $searchResults.resizable({
+            return node.resizable({
                 handles: 'e',
-                minWidth: 50,
+                minWidth: 200,
+                maxWidth: 350, 
                 resize: function() {
                     self.trigger(document, 'paneResized');
                 }
             });
-            
-            // Update content
-            $searchResults.find('ul').html(resultsTemplate(data));
-
-            // Allow search results to be draggable, selectable
-            this.applyDraggable( $searchResults.find('li a') );
-            
-            if (data.results.length) {
-                $searchResults.show();
-
-                this.loadVisibleResultPreviews();
-            } else {
-                $searchResults.hide();
-            }
         };
 
 		this.onKeyUp = function (evt) {
-			var query = this.select('searchQuerySelector').val();
+			var query = this.select('querySelector').val();
 			if (query != this.currentQuery) {
 				this.trigger("searchQueryChanged", { query: query});
 				this.currentQuery = query;
 			}
 		};
+
+        this.onQueryFocus = function (evt, data) {
+            var filters = this.select('filtersSelector');
+            Filters.attachTo(filters.find('.content'));
+
+            this.makeResizable(filters);
+            filters.show();
+            this.hideSearchResults();
+            this.$node.find('.search-results-summary .active').removeClass('active');
+        };
+
+        this.hideSearchResults = function() {
+            registry.findInstanceInfoByNode(this.select('resultsSelector').hide().find('.content')[0]).forEach(function(info) {
+                info.instance.teardown();
+            });
+            this.trigger(document, 'paneResized');
+        };
 		
 		this.onQueryChange = function (evt, data) {
 			if (!data.remoteEvent) {
 				return;
 			}
 			
-			this.select('searchQuerySelector').val(data.query);
+			this.select('querySelector').val(data.query);
 			this.currentQuery = data.query;
 		};
 
-        this.onFocusSearchField = function() {
-            this.select('searchQuerySelector').focus();
-        };
-
         this.close = function(e) {
-            this.select('searchResultsSelector').hide();
+            this.hideSearchResults();
             this.$node.find('.search-results-summary .active').removeClass('active');
         };
 
-        var previewTimeout;
-        this.onResultsScroll = function(e) {
-            clearTimeout(previewTimeout);
-            previewTimeout = setTimeout(this.loadVisibleResultPreviews.bind(this), 1000);
-        };
-
-        this.loadVisibleResultPreviews = function() {
-            var self = this;
-
-            if ( !self.previewQueue ) {
-                self.previewQueue = previews.createQueue('searchresults', { maxConcurrent: 1 });
-            }
-
-            var ul = self.select('searchResultsScrollSelector'),
-                yMin = ul[0].offsetTop,
-                yMax = yMin + ul.height(),
-                lis = ul.children('li'),
-                lisVisible = lis
-                    .filter(function(){ 
-                        return this.offsetTop >= yMin && this.offsetTop < yMax;
-                    });
-            
-            lisVisible.each(function() {
-                var li = $(this),
-                    info = li.data('info'),
-                    _rowKey = info._rowKey;
-
-                if ((info._subType === 'video' || info._subType === 'image') && !li.data('preview-loaded')) {
-                    li.addClass('preview-loading');
-                    previews.generatePreview(_rowKey, null, function(poster, frames) {
-                        li.removeClass('preview-loading')
-                          .data('preview-loaded', true);
-
-                        if(info._subType === 'video') {
-                            VideoScrubber.attachTo(li.find('.preview'), {
-                                posterFrameUrl: poster,
-                                videoPreviewImageUrl: frames
-                            });
-                        } else if(info._subType === 'image') {
-                            li.find('.preview').html("<img src='" + poster + "' />");
-                        }
-                    });
-                }
-            });
-        };
-
-
         this.after('initialize', function() {
+            this.searchResults = {};
             this.$node.html(template({}));
 
-            this.select('searchResultsSelector').hide();
+            this.select('filtersSelector').hide();
+            this.hideSearchResults();
+
+            this.on('filterschange', this.onFiltersChange);
 
             this.on(document,'search', this.doSearch);
-            this.on('artifactSearchResults', this.onArtifactSearchResults);
-            this.on('entitySearchResults', this.onEntitySearchResults);
             this.on(document,'showSearchResults', this.onShowSearchResults);
 			this.on(document,'searchQueryChanged',this.onQueryChange);
-            this.on(document, 'focusSearchField', this.onFocusSearchField);
+            this.on(document, 'menubarToggleDisplay', this.onMenubarToggle);
             this.on('submit', {
-                searchFormSelector: this.onFormSearch
+                formSelector: this.onFormSearch
             });
             this.on('click', {
-                searchSummaryResultItemSelector: this.onSummaryResultItemClick
+                summaryResultItemSelector: this.onSummaryResultItemClick
             });
 			this.on('keyup', {
-				searchQuerySelector: this.onKeyUp
+				querySelector: this.onKeyUp
 			});
 
-            this.select('searchResultsScrollSelector').on('scroll', this.onResultsScroll.bind(this));
-
-            this.on(document, 'nodesAdded', this.onNodesUpdated);
-            this.on(document, 'nodesUpdated', this.onNodesUpdated);
-            this.on(document, 'nodesDeleted', this.onNodesDeleted);
-            this.on(document, 'switchWorkspace', this.onWorkspaceClear);
-            this.on(document, 'workspaceDeleted', this.onWorkspaceClear);
-            this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
-
-            this.select('searchResultsSelector').droppable({ accept:'.search-results *' });
+            this.select('querySelector').on('focus', this.onQueryFocus.bind(this));
         });
 
-        this.onWorkspaceLoaded = function(evt, workspace) {
-            this.onNodesUpdated(evt, workspace.data || {});
-        };
 
-        // Track changes to nodes so we display the "Displayed in Graph" icon
-        // in search results
-        var _currentNodes = {};
-        this.toggleSearchResultIcon = function(graphNodeId, inGraph, inMap) {
-            this.$node
-                .find('li.gId' + encodeURIComponent(graphNodeId))
-                .toggleClass('graph-displayed', inGraph)
-                .toggleClass('map-displayed', inMap);
-        };
-
-        // Switching workspaces should clear the icon state and nodes
-        this.onWorkspaceClear = function() {
-            this.$node.find('li.graph-displayed').removeClass('graph-displayed');
-            this.$node.find('li.map-displayed').removeClass('map-displayed');
-            _currentNodes = {};
-        };
-
-        this.onNodesUpdated = function(event, data) {
-            var self = this;
-            (data.nodes || []).forEach(function(node) {
-                // Only care about node search results and location updates
-                if ( (node._type && node._subType) || node.location || node.locations ) {
-                    var inGraph = true;
-                    var inMap = !!(node.location || (node.locations && node.locations.length));
-                    _currentNodes[node.graphNodeId] = { inGraph:inGraph, inMap:inMap };
-                    self.toggleSearchResultIcon(node.graphNodeId, inGraph, inMap);
+        this.onMenubarToggle = function(evt, data) {
+            var pane = this.$node.closest(':data(menubarName)');
+            if (data.name === pane.data('menubarName')) {
+                if (!pane.hasClass('visible')) {
+                    this.$node.find('.search-results-summary .active').removeClass('active');
+                    this.select('filtersSelector').hide();
+                    this.hideSearchResults();
                 }
-            });
+            }
         };
 
-        this.onNodesDeleted = function(event, data) {
-            var self = this;
-            (data.nodes || []).forEach(function(node) {
-                delete _currentNodes[node.graphNodeId];
-                self.toggleSearchResultIcon(node.graphNodeId, false, false);
-            });
-        };
+        this.onFiltersChange = function(evt, data) {
+            this.filters = data.filters;
+            
+            var query = this.select('querySelector').val() || '*';
 
-
-        this.applyDraggable = function(el) {
-            var self = this;
-
-            el.draggable({
-                helper:'clone',
-                appendTo: 'body',
-                revert: 'invalid',
-                revertDuration: 250,
-                scroll: false,
-                zIndex: 100,
-                distance: 10,
-                multi: true,
-                otherDraggablesClass: 'search-result-dragging',
-                start: function(ev, ui) {
-                    $(ui.helper).addClass('search-result-dragging');
-                },
-                otherDraggables: function(ev, ui){
-
-                    ui.otherDraggables.each(function(){
-                        var info = this.data('original').parent().data('info'),
-                            offset = this.offset(),
-                            dropPosition = { x:offset.left, y:offset.top };
-
-                        self.trigger(document, 'addNodes', {
-                            nodes: [{
-                                title: info.title,
-                                graphNodeId: info.graphNodeId,
-                                _rowKey: info._rowKey,
-                                _subType: info._subType,
-                                _type: info._type,
-                                dropPosition: dropPosition
-                            }]
-                        });
-                    });
-                },
-                selection: function(ev, ui) {
-                    var selected = ui.selected,
-                        info = selected.map(function() {
-                            return $(this).data('info');
-                        }).toArray();
-
-                    self.trigger(document, 'searchResultSelected', [info]);
-                }
-            });
+            // TODO: star query is broken for entities
+            if (this.$node.find('.search-results-summary li').length) {
+                this.searchEntities(query);
+            } else {
+                this.trigger(document, 'search', { query:query });
+            }
         };
     }
-
 });

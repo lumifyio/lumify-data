@@ -1,13 +1,12 @@
 
 define([
     'service/ucd',
-    'html2canvas',
     'tpl!./previews'
 ], 
 /**
  * Generate preview screenshots of artifact rendering (with highlighting)
  */
-function(UCD, html2canvas, template) {
+function(UCD, template) {
 
     var PREVIEW_CACHE = {};
 
@@ -56,16 +55,11 @@ function(UCD, html2canvas, template) {
         this.items = [];
         this.executing = [];
         this.options = $.extend({
-            maxConcurrent: 10
+            maxConcurrent: 1
         }, opts);
     }
     PreviewQueue.prototype.addTask = function(task) {
-        var cache = PREVIEW_CACHE[task._rowKey];
-        if (cache) {
-            task.callback.apply(null, cache);
-        } else {
-            this.items.push( task );
-        }
+        this.items.push( task );
         this.take();
     };
     PreviewQueue.prototype.take = function() {
@@ -73,14 +67,24 @@ function(UCD, html2canvas, template) {
 
         if (this.executing.length < this.options.maxConcurrent) {
             var task = this.items.shift();
-            this.executing.push( task );
+            var cache = PREVIEW_CACHE[task._rowKey];
+            if (cache) {
+                task.callback.apply(null, cache);
+                setTimeout(function() {
+                    this.take();
+                }.bind(this), 50);
+            } else {
+                this.executing.push( task );
 
-            task.taskFinished = function() {
-                this.executing.splice(this.executing.indexOf(task), 1);
-                this.take();
-            }.bind(this);
+                task.taskFinished = function() {
+                    this.executing.splice(this.executing.indexOf(task), 1);
+                    setTimeout(function() {
+                        this.take();
+                    }.bind(this), 50);
+                }.bind(this);
 
-            task.start();
+                task.start();
+            }
         }
     };
     PreviewQueue.prototype.cancel = function() {

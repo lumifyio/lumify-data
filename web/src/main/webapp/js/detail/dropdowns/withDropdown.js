@@ -5,19 +5,19 @@ define(['underscore'], function(_) {
 
         this.open = function() {
             var self = this,
-                node = this.$node;
+                vertex = this.$node;
 
-            if (node.outerWidth() <= 0) {
+            if (vertex.outerWidth() <= 0) {
                 // Fix issue where dropdown is zero width/height 
                 // when opening dropdown later in detail pane when
                 // dropdown is already open earlier in detail pane
-                node.css({position:'relative'});
+                vertex.css({position:'relative'});
                 return _.defer(this.open.bind(this));
             }
 
-            node.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
-                node.off('transitionend webkitTransitionEnd oTransitionEnd otransitionend');
-                node.css({
+            vertex.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
+                vertex.off('transitionend webkitTransitionEnd oTransitionEnd otransitionend');
+                vertex.css({
                     transition: 'none',
                     height: 'auto',
                     width: '100%',
@@ -25,8 +25,8 @@ define(['underscore'], function(_) {
                 });
                 self.trigger('opened');
             });
-            var form = node.find('.form');
-            node.css({ height:form.outerHeight(true) + 'px' });
+            var form = vertex.find('.form');
+            vertex.css({ height:form.outerHeight(true) + 'px' });
         };
 
         this.after('teardown', function() {

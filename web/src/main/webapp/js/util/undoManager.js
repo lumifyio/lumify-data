@@ -25,7 +25,6 @@ define([
     }
 
     UndoManager.prototype.performedAction = function(name, options) {
-        console.info('UndoManager: performedAction: ' + name, options);
         if ( name && 
              options && 
              typeof options.undo === 'function' &&
@@ -101,7 +100,6 @@ define([
             action = stack1.pop();
             undo = action.undo;
 
-            console.info('UndoManager: ' + name + ': ' + action.name);
             undo();
 
             stack2.push({
@@ -111,8 +109,7 @@ define([
             });
 
         } else {
-            // TODO: give user feedback (flash the screen) / beep
-            console.warn('TODO: alert user. Nothing to ' + name);                
+            // TODO: give user feedback (flash the screen) / beep?
         }
     }
 

@@ -29,4 +29,4 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.cmdline.WikipediaSearch $*
+com.altamiracorp.lumify.cmdline.WikipediaSearch $*

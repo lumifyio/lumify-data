@@ -9,8 +9,10 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
         var self = this;
 
         this.componentConfiguration = function() {
-            self.component.entityService.concepts = function(callback) {
-                callback(undefined, {children:[{id:1, title:'First'}, {id:2, title:'Second'}]});
+            self.component.ontologyService._ajaxGet = function(prop, callback) {
+                if (prop.url == 'ontology/concept') {
+                    callback(undefined, {children:[{id:1, title:'First'}, {id:2, title:'Second'}]});
+                }
             };
             self.parentNode.normalize();
             self.component.trigger('opened');
@@ -29,7 +31,7 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
                 mentionNode: self.$parentNode.find('.entity')
                                  .data('info', {
                                      "title":"Web",
-                                     "graphNodeId":"80736",
+                                     "graphVertexId":"80736",
                                      "start":110,
                                      "_subType":"44",
                                      "_rowKey":"Web\\x1FOpenNlpDictionary\\x1FPerson",
@@ -43,8 +45,16 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
         this.setupParentForSelection = function(sentenceText) {
             self.$parentNode = $('<span/>')
                 .addClass('sentence')
+                .data('info', { start: 0 })
                 .html(sentenceText)
                 .appendTo('body');
+
+            var mentionNode = self.$parentNode[0].childNodes[self.$parentNode[0].childNodes.length-1];
+            if (mentionNode.nodeType != 1 || !$(mentionNode).hasClass('entity')) {
+                mentionNode = undefined;
+            } else {
+                $(mentionNode).data('info', { _subType: 1});
+            }
 
             self.$node = $('<div class="dropdown"/>').appendTo(this.$parentNode);
             self.parentNode = this.$parentNode.get(0);
@@ -82,7 +92,8 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
                 selection: {
                     range: range
                 },
-                sign: range.toString()
+                sign: range.toString(),
+                mentionNode: mentionNode
             });
             self.componentConfiguration();
         };
@@ -97,7 +108,7 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
 
             this.Component.teardownAll();
 
-            expect(this.$parentNode.find('span.entity').attr('class')).to.contain('subType-44').not.contain('focused');
+            expect(this.$parentNode.find('span.entity').attr('class')).to.contain('subType-1').not.contain('focused');
         });
 
 
@@ -144,7 +155,7 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
             this.setupParentForSelection('<span class="entity subType-2">Jo[hnny</span> <span class="entity">App]leseed</span> is a person');
             expect(this.parentNode.childNodes[0].innerHTML)
                 .to.equal('<span class="entity subType-2 focused">Johnny</span> <span class="entity focused">Appleseed</span>');
-            
+
             this.Component.teardownAll();
 
             expect(this.$parentNode.find('.entity').eq(0).attr('class')).to
@@ -178,8 +189,12 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
 
             this.setupParentForSelection('offered by [Amazon <span class="entity subType-2">W]eb</span>');
 
+            expect(this.parentNode.childNodes[1].className).to.equal('entity focused');
             expect(this.parentNode.childNodes[1].innerHTML)
                 .to.equal('Amazon <span class="entity subType-2 focused">Web</span>');
+
+            // Don't preselect value based on inner span
+            expect(this.$node.find('select').val()).to.equal("");
 
             expect(this.$node.find('.sign').text()).to.equal('Amazon Web');
         });
@@ -202,6 +217,20 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
                 .not.contain('subType-1');
 
             this.Component.teardownAll();
+        });
+    });
+
+    describe('#highlightTerm', function() {
+
+        xit("should change highlighted term to loaded concept", function() {
+
+            this.setupParentForSelection('offered by [Amazon <span class="entity subType-2">W]eb</span>');
+
+            expect(this.parentNode.childNodes[1].innerHTML)
+                .to.equal('Amazon <span class="entity subType-2 focused">Web</span>');
+
+            // TODO: click create term
+
         });
     });
 });

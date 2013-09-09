@@ -1,4 +1,5 @@
 #!/bin/bash
+# group: video
 # require: 200_VideoConversionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
@@ -25,8 +26,8 @@ java \
 -Djava.library.path=$LD_LIBRARY_PATH \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.objectDetection.ObjectDetectionMR \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.objectDetection.ObjectDetectionMR \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
@@ -35,7 +36,7 @@ com.altamiracorp.reddawn.objectDetection.ObjectDetectionMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.reddawn.objectDetection.OpenCVObjectDetector \
+--classname=com.altamiracorp.lumify.objectDetection.OpenCVObjectDetector \
 -DopenCVConfPathPrefix=file://$(cd ${DIR}/.. && pwd) \
 -Dclassifier.file=haarcascade_frontalface_alt.xml \
 -Dclassifier.concept=face \

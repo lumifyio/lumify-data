@@ -1,4 +1,6 @@
 #!/bin/bash
+# require: 075_FormatUcd.sh
+# require: 080_Ontology.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -30,10 +32,10 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.cmdline.FileImport \
+com.altamiracorp.lumify.cmdline.FileImport \
 --directory=${dir} \
 --zipfile=$1 \
---zookeeperInstanceName=reddawn \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \

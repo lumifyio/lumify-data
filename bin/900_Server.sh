@@ -1,8 +1,8 @@
 #!/bin/bash
+# group: server
 # require: 215_ArtifactFaceDetectionMR.sh
 # require: 215_VideoFrameFaceDetectionMR.sh
 # require: 300_VideoPreviewMR.sh
-# require: 710_TermMentionToTitanMR.sh
 # require: 600_ArtifactLocationExtractionMR.sh
 # require: 790_ArtifactHighlighting.sh
 # require: 800_BlurSearchIndexBuilder.sh
@@ -29,14 +29,9 @@ fi
 
 java \
 -Dfile.encoding=UTF-8 \
+-Djava.security.krb5.realm= \
+-Djava.security.krb5.kdc= \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.web.Server \
---zookeeperInstanceName=reddawn \
---blurControllerLocation=${ip}:40010 \
---blurPath=hdfs://${ip}/blur \
---graph.storage.index.search.hostname=${ip} \
---hadoopUrl=hdfs://${ip}:8020 \
---zookeeperServerNames=${ip} \
---username=root \
---password=password \
+com.altamiracorp.lumify.web.Server \
+--port=8080 \

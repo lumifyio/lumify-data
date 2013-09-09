@@ -1,0 +1,24 @@
+---
+proxy_url: 'http://10.0.3.10:8080'
+hadoop_masters:
+  - 10.0.3.50
+hadoop_slaves:
+  - 10.0.3.101
+  - 10.0.3.102
+  - 10.0.3.103
+accumulo_example_config: 3GB/native-standalone
+accumulo_masters:
+  - ip-10-0-3-51
+accumulo_slaves:
+  - ip-10-0-3-101
+  - ip-10-0-3-102
+  - ip-10-0-3-103
+zookeeper_nodes:
+  1: 10.0.3.101:2181
+  2: 10.0.3.102:2181
+  3: 10.0.3.103:2181
+namenode_ipaddress: 10.0.3.50
+elasticsearch_locations:
+  - 10.0.3.101:9300
+  - 10.0.3.102:9300
+  - 10.0.3.103:9300

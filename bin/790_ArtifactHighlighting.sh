@@ -1,6 +1,7 @@
 #!/bin/bash
-# require: 700_ArtifactToTitanMR.sh
-# require: 710_TermMentionToTitanMR.sh
+# require: 250_StructuredDataExtractorMR.sh
+# require: 300_DictionaryEntityExtractionMR.sh
+# require: 300_EntityExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -26,8 +27,8 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.entityHighlight.EntityHighlightMR \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.entityHighlight.EntityHighlightMR \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \

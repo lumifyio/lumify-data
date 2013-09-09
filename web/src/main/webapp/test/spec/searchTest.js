@@ -3,9 +3,7 @@ describeComponent('search/search', function(Search) {
 
     beforeEach(function() {
         setupComponent();
-        this.component.entityService.concepts = function(callback) {
-            callback(undefined, {children:[]});
-        };
+        this.component.ontologyService.clearCaches();
     });
 
     describe('#onFormSearch', function() {
@@ -42,19 +40,30 @@ describeComponent('search/search', function(Search) {
             this.component.ucd.artifactSearch = function(query) {
                 artifactSearchQuery = query;
             };
-            this.component.ucd.graphNodeSearch = function(query) {
+            this.component.ucd.graphVertexSearch = function(query) {
                 entitySearchQuery = query;
             };
 
-            this.component.entityService.concepts = function(callback) {
+            this.component.ontologyService._ajaxGet = function(prop, callback) {
+                if (prop.url == 'ontology/concept') {
+                    callback(undefined, {
+                        children:[
+                            {
+                                id:100,
+                                title:'Entity',
+                                color:'rgb(255,0,0)',
+                                glyphIconHref:'first-icon',
+                                children:[]
+                            }
+                        ]
+                    });
 
-                callback(undefined, { children:[] });
-
-                expect(artifactSearchQuery).not.to.be.null;
-                expect(artifactSearchQuery.query).to.equal(query.query);
-                expect(entitySearchQuery).not.to.be.null;
-                expect(entitySearchQuery.query).to.equal(query.query);
-                done();
+                    expect(artifactSearchQuery).not.to.be.null;
+                    expect(artifactSearchQuery.query).to.equal(query.query);
+                    expect(entitySearchQuery).not.to.be.null;
+                    expect(entitySearchQuery.query).to.equal(query.query);
+                    done();
+                }
             };
 
             this.component.doSearch(evt, query);

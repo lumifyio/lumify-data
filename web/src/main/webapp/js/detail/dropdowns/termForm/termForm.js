@@ -7,8 +7,9 @@ define([
     'tpl!./concept-options',
     'service/ucd',
     'service/entity',
+    'service/ontology',
     'underscore'
-], function(defineComponent, withDropdown, dropdownTemplate, conceptsTemplate, Ucd, EntityService, _) {
+], function(defineComponent, withDropdown, dropdownTemplate, conceptsTemplate, Ucd, EntityService, OntologyService, _) {
     'use strict';
 
     return defineComponent(TermForm, withDropdown);
@@ -16,11 +17,14 @@ define([
 
     function TermForm() {
         this.entityService = new EntityService();
+        this.ontologyService = new OntologyService();
         this.ucd = new Ucd();
 
         this.defaultAttrs({
             entityConceptMenuSelector: '.underneath .dropdown-menu a',
             createTermButtonSelector: '.create-term',
+            buttonDivSelector: '.buttons',
+            termNameInputSelector: 'input',
             signSelector: '.sign',
             objectSignSelector: '.object-sign',
             conceptSelector: 'select'
@@ -28,10 +32,11 @@ define([
 
         this.after('teardown', function() {
             if (this.promoted && this.promoted.length) {
-                this.demoteSpanToTextNode(this.promoted);
+                this.demoteSpanToTextVertex(this.promoted);
             }
 
             var info = $(this.attr.mentionNode).removeClass('focused').data('info');
+
             if (info) {
                 this.updateConceptLabel(info._subType);
             }
@@ -47,22 +52,48 @@ define([
             this.registerEvents();
         });
 
+        this.onInputKeyUp = function (event) {
+            switch (event.which) {
+                case $.ui.keyCode.ENTER:
+                    this.onCreateTermClicked(event);
+            }
+        }
+
         this.onCreateTermClicked = function(event) {
             var self = this,
                 $mentionNode = $(this.attr.mentionNode),
-                sentence = this.$node.parents('.sentence'),
-                sentenceInfo = sentence.data('info'),
                 sign = this.select('signSelector').text(),
                 newObjectSign = $.trim(this.select('objectSignSelector').val()),
-                mentionStart = sentenceInfo.start + sentence.text().indexOf(sign),
-                parameters = {
-                    sign: sign,
+                mentionStart,
+                mentionEnd,
+                graphVertexId;
+
+            if (this.attr.existing){
+                var dataInfo = $mentionNode.data('info');
+                mentionStart = dataInfo.start;
+                mentionEnd = dataInfo.end;
+                graphVertexId = this.graphVertexId;
+            } else {
+                mentionStart = this.selectedStart;
+                mentionEnd = this.selectedEnd;
+            }
+
+            var parameters = {
+                    sign: newObjectSign,
                     conceptId: this.select('conceptSelector').val(),
+                    graphVertexId: graphVertexId,
                     artifactKey: this.attr.artifactKey,
                     mentionStart: mentionStart,
-                    mentionEnd: mentionStart + sign.length
-                };
+                    mentionEnd: mentionEnd,
+                    artifactId: this.attr.artifactId
+                },
+                $loading = $("<span>")
+                    .addClass("badge")
+                    .addClass("loading");
 
+            // TODO: extract button loading and disabling to withDropdown mixin
+            this.select('buttonDivSelector').prepend($loading);
+            this.select('createTermButtonSelector').addClass('disabled');
             if ( !parameters.conceptId || parameters.conceptId.length === 0) {
                 this.select('conceptSelector').focus();
                 return;
@@ -73,8 +104,6 @@ define([
                 $mentionNode.attr('title', newObjectSign);
             }
 
-            $mentionNode.addClass('resolved');
-
             this.entityService.createTerm(parameters, function(err, data) {
                 if (err) {
                     self.trigger(document, 'error', err);
@@ -82,6 +111,11 @@ define([
                     self.highlightTerm(data);
                     console.log(data);
                     self.trigger(document, 'termCreated', data);
+
+                    var vertices = [];
+                    vertices.push(data.info);
+                    self.trigger(document, 'verticesUpdated', { vertices: vertices });
+
                     _.defer(self.teardown.bind(self));
                 }
             });
@@ -93,7 +127,7 @@ define([
             this.updateConceptLabel(select.val());
         };
 
-        this.updateConceptLabel = function(conceptId, node) {
+        this.updateConceptLabel = function(conceptId, vertex) {
             if (conceptId == '') {
                 this.select('createTermButtonSelector').attr('disabled', true);
                 return;
@@ -102,28 +136,28 @@ define([
 
             if (this.allConcepts && this.allConcepts.length) {
 
-                node = $(node || this.promoted || this.attr.mentionNode);
+                vertex = $(vertex || this.promoted || this.attr.mentionNode);
                 var classPrefix = 'subType-',
                     labels = this.allConcepts.map(function(c) {
                         return classPrefix + c.id;
                     });
 
-                node.removeClass(labels.join(' '))
+                vertex.removeClass(labels.join(' '))
                     .addClass(classPrefix + conceptId);
             }
         };
 
         this.setupContent = function() {
             var self = this,
-                node = this.$node,
-                mentionNode = $(this.attr.mentionNode),
-                sign = this.attr.sign || mentionNode.text(),
-                data = mentionNode.data('info'),
+                vertex = this.$node,
+                mentionVertex = $(this.attr.mentionNode),
+                sign = this.attr.sign || mentionVertex.text(),
+                data = mentionVertex.data('info'),
                 title = $.trim(data && data.title || ''),
-                existingEntity = this.attr.existing ? mentionNode.addClass('focused').hasClass('entity') : false,
+                existingEntity = this.attr.existing ? mentionVertex.addClass('focused').hasClass('entity') : false,
                 objectSign = '';
 
-            this.graphNodeId = data && data.graphNodeId;
+            this.graphVertexId = existingEntity && data && data.graphVertexId;
 
             if (this.attr.selection && !existingEntity) {
                 this.trigger(document, 'ignoreSelectionChanges.detail');
@@ -133,11 +167,11 @@ define([
                 }, 10);
             }
 
-            if (mentionNode.hasClass('resolved')) {
+            if (existingEntity && mentionVertex.hasClass('resolved')) {
                 objectSign = title;
             }
 
-            node.html(dropdownTemplate({
+            vertex.html(dropdownTemplate({
                 // Promoted span might have been auto-expanded to avoid nested
                 // spans
                 sign: this.promoted ? this.promoted.text() : sign,
@@ -147,7 +181,6 @@ define([
         };
 
         this.registerEvents = function() {
-
             this.on('opened', function() {
                 this.setupObjectTypeAhead();
                 this.loadConcepts();
@@ -161,49 +194,36 @@ define([
                 entityConceptMenuSelector: this.onEntityConceptSelected,
                 createTermButtonSelector: this.onCreateTermClicked
             });
+
+            this.on('keyup', {
+                termNameInputSelector: this.onInputKeyUp
+            })
         };
 
+        // TODO: clean up code; duplicate code in entityForm.js
         this.loadConcepts = function() {
             var self = this;
             self.allConcepts = [];
-            self.entityService.concepts(function(err, rootConcept) {
-                var mentionNode = $(self.attr.mentionNode),
-                    mentionNodeInfo = mentionNode.data('info');
+            self.ontologyService.concepts(function(err, concepts) {
+                var mentionVertex = $(self.attr.mentionNode),
+                    mentionVertexInfo = mentionVertex.data('info');
 
-                self.allConcepts = self.flattenConcepts(rootConcept);
+                self.allConcepts = concepts.byTitle;
+                
                 self.select('conceptSelector').html(conceptsTemplate({
                     concepts: self.allConcepts,
-                    selectedConceptId: mentionNodeInfo && mentionNodeInfo._subType || ''
+                    selectedConceptId: (self.attr.existing && mentionVertexInfo && mentionVertexInfo._subType) || ''
                 }));
 
-                if (self.select('conceptSelector').val() == '') {
+                if (self.select('conceptSelector').val() === '') {
                     self.select('createTermButtonSelector').attr('disabled', true);
                 }
             });
         };
 
-        this.flattenConcepts = function(concept) {
-            var childIdx, child, grandChildIdx;
-            var flattenedConcepts = [];
-            for(childIdx in concept.children) {
-                child = concept.children[childIdx];
-                if(concept.flattenedTitle) {
-                    child.flattenedTitle = concept.flattenedTitle + "/" + child.title;
-                } else {
-                    child.flattenedTitle = child.title;
-                }
-                flattenedConcepts.push(child);
-                var grandChildren = this.flattenConcepts(child);
-                for(grandChildIdx in grandChildren) {
-                    flattenedConcepts.push(grandChildren[grandChildIdx]);
-                }
-            }
-            return flattenedConcepts;
-        };
-
-        this.setupObjectTypeAhead = function() {
+        // TODO: clean up code; duplicate code in entityForm.js
+        this.setupObjectTypeAhead = function (self, selector) {
             var self = this;
-
             self.select('objectSignSelector').typeahead({
                 source: function(query, callback) {
                     self.ucd.entitySearch(query, function(err, entities) {
@@ -229,14 +249,13 @@ define([
         };
 
         this.highlightTerm = function(data) {
-            var mentionNode = $(this.attr.mentionNode),
-                updatingEntity = mentionNode.is('.entity');
-
+            var mentionVertex = $(this.attr.mentionNode),
+                updatingEntity = this.attr.existing;
 
             if (updatingEntity) {
 
-                this.updateConceptLabel(data.cssClasses.join(' '), mentionNode);
-                mentionNode.data('info', data.info).removeClass('focused');
+                this.updateConceptLabel(data.cssClasses.join(' '), mentionVertex);
+                mentionVertex.data('info', data.info).removeClass('focused');
 
             } else if (this.promoted) {
 
@@ -248,11 +267,10 @@ define([
         };
 
         this.promoteSelectionToSpan = function() {
-            var textNode = this.node,
+            var textVertex = this.node,
                 range = this.attr.selection.range,
                 el,
                 tempTextNode;
-
 
             var span = document.createElement('span');
             span.className = 'entity focused';
@@ -260,6 +278,14 @@ define([
             var newRange = document.createRange();
             newRange.setStart(range.startContainer, range.startOffset);
             newRange.setEnd(range.endContainer, range.endOffset);
+
+            var r = range.cloneRange();
+            r.selectNodeContents($(".detail-pane .text").get(0));
+            r.setEnd(range.startContainer, range.startOffset);
+            var l = r.toString().length;
+
+            this.selectedStart = l;
+            this.selectedEnd = l + range.toString().length;
 
             // Special case where the start/end is inside an inner span
             // (surroundsContents will fail so expand the selection
@@ -296,13 +322,13 @@ define([
             return $(span).find('.entity').addClass('focused').end();
         };
 
-        this.demoteSpanToTextNode = function(node) {
+        this.demoteSpanToTextVertex = function(vertex) {
 
-            while (node[0].childNodes.length) {
-                $(node[0].childNodes[0]).removeClass('focused');
-                node[0].parentNode.insertBefore(node[0].childNodes[0], node[0]);
+            while (vertex[0].childNodes.length) {
+                $(vertex[0].childNodes[0]).removeClass('focused');
+                vertex[0].parentNode.insertBefore(vertex[0].childNodes[0], vertex[0]);
             }
-            node.remove();
+            vertex.remove();
         };
     }
 });

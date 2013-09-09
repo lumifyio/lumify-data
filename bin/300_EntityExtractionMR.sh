@@ -1,5 +1,5 @@
 #!/bin/bash
-# require: 250_SentenceExtractionMR.sh
+# require: 249_TextExtractorConsolidationMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -25,8 +25,8 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 -Xmx1024M \
-com.altamiracorp.reddawn.entityExtraction.EntityExtractionMR \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.entityExtraction.EntityExtractionMR \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
@@ -35,5 +35,5 @@ com.altamiracorp.reddawn.entityExtraction.EntityExtractionMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.reddawn.entityExtraction.OpenNlpMaximumEntropyEntityExtractor \
+--classname=com.altamiracorp.lumify.entityExtraction.OpenNlpMaximumEntropyEntityExtractor \
 --config=nlpConfPathPrefix=file://$(cd ${DIR}/.. && pwd)

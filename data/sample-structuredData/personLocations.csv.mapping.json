@@ -1,25 +1,35 @@
 {
-  "type": "csv",
-  "skipRows": 1,
-  "subject": "People Zip Codes",
-  "columns": [
-    {
-      "modelKey": "structuredData",
-      "conceptLabel": "person",
-      "relationships": [
+    "type": "csv",
+    "skipRows": 1,
+    "subject": "People Zip Codes",
+    "columns": [
         {
-          "predicateModelKey": "urn:mil.army.dsc:schema:dataspace",
-          "predicateLabel": "livesAt",
-          "target": 1
+            "type": "term",
+            "conceptLabel": "person",
+            "relationships": [
+                {
+                    "label": "personLivesAtLocation",
+                    "target": 1
+                }
+            ],
+            "properties": [
+                {
+                    "name": "birthDate",
+                    "target": 2
+                }
+            ]
+        },
+        {
+            "type": "term",
+            "conceptLabel": "location"
+        },
+        {
+            "type": "property",
+            "dataType": "date",
+            "format": "MM/dd/yyyy"
+        },
+        {
+            "type": "none"
         }
-      ]
-    },
-    {
-      "modelKey": "structuredData",
-      "conceptLabel": "location"
-    },
-    {
-      "skip": true
-    }
-  ]
+    ]
 }

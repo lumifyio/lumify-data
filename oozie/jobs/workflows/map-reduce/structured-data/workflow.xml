@@ -28,7 +28,7 @@
                 </property>
                 <property>
                     <name>mapreduce.map.class</name>
-                    <value>com.altamiracorp.reddawn.structuredDataExtraction.StructuredDataExtractionMR$StructuredDataExtractorMapper</value>
+                    <value>${basePackage}.structuredDataExtraction.StructuredDataExtractionMR$StructuredDataExtractorMapper</value>
                 </property>
                 <property>
                     <name>mapred.map.tasks</name>

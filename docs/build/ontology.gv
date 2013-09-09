@@ -4,47 +4,90 @@ digraph {
 	overlap=scalexy;
 	nodesep=0.6;
 
-	{ rank=min; "Entity";}
-	"Entity" [
-		label=<<B>Entity</B><BR/>_glyphIcon: image<BR/>title: string<BR/>_subType: string<BR/>_type: string>
+	{ rank=min; "rootConcept";}
+	"rootConcept" [
+		label=<<B>rootConcept</B>>
 	];
-	"Person" [
-		label=<<B>Person</B><BR/>birthDate: date>
+	"artifact" [
+		label=<<B>artifact</B><BR/>_type: string<BR/>_subType: string<BR/>title: string<BR/>geoLocation: geoLocation>
 	];
-	{ rank=same; }
-	"Person" -> "Entity" [color=black;];
-	"Organization" [
-		label=<<B>Organization</B><BR/>formationDate: date>
-	];
-	"Company" [
-		label=<<B>Company</B><BR/>netIncome: currency>
+	"document" [
+		label=<<B>document</B>>
 	];
 	{ rank=same; }
-	"Company" -> "Organization" [color=black;];
-	{ rank=same; "Company";}
-	"Organization" -> "Entity" [color=black;];
-	"Location" [
-		label=<<B>Location</B><BR/>geoLocation: geoLocation>
+	"document" -> "artifact" [color=black;];
+	"image" [
+		label=<<B>image</B>>
 	];
 	{ rank=same; }
-	"Location" -> "Entity" [color=black;];
-	"Phone Number" [
-		label=<<B>Phone Number</B>>
+	"image" -> "artifact" [color=black;];
+	"video" [
+		label=<<B>video</B>>
 	];
 	{ rank=same; }
-	"Phone Number" -> "Entity" [color=black;];
-	"Email Address" [
-		label=<<B>Email Address</B><BR/>active: string>
+	"video" -> "artifact" [color=black;];
+	{ rank=same; "document";"image";"video";}
+	"artifact" -> "rootConcept" [color=black;];
+	"entity" [
+		label=<<B>entity</B><BR/>_subType: string<BR/>title: string<BR/>_glyphIcon: image<BR/>_type: string>
+	];
+	"person" [
+		label=<<B>person</B><BR/>birthDate: date>
 	];
 	{ rank=same; }
-	"Email Address" -> "Entity" [color=black;];
-	{ rank=same; "Person";"Organization";"Location";"Phone Number";"Email Address";}
-	"Organization" -> "Email Address" [ label = "hasEmailAddress"; color=lightgrey; ];
-	"Person" -> "Email Address" [ label = "hasEmailAddress"; color=lightgrey; ];
-	"Person" -> "Location" [ label = "livesAt"; color=lightgrey; ];
-	"Person" -> "Person" [ label = "knows"; color=lightgrey; ];
-	"Organization" -> "Phone Number" [ label = "hasPhoneNumber"; color=lightgrey; ];
-	"Person" -> "Phone Number" [ label = "hasPhoneNumber"; color=lightgrey; ];
-	"Organization" -> "Location" [ label = "headquarteredAt"; color=lightgrey; ];
-	"Person" -> "Company" [ label = "worksAt"; color=lightgrey; ];
+	"person" -> "entity" [color=black;];
+	"organization" [
+		label=<<B>organization</B><BR/>formationDate: date>
+	];
+	"company" [
+		label=<<B>company</B><BR/>netIncome: currency>
+	];
+	{ rank=same; }
+	"company" -> "organization" [color=black;];
+	{ rank=same; "company";}
+	"organization" -> "entity" [color=black;];
+	"location" [
+		label=<<B>location</B><BR/>geoLocation: geoLocation>
+	];
+	{ rank=same; }
+	"location" -> "entity" [color=black;];
+	"phoneNumber" [
+		label=<<B>phoneNumber</B>>
+	];
+	{ rank=same; }
+	"phoneNumber" -> "entity" [color=black;];
+	"emailAddress" [
+		label=<<B>emailAddress</B>>
+	];
+	{ rank=same; }
+	"emailAddress" -> "entity" [color=black;];
+	{ rank=same; "person";"organization";"location";"phoneNumber";"emailAddress";}
+	"entity" -> "rootConcept" [color=black;];
+	{ rank=same; "artifact";"entity";}
+	"person" -> "endDate" [ label = "personWorksAtCompany"; color=lightgrey; ];
+	"person" -> "startDate" [ label = "personWorksAtCompany"; color=lightgrey; ];
+	"person" -> "company" [ label = "personWorksAtCompany"; color=lightgrey; ];
+	"person" -> "endDate" [ label = "personHasEmailAddress"; color=lightgrey; ];
+	"person" -> "startDate" [ label = "personHasEmailAddress"; color=lightgrey; ];
+	"person" -> "emailAddress" [ label = "personHasEmailAddress"; color=lightgrey; ];
+	"organization" -> "endDate" [ label = "organizationHeadquarteredAtLocation"; color=lightgrey; ];
+	"organization" -> "startDate" [ label = "organizationHeadquarteredAtLocation"; color=lightgrey; ];
+	"organization" -> "location" [ label = "organizationHeadquarteredAtLocation"; color=lightgrey; ];
+	"organization" -> "endDate" [ label = "organizationHasEmailAddress"; color=lightgrey; ];
+	"organization" -> "startDate" [ label = "organizationHasEmailAddress"; color=lightgrey; ];
+	"organization" -> "emailAddress" [ label = "organizationHasEmailAddress"; color=lightgrey; ];
+	"entity" -> "artifact" [ label = "hasImage"; color=lightgrey; ];
+	"person" -> "startDate" [ label = "personKnowsPerson"; color=lightgrey; ];
+	"person" -> "endDate" [ label = "personKnowsPerson"; color=lightgrey; ];
+	"person" -> "person" [ label = "personKnowsPerson"; color=lightgrey; ];
+	"person" -> "endDate" [ label = "personLivesAtLocation"; color=lightgrey; ];
+	"person" -> "startDate" [ label = "personLivesAtLocation"; color=lightgrey; ];
+	"person" -> "location" [ label = "personLivesAtLocation"; color=lightgrey; ];
+	"person" -> "endDate" [ label = "personHasPhoneNumber"; color=lightgrey; ];
+	"person" -> "startDate" [ label = "personHasPhoneNumber"; color=lightgrey; ];
+	"person" -> "phoneNumber" [ label = "personHasPhoneNumber"; color=lightgrey; ];
+	"organization" -> "startDate" [ label = "organizationHasPhoneNumber"; color=lightgrey; ];
+	"organization" -> "endDate" [ label = "organizationHasPhoneNumber"; color=lightgrey; ];
+	"organization" -> "phoneNumber" [ label = "organizationHasPhoneNumber"; color=lightgrey; ];
+	"artifact" -> "entity" [ label = "hasEntity"; color=lightgrey; ];
 }

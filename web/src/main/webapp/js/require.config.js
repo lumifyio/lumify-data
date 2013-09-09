@@ -1,10 +1,9 @@
-//
-// !!! Also add changes to test/runner/main.js for testing !!!
-//
 
 var jQueryPlugins = {
   atmosphere: '../libs/jquery.atmosphere/jquery.atmosphere',
   withinScrollable: 'util/jquery.within-scrollable',
+  Jcrop: '../libs/jquery.jcrop/jquery.Jcrop',
+  removePrefixedClasses: 'util/jquery.removePrefixedClasses',
   scrollStop: '../libs/jquery-scrollstop/jquery.scrollstop',
   bigText: '../libs/jquery-bigtext/jquery-bigtext'
 };
@@ -23,19 +22,22 @@ var require = {
     tpl: '../libs/requirejs-ejs-plugin/rejs',
     cytoscape: '../libs/cytoscape/cytoscape',
     arbor: '../libs/cytoscape/arbor',
-    html2canvas: '../libs/html2canvas/html2canvas',
     videojs: '../libs/video.js/video',
     underscore: '../libs/underscore/underscore',
-    colorjs: '../libs/color-js/color'
+    colorjs: '../libs/color-js/color',
+    sf: '../libs/sf/sf',
+    d3: '../libs/d3/d3.v3',
+    intercom: '../libs/intercom/intercom.amd'
   },
   shim: {
     ejs: { exports: 'ejs' },
     cytoscape: { exports: 'cytoscape', deps:['arbor'] },
-    html2canvas: { exports: 'html2canvas' },
+    colorjs: { init: function() { return this.net.brehaut.Color; } },
     videojs: { exports: 'videojs' },
-	underscore: { exports: '_' }
+	underscore: { exports: '_' },
+    d3: { exports: 'd3' }
   },
-  deps : ['reddawn']
+  deps : ['lumify']
 };
 
 Object.keys(jQueryPlugins).forEach(function(plugin) {

@@ -1,13 +1,14 @@
 @import "../util/lists.less";
 @import "../util/constants.less";
 @import "../util/selection.less";
+@import "../util/badge-loading";
 @import "highlighting";
 
 .content {
 
   padding: 2.5em 1em 0 1em;
 
-  .preview {
+  .type-content > .preview, .content > .preview {
     height: 300px;
     cursor: pointer;
   }
@@ -75,15 +76,81 @@
   }
 
   .multiple {
-    h1 {
-      font-size: 100%;
-      text-align: center;
-      font-style: italic;
-      margin-top: 0;
-      color: #555;
+
+    .details-container { display:none; }
+
+    &.viewing-vertex {
+      margin: 0;
+      padding: 0;
+
+      .multiple-container { 
+        display:none;
+      }
+      .details-container { 
+        position: absolute;
+        top: 0;
+        bottom: 200px;
+        width: 100%;
+        left: 0;
+        right: 0;
+        display:block; 
+        .box-sizing(border-box);
+      }
+      .vertices-list {
+        border-top: 1px solid #e0e0e0;
+        position: absolute;
+        height: 200px;
+        bottom: 0;
+        overflow: auto;
+        width: 100%;
+        left: 0;
+        right: 0;
+        padding: 0;
+        margin: 0;
+        .box-sizing(border-box);
+
+
+        ul.multi-select.nav-list {
+          margin: 0;
+          padding: 0;
+        }
+
+        .detail-pane .content .vertices-list > ul.multi-select.nav-list li {
+          padding: 0;
+        }
+        .detail-pane .content .vertex-list ul li .preview {
+          //display: none;
+        }
+
+        li a {
+          //padding-left: 100px;
+          margin: 0;
+        }
+      }
     }
 
-    ul {
+    .svg-container {
+      margin: -1em 0;
+
+      .bar {
+        fill: #ddd;
+      }
+      .text, .text-number {
+        font-size: 85%;
+      }
+      .text {
+        fill: #555;
+      }
+      .text-number {
+        fill: #888;
+      }
+    }
+
+    .multi-select {
+      padding-left: 16px;
+    }
+
+    ul.histograms {
       list-style: none;
       padding: 0;
       margin: 0;
@@ -99,13 +166,146 @@
     background-repeat: no-repeat;
     display: inline-block;
     max-width: 100%;
+    position: relative;
 
-    img {
-      -webkit-transition: -webkit-filter ease-out 0.2s;
+    .facebox {
+      position: absolute;
+      .box-shadow(~"#2D6987 0px 0px 0px 1px, rgba(255,255,255,0.4) 0 0 0 2px, #2D6987 0px 0px 8px 5px");
     }
   }
   .detected-object {
     margin-top: 1em;
+  }
+
+  .badge {
+    float: right;
+  }
+
+  .nav-list {
+    margin: 0 -1em;
+    padding-top: 1em;
+    clear: both;
+
+    strong {
+      text-transform: uppercase;
+      font-size: 11px;
+      margin-right: 5px;
+      color: #999;
+      text-shadow: 0 1px 0 white;
+    }
+
+    li.buttons {
+      margin-bottom: 0.5em; 
+      text-align: left;
+      & > button {
+        .opacity(50);
+        &:hover { .opacity(100); }
+      }
+    }
+  }
+  .nav-with-background {
+    margin: 118px -1em 0 -1em;
+
+    .underneath {
+      .buttons {
+        text-align: right;
+      }
+    }
+  }
+
+  .entity-background {
+    position: absolute;
+    width: 100%;
+    height: 150px;
+    top: 0;
+    margin: 0 -1em;
+    padding: 0 1em;
+    border-bottom: 3px solid #0088cc;
+    z-index: 1;
+    .box-sizing(border-box);
+
+    .btn-toolbar {
+      z-index: 4;
+      .opacity(40);
+      &:hover {
+        .opacity(100);
+      }
+    }
+
+    h1 {
+      color: white;
+      position: absolute;
+      bottom: 0;
+      text-shadow: 0 0px 20px rgba(0,0,0,0.2), 0 0px 2px rgba(0,0,0,1);
+      font-size: 200%;
+    }
+  }
+
+  h1 {
+    color: #555;
+    text-shadow: 0 2px 0 white;
+    font-size: 150%;
+    line-height: 1.3em;
+  }
+
+  li.relationships { margin-top: 0; }
+
+  li.relationship {
+    margin-bottom: 1em;
+
+    .relationship {
+      font-variant: small-caps;
+      &:hover {
+        text-decoration: underline;
+        cursor: pointer;
+      }
+    }
+  }
+
+  .entity-glyphIcon {
+    position: absolute;
+    margin: 0 -1em;
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-color: #444;
+    
+    &.shake {
+      .shake;
+    }
+    &.custom-image {
+      background-size: cover;
+    }
+    &.upload-available {
+
+      &.uploading input {
+        display: none;
+      }
+      input, canvas {
+        display: block;
+      }
+    }
+    input {
+      z-index: 3;
+      cursor: pointer;
+      display: none;
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+    }
+    canvas {
+      display: none;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .validation-error{
+    background-color: red;
   }
 
   .highlighting;

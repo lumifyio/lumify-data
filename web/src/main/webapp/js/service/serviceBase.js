@@ -3,7 +3,7 @@ define(['atmosphere'],
     function() {
         function ServiceBase(options) {
             options = options || {};
-			
+
 			if (!document.$socket) {
 				document.$socket = $.atmosphere;
 			}
@@ -30,6 +30,32 @@ define(['atmosphere'],
 			return document.$socket;
 		};
 
+        ServiceBase.prototype.socketPush = function(data) {
+            return document.$subSocket.push(JSON.stringify(data));
+        };
+
+        ServiceBase.prototype.subscribe = function (userId, onmessage) {
+            var req = {
+                url: "/messaging/",
+                transport: 'websocket',
+                fallbackTransport: 'long-polling',
+                contentType: "application/json",
+                trackMessageSize: true,
+                shared: true,
+                logLevel: 'debug',
+                onMessage: function (response) {
+                    var data = JSON.parse(response.responseBody);
+                    onmessage(null, data);
+                },
+                onError: function (response) {
+                    console.error('subscribe error:', response);
+                    onmessage(response.error, null);
+                }
+            };
+            console.log('subscribe subscribe:', req);
+            document.$subSocket = this.getSocket().subscribe(req);
+        };
+
         ServiceBase.prototype._ajaxPost = function(options, callback) {
             options.type = options.type || "POST";
             return this._ajaxGet(options, callback);
@@ -44,6 +70,7 @@ define(['atmosphere'],
             options.type = options.type || "GET";
             options.dataType = options.dataType || this._resolveDataType();
             options.resolvedUrl = options.resolvedUrl || this._resolveUrl(options.url);
+            callback = callback || function() {};
 
             options.success = options.success || function(results) {
                 return callback(null, results);
@@ -61,23 +88,11 @@ define(['atmosphere'],
 
             return $.ajax(options);
         };
-		
-		ServiceBase.prototype._publishMessage = function (url, messageObj, callback, options) {
-			this._ajaxPost({
-				resolvedUrl: url,
-				url: url,
-				data: JSON.stringify(messageObj),
-				contentType: "application/json",
-				dataType: "text"
-			},function (err, data) {
-				callback(err,messageObj);
-			});
-		}
-		
+
 		ServiceBase.prototype._unsubscribe = function (url) {
 			this.getSocket().unsubscribeUrl(url);
-		}
-		
+		};
+
 
         ServiceBase.prototype._resolveUrl = function (urlSuffix) {
             return this.options.serviceBaseUrl + this.options.serviceContext + urlSuffix;

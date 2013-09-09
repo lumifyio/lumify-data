@@ -1,20 +1,22 @@
 package com.altamiracorp.web;
 
-import com.altamiracorp.web.Route.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.Map;
+
+import com.altamiracorp.web.Route.Method;
+import com.google.inject.Injector;
 
 public class App {
-    private ServletConfig servletConfig;
     private Router router;
     private Map<String, Object> config;
+    private final Injector injector;
 
-    public App(ServletConfig servletConfig) {
-        this.servletConfig = servletConfig;
+    public App(final ServletConfig servletConfig, final Injector injector) {
+        this.injector = injector;
         router = new Router(servletConfig);
         config = new HashMap<String, Object>();
     }
@@ -110,7 +112,7 @@ public class App {
     private Handler[] instantiateHandlers(Class<? extends Handler>[] handlerClasses) throws Exception {
         Handler[] handlers = new Handler[handlerClasses.length];
         for (int i = 0; i < handlerClasses.length; i++) {
-            handlers[i] = handlerClasses[i].newInstance();
+            handlers[i] = injector.getInstance(handlerClasses[i]);
         }
         return handlers;
     }

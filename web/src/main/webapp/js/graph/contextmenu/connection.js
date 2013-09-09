@@ -2,9 +2,10 @@
 define([
     'util/retina',
     'service/statement',
+    'service/ontology',
     'tpl!./relationship-options',
     'tpl!./connection'
-], function(retina, StatementService, relationshipTypeTemplate, connectionTemplate) {
+], function(retina, StatementService, OntologyService, relationshipTypeTemplate, connectionTemplate) {
 
     return Connection;
 
@@ -12,36 +13,65 @@ define([
 
         if (!this.statementService) {
             this.statementService = new StatementService();
+            this.ontologyService = new OntologyService();
         }
 
         this.getRelationshipLabels = function (source, dest) {
             var self = this;
             var sourceConceptTypeId = source.data('_subType');
             var destConceptTypeId = dest.data('_subType');
-            self.statementService.relationships (sourceConceptTypeId, destConceptTypeId, function (err, results){
+            self.statementService.relationships(sourceConceptTypeId, destConceptTypeId, function (err, results){
                 if (err) {
                     console.error ('Error', err);
                     return self.trigger (document, 'error', { message: err.toString () });
                 }
 
-                console.log ('relationships results', results);
-                $(".concept-label").html(relationshipTypeTemplate({
-                    relationships: results.relationships || ''
-                }));
+                self.displayRelationships (results.relationships);
+            });
+        };
+
+        this.displayRelationships = function (relationships) {
+            var self = this;
+            self.ontologyService.relationships(function(err, ontologyRelationships) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+
+                var relationshipsTpl = [];
+
+                relationships.forEach(function(relationship) {
+                    var ontologyRelationship = ontologyRelationships.byTitle[relationship.title];
+                    var displayName;
+                    if(ontologyRelationship) {
+                        displayName = ontologyRelationship.displayName;
+                    } else {
+                        displayName = relationship.title;
+                    }
+
+                    var data = {
+                        title: relationship.title,
+                        displayName: displayName
+                    };
+
+                    relationshipsTpl.push(data);
+                });
+
+                $(".concept-label").html(relationshipTypeTemplate({ relationships: relationshipsTpl }));
             });
         };
 
         this.onContextMenuConnect = function() {
-            var menu = this.select('nodeContextMenuSelector');
-            var graphNodeId = menu.data('currentNodeGraphNodeId');
+            var menu = this.select('vertexContextMenuSelector');
+            var graphVertexId = menu.data('currentVertexGraphVertexId');
 
             this.creatingStatement = true;
 
 
             this.cy(function(cy) {
                 var self = this,
-                    sourceNode = cy.getElementById(graphNodeId),
-                    title = sourceNode.data('originalTitle'),
+                    sourceVertex = cy.getElementById(graphVertexId),
+                    title = sourceVertex.data('originalTitle'),
                     beginText = 'Select item to connect to "' + title + '"',
                     instructions = $('<div>')
                         .text(beginText) 
@@ -67,8 +97,8 @@ define([
                             edge.data('label', 'Saving...');
 
                             var parameters = {
-                                sourceGraphNodeId: graphNodeId,
-                                destGraphNodeId: targetGraphId,
+                                sourceGraphVertexId: graphVertexId,
+                                destGraphVertexId: targetGraphId,
                                 predicateLabel: val
                             };
 
@@ -97,7 +127,7 @@ define([
                     mouseEvents = {
                         mouseover: function(event) {
                             if (event.cy == event.cyTarget) return;
-                            if (event.cyTarget.id() === graphNodeId) return;
+                            if (event.cyTarget.id() === graphVertexId) return;
                             if (!event.cyTarget.is('node')) return;
 
 
@@ -108,7 +138,7 @@ define([
                               group: 'edges',
                               classes: 'temp',
                               data: {
-                                  source: graphNodeId,
+                                  source: graphVertexId,
                                   target: targetGraphId
                               }
                             });

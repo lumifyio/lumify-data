@@ -22,15 +22,21 @@ fi
 
 if [ "$1" != '' ]; then
   filename=$1
+  admin1codeFilename=$2
+  countryInfoFilename=$3
+  postalCodeFilename=$4
 else
   filename=${DIR}/../data/allCountries.txt
+  admin1codeFilename=${DIR}/../data/admin1CodesASCII.txt
+  countryInfoFilename=${DIR}/../data/countryInfo.txt
+  postalCodeFilename=${DIR}/../data/postalCodes.txt
 fi
 
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.location.GeoNamesImport \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.location.GeoNamesImporter \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
@@ -38,4 +44,7 @@ com.altamiracorp.reddawn.location.GeoNamesImport \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
---filename=${filename}
+--filename=${filename} \
+--admin1code=${admin1codeFilename} \
+--countryinfo=${countryInfoFilename} \
+--postalcode=${postalCodeFilename}

@@ -4,15 +4,16 @@ define([
     'tpl!./statementForm',
     'tpl!./relationship-options',
     'service/statement',
+    'service/ontology',
     'underscore'
-], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, StatementService, _) {
+], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, StatementService, OntologyService, _) {
     'use strict';
 
     return defineComponent(StatementForm, withDropdown);
 
-
     function StatementForm() {
         this.statementService = new StatementService();
+        this.ontologyService = new OntologyService();
 
         this.defaultAttrs({
             formSelector: '.form',
@@ -87,22 +88,28 @@ define([
 
         this.onInvert = function (e) {
             e.preventDefault();
+
+            var sourceTerm = this.attr.sourceTerm;
+            this.attr.sourceTerm = this.attr.destTerm;
+            this.attr.destTerm = sourceTerm;
+
             this.select('formSelector').toggleClass('invert');
+            this.getRelationshipLabels ();
         };
 
 
         this.onCreateStatement = function (event) {
             var self = this,
                 parameters = {
-                    sourceGraphNodeId: this.attr.sourceTerm.data('info').graphNodeId,
-                    destGraphNodeId: this.attr.destTerm.data('info').graphNodeId,
+                    sourceGraphVertexId: this.attr.sourceTerm.data('info').graphVertexId,
+                    destGraphVertexId: this.attr.destTerm.data('info').graphVertexId,
                     predicateLabel: this.select('relationshipSelector').val()
                 };
 
             if (this.select('formSelector').hasClass('invert')) {
-                var swap = parameters.sourceGraphNodeId;
-                parameters.sourceGraphNodeId = parameters.destGraphNodeId;
-                parameters.destGraphNodeId = swap;
+                var swap = parameters.sourceGraphVertexId;
+                parameters.sourceGraphVertexId = parameters.destGraphVertexId;
+                parameters.destGraphVertexId = swap;
             }
 
             this.statementService.createStatement(parameters, function (err, data) {
@@ -117,18 +124,46 @@ define([
 
         this.getRelationshipLabels = function () {
             var self = this;
-            var sourceConceptTypeId = self.attr.sourceTerm.data('info')._subType;
-            var destConceptTypeId = self.attr.destTerm.data('info')._subType;
+            var sourceConceptTypeId = this.attr.sourceTerm.data('info')._subType;
+            var destConceptTypeId = this.attr.destTerm.data('info')._subType;
             self.statementService.relationships (sourceConceptTypeId, destConceptTypeId, function (err, results){
                 if (err) {
                     console.error ('Error', err);
                     return self.trigger (document, 'error', { message: err.toString () });
                 }
 
-                console.log ('relationships results', results);
-                self.select('relationshipSelector').html(relationshipTypeTemplate({
-                    relationships: results.relationships || ''
-                }));
+                self.displayRelationships (results.relationships);
+            });
+        };
+
+        this.displayRelationships = function (relationships) {
+            var self = this;
+            self.ontologyService.relationships(function(err, ontologyRelationships) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+
+                var relationshipsTpl = [];
+
+                relationships.forEach(function(relationship) {
+                    var ontologyRelationship = ontologyRelationships.byTitle[relationship.title];
+                    var displayName;
+                    if(ontologyRelationship) {
+                        displayName = ontologyRelationship.displayName;
+                    } else {
+                        displayName = relationship.title;
+                    }
+
+                    var data = {
+                        title: relationship.title,
+                        displayName: displayName
+                    };
+
+                    relationshipsTpl.push(data);
+                });
+
+                self.select('relationshipSelector').html(relationshipTypeTemplate({ relationships: relationshipsTpl }));
             });
         };
     }

@@ -1,10 +1,10 @@
-<ul>
 <% properties.forEach(function(property) { %>
-    <% if (property.key.charAt(0) != '_') {%>
-    <li class="entity-property">
-        <%= property.key %>
-        <%= property.value %>
+    <li class="property property-<%= property.key %>">
+      <strong><%= property.displayName %></strong><span class="value"><%= property.value %></span>
     </li>
-    <% } %>
 <% }); %>
-</ul>
+
+  <li class="buttons">
+    <button class="add-new-properties btn btn-mini btn-default">Add Property</button>
+  </li>
+

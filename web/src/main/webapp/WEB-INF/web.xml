@@ -1,33 +1,50 @@
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
     <context-param>
-        <param-name>map.provider</param-name>
-        <param-value>googlev3</param-value>
-        <!--<param-value>leaflet</param-value>-->
+        <param-name>application.config.location</param-name>
+        <param-value>file:///opt/lumify/config/configuration.properties</param-value>
     </context-param>
     <context-param>
-        <param-name>map.apiKey</param-name>
-        <param-value>AIzaSyCauz3KEz7k8zxOjPW4plTuVQv_CFGFMd4</param-value>
-    </context-param>
-    <context-param>
-        <param-name>map.tileServer.hostName</param-name>
-        <param-value>localhost</param-value>
-    </context-param>
-    <context-param>
-        <param-name>map.tileServer.port</param-name>
-        <param-value>9999</param-value>
+        <param-name>application.config.credentials.location</param-name>
+        <param-value>file:///opt/lumify/config/credentials.properties</param-value>
     </context-param>
 
+    <listener>
+        <listener-class>com.altamiracorp.lumify.web.ApplicationBootstrap</listener-class>
+    </listener>
 
     <servlet>
-        <servlet-name>red-dawn</servlet-name>
-        <servlet-class>com.altamiracorp.reddawn.web.Router</servlet-class>
+        <description>AtmosphereServlet</description>
+        <servlet-name>AtmosphereServlet</servlet-name>
+        <servlet-class>org.atmosphere.cpr.AtmosphereServlet</servlet-class>
+        <!--<async-supported>true</async-supported>-->
+        <init-param>
+            <param-name>org.atmosphere.cpr.AtmosphereHandler</param-name>
+            <param-value>com.altamiracorp.lumify.web.Messaging</param-value>
+        </init-param>
+        <init-param>
+            <param-name>org.atmosphere.cpr.sessionSupport</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>org.atmosphere.cpr.broadcastFilterClasses</param-name>
+            <param-value>com.altamiracorp.lumify.web.MessagingFilter</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AtmosphereServlet</servlet-name>
+        <url-pattern>/messaging/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>lumify</servlet-name>
+        <servlet-class>com.altamiracorp.lumify.web.Router</servlet-class>
         <init-param>
             <param-name>env</param-name>
             <param-value>dev</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>
-        <servlet-name>red-dawn</servlet-name>
+        <servlet-name>lumify</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
 </web-app>

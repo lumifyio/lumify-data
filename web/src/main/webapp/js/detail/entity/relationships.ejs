@@ -1,17 +1,15 @@
-<ul>
 <% if(relationships.length == 0) { %>
     <span>There are no relationships to display</span>
 <% } %>
 <% relationships.forEach(function(relationship) { %>
 
-    <li class="relationship" data-info='<%= relationship.dataInfo %>'>
-    <span class="<%= relationship.sourceNode.cssClasses %>" 
-      data-info='<%- JSON.stringify(relationship.sourceNode.properties) %>'
-      ><%- relationship.sourceNode.properties.title || 'No Title' %></span>
-        <%= relationship.relationship.label %>
-    <span class="<%= relationship.destNode.cssClasses %>" 
-      data-info='<%- JSON.stringify(relationship.destNode.properties) %>'
-      ><%- relationship.destNode.properties.title || 'No Title' %></span>
+    <li class="relationship">
+    <span class="<%= relationship.sourceVertex.cssClasses %>"
+      data-info="<%= JSON.stringify(relationship.sourceVertex.properties) %>"
+      ><%- relationship.sourceVertex.properties.title || 'No Title' %></span>
+    <span data-info='<%= relationship.dataInfo %>' class="relationship"><%= relationship.displayName %></span>
+    <span class="<%= relationship.destVertex.cssClasses %>"
+      data-info='<%= JSON.stringify(relationship.destVertex.properties) %>'
+      ><%- relationship.destVertex.properties.title || 'No Title' %></span>
     </li>
 <% }); %>
-</ul>

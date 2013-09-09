@@ -6,8 +6,12 @@ define([], function() {
     function withContextMenu() {
 
         this.after('initialize', function() {
-            this.$node.find('.dropdown-menu a').on('click', this.onContextMenuClick.bind(this));
+            this.bindContextMenuClickEvent();
         });
+
+        this.bindContextMenuClickEvent = function() {
+            this.$node.find('.dropdown-menu a').on('click', this.onContextMenuClick.bind(this));
+        };
 
         this.onContextMenuClick = function(event) {
             var target = $(event.target),
@@ -15,7 +19,6 @@ define([], function() {
                 functionName = name && 'onContextMenu' + name.substring(0, 1).toUpperCase() + name.substring(1),
                 func = functionName && this[functionName],
                 args = target.data('args');
-
 
             if (func) {
                 if (!args) {
@@ -43,18 +46,17 @@ define([], function() {
                 submenuSize = menuSize,
                 placement = {
                     left: Math.min(
-                        position.positionInNode ?
-                            position.positionInNode.x : (position.positionUsingEvent.originalEvent.pageX - offset.left),
+                        position.positionInVertex ?
+                            position.positionInVertex.x : (position.positionUsingEvent.originalEvent.pageX - offset.left),
                         windowSize.x - offset.left - menuSize.x - padding
                     ),
                     top: Math.min(
-                        position.positionInNode ?
-                            position.positionInNode.y : (position.positionUsingEvent.originalEvent.pageY - offset.top),
+                        position.positionInVertex ?
+                            position.positionInVertex.y : (position.positionUsingEvent.originalEvent.pageY - offset.top),
                         windowSize.y - offset.top - menuSize.y - padding
                     )
                 },
                 submenuPlacement = { left:'100%', right:'auto', top:0, bottom:'auto' };
-
             if ((placement.left + menuSize.x + submenuSize.x + padding) > windowSize.x) {
                 submenuPlacement = $.extend(submenuPlacement, { right: '100%', left:'auto' });
             }

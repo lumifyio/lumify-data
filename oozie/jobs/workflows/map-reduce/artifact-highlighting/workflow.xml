@@ -28,7 +28,7 @@
                 </property>
                 <property>
                     <name>mapreduce.map.class</name>
-                    <value>com.altamiracorp.reddawn.entityHighlight.EntityHighlightMR$EntityHighlightMapper</value>
+                    <value>${basePackage}.entityHighlight.EntityHighlightMR$EntityHighlightMapper</value>
                 </property>
                 <property>
                     <name>mapred.map.tasks</name>

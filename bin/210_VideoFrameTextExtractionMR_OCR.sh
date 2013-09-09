@@ -1,4 +1,5 @@
 #!/bin/bash
+# group: video
 # require: 200_VideoConversionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
@@ -24,8 +25,8 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.reddawn.textExtraction.VideoFrameTextExtractionMR \
---zookeeperInstanceName=reddawn \
+com.altamiracorp.lumify.textExtraction.VideoFrameTextExtractionMR \
+--zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
 --blurPath=hdfs://${ip}/blur \
@@ -34,4 +35,4 @@ com.altamiracorp.reddawn.textExtraction.VideoFrameTextExtractionMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.reddawn.textExtraction.ImageOcrTextExtractor
+--classname=com.altamiracorp.lumify.textExtraction.ImageOcrTextExtractor

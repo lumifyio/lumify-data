@@ -1,9 +1,10 @@
 
 define([
     'flight/lib/component',
+    'flight/lib/registry',
     'underscore',
     'tpl!./detail'
-], function( defineComponent, _, template) {
+], function( defineComponent, registry, _, template) {
 
     'use strict';
 
@@ -22,10 +23,15 @@ define([
                 mapCoordinatesSelector: this.onMapCoordinatesClicked
             });
 
-            this.on(document, 'searchResultSelected', this.onSearchResultSelected);
+            this.on(document, 'verticesSelected', this.onVerticesSelected);
+            this.on('verticesSelected', this.onVerticesSelectedWithinContents);
             this.preventDropEventsFromPropagating();
             
             this.$node.html(template({}));
+
+            if (this.attr.loadGraphVertexData) {
+                this.onVerticesSelected(null, [this.attr.loadGraphVertexData]);
+            }
         });
 
 
@@ -45,14 +51,23 @@ define([
             this.trigger('mapCenter', data);
         };
 
+        this.onVerticesSelectedWithinContents = function(evt, data) {
+            evt.stopPropagation();
+            this.onVerticesSelected(evt, data);
+        };
 
-        this.onSearchResultSelected = function(evt, data) {
+        this.onVerticesSelected = function(evt, data) {
+
             if ($.isArray(data) && data.length === 1) {
                 data = data[0];
             }
 
-            if (this.typeContentModule) {
-                this.typeContentModule.teardownAll();
+            var typeContentNode = this.select('detailTypeContentSelector'),
+                instanceInfos = registry.findInstanceInfoByNode(typeContentNode[0]);
+            if (instanceInfos.length) {
+                instanceInfos.forEach(function(info) {
+                    info.instance.teardown();
+                });
             }
 
             if ( !data || data.length === 0 ) {
@@ -67,8 +82,10 @@ define([
             require([
                 'detail/' + moduleName + '/' + moduleName,
             ], function(Module) {
-                var node = self.select('detailTypeContentSelector');
-                (self.typeContentModule = Module).attachTo(node, { data:data });
+                Module.attachTo(typeContentNode, { 
+                    data: data,
+                    highlightStyle: self.attr.highlightStyle
+                });
             });
         };
     }

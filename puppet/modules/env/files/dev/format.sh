@@ -2,6 +2,8 @@
 
 sudo rm -rf /var/lib/hadoop-0.20/cache/*
 sudo rm -rf /var/zookeeper/version-2
+sudo rm -rf /data0/hdfs/name
+sudo rm -rf /data0/hdfs/data
 sudo -u hdfs /usr/lib/hadoop/bin/hadoop namenode -format
 
 for service in /etc/init.d/hadoop-0.20-*

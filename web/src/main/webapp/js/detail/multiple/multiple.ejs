@@ -1,11 +1,17 @@
 <div class="multiple">
-  <h1><%= nodes.length %> objects selected</h1>
 
-  <ul>
-    <% nodes.forEach(function(node) { %>
-    <li>
-        <span class="<%= getClasses(node) %>" data-info='<%- JSON.stringify(node) %>'><%- node.originalTitle || node.title || 'No Title' %></span>
-    </li>
-    <% }); %>
-  </ul>
+  <div class="multiple-container">
+    <div class="btn-toolbar">
+      <%- fullscreenButton %>
+    </div>
+
+    <ul class="histograms nav nav-bar">
+      <li class="nav-header"><%= vertices.length %> objects selected</li>
+      <li class="nav-header histogram">Histograms<span class="badge loading"/></li>
+    </ul>
+  </div>
+
+  <div class="details-container"><div class="content"></div></div>
+
+  <div class="vertices-list"></div>
 </div>

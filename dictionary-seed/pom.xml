@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>reddawn</artifactId>
-        <groupId>com.altamiracorp.reddawn</groupId>
+        <artifactId>lumify</artifactId>
+        <groupId>com.altamiracorp.lumify</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
