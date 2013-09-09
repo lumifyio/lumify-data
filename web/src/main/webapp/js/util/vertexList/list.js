@@ -220,11 +220,11 @@ define([
 
         // Track changes to vertices so we display the "Displayed in Graph" icon
         // in search results
-        this.toggleSearchResultIcon = function(graphVertexId, inGraph, inMap) {
+        this.toggleItemIcons = function(graphVertexId, data) {
             this.$node
                 .find('li.gId' + encodeURIComponent(graphVertexId))
-                .toggleClass('graph-displayed', inGraph)
-                .toggleClass('map-displayed', inMap);
+                .toggleClass('graph-displayed', data.inGraph)
+                .toggleClass('map-displayed', data.inMap);
         };
 
         // Switching workspaces should clear the icon state and vertices
@@ -240,7 +240,7 @@ define([
                 // Only care about vertex search results and location updates
                 if ( (vertex._type && vertex._subType) || vertex.location || vertex.locations ) {
                     _currentVertices[vertex.graphVertexId] = self.stateForVertex(vertex);
-                    self.toggleSearchResultIcon(vertex.graphVertexId, _currentVertices[vertex.graphVertexId]);
+                    self.toggleItemIcons(vertex.graphVertexId, _currentVertices[vertex.graphVertexId]);
                 }
             });
         };
@@ -249,7 +249,7 @@ define([
             var self = this;
             (data.vertices || []).forEach(function(vertex) {
                 delete _currentVertices[vertex.graphVertexId];
-                self.toggleSearchResultIcon(vertex.graphVertexId, { inGraph:false, inMap:false });
+                self.toggleItemIcons(vertex.graphVertexId, { inGraph:false, inMap:false });
             });
         };
 
