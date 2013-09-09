@@ -43,7 +43,7 @@ define([
             this.$node.html(template({
                 getClasses: this.classesForVertex,
                 vertices: vertices,
-                fullscreenButton: self.fullscreenButton(_.pluck(vertices, 'id'))
+                fullscreenButton: self.fullscreenButton(_.pluck(vertices, 'graphVertexId'))
             }));
             this.updateEntityAndArtifactDraggables();
 
