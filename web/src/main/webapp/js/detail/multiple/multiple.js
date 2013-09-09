@@ -94,11 +94,20 @@ define([
             }
 
             data = data[0];
+
+            if (this._selectedGraphId === data.graphVertexId) {
+                this.$node.find('.multiple').removeClass('viewing-vertex');
+                this.$node.find('.vertices-list').show().find('.active').removeClass('active');
+                this._selectedGraphId = null;
+                return;
+            }
+
             var self = this,
                 moduleName = (($.isArray(data) ? 'multiple' :
                     (data._type != 'artifact' && data._type != 'relationship') ? 'entity' : data._type ) || 'entity')
                     .toLowerCase();
 
+            this._selectedGraphId = data.graphVertexId;
             require([
                 'detail/' + moduleName + '/' + moduleName,
             ], function(Module) {
