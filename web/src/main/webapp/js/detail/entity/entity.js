@@ -201,13 +201,13 @@ define([
         this.getRelationships = function(graphVertexId, callback) {
             var self = this;
 
-            this.handleCancelling(this.ucdService.getVertexRelationships(encodeURIComponent(graphVertexId), function(err, relationships) {
+            this.handleCancelling(this.ucdService.getVertexRelationships(encodeURIComponent(graphVertexId), function(err, data) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
 
-                return callback(relationships);
+                return callback(data.relationships);
             }));
         };
 

@@ -34,6 +34,9 @@ public class FileImporter {
         if (file.getName().startsWith(".")) {
             return null;
         }
+        if (file.getName().endsWith(".mapping.json")) {
+            return null;
+        }
         Artifact artifact = artifactRepository.createArtifactFromInputStream(
                 redDawnSession.getModelSession(),
                 file.length(),
@@ -47,6 +50,7 @@ public class FileImporter {
 
         LOGGER.info("Writing artifact: " + artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension() + " (rowId: " + artifact.getRowKey().toString() + ")");
         artifactRepository.save(redDawnSession.getModelSession(), artifact);
+        artifact = artifactRepository.findByRowKey(redDawnSession.getModelSession(), artifact.getRowKey().toString());
         GraphVertex graphVertex = artifactRepository.saveToGraph(redDawnSession.getModelSession(), redDawnSession.getGraphSession(), artifact);
         return new Result(file, artifact, graphVertex);
     }

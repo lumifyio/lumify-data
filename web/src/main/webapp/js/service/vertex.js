@@ -18,11 +18,14 @@ define(
                     value: value
                 }
             }, function (err, response) {
-                callback(err, response);
+                if (err) {
+                    return callback(err);
+                }
+                return callback(null, response.properties);
             });
         };
 
-        VertexService.prototype.getMultiple = function(vertexIds, callback) {
+        VertexService.prototype.getMultiple = function (vertexIds, callback) {
             return this._ajaxGet({
                 url: 'vertex/multiple',
                 data: {

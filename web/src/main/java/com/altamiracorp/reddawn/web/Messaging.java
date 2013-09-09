@@ -11,6 +11,8 @@ import org.atmosphere.cpr.*;
 import org.atmosphere.interceptor.AtmosphereResourceLifecycleInterceptor;
 import org.atmosphere.interceptor.BroadcastOnPostAtmosphereInterceptor;
 import org.atmosphere.interceptor.HeartbeatInterceptor;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +34,14 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     private UserRepository userRepository = new UserRepository();
     private static RedDawnSession cachedSession;
 
+    // TODO should we save off this broadcaster? When using the BroadcasterFactory
+    //      we always get null when trying to get the default broadcaster
+    private static Broadcaster broadcaster;
+
     @Override
     public void onRequest(AtmosphereResource resource) throws IOException {
+        broadcaster = resource.getBroadcaster();
+
         AtmosphereRequest req = resource.getRequest();
         if (resource.getRequest().getMethod().equalsIgnoreCase("GET")) {
             onOpen(resource);
@@ -91,6 +99,8 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     }
 
     private void setStatus(AtmosphereResource resource, UserStatus status) {
+        broadcaster = resource.getBroadcaster();
+
         RedDawnSession session = getRedDawnSession(resource);
         try {
             User user = DevBasicAuthenticator.getUser(resource.getRequest().getSession());
@@ -117,5 +127,29 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
         RedDawnSession session = WebSessionFactory.createRedDawnSession(resource.getRequest());
         cachedSession = session;
         return session;
+    }
+
+    public static void broadcastPropertyChange(String graphVertexId, String propertyName, Object value) {
+        try {
+            JSONObject propertyJson = new JSONObject();
+            propertyJson.put("graphVertexId", graphVertexId);
+            propertyJson.put("propertyName", propertyName);
+            propertyJson.put("value", value.toString());
+
+            JSONArray propertiesJson = new JSONArray();
+            propertiesJson.put(propertyJson);
+
+            JSONObject dataJson = new JSONObject();
+            dataJson.put("properties", propertiesJson);
+
+            JSONObject json = new JSONObject();
+            json.put("type", "propertiesChange");
+            json.put("data", dataJson);
+            if (broadcaster != null) {
+                broadcaster.broadcast(json.toString());
+            }
+        } catch (JSONException ex) {
+            throw new RuntimeException("Could not create json", ex);
+        }
     }
 }

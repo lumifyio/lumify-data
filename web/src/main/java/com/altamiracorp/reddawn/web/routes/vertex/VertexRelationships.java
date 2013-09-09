@@ -1,9 +1,9 @@
 package com.altamiracorp.reddawn.web.routes.vertex;
 
 import com.altamiracorp.reddawn.RedDawnSession;
-import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.model.graph.GraphRelationship;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
+import com.altamiracorp.reddawn.model.graph.GraphVertex;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
@@ -32,14 +32,16 @@ public class VertexRelationships implements Handler, AppAware {
 
         Map<GraphRelationship, GraphVertex> relationships = graphRepository.getRelationships(session.getGraphSession(), (String) request.getAttribute("graphVertexId"));
 
-        JSONArray responseJson = new JSONArray();
-        for(Map.Entry<GraphRelationship, GraphVertex> relationship : relationships.entrySet()) {
+        JSONObject json = new JSONObject();
+        JSONArray relationshipsJson = new JSONArray();
+        for (Map.Entry<GraphRelationship, GraphVertex> relationship : relationships.entrySet()) {
             JSONObject relationshipJson = new JSONObject();
             relationshipJson.put("relationship", relationship.getKey().toJson());
             relationshipJson.put("vertex", relationship.getValue().toJson());
-            responseJson.put(relationshipJson);
+            relationshipsJson.put(relationshipJson);
         }
+        json.put("relationships", relationshipsJson);
 
-        new Responder(response).respondWith(responseJson);
+        new Responder(response).respondWith(json);
     }
 }

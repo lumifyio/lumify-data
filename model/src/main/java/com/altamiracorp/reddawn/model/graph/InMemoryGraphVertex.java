@@ -37,4 +37,12 @@ public class InMemoryGraphVertex extends GraphVertex {
     public void setId(String id) {
         this.id = id;
     }
+
+    @Override
+    public void update(GraphVertex newGraphVertex) {
+        super.update(newGraphVertex);
+        if (newGraphVertex.getId() != null) {
+            setId(newGraphVertex.getId());
+        }
+    }
 }

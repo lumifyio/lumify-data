@@ -168,6 +168,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
 
         String vertexId = graphSession.save(vertex);
+        graphSession.commit();
         if (!vertexId.equals(oldGraphVertexId)) {
             artifact.getGenericMetadata().setGraphVertexId(vertexId);
             this.save(session, artifact);

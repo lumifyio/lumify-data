@@ -4,6 +4,7 @@ import com.altamiracorp.reddawn.RedDawnSession;
 import com.altamiracorp.reddawn.model.graph.GraphRepository;
 import com.altamiracorp.reddawn.model.ontology.OntologyRepository;
 import com.altamiracorp.reddawn.model.ontology.Property;
+import com.altamiracorp.reddawn.web.Messaging;
 import com.altamiracorp.reddawn.web.Responder;
 import com.altamiracorp.reddawn.web.WebApp;
 import com.altamiracorp.web.App;
@@ -11,6 +12,7 @@ import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,9 +49,13 @@ public class VertexSetProperty implements Handler, AppAware {
 
         graphRepository.setPropertyVertex(session.getGraphSession(), graphVertexId, propertyName, value);
 
+        Messaging.broadcastPropertyChange(graphVertexId, propertyName, value);
+
         Map<String, String> properties = graphRepository.getVertexProperties(session.getGraphSession(), graphVertexId);
-        JSONArray resultsJson = VertexProperties.propertiesToJson(properties);
-        new Responder(response).respondWith(resultsJson);
+        JSONArray propertiesJson = VertexProperties.propertiesToJson(properties);
+        JSONObject json = new JSONObject();
+        json.put("properties", propertiesJson);
+        new Responder(response).respondWith(json);
     }
 
     @Override
