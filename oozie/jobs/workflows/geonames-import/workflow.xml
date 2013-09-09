@@ -13,13 +13,7 @@
   limitations under the License. See accompanying LICENSE file.
 -->
 <workflow-app xmlns="uri:oozie:workflow:0.1" name="file-import-wf">
-    <start to="files-to-import"/>
-	<fork name="geonames-import-fork">
-		<path start="place-names-node"/>
-	    <path start="admin1-codes-node"/>
-		<path start="country-info-node"/>
-		<path start="postal-codes-node"/>
-	</fork>
+    <start to="place-names-node"/>
     <action name="place-names-node">
         <map-reduce>
             <job-tracker>${jobTracker}</job-tracker>
@@ -54,7 +48,7 @@
 			    </property>
             </configuration>
         </map-reduce>
-        <ok to="rejoin"/>
+        <ok to="admin1-codes-node"/>
         <error to="fail"/>
     </action>
     <action name="admin1-codes-node">
@@ -91,7 +85,7 @@
 			    </property>
             </configuration>
         </map-reduce>
-        <ok to="rejoin"/>
+        <ok to="country-info-node"/>
         <error to="fail"/>
     </action>
     <action name="country-info-node">
@@ -128,7 +122,7 @@
 			    </property>
             </configuration>
         </map-reduce>
-        <ok to="rejoin"/>
+        <ok to="postal-codes-node"/>
         <error to="fail"/>
     </action>
     <action name="postal-codes-node">
@@ -165,10 +159,9 @@
 			    </property>
             </configuration>
         </map-reduce>
-        <ok to="rejoin"/>
+        <ok to="end"/>
         <error to="fail"/>
     </action>
-	<join name="rejoin" to="end"/>
     <kill name="fail">
         <message>Map/Reduce failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>
     </kill>
