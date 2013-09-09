@@ -51,11 +51,10 @@ define([
             this.trigger('mapCenter', data);
         };
 
-        this.onVerticesSelectedWithinContents = function(event, data) {
+        this.onVerticesSelectedWithinContents = function(evt, data) {
             evt.stopPropagation();
-            this.onVerticesSelected(event, data);
+            this.onVerticesSelected(evt, data);
         };
-
 
         this.onVerticesSelected = function(evt, data) {
 
