@@ -40,6 +40,8 @@ Vagrant.configure('2') do |config|
   # View the documentation for the provider you're using for more
   # information on available options.
 
+  config.vm.provision :shell, inline: "mkdir -p /data0"
+
   config.vm.provision :puppet do |puppet|
     puppet.manifests_path = 'puppet/manifests'
     puppet.module_path    = [ 'puppet/modules', 'puppet/puppet-modules' ]
