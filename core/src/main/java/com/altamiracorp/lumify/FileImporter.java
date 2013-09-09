@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify;
 
+import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.google.common.io.Files;
@@ -10,6 +11,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -18,6 +20,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 
 public class FileImporter {
@@ -26,9 +30,12 @@ public class FileImporter {
 
     private ArtifactRepository artifactRepository = new ArtifactRepository();
 
-    public void writeFile(AppSession session, File file, String source, JSONObject mappingJson) throws IOException, MutationsRejectedException {
+    public Result writeFile(AppSession session, File file, String source, JSONObject mappingJson) throws IOException, MutationsRejectedException {
         if (file.getName().startsWith(".")) {
-            return;
+            return null;
+        }
+        if (file.getName().endsWith(".mapping.json")) {
+            return null;
         }
         Artifact artifact = artifactRepository.createArtifactFromInputStream(
                 session.getModelSession(),
@@ -43,10 +50,13 @@ public class FileImporter {
 
         LOGGER.info("Writing artifact: " + artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension() + " (rowId: " + artifact.getRowKey().toString() + ")");
         artifactRepository.save(session.getModelSession(), artifact);
-        artifactRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), artifact);
+        artifact = artifactRepository.findByRowKey(session.getModelSession(), artifact.getRowKey().toString());
+        GraphVertex graphVertex = artifactRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), artifact);
+        return new Result(file, artifact, graphVertex);
     }
 
-    public void writePackage(AppSession session, File file, String source) throws Exception {
+    public ArrayList<Result> writePackage(AppSession session, File file, String source) throws Exception {
+        ArrayList<Result> results;
         ZipFile zipped = new ZipFile(file);
         if (zipped.isValidZipFile()) {
             File tempDir = Files.createTempDir();
@@ -54,16 +64,20 @@ public class FileImporter {
                 LOGGER.info("Extracting: " + file.getAbsoluteFile() + " to " + tempDir.getAbsolutePath());
                 zipped.extractAll(tempDir.getAbsolutePath());
 
-                writeDirectory(session, tempDir, "*", source);
+                results = writeDirectory(session, tempDir, "*", source);
             } finally {
                 FileUtils.deleteDirectory(tempDir);
             }
         } else {
-            writeFile(session, file, source, null);
+            results = new ArrayList<Result>();
+            Result r = writeFile(session, file, source, null);
+            results.add(r);
         }
+        return results;
     }
 
-    public void writeDirectory(AppSession session, File directory, String pattern, String source) throws Exception {
+    public ArrayList<Result> writeDirectory(AppSession session, File directory, String pattern, String source) throws Exception {
+        ArrayList<Result> results = new ArrayList<Result>();
         IOFileFilter fileFilter = new WildcardFileFilter(pattern);
         IOFileFilter directoryFilter = TrueFileFilter.INSTANCE;
         Iterator<File> fileIterator = FileUtils.iterateFiles(directory, fileFilter, directoryFilter);
@@ -72,9 +86,13 @@ public class FileImporter {
             File f = fileIterator.next();
             if (f.isFile() && !f.getName().endsWith(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
                 JSONObject mappingJson = readMappingJsonFile(f);
-                writeFile(session, f, source, mappingJson);
+                Result r = writeFile(session, f, source, mappingJson);
+                if (r != null) {
+                    results.add(r);
+                }
             }
         }
+        return results;
     }
 
     private JSONObject readMappingJsonFile(File f) throws JSONException, IOException {
@@ -89,5 +107,49 @@ public class FileImporter {
             }
         }
         return mappingJson;
+    }
+
+    public static class Result {
+        private final String name;
+        private final String artifactRowKey;
+        private final String graphVertexId;
+
+        public Result(File file, Artifact artifact, GraphVertex graphVertex) {
+            this.name = file.getName();
+            this.artifactRowKey = artifact.getRowKey().toString();
+            this.graphVertexId = graphVertex.getId();
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getArtifactRowKey() {
+            return artifactRowKey;
+        }
+
+        public String getGraphVertexId() {
+            return graphVertexId;
+        }
+
+        public JSONObject toJson() {
+            try {
+                JSONObject json = new JSONObject();
+                json.put("name", getName());
+                json.put("artifactRowKey", getArtifactRowKey());
+                json.put("graphVertexId", getGraphVertexId());
+                return json;
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        public static JSONArray toJson(Collection<Result> results) {
+            JSONArray r = new JSONArray();
+            for (Result result : results) {
+                r.put(result.toJson());
+            }
+            return r;
+        }
     }
 }

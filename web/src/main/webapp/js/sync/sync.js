@@ -8,22 +8,22 @@ define([
     return defineComponent(Sync);
 
     function Sync() {
+        this.syncCursors = false; // TODO should we sync cursors? Maybe allow enabling/disabling.
         this.syncService = new SyncService();
 
         //PUT EVENTS YOU WANT TO SYNC HERE!
         this.events = [
-            'search',
-            'showSearchResults',
-            'searchQueryChanged',
             'verticesAdded',
             'verticesUpdated',
             'verticesDeleted',
-            'menubarToggleDisplay',
-            'mapUpdateBoundingBox',
-            'syncCursorMove',
-            'syncCursorFocus',
-            'syncCursorBlur'
+            'mapUpdateBoundingBox'
         ];
+
+        if(this.syncCursors) {
+            this.events.push('syncCursorMove');
+            this.events.push('syncCursorFocus');
+            this.events.push('syncCursorBlur');
+        }
 
         this.after('initialize', function () {
             console.log("A new sync was created for ", this.attr);
@@ -34,7 +34,9 @@ define([
             for (var i in this.events) {
                 this.on(document, this.events[i], this.onSyncedEvent);
             }
-            SyncCursor.attachTo(window);
+            if(this.syncCursors) {
+                SyncCursor.attachTo(window);
+            }
         });
 
         this.onWorkspaceSwitched = function (evt, data) {
@@ -44,6 +46,7 @@ define([
         this.onSocketMessage = function (evt, message) {
             switch (message.type) {
                 case 'sync':
+                    console.log('sync onSocketMessage (remote: ' + (message.data.eventData.remoteEvent ? 'true' : 'false') + ')', message);
                     message.data.eventData.remoteEvent = true;
                     this.trigger(document, message.data.eventName, message.data.eventData);
                     break;

@@ -11,6 +11,8 @@ import org.atmosphere.cpr.*;
 import org.atmosphere.interceptor.AtmosphereResourceLifecycleInterceptor;
 import org.atmosphere.interceptor.BroadcastOnPostAtmosphereInterceptor;
 import org.atmosphere.interceptor.HeartbeatInterceptor;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,29 +34,32 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     private UserRepository userRepository = new UserRepository();
     private static AppSession cachedSession;
 
+    // TODO should we save off this broadcaster? When using the BroadcasterFactory
+    //      we always get null when trying to get the default broadcaster
+    private static Broadcaster broadcaster;
+
     @Override
     public void onRequest(AtmosphereResource resource) throws IOException {
+        broadcaster = resource.getBroadcaster();
+
         AtmosphereRequest req = resource.getRequest();
         if (resource.getRequest().getMethod().equalsIgnoreCase("GET")) {
-            LOGGER.info("onRequest GET");
             onOpen(resource);
             resource.suspend();
         } else if (req.getMethod().equalsIgnoreCase("POST")) {
-            LOGGER.info("onRequest POST");
             resource.getBroadcaster().broadcast(req.getReader().readLine().trim());
         }
     }
 
     @Override
     public void destroy() {
-        LOGGER.info("destroy");
+        LOGGER.debug("destroy");
     }
 
     @Override
     public void onStateChange(AtmosphereResourceEvent event) throws IOException {
         AtmosphereResponse response = ((AtmosphereResourceImpl) event.getResource()).getResponse(false);
 
-        LOGGER.info("{} with event {}", event.getResource().uuid(), event);
         if (event.getMessage() != null && List.class.isAssignableFrom(event.getMessage().getClass())) {
             List<String> messages = List.class.cast(event.getMessage());
             for (String t : messages) {
@@ -76,15 +81,15 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     }
 
     public void onResume(AtmosphereResourceEvent event, AtmosphereResponse response) throws IOException {
-        LOGGER.error("onResume");
+        LOGGER.debug("onResume");
     }
 
     public void onTimeout(AtmosphereResourceEvent event, AtmosphereResponse response) throws IOException {
-        LOGGER.error("onTimeout");
+        LOGGER.debug("onTimeout");
     }
 
     public void onDisconnect(AtmosphereResourceEvent event, AtmosphereResponse response) throws IOException {
-        LOGGER.error("onDisconnect");
+        LOGGER.debug("onDisconnect");
 
         setStatus(event.getResource(), UserStatus.OFFLINE);
     }
@@ -94,6 +99,7 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     }
 
     private void setStatus(AtmosphereResource resource, UserStatus status) {
+        broadcaster = resource.getBroadcaster();
         AppSession session = getAppSession(resource);
         try {
             User user = DevBasicAuthenticator.getUser(resource.getRequest().getSession());
@@ -120,5 +126,29 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
         AppSession session = WebSessionFactory.createAppSession(resource.getRequest());
         cachedSession = session;
         return session;
+    }
+
+    public static void broadcastPropertyChange(String graphVertexId, String propertyName, Object value) {
+        try {
+            JSONObject propertyJson = new JSONObject();
+            propertyJson.put("graphVertexId", graphVertexId);
+            propertyJson.put("propertyName", propertyName);
+            propertyJson.put("value", value.toString());
+
+            JSONArray propertiesJson = new JSONArray();
+            propertiesJson.put(propertyJson);
+
+            JSONObject dataJson = new JSONObject();
+            dataJson.put("properties", propertiesJson);
+
+            JSONObject json = new JSONObject();
+            json.put("type", "propertiesChange");
+            json.put("data", dataJson);
+            if (broadcaster != null) {
+                broadcaster.broadcast(json.toString());
+            }
+        } catch (JSONException ex) {
+            throw new RuntimeException("Could not create json", ex);
+        }
     }
 }

@@ -72,10 +72,6 @@ function(ServiceBase) {
         return this._ajaxGet({
             url: "artifact/" + i + "/raw",
         }, callback);
-    },
-
-    Ucd.prototype.artifactRelationships = function (id, options, callback) {
-        return this._relationships("artifact", id, options, callback);
     };
 
     Ucd.prototype.entitySearch = function (query, callback) {
@@ -116,21 +112,6 @@ function(ServiceBase) {
     Ucd.prototype.getVertexProperties = function(graphVertexId, callback) {
         console.log('getVertexProperties:', graphVertexId);
         return this._ajaxGet({ url: 'vertex/' + encodeURIComponent(graphVertexId) + '/properties'}, callback);
-    };
-
-    Ucd.prototype._relationship = function (resource, id, options, callback) {
-        var data = {};
-        var success = callback;
-        if (callback && $.isFunction(callback)) {
-            data = options;
-        } else if (options && $.isFunction(options)) {
-            success = options;
-        }
-
-        return this._ajaxGet({
-            url: resource + id + "/relationships",
-            data: data
-        }, success);
     };
 
     Ucd.prototype._search = function (resource, query, callback) {

@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class GraphVertex {
-    private Vertex vertex;
-
     public abstract String getId();
 
     public abstract GraphVertex setProperty(String key, Object value);
@@ -33,13 +31,12 @@ public abstract class GraphVertex {
             for (String key : getPropertyKeys()) {
                 if (key.equals("_type")) {
                     propertiesJson.put(key, getProperty(key).toString().toLowerCase());
-                } else if ( key.equals("geoLocation") ){
+                } else if (key.equals("geoLocation")) {
                     String val = getProperty(key).toString();
-                    String[] latlong = val.substring(val.indexOf('[')+1,val.indexOf(']')).split(",");
+                    String[] latlong = val.substring(val.indexOf('[') + 1, val.indexOf(']')).split(",");
                     propertiesJson.put("latitude", latlong[0]);
                     propertiesJson.put("longitude", latlong[1]);
-                }
-                else {
+                } else {
                     propertiesJson.put(key, getProperty(key));
                 }
             }
@@ -85,6 +82,6 @@ public abstract class GraphVertex {
     }
 
     public Vertex getVertex() {
-        return vertex;
+        return null;
     }
 }

@@ -130,17 +130,15 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
 
     private Object getPropertyValue(JSONObject propertyMappingJson, String columnData) throws JSONException, ParseException {
         String dataType = propertyMappingJson.getString("dataType");
-        if ( columnData == null ) {
+        if (columnData == null) {
             return dataType.equals("date") ? new Date() : "";
         }
         if (dataType.equals("date")) {
             return getPropertyValueDate(propertyMappingJson, columnData);
-        }
-        else if ( dataType.equals("geoLocation") ) {
+        } else if (dataType.equals("geoLocation")) {
             String[] latlong = columnData.split(",");
-            return Geoshape.point(Float.valueOf(latlong[0]),Float.valueOf(latlong[1]));
-        }
-        else {
+            return Geoshape.point(Float.valueOf(latlong[0]), Float.valueOf(latlong[1]));
+        } else {
             return columnData;
         }
     }
@@ -168,6 +166,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
     private TermAndGraphVertex createTermAndGraphVertex(Artifact artifact, int offset, String sign, Map<String, GraphVertex> allGraphVertex, JSONObject columnMappingJson) throws JSONException {
         TermAndGraphVertex termAndGraphVertex;
         String conceptLabel = columnMappingJson.getString("conceptLabel");
+        boolean useExisting = columnMappingJson.optBoolean("useExisting", false);
 
         // TODO these offsets need to be fixed. If the csv file has quotes or other characters which CsvListReader removes this will be wrong
         int termMentionStart = offset;
@@ -191,7 +190,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
             allGraphVertex.put(sign, vertex);
         }
 
-        termAndGraphVertex = new TermAndGraphVertex(termMention, vertex);
+        termAndGraphVertex = new TermAndGraphVertex(termMention, vertex, useExisting);
         return termAndGraphVertex;
     }
 

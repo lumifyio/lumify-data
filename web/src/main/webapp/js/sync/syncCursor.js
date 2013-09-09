@@ -10,6 +10,8 @@ define([
     return defineComponent(SyncCursor);
 
     function SyncCursor() {
+        this.currentUser = null;
+        this.cursorsByUserRowKey = {};
 
         this.defaultAttrs({
             bodySelector: 'body'
@@ -20,20 +22,26 @@ define([
             this.on('focus', this.onFocus);
             this.on('blur', this.onBlur);
 
+            this.on(document, 'onlineStatusChanged', this.onOnlineStatusChanged);
             this.on(document, 'syncCursorMove', this.onRemoteCursorMove);
             this.on(document, 'syncCursorFocus', this.onRemoteCursorFocus);
             this.on(document, 'syncCursorBlur', this.onRemoteCursorBlur);
             this.on(document, 'windowResize', this.updateWindowSize);
 
-            this.cursorEl = $(template({name: this.attr.chatUser})).appendTo(document.body);
-
             this.updateWindowSize();
         });
 
         this.after('teardown', function () {
-            this.cursorEl.remove();
-            this.cursorEl = null;
+            var self = this;
+            Object.keys(this.cursorsByUserRowKey).forEach(function (userRowKey) {
+                var cursor = self.cursorsByUserRowKey[userRowKey];
+                cursor.remove();
+            });
         });
+
+        this.onOnlineStatusChanged = function (evt, data) {
+            this.currentUser = data.user;
+        };
 
         this.updateWindowSize = function () {
             var w = $(window);
@@ -41,10 +49,19 @@ define([
             this.windowHeight = w.height();
         };
 
+        this.getCursor = function (user) {
+            var cursor = this.cursorsByUserRowKey[user.rowKey];
+            if (cursor) {
+                return cursor;
+            }
+            cursor = $(template({user: user})).appendTo(document.body);
+            this.cursorsByUserRowKey[user.rowKey] = cursor;
+            return cursor;
+        };
+
         // Remote bound events trigger these
-        this.onRemoteCursorMove = remoteHandler(function (e, data) {
-            console.log('>>>>>>>>>>> onRemoteCursorMove', data);
-            if (!data.remoteEvent) {
+        this.onRemoteCursorMove = function (e, data) {
+            if (this.currentUser.rowKey == data.user.rowKey) {
                 return;
             }
 
@@ -52,50 +69,55 @@ define([
                 w = this.windowWidth,
                 h = this.windowHeight;
 
-            this.cursorEl.css({
+            var cursor = this.getCursor(data.user);
+            cursor.css({
                 display: 'block',
                 left: Math.min(w, data.x),
                 top: Math.min(h, data.y)
             })
                 .toggleClass('offscreen-x', data.x > (w - buffer))
                 .toggleClass('offscreen-y', data.y > (h - buffer));
-        });
-        this.onRemoteCursorFocus = remoteHandler(function (e, data) {
-            if (!data.remoteEvent) {
+        };
+
+        this.onRemoteCursorFocus = function (e, data) {
+            if (this.currentUser.rowKey == data.user.rowKey) {
                 return;
             }
-            this.cursorEl.addClass('focus');
-        });
-        this.onRemoteCursorBlur = remoteHandler(function (e, data) {
-            if (!data.remoteEvent) {
+            var cursor = this.getCursor(data.user);
+            cursor.addClass('focus');
+        };
+
+        this.onRemoteCursorBlur = function (e, data) {
+            if (this.currentUser.rowKey == data.user.rowKey) {
                 return;
             }
-            this.cursorEl.removeClass('focus');
-        });
+            var cursor = this.getCursor(data.user);
+            cursor.removeClass('focus');
+        };
 
         // Local handlers
         var timeout;
         this.update = function (e) {
-            var userName = 'Unknown';
-            if (document.currentUser) {
-                userName = document.currentUser.userName;
-            }
             this.trigger(document, 'syncCursorMove', {
                 x: e.pageX,
                 y: e.pageY,
                 w: this.windowWidth,
                 h: this.windowHeight,
-                name: userName
+                user: this.currentUser
             });
             this.lastSend = Date.now();
         };
 
         this.onFocus = function () {
-            this.trigger(document, 'syncCursorFocus', {});
+            this.trigger(document, 'syncCursorFocus', {
+                user: this.currentUser
+            });
         };
 
         this.onBlur = function () {
-            this.trigger(document, 'syncCursorBlur', {});
+            this.trigger(document, 'syncCursorBlur', {
+                user: this.currentUser
+            });
         };
 
         this.onMouseMove = function (e) {
@@ -111,14 +133,6 @@ define([
 
             this.update(e);
         };
-
-        function remoteHandler(func) {
-            return function (e, data) {
-                if (data.remoteEvent) {
-                    func.apply(this, arguments);
-                }
-            };
-        }
     }
 });
 

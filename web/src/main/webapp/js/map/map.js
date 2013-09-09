@@ -12,7 +12,7 @@ define([
     'underscore'
 ], function(defineComponent, template, centerTemplate, radiusTemplate, loadingTemplate, UcdService, retina, withContextMenu, _) {
     'use strict';
-            
+
     var MODE_NORMAL = 0,
         MODE_REGION_SELECTION_MODE_POINT = 1,
         MODE_REGION_SELECTION_MODE_RADIUS = 2,
@@ -48,7 +48,49 @@ define([
             this.on(document, 'windowResize', this.onMapEndPan);
             this.on(document, 'syncEnded', this.onSyncEnded);
             this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
+            this.on(document, 'socketMessage', this.onSocketMessage);
         });
+
+        this.onSocketMessage = function (evt, message) {
+            var self = this;
+            switch (message.type) {
+                case 'propertiesChange':
+                    console.log('onSocketMessage: propertiesChange:', message);
+                    for(var i=0; i<message.data.properties.length; i++) {
+                        var propertyChangeData = message.data.properties[i];
+                        self.onPropertyChange(propertyChangeData);
+                    }
+                    break;
+            }
+        };
+
+        this.onPropertyChange = function(propertyChangeData) {
+            if(propertyChangeData.propertyName != 'geoLocation') {
+                return;
+            }
+
+            var m = propertyChangeData.value.match(/point\[(.*?),(.*?)\]/);
+            if(!m) {
+                return;
+            }
+            console.log(m);
+            var latitude = m[1];
+            var longitude = m[2];
+
+            this.map(function(map) {
+                var markers = map.markers
+                    .filter(function(marker) {
+                        return marker.getAttribute('graphVertexId') == propertyChangeData.graphVertexId;
+                    });
+                markers.forEach(function(marker) {
+                    var pt = new mxn.LatLonPoint(latitude, longitude);
+                    if (map.api == 'googlev3') {
+                        var p = pt.toProprietary('googlev3');
+                        marker.proprietary_marker.setPosition(p);
+                    }
+                });
+            });
+        };
 
         this.map = function(callback) {
             if ( this.mapLoaded ) {
@@ -76,13 +118,13 @@ define([
                     width * (
                         crossesMeridian ?
 
-                        ((180 - bounds.sw.lon) + (point.lon + 180)) / 
+                        ((180 - bounds.sw.lon) + (point.lon + 180)) /
                         ((180 - bounds.sw.lon) + (bounds.ne.lon + 180)) :
 
                         (point.lon - bounds.sw.lon) / (bounds.ne.lon - bounds.sw.lon)
                     )
                 ),
-                
+
                 // Not an exact latitude -> y calculation for mercador but close enough
                 top: Math.round(
                     height * (
@@ -159,7 +201,7 @@ define([
                 if (!map.getBounds().contains(points[0]) || map.getZoom() < 3) {
                     var zoom = map.getZoom();
                     map.centerAndZoomOnPoints(points);
-                    var afterZoom = map.getZoom(); 
+                    var afterZoom = map.getZoom();
                     map.setZoom(Math.max(3, afterZoom > zoom ? zoom : afterZoom));
                 }
 
@@ -181,9 +223,9 @@ define([
                         }, {
                             complete: function() {
                                 cloned.addClass('shrink');
-                                _.delay(function() { 
-                                    cloned.remove(); 
-                                }, 1000); 
+                                _.delay(function() {
+                                    cloned.remove();
+                                }, 1000);
                             }
                         });
                 }.bind(this), 100);
@@ -426,9 +468,9 @@ define([
                 if (this.syncNameMarker) {
                     map.removeMarker(this.syncNameMarker);
                 }
-                
+
                 var imageSize = [0,0];
-                var imageUrl = this.cachedRenderName(data.remoteInitiator, imageSize, 
+                var imageUrl = this.cachedRenderName(data.remoteInitiator, imageSize,
                     polyline.color, '#fff', 'rgba(0,0,0,0.5)');
                 if ( imageUrl ) {
                     // Place in bottom left corner and move to make even with
@@ -478,7 +520,7 @@ define([
             this.$node.find('.instructions').remove();
 
             switch (self.mode) {
-                case MODE_NORMAL: 
+                case MODE_NORMAL:
                     self.trigger(document, 'searchResultSelected', []);
                     break;
 
@@ -535,7 +577,7 @@ define([
 
                     self.ucdService.locationSearch(
                         self.regionCenterPoint.lat,
-                        self.regionCenterPoint.lon, 
+                        self.regionCenterPoint.lon,
                         self.regionRadiusDistance,
                         function(err, data) {
                             self.endRegionSelection();
@@ -559,7 +601,7 @@ define([
             this.drainCallbackQueue = function() {
                 var self = this;
                 callbackQueue.forEach(function( callback ) {
-                    callback.call(self, map); 
+                    callback.call(self, map);
                 });
                 callbackQueue.length = 0;
             };

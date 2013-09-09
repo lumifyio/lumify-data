@@ -9,6 +9,7 @@ import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,11 +42,13 @@ public class ArtifactImport implements Handler, AppAware {
         File tempFile = File.createTempFile("fileImport", ".bin");
         writeToTempFile(file, tempFile);
 
-        fileImporter.writePackage(session, tempFile, "File Upload");
+        ArrayList<FileImporter.Result> results = fileImporter.writePackage(session, tempFile, "File Upload");
 
         tempFile.delete();
 
-        new Responder(response).respondWith("OK");
+        JSONObject json = new JSONObject();
+        json.put("results", FileImporter.Result.toJson(results));
+        new Responder(response).respondWith(json);
     }
 
     private void writeToTempFile(Part file, File tempFile) throws IOException {

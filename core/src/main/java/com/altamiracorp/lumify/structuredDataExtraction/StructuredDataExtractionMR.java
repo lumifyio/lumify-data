@@ -133,9 +133,10 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                 if (termAndGraphVertex == null) {
                     continue;
                 }
+                GraphVertex graphVertex = termAndGraphVertex.getGraphVertex();
                 TermMention termMention = termAndGraphVertex.getTermMention();
                 if (termMention.getMetadata().getGraphVertexId() == null) {
-                    if (termAndGraphVertex.getGraphVertex().getId() == null) {
+                    if (graphVertex.getId() == null) {
                         String conceptLabel = termAndGraphVertex.getTermMention().getMetadata().getConcept();
                         Concept concept = conceptMap.get(conceptLabel);
                         if (concept == null) {
@@ -146,19 +147,28 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                             conceptMap.put(conceptLabel, concept);
                         }
 
-                        termAndGraphVertex.getGraphVertex().setProperty(PropertyName.SUBTYPE.toString(), concept.getId());
-                        graphRepository.saveVertex(getSession().getGraphSession(), termAndGraphVertex.getGraphVertex());
+                        graphVertex.setProperty(PropertyName.SUBTYPE.toString(), concept.getId());
+                        if (termAndGraphVertex.isUseExisting()) {
+                            GraphVertex existingGraphVertex = graphRepository.findVertexByTitleAndType(getSession().getGraphSession(), (String) graphVertex.getProperty(PropertyName.TITLE), VertexType.ENTITY);
+                            if (existingGraphVertex != null) {
+                                existingGraphVertex.update(graphVertex);
+                                graphVertex.update(existingGraphVertex);
+                                graphVertex = existingGraphVertex;
+                            }
+                        }
+                        graphRepository.saveVertex(getSession().getGraphSession(), graphVertex);
                         getSession().getGraphSession().commit();
                     }
 
-                    termMention.getMetadata().setGraphVertexId(termAndGraphVertex.getGraphVertex().getId());
+                    termMention.getMetadata().setGraphVertexId(graphVertex.getId());
                     termMentionRepository.save(getSession().getModelSession(), termAndGraphVertex.getTermMention());
 
-                    GraphRelationship artifactRelationship = new GraphRelationship(null, artifactVertex.getId(), termAndGraphVertex.getGraphVertex().getId(), LabelName.HAS_ENTITY.toString());
+                    GraphRelationship artifactRelationship = new GraphRelationship(null, artifactVertex.getId(), graphVertex.getId(), LabelName.HAS_ENTITY.toString());
                     getSession().getGraphSession().save(artifactRelationship);
                 } else {
                     GraphVertex existingGraphVertex = getSession().getGraphSession().findGraphVertex(termMention.getMetadata().getGraphVertexId());
-                    existingGraphVertex.update(termAndGraphVertex.getGraphVertex());
+                    existingGraphVertex.update(graphVertex);
+                    graphVertex.update(existingGraphVertex);
                     getSession().getGraphSession().commit();
                 }
             }
@@ -175,6 +185,7 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                 }
                 GraphRelationship graphRelationship = new GraphRelationship(null, sourceVertexId, destVertexId, label);
                 getSession().getGraphSession().save(graphRelationship);
+                getSession().getGraphSession().commit();
             }
         }
     }

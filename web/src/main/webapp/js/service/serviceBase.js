@@ -45,11 +45,10 @@ define(['atmosphere'],
                 logLevel: 'debug',
                 onMessage: function (response) {
                     var data = JSON.parse(response.responseBody);
-                    console.log('subscribe onMessage:', data);
                     onmessage(null, data);
                 },
                 onError: function (response) {
-                    console.log('subscribe error:', response);
+                    console.error('subscribe error:', response);
                     onmessage(response.error, null);
                 }
             };
