@@ -43,6 +43,7 @@ var require = {
     videojs: { exports: 'videojs' },
 	underscore: { exports: '_' },
     d3: { exports: 'd3' }
+  },
   deps : ['lumify']
 };
 
