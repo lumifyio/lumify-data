@@ -290,7 +290,7 @@ define([
                         marker.setIcon('/img/small_pin.png', [13, 26], [6,26]);
                     }
                     marker.click.addHandler(function(eventType, marker) {
-                        self.trigger(document, 'searchResultSelected', [ vertex ]);
+                        self.trigger('verticesSelected', [ vertex ]);
                     });
                     map.addMarker(marker);
                 });
@@ -519,7 +519,7 @@ define([
 
             switch (self.mode) {
                 case MODE_NORMAL:
-                    self.trigger(document, 'searchResultSelected', []);
+                    self.trigger('verticesSelected', []);
                     break;
 
                 case MODE_REGION_SELECTION_MODE_POINT:

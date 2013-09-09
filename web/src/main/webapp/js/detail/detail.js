@@ -23,14 +23,14 @@ define([
                 mapCoordinatesSelector: this.onMapCoordinatesClicked
             });
 
-            this.on(document, 'searchResultSelected', this.onSearchResultSelected);
-            this.on('searchResultSelected', this.onSearchResultSelectedInPane);
+            this.on(document, 'verticesSelected', this.onVerticesSelected);
+            this.on('verticesSelected', this.onVerticesSelectedWithinContents);
             this.preventDropEventsFromPropagating();
             
             this.$node.html(template({}));
 
             if (this.attr.loadGraphVertexData) {
-                this.onSearchResultSelected(null, [this.attr.loadGraphVertexData]);
+                this.onVerticesSelected(null, [this.attr.loadGraphVertexData]);
             }
         });
 
@@ -51,14 +51,14 @@ define([
             this.trigger('mapCenter', data);
         };
 
-
-        this.onSearchResultSelectedInPane = function(evt, data) {
+        this.onVerticesSelectedWithinContents = function(event, data) {
             evt.stopPropagation();
-
-            this.onSearchResultSelected(evt, data);
+            this.onVerticesSelected(event, data);
         };
 
-        this.onSearchResultSelected = function(evt, data) {
+
+        this.onVerticesSelected = function(evt, data) {
+
             if ($.isArray(data) && data.length === 1) {
                 data = data[0];
             }

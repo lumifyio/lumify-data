@@ -32,7 +32,8 @@ define([
 
         // Delay before showing hover effect on graph
     var HOVER_FOCUS_DELAY_SECONDS = 0.25,
-        MAX_TITLE_LENGTH = 15;
+        MAX_TITLE_LENGTH = 15,
+        SELECTION_THROTTLE = 100;
 
     return defineComponent(Graph, withContextMenu, withGraphContextMenuItems);
 
@@ -220,6 +221,29 @@ define([
                 this.setWorkspaceDirty();
 
                 this.updateVertexSelections(cy);
+            });
+        };
+
+        this.onVerticesSelected = function(evt, data) {
+            if ($(evt.target).is('.graph-pane')) {
+                return;
+            }
+
+            this.cy(function(cy) {
+                this.ignoreCySelectionEvents = true;
+                
+                cy.$(':selected').unselect();
+                if (data.length) {
+                    cy.$( 
+                        data.map(function(v) {
+                            return '#' + v.graphVertexId;
+                        }).join(',')
+                    ).select();
+                }
+
+                setTimeout(function() {
+                    this.ignoreCySelectionEvents = false;
+                }.bind(this), SELECTION_THROTTLE * 1.5);
             });
         };
 
@@ -522,9 +546,9 @@ define([
             });
         };
 
-        this.graphTap = throttle('selection', 100, function(event) {
+        this.graphTap = throttle('selection', SELECTION_THROTTLE, function(event) {
             if (event.cyTarget === event.cy) {
-                this.trigger(document, 'searchResultSelected');
+                this.trigger('verticesSelected');
             }
         });
 
@@ -571,19 +595,23 @@ define([
             this.toggleMenu({positionUsingEvent:event}, menu);
         };
 
-        this.graphSelect = throttle('selection', 100, function(event) {
+        this.graphSelect = throttle('selection', SELECTION_THROTTLE, function(event) {
+            if (this.ignoreCySelectionEvents) return;
+
             if (this.creatingStatement) {
                 return event.cy.elements().unselect();
             }
             this.updateVertexSelections(event.cy);
         });
 
-        this.graphUnselect = throttle('selection', 100, function(event) {
+        this.graphUnselect = throttle('selection', SELECTION_THROTTLE, function(event) {
+            if (this.ignoreCySelectionEvents) return;
+
             var self = this,
                 selection = event.cy.nodes().filter(':selected');
 
             if (!selection.length) {
-                self.trigger(document, 'searchResultSelected');
+                self.trigger('verticesSelected');
             }
         });
 
@@ -599,7 +627,7 @@ define([
                 info.push(vertex.data());
             });
 
-            this.trigger(document, 'searchResultSelected', [info]);
+            this.trigger('verticesSelected', [info]);
         };
 
         this.onKeyHandler = function(event) {
@@ -822,6 +850,7 @@ define([
             this.on(document, 'verticesAdded', this.onVerticesAdded);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
+            this.on(document, 'verticesSelected', this.onVerticesSelected);
             this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
             this.on(document, 'graphPaddingUpdated', this.onGraphPaddingUpdated);

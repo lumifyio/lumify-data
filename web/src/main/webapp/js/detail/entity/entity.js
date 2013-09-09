@@ -240,7 +240,7 @@ define([
             }
 
             if ($target.is('.entity, .artifact, span.relationship')) {
-                this.trigger('searchResultSelected', $target.data('info'));
+                this.trigger('verticesSelected', $target.data('info'));
                 evt.stopPropagation();
             }
 

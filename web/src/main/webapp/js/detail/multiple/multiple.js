@@ -50,7 +50,7 @@ define([
                 fullscreenButton: self.fullscreenButton(_.pluck(vertices, 'graphVertexId'))
             }));
 
-            this.on('searchResultSelected', this.onVertexSelection);
+            this.on('verticesSelected', this.onVertexSelection);
 
 
             var vertexIds = vertices.map(function (v) {

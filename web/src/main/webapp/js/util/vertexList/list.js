@@ -87,6 +87,7 @@ define([
             this.on(document, 'verticesAdded', this.onVerticesUpdated);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
+            this.on(document, 'verticesSelected', this.onVerticesSelected);
             this.on(document, 'switchWorkspace', this.onWorkspaceClear);
             this.on(document, 'workspaceDeleted', this.onWorkspaceClear);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
@@ -209,7 +210,7 @@ define([
                         }).toArray();
 
                     self.trigger(document, 'defocusVertices', { vertexIds:[] });
-                    self.trigger('searchResultSelected', [info]);
+                    self.trigger('verticesSelected', [info]);
                 }
             });
         };
@@ -253,5 +254,12 @@ define([
             });
         };
 
+
+        this.onVerticesSelected = function(event, data) {
+            this.$node.find('.active').removeClass('active');
+            $((data||[]).map(function(v) {
+                return '.gId' + v.graphVertexId;
+            }).join(',')).addClass('active');
+        };
     }
 });

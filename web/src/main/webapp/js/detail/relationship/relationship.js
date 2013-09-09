@@ -67,7 +67,7 @@ define([
             var self = this;
             var $target = $(evt.target);
 
-            this.trigger (document, 'searchResultSelected',  $target.data('info'));
+            this.trigger('verticesSelected', $target.data('info'));
         };
 
         this.onPaneClicked = function(evt) {
@@ -78,7 +78,7 @@ define([
             }
 
             if ($target.is('.entity, .artifact, span.relationship')) {
-                this.trigger(document, 'searchResultSelected', $target.data('info'));
+                this.trigger('verticesSelected', $target.data('info'));
                 evt.stopPropagation();
             }
         };

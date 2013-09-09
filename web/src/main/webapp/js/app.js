@@ -68,7 +68,7 @@ define([
             this.on(document, 'error', this.onError);
             this.on(document, 'menubarToggleDisplay', this.toggleDisplay);
             this.on(document, 'chatMessage', this.onChatMessage);
-            this.on(document, 'searchResultSelected', this.onSearchResultSelection);
+            this.on(document, 'verticesSelected', this.onVerticesSelected);
             this.on(document, 'syncStarted', this.onSyncStarted);
             this.on(document, 'paneResized', this.onInternalPaneResize);
 
@@ -591,7 +591,7 @@ define([
             }
         };
 
-        this.onSearchResultSelection = function(e, data) {
+        this.onVerticesSelected = function(e, data) {
             var detailPane = this.select('detailPaneSelector');
             var minWidth = 100;
             var width = 0;
