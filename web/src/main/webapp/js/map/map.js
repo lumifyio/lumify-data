@@ -55,7 +55,6 @@ define([
             var self = this;
             switch (message.type) {
                 case 'propertiesChange':
-                    console.log('onSocketMessage: propertiesChange:', message);
                     for(var i=0; i<message.data.properties.length; i++) {
                         var propertyChangeData = message.data.properties[i];
                         self.onPropertyChange(propertyChangeData);
@@ -73,7 +72,6 @@ define([
             if(!m) {
                 return;
             }
-            console.log(m);
             var latitude = m[1];
             var longitude = m[2];
 

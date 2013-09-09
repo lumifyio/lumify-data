@@ -1,6 +1,6 @@
 <% properties.forEach(function(property) { %>
-    <li class="property">
-      <strong><%= property.displayName %></strong><%= property.value %>
+    <li class="property property-<%= property.key %>">
+      <strong><%= property.displayName %></strong><span class="value"><%= property.value %></span>
     </li>
 <% }); %>
 

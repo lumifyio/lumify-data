@@ -41,6 +41,7 @@ define([
                 addNewPropertiesSelector: this.onAddNewPropertiesClicked
             });
             this.on('addProperty', this.onAddProperty);
+            this.on(document, 'socketMessage', this.onSocketMessage);
 
             ontologyService.concepts(function(err, concepts) {
                 if (err) {
@@ -65,6 +66,26 @@ define([
             });
         });
 
+        this.onSocketMessage = function (evt, message) {
+            var self = this;
+            switch (message.type) {
+                case 'propertiesChange':
+                    for(var i=0; i<message.data.properties.length; i++) {
+                        var propertyChangeData = message.data.properties[i];
+                        self.onPropertyChange(propertyChangeData);
+                    }
+                    break;
+            }
+        };
+
+        this.onPropertyChange = function(propertyChangeData) {
+            if(propertyChangeData.graphVertexId != this.attr.data.graphVertexId) {
+                return;
+            }
+            this.select('propertiesSelector')
+                .find('.property-' + propertyChangeData.propertyName + ' .value')
+                .html(propertyChangeData.value);
+        };
 
         this.loadEntity = function() {
             var self = this;
@@ -130,9 +151,9 @@ define([
                         relationshipsTplData.push(data);
                     });
 
-                    self.select('relationshipsSelector')
-                        .after(relationshipsTemplate({relationships:relationshipsTplData}))
-                        .find('.loading').remove();
+                    var $rels = self.select('relationshipsSelector');
+                    $rels.find('ul').html(relationshipsTemplate({relationships:relationshipsTplData}));
+                    $rels.find('.loading').remove();
                 });
             });
         };
@@ -177,11 +198,11 @@ define([
                     }
                 });
 
-                var header = self.select('propertiesSelector'),
-                    props = propertiesTemplate({properties:propertiesTpl});
+                var props = propertiesTemplate({properties:propertiesTpl});
 
-                header.nextUntil('.relationships').remove();
-                header.after(props).hide();
+                var $props = self.select('propertiesSelector');
+                $props.find('ul').html(props);
+                $props.find('.loading').remove();
             });
         };
 
