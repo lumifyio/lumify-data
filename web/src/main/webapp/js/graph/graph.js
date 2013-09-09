@@ -100,6 +100,11 @@ define([
 
                 cy.layout(opts);
 
+                var nextAvailableLocation = {
+                    x: 0,
+                    y: 0
+                };
+
                 vertices.forEach(function(vertex) {
 
                     var cyNodeData = {
@@ -123,6 +128,13 @@ define([
                             y: vertex.dropPosition.y - offset.top
                         });
                         needsUpdate = true;
+                    } else {
+                        cyNodeData.position = retina.pointsToPixels({x: nextAvailableLocation.x, y: nextAvailableLocation.y});
+                        nextAvailableLocation.x += 100;
+                        if(nextAvailableLocation.x > 1000) {
+                            nextAvailableLocation.y += 100;
+                            nextAvailableLocation.x = 0;
+                        }
                     }
 
                     var cyNode = cy.add(cyNodeData);
