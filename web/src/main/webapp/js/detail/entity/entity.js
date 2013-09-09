@@ -43,7 +43,7 @@ define([
             this.on('addProperty', this.onAddProperty);
             this.on(document, 'socketMessage', this.onSocketMessage);
 
-            ontologyService.concepts(function(err, concepts) {
+            this.handleCancelling(ontologyService.concepts(function(err, concepts) {
                 if (err) {
                     return self.trigger(document, 'error', err);
                 }
@@ -63,7 +63,7 @@ define([
                 });
 
                 self.loadEntity();
-            });
+            }));
         });
 
         this.onSocketMessage = function (evt, message) {
@@ -105,7 +105,7 @@ define([
             });
 
             this.getRelationships(this.attr.data.id || this.attr.data.graphVertexId, function(relationships) {
-                self.ontologyService.relationships(function(err, ontologyRelationships) {
+                self.handleCancelling(self.ontologyService.relationships(function(err, ontologyRelationships) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
@@ -154,13 +154,13 @@ define([
                     var $rels = self.select('relationshipsSelector');
                     $rels.find('ul').html(relationshipsTemplate({relationships:relationshipsTplData}));
                     $rels.find('.loading').remove();
-                });
+                }));
             });
         };
 
         this.displayProperties = function (properties){
             var self = this;
-            ontologyService.properties(function(err, ontologyProperties) {
+            this.handleCancelling( ontologyService.properties(function(err, ontologyProperties) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
@@ -203,7 +203,7 @@ define([
                 var $props = self.select('propertiesSelector');
                 $props.find('ul').html(props);
                 $props.find('.loading').remove();
-            });
+            }));
         };
 
         this.getProperties = function(graphVertexId, callback) {

@@ -7,8 +7,9 @@ define([
     'util/css-stylesheet',
     'colorjs',
     'service/entity',
-    'service/ontology'
-], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, colorjs, EntityService, OntologyService) {
+    'service/ontology',
+    'underscore'
+], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, colorjs, EntityService, OntologyService, _) {
 
     var HIGHLIGHT_STYLES = [
             { name: 'None', selector:'none' },
@@ -42,8 +43,8 @@ define([
         // Automatically refresh draggables when request completes
         this.before('handleCancelling', function(xhr) {
             var self = this;
-            xhr.success(function() {
-                self.updateEntityAndArtifactDraggables();
+            xhr.always(function() {
+                _.defer(self.updateEntityAndArtifactDraggables.bind(self));
             });
         });
 

@@ -139,7 +139,7 @@ define([
 
         this.cancel = function() {
             this._xhrs.forEach(function(xhr) {
-                if (xhr.state() !== 'complete') {
+                if (xhr.state() !== 'complete' && typeof xhr.abort === 'function') {
                     xhr.abort();
                 }
             });
