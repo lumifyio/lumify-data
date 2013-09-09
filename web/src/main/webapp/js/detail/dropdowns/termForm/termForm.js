@@ -114,7 +114,7 @@ define([
 
                     var vertices = [];
                     vertices.push(data.info);
-                    self.trigger(document, 'verticesUpdated', { vertices: vertices });
+                    self.trigger(document, 'updateVertices', { vertices: vertices });
 
                     _.defer(self.teardown.bind(self));
                 }
