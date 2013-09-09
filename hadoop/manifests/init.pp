@@ -70,31 +70,37 @@ class hadoop {
     require => File['/usr/lib/hadoop/.ssh'],
   }
 
-  file { '/data0' :
-    ensure  => directory,
+  define setup_data_directory {
+    file { "${name}" :
+      ensure  => directory,
+    }
+
+    file { [ "${name}/hadoop", "${name}/hadoop/tmp" ] :
+      ensure  => directory,
+      owner   => 'hdfs',
+      group   => 'hadoop',
+      mode    => 'u=rwx,g=rwx,o=',
+      require =>  [ File["${name}"], Package['hadoop-0.20'] ],
+    }
+
+    file { [ "${name}/hdfs", "${name}/hdfs/name", "${name}/hdfs/data" ] :
+      ensure  => directory,
+      owner   => 'hdfs',
+      group   => 'hadoop',
+      mode    => 'u=rwx,g=rx,o=',
+      require =>  [ File["${name}"], Package['hadoop-0.20'] ],
+    }
+
+    file { [ "${name}/mapred", "${name}/mapred/local" ] :
+      ensure  => directory,
+      owner   => 'mapred',
+      group   => 'hadoop',
+      mode    => 'u=rwx,g=rx,o=',
+      require =>  [ File["${name}"], Package['hadoop-0.20'] ],
+    }
   }
 
-  file { [ '/data0/hadoop', '/data0/hadoop/tmp' ] :
-    ensure  => directory,
-    owner   => 'hdfs',
-    group   => 'hadoop',
-    mode    => 'u=rwx,g=rwx,o=',
-    require =>  [ File['/data0'], Package['hadoop-0.20'] ],
-  }
+  $data_dir_list = split($data_directories, ',')
 
-  file { [ '/data0/hdfs', '/data0/hdfs/name', '/data0/hdfs/data' ] :
-    ensure  => directory,
-    owner   => 'hdfs',
-    group   => 'hadoop',
-    mode    => 'u=rwx,g=rx,o=',
-    require =>  [ File['/data0'], Package['hadoop-0.20'] ],
-  }
-
-  file { [ '/data0/mapred', '/data0/mapred/local' ] :
-    ensure  => directory,
-    owner   => 'mapred',
-    group   => 'hadoop',
-    mode    => 'u=rwx,g=rx,o=',
-    require =>  [ File['/data0'], Package['hadoop-0.20'] ],
-  }
+  setup_data_directory { $data_dir_list : }
 }
