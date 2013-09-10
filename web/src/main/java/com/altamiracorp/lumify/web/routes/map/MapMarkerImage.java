@@ -9,6 +9,8 @@ import com.altamiracorp.lumify.model.resources.Resource;
 import com.altamiracorp.lumify.model.resources.ResourceRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -19,10 +21,14 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 public class MapMarkerImage extends BaseRequestHandler {
     private OntologyRepository ontologyRepository = new OntologyRepository();
     private ResourceRepository resourceRepository = new ResourceRepository();
+    private Cache<String, byte[]> imageCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .build();
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
@@ -30,19 +36,24 @@ public class MapMarkerImage extends BaseRequestHandler {
         String typeStr = getAttributeString(request, "type");
         long scale = getOptionalParameterLong(request, "scale", 1L);
 
-        String glyphIconRowKey = getGlyphIcon(session, typeStr);
-        if (glyphIconRowKey == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
+        byte[] imageData = imageCache.getIfPresent(typeStr);
+        if (imageData == null) {
+            String glyphIconRowKey = getGlyphIcon(session, typeStr);
+            if (glyphIconRowKey == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+
+            Resource resource = resourceRepository.findByRowKey(session.getModelSession(), glyphIconRowKey);
+            if (resource == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+
+            imageData = getMarkerImage(resource, scale);
+            imageCache.put(typeStr, imageData);
         }
 
-        Resource resource = resourceRepository.findByRowKey(session.getModelSession(), glyphIconRowKey);
-        if (resource == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-
-        byte[] imageData = getMarkerImage(resource, scale);
         ServletOutputStream out = response.getOutputStream();
         out.write(imageData);
         out.close();
