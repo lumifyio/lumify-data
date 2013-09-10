@@ -333,8 +333,8 @@ public class TitanGraphSession extends GraphSession {
             if (vertex == null) {
                 throw new RuntimeException("Could not find vertex with id: " + id);
             }
-            List<Vertex> vertexes = new GremlinPipeline(vertex).outE().inV().toList();
-            for (Vertex v : vertexes) {
+            List<Vertex> vertices = new GremlinPipeline(vertex).outE().inV().toList();
+            for (Vertex v : vertices) {
                 if (allIds.contains(v.getId().toString())) {
                     List<Edge> edges = findAllEdges(id, v.getId().toString());
                     for (Edge e : edges) {
