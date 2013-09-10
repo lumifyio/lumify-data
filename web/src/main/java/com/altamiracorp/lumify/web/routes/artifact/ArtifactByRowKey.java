@@ -36,6 +36,7 @@ public class ArtifactByRowKey implements Handler, AppAware {
         } else {
             JSONObject artifactJson = artifact.toJson();
             artifactJson.put("rawUrl", ArtifactRawByRowKey.getUrl(artifact.getRowKey()));
+            artifactJson.put("thumbnailUrl", ArtifactThumbnailByRowKey.getUrl(artifact.getRowKey()));
             artifactJson.put("source", artifact.getGenericMetadata().getSource());
             if (artifact.getType() == ArtifactType.VIDEO) {
                 artifactJson.put("posterFrameUrl", ArtifactPosterFrameByRowKey.getUrl(request, artifact.getRowKey()));

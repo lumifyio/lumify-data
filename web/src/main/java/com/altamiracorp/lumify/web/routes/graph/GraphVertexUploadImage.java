@@ -9,7 +9,7 @@ import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.Responder;
 import com.altamiracorp.lumify.web.WebApp;
-import com.altamiracorp.lumify.web.routes.artifact.ArtifactRawByRowKey;
+import com.altamiracorp.lumify.web.routes.artifact.ArtifactThumbnailByRowKey;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
@@ -81,7 +81,7 @@ public class GraphVertexUploadImage implements Handler, AppAware {
 
         graphRepository.findOrAddRelationship(session.getGraphSession(), entityVertex.getId(), artifactVertex.getId(), LabelName.HAS_IMAGE);
 
-        entityVertex.setProperty(PropertyName.GLYPH_ICON, ArtifactRawByRowKey.getUrl(artifact.getRowKey()));
+        entityVertex.setProperty(PropertyName.GLYPH_ICON, ArtifactThumbnailByRowKey.getUrl(artifact.getRowKey()));
 
         new Responder(response).respondWith(entityVertex.toJson());
     }

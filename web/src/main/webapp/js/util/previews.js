@@ -38,7 +38,7 @@ function(UCD, template) {
                 this.callback();
             } else {
                 if (artifact.type == 'image') {
-                    this.callback(artifact.rawUrl, artifact.rawUrl);
+                    this.callback(artifact.thumbnailUrl || artifact.rawUrl, artifact.thumbnailUrl || artifact.rawUrl);
                 } else if (artifact.type == 'video') {
                     this.callback(artifact.posterFrameUrl, artifact.videoPreviewImageUrl);
                 } else {

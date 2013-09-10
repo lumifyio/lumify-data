@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnail;
 import com.altamiracorp.lumify.model.dbpedia.DBPedia;
 import com.altamiracorp.lumify.model.geoNames.GeoName;
 import com.altamiracorp.lumify.model.geoNames.GeoNameAdmin1Code;
@@ -22,6 +23,7 @@ public abstract class Session {
     private static final Logger LOGGER = LoggerFactory.getLogger(Session.class.getName());
     private static final List<String> tables = Arrays.asList(
             Artifact.TABLE_NAME,
+            ArtifactThumbnail.TABLE_NAME,
             Workspace.TABLE_NAME,
             TermMention.TABLE_NAME,
             GeoName.TABLE_NAME,
