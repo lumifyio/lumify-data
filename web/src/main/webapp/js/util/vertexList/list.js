@@ -151,7 +151,7 @@ define([
                             .data('preview-loaded', true)
                             .find('.preview').html("<img src='" + info._glyphIcon + "' />");
                     } else {
-                        previews.generatePreview(_rowKey, null, function(poster, frames) {
+                        previews.generatePreview(_rowKey, { width: 200 }, function(poster, frames) {
                             li.removeClass('preview-loading')
                               .data('preview-loaded', true);
 

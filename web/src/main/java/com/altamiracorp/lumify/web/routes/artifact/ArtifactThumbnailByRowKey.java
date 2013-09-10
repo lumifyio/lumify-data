@@ -1,9 +1,7 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
 import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnail;
 import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnailRepository;
-import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnailRowKey;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
@@ -16,14 +14,9 @@ import com.altamiracorp.web.utils.UrlUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 
 public class ArtifactThumbnailByRowKey implements Handler, AppAware {
@@ -50,9 +43,9 @@ public class ArtifactThumbnailByRowKey implements Handler, AppAware {
         response.setContentType("image/jpeg");
         response.addHeader("Content-Disposition", "inline; filename=thumnail" + boundaryDims[0] + ".jpg");
 
-        byte[] thumbnailData = getCachedThumbnail(session, artifactRowKey, boundaryDims);
+        byte[] thumbnailData = artifactThumbnailRepository.getThumbnailData(session.getModelSession(), artifactRowKey, "raw", boundaryDims[0], boundaryDims[1]);
         if (thumbnailData != null) {
-            LOGGER.debug("Cache hit for: " + artifactRowKey.toString() + " " + boundaryDims[0] + "x" + boundaryDims[1]);
+            LOGGER.debug("Cache hit for: " + artifactRowKey.toString() + " (raw) " + boundaryDims[0] + "x" + boundaryDims[1]);
             ServletOutputStream out = response.getOutputStream();
             out.write(thumbnailData);
             out.close();
@@ -67,77 +60,16 @@ public class ArtifactThumbnailByRowKey implements Handler, AppAware {
             return;
         }
 
-        LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " " + boundaryDims[0] + "x" + boundaryDims[1]);
-        thumbnailData = createThumbnail(session, artifact, boundaryDims);
-        ServletOutputStream out = response.getOutputStream();
-        out.write(thumbnailData);
-        out.close();
-    }
-
-    private byte[] createThumbnail(AppSession session, Artifact artifact, int[] boundaryDims) throws Exception {
+        LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " (raw) " + boundaryDims[0] + "x" + boundaryDims[1]);
         InputStream in = artifactRepository.getRaw(session.getModelSession(), artifact);
         try {
-            BufferedImage originalImage = ImageIO.read(in);
-            int[] originalImageDims = new int[]{originalImage.getWidth(), originalImage.getHeight()};
-            int[] newImageDims = getScaledDimension(originalImageDims, boundaryDims);
-
-            if (newImageDims[0] >= originalImageDims[0] || newImageDims[1] >= originalImageDims[1]) {
-                LOGGER.info("Original image dimensions " + originalImageDims[0] + "x" + originalImageDims[1] + " are smaller "
-                        + "than requested dimensions " + newImageDims[0] + "x" + newImageDims[1]
-                        + " returning original.");
-            }
-
-            BufferedImage resizedImage = new BufferedImage(newImageDims[0], newImageDims[1], originalImage.getType());
-            Graphics2D g = resizedImage.createGraphics();
-            g.drawImage(originalImage, 0, 0, resizedImage.getWidth(), resizedImage.getHeight(), null);
-            g.dispose();
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            ImageIO.write(resizedImage, "jpg", out);
-
-            saveThumbnail(session, artifact.getRowKey(), boundaryDims, out.toByteArray());
-
-            return out.toByteArray();
+            thumbnailData = artifactThumbnailRepository.createThumbnail(session.getModelSession(), artifact.getRowKey(), "raw", in, boundaryDims);
         } finally {
             in.close();
         }
-    }
-
-    private void saveThumbnail(AppSession session, ArtifactRowKey artifactRowKey, int[] boundaryDims, byte[] bytes) {
-        ArtifactThumbnailRowKey artifactThumbnailRowKey = new ArtifactThumbnailRowKey(artifactRowKey.toString(), boundaryDims[0], boundaryDims[1]);
-        ArtifactThumbnail artifactThumbnail = new ArtifactThumbnail(artifactThumbnailRowKey);
-        artifactThumbnail.getMetadata().setData(bytes);
-        artifactThumbnailRepository.save(session.getModelSession(), artifactThumbnail);
-    }
-
-    private byte[] getCachedThumbnail(AppSession session, ArtifactRowKey artifactRowKey, int[] boundaryDims) throws IOException {
-        ArtifactThumbnailRowKey artifactThumbnailRowKey = new ArtifactThumbnailRowKey(artifactRowKey.toString(), boundaryDims[0], boundaryDims[1]);
-        ArtifactThumbnail thumbnail = artifactThumbnailRepository.findByRowKey(session.getModelSession(), artifactThumbnailRowKey.toString());
-        if (thumbnail == null) {
-            return null;
-        }
-        return thumbnail.getMetadata().getData();
-    }
-
-    public static int[] getScaledDimension(int[] imgSize, int[] boundary) {
-        int originalWidth = imgSize[0];
-        int originalHeight = imgSize[1];
-        int boundWidth = boundary[0];
-        int boundHeight = boundary[1];
-        int newWidth = originalWidth;
-        int newHeight = originalHeight;
-
-        if (originalWidth > boundWidth) {
-            newWidth = boundWidth;
-            newHeight = (newWidth * originalHeight) / originalWidth;
-        }
-
-        if (newHeight > boundHeight) {
-            newHeight = boundHeight;
-            newWidth = (newHeight * originalWidth) / originalHeight;
-        }
-
-        return new int[]{newWidth, newHeight};
+        ServletOutputStream out = response.getOutputStream();
+        out.write(thumbnailData);
+        out.close();
     }
 
     @Override

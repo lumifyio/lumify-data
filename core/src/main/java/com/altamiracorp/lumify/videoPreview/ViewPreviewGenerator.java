@@ -20,7 +20,7 @@ import java.util.List;
 
 public class ViewPreviewGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(ViewPreviewGenerator.class.getName());
-    private int framesPerPreview = 20;
+    public static final int FRAMES_PER_PREVIEW = 20;
     private int previewFrameWidth = 360;
     private int previewHeight = 240;
     private ArtifactRepository artifactRepository = new ArtifactRepository();
@@ -67,7 +67,7 @@ public class ViewPreviewGenerator {
 
     private List<VideoFrame> getFramesForPreview(List<VideoFrame> videoFrames) {
         ArrayList<VideoFrame> results = new ArrayList<VideoFrame>();
-        double skip = (double) videoFrames.size() / (double) framesPerPreview;
+        double skip = (double) videoFrames.size() / (double) FRAMES_PER_PREVIEW;
         for (double i = 0; i < videoFrames.size(); i += skip) {
             results.add(videoFrames.get((int) Math.floor(i)));
         }

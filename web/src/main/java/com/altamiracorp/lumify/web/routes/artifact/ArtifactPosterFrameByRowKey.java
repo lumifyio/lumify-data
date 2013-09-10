@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
 import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnailRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
@@ -11,13 +12,18 @@ import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
 import org.apache.poi.util.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 
 public class ArtifactPosterFrameByRowKey implements Handler, AppAware {
-    ArtifactRepository artifactRepository = new ArtifactRepository();
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactPosterFrameByRowKey.class.getName());
+    private ArtifactRepository artifactRepository = new ArtifactRepository();
+    private ArtifactThumbnailRepository artifactThumbnailRepository = new ArtifactThumbnailRepository();
     private WebApp app;
 
     public static String getUrl(HttpServletRequest request, ArtifactRowKey artifactKey) {
@@ -27,23 +33,49 @@ public class ArtifactPosterFrameByRowKey implements Handler, AppAware {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         AppSession session = app.getAppSession(request);
-        ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("_rowKey")));
-        Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactKey.toString());
+        ArtifactRowKey artifactRowKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("_rowKey")));
 
+        String widthStr = request.getParameter("width");
+        int[] boundaryDims = new int[]{200, 200};
+
+        if (widthStr != null) {
+            boundaryDims[0] = boundaryDims[1] = Integer.parseInt(widthStr);
+
+            response.setContentType("image/jpeg");
+            response.addHeader("Content-Disposition", "inline; filename=thumnail" + boundaryDims[0] + ".jpg");
+
+            byte[] thumbnailData = artifactThumbnailRepository.getThumbnailData(session.getModelSession(), artifactRowKey, "poster-frame", boundaryDims[0], boundaryDims[1]);
+            if (thumbnailData != null) {
+                LOGGER.debug("Cache hit for: " + artifactRowKey.toString() + " (poster-frame) " + boundaryDims[0] + "x" + boundaryDims[1]);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(thumbnailData);
+                out.close();
+                return;
+            }
+        }
+
+        Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactRowKey.toString());
         if (artifact == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             chain.next(request, response);
             return;
         }
 
-        response.setContentType("image/png");
         InputStream in = artifactRepository.getRawPosterFrame(session.getModelSession(), artifact);
         try {
-            IOUtils.copy(in, response.getOutputStream());
+            if (widthStr != null) {
+                LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " (poster-frame) " + boundaryDims[0] + "x" + boundaryDims[1]);
+                byte[] thumbnailData = artifactThumbnailRepository.createThumbnail(session.getModelSession(), artifact.getRowKey(), "poster-frame", in, boundaryDims);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(thumbnailData);
+                out.close();
+            } else {
+                response.setContentType("image/png");
+                IOUtils.copy(in, response.getOutputStream());
+            }
         } finally {
             in.close();
         }
-        chain.next(request, response);
     }
 
     @Override

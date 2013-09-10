@@ -8,18 +8,14 @@ public class ArtifactThumbnailRowKey extends RowKey {
         super(rowKey);
     }
 
-    public ArtifactThumbnailRowKey(String artifactRowKey, int width, int height) {
-        super(buildKey(artifactRowKey, width, height));
+    public ArtifactThumbnailRowKey(String artifactRowKey, String thumbnailType, int width, int height) {
+        super(buildKey(artifactRowKey, thumbnailType, width, height));
     }
 
-    private static String buildKey(String artifactRowKey, int width, int height) {
+    private static String buildKey(String artifactRowKey, String thumbnailType, int width, int height) {
         return artifactRowKey
-                + ":"
-                + StringUtils.leftPad(Integer.toString(width), 8, '0')
-                + StringUtils.leftPad(Integer.toString(height), 8, '0');
-    }
-
-    public String getArtifactRowKey() {
-        return this.toString().split(":")[0];
+                + ":" + thumbnailType
+                + ":" + StringUtils.leftPad(Integer.toString(width), 8, '0')
+                + ":" + StringUtils.leftPad(Integer.toString(height), 8, '0');
     }
 }
