@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.ontology;
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.*;
+import com.altamiracorp.lumify.model.resources.ResourceRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanKey;
@@ -11,8 +12,11 @@ import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 
+import java.io.InputStream;
+
 public class BaseOntology {
     private final OntologyRepository ontologyRepository = new OntologyRepository();
+    private final ResourceRepository resourceRepository = new ResourceRepository();
 
     public void defineOntology(AppSession session) {
         // concept properties
@@ -106,6 +110,11 @@ public class BaseOntology {
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, geoLocationProperty.getName(), "Geo-location", PropertyType.GEO_LOCATION);
         graph.commit();
 
+        InputStream artifactGlyphIconInputStream = this.getClass().getResourceAsStream("artifact.png");
+        String artifactGlyphIconRowKey = resourceRepository.importFile(session.getModelSession(), artifactGlyphIconInputStream, "png");
+        artifact.setProperty(PropertyName.GLYPH_ICON, artifactGlyphIconRowKey);
+        graph.commit();
+
         ontologyRepository.getOrCreateConcept(session.getGraphSession(), artifact, ArtifactType.DOCUMENT.toString(), "Document");
         ontologyRepository.getOrCreateConcept(session.getGraphSession(), artifact, ArtifactType.VIDEO.toString(), "Video");
 
@@ -128,6 +137,11 @@ public class BaseOntology {
 
         ontologyRepository.getOrCreateRelationshipType(session.getGraphSession(), entity, artifact, LabelName.HAS_IMAGE.toString(), "has image");
 
+        graph.commit();
+
+        InputStream entityGlyphIconInputStream = this.getClass().getResourceAsStream("entity.png");
+        String entityGlyphIconRowKey = resourceRepository.importFile(session.getModelSession(), entityGlyphIconInputStream, "png");
+        entity.setProperty(PropertyName.GLYPH_ICON, entityGlyphIconRowKey);
         graph.commit();
 
         // Image to Entity relationship

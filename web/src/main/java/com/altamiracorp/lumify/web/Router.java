@@ -4,14 +4,13 @@ import com.altamiracorp.lumify.web.routes.admin.AdminQuery;
 import com.altamiracorp.lumify.web.routes.admin.AdminTables;
 import com.altamiracorp.lumify.web.routes.admin.AdminUploadOntology;
 import com.altamiracorp.lumify.web.routes.artifact.*;
-import com.altamiracorp.lumify.web.routes.chat.ChatNew;
-import com.altamiracorp.lumify.web.routes.chat.ChatPostMessage;
 import com.altamiracorp.lumify.web.routes.entity.EntityObjectDetectionCreate;
 import com.altamiracorp.lumify.web.routes.entity.EntityRelationships;
 import com.altamiracorp.lumify.web.routes.entity.EntitySearch;
 import com.altamiracorp.lumify.web.routes.entity.EntityTermCreate;
 import com.altamiracorp.lumify.web.routes.graph.*;
 import com.altamiracorp.lumify.web.routes.map.MapInitHandler;
+import com.altamiracorp.lumify.web.routes.map.MapMarkerImage;
 import com.altamiracorp.lumify.web.routes.map.MapTileHandler;
 import com.altamiracorp.lumify.web.routes.ontology.*;
 import com.altamiracorp.lumify.web.routes.relationship.SetRelationshipProperty;
@@ -105,10 +104,8 @@ public class Router extends HttpServlet {
         app.get("/user/", authenticator, UserList.class);
 
         app.get("/map/map-init.js", MapInitHandler.class);
+        app.get("/map/marker/{type}/image", MapMarkerImage.class);
         app.get("/map/{z}/{x}/{y}.png", MapTileHandler.class);
-
-        app.post("/chat/new", authenticator, ChatNew.class);
-        app.post("/chat/{chatId}/post", authenticator, ChatPostMessage.class);
 
         app.get("/admin/query", authenticator, AdminQuery.class);
         app.get("/admin/tables", authenticator, AdminTables.class);

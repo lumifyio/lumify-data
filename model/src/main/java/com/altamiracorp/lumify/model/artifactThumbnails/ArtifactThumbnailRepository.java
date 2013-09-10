@@ -82,7 +82,7 @@ public class ArtifactThumbnailRepository extends Repository<ArtifactThumbnail> {
         save(modelSession, artifactThumbnail);
     }
 
-    private static int[] getScaledDimension(int[] imgSize, int[] boundary) {
+    public static int[] getScaledDimension(int[] imgSize, int[] boundary) {
         int originalWidth = imgSize[0];
         int originalHeight = imgSize[1];
         int boundWidth = boundary[0];

@@ -44,6 +44,13 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
         return getParameter(request, parameterName, false);
     }
 
+    protected long getOptionalParameterLong(final HttpServletRequest request, final String parameterName, long defaultValue) {
+        String val = getOptionalParameter(request, parameterName);
+        if(val == null) {
+            return defaultValue;
+        }
+        return Long.parseLong(val);
+    }
 
     /**
      * Attempts to extract the specified parameter from the provided request and convert it to a long value
@@ -84,6 +91,9 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
         return UrlUtils.urlDecode(paramValue);
     }
 
+    protected String getAttributeString(final HttpServletRequest request, final String name) {
+        return (String)request.getAttribute(name);
+    }
 
     /**
      * Configures the content type for the provided response to contain {@link JSONObject} data

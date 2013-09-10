@@ -24,7 +24,7 @@ public class OntologyRepository {
         return toRelationships(graphSession, vertices);
     }
 
-    public String getDisplayNameForLabel (GraphSession graphSession, String relationshipLabel){
+    public String getDisplayNameForLabel(GraphSession graphSession, String relationshipLabel) {
         Iterable<Vertex> vertices = graphSession.getGraph().query()
                 .has(PropertyName.TYPE.toString(), VertexType.RELATIONSHIP.toString())
                 .vertices();
@@ -85,6 +85,15 @@ public class OntologyRepository {
     public List<Concept> getChildConcepts(GraphSession graphSession, Concept concept) {
         Vertex conceptVertex = graphSession.getGraph().getVertex(concept.getId());
         return toConcepts(conceptVertex.getVertices(Direction.IN, LabelName.IS_A.toString()));
+    }
+
+    public Concept getParentConcept(GraphSession graphSession, String conceptId) {
+        Vertex conceptVertex = graphSession.getGraph().getVertex(conceptId);
+        Vertex parentConceptVertex = graphSession.getParentConceptVertex(conceptVertex);
+        if (parentConceptVertex == null) {
+            return null;
+        }
+        return new VertexConcept(parentConceptVertex);
     }
 
     private List<Concept> toConcepts(Iterable<Vertex> vertices) {

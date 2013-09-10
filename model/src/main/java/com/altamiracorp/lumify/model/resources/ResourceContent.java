@@ -3,6 +3,11 @@ package com.altamiracorp.lumify.model.resources;
 import com.altamiracorp.lumify.model.ColumnFamily;
 import com.altamiracorp.lumify.model.Value;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+
 public class ResourceContent extends ColumnFamily {
     public static final String NAME = "Content";
     private static final String DATA = "data";
@@ -28,5 +33,17 @@ public class ResourceContent extends ColumnFamily {
 
     public String getContentType() {
         return Value.toString(get(CONTENT_TYPE));
+    }
+
+    public BufferedImage getDataImage() {
+        byte[] data = getData();
+        if (data == null) {
+            return null;
+        }
+        try {
+            return ImageIO.read(new ByteArrayInputStream(data));
+        } catch (IOException ex) {
+            throw new RuntimeException("Could not load image", ex);
+        }
     }
 }

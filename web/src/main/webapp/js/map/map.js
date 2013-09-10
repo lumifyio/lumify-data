@@ -284,10 +284,11 @@ define([
                     var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
                     var marker = new mxn.Marker(pt);
                     marker.setAttribute('graphVertexId', vertex.graphVertexId);
+                    var iconUrl = '/map/marker/' + vertex._subType + '/image';
                     if (retina.devicePixelRatio > 1) {
-                        marker.setIcon('/img/small_pin@2x.png', [26, 52], [13, 52]);
+                        marker.setIcon(iconUrl + '?scale=2', [44, 80], [22, 80]);
                     } else {
-                        marker.setIcon('/img/small_pin.png', [13, 26], [6,26]);
+                        marker.setIcon(iconUrl + '?scale=1', [22, 40], [11, 20]);
                     }
                     marker.click.addHandler(function(eventType, marker) {
                         self.trigger('verticesSelected', [ vertex ]);
