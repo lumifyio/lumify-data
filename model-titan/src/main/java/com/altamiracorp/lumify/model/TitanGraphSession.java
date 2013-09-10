@@ -143,15 +143,14 @@ public class TitanGraphSession extends GraphSession {
         return graph.getVertex(vertexId);
     }
 
-    private List<Edge> findAllEdges(String sourceId, String destId) {
+    private List<Edge> findAllEdges(String sourceId, final String destId) {
+        List <Edge> vertices = new GremlinPipeline(this.graph.getVertex(sourceId))
+                .outE()
+                .toList();
         List<Edge> edgeList = new ArrayList<Edge>();
-        Vertex sourceVertex = this.graph.getVertex(sourceId);
-        Iterable<Edge> edges = sourceVertex.getEdges(Direction.OUT);
-        for (Edge edge : edges) {
-            Vertex destVertex = edge.getVertex(Direction.IN);
-            String destVertexId = "" + destVertex.getId();
-            if (destVertexId.equals(destId)) {
-                edgeList.add(edge);
+        for (Edge v : vertices){
+            if (v.getVertex(Direction.IN).getId().toString().equals(destId)){
+                edgeList.add(v);
             }
         }
         return edgeList;
@@ -333,7 +332,7 @@ public class TitanGraphSession extends GraphSession {
             if (vertex == null) {
                 throw new RuntimeException("Could not find vertex with id: " + id);
             }
-            List<Vertex> vertexes = new GremlinPipeline(vertex).outE().bothV().toList();
+            List<Vertex> vertexes = new GremlinPipeline(vertex).outE().inV().toList();
             for (Vertex v : vertexes) {
                 if (allIds.contains(v.getId().toString())) {
                     List<Edge> edges = findAllEdges(id, v.getId().toString());
@@ -555,6 +554,7 @@ public class TitanGraphSession extends GraphSession {
         Edge edge = findEdge(source, target, label);
         if (edge != null) {
             edge.remove();
+            commit();
         }
     }
 
