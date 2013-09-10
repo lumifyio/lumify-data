@@ -209,14 +209,13 @@ define([
                         return;
                     }
 
-                    var dropPosition = $(event.target).is('.graph-pane') ?
-                        {
+                    var dropPosition;
+                    if ($(event.target).is('.graph-pane')) {
+                        dropPosition = {
                             x: event.clientX,
                             y: event.clientY
-                        } : {
-                            x: parseInt(Math.random() * droppable.width(), 10),
-                            y: parseInt(Math.random() * droppable.height(), 10)
                         };
+                    }
 
                     var vertices = [$.extend({
                         dropPosition: dropPosition
@@ -417,15 +416,10 @@ define([
                         vertex = n.properties;
                         vertex.graphVertexId = n.id;
                     }
-                    // Legacy names
-                    vertex._rowKey = encodeURIComponent((vertex._rowKey || vertex.rowKey || vertex.rowkey || '').replace(/\\[x](1f)/ig, '\u001f'));
 
-                    if ( !vertex.dropPosition && !vertex.graphPosition) {
-                        vertex.dropPosition = {
-                            x: parseInt(Math.random() * win.width(), 10),
-                            y: parseInt(Math.random() * win.height(), 10)
-                        };
-                    }
+                    // Fix characters
+                    vertex._rowKey = encodeURIComponent((vertex._rowKey || '').replace(/\\[x](1f)/ig, '\u001f'));
+
                     return vertex;
                 });
 

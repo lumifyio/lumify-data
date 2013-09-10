@@ -181,27 +181,15 @@ define([
                 zIndex: 100,
                 distance: 10,
                 multi: true,
-                otherDraggablesClass: 'search-result-dragging',
+                otherDraggablesClass: 'vertex-dragging',
                 start: function(ev, ui) {
-                    $(ui.helper).addClass('search-result-dragging');
+                    $(ui.helper).addClass('vertex-dragging');
                 },
                 otherDraggables: function(ev, ui){
-
-                    ui.otherDraggables.each(function(){
-                        var info = this.data('original').parent().data('info'),
-                            offset = this.offset(),
-                            dropPosition = { x:offset.left, y:offset.top };
-
-                        self.trigger(document, 'addVertices', {
-                            vertices: [{
-                                title: info.title,
-                                graphVertexId: info.graphVertexId,
-                                _rowKey: info._rowKey,
-                                _subType: info._subType,
-                                _type: info._type,
-                                dropPosition: dropPosition
-                            }]
-                        });
+                    self.trigger(document, 'addVertices', {
+                        vertices: ui.otherDraggables.map(function(){
+                            return this.data('original').parent().data('info');
+                        }).toArray()
                     });
                 },
                 selection: function(ev, ui) {

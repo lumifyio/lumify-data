@@ -7,10 +7,21 @@ define([
     'util/vertexList/list',
     './filters/filters',
     'tpl!./search',
-    'tpl!./searchResultsSummary',
+    'tpl!./conceptItem',
+    'tpl!./conceptSections',
     'tpl!util/alert',
     'util/jquery.ui.draggable.multiselect',
-], function(defineComponent, registry, UCD, OntologyService, VertexList, Filters, template, summaryTemplate, alertTemplate) {
+], function(
+    defineComponent,
+    registry,
+    UCD,
+    OntologyService,
+    VertexList,
+    Filters,
+    template,
+    conceptItemTemplate,
+    conceptSectionsTemplate,
+    alertTemplate) {
     'use strict';
 
     return defineComponent(Search);
@@ -57,10 +68,13 @@ define([
         };
 
         this.getConceptChildrenHtml = function(concept, indent) {
-            var self = this;
-            var html = "";
+            var self = this,
+                html = "";
             concept.children.forEach(function(concept) {
-                html += '<li item-path="entity.' + concept.id + '" class="concept-' + concept.id + '"><a href="#" style="padding-left:' + indent + 'px;">' + concept.displayName + '<span class="badge"></span></a></li>';
+                html += conceptItemTemplate({
+                    concept: concept,
+                    indent: indent
+                });
                 if(concept.children && concept.children.length > 0) {
                     html += self.getConceptChildrenHtml(concept, indent + 15);
                 }
@@ -124,7 +138,7 @@ define([
             var $searchResultsSummary = this.select('resultsSummarySelector'),
                 resultsHtml = this.getConceptChildrenHtml(concepts.entityConcept, 15);
 
-            $searchResultsSummary.html(summaryTemplate({ resultsHtml: resultsHtml }));
+            $searchResultsSummary.html(conceptSectionsTemplate({ resultsHtml: resultsHtml }));
             $('.badge', $searchResultsSummary).addClass('loading');
         };
 

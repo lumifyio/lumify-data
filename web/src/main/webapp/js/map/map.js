@@ -33,7 +33,6 @@ define([
         this.after('initialize', function() {
             this.$node.html(template({}));
 
-
             this.registerForContextMenuEvent();
 
             this.on(document, 'mapShow', this.onMapShow);
