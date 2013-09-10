@@ -70,7 +70,7 @@
     <owl:Class rdf:about="emailAddress">
         <rdfs:label xml:lang="en">Email Address</rdfs:label>
         <atc:property atc:name="_color">rgb(40, 40, 163)</atc:property>
-        <atc:property atc:name="glyphIconFileName">glyphicons_139_phone@2x.png</atc:property>
+        <atc:property atc:name="glyphIconFileName">glyphicons_010_envelope@2x.png</atc:property>
         <rdfs:subClassOf rdf:resource="http://altamiracorp.com/ontology/entity"/>
     </owl:Class>
 
