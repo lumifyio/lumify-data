@@ -154,7 +154,7 @@ define([
                 sign = this.attr.sign || mentionVertex.text(),
                 data = mentionVertex.data('info'),
                 title = $.trim(data && data.title || ''),
-                existingEntity = this.attr.existing ? mentionVertex.addClass('focused').hasClass('entity') : false,
+                existingEntity = this.attr.existing ? mentionVertex.addClass('focused').hasClass('resolved') : false,
                 objectSign = '';
 
             this.graphVertexId = existingEntity && data && data.graphVertexId;
@@ -176,7 +176,7 @@ define([
                 // spans
                 sign: this.promoted ? this.promoted.text() : sign,
                 objectSign: objectSign || '',
-                buttonText: existingEntity ? 'Update' : 'Create'
+                buttonText: existingEntity ? 'Update' : 'Resolve'
             }));
         };
 
