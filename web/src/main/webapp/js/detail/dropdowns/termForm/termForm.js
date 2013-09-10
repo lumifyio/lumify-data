@@ -72,12 +72,11 @@ define([
                 var dataInfo = $mentionNode.data('info');
                 mentionStart = dataInfo.start;
                 mentionEnd = dataInfo.end;
-                graphVertexId = this.graphVertexId;
+                graphVertexId = $mentionNode.data('info').graphVertexId;
             } else {
                 mentionStart = this.selectedStart;
                 mentionEnd = this.selectedEnd;
             }
-
             var parameters = {
                     sign: newObjectSign,
                     conceptId: this.select('conceptSelector').val(),
@@ -156,8 +155,6 @@ define([
                 title = $.trim(data && data.title || ''),
                 existingEntity = this.attr.existing ? mentionVertex.addClass('focused').hasClass('resolved') : false,
                 objectSign = '';
-
-            this.graphVertexId = existingEntity && data && data.graphVertexId;
 
             if (this.attr.selection && !existingEntity) {
                 this.trigger(document, 'ignoreSelectionChanges.detail');
