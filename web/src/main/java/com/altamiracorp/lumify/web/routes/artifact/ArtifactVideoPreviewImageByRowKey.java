@@ -1,31 +1,29 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
+import java.io.InputStream;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.util.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnailRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.videoPreview.ViewPreviewGenerator;
-import com.altamiracorp.lumify.web.WebApp;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
-import com.altamiracorp.web.Handler;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
-import org.apache.poi.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
-
-public class ArtifactVideoPreviewImageByRowKey implements Handler, AppAware {
+public class ArtifactVideoPreviewImageByRowKey extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactVideoPreviewImageByRowKey.class.getName());
     private ArtifactRepository artifactRepository = new ArtifactRepository();
     private ArtifactThumbnailRepository artifactThumbnailRepository = new ArtifactThumbnailRepository();
-    private WebApp app;
 
     public static String getUrl(HttpServletRequest request, ArtifactRowKey artifactKey) {
         return UrlUtils.getRootRef(request) + "/artifact/" + UrlUtils.urlEncode(artifactKey.toString()) + "/video-preview";
@@ -36,7 +34,7 @@ public class ArtifactVideoPreviewImageByRowKey implements Handler, AppAware {
         AppSession session = app.getAppSession(request);
         ArtifactRowKey artifactRowKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("_rowKey")));
 
-        String widthStr = request.getParameter("width");
+        String widthStr = getOptionalParameter(request, "width");
         int[] boundaryDims = new int[]{200 * ViewPreviewGenerator.FRAMES_PER_PREVIEW, 200};
 
         if (widthStr != null) {
@@ -78,10 +76,5 @@ public class ArtifactVideoPreviewImageByRowKey implements Handler, AppAware {
         } finally {
             in.close();
         }
-    }
-
-    @Override
-    public void setApp(App app) {
-        this.app = (WebApp) app;
     }
 }

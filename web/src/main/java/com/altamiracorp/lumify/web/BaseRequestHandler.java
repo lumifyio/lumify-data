@@ -65,6 +65,18 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
 
 
     /**
+     * Attempts to extract the specified parameter from the provided request and convert it to a double value
+     * @param request The request instance containing the parameter
+     * @param parameterName The name of the parameter to extract
+     * @return The double value of the specified parameter
+     * @throws RuntimeException Thrown if the required parameter was not in the request
+     */
+    protected double getRequiredParameterAsDouble(final HttpServletRequest request, final String parameterName) {
+        return Double.parseDouble(getRequiredParameter(request, parameterName));
+    }
+
+
+    /**
      * Attempts to extract the specified parameter from the provided request, if available
      * @param request The request instance containing the parameter
      * @param parameterName The name of the parameter to extract

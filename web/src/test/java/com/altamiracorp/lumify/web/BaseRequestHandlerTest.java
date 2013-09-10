@@ -73,6 +73,13 @@ public class BaseRequestHandlerTest {
         verify(request, times(1)).getParameter(eq(TEST_PARAM));
     }
 
+    @Test
+    public void testRequiredParameterAsDouble() {
+        when(request.getParameter(TEST_PARAM)).thenReturn(TEST_PARAM_VALUE);
+        assertEquals(Double.parseDouble(TEST_PARAM_VALUE), mock.getRequiredParameterAsDouble(request, TEST_PARAM), 0.001);
+        verify(request, times(1)).getParameter(eq(TEST_PARAM));
+    }
+
     @Test(expected = NullPointerException.class)
     public void testOptionalParameterInvalidRequest() {
         mock.getOptionalParameter(null, TEST_PARAM);
