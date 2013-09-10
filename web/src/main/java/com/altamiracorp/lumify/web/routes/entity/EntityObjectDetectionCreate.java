@@ -8,6 +8,9 @@ import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
+import com.altamiracorp.lumify.model.termMention.TermMention;
+import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
+import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.objectDetection.DetectedObject;
 import com.altamiracorp.lumify.objectDetection.ObjectDetectionWorker;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
@@ -33,6 +36,7 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
     private WebApp app;
     private GraphRepository graphRepository = new GraphRepository();
     private ArtifactRepository artifactRepository = new ArtifactRepository();
+    private TermMentionRepository termMentionRepository = new TermMentionRepository();
 
     private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
             new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()),
@@ -56,10 +60,26 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         String model = getOptionalParameter(request, "model");
         String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
 
+        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, 0, 0);
+
         GraphVertex conceptVertex = graphRepository.findVertex(session.getGraphSession(), conceptId);
         GraphVertex resolvedVertex = createGraphVertex(session.getGraphSession(), conceptVertex, resolvedGraphVertexId,
-                sign, artifactRowKey, boundingBox, artifactId);
+                sign, termMentionRowKey.toString(), boundingBox, artifactId);
 
+        // Creating/Updating term mention for resolved entity
+        TermMention termMention = termMentionRepository.findByRowKey(session.getModelSession(), termMentionRowKey.toString());
+        if (termMention == null) {
+            termMention = new TermMention(termMentionRowKey);
+        }
+        termMention.getMetadata()
+                .setSign(sign)
+                .setConcept((String) conceptVertex.getProperty(PropertyName.DISPLAY_NAME))
+                .setConceptGraphVertexId(conceptVertex.getId())
+                .setGraphVertexId(resolvedVertex.getId());
+        termMentionRepository.save(session.getModelSession(), termMention);
+
+
+        // Creating a new detected object tag
         DetectedObject detectedObject = new DetectedObject(x1, y1, x2, y2);
         detectedObject.setGraphVertexId(resolvedVertex.getId().toString());
 
@@ -110,7 +130,7 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
     }
 
     private GraphVertex createGraphVertex(GraphSession graphSession, GraphVertex conceptVertex, String resolvedGraphVertexId,
-                                          String sign, String artifactRowKey, String boundingBox, String artifactId) {
+                                          String sign, String termMentionRowKey, String boundingBox, String artifactId) {
         GraphVertex resolvedVertex;
         if (resolvedGraphVertexId != null) {
             resolvedVertex = graphRepository.findVertex(graphSession, resolvedGraphVertexId);
@@ -120,7 +140,7 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
                 resolvedVertex = new InMemoryGraphVertex();
                 resolvedVertex.setType(VertexType.ENTITY);
             }
-            resolvedVertex.setProperty(PropertyName.ROW_KEY, artifactRowKey);
+            resolvedVertex.setProperty(PropertyName.ROW_KEY, termMentionRowKey);
         }
 
         resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
