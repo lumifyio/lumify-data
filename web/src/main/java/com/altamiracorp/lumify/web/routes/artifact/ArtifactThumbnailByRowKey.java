@@ -81,6 +81,12 @@ public class ArtifactThumbnailByRowKey implements Handler, AppAware {
             int[] originalImageDims = new int[]{originalImage.getWidth(), originalImage.getHeight()};
             int[] newImageDims = getScaledDimension(originalImageDims, boundaryDims);
 
+            if (newImageDims[0] >= originalImageDims[0] || newImageDims[1] >= originalImageDims[1]) {
+                LOGGER.info("Original image dimensions " + originalImageDims[0] + "x" + originalImageDims[1] + " are smaller "
+                        + "than requested dimensions " + newImageDims[0] + "x" + newImageDims[1]
+                        + " returning original.");
+            }
+
             BufferedImage resizedImage = new BufferedImage(newImageDims[0], newImageDims[1], originalImage.getType());
             Graphics2D g = resizedImage.createGraphics();
             g.drawImage(originalImage, 0, 0, resizedImage.getWidth(), resizedImage.getHeight(), null);
