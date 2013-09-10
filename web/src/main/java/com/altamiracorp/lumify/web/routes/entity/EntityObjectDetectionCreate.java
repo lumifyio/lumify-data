@@ -1,5 +1,15 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONObject;
+
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.GraphSession;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
@@ -15,24 +25,12 @@ import com.altamiracorp.lumify.objectDetection.DetectedObject;
 import com.altamiracorp.lumify.objectDetection.ObjectDetectionWorker;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.web.Responder;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.lumify.web.WebApp;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
-import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
-import com.altamiracorp.web.utils.UrlUtils;
 import com.google.common.util.concurrent.MoreExecutors;
-import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-public class EntityObjectDetectionCreate implements Handler, AppAware {
+public class EntityObjectDetectionCreate extends BaseRequestHandler {
     private WebApp app;
     private GraphRepository graphRepository = new GraphRepository();
     private ArtifactRepository artifactRepository = new ArtifactRepository();
@@ -44,22 +42,21 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        AppSession session = app.getAppSession(request);
-
         // required parameters
-        String artifactRowKey = getRequiredParameter(request, "artifactKey");
-        String artifactId = getRequiredParameter(request, "artifactId");
-        String sign = getRequiredParameter(request, "sign");
-        String conceptId = getRequiredParameter(request, "conceptId");
-        String resolvedGraphVertexId = request.getParameter("graphVertexId");
-        String x1 = getRequiredParameter(request, "x1");
-        String y1 = getRequiredParameter(request, "y1");
-        String x2 = getRequiredParameter(request, "x2");
-        String y2 = getRequiredParameter(request, "y2");
-        String boundingBox = "[x1: " + x1 + ", y1: " + y1 + ", x2: " + x2 + ", y2: " + y2 + "]";
+        final String artifactRowKey = getRequiredParameter(request, "artifactKey");
+        final String artifactId = getRequiredParameter(request, "artifactId");
+        final String sign = getRequiredParameter(request, "sign");
+        final String conceptId = getRequiredParameter(request, "conceptId");
+        final String resolvedGraphVertexId = getOptionalParameter(request, "graphVertexId");
+        final String x1 = getRequiredParameter(request, "x1");
+        final String y1 = getRequiredParameter(request, "y1");
+        final String x2 = getRequiredParameter(request, "x2");
+        final String y2 = getRequiredParameter(request, "y2");
         String model = getOptionalParameter(request, "model");
         String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
+        final String boundingBox = "[x1: " + x1 + ", y1: " + y1 + ", x2: " + x2 + ", y2: " + y2 + "]";
 
+        AppSession session = app.getAppSession(request);
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, 0, 0);
 
         GraphVertex conceptVertex = graphRepository.findVertex(session.getGraphSession(), conceptId);
@@ -105,28 +102,7 @@ public class EntityObjectDetectionCreate implements Handler, AppAware {
         JSONObject obj = detectedObject.getJson();
         executorService.execute(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, obj));
 
-        new Responder(response).respondWith(obj);
-    }
-
-    @Override
-    public void setApp(App app) {
-        this.app = (WebApp) app;
-    }
-
-    public static String getRequiredParameter(HttpServletRequest request, String parameterName) {
-        String parameter = request.getParameter(parameterName);
-        if (parameter == null) {
-            throw new RuntimeException("'" + parameterName + "' is required.");
-        }
-        return UrlUtils.urlDecode(parameter);
-    }
-
-    public static String getOptionalParameter(HttpServletRequest request, String parameterName) {
-        String parameter = request.getParameter(parameterName);
-        if (parameter == null) {
-            return null;
-        }
-        return UrlUtils.urlDecode(parameter);
+        respondWithJson(response, obj);
     }
 
     private GraphVertex createGraphVertex(GraphSession graphSession, GraphVertex conceptVertex, String resolvedGraphVertexId,

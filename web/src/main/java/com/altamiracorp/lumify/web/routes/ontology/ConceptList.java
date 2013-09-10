@@ -1,27 +1,24 @@
 package com.altamiracorp.lumify.web.routes.ontology;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.ontology.Concept;
-import com.altamiracorp.lumify.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.model.ontology.PropertyName;
-import com.altamiracorp.lumify.web.Responder;
-import com.altamiracorp.lumify.web.WebApp;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
-import com.altamiracorp.web.Handler;
-import com.altamiracorp.web.HandlerChain;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.atteo.evo.inflector.English;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.model.ontology.Concept;
+import com.altamiracorp.lumify.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.model.ontology.PropertyName;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
+import com.altamiracorp.web.HandlerChain;
 
-public class ConceptList implements Handler, AppAware {
+public class ConceptList extends BaseRequestHandler {
     private OntologyRepository ontologyRepository = new OntologyRepository();
-    private WebApp app;
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
@@ -31,7 +28,7 @@ public class ConceptList implements Handler, AppAware {
 
         JSONObject result = buildJsonTree(request, session, rootConcept);
 
-        new Responder(response).respondWith(result);
+        respondWithJson(response, result);
         chain.next(request, response);
     }
 
@@ -54,10 +51,5 @@ public class ConceptList implements Handler, AppAware {
         }
 
         return result;
-    }
-
-    @Override
-    public void setApp(App app) {
-        this.app = (WebApp) app;
     }
 }
