@@ -20,6 +20,7 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import com.tinkerpop.pipes.PipeFunction;
 import com.tinkerpop.pipes.branch.LoopPipe;
+import com.tinkerpop.pipes.transform.PathPipe;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -482,32 +483,61 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public List<List<GraphVertex>> findPath(GraphVertex sourceVertex, GraphVertex destVertex, final int depth) {
         Vertex source = getVertex(sourceVertex);
+        Collection<Vertex> s = new ArrayList<Vertex>();
+        s.add(source);
         final String destVertexId = destVertex.getId();
         GremlinPipeline gremlinPipeline = new GremlinPipeline(source)
                 .both()
-                .loop(
-                        1,
+                .loop(1,
+                      new PipeFunction<LoopPipe.LoopBundle, Boolean>() {
+                          @Override
+                          public Boolean compute(LoopPipe.LoopBundle loopBundle) {
+                                  return loopBundle.getLoops() <= depth;
+
+                          }
+                      },
                         new PipeFunction<LoopPipe.LoopBundle, Boolean>() {
                             @Override
-                            public Boolean compute(LoopPipe.LoopBundle argument) {
-                                return argument.getLoops() <= depth;
-                            }
-                        },
-                        new PipeFunction<LoopPipe.LoopBundle, Boolean>() {
-                            @Override
-                            public Boolean compute(LoopPipe.LoopBundle argument) {
-                                if (argument.getObject() instanceof Vertex) {
-                                    Vertex v = (Vertex) argument.getObject();
-                                    return ("" + v.getId()).equals(destVertexId);
+                            public Boolean compute(LoopPipe.LoopBundle loopBundle) {
+                                if (loopBundle.getObject() instanceof Vertex) {
+                                    return (((Vertex) loopBundle.getObject()).getId() + "").equals(destVertexId);
                                 }
                                 return false;
                             }
+                        })
+                .path()
+                .groupBy(new PipeFunction() {
+                             @Override
+                             public Object compute(Object o) {
+                                 if (o instanceof List) {
+                                     return ((List) o).size();
+                                 }
+                                 return 0;
+                             }
+                         },
+                        new PipeFunction() {
+                            @Override
+                            public Object compute(Object o) {
+                                if (o instanceof List) {
+                                    return o;
+                                }
+                                return new ArrayList();
+                            }
                         }
-                )
-                .path();
+                ).cap();
+        HashMap<Integer,Iterable<Iterable<Vertex>>> pathMap = (HashMap<Integer, Iterable<Iterable<Vertex>>>) gremlinPipeline.toList().get(0);
+        return toGraphVerticesPath(findShortestPath(pathMap));
+    }
 
-        Iterable<Iterable<Vertex>> paths = (Iterable<Iterable<Vertex>>) gremlinPipeline.toList();
-        return toGraphVerticesPath(paths);
+    private Iterable<Iterable<Vertex>> findShortestPath(HashMap<Integer,Iterable<Iterable<Vertex>>> pathMap) {
+        int minKey = Integer.MAX_VALUE;
+        for (Integer key : pathMap.keySet()) {
+            if (key < minKey) {
+                minKey = key;
+            }
+        }
+
+        return pathMap.get(minKey);
     }
 
     private Vertex getVertex(GraphVertex v) {
