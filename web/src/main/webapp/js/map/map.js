@@ -495,6 +495,13 @@ define([
             if (!this.timeout && !this.mapLoaded) {
                 this.timeout = setTimeout(this.initializeMap.bind(this), 100);
             }
+
+            if (this.mapLoaded) {
+                setTimeout(function() {
+                    console.log('fixing');
+                    this.fixSize();
+                }.bind(this), 250);
+            }
         };
 
         this.endRegionSelection = function() {
