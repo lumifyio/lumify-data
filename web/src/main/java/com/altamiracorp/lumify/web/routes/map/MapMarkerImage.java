@@ -11,6 +11,8 @@ import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -24,6 +26,7 @@ import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 public class MapMarkerImage extends BaseRequestHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MapMarkerImage.class);
     private OntologyRepository ontologyRepository = new OntologyRepository();
     private ResourceRepository resourceRepository = new ResourceRepository();
     private Cache<String, byte[]> imageCache = CacheBuilder.newBuilder()
@@ -36,8 +39,11 @@ public class MapMarkerImage extends BaseRequestHandler {
         String typeStr = getAttributeString(request, "type");
         long scale = getOptionalParameterLong(request, "scale", 1L);
 
-        byte[] imageData = imageCache.getIfPresent(typeStr);
+        String cacheKey = typeStr + scale;
+        byte[] imageData = imageCache.getIfPresent(cacheKey);
         if (imageData == null) {
+            LOGGER.info("map marker cache miss " + typeStr + " (scale: " + scale + ")");
+
             String glyphIconRowKey = getGlyphIcon(session, typeStr);
             if (glyphIconRowKey == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -51,7 +57,7 @@ public class MapMarkerImage extends BaseRequestHandler {
             }
 
             imageData = getMarkerImage(resource, scale);
-            imageCache.put(typeStr, imageData);
+            imageCache.put(cacheKey, imageData);
         }
 
         ServletOutputStream out = response.getOutputStream();
