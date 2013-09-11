@@ -65,10 +65,16 @@ class jetty(
     require => File['/opt/jetty/webapps-DISABLED'],
   }
 
+  file { '/opt/jetty/etc/jetty.xml':
+    ensure   => file,
+    content  => template('jetty/jetty.xml.erb'),
+    require  => File['/opt/jetty'],
+  }
+
   service { 'jetty' :
     enable  => true,
     ensure  => running,
-    require => [ File['/etc/init.d/jetty'], Exec['jetty-disable-contexts'], Exec['jetty-disable-webapps'] ],
+    require => [ File['/etc/init.d/jetty'], File['/opt/jetty/etc/jetty.xml'], Exec['jetty-disable-contexts'], Exec['jetty-disable-webapps'] ],
   }
 
   file { '/root/deploy-webapps.sh' :
