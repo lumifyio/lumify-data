@@ -5,7 +5,7 @@
 # require: 300_VideoPreviewMR.sh
 # require: 600_ArtifactLocationExtractionMR.sh
 # require: 790_ArtifactHighlighting.sh
-# require: 800_BlurSearchIndexBuilder.sh
+# require: 800_SearchIndexBuilder.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
