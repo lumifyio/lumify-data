@@ -38,6 +38,8 @@ public class VideoFrameTextCombinerTextExtractor implements TextExtractor {
             }
         }
 
+        artifact.getContent().mergeVideoTranscript(transcript);
+
         ArtifactExtractedInfo extractedInfo = new ArtifactExtractedInfo();
         extractedInfo.setText(transcript.toString());
         return extractedInfo;

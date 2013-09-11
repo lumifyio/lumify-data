@@ -30,6 +30,13 @@ public class VideoTranscript {
         entries.add(new TimedText(time, text));
     }
 
+    public VideoTranscript merge(VideoTranscript videoTranscript) {
+        for (TimedText entry : videoTranscript.entries) {
+            entries.add(entry);
+        }
+        return this;
+    }
+
     public JSONObject toJson() {
         try {
             JSONObject result = new JSONObject();
