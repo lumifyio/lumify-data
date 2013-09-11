@@ -64,6 +64,7 @@ define([
         this.after('initialize', function() {
             window.lumifyApp = this;
 
+            this.triggerPaneResized = _.debounce(this.triggerPaneResized.bind(this), 10);
 
             this.on(document, 'error', this.onError);
             this.on(document, 'menubarToggleDisplay', this.toggleDisplay);
@@ -112,6 +113,7 @@ define([
             this.on(document, 'addVertices', this.onAddVertices);
             this.on(document, 'updateVertices', this.onUpdateVertices);
             this.on(document, 'deleteVertices', this.onDeleteVertices);
+            this.on(document, 'windowResize', this.triggerPaneResized);
 
             this.on(document, 'refreshRelationships', this.refreshRelationships);
 
