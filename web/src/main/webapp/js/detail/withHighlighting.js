@@ -159,13 +159,15 @@ define([
                                 // Dim 
                                 // (when dropdown is opened and it wasn't this entity)
                                 stylesheet.addRule(
-                                    '.highlight-' + style.selector + ' .dropdown .' + className,
+                                    '.highlight-' + style.selector + ' .dropdown .' + className + ',' +
+                                    '.highlight-' + style.selector + ' .drag-focus .' + className,
                                     definition(STATES.DIM)
                                 );
 
                                 // Default style (or focused)
                                 stylesheet.addRule(
-                                    '.highlight-' + style.selector + ' .' + className +',' +
+                                    '.highlight-' + style.selector + ' .' + className + ',' +
+                                    '.highlight-' + style.selector + ' .drag-focus .resolved.' + className + ',' +
                                     '.highlight-' + style.selector + ' .dropdown .focused.' + className,
                                     definition(STATES.NORMAL)
                                 );
