@@ -22,3 +22,5 @@ elasticsearch_locations:
   - 10.0.3.101:9300
   - 10.0.3.102:9300
   - 10.0.3.103:9300
+jetty_key_store_path: /opt/lumify/config/lumify_demo.jks
+jetty_key_store_password: OBF:1wfw1xtz1uo71tok1s3q20zj1s3c1toa1unr1xtj1wg2
