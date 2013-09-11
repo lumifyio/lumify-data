@@ -6,10 +6,7 @@ import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.model.ontology.*;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
-import com.thinkaurelius.titan.core.TitanFactory;
-import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.TitanKey;
-import com.thinkaurelius.titan.core.TitanType;
+import com.thinkaurelius.titan.core.*;
 import com.thinkaurelius.titan.core.attribute.Geo;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.thinkaurelius.titan.core.attribute.Text;
@@ -20,7 +17,6 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import com.tinkerpop.pipes.PipeFunction;
 import com.tinkerpop.pipes.branch.LoopPipe;
-import com.tinkerpop.pipes.transform.PathPipe;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -145,12 +141,12 @@ public class TitanGraphSession extends GraphSession {
     }
 
     private List<Edge> findAllEdges(String sourceId, final String destId) {
-        List <Edge> vertices = new GremlinPipeline(this.graph.getVertex(sourceId))
+        List<Edge> vertices = new GremlinPipeline(this.graph.getVertex(sourceId))
                 .outE()
                 .toList();
         List<Edge> edgeList = new ArrayList<Edge>();
-        for (Edge v : vertices){
-            if (v.getVertex(Direction.IN).getId().toString().equals(destId)){
+        for (Edge v : vertices) {
+            if (v.getVertex(Direction.IN).getId().toString().equals(destId)) {
                 edgeList.add(v);
             }
         }
@@ -371,10 +367,14 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson) {
-        Iterable<Vertex> r = graph.query()
-                .has(PropertyName.TITLE.toString(), Text.CONTAINS, title)
-                .vertices();
+        String[] titleParts = title.split(" ");
 
+        TitanGraphQuery query = graph.query();
+        for (String titlePart : titleParts) {
+            query.has(PropertyName.TITLE.toString(), Text.PREFIX, titlePart);
+        }
+
+        Iterable<Vertex> r = query.vertices();
         GremlinPipeline<Vertex, Vertex> queryPipeline = queryFormatter.createQueryPipeline(r, filterJson);
         return toGraphVertices(queryPipeline.toList());
     }
@@ -489,13 +489,13 @@ public class TitanGraphSession extends GraphSession {
         GremlinPipeline gremlinPipeline = new GremlinPipeline(source)
                 .both()
                 .loop(1,
-                      new PipeFunction<LoopPipe.LoopBundle, Boolean>() {
-                          @Override
-                          public Boolean compute(LoopPipe.LoopBundle loopBundle) {
-                                  return loopBundle.getLoops() <= depth;
+                        new PipeFunction<LoopPipe.LoopBundle, Boolean>() {
+                            @Override
+                            public Boolean compute(LoopPipe.LoopBundle loopBundle) {
+                                return loopBundle.getLoops() <= depth;
 
-                          }
-                      },
+                            }
+                        },
                         new PipeFunction<LoopPipe.LoopBundle, Boolean>() {
                             @Override
                             public Boolean compute(LoopPipe.LoopBundle loopBundle) {
@@ -504,7 +504,8 @@ public class TitanGraphSession extends GraphSession {
                                 }
                                 return false;
                             }
-                        })
+                        }
+                )
                 .path()
                 .groupBy(new PipeFunction() {
                              @Override
@@ -525,11 +526,11 @@ public class TitanGraphSession extends GraphSession {
                             }
                         }
                 ).cap();
-        HashMap<Integer,Iterable<Iterable<Vertex>>> pathMap = (HashMap<Integer, Iterable<Iterable<Vertex>>>) gremlinPipeline.toList().get(0);
+        HashMap<Integer, Iterable<Iterable<Vertex>>> pathMap = (HashMap<Integer, Iterable<Iterable<Vertex>>>) gremlinPipeline.toList().get(0);
         return toGraphVerticesPath(findShortestPath(pathMap));
     }
 
-    private Iterable<Iterable<Vertex>> findShortestPath(HashMap<Integer,Iterable<Iterable<Vertex>>> pathMap) {
+    private Iterable<Iterable<Vertex>> findShortestPath(HashMap<Integer, Iterable<Iterable<Vertex>>> pathMap) {
         int minKey = Integer.MAX_VALUE;
         for (Integer key : pathMap.keySet()) {
             if (key < minKey) {
