@@ -76,6 +76,11 @@ define([
             this.$node.css(css);
             this.showing = POSTER;
             this.currentFrame = -1;
+
+            this.trigger(document, 'scrubberFrameChange', {
+               index: 0,
+               numberOfFrames: NUMBER_FRAMES
+            });
         };
 
         this.onClick = function(event) {
