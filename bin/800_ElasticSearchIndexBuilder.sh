@@ -35,4 +35,5 @@ com.altamiracorp.lumify.search.SearchIndexBuilderMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.lumify.search.ElasticSearchProvider
+--classname=com.altamiracorp.lumify.search.ElasticSearchProvider \
+--elasticsearch.locations=192.168.33.10:9300

@@ -38,4 +38,5 @@ com.altamiracorp.lumify.location.TermLocationExtractionMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.lumify.location.TermLocationExtractionMR
+--classname=com.altamiracorp.lumify.location.TermLocationExtractionMR \
+--elasticsearch.locations=192.168.33.10:9300

@@ -39,4 +39,5 @@ com.altamiracorp.lumify.videoConversion.VideoConversionMR \
 --password=password \
 --failOnFirstError \
 -Dffmpeg.bin.dir=${ffmpegDir} \
--Dccextractor.bin.dir=${ccextractorDir}
+-Dccextractor.bin.dir=${ccextractorDir} \
+--elasticsearch.locations=192.168.33.10:9300

@@ -37,5 +37,6 @@ com.altamiracorp.lumify.textExtraction.TextExtractorConsolidationMR \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
+--elasticsearch.locations=192.168.33.10:9300 \
 --failOnFirstError
 

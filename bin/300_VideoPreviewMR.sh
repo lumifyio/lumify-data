@@ -36,5 +36,6 @@ com.altamiracorp.lumify.videoPreview.VideoPreviewMR \
 --graph.storage.index.search.hostname=${ip} \
 --username=root \
 --password=password \
---failOnFirstError
+--failOnFirstError \
+--elasticsearch.locations=192.168.33.10:9300
 

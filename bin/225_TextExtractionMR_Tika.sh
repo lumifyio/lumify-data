@@ -34,4 +34,5 @@ com.altamiracorp.lumify.textExtraction.TextExtractionMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.lumify.textExtraction.TikaTextExtractor
+--classname=com.altamiracorp.lumify.textExtraction.TikaTextExtractor \
+--elasticsearch.locations=192.168.33.10:9300

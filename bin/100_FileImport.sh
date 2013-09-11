@@ -42,4 +42,5 @@ com.altamiracorp.lumify.cmdline.FileImport \
 --graph.storage.index.search.hostname=${ip} \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
---password=password
+--password=password \
+--elasticsearch.locations=192.168.33.10:9300

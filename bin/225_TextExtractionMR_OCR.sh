@@ -36,4 +36,5 @@ com.altamiracorp.lumify.textExtraction.TextExtractionMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.lumify.textExtraction.ImageOcrTextExtractor
+--classname=com.altamiracorp.lumify.textExtraction.ImageOcrTextExtractor \
+--elasticsearch.locations=192.168.33.10:9300

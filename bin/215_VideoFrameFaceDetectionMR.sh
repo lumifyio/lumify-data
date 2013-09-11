@@ -40,4 +40,5 @@ com.altamiracorp.lumify.objectDetection.ObjectDetectionMR \
 -DopenCVConfPathPrefix=file://$(cd ${DIR}/.. && pwd) \
 -Dclassifier.file=haarcascade_frontalface_alt.xml \
 -Dclassifier.concept=face \
--DjobType=videoFrame
+-DjobType=videoFrame \
+--elasticsearch.locations=192.168.33.10:9300

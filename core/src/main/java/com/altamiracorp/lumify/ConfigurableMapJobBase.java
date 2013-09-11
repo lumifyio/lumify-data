@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.model.AccumuloSession;
 import com.altamiracorp.lumify.model.TitanGraphSession;
 import com.altamiracorp.lumify.search.BlurSearchProvider;
+import com.altamiracorp.lumify.search.ElasticSearchProvider;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -95,6 +96,10 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
             job.getConfiguration().set(TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, getGraphStorageIndexSearchHostname());
         }
         job.setJarByClass(this.getClass());
+
+        if (getSearchProvider() == null) {
+            job.getConfiguration().set(ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, getElasticSearchLocations());
+        }
 
         if (this.config != null) {
             for (String config : this.config) {
