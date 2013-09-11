@@ -16,7 +16,7 @@ class ffmpeg::x264($prefix="/usr/local", $tmpdir="/usr/local/src") {
   }
 
   $configure = "${srcdir}/configure --prefix='${prefix}' --bindir='${prefix}/bin' --enable-static"
-  $make      = "/usr/bin/make"
+  $make      = "/usr/bin/make -j${processorcount}"
   $install   = "/usr/bin/make install"
   $distclean  = "/usr/bin/make distclean"
   $cmd       = "${configure} && ${make} && ${install} && ${distclean}"

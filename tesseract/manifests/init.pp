@@ -30,7 +30,7 @@ class tesseract($prefix="/usr/local", $tmpdir="/usr/local/src") {
 
   $autogen    = "${srcdir}/autogen.sh"
   $configure  = "${srcdir}/configure --prefix=${prefix}"
-  $make       = "/usr/bin/make"
+  $make       = "/usr/bin/make -j${processorcount}"
   $install    = "/usr/bin/make install"
   $distclean  = "/usr/bin/make distclean"
   $cmd        = "${autogen} && ${configure} && ${make} && ${install} && ${distclean}"

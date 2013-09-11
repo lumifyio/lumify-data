@@ -17,7 +17,7 @@ class ffmpeg::libvpx($prefix="/usr/local", $tmpdir="/usr/local/src") {
   }
 
   $configure  = "${srcdir}/configure --prefix=${prefix} --disable-examples"
-  $make       = "/usr/bin/make"
+  $make       = "/usr/bin/make -j${processorcount}"
   $install    = "/usr/bin/make install"
   $distclean  = "/usr/bin/make clean"
   $cmd        = "${configure} && ${make} && ${install} && ${distclean}"

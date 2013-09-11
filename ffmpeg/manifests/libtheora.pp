@@ -15,7 +15,7 @@ class ffmpeg::libtheora($prefix="/usr/local", $tmpdir="/usr/local/src") {
   }
 
   $configure  = "${srcdir}/configure --prefix=${prefix} --with-ogg=${prefix} --disable-examples --disable-sdltest --disable-vorbistest"
-  $make       = "/usr/bin/make"
+  $make       = "/usr/bin/make -j${processorcount}"
   $install    = "/usr/bin/make install"
   $distclean  = "/usr/bin/make distclean"
   $cmd        = "${configure} && ${make} && ${install} && ${distclean}"

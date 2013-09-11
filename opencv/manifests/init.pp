@@ -25,7 +25,7 @@ class opencv($tmpdir="/usr/local/src") {
   }
 
   $cmake   = "/usr/bin/cmake -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF ."
-  $make    = "/usr/bin/make"
+  $make    = "/usr/bin/make -j${processorcount}"
   $install = "/usr/bin/make install"
 
   exec { 'opencv-cmake' :

@@ -25,7 +25,7 @@ class ffmpeg ($prefix="/usr/local", $tmpdir="/usr/local/src") {
   }
 
   $configure  = "${srcdir}/configure --prefix='${prefix}' --extra-cflags='-I${prefix}/include' --extra-ldflags='-L${prefix}/lib' --bindir='${prefix}/bin' --extra-libs='-ldl' --enable-gpl --enable-nonfree --enable-libfdk-aac --enable-libmp3lame --enable-libopus --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libtheora"
-  $make       = "/usr/bin/make"
+  $make       = "/usr/bin/make -j${processorcount}"
   $install    = "/usr/bin/make install"
   $distclean  = "/usr/bin/make distclean"
   $hash       = "hash -r"
@@ -42,7 +42,7 @@ class ffmpeg ($prefix="/usr/local", $tmpdir="/usr/local/src") {
 
   exec { 'ffmpeg-qt-fast-start-build' :
     cwd     => "${srcdir}/tools",
-    command => "/usr/bin/make qt-faststart && cp ${srcdir}/tools/qt-faststart ${prefix}/bin/qt-faststart",
+    command => "${make} qt-faststart && cp ${srcdir}/tools/qt-faststart ${prefix}/bin/qt-faststart",
     creates => "${prefix}/bin/qt-faststart",
     require => Exec['ffmpeg-build'],
   }

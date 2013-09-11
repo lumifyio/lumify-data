@@ -18,7 +18,7 @@ class ffmpeg::libfdkaac($prefix="/usr/local", $tmpdir="/usr/local/src") {
 
   $autoreconf = "/usr/bin/autoreconf -fiv"
   $configure  = "${srcdir}/configure --prefix=${prefix}"
-  $make       = "/usr/bin/make"
+  $make       = "/usr/bin/make -j${processorcount}"
   $install    = "/usr/bin/make install"
   $distclean  = "/usr/bin/make distclean"
   $cmd        = "${autoreconf} && ${configure} && ${make} && ${install} && ${distclean}"
