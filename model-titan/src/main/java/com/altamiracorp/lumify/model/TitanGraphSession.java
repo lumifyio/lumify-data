@@ -380,9 +380,16 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<GraphVertex> searchVerticesByTitleAndType(String query, VertexType type) {
-        Iterable<Vertex> r = graph.query()
-                .has(PropertyName.TITLE.toString(), Text.CONTAINS, query)
+    public List<GraphVertex> searchVerticesByTitleAndType(String title, VertexType type) {
+        String[] titleParts = title.split(" ");
+
+        TitanGraphQuery query = graph.query();
+
+        for (String titlePart : titleParts) {
+            query.has(PropertyName.TITLE.toString(), Text.PREFIX, titlePart);
+        }
+
+        Iterable<Vertex> r = query
                 .has(PropertyName.TYPE.toString(), type.toString())
                 .vertices();
         return toGraphVertices(r);
