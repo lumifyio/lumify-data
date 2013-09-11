@@ -48,6 +48,28 @@
       </Arg>
     </Call>
 
+    <Call name="addConnector">
+      <Arg>
+          <New class="org.eclipse.jetty.server.ssl.SslSelectChannelConnector">
+            <Arg>
+                <New class="org.eclipse.jetty.http.ssl.SslContextFactory">
+                    <Set name="keyStore"><%= @jetty_key_store_path %></Set>
+                    <Set name="keyStorePassword"><%= @jetty_key_store_password %></Set>
+                    <Set name="trustStore"><%= @jetty_key_store_path %></Set>
+                    <Set name="trustStorePassword"><%= @jetty_key_store_password %></Set>
+                </New>
+            </Arg>
+            <Set name="host"><Property name="jetty.host" /></Set>
+            <Set name="port"><Property name="jetty.port" default="8443"/></Set>
+            <Set name="maxIdleTime">300000</Set>
+            <Set name="Acceptors">2</Set>
+            <Set name="statsOn">false</Set>
+            <Set name="lowResourcesConnections">20000</Set>
+            <Set name="lowResourcesMaxIdleTime">5000</Set>
+          </New>
+      </Arg>
+    </Call>
+
     <!-- =========================================================== -->
     <!-- Set handler Collection Structure                            --> 
     <!-- =========================================================== -->

@@ -4,6 +4,9 @@ class jetty(
 ){
   require java
 
+  $jetty_key_store_path = hiera('jetty_key_store_path')
+  $jetty_key_store_password = hiera('jetty_key_store_password')
+
   group { 'jetty' :
     ensure => present,
   }
