@@ -6,8 +6,9 @@ define([
     '../withTypeContent',
     '../withHighlighting',
     'detail/dropdowns/objectDetectionForm/objectDetectionForm',
-    'tpl!./artifact'
-], function(defineComponent, VideoScrubber, Image, withTypeContent, withHighlighting, ObjectDetectionForm, template) {
+    'tpl!./artifact',
+    'tpl!./transcriptEntry'
+], function(defineComponent, VideoScrubber, Image, withTypeContent, withHighlighting, ObjectDetectionForm, template, transcriptEntryTemplate) {
 
     'use strict';
 
@@ -17,6 +18,7 @@ define([
 
         this.defaultAttrs({
             previewSelector: '.preview',
+            currentTranscriptSelector: '.currentTranscript',
             imagePreviewSelector: '.image-preview',
             detectedObjectSelector: '.detected-object',
             artifactSelector: '.artifact'
@@ -28,6 +30,8 @@ define([
             this.on('click', {
                 detectedObjectSelector: this.onDetectedObjectClicked
             });
+            this.on(document, 'scrubberFrameChange', this.onScrubberFrameChange);
+            this.on(document, 'videoTimeUpdate', this.onVideoTimeUpdate);
 
             this.$node.on('mouseenter', '.image-preview', this.onImageEnter.bind(this));
 
@@ -53,7 +57,15 @@ define([
                     _rowKey: artifact.key.value
                 });
 
-                self.$node.html(template({ 
+                if(artifact.Content.video_transcript) {
+                    self.videoTranscript = JSON.parse(artifact.Content.video_transcript);
+                    self.videoDuration =  artifact.Content['atc:video_duration'];
+                } else {
+                    self.videoTranscript = null;
+                    self.videoDuration =  null;
+                }
+
+                self.$node.html(template({
                     artifact: self.setupContentHtml(artifact), 
                     vertex: vertex,
                     highlightButton: self.highlightButton(),
@@ -64,6 +76,47 @@ define([
                     self[artifact.type + 'Setup'](artifact);
                 }
             });
+        };
+
+        this.onVideoTimeUpdate = function(evt, data) {
+            var time = data.currentTime * 1000;
+            this.updateCurrentTranscript(time);
+        };
+
+        this.onScrubberFrameChange = function(evt, data) {
+            var frameIndex = data.index;
+            var numberOfFrames = data.numberOfFrames;
+            var time = (this.videoDuration / numberOfFrames) * frameIndex;
+            this.updateCurrentTranscript(time);
+        };
+
+        this.updateCurrentTranscript = function(time) {
+            var transcriptEntry = this.findTranscriptEntryForTime(time);
+            var html = '';
+            if(transcriptEntry) {
+                html = transcriptEntryTemplate({
+                    transcriptEntry: transcriptEntry,
+                    formatTimeOffset: this.formatTimeOffset
+                });
+            }
+            this.select('currentTranscriptSelector').html(html);
+        };
+
+        this.findTranscriptEntryForTime = function(time) {
+            if(!this.videoTranscript || !this.videoTranscript.entries) {
+                return null;
+            }
+            var bestMatch = this.videoTranscript.entries[0];
+            for(var i = 0; i < this.videoTranscript.entries.length; i++) {
+                if(this.videoTranscript.entries[i].start <= time) {
+                    bestMatch = this.videoTranscript.entries[i];
+                }
+            }
+            return bestMatch;
+        };
+
+        this.formatTimeOffset = function(time) {
+            return sf('{0:h:mm:ss}', new sf.TimeSpan(time));
         };
 
         this.onDetectedObjectClicked = function(event) {

@@ -1,30 +1,25 @@
 package com.altamiracorp.lumify.videoConversion;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.altamiracorp.lumify.AppSession;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.altamiracorp.lumify.model.SaveFileResults;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.VideoTranscript;
 import com.altamiracorp.lumify.util.StreamHelper;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class FFMPEGVideoConversion {
@@ -77,7 +72,7 @@ public class FFMPEGVideoConversion {
         });
 
         VideoTranscript videoTranscript = SubRip.read(ccFile);
-        artifact.getContent().setVideoTranscript(videoTranscript);
+        artifact.getContent().mergeVideoTranscript(videoTranscript);
 
         ccFile.delete();
     }
@@ -95,12 +90,16 @@ public class FFMPEGVideoConversion {
                 new File(tempDir, "image-%8d.png").getAbsolutePath()
         });
 
+        long videoDuration = 0;
         for (File frameFile : tempDir.listFiles()) {
             Matcher m = fileNamePattern.matcher(frameFile.getName());
             if (!m.matches()) {
                 continue;
             }
             long frameStartTime = (Long.parseLong(m.group(1)) / framesPerSecondToExtract) * 1000;
+            if (frameStartTime > videoDuration) {
+                videoDuration = frameStartTime;
+            }
             FileInputStream frameIn = new FileInputStream(frameFile);
             try {
                 videoFrameRepository.saveVideoFrame(session.getModelSession(), artifact.getRowKey(), frameIn, frameStartTime);
@@ -108,6 +107,7 @@ public class FFMPEGVideoConversion {
                 frameIn.close();
             }
         }
+        artifact.getContent().setVideoDuration(videoDuration);
         FileUtils.deleteDirectory(tempDir);
     }
 
@@ -223,9 +223,9 @@ public class FFMPEGVideoConversion {
 
         LOGGER.info("Running: " + arrayToString(arguments));
 
-        if( !sortedEnv.isEmpty() ) {
+        if (!sortedEnv.isEmpty()) {
             LOGGER.info("Spawned program environment: ");
-            for(final Map.Entry<String, String> entry: sortedEnv.entrySet()) {
+            for (final Map.Entry<String, String> entry : sortedEnv.entrySet()) {
                 LOGGER.info(String.format("%s:%s", entry.getKey(), entry.getValue()));
             }
         } else {

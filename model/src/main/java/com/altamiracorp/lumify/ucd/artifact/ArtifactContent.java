@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.ucd.artifact;
 
 import com.altamiracorp.lumify.model.ColumnFamily;
 import com.altamiracorp.lumify.model.Value;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ArtifactContent extends ColumnFamily {
@@ -11,6 +12,7 @@ public class ArtifactContent extends ColumnFamily {
     public static final String SECURITY = "security";
     public static final String HIGHLIGHTED_TEXT = "highlighted_text";
     public static final String VIDEO_TRANSCRIPT = "video_transcript";
+    public static final String VIDEO_DURATION = "atc:video_duration";
 
     public ArtifactContent() {
         super(NAME);
@@ -71,5 +73,33 @@ public class ArtifactContent extends ColumnFamily {
     public ArtifactContent setVideoTranscript(VideoTranscript videoTranscript) {
         set(VIDEO_TRANSCRIPT, videoTranscript.toJson().toString());
         return this;
+    }
+
+    public void mergeVideoTranscript(VideoTranscript videoTranscript) {
+        if (getVideoTranscript() != null) {
+            setVideoTranscript(getVideoTranscript().merge(videoTranscript));
+        } else {
+            setVideoTranscript(videoTranscript);
+        }
+    }
+
+    public ArtifactContent setVideoDuration(long videoDuration) {
+        set(VIDEO_DURATION, videoDuration);
+        return this;
+    }
+
+    public Long getVideoDuration() {
+        return Value.toLong(get(VIDEO_DURATION));
+    }
+
+    @Override
+    public JSONObject toJson() {
+        try {
+            JSONObject json = super.toJson();
+            json.put(VIDEO_DURATION, getVideoDuration());
+            return json;
+        } catch (JSONException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }
