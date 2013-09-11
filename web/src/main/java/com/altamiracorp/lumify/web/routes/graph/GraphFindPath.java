@@ -22,24 +22,15 @@ public class GraphFindPath extends BaseRequestHandler {
         AppSession session = app.getAppSession(request);
 
         int depth;
-        String depthStr = request.getParameter("depth");
+        String depthStr = getOptionalParameter(request, "depth");
         if (depthStr == null) {
             depth = 5;
         } else {
             depth = Integer.parseInt(depthStr);
         }
 
-        String sourceGraphVertexId = request.getParameter("sourceGraphVertexId");
-        if (sourceGraphVertexId == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "sourceGraphVertexId is required");
-            return;
-        }
-
-        String destGraphVertexId = request.getParameter("destGraphVertexId");
-        if (destGraphVertexId == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "destGraphVertexId is required");
-            return;
-        }
+        final String sourceGraphVertexId = getRequiredParameter(request, "sourceGraphVertexId");
+        final String destGraphVertexId = getRequiredParameter(request, "destGraphVertexId");
 
         GraphVertex sourceVertex = graphRepository.findVertex(session.getGraphSession(), sourceGraphVertexId);
         if (sourceVertex == null) {

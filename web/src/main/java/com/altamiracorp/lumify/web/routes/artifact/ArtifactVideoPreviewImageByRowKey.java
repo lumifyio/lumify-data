@@ -32,7 +32,7 @@ public class ArtifactVideoPreviewImageByRowKey extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         AppSession session = app.getAppSession(request);
-        ArtifactRowKey artifactRowKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("_rowKey")));
+        ArtifactRowKey artifactRowKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
 
         String widthStr = getOptionalParameter(request, "width");
         int[] boundaryDims = new int[]{200 * ViewPreviewGenerator.FRAMES_PER_PREVIEW, 200};
