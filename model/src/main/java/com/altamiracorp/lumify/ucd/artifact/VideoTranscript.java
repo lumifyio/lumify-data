@@ -77,10 +77,10 @@ public class VideoTranscript {
                 Long start = null;
                 Long end = null;
 
-                if (json.get("start") != null) {
+                if (json.has("start")) {
                     start = json.getLong("start");
                 }
-                if (json.get("end") != null) {
+                if (json.has("end")) {
                     end = json.getLong("end");
                 }
                 this.time = new Time(start, end);
