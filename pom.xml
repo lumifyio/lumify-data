@@ -61,6 +61,7 @@
         <zookeeper-version>3.3.5</zookeeper-version>
         <jetty-version>8.1.11.v20130520</jetty-version>
         <elasticsearch-version>0.90.0</elasticsearch-version>
+        <titan-version>0.3.2</titan-version>
         <site.config.location>conf/maven/site</site.config.location>
         <javadoc.stylesheetfile>conf/maven/javadoc/stylesheet.css</javadoc.stylesheetfile>
         <maven.build.timestamp.format>EEE MMM dd HH:mm z yyyy</maven.build.timestamp.format>

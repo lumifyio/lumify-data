@@ -37,12 +37,12 @@
         <dependency>
             <groupId>com.thinkaurelius.titan</groupId>
             <artifactId>titan-core</artifactId>
-            <version>0.3.2</version>
+            <version>${titan-version}</version>
         </dependency>
         <dependency>
             <groupId>com.thinkaurelius.titan</groupId>
             <artifactId>titan-es</artifactId>
-            <version>0.3.2</version>
+            <version>${titan-version}</version>
         </dependency>
         <dependency>
             <groupId>com.altamiracorp.titan.accumulo</groupId>
