@@ -62,6 +62,8 @@ class elasticsearch(
     require => [File[$configdir], Macro::Extract[$downloadpath]],
   }
 
+  $elasticsearch_locations = hiera_array('elasticsearch_locations')
+
   file { "elasticsearch-env-config":
     path    => "${configdir}/elasticsearch.yml",
     ensure  => file,
