@@ -1,4 +1,5 @@
 #!/bin/bash
+# group: dictionary
 # require: 249_TextExtractorConsolidationMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
