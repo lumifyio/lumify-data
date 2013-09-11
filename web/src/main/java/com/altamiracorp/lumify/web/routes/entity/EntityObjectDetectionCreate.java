@@ -26,12 +26,10 @@ import com.altamiracorp.lumify.objectDetection.ObjectDetectionWorker;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.lumify.web.WebApp;
 import com.altamiracorp.web.HandlerChain;
 import com.google.common.util.concurrent.MoreExecutors;
 
 public class EntityObjectDetectionCreate extends BaseRequestHandler {
-    private WebApp app;
     private GraphRepository graphRepository = new GraphRepository();
     private ArtifactRepository artifactRepository = new ArtifactRepository();
     private TermMentionRepository termMentionRepository = new TermMentionRepository();
