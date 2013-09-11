@@ -1,7 +1,12 @@
 package com.altamiracorp.lumify.search;
 
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.hadoop.mapreduce.Mapper;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -23,8 +28,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 
 public class ElasticSearchProvider implements SearchProvider {
     public static final String ES_LOCATIONS_PROP_KEY = "elasticsearch.locations";
@@ -45,12 +50,12 @@ public class ElasticSearchProvider implements SearchProvider {
 
     @Override
     public void setup(Properties props) {
-        setup(props.getProperty(ES_LOCATIONS_PROP_KEY, "192.168.33.10:9300").split(","));
+        setup(props.getProperty(ES_LOCATIONS_PROP_KEY).split(","));
     }
 
     @Override
     public void setup(Mapper.Context context) throws Exception {
-        setup(context.getConfiguration().getStrings(ES_LOCATIONS_PROP_KEY, "192.168.33.10:9300"));
+        setup(context.getConfiguration().getStrings(ES_LOCATIONS_PROP_KEY));
     }
 
     private void setup(String[] esLocations) {
@@ -63,7 +68,7 @@ public class ElasticSearchProvider implements SearchProvider {
             String[] locationSocket = esLocation.split(":");
             client.addTransportAddress(new InetSocketTransportAddress(locationSocket[0], Integer.parseInt(locationSocket[1])));
         }
-        
+
         initializeIndex();
     }
 
