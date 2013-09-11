@@ -1,40 +1,32 @@
 package com.altamiracorp.lumify.web.routes.vertex;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.graph.GraphRepository;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.web.Responder;
-import com.altamiracorp.lumify.web.WebApp;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
-import com.altamiracorp.web.Handler;
-import com.altamiracorp.web.HandlerChain;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
+import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.model.graph.GraphRepository;
+import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
+import com.altamiracorp.web.HandlerChain;
 
-public class VertexToVertexRelationship implements Handler, AppAware {
+public class VertexToVertexRelationship extends BaseRequestHandler {
     private GraphRepository graphRepository = new GraphRepository();
     private OntologyRepository ontologyRepository = new OntologyRepository();
-    private WebApp app;
-
-    @Override
-    public void setApp(App app) {
-        this.app = (WebApp) app;
-    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        AppSession session = app.getAppSession(request);
-        String source = request.getParameter("source");
-        String target = request.getParameter("target");
-        String label = request.getParameter("label");
+        final String source = getRequiredParameter(request, "source");
+        final String target = getRequiredParameter(request, "target");
+        final String label = getRequiredParameter(request, "label");
 
+        AppSession session = app.getAppSession(request);
         Map<String, String> properties = graphRepository.getEdgeProperties(session.getGraphSession(), source, target, label);
         GraphVertex sourceVertex = graphRepository.findVertex(session.getGraphSession(), source);
         GraphVertex targetVertex = graphRepository.findVertex(session.getGraphSession(), target);
@@ -57,7 +49,7 @@ public class VertexToVertexRelationship implements Handler, AppAware {
         }
         results.put("properties", propertyJson);
 
-        new Responder(response).respondWith(results);
+        respondWithJson(response, results);
     }
 
     private JSONObject resultsToJson(String id, String prefix, GraphVertex graphVertex, JSONObject obj) throws JSONException {

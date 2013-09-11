@@ -1,5 +1,13 @@
 package com.altamiracorp.lumify.web.routes.graph;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
@@ -7,34 +15,19 @@ import com.altamiracorp.lumify.model.ontology.Concept;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
-import com.altamiracorp.lumify.web.Responder;
-import com.altamiracorp.lumify.web.WebApp;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
-import com.altamiracorp.web.Handler;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
-
-public class GraphRelatedVertices implements Handler, AppAware {
+public class GraphRelatedVertices extends BaseRequestHandler {
     private GraphRepository graphRepository = new GraphRepository();
     private OntologyRepository ontologyRepository = new OntologyRepository();
-    private WebApp app;
-
-    @Override
-    public void setApp(App app) {
-        this.app = (WebApp) app;
-    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
+        String graphVertexId = getAttributeString(request, "graphVertexId");
+        String limitParentConceptId = getOptionalParameter(request, "limitParentConceptId");
+
         AppSession session = app.getAppSession(request);
-        String graphVertexId = (String) request.getAttribute("graphVertexId");
-        String limitParentConceptId = request.getParameter("limitParentConceptId");
         List<Concept> limitConcepts = null;
 
         if (limitParentConceptId != null) {
@@ -56,7 +49,8 @@ public class GraphRelatedVertices implements Handler, AppAware {
             verticesJson.put(graphVertexJson);
         }
         json.put("vertices", verticesJson);
-        new Responder(response).respondWith(json);
+
+        respondWithJson(response, json);
 
         chain.next(request, response);
     }

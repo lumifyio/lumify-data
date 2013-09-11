@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.altamiracorp.web.App;
@@ -19,7 +20,6 @@ import com.google.common.base.Preconditions;
  * and provides common methods for handler usage
  */
 public abstract class BaseRequestHandler implements Handler, AppAware {
-
     protected WebApp app;
 
     @Override
@@ -113,11 +113,38 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
      * @param jsonObject The JSON data to include in the response
      */
     protected void respondWithJson(final HttpServletResponse response, final JSONObject jsonObject) {
+        configureResponse(ResponseTypes.JSON_OBJECT, response, jsonObject);
+    }
+
+
+    /**
+     * Configures the content type for the provided response to contain {@link JSONArray} data
+     * @param response The response instance to modify
+     * @param jsonArray The JSON data to include in the response
+     */
+    protected void respondWithJson(final HttpServletResponse response, final JSONArray jsonArray) {
+        configureResponse(ResponseTypes.JSON_ARRAY, response, jsonArray);
+    }
+
+
+
+    private void configureResponse(final ResponseTypes type, final HttpServletResponse response, final Object responseData) {
         Preconditions.checkNotNull(response, "The provided response was invalid");
-        Preconditions.checkNotNull(jsonObject, "The provided JSON object was invalid");
+        Preconditions.checkNotNull(responseData, "The provided data was invalid");
+
+        final Responder responder = new Responder(response);
 
         try {
-            new Responder(response).respondWith(jsonObject);
+            switch(type) {
+                case JSON_OBJECT:
+                    responder.respondWith((JSONObject)responseData);
+                    break;
+                case JSON_ARRAY:
+                    responder.respondWith((JSONArray)responseData);
+                    break;
+                default:
+                    throw new RuntimeException("Unsupported response type encountered");
+            }
         } catch (IOException e) {
             throw new RuntimeException("Error occurred while writing response", e);
         }

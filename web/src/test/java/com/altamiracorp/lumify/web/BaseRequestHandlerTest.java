@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +22,9 @@ import org.mockito.MockitoAnnotations;
 
 public class BaseRequestHandlerTest {
 
+    private static final JSONArray JSON_ARRAY = new JSONArray();
     private static final JSONObject JSON_OBJECT = new JSONObject();
+
     private static final String TEST_PARAM = "foo";
     private static final String TEST_PARAM_VALUE = "1";
 
@@ -100,19 +103,35 @@ public class BaseRequestHandlerTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void testRespondWithJsonInvalidResponse() {
+    public void testRespondWithJsonObjectInvalidResponse() {
         mock.respondWithJson(null, JSON_OBJECT);
     }
 
     @Test(expected = NullPointerException.class)
-    public void testRespondWithJsonInvalidJsonObject() {
-        mock.respondWithJson(response, null);
+    public void testRespondWithJsonObjectInvalidJsonObject() {
+        mock.respondWithJson(response, (JSONObject)null);
     }
 
     @Test
-    public void testRespondWithJson() throws IOException {
+    public void testRespondWithJsonObject() throws IOException {
         when(response.getWriter()).thenReturn(writer);
         mock.respondWithJson(response, JSON_OBJECT);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRespondWithJsonArrayInvalidResponse() {
+        mock.respondWithJson(null, JSON_ARRAY);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRespondWithJsonArrayInvalidJsonArray() {
+        mock.respondWithJson(response, (JSONArray)null);
+    }
+
+    @Test
+    public void testRespondWithJsonArray() throws IOException {
+        when(response.getWriter()).thenReturn(writer);
+        mock.respondWithJson(response, JSON_ARRAY);
     }
 
     @Test(expected = RuntimeException.class)

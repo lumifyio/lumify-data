@@ -1,5 +1,14 @@
 package com.altamiracorp.lumify.web.routes.graph;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
@@ -7,40 +16,22 @@ import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.web.Responder;
-import com.altamiracorp.lumify.web.WebApp;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.lumify.web.routes.artifact.ArtifactThumbnailByRowKey;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
-import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-public class GraphVertexUploadImage implements Handler, AppAware {
+public class GraphVertexUploadImage extends BaseRequestHandler {
     private ArtifactRepository artifactRepository = new ArtifactRepository();
     private GraphRepository graphRepository = new GraphRepository();
-    private WebApp app;
-
-    @Override
-    public void setApp(App app) {
-        this.app = (WebApp) app;
-    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        AppSession session = app.getAppSession(request);
-        String graphVertexId = (String) request.getAttribute("graphVertexId");
+        final String graphVertexId = getAttributeString(request, "graphVertexId");
         List<Part> files = new ArrayList<Part>(request.getParts());
         if (files.size() != 1) {
             throw new RuntimeException("Wrong number of uploaded files. Expected 1 got " + files.size());
         }
+        AppSession session = app.getAppSession(request);
         Part file = files.get(0);
 
         String mimeType = "image";
@@ -83,7 +74,7 @@ public class GraphVertexUploadImage implements Handler, AppAware {
 
         entityVertex.setProperty(PropertyName.GLYPH_ICON, ArtifactThumbnailByRowKey.getUrl(artifact.getRowKey()));
 
-        new Responder(response).respondWith(entityVertex.toJson());
+        respondWithJson(response, entityVertex.toJson());
     }
 }
 
