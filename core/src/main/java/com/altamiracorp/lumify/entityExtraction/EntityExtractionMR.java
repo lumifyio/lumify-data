@@ -1,5 +1,17 @@
 package com.altamiracorp.lumify.entityExtraction;
 
+import java.io.IOException;
+import java.util.Collection;
+
+import org.apache.accumulo.core.util.CachedConfiguration;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.InputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.OutputFormat;
+import org.apache.hadoop.util.ToolRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
 import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
@@ -10,21 +22,8 @@ import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import org.apache.accumulo.core.util.CachedConfiguration;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.InputFormat;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.OutputFormat;
-import org.apache.hadoop.util.ToolRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Collection;
 
 public class EntityExtractionMR extends ConfigurableMapJobBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OpenNlpEntityExtractor.class.getName());
-
     @Override
     protected Class getMapperClass(Job job, Class clazz) {
         EntityExtractorMapper.init(job, clazz);
@@ -43,7 +42,9 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
     }
 
     public static class EntityExtractorMapper extends LumifyMapper<Text, Artifact, Text, Row> {
+        private static final Logger LOGGER = LoggerFactory.getLogger(EntityExtractorMapper.class);
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "entityExtractorClass";
+
         private EntityExtractor entityExtractor;
         private TermMentionRepository termMentionRepository = new TermMentionRepository();
         private OntologyRepository ontologyRepository = new OntologyRepository();
@@ -61,6 +62,7 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
             }
         }
 
+        @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
             if (artifact.getGenericMetadata().getMappingJson() != null) {
                 LOGGER.info("Skipping extracting entities from artifact: " + artifact.getRowKey().toString() + " (cause: structured data)");
