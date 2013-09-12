@@ -104,6 +104,7 @@ public class TitanGraphSession extends GraphSession {
         if (vertex instanceof InMemoryGraphVertex) {
             ((InMemoryGraphVertex) vertex).setId("" + v.getId());
         }
+        commit();
         return "" + v.getId();
     }
 
@@ -132,7 +133,7 @@ public class TitanGraphSession extends GraphSession {
         for (String propertyKey : relationship.getPropertyKeys()) {
             edge.setProperty(propertyKey, relationship.getProperty(propertyKey));
         }
-        graph.commit();
+        commit();
         return "" + edge.getId();
     }
 
@@ -150,6 +151,7 @@ public class TitanGraphSession extends GraphSession {
                 edgeList.add(v);
             }
         }
+        commit();
         return edgeList;
     }
 
@@ -341,7 +343,7 @@ public class TitanGraphSession extends GraphSession {
                 }
             }
         }
-
+        commit();
         return graphRelationships;
     }
 
@@ -466,7 +468,7 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public void close() {
         if (this.graph.isOpen()) {
-            this.graph.commit();
+            commit();
             this.graph.shutdown();
         }
     }
