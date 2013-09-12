@@ -1,19 +1,18 @@
 package com.altamiracorp.lumify.web;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
+import com.altamiracorp.lumify.model.user.User;
 import com.altamiracorp.web.App;
 import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
 import com.google.common.base.Preconditions;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Represents the base behavior that a {@link Handler} must support
@@ -134,7 +133,6 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
         configureResponse(ResponseTypes.JSON_ARRAY, response, jsonArray);
     }
 
-
     /**
      * Configures the content type for the provided response to contain plaintext data
      * @param response The response instance to modify
@@ -144,7 +142,9 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
         configureResponse(ResponseTypes.PLAINTEXT, response, plaintext);
     }
 
-
+    protected User getUser(HttpServletRequest request) {
+        return AuthenticationHandler.getUser(request);
+    }
 
     private void configureResponse(final ResponseTypes type, final HttpServletResponse response, final Object responseData) {
         Preconditions.checkNotNull(response, "The provided response was invalid");

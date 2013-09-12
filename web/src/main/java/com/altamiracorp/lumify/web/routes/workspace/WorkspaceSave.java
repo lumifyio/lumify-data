@@ -1,12 +1,5 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.user.User;
 import com.altamiracorp.lumify.model.user.UserRepository;
@@ -14,8 +7,13 @@ import com.altamiracorp.lumify.model.workspace.Workspace;
 import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
 import com.altamiracorp.lumify.model.workspace.WorkspaceRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.lumify.web.DevBasicAuthenticator;
 import com.altamiracorp.web.HandlerChain;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class WorkspaceSave extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceSave.class.getName());
@@ -36,7 +34,7 @@ public class WorkspaceSave extends BaseRequestHandler {
             workspace = new Workspace(new WorkspaceRowKey(workspaceRowKeyString));
         }
 
-        User currentUser = DevBasicAuthenticator.getUser(request);
+        User currentUser = getUser(request);
         if (!workspace.getRowKey().toString().equals(currentUser.getMetadata().getCurrentWorkspace())) {
             currentUser.getMetadata().setCurrentWorkspace(workspace.getRowKey().toString());
             userRepository.save(session.getModelSession(), currentUser);
@@ -58,7 +56,7 @@ public class WorkspaceSave extends BaseRequestHandler {
     }
 
     public Workspace handleNew(HttpServletRequest request) {
-        User currentUser = DevBasicAuthenticator.getUser(request);
+        User currentUser = getUser(request);
         WorkspaceRowKey workspaceRowKey = new WorkspaceRowKey(
                 currentUser.getRowKey().toString(), String.valueOf(System.currentTimeMillis()));
         Workspace workspace = new Workspace(workspaceRowKey);

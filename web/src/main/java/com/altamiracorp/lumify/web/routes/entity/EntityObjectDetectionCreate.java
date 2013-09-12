@@ -1,15 +1,5 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONObject;
-
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.GraphSession;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
@@ -28,6 +18,14 @@ import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.common.util.concurrent.MoreExecutors;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class EntityObjectDetectionCreate extends BaseRequestHandler {
     private GraphRepository graphRepository = new GraphRepository();

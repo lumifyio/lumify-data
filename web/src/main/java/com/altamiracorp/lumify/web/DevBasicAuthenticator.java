@@ -1,36 +1,24 @@
 package com.altamiracorp.lumify.web;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import org.apache.commons.codec.binary.Base64;
-
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.user.User;
 import com.altamiracorp.lumify.model.user.UserRepository;
+import com.altamiracorp.web.App;
+import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.HandlerChain;
+import org.apache.commons.codec.binary.Base64;
 
-public class DevBasicAuthenticator extends BaseRequestHandler {
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+public class DevBasicAuthenticator extends AuthenticationHandler implements AppAware {
     private static final String HTTP_BASIC_REALM = "lumify";
     private static final String HTTP_AUTHORIZATION_HEADER = "Authorization";
     private static final String HTTP_AUTHENTICATE_HEADER = "WWW-Authenticate";
     private static final int HTTP_NOT_AUTHORIZED_ERROR_CODE = 401;
     private UserRepository userRepository = new UserRepository();
-
-    public static User getUser(HttpServletRequest request) {
-        return getUser(request.getSession());
-    }
-
-    public static User getUser(HttpSession session) {
-        return (User) session.getAttribute("user.current");
-    }
-
-    public static void setUser(HttpServletRequest request, User user) {
-        request.getSession().setAttribute("user.current", user);
-    }
+    private WebApp app;
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
@@ -48,6 +36,11 @@ public class DevBasicAuthenticator extends BaseRequestHandler {
         } else {
             requestAuthorization(response);
         }
+    }
+
+    @Override
+    public void setApp(App application) {
+        app = (WebApp) application;
     }
 
     private void requestAuthorization(HttpServletResponse response) throws IOException {

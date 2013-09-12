@@ -1,15 +1,13 @@
 package com.altamiracorp.lumify.web;
 
-import java.io.File;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.web.utils.UrlUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.lesscss.LessCompiler;
 
-import com.altamiracorp.web.HandlerChain;
-import com.altamiracorp.web.utils.UrlUtils;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 
 public class LessRestlet extends BaseRequestHandler {
   private static File rootDir;
