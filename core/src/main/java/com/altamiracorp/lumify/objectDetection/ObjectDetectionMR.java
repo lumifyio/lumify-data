@@ -10,8 +10,11 @@ import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import org.apache.accumulo.core.util.CachedConfiguration;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.filecache.DistributedCache;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -19,11 +22,14 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.poi.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -72,6 +78,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
     }
 
     public static abstract class ObjectDetectionMapper<T extends Row> extends LumifyMapper<Text, T, Text, T> {
+        private static final String OPEN_CV_CONF_DIR = "/conf/opencv/";
         private static final String CONCEPT = "classifier.concept";
         private static final String DEFAULT_CONCEPT = "face";
 
@@ -101,41 +108,31 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         }
 
         private String resolveClassifierPath(Context context) throws IOException {
-            String classifierPath = null;
+            FileSystem fs = FileSystem.get(context.getConfiguration());
+            LocalFileSystem localFS = FileSystem.getLocal(context.getConfiguration());
             String classifierName = context.getConfiguration().get(CLASSIFIER, DEFAULT_CLASSIFIER);
             String pathPrefix = context.getConfiguration().get(PATH_PREFIX, DEFAULT_PATH_PREFIX);
+            String classifierPath = pathPrefix + OPEN_CV_CONF_DIR + classifierName;
 
-            if (pathPrefix.startsWith("hdfs://")) {
-                //get the classifier file from the distributed cache
-                Path[] localFiles = DistributedCache.getLocalCacheFiles(context.getConfiguration());
-                for (Path path : localFiles) {
-                    if (path.toString().contains(classifierName)) {
-                        classifierPath = path.toString();
-                        break;
-                    }
-                }
-            } else if (pathPrefix.startsWith("file://")) {
+            if (pathPrefix.startsWith("hdfs://")) { //if it is in HDFS, copy it to local disk so opencv can read it
+                classifierPath = localFS.getWorkingDirectory().toUri().getPath() + OPEN_CV_CONF_DIR + classifierName;
+                Path hdfsPath = new Path(pathPrefix + OPEN_CV_CONF_DIR + classifierName);
+                File classifierFile = new File (classifierPath);
+                classifierFile.getParentFile().mkdirs();
+                InputStream hdfsIn = fs.open(hdfsPath);
+                FileOutputStream fileOut = new FileOutputStream(classifierFile);
                 try {
-                    File classifierFile = new File(new URI(pathPrefix + "/conf/opencv/" + classifierName));
-                    classifierPath = classifierFile.getAbsolutePath();
-                } catch (URISyntaxException e) {
-                    throw new IOException(e);
+                    IOUtils.copy(hdfsIn, fileOut);
+                } finally {
+                    IOUtils.closeQuietly(hdfsIn);
+                    IOUtils.closeQuietly(fileOut);
                 }
-            } else {
-                classifierPath = pathPrefix + "/conf/opencv/" + classifierName;
             }
-
+            
             return classifierPath;
         }
 
         public static void init(Job job, Class<? extends ObjectDetector> objectDetector) throws URISyntaxException {
-            Configuration conf = job.getConfiguration();
-            String pathPrefix = conf.get(PATH_PREFIX, DEFAULT_PATH_PREFIX);
-            if (pathPrefix.startsWith("hdfs://")) {
-                String classifierName = conf.get(CLASSIFIER, DEFAULT_CLASSIFIER);
-                DistributedCache.addCacheFile(new URI(pathPrefix + "/conf/opencv/" + classifierName), conf);
-            }
-
             job.getConfiguration().setClass(OBJECT_DETECTOR_CLASS, objectDetector, ObjectDetector.class);
         }
     }
