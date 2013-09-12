@@ -33,6 +33,7 @@ com.altamiracorp.lumify.cmdline.GenerateGraph \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
---out=${DIR}/../docs/build/ontology.gv
+--out=${DIR}/../docs/build/ontology.gv \
+--elasticsearch.locations=192.168.33.10:9300
 
 dot ${DIR}/../docs/build/ontology.gv | neato -n -Tsvg -o${DIR}/../docs/build/ontology.svg
