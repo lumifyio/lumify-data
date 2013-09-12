@@ -116,17 +116,13 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
 
             if (pathPrefix.startsWith("hdfs://")) { //if it is in HDFS, copy it to local disk so opencv can read it
                 classifierPath = localFS.getWorkingDirectory().toUri().getPath() + OPEN_CV_CONF_DIR + classifierName;
-                Path hdfsPath = new Path(pathPrefix + OPEN_CV_CONF_DIR + classifierName);
-                File classifierFile = new File (classifierPath);
-                classifierFile.getParentFile().mkdirs();
-                InputStream hdfsIn = fs.open(hdfsPath);
-                FileOutputStream fileOut = new FileOutputStream(classifierFile);
-                try {
-                    IOUtils.copy(hdfsIn, fileOut);
-                } finally {
-                    IOUtils.closeQuietly(hdfsIn);
-                    IOUtils.closeQuietly(fileOut);
+                File localDir = new File (classifierPath).getParentFile();
+                if (!localDir.exists()) {
+                    localDir.mkdirs();
                 }
+
+                Path hdfsPath = new Path(pathPrefix + OPEN_CV_CONF_DIR + classifierName);
+                fs.copyToLocalFile(false,hdfsPath,new Path(classifierPath));
             }
             
             return classifierPath;
