@@ -93,7 +93,7 @@ define([
             if (messageData.postDate) {
                 data.prettyDate = sf('{0:hh:mm:ss tt}', new Date(messageData.postDate));
             } else {
-                data.prettyDate = 'Pending';
+                data.prettyDate = sf('{0:hh:mm:ss tt}', new Date());
             }
             $chatWindow.find('.chat-messages').append(chatMessageTemplate(data));
 
