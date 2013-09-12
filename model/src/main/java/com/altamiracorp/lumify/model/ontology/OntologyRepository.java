@@ -230,10 +230,10 @@ public class OntologyRepository {
         return properties;
     }
 
-    public Property getPropertyById(GraphSession graphSession, long propertyId) {
+    public Property getPropertyById(GraphSession graphSession, String propertyId) {
         List<Property> properties = getProperties(graphSession);
         for (Property property : properties) {
-            if (property.getId().equals("" + propertyId)) {
+            if (property.getId().equals(propertyId)) {
                 return property;
             }
         }
