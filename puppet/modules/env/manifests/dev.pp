@@ -30,4 +30,19 @@ class env::dev {
     source => 'puppet:///modules/env/dev/shell.sh',
     mode => 'u=rwx,g=,o=',
   }
+
+  file { '/opt/setup_oozie.sh' :
+    source => 'puppet:///modules/env/dev/setup_oozie.sh',
+    mode => 'u=rwx,g=,o=',
+  }
+
+  file { '/opt/run_oozie_workflow.sh' :
+    source => 'puppet:///modules/env/dev/run_oozie_workflow.sh',
+    mode => 'u=rwx,g=,o=',
+  }
+
+  file { '/opt/run_oozie_coordinator.sh' :
+    source => 'puppet:///modules/env/dev/run_oozie_coordinator.sh',
+    mode => 'u=rwx,g=,o=',
+  }
 }
