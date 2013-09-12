@@ -52,6 +52,14 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
         return Long.parseLong(val);
     }
 
+    protected double getOptionalParameterDouble(final HttpServletRequest request, final String parameterName, double defaultValue) {
+        String val = getOptionalParameter(request, parameterName);
+        if(val == null) {
+            return defaultValue;
+        }
+        return Double.parseDouble(val);
+    }
+
     /**
      * Attempts to extract the specified parameter from the provided request and convert it to a long value
      * @param request The request instance containing the parameter

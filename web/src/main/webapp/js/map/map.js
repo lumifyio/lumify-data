@@ -63,30 +63,42 @@ define([
         };
 
         this.onPropertyChange = function(propertyChangeData) {
-            if(propertyChangeData.propertyName != 'geoLocation') {
-                return;
-            }
+            var self = this;
 
-            var m = propertyChangeData.value.match(/point\[(.*?),(.*?)\]/);
-            if(!m) {
-                return;
-            }
-            var latitude = m[1];
-            var longitude = m[2];
+            if(propertyChangeData.propertyName == 'geoLocation') {
+                var m = propertyChangeData.value.match(/point\[(.*?),(.*?)\]/);
+                if(!m) {
+                    return;
+                }
+                var latitude = m[1];
+                var longitude = m[2];
 
-            this.map(function(map) {
-                var markers = map.markers
-                    .filter(function(marker) {
-                        return marker.getAttribute('graphVertexId') == propertyChangeData.graphVertexId;
+                this.map(function(map) {
+                    var markers = map.markers
+                        .filter(function(marker) {
+                            return marker.getAttribute('graphVertexId') == propertyChangeData.graphVertexId;
+                        });
+                    markers.forEach(function(marker) {
+                        var pt = new mxn.LatLonPoint(latitude, longitude);
+                        if (map.api == 'googlev3') {
+                            var p = pt.toProprietary('googlev3');
+                            marker.proprietary_marker.setPosition(p);
+                        }
                     });
-                markers.forEach(function(marker) {
-                    var pt = new mxn.LatLonPoint(latitude, longitude);
-                    if (map.api == 'googlev3') {
-                        var p = pt.toProprietary('googlev3');
-                        marker.proprietary_marker.setPosition(p);
-                    }
                 });
-            });
+            }
+
+            if(propertyChangeData.propertyName == 'heading') {
+                this.map(function(map) {
+                    var markers = map.markers
+                        .filter(function(marker) {
+                            return marker.getAttribute('graphVertexId') == propertyChangeData.graphVertexId;
+                        });
+                    markers.forEach(function(marker) {
+                        self.updateMarkerIcon(marker, propertyChangeData.value);
+                    });
+                });
+            }
         };
 
         this.map = function(callback) {
@@ -283,12 +295,10 @@ define([
                     var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
                     var marker = new mxn.Marker(pt);
                     marker.setAttribute('graphVertexId', vertex.graphVertexId);
-                    var iconUrl = '/map/marker/' + vertex._subType + '/image';
-                    if (retina.devicePixelRatio > 1) {
-                        marker.setIcon(iconUrl + '?scale=2', [44, 80], [22, 80]);
-                    } else {
-                        marker.setIcon(iconUrl + '?scale=1', [22, 40], [11, 20]);
-                    }
+                    marker.setAttribute('subType', vertex._subType);
+
+                    self.updateMarkerIcon(marker, vertex.heading);
+
                     marker.click.addHandler(function(eventType, marker) {
                         self.trigger('verticesSelected', [ vertex ]);
                     });
@@ -299,6 +309,20 @@ define([
                     self.fit(map);
                 }
             });
+        };
+
+        this.updateMarkerIcon = function(marker, heading) {
+            var subType = marker.getAttribute('subType');
+            var additionalParameters = '';
+            if(heading) {
+                additionalParameters += '&heading=' + heading;
+            }
+            var iconUrl = '/map/marker/' + subType + '/image';
+            if (retina.devicePixelRatio > 1) {
+                marker.setIcon(iconUrl + '?scale=2' + additionalParameters, [44, 80], [22, 80]);
+            } else {
+                marker.setIcon(iconUrl + '?scale=1' + additionalParameters, [22, 40], [11, 20]);
+            }
         };
 
         this.onVerticesUpdated = function(evt, data) {

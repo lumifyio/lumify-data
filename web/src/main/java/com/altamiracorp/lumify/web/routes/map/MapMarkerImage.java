@@ -38,16 +38,28 @@ public class MapMarkerImage extends BaseRequestHandler {
         AppSession session = app.getAppSession(request);
         String typeStr = getAttributeString(request, "type");
         long scale = getOptionalParameterLong(request, "scale", 1L);
+        int heading = roundHeadingAngle(getOptionalParameterDouble(request, "heading", 0.0));
 
-        String cacheKey = typeStr + scale;
+        String cacheKey = typeStr + scale + heading;
         byte[] imageData = imageCache.getIfPresent(cacheKey);
         if (imageData == null) {
-            LOGGER.info("map marker cache miss " + typeStr + " (scale: " + scale + ")");
+            LOGGER.info("map marker cache miss " + typeStr + " (scale: " + scale + ", heading: " + heading + ")");
 
-            String glyphIconRowKey = getGlyphIcon(session, typeStr);
-            if (glyphIconRowKey == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND);
-                return;
+            Concept concept = ontologyRepository.getConceptById(session.getGraphSession(), typeStr);
+            if (concept == null) {
+                concept = ontologyRepository.getConceptByName(session.getGraphSession(), typeStr);
+            }
+
+            boolean isMapGlyphIcon = false;
+            String glyphIconRowKey = getMapGlyphIcon(session, concept);
+            if (glyphIconRowKey != null) {
+                isMapGlyphIcon = true;
+            } else {
+                glyphIconRowKey = getGlyphIcon(session, concept);
+                if (glyphIconRowKey == null) {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                    return;
+                }
             }
 
             Resource resource = resourceRepository.findByRowKey(session.getModelSession(), glyphIconRowKey);
@@ -56,7 +68,7 @@ public class MapMarkerImage extends BaseRequestHandler {
                 return;
             }
 
-            imageData = getMarkerImage(resource, scale);
+            imageData = getMarkerImage(resource, scale, heading, isMapGlyphIcon);
             imageCache.put(cacheKey, imageData);
         }
 
@@ -65,31 +77,58 @@ public class MapMarkerImage extends BaseRequestHandler {
         out.close();
     }
 
-    private byte[] getMarkerImage(Resource resource, long scale) throws IOException {
+    private int roundHeadingAngle(double heading) {
+        while (heading < 0.0) {
+            heading += 360.0;
+        }
+        while (heading > 360.0) {
+            heading -= 360.0;
+        }
+        return (int) (Math.round(heading / 10.0) * 10.0);
+    }
+
+    private byte[] getMarkerImage(Resource resource, long scale, int heading, boolean isMapGlyphIcon) throws IOException {
         BufferedImage resourceImage = resource.getContent().getDataImage();
         if (resourceImage == null) {
             return null;
+        }
+
+        if (heading != 0) {
+            resourceImage = rotateImage(resourceImage, heading);
         }
 
         BufferedImage backgroundImage = getBackgroundImage(scale);
         if (backgroundImage == null) {
             return null;
         }
+        int[] resourceImageDim = new int[]{resourceImage.getWidth(), resourceImage.getHeight()};
 
         BufferedImage image = new BufferedImage(backgroundImage.getWidth(), backgroundImage.getHeight(), backgroundImage.getType());
-
         Graphics2D g = image.createGraphics();
-        g.drawImage(backgroundImage, 0, 0, backgroundImage.getWidth(), backgroundImage.getHeight(), null);
-        int[] resourceImageDim = new int[]{resourceImage.getWidth(), resourceImage.getHeight()};
-        int size = image.getWidth() * 2 / 3;
-        int[] boundary = new int[]{size, size};
-        int[] scaledDims = ArtifactThumbnailRepository.getScaledDimension(resourceImageDim, boundary);
-        int x = (backgroundImage.getWidth() - scaledDims[0]) / 2;
-        int y = (backgroundImage.getWidth() - scaledDims[1]) / 2;
-        g.drawImage(resourceImage, x, y, scaledDims[0], scaledDims[1], null);
+        if (isMapGlyphIcon) {
+            int[] boundary = new int[]{backgroundImage.getWidth(), backgroundImage.getHeight()};
+            int[] scaledDims = ArtifactThumbnailRepository.getScaledDimension(resourceImageDim, boundary);
+            g.drawImage(resourceImage, 0, 0, scaledDims[0], scaledDims[1], null);
+        } else {
+            g.drawImage(backgroundImage, 0, 0, backgroundImage.getWidth(), backgroundImage.getHeight(), null);
+            int size = image.getWidth() * 2 / 3;
+            int[] boundary = new int[]{size, size};
+            int[] scaledDims = ArtifactThumbnailRepository.getScaledDimension(resourceImageDim, boundary);
+            int x = (backgroundImage.getWidth() - scaledDims[0]) / 2;
+            int y = (backgroundImage.getWidth() - scaledDims[1]) / 2;
+            g.drawImage(resourceImage, x, y, scaledDims[0], scaledDims[1], null);
+        }
         g.dispose();
-
         return imageToBytes(image);
+    }
+
+    private BufferedImage rotateImage(BufferedImage image, int angleDeg) {
+        BufferedImage rotatedImage = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+        Graphics2D g = rotatedImage.createGraphics();
+        g.rotate(Math.toRadians(angleDeg), rotatedImage.getWidth() / 2, rotatedImage.getHeight() / 2);
+        g.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
+        g.dispose();
+        return rotatedImage;
     }
 
     private BufferedImage getBackgroundImage(long scale) throws IOException {
@@ -111,12 +150,20 @@ public class MapMarkerImage extends BaseRequestHandler {
         return imageData.toByteArray();
     }
 
-    private String getGlyphIcon(AppSession session, String typeStr) {
-        Concept concept = ontologyRepository.getConceptById(session.getGraphSession(), typeStr);
-        if (concept == null) {
-            concept = ontologyRepository.getConceptByName(session.getGraphSession(), typeStr);
+    private String getMapGlyphIcon(AppSession session, Concept concept) {
+        while (concept != null) {
+            String mapGlyphIcon = (String) concept.getProperty(PropertyName.MAP_GLYPH_ICON);
+            if (mapGlyphIcon != null) {
+                return mapGlyphIcon;
+            }
+
+            concept = ontologyRepository.getParentConcept(session.getGraphSession(), concept.getId());
         }
 
+        return null;
+    }
+
+    private String getGlyphIcon(AppSession session, Concept concept) {
         while (concept != null) {
             String glyphIcon = (String) concept.getProperty(PropertyName.GLYPH_ICON);
             if (glyphIcon != null) {

@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.model.Session;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.Concept;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.PropertyType;
 import com.altamiracorp.lumify.model.resources.ResourceRepository;
 import org.apache.accumulo.core.util.CachedConfiguration;
@@ -123,7 +124,10 @@ public class OwlImport extends CommandLineBase {
             String propertyValue = propertyElem.getTextContent().trim();
             LOGGER.info("  " + propertyName + " = " + propertyValue);
             if (propertyName.equals("glyphIconFileName")) {
-                propertyName = "_glyphIcon";
+                propertyName = PropertyName.GLYPH_ICON.toString();
+                propertyValue = importGlyphIconFile(session.getModelSession(), propertyValue);
+            } else if (propertyName.equals("mapGlyphIconFileName")) {
+                propertyName = PropertyName.MAP_GLYPH_ICON.toString();
                 propertyValue = importGlyphIconFile(session.getModelSession(), propertyValue);
             }
             concept.setProperty(propertyName, propertyValue);

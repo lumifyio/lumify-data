@@ -78,6 +78,11 @@ public class BaseOntology {
             graph.makeType().name(PropertyName.GLYPH_ICON.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
         }
 
+        TitanKey mapGlyphIconProperty = (TitanKey) graph.getType(PropertyName.MAP_GLYPH_ICON.toString());
+        if (mapGlyphIconProperty == null) {
+            graph.makeType().name(PropertyName.MAP_GLYPH_ICON.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
+        }
+
         TitanKey colorProperty = (TitanKey) graph.getType(PropertyName.COLOR.toString());
         if (colorProperty == null) {
             graph.makeType().name(PropertyName.COLOR.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
@@ -101,6 +106,8 @@ public class BaseOntology {
         graph.commit();
 
         Concept rootConcept = ontologyRepository.getOrCreateConcept(session.getGraphSession(), null, OntologyRepository.ROOT_CONCEPT_NAME, OntologyRepository.ROOT_CONCEPT_NAME);
+        ontologyRepository.addPropertyTo(session.getGraphSession(), rootConcept, PropertyName.GLYPH_ICON.toString(), "glyph icon", PropertyType.IMAGE);
+        ontologyRepository.addPropertyTo(session.getGraphSession(), rootConcept, PropertyName.MAP_GLYPH_ICON.toString(), "map glyph icon", PropertyType.IMAGE);
         graph.commit();
 
         Concept artifact = ontologyRepository.getOrCreateConcept(session.getGraphSession(), rootConcept, VertexType.ARTIFACT.toString(), "Artifact");
@@ -133,7 +140,6 @@ public class BaseOntology {
         ontologyRepository.addPropertyTo(session.getGraphSession(), entity, typeProperty.getName(), "Type", PropertyType.STRING);
         ontologyRepository.addPropertyTo(session.getGraphSession(), entity, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
         ontologyRepository.addPropertyTo(session.getGraphSession(), entity, titleProperty.getName(), "Title", PropertyType.STRING);
-        ontologyRepository.addPropertyTo(session.getGraphSession(), entity, PropertyName.GLYPH_ICON.toString(), "glyph icon", PropertyType.IMAGE);
 
         ontologyRepository.getOrCreateRelationshipType(session.getGraphSession(), entity, artifact, LabelName.HAS_IMAGE.toString(), "has image");
 

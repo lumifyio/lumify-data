@@ -10,6 +10,7 @@ public enum PropertyName {
     GEO_LOCATION("geoLocation"),
     ROW_KEY("_rowKey"),
     GLYPH_ICON("_glyphIcon"),
+    MAP_GLYPH_ICON("_mapGlyphIcon"),
     COLOR("_color"),
     SOURCE("source"),
     START_DATE("startDate"),

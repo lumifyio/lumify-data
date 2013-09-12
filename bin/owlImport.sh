@@ -33,4 +33,5 @@ com.altamiracorp.lumify.cmdline.OwlImport \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
+--elasticsearch.locations=192.168.33.10:9300 \
 $*
