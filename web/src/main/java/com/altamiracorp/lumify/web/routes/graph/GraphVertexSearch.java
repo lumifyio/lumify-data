@@ -40,7 +40,7 @@ public class GraphVertexSearch extends BaseRequestHandler {
         for (int i = 0; i < filterJson.length(); i++) {
             JSONObject filter = filterJson.getJSONObject(i);
             if (filter.has("propertyId") && !filter.has("propertyName")) {
-                int propertyId = filter.getInt("propertyId");
+                long propertyId = Long.parseLong(filter.getString("propertyId"));
                 Property property = ontologyRepository.getPropertyById(session.getGraphSession(), propertyId);
                 if (property == null) {
                     throw new RuntimeException("Could not find property with id: " + propertyId);

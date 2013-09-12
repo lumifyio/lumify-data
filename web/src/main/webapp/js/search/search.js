@@ -283,12 +283,7 @@ define([
             
             var query = this.select('querySelector').val() || '*';
 
-            // TODO: star query is broken for entities
-            if (this.$node.find('.search-results-summary li').length) {
-                this.searchEntities(query);
-            } else {
-                this.trigger(document, 'search', { query:query });
-            }
+            this.trigger(document, 'search', { query:query });
         };
     }
 });
