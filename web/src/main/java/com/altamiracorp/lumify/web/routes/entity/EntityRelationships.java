@@ -13,7 +13,6 @@ import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.graph.GraphRelationship;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.lumify.web.Responder;
 import com.altamiracorp.web.HandlerChain;
 
 public class EntityRelationships extends BaseRequestHandler {
@@ -46,6 +45,6 @@ public class EntityRelationships extends BaseRequestHandler {
                 resultsJson.put(rel);
         }
 
-        new Responder(response).respondWith(resultsJson);
+        respondWithJson(response, resultsJson);
     }
 }

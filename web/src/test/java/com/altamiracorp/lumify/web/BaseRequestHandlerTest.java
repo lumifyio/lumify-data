@@ -22,6 +22,7 @@ import org.mockito.MockitoAnnotations;
 
 public class BaseRequestHandlerTest {
 
+    private static final String REPLY = "Reply";
     private static final JSONArray JSON_ARRAY = new JSONArray();
     private static final JSONObject JSON_OBJECT = new JSONObject();
 
@@ -132,6 +133,22 @@ public class BaseRequestHandlerTest {
     public void testRespondWithJsonArray() throws IOException {
         when(response.getWriter()).thenReturn(writer);
         mock.respondWithJson(response, JSON_ARRAY);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRespondWithPlaintextInvalidResponse() {
+        mock.respondWithPlaintext(null, REPLY);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testRespondWithPlaintextInvalidPlaintext() {
+        mock.respondWithPlaintext(response, (String)null);
+    }
+
+    @Test
+    public void testRespondWithPlaintext() throws IOException {
+        when(response.getWriter()).thenReturn(writer);
+        mock.respondWithPlaintext(response, REPLY);
     }
 
     @Test(expected = RuntimeException.class)

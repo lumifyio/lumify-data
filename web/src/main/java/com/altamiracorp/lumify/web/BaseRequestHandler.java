@@ -135,20 +135,31 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
     }
 
 
+    /**
+     * Configures the content type for the provided response to contain plaintext data
+     * @param response The response instance to modify
+     * @param plaintext The data to include in the response
+     */
+    protected void respondWithPlaintext(final HttpServletResponse response, final String plaintext) {
+        configureResponse(ResponseTypes.PLAINTEXT, response, plaintext);
+    }
+
+
 
     private void configureResponse(final ResponseTypes type, final HttpServletResponse response, final Object responseData) {
         Preconditions.checkNotNull(response, "The provided response was invalid");
         Preconditions.checkNotNull(responseData, "The provided data was invalid");
 
-        final Responder responder = new Responder(response);
-
         try {
             switch(type) {
                 case JSON_OBJECT:
-                    responder.respondWith((JSONObject)responseData);
+                    Responder.respondWith(response, (JSONObject)responseData);
                     break;
                 case JSON_ARRAY:
-                    responder.respondWith((JSONArray)responseData);
+                    Responder.respondWith(response, (JSONArray)responseData);
+                    break;
+                case PLAINTEXT:
+                    Responder.respondWith(response, (String)responseData);
                     break;
                 default:
                     throw new RuntimeException("Unsupported response type encountered");

@@ -24,7 +24,6 @@ import org.xml.sax.SAXException;
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.cmdline.OwlImport;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.lumify.web.Responder;
 import com.altamiracorp.web.HandlerChain;
 import com.google.common.io.Files;
 
@@ -48,7 +47,7 @@ public class AdminUploadOntology extends BaseRequestHandler {
 
         tempFile.delete();
 
-        new Responder(response).respondWith("OK");
+        respondWithPlaintext(response, "OK");
     }
 
     private void writePackage(AppSession session, File file) throws ZipException, IOException, SAXException, ParserConfigurationException {

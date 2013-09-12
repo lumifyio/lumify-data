@@ -14,7 +14,6 @@ import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.model.ontology.Property;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.lumify.web.Responder;
 import com.altamiracorp.lumify.web.routes.vertex.VertexProperties;
 import com.altamiracorp.web.HandlerChain;
 
@@ -51,6 +50,7 @@ public class SetRelationshipProperty extends BaseRequestHandler {
 
         Map<String, String> properties = graphRepository.getEdgeProperties(session.getGraphSession(), sourceId, destId, relationshipLabel);
         JSONArray resultsJson = VertexProperties.propertiesToJson(properties);
-        new Responder(response).respondWith(resultsJson);
+
+        respondWithJson(response, resultsJson);
     }
 }
