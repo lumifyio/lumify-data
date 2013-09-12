@@ -1,19 +1,17 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.user.User;
 import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
 import com.altamiracorp.lumify.model.workspace.WorkspaceRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.lumify.web.DevBasicAuthenticator;
 import com.altamiracorp.web.HandlerChain;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class WorkspaceDelete extends BaseRequestHandler {
     private WorkspaceRepository workspaceRepository = new WorkspaceRepository();
@@ -40,7 +38,7 @@ public class WorkspaceDelete extends BaseRequestHandler {
 
     // TODO: Make this workspace delete authorization more robust
     private boolean isDeleteAuthorized(HttpServletRequest request) {
-        User currentUser = DevBasicAuthenticator.getUser(request);
+        User currentUser = getUser(request);
         final String strRowKey = getAttributeString(request, "workspaceRowKey");
         return strRowKey.startsWith(currentUser.getRowKey().toString());
     }

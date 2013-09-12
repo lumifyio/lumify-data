@@ -1,15 +1,5 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import java.io.InputStream;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.poi.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnailRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
@@ -18,6 +8,14 @@ import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
+import org.apache.poi.util.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
 
 public class ArtifactPosterFrameByRowKey extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactPosterFrameByRowKey.class.getName());

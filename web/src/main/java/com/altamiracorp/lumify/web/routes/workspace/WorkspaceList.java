@@ -1,18 +1,16 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
-import java.util.Collection;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.workspace.Workspace;
 import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Collection;
 
 public class WorkspaceList extends BaseRequestHandler {
     private WorkspaceRepository workspaceRepository = new WorkspaceRepository();

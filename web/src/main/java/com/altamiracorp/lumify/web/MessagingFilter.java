@@ -23,7 +23,7 @@ public class MessagingFilter implements PerRequestBroadcastFilter {
 
             JSONArray users = permissionsJson.optJSONArray("users");
             if (users != null) {
-                User currentUser = DevBasicAuthenticator.getUser(r.getRequest().getSession());
+                User currentUser = AuthenticationHandler.getUser(r.getRequest().getSession());
                 if (!isUserInList(users, currentUser)) {
                     return new BroadcastAction(BroadcastAction.ACTION.ABORT, message);
                 }

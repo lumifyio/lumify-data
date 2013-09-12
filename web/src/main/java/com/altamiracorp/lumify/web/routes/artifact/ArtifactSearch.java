@@ -1,21 +1,19 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Collection;
-import java.util.Date;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.search.ArtifactSearchResult;
 import com.altamiracorp.lumify.search.SearchProvider;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
+import java.util.Collection;
+import java.util.Date;
 
 public class ArtifactSearch extends BaseRequestHandler {
 

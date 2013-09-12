@@ -1,18 +1,16 @@
 package com.altamiracorp.lumify.web.routes.map;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.poi.util.IOUtils;
-
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.lumify.web.config.MapConfig;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
+import org.apache.poi.util.IOUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 
 public class MapTileHandler extends BaseRequestHandler {
     private final MapConfig config;

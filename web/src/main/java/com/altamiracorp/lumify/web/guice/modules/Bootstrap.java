@@ -1,11 +1,11 @@
 package com.altamiracorp.lumify.web.guice.modules;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.altamiracorp.lumify.web.config.ApplicationConfig;
 import com.altamiracorp.lumify.web.config.Configuration;
 import com.altamiracorp.lumify.web.config.MapConfig;
 import com.google.inject.AbstractModule;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Wires up the required injections for the web application

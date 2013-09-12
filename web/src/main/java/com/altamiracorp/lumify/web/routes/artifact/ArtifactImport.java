@@ -1,23 +1,21 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
+import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.FileImporter;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
+import com.altamiracorp.web.HandlerChain;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
-
-import org.apache.commons.io.IOUtils;
-import org.json.JSONObject;
-
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.FileImporter;
-import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
 
 public class ArtifactImport extends BaseRequestHandler {
     private FileImporter fileImporter = new FileImporter();
