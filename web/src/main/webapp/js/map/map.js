@@ -37,14 +37,10 @@ define([
 
             this.on(document, 'mapShow', this.onMapShow);
             this.on(document, 'mapCenter', this.onMapCenter);
-            this.on(document, 'mapEndPan', this.onMapEndPan);
-            this.on(document, 'mapEndZoom', this.onMapEndPan);
-            this.on(document, 'mapUpdateBoundingBox', this.onMapUpdateBoundingBox);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'verticesAdded', this.onVerticesAdded);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
-            this.on(document, 'windowResize', this.onMapEndPan);
             this.on(document, 'syncEnded', this.onSyncEnded);
             this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
             this.on(document, 'socketMessage', this.onSocketMessage);
@@ -448,62 +444,10 @@ define([
             }
         };
 
-        this.onMapEndPan = function(evt, mapCenter) {
-            this.map(function(map) {
-                var boundingBox = map.getBounds();
-                var boundingBoxData = {
-                    swlat: boundingBox.getSouthWest().lat,
-                    swlon: boundingBox.getSouthWest().lon,
-                    nelat: boundingBox.getNorthEast().lat,
-                    nelon: boundingBox.getNorthEast().lon
-                };
-                this.trigger(document, 'mapUpdateBoundingBox', boundingBoxData);
-            });
-        };
-
         this.onMapCenter = function(evt, data) {
             this.map(function(map) {
                 var latlon = new mxn.LatLonPoint(data.latitude, data.longitude);
                 map.setCenterAndZoom(latlon, 7);
-            });
-        };
-
-        this.onMapUpdateBoundingBox = function(evt, data) {
-            if (!data.remoteEvent) {
-                return;
-            }
-
-            this.map(function(map) {
-                var points = [];
-                points.push(new mxn.LatLonPoint(data.swlat, data.swlon));
-                points.push(new mxn.LatLonPoint(data.nelat, data.swlon));
-                points.push(new mxn.LatLonPoint(data.nelat, data.nelon));
-                points.push(new mxn.LatLonPoint(data.swlat, data.nelon));
-                points.push(new mxn.LatLonPoint(data.swlat, data.swlon));
-
-                var polyline = new mxn.Polyline(points);
-                polyline.setColor('#909090');
-
-                if (this.syncPolyline) {
-                    map.removePolyline(this.syncPolyline);
-                }
-                if (this.syncNameMarker) {
-                    map.removeMarker(this.syncNameMarker);
-                }
-
-                var imageSize = [0,0];
-                var imageUrl = this.cachedRenderName(data.remoteInitiator, imageSize,
-                    polyline.color, '#fff', 'rgba(0,0,0,0.5)');
-                if ( imageUrl ) {
-                    // Place in bottom left corner and move to make even with
-                    // border
-                    this.syncNameMarker = new mxn.Marker(points[0]);
-                    this.syncNameMarker.setIcon(imageUrl, imageSize, [2,0]);
-                    map.addMarker(this.syncNameMarker);
-                } else console.warn('Unable to create name marker');
-
-                map.addPolyline(polyline);
-                this.syncPolyline = polyline;
             });
         };
 
