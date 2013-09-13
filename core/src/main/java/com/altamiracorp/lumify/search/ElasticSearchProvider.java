@@ -1,11 +1,7 @@
 package com.altamiracorp.lumify.search;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import org.apache.hadoop.mapreduce.Mapper;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -42,6 +38,7 @@ public class ElasticSearchProvider implements SearchProvider {
     private static final String FIELD_PUBLISHED_DATE = "publishedDate";
     private static final String FIELD_GRAPH_VERTEX_ID = "graphVertexId";
     private static final String FIELD_SOURCE = "source";
+    private static final String FIELD_DETECTED_OBJECTS = "detectedObjects";
     private static final String FIELD_ARTIFACT_TYPE = "type";
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final int ES_QUERY_MAX_SIZE = 100;
@@ -88,6 +85,11 @@ public class ElasticSearchProvider implements SearchProvider {
 
         LOGGER.info("Adding artifact \"" + artifact.getRowKey().toString() + "\" to elastic search index.");
 
+        List<String> detectedObjects = new ArrayList<String>();
+        if (artifact.getArtifactDetectedObjects() != null) {
+            detectedObjects = artifact.getArtifactDetectedObjects().getDetectedConcepts();
+        }
+
         String id = artifact.getRowKey().toString();
         String graphVertexId = artifact.getGenericMetadata().getGraphVertexId();
         String source = artifact.getGenericMetadata().getSource();
@@ -111,6 +113,10 @@ public class ElasticSearchProvider implements SearchProvider {
             jsonBuilder = jsonBuilder.field(FIELD_SOURCE, source);
         }
 
+        if (!detectedObjects.isEmpty()) {
+            jsonBuilder = jsonBuilder.array(FIELD_DETECTED_OBJECTS,detectedObjects.toArray());
+        }
+
         IndexResponse response = client.prepareIndex(ES_INDEX, ES_INDEX_TYPE, id)
                 .setSource(jsonBuilder.endObject())
                 .execute().actionGet();
@@ -128,7 +134,7 @@ public class ElasticSearchProvider implements SearchProvider {
                 .setQuery(new QueryStringQueryBuilder(query).defaultField("_all"))
                 .setFrom(0)
                 .setSize(ES_QUERY_MAX_SIZE)
-                .addFields(FIELD_SUBJECT, FIELD_GRAPH_VERTEX_ID, FIELD_SOURCE, FIELD_PUBLISHED_DATE, FIELD_ARTIFACT_TYPE)
+                .addFields(FIELD_SUBJECT, FIELD_GRAPH_VERTEX_ID, FIELD_SOURCE, FIELD_PUBLISHED_DATE, FIELD_ARTIFACT_TYPE, FIELD_DETECTED_OBJECTS)
                 .execute().actionGet();
 
         SearchHit[] hits = response.getHits().getHits();
@@ -174,6 +180,7 @@ public class ElasticSearchProvider implements SearchProvider {
             properties.put(FIELD_SUBJECT, new JSONObject().put("type", "string").put("store", "yes"));
             properties.put(FIELD_GRAPH_VERTEX_ID, new JSONObject().put("type", "string").put("store", "yes"));
             properties.put(FIELD_SOURCE, new JSONObject().put("type", "string").put("store", "yes"));
+            properties.put(FIELD_DETECTED_OBJECTS, new JSONObject().put("type", "string").put("store", "yes"));
             properties.put(FIELD_ARTIFACT_TYPE, new JSONObject().put("type", "string").put("store", "yes"));
             properties.put(FIELD_PUBLISHED_DATE, new JSONObject().put("type", "date").put("store", "yes"));
             indexConfig.put("properties", properties);
