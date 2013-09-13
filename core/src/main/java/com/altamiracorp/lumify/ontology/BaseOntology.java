@@ -13,6 +13,7 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 
 import java.io.InputStream;
+import java.util.Date;
 
 public class BaseOntology {
     private final OntologyRepository ontologyRepository = new OntologyRepository();
@@ -56,6 +57,11 @@ public class BaseOntology {
         TitanKey relationshipType = (TitanKey) graph.getType(PropertyName.RELATIONSHIP_TYPE.toString());
         if (relationshipType == null) {
             graph.makeType().name(PropertyName.RELATIONSHIP_TYPE.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
+        }
+
+        TitanKey timeStampProperty = (TitanKey) graph.getType(PropertyName.TIME_STAMP.toString());
+        if (timeStampProperty == null) {
+            graph.makeType().name(PropertyName.TIME_STAMP.toString()).dataType(Date.class).unique(Direction.OUT).makePropertyKey();
         }
 
         TitanKey subTypeProperty = (TitanKey) graph.getType(PropertyName.SUBTYPE.toString());

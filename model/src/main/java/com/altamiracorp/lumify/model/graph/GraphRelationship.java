@@ -1,11 +1,10 @@
 package com.altamiracorp.lumify.model.graph;
 
+import com.altamiracorp.lumify.model.ontology.PropertyName;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class GraphRelationship {
     private final String id;
@@ -45,7 +44,11 @@ public class GraphRelationship {
         return properties.get(propertyKey);
     }
 
-    public void setProperty (String key, String value) {
+    public void setAllProperties(HashMap<String, Object> properties) {
+        this.properties = properties;
+    }
+
+    public void setProperty(String key, String value) {
         properties.put(key, value);
     }
 

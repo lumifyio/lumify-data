@@ -133,6 +133,7 @@ public class TitanGraphSession extends GraphSession {
         for (String propertyKey : relationship.getPropertyKeys()) {
             edge.setProperty(propertyKey, relationship.getProperty(propertyKey));
         }
+        edge.setProperty(PropertyName.TIME_STAMP.toString(), new Date());
         commit();
         return "" + edge.getId();
     }
@@ -151,7 +152,6 @@ public class TitanGraphSession extends GraphSession {
                 edgeList.add(v);
             }
         }
-        commit();
         return edgeList;
     }
 
@@ -337,7 +337,9 @@ public class TitanGraphSession extends GraphSession {
                     List<Edge> edges = findAllEdges(id, v.getId().toString());
                     for (Edge e : edges) {
                         if (e != null) {
-                            graphRelationships.add(new GraphRelationship(e.getId().toString(), id, v.getId().toString(), e.getLabel()));
+                            GraphRelationship relationship = new TitanGraphRelationship(e);
+                            relationship.setAllProperties(new TitanGraphRelationship(e).getAllProperty(e));
+                            graphRelationships.add(relationship);
                         }
                     }
                 }
@@ -564,16 +566,34 @@ public class TitanGraphSession extends GraphSession {
             throw new RuntimeException("Could not find vertex with id: " + graphVertexId);
         }
 
-        Map<GraphRelationship, GraphVertex> relationships = new HashMap<GraphRelationship, GraphVertex>();
+        Map<GraphRelationship, GraphVertex> relationships = new TreeMap<GraphRelationship, GraphVertex>(new GraphRelationshipDateComparator());
         for (Edge e : vertex.getEdges(Direction.IN)) {
-            relationships.put(new TitanGraphRelationship(e), new TitanGraphVertex(e.getVertex(Direction.OUT)));
+            GraphRelationship relationship = new TitanGraphRelationship(e);
+            relationship.setAllProperties(new TitanGraphRelationship(e).getAllProperty(e));
+
+            relationships.put(relationship, new TitanGraphVertex(e.getVertex(Direction.OUT)));
         }
 
         for (Edge e : vertex.getEdges(Direction.OUT)) {
-            relationships.put(new TitanGraphRelationship(e), new TitanGraphVertex(e.getVertex(Direction.IN)));
+            GraphRelationship relationship = new TitanGraphRelationship(e);
+            relationship.setAllProperties(new TitanGraphRelationship(e).getAllProperty(e));
+
+            relationships.put(relationship, new TitanGraphVertex(e.getVertex(Direction.IN)));
         }
 
         return relationships;
+    }
+
+    private class GraphRelationshipDateComparator implements Comparator<GraphRelationship> {
+        @Override
+        public int compare(GraphRelationship rel1, GraphRelationship rel2) {
+            Date e1Date = (Date) rel1.getProperty(PropertyName.TIME_STAMP.toString());
+            Date e2Date = (Date) rel2.getProperty(PropertyName.TIME_STAMP.toString());
+            if (e1Date == null || e2Date == null) {
+                return 1;
+            }
+            return e2Date.compareTo(e1Date);
+        }
     }
 
     @Override
