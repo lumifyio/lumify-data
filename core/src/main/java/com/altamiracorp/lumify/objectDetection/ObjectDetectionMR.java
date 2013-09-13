@@ -86,6 +86,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         public static final String DEFAULT_PATH_PREFIX = "hdfs://";
         public static final String CLASSIFIER = "classifier.file";
         public static final String DEFAULT_CLASSIFIER = "haarcascade_frontalface_alt.xml";
+        public static final String DICTIONARY = "dictionary.file";
 
         public static final String OBJECT_DETECTOR_CLASS = "objectDetectorClass";
 
@@ -100,6 +101,14 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
                 classifierConcept = context.getConfiguration().get(CONCEPT, DEFAULT_CONCEPT);
                 classifierPath = resolveClassifierPath(context);
                 objectDetector = (ObjectDetector) context.getConfiguration().getClass(OBJECT_DETECTOR_CLASS, OpenCVObjectDetector.class).newInstance();
+                String dictionaryFile = context.getConfiguration().get(DICTIONARY);
+                if (dictionaryFile != null) {
+                    FileSystem fs = FileSystem.get(context.getConfiguration());
+                    Path dictionaryPath = new Path(context.getConfiguration().get(PATH_PREFIX, DEFAULT_PATH_PREFIX) + OPEN_CV_CONF_DIR + dictionaryFile);
+                    objectDetector.setup(classifierPath, fs.open(dictionaryPath));
+                } else {
+                    objectDetector.setup(classifierPath);
+                }
             } catch (InstantiationException e) {
                 throw new IOException(e);
             } catch (IllegalAccessException e) {
@@ -109,12 +118,12 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
 
         private String resolveClassifierPath(Context context) throws IOException {
             FileSystem fs = FileSystem.get(context.getConfiguration());
-            LocalFileSystem localFS = FileSystem.getLocal(context.getConfiguration());
             String classifierName = context.getConfiguration().get(CLASSIFIER, DEFAULT_CLASSIFIER);
             String pathPrefix = context.getConfiguration().get(PATH_PREFIX, DEFAULT_PATH_PREFIX);
             String classifierPath = pathPrefix + OPEN_CV_CONF_DIR + classifierName;
 
             if (pathPrefix.startsWith("hdfs://")) { //if it is in HDFS, copy it to local disk so opencv can read it
+                LocalFileSystem localFS = FileSystem.getLocal(context.getConfiguration());
                 classifierPath = localFS.getWorkingDirectory().toUri().getPath() + OPEN_CV_CONF_DIR + classifierName;
                 File localDir = new File (classifierPath).getParentFile();
                 if (!localDir.exists()) {
@@ -142,10 +151,10 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
             }
 
             LOGGER.info("Detecting objects of concept " + classifierConcept + " for artifact " + rowKey.toString());
-            List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), artifact, classifierPath);
+            List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), artifact);
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
-                    artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL,
+                    artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, objectDetector.getModelName(),
                             detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());
                 }
                 context.write(new Text(Artifact.TABLE_NAME), artifact);
@@ -158,10 +167,10 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
 
         public void safeMap(Text rowKey, VideoFrame videoFrame, Context context) throws Exception {
             LOGGER.info("Detecting objects of concept " + classifierConcept + " for video frame " + rowKey.toString());
-            List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), videoFrame, classifierPath);
+            List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), videoFrame);
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
-                    videoFrame.getDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL, detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());
+                    videoFrame.getDetectedObjects().addDetectedObject(classifierConcept, objectDetector.getModelName(), detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());
                 }
                 context.write(new Text(VideoFrame.TABLE_NAME), videoFrame);
             }
