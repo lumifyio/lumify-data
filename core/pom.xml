@@ -102,6 +102,22 @@
         </dependency>
 
         <dependency>
+            <groupId>org.arabidopsis.ahocorasick</groupId>
+            <artifactId>ahocorasick</artifactId>
+            <version>1.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.lucene</groupId>
+                    <artifactId>lucene-analyzers-common</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.blur</groupId>
             <artifactId>blur-thrift</artifactId>
             <version>${blur-version}</version>

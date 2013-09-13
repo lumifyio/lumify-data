@@ -26,10 +26,10 @@ public class PhoneNumberExtractor extends EntityExtractor {
     }
 
     @Override
-    public List<TermMention> extract(Artifact artifact, String text) throws Exception {
+    public List<ExtractedEntity> extract(Artifact artifact, String text) throws Exception {
         Iterable<PhoneNumberMatch> phoneNumbers = phoneNumberUtil.findNumbers(text, defaultRegionCode);
 
-        ArrayList<TermMention> termMentions = new ArrayList<TermMention>();
+        ArrayList<ExtractedEntity> termMentions = new ArrayList<ExtractedEntity>();
         for (PhoneNumberMatch phoneNumber : phoneNumbers) {
             termMentions.add(createTerm(artifact, phoneNumber));
         }
@@ -37,13 +37,13 @@ public class PhoneNumberExtractor extends EntityExtractor {
         return termMentions;
     }
 
-    private TermMention createTerm(Artifact artifact, PhoneNumberMatch phoneNumber) {
+    private ExtractedEntity createTerm(Artifact artifact, PhoneNumberMatch phoneNumber) {
         String name = phoneNumberUtil.format(phoneNumber.number(), PhoneNumberUtil.PhoneNumberFormat.E164);
         int start = phoneNumber.start();
         int end = phoneNumber.end();
         TermMention termMention = new TermMention(new TermMentionRowKey(artifact.getRowKey().toString(), start, end));
         termMention.getMetadata().setSign(name);
         termMention.getMetadata().setConcept(ENTITY_TYPE);
-        return termMention;
+        return new ExtractedEntity(termMention, null);
     }
 }

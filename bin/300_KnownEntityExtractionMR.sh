@@ -1,9 +1,6 @@
 #!/bin/bash
-# require: 100_GeoNamesImport.sh
-# require: 250_StructuredDataExtractorMR.sh
-# require: 300_DictionaryEntityExtractionMR.sh
-# require: 300_EntityExtractionMR.sh
-# require: 300_KnownEntityExtractionMR.sh
+# group: dictionary
+# require: 249_TextExtractorConsolidationMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -28,8 +25,9 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
--Xmx1024M \
-com.altamiracorp.lumify.location.TermLocationExtractionMR \
+-Xmx1g \
+-XX:MaxPermSize=512m \
+com.altamiracorp.lumify.entityExtraction.EntityExtractionMR \
 --zookeeperInstanceName=lumify \
 --zookeeperServerNames=${ip} \
 --blurControllerLocation=${ip}:40010 \
@@ -39,5 +37,6 @@ com.altamiracorp.lumify.location.TermLocationExtractionMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.lumify.location.TermLocationExtractionMR \
+--classname=com.altamiracorp.lumify.entityExtraction.KnownEntityExtractor \
+--config=nlpConfPathPrefix=file://$(cd ${DIR}/.. && pwd) \
 --elasticsearch.locations=192.168.33.10:9300

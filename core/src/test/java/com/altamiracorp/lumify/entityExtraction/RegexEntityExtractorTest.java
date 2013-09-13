@@ -40,10 +40,11 @@ public class RegexEntityExtractorTest extends BaseExtractorTest {
     @Test
     public void testRegularExpressionExtraction() throws Exception {
         extractor.setup(context);
-        ArrayList<TermMention> terms = new ArrayList<TermMention>(extractor.extract(createArtifact(textWith), textWith));
-        assertEquals("Not enough terms extracted", 2, terms.size());
+        ArrayList<ExtractedEntity> extractedEntities = new ArrayList<ExtractedEntity>(extractor.extract(createArtifact(textWith), textWith));
+        assertEquals("Not enough extractedEntities extracted", 2, extractedEntities.size());
         boolean found = false;
-        for (TermMention term : terms) {
+        for (ExtractedEntity extractedEntity : extractedEntities) {
+            TermMention term = extractedEntity.getTermMention();
             if (term.getMetadata().getConcept().equals("emailAddress") && term.getMetadata().getSign().equals("bob@gmail.com")) {
                 found = true;
                 assertEquals(59L, term.getRowKey().getStartOffset());
@@ -56,10 +57,11 @@ public class RegexEntityExtractorTest extends BaseExtractorTest {
     @Test
     public void testRegularExpressionExtractionWithNewlines() throws Exception {
         extractor.setup(context);
-        ArrayList<TermMention> terms = new ArrayList<TermMention>(extractor.extract(createArtifact(textWithNewlines), textWithNewlines));
-        assertEquals("Not enough terms extracted", 2, terms.size());
+        ArrayList<ExtractedEntity> extractedEntities = new ArrayList<ExtractedEntity>(extractor.extract(createArtifact(textWithNewlines), textWithNewlines));
+        assertEquals("Not enough extractedEntities extracted", 2, extractedEntities.size());
         boolean found = false;
-        for (TermMention term : terms) {
+        for (ExtractedEntity extractedEntity : extractedEntities) {
+            TermMention term = extractedEntity.getTermMention();
             if (term.getMetadata().getSign().equals("bob@gmail.com") && term.getMetadata().getConcept().equals("emailAddress")) {
                 found = true;
                 assertEquals(60L, term.getRowKey().getStartOffset());
@@ -72,7 +74,7 @@ public class RegexEntityExtractorTest extends BaseExtractorTest {
     @Test
     public void testNegativeRegularExpressionExtraction() throws Exception {
         extractor.setup(context);
-        Collection<TermMention> terms = extractor.extract(createArtifact(textWithout), textWithout);
+        Collection<ExtractedEntity> terms = extractor.extract(createArtifact(textWithout), textWithout);
         assertTrue(terms.isEmpty());
     }
 }

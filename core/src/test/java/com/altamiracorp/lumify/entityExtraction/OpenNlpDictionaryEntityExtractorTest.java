@@ -39,11 +39,11 @@ public class OpenNlpDictionaryEntityExtractorTest extends BaseExtractorTest {
     @Test
     public void testEntityExtraction() throws Exception {
         extractor.setup(context);
-        List<TermMention> terms = extractor.extract(createArtifact(text), text);
+        List<ExtractedEntity> terms = extractor.extract(createArtifact(text), text);
         assertEquals(3, terms.size());
         ArrayList<String> signs = new ArrayList<String>();
-        for (TermMention term : terms) {
-            signs.add(term.getMetadata().getSign());
+        for (ExtractedEntity term : terms) {
+            signs.add(term.getTermMention().getMetadata().getSign());
         }
 
         assertTrue("Bob Robertson not found", signs.contains("Bob Robertson"));
@@ -55,9 +55,10 @@ public class OpenNlpDictionaryEntityExtractorTest extends BaseExtractorTest {
     public void testEntityExtractionSetsMentionRelativeToArtifactNotSentence() throws Exception {
         extractor.setup(context);
 
-        Collection<TermMention> terms = extractor.extract(createArtifact(text), text);
+        Collection<ExtractedEntity> extractedEntities = extractor.extract(createArtifact(text), text);
         boolean found = false;
-        for (TermMention term : terms) {
+        for (ExtractedEntity extractedEntity : extractedEntities) {
+            TermMention term = extractedEntity.getTermMention();
             if (term.getMetadata().getSign().equals("Bob Robertson")) {
                 found = true;
                 assertEquals(63, term.getRowKey().getStartOffset());

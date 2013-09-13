@@ -53,6 +53,7 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
         private GraphRepository graphRepository = new GraphRepository();
         private TermMentionRepository termMentionRepository = new TermMentionRepository();
         private StructuredDataFactory structedDataFactory;
+        private HashMap<String, Concept> conceptMap = new HashMap<String, Concept>();
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -124,8 +125,6 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
         }
 
         private void saveTermsAndGraphVertices(List<TermAndGraphVertex> termAndGraphVertices, GraphVertex artifactVertex) {
-            HashMap<String, Concept> conceptMap = new HashMap<String, Concept>();
-
             for (TermAndGraphVertex termAndGraphVertex : termAndGraphVertices) {
                 if (termAndGraphVertex == null) {
                     continue;

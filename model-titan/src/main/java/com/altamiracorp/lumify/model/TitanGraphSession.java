@@ -158,6 +158,9 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public Edge findEdge(String sourceId, String destId, String label) {
         Vertex sourceVertex = this.graph.getVertex(sourceId);
+        if (sourceVertex == null) {
+            throw new RuntimeException("Could not find vertex with id: " + sourceId);
+        }
         Iterable<Edge> edges = sourceVertex.getEdges(Direction.OUT);
         for (Edge edge : edges) {
             Vertex destVertex = edge.getVertex(Direction.IN);
