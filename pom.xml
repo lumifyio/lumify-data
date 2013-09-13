@@ -2,25 +2,30 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    
     <groupId>com.altamiracorp.lumify</groupId>
     <artifactId>lumify</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <version>1.0-SNAPSHOT</version>
 
     <name>Lumify</name>
 
-    <modules>
-        <module>core</module>
-        <module>web</module>
-        <module>web-framework</module>
-        <module>model</module>
-        <module>model-accumulo</module>
-        <module>model-titan</module>
-        <module>dictionary-seed</module>
-        <module>crawler</module>
-        <module>oozie</module>
-    </modules>
+    <properties>
+        <blur-version>0.2.0-incubating-SNAPSHOT</blur-version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <accumulo-version>1.4.3</accumulo-version>
+        <hadoop-version>0.20.2-cdh3u6</hadoop-version>
+        <zookeeper-version>3.3.5</zookeeper-version>
+        <jetty-version>8.1.11.v20130520</jetty-version>
+        <elasticsearch-version>0.90.0</elasticsearch-version>
+        <titan-version>0.3.2.atc-SNAPSHOT</titan-version>
+        <site.config.location>conf/maven/site</site.config.location>
+        <javadoc.stylesheetfile>conf/maven/javadoc/stylesheet.css</javadoc.stylesheetfile>
+        <maven.build.timestamp.format>EEE MMM dd HH:mm z yyyy</maven.build.timestamp.format>
+        <classpath-filename>${project.build.directory}/.classpath.${user.name}</classpath-filename>
+    </properties>
 
     <repositories>
         <repository>
@@ -52,21 +57,6 @@
         </repository>
     </repositories>
 
-    <properties>
-        <blur-version>0.2.0-incubating-SNAPSHOT</blur-version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <accumulo-version>1.4.3</accumulo-version>
-        <hadoop-version>0.20.2-cdh3u6</hadoop-version>
-        <zookeeper-version>3.3.5</zookeeper-version>
-        <jetty-version>8.1.11.v20130520</jetty-version>
-        <elasticsearch-version>0.90.0</elasticsearch-version>
-        <titan-version>0.3.2.atc-SNAPSHOT</titan-version>
-        <site.config.location>conf/maven/site</site.config.location>
-        <javadoc.stylesheetfile>conf/maven/javadoc/stylesheet.css</javadoc.stylesheetfile>
-        <maven.build.timestamp.format>EEE MMM dd HH:mm z yyyy</maven.build.timestamp.format>
-        <classpath-filename>${project.build.directory}/.classpath.${user.name}</classpath-filename>
-    </properties>
 
     <distributionManagement>
         <site>
@@ -251,4 +241,16 @@
             </plugin>
         </plugins>
     </build>
+    
+    <modules>
+        <module>core</module>
+        <module>web</module>
+        <module>web-framework</module>
+        <module>model</module>
+        <module>model-accumulo</module>
+        <module>model-titan</module>
+        <module>dictionary-seed</module>
+        <module>crawler</module>
+        <module>oozie</module>
+    </modules>    
 </project>
