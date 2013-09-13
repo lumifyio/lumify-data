@@ -69,6 +69,12 @@ node "ip-10-0-3-51" {
   include accumulo::fw::monitor
   include role::hadoop::secondarynamenode
   include role::accumulo::head
+
+  file { '/opt/lumify/balance_accumulo.sh' :
+    ensure => file,
+    source => 'puppet:///modules/env/cluster/balance_accumulo.sh',
+    require => File['/opt/lumify/balance_accumulo.sh'],
+  }
 }
 
 node "ip-10-0-3-101" {
