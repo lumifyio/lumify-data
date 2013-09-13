@@ -12,6 +12,7 @@
     <artifactId>application</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
+    
     <name>Lumify Web Interface</name>
 
     <dependencies>
@@ -97,29 +98,33 @@
             <version>${jetty-version}</version>
         </dependency>
 
-
-        <!--  Test Dependencies -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>1.9.5</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <version>1.5.1</version>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.atteo</groupId>
             <artifactId>evo-inflector</artifactId>
             <version>1.0.1</version>
         </dependency>
 
+
+        <!--  Test Dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>        
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.9.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>1.5.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+    
     <build>
         <plugins>
             <plugin>
