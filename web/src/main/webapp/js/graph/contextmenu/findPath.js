@@ -11,7 +11,7 @@ define([
             this.graphService = new GraphService();
         }
 
-        this.onContextMenuFindPath = function () {
+        this.onContextMenuFindShortestPath = function (hops) {
             var menu = this.select('vertexContextMenuSelector');
             var graphVertexId = menu.data('currentVertexGraphVertexId');
             var sourceVertexPosX = menu.data("currentVertexPositionX");
@@ -45,7 +45,8 @@ define([
                     var parameters = {
                         sourceGraphVertexId: graphVertexId,
                         destGraphVertexId: targetGraphId,
-                        depth: 5
+                        depth: 5,
+                        hops: hops
                     };
 
                     console.log('findPath', parameters);

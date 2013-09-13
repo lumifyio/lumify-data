@@ -495,7 +495,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<List<GraphVertex>> findPath(GraphVertex sourceVertex, GraphVertex destVertex, final int depth) {
+    public List<List<GraphVertex>> findPath(GraphVertex sourceVertex, GraphVertex destVertex, final int depth, final int hops) {
         Vertex source = getVertex(sourceVertex);
         Collection<Vertex> s = new ArrayList<Vertex>();
         s.add(source);
@@ -541,18 +541,23 @@ public class TitanGraphSession extends GraphSession {
                         }
                 ).cap();
         HashMap<Integer, Iterable<Iterable<Vertex>>> pathMap = (HashMap<Integer, Iterable<Iterable<Vertex>>>) gremlinPipeline.toList().get(0);
-        return toGraphVerticesPath(findShortestPath(pathMap));
+        return toGraphVerticesPath(findShortestPath(pathMap,hops));
     }
 
-    private Iterable<Iterable<Vertex>> findShortestPath(HashMap<Integer, Iterable<Iterable<Vertex>>> pathMap) {
+    private Iterable<Iterable<Vertex>> findShortestPath(HashMap<Integer, Iterable<Iterable<Vertex>>> pathMap, int hops) {
+        int targetKey = hops + 2;
         int minKey = Integer.MAX_VALUE;
-        for (Integer key : pathMap.keySet()) {
-            if (key < minKey) {
-                minKey = key;
+
+        if (pathMap.containsKey(targetKey)) {
+            return pathMap.get(targetKey);
+        } else {
+            for (Integer key : pathMap.keySet()) {
+                if (key < minKey && key > targetKey) {
+                    minKey = key;
+                }
             }
         }
-
-        return pathMap.get(minKey);
+        return pathMap.containsKey(minKey) ? pathMap.get(minKey) : new ArrayList<Iterable<Vertex>>();
     }
 
     private Vertex getVertex(GraphVertex v) {

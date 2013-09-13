@@ -852,7 +852,8 @@ define([
 
                 var templateData = {
                     firstLevelConcepts: concepts.entityConcept.children,
-                    artifactConcept: concepts.artifactConcept
+                    artifactConcept: concepts.artifactConcept,
+                    pathHopOptions: ["2","3","4"]
                 };
                 self.$node.html(template(templateData));
                 self.bindContextMenuClickEvent();

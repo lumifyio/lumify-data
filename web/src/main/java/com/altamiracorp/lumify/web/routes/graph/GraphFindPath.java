@@ -29,6 +29,7 @@ public class GraphFindPath extends BaseRequestHandler {
 
         final String sourceGraphVertexId = getRequiredParameter(request, "sourceGraphVertexId");
         final String destGraphVertexId = getRequiredParameter(request, "destGraphVertexId");
+        final Integer hops = Integer.parseInt(getRequiredParameter(request,"hops"));
 
         GraphVertex sourceVertex = graphRepository.findVertex(session.getGraphSession(), sourceGraphVertexId);
         if (sourceVertex == null) {
@@ -42,7 +43,7 @@ public class GraphFindPath extends BaseRequestHandler {
             return;
         }
 
-        List<List<GraphVertex>> vertices = graphRepository.findPath(session.getGraphSession(), sourceVertex, destVertex, depth);
+        List<List<GraphVertex>> vertices = graphRepository.findPath(session.getGraphSession(), sourceVertex, destVertex, depth, hops);
 
         JSONObject resultsJson = new JSONObject();
         resultsJson.put("paths", GraphVertex.toJsonPath(vertices));
