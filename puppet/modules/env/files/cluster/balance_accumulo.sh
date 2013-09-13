@@ -60,4 +60,4 @@ do
     LAST_SPLIT_HEX=$SPLIT_HEX
 done
 
-echo "Run the following script in your accumulo sheel: $SCRIPT_FILE"
+echo "Run the following script in your accumulo shell: $SCRIPT_FILE"
