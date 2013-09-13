@@ -111,24 +111,6 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    List<Row> findByRowStartsWithList(String tableName, List<String> rowKeyPrefixes, QueryUser queryUser) {
-        try {
-            BatchScanner scanner = this.connector.createBatchScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations(), 2);
-            Collection<Range> ranges = new ArrayList<Range>();
-
-            for (String rowKeyPrefix : rowKeyPrefixes) {
-                Range range = new Range(rowKeyPrefix, rowKeyPrefix + "ZZZZZZ"); // TODO is this the best way?
-                ranges.add(range);
-            }
-
-            scanner.setRanges(ranges);
-            return AccumuloHelper.scannerToRows(tableName, scanner);
-        } catch (TableNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, QueryUser queryUser) {
         return findByRowKeyRange(tableName, rowKeyPrefix, rowKeyPrefix + "ZZZZ", queryUser); // TODO is this the best way?
     }
@@ -311,14 +293,6 @@ public class AccumuloSession extends Session {
     @Override
     public List<String> getTableList() {
         return new ArrayList<String>(this.connector.tableOperations().list());
-    }
-
-    // TODO change this to use an accumulo touch command. Accumulo doesn't have one yet though.
-    @Override
-    public void touchRow(String tableName, RowKey rowKey, QueryUser queryUser) {
-        Row row = findByRowKey(tableName, rowKey.toString(), queryUser);
-        row.setDirtyBits(true);
-        save(row);
     }
 
     public long getMaxMemory() {

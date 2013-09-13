@@ -12,12 +12,14 @@ import com.altamiracorp.lumify.model.user.User;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.model.workspace.Workspace;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public abstract class Session {
     private static final Logger LOGGER = LoggerFactory.getLogger(Session.class.getName());
@@ -36,7 +38,6 @@ public abstract class Session {
             User.TABLE_NAME,
             "atc_titan");// see com.altamiracorp.lumify.model.TitanGraphSession
     private QueryUser queryUser;
-    private String dbpediaSourceArtifactRowKey;
 
     public Session(QueryUser queryUser) {
         this.queryUser = queryUser;
@@ -49,8 +50,6 @@ public abstract class Session {
     public abstract List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, QueryUser queryUser);
 
     abstract List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, QueryUser queryUser);
-
-    abstract List<Row> findByRowStartsWithList(String tableName, List<String> rowKeyPrefix, QueryUser queryUser);
 
     abstract List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, QueryUser queryUser);
 
@@ -72,27 +71,6 @@ public abstract class Session {
         for (String table : tables) {
             initializeTable(table);
         }
-
-        addDbpediaSourceArtifact();
-    }
-
-    protected void addDbpediaSourceArtifact() {
-        ArtifactRepository artifactRepository = new ArtifactRepository();
-        Date date = new Date(0);
-
-        Artifact artifact = new Artifact();
-        artifact.getContent()
-                .setDocArtifactBytes("DBPedia".getBytes());
-        artifact.getGenericMetadata()
-                .setMimeType("text/plain")
-                .setSubject("DBPedia")
-                .setAuthor("system")
-                .setFileName("dbpedia")
-                .setFileExtension("txt")
-                .setDocumentDtg(date);
-        artifactRepository.save(this, artifact);
-
-        dbpediaSourceArtifactRowKey = artifact.getRowKey().toString();
     }
 
     public QueryUser getQueryUser() {
@@ -112,14 +90,5 @@ public abstract class Session {
 
     public abstract long getFileLength(String path);
 
-    public String getDbpediaSourceArtifactRowKey() {
-        if (dbpediaSourceArtifactRowKey == null) {
-            addDbpediaSourceArtifact();
-        }
-        return dbpediaSourceArtifactRowKey;
-    }
-
     public abstract List<String> getTableList();
-
-    public abstract void touchRow(String tableName, RowKey rowKey, QueryUser queryUser);
 }
