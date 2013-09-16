@@ -15,19 +15,19 @@ import org.apache.hadoop.mapreduce.RecordReader;
 
 import java.io.IOException;
 
-class WholeFileRecordReader extends RecordReader<MapWritable, BytesWritable> {
+class WholeFileRecordReader extends RecordReader<MapWritable, Text> {
 
     private Path file;
     private Configuration conf;
     private MapWritable currentK;
-    private BytesWritable currentV;
+    private Text currentV;
     private boolean processed = false;
 
-    public WholeFileRecordReader (CombineFileSplit split, TaskAttemptContext context, Integer idx) {
+    public WholeFileRecordReader(CombineFileSplit split, TaskAttemptContext context, Integer idx) {
         this.file = split.getPath(idx);
         this.conf = context.getConfiguration();
         this.currentK = new MapWritable();
-        this.currentV = new BytesWritable();
+        this.currentV = new Text();
     }
 
     @Override
@@ -39,21 +39,15 @@ class WholeFileRecordReader extends RecordReader<MapWritable, BytesWritable> {
     public boolean nextKeyValue() throws IOException, InterruptedException {
         if (!processed) {
             FileSystem fs = file.getFileSystem(conf);
-            FSDataInputStream in = null;
-            try {
-                //set metadata in key
-                FileStatus fileInfo = fs.getFileStatus(file);
-                this.currentK.put(new Text("name"), new Text(file.getName()));
-                this.currentK.put(new Text("length"),new LongWritable(fileInfo.getLen()));
-                this.currentK.put(new Text("lastModified"),new LongWritable(fileInfo.getModificationTime()));
+            //set metadata in key
+            FileStatus fileInfo = fs.getFileStatus(file);
+            this.currentK.put(new Text("name"), new Text(file.getName()));
+            this.currentK.put(new Text("length"), new LongWritable(fileInfo.getLen()));
+            this.currentK.put(new Text("lastModified"), new LongWritable(fileInfo.getModificationTime()));
 
-                //set value
-                in = fs.open(file);
-                byte[] contents = IOUtils.toByteArray(in);
-                this.currentV.set(contents, 0, contents.length);
-            } finally {
-                IOUtils.closeQuietly(in);
-            }
+            //set value
+            this.currentV.set(file.toString());
+
             processed = true;
             return true;
         }
@@ -66,7 +60,7 @@ class WholeFileRecordReader extends RecordReader<MapWritable, BytesWritable> {
     }
 
     @Override
-    public BytesWritable getCurrentValue() throws IOException, InterruptedException {
+    public Text getCurrentValue() throws IOException, InterruptedException {
         return this.currentV;
     }
 
