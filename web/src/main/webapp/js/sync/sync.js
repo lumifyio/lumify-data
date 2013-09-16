@@ -74,7 +74,8 @@ define([
             if (!this.currentUser) {
                 return;
             }
-            if (data && data.remoteEvent) {
+            data = data || {};
+            if (data.remoteEvent) {
                 return;
             }
             this.syncService.publishUserSyncEvent(evt.type, [this.currentUser.rowKey], data);

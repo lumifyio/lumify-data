@@ -31,6 +31,7 @@ define(['atmosphere'],
 		};
 
         ServiceBase.prototype.socketPush = function(data) {
+            data.sourceId = document.subSocketId;
             return document.$subSocket.push(JSON.stringify(data));
         };
 
@@ -45,6 +46,9 @@ define(['atmosphere'],
                 logLevel: 'debug',
                 onMessage: function (response) {
                     var data = JSON.parse(response.responseBody);
+                    if(data && data.sourceId == document.subSocketId) {
+                        return;
+                    }
                     onmessage(null, data);
                 },
                 onError: function (response) {
@@ -54,6 +58,7 @@ define(['atmosphere'],
             };
             console.log('subscribe subscribe:', req);
             document.$subSocket = this.getSocket().subscribe(req);
+            document.subSocketId = Date.now();
         };
 
         ServiceBase.prototype._ajaxPost = function(options, callback) {
