@@ -146,4 +146,8 @@ public class GraphRepository {
         LOGGER.info("set property of vertex: " + edge.getId() + ", property name: " + propertyName + ", value: " + value);
         graphSession.commit();
     }
+
+    public void commit(GraphSession graphSession) {
+        graphSession.commit();
+    }
 }

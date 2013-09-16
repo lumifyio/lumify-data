@@ -245,7 +245,7 @@ define([
 
 
         this.onVerticesSelected = function(event, data) {
-            if (data.remoteEvent) {
+            if (data && data.remoteEvent) {
                 return;
             }
             this.$node.find('.active').removeClass('active');

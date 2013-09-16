@@ -70,8 +70,10 @@ public class GraphVertexUploadImage extends BaseRequestHandler {
         }
 
         graphRepository.findOrAddRelationship(session.getGraphSession(), entityVertex.getId(), artifactVertex.getId(), LabelName.HAS_IMAGE);
+        graphRepository.commit(session.getGraphSession());
 
         entityVertex.setProperty(PropertyName.GLYPH_ICON, ArtifactThumbnailByRowKey.getUrl(artifact.getRowKey()));
+        graphRepository.commit(session.getGraphSession());
 
         respondWithJson(response, entityVertex.toJson());
     }
