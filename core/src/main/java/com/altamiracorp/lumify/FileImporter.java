@@ -43,6 +43,7 @@ public class FileImporter {
                 new FileInputStream(file),
                 file.getName(),
                 file.lastModified());
+        artifact.getGenericMetadata().setSubject(artifact.getGenericMetadata().getFileName());
         artifact.getGenericMetadata().setSource(source);
         if (mappingJson != null) {
             artifact.getGenericMetadata().setMappingJson(mappingJson);

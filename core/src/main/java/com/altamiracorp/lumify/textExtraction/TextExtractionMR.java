@@ -66,12 +66,8 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
                 artifact.getArtifactExtractedText().addExtractedText(textExtractor.getName(), cleanExtractedText(extractedInfo.getText()));
             }
 
-            if (extractedInfo.getSubject() != null) {
-                if (extractedInfo.getSubject().equals("")) {
-                    artifact.getGenericMetadata().setSubject(artifact.getGenericMetadata().getFileName());
-                } else {
-                    artifact.getGenericMetadata().setSubject(extractedInfo.getSubject());
-                }
+            if (extractedInfo.getSubject() != null && !extractedInfo.getSubject().equals("")) {
+                artifact.getGenericMetadata().setSubject(extractedInfo.getSubject());
                 artifactRepository.saveToGraph(getSession().getModelSession(),getSession().getGraphSession(),artifact);
             }
 
