@@ -139,9 +139,6 @@ public class GraphRepository {
 
     public void setPropertyEdge(GraphSession graphSession, String sourceId, String destId, String label,  String propertyName, Object value) {
         Edge edge = findEdge(graphSession, sourceId, destId, label);
-        // TODO: without removing first the property nulls out, this property has to do with Accumulo + Titan
-        //       integration in a single row mutation
-        edge.removeProperty(propertyName);
         edge.setProperty(propertyName, value);
         LOGGER.info("set property of vertex: " + edge.getId() + ", property name: " + propertyName + ", value: " + value);
         graphSession.commit();
