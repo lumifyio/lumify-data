@@ -22,6 +22,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -34,6 +35,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class TikaTextExtractor implements TextExtractor {
+    public static final int WRITE_LIMIT = 1000000;
     ArtifactRepository artifactRepository = new ArtifactRepository();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaTextExtractor.class);
@@ -108,7 +110,7 @@ public class TikaTextExtractor implements TextExtractor {
             ArtifactExtractedInfo result = new ArtifactExtractedInfo();
             Parser parser = new AutoDetectParser(); // TODO: the content type should already be detected. To speed this up we should be able to grab the parser from content type.
             String text = "";
-            ContentHandler handler = new BodyContentHandler(10000000);
+            ContentHandler handler = new BodyContentHandler(WRITE_LIMIT);
             if (isHtml(artifact)) {
                 text = IOUtils.toString(raw);
                 in = new ByteArrayInputStream(text.getBytes());
@@ -118,7 +120,12 @@ public class TikaTextExtractor implements TextExtractor {
             Metadata metadata = new Metadata();
             ParseContext ctx = new ParseContext();
 
-            parser.parse(in, handler, metadata, ctx);
+            try {
+                parser.parse(in, handler, metadata, ctx);
+            } catch (SAXException ex) {
+                // TODO: this exception occures after we reached the write limit specified above
+                LOGGER.warn("Failed to process all the data for artifact: " + artifact.getRowKey(), ex);
+            }
 
             // since we are using the AutoDetectParser, it is safe to assume that
             //the Content-Type metadata key will always return a value
@@ -247,8 +254,7 @@ public class TikaTextExtractor implements TextExtractor {
     }
 
     private boolean isHtml(Artifact artifact) {
-        return artifact.getGenericMetadata().getMimeType().contains("text")
-                || artifact.getGenericMetadata().getMimeType().contains("html");
+        return artifact.getGenericMetadata().getMimeType().contains("html");
     }
 
 }
