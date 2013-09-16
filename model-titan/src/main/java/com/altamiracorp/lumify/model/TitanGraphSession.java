@@ -499,7 +499,6 @@ public class TitanGraphSession extends GraphSession {
     public List<List<GraphVertex>> findPath(GraphVertex sourceVertex, GraphVertex destVertex, final int depth, final int hops) {
         Vertex source = getVertex(sourceVertex);
         Collection<Vertex> s = new ArrayList<Vertex>();
-        s.add(source);
         final String destVertexId = destVertex.getId();
         GremlinPipeline gremlinPipeline = new GremlinPipeline(source)
                 .both()
@@ -522,6 +521,7 @@ public class TitanGraphSession extends GraphSession {
                         }
                 )
                 .path()
+                .simplePath()
                 .groupBy(new PipeFunction() {
                              @Override
                              public Object compute(Object o) {
@@ -542,10 +542,10 @@ public class TitanGraphSession extends GraphSession {
                         }
                 ).cap();
         HashMap<Integer, Iterable<Iterable<Vertex>>> pathMap = (HashMap<Integer, Iterable<Iterable<Vertex>>>) gremlinPipeline.toList().get(0);
-        return toGraphVerticesPath(findShortestPath(pathMap,hops));
+        return hops == 1 ? toGraphVerticesPath(findShortestPath(pathMap)) : toGraphVerticesPath(findPathsWithHops(pathMap, hops));
     }
 
-    private Iterable<Iterable<Vertex>> findShortestPath(HashMap<Integer, Iterable<Iterable<Vertex>>> pathMap, int hops) {
+    private Iterable<Iterable<Vertex>> findPathsWithHops(HashMap<Integer, Iterable<Iterable<Vertex>>> pathMap, int hops) {
         int targetKey = hops + 2;
         List<Iterable<Vertex>> foundVertices = new ArrayList<Iterable<Vertex>>();
 
@@ -556,6 +556,17 @@ public class TitanGraphSession extends GraphSession {
         }
 
         return foundVertices;
+    }
+
+    private Iterable<Iterable<Vertex>> findShortestPath(HashMap<Integer, Iterable<Iterable<Vertex>>> pathMap) {
+        int minKey = Integer.MAX_VALUE;
+        for (int key : pathMap.keySet()) {
+            if (key < minKey) {
+                minKey = key;
+            }
+        }
+
+        return pathMap.containsKey(minKey) ? pathMap.get(minKey) : new ArrayList<Iterable<Vertex>>();
     }
 
     private Vertex getVertex(GraphVertex v) {
