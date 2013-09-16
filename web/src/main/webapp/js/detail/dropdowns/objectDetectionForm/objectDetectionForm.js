@@ -32,6 +32,13 @@ define([
             this.registerEvents ();
         });
 
+        this.onInputKeyUp = function (event) {
+            switch (event.which) {
+                case $.ui.keyCode.ENTER:
+                    this.onCreateEntityClicked(event);
+            }
+        }
+
         this.setupContent = function (){
             var self = this,
                 vertex = this.$node,
@@ -41,7 +48,7 @@ define([
 
             vertex.html(template({
                 entitySign: entitySign,
-                buttonText: existingEntity ? 'Update' : 'Create'
+                buttonText: existingEntity ? 'Update' : 'Resolve'
             }));
         };
 
@@ -60,6 +67,10 @@ define([
             this.on('change', {
                 conceptSelector: this.onConceptChanged
             });
+
+            this.on('keyup', {
+                entityNameInputSelector: this.onInputKeyUp
+            })
         };
 
         this.setupObjectTypeAhead = function () {
