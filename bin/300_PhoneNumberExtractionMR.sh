@@ -37,3 +37,4 @@ com.altamiracorp.lumify.entityExtraction.EntityExtractionMR \
 --password=password \
 --failOnFirstError \
 --classname=com.altamiracorp.lumify.entityExtraction.PhoneNumberExtractor \
+--elasticsearch.locations=192.168.33.10:9300

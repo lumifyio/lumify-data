@@ -6,12 +6,7 @@ import com.altamiracorp.lumify.model.user.UserRepository;
 import com.altamiracorp.lumify.model.workspace.Workspace;
 import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
 import com.altamiracorp.lumify.model.workspace.WorkspaceRowKey;
-import com.altamiracorp.lumify.web.DevBasicAuthenticator;
-import com.altamiracorp.lumify.web.Responder;
-import com.altamiracorp.lumify.web.WebApp;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
-import com.altamiracorp.web.Handler;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -20,19 +15,18 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class WorkspaceSave implements Handler, AppAware {
+public class WorkspaceSave extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceSave.class.getName());
     private static final String DEFAULT_WORKSPACE_TITLE = "Default";
     private WorkspaceRepository workspaceRepository = new WorkspaceRepository();
     private UserRepository userRepository = new UserRepository();
-    private WebApp app;
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        AppSession session = app.getAppSession(request);
-        String data = request.getParameter("data");
-        String workspaceRowKeyString = (String) request.getAttribute("workspaceRowKey");
+        final String data = getOptionalParameter(request, "data");
+        final String workspaceRowKeyString = getAttributeString(request, "workspaceRowKey");
 
+        AppSession session = app.getAppSession(request);
         Workspace workspace;
         if (workspaceRowKeyString == null) {
             workspace = handleNew(request);
@@ -40,7 +34,7 @@ public class WorkspaceSave implements Handler, AppAware {
             workspace = new Workspace(new WorkspaceRowKey(workspaceRowKeyString));
         }
 
-        User currentUser = DevBasicAuthenticator.getUser(request);
+        User currentUser = getUser(request);
         if (!workspace.getRowKey().toString().equals(currentUser.getMetadata().getCurrentWorkspace())) {
             currentUser.getMetadata().setCurrentWorkspace(workspace.getRowKey().toString());
             userRepository.save(session.getModelSession(), currentUser);
@@ -58,15 +52,15 @@ public class WorkspaceSave implements Handler, AppAware {
         resultJson.put("_rowKey", workspace.getRowKey().toString());
         resultJson.put("title", workspace.getMetadata().getTitle());
 
-        new Responder(response).respondWith(resultJson);
+        respondWithJson(response, resultJson);
     }
 
     public Workspace handleNew(HttpServletRequest request) {
-        User currentUser = DevBasicAuthenticator.getUser(request);
+        User currentUser = getUser(request);
         WorkspaceRowKey workspaceRowKey = new WorkspaceRowKey(
                 currentUser.getRowKey().toString(), String.valueOf(System.currentTimeMillis()));
         Workspace workspace = new Workspace(workspaceRowKey);
-        String title = request.getParameter("title");
+        String title = getOptionalParameter(request, "title");
 
         if (title != null) {
             workspace.getMetadata().setTitle(title);
@@ -75,10 +69,5 @@ public class WorkspaceSave implements Handler, AppAware {
         }
 
         return workspace;
-    }
-
-    @Override
-    public void setApp(App app) {
-        this.app = (WebApp) app;
     }
 }

@@ -12,13 +12,8 @@ import com.altamiracorp.lumify.model.ontology.VertexType;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
-import com.altamiracorp.lumify.web.Responder;
-import com.altamiracorp.lumify.web.WebApp;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
-import com.altamiracorp.web.Handler;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
-import com.altamiracorp.web.utils.UrlUtils;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,10 +23,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class EntityTermCreate implements Handler, AppAware {
-    private WebApp app;
-    private TermMentionRepository termMentionRepository = new TermMentionRepository();
-    private GraphRepository graphRepository = new GraphRepository();
+public class EntityTermCreate extends BaseRequestHandler {
+    private final TermMentionRepository termMentionRepository = new TermMentionRepository();
+    private final GraphRepository graphRepository = new GraphRepository();
 
     private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
             new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()),
@@ -39,17 +33,16 @@ public class EntityTermCreate implements Handler, AppAware {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        AppSession session = app.getAppSession(request);
-
         // required parameters
-        String artifactKey = getRequiredParameter(request, "artifactKey");
-        String artifactId = getRequiredParameter(request, "artifactId");
-        long mentionStart = Long.parseLong(getRequiredParameter(request, "mentionStart"));
-        long mentionEnd = Long.parseLong(getRequiredParameter(request, "mentionEnd"));
-        String sign = getRequiredParameter(request, "sign");
-        String conceptId = getRequiredParameter(request, "conceptId");
-        String resolvedGraphVertexId = request.getParameter("graphVertexId");
+        final String artifactKey = getRequiredParameter(request, "artifactKey");
+        final String artifactId = getRequiredParameter(request, "artifactId");
+        final long mentionStart = getRequiredParameterAsLong(request, "mentionStart");
+        final long mentionEnd = getRequiredParameterAsLong(request, "mentionEnd");
+        final String sign = getRequiredParameter(request, "sign");
+        final String conceptId = getRequiredParameter(request, "conceptId");
+        final String resolvedGraphVertexId = getOptionalParameter(request, "graphVertexId");
 
+        AppSession session = app.getAppSession(request);
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactKey, mentionStart, mentionEnd);
 
         GraphVertex conceptVertex = graphRepository.findVertex(session.getGraphSession(), conceptId);
@@ -87,19 +80,7 @@ public class EntityTermCreate implements Handler, AppAware {
         executorService.execute(new EntityHighlightWorker(session, artifactKey));
 
         TermMentionOffsetItem offsetItem = new TermMentionOffsetItem(termMention);
-        new Responder(response).respondWith(offsetItem.toJson());
-    }
 
-    public static String getRequiredParameter(HttpServletRequest request, String parameterName) {
-        String parameter = request.getParameter(parameterName);
-        if (parameter == null) {
-            throw new RuntimeException("'" + parameterName + "' is required.");
-        }
-        return UrlUtils.urlDecode(parameter);
-    }
-
-    @Override
-    public void setApp(App app) {
-        this.app = (WebApp) app;
+        respondWithJson(response, offsetItem.toJson());
     }
 }

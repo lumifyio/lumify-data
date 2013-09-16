@@ -72,12 +72,11 @@ define([
                 var dataInfo = $mentionNode.data('info');
                 mentionStart = dataInfo.start;
                 mentionEnd = dataInfo.end;
-                graphVertexId = this.graphVertexId;
+                graphVertexId = $mentionNode.data('info').graphVertexId;
             } else {
                 mentionStart = this.selectedStart;
                 mentionEnd = this.selectedEnd;
             }
-
             var parameters = {
                     sign: newObjectSign,
                     conceptId: this.select('conceptSelector').val(),
@@ -114,7 +113,7 @@ define([
 
                     var vertices = [];
                     vertices.push(data.info);
-                    self.trigger(document, 'verticesUpdated', { vertices: vertices });
+                    self.trigger(document, 'updateVertices', { vertices: vertices });
 
                     _.defer(self.teardown.bind(self));
                 }
@@ -154,10 +153,8 @@ define([
                 sign = this.attr.sign || mentionVertex.text(),
                 data = mentionVertex.data('info'),
                 title = $.trim(data && data.title || ''),
-                existingEntity = this.attr.existing ? mentionVertex.addClass('focused').hasClass('entity') : false,
+                existingEntity = this.attr.existing ? mentionVertex.addClass('focused').hasClass('resolved') : false,
                 objectSign = '';
-
-            this.graphVertexId = existingEntity && data && data.graphVertexId;
 
             if (this.attr.selection && !existingEntity) {
                 this.trigger(document, 'ignoreSelectionChanges.detail');
@@ -176,7 +173,7 @@ define([
                 // spans
                 sign: this.promoted ? this.promoted.text() : sign,
                 objectSign: objectSign || '',
-                buttonText: existingEntity ? 'Update' : 'Create'
+                buttonText: existingEntity ? 'Update' : 'Resolve'
             }));
         };
 

@@ -34,8 +34,8 @@ public class RegexEntityExtractor extends EntityExtractor {
     }
 
     @Override
-    List<TermMention> extract(Artifact artifact, String text) throws Exception {
-        ArrayList<TermMention> terms = new ArrayList<TermMention>();
+    List<ExtractedEntity> extract(Artifact artifact, String text) throws Exception {
+        ArrayList<ExtractedEntity> extractedEntities = new ArrayList<ExtractedEntity>();
         Matcher matcher = pattern.matcher(text);
 
         while (matcher.find()) {
@@ -45,8 +45,8 @@ public class RegexEntityExtractor extends EntityExtractor {
             TermMention termMention = new TermMention(new TermMentionRowKey(artifact.getRowKey().toString(), start, end));
             termMention.getMetadata().setConcept(entityType);
             termMention.getMetadata().setSign(name);
-            terms.add (termMention);
+            extractedEntities.add(new ExtractedEntity(termMention, null));
         }
-        return terms;
+        return extractedEntities;
     }
 }

@@ -4,10 +4,7 @@ import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.web.WebApp;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
-import com.altamiracorp.web.Handler;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
 import org.apache.poi.util.IOUtils;
@@ -22,12 +19,11 @@ import java.io.OutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ArtifactRawByRowKey implements Handler, AppAware {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactRawByRowKey.class.getName());
+public class ArtifactRawByRowKey extends BaseRequestHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactRawByRowKey.class);
     private static final Pattern RANGE_PATTERN = Pattern.compile("bytes=([0-9]*)-([0-9]*)");
 
     ArtifactRepository artifactRepository = new ArtifactRepository();
-    private WebApp app;
 
     public static String getUrl(ArtifactRowKey artifactKey) {
         return "/artifact/" + UrlUtils.urlEncode(artifactKey.toString()) + "/raw";
@@ -35,11 +31,11 @@ public class ArtifactRawByRowKey implements Handler, AppAware {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        boolean download = request.getParameter("download") != null;
-        boolean videoPlayback = request.getParameter("playback") != null;
+        boolean download = getOptionalParameter(request, "download") != null;
+        boolean videoPlayback = getOptionalParameter(request, "playback") != null;
 
         AppSession session = app.getAppSession(request);
-        ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode((String) request.getAttribute("_rowKey")));
+        ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
         Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactKey.toString());
 
         if (artifact == null) {
@@ -71,7 +67,7 @@ public class ArtifactRawByRowKey implements Handler, AppAware {
     }
 
     private void handlePartialPlayback(HttpServletRequest request, HttpServletResponse response, AppSession session, Artifact artifact, String fileName) throws IOException {
-        String videoType = request.getParameter("type");
+        String videoType = getRequiredParameter(request, "type");
         InputStream in;
         long totalLength;
         long partialStart = 0;
@@ -127,11 +123,6 @@ public class ArtifactRawByRowKey implements Handler, AppAware {
             out.write(buffer, 0, read);
             length -= read;
         }
-    }
-
-    @Override
-    public void setApp(App app) {
-        this.app = (WebApp) app;
     }
 
     private String getFileName(Artifact artifact) {

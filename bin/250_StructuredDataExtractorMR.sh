@@ -35,4 +35,5 @@ com.altamiracorp.lumify.structuredDataExtraction.StructuredDataExtractionMR \
 --hadoopUrl=hdfs://${ip}:8020 \
 --failOnFirstError \
 --username=root \
---password=password
+--password=password \
+--elasticsearch.locations=192.168.33.10:9300

@@ -1,4 +1,5 @@
 #!/bin/bash
+# group: dictionary
 # require: 249_TextExtractorConsolidationMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
@@ -37,4 +38,5 @@ com.altamiracorp.lumify.entityExtraction.EntityExtractionMR \
 --password=password \
 --failOnFirstError \
 --classname=com.altamiracorp.lumify.entityExtraction.OpenNlpDictionaryEntityExtractor \
---config=nlpConfPathPrefix=file://$(cd ${DIR}/.. && pwd)
+--config=nlpConfPathPrefix=file://$(cd ${DIR}/.. && pwd) \
+--elasticsearch.locations=192.168.33.10:9300

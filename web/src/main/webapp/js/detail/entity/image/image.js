@@ -55,9 +55,13 @@ define([
             };
         });
 
+        this.srcForGlyphIconUrl = function(url) {
+            return url ? url.replace(/\/thumbnail$/, '/raw') : '';
+        };
+
         this.updateImageBackground = function(src) {
             this.$node.css({
-                backgroundImage: 'url(' + (src || this.attr.data._glyphIcon || this.attr.defaultIconSrc) + ')'
+                backgroundImage: 'url("' + (src || this.srcForGlyphIconUrl(this.attr.data._glyphIcon) || this.attr.defaultIconSrc) + '")'
             });
             this.$node.toggleClass('custom-image', !!(src || this.attr.data._glyphIcon));
         };
@@ -86,8 +90,10 @@ define([
         };
 
         this.onUpdateIcon = function(e, data) {
-            if (data.src !== this.attr.data._glyphIcon) {
-                this.updateImageBackground(data.src);
+            var src = this.srcForGlyphIconUrl(data.src);
+
+            if (src !== this.srcForGlyphIconUrl(this.attr.data._glyphIcon)) {
+                this.updateImageBackground(src);
             }
         };
 
@@ -195,7 +201,7 @@ define([
                 this.cleanup(true);
             }
 
-            this.updateImageBackground(data.vertex.properties._glyphIcon);
+            this.updateImageBackground(this.srcForGlyphIconUrl(data.vertex.properties._glyphIcon));
             
             // FIXME: this should be necessary, convert all workspace code to
             // new id, properties:{} format

@@ -7,6 +7,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ArtifactDetectedObjects extends ColumnFamily {
 
     public static final String NAME = "atc:Artifact_Detected_Objects";
@@ -20,6 +23,15 @@ public class ArtifactDetectedObjects extends ColumnFamily {
         JSONObject data = getInfoJson(concept, model, x1, y1, x2, y2, columnName);
         this.set(columnName, data);
         return columnName;
+    }
+
+    public List<String> getDetectedConcepts () {
+        ArrayList<String> detectedConcepts = new ArrayList<String>();
+        for (Column column : getColumns()) {
+            detectedConcepts.add(RowKeyHelper.splitOnMinorFieldSeperator(column.getName())[0]);
+        }
+
+        return detectedConcepts;
     }
 
     @Override

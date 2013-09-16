@@ -1,6 +1,5 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -10,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 
-public class LessRestlet implements Handler {
+public class LessRestlet extends BaseRequestHandler {
   private static File rootDir;
 
   public static void init(File rootDir) {

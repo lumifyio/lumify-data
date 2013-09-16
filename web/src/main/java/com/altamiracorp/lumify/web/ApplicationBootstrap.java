@@ -1,27 +1,21 @@
 package com.altamiracorp.lumify.web;
 
-import java.util.Properties;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-
 import com.altamiracorp.lumify.AppSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.altamiracorp.lumify.model.AccumuloSession;
 import com.altamiracorp.lumify.model.TitanGraphSession;
 import com.altamiracorp.lumify.search.BlurSearchProvider;
 import com.altamiracorp.lumify.search.ElasticSearchProvider;
-import com.altamiracorp.lumify.web.config.ApplicationConfig;
-import com.altamiracorp.lumify.web.config.Configuration;
-import com.altamiracorp.lumify.web.config.ParameterExtractor;
-import com.altamiracorp.lumify.web.config.PropertyUtils;
-import com.altamiracorp.lumify.web.config.WebConfigConstants;
+import com.altamiracorp.lumify.web.config.*;
 import com.altamiracorp.lumify.web.guice.modules.Bootstrap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import java.util.Properties;
 
 /**
  * Responsible for defining behavior corresponding to web servlet context

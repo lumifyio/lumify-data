@@ -42,33 +42,33 @@ public abstract class OpenNlpEntityExtractor extends EntityExtractor {
     }
 
     @Override
-    public List<TermMention> extract(Artifact artifact, String text)
+    public List<ExtractedEntity> extract(Artifact artifact, String text)
             throws Exception {
         ObjectStream<String> untokenizedLineStream = new PlainTextByLineStream(new StringReader(text));
-        ArrayList<TermMention> termMentions = new ArrayList<TermMention>();
+        ArrayList<ExtractedEntity> extractedEntities = new ArrayList<ExtractedEntity>();
         String line;
         int charOffset = 0;
         while ((line = untokenizedLineStream.read()) != null) {
-            ArrayList<TermMention> newTermMentions = processLine(artifact, line, charOffset);
-            termMentions.addAll(newTermMentions);
+            ArrayList<ExtractedEntity> newExtractedEntities = processLine(artifact, line, charOffset);
+            extractedEntities.addAll(newExtractedEntities);
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
         }
-        return termMentions;
+        return extractedEntities;
     }
 
-    private ArrayList<TermMention> processLine(Artifact artifact, String line, int charOffset) {
-        ArrayList<TermMention> termMentions = new ArrayList<TermMention>();
+    private ArrayList<ExtractedEntity> processLine(Artifact artifact, String line, int charOffset) {
+        ArrayList<ExtractedEntity> extractedEntities = new ArrayList<ExtractedEntity>();
         String tokenList[] = tokenizer.tokenize(line);
         Span[] tokenListPositions = tokenizer.tokenizePos(line);
         for (TokenNameFinder finder : finders) {
             Span[] foundSpans = finder.find(tokenList);
             for (Span span : foundSpans) {
                 TermMention termMention = createTermMention(artifact, charOffset, span, tokenList, tokenListPositions);
-                termMentions.add(termMention);
+                extractedEntities.add(new ExtractedEntity(termMention, null));
             }
             finder.clearAdaptiveData();
         }
-        return termMentions;
+        return extractedEntities;
     }
 
     private TermMention createTermMention(Artifact artifact, int charOffset, Span foundName, String[] tokens, Span[] tokenListPositions) {

@@ -53,6 +53,11 @@ define([
             this.$node.css(css);
             this.showing = FRAMES;
             this.currentFrame = index;
+
+            this.trigger(document, 'scrubberFrameChange', {
+               index: index,
+               numberOfFrames: NUMBER_FRAMES
+            });
         };
 
         this.showPoster = function() {
@@ -71,6 +76,11 @@ define([
             this.$node.css(css);
             this.showing = POSTER;
             this.currentFrame = -1;
+
+            this.trigger(document, 'scrubberFrameChange', {
+               index: 0,
+               numberOfFrames: NUMBER_FRAMES
+            });
         };
 
         this.onClick = function(event) {
@@ -78,6 +88,7 @@ define([
                 return;
             }
 
+            var self = this;
             var userClickedPlayButton = $(event.target).is('.scrubbing-play-button'),
                 players = videojs.players,
                 video = $(videoTemplate(this.attr));
@@ -91,11 +102,19 @@ define([
             });
 
             var scrubPercent = this.scrubPercent;
-            _.defer(videojs, video[0], { autoplay:true }, function() { 
+            _.defer(videojs, video[0], { autoplay:true }, function() {
+                var player = this;
                 if (!userClickedPlayButton) {
-                    var player = this;
                     player.on("durationchange", durationchange);
                     player.on("loadedmetadata", durationchange);
+                }
+                player.on("timeupdate", timeupdate);
+
+                function timeupdate(event) {
+                    self.trigger(document, 'videoTimeUpdate', {
+                        currentTime: player.currentTime(),
+                        duration: player.duration()
+                    });
                 }
 
                 function durationchange(event) {

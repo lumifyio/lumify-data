@@ -35,15 +35,15 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest {
     @Test
     public void testPhoneNumberExtraction() throws Exception {
         extractor.setup(context);
-        ArrayList<TermMention> termList = new ArrayList<TermMention>(extractor.extract(createArtifact(textWith), textWith));
+        ArrayList<ExtractedEntity> termList = new ArrayList<ExtractedEntity>(extractor.extract(createArtifact(textWith), textWith));
 
         assertTrue("Incorrect number of phone numbers extracted", termList.size() == 2);
-        TermMention firstTerm = termList.get(0);
+        TermMention firstTerm = termList.get(0).getTermMention();
         assertEquals("First phone number not correctly extracted", "+14106782230", firstTerm.getMetadata().getSign());
         assertEquals(33, firstTerm.getRowKey().getStartOffset());
         assertEquals(45, firstTerm.getRowKey().getEndOffset());
 
-        TermMention secondTerm = termList.get(1);
+        TermMention secondTerm = termList.get(1).getTermMention();
         assertEquals("Second phone number not correctly extracted", "+442074370478", secondTerm.getMetadata().getSign());
         assertEquals(84, secondTerm.getRowKey().getStartOffset());
         assertEquals(103, secondTerm.getRowKey().getEndOffset());
@@ -52,15 +52,15 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest {
     @Test
     public void testPhoneNumberExtractionWithNewlines() throws Exception {
         extractor.setup(context);
-        ArrayList<TermMention> termList = new ArrayList<TermMention>(extractor.extract(createArtifact(textWithNewLines), textWithNewLines));
+        ArrayList<ExtractedEntity> termList = new ArrayList<ExtractedEntity>(extractor.extract(createArtifact(textWithNewLines), textWithNewLines));
 
         assertTrue("Incorrect number of phone numbers extracted", termList.size() == 2);
-        TermMention firstTerm = termList.get(0);
+        TermMention firstTerm = termList.get(0).getTermMention();
         assertEquals("First phone number not correctly extracted", "+14106782230", firstTerm.getMetadata().getSign());
         assertEquals(34, firstTerm.getRowKey().getStartOffset());
         assertEquals(46, firstTerm.getRowKey().getEndOffset());
 
-        TermMention secondTerm = termList.get(1);
+        TermMention secondTerm = termList.get(1).getTermMention();
         assertEquals("Second phone number not correctly extracted", "+442074370478", secondTerm.getMetadata().getSign());
         assertEquals(86, secondTerm.getRowKey().getStartOffset());
         assertEquals(105, secondTerm.getRowKey().getEndOffset());
@@ -69,7 +69,7 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest {
     @Test
     public void testNegativePhoneNumberExtraction() throws Exception {
         extractor.setup(context);
-        Collection<TermMention> terms = extractor.extract(createArtifact(textWithout), textWithout);
+        Collection<ExtractedEntity> terms = extractor.extract(createArtifact(textWithout), textWithout);
 
         assertNotNull(terms);
         assertTrue("Phone number extracted when there were no phone numbers", terms.isEmpty());

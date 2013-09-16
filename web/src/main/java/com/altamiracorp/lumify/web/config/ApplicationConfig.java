@@ -14,4 +14,5 @@ public interface ApplicationConfig {
     public String getGraphSearchIndexHostname();
     public String getSearchProvider();
     public String getElasticSearchLocations();
+    public String getAuthenticationProvider();
 }

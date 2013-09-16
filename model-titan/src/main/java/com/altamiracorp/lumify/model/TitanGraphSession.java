@@ -6,10 +6,7 @@ import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.model.ontology.*;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
-import com.thinkaurelius.titan.core.TitanFactory;
-import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.TitanKey;
-import com.thinkaurelius.titan.core.TitanType;
+import com.thinkaurelius.titan.core.*;
 import com.thinkaurelius.titan.core.attribute.Geo;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.thinkaurelius.titan.core.attribute.Text;
@@ -107,6 +104,7 @@ public class TitanGraphSession extends GraphSession {
         if (vertex instanceof InMemoryGraphVertex) {
             ((InMemoryGraphVertex) vertex).setId("" + v.getId());
         }
+        commit();
         return "" + v.getId();
     }
 
@@ -135,7 +133,8 @@ public class TitanGraphSession extends GraphSession {
         for (String propertyKey : relationship.getPropertyKeys()) {
             edge.setProperty(propertyKey, relationship.getProperty(propertyKey));
         }
-        graph.commit();
+        edge.setProperty(PropertyName.TIME_STAMP.toString(), new Date());
+        commit();
         return "" + edge.getId();
     }
 
@@ -143,15 +142,14 @@ public class TitanGraphSession extends GraphSession {
         return graph.getVertex(vertexId);
     }
 
-    private List<Edge> findAllEdges(String sourceId, String destId) {
+    private List<Edge> findAllEdges(String sourceId, final String destId) {
+        List<Edge> vertices = new GremlinPipeline(this.graph.getVertex(sourceId))
+                .outE()
+                .toList();
         List<Edge> edgeList = new ArrayList<Edge>();
-        Vertex sourceVertex = this.graph.getVertex(sourceId);
-        Iterable<Edge> edges = sourceVertex.getEdges(Direction.OUT);
-        for (Edge edge : edges) {
-            Vertex destVertex = edge.getVertex(Direction.IN);
-            String destVertexId = "" + destVertex.getId();
-            if (destVertexId.equals(destId)) {
-                edgeList.add(edge);
+        for (Edge v : vertices) {
+            if (v.getVertex(Direction.IN).getId().toString().equals(destId)) {
+                edgeList.add(v);
             }
         }
         return edgeList;
@@ -160,6 +158,9 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public Edge findEdge(String sourceId, String destId, String label) {
         Vertex sourceVertex = this.graph.getVertex(sourceId);
+        if (sourceVertex == null) {
+            throw new RuntimeException("Could not find vertex with id: " + sourceId);
+        }
         Iterable<Edge> edges = sourceVertex.getEdges(Direction.OUT);
         for (Edge edge : edges) {
             Vertex destVertex = edge.getVertex(Direction.IN);
@@ -333,19 +334,21 @@ public class TitanGraphSession extends GraphSession {
             if (vertex == null) {
                 throw new RuntimeException("Could not find vertex with id: " + id);
             }
-            List<Vertex> vertexes = new GremlinPipeline(vertex).outE().bothV().toList();
-            for (Vertex v : vertexes) {
+            List<Vertex> vertices = new GremlinPipeline(vertex).outE().inV().toList();
+            for (Vertex v : vertices) {
                 if (allIds.contains(v.getId().toString())) {
                     List<Edge> edges = findAllEdges(id, v.getId().toString());
                     for (Edge e : edges) {
                         if (e != null) {
-                            graphRelationships.add(new GraphRelationship(e.getId().toString(), id, v.getId().toString(), e.getLabel()));
+                            GraphRelationship relationship = new TitanGraphRelationship(e);
+                            relationship.setAllProperties(new TitanGraphRelationship(e).getAllProperty(e));
+                            graphRelationships.add(relationship);
                         }
                     }
                 }
             }
         }
-
+        commit();
         return graphRelationships;
     }
 
@@ -371,18 +374,29 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson) {
-        Iterable<Vertex> r = graph.query()
-                .has(PropertyName.TITLE.toString(), Text.CONTAINS, title)
-                .vertices();
+        String[] titleParts = title.split(" ");
 
+        TitanGraphQuery query = graph.query();
+        for (String titlePart : titleParts) {
+            query.has(PropertyName.TITLE.toString(), Text.PREFIX, titlePart);
+        }
+
+        Iterable<Vertex> r = query.vertices();
         GremlinPipeline<Vertex, Vertex> queryPipeline = queryFormatter.createQueryPipeline(r, filterJson);
         return toGraphVertices(queryPipeline.toList());
     }
 
     @Override
-    public List<GraphVertex> searchVerticesByTitleAndType(String query, VertexType type) {
-        Iterable<Vertex> r = graph.query()
-                .has(PropertyName.TITLE.toString(), Text.CONTAINS, query)
+    public List<GraphVertex> searchVerticesByTitleAndType(String title, VertexType type) {
+        String[] titleParts = title.split(" ");
+
+        TitanGraphQuery query = graph.query();
+
+        for (String titlePart : titleParts) {
+            query.has(PropertyName.TITLE.toString(), Text.PREFIX, titlePart);
+        }
+
+        Iterable<Vertex> r = query
                 .has(PropertyName.TYPE.toString(), type.toString())
                 .vertices();
         return toGraphVertices(r);
@@ -459,7 +473,7 @@ public class TitanGraphSession extends GraphSession {
     @Override
     public void close() {
         if (this.graph.isOpen()) {
-            this.graph.commit();
+            commit();
             this.graph.shutdown();
         }
     }
@@ -481,34 +495,69 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<List<GraphVertex>> findPath(GraphVertex sourceVertex, GraphVertex destVertex, final int depth) {
+    public List<List<GraphVertex>> findPath(GraphVertex sourceVertex, GraphVertex destVertex, final int depth, final int hops) {
         Vertex source = getVertex(sourceVertex);
+        Collection<Vertex> s = new ArrayList<Vertex>();
+        s.add(source);
         final String destVertexId = destVertex.getId();
         GremlinPipeline gremlinPipeline = new GremlinPipeline(source)
                 .both()
-                .loop(
-                        1,
+                .loop(1,
                         new PipeFunction<LoopPipe.LoopBundle, Boolean>() {
                             @Override
-                            public Boolean compute(LoopPipe.LoopBundle argument) {
-                                return argument.getLoops() <= depth;
+                            public Boolean compute(LoopPipe.LoopBundle loopBundle) {
+                                return loopBundle.getLoops() <= depth;
+
                             }
                         },
                         new PipeFunction<LoopPipe.LoopBundle, Boolean>() {
                             @Override
-                            public Boolean compute(LoopPipe.LoopBundle argument) {
-                                if (argument.getObject() instanceof Vertex) {
-                                    Vertex v = (Vertex) argument.getObject();
-                                    return ("" + v.getId()).equals(destVertexId);
+                            public Boolean compute(LoopPipe.LoopBundle loopBundle) {
+                                if (loopBundle.getObject() instanceof Vertex) {
+                                    return (((Vertex) loopBundle.getObject()).getId() + "").equals(destVertexId);
                                 }
                                 return false;
                             }
                         }
                 )
-                .path();
+                .path()
+                .groupBy(new PipeFunction() {
+                             @Override
+                             public Object compute(Object o) {
+                                 if (o instanceof List) {
+                                     return ((List) o).size();
+                                 }
+                                 return 0;
+                             }
+                         },
+                        new PipeFunction() {
+                            @Override
+                            public Object compute(Object o) {
+                                if (o instanceof List) {
+                                    return o;
+                                }
+                                return new ArrayList();
+                            }
+                        }
+                ).cap();
+        HashMap<Integer, Iterable<Iterable<Vertex>>> pathMap = (HashMap<Integer, Iterable<Iterable<Vertex>>>) gremlinPipeline.toList().get(0);
+        return toGraphVerticesPath(findShortestPath(pathMap,hops));
+    }
 
-        Iterable<Iterable<Vertex>> paths = (Iterable<Iterable<Vertex>>) gremlinPipeline.toList();
-        return toGraphVerticesPath(paths);
+    private Iterable<Iterable<Vertex>> findShortestPath(HashMap<Integer, Iterable<Iterable<Vertex>>> pathMap, int hops) {
+        int targetKey = hops + 2;
+        int minKey = Integer.MAX_VALUE;
+
+        if (pathMap.containsKey(targetKey)) {
+            return pathMap.get(targetKey);
+        } else {
+            for (Integer key : pathMap.keySet()) {
+                if (key < minKey && key > targetKey) {
+                    minKey = key;
+                }
+            }
+        }
+        return pathMap.containsKey(minKey) ? pathMap.get(minKey) : new ArrayList<Iterable<Vertex>>();
     }
 
     private Vertex getVertex(GraphVertex v) {
@@ -525,16 +574,34 @@ public class TitanGraphSession extends GraphSession {
             throw new RuntimeException("Could not find vertex with id: " + graphVertexId);
         }
 
-        Map<GraphRelationship, GraphVertex> relationships = new HashMap<GraphRelationship, GraphVertex>();
+        Map<GraphRelationship, GraphVertex> relationships = new TreeMap<GraphRelationship, GraphVertex>(new GraphRelationshipDateComparator());
         for (Edge e : vertex.getEdges(Direction.IN)) {
-            relationships.put(new TitanGraphRelationship(e), new TitanGraphVertex(e.getVertex(Direction.OUT)));
+            GraphRelationship relationship = new TitanGraphRelationship(e);
+            relationship.setAllProperties(new TitanGraphRelationship(e).getAllProperty(e));
+
+            relationships.put(relationship, new TitanGraphVertex(e.getVertex(Direction.OUT)));
         }
 
         for (Edge e : vertex.getEdges(Direction.OUT)) {
-            relationships.put(new TitanGraphRelationship(e), new TitanGraphVertex(e.getVertex(Direction.IN)));
+            GraphRelationship relationship = new TitanGraphRelationship(e);
+            relationship.setAllProperties(new TitanGraphRelationship(e).getAllProperty(e));
+
+            relationships.put(relationship, new TitanGraphVertex(e.getVertex(Direction.IN)));
         }
 
         return relationships;
+    }
+
+    private class GraphRelationshipDateComparator implements Comparator<GraphRelationship> {
+        @Override
+        public int compare(GraphRelationship rel1, GraphRelationship rel2) {
+            Date e1Date = (Date) rel1.getProperty(PropertyName.TIME_STAMP.toString());
+            Date e2Date = (Date) rel2.getProperty(PropertyName.TIME_STAMP.toString());
+            if (e1Date == null || e2Date == null) {
+                return 1;
+            }
+            return e2Date.compareTo(e1Date);
+        }
     }
 
     @Override
@@ -555,6 +622,7 @@ public class TitanGraphSession extends GraphSession {
         Edge edge = findEdge(source, target, label);
         if (edge != null) {
             edge.remove();
+            commit();
         }
     }
 

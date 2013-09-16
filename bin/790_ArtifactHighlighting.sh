@@ -2,6 +2,7 @@
 # require: 250_StructuredDataExtractorMR.sh
 # require: 300_DictionaryEntityExtractionMR.sh
 # require: 300_EntityExtractionMR.sh
+# require: 300_KnownEntityExtractionMR.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -36,5 +37,6 @@ com.altamiracorp.lumify.entityHighlight.EntityHighlightMR \
 --hadoopUrl=hdfs://${ip}:8020 \
 --username=root \
 --password=password \
---failOnFirstError
+--failOnFirstError \
+--elasticsearch.locations=192.168.33.10:9300
 

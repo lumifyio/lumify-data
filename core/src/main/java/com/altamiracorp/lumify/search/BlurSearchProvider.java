@@ -1,16 +1,35 @@
 package com.altamiracorp.lumify.search;
 
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.blur.thirdparty.thrift_0_9_0.TException;
 import org.apache.blur.thrift.BlurClient;
-import org.apache.blur.thrift.generated.*;
+import org.apache.blur.thrift.generated.AnalyzerDefinition;
+import org.apache.blur.thrift.generated.Blur;
+import org.apache.blur.thrift.generated.BlurQuery;
+import org.apache.blur.thrift.generated.BlurResult;
+import org.apache.blur.thrift.generated.BlurResults;
+import org.apache.blur.thrift.generated.Column;
+import org.apache.blur.thrift.generated.Record;
+import org.apache.blur.thrift.generated.RecordMutation;
+import org.apache.blur.thrift.generated.RecordMutationType;
+import org.apache.blur.thrift.generated.Row;
+import org.apache.blur.thrift.generated.RowMutation;
+import org.apache.blur.thrift.generated.RowMutationType;
+import org.apache.blur.thrift.generated.Selector;
+import org.apache.blur.thrift.generated.SimpleQuery;
+import org.apache.blur.thrift.generated.TableDescriptor;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 
 public class BlurSearchProvider implements SearchProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(BlurSearchProvider.class.getName());
@@ -32,15 +51,15 @@ public class BlurSearchProvider implements SearchProvider {
 
     @Override
     public void setup(Mapper.Context context) throws Exception {
-        String blurControllerLocation = context.getConfiguration().get(BLUR_CONTROLLER_LOCATION, "192.168.33.10:40010");
-        String blurPath = context.getConfiguration().get(BLUR_PATH, "192.168.33.10:40010");
+        String blurControllerLocation = context.getConfiguration().get(BLUR_CONTROLLER_LOCATION);
+        String blurPath = context.getConfiguration().get(BLUR_PATH);
         init(blurControllerLocation, blurPath);
     }
 
     @Override
     public void setup(Properties props) {
-        String blurControllerLocation = props.getProperty(BLUR_CONTROLLER_LOCATION, "192.168.33.10:40010");
-        String blurPath = props.getProperty(BLUR_PATH, "hdfs://192.168.33.10/blur");
+        String blurControllerLocation = props.getProperty(BLUR_CONTROLLER_LOCATION);
+        String blurPath = props.getProperty(BLUR_PATH);
 
         try {
             init(blurControllerLocation, blurPath);
@@ -52,10 +71,10 @@ public class BlurSearchProvider implements SearchProvider {
     private void init(String blurControllerLocation, String blurPath) throws TException {
         LOGGER.info("Connecting to blur: blurControllerLocation=" + blurControllerLocation + ", blurPath=" + blurPath);
 
-        this.client = BlurClient.getClient(blurControllerLocation);
+        client = BlurClient.getClient(blurControllerLocation);
 
         this.blurPath = blurPath;
-        this.initializeIndex();
+        initializeIndex();
     }
 
     @Override
@@ -68,7 +87,7 @@ public class BlurSearchProvider implements SearchProvider {
         LOGGER.info("Creating blur tables");
         AnalyzerDefinition ad = new AnalyzerDefinition();
         try {
-            List<String> tableList = this.client.tableList();
+            List<String> tableList = client.tableList();
             String[] blurTables = new String[]{ARTIFACT_BLUR_TABLE_NAME};
 
             for (String blurTable : blurTables) {

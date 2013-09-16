@@ -1,15 +1,13 @@
 package com.altamiracorp.lumify.web.routes.map;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.io.IOUtils;
-
 import com.altamiracorp.lumify.web.config.MapConfig;
 import com.altamiracorp.web.MustacheTemplateHandler;
 import com.google.inject.Inject;
+import org.apache.commons.io.IOUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MapInitHandler extends MustacheTemplateHandler {
     private final MapConfig config;

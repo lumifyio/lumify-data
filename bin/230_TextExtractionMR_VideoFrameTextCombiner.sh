@@ -35,4 +35,5 @@ com.altamiracorp.lumify.textExtraction.TextExtractionMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.lumify.textExtraction.VideoFrameTextCombinerTextExtractor
+--classname=com.altamiracorp.lumify.textExtraction.VideoFrameTextCombinerTextExtractor \
+--elasticsearch.locations=192.168.33.10:9300

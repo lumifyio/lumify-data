@@ -38,10 +38,10 @@ public class OpenNlpMEEntityExtractorTest extends BaseExtractorTest {
     @Test
     public void testEntityExtraction() throws Exception {
         extractor.setup(context);
-        Collection<TermMention> terms = extractor.extract(createArtifact(text), text);
+        Collection<ExtractedEntity> terms = extractor.extract(createArtifact(text), text);
         HashMap<String, TermMention> extractedTerms = new HashMap<String, TermMention>();
-        for (TermMention term : terms) {
-            extractedTerms.put(term.getMetadata().getSign() + "-" + term.getMetadata().getConcept(), term);
+        for (ExtractedEntity term : terms) {
+            extractedTerms.put(term.getTermMention().getMetadata().getSign() + "-" + term.getTermMention().getMetadata().getConcept(), term.getTermMention());
         }
         assertTrue("A person wasn't found", extractedTerms.containsKey("Bob Robertson-person"));
         TermMention bobRobertsonMentions = extractedTerms.get("Bob Robertson-person");

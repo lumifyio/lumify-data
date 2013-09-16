@@ -15,8 +15,7 @@ define([
         this.events = [
             'verticesAdded',
             'verticesUpdated',
-            'verticesDeleted',
-            'mapUpdateBoundingBox'
+            'verticesDeleted'
         ];
 
         if(this.syncCursors) {

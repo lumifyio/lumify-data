@@ -30,7 +30,8 @@ public class OpenCVObjectDetectorTest {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         BufferedImage bImage = ImageIO.read(cl.getResourceAsStream(TEST_IMAGE));
 
-        List<DetectedObject> detectedObjectList = objectDetector.detectObjects(bImage, cl.getResource(CLASSIFIER).getPath());
+        objectDetector.setup(cl.getResource(CLASSIFIER).getPath());
+        List<DetectedObject> detectedObjectList = objectDetector.detectObjects(bImage);
         assertTrue("Incorrect number of objects found", detectedObjectList.size() == 1);
 
         DetectedObject detectedObject = detectedObjectList.get(0);

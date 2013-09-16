@@ -47,4 +47,5 @@ com.altamiracorp.lumify.location.GeoNamesImporter \
 --filename=${filename} \
 --admin1code=${admin1codeFilename} \
 --countryinfo=${countryInfoFilename} \
---postalcode=${postalCodeFilename}
+--postalcode=${postalCodeFilename} \
+--elasticsearch.locations=192.168.33.10:9300

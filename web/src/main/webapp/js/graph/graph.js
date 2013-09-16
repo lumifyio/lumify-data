@@ -79,32 +79,17 @@ define([
             }
 
             this.cy(function(cy) {
-                var existingVertices = $.map(cy.nodes(), function (vertex){
-                    vertex.lock();
-                });
-                var opts = $.extend({
-                    name:'grid',
-                    fit: false,
-                    stop: function() {
-                        $.map(cy.nodes(), function (vertex) {
-                            vertex.unlock();
-                        });
-                        var updates = $.map(cy.nodes(), function(vertex) {
-                            return {
-                                graphVertexId: vertex.data('graphVertexId'),
-                                graphPosition: retina.pixelsToPoints(vertex.position())
-                            };
-                        });
-                        self.trigger(document, 'updateVertices', { vertices:updates });
-                    }
-                }, LAYOUT_OPTIONS.grid || {});
+                var boundingBox = cy.nodes().boundingBox(),
+                    validBox = isFinite(boundingBox.x1),
+                    inc = 200,
+                    nextAvailablePosition = retina.pixelsToPoints({ 
+                        x: validBox ? (boundingBox.x1 + inc/2) : 0,
+                        y: validBox ? (boundingBox.y2 + inc) : 0
+                    }),
+                    maxWidth = validBox ? retina.pixelsToPoints({ x:boundingBox.w, y:boundingBox.h}).x : 0,
+                    startX = nextAvailablePosition.x;
 
-                cy.layout(opts);
-
-                var nextAvailableLocation = {
-                    x: 0,
-                    y: 0
-                };
+                maxWidth = Math.max(maxWidth, inc * 10);
 
                 vertices.forEach(function(vertex) {
 
@@ -118,7 +103,6 @@ define([
                     };
                     self.updateCyNodeData(cyNodeData.data, vertex);
 
-
                     var needsUpdate = false;
                     if (vertex.graphPosition) {
                         cyNodeData.position = retina.pointsToPixels(vertex.graphPosition);
@@ -130,12 +114,15 @@ define([
                         });
                         needsUpdate = true;
                     } else {
-                        cyNodeData.position = retina.pointsToPixels({x: nextAvailableLocation.x, y: nextAvailableLocation.y});
-                        nextAvailableLocation.x += 100;
-                        if(nextAvailableLocation.x > 1000) {
-                            nextAvailableLocation.y += 100;
-                            nextAvailableLocation.x = 0;
+
+                        cyNodeData.position = retina.pointsToPixels(nextAvailablePosition);
+
+                        nextAvailablePosition.x += inc;
+                        if((nextAvailablePosition.x - startX) > maxWidth) {
+                            nextAvailablePosition.y += inc;
+                            nextAvailablePosition.x = startX;
                         }
+                        needsUpdate = true;
                     }
 
                     var cyNode = cy.add(cyNodeData);
@@ -778,7 +765,7 @@ define([
                                 source: relationship.from,
                                 target: relationship.to,
                                 _type: 'relationship',
-                                id: (relationship.from + relationship.to + relationship.relationshipType)
+                                id: (relationship.from + '>' + relationship.to + '|' + relationship.relationshipType)
                             },
                         });
                     });
@@ -835,6 +822,10 @@ define([
             }
         };
 
+        this.after('teardown', function() {
+            this.$node.empty();
+        });
+
         this.after('initialize', function() {
             var self = this;
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
@@ -849,6 +840,11 @@ define([
             this.on(document, 'focusVertices', this.onFocusVertices);
             this.on(document, 'defocusVertices', this.onDefocusVertices);
 
+            if (self.attr.vertices && self.attr.vertices.length) {
+                this.select('emptyGraphSelector').hide();
+                this.addVertices(self.attr.vertices);
+            }
+
             this.ontologyService.concepts(function(err, concepts) {
                 if (err) {
                     return self.trigger(document, 'error', err);
@@ -856,10 +852,12 @@ define([
 
                 var templateData = {
                     firstLevelConcepts: concepts.entityConcept.children,
-                    artifactConcept: concepts.artifactConcept
+                    artifactConcept: concepts.artifactConcept,
+                    pathHopOptions: ["2","3","4"]
                 };
                 self.$node.html(template(templateData));
                 self.bindContextMenuClickEvent();
+                self.checkEmptyGraph();
 
                 stylesheet(function(style) {
                     self.initializeGraph(style);

@@ -34,4 +34,6 @@ com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractionMR \
 --username=root \
 --password=password \
 --failOnFirstError \
---classname=com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor
+--elasticsearch.locations=192.168.33.10:9300 \
+--classname=com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor \
+

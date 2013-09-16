@@ -1,7 +1,8 @@
 package com.altamiracorp.lumify.web.config;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.common.base.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,10 +10,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Objects;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Responsible for parsing application configuration file and providing
@@ -44,6 +43,7 @@ public final class Configuration implements MapConfig, ApplicationConfig {
     private static String mapTileServerHostname;
     private static String searchProvider;
     private static String elasticSearchLocations;
+    private static String authenticationProvider;
     private static int mapTileServerPort;
 
     private Configuration() {
@@ -116,6 +116,11 @@ public final class Configuration implements MapConfig, ApplicationConfig {
     }
 
     @Override
+    public String getAuthenticationProvider() {
+        return authenticationProvider;
+    }
+
+    @Override
     public int getMapTileServerPort() {
         return mapTileServerPort;
     }
@@ -155,6 +160,7 @@ public final class Configuration implements MapConfig, ApplicationConfig {
         mapTileServerPort = Integer.parseInt(mergedProps.getProperty(WebConfigConstants.MAP_TILE_SERVER_PORT, UNKNOWN_INT));
         searchProvider = mergedProps.getProperty(WebConfigConstants.SEARCH_PROVIDER);
         elasticSearchLocations = mergedProps.getProperty(WebConfigConstants.ELASTIC_SEARCH_LOCATIONS);
+        authenticationProvider = mergedProps.getProperty(WebConfigConstants.AUTHENTICATION_PROVIDER);
 
         return new Configuration();
     }
@@ -191,6 +197,7 @@ public final class Configuration implements MapConfig, ApplicationConfig {
             .add(WebConfigConstants.MAP_TILE_SERVER_PORT, mapTileServerPort)
             .add(WebConfigConstants.SEARCH_PROVIDER, searchProvider)
             .add(WebConfigConstants.ELASTIC_SEARCH_LOCATIONS, elasticSearchLocations)
+            .add(WebConfigConstants.AUTHENTICATION_PROVIDER, authenticationProvider)
             .toString();
     }
 }

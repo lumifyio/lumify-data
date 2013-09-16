@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.model;
 import com.altamiracorp.lumify.model.ontology.Property;
 import com.altamiracorp.lumify.model.ontology.PropertyType;
 import com.google.common.collect.Maps;
+import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.Tokens;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
@@ -104,6 +105,37 @@ public class TitanQueryFormatter {
         }
     }
 
+    private static GremlinPipeline filterGeoLocation(GremlinPipeline<Vertex, Vertex> pipeline, JSONObject filterJson, final String propertyName) throws JSONException {
+        JSONArray values = filterJson.optJSONArray(VALUES);
+        if (values == null) {
+            throw new RuntimeException("'values' is required for data type 'string'");
+        }
+
+        if (values.length() != 3) {
+            throw new RuntimeException("'geo location' requires 3 value, found " + values.length());
+        }
+
+        if (values.isNull(0)) {
+            return pipeline;
+        }
+
+        double latitude = values.getDouble(0);
+        double longitude = values.getDouble(1);
+        double radius = values.getDouble(2);
+        final Geoshape bounds = Geoshape.circle(latitude, longitude, radius);
+
+        return pipeline.filter(new PipeFunction<Vertex, Boolean>() {
+            @Override
+            public Boolean compute(Vertex argument) {
+                Geoshape property = argument.getProperty(propertyName);
+                if (property == null) {
+                    return false;
+                }
+                return property.within(bounds);
+            }
+        });
+    }
+
     private static GremlinPipeline filterString(GremlinPipeline<Vertex, Vertex> pipeline, JSONObject filterJson, final String propertyName) throws JSONException {
         JSONArray values = filterJson.optJSONArray(VALUES);
         if (values == null) {
@@ -114,8 +146,9 @@ public class TitanQueryFormatter {
             throw new RuntimeException("'contains' requires 1 value, found " + values.length());
         }
 
-        if (values.isNull(0))
+        if (values.isNull(0)) {
             return pipeline;
+        }
 
         final String value = values.getString(0).toLowerCase();
 
@@ -146,6 +179,8 @@ public class TitanQueryFormatter {
                     return filterDate(pipeline, filterJson, propertyName);
                 case CURRENCY:
                     return filterNumber(pipeline, filterJson, propertyName);
+                case GEO_LOCATION:
+                    return filterGeoLocation(pipeline, filterJson, propertyName);
                 default:
                     return filterString(pipeline, filterJson, propertyName);
             }

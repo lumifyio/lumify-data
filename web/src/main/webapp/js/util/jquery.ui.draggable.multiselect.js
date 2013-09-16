@@ -129,20 +129,16 @@ define( [], function() {
                     .not(anchor)
                     .map(function() {
                         var $this = $(this),
-                            style = $this.offset(),
                             cloned = $this.clone().removeAttr('id href').data('original', $this);
 
                         cloned.addClass('ui-draggable-dragging');
                         if (instance.options.otherDraggablesClass) {
                             cloned.addClass(instance.options.otherDraggablesClass);
                         }
-                        style.width = width;
-                        style.position = 'absolute';
-                        style.zIndex = 100;
 
-                        return cloned.css(style);
+                        return cloned;
                     })
-                    .appendTo('body');
+                    .appendTo(helper);
 
             } else {
                 instance.alsoDragging = false;
@@ -154,22 +150,6 @@ define( [], function() {
             if ( !instance.alsoDragging || !instance.alsoDragging.length ) {
                 return;
             }
-
-            var helper = $(ui.helper),
-                currentLoc = helper.offset(),
-                prevLoc = helper.data('prevLoc') || ui.originalPosition,
-                offsetTop = currentLoc.top-prevLoc.top;
-
-            instance.reverted = false;
-            instance.alsoDragging.each(function(){
-                var p = this.offset();
-
-                this.css({
-                    left: currentLoc.left,
-                    top: p.top + offsetTop
-                });
-            });
-            helper.data('prevLoc', currentLoc);
         },
 
         stop: function(ev, ui){
@@ -185,7 +165,6 @@ define( [], function() {
                     $.extend(inst._uiHash(), { 
                         otherDraggables: inst.alsoDragging 
                     }));
-
             }
 
             if ( ! inst.reverted ) {

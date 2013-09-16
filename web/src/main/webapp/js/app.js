@@ -64,6 +64,7 @@ define([
         this.after('initialize', function() {
             window.lumifyApp = this;
 
+            this.triggerPaneResized = _.debounce(this.triggerPaneResized.bind(this), 10);
 
             this.on(document, 'error', this.onError);
             this.on(document, 'menubarToggleDisplay', this.toggleDisplay);
@@ -71,6 +72,7 @@ define([
             this.on(document, 'verticesSelected', this.onVerticesSelected);
             this.on(document, 'syncStarted', this.onSyncStarted);
             this.on(document, 'paneResized', this.onInternalPaneResize);
+            this.on(document, 'toggleGraphDimensions', this.onToggleGraphDimensions);
 
             // Prevent the fragment identifier from changing after an anchor
             // with href="#" not stopPropagation'ed
@@ -85,7 +87,7 @@ define([
                 mapPane = content.filter('.map-pane').data(DATA_MENUBAR_NAME, 'map'),
                 detailPane = content.filter('.detail-pane');
 
-//            Sync.attachTo(window);
+            Sync.attachTo(window);
             Menubar.attachTo(menubarPane.find('.content'));
             Search.attachTo(searchPane.find('.content'));
             Workspaces.attachTo(workspacesPane.find('.content'));
@@ -111,6 +113,7 @@ define([
             this.on(document, 'addVertices', this.onAddVertices);
             this.on(document, 'updateVertices', this.onUpdateVertices);
             this.on(document, 'deleteVertices', this.onDeleteVertices);
+            this.on(document, 'windowResize', this.triggerPaneResized);
 
             this.on(document, 'refreshRelationships', this.refreshRelationships);
 
@@ -208,14 +211,13 @@ define([
                         return;
                     }
 
-                    var dropPosition = $(event.target).is('.graph-pane') ?
-                        {
+                    var dropPosition;
+                    if ($(event.target).is('.graph-pane')) {
+                        dropPosition = {
                             x: event.clientX,
                             y: event.clientY
-                        } : {
-                            x: parseInt(Math.random() * droppable.width(), 10),
-                            y: parseInt(Math.random() * droppable.height(), 10)
                         };
+                    }
 
                     var vertices = [$.extend({
                         dropPosition: dropPosition
@@ -416,15 +418,10 @@ define([
                         vertex = n.properties;
                         vertex.graphVertexId = n.id;
                     }
-                    // Legacy names
-                    vertex._rowKey = encodeURIComponent((vertex._rowKey || vertex.rowKey || vertex.rowkey || '').replace(/\\[x](1f)/ig, '\u001f'));
 
-                    if ( !vertex.dropPosition && !vertex.graphPosition) {
-                        vertex.dropPosition = {
-                            x: parseInt(Math.random() * win.width(), 10),
-                            y: parseInt(Math.random() * win.height(), 10)
-                        };
-                    }
+                    // Fix characters
+                    vertex._rowKey = encodeURIComponent((vertex._rowKey || '').replace(/\\[x](1f)/ig, '\u001f'));
+
                     return vertex;
                 });
 
@@ -460,7 +457,7 @@ define([
 
                 this.setWorkspaceDirty();
 
-                this.refreshRelationships ();
+                this.refreshRelationships();
 
                 this.trigger(document, 'verticesAdded', { vertices:added } );
             });
@@ -553,6 +550,30 @@ define([
                 .map(function(vertex) {
                     return vertex.graphVertexId;
                 });
+        };
+
+        this.onToggleGraphDimensions = function(e) {
+            var self = this,
+                node = this.$node.find('.graph-pane');
+
+            require(['graph/3d/graph'], function(Graph3D) {
+                if (!self._graphDimensions || self._graphDimensions === 2) {
+                    Graph.teardownAll();
+                    Graph3D.attachTo(node, {
+                        vertices: self.workspaceData.data.vertices
+                    });
+                    self._graphDimensions = 3;
+                } else {
+                    Graph3D.teardownAll();
+                    Graph.attachTo(node, {
+                        vertices: self.workspaceData.data.vertices
+                    });
+                    self._graphDimensions = 2;
+                    self.triggerPaneResized();
+                }
+
+                self.refreshRelationships();
+            });
         };
 
         this.toggleDisplay = function(e, data) {

@@ -38,4 +38,5 @@ com.altamiracorp.lumify.entityExtraction.EntityExtractionMR \
 --failOnFirstError \
 --classname=com.altamiracorp.lumify.entityExtraction.RegexEntityExtractor \
 -DregularExpression="\b\d{5}-\d{4}\b|\b\d{5}\b" \
--DentityType="location"
+-DentityType="location" \
+--elasticsearch.locations=192.168.33.10:9300

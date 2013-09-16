@@ -5,7 +5,8 @@ public enum PropertyType {
     STRING("string"),
     GEO_LOCATION("geoLocation"),
     IMAGE("image"),
-    CURRENCY("currency");
+    CURRENCY("currency"),
+    DOUBLE("double");
 
     private final String text;
 

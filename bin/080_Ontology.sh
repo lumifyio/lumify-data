@@ -34,4 +34,5 @@ com.altamiracorp.lumify.cmdline.OwlImport \
 --zookeeperServerNames=${ip} \
 --username=root \
 --password=password \
---in=${DIR}/../data/dev-ontology/dev.owl
+--in=${DIR}/../data/dev-ontology/dev.owl \
+--elasticsearch.locations=192.168.33.10:9300

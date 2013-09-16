@@ -5,7 +5,7 @@
 # require: 300_VideoPreviewMR.sh
 # require: 600_ArtifactLocationExtractionMR.sh
 # require: 790_ArtifactHighlighting.sh
-# require: 800_BlurSearchIndexBuilder.sh
+# require: 800_ElasticSearchIndexBuilder.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -35,3 +35,5 @@ java \
 -Xmx1024M \
 com.altamiracorp.lumify.web.Server \
 --port=8080 \
+--keyStorePath=${DIR}/../conf/ssl/lumify.jks \
+--keyStorePassword=password

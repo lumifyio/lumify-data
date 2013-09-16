@@ -13,6 +13,19 @@
     cursor: pointer;
   }
 
+  .currentTranscript {
+      color: white;
+      background: black;
+      padding: 0.5em;
+      margin-bottom: 1em;
+
+      .time {
+          font-size: 85%;
+          font-family: "Lucida Console", Monaco, monospace;
+          color: #aaa;
+      }
+  }
+
   .generic-draggable {
     cursor: pointer;
   }
@@ -48,25 +61,24 @@
   }
 
   .text {
+    position: static;
     word-wrap: break-word;
 
-    .sentence {
-      .transition(~"color ease-in 0.2s");
-    }
+    .transition(~"color ease-in 0.2s");
 
     @fade-color: #ddd;
     @normal-color: #333;
 
     // When entities are being dragged
     &.drag-focus, &.dropdown {
-      .sentence { color: @fade-color; }
-      .sentence .entity { color:@normal-color; }
+      color: @fade-color;
+      .resolved { color:@normal-color; }
     }
 
     .ui-draggable-dragging { white-space: nowrap; }
 
     // When dropdown is opened
-    &.dropdown .sentence .entity { 
+    &.dropdown .entity { 
       color:@fade-color;
 
       &.focused {

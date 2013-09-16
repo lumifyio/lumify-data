@@ -53,6 +53,11 @@ define([
                     icon.tooltip('hide');
                 }
                 if (isSwitch && icon.hasClass('active')) {
+
+                    // Special case to toggle 2d/3d graph
+                    if (name === 'graph') {
+                        this.trigger(document, 'toggleGraphDimensions');
+                    }
                     return;
                 } else this.trigger(document, 'menubarToggleDisplay', {name:name});
             };

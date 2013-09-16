@@ -10,8 +10,11 @@ import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import org.apache.accumulo.core.util.CachedConfiguration;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.filecache.DistributedCache;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -19,11 +22,14 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.poi.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -72,6 +78,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
     }
 
     public static abstract class ObjectDetectionMapper<T extends Row> extends LumifyMapper<Text, T, Text, T> {
+        private static final String OPEN_CV_CONF_DIR = "/conf/opencv/";
         private static final String CONCEPT = "classifier.concept";
         private static final String DEFAULT_CONCEPT = "face";
 
@@ -79,6 +86,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         public static final String DEFAULT_PATH_PREFIX = "hdfs://";
         public static final String CLASSIFIER = "classifier.file";
         public static final String DEFAULT_CLASSIFIER = "haarcascade_frontalface_alt.xml";
+        public static final String DICTIONARY = "dictionary.file";
 
         public static final String OBJECT_DETECTOR_CLASS = "objectDetectorClass";
 
@@ -93,6 +101,14 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
                 classifierConcept = context.getConfiguration().get(CONCEPT, DEFAULT_CONCEPT);
                 classifierPath = resolveClassifierPath(context);
                 objectDetector = (ObjectDetector) context.getConfiguration().getClass(OBJECT_DETECTOR_CLASS, OpenCVObjectDetector.class).newInstance();
+                String dictionaryFile = context.getConfiguration().get(DICTIONARY);
+                if (dictionaryFile != null) {
+                    FileSystem fs = FileSystem.get(context.getConfiguration());
+                    Path dictionaryPath = new Path(context.getConfiguration().get(PATH_PREFIX, DEFAULT_PATH_PREFIX) + OPEN_CV_CONF_DIR + dictionaryFile);
+                    objectDetector.setup(classifierPath, fs.open(dictionaryPath));
+                } else {
+                    objectDetector.setup(classifierPath);
+                }
             } catch (InstantiationException e) {
                 throw new IOException(e);
             } catch (IllegalAccessException e) {
@@ -101,41 +117,27 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         }
 
         private String resolveClassifierPath(Context context) throws IOException {
-            String classifierPath = null;
+            FileSystem fs = FileSystem.get(context.getConfiguration());
             String classifierName = context.getConfiguration().get(CLASSIFIER, DEFAULT_CLASSIFIER);
             String pathPrefix = context.getConfiguration().get(PATH_PREFIX, DEFAULT_PATH_PREFIX);
+            String classifierPath = pathPrefix + OPEN_CV_CONF_DIR + classifierName;
 
-            if (pathPrefix.startsWith("hdfs://")) {
-                //get the classifier file from the distributed cache
-                Path[] localFiles = DistributedCache.getLocalCacheFiles(context.getConfiguration());
-                for (Path path : localFiles) {
-                    if (path.toString().contains(classifierName)) {
-                        classifierPath = path.toString();
-                        break;
-                    }
+            if (pathPrefix.startsWith("hdfs://")) { //if it is in HDFS, copy it to local disk so opencv can read it
+                LocalFileSystem localFS = FileSystem.getLocal(context.getConfiguration());
+                classifierPath = localFS.getWorkingDirectory().toUri().getPath() + OPEN_CV_CONF_DIR + classifierName;
+                File localDir = new File (classifierPath).getParentFile();
+                if (!localDir.exists()) {
+                    localDir.mkdirs();
                 }
-            } else if (pathPrefix.startsWith("file://")) {
-                try {
-                    File classifierFile = new File(new URI(pathPrefix + "/conf/opencv/" + classifierName));
-                    classifierPath = classifierFile.getAbsolutePath();
-                } catch (URISyntaxException e) {
-                    throw new IOException(e);
-                }
-            } else {
-                classifierPath = pathPrefix + "/conf/opencv/" + classifierName;
+
+                Path hdfsPath = new Path(pathPrefix + OPEN_CV_CONF_DIR + classifierName);
+                fs.copyToLocalFile(false,hdfsPath,new Path(classifierPath));
             }
-
+            
             return classifierPath;
         }
 
         public static void init(Job job, Class<? extends ObjectDetector> objectDetector) throws URISyntaxException {
-            Configuration conf = job.getConfiguration();
-            String pathPrefix = conf.get(PATH_PREFIX, DEFAULT_PATH_PREFIX);
-            if (pathPrefix.startsWith("hdfs://")) {
-                String classifierName = conf.get(CLASSIFIER, DEFAULT_CLASSIFIER);
-                DistributedCache.addCacheFile(new URI(pathPrefix + "/conf/opencv/" + classifierName), conf);
-            }
-
             job.getConfiguration().setClass(OBJECT_DETECTOR_CLASS, objectDetector, ObjectDetector.class);
         }
     }
@@ -149,10 +151,10 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
             }
 
             LOGGER.info("Detecting objects of concept " + classifierConcept + " for artifact " + rowKey.toString());
-            List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), artifact, classifierPath);
+            List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), artifact);
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
-                    artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL,
+                    artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, objectDetector.getModelName(),
                             detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());
                 }
                 context.write(new Text(Artifact.TABLE_NAME), artifact);
@@ -165,10 +167,10 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
 
         public void safeMap(Text rowKey, VideoFrame videoFrame, Context context) throws Exception {
             LOGGER.info("Detecting objects of concept " + classifierConcept + " for video frame " + rowKey.toString());
-            List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), videoFrame, classifierPath);
+            List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), videoFrame);
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
-                    videoFrame.getDetectedObjects().addDetectedObject(classifierConcept, ObjectDetector.MODEL, detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());
+                    videoFrame.getDetectedObjects().addDetectedObject(classifierConcept, objectDetector.getModelName(), detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());
                 }
                 context.write(new Text(VideoFrame.TABLE_NAME), videoFrame);
             }

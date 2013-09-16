@@ -36,3 +36,4 @@ com.altamiracorp.lumify.location.ArtifactLocationExtractorMR \
 --password=password \
 --failOnFirstError \
 --classname=com.altamiracorp.lumify.location.SimpleArtifactLocationExtractor \
+--elasticsearch.locations=192.168.33.10:9300

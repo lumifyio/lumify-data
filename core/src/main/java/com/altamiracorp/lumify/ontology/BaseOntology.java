@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.ontology;
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.*;
+import com.altamiracorp.lumify.model.resources.ResourceRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanKey;
@@ -11,8 +12,12 @@ import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 
+import java.io.InputStream;
+import java.util.Date;
+
 public class BaseOntology {
     private final OntologyRepository ontologyRepository = new OntologyRepository();
+    private final ResourceRepository resourceRepository = new ResourceRepository();
 
     public void defineOntology(AppSession session) {
         // concept properties
@@ -54,6 +59,11 @@ public class BaseOntology {
             graph.makeType().name(PropertyName.RELATIONSHIP_TYPE.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
         }
 
+        TitanKey timeStampProperty = (TitanKey) graph.getType(PropertyName.TIME_STAMP.toString());
+        if (timeStampProperty == null) {
+            graph.makeType().name(PropertyName.TIME_STAMP.toString()).dataType(Date.class).unique(Direction.OUT).makePropertyKey();
+        }
+
         TitanKey subTypeProperty = (TitanKey) graph.getType(PropertyName.SUBTYPE.toString());
         if (subTypeProperty == null) {
             subTypeProperty = graph.makeType().name(PropertyName.SUBTYPE.toString()).dataType(String.class).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey();
@@ -72,6 +82,11 @@ public class BaseOntology {
         TitanKey glyphIconProperty = (TitanKey) graph.getType(PropertyName.GLYPH_ICON.toString());
         if (glyphIconProperty == null) {
             graph.makeType().name(PropertyName.GLYPH_ICON.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
+        }
+
+        TitanKey mapGlyphIconProperty = (TitanKey) graph.getType(PropertyName.MAP_GLYPH_ICON.toString());
+        if (mapGlyphIconProperty == null) {
+            graph.makeType().name(PropertyName.MAP_GLYPH_ICON.toString()).dataType(String.class).unique(Direction.OUT).makePropertyKey();
         }
 
         TitanKey colorProperty = (TitanKey) graph.getType(PropertyName.COLOR.toString());
@@ -97,6 +112,8 @@ public class BaseOntology {
         graph.commit();
 
         Concept rootConcept = ontologyRepository.getOrCreateConcept(session.getGraphSession(), null, OntologyRepository.ROOT_CONCEPT_NAME, OntologyRepository.ROOT_CONCEPT_NAME);
+        ontologyRepository.addPropertyTo(session.getGraphSession(), rootConcept, PropertyName.GLYPH_ICON.toString(), "glyph icon", PropertyType.IMAGE);
+        ontologyRepository.addPropertyTo(session.getGraphSession(), rootConcept, PropertyName.MAP_GLYPH_ICON.toString(), "map glyph icon", PropertyType.IMAGE);
         graph.commit();
 
         Concept artifact = ontologyRepository.getOrCreateConcept(session.getGraphSession(), rootConcept, VertexType.ARTIFACT.toString(), "Artifact");
@@ -104,6 +121,11 @@ public class BaseOntology {
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, titleProperty.getName(), "Title", PropertyType.STRING);
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, geoLocationProperty.getName(), "Geo-location", PropertyType.GEO_LOCATION);
+        graph.commit();
+
+        InputStream artifactGlyphIconInputStream = this.getClass().getResourceAsStream("artifact.png");
+        String artifactGlyphIconRowKey = resourceRepository.importFile(session.getModelSession(), artifactGlyphIconInputStream, "png");
+        artifact.setProperty(PropertyName.GLYPH_ICON, artifactGlyphIconRowKey);
         graph.commit();
 
         ontologyRepository.getOrCreateConcept(session.getGraphSession(), artifact, ArtifactType.DOCUMENT.toString(), "Document");
@@ -124,10 +146,14 @@ public class BaseOntology {
         ontologyRepository.addPropertyTo(session.getGraphSession(), entity, typeProperty.getName(), "Type", PropertyType.STRING);
         ontologyRepository.addPropertyTo(session.getGraphSession(), entity, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
         ontologyRepository.addPropertyTo(session.getGraphSession(), entity, titleProperty.getName(), "Title", PropertyType.STRING);
-        ontologyRepository.addPropertyTo(session.getGraphSession(), entity, PropertyName.GLYPH_ICON.toString(), "glyph icon", PropertyType.IMAGE);
 
         ontologyRepository.getOrCreateRelationshipType(session.getGraphSession(), entity, artifact, LabelName.HAS_IMAGE.toString(), "has image");
 
+        graph.commit();
+
+        InputStream entityGlyphIconInputStream = this.getClass().getResourceAsStream("entity.png");
+        String entityGlyphIconRowKey = resourceRepository.importFile(session.getModelSession(), entityGlyphIconInputStream, "png");
+        entity.setProperty(PropertyName.GLYPH_ICON, entityGlyphIconRowKey);
         graph.commit();
 
         // Image to Entity relationship

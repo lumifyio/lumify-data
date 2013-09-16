@@ -122,8 +122,8 @@ public class GraphRepository {
         return findOrAddRelationship(graphSession, sourceVertex.getId(), targetVertex.getId(), label);
     }
 
-    public List<List<GraphVertex>> findPath(GraphSession graphSession, GraphVertex sourceVertex, GraphVertex destVertex, int depth) {
-        return graphSession.findPath(sourceVertex, destVertex, depth);
+    public List<List<GraphVertex>> findPath(GraphSession graphSession, GraphVertex sourceVertex, GraphVertex destVertex, int depth, int hops) {
+        return graphSession.findPath(sourceVertex, destVertex, depth, hops);
     }
 
     public void remove(GraphSession graphSession, String graphVertexId) {

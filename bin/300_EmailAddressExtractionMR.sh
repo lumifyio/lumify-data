@@ -38,4 +38,5 @@ com.altamiracorp.lumify.entityExtraction.EntityExtractionMR \
 --failOnFirstError \
 --classname=com.altamiracorp.lumify.entityExtraction.RegexEntityExtractor \
 -DregularExpression="(?i)\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b" \
--DentityType="emailAddress"
+-DentityType="emailAddress" \
+--elasticsearch.locations=192.168.33.10:9300

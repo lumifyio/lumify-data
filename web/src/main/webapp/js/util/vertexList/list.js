@@ -5,10 +5,11 @@ define([
     'tpl!./list',
     'util/previews',
     'util/video/scrubber',
+    'util/withWorkspaceData',
     'underscore'
-], function(defineComponent, registry, template, previews, VideoScrubber, _) {
+], function(defineComponent, registry, template, previews, VideoScrubber, withWorkspaceData, _) {
 
-    return defineComponent(List);
+    return defineComponent(List, withWorkspaceData);
 
     function List() {
         var _currentVertices = {};
@@ -26,7 +27,7 @@ define([
 
         this.loadCurrentVertices = function() {
             var self = this;
-            (registry.findInstanceInfoByNode($('#app')[0])[0].instance.workspaceData.data.vertices || []).forEach(function(v) {
+            this.getWorkspaceVertices().forEach(function(v) {
                 _currentVertices[v.id || v.graphVertexId] = self.stateForVertex(v);
             });
         };
@@ -150,7 +151,7 @@ define([
                             .data('preview-loaded', true)
                             .find('.preview').html("<img src='" + info._glyphIcon + "' />");
                     } else {
-                        previews.generatePreview(_rowKey, null, function(poster, frames) {
+                        previews.generatePreview(_rowKey, { width: 200 }, function(poster, frames) {
                             li.removeClass('preview-loading')
                               .data('preview-loaded', true);
 
@@ -180,27 +181,15 @@ define([
                 zIndex: 100,
                 distance: 10,
                 multi: true,
-                otherDraggablesClass: 'search-result-dragging',
+                otherDraggablesClass: 'vertex-dragging',
                 start: function(ev, ui) {
-                    $(ui.helper).addClass('search-result-dragging');
+                    $(ui.helper).addClass('vertex-dragging');
                 },
                 otherDraggables: function(ev, ui){
-
-                    ui.otherDraggables.each(function(){
-                        var info = this.data('original').parent().data('info'),
-                            offset = this.offset(),
-                            dropPosition = { x:offset.left, y:offset.top };
-
-                        self.trigger(document, 'addVertices', {
-                            vertices: [{
-                                title: info.title,
-                                graphVertexId: info.graphVertexId,
-                                _rowKey: info._rowKey,
-                                _subType: info._subType,
-                                _type: info._type,
-                                dropPosition: dropPosition
-                            }]
-                        });
+                    self.trigger(document, 'addVertices', {
+                        vertices: ui.otherDraggables.map(function(){
+                            return this.data('original').parent().data('info');
+                        }).toArray()
                     });
                 },
                 selection: function(ev, ui) {

@@ -3,11 +3,7 @@ package com.altamiracorp.lumify.web.routes.artifact;
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.search.ArtifactSearchResult;
 import com.altamiracorp.lumify.search.SearchProvider;
-import com.altamiracorp.lumify.web.Responder;
-import com.altamiracorp.lumify.web.WebApp;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
-import com.altamiracorp.web.Handler;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,22 +15,18 @@ import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Date;
 
-public class ArtifactSearch implements Handler, AppAware {
-    private WebApp app;
-
-    @Override
-    public void setApp(App app) {
-        this.app = (WebApp) app;
-    }
+public class ArtifactSearch extends BaseRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        String query = request.getParameter("q");
+        final String query = getRequiredParameter(request, "q");
+
         AppSession session = app.getAppSession(request);
         SearchProvider searchProvider = session.getSearchProvider();
         Collection<ArtifactSearchResult> artifactSearchResults = queryArtifacts(searchProvider, query);
         JSONObject results = artifactsToSearchResults(artifactSearchResults, request);
-        new Responder(response).respondWith(results);
+
+        respondWithJson(response, results);
     }
 
     private Collection<ArtifactSearchResult> queryArtifacts(SearchProvider searchProvider, String query) throws Exception {

@@ -37,7 +37,8 @@ com.altamiracorp.lumify.objectDetection.ObjectDetectionMR \
 --username=root \
 --password=password \
 --failOnFirstError \
--DopenCVConfPathPrefix=file://$(cd ${DIR}/.. && pwd) \
+-DopenCVConfPathPrefix=$(cd ${DIR}/.. && pwd) \
 -Dclassifier.file=haarcascade_frontalface_alt.xml \
 -Dclassifier.concept=face \
--DjobType=artifact
+-DjobType=artifact \
+--elasticsearch.locations=192.168.33.10:9300

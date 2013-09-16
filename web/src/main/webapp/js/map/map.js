@@ -33,19 +33,14 @@ define([
         this.after('initialize', function() {
             this.$node.html(template({}));
 
-
             this.registerForContextMenuEvent();
 
             this.on(document, 'mapShow', this.onMapShow);
             this.on(document, 'mapCenter', this.onMapCenter);
-            this.on(document, 'mapEndPan', this.onMapEndPan);
-            this.on(document, 'mapEndZoom', this.onMapEndPan);
-            this.on(document, 'mapUpdateBoundingBox', this.onMapUpdateBoundingBox);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'verticesAdded', this.onVerticesAdded);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
-            this.on(document, 'windowResize', this.onMapEndPan);
             this.on(document, 'syncEnded', this.onSyncEnded);
             this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
             this.on(document, 'socketMessage', this.onSocketMessage);
@@ -64,30 +59,42 @@ define([
         };
 
         this.onPropertyChange = function(propertyChangeData) {
-            if(propertyChangeData.propertyName != 'geoLocation') {
-                return;
-            }
+            var self = this;
 
-            var m = propertyChangeData.value.match(/point\[(.*?),(.*?)\]/);
-            if(!m) {
-                return;
-            }
-            var latitude = m[1];
-            var longitude = m[2];
+            if(propertyChangeData.propertyName == 'geoLocation') {
+                var m = propertyChangeData.value.match(/point\[(.*?),(.*?)\]/);
+                if(!m) {
+                    return;
+                }
+                var latitude = m[1];
+                var longitude = m[2];
 
-            this.map(function(map) {
-                var markers = map.markers
-                    .filter(function(marker) {
-                        return marker.getAttribute('graphVertexId') == propertyChangeData.graphVertexId;
+                this.map(function(map) {
+                    var markers = map.markers
+                        .filter(function(marker) {
+                            return marker.getAttribute('graphVertexId') == propertyChangeData.graphVertexId;
+                        });
+                    markers.forEach(function(marker) {
+                        var pt = new mxn.LatLonPoint(latitude, longitude);
+                        if (map.api == 'googlev3') {
+                            var p = pt.toProprietary('googlev3');
+                            marker.proprietary_marker.setPosition(p);
+                        }
                     });
-                markers.forEach(function(marker) {
-                    var pt = new mxn.LatLonPoint(latitude, longitude);
-                    if (map.api == 'googlev3') {
-                        var p = pt.toProprietary('googlev3');
-                        marker.proprietary_marker.setPosition(p);
-                    }
                 });
-            });
+            }
+
+            if(propertyChangeData.propertyName == 'heading') {
+                this.map(function(map) {
+                    var markers = map.markers
+                        .filter(function(marker) {
+                            return marker.getAttribute('graphVertexId') == propertyChangeData.graphVertexId;
+                        });
+                    markers.forEach(function(marker) {
+                        self.updateMarkerIcon(marker, propertyChangeData.value);
+                    });
+                });
+            }
         };
 
         this.map = function(callback) {
@@ -284,11 +291,10 @@ define([
                     var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
                     var marker = new mxn.Marker(pt);
                     marker.setAttribute('graphVertexId', vertex.graphVertexId);
-                    if (retina.devicePixelRatio > 1) {
-                        marker.setIcon('/img/small_pin@2x.png', [26, 52], [13, 52]);
-                    } else {
-                        marker.setIcon('/img/small_pin.png', [13, 26], [6,26]);
-                    }
+                    marker.setAttribute('subType', vertex._subType);
+
+                    self.updateMarkerIcon(marker, vertex.heading);
+
                     marker.click.addHandler(function(eventType, marker) {
                         self.trigger('verticesSelected', [ vertex ]);
                     });
@@ -299,6 +305,20 @@ define([
                     self.fit(map);
                 }
             });
+        };
+
+        this.updateMarkerIcon = function(marker, heading) {
+            var subType = marker.getAttribute('subType');
+            var additionalParameters = '';
+            if(heading) {
+                additionalParameters += '&heading=' + heading;
+            }
+            var iconUrl = '/map/marker/' + subType + '/image';
+            if (retina.devicePixelRatio > 1) {
+                marker.setIcon(iconUrl + '?scale=2' + additionalParameters, [44, 80], [22, 80]);
+            } else {
+                marker.setIcon(iconUrl + '?scale=1' + additionalParameters, [22, 40], [11, 20]);
+            }
         };
 
         this.onVerticesUpdated = function(evt, data) {
@@ -424,62 +444,10 @@ define([
             }
         };
 
-        this.onMapEndPan = function(evt, mapCenter) {
-            this.map(function(map) {
-                var boundingBox = map.getBounds();
-                var boundingBoxData = {
-                    swlat: boundingBox.getSouthWest().lat,
-                    swlon: boundingBox.getSouthWest().lon,
-                    nelat: boundingBox.getNorthEast().lat,
-                    nelon: boundingBox.getNorthEast().lon
-                };
-                this.trigger(document, 'mapUpdateBoundingBox', boundingBoxData);
-            });
-        };
-
         this.onMapCenter = function(evt, data) {
             this.map(function(map) {
                 var latlon = new mxn.LatLonPoint(data.latitude, data.longitude);
                 map.setCenterAndZoom(latlon, 7);
-            });
-        };
-
-        this.onMapUpdateBoundingBox = function(evt, data) {
-            if (!data.remoteEvent) {
-                return;
-            }
-
-            this.map(function(map) {
-                var points = [];
-                points.push(new mxn.LatLonPoint(data.swlat, data.swlon));
-                points.push(new mxn.LatLonPoint(data.nelat, data.swlon));
-                points.push(new mxn.LatLonPoint(data.nelat, data.nelon));
-                points.push(new mxn.LatLonPoint(data.swlat, data.nelon));
-                points.push(new mxn.LatLonPoint(data.swlat, data.swlon));
-
-                var polyline = new mxn.Polyline(points);
-                polyline.setColor('#909090');
-
-                if (this.syncPolyline) {
-                    map.removePolyline(this.syncPolyline);
-                }
-                if (this.syncNameMarker) {
-                    map.removeMarker(this.syncNameMarker);
-                }
-
-                var imageSize = [0,0];
-                var imageUrl = this.cachedRenderName(data.remoteInitiator, imageSize,
-                    polyline.color, '#fff', 'rgba(0,0,0,0.5)');
-                if ( imageUrl ) {
-                    // Place in bottom left corner and move to make even with
-                    // border
-                    this.syncNameMarker = new mxn.Marker(points[0]);
-                    this.syncNameMarker.setIcon(imageUrl, imageSize, [2,0]);
-                    map.addMarker(this.syncNameMarker);
-                } else console.warn('Unable to create name marker');
-
-                map.addPolyline(polyline);
-                this.syncPolyline = polyline;
             });
         };
 
@@ -494,6 +462,13 @@ define([
             var self = this;
             if (!this.timeout && !this.mapLoaded) {
                 this.timeout = setTimeout(this.initializeMap.bind(this), 100);
+            }
+
+            if (this.mapLoaded) {
+                setTimeout(function() {
+                    console.log('fixing');
+                    this.fixSize();
+                }.bind(this), 250);
             }
         };
 

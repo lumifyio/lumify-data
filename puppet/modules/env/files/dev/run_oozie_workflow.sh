@@ -1,0 +1,2 @@
+wfpath='${nameNode}/user/${user.name}/${workflowRoot}'
+cd /vagrant/oozie &&  sudo -u hdfs oozie job -oozie http://localhost:11000/oozie -config jobs/job-common.properties -Doozie.wf.application.path=$wfpath/$1 -run

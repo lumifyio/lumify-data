@@ -2,11 +2,7 @@ package com.altamiracorp.lumify.web.routes.artifact;
 
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.FileImporter;
-import com.altamiracorp.lumify.web.Responder;
-import com.altamiracorp.lumify.web.WebApp;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
-import com.altamiracorp.web.Handler;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
@@ -21,34 +17,30 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArtifactImport implements Handler, AppAware {
-    private WebApp app;
+public class ArtifactImport extends BaseRequestHandler {
     private FileImporter fileImporter = new FileImporter();
 
     @Override
-    public void setApp(App app) {
-        this.app = (WebApp) app;
-    }
-
-    @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        AppSession session = app.getAppSession(request);
         List<Part> files = new ArrayList<Part>(request.getParts());
         if (files.size() != 1) {
             throw new RuntimeException("Wrong number of uploaded files. Expected 1 got " + files.size());
         }
+
+        AppSession session = app.getAppSession(request);
         Part file = files.get(0);
 
         File tempFile = File.createTempFile("fileImport", ".bin");
         writeToTempFile(file, tempFile);
 
-        ArrayList<FileImporter.Result> results = fileImporter.writePackage(session, tempFile, "File Upload");
+        List<FileImporter.Result> results = fileImporter.writePackage(session, tempFile, "File Upload");
 
         tempFile.delete();
 
         JSONObject json = new JSONObject();
         json.put("results", FileImporter.Result.toJson(results));
-        new Responder(response).respondWith(json);
+
+        respondWithJson(response, json);
     }
 
     private void writeToTempFile(Part file, File tempFile) throws IOException {

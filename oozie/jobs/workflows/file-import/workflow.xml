@@ -24,7 +24,7 @@
 	</decision>
 	<action name="file-stage">
 		<fs>
-			<move source="${fullFileImportReadyDir}/*" target="${fileImportProcessingDir}/${wf:id()}"/>
+			<move source="${fullFileImportReadyDir}" target="${fileImportProcessingDir}/${wf:id()}"/>
 		</fs>
 		<ok to="import-node"/>
 		<error to="fail"/>

@@ -10,13 +10,15 @@ public enum PropertyName {
     GEO_LOCATION("geoLocation"),
     ROW_KEY("_rowKey"),
     GLYPH_ICON("_glyphIcon"),
+    MAP_GLYPH_ICON("_mapGlyphIcon"),
     COLOR("_color"),
     SOURCE("source"),
     START_DATE("startDate"),
     END_DATE("endDate"),
     RELATIONSHIP_TYPE("relationshipType"),
     BOUNDING_BOX("boundingBox"),
-    PUBLISHED_DATE("publishedDate");
+    PUBLISHED_DATE("publishedDate"),
+    TIME_STAMP("_timeStamp");
 
     private final String text;
 

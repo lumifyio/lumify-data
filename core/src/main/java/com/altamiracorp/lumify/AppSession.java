@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Properties;
 
+import com.altamiracorp.lumify.search.ElasticSearchProvider;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -33,7 +34,7 @@ public class AppSession {
     public static final String SEARCH_PROVIDER_PROP_KEY = "search.provider";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppSession.class);
-    private static final String DEFAULT_SEARCH_PROVIDER = BlurSearchProvider.class.getName();
+    private static final String DEFAULT_SEARCH_PROVIDER = ElasticSearchProvider.class.getName();
     private static Properties applicationProps = new Properties();
     private Session modelSession;
     private SearchProvider searchProvider;
@@ -89,7 +90,12 @@ public class AppSession {
     }
 
     private static SearchProvider createSearchProvider(Properties props) {
-        String providerClass = props.getProperty(SEARCH_PROVIDER_PROP_KEY, DEFAULT_SEARCH_PROVIDER);
+        String providerClass;
+        if (props.getProperty(SEARCH_PROVIDER_PROP_KEY) != null){
+            providerClass = props.getProperty(SEARCH_PROVIDER_PROP_KEY);
+        } else {
+            providerClass = props.getProperty(SEARCH_PROVIDER_PROP_KEY, DEFAULT_SEARCH_PROVIDER);
+        }
 
         try {
             SearchProvider provider = (SearchProvider)Class.forName(providerClass).newInstance();

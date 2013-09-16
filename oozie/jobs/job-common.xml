@@ -28,6 +28,14 @@
         <name>blurPath</name>
         <value>hdfs://192.168.33.10:8020/blur</value>
     </property>
+	<property>
+        <name>search.provider</name>
+        <value>com.altamiracorp.lumify.search.ElasticSearchProvider</value>
+    </property>
+	<property>
+        <name>elasticsearch.locations</name>
+        <value>192.168.33.10:9300</value>
+    </property>
     <property>
         <name>graph.storage.index.search.hostname</name>
         <value>192.168.33.10</value>

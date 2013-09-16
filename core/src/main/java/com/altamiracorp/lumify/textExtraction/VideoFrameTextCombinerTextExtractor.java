@@ -33,10 +33,12 @@ public class VideoFrameTextCombinerTextExtractor implements TextExtractor {
         for (VideoFrame videoFrame : videoFrames) {
             VideoTranscript.Time time = new VideoTranscript.Time(videoFrame.getRowKey().getTime(), null);
             String text = videoFrame.getMetadata().getText();
-            if (time != null && text != null) {
+            if (text != null) {
                 transcript.add(time, text);
             }
         }
+
+        artifact.getContent().mergeVideoTranscript(transcript);
 
         ArtifactExtractedInfo extractedInfo = new ArtifactExtractedInfo();
         extractedInfo.setText(transcript.toString());
