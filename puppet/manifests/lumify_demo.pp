@@ -70,10 +70,14 @@ node "ip-10-0-3-51" {
   include role::hadoop::secondarynamenode
   include role::accumulo::head
 
+  file { '/opt/lumify' :
+    ensure => directory,
+  }
+
   file { '/opt/lumify/balance_accumulo.sh' :
     ensure => file,
     source => 'puppet:///modules/env/cluster/balance_accumulo.sh',
-    require => File['/opt/lumify/balance_accumulo.sh'],
+    require => File['/opt/lumify'],
   }
 }
 
