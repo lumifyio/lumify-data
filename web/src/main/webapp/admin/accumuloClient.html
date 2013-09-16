@@ -121,6 +121,8 @@
         <% if(rows.length == 0) { %>
             No rows
         <% } else { %>
+            <hr>
+            <h3>Row Count: <%=rows.length%></h3>
             <% rows.forEach(function(row) { %>
                 <div class="row">
                     <h2 class="rowKey"><%= escapeValue(row.key.value) %></h2>
