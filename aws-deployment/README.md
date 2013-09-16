@@ -55,7 +55,7 @@ cd /tmp/hdfs
 
 ```
 su - hdfs
-cd /tmp/hdfs
+cd /data0/import
 oozie job -oozie http://localhost:11000/oozie \
           -config jobs/job-common.properties \
           -Doozie.wf.application.path='${nameNode}/user/${user.name}/${workflowRoot}/geonames-import' \
