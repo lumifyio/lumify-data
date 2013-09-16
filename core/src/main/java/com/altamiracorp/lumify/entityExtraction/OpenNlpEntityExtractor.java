@@ -1,8 +1,11 @@
 package com.altamiracorp.lumify.entityExtraction;
 
-import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
@@ -10,17 +13,19 @@ import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.ObjectStream;
 import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
+
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
+import com.altamiracorp.lumify.model.termMention.TermMention;
+import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
 
 public abstract class OpenNlpEntityExtractor extends EntityExtractor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(OpenNlpEntityExtractor.class);
     private FileSystem fs;
     private String pathPrefix;
 
@@ -35,7 +40,7 @@ public abstract class OpenNlpEntityExtractor extends EntityExtractor {
     public void setup(Context context) throws IOException {
         setPathPrefix(context.getConfiguration().get(PATH_PREFIX_CONFIG,
                 DEFAULT_PATH_PREFIX));
-        this.fs = FileSystem.get(context.getConfiguration());
+        fs = FileSystem.get(context.getConfiguration());
 
         setTokenizer(loadTokenizer());
         setFinders(loadFinders());
@@ -48,11 +53,17 @@ public abstract class OpenNlpEntityExtractor extends EntityExtractor {
         ArrayList<ExtractedEntity> extractedEntities = new ArrayList<ExtractedEntity>();
         String line;
         int charOffset = 0;
+
+        LOGGER.debug("Processing artifact content stream");
         while ((line = untokenizedLineStream.read()) != null) {
             ArrayList<ExtractedEntity> newExtractedEntities = processLine(artifact, line, charOffset);
             extractedEntities.addAll(newExtractedEntities);
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
         }
+
+        untokenizedLineStream.close();
+        LOGGER.debug("Stream processing completed");
+
         return extractedEntities;
     }
 
@@ -84,11 +95,11 @@ public abstract class OpenNlpEntityExtractor extends EntityExtractor {
     protected abstract List<TokenNameFinder> loadFinders() throws IOException;
 
     protected String getPathPrefix() {
-        return this.pathPrefix;
+        return pathPrefix;
     }
 
     protected FileSystem getFS() {
-        return this.fs;
+        return fs;
     }
 
     protected Tokenizer loadTokenizer() throws IOException {
