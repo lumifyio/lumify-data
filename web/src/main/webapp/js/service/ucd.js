@@ -81,6 +81,7 @@ function(ServiceBase) {
     Ucd.prototype.graphVertexSearch = function (query, filters, callback) {
         if (typeof filters === 'function') {
             callback = filters;
+            filters = [];
         }
 
         return this._ajaxGet({ 

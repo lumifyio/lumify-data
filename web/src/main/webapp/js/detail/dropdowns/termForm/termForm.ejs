@@ -1,17 +1,24 @@
 <div class="form">
-  <div class="text sign"><%= sign %></div>
-  <select>
+  <input type="text" style="display:none" class="graphVertexId" value="<%= graphVertexId || '' %>">
+
+  <div class="resolve-wrapper">
+    <div class="preview" />
+    <input 
+      autocomplete="off" 
+      placeholder="Resolve to Entity" 
+      class="object-sign" 
+      type="text" 
+      value="<%= objectSign || sign %>">
+    <span class="badge"/>
+  </div>
+
+  <div class="help">Click to show existing matches</div>
+
+  <select style="<%= graphVertexId ? '' : 'display:none' %>">
     <option>Loading...</option>
   </select>
-  <input 
-    data-provide="typeahead" 
-    autocomplete="off" 
-    placeholder="Associate with Object..." 
-    class="object-sign" 
-    type="text" 
-    value="<%= objectSign || sign %>"></input>
 
   <div class="buttons">
-    <button class="create-term btn btn-small btn-primary"><%= buttonText %></button>
+    <button style="display:none" class="create-term btn btn-small btn-primary"><%= buttonText %></button>
   </div>
 </div>

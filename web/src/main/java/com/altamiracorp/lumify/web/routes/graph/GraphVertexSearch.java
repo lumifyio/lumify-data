@@ -29,6 +29,7 @@ public class GraphVertexSearch extends BaseRequestHandler {
 
         resolvePropertyIds(session, filterJson);
 
+        graphRepository.commit(session.getGraphSession());
         List<GraphVertex> vertices = graphRepository.searchVerticesByTitle(session.getGraphSession(), query, filterJson);
         JSONObject results = new JSONObject();
         results.put("vertices", GraphVertex.toJson(vertices));

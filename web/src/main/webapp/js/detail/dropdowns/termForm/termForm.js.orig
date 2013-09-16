@@ -82,14 +82,11 @@ define([
             var self = this;
 
             this.currentGraphVertexId = newGraphVertexId;
-            if (!initial || newGraphVertexId) {
+            if (!initial) {
                 this.select('graphVertexSelector').val(newGraphVertexId);
-                var info = _.isObject(item) ? item.properties || item : $(this.attr.mentionNode).data('info');
-                this.select('conceptSelector')
-                    .val(info && info._subType || '')
-                    .show();
+                this.select('conceptSelector').toggle(!newGraphVertexId);
                 this.select('createTermButtonSelector')
-                    .text(newGraphVertexId && initial ? 'Update' : newGraphVertexId ? 'Resolve to Existing' : 'Resolve as New')
+                    .text(newGraphVertexId ? 'Resolve to Existing' : 'Resolve as New')
                     .show();
                 this.select('helpSelector').hide();
             }
@@ -106,12 +103,13 @@ define([
                 newObjectSign = $.trim(this.select('objectSignSelector').val()),
                 mentionStart,
                 mentionEnd,
-                graphVertexId = this.currentGraphVertexId;
+                graphVertexId;
 
             if (this.attr.existing){
                 var dataInfo = $mentionNode.data('info');
                 mentionStart = dataInfo.start;
                 mentionEnd = dataInfo.end;
+                graphVertexId = $mentionNode.data('info').graphVertexId;
             } else {
                 mentionStart = this.selectedStart;
                 mentionEnd = this.selectedEnd;
@@ -144,11 +142,19 @@ define([
 
             this.entityService.createTerm(parameters, function(err, data) {
                 if (err) {
+<<<<<<< Updated upstream
                     console.error('createTerm', err);
                     return self.trigger(document, 'error', err);
                 }
                 self.highlightTerm(data);
+                console.log(data);
                 self.trigger(document, 'termCreated', data);
+=======
+                    self.trigger(document, 'error', err);
+                } else {
+                    self.highlightTerm(data);
+                    self.trigger(document, 'termCreated', data);
+>>>>>>> Stashed changes
 
                 var vertices = [];
                 vertices.push(data.info);
@@ -214,7 +220,7 @@ define([
 
             vertex.html(dropdownTemplate({
                 sign: sign,
-                graphVertexId: data && data.graphVertexId,
+                graphVertexId: data.graphVertexId,
                 objectSign: objectSign || '',
                 buttonText: existingEntity ? 'Update' : 'Resolve'
             }));
@@ -230,27 +236,19 @@ define([
         };
 
         this.updateResolveImageIcon = function(vertex) {
-            var self = this,
-                info = $(self.attr.mentionNode).data('info');
+            var self = this;
 
             if (vertex) {
                 $.extend(vertex, {}, vertex.properties);
             }
 
-            if (!vertex && info) {
-                self.deferredConcepts.done(function(allConcepts) {
-                    var concept = self.conceptForSubType(info._subType, allConcepts);
-                    if (concept) {
-                        updateCss(concept.glyphIconHref);
-                    }
-                });
-            } else if (!vertex) {
+            if (!vertex) {
                 updateCss();
             } else if (vertex._glyphIcon) {
                 updateCss(vertex && vertex._glyphIcon);
             } else {
                 self.deferredConcepts.done(function(allConcepts) {
-                    var concept = self.conceptForSubType(vertex._subType, allConcepts);
+                    var concept = _.findWhere(allConcepts, { id:vertex._subType });
                     if (concept) {
                         updateCss(concept.glyphIconHref);
                     }
@@ -261,10 +259,6 @@ define([
                 var url = 'url("' + (src || "/img/glyphIcons/glyphicons_194_circle_question_mark@2x.png")  + '")';
                 self.$node.find('.resolve-wrapper .preview').css('background-image', url);
             }
-        };
-
-        this.conceptForSubType = function(subType, allConcepts) {
-            return _.findWhere(allConcepts, { id:subType });
         };
 
         this.registerEvents = function() {
@@ -316,6 +310,17 @@ define([
             });
         };
 
+<<<<<<< Updated upstream
+        this.setupObjectTypeAhead = function () {
+            var self = this;
+            self.select('objectSignSelector').typeahead({
+                source: function(query, callback) {
+                    self.ucd.entitySearch(query, function(err, entities) {
+                        if(err) {
+                            console.error('Error', err);
+                            callback([]);
+                            return self.trigger(document, 'error', { message: err.toString() });
+=======
 
         this.runQuery = function(query) {
             return this.ucd.graphVertexSearch(query)
@@ -331,7 +336,7 @@ define([
                 createNewText = 'Resolve to new entity';
 
             self.ontologyService.properties().done(function(ontologyProperties) {
-                var field = self.select('objectSignSelector').typeahead({
+                self.select('objectSignSelector').typeahead({
                     source: function(query, callback) {
                         self.resolveTextChanged(query);
                         var instance = this;
@@ -351,6 +356,7 @@ define([
                             callback([createNewText].concat(all));
 
                             var selectedId = self.currentGraphVertexId;
+                            console.log('id', selectedId);
                             if (selectedId) {
                                 var shouldSelect = instance.$menu.find('.gId-' + selectedId).closest('li');
                                 if (shouldSelect.length) {
@@ -377,6 +383,7 @@ define([
 
                         if (index) {
                             sorted.splice(0, 0, sorted.splice(index, 1)[0]);
+>>>>>>> Stashed changes
                         }
 
                         return sorted;
@@ -423,65 +430,6 @@ define([
                         });
                     }
                 });
-
-                var typeahead = field.data('typeahead'),
-                    show = typeahead.show,
-                    hide = typeahead.hide;
-
-                typeahead.$menu.on('mousewheel DOMMouseScroll', function(e) {
-                    var delta = e.wheelDelta || (e.originalEvent && e.originalEvent.wheelDelta) || -e.detail,
-                        bottomOverflow = this.scrollTop + $(this).outerHeight() - this.scrollHeight >= 0,
-                        topOverflow = this.scrollTop <= 0;
-
-                    if ((delta < 0 && bottomOverflow) || (delta > 0 && topOverflow)) {
-                        e.preventDefault();
-                    }
-                });
-
-                typeahead.hide = function() {
-                    hide.apply(typeahead);
-                    typeahead.$menu.css('max-height', 'none');
-                };
-
-                typeahead.show = function() {
-                    show.apply(typeahead);
-
-                    if (~typeahead.$menu.css('max-height').indexOf('px')) {
-                        typeahead.$menu.css('max-height', 'none');
-                        _.defer(scrollToShow);
-                        return;
-                    } else {
-                        scrollToShow();
-                    }
-
-                    function scrollToShow() {
-
-                        var scrollParent = typeahead.$element.scrollParent(),
-                            scrollTotalHeight = scrollParent[0].scrollHeight,
-                            scrollTop = scrollParent.scrollTop(),
-                            scrollHeight = scrollParent.outerHeight(true),
-                            menuHeight = Math.min(scrollHeight - 100, typeahead.$menu.outerHeight(true)), 
-                            menuMaxY = menuHeight + typeahead.$menu.offset().top,
-                            bottomSpace = scrollHeight - menuMaxY,
-                            padding = 10;
-
-                        typeahead.$menu.css({
-                            maxHeight: (menuHeight - padding) + 'px',
-                            overflow: 'auto'
-                        });
-
-                        if (bottomSpace < 0) {
-                            var scrollNeeded = scrollTop + Math.abs(bottomSpace) + padding;
-                            if (scrollNeeded > scrollTotalHeight) {
-                                // TODO: add padding or grow upwards?
-                            }
-
-                            scrollParent.animate({
-                                scrollTop: scrollNeeded
-                            });
-                        }
-                    }
-                };
             });
         };
 
