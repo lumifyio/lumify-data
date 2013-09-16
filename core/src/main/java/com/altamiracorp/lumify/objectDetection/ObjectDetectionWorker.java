@@ -47,20 +47,25 @@ public class ObjectDetectionWorker implements Runnable {
         final Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactKey);
 
         if (artifact != null){
-            if ( modifyObjectDetection(session, artifact)){
-                LOGGER.info(String.format("Resolving object detection for artifact took: %d ms", System.currentTimeMillis() - startTime));
+            try {
+                if ( modifyObjectDetection(session, artifact)){
+                    LOGGER.info(String.format("Resolving object detection for artifact took: %d ms", System.currentTimeMillis() - startTime));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         } else {
             LOGGER.warn("Could not find artifact with key: " + artifactKey);
         }
     }
 
-    private boolean modifyObjectDetection (final AppSession session, final Artifact artifact){
+    private boolean modifyObjectDetection (final AppSession session, final Artifact artifact) throws Exception {
         boolean modified = false;
 
         if (info != null) {
             artifact.getArtifactDetectedObjects().set(columnName, info);
             artifactRepository.save(session.getModelSession(), artifact);
+            session.getSearchProvider().add(artifact);
             modified = true;
         } else {
             LOGGER.info("Could not retrieve valid column value for detected object");

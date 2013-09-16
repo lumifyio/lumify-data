@@ -25,10 +25,18 @@ public class ArtifactDetectedObjects extends ColumnFamily {
         return columnName;
     }
 
-    public List<String> getDetectedConcepts () {
+    public List<String> getDetectedConcepts() {
         ArrayList<String> detectedConcepts = new ArrayList<String>();
         for (Column column : getColumns()) {
-            detectedConcepts.add(RowKeyHelper.splitOnMinorFieldSeperator(column.getName())[0]);
+            try {
+                JSONObject value = column.getValue().toJson(column.getValue());
+                String title = value.has("title") ? (String) value.get("title") : null;
+                if (title != null) {
+                    detectedConcepts.add(title);
+                }
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return detectedConcepts;
