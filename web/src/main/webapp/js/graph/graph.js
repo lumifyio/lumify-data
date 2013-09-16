@@ -89,6 +89,8 @@ define([
                     maxWidth = validBox ? retina.pixelsToPoints({ x:boundingBox.w, y:boundingBox.h}).x : 0,
                     startX = nextAvailablePosition.x;
 
+                cy.filter(":selected").unselect();
+
                 maxWidth = Math.max(maxWidth, inc * 10);
 
                 vertices.forEach(function(vertex) {

@@ -87,38 +87,38 @@ define([
                     });
                 },
 
-                    mouseEvents = {
-                        mouseover: function (event) {
-                            if (event.cy == event.cyTarget) return;
-                            if (event.cyTarget.id() === graphVertexId) return;
-                            if (!event.cyTarget.is('node')) return;
+                mouseEvents = {
+                    mouseover: function (event) {
+                        if (event.cy == event.cyTarget) return;
+                        if (event.cyTarget.id() === graphVertexId) return;
+                        if (!event.cyTarget.is('node')) return;
 
-                            targetGraphId = event.cyTarget.id();
-                            instructions.text('Click to find path');
+                        targetGraphId = event.cyTarget.id();
+                        instructions.text('Click to find path');
 
-                            edge = cy.add({
-                                group: 'edges',
-                                classes: 'temp',
-                                data: {
-                                    source: graphVertexId,
-                                    target: targetGraphId
-                                }
-                            });
-                        },
-                        mouseout: function (event) {
-                            if (edge && !edge.hasClass('label')) {
-                                cy.remove(edge);
-                                edge = null;
+                        edge = cy.add({
+                            group: 'edges',
+                            classes: 'temp',
+                            data: {
+                                source: graphVertexId,
+                                target: targetGraphId
                             }
-                            instructions.text(beginText);
-                        }
+                        });
                     },
-
-                    tapEvents = {
-                        tap: function (event) {
-                            complete();
+                    mouseout: function (event) {
+                        if (edge && !edge.hasClass('label')) {
+                            cy.remove(edge);
+                            edge = null;
                         }
-                    };
+                        instructions.text(beginText);
+                    }
+                },
+
+                tapEvents = {
+                    tap: function (event) {
+                        complete();
+                    }
+                };
 
                 cy.on(mouseEvents);
                 cy.on(tapEvents);
