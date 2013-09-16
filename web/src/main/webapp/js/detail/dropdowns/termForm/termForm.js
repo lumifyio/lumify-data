@@ -105,8 +105,7 @@ define([
                 $mentionNode = $(this.attr.mentionNode),
                 newObjectSign = $.trim(this.select('objectSignSelector').val()),
                 mentionStart,
-                mentionEnd,
-                graphVertexId = this.currentGraphVertexId;
+                mentionEnd;
 
             if (this.attr.existing){
                 var dataInfo = $mentionNode.data('info');
@@ -119,7 +118,6 @@ define([
             var parameters = {
                     sign: newObjectSign,
                     conceptId: this.select('conceptSelector').val(),
-                    graphVertexId: graphVertexId,
                     artifactKey: this.attr.artifactKey,
                     mentionStart: mentionStart,
                     mentionEnd: mentionEnd,
@@ -128,6 +126,10 @@ define([
                 $loading = $("<span>")
                     .addClass("badge")
                     .addClass("loading");
+
+            if (this.currentGraphVertexId) {
+                parameters.graphVertexId = this.currentGraphVertexId;
+            }
 
             // TODO: extract button loading and disabling to withDropdown mixin
             this.select('buttonDivSelector').prepend($loading);
