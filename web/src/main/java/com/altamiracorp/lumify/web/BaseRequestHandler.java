@@ -143,7 +143,7 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
     }
 
     protected User getUser(HttpServletRequest request) {
-        return AuthenticationHandler.getUser(request);
+        return AuthenticationProvider.getUser(request);
     }
 
     private void configureResponse(final ResponseTypes type, final HttpServletResponse response, final Object responseData) {

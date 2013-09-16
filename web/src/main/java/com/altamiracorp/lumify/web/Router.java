@@ -48,18 +48,15 @@ public class Router extends HttpServlet {
 
         app = new WebApp(config, injector);
 
-        Class<? extends Handler> authenticator = X509Authenticator.class;
-        if (app.get("env").equals("dev")) {
-            authenticator = DevBasicAuthenticator.class;
-        }
+        Class<? extends Handler> authenticator = injector.getInstance(AuthenticationProvider.class).getClass();
 
-        app.get("/ontology/concept/{conceptId}/properties", PropertyListByConceptId.class);
-        app.get("/ontology/{relationshipLabel}/properties", PropertyListByRelationshipLabel.class);
-        app.get("/ontology/concept/", ConceptList.class);
-        app.get("/ontology/property/", PropertyList.class);
-        app.get("/ontology/relationship/", RelationshipLabelList.class);
+        app.get("/ontology/concept/{conceptId}/properties", authenticator, PropertyListByConceptId.class);
+        app.get("/ontology/{relationshipLabel}/properties", authenticator, PropertyListByRelationshipLabel.class);
+        app.get("/ontology/concept/", authenticator, ConceptList.class);
+        app.get("/ontology/property/", authenticator, PropertyList.class);
+        app.get("/ontology/relationship/", authenticator, RelationshipLabelList.class);
 
-        app.get("/resource/{_rowKey}", ResourceGet.class);
+        app.get("/resource/{_rowKey}", authenticator, ResourceGet.class);
 
         app.get("/artifact/search", authenticator, ArtifactSearch.class);
         app.get("/artifact/{_rowKey}/raw", authenticator, ArtifactRawByRowKey.class);
@@ -70,7 +67,7 @@ public class Router extends HttpServlet {
         app.post("/artifact/import", authenticator, ArtifactImport.class);
 
         app.post("/statement/create", authenticator, StatementCreate.class);
-        app.get("/statement/relationship/", Relationships.class);
+        app.get("/statement/relationship/", authenticator, Relationships.class);
 
         app.post("/entity/relationships", authenticator, EntityRelationships.class);
         app.get("/entity/search", authenticator, EntitySearch.class);

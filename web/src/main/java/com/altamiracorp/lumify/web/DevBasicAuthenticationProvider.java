@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class DevBasicAuthenticator extends AuthenticationHandler implements AppAware {
+public class DevBasicAuthenticationProvider extends AuthenticationProvider implements AppAware {
     private static final String HTTP_BASIC_REALM = "lumify";
     private static final String HTTP_AUTHORIZATION_HEADER = "Authorization";
     private static final String HTTP_AUTHENTICATE_HEADER = "WWW-Authenticate";

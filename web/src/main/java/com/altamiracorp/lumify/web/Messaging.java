@@ -102,7 +102,7 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
         broadcaster = resource.getBroadcaster();
         AppSession session = getAppSession(resource);
         try {
-            User user = AuthenticationHandler.getUser(resource.getRequest().getSession());
+            User user = AuthenticationProvider.getUser(resource.getRequest().getSession());
             user.getMetadata().setStatus(status);
             userRepository.save(session.getModelSession(), user);
 

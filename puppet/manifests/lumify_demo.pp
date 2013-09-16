@@ -131,6 +131,7 @@ node "ip-10-0-3-200" {
   $hadoop_slaves = hiera_array('hadoop_slaves')
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')
   $elasticsearch_locations = hiera_array('elasticsearch_locations')
+  $authentication_provider = hiera('authentication_provider')
 
   file { [ '/opt', '/opt/lumify', '/opt/lumify/config' ] :
     ensure => directory,

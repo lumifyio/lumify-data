@@ -13,3 +13,4 @@ zookeeper_nodes:
 namenode_ipaddress: %{ipaddress_eth1}
 elasticsearch_locations:
   - %{ipaddress_eth1}:9300
+authenication_provider: com.altamiracorp.lumify.web.DevBasicAuthenticationProvider
