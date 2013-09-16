@@ -19,6 +19,7 @@ import com.tinkerpop.pipes.PipeFunction;
 import com.tinkerpop.pipes.branch.LoopPipe;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -546,18 +547,15 @@ public class TitanGraphSession extends GraphSession {
 
     private Iterable<Iterable<Vertex>> findShortestPath(HashMap<Integer, Iterable<Iterable<Vertex>>> pathMap, int hops) {
         int targetKey = hops + 2;
-        int minKey = Integer.MAX_VALUE;
+        List<Iterable<Vertex>> foundVertices = new ArrayList<Iterable<Vertex>>();
 
-        if (pathMap.containsKey(targetKey)) {
-            return pathMap.get(targetKey);
-        } else {
-            for (Integer key : pathMap.keySet()) {
-                if (key < minKey && key > targetKey) {
-                    minKey = key;
-                }
+        for (int i = 3; i <= targetKey; i++) {
+            if (pathMap.containsKey(i)) {
+                foundVertices.addAll(Lists.newArrayList(pathMap.get(i)));
             }
         }
-        return pathMap.containsKey(minKey) ? pathMap.get(minKey) : new ArrayList<Iterable<Vertex>>();
+
+        return foundVertices;
     }
 
     private Vertex getVertex(GraphVertex v) {
