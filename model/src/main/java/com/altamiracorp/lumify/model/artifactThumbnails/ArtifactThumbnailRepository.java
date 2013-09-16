@@ -62,9 +62,9 @@ public class ArtifactThumbnailRepository extends Repository<ArtifactThumbnail> {
                     + " returning original.");
         }
 
-        BufferedImage resizedImage = new BufferedImage(newImageDims[0], newImageDims[1], originalImage.getType());
+        BufferedImage resizedImage = new BufferedImage(newImageDims[0], newImageDims[1], BufferedImage.TYPE_INT_RGB);
         Graphics2D g = resizedImage.createGraphics();
-        g.drawImage(originalImage, 0, 0, resizedImage.getWidth(), resizedImage.getHeight(), null);
+        g.drawImage(originalImage, 0, 0, resizedImage.getWidth(), resizedImage.getHeight(), Color.BLACK, null);
         g.dispose();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
