@@ -46,6 +46,9 @@ define([
                 invertAnchorSelector: this.onInvert
             });
             this.on('opened', this.onOpened);
+            this.on('keyup', {
+                relationshipSelector: this.onInputKeyUp
+            })
         });
 
         this.after('teardown', function () {
@@ -53,6 +56,12 @@ define([
             this.attr.destTerm.removeClass('focused');
         });
 
+        this.onInputKeyUp = function (event) {
+            switch (event.which) {
+                case $.ui.keyCode.ENTER:
+                    this.onCreateStatement(event);
+            }
+        }
 
         this.applyTermClasses = function (el, applyToElement) {
             var classes = el.attr('class').split(/\s+/),
