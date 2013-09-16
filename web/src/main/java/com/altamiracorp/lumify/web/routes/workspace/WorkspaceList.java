@@ -21,15 +21,18 @@ public class WorkspaceList extends BaseRequestHandler {
 
         Collection<Workspace> workspaces = workspaceRepository.findAll(session.getModelSession());
 
-        JSONArray resultsJSON = new JSONArray();
+        JSONArray workspacesJson = new JSONArray();
         for (Workspace workspace : workspaces) {
-            JSONObject workspaceJSON = new JSONObject();
-            workspaceJSON.put("_rowKey", workspace.getRowKey());
-            workspaceJSON.put("title", workspace.getMetadata().getTitle());
-            resultsJSON.put(workspaceJSON);
+            JSONObject workspaceJson = new JSONObject();
+            workspaceJson.put("_rowKey", workspace.getRowKey());
+            workspaceJson.put("title", workspace.getMetadata().getTitle());
+            workspacesJson.put(workspaceJson);
         }
 
-        respondWithJson(response, resultsJSON);
+        JSONObject json = new JSONObject();
+        json.put("workspaces", workspacesJson);
+
+        respondWithJson(response, json);
         chain.next(request, response);
     }
 }

@@ -80,6 +80,9 @@ define([
         });
 
         this.onVertexSelection = function(event, data) {
+            if (data.remoteEvent) {
+                return;
+            }
             event.stopPropagation();
             this.$node.find('.vertices-list').hide();
             this.$node.find('.multiple').addClass('viewing-vertex');

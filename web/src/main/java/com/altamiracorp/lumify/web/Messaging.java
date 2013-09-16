@@ -103,6 +103,9 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
         AppSession session = getAppSession(resource);
         try {
             User user = AuthenticationProvider.getUser(resource.getRequest().getSession());
+            if (user == null) {
+                throw new RuntimeException("Could not find user in session");
+            }
             user.getMetadata().setStatus(status);
             userRepository.save(session.getModelSession(), user);
 

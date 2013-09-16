@@ -21,9 +21,12 @@ public class VertexProperties extends BaseRequestHandler {
         AppSession session = app.getAppSession(request);
 
         Map<String, String> properties = graphRepository.getVertexProperties(session.getGraphSession(), graphVertexId);
-        JSONArray resultsJson = propertiesToJson(properties);
+        JSONArray propertiesJson = propertiesToJson(properties);
 
-        respondWithJson(response, resultsJson);
+        JSONObject json = new JSONObject();
+        json.put("properties", propertiesJson);
+
+        respondWithJson(response, json);
     }
 
     public static JSONArray propertiesToJson(Map<String, String> properties) throws JSONException {

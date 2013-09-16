@@ -99,8 +99,8 @@ define([
         };
 
         this.loadWorkspaceList = function(callback) {
-            this.workspaceService.list(function(err, workspaces) {
-                workspaces = workspaces || [];
+            this.workspaceService.list(function(err, data) {
+                var workspaces = data.workspaces || [];
                 this.$node.html( workspacesTemplate({}) );
                 this.select( 'listSelector' ).html(
                     listTemplate({

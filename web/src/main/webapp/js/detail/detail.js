@@ -52,12 +52,17 @@ define([
         };
 
         this.onVerticesSelectedWithinContents = function(evt, data) {
+            if (data.remoteEvent) {
+                return;
+            }
             evt.stopPropagation();
             this.onVerticesSelected(evt, data);
         };
 
         this.onVerticesSelected = function(evt, data) {
-
+            if (data && data.remoteEvent) {
+                return;
+            }
             if ($.isArray(data) && data.length === 1) {
                 data = data[0];
             }

@@ -256,11 +256,12 @@ define([
 
         this.loadActiveWorkspace = function() {
             var self = this;
-            self.workspaceService.list(function(err, workspaces) {
+            self.workspaceService.list(function(err, data) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
+                var workspaces = data.workspaces || [];
                 if(workspaces.length === 0) {
                     self.loadWorkspace(null);
                 } else {
@@ -613,6 +614,9 @@ define([
         };
 
         this.onVerticesSelected = function(e, data) {
+            if (data && data.remoteEvent) {
+                return;
+            }
             var detailPane = this.select('detailPaneSelector');
             var minWidth = 100;
             var width = 0;

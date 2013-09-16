@@ -209,13 +209,13 @@ define([
         this.getProperties = function(graphVertexId, callback) {
             var self = this;
 
-            this.handleCancelling(this.ucdService.getVertexProperties(encodeURIComponent(graphVertexId), function(err, properties) {
+            this.handleCancelling(this.ucdService.getVertexProperties(encodeURIComponent(graphVertexId), function(err, data) {
                 if(err) {
                     console.error('Error', err);
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
 
-                callback(properties);
+                callback(data.properties);
             }));
         };
 

@@ -212,6 +212,9 @@ define([
         };
 
         this.onVerticesSelected = function(evt, data) {
+            if (data && data.remoteEvent) {
+                return;
+            }
             if ($(evt.target).is('.graph-pane')) {
                 return;
             }
