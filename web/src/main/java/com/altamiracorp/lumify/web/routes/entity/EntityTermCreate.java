@@ -79,7 +79,7 @@ public class EntityTermCreate extends BaseRequestHandler {
         // Modify the highlighted artifact text in a background thread
         executorService.execute(new EntityHighlightWorker(session, artifactKey));
 
-        TermMentionOffsetItem offsetItem = new TermMentionOffsetItem(termMention);
+        TermMentionOffsetItem offsetItem = new TermMentionOffsetItem(termMention, resolvedVertex);
 
         respondWithJson(response, offsetItem.toJson());
     }
