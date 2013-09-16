@@ -49,7 +49,7 @@ define([
             ).done(function(artifactResponse, vertexResponse) {
                 var artifact = artifactResponse[0],
                     vertex = vertexResponse[0];
-                    
+
                 artifact.dataInfo = JSON.stringify({
                     _type: 'artifact',
                     _subType: artifact.type,
@@ -137,6 +137,12 @@ define([
         this.setupContentHtml = function(artifact) {
             artifact.contentHtml = (artifact.Content.highlighted_text || artifact.Content.doc_extracted_text || "")
                     .replace(/[\n]+/g, "<br><br>\n");
+            if (artifact['atc:Artifact_Detected_Objects']){
+                artifact['atc:Artifact_Detected_Objects'].detectedObjects.sort(function (a, b){
+                    var aX = a.info.coords.x1, bX = b.info.coords.x1;
+                    return aX-bX;
+                });
+            }
             return artifact;
         };
 
