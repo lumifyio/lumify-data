@@ -149,22 +149,28 @@ define([
                     }
 
                     if ($('.detected-object-labels .label').hasClass('focused')){
-                        $('.detected-object-labels .focused').text(data.title);
-                        $('.detected-object-labels .focused').data('info', data);
-                        $('.detected-object-labels .focused').removePrefixedClasses('subType-');
+                        $('.detected-object-labels .focused').text(data.title).data('info', data).removePrefixedClasses('subType-');
                     } else {
                         // Temporarily creating a new tag to show on ui prior to backend update
                         var classes = $('.detected-object-labels .label').attr('class') + ' focused';
+                        var newTag = ' <a class="' + classes + '" href="#">' + data.title +' </a>';
+                        var added = false;
 
-                        $('.detected-object-labels').append($(
-                            '<a class="' + classes +
-                            '" href="#">' + data.title +'</a>')).end();
+                        $('.detected-object-labels .label').each(function(){
+                            if(parseFloat($(this).data("info").info.coords.x1) > data.info.coords.x1){
+                                $(newTag).insertBefore(this).after(' ');
+                                added = true;
+                                return false;
+                            }
+                        });
+                        if (!added){
+                            $('.detected-object-labels').append ($(newTag));
+                        }
 
                         $('.detected-object-labels .focused').data('info', data);
                     }
 
-                    $('.detected-object-labels .focused').addClass('resolved entity subType-' + parameters.conceptId);
-                    $('.detected-object-labels .label').removeClass('focused');
+                    $('.detected-object-labels .focused').addClass('resolved entity subType-' + parameters.conceptId).removeClass('focused');
                     self.trigger(document, 'termCreated', data);
 
                     var vertices = [];
