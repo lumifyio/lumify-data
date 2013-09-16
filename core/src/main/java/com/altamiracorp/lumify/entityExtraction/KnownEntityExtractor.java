@@ -68,6 +68,9 @@ public class KnownEntityExtractor extends EntityExtractor {
         Path hdfsDirectory = new Path(getPathPrefix() + "/conf/knowEntities/dictionaries");
         for (FileStatus dictionaryFileStatus : getFS().listStatus(hdfsDirectory)) {
             Path hdfsPath = dictionaryFileStatus.getPath();
+            if(hdfsPath.getName().startsWith(".")){
+                continue;
+            }
             InputStream dictionaryInputStream = getFS().open(hdfsPath);
             String type = FilenameUtils.getBaseName(hdfsPath.getName()).split("-")[0];
             try {
