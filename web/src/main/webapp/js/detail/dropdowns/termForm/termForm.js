@@ -218,8 +218,7 @@ define([
             });
         };
 
-        // TODO: clean up code; duplicate code in entityForm.js
-        this.setupObjectTypeAhead = function (self, selector) {
+        this.setupObjectTypeAhead = function () {
             var self = this;
             self.select('objectSignSelector').typeahead({
                 source: function(query, callback) {
