@@ -40,22 +40,15 @@ public class TikaTextExtractorTest {
         TikaTextExtractor textExtractor = new TikaTextExtractor();
         Artifact artifact = new Artifact();
         artifact.getContent().setDocArtifactBytes(data.getBytes());
-        artifact.getGenericMetadata().setMimeType("text/plain");
+        artifact.getGenericMetadata().setMimeType("text/html");
         ArtifactExtractedInfo info = textExtractor.extract(session, artifact);
 
         assertEquals("Test Title", info.getSubject());
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         assertEquals("2013-01-01", df.format(info.getDate()));
         assertEquals(
-                "\tMenu1\tMenu2\tMenu3\n" +
-                        "\n" +
-                        "\n" +
-                        "\n" +
-                        "\n" +
-                        "Five reasons why Windows 8 has failed\n" +
-                        "\n" +
-                        "The numbers speak for themselves. Vista, universally acknowledged as a failure, actually had significantly better adoption numbers than Windows 8. At similar points in their roll-outs, Vista had a desktop market share of 4.52% compared to Windows 8's share of 2.67%. Underlining just how poorly Windows 8's adoption has gone, Vista didn't even have the advantage of holiday season sales to boost its numbers. Tablets--and not Surface RT tablets--were what people bought last December, not Windows 8 PCs.\n" +
-                        "\n",
+                "Five reasons why Windows 8 has failed\n" +
+                        "The numbers speak for themselves. Vista, universally acknowledged as a failure, actually had significantly better adoption numbers than Windows 8. At similar points in their roll-outs, Vista had a desktop market share of 4.52% compared to Windows 8's share of 2.67%. Underlining just how poorly Windows 8's adoption has gone, Vista didn't even have the advantage of holiday season sales to boost its numbers. Tablets--and not Surface RT tablets--were what people bought last December, not Windows 8 PCs.\n",
                 info.getText());
     }
 }
