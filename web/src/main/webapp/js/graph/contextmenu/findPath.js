@@ -63,23 +63,12 @@ define([
 
                         console.log('findPath results', data);
 
-                        var xOffset = 100, yOffset = 100;
-                        var x = sourceVertexPosX || 0;
-                        var y = sourceVertexPosY || 0;
-
                         var vertices = [];
                         data.paths.forEach(function (path) {
                             path.forEach(function (vertex) {
-                                if (vertices.length % 10 === 0) {
-                                    y += yOffset;
-                                }
                                 // TODO: refactor this and combine with graph.js/onLoadRelatedSelected
                                 var graphVertexData = $.extend({}, vertex.properties, {
                                     graphVertexId: vertex.id,
-                                    graphPosition: {
-                                        x: x + xOffset * (vertices.length % 10 + 1),
-                                        y: y
-                                    },
                                     selected: true
                                 });
                                 vertices.push(graphVertexData);

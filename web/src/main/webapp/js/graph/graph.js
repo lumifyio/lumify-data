@@ -789,10 +789,6 @@ define([
                 data = data[0];
             }
 
-            var xOffset = 100, yOffset = 100;
-            var x = data.originalPosition.x;
-            var y = data.originalPosition.y;
-
             this.ucd.getRelatedVertices(data, function(err, vertices) {
                 if(err) {
                     console.error('Error', err);
@@ -801,15 +797,8 @@ define([
                 vertices = vertices.vertices;
 
                 vertices = vertices.map(function(vertex, index) {
-                    if (index % 10 === 0) {
-                        y += yOffset;
-                    }
                     return $.extend({}, vertex.properties, {
                         graphVertexId: vertex.id,
-                        graphPosition: {
-                            x: x + xOffset * (index % 10 + 1),
-                            y: y
-                        },
                         selected: true
                     });
                 });
