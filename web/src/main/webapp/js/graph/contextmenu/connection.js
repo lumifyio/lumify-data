@@ -104,6 +104,7 @@ define([
 
                             self.statementService.createStatement(parameters, function(err, data) {
                                 if (err) {
+                                    console.error('createStatement', err);
                                     self.trigger(document, 'error', err);
                                 } else {
                                     self.on(document, 'relationshipsLoaded', function loaded() {

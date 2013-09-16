@@ -132,56 +132,57 @@ define([
 
             this.entityService.createEntity(parameters, function(err, data) {
                 if (err) {
-                    self.trigger(document, 'error', err);
+                    console.error('createEntity', err);
+                    return self.trigger(document, 'error', err);
+                }
+
+                var resolvedVertex ={
+                    graphVertexId: data.graphVertexId,
+                    _rowKey: data._rowKey,
+                    _subType: data._subType,
+                    _type: data._type,
+                    title: data.title,
+                    info: data.info
+                };
+
+                var concept = data.info.concept;
+                if (data.info.concept == 'person'){
+                    data.info.concept = 'face';
+                }
+
+                if ($('.detected-object-labels .label').hasClass('focused')){
+                    $('.detected-object-labels .focused').text(data.title).data('info', data).removePrefixedClasses('subType-');
                 } else {
-                    var resolvedVertex ={
-                        graphVertexId: data.graphVertexId,
-                        _rowKey: data._rowKey,
-                        _subType: data._subType,
-                        _type: data._type,
-                        title: data.title,
-                        info: data.info
-                    };
+                    // Temporarily creating a new tag to show on ui prior to backend update
+                    var classes = $('.detected-object-labels .label').attr('class') + ' focused';
+                    var newTag = ' <a class="' + classes + '" href="#">' + data.title +' </a>';
+                    var added = false;
 
-                    var concept = data.info.concept;
-                    if (data.info.concept == 'person'){
-                        data.info.concept = 'face';
-                    }
-
-                    if ($('.detected-object-labels .label').hasClass('focused')){
-                        $('.detected-object-labels .focused').text(data.title).data('info', data).removePrefixedClasses('subType-');
-                    } else {
-                        // Temporarily creating a new tag to show on ui prior to backend update
-                        var classes = $('.detected-object-labels .label').attr('class') + ' focused';
-                        var newTag = ' <a class="' + classes + '" href="#">' + data.title +' </a>';
-                        var added = false;
-
-                        $('.detected-object-labels .label').each(function(){
-                            if(parseFloat($(this).data("info").info.coords.x1) > data.info.coords.x1){
-                                $(newTag).insertBefore(this).after(' ');
-                                added = true;
-                                return false;
-                            }
-                        });
-                        if (!added){
-                            $('.detected-object-labels').append ($(newTag));
+                    $('.detected-object-labels .label').each(function(){
+                        if(parseFloat($(this).data("info").info.coords.x1) > data.info.coords.x1){
+                            $(newTag).insertBefore(this).after(' ');
+                            added = true;
+                            return false;
                         }
-
-                        $('.detected-object-labels .focused').data('info', data);
+                    });
+                    if (!added){
+                        $('.detected-object-labels').append ($(newTag));
                     }
 
-                    $('.detected-object-labels .focused').addClass('resolved entity subType-' + parameters.conceptId).removeClass('focused');
-                    self.trigger(document, 'termCreated', data);
+                    $('.detected-object-labels .focused').data('info', data);
+                }
 
-                    var vertices = [];
-                    vertices.push(resolvedVertex);
-                    self.trigger(document, 'updateVertices', { vertices: vertices });
+                $('.detected-object-labels .focused').addClass('resolved entity subType-' + parameters.conceptId).removeClass('focused');
+                self.trigger(document, 'termCreated', data);
 
-                    if ($('.artifact').data('Jcrop')) {
-                        $('.artifact').data('Jcrop').release ();
-                    } else {
-                        _.defer(self.teardown.bind(self));
-                    }
+                var vertices = [];
+                vertices.push(resolvedVertex);
+                self.trigger(document, 'updateVertices', { vertices: vertices });
+
+                if ($('.artifact').data('Jcrop')) {
+                    $('.artifact').data('Jcrop').release ();
+                } else {
+                    _.defer(self.teardown.bind(self));
                 }
             });
         };

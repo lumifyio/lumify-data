@@ -102,7 +102,10 @@ define([
             var self = this;
 
             this.ontologyService.properties(function(err, properties) {
-                if (err) return;
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
 
                 self.properties = properties.list;
                 self.$node.find('.nav-header').after(itemTemplate({properties:properties.list}));

@@ -37,29 +37,29 @@ function(UCD, template) {
             if (err) {
                 console.error(err);
                 this.callback();
-            } else {
-                if (artifact.type == 'image') {
-                    var thumbnailUrl = artifact.thumbnailUrl;
-                    if(thumbnailUrl) {
-                        if(self.options.width) {
-                            thumbnailUrl += '?width=' + self.options.width;
-                        }
-                    } else {
-                        thumbnailUrl = artifact.rawUrl;
-                    }
-                    this.callback(thumbnailUrl, thumbnailUrl);
-                } else if (artifact.type == 'video') {
-                    var posterFrameUrl = artifact.posterFrameUrl;
-                    var videoPreviewImageUrl = artifact.videoPreviewImageUrl;
+                return self.trigger(document, 'error', { message: err.toString() });
+            }
+            if (artifact.type == 'image') {
+                var thumbnailUrl = artifact.thumbnailUrl;
+                if(thumbnailUrl) {
                     if(self.options.width) {
-                        posterFrameUrl += '?width=' + self.options.width;
-                        videoPreviewImageUrl += '?width=' + self.options.width;
+                        thumbnailUrl += '?width=' + self.options.width;
                     }
-                    this.callback(posterFrameUrl, videoPreviewImageUrl);
                 } else {
-                    // TODO: Generate artifact preview on server
-                    this.callback();
+                    thumbnailUrl = artifact.rawUrl;
                 }
+                this.callback(thumbnailUrl, thumbnailUrl);
+            } else if (artifact.type == 'video') {
+                var posterFrameUrl = artifact.posterFrameUrl;
+                var videoPreviewImageUrl = artifact.videoPreviewImageUrl;
+                if(self.options.width) {
+                    posterFrameUrl += '?width=' + self.options.width;
+                    videoPreviewImageUrl += '?width=' + self.options.width;
+                }
+                this.callback(posterFrameUrl, videoPreviewImageUrl);
+            } else {
+                // TODO: Generate artifact preview on server
+                this.callback();
             }
         }.bind(this));
     };

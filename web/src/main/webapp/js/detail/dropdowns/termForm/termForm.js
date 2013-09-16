@@ -105,18 +105,18 @@ define([
 
             this.entityService.createTerm(parameters, function(err, data) {
                 if (err) {
-                    self.trigger(document, 'error', err);
-                } else {
-                    self.highlightTerm(data);
-                    console.log(data);
-                    self.trigger(document, 'termCreated', data);
-
-                    var vertices = [];
-                    vertices.push(data.info);
-                    self.trigger(document, 'updateVertices', { vertices: vertices });
-
-                    _.defer(self.teardown.bind(self));
+                    console.error('createTerm', err);
+                    return self.trigger(document, 'error', err);
                 }
+                self.highlightTerm(data);
+                console.log(data);
+                self.trigger(document, 'termCreated', data);
+
+                var vertices = [];
+                vertices.push(data.info);
+                self.trigger(document, 'updateVertices', { vertices: vertices });
+
+                _.defer(self.teardown.bind(self));
             });
         };
 

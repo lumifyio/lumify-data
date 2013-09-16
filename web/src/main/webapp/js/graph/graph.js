@@ -344,6 +344,7 @@ define([
         };
 
         this.onContextMenuDeleteEdge = function () {
+            var self = this;
             var menu = this.select('edgeContextMenuSelector');
             var edgeId = menu.data('edgeId');
             this.cy(function(cy) {
@@ -850,6 +851,7 @@ define([
 
             this.ontologyService.concepts(function(err, concepts) {
                 if (err) {
+                    console.error('concepts', err);
                     return self.trigger(document, 'error', err);
                 }
 

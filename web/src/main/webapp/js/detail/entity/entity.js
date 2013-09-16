@@ -45,6 +45,7 @@ define([
 
             this.handleCancelling(ontologyService.concepts(function(err, concepts) {
                 if (err) {
+                    console.error('handleCancelling', err);
                     return self.trigger(document, 'error', err);
                 }
 

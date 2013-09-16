@@ -114,11 +114,11 @@ define([
 
             this.statementService.createStatement(parameters, function (err, data) {
                 if (err) {
-                    self.trigger(document, 'error', err);
-                } else {
-                    _.defer(self.teardown.bind(self));
-                    self.trigger(document, 'refreshRelationships');
+                    console.error('createStatement', err);
+                    return self.trigger(document, 'error', err);
                 }
+                _.defer(self.teardown.bind(self));
+                self.trigger(document, 'refreshRelationships');
             });
         };
 
