@@ -10,7 +10,7 @@ define(
 
         SyncService.prototype = Object.create(ServiceBase.prototype);
 
-        SyncService.prototype.publishSyncEvent = function (eventName, workspaceRowKey, eventData, callback) {
+        SyncService.prototype.publishWorkspaceSyncEvent = function (eventName, workspaceRowKey, eventData, callback) {
             var data = {
                 type: 'sync',
                 permissions: {
@@ -24,7 +24,26 @@ define(
 
             this.socketPush(data);
             if (callback) {
-                return callback(null, messageData);
+                return callback(null, data);
+            }
+            return null;
+        };
+
+        SyncService.prototype.publishUserSyncEvent = function (eventName, userRowKeys, eventData, callback) {
+            var data = {
+                type: 'sync',
+                permissions: {
+                    users: userRowKeys
+                },
+                data: {
+                    eventName: eventName,
+                    eventData: eventData
+                }
+            };
+
+            this.socketPush(data);
+            if (callback) {
+                return callback(null, data);
             }
             return null;
         };

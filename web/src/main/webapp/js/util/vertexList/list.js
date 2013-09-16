@@ -245,6 +245,9 @@ define([
 
 
         this.onVerticesSelected = function(event, data) {
+            if (data.remoteEvent) {
+                return;
+            }
             this.$node.find('.active').removeClass('active');
             $((data||[]).map(function(v) {
                 return '.gId' + v.graphVertexId;
