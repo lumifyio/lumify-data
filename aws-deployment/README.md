@@ -38,14 +38,14 @@ setup
 1. ssh from the puppet serfer to the Hadoop namenode to populate the HDFS /conf directory, stage GeoNames data, and setup Oozie:
 
 ```
-mkdir /tmp/hdfs
-mv *.tgz /tmp/hdfs
-mv setup_conf.sh setup_geonames.sh setup_oozie.sh /tmp/hdfs
-chown -R hdfs:hdfs /tmp/hdfs
+mkdir /data0/import
+mv *.tgz /data0/import
+mv setup_conf.sh setup_geonames.sh setup_oozie.sh /data0/import
+chown -R hdfs:hdfs /data0/import
 su - hdfs
 cd /tmp/hdfs
 ./setup_conf.sh
-./setup_geonames.sh
+./setup_geonames.sh http://10.0.3.10:8080
 ./setup_oozie.sh
 ```
 
