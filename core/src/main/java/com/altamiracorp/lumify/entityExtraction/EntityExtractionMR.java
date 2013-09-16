@@ -74,6 +74,9 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
             LOGGER.info("Extracting entities from artifact: " + artifact.getRowKey().toString());
 
             String artifactText = artifact.getContent().getDocExtractedTextString();
+            if (artifactText == null) {
+                return;
+            }
             Collection<ExtractedEntity> extractedEntities = entityExtractor.extract(artifact, artifactText);
             for (ExtractedEntity extractedEntity : extractedEntities) {
                 TermMention termMention = extractedEntity.getTermMention();

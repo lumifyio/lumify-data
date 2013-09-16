@@ -17,6 +17,8 @@ public abstract class OffsetItem {
 
     public abstract String getRowKey();
 
+    public abstract String getGlyphIcon();
+
     public String getGraphVertexId() {
         return null;
     }
@@ -29,6 +31,9 @@ public abstract class OffsetItem {
             infoJson.put("_rowKey", RowKeyHelper.jsonEncode(getRowKey()));
             if (getGraphVertexId() != null) {
                 infoJson.put("graphVertexId", getGraphVertexId());
+            }
+            if (getGlyphIcon() != null) {
+                infoJson.put("_glyphIcon", getGlyphIcon());
             }
             infoJson.put("type", getType());
             return infoJson;

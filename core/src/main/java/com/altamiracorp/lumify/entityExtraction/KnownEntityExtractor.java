@@ -55,7 +55,7 @@ public class KnownEntityExtractor extends EntityExtractor {
         long start = searchResult.getStartIndex();
         long end = searchResult.getLastIndex();
         TermMention termMention = new TermMention(new TermMentionRowKey(artifact.getRowKey().toString(), start, end));
-        termMention.getMetadata().setSign(match.getMatchText());
+        termMention.getMetadata().setSign(match.getEntityTitle());
         termMention.getMetadata().setConcept(match.getConceptTitle());
 
         GraphVertex vertex = new InMemoryGraphVertex();

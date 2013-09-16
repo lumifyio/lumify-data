@@ -1,5 +1,7 @@
 package com.altamiracorp.lumify.entityHighlight;
 
+import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import org.json.JSONException;
@@ -10,10 +12,12 @@ import java.util.List;
 
 public class TermMentionOffsetItem extends OffsetItem implements Comparable<TermMentionOffsetItem> {
 
-    private TermMention termMention;
+    private final TermMention termMention;
+    private final GraphVertex graphVertex;
 
-    public TermMentionOffsetItem(TermMention termMention) {
+    public TermMentionOffsetItem(TermMention termMention, GraphVertex graphVertex) {
         this.termMention = termMention;
+        this.graphVertex = graphVertex;
     }
 
     @Override
@@ -38,6 +42,14 @@ public class TermMentionOffsetItem extends OffsetItem implements Comparable<Term
     @Override
     public String getRowKey() {
         return termMention.getRowKey().toString();
+    }
+
+    @Override
+    public String getGlyphIcon() {
+        if (graphVertex == null) {
+            return null;
+        }
+        return (String) graphVertex.getProperty(PropertyName.GLYPH_ICON);
     }
 
     @Override

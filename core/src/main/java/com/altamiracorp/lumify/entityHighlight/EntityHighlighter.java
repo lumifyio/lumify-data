@@ -1,6 +1,9 @@
 package com.altamiracorp.lumify.entityHighlight;
 
 import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.model.GraphSession;
+import com.altamiracorp.lumify.model.graph.GraphRepository;
+import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
@@ -13,11 +16,12 @@ import java.util.*;
 
 public class EntityHighlighter {
     private TermMentionRepository termRepository = new TermMentionRepository();
+    private GraphRepository graphRepository = new GraphRepository();
 
     public String getHighlightedText(AppSession session, Artifact artifact) {
         try {
             Collection<TermMention> terms = termRepository.findByArtifactRowKey(session.getModelSession(), artifact.getRowKey().toString());
-            List<OffsetItem> termAndTermMetadata = getTermAndTermMetadataForArtifact(terms);
+            List<OffsetItem> termAndTermMetadata = getTermAndTermMetadataForArtifact(session.getGraphSession(), terms);
 
             ArrayList<OffsetItem> offsetItems = new ArrayList<OffsetItem>();
             offsetItems.addAll(termAndTermMetadata);
@@ -96,10 +100,15 @@ public class EntityHighlighter {
         return result.toString();
     }
 
-    public static List<OffsetItem> getTermAndTermMetadataForArtifact(Collection<TermMention> termMentions) {
+    public List<OffsetItem> getTermAndTermMetadataForArtifact(GraphSession graphSession, Collection<TermMention> termMentions) {
         ArrayList<OffsetItem> termMetadataOffsetItems = new ArrayList<OffsetItem>();
         for (TermMention termMention : termMentions) {
-            termMetadataOffsetItems.add(new TermMentionOffsetItem(termMention));
+            GraphVertex glyphVertex = null;
+            String graphVertexId = termMention.getMetadata().getGraphVertexId();
+            if (graphSession != null && graphVertexId != null) {
+                glyphVertex = graphRepository.findVertex(graphSession, graphVertexId);
+            }
+            termMetadataOffsetItems.add(new TermMentionOffsetItem(termMention, glyphVertex));
         }
         return termMetadataOffsetItems;
     }
