@@ -88,11 +88,9 @@ node "ip-10-0-3-101" {
   include zookeeper::fw::node
   include accumulo::fw::tserver
   include accumulo::fw::logger
-  include blur::fw::shard
   include elasticsearch::fw::node
   include role::hadoop::datanode # includes zookeeper, tasktracker, and native tools
   include role::accumulo::node
-  include role::blur::shard
   include elasticsearch
 }
 
@@ -103,11 +101,9 @@ node "ip-10-0-3-102" {
   include zookeeper::fw::node
   include accumulo::fw::tserver
   include accumulo::fw::logger
-  include blur::fw::shard
   include elasticsearch::fw::node
   include role::hadoop::datanode
   include role::accumulo::node
-  include role::blur::shard
   include elasticsearch
 }
 
@@ -118,11 +114,22 @@ node "ip-10-0-3-103" {
   include zookeeper::fw::node
   include accumulo::fw::tserver
   include accumulo::fw::logger
-  include blur::fw::shard
   include elasticsearch::fw::node
   include role::hadoop::datanode
   include role::accumulo::node
-  include role::blur::shard
+  include elasticsearch
+}
+
+node "ip-10-0-3-104" {
+  include my_fw
+  include hadoop::fw::datanode
+  include hadoop::fw::tasktracker
+  include zookeeper::fw::node
+  include accumulo::fw::tserver
+  include accumulo::fw::logger
+  include elasticsearch::fw::node
+  include role::hadoop::datanode
+  include role::accumulo::node
   include elasticsearch
 }
 
@@ -140,7 +147,7 @@ node "ip-10-0-3-200" {
   file { [ '/opt', '/opt/lumify', '/opt/lumify/config' ] :
     ensure => directory,
   }
-  
+
   file { '/opt/lumify/logs' :
     ensure => directory,
     owner => 'jetty',
