@@ -87,7 +87,7 @@ public class ElasticSearchProvider implements SearchProvider {
 
         List<String> detectedObjects = new ArrayList<String>();
         if (artifact.getArtifactDetectedObjects() != null) {
-            detectedObjects = artifact.getArtifactDetectedObjects().getDetectedConcepts();
+            detectedObjects = artifact.getArtifactDetectedObjects().getResolvedDetectedObjects();
         }
 
         String id = artifact.getRowKey().toString();

@@ -25,7 +25,7 @@ public class ArtifactDetectedObjects extends ColumnFamily {
         return columnName;
     }
 
-    public List<String> getDetectedConcepts() {
+    public List<String> getResolvedDetectedObjects() {
         ArrayList<String> detectedConcepts = new ArrayList<String>();
         for (Column column : getColumns()) {
             try {
