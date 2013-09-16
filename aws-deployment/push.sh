@@ -72,6 +72,7 @@ scp ${SSH_OPTS} ../aws/bin-ec2/setup_disks.sh \
                 ${oozie_libs_tgz} \
                 setup_oozie.sh \
                 setup_geonames.sh \
+                setup_import.sh \
                 application.xml \
                 ${war_files} \
                 root@${elastic_ip}:
