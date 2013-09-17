@@ -271,14 +271,10 @@ ARGV.each do |filename|
       """.gsub(/^\n|^ +|\n$/, '')
       script = """
         #!/bin/bash
-        curl -skL http://bit.ly/awsDisks -o /use_aws_disks.sh
-        chmod u+x /use_aws_disks.sh
-        /use_aws_disks.sh &> /use_aws_disks.log
         sed -i'' -e 's/^PermitRootLogin.*$/PermitRootLogin without-password/' /etc/ssh/sshd_config
         service sshd restart
       """.gsub(/^\n|^ +|\n$/, '')
       user_data = mime_multipart('text/cloud-config' => cloud_config, 'text/x-shellscript' => script)
-      puts user_data
 
       instance_id = run_instance(instance_type, ip, name,
                                  :instance_store_volume_count => instance_storage ? instance_storage.match(/^(\d+)i/).captures[0].to_i : nil,
