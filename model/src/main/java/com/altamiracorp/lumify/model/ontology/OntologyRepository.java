@@ -185,11 +185,14 @@ public class OntologyRepository {
     }
 
     public List<Property> getPropertiesByConceptId(GraphSession graphSession, String conceptVertexId) {
-        Vertex conceptVertex = graphSession.getGraph().getVertex(conceptVertexId);
+        Concept conceptVertex = getConceptById(graphSession, conceptVertexId);
         if (conceptVertex == null) {
-            throw new RuntimeException("Could not find concept: " + conceptVertexId);
+            conceptVertex = getConceptByName(graphSession, conceptVertexId);
+            if (conceptVertex == null) {
+                throw new RuntimeException("Could not find concept: " + conceptVertexId);
+            }
         }
-        return getPropertiesByVertex(graphSession, conceptVertex);
+        return getPropertiesByVertex(graphSession, conceptVertex.getVertex());
     }
 
     private List<Property> getPropertiesByVertex(GraphSession graphSession, Vertex vertex) {

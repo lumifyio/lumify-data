@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.web;
 import java.io.IOException;
 import java.util.List;
 
+import com.altamiracorp.lumify.model.user.UserRepository;
 import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
 import org.atmosphere.config.service.AtmosphereHandlerService;
@@ -47,10 +48,8 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     //      we always get null when trying to get the default broadcaster
     private static Broadcaster broadcaster;
 
-
-    @Inject
-    public Messaging(final Repository<User> repo) {
-        userRepository = repo;
+    public Messaging() {
+        userRepository = new UserRepository();
     }
 
     @Override

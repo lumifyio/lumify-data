@@ -3,7 +3,7 @@
 define([
     'flight/lib/component',
     '../withDropdown',
-    '../../entity/withProperties',
+    '../../withProperties',
     'tpl!./termForm',
     'tpl!./concept-options',
     'tpl!./entity',
@@ -88,7 +88,7 @@ define([
             }
 
             if (newGraphVertexId) {
-                this.ucd.getGraphVertexById(newGraphVertexId)
+                this.ucd.getVertexProperties(newGraphVertexId)
                     .done(this.updateResolveImageIcon.bind(this));
             } else this.updateResolveImageIcon();
         };
@@ -258,11 +258,11 @@ define([
                 });
             } else if (!vertex) {
                 updateCss();
-            } else if (vertex._glyphIcon) {
-                updateCss(vertex && vertex._glyphIcon);
+            } else if (vertex.properties._glyphIcon) {
+                updateCss(vertex && vertex.properties._glyphIcon);
             } else {
                 self.deferredConcepts.done(function(allConcepts) {
-                    var concept = self.conceptForSubType(vertex._subType, allConcepts);
+                    var concept = self.conceptForSubType(vertex.properties._subType, allConcepts);
                     if (concept) {
                         updateCss(concept.glyphIconHref);
                     }

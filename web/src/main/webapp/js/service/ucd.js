@@ -93,10 +93,6 @@ function(ServiceBase) {
         }, callback);
     };
 
-    Ucd.prototype.getGraphVertexById = function (id, callback) {
-        return this._get("graph/vertex", id, callback);
-    };
-
     Ucd.prototype.getRelatedVertices = function(data, callback) {
         return this._ajaxGet({
             url: 'graph/' + encodeURIComponent(data.graphVertexId) + '/relatedVertices',

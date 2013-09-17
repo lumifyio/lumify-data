@@ -2,22 +2,19 @@
 define([
     'flight/lib/component',
     './image/image',
-    './withProperties',
+    '../withProperties',
     '../withTypeContent',
     '../withHighlighting',
     'tpl!./entity',
-    'tpl!./properties',
     'tpl!./relationships',
     'detail/dropdowns/propertyForm/propForm',
     'service/ontology',
-    'service/vertex',
     'sf'
-], function(defineComponent, Image, withProperties, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, PropertyForm, OntologyService, VertexService, sf) {
+], function(defineComponent, Image, withProperties, withTypeContent, withHighlighting, template, relationshipsTemplate, PropertyForm, OntologyService, sf) {
 
     'use strict';
 
     var ontologyService = new OntologyService();
-    var vertexService = new VertexService();
 
     return defineComponent(Entity, withTypeContent, withHighlighting, withProperties);
 
@@ -38,11 +35,6 @@ define([
         this.after('initialize', function() {
             var self = this;
             this.$node.on('click.paneClick', this.onPaneClicked.bind(this));
-            this.on('click', {
-                addNewPropertiesSelector: this.onAddNewPropertiesClicked
-            });
-            this.on('addProperty', this.onAddProperty);
-            this.on(document, 'socketMessage', this.onSocketMessage);
 
             this.handleCancelling(ontologyService.concepts(function(err, concepts) {
                 if (err) {
@@ -78,15 +70,6 @@ define([
                     }
                     break;
             }
-        };
-
-        this.onPropertyChange = function(propertyChangeData) {
-            if(propertyChangeData.graphVertexId != this.attr.data.graphVertexId) {
-                return;
-            }
-            this.select('propertiesSelector')
-                .find('.property-' + propertyChangeData.propertyName + ' .value')
-                .html(propertyChangeData.value);
         };
 
         this.loadEntity = function() {
@@ -160,29 +143,6 @@ define([
             });
         };
 
-        this.displayProperties = function (properties){
-            var self = this;
-
-            if (!this.ontologyProperties) {
-                this.ontologyProperties = ontologyService.properties();
-            }
-
-            this.ontologyProperties.done(function(ontologyProperties) {
-                var filtered = self.filterPropertiesForDisplay(properties, ontologyProperties),
-                    iconProperty = _.findWhere(properties, { key: '_glyphIcon' });
-
-                if (iconProperty) {
-                    self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: iconProperty.value });
-                }
-
-                var props = propertiesTemplate({properties:filtered});
-
-                var $props = self.select('propertiesSelector');
-                $props.find('ul').html(props);
-                $props.find('.loading').remove();
-            });
-        };
-
         this.getProperties = function(graphVertexId, callback) {
             var self = this;
 
@@ -221,39 +181,6 @@ define([
                 evt.stopPropagation();
             }
 
-        };
-
-        this.onAddNewPropertiesClicked = function (evt){
-
-            var root = $('<div class="underneath">').insertAfter(evt.target);
-
-            PropertyForm.attachTo(root, {
-                service: ontologyService,
-                data: this.attr.data
-            });
-        };
-
-        this.onAddProperty = function(event, data) {
-            var self = this;
-
-            vertexService.setProperty(
-                    this.attr.data.id || this.attr.data.graphVertexId,
-                    data.property.name,
-                    data.property.value, 
-                    function (err, properties){
-                        if(err) {
-                            if (err.xhr.status == 400){
-                                console.error('Validation error');
-                                self.trigger(self.$node.find('.underneath'), 'addPropertyError', {});
-                                return;
-                            }
-                            console.error('Error', err);
-                            return self.trigger(document, 'error', { message: err.toString() });
-                        }
-
-                        self.displayProperties (properties);
-                    }
-            );
         };
     }
 });

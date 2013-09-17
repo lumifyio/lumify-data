@@ -392,24 +392,24 @@ define([
                     }
                 });
             } else {
-                this.ucdService.getGraphVertexById(vertex.graphVertexId, function(err, entity) {
+                this.ucdService.getVertexProperties(vertex.graphVertexId, function(err, entity) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
                     var locations = [];
 
-                    Object.keys(entity).forEach(function(entityKey) {
-                        var mention = entity[entityKey];
-                        if(mention.latitude && mention.latitude) {
-                            if(locations.filter(function(l) { return (mention.latitude == l.latitude) && (mention.longitude == l.longitude); }).length == 0) {
-                                locations.push({
-                                    latitude: mention.latitude,
-                                    longitude: mention.longitude
-                                });
-                            }
+                    if(entity.properties.geoLocation) {
+                        var m = entity.properties.geoLocation.match(/point\[(.*?),(.*)\]/);
+                        if(m){
+                            var latitude = m[1];
+                            var longitude = m[2];
+                            locations.push({
+                                latitude: latitude,
+                                longitude: longitude
+                            });
                         }
-                    });
+                    }
 
                     vertex.locations = locations;
                     if (locations.length === 0) {

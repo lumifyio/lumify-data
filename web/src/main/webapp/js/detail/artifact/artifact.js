@@ -3,25 +3,30 @@ define([
     'flight/lib/component',
     'util/video/scrubber',
     './image/image',
+    '../withProperties',
     '../withTypeContent',
     '../withHighlighting',
     'detail/dropdowns/objectDetectionForm/objectDetectionForm',
     'tpl!./artifact',
-    'tpl!./transcriptEntry'
-], function(defineComponent, VideoScrubber, Image, withTypeContent, withHighlighting, ObjectDetectionForm, template, transcriptEntryTemplate) {
+    'tpl!./transcriptEntry',
+    'service/ontology'
+], function(defineComponent, VideoScrubber, Image, withProperties, withTypeContent, withHighlighting, ObjectDetectionForm, template, transcriptEntryTemplate, OntologyService) {
 
     'use strict';
 
-    return defineComponent(Artifact, withTypeContent, withHighlighting);
+    return defineComponent(Artifact, withProperties, withTypeContent, withHighlighting);
 
     function Artifact() {
+        this.ontologyService = new OntologyService();
 
         this.defaultAttrs({
             previewSelector: '.preview',
             currentTranscriptSelector: '.currentTranscript',
             imagePreviewSelector: '.image-preview',
             detectedObjectSelector: '.detected-object',
-            artifactSelector: '.artifact'
+            artifactSelector: '.artifact',
+            propertiesSelector: '.properties',
+            addNewPropertiesSelector: '.add-new-properties'
         });
 
         this.after('initialize', function() {
@@ -43,38 +48,50 @@ define([
         this.loadArtifact = function() {
             var self = this;
 
-            $.when(
-                this.handleCancelling(this.ucdService.getArtifactById(this.attr.data._rowKey)),
-                this.handleCancelling(this.ucdService.getGraphVertexById(this.attr.data.graphVertexId))
-            ).done(function(artifactResponse, vertexResponse) {
-                var artifact = artifactResponse[0],
-                    vertex = vertexResponse[0];
+            self.ontologyService.properties().done(function(ontologyProperties) {
+                $.when(
+                    self.handleCancelling(self.ucdService.getArtifactById(self.attr.data._rowKey)),
+                    self.handleCancelling(self.ucdService.getVertexProperties(self.attr.data.graphVertexId))
+                ).done(function(artifactResponse, vertexResponse) {
+                    var artifact = artifactResponse[0],
+                        vertex = vertexResponse[0];
 
-                artifact.dataInfo = JSON.stringify({
-                    _type: 'artifact',
-                    _subType: artifact.type,
-                    graphVertexId: artifact.Generic_Metadata['atc:graph_vertex_id'],
-                    _rowKey: artifact.key.value
+                    artifact.dataInfo = JSON.stringify({
+                        _type: 'artifact',
+                        _subType: artifact.type,
+                        graphVertexId: artifact.Generic_Metadata['atc:graph_vertex_id'],
+                        _rowKey: artifact.key.value
+                    });
+
+                    if(artifact.Content.video_transcript) {
+                        self.videoTranscript = JSON.parse(artifact.Content.video_transcript);
+                        self.videoDuration =  artifact.Content['atc:video_duration'];
+                    } else {
+                        self.videoTranscript = null;
+                        self.videoDuration =  null;
+                    }
+
+                    self.$node.html(template({
+                        artifact: self.setupContentHtml(artifact),
+                        vertex: vertex,
+                        highlightButton: self.highlightButton(),
+                        fullscreenButton: self.fullscreenButton([artifact.Generic_Metadata['atc:graph_vertex_id']])
+                    }));
+
+                    if(artifact.Dynamic_Metadata && artifact.Dynamic_Metadata['atc:geoLocationTitle'] && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) {
+                        vertex.properties['geoLocation'] = {
+                            latitude: artifact.Dynamic_Metadata.latitude,
+                            longitude: artifact.Dynamic_Metadata.longitude,
+                            title: artifact.Dynamic_Metadata['atc:geoLocationTitle']
+                        };
+                    }
+
+                    self.displayProperties(vertex.properties);
+
+                    if (self[artifact.type + 'Setup']) {
+                        self[artifact.type + 'Setup'](artifact);
+                    }
                 });
-
-                if(artifact.Content.video_transcript) {
-                    self.videoTranscript = JSON.parse(artifact.Content.video_transcript);
-                    self.videoDuration =  artifact.Content['atc:video_duration'];
-                } else {
-                    self.videoTranscript = null;
-                    self.videoDuration =  null;
-                }
-
-                self.$node.html(template({
-                    artifact: self.setupContentHtml(artifact), 
-                    vertex: vertex,
-                    highlightButton: self.highlightButton(),
-                    fullscreenButton: self.fullscreenButton([artifact.Generic_Metadata['atc:graph_vertex_id']])
-                }));
-
-                if (self[artifact.type + 'Setup']) {
-                    self[artifact.type + 'Setup'](artifact);
-                }
             });
         };
 
