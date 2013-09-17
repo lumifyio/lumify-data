@@ -25,6 +25,7 @@ elasticsearch_locations:
   - nic-hadoop-smmc05.nearinfinity.com:9300
   - nic-hadoop-smmc06.nearinfinity.com:9300
   - nic-hadoop-smmc07.nearinfinity.com:9300
+jetty_confidential_port: 443
 jetty_key_store_path: /opt/lumify/config/smmc.jks
 jetty_key_store_password: OBF:tbd
 authentication_provider: com.altamiracorp.lumify.web.DevBasicAuthenticationProvider
