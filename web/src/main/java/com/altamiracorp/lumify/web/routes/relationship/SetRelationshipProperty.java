@@ -47,6 +47,12 @@ public class SetRelationshipProperty extends BaseRequestHandler {
         graphRepository.setPropertyEdge(session.getGraphSession(), sourceId, destId, relationshipLabel, propertyName, value);
 
         Map<String, String> properties = graphRepository.getEdgeProperties(session.getGraphSession(), sourceId, destId, relationshipLabel);
+        for (Map.Entry<String, String> p : properties.entrySet()) {
+            String displayName = ontologyRepository.getDisplayNameForLabel(session.getGraphSession(), p.getValue());
+            if (displayName != null) {
+                p.setValue(displayName);
+            }
+        }
         JSONArray resultsJson = VertexProperties.propertiesToJson(properties);
 
         respondWithJson(response, resultsJson);
