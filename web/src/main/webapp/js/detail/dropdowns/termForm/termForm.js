@@ -3,6 +3,7 @@
 define([
     'flight/lib/component',
     '../withDropdown',
+    '../../withProperties',
     'tpl!./termForm',
     'tpl!./concept-options',
     'tpl!./entity',
@@ -10,10 +11,10 @@ define([
     'service/entity',
     'service/ontology',
     'underscore'
-], function(defineComponent, withDropdown, dropdownTemplate, conceptsTemplate, entityTemplate, Ucd, EntityService, OntologyService, _) {
+], function(defineComponent, withDropdown, withProperties, dropdownTemplate, conceptsTemplate, entityTemplate, Ucd, EntityService, OntologyService, _) {
     'use strict';
 
-    return defineComponent(TermForm, withDropdown);
+    return defineComponent(TermForm, withDropdown, withProperties);
 
 
     function TermForm() {
@@ -28,7 +29,8 @@ define([
             objectSignSelector: '.object-sign',
             graphVertexSelector: '.graphVertexId',
             conceptSelector: 'select',
-            helpSelector: '.help'
+            helpSelector: '.help',
+            addNewPropertiesSelector: '.none'
         });
 
         this.after('teardown', function() {
