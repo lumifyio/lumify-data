@@ -9,7 +9,7 @@ function download_and_upload {
 
   local filename=$(echo ${url} | sed -e 's|.*/||')
   local extensionless_filename=$(echo ${filename} | sed -e 's|\..*||')
-  local tmp_dir="/data0/setup/tmp/$$.${extensionless_filename}"
+  local tmp_dir="/data0/import/tmp/$$.${extensionless_filename}"
 
   mkdir -p ${tmp_dir}
 
