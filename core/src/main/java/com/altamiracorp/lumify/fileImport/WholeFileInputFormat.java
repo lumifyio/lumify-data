@@ -52,8 +52,14 @@ public class WholeFileInputFormat extends CombineFileInputFormat<MapWritable, Te
     }
 
     @Override
+    public void setMaxSplitSize (long size) {
+        LOGGER.warn("Somebody is trying to set the max split size to: " + size + "!");
+    }
+
+    @Override
     public List<InputSplit> getSplits(JobContext context) throws IOException {
         LOGGER.warn("Entering getSplits");
+        LOGGER.warn("Max split from configuration: " + context.getConfiguration().get("mapreduce.input.fileinputformat.split.maxsize"));
         List<InputSplit> splits = super.getSplits(context);
         try {
             int splitNum = 1;
