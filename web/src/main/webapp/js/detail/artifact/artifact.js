@@ -26,7 +26,8 @@ define([
             detectedObjectSelector: '.detected-object',
             artifactSelector: '.artifact',
             propertiesSelector: '.properties',
-            addNewPropertiesSelector: '.add-new-properties'
+            addNewPropertiesSelector: '.add-new-properties',
+            titleSelector: '.artifact-title'
         });
 
         this.after('initialize', function() {
@@ -162,7 +163,6 @@ define([
             }
             return artifact;
         };
-
 
         this.videoSetup = function(artifact) {
             VideoScrubber.attachTo(this.select('previewSelector'), {

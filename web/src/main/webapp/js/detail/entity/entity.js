@@ -25,7 +25,8 @@ define([
             propertiesSelector: '.properties',
             relationshipsSelector: '.relationships',
             addNewPropertiesSelector: '.add-new-properties',
-            addPropertySelector: '.add-property'
+            addPropertySelector: '.add-property',
+            titleSelector: '.entity-title'
         });
 
         this.after('teardown', function() {

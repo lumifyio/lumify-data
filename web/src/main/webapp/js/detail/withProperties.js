@@ -109,6 +109,9 @@ define([
             if (propertyChangeData.graphVertexId != this.attr.data.graphVertexId) {
                 return;
             }
+            if(propertyChangeData.propertyName == 'title') {
+                this.select('titleSelector').html(propertyChangeData.value);
+            }
             this.select('propertiesSelector')
                 .find('.property-' + propertyChangeData.propertyName + ' .value')
                 .html(propertyChangeData.value);
