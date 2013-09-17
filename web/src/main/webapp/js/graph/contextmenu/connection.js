@@ -20,7 +20,7 @@ define([
             var self = this;
             var sourceConceptTypeId = source.data('_subType');
             var destConceptTypeId = dest.data('_subType');
-            self.statementService.relationships(sourceConceptTypeId, destConceptTypeId, function (err, results){
+            self.ontologyService.conceptToConceptRelationships(sourceConceptTypeId, destConceptTypeId, function (err, results){
                 if (err) {
                     console.error ('Error', err);
                     return self.trigger (document, 'error', { message: err.toString () });
