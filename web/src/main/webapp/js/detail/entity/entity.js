@@ -60,18 +60,6 @@ define([
             }));
         });
 
-        this.onSocketMessage = function (evt, message) {
-            var self = this;
-            switch (message.type) {
-                case 'propertiesChange':
-                    for(var i=0; i<message.data.properties.length; i++) {
-                        var propertyChangeData = message.data.properties[i];
-                        self.onPropertyChange(propertyChangeData);
-                    }
-                    break;
-            }
-        };
-
         this.loadEntity = function() {
             var self = this;
             var vertexInfo = {
