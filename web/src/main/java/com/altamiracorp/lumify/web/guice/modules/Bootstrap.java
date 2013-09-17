@@ -7,6 +7,7 @@ import com.altamiracorp.lumify.config.ConfigConstants;
 import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.config.MapConfig;
 import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
@@ -46,6 +47,7 @@ public class Bootstrap extends AbstractModule {
         bind(new TypeLiteral<Repository<Artifact>>() {}).to(ArtifactRepository.class).in(Singleton.class);
         bind(ArtifactRepository.class).in(Singleton.class);
         bind(OntologyRepository.class).in(Singleton.class);
+        bind(GraphRepository.class).in(Singleton.class);
     }
 
     private AuthenticationProvider getAuthenticationProviderInstance() {

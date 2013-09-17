@@ -20,12 +20,13 @@ import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
 
 public class GraphRelatedVertices extends BaseRequestHandler {
-    private GraphRepository graphRepository = new GraphRepository();
+    private final GraphRepository graphRepository;
     private final OntologyRepository ontologyRepository;
 
     @Inject
-    public GraphRelatedVertices(final OntologyRepository repo) {
-        ontologyRepository = repo;
+    public GraphRelatedVertices(final OntologyRepository ontologyRepo, final GraphRepository graphRepo) {
+        ontologyRepository = ontologyRepo;
+        graphRepository = graphRepo;
     }
 
     @Override

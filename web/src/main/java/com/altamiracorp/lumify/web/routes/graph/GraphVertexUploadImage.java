@@ -23,11 +23,12 @@ import com.google.inject.Inject;
 
 public class GraphVertexUploadImage extends BaseRequestHandler {
     private final ArtifactRepository artifactRepository;
-    private GraphRepository graphRepository = new GraphRepository();
+    private final GraphRepository graphRepository;
 
     @Inject
-    public GraphVertexUploadImage(final ArtifactRepository repo) {
-        artifactRepository = repo;
+    public GraphVertexUploadImage(final ArtifactRepository artifactRepo, final GraphRepository graphRepo) {
+        artifactRepository = artifactRepo;
+        graphRepository = graphRepo;
     }
 
     @Override

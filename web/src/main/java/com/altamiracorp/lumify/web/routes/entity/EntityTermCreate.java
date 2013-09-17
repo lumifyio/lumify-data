@@ -27,15 +27,16 @@ import com.google.inject.Inject;
 
 public class EntityTermCreate extends BaseRequestHandler {
     private final Repository<TermMention> termMentionRepository;
-    private final GraphRepository graphRepository = new GraphRepository();
+    private final GraphRepository graphRepository;
 
     private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
             new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()),
             0L, TimeUnit.MILLISECONDS);
 
     @Inject
-    public EntityTermCreate(final Repository<TermMention> repo) {
-        termMentionRepository = repo;
+    public EntityTermCreate(final Repository<TermMention> termMentionRepo, final GraphRepository graphRepo) {
+        termMentionRepository = termMentionRepo;
+        graphRepository = graphRepo;
     }
 
     @Override

@@ -19,12 +19,13 @@ import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
 
 public class GraphVertexSearch extends BaseRequestHandler {
-    private GraphRepository graphRepository = new GraphRepository();
+    private final GraphRepository graphRepository;
     private final OntologyRepository ontologyRepository;
 
     @Inject
-    public GraphVertexSearch(final OntologyRepository repo) {
-        ontologyRepository = repo;
+    public GraphVertexSearch(final OntologyRepository ontologyRepo, final GraphRepository graphRepo) {
+        ontologyRepository = ontologyRepo;
+        graphRepository = graphRepo;
     }
 
     @Override

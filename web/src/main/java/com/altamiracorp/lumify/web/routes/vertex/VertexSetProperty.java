@@ -22,12 +22,13 @@ import com.google.inject.Inject;
 public class VertexSetProperty extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(VertexSetProperty.class);
 
-    private GraphRepository graphRepository = new GraphRepository();
+    private final GraphRepository graphRepository;
     private final OntologyRepository ontologyRepository;
 
     @Inject
-    public VertexSetProperty(final OntologyRepository repo) {
-        ontologyRepository = repo;
+    public VertexSetProperty(final OntologyRepository ontologyRepo, final GraphRepository graphRepo) {
+        ontologyRepository = ontologyRepo;
+        graphRepository = graphRepo;
     }
 
     @Override

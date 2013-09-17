@@ -31,7 +31,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
 
 public class EntityObjectDetectionCreate extends BaseRequestHandler {
-    private GraphRepository graphRepository = new GraphRepository();
+    private final GraphRepository graphRepository;
     private final ArtifactRepository artifactRepository;
     private final Repository<TermMention> termMentionRepository;
 
@@ -41,9 +41,10 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
 
     @Inject
     public EntityObjectDetectionCreate(final Repository<TermMention> termMentionRepo,
-            final ArtifactRepository artifactRepo) {
+            final ArtifactRepository artifactRepo, final GraphRepository graphRepo) {
         termMentionRepository = termMentionRepo;
         artifactRepository = artifactRepo;
+        graphRepository = graphRepo;
     }
 
     @Override

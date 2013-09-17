@@ -18,12 +18,13 @@ import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
 
 public class VertexToVertexRelationship extends BaseRequestHandler {
-    private GraphRepository graphRepository = new GraphRepository();
+    private final GraphRepository graphRepository;
     private final OntologyRepository ontologyRepository;
 
     @Inject
-    public VertexToVertexRelationship(final OntologyRepository repo) {
-        ontologyRepository = repo;
+    public VertexToVertexRelationship(final OntologyRepository ontologyRepo, final GraphRepository graphRepo) {
+        ontologyRepository = ontologyRepo;
+        graphRepository = graphRepo;
     }
 
     @Override
