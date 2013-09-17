@@ -44,6 +44,7 @@ public class BlurSearchProvider implements SearchProvider {
     private static final String PUBLISHED_DATE_COLUMN_NAME = "publishedDate";
     private static final String GRAPH_VERTEX_ID_COLUMN_NAME = "graphVertexId";
     private static final String SOURCE_COLUMN_NAME = "source";
+    private static final String RESOLVED_OBJECTS_COLUMN_NAME = "resolvedObjects";
     private static final String ARTIFACT_TYPE_COLUMN_NAME = "type";
 
     private Blur.Iface client;
@@ -131,6 +132,11 @@ public class BlurSearchProvider implements SearchProvider {
         String source = artifact.getGenericMetadata().getSource();
         String graphVertexId = artifact.getGenericMetadata().getGraphVertexId();
 
+        List<String> resolvedObjects = new ArrayList<String>();
+        if (artifact.getArtifactDetectedObjects() != null) {
+            resolvedObjects = artifact.getArtifactDetectedObjects().getResolvedDetectedObjects();
+        }
+
         if (text == null) {
             text = "";
         }
@@ -143,11 +149,19 @@ public class BlurSearchProvider implements SearchProvider {
         columns.add(new Column(SUBJECT_COLUMN_NAME, subject));
         columns.add(new Column(PUBLISHED_DATE_COLUMN_NAME, publishedDate));
         columns.add(new Column(ARTIFACT_TYPE_COLUMN_NAME, artifact.getType().toString()));
+
         if (graphVertexId != null) {
             columns.add(new Column(GRAPH_VERTEX_ID_COLUMN_NAME, graphVertexId));
         }
         if (source != null) {
             columns.add(new Column(SOURCE_COLUMN_NAME, source));
+        }
+        if (!resolvedObjects.isEmpty()) {
+            StringBuilder resolvedObjectString = new StringBuilder();
+            for (String resolvedObject : resolvedObjects) {
+                resolvedObjectString.append(resolvedObject).append(" ");
+            }
+            columns.add(new Column(RESOLVED_OBJECTS_COLUMN_NAME, resolvedObjectString.toString().trim()));
         }
 
         Record record = new Record();
