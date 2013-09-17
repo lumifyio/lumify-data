@@ -1,5 +1,18 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.util.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
@@ -7,23 +20,18 @@ import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
-import org.apache.poi.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.inject.Inject;
 
 public class ArtifactRawByRowKey extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactRawByRowKey.class);
     private static final Pattern RANGE_PATTERN = Pattern.compile("bytes=([0-9]*)-([0-9]*)");
 
-    ArtifactRepository artifactRepository = new ArtifactRepository();
+    private final ArtifactRepository artifactRepository;
+
+    @Inject
+    public ArtifactRawByRowKey(final ArtifactRepository repo) {
+        artifactRepository = repo;
+    }
 
     public static String getUrl(ArtifactRowKey artifactKey) {
         return "/artifact/" + UrlUtils.urlEncode(artifactKey.toString()) + "/raw";
@@ -135,9 +143,5 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
             mimeType = "application/octet-stream";
         }
         return mimeType;
-    }
-
-    public void setArtifactRepository(ArtifactRepository artifactRepository) {
-        this.artifactRepository = artifactRepository;
     }
 }

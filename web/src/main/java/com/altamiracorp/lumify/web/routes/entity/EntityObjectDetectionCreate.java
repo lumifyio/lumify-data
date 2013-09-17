@@ -32,7 +32,7 @@ import com.google.inject.Inject;
 
 public class EntityObjectDetectionCreate extends BaseRequestHandler {
     private GraphRepository graphRepository = new GraphRepository();
-    private ArtifactRepository artifactRepository = new ArtifactRepository();
+    private final ArtifactRepository artifactRepository;
     private final Repository<TermMention> termMentionRepository;
 
     private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
@@ -40,8 +40,10 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
             0L, TimeUnit.MILLISECONDS);
 
     @Inject
-    public EntityObjectDetectionCreate(final Repository<TermMention> repo) {
-        termMentionRepository = repo;
+    public EntityObjectDetectionCreate(final Repository<TermMention> termMentionRepo,
+            final ArtifactRepository artifactRepo) {
+        termMentionRepository = termMentionRepo;
+        artifactRepository = artifactRepo;
     }
 
     @Override

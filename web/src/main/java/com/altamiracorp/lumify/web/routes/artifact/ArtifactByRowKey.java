@@ -1,20 +1,27 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONObject;
+
 import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
-import org.json.JSONObject;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.google.inject.Inject;
 
 public class ArtifactByRowKey extends BaseRequestHandler {
-    private ArtifactRepository artifactRepository = new ArtifactRepository();
+    private final Repository<Artifact> artifactRepository;
+
+    @Inject
+    public ArtifactByRowKey(final Repository<Artifact> repo) {
+        artifactRepository = repo;
+    }
 
     public static String getUrl(HttpServletRequest request, String artifactKey) {
         return UrlUtils.getRootRef(request) + "/artifact/" + UrlUtils.urlEncode(artifactKey.toString());
@@ -41,9 +48,5 @@ public class ArtifactByRowKey extends BaseRequestHandler {
         }
 
         chain.next(request, response);
-    }
-
-    public void setArtifactRepository(ArtifactRepository artifactRepository) {
-        this.artifactRepository = artifactRepository;
     }
 }

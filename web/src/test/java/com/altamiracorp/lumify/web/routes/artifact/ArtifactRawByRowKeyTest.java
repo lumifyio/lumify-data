@@ -1,8 +1,14 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.web.routes.RouteTestBase;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,23 +16,21 @@ import org.junit.runners.JUnit4;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.web.routes.RouteTestBase;
 
 @RunWith(JUnit4.class)
 public class ArtifactRawByRowKeyTest extends RouteTestBase {
     private ArtifactRawByRowKey artifactRawByRowKey;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
 
-        artifactRawByRowKey = new ArtifactRawByRowKey();
+        artifactRawByRowKey = new ArtifactRawByRowKey(mockArtifactRepository);
         artifactRawByRowKey.setApp(mockApp);
-        artifactRawByRowKey.setArtifactRepository(mockArtifactRepository);
     }
 
     @Test
