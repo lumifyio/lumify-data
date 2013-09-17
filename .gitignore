@@ -1,5 +1,6 @@
 data/
 target/
+conf/knowEntities/dictionaries/*.dict
 .idea
 *.iml
 .vagrant
