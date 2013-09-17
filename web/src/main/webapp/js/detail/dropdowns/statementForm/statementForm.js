@@ -3,16 +3,16 @@ define([
     '../withDropdown',
     'tpl!./statementForm',
     'tpl!./relationship-options',
-    'service/statement',
+    'service/relationship',
     'service/ontology',
     'underscore'
-], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, StatementService, OntologyService, _) {
+], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, RelationshipService, OntologyService, _) {
     'use strict';
 
     return defineComponent(StatementForm, withDropdown);
 
     function StatementForm() {
-        this.statementService = new StatementService();
+        this.relationshipService = new RelationshipService();
         this.ontologyService = new OntologyService();
 
         this.defaultAttrs({
@@ -121,9 +121,9 @@ define([
                 parameters.destGraphVertexId = swap;
             }
 
-            this.statementService.createStatement(parameters, function (err, data) {
+            this.relationshipService.createRelationship(parameters, function (err, data) {
                 if (err) {
-                    console.error('createStatement', err);
+                    console.error('createRelationship', err);
                     return self.trigger(document, 'error', err);
                 }
                 _.defer(self.teardown.bind(self));

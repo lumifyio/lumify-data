@@ -1,18 +1,18 @@
 
 define([
     'util/retina',
-    'service/statement',
+    'service/relationship',
     'service/ontology',
     'tpl!./relationship-options',
     'tpl!./connection'
-], function(retina, StatementService, OntologyService, relationshipTypeTemplate, connectionTemplate) {
+], function(retina, RelationshipService, OntologyService, relationshipTypeTemplate, connectionTemplate) {
 
     return Connection;
 
     function Connection() {
 
-        if (!this.statementService) {
-            this.statementService = new StatementService();
+        if (!this.relationshipService) {
+            this.relationshipService = new RelationshipService();
             this.ontologyService = new OntologyService();
         }
 
@@ -102,7 +102,7 @@ define([
                                 predicateLabel: val
                             };
 
-                            self.statementService.createStatement(parameters, function(err, data) {
+                            self.relationshipService.createRelationship(parameters, function(err, data) {
                                 if (err) {
                                     console.error('createStatement', err);
                                     self.trigger(document, 'error', err);

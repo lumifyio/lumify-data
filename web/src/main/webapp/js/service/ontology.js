@@ -130,7 +130,7 @@ define(
         OntologyService.prototype.conceptToConceptRelationships = function (sourceConceptTypeId, destConceptTypeId, callback) {
             console.log('getting relationships (sourceConceptTypeId:', sourceConceptTypeId, ', destConceptTypeId:', destConceptTypeId, ')');
             this._ajaxGet({
-                url: 'statement/relationship',
+                url: 'ontology/relationship',
                 data: {
                     sourceConceptTypeId: sourceConceptTypeId,
                     destConceptTypeId: destConceptTypeId

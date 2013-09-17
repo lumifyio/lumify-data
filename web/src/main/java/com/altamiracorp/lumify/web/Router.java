@@ -13,9 +13,9 @@ import com.altamiracorp.lumify.web.routes.map.MapInitHandler;
 import com.altamiracorp.lumify.web.routes.map.MapMarkerImage;
 import com.altamiracorp.lumify.web.routes.map.MapTileHandler;
 import com.altamiracorp.lumify.web.routes.ontology.*;
+import com.altamiracorp.lumify.web.routes.relationship.RelationshipCreate;
 import com.altamiracorp.lumify.web.routes.relationship.SetRelationshipProperty;
 import com.altamiracorp.lumify.web.routes.resource.ResourceGet;
-import com.altamiracorp.lumify.web.routes.statement.StatementCreate;
 import com.altamiracorp.lumify.web.routes.user.MeGet;
 import com.altamiracorp.lumify.web.routes.user.UserList;
 import com.altamiracorp.lumify.web.routes.vertex.*;
@@ -65,8 +65,6 @@ public class Router extends HttpServlet {
         app.get("/artifact/{_rowKey}", authenticator, ArtifactByRowKey.class);
         app.post("/artifact/import", authenticator, ArtifactImport.class);
 
-        app.post("/statement/create", authenticator, StatementCreate.class);
-
         app.post("/entity/relationships", authenticator, EntityRelationships.class);
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.post("/entity/createTerm", authenticator, EntityTermCreate.class);
@@ -80,6 +78,7 @@ public class Router extends HttpServlet {
         app.get("/vertex/multiple", authenticator, VertexMultiple.class);
 
         app.post("/relationship/property/set", authenticator, SetRelationshipProperty.class);
+        app.post("/relationship/create", authenticator, RelationshipCreate.class);
 
         app.get("/graph/findPath", authenticator, GraphFindPath.class);
         app.get("/graph/{graphVertexId}/relatedVertices", authenticator, GraphRelatedVertices.class);

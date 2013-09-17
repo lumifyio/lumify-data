@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.web.routes.statement;
+package com.altamiracorp.lumify.web.routes.relationship;
 
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.graph.GraphRelationship;
@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class StatementCreate extends BaseRequestHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StatementCreate.class);
+public class RelationshipCreate extends BaseRequestHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RelationshipCreate.class);
     private GraphRepository graphRepository = new GraphRepository();
 
     @Override
