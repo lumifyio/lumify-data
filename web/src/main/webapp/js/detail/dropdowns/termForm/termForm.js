@@ -60,22 +60,17 @@ define([
         };
 
         this.onKeyPress = function(event) {
-            // TODO: change to save instead of opening
-            setTimeout(function() {
-                this.select('objectSignSelector').typeahead('lookup');
-            }.bind(this), 100);
-        };
-
-        this.resolveTextChanged = function(newText) {
-            var info = $(this.attr.mentionNode).data('info');
-
-            /*
-            if (newText === info.title) {
-                this.graphVertexChanged(info && info.graphVertexId, info);
-            } else {
-                this.graphVertexChanged();
+            if (!this.lastQuery || this.lastQuery === this.select('objectSignSelector').val()) {
+                return;
             }
-            */
+
+            if (!this.debouncedLookup) {
+                this.debouncedLookup = _.debounce(function() {
+                    this.select('objectSignSelector').typeahead('lookup');
+                }.bind(this), 100);
+            }
+
+            this.debouncedLookup();
         };
 
         this.graphVertexChanged = function(newGraphVertexId, item, initial) {
@@ -275,8 +270,12 @@ define([
             }
 
             function updateCss(src) {
-                var url = 'url("' + (src || "/img/glyphIcons/glyphicons_194_circle_question_mark@2x.png")  + '")';
-                self.$node.find('.resolve-wrapper .preview').css('background-image', url);
+                var url = 'url("' + (src || "/img/glyphIcons/glyphicons_194_circle_question_mark@2x.png")  + '")',
+                    preview = self.$node.find('.resolve-wrapper .preview');
+                
+                if (preview.css('background-image') !== url) {
+                    preview.css('background-image', url);
+                }
             }
         };
 
@@ -350,7 +349,13 @@ define([
             self.ontologyService.properties().done(function(ontologyProperties) {
                 var field = self.select('objectSignSelector').typeahead({
                     source: function(query, callback) {
-                        self.resolveTextChanged(query);
+                        if (!self.sourceCache) self.sourceCache = {};
+                        else if (self.sourceCache[query]) {
+                            self.sourceCache[query](callback);
+                            return;
+                        }
+                    
+                        self.lastQuery = query;
                         var instance = this;
 
                         self.runQuery(query).done(function(entities) {
@@ -365,16 +370,21 @@ define([
                             items = _.groupBy(all, 'id');
                             items[createNewText] = [query];
 
-                            callback([createNewText].concat(all));
+                            self.sourceCache[query] = function(aCallback) {
+                                var list = [createNewText].concat(all);
+                                aCallback(list);
 
-                            var selectedId = self.currentGraphVertexId;
-                            if (selectedId) {
-                                var shouldSelect = instance.$menu.find('.gId-' + selectedId).closest('li');
-                                if (shouldSelect.length) {
-                                    instance.$menu.find('.active').removeClass('active');
-                                    shouldSelect.addClass('active');
+                                var selectedId = self.currentGraphVertexId;
+                                if (selectedId) {
+                                    var shouldSelect = instance.$menu.find('.gId-' + selectedId).closest('li');
+                                    if (shouldSelect.length) {
+                                        instance.$menu.find('.active').not(shouldSelect).removeClass('active');
+                                        shouldSelect.addClass('active');
+                                    }
                                 }
-                            }
+                            };
+
+                            self.sourceCache[query](callback);
                         });
                     },
                     matcher: function(item) {
