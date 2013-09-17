@@ -9,6 +9,8 @@ define([
     'underscore'
 ], function(defineComponent, registry, template, itemTemplate, OntologyService, _) {
 
+    var FILTER_SEARCH_DELAY_SECONDS = 0.25;
+
     return defineComponent(Filters);
 
     function Filters() {
@@ -22,6 +24,8 @@ define([
         });
 
         this.after('initialize', function() {
+            this.notifyOfFilters = _.debounce(this.notifyOfFilters.bind(this), FILTER_SEARCH_DELAY_SECONDS * 1000);
+
             this.$node.html(template({}));
 
             this.on('change', { propertySelector: this.onPropertyFilterChanged });
