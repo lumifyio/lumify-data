@@ -85,9 +85,7 @@ define([
             if (!initial || newGraphVertexId) {
                 this.select('graphVertexSelector').val(newGraphVertexId);
                 var info = _.isObject(item) ? item.properties || item : $(this.attr.mentionNode).data('info');
-                this.select('conceptSelector')
-                    .val(info && info._subType || '')
-                    .show();
+                this.updateConceptSelect(info && info._subType || '').show();
                 this.select('createTermButtonSelector')
                     .text(newGraphVertexId && initial ? 'Update' : newGraphVertexId ? 'Resolve to Existing' : 'Resolve as New')
                     .show();
@@ -98,6 +96,18 @@ define([
                 this.ucd.getGraphVertexById(newGraphVertexId)
                     .done(this.updateResolveImageIcon.bind(this));
             } else this.updateResolveImageIcon();
+        };
+
+        this.updateConceptSelect = function(val) {
+            var conceptSelect = this.select('conceptSelector').val(val).show();
+
+            if (val) {
+                this.select('createTermButtonSelector').removeAttr('disabled');
+            } else {
+                this.select('createTermButtonSelector').attr('disabled', true);
+            }
+
+            return conceptSelect;
         };
 
         this.onCreateTermClicked = function(event) {
@@ -133,7 +143,10 @@ define([
 
             // TODO: extract button loading and disabling to withDropdown mixin
             this.select('buttonDivSelector').prepend($loading);
-            this.select('createTermButtonSelector').addClass('disabled');
+            this.select('createTermButtonSelector')
+                .attr('disabled', true)
+                .addClass('disabled');
+
             if ( !parameters.conceptId || parameters.conceptId.length === 0) {
                 this.select('conceptSelector').focus();
                 return;
@@ -171,7 +184,7 @@ define([
                 this.select('createTermButtonSelector').attr('disabled', true);
                 return;
             }
-            this.select('createTermButtonSelector').attr('disabled', false);
+            this.select('createTermButtonSelector').removeAttr('disabled');
 
             if (this.allConcepts && this.allConcepts.length) {
 
@@ -215,16 +228,18 @@ define([
 
 
             vertex.html(dropdownTemplate({
-                sign: sign,
+                sign: $.trim(sign),
                 graphVertexId: data && data.graphVertexId,
-                objectSign: objectSign || '',
+                objectSign: $.trim(objectSign) || '',
                 buttonText: existingEntity ? 'Update' : 'Resolve'
             }));
 
             this.graphVertexChanged(data && data.graphVertexId, data, true);
 
             this.runQuery(sign).done(function(vertices) {
-                self.$node.find('.badge').text(vertices.length || '');
+                self.$node.find('.badge')
+                    .attr('title', vertices.length + ' match' + (vertices.length === 1 ? '' : 'es') + ' found')
+                    .text(vertices.length);
             });
 
             this.sign = sign;
