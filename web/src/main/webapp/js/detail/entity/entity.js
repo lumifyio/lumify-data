@@ -2,6 +2,7 @@
 define([
     'flight/lib/component',
     './image/image',
+    './withProperties',
     '../withTypeContent',
     '../withHighlighting',
     'tpl!./entity',
@@ -11,14 +12,14 @@ define([
     'service/ontology',
     'service/vertex',
     'sf'
-], function(defineComponent, Image, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, PropertyForm, OntologyService, VertexService, sf) {
+], function(defineComponent, Image, withProperties, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, PropertyForm, OntologyService, VertexService, sf) {
 
     'use strict';
 
     var ontologyService = new OntologyService();
     var vertexService = new VertexService();
 
-    return defineComponent(Entity, withTypeContent, withHighlighting);
+    return defineComponent(Entity, withTypeContent, withHighlighting, withProperties);
 
     function Entity(withDropdown) {
 
@@ -161,50 +162,25 @@ define([
 
         this.displayProperties = function (properties){
             var self = this;
-            this.handleCancelling( ontologyService.properties(function(err, ontologyProperties) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
+
+            if (!this.ontologyProperties) {
+                this.ontologyProperties = ontologyService.properties();
+            }
+
+            this.ontologyProperties.done(function(ontologyProperties) {
+                var filtered = self.filterPropertiesForDisplay(properties, ontologyProperties),
+                    iconProperty = _.findWhere(properties, { key: '_glyphIcon' });
+
+                if (iconProperty) {
+                    self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: iconProperty.value });
                 }
 
-                var propertiesTpl = [];
-                properties.forEach(function(property) {
-                    var displayName, value,
-                        ontologyProperty = ontologyProperties.byTitle[property.key];
-
-                    if (ontologyProperty) {
-                        displayName = ontologyProperty.displayName;
-                        if(ontologyProperty.dataType == 'date') {
-                            value = sf("{0:yyyy/MM/dd}", new Date(property.value));
-                        } else {
-                            value = property.value;
-                        }
-                    } else {
-                        displayName = property.key;
-                        value = property.value;
-                    }
-
-                    var data = {
-                        key: property.key,
-                        value: value,
-                        displayName: displayName
-                    };
-
-                    if(/^[^_]/.test(property.key)) {
-                        propertiesTpl.push(data);
-                    }
-
-                    if(property.key === '_glyphIcon') {
-                        self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: property.value });
-                    }
-                });
-
-                var props = propertiesTemplate({properties:propertiesTpl});
+                var props = propertiesTemplate({properties:filtered});
 
                 var $props = self.select('propertiesSelector');
                 $props.find('ul').html(props);
                 $props.find('.loading').remove();
-            }));
+            });
         };
 
         this.getProperties = function(graphVertexId, callback) {

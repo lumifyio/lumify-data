@@ -9,6 +9,14 @@ define([], function() {
         this.filterPropertiesForDisplay = function(properties, ontologyProperties) {
             var displayProperties = [];
 
+            if ($.isArray(properties)) {
+                var o = {};
+                properties.forEach(function(p) {
+                    o[p.key] = p.value;
+                });
+                properties = o;
+            }
+
             Object.keys(properties).forEach(function(name) {
                 var displayName, value,
                     ontologyProperty = ontologyProperties.byTitle[name];
