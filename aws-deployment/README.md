@@ -43,7 +43,7 @@ mv *.tgz /data0/import
 mv setup_conf.sh setup_geonames.sh setup_oozie.sh setup_import.sh /data0/import
 chown -R hdfs:hdfs /data0/import
 su - hdfs
-cd /tmp/hdfs
+cd /data0/import
 ./setup_conf.sh
 ./setup_geonames.sh http://10.0.3.10:8080
 ./setup_oozie.sh
