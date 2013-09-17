@@ -35,7 +35,7 @@ ec2-modify-instance-attribute <instance id> --group-id <existing group id> --gro
 setup
 =====
 
-1. ssh from the puppet serfer to the Hadoop namenode to populate the HDFS /conf directory, stage GeoNames data, and setup Oozie:
+1. ssh from the puppet server to the Hadoop namenode to populate the HDFS /conf directory, stage GeoNames data, and setup Oozie:
 
 ```
 mkdir /data0/import
