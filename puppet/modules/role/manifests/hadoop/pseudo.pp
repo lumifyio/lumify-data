@@ -1,6 +1,6 @@
 class role::hadoop::pseudo {
-  include namenode
+  include master
   include secondarynamenode
-  include datanode
+  include slave
   include ::hadoop::config::pseudo
 }
