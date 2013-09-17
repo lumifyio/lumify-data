@@ -6,14 +6,13 @@ define([
     '../withTypeContent',
     '../withHighlighting',
     'tpl!./entity',
-    'tpl!./properties',
     'tpl!./relationships',
     'util/vertexList/list',
     'detail/dropdowns/propertyForm/propForm',
     'service/ontology',
     'service/vertex',
     'sf'
-], function(defineComponent, Image, withProperties, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, VertexList, PropertyForm, OntologyService, VertexService, sf) {
+], function(defineComponent, Image, withProperties, withTypeContent, withHighlighting, template, relationshipsTemplate, VertexList, PropertyForm, OntologyService, VertexService, sf) {
 
     'use strict';
 
@@ -40,11 +39,6 @@ define([
         this.after('initialize', function() {
             var self = this;
             this.$node.on('click.paneClick', this.onPaneClicked.bind(this));
-            this.on('click', {
-                addNewPropertiesSelector: this.onAddNewPropertiesClicked
-            });
-            this.on('addProperty', this.onAddProperty);
-            this.on(document, 'socketMessage', this.onSocketMessage);
 
             this.handleCancelling(ontologyService.concepts(function(err, concepts) {
                 if (err) {
@@ -69,27 +63,6 @@ define([
                 self.loadEntity();
             }));
         });
-
-        this.onSocketMessage = function (evt, message) {
-            var self = this;
-            switch (message.type) {
-                case 'propertiesChange':
-                    for(var i=0; i<message.data.properties.length; i++) {
-                        var propertyChangeData = message.data.properties[i];
-                        self.onPropertyChange(propertyChangeData);
-                    }
-                    break;
-            }
-        };
-
-        this.onPropertyChange = function(propertyChangeData) {
-            if(propertyChangeData.graphVertexId != this.attr.data.graphVertexId) {
-                return;
-            }
-            this.select('propertiesSelector')
-                .find('.property-' + propertyChangeData.propertyName + ' .value')
-                .html(propertyChangeData.value);
-        };
 
         this.loadEntity = function() {
             var self = this;
@@ -207,29 +180,6 @@ define([
             });
         };
 
-        this.displayProperties = function (properties){
-            var self = this;
-
-            if (!this.ontologyProperties) {
-                this.ontologyProperties = ontologyService.properties();
-            }
-
-            this.ontologyProperties.done(function(ontologyProperties) {
-                var filtered = self.filterPropertiesForDisplay(properties, ontologyProperties),
-                    iconProperty = _.findWhere(properties, { key: '_glyphIcon' });
-
-                if (iconProperty) {
-                    self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: iconProperty.value });
-                }
-
-                var props = propertiesTemplate({properties:filtered});
-
-                var $props = self.select('propertiesSelector');
-                $props.find('ul').html(props);
-                $props.find('.loading').remove();
-            });
-        };
-
         this.getProperties = function(graphVertexId, callback) {
             var self = this;
 
@@ -270,38 +220,6 @@ define([
 
         };
 
-        this.onAddNewPropertiesClicked = function (evt){
-
-            var root = $('<div class="underneath">').insertAfter(evt.target);
-
-            PropertyForm.attachTo(root, {
-                service: ontologyService,
-                data: this.attr.data
-            });
-        };
-
-        this.onAddProperty = function(event, data) {
-            var self = this;
-
-            vertexService.setProperty(
-                    this.attr.data.id || this.attr.data.graphVertexId,
-                    data.property.name,
-                    data.property.value, 
-                    function (err, properties){
-                        if(err) {
-                            if (err.xhr.status == 400){
-                                console.error('Validation error');
-                                self.trigger(self.$node.find('.underneath'), 'addPropertyError', {});
-                                return;
-                            }
-                            console.error('Error', err);
-                            return self.trigger(document, 'error', { message: err.toString() });
-                        }
-
-                        self.displayProperties (properties);
-                    }
-            );
-        };
     }
 });
 
