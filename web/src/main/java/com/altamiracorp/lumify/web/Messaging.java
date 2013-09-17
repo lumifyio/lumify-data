@@ -48,6 +48,7 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     //      we always get null when trying to get the default broadcaster
     private static Broadcaster broadcaster;
 
+    @Inject
     public Messaging() {
         userRepository = new UserRepository();
     }
