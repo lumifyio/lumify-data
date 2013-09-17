@@ -122,6 +122,7 @@ public class BaseOntology {
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, titleProperty.getName(), "Title", PropertyType.STRING);
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, geoLocationProperty.getName(), "Geo-location", PropertyType.GEO_LOCATION);
+        ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, publishedDateProperty.getName(), "Published Date", PropertyType.DATE);
         graph.commit();
 
         InputStream artifactGlyphIconInputStream = this.getClass().getResourceAsStream("artifact.png");
