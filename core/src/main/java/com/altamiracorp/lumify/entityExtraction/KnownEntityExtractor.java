@@ -13,7 +13,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.arabidopsis.ahocorasick.AhoCorasick;
 import org.arabidopsis.ahocorasick.OutputResult;
-import org.arabidopsis.ahocorasick.SearchResult;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
 
@@ -21,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class KnownEntityExtractor extends EntityExtractor {
@@ -68,13 +66,13 @@ public class KnownEntityExtractor extends EntityExtractor {
         Path hdfsDirectory = new Path(getPathPrefix() + "/conf/knowEntities/dictionaries");
         for (FileStatus dictionaryFileStatus : getFS().listStatus(hdfsDirectory)) {
             Path hdfsPath = dictionaryFileStatus.getPath();
-            if(hdfsPath.getName().startsWith(".")){
+            if (hdfsPath.getName().startsWith(".") || !hdfsPath.getName().endsWith(".dict")) {
                 continue;
             }
+            String conceptName = FilenameUtils.getBaseName(hdfsPath.getName());
             InputStream dictionaryInputStream = getFS().open(hdfsPath);
-            String type = FilenameUtils.getBaseName(hdfsPath.getName()).split("-")[0];
             try {
-                addDictionaryEntriesToTree(type, dictionaryInputStream);
+                addDictionaryEntriesToTree(conceptName, dictionaryInputStream);
             } finally {
                 dictionaryInputStream.close();
             }
