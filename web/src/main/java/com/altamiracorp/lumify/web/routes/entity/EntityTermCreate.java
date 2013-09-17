@@ -1,8 +1,17 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.entityHighlight.EntityHighlightWorker;
 import com.altamiracorp.lumify.entityHighlight.TermMentionOffsetItem;
+import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
@@ -10,26 +19,24 @@ import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
 import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.common.util.concurrent.MoreExecutors;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import com.google.inject.Inject;
 
 public class EntityTermCreate extends BaseRequestHandler {
-    private final TermMentionRepository termMentionRepository = new TermMentionRepository();
+    private final Repository<TermMention> termMentionRepository;
     private final GraphRepository graphRepository = new GraphRepository();
 
     private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
             new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()),
             0L, TimeUnit.MILLISECONDS);
+
+    @Inject
+    public EntityTermCreate(final Repository<TermMention> repo) {
+        termMentionRepository = repo;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {

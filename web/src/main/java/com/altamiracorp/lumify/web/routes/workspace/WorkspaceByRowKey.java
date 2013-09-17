@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.user.User;
-import com.altamiracorp.lumify.model.user.UserRepository;
 import com.altamiracorp.lumify.model.workspace.Workspace;
 import com.altamiracorp.lumify.model.workspace.WorkspaceRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
@@ -17,11 +16,13 @@ import com.google.inject.Inject;
 
 public class WorkspaceByRowKey extends BaseRequestHandler {
     private final Repository<Workspace> workspaceRepository;
-    private UserRepository userRepository = new UserRepository();
+    private final Repository<User> userRepository;
 
     @Inject
-    public WorkspaceByRowKey(final Repository<Workspace> repo) {
-        workspaceRepository = repo;
+    public WorkspaceByRowKey(final Repository<Workspace> workspaceRepo,
+            final Repository<User> userRepo) {
+        workspaceRepository = workspaceRepo;
+        userRepository = userRepo;
     }
 
     @Override

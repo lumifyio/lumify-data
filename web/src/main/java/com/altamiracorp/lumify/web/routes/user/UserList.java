@@ -1,20 +1,28 @@
 package com.altamiracorp.lumify.web.routes.user;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.user.User;
-import com.altamiracorp.lumify.model.user.UserRepository;
-import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.user.User;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
+import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 
 public class UserList extends BaseRequestHandler {
-    private UserRepository userRepository = new UserRepository();
+    private final Repository<User> userRepository;
+
+    @Inject
+    public UserList(final Repository<User> repo) {
+        userRepository = repo;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {

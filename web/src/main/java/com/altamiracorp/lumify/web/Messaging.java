@@ -1,13 +1,18 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.user.User;
-import com.altamiracorp.lumify.model.user.UserRepository;
-import com.altamiracorp.lumify.model.user.UserStatus;
+import java.io.IOException;
+import java.util.List;
+
 import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
 import org.atmosphere.config.service.AtmosphereHandlerService;
-import org.atmosphere.cpr.*;
+import org.atmosphere.cpr.AtmosphereHandler;
+import org.atmosphere.cpr.AtmosphereRequest;
+import org.atmosphere.cpr.AtmosphereResource;
+import org.atmosphere.cpr.AtmosphereResourceEvent;
+import org.atmosphere.cpr.AtmosphereResourceImpl;
+import org.atmosphere.cpr.AtmosphereResponse;
+import org.atmosphere.cpr.Broadcaster;
 import org.atmosphere.interceptor.AtmosphereResourceLifecycleInterceptor;
 import org.atmosphere.interceptor.BroadcastOnPostAtmosphereInterceptor;
 import org.atmosphere.interceptor.HeartbeatInterceptor;
@@ -17,8 +22,11 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.List;
+import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.user.User;
+import com.altamiracorp.lumify.model.user.UserStatus;
+import com.google.inject.Inject;
 
 @AtmosphereHandlerService(
         path = "/messaging",
@@ -31,12 +39,19 @@ import java.util.List;
         })
 public class Messaging implements AtmosphereHandler { //extends AbstractReflectorAtmosphereHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(Messaging.class);
-    private UserRepository userRepository = new UserRepository();
+
+    private final Repository<User> userRepository;
     private static AppSession cachedSession;
 
     // TODO should we save off this broadcaster? When using the BroadcasterFactory
     //      we always get null when trying to get the default broadcaster
     private static Broadcaster broadcaster;
+
+
+    @Inject
+    public Messaging(final Repository<User> repo) {
+        userRepository = repo;
+    }
 
     @Override
     public void onRequest(AtmosphereResource resource) throws IOException {
