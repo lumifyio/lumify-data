@@ -8,6 +8,6 @@ zookeeper.serverNames=<%= @zookeeper_nodes.values.collect {|node| node.split(':'
 blur.controllerLocation=<%= @hadoop_masters[0] %>:40010
 blur.path=hdfs://<%= @hadoop_masters[0] %>/blur
 graph.search.hostname=<%= @hadoop_slaves[0] %>
-search.provider=com.altamiracorp.lumify.search.BlurSearchProvider
+search.provider=com.altamiracorp.lumify.search.ElasticSearchProvider
 elasticsearch.locations=<%= @elasticsearch_locations.join(',') %>
 authentication.provider=<%= @authentication_provider %>
