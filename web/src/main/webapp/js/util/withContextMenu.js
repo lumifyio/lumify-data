@@ -26,6 +26,9 @@ define([], function() {
                 }
                 func.apply(this, args);
             } else if (!functionName) {
+                event.stopPropagation();
+                event.preventDefault();
+                target.blur();
                 return;
             } else {
                 console.error('No function exists for context menu command: ' + functionName);                
