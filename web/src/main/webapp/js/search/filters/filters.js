@@ -92,7 +92,7 @@ define([
             if (instanceInfo && instanceInfo.length) {
                 instanceInfo.forEach(function(info) {
                     delete self.currentFilters[info.instance.attr.id];
-                    if (info.instance.isValid && info.instance.isValid()) {
+                    if (!info.instance.isValid || info.instance.isValid()) {
                         self.notifyOfFilters();
                     }
                     info.instance.teardown();
