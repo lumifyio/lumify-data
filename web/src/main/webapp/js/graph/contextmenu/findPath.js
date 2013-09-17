@@ -38,6 +38,11 @@ define([
                         .zoomingEnabled(true)
                         .boxSelectionEnabled(true);
                     self.findingPath = false;
+                    
+                    if (!edge) {
+                        instructions.remove();
+                        return;
+                    }
 
                     edge.addClass('label');
                     edge.data('label', 'Finding Path...');
