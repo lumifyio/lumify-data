@@ -25,8 +25,10 @@ define([], function() {
                     args = [];
                 }
                 func.apply(this, args);
+            } else if (!functionName) {
+                return;
             } else {
-                console.error('No function exists for context menu command: ' + functionName);
+                console.error('No function exists for context menu command: ' + functionName);                
             }
 
             setTimeout(function() {
