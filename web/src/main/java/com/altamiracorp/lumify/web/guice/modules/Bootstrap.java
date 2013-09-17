@@ -1,13 +1,18 @@
 package com.altamiracorp.lumify.web.guice.modules;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.workspace.Workspace;
+import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
 import com.altamiracorp.lumify.web.AuthenticationProvider;
 import com.altamiracorp.lumify.web.config.ApplicationConfig;
 import com.altamiracorp.lumify.web.config.Configuration;
 import com.altamiracorp.lumify.web.config.MapConfig;
 import com.altamiracorp.lumify.web.config.WebConfigConstants;
 import com.google.inject.AbstractModule;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.google.inject.Singleton;
+import com.google.inject.TypeLiteral;
 
 /**
  * Wires up the required injections for the web application
@@ -27,6 +32,8 @@ public class Bootstrap extends AbstractModule {
         bind(MapConfig.class).toInstance(configuration);
         bind(ApplicationConfig.class).toInstance(configuration);
         bind(AuthenticationProvider.class).toInstance(getAuthenticationProviderInstance());
+
+        bind(new TypeLiteral<Repository<Workspace>>() {}).to(WorkspaceRepository.class).in(Singleton.class);
     }
 
     private AuthenticationProvider getAuthenticationProviderInstance() {

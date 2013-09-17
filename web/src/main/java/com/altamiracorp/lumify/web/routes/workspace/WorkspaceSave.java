@@ -1,25 +1,33 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.user.User;
-import com.altamiracorp.lumify.model.user.UserRepository;
-import com.altamiracorp.lumify.model.workspace.Workspace;
-import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
-import com.altamiracorp.lumify.model.workspace.WorkspaceRowKey;
-import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.user.User;
+import com.altamiracorp.lumify.model.user.UserRepository;
+import com.altamiracorp.lumify.model.workspace.Workspace;
+import com.altamiracorp.lumify.model.workspace.WorkspaceRowKey;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
+import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 
 public class WorkspaceSave extends BaseRequestHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceSave.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceSave.class);
     private static final String DEFAULT_WORKSPACE_TITLE = "Default";
-    private WorkspaceRepository workspaceRepository = new WorkspaceRepository();
+
+    private final Repository<Workspace> workspaceRepository;
     private UserRepository userRepository = new UserRepository();
+
+    @Inject
+    public WorkspaceSave(final Repository<Workspace> repo) {
+        workspaceRepository = repo;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
