@@ -362,6 +362,7 @@ public class TitanGraphSession extends GraphSession {
                 properties.put(property, e.getProperty(property).toString());
             }
         }
+        commit();
         return properties;
     }
 
@@ -492,7 +493,9 @@ public class TitanGraphSession extends GraphSession {
         Vertex vertex = this.graph.getVertex(graphVertexId);
         GremlinPipeline gremlinPipeline = new GremlinPipeline(vertex).map();
 
-        return (Map<String, String>) gremlinPipeline.toList().get(0);
+        Map<String, String> properties = (Map<String, String>) gremlinPipeline.toList().get(0);
+        commit();
+        return properties;
     }
 
     @Override
