@@ -10,11 +10,15 @@ import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.input.CombineFileRecordReader;
 import org.apache.hadoop.mapreduce.lib.input.CombineFileSplit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
 
 public class WholeFileInputFormat extends CombineFileInputFormat<MapWritable, Text> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WholeFileInputFormat.class);
 
     /**
      * @Override public List<InputSplit> getSplits (JobContext context) throws IOException {
@@ -49,21 +53,26 @@ public class WholeFileInputFormat extends CombineFileInputFormat<MapWritable, Te
 
     @Override
     public List<InputSplit> getSplits(JobContext context) throws IOException {
+        LOGGER.warn("Entering getSplits");
         List<InputSplit> splits = super.getSplits(context);
         try {
             int splitNum = 1;
+            if (splits.isEmpty()) {
+                LOGGER.warn("Holy cat shit, splits is empty!");
+            }
             for (InputSplit split : splits) {
                 CombineFileSplit combineFileSplit = (CombineFileSplit) split;
                 StringBuilder splitLogMsg = new StringBuilder("Split: ").append(splitNum).append(", Size: ").append(combineFileSplit.getLength()).append(", Paths: ");
                 for (Path path : combineFileSplit.getPaths()) {
                     splitLogMsg.append(path.toString()).append(", ");
                 }
-                System.out.println(splitLogMsg);
+                LOGGER.warn(splitLogMsg.toString());
                 splitNum++;
             }
         } catch (Exception e) {
             throw new IOException(e);
         }
+        LOGGER.warn("Leaving getSplits");
         return splits;
     }
 
