@@ -1,6 +1,11 @@
 package com.altamiracorp.lumify.entityHighlight;
 
+import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
+import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
+import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -9,11 +14,6 @@ import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.altamiracorp.lumify.ConfigurableMapJobBase;
-import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
-import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
 
 public class EntityHighlightMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityHighlightMR.class.getName());
@@ -25,7 +25,8 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
-        AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+        Configuration c = getConfiguration();
+        AccumuloArtifactInputFormat.init(job, c.getDataStoreUserName(), c.getDataStorePassword(), getAuthorizations(), c.getZookeeperInstanceName(), c.getZookeeperServerNames());
         return AccumuloArtifactInputFormat.class;
     }
 

@@ -5,6 +5,7 @@ import static junit.framework.Assert.assertTrue;
 
 import java.util.Properties;
 
+import com.altamiracorp.lumify.config.PropertyUtils;
 import org.junit.Before;
 import org.junit.Test;
 

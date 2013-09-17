@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.location;
 
 import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
+import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.model.AccumuloTermMentionInputFormat;
 import com.altamiracorp.lumify.model.geoNames.GeoNamePostalCodeRepository;
@@ -10,6 +11,7 @@ import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.termMention.TermMention;
+import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
@@ -26,7 +28,8 @@ public class TermLocationExtractionMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
-        AccumuloTermMentionInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+        Configuration c = getConfiguration();
+        AccumuloTermMentionInputFormat.init(job, c.getDataStoreUserName(), c.getDataStorePassword(), getAuthorizations(), c.getZookeeperInstanceName(), c.getZookeeperServerNames());
         return AccumuloTermMentionInputFormat.class;
     }
 

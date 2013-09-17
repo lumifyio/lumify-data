@@ -14,12 +14,6 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
-if [ "${VIRTUALIZATION_DISABLED}" = 'true' ]; then
-  ip=$(ifconfig eth0 | awk -F ':| +' '/inet addr/ {print $4}')
-else
-  ip=192.168.33.10
-fi
-
 if [ "$1" != '' ]; then
   filename=$1
   admin1codeFilename=$2
@@ -36,16 +30,7 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 com.altamiracorp.lumify.location.GeoNamesImporter \
---zookeeperInstanceName=lumify \
---zookeeperServerNames=${ip} \
---blurControllerLocation=${ip}:40010 \
---blurPath=hdfs://${ip}/blur \
---graph.storage.index.search.hostname=${ip} \
---hadoopUrl=hdfs://${ip}:8020 \
---username=root \
---password=password \
 --filename=${filename} \
 --admin1code=${admin1codeFilename} \
 --countryinfo=${countryInfoFilename} \
---postalcode=${postalCodeFilename} \
---elasticsearch.locations=192.168.33.10:9300
+--postalcode=${postalCodeFilename}

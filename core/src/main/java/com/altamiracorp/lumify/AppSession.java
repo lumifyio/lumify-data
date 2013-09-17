@@ -1,14 +1,9 @@
 package com.altamiracorp.lumify;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Properties;
-
+import com.altamiracorp.lumify.model.*;
+import com.altamiracorp.lumify.ontology.BaseOntology;
 import com.altamiracorp.lumify.search.ElasticSearchProvider;
+import com.altamiracorp.lumify.search.SearchProvider;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -19,15 +14,13 @@ import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.altamiracorp.lumify.model.AccumuloQueryUser;
-import com.altamiracorp.lumify.model.AccumuloSession;
-import com.altamiracorp.lumify.model.GraphSession;
-import com.altamiracorp.lumify.model.Session;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.model.TitanQueryFormatter;
-import com.altamiracorp.lumify.ontology.BaseOntology;
-import com.altamiracorp.lumify.search.BlurSearchProvider;
-import com.altamiracorp.lumify.search.SearchProvider;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Properties;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 
 public class AppSession {
@@ -63,6 +56,10 @@ public class AppSession {
         return create(applicationProps, null);
     }
 
+    public static AppSession create(com.altamiracorp.lumify.config.Configuration conf) {
+        return create(conf.getProperties(), null);
+    }
+
     public static AppSession create(Properties props, TaskInputOutputContext context) {
         try {
             LOGGER.info(String.format("Creating %s", AppSession.class.getSimpleName()));
@@ -91,14 +88,14 @@ public class AppSession {
 
     private static SearchProvider createSearchProvider(Properties props) {
         String providerClass;
-        if (props.getProperty(SEARCH_PROVIDER_PROP_KEY) != null){
+        if (props.getProperty(SEARCH_PROVIDER_PROP_KEY) != null) {
             providerClass = props.getProperty(SEARCH_PROVIDER_PROP_KEY);
         } else {
             providerClass = props.getProperty(SEARCH_PROVIDER_PROP_KEY, DEFAULT_SEARCH_PROVIDER);
         }
 
         try {
-            SearchProvider provider = (SearchProvider)Class.forName(providerClass).newInstance();
+            SearchProvider provider = (SearchProvider) Class.forName(providerClass).newInstance();
             provider.setup(props);
             return provider;
         } catch (Exception e) {

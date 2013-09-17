@@ -1,11 +1,9 @@
 package com.altamiracorp.lumify.web;
 
 import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.AccumuloSession;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.search.BlurSearchProvider;
-import com.altamiracorp.lumify.search.ElasticSearchProvider;
-import com.altamiracorp.lumify.web.config.*;
+import com.altamiracorp.lumify.config.ConfigConstants;
+import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.web.config.ParameterExtractor;
 import com.altamiracorp.lumify.web.guice.modules.Bootstrap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -30,7 +28,7 @@ public final class ApplicationBootstrap implements ServletContextListener {
 
         final ServletContext context = sce.getServletContext();
 
-        if( context != null ) {
+        if (context != null) {
             final Configuration config = fetchApplicationConfiguration(context);
             LOGGER.info("Running application with configuration: " + config);
 
@@ -58,32 +56,20 @@ public final class ApplicationBootstrap implements ServletContextListener {
     private Configuration fetchApplicationConfiguration(final ServletContext context) {
         // Extract the required context parameters from the deployment descriptor
         final ParameterExtractor extractor = new ParameterExtractor(context);
-        extractor.extractParamAsProperty(WebConfigConstants.APP_CONFIG_LOCATION, WebConfigConstants.APP_CONFIG_LOCATION);
-        extractor.extractParamAsProperty(WebConfigConstants.APP_CREDENTIALS_LOCATION, WebConfigConstants.APP_CREDENTIALS_LOCATION);
+        extractor.extractParamAsProperty(ConfigConstants.APP_CONFIG_LOCATION, ConfigConstants.APP_CONFIG_LOCATION);
+        extractor.extractParamAsProperty(ConfigConstants.APP_CREDENTIALS_LOCATION, ConfigConstants.APP_CREDENTIALS_LOCATION);
 
         final Properties appConfigProps = extractor.getApplicationProperties();
 
         // Find the location of the application configuration and credential files and process them
-        final String configLocation = appConfigProps.getProperty(WebConfigConstants.APP_CONFIG_LOCATION);
-        final String credentialsLocation = appConfigProps.getProperty(WebConfigConstants.APP_CREDENTIALS_LOCATION);
+        final String configLocation = appConfigProps.getProperty(ConfigConstants.APP_CONFIG_LOCATION);
+        final String credentialsLocation = appConfigProps.getProperty(ConfigConstants.APP_CREDENTIALS_LOCATION);
 
         return Configuration.loadConfigurationFile(configLocation, credentialsLocation);
     }
 
 
-    private void setupSession(final ApplicationConfig config) {
-        final Properties props = new Properties();
-        PropertyUtils.setPropertyValue(props, AccumuloSession.HADOOP_URL, config.getNamenodeUrl());
-        PropertyUtils.setPropertyValue(props, AccumuloSession.ZOOKEEPER_INSTANCE_NAME, config.getZookeeperInstanceName());
-        PropertyUtils.setPropertyValue(props, AccumuloSession.ZOOKEEPER_SERVER_NAMES, config.getZookeeperServerNames());
-        PropertyUtils.setPropertyValue(props, AccumuloSession.USERNAME, config.getDataStoreUserName());
-        PropertyUtils.setPropertyValue(props, AccumuloSession.PASSWORD, config.getDataStorePassword());
-        PropertyUtils.setPropertyValue(props, BlurSearchProvider.BLUR_CONTROLLER_LOCATION, config.getSearchIndexController());
-        PropertyUtils.setPropertyValue(props, BlurSearchProvider.BLUR_PATH, config.getSearchIndexStoragePath());
-        PropertyUtils.setPropertyValue(props, TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, config.getGraphSearchIndexHostname());
-        PropertyUtils.setPropertyValue(props, AppSession.SEARCH_PROVIDER_PROP_KEY, config.getSearchProvider());
-        PropertyUtils.setPropertyValue(props, ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, config.getElasticSearchLocations());
-
-        AppSession.setApplicationProperties(props);
+    private void setupSession(final Configuration config) {
+        AppSession.setApplicationProperties(config.getProperties());
     }
 }

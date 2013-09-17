@@ -1,9 +1,9 @@
-package com.altamiracorp.lumify.web.config;
+package com.altamiracorp.lumify.config;
 
 /**
  * Constants for web application configuration parameters
  */
-public final class WebConfigConstants {
+public final class ConfigConstants {
 
     public static final String APP_CONFIG_LOCATION = "application.config.location";
     public static final String APP_CREDENTIALS_LOCATION = "application.config.credentials.location";
@@ -24,7 +24,7 @@ public final class WebConfigConstants {
     public static final String ELASTIC_SEARCH_LOCATIONS = "elasticsearch.locations";
     public static final String AUTHENTICATION_PROVIDER = "authentication.provider";
 
-    private WebConfigConstants() {
+    private ConfigConstants() {
 
     }
 }

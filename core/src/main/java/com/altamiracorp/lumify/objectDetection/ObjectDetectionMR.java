@@ -10,9 +10,6 @@ import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import org.apache.accumulo.core.util.CachedConfiguration;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
@@ -22,15 +19,11 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.poi.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -45,10 +38,12 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         String type = job.getConfiguration().get(JOB_TYPE, DEFAULT_JOB_TYPE);
 
         if (type.equals("videoFrame")) {
-            AccumuloVideoFrameInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+            com.altamiracorp.lumify.config.Configuration c = getConfiguration();
+            AccumuloVideoFrameInputFormat.init(job, c.getDataStoreUserName(), c.getDataStorePassword(), getAuthorizations(), c.getZookeeperInstanceName(), c.getZookeeperServerNames());
             inputFormatClass = AccumuloVideoFrameInputFormat.class;
         } else {
-            AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+            com.altamiracorp.lumify.config.Configuration c = getConfiguration();
+            AccumuloArtifactInputFormat.init(job, c.getDataStoreUserName(), c.getDataStorePassword(), getAuthorizations(), c.getZookeeperInstanceName(), c.getZookeeperServerNames());
             inputFormatClass = AccumuloArtifactInputFormat.class;
         }
 
@@ -125,15 +120,15 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
             if (pathPrefix.startsWith("hdfs://")) { //if it is in HDFS, copy it to local disk so opencv can read it
                 LocalFileSystem localFS = FileSystem.getLocal(context.getConfiguration());
                 classifierPath = localFS.getWorkingDirectory().toUri().getPath() + OPEN_CV_CONF_DIR + classifierName;
-                File localDir = new File (classifierPath).getParentFile();
+                File localDir = new File(classifierPath).getParentFile();
                 if (!localDir.exists()) {
                     localDir.mkdirs();
                 }
 
                 Path hdfsPath = new Path(pathPrefix + OPEN_CV_CONF_DIR + classifierName);
-                fs.copyToLocalFile(false,hdfsPath,new Path(classifierPath));
+                fs.copyToLocalFile(false, hdfsPath, new Path(classifierPath));
             }
-            
+
             return classifierPath;
         }
 

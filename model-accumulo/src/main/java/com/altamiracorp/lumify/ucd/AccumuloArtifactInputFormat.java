@@ -10,9 +10,9 @@ import org.apache.hadoop.mapreduce.Job;
 public class AccumuloArtifactInputFormat extends AccumuloBaseInputFormat<Artifact, ArtifactRepository> {
     private ArtifactRepository artifactRepository = new ArtifactRepository();
 
-    public static void init(Job job, String username, byte[] password, Authorizations authorizations, String zookeeperInstanceName, String zookeeperServerNames) {
+    public static void init(Job job, String username, String password, Authorizations authorizations, String zookeeperInstanceName, String zookeeperServerNames) {
         AccumuloInputFormat.setZooKeeperInstance(job.getConfiguration(), zookeeperInstanceName, zookeeperServerNames);
-        AccumuloInputFormat.setInputInfo(job.getConfiguration(), username, password, Artifact.TABLE_NAME, authorizations);
+        AccumuloInputFormat.setInputInfo(job.getConfiguration(), username, password.getBytes(), Artifact.TABLE_NAME, authorizations);
     }
 
     @Override

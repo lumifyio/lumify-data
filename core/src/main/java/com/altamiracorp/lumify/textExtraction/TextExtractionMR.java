@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.textExtraction;
 
 import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
+import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
@@ -28,7 +29,8 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
-        AccumuloArtifactInputFormat.init(job, getUsername(), getPassword(), getAuthorizations(), getZookeeperInstanceName(), getZookeeperServerNames());
+        Configuration c = getConfiguration();
+        AccumuloArtifactInputFormat.init(job, c.getDataStoreUserName(), c.getDataStorePassword(), getAuthorizations(), c.getZookeeperInstanceName(), c.getZookeeperServerNames());
         return AccumuloArtifactInputFormat.class;
     }
 
@@ -68,7 +70,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
 
             if (extractedInfo.getSubject() != null && !extractedInfo.getSubject().equals("")) {
                 artifact.getGenericMetadata().setSubject(extractedInfo.getSubject());
-                artifactRepository.saveToGraph(getSession().getModelSession(),getSession().getGraphSession(),artifact);
+                artifactRepository.saveToGraph(getSession().getModelSession(), getSession().getGraphSession(), artifact);
             }
 
             if (extractedInfo.getDate() != null) {

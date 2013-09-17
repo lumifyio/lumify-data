@@ -16,12 +16,6 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
-if [ "${VIRTUALIZATION_DISABLED}" = 'true' ]; then
-  ip=$(ifconfig eth0 | awk -F ':| +' '/inet addr/ {print $4}')
-else
-  ip=192.168.33.10
-fi
-
 ffmpegDir=$(dirname $(which ffmpeg))
 ccextractorDir=$(dirname $(which ccextractor))
 
@@ -29,15 +23,6 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 com.altamiracorp.lumify.videoConversion.VideoConversionMR \
---zookeeperInstanceName=lumify \
---zookeeperServerNames=${ip} \
---hadoopUrl=hdfs://${ip}:8020 \
---blurControllerLocation=${ip}:40010 \
---blurPath=hdfs://${ip}/blur \
---graph.storage.index.search.hostname=${ip} \
---username=root \
---password=password \
 --failOnFirstError \
 -Dffmpeg.bin.dir=${ffmpegDir} \
--Dccextractor.bin.dir=${ccextractorDir} \
---elasticsearch.locations=192.168.33.10:9300
+-Dccextractor.bin.dir=${ccextractorDir}

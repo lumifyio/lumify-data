@@ -1,11 +1,8 @@
 package com.altamiracorp.lumify;
 
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
-import com.altamiracorp.lumify.model.AccumuloSession;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.search.BlurSearchProvider;
-import com.altamiracorp.lumify.search.ElasticSearchProvider;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
@@ -80,26 +77,10 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
     @Override
     protected int run(CommandLine cmd) throws Exception {
         Job job = new Job(getConf(), this.getClass().getSimpleName());
-        job.getConfiguration().set(AccumuloSession.HADOOP_URL, getHadoopUrl());
-        job.getConfiguration().set(AccumuloSession.ZOOKEEPER_INSTANCE_NAME, getZookeeperInstanceName());
-        job.getConfiguration().set(AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
-        job.getConfiguration().set(AccumuloSession.USERNAME, getUsername());
-        job.getConfiguration().set(AccumuloSession.PASSWORD, new String(getPassword()));
+        Configuration configuration = getConfiguration();
+        configuration.configureJob(job);
         job.getConfiguration().setBoolean("failOnFirstError", failOnFirstError);
-        if (getBlurControllerLocation() != null) {
-            job.getConfiguration().set(BlurSearchProvider.BLUR_CONTROLLER_LOCATION, getBlurControllerLocation());
-        }
-        if (getBlurHdfsPath() != null) {
-            job.getConfiguration().set(BlurSearchProvider.BLUR_PATH, getBlurHdfsPath());
-        }
-        if (getGraphStorageIndexSearchHostname() != null) {
-            job.getConfiguration().set(TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, getGraphStorageIndexSearchHostname());
-        }
         job.setJarByClass(this.getClass());
-
-        if (getSearchProvider() == null) {
-            job.getConfiguration().set(ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, getElasticSearchLocations());
-        }
 
         if (this.config != null) {
             for (String config : this.config) {
@@ -120,7 +101,13 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
         if (outputFormatClass != null) {
             job.setOutputFormatClass(outputFormatClass);
         }
-        AccumuloModelOutputFormat.init(job, getUsername(), getPassword(), getZookeeperInstanceName(), getZookeeperServerNames(), Artifact.TABLE_NAME);
+        AccumuloModelOutputFormat.init(
+                job,
+                configuration.getDataStoreUserName(),
+                configuration.getDataStorePassword(),
+                configuration.getZookeeperInstanceName(),
+                configuration.getZookeeperServerNames(),
+                Artifact.TABLE_NAME);
 
         job.waitForCompletion(true);
         return job.isSuccessful() ? 0 : 1;
@@ -140,9 +127,5 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
 
     protected String[] getConfig() {
         return this.config;
-    }
-
-    protected Class getClazz() {
-        return this.clazz;
     }
 }

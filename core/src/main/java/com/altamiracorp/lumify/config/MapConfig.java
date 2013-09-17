@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.web.config;
+package com.altamiracorp.lumify.config;
 
 /**
  * Interface for accessing map component specific configuration values
