@@ -102,12 +102,12 @@ public class BaseOntology {
 
         TitanKey publishedDateProperty = (TitanKey) graph.getType(PropertyName.PUBLISHED_DATE.toString());
         if (publishedDateProperty == null) {
-            graph.makeType().name(PropertyName.PUBLISHED_DATE.toString()).dataType(Long.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).indexed(Vertex.class).makePropertyKey();
+            publishedDateProperty = graph.makeType().name(PropertyName.PUBLISHED_DATE.toString()).dataType(Long.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).indexed(Vertex.class).makePropertyKey();
         }
 
         TitanKey sourceProperty = (TitanKey) graph.getType(PropertyName.SOURCE.toString());
         if (sourceProperty == null) {
-            graph.makeType().name(PropertyName.SOURCE.toString()).dataType(String.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).indexed(Vertex.class).makePropertyKey();
+            sourceProperty = graph.makeType().name(PropertyName.SOURCE.toString()).dataType(String.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).indexed(Vertex.class).makePropertyKey();
         }
 
         graph.commit();
@@ -123,6 +123,7 @@ public class BaseOntology {
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, titleProperty.getName(), "Title", PropertyType.STRING);
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, geoLocationProperty.getName(), "Geo-location", PropertyType.GEO_LOCATION);
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, publishedDateProperty.getName(), "Published Date", PropertyType.DATE);
+        ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, sourceProperty.getName(), "Source", PropertyType.STRING);
         graph.commit();
 
         InputStream artifactGlyphIconInputStream = this.getClass().getResourceAsStream("artifact.png");
