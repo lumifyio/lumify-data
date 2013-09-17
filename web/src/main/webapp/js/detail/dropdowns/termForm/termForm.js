@@ -3,7 +3,6 @@
 define([
     'flight/lib/component',
     '../withDropdown',
-    '../../withProperties',
     'tpl!./termForm',
     'tpl!./concept-options',
     'tpl!./entity',
@@ -11,10 +10,10 @@ define([
     'service/entity',
     'service/ontology',
     'underscore'
-], function(defineComponent, withDropdown, withProperties, dropdownTemplate, conceptsTemplate, entityTemplate, Ucd, EntityService, OntologyService, _) {
+], function(defineComponent, withDropdown, dropdownTemplate, conceptsTemplate, entityTemplate, Ucd, EntityService, OntologyService, _) {
     'use strict';
 
-    return defineComponent(TermForm, withDropdown, withProperties);
+    return defineComponent(TermForm, withDropdown);
 
 
     function TermForm() {
