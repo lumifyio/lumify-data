@@ -344,7 +344,7 @@ define([
         this.setupObjectTypeAhead = function() {
             var self = this,
                 items = {},
-                createNewText = 'Resolve to new entity';
+                createNewText = 'Resolve as new entity';
 
             self.ontologyService.properties().done(function(ontologyProperties) {
                 var field = self.select('objectSignSelector').typeahead({
