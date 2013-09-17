@@ -1,5 +1,20 @@
 package com.altamiracorp.lumify.web.routes.map;
 
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
+
+import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnailRepository;
 import com.altamiracorp.lumify.model.ontology.Concept;
@@ -11,27 +26,21 @@ import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.imageio.ImageIO;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
+import com.google.inject.Inject;
 
 public class MapMarkerImage extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(MapMarkerImage.class);
-    private OntologyRepository ontologyRepository = new OntologyRepository();
+
+    private final OntologyRepository ontologyRepository;
     private ResourceRepository resourceRepository = new ResourceRepository();
     private Cache<String, byte[]> imageCache = CacheBuilder.newBuilder()
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .build();
+
+    @Inject
+    public MapMarkerImage(final OntologyRepository repo) {
+        ontologyRepository = repo;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {

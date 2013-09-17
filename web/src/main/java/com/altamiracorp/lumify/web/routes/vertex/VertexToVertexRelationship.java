@@ -1,22 +1,30 @@
 package com.altamiracorp.lumify.web.routes.vertex;
 
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
+import com.google.inject.Inject;
 
 public class VertexToVertexRelationship extends BaseRequestHandler {
     private GraphRepository graphRepository = new GraphRepository();
-    private OntologyRepository ontologyRepository = new OntologyRepository();
+    private final OntologyRepository ontologyRepository;
+
+    @Inject
+    public VertexToVertexRelationship(final OntologyRepository repo) {
+        ontologyRepository = repo;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {

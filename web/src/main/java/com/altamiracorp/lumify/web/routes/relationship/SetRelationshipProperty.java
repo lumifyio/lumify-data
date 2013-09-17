@@ -1,5 +1,14 @@
 package com.altamiracorp.lumify.web.routes.relationship;
 
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
@@ -7,18 +16,18 @@ import com.altamiracorp.lumify.model.ontology.Property;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.lumify.web.routes.vertex.VertexProperties;
 import com.altamiracorp.web.HandlerChain;
-import org.json.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
+import com.google.inject.Inject;
 
 public class SetRelationshipProperty extends BaseRequestHandler {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SetRelationshipProperty.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(SetRelationshipProperty.class);
+
     private GraphRepository graphRepository = new GraphRepository();
-    private OntologyRepository ontologyRepository = new OntologyRepository();
+    private final OntologyRepository ontologyRepository;
+
+    @Inject
+    public SetRelationshipProperty(final OntologyRepository repo) {
+        ontologyRepository = repo;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
