@@ -40,7 +40,7 @@ setup
 ```
 mkdir /data0/import
 mv *.tgz /data0/import
-mv setup_conf.sh setup_geonames.sh setup_oozie.sh /data0/import
+mv setup_conf.sh setup_geonames.sh setup_oozie.sh setup_import.sh /data0/import
 chown -R hdfs:hdfs /data0/import
 su - hdfs
 cd /tmp/hdfs
