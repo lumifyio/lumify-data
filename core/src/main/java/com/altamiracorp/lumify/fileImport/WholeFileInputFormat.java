@@ -59,6 +59,7 @@ public class WholeFileInputFormat extends CombineFileInputFormat<MapWritable, Te
                     splitLogMsg.append(path.toString()).append(", ");
                 }
                 System.out.println(splitLogMsg);
+                splitNum++;
             }
         } catch (Exception e) {
             throw new IOException(e);
