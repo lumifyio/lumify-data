@@ -67,7 +67,7 @@ define([
                 this.attr.data.id || this.attr.data.graphVertexId,
                 data.property.name,
                 data.property.value,
-                function (err, properties) {
+                function (err, vertexData) {
                     if (err) {
                         if (err.xhr.status == 400) {
                             console.error('Validation error');
@@ -78,7 +78,8 @@ define([
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
 
-                    self.displayProperties(properties);
+                    self.displayProperties(vertexData.properties);
+                    self.trigger (document, "updateVertices", { vertices: [vertexData.vertex] });
                 }
             );
         };

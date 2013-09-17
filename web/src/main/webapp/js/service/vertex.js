@@ -21,7 +21,7 @@ define(
                 if (err) {
                     return callback(err);
                 }
-                return callback(null, response.properties);
+                return callback(null, response);
             });
         };
 

@@ -5,7 +5,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.altamiracorp.lumify.model.graph.GraphVertex;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +55,7 @@ public class VertexSetProperty extends BaseRequestHandler {
         }
 
         graphRepository.setPropertyVertex(session.getGraphSession(), graphVertexId, propertyName, value);
+        GraphVertex graphVertex = graphRepository.findVertex(session.getGraphSession(), graphVertexId);
 
         Messaging.broadcastPropertyChange(graphVertexId, propertyName, value);
 
@@ -61,6 +64,24 @@ public class VertexSetProperty extends BaseRequestHandler {
         JSONObject json = new JSONObject();
         json.put("properties", propertiesJson);
 
+        if (toJson(graphVertex) != null) {
+            json.put("vertex", toJson(graphVertex));
+        }
+
         respondWithJson(response, json);
+    }
+
+    private JSONObject toJson (GraphVertex vertex){
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("graphVertexId", vertex.getId());
+            for (String propertyKey : vertex.getPropertyKeys()){
+                obj.put(propertyKey, vertex.getProperty(propertyKey));
+            }
+            return obj;
+        } catch (JSONException e) {
+            new RuntimeException(e);
+        }
+        return null;
     }
 }
