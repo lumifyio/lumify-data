@@ -20,41 +20,12 @@ public class WholeFileInputFormat extends CombineFileInputFormat<MapWritable, Te
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WholeFileInputFormat.class);
 
-    /**
-     * @Override public List<InputSplit> getSplits (JobContext context) throws IOException {
-     * // all the files in input set
-     * Path[] paths = FileUtil.stat2Paths(
-     * listStatus(context).toArray(new FileStatus[0]));
-     * List<InputSplit> splits = new ArrayList<InputSplit>();
-     * if (paths.length == 0) {
-     * return splits;
-     * }
-     * <p/>
-     * int mappers = context.getConfiguration().getInt("mapred.map.tasks",1);
-     * int partition = (int)Math.ceil((double)(paths.length / mappers));
-     * <p/>
-     * List<List<Path>> pathLists = Lists.partition(Arrays.asList(paths),partition);
-     * <p/>
-     * for (List<Path> partitionedPaths : pathLists) {
-     * for (Path path : partitionedPaths) {
-     * FileSystem fs = path.getFileSystem(context.getConfiguration());
-     * Path p = fs.makeQualified(path);
-     * <p/>
-     * }
-     * }
-     * }
-     */
-
 
     @Override
     public boolean isSplitable(JobContext context, Path file) {
         return false;
     }
 
-    @Override
-    public void setMaxSplitSize (long size) {
-        LOGGER.warn("Somebody is trying to set the max split size to: " + size + "!");
-    }
 
     @Override
     public List<InputSplit> getSplits(JobContext context) throws IOException {
@@ -64,7 +35,7 @@ public class WholeFileInputFormat extends CombineFileInputFormat<MapWritable, Te
         try {
             int splitNum = 1;
             if (splits.isEmpty()) {
-                LOGGER.warn("Holy cat shit, splits is empty!");
+                LOGGER.warn("Splits is empty!");
             }
             for (InputSplit split : splits) {
                 CombineFileSplit combineFileSplit = (CombineFileSplit) split;
