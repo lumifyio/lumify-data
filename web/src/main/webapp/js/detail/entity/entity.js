@@ -6,15 +6,19 @@ define([
     '../withTypeContent',
     '../withHighlighting',
     'tpl!./entity',
+    'tpl!./properties',
     'tpl!./relationships',
+    'util/vertexList/list',
     'detail/dropdowns/propertyForm/propForm',
     'service/ontology',
+    'service/vertex',
     'sf'
-], function(defineComponent, Image, withProperties, withTypeContent, withHighlighting, template, relationshipsTemplate, PropertyForm, OntologyService, sf) {
+], function(defineComponent, Image, withProperties, withTypeContent, withHighlighting, template, propertiesTemplate, relationshipsTemplate, VertexList, PropertyForm, OntologyService, VertexService, sf) {
 
     'use strict';
 
     var ontologyService = new OntologyService();
+    var vertexService = new VertexService();
 
     return defineComponent(Entity, withTypeContent, withHighlighting, withProperties);
 
@@ -36,6 +40,11 @@ define([
         this.after('initialize', function() {
             var self = this;
             this.$node.on('click.paneClick', this.onPaneClicked.bind(this));
+            this.on('click', {
+                addNewPropertiesSelector: this.onAddNewPropertiesClicked
+            });
+            this.on('addProperty', this.onAddProperty);
+            this.on(document, 'socketMessage', this.onSocketMessage);
 
             this.handleCancelling(ontologyService.concepts(function(err, concepts) {
                 if (err) {
@@ -61,6 +70,27 @@ define([
             }));
         });
 
+        this.onSocketMessage = function (evt, message) {
+            var self = this;
+            switch (message.type) {
+                case 'propertiesChange':
+                    for(var i=0; i<message.data.properties.length; i++) {
+                        var propertyChangeData = message.data.properties[i];
+                        self.onPropertyChange(propertyChangeData);
+                    }
+                    break;
+            }
+        };
+
+        this.onPropertyChange = function(propertyChangeData) {
+            if(propertyChangeData.graphVertexId != this.attr.data.graphVertexId) {
+                return;
+            }
+            this.select('propertiesSelector')
+                .find('.property-' + propertyChangeData.propertyName + ' .value')
+                .html(propertyChangeData.value);
+        };
+
         this.loadEntity = function() {
             var self = this;
             var vertexInfo = {
@@ -74,61 +104,129 @@ define([
                 }
             };
 
-            this.getProperties(this.attr.data.id || this.attr.data.graphVertexId, function(properties) {
+            this.getProperties(vertexInfo.id, function(properties) {
                 self.displayProperties (properties);
             });
 
-            this.getRelationships(this.attr.data.id || this.attr.data.graphVertexId, function(relationships) {
+            this.getRelationships(vertexInfo.id, function(relationships) {
                 self.handleCancelling(self.ontologyService.relationships(function(err, ontologyRelationships) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
 
-                    var relationshipsTplData = [];
-
-                    relationships.forEach(function(relationship) {
-                        var ontologyRelationship = ontologyRelationships.byTitle[relationship.relationship.label];
-                        var displayName;
-                        if(ontologyRelationship) {
-                            displayName = ontologyRelationship.displayName;
+                    // Create source/dest/other properties
+                    relationships.forEach(function(r) {
+                        var src, dest, other;
+                        if (vertexInfo.id == r.relationship.sourceVertexId) {
+                            src = vertexInfo;
+                            dest = other = r.vertex;
                         } else {
-                            displayName = relationship.relationship.label;
+                            src = other = r.vertex;
+                            dest = vertexInfo;
                         }
 
-                        var data = {};
-                        data.displayName = displayName;
-                        data.relationship = relationship.relationship;
-                        data.dataInfo = JSON.stringify({
-                            source: relationship.relationship.sourceVertexId,
-                            target: relationship.relationship.destVertexId,
+                        src.cssClasses = self.classesForVertex(src);
+                        src.json = JSON.stringify($.extend({id:src.id,graphVertexId:src.id}, src.properties));
+                        dest.cssClasses = self.classesForVertex(dest);
+                        dest.json = JSON.stringify($.extend({id:dest.id,graphVertexId:dest.id}, dest.properties));
+
+                        r.vertices = {
+                            src: src,
+                            dest: dest,
+                            other: other
+                        };
+                        r.dataInfo = {
+                            source: src.id,
+                            target: dest.id,
                             _type: 'relationship',
-                            relationshipType: relationship.relationship.label
-                        });
+                            relationshipType: r.relationship.label
+                        };
+                        r.displayLabel = ontologyRelationships.byTitle[r.relationship.label].displayName;
+                    });
 
-                        relationship.vertex.properties.graphVertexId = relationship.vertex.id;
+                    var groupedByType = _.groupBy(relationships, function(r) { 
 
-                        if(vertexInfo.id == relationship.relationship.sourceVertexId) {
-                            data.sourceVertex = vertexInfo;
-                            data.sourceVertex.cssClasses = self.classesForVertex(vertexInfo);
-
-                            data.destVertex = relationship.vertex;
-                            data.destVertex.cssClasses = self.classesForVertex(relationship.vertex);
-                        } else {
-                            data.sourceVertex = relationship.vertex;
-                            data.sourceVertex.cssClasses = self.classesForVertex(relationship.vertex);
-
-                            data.destVertex = vertexInfo;
-                            data.destVertex.cssClasses = self.classesForVertex(vertexInfo);
+                        // Has Entity are collected into references (no matter
+                        // relationship direction
+                        if (r.relationship.label === 'hasEntity') {
+                            return 'references';
                         }
 
-                        relationshipsTplData.push(data);
+                        // Group all that are relations from this vertex (not dest)
+                        if (r.relationship.sourceVertexId === vertexInfo.id) {
+                            return r.displayLabel;
+                        }
+
+                        // Collect all relationships that are destined here
+                        // into section
+                        return 'inverse';
+                    });
+                    var sortedKeys = Object.keys(groupedByType);
+                    sortedKeys.sort(function(a,b) {
+                        // If in inverse group, sort by the type
+                        if (a === b && a === 'inverse') {
+                            return a.displayLabel === b.displayLabel ? 0 : a.displayLabel < b.displayLabel ? -1 : 1;
+                        }
+
+                        // If in references group sort by the title
+                        if (a === b && a === 'references') {
+                            return defaultSort(a.vertex.properties.title, b.vertex.properties.title);
+                        }
+
+                        // Specifies the special group sort order
+                        var groups = { inverse:1, references:2 };
+                        if (groups[a] && groups[b]) {
+                            return defaultSort(groups[a], groups[b]);
+                        } else if (groups[a]) {
+                            return 1;
+                        } else if (groups[b]) {
+                            return -1;
+                        }
+
+                        return defaultSort(a, b);
+
+                        function defaultSort(x,y) {
+                            return x === y ? 0 : x < y ? -1 : 1;
+                        }
                     });
 
                     var $rels = self.select('relationshipsSelector');
-                    $rels.find('ul').html(relationshipsTemplate({relationships:relationshipsTplData}));
-                    $rels.find('.loading').remove();
+                    $rels.html(relationshipsTemplate({
+                        relationshipsGroupedByType: groupedByType,
+                        sortedKeys: sortedKeys
+                    }));
+
+                    VertexList.attachTo($rels.find('.references'), {
+                        vertices: _.map(groupedByType.references, function(r) {
+                            return $.extend({graphVertexId:r.vertices.other.id}, r.vertices.other.properties);
+                        })
+                    });
+
                 }));
+            });
+        };
+
+        this.displayProperties = function (properties){
+            var self = this;
+
+            if (!this.ontologyProperties) {
+                this.ontologyProperties = ontologyService.properties();
+            }
+
+            this.ontologyProperties.done(function(ontologyProperties) {
+                var filtered = self.filterPropertiesForDisplay(properties, ontologyProperties),
+                    iconProperty = _.findWhere(properties, { key: '_glyphIcon' });
+
+                if (iconProperty) {
+                    self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: iconProperty.value });
+                }
+
+                var props = propertiesTemplate({properties:filtered});
+
+                var $props = self.select('propertiesSelector');
+                $props.find('ul').html(props);
+                $props.find('.loading').remove();
             });
         };
 
@@ -170,6 +268,39 @@ define([
                 evt.stopPropagation();
             }
 
+        };
+
+        this.onAddNewPropertiesClicked = function (evt){
+
+            var root = $('<div class="underneath">').insertAfter(evt.target);
+
+            PropertyForm.attachTo(root, {
+                service: ontologyService,
+                data: this.attr.data
+            });
+        };
+
+        this.onAddProperty = function(event, data) {
+            var self = this;
+
+            vertexService.setProperty(
+                    this.attr.data.id || this.attr.data.graphVertexId,
+                    data.property.name,
+                    data.property.value, 
+                    function (err, properties){
+                        if(err) {
+                            if (err.xhr.status == 400){
+                                console.error('Validation error');
+                                self.trigger(self.$node.find('.underneath'), 'addPropertyError', {});
+                                return;
+                            }
+                            console.error('Error', err);
+                            return self.trigger(document, 'error', { message: err.toString() });
+                        }
+
+                        self.displayProperties (properties);
+                    }
+            );
         };
     }
 });

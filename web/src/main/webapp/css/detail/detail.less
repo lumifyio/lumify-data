@@ -207,7 +207,7 @@
     }
 
     li.buttons {
-      margin-bottom: 0.5em; 
+      margin-bottom: 1.5em;
       text-align: left;
       & > button {
         .opacity(50);
@@ -215,8 +215,28 @@
       }
     }
   }
+
   .nav-with-background {
     margin: 118px -1em 0 -1em;
+
+    .nav-list { margin: 0; }
+
+
+    .relationships {
+      padding-bottom: 1em;
+
+      ul li { margin: 0 1em 0 0; }
+      ul li.nav-header { margin: 1.5em 0 0 0; padding:0; }
+      .nav-list { padding-top: 0; }
+
+      .references {
+        padding: 0;
+        margin: 0 -1em;
+        .multi-select {
+          padding-right: 0;
+        }
+      }
+    }
 
     .underneath {
       .buttons {

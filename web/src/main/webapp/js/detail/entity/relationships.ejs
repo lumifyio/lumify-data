@@ -1,15 +1,35 @@
-<% if(relationships.length == 0) { %>
+<% if (sortedKeys.length == 0) { %>
     <span>There are no relationships to display</span>
 <% } %>
-<% relationships.forEach(function(relationship) { %>
 
-    <li class="relationship">
-    <span class="<%= relationship.sourceVertex.cssClasses %>"
-      data-info="<%= JSON.stringify(relationship.sourceVertex.properties) %>"
-      ><%- relationship.sourceVertex.properties.title || 'No Title' %></span>
-    <span data-info='<%= relationship.dataInfo %>' class="relationship"><%= relationship.displayName %></span>
-    <span class="<%= relationship.destVertex.cssClasses %>"
-      data-info='<%= JSON.stringify(relationship.destVertex.properties) %>'
-      ><%- relationship.destVertex.properties.title || 'No Title' %></span>
-    </li>
+<ul class="nav nav-list">
+<% sortedKeys.forEach(function(type) { %>
+    <% if (type === 'references') return;
+       var relationships = relationshipsGroupedByType[type]; %>
+
+    <li class="nav-header relationship"><%= type %></li>
+    <% relationships.forEach(function(r) { %>
+        <li class="relationship">
+        <% if (type === 'inverse') { %>
+            <span class="<%= r.vertices.src.cssClasses %>"
+                  data-info="<%= r.vertices.src.json %>"
+                  ><%- r.vertices.src.properties.title || 'No Title' %></span>
+            <span data-info='<%= JSON.stringify(r.dataInfo) %>' class="relationship"><%= r.displayLabel %></span>
+            <span class="<%= r.vertices.dest.cssClasses %>"
+                  data-info='<%= r.vertices.dest.json %>'
+                  ><%- r.vertices.dest.properties.title || 'No Title' %></span>
+        <% } else if (type !== 'references') { %>
+          <span 
+            class="<%= r.vertices.other.cssClasses %>"
+            data-info="<%= r.vertices.other.json %>"
+            ><%- r.vertices.other.properties.title || 'No Title Available' %></span>
+        <% } %>
+        </li>
+    <% }); %>
 <% }); %>
+
+    <% if (relationshipsGroupedByType['references']) { %>
+        <li class="nav-header relationship">referenced in</li>
+        <li class="references"></li>
+    <% } %>
+</ul>
