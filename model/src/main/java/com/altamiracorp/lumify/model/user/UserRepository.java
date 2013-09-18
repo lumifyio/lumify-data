@@ -43,7 +43,7 @@ public class UserRepository extends Repository<User> {
 
         user = new User();
         user.getMetadata().setUserName(userName);
-        save(user);
+        save(user, authUser);
         return user;
     }
 

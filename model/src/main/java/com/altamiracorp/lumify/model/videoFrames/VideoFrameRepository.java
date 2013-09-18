@@ -41,21 +41,21 @@ public class VideoFrameRepository extends Repository<VideoFrame> {
         return VideoFrame.TABLE_NAME;
     }
 
-    public void saveVideoFrame(ModelSession session, ArtifactRowKey artifactRowKey, InputStream in, long frameStartTime) {
-        SaveFileResults saveFileResults = session.saveFile(in);
+    public void saveVideoFrame(ModelSession session, ArtifactRowKey artifactRowKey, InputStream in, long frameStartTime, User user) {
+        SaveFileResults saveFileResults = session.saveFile(in, user);
         VideoFrameRowKey videoFrameRowKey = new VideoFrameRowKey(artifactRowKey.toString(), frameStartTime);
         VideoFrame videoFrame = new VideoFrame(videoFrameRowKey);
         videoFrame.getMetadata()
                 .setHdfsPath(saveFileResults.getFullPath());
-        this.save(videoFrame);
+        this.save(videoFrame, user);
     }
 
     public List<VideoFrame> findAllByArtifactRowKey(String rowKey, User user) {
         return this.findByRowStartsWith(rowKey, user);
     }
 
-    public BufferedImage loadImage(ModelSession session, VideoFrame videoFrame) {
-        InputStream in = session.loadFile(videoFrame.getMetadata().getHdfsPath());
+    public BufferedImage loadImage(ModelSession session, VideoFrame videoFrame, User user) {
+        InputStream in = session.loadFile(videoFrame.getMetadata().getHdfsPath(), user);
         try {
             return ImageIO.read(in);
         } catch (IOException e) {
