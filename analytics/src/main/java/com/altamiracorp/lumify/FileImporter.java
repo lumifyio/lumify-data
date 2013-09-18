@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
@@ -27,10 +28,14 @@ import java.util.Iterator;
 public class FileImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileImporter.class.getName());
     public static final String MAPPING_JSON_FILE_NAME_SUFFIX = ".mapping.json";
+    private final ArtifactRepository artifactRepository;
 
-    private ArtifactRepository artifactRepository = new ArtifactRepository();
+    @Inject
+    public FileImporter(ArtifactRepository artifactRepository) {
+        this.artifactRepository = artifactRepository;
+    }
 
-    public Result writeFile(AppSession session, File file, String source, JSONObject mappingJson) throws IOException, MutationsRejectedException {
+    public Result writeFile(File file, String source, JSONObject mappingJson, User user) throws IOException, MutationsRejectedException {
         if (file.getName().startsWith(".")) {
             return null;
         }
@@ -38,11 +43,11 @@ public class FileImporter {
             return null;
         }
         Artifact artifact = artifactRepository.createArtifactFromInputStream(
-                session.getModelSession(),
                 file.length(),
                 new FileInputStream(file),
                 file.getName(),
-                file.lastModified());
+                file.lastModified(),
+                user);
         artifact.getGenericMetadata().setSubject(artifact.getGenericMetadata().getFileName());
         artifact.getGenericMetadata().setSource(source);
         if (mappingJson != null) {
@@ -50,13 +55,13 @@ public class FileImporter {
         }
 
         LOGGER.info("Writing artifact: " + artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension() + " (rowId: " + artifact.getRowKey().toString() + ")");
-        artifactRepository.save(session.getModelSession(), artifact);
-        artifact = artifactRepository.findByRowKey(session.getModelSession(), artifact.getRowKey().toString());
-        GraphVertex graphVertex = artifactRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), artifact);
+        artifactRepository.save(artifact, user);
+        artifact = artifactRepository.findByRowKey(artifact.getRowKey().toString(), user);
+        GraphVertex graphVertex = artifactRepository.saveToGraph(artifact, user);
         return new Result(file, artifact, graphVertex);
     }
 
-    public ArrayList<Result> writePackage(AppSession session, File file, String source) throws Exception {
+    public ArrayList<Result> writePackage(File file, String source, User user) throws Exception {
         ArrayList<Result> results;
         ZipFile zipped = new ZipFile(file);
         if (zipped.isValidZipFile()) {
@@ -65,19 +70,19 @@ public class FileImporter {
                 LOGGER.info("Extracting: " + file.getAbsoluteFile() + " to " + tempDir.getAbsolutePath());
                 zipped.extractAll(tempDir.getAbsolutePath());
 
-                results = writeDirectory(session, tempDir, "*", source);
+                results = writeDirectory(tempDir, "*", source, user);
             } finally {
                 FileUtils.deleteDirectory(tempDir);
             }
         } else {
             results = new ArrayList<Result>();
-            Result r = writeFile(session, file, source, null);
+            Result r = writeFile(file, source, null, user);
             results.add(r);
         }
         return results;
     }
 
-    public ArrayList<Result> writeDirectory(AppSession session, File directory, String pattern, String source) throws Exception {
+    public ArrayList<Result> writeDirectory(File directory, String pattern, String source, User user) throws Exception {
         ArrayList<Result> results = new ArrayList<Result>();
         IOFileFilter fileFilter = new WildcardFileFilter(pattern);
         IOFileFilter directoryFilter = TrueFileFilter.INSTANCE;
@@ -87,7 +92,7 @@ public class FileImporter {
             File f = fileIterator.next();
             if (f.isFile() && !f.getName().endsWith(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
                 JSONObject mappingJson = readMappingJsonFile(f);
-                Result r = writeFile(session, f, source, mappingJson);
+                Result r = writeFile(f, source, mappingJson, user);
                 if (r != null) {
                     results.add(r);
                 }

@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.web;
 
 import com.altamiracorp.lumify.model.user.UserRepository;
 import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +16,7 @@ public class DevBasicAuthenticationProvider extends AuthenticationProvider {
     private static final int HTTP_NOT_AUTHORIZED_ERROR_CODE = 401;
     private final UserRepository userRepository;
 
+    @Inject
     public DevBasicAuthenticationProvider(UserRepository userRepository) {
         this.userRepository = userRepository;
     }

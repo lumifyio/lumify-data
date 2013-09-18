@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.objectDetection;
 
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.search.SearchProvider;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import org.json.JSONObject;
@@ -18,21 +19,21 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class ObjectDetectionWorker implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectDetectionWorker.class.getName());
     private final ArtifactRepository artifactRepository = new ArtifactRepository();
-    private final AppSession session;
+    private final SearchProvider searchProvider = new SearchProvider();
+    private final User user;
     private final String artifactKey;
     private final String columnName;
     private final JSONObject info;
 
-    public ObjectDetectionWorker(final AppSession session, final String artifactKey, final String columnName,
-                                 final JSONObject info) {
-        checkNotNull(session);
+    public ObjectDetectionWorker(final String artifactKey, final String columnName, final JSONObject info, User user) {
         checkNotNull(artifactKey);
         checkArgument(!artifactKey.isEmpty(), "The provided artifact key is empty");
         checkNotNull(columnName);
         checkArgument(!columnName.isEmpty(), "The provided column name is empty");
         checkNotNull(info);
+        checkNotNull(user);
 
-        this.session = session;
+        this.user = user;
         this.artifactKey = artifactKey;
         this.columnName = columnName;
         this.info = info;
@@ -47,7 +48,7 @@ public class ObjectDetectionWorker implements Runnable {
 
         if (artifact != null) {
             try {
-                if (modifyObjectDetection(session, artifact)) {
+                if (modifyObjectDetection(artifact)) {
                     LOGGER.info(String.format("Resolving object detection for artifact took: %d ms", System.currentTimeMillis() - startTime));
                 }
             } catch (Exception e) {
@@ -58,13 +59,13 @@ public class ObjectDetectionWorker implements Runnable {
         }
     }
 
-    private boolean modifyObjectDetection(final AppSession session, final Artifact artifact) throws Exception {
+    private boolean modifyObjectDetection(final Artifact artifact) throws Exception {
         boolean modified = false;
 
         if (info != null) {
             artifact.getArtifactDetectedObjects().set(columnName, info);
-            artifactRepository.save(artifact);
-            session.getSearchProvider().add(artifact);
+            artifactRepository.save(artifact, user);
+            searchProvider.add(artifact);
             modified = true;
         } else {
             LOGGER.info("Could not retrieve valid column value for detected object");

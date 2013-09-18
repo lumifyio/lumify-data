@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.web;
 
 import com.altamiracorp.lumify.model.user.UserRepository;
+import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,6 +13,7 @@ import java.security.cert.X509Certificate;
 public class DevX509AuthenticationProvider extends X509AuthenticationProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(DevX509AuthenticationProvider.class);
 
+    @Inject
     public DevX509AuthenticationProvider(UserRepository userRepository) {
         super(userRepository);
     }

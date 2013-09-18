@@ -185,7 +185,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         return vertex;
     }
 
-    public Artifact createArtifactFromInputStream(ModelSession session, long size, InputStream in, String fileName, long fileTimestamp, User user) throws IOException {
+    public Artifact createArtifactFromInputStream(long size, InputStream in, String fileName, long fileTimestamp, User user) throws IOException {
         Artifact artifact;
 
         if (size > Artifact.MAX_SIZE_OF_INLINE_FILE) {

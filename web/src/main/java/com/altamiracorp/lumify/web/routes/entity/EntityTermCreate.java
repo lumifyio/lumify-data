@@ -1,14 +1,6 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.entityHighlight.EntityHighlightWorker;
 import com.altamiracorp.lumify.entityHighlight.TermMentionOffsetItem;
 import com.altamiracorp.lumify.model.Repository;
@@ -24,6 +16,13 @@ import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class EntityTermCreate extends BaseRequestHandler {
     private final Repository<TermMention> termMentionRepository;
@@ -50,15 +49,15 @@ public class EntityTermCreate extends BaseRequestHandler {
         final String conceptId = getRequiredParameter(request, "conceptId");
         final String resolvedGraphVertexId = getOptionalParameter(request, "graphVertexId");
 
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactKey, mentionStart, mentionEnd);
 
-        GraphVertex conceptVertex = graphRepository.findVertex(session.getGraphSession(), conceptId);
+        GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
         GraphVertex resolvedVertex;
         if (resolvedGraphVertexId != null) {
-            resolvedVertex = graphRepository.findVertex(session.getGraphSession(), resolvedGraphVertexId);
+            resolvedVertex = graphRepository.findVertex(resolvedGraphVertexId, user);
         } else {
-            resolvedVertex = graphRepository.findVertexByTitleAndType(session.getGraphSession(), sign, VertexType.ENTITY);
+            resolvedVertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, user);
             if (resolvedVertex == null) {
                 resolvedVertex = new InMemoryGraphVertex();
                 resolvedVertex.setType(VertexType.ENTITY);
@@ -69,11 +68,11 @@ public class EntityTermCreate extends BaseRequestHandler {
         resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
         resolvedVertex.setProperty(PropertyName.TITLE, sign);
 
-        graphRepository.saveVertex(session.getGraphSession(), resolvedVertex);
+        graphRepository.saveVertex(resolvedVertex, user);
 
-        graphRepository.saveRelationship(session.getGraphSession(), artifactId, resolvedVertex.getId(), LabelName.HAS_ENTITY);
+        graphRepository.saveRelationship(artifactId, resolvedVertex.getId(), LabelName.HAS_ENTITY, user);
 
-        TermMention termMention = termMentionRepository.findByRowKey(session.getModelSession(), termMentionRowKey.toString());
+        TermMention termMention = termMentionRepository.findByRowKey(termMentionRowKey.toString(), user);
         if (termMention == null) {
             termMention = new TermMention(termMentionRowKey);
         }
@@ -82,10 +81,10 @@ public class EntityTermCreate extends BaseRequestHandler {
                 .setConcept((String) conceptVertex.getProperty(PropertyName.DISPLAY_NAME))
                 .setConceptGraphVertexId(conceptVertex.getId())
                 .setGraphVertexId(resolvedVertex.getId());
-        termMentionRepository.save(session.getModelSession(), termMention);
+        termMentionRepository.save(termMention, user);
 
         // Modify the highlighted artifact text in a background thread
-        executorService.execute(new EntityHighlightWorker(session, artifactKey));
+        executorService.execute(new EntityHighlightWorker(artifactKey, user));
 
         TermMentionOffsetItem offsetItem = new TermMentionOffsetItem(termMention, resolvedVertex);
 
