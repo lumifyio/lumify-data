@@ -164,6 +164,7 @@ define([
                 var vertices = [];
                 vertices.push(data.info);
                 self.trigger(document, 'updateVertices', { vertices: vertices });
+                self.trigger(document, 'refreshRelationships');
 
                 _.defer(self.teardown.bind(self));
             });
