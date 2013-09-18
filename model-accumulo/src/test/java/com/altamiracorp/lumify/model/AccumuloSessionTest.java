@@ -1,6 +1,5 @@
 package com.altamiracorp.lumify.model;
 
-import junit.framework.Assert;
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.client.mock.MockConnector;
 import org.apache.accumulo.core.client.mock.MockInstance;
@@ -9,6 +8,7 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.thrift.AuthInfo;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,9 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.fail;
 
 @RunWith(JUnit4.class)
 public class AccumuloSessionTest {
