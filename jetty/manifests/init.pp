@@ -4,6 +4,7 @@ class jetty(
 ){
   require java
 
+  $jetty_confidential_port = hiera('jetty_confidential_port')
   $jetty_key_store_path = hiera('jetty_key_store_path')
   $jetty_key_store_password = hiera('jetty_key_store_password')
 
