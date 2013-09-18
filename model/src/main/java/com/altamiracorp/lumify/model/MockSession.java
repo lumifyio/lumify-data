@@ -10,7 +10,7 @@ public class MockSession extends ModelSession {
     public HashMap<String, List<Row>> tables = new HashMap<String, List<Row>>();
 
     @Override
-    void save(Row row) {
+    void save(Row row, User user) {
         List<Row> table = tables.get(row.getTableName());
         if (table == null) {
             throw new NullPointerException("Could not find table with name: " + row.getTableName());
@@ -19,9 +19,9 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    void saveMany(String tableName, Collection<Row> rows) {
+    void saveMany(String tableName, Collection<Row> rows, User user) {
         for (Row r : rows) {
-            save(r);
+            save(r, user);
         }
     }
 
@@ -89,17 +89,17 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    public void initializeTable(String tableName) {
+    public void initializeTable(String tableName, User user) {
         this.tables.put(tableName, new ArrayList<Row>());
     }
 
     @Override
-    public void deleteTable(String tableName) {
+    public void deleteTable(String tableName, User user) {
         this.tables.remove(tableName);
     }
 
     @Override
-    public void deleteRow(String tableName, RowKey rowKey) {
+    public void deleteRow(String tableName, RowKey rowKey, User user) {
         String rowKeyStr = rowKey.toString();
         List<Row> rows = this.tables.get(tableName);
         for (int i = 0; i < rows.size(); i++) {
@@ -111,7 +111,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    public SaveFileResults saveFile(InputStream in) {
+    public SaveFileResults saveFile(InputStream in, User user) {
         try {
             File temp = File.createTempFile("lumify", ".bin");
             OutputStream out = new FileOutputStream(temp);
@@ -127,7 +127,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    public InputStream loadFile(String path) {
+    public InputStream loadFile(String path, User user) {
         try {
             return new FileInputStream(path);
         } catch (FileNotFoundException ex) {
@@ -136,12 +136,12 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    public long getFileLength(String path) {
+    public long getFileLength(String path, User user) {
         return new File(path).length();
     }
 
     @Override
-    public List<String> getTableList() {
+    public List<String> getTableList(User user) {
         return new ArrayList<String>(this.tables.keySet());
     }
 }
