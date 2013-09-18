@@ -11,7 +11,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh core)
+classpath=$(${DIR}/classpath.sh analytics)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
