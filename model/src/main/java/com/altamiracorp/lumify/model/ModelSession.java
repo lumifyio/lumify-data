@@ -82,4 +82,6 @@ public abstract class ModelSession {
     public abstract long getFileLength(String path, User user);
 
     public abstract List<String> getTableList(User user);
+
+    public abstract void close();
 }

@@ -146,7 +146,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
             }
 
             LOGGER.info("Detecting objects of concept " + classifierConcept + " for artifact " + rowKey.toString());
-            List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), artifact);
+            List<DetectedObject> detectedObjects = objectDetector.detectObjects(artifact, getUser());
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
                     artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, objectDetector.getModelName(),
@@ -162,7 +162,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
 
         public void safeMap(Text rowKey, VideoFrame videoFrame, Context context) throws Exception {
             LOGGER.info("Detecting objects of concept " + classifierConcept + " for video frame " + rowKey.toString());
-            List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), videoFrame);
+            List<DetectedObject> detectedObjects = objectDetector.detectObjects(videoFrame, getUser());
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
                     videoFrame.getDetectedObjects().addDetectedObject(classifierConcept, objectDetector.getModelName(), detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());

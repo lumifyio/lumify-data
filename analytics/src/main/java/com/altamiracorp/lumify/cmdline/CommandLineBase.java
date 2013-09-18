@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.cmdline;
 
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.core.user.User;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.commons.cli.*;
 import org.apache.hadoop.conf.Configured;
@@ -11,6 +12,7 @@ public abstract class CommandLineBase extends Configured implements Tool {
     private String configLocation = "file:///opt/lumify/config/configuration.properties";
     private String credentialsLocation;
     private Configuration configuration;
+    private User user = new User();
 
     @Override
     public int run(String[] args) throws Exception {
@@ -100,5 +102,9 @@ public abstract class CommandLineBase extends Configured implements Tool {
         } catch (Exception e) {
             throw new RuntimeException("Could not find class '" + className + "'", e);
         }
+    }
+
+    protected User getUser() {
+        return user;
     }
 }

@@ -50,8 +50,8 @@ public class VideoFrameRepository extends Repository<VideoFrame> {
         return findByRowStartsWith(rowKey, user);
     }
 
-    public BufferedImage loadImage(ModelSession session, VideoFrame videoFrame, User user) {
-        InputStream in = session.loadFile(videoFrame.getMetadata().getHdfsPath(), user);
+    public BufferedImage loadImage(VideoFrame videoFrame, User user) {
+        InputStream in = getModelSession().loadFile(videoFrame.getMetadata().getHdfsPath(), user);
         try {
             return ImageIO.read(in);
         } catch (IOException e) {

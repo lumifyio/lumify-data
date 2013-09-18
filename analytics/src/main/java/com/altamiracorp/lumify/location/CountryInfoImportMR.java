@@ -4,6 +4,7 @@ import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
 import com.altamiracorp.lumify.model.geoNames.GeoNameCountryInfo;
 import com.altamiracorp.lumify.model.geoNames.GeoNameCountryInfoRepository;
+import com.google.inject.Inject;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -28,20 +29,29 @@ public class CountryInfoImportMR extends ConfigurableMapJobBase {
     }
 
     public static class CountryInfoImportMapper extends LumifyMapper<LongWritable, Text, NullWritable, NullWritable> {
-        private GeoNameCountryInfoRepository geoNameCountryInfoRepository = new GeoNameCountryInfoRepository();
-        private GeoNamesImporter geoNamesImporter = new GeoNamesImporter();
+        private GeoNameCountryInfoRepository geoNameCountryInfoRepository;
+        private GeoNamesImporter geoNamesImporter;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
             super.setup(context);
-            getSession().getModelSession().initializeTable(GeoNameCountryInfo.TABLE_NAME);
+            getSession().getModelSession().initializeTable(GeoNameCountryInfo.TABLE_NAME, getUser());
         }
 
         @Override
         protected void safeMap(LongWritable key, Text value, Context context) throws Exception {
-            geoNameCountryInfoRepository.save(geoNamesImporter.lineToCountryInfo(value.toString()));
+            geoNameCountryInfoRepository.save(geoNamesImporter.lineToCountryInfo(value.toString()), getUser());
         }
 
+        @Inject
+        public void setGeoNameCountryInfoRepository(GeoNameCountryInfoRepository geoNameCountryInfoRepository) {
+            this.geoNameCountryInfoRepository = geoNameCountryInfoRepository;
+        }
+
+        @Inject
+        public void setGeoNamesImporter(GeoNamesImporter geoNamesImporter) {
+            this.geoNamesImporter = geoNamesImporter;
+        }
     }
 
     public static void main(String[] args) throws Exception {

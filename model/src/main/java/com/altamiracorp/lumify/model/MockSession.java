@@ -144,4 +144,8 @@ public class MockSession extends ModelSession {
     public List<String> getTableList(User user) {
         return new ArrayList<String>(this.tables.keySet());
     }
+
+    @Override
+    public void close() {
+    }
 }

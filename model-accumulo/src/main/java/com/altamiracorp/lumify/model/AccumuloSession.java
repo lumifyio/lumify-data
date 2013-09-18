@@ -284,6 +284,11 @@ public class AccumuloSession extends ModelSession {
         return new ArrayList<String>(this.connector.tableOperations().list());
     }
 
+    @Override
+    public void close() {
+        // TODO: close me
+    }
+
     public long getMaxMemory() {
         return maxMemory;
     }

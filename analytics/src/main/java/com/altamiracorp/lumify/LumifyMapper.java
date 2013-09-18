@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify;
 
+import com.altamiracorp.lumify.core.user.User;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,12 +12,17 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
 
     private AppSession session;
     private boolean failOnFirstError;
+    private User user = new User();
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
         session = ConfigurableMapJobBase.createAppSession(context);
         failOnFirstError = context.getConfiguration().getBoolean("failOnFirstError", false);
+    }
+
+    protected User getUser() {
+        return user;
     }
 
     @Override
