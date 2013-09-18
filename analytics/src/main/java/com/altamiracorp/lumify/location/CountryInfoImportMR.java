@@ -32,14 +32,14 @@ public class CountryInfoImportMR extends ConfigurableMapJobBase {
         private GeoNamesImporter geoNamesImporter = new GeoNamesImporter();
 
         @Override
-        protected void setup (Context context) throws IOException, InterruptedException {
+        protected void setup(Context context) throws IOException, InterruptedException {
             super.setup(context);
             getSession().getModelSession().initializeTable(GeoNameCountryInfo.TABLE_NAME);
         }
 
         @Override
         protected void safeMap(LongWritable key, Text value, Context context) throws Exception {
-            geoNameCountryInfoRepository.save(getSession().getModelSession(),geoNamesImporter.lineToCountryInfo(value.toString()));
+            geoNameCountryInfoRepository.save(geoNamesImporter.lineToCountryInfo(value.toString()));
         }
 
     }

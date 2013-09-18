@@ -41,9 +41,9 @@ public abstract class ModelSession {
     public ModelSession() {
     }
 
-    abstract void save(Row row);
+    abstract void save(Row row, User user);
 
-    abstract void saveMany(String tableName, Collection<Row> rows);
+    abstract void saveMany(String tableName, Collection<Row> rows, User user);
 
     public abstract List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, User user);
 
@@ -55,34 +55,31 @@ public abstract class ModelSession {
 
     abstract Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, User user);
 
-    abstract List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser,
-                                                                                long colFamOffset, long colFamLimit, String colFamRegex);
+    public abstract void initializeTable(String tableName, User user);
 
-    public abstract void initializeTable(String tableName);
+    public abstract void deleteTable(String tableName, User user);
 
-    public abstract void deleteTable(String tableName);
+    public abstract void deleteRow(String tableName, RowKey rowKey, User user);
 
-    public abstract void deleteRow(String tableName, RowKey rowKey);
-
-    public void initializeTables() {
+    public void initializeTables(User user) {
         LOGGER.info("initializeTables");
         for (String table : tables) {
-            initializeTable(table);
+            initializeTable(table, user);
         }
     }
 
-    public void deleteTables() {
+    public void deleteTables(User user) {
         LOGGER.info("deleteTables");
         for (String table : tables) {
-            deleteTable(table);
+            deleteTable(table, user);
         }
     }
 
-    public abstract SaveFileResults saveFile(InputStream in);
+    public abstract SaveFileResults saveFile(InputStream in, User user);
 
-    public abstract InputStream loadFile(String path);
+    public abstract InputStream loadFile(String path, User user);
 
-    public abstract long getFileLength(String path);
+    public abstract long getFileLength(String path, User user);
 
-    public abstract List<String> getTableList();
+    public abstract List<String> getTableList(User user);
 }

@@ -9,10 +9,6 @@ import java.util.regex.Pattern;
 public class MockSession extends ModelSession {
     public HashMap<String, List<Row>> tables = new HashMap<String, List<Row>>();
 
-    public MockSession() {
-        super(new QueryUser());
-    }
-
     @Override
     void save(Row row) {
         List<Row> table = tables.get(row.getTableName());
@@ -90,40 +86,6 @@ public class MockSession extends ModelSession {
     @Override
     Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, User user) {
         return findByRowKey(tableName, rowKey, user);
-    }
-
-    @Override
-    List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
-        List<Row> rows = this.tables.get(tableName);
-        if (rows == null) {
-            throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
-        }
-
-        Row matchedRow = null;
-        for (Row row : rows) {
-            if (row.getRowKey().toString().equals(rowKey)) {
-                matchedRow = row;
-                break;
-            }
-        }
-
-        List<ColumnFamily> result = new ArrayList<ColumnFamily>();
-        long count = 0L;
-        for (ColumnFamily colFam : (Collection<ColumnFamily>) matchedRow.getColumnFamilies()) {
-            if (Pattern.matches(colFamRegex, colFam.getColumnFamilyName())) {
-                if (count < colFamOffset + colFamLimit) {
-                    if (count >= colFamOffset) {
-                        result.add(colFam);
-                    }
-                } else {
-                    break;
-                }
-
-                count++;
-            }
-        }
-
-        return result;
     }
 
     @Override

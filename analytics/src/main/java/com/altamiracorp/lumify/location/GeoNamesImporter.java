@@ -107,7 +107,7 @@ public class GeoNamesImporter extends CommandLineBase {
         writeCountryInfoFile(session, new FileInputStream(countryInfoFile));
 
         File postalCodeFile = new File(this.postalCodeFileName);
-        writePostalCodeFile (session, new FileInputStream(postalCodeFile));
+        writePostalCodeFile(session, new FileInputStream(postalCodeFile));
 
         session.close();
         return 0;
@@ -124,12 +124,12 @@ public class GeoNamesImporter extends CommandLineBase {
             geoNames.add(lineToGeoName(line));
             count++;
             if ((count % 1000) == 0) {
-                geoNameRepository.saveMany(session.getModelSession(), geoNames);
+                geoNameRepository.saveMany(geoNames);
                 geoNames.clear();
                 LOGGER.info("Imported " + count + " of ~8500000  items.");
             }
         }
-        geoNameRepository.saveMany(session.getModelSession(), geoNames);
+        geoNameRepository.saveMany(geoNames);
         geoNames.clear();
         LOGGER.info("Imported " + count + " of ~8500000  items.");
 
@@ -228,12 +228,12 @@ public class GeoNamesImporter extends CommandLineBase {
             admin1Codes.add(lineToAdmin1Code(line));
             count++;
             if ((count % 1000) == 0) {
-                geoNameAdmin1CodeRepository.saveMany(session.getModelSession(), admin1Codes);
+                geoNameAdmin1CodeRepository.saveMany(admin1Codes);
                 admin1Codes.clear();
                 LOGGER.info("Imported " + count + " of ~4000  items.");
             }
         }
-        geoNameAdmin1CodeRepository.saveMany(session.getModelSession(), admin1Codes);
+        geoNameAdmin1CodeRepository.saveMany(admin1Codes);
         admin1Codes.clear();
         LOGGER.info("Imported " + count + " of ~4000  items.");
 
@@ -270,12 +270,12 @@ public class GeoNamesImporter extends CommandLineBase {
             countryInfos.add(countryInfo);
             count++;
             if ((count % 100) == 0) {
-                geoNameCountryInfoRepository.saveMany(session.getModelSession(), countryInfos);
+                geoNameCountryInfoRepository.saveMany(countryInfos);
                 countryInfos.clear();
                 LOGGER.info("Imported " + count + " of ~400  items.");
             }
         }
-        geoNameCountryInfoRepository.saveMany(session.getModelSession(), countryInfos);
+        geoNameCountryInfoRepository.saveMany(countryInfos);
         countryInfos.clear();
         LOGGER.info("Imported " + count + " of ~400  items.");
 
@@ -311,12 +311,12 @@ public class GeoNamesImporter extends CommandLineBase {
             postalCodes.add(postalCode);
             count++;
             if ((count % 100) == 0) {
-                geoNamePostalCodeRepository.saveMany(session.getModelSession(), postalCodes);
+                geoNamePostalCodeRepository.saveMany(postalCodes);
                 postalCodes.clear();
                 LOGGER.info("Imported " + count + " of ~43630  items.");
             }
         }
-        geoNamePostalCodeRepository.saveMany(session.getModelSession(), postalCodes);
+        geoNamePostalCodeRepository.saveMany(postalCodes);
         postalCodes.clear();
         LOGGER.info("Imported " + count + " of ~43630  items.");
 

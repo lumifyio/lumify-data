@@ -1,11 +1,11 @@
 package com.altamiracorp.lumify.model.graph;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.GraphSession;
 import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
 import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Vertex;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,129 +15,130 @@ import java.util.Map;
 
 public class GraphRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphRepository.class.getName());
+    private GraphSession graphSession;
 
-    public Edge findEdge (GraphSession graphSession, String sourceId, String destId, String label){
-        return graphSession.findEdge (sourceId, destId, label);
+    public Edge findEdge(String sourceId, String destId, String label, User user) {
+        return graphSession.findEdge(sourceId, destId, label, user);
     }
 
-    public GraphVertex findVertex(GraphSession graphSession, String graphVertexId) {
-        return graphSession.findGraphVertex(graphVertexId);
+    public GraphVertex findVertex(String graphVertexId, User user) {
+        return graphSession.findGraphVertex(graphVertexId, user);
     }
 
-    public GraphVertex findVertexByRowKey(GraphSession graphSession, String rowKey) {
-        return graphSession.findVertexByRowKey(rowKey);
+    public GraphVertex findVertexByRowKey(String rowKey, User user) {
+        return graphSession.findVertexByRowKey(rowKey, user);
     }
 
-    public List<GraphVertex> findVertices(GraphSession graphSession, String[] vertexIds) {
-        return graphSession.findGraphVertices(vertexIds);
+    public List<GraphVertex> findVertices(String[] vertexIds, User user) {
+        return graphSession.findGraphVertices(vertexIds, user);
     }
 
-    public GraphVertex findVertexByTitleAndType(GraphSession graphSession, String graphVertexTitle, VertexType type) {
-        return graphSession.findVertexByExactTitleAndType(graphVertexTitle, type);
+    public GraphVertex findVertexByTitleAndType(String graphVertexTitle, VertexType type, User user) {
+        return graphSession.findVertexByExactTitleAndType(graphVertexTitle, type, user);
     }
 
-    public List<GraphVertex> getRelatedVertices(GraphSession graphSession, String graphVertexId) {
-        return graphSession.getRelatedVertices(graphVertexId);
+    public List<GraphVertex> getRelatedVertices(String graphVertexId, User user) {
+        return graphSession.getRelatedVertices(graphVertexId, user);
     }
 
-    public List<GraphRelationship> getRelationships(GraphSession graphSession, List<String> allIds) {
-        return graphSession.getRelationships(allIds);
+    public List<GraphRelationship> getRelationships(List<String> allIds, User user) {
+        return graphSession.getRelationships(allIds, user);
     }
 
-    public void saveMany(GraphSession graphSession, List<GraphRelationship> graphRelationships) {
+    public void saveMany(List<GraphRelationship> graphRelationships, User user) {
         for (GraphRelationship graphRelationship : graphRelationships) {
-            save(graphSession, graphRelationship);
+            save(graphRelationship, user);
         }
     }
 
-    private GraphRelationship save(GraphSession graphSession, GraphRelationship graphRelationship) {
-        graphSession.save(graphRelationship);
+    private GraphRelationship save(GraphRelationship graphRelationship, User user) {
+        graphSession.save(graphRelationship, user);
         return graphRelationship;
     }
 
-    public GraphRelationship saveRelationship(GraphSession graphSession, String sourceGraphVertexId, String destGraphVertexId, String label) {
+    public GraphRelationship saveRelationship(String sourceGraphVertexId, String destGraphVertexId, String label, User user) {
         GraphRelationship relationship = new GraphRelationship(null, sourceGraphVertexId, destGraphVertexId, label);
         relationship.setProperty(PropertyName.RELATIONSHIP_TYPE.toString(), label);
-        return save(graphSession, relationship);
+        return save(relationship, user);
     }
 
-    public GraphRelationship saveRelationship(GraphSession graphSession, String sourceGraphVertexId, String destGraphVertexId, LabelName label) {
-        return saveRelationship(graphSession, sourceGraphVertexId, destGraphVertexId, label.toString());
+    public GraphRelationship saveRelationship(String sourceGraphVertexId, String destGraphVertexId, LabelName label, User user) {
+        return saveRelationship(sourceGraphVertexId, destGraphVertexId, label.toString(), user);
     }
 
-    public GraphRelationship saveRelationship(GraphSession graphSession, GraphVertex sourceGraphVertex, GraphVertex destGraphVertex, LabelName label) {
-        return saveRelationship(graphSession, sourceGraphVertex.getId(), destGraphVertex.getId(), label);
+    public GraphRelationship saveRelationship(GraphVertex sourceGraphVertex, GraphVertex destGraphVertex, LabelName label, User user) {
+        return saveRelationship(sourceGraphVertex.getId(), destGraphVertex.getId(), label, user);
     }
 
-    public String saveVertex(GraphSession graphSession, GraphVertex graphVertex) {
-        return graphSession.save(graphVertex);
+    public String saveVertex(GraphVertex graphVertex, User user) {
+        return graphSession.save(graphVertex, user);
     }
 
-    public Map<String, String> getVertexProperties(GraphSession graphSession, String graphVertexId) {
-        return graphSession.getVertexProperties(graphVertexId);
+    public Map<String, String> getVertexProperties(String graphVertexId, User user) {
+        return graphSession.getVertexProperties(graphVertexId, user);
     }
 
-    public Map<GraphRelationship, GraphVertex> getRelationships(GraphSession graphSession, String graphVertexId) {
-        return graphSession.getRelationships(graphVertexId);
+    public Map<GraphRelationship, GraphVertex> getRelationships(String graphVertexId, User user) {
+        return graphSession.getRelationships(graphVertexId, user);
     }
 
-    public Map<String, String> getEdgeProperties(GraphSession graphSession, String sourceVertex, String destVertex, String label) {
-        return graphSession.getEdgeProperties(sourceVertex, destVertex, label);
+    public Map<String, String> getEdgeProperties(String sourceVertex, String destVertex, String label, User user) {
+        return graphSession.getEdgeProperties(sourceVertex, destVertex, label, user);
     }
 
-    public List<GraphVertex> findByGeoLocation(GraphSession graphSession, double latitude, double longitude, double radius) {
+    public List<GraphVertex> findByGeoLocation(double latitude, double longitude, double radius, User user) {
         LOGGER.info("findByGeoLocation latitude: " + latitude + ", longitude: " + longitude + ", radius: " + radius);
-        return graphSession.findByGeoLocation(latitude, longitude, radius);
+        return graphSession.findByGeoLocation(latitude, longitude, radius, user);
     }
 
-    public List<GraphVertex> searchVerticesByTitle(GraphSession graphSession, String title, JSONArray filterJson) {
-        return graphSession.searchVerticesByTitle(title, filterJson);
+    public List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson, User user) {
+        return graphSession.searchVerticesByTitle(title, filterJson, user);
     }
 
-    public List<GraphVertex> searchVerticesByTitleAndType(GraphSession graphSession, String query, VertexType type) {
-        return graphSession.searchVerticesByTitleAndType(query, type);
+    public List<GraphVertex> searchVerticesByTitleAndType(String query, VertexType type, User user) {
+        return graphSession.searchVerticesByTitleAndType(query, type, user);
     }
 
-    public void removeRelationship(GraphSession graphSession, String source, String target, String label) {
-        graphSession.removeRelationship(source, target, label);
+    public void removeRelationship(String source, String target, String label, User user) {
+        graphSession.removeRelationship(source, target, label, user);
         return;
     }
 
-    public GraphRelationship findOrAddRelationship(GraphSession graphSession, String sourceVertexId, String targetVertexId, String label) {
-        Map<GraphRelationship, GraphVertex> relationships = getRelationships(graphSession, sourceVertexId);
+    public GraphRelationship findOrAddRelationship(String sourceVertexId, String targetVertexId, String label, User user) {
+        Map<GraphRelationship, GraphVertex> relationships = getRelationships(sourceVertexId, user);
         for (Map.Entry<GraphRelationship, GraphVertex> relationship : relationships.entrySet()) {
             if (relationship.getValue().getId().equals(targetVertexId) &&
                     relationship.getKey().getLabel().equals(label)) {
                 return relationship.getKey();
             }
         }
-        return this.saveRelationship(graphSession, sourceVertexId, targetVertexId, label);
+        return this.saveRelationship(sourceVertexId, targetVertexId, label, user);
     }
 
-    public GraphRelationship findOrAddRelationship(GraphSession graphSession, String sourceVertexId, String targetVertexId, LabelName label) {
-        return findOrAddRelationship(graphSession, sourceVertexId, targetVertexId, label.toString());
+    public GraphRelationship findOrAddRelationship(String sourceVertexId, String targetVertexId, LabelName label, User user) {
+        return findOrAddRelationship(sourceVertexId, targetVertexId, label.toString(), user);
     }
 
-    public GraphRelationship findOrAddRelationship(GraphSession graphSession, GraphVertex sourceVertex, GraphVertex targetVertex, LabelName label) {
-        return findOrAddRelationship(graphSession, sourceVertex.getId(), targetVertex.getId(), label);
+    public GraphRelationship findOrAddRelationship(GraphVertex sourceVertex, GraphVertex targetVertex, LabelName label, User user) {
+        return findOrAddRelationship(sourceVertex.getId(), targetVertex.getId(), label, user);
     }
 
-    public List<List<GraphVertex>> findPath(GraphSession graphSession, GraphVertex sourceVertex, GraphVertex destVertex, int depth, int hops) {
-        return graphSession.findPath(sourceVertex, destVertex, depth, hops);
+    public List<List<GraphVertex>> findPath(GraphVertex sourceVertex, GraphVertex destVertex, int depth, int hops, User user) {
+        return graphSession.findPath(sourceVertex, destVertex, depth, hops, user);
     }
 
-    public void remove(GraphSession graphSession, String graphVertexId) {
-        graphSession.remove(graphVertexId);
+    public void remove(String graphVertexId, User user) {
+        graphSession.remove(graphVertexId, user);
     }
 
-    public void setPropertyEdge(GraphSession graphSession, String sourceId, String destId, String label,  String propertyName, Object value) {
-        Edge edge = findEdge(graphSession, sourceId, destId, label);
+    public void setPropertyEdge(String sourceId, String destId, String label, String propertyName, Object value, User user) {
+        Edge edge = findEdge(sourceId, destId, label, user);
         edge.setProperty(propertyName, value);
         LOGGER.info("set property of vertex: " + edge.getId() + ", property name: " + propertyName + ", value: " + value);
         graphSession.commit();
     }
 
-    public void commit(GraphSession graphSession) {
+    public void commit() {
         graphSession.commit();
     }
 }

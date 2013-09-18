@@ -55,7 +55,7 @@ public class ArtifactThumbnailRepository extends Repository<ArtifactThumbnail> {
         return artifactThumbnail.getMetadata().getData();
     }
 
-    public byte[] createThumbnail(ArtifactRowKey artifactRowKey, String thumbnailType, InputStream in, int[] boundaryDims) throws IOException {
+    public byte[] createThumbnail(ArtifactRowKey artifactRowKey, String thumbnailType, InputStream in, int[] boundaryDims, User user) throws IOException {
         BufferedImage originalImage = ImageIO.read(in);
         int[] originalImageDims = new int[]{originalImage.getWidth(), originalImage.getHeight()};
         int[] newImageDims = getScaledDimension(originalImageDims, boundaryDims);
@@ -74,16 +74,16 @@ public class ArtifactThumbnailRepository extends Repository<ArtifactThumbnail> {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(resizedImage, "jpg", out);
 
-        saveThumbnail(artifactRowKey, thumbnailType, boundaryDims, out.toByteArray());
+        saveThumbnail(artifactRowKey, thumbnailType, boundaryDims, out.toByteArray(), user);
 
         return out.toByteArray();
     }
 
-    private void saveThumbnail(ArtifactRowKey artifactRowKey, String thumbnailType, int[] boundaryDims, byte[] bytes) {
+    private void saveThumbnail(ArtifactRowKey artifactRowKey, String thumbnailType, int[] boundaryDims, byte[] bytes, User user) {
         ArtifactThumbnailRowKey artifactThumbnailRowKey = new ArtifactThumbnailRowKey(artifactRowKey.toString(), thumbnailType, boundaryDims[0], boundaryDims[1]);
         ArtifactThumbnail artifactThumbnail = new ArtifactThumbnail(artifactThumbnailRowKey);
         artifactThumbnail.getMetadata().setData(bytes);
-        save(artifactThumbnail);
+        save(artifactThumbnail, user);
     }
 
     public static int[] getScaledDimension(int[] imgSize, int[] boundary) {

@@ -175,17 +175,6 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
-        try {
-            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
-            scanner.setRange(new Range(rowKey));
-            return AccumuloHelper.scannerToColumnFamiliesFilteredByRegex(scanner, colFamOffset, colFamLimit, colFamRegex);
-        } catch (TableNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public void initializeTable(String tableName) {
         LOGGER.info("initializeTable: " + tableName);
         try {

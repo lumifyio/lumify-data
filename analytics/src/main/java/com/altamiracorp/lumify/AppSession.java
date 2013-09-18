@@ -115,8 +115,7 @@ public class AppSession {
         String hdfsRootDir = props.getProperty(AccumuloSession.HADOOP_URL);
         FileSystem hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), hadoopConfiguration, "hadoop");
 
-        AccumuloQueryUser queryUser = new AccumuloQueryUser();
-        return new AccumuloSession(connector, hdfsFileSystem, hdfsRootDir, queryUser, context);
+        return new AccumuloSession(connector, hdfsFileSystem, hdfsRootDir, context);
     }
 
     public void close() {

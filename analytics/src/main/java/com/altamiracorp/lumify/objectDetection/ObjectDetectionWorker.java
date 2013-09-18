@@ -3,13 +3,12 @@ package com.altamiracorp.lumify.objectDetection;
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Responsible for modifying the html tag of an {@link com.altamiracorp.lumify.ucd.artifact.ArtifactDetectedObjects}
@@ -24,8 +23,8 @@ public class ObjectDetectionWorker implements Runnable {
     private final String columnName;
     private final JSONObject info;
 
-    public ObjectDetectionWorker (final AppSession session, final String artifactKey, final String columnName,
-                                  final JSONObject info) {
+    public ObjectDetectionWorker(final AppSession session, final String artifactKey, final String columnName,
+                                 final JSONObject info) {
         checkNotNull(session);
         checkNotNull(artifactKey);
         checkArgument(!artifactKey.isEmpty(), "The provided artifact key is empty");
@@ -40,15 +39,15 @@ public class ObjectDetectionWorker implements Runnable {
     }
 
     @Override
-    public void run () {
+    public void run() {
         LOGGER.info("Modifying object detection html tag for artifact with key: " + artifactKey);
 
         final long startTime = System.currentTimeMillis();
-        final Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactKey);
+        final Artifact artifact = artifactRepository.findByRowKey(artifactKey, user);
 
-        if (artifact != null){
+        if (artifact != null) {
             try {
-                if ( modifyObjectDetection(session, artifact)){
+                if (modifyObjectDetection(session, artifact)) {
                     LOGGER.info(String.format("Resolving object detection for artifact took: %d ms", System.currentTimeMillis() - startTime));
                 }
             } catch (Exception e) {
@@ -59,12 +58,12 @@ public class ObjectDetectionWorker implements Runnable {
         }
     }
 
-    private boolean modifyObjectDetection (final AppSession session, final Artifact artifact) throws Exception {
+    private boolean modifyObjectDetection(final AppSession session, final Artifact artifact) throws Exception {
         boolean modified = false;
 
         if (info != null) {
             artifact.getArtifactDetectedObjects().set(columnName, info);
-            artifactRepository.save(session.getModelSession(), artifact);
+            artifactRepository.save(artifact);
             session.getSearchProvider().add(artifact);
             modified = true;
         } else {

@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.ucd.artifact;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.*;
 import com.altamiracorp.lumify.model.graph.GraphGeoLocation;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
@@ -18,6 +19,13 @@ import java.util.Collection;
 
 
 public class ArtifactRepository extends Repository<Artifact> {
+    private GraphSession graphSession;
+
+    public ArtifactRepository(ModelSession modelSession, GraphSession graphSession) {
+        super(modelSession);
+        this.graphSession = graphSession;
+    }
+
     @Override
     public Row toRow(Artifact artifact) {
         return artifact;
@@ -55,11 +63,11 @@ public class ArtifactRepository extends Repository<Artifact> {
         return artifact;
     }
 
-    public SaveFileResults saveFile(ModelSession session, InputStream in) {
-        return session.saveFile(in);
+    public SaveFileResults saveFile(InputStream in, User user) {
+        return getModelSession().saveFile(in, user);
     }
 
-    public InputStream getRaw(ModelSession session, Artifact artifact) {
+    public InputStream getRaw(Artifact artifact, User user) {
         byte[] bytes = artifact.getContent().getDocArtifactBytes();
         if (bytes != null) {
             return new ByteArrayInputStream(bytes);
@@ -67,14 +75,14 @@ public class ArtifactRepository extends Repository<Artifact> {
 
         String hdfsPath = artifact.getGenericMetadata().getHdfsFilePath();
         if (hdfsPath != null) {
-            return session.loadFile(hdfsPath);
+            return getModelSession().loadFile(hdfsPath, user);
         }
 
         return null;
     }
 
-    public BufferedImage getRawAsImage(ModelSession session, Artifact artifact) {
-        InputStream in = getRaw(session, artifact);
+    public BufferedImage getRawAsImage(Artifact artifact, User user) {
+        InputStream in = getRaw(artifact, user);
         try {
             try {
                 return ImageIO.read(in);
@@ -86,59 +94,59 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
     }
 
-    public InputStream getRawMp4(ModelSession session, Artifact artifact) {
+    public InputStream getRawMp4(Artifact artifact, User user) {
         String path = artifact.getGenericMetadata().getMp4HdfsFilePath();
         if (path == null) {
             throw new RuntimeException("MP4 Video file path not set.");
         }
-        return session.loadFile(path);
+        return getModelSession().loadFile(path, user);
     }
 
-    public long getRawMp4Length(ModelSession session, Artifact artifact) {
+    public long getRawMp4Length(Artifact artifact, User user) {
         String path = artifact.getGenericMetadata().getMp4HdfsFilePath();
         if (path == null) {
             throw new RuntimeException("MP4 Video file path not set.");
         }
-        return session.getFileLength(path);
+        return getModelSession().getFileLength(path, user);
     }
 
-    public InputStream getRawWebm(ModelSession session, Artifact artifact) {
+    public InputStream getRawWebm(Artifact artifact, User user) {
         String path = artifact.getGenericMetadata().getWebmHdfsFilePath();
         if (path == null) {
             throw new RuntimeException("WebM Video file path not set.");
         }
-        return session.loadFile(path);
+        return getModelSession().loadFile(path, user);
     }
 
-    public long getRawWebmLength(ModelSession session, Artifact artifact) {
+    public long getRawWebmLength(Artifact artifact, User user) {
         String path = artifact.getGenericMetadata().getWebmHdfsFilePath();
         if (path == null) {
             throw new RuntimeException("WebM Video file path not set.");
         }
-        return session.getFileLength(path);
+        return getModelSession().getFileLength(path, user);
     }
 
-    public InputStream getRawPosterFrame(ModelSession session, Artifact artifact) {
+    public InputStream getRawPosterFrame(Artifact artifact, User user) {
         String path = artifact.getGenericMetadata().getPosterFrameHdfsFilePath();
         if (path == null) {
             throw new RuntimeException("Poster Frame file path not set.");
         }
-        return session.loadFile(path);
+        return getModelSession().loadFile(path, user);
     }
 
-    public InputStream getVideoPreviewImage(ModelSession session, Artifact artifact) {
+    public InputStream getVideoPreviewImage(Artifact artifact, User user) {
         String path = artifact.getGenericMetadata().getVideoPreviewImageHdfsFilePath();
         if (path == null) {
             throw new RuntimeException("Video preview image path not set.");
         }
-        return session.loadFile(path);
+        return getModelSession().loadFile(path, user);
     }
 
-    public GraphVertex saveToGraph(ModelSession session, GraphSession graphSession, Artifact artifact) {
+    public GraphVertex saveToGraph(Artifact artifact, User user) {
         GraphVertex vertex = null;
         String oldGraphVertexId = artifact.getGenericMetadata().getGraphVertexId();
         if (oldGraphVertexId != null) {
-            vertex = graphSession.findGraphVertex(oldGraphVertexId);
+            vertex = graphSession.findGraphVertex(oldGraphVertexId, user);
         }
 
         if (vertex == null) {
@@ -159,30 +167,30 @@ public class ArtifactRepository extends Repository<Artifact> {
             vertex.setProperty(PropertyName.TITLE.toString(), artifact.getGenericMetadata().getSubject());
         }
 
-        if (artifact.getGenericMetadata().getSource() != null){
+        if (artifact.getGenericMetadata().getSource() != null) {
             vertex.setProperty(PropertyName.SOURCE.toString(), artifact.getGenericMetadata().getSource());
         }
 
-        if (artifact.getPublishedDate() != null){
+        if (artifact.getPublishedDate() != null) {
             vertex.setProperty(PropertyName.PUBLISHED_DATE.toString(), artifact.getPublishedDate().getTime());
         }
 
-        String vertexId = graphSession.save(vertex);
+        String vertexId = graphSession.save(vertex, user);
         graphSession.commit();
         if (!vertexId.equals(oldGraphVertexId)) {
             artifact.getGenericMetadata().setGraphVertexId(vertexId);
-            this.save(artifact);
+            this.save(artifact, user);
         }
 
         return vertex;
     }
 
-    public Artifact createArtifactFromInputStream(ModelSession session, long size, InputStream in, String fileName, long fileTimestamp) throws IOException {
+    public Artifact createArtifactFromInputStream(ModelSession session, long size, InputStream in, String fileName, long fileTimestamp, User user) throws IOException {
         Artifact artifact;
 
         if (size > Artifact.MAX_SIZE_OF_INLINE_FILE) {
             try {
-                SaveFileResults saveResults = saveFile(session, in);
+                SaveFileResults saveResults = saveFile(in, user);
                 artifact = new Artifact(saveResults.getRowKey());
                 artifact.getGenericMetadata()
                         .setHdfsFilePath(saveResults.getFullPath())

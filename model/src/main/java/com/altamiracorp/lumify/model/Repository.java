@@ -8,7 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Repository<T extends Row> {
-    private ModelSession session;
+    private ModelSession modelSession;
+
+    public Repository(ModelSession modelSession) {
+        this.modelSession = modelSession;
+    }
 
     public abstract T fromRow(Row row);
 
@@ -17,7 +21,7 @@ public abstract class Repository<T extends Row> {
     public abstract String getTableName();
 
     public T findByRowKey(String rowKey, User user) {
-        Row row = session.findByRowKey(getTableName(), rowKey, user);
+        Row row = modelSession.findByRowKey(getTableName(), rowKey, user);
         if (row == null) {
             return null;
         }
@@ -27,7 +31,7 @@ public abstract class Repository<T extends Row> {
     }
 
     public T findByRowKey(String rowKey, Map<String, String> columnsToReturn, User user) {
-        Row row = session.findByRowKey(getTableName(), rowKey, columnsToReturn, user);
+        Row row = modelSession.findByRowKey(getTableName(), rowKey, columnsToReturn, user);
         if (row == null) {
             return null;
         }
@@ -37,21 +41,21 @@ public abstract class Repository<T extends Row> {
     }
 
     public List<T> findByRowStartsWith(String rowKeyPrefix, User user) {
-        Collection<Row> rows = session.findByRowStartsWith(getTableName(), rowKeyPrefix, user);
+        Collection<Row> rows = modelSession.findByRowStartsWith(getTableName(), rowKeyPrefix, user);
         return fromRows(rows);
     }
 
     public List<T> findAll(User user) {
-        Collection<Row> rows = session.findByRowStartsWith(getTableName(), null, user);
+        Collection<Row> rows = modelSession.findByRowStartsWith(getTableName(), null, user);
         return fromRows(rows);
     }
 
-    public void save(T obj) {
+    public void save(T obj, User user) {
         Row r = toRow(obj);
-        session.save(r);
+        modelSession.save(r, user);
     }
 
-    public void saveMany(Collection<T> objs) {
+    public void saveMany(Collection<T> objs, User user) {
         List<Row> rows = new ArrayList<Row>();
         String tableName = null;
         for (T obj : objs) {
@@ -61,7 +65,7 @@ public abstract class Repository<T extends Row> {
             }
             rows.add(row);
         }
-        session.saveMany(tableName, rows);
+        modelSession.saveMany(tableName, rows, user);
     }
 
     public List<T> fromRows(Collection<Row> rows) {
@@ -74,7 +78,11 @@ public abstract class Repository<T extends Row> {
         return results;
     }
 
-    public void delete(RowKey rowKey) {
-        session.deleteRow(getTableName(), rowKey);
+    public void delete(RowKey rowKey, User user) {
+        modelSession.deleteRow(getTableName(), rowKey, user);
+    }
+
+    protected ModelSession getModelSession() {
+        return modelSession;
     }
 }
