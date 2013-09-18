@@ -10,10 +10,10 @@
     </parent>
 
     <groupId>com.altamiracorp.lumify</groupId>
-    <artifactId>lumify-core</artifactId>
+    <artifactId>lumify-analytics</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>Core</name>
+    <name>Analytics</name>
 
     <dependencies>
         <dependency>

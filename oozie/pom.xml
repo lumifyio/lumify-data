@@ -31,7 +31,7 @@
         </dependency>
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
-            <artifactId>lumify-core</artifactId>
+            <artifactId>lumify-analytics</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>
