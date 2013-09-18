@@ -6,6 +6,7 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.iterators.user.RegExFilter;
+import org.apache.accumulo.core.util.ColumnFQ;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -236,6 +237,13 @@ public class AccumuloSession extends ModelSession {
         } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void deleteColumn (Row row, String columnFamily, String columnQualifier) {
+        LOGGER.info("delete column: " + columnQualifier + " from columnFamily: " + columnFamily + ", row: " + row.getRowKey().toString());
+        Mutation mutation = createMutationFromRow(row);
+        mutation.putDelete(new Text(columnFamily), new Text(columnQualifier));
     }
 
     @Override

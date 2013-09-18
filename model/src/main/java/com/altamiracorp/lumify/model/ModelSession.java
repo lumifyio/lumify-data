@@ -66,6 +66,8 @@ public abstract class ModelSession {
 
     public abstract void deleteRow(String tableName, RowKey rowKey);
 
+    public abstract void deleteColumn (Row row, String columnFamily, String columnQualifier);
+
     public void initializeTables() {
         LOGGER.info("initializeTables");
         for (String table : tables) {
