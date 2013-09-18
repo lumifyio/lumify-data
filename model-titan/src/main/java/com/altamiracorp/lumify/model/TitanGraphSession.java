@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphGeoLocation;
 import com.altamiracorp.lumify.model.graph.GraphRelationship;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
@@ -81,7 +82,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public String save(GraphVertex vertex) {
+    public String save(GraphVertex vertex, User user) {
         Vertex v = null;
         if (vertex instanceof TitanGraphVertex) {
             return vertex.getId(); // properties are already set
@@ -109,13 +110,13 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public String save(GraphRelationship relationship) {
+    public String save(GraphRelationship relationship, User user) {
         Edge edge = null;
         if (relationship.getId() != null) {
             edge = graph.getEdge(relationship.getId());
         }
         if (edge == null) {
-            edge = findEdge(relationship.getSourceVertexId(), relationship.getDestVertexId(), relationship.getLabel());
+            edge = findEdge(relationship.getSourceVertexId(), relationship.getDestVertexId(), relationship.getLabel(), user);
         }
         if (edge == null) {
             Vertex sourceVertex = findVertex(relationship.getSourceVertexId());
@@ -156,7 +157,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public Edge findEdge(String sourceId, String destId, String label) {
+    public Edge findEdge(String sourceId, String destId, String label, User user) {
         Vertex sourceVertex = this.graph.getVertex(sourceId);
         if (sourceVertex == null) {
             throw new RuntimeException("Could not find vertex with id: " + sourceId);
@@ -173,7 +174,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public Property getOrCreatePropertyType(String name, PropertyType dataType) {
+    public Property getOrCreatePropertyType(String name, PropertyType dataType, User user) {
         TitanKey typeProperty = (TitanKey) graph.getType(name);
         VertexProperty v;
         if (typeProperty != null) {
@@ -204,7 +205,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public void findOrAddEdge(GraphVertex fromVertex, GraphVertex toVertex, String edgeLabel) {
+    public void findOrAddEdge(GraphVertex fromVertex, GraphVertex toVertex, String edgeLabel, User user) {
         checkNotNull(fromVertex, "fromVertex was null");
         checkNotNull(toVertex, "toVertex was null");
         Vertex titanFromVertex = getVertex(fromVertex);
@@ -222,7 +223,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public GraphVertex getOrCreateRelationshipType(String relationshipName) {
+    public GraphVertex getOrCreateRelationshipType(String relationshipName, User user) {
         TitanType relationshipLabel = graph.getType(relationshipName);
         TitanGraphVertex v;
         if (relationshipLabel != null) {
@@ -236,9 +237,9 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<Vertex> getRelationships(Concept sourceConcept, final Concept destConcept) {
-        List<Vertex> sourceAndParents = getConceptParents(sourceConcept);
-        List<Vertex> destAndParents = getConceptParents(destConcept);
+    public List<Vertex> getRelationships(Concept sourceConcept, final Concept destConcept, User user) {
+        List<Vertex> sourceAndParents = getConceptParents(sourceConcept, user);
+        List<Vertex> destAndParents = getConceptParents(destConcept, user);
 
         List<Vertex> allRelationshipTypes = new ArrayList<Vertex>();
         for (Vertex s : sourceAndParents) {
@@ -267,18 +268,18 @@ public class TitanGraphSession extends GraphSession {
                 .toList();
     }
 
-    private List<Vertex> getConceptParents(Concept concept) {
+    private List<Vertex> getConceptParents(Concept concept, User user) {
         ArrayList<Vertex> results = new ArrayList<Vertex>();
         results.add(concept.getVertex());
         Vertex v = concept.getVertex();
-        while ((v = getParentConceptVertex(v)) != null) {
+        while ((v = getParentConceptVertex(v, user)) != null) {
             results.add(v);
         }
         return results;
     }
 
     @Override
-    public Vertex getParentConceptVertex(Vertex conceptVertex) {
+    public Vertex getParentConceptVertex(Vertex conceptVertex, User user) {
         Iterator<Vertex> parents = conceptVertex.getVertices(Direction.OUT, LabelName.IS_A.toString()).iterator();
         if (!parents.hasNext()) {
             return null;
@@ -288,12 +289,6 @@ public class TitanGraphSession extends GraphSession {
             throw new RuntimeException("Unexpected number of parents for concept: " + conceptVertex.getProperty(PropertyName.TITLE.toString()));
         }
         return v;
-    }
-
-    @Override
-    public List<GraphVertex> findBy(String key, String value) {
-        Iterable<Vertex> vertices = this.graph.getVertices(key, value);
-        return toGraphVertices(vertices);
     }
 
     private ArrayList<GraphVertex> toGraphVertices(Iterable<Vertex> vertices) {
@@ -313,7 +308,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<GraphVertex> getRelatedVertices(String graphVertexId) {
+    public List<GraphVertex> getRelatedVertices(String graphVertexId, User user) {
         ArrayList<GraphVertex> results = new ArrayList<GraphVertex>();
         Vertex vertex = this.graph.getVertex(graphVertexId);
 
@@ -329,7 +324,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<GraphRelationship> getRelationships(List<String> allIds) {
+    public List<GraphRelationship> getRelationships(List<String> allIds, User user) {
         List<GraphRelationship> graphRelationships = new ArrayList<GraphRelationship>();
         for (String id : allIds) {
             Vertex vertex = this.graph.getVertex(id);
@@ -355,9 +350,9 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public Map<String, String> getEdgeProperties(String sourceVertex, String destVertex, String label) {
+    public Map<String, String> getEdgeProperties(String sourceVertex, String destVertex, String label, User user) {
         Map<String, String> properties = new HashMap<String, String>();
-        Edge e = findEdge(sourceVertex, destVertex, label);
+        Edge e = findEdge(sourceVertex, destVertex, label, user);
         if (e != null) {
             for (String property : e.getPropertyKeys()) {
                 properties.put(property, e.getProperty(property).toString());
@@ -368,7 +363,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<GraphVertex> findByGeoLocation(double latitude, double longitude, double radius) {
+    public List<GraphVertex> findByGeoLocation(double latitude, double longitude, double radius, User user) {
         Iterable<Vertex> r = graph.query()
                 .has(PropertyName.GEO_LOCATION.toString(), Geo.WITHIN, Geoshape.circle(latitude, longitude, radius))
                 .vertices();
@@ -376,7 +371,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson) {
+    public List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson, User user) {
         String[] titleParts = title.split(" ");
 
         TitanGraphQuery query = graph.query();
@@ -390,7 +385,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<GraphVertex> searchVerticesByTitleAndType(String title, VertexType type) {
+    public List<GraphVertex> searchVerticesByTitleAndType(String title, VertexType type, User user) {
         String[] titleParts = title.split(" ");
 
         TitanGraphQuery query = graph.query();
@@ -406,7 +401,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public GraphVertex findVertexByExactTitleAndType(String graphVertexTitle, VertexType type) {
+    public GraphVertex findVertexByExactTitleAndType(String graphVertexTitle, VertexType type, User user) {
         Iterable<Vertex> r = graph.query()
                 .has(PropertyName.TITLE.toString(), graphVertexTitle)
                 .has(PropertyName.TYPE.toString(), type.toString())
@@ -419,7 +414,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public GraphVertex findVertexByOntologyTitleAndType(String title, VertexType type) {
+    public GraphVertex findVertexByOntologyTitleAndType(String title, VertexType type, User user) {
         Iterable<Vertex> r = graph.query()
                 .has(PropertyName.ONTOLOGY_TITLE.toString(), title)
                 .has(PropertyName.TYPE.toString(), type.toString())
@@ -432,7 +427,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public GraphVertex findVertexByOntologyTitle(String title) {
+    public GraphVertex findVertexByOntologyTitle(String title, User user) {
         Iterable<Vertex> r = graph.query()
                 .has(PropertyName.ONTOLOGY_TITLE.toString(), title)
                 .vertices();
@@ -444,7 +439,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public GraphVertex findVertexByRowKey(String rowKey) {
+    public GraphVertex findVertexByRowKey(String rowKey, User user) {
         Iterable<Vertex> r = graph.query()
                 .has(PropertyName.ROW_KEY.toString(), rowKey)
                 .vertices();
@@ -456,7 +451,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public GraphVertex findGraphVertex(String graphVertexId) {
+    public GraphVertex findGraphVertex(String graphVertexId, User user) {
         Vertex vertex = findVertex(graphVertexId);
         if (vertex == null) {
             return null;
@@ -465,10 +460,10 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<GraphVertex> findGraphVertices(String[] vertexIds) {
+    public List<GraphVertex> findGraphVertices(String[] vertexIds, User user) {
         ArrayList<GraphVertex> vertices = new ArrayList<GraphVertex>();
         for (String vertexId : vertexIds) {
-            vertices.add(findGraphVertex(vertexId));
+            vertices.add(findGraphVertex(vertexId, user));
         }
         return vertices;
     }
@@ -482,7 +477,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public void deleteSearchIndex() {
+    public void deleteSearchIndex(User user) {
         LOGGER.info("delete search index: " + DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME);
         //TODO: should port be configurable? How about cluster name?
         TransportClient client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(localConf.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME, "localhost"), DEFAULT_STORAGE_INDEX_SEARCH_PORT));
@@ -490,7 +485,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public Map<String, String> getVertexProperties(String graphVertexId) {
+    public Map<String, String> getVertexProperties(String graphVertexId, User user) {
         Vertex vertex = this.graph.getVertex(graphVertexId);
         GremlinPipeline gremlinPipeline = new GremlinPipeline(vertex).map();
 
@@ -500,7 +495,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<List<GraphVertex>> findPath(GraphVertex sourceVertex, GraphVertex destVertex, final int depth, final int hops) {
+    public List<List<GraphVertex>> findPath(GraphVertex sourceVertex, GraphVertex destVertex, final int depth, final int hops, User user) {
         Vertex source = getVertex(sourceVertex);
         Collection<Vertex> s = new ArrayList<Vertex>();
         final String destVertexId = destVertex.getId();
@@ -582,7 +577,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public Map<GraphRelationship, GraphVertex> getRelationships(String graphVertexId) {
+    public Map<GraphRelationship, GraphVertex> getRelationships(String graphVertexId, User user) {
         Vertex vertex = this.graph.getVertex(graphVertexId);
         if (vertex == null) {
             throw new RuntimeException("Could not find vertex with id: " + graphVertexId);
@@ -619,7 +614,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public void remove(String graphVertexId) {
+    public void remove(String graphVertexId, User user) {
         Vertex vertex = this.graph.getVertex(graphVertexId);
         if (vertex == null) {
             throw new RuntimeException("Could not find vertex with id: " + graphVertexId);
@@ -632,8 +627,9 @@ public class TitanGraphSession extends GraphSession {
         return graph;
     }
 
-    public void removeRelationship(String source, String target, String label) {
-        Edge edge = findEdge(source, target, label);
+    @Override
+    public void removeRelationship(String source, String target, String label, User user) {
+        Edge edge = findEdge(source, target, label, user);
         if (edge != null) {
             edge.remove();
             commit();

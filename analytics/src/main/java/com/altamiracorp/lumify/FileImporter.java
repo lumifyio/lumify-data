@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.google.common.io.Files;
+import com.google.inject.Inject;
 import net.lingala.zip4j.core.ZipFile;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.commons.io.FileUtils;
