@@ -42,6 +42,7 @@ public class AccumuloSessionTest {
     private int maxWriteThreads = 10;
     private User queryUser;
 
+
     @Before
     public void before() throws AccumuloSecurityException, AccumuloException {
         mockInstance = new MockInstance();
@@ -55,7 +56,7 @@ public class AccumuloSessionTest {
         queryUser = new User();
 
         accumuloSession = new AccumuloSession(connector, null, null, null);
-        accumuloSession.initializeTable(TEST_TABLE_NAME);
+        accumuloSession.initializeTable(TEST_TABLE_NAME, queryUser);
     }
 
     @Test
@@ -75,7 +76,7 @@ public class AccumuloSessionTest {
         columnFamily2.set("2testColumn3", 222L);
         row.addColumnFamily(columnFamily2);
 
-        accumuloSession.save(row);
+        accumuloSession.save(row, queryUser);
 
         Scanner scanner = connector.createScanner(TEST_TABLE_NAME, authorizations);
         scanner.setRange(new Range("testRowKey1"));
