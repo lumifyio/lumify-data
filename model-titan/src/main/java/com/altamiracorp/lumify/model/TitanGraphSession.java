@@ -34,7 +34,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class TitanGraphSession extends GraphSession {
     public static final String STORAGE_BACKEND_KEY = "graph.storage.backend";
     public static final String STORAGE_TABLE_NAME_KEY = "graph.storage.tablename";
-    public static final String STORAGE_INDEX_SEARCH_BACKEND = "graph.storage.index.search.backend";
     public static final String STORAGE_INDEX_SEARCH_HOSTNAME = "graph.storage.index.search.hostname";
     public static final String DEFAULT_STORAGE_TABLE_NAME = "atc_titan";
     public static final String DEFAULT_BACKEND_NAME = AccumuloStorageManager.class.getName();
@@ -58,7 +57,7 @@ public class TitanGraphSession extends GraphSession {
         conf.setProperty("storage.username", props.getProperty(AccumuloSession.USERNAME));
         conf.setProperty("storage.password", props.getProperty(AccumuloSession.PASSWORD));
 
-        conf.setProperty("storage.index.search.backend", props.getProperty(STORAGE_INDEX_SEARCH_BACKEND, DEFAULT_SEARCH_NAME));
+        conf.setProperty("storage.index.search.backend", DEFAULT_SEARCH_NAME);
         conf.setProperty("storage.index.search.hostname", props.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME, "localhost"));
         conf.setProperty("storage.index.search.client-only", "true");
 
