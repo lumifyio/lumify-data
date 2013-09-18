@@ -9,25 +9,16 @@ import org.junit.runners.JUnit4;
 import java.net.URLEncoder;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 
 @RunWith(JUnit4.class)
 public class DictionarySearcherTest {
 
-    private DictionaryEncoder mockEncoder;
     private DictionarySearcher searcher;
 
     @Before
     public void setUp() throws Exception {
-        mockEncoder = mock(DictionaryEncoder.class);
         searcher = new DictionarySearcher();
     }
-
-//    @Test
-//    public void testHttpRequestNormal() {
-//        String response = searcher.httpRequest("http://google.com");
-//        assertTrue("A standard http request returned an empty response", response.length() > 0);
-//    }
 
     @Test(expected = RuntimeException.class)
     public void testHttpRequestMalformedURL() throws Exception {
