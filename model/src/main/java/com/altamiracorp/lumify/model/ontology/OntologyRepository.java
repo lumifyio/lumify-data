@@ -259,7 +259,7 @@ public class OntologyRepository {
         return concepts;
     }
 
-    public List<Property> getPropertiesByRelationship(GraphSession graphSession, String relationshipLabel, User user) {
+    public List<Property> getPropertiesByRelationship(String relationshipLabel, User user) {
         Vertex relationshipVertex = getRelationshipVertexId(relationshipLabel, user);
         if (relationshipVertex == null) {
             throw new RuntimeException("Could not find relationship: " + relationshipLabel);
