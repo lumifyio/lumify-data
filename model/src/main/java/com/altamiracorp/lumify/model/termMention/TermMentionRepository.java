@@ -1,17 +1,16 @@
 package com.altamiracorp.lumify.model.termMention;
 
-import java.util.Collection;
-import java.util.List;
-
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.Column;
-import com.altamiracorp.lumify.model.ColumnFamily;
 import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.Row;
 import com.google.inject.Inject;
 
+import java.util.List;
+
 public class TermMentionRepository extends Repository<TermMention> {
+    private TermMentionBuilder termMentionBuilder = new TermMentionBuilder();
+
     @Inject
     public TermMentionRepository(final ModelSession modelSession) {
         super(modelSession);
@@ -19,17 +18,7 @@ public class TermMentionRepository extends Repository<TermMention> {
 
     @Override
     public TermMention fromRow(Row row) {
-        TermMention termMention = new TermMention(row.getRowKey());
-        Collection<ColumnFamily> families = row.getColumnFamilies();
-        for (ColumnFamily columnFamily : families) {
-            if (columnFamily.getColumnFamilyName().equals(TermMentionMetadata.NAME)) {
-                Collection<Column> columns = columnFamily.getColumns();
-                termMention.addColumnFamily(new TermMentionMetadata().addColumns(columns));
-            } else {
-                termMention.addColumnFamily(columnFamily);
-            }
-        }
-        return termMention;
+        return termMentionBuilder.fromRow(row);
     }
 
     @Override
@@ -39,7 +28,7 @@ public class TermMentionRepository extends Repository<TermMention> {
 
     @Override
     public String getTableName() {
-        return TermMention.TABLE_NAME;
+        return termMentionBuilder.getTableName();
     }
 
     public List<TermMention> findByArtifactRowKey(String artifactRowKey, User user) {

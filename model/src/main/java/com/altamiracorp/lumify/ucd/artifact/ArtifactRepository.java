@@ -1,33 +1,25 @@
 package com.altamiracorp.lumify.ucd.artifact;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-
-import javax.imageio.ImageIO;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.Column;
-import com.altamiracorp.lumify.model.ColumnFamily;
-import com.altamiracorp.lumify.model.GraphSession;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.Repository;
-import com.altamiracorp.lumify.model.Row;
-import com.altamiracorp.lumify.model.SaveFileResults;
+import com.altamiracorp.lumify.model.*;
 import com.altamiracorp.lumify.model.graph.GraphGeoLocation;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
 import com.google.inject.Inject;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 
 public class ArtifactRepository extends Repository<Artifact> {
+    private final ArtifactBuilder artifactBuilder = new ArtifactBuilder();
     private final GraphSession graphSession;
 
     @Inject
@@ -43,34 +35,12 @@ public class ArtifactRepository extends Repository<Artifact> {
 
     @Override
     public String getTableName() {
-        return Artifact.TABLE_NAME;
+        return artifactBuilder.getTableName();
     }
 
     @Override
     public Artifact fromRow(Row row) {
-        Artifact artifact = new Artifact(row.getRowKey());
-        Collection<ColumnFamily> families = row.getColumnFamilies();
-        for (ColumnFamily columnFamily : families) {
-            if (columnFamily.getColumnFamilyName().equals(ArtifactContent.NAME)) {
-                Collection<Column> columns = columnFamily.getColumns();
-                artifact.addColumnFamily(new ArtifactContent().addColumns(columns));
-            } else if (columnFamily.getColumnFamilyName().equals(ArtifactGenericMetadata.NAME)) {
-                Collection<Column> columns = columnFamily.getColumns();
-                artifact.addColumnFamily(new ArtifactGenericMetadata().addColumns(columns));
-            } else if (columnFamily.getColumnFamilyName().equals(ArtifactDynamicMetadata.NAME)) {
-                Collection<Column> columns = columnFamily.getColumns();
-                artifact.addColumnFamily(new ArtifactDynamicMetadata().addColumns(columns));
-            } else if (columnFamily.getColumnFamilyName().equals(ArtifactDetectedObjects.NAME)) {
-                Collection<Column> columns = columnFamily.getColumns();
-                artifact.addColumnFamily(new ArtifactDetectedObjects().addColumns(columns));
-            } else if (columnFamily.getColumnFamilyName().equals(ArtifactExtractedText.NAME)) {
-                Collection<Column> columns = columnFamily.getColumns();
-                artifact.addColumnFamily(new ArtifactExtractedText().addColumns(columns));
-            } else {
-                artifact.addColumnFamily(columnFamily);
-            }
-        }
-        return artifact;
+        return artifactBuilder.fromRow(row);
     }
 
     public SaveFileResults saveFile(InputStream in, User user) {
