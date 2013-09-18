@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.model.user.User;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.web.Handler;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,7 +15,7 @@ public abstract class AuthenticationProvider implements Handler {
 
     public static User getUser(HttpSession session) {
         Object user = session.getAttribute(AuthenticationProvider.CURRENT_USER_REQ_ATTR_NAME);
-        return user != null ? (User)user : null;
+        return user != null ? (User) user : null;
     }
 
     public static User getUser(HttpServletRequest request) {

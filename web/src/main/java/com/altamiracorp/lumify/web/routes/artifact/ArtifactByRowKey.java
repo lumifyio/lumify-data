@@ -1,11 +1,6 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONObject;
-
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
@@ -14,6 +9,10 @@ import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
 import com.google.inject.Inject;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class ArtifactByRowKey extends BaseRequestHandler {
     private final Repository<Artifact> artifactRepository;
@@ -24,14 +23,14 @@ public class ArtifactByRowKey extends BaseRequestHandler {
     }
 
     public static String getUrl(HttpServletRequest request, String artifactKey) {
-        return UrlUtils.getRootRef(request) + "/artifact/" + UrlUtils.urlEncode(artifactKey.toString());
+        return UrlUtils.getRootRef(request) + "/artifact/" + UrlUtils.urlEncode(artifactKey);
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
         ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
-        Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactKey.toString());
+        Artifact artifact = artifactRepository.findByRowKey(artifactKey.toString(), user);
 
         if (artifact == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
