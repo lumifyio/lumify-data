@@ -43,6 +43,8 @@ sudo razor policy add -p linux_deploy -l deploy_centos_6.4 -m 342uK53cCMyJfrWYp7
 razor operation
 ---------------
 ```
+sudo /opt/razor/bin/razor_daemon.rb start
+
 # enable the policy
 sudo razor policy update 4PZfLyVeMBZG8p6GqSwmPP -e true
 
