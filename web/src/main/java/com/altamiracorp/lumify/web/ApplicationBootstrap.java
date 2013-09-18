@@ -45,7 +45,6 @@ public final class ApplicationBootstrap implements ServletContextListener {
             final ModelSession modelSession = injector.getInstance(ModelSession.class);
             final SearchProvider searchProvider = injector.getInstance(SearchProvider.class);
 
-            System.out.println("****************Initializing my instance");
             modelSession.initializeTables(new User());
             searchProvider.initializeIndex();
 
