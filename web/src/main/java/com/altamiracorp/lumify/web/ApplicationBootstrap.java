@@ -1,19 +1,24 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.config.ConfigConstants;
-import com.altamiracorp.lumify.config.Configuration;
-import com.altamiracorp.lumify.web.config.ParameterExtractor;
-import com.altamiracorp.lumify.web.guice.modules.Bootstrap;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Properties;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.config.ConfigConstants;
+import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.search.SearchProvider;
+import com.altamiracorp.lumify.web.config.ParameterExtractor;
+import com.altamiracorp.lumify.web.guice.modules.Bootstrap;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 /**
  * Responsible for defining behavior corresponding to web servlet context
@@ -36,6 +41,13 @@ public final class ApplicationBootstrap implements ServletContextListener {
 
             // Store the injector in the context for a servlet to access later
             context.setAttribute(Injector.class.getName(), injector);
+
+            final ModelSession modelSession = injector.getInstance(ModelSession.class);
+            final SearchProvider searchProvider = injector.getInstance(SearchProvider.class);
+
+            System.out.println("****************Initializing my instance");
+            modelSession.initializeTables(new User());
+            searchProvider.initializeIndex();
 
             setupSession(config);
 

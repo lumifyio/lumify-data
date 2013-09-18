@@ -1,9 +1,13 @@
 package com.altamiracorp.lumify;
 
-import com.altamiracorp.lumify.model.*;
-import com.altamiracorp.lumify.ontology.BaseOntology;
-import com.altamiracorp.lumify.search.ElasticSearchProvider;
-import com.altamiracorp.lumify.search.SearchProvider;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -14,13 +18,15 @@ import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Properties;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.AccumuloSession;
+import com.altamiracorp.lumify.model.GraphSession;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.model.TitanGraphSession;
+import com.altamiracorp.lumify.model.TitanQueryFormatter;
+import com.altamiracorp.lumify.ontology.BaseOntology;
+import com.altamiracorp.lumify.search.ElasticSearchProvider;
+import com.altamiracorp.lumify.search.SearchProvider;
 
 
 public class AppSession {
@@ -136,7 +142,7 @@ public class AppSession {
 
     public void initialize() {
         getSearchProvider().initializeIndex();
-        getModelSession().initializeTables();
+        getModelSession().initializeTables(new User());
         createBaseOntology();
     }
 
