@@ -39,8 +39,8 @@ public class VertexToVertexRelationship extends BaseRequestHandler {
         GraphVertex targetVertex = graphRepository.findVertex(session.getGraphSession(), target);
 
         JSONObject results = new JSONObject();
-        results = resultsToJson(source, "source", sourceVertex, results);
-        results = resultsToJson(target, "target", targetVertex, results);
+        results.put("source", resultsToJson(source, sourceVertex));
+        results.put("target", resultsToJson(target, targetVertex));
 
         JSONArray propertyJson = new JSONArray();
         for (Map.Entry<String, String> p : properties.entrySet()) {
@@ -59,23 +59,13 @@ public class VertexToVertexRelationship extends BaseRequestHandler {
         respondWithJson(response, results);
     }
 
-    private JSONObject resultsToJson(String id, String prefix, GraphVertex graphVertex, JSONObject obj) throws JSONException {
-        if (graphVertex.getProperty("_rowKey") == null) {
-            obj.put(prefix + "RowKey", "");
-        } else {
-            obj.put(prefix + "RowKey", graphVertex.getProperty("_rowKey"));
+    private JSONObject resultsToJson(String id, GraphVertex graphVertex) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("id", id);
+        for (String property : graphVertex.getPropertyKeys()) {
+            json.put(property, graphVertex.getProperty(property));
         }
 
-        obj.put(prefix + "Id", id);
-        obj.put(prefix + "SubType", graphVertex.getProperty("_subType"));
-
-        if (graphVertex.getProperty("title") != "") {
-            obj.put(prefix + "Title", graphVertex.getProperty("title"));
-        } else {
-            obj.put(prefix + "Title", graphVertex.getProperty("_type").toString().toLowerCase());
-        }
-
-        obj.put(prefix + "Type", graphVertex.getProperty("_type").toString().toLowerCase());
-        return obj;
+        return json;
     }
 }
