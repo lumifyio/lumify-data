@@ -79,8 +79,19 @@ define([
                         fullscreenButton: self.fullscreenButton([artifact.Generic_Metadata['atc:graph_vertex_id']])
                     }));
 
-                    if(artifact.Dynamic_Metadata && artifact.Dynamic_Metadata['atc:geoLocationTitle'] && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) {
-                        vertex.properties['geoLocation'] = {
+                    if(vertex.properties.geoLocation) {
+                        var m = vertex.properties.geoLocation.match(/point\[(.*?),(.*?)\]/);
+                        if(m) {
+                            var latitude = m[1];
+                            var longitude = m[2];
+                            vertex.properties.geoLocation = {
+                                latitude: latitude,
+                                longitude: longitude,
+                                title: vertex.properties._geoLocationDescription
+                            };
+                        }
+                    } else if(artifact.Dynamic_Metadata && artifact.Dynamic_Metadata['atc:geoLocationTitle'] && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) {
+                        vertex.properties.geoLocation = {
                             latitude: artifact.Dynamic_Metadata.latitude,
                             longitude: artifact.Dynamic_Metadata.longitude,
                             title: artifact.Dynamic_Metadata['atc:geoLocationTitle']

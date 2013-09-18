@@ -1,25 +1,23 @@
 package com.altamiracorp.lumify.web.routes.vertex;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
-import org.json.JSONArray;
+import com.altamiracorp.lumify.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.model.ontology.Property;
+import com.altamiracorp.lumify.model.ontology.PropertyName;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
+import com.altamiracorp.lumify.web.Messaging;
+import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.graph.GraphRepository;
-import com.altamiracorp.lumify.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.model.ontology.Property;
-import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.lumify.web.Messaging;
-import com.altamiracorp.web.HandlerChain;
-import com.google.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 public class VertexSetProperty extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(VertexSetProperty.class);
@@ -54,8 +52,12 @@ public class VertexSetProperty extends BaseRequestHandler {
             return;
         }
 
-        graphRepository.setPropertyVertex(session.getGraphSession(), graphVertexId, propertyName, value);
         GraphVertex graphVertex = graphRepository.findVertex(session.getGraphSession(), graphVertexId);
+        graphVertex.setProperty(propertyName, value);
+        if (propertyName.equals(PropertyName.GEO_LOCATION.toString())) {
+            graphVertex.setProperty(PropertyName.GEO_LOCATION_DESCRIPTION, "");
+        }
+        session.getGraphSession().commit();
 
         Messaging.broadcastPropertyChange(graphVertexId, propertyName, value);
 
@@ -71,11 +73,11 @@ public class VertexSetProperty extends BaseRequestHandler {
         respondWithJson(response, json);
     }
 
-    private JSONObject toJson (GraphVertex vertex){
+    private JSONObject toJson(GraphVertex vertex) {
         JSONObject obj = new JSONObject();
         try {
             obj.put("graphVertexId", vertex.getId());
-            for (String propertyKey : vertex.getPropertyKeys()){
+            for (String propertyKey : vertex.getPropertyKeys()) {
                 obj.put(propertyKey, vertex.getProperty(propertyKey));
             }
             return obj;

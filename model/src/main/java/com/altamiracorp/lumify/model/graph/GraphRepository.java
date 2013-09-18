@@ -130,13 +130,6 @@ public class GraphRepository {
         graphSession.remove(graphVertexId);
     }
 
-    public void setPropertyVertex(GraphSession graphSession, String vertexId, String propertyName, Object value) {
-        Vertex vertex = graphSession.getGraph().getVertex(vertexId);
-        vertex.setProperty(propertyName, value);
-        LOGGER.info("set property of vertex: " + vertex.getId() + ", property name: " + propertyName + ", value: " + value);
-        graphSession.commit();
-    }
-
     public void setPropertyEdge(GraphSession graphSession, String sourceId, String destId, String label,  String propertyName, Object value) {
         Edge edge = findEdge(graphSession, sourceId, destId, label);
         edge.setProperty(propertyName, value);

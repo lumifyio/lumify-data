@@ -13,6 +13,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class OntologyRepository {
     private GraphRepository graphRepository = new GraphRepository();
     public static final String ROOT_CONCEPT_NAME = "rootConcept";
@@ -301,6 +303,7 @@ public class OntologyRepository {
     }
 
     public Property addPropertyTo(GraphSession graphSession, GraphVertex vertex, String propertyName, String displayName, PropertyType dataType) {
+        checkNotNull(vertex, "vertex was null");
         Property property = graphSession.getOrCreatePropertyType(propertyName, dataType);
         property.setProperty(PropertyName.DISPLAY_NAME.toString(), displayName);
         graphSession.commit();

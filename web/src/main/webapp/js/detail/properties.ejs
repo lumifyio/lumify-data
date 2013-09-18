@@ -5,7 +5,7 @@
       <% if(property.value.latitude) { %>
         <span class="value">
             <a href="#" class="map-coordinates" latitude="<%= property.value.latitude %>" longitude="<%= property.value.longitude %>">
-                <%= property.value.title || ('<' + property.value.latitude + ',' + property.value.longitude + '>') %>
+                <%= property.value.title || (property.value.latitude + ', ' + property.value.longitude) %>
             </a>
         </span>
       <% } else { %>

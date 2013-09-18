@@ -100,6 +100,11 @@ public class BaseOntology {
             geoLocationProperty = graph.makeType().name(PropertyName.GEO_LOCATION.toString()).dataType(Geoshape.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).indexed("search", Vertex.class).makePropertyKey();
         }
 
+        TitanKey geoLocationDescriptionProperty = (TitanKey) graph.getType(PropertyName.GEO_LOCATION_DESCRIPTION.toString());
+        if (geoLocationDescriptionProperty == null) {
+            geoLocationDescriptionProperty = graph.makeType().name(PropertyName.GEO_LOCATION_DESCRIPTION.toString()).dataType(String.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).indexed(Vertex.class).makePropertyKey();
+        }
+
         TitanKey publishedDateProperty = (TitanKey) graph.getType(PropertyName.PUBLISHED_DATE.toString());
         if (publishedDateProperty == null) {
             publishedDateProperty = graph.makeType().name(PropertyName.PUBLISHED_DATE.toString()).dataType(Long.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).indexed(Vertex.class).makePropertyKey();
@@ -122,6 +127,7 @@ public class BaseOntology {
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, subTypeProperty.getName(), "Subtype", PropertyType.STRING);
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, titleProperty.getName(), "Title", PropertyType.STRING);
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, geoLocationProperty.getName(), "Geo-location", PropertyType.GEO_LOCATION);
+        ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, geoLocationDescriptionProperty.getName(), "Geo-location Description", PropertyType.STRING);
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, publishedDateProperty.getName(), "Published Date", PropertyType.DATE);
         ontologyRepository.addPropertyTo(session.getGraphSession(), artifact, sourceProperty.getName(), "Source", PropertyType.STRING);
         graph.commit();

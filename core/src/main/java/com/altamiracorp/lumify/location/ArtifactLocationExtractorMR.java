@@ -85,6 +85,10 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
                     if (lat != null && lon != null) {
                         vertex.setProperty(PropertyName.GEO_LOCATION, Geoshape.point(lat, lon));
                     }
+                    String geoLocationTitle = artifact.getDynamicMetadata().getGeoLocationTitle();
+                    if (geoLocationTitle != null) {
+                        vertex.setProperty(PropertyName.GEO_LOCATION_DESCRIPTION, geoLocationTitle);
+                    }
                 }
             }
         }

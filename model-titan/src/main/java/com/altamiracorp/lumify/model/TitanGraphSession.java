@@ -206,6 +206,8 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public void findOrAddEdge(GraphVertex fromVertex, GraphVertex toVertex, String edgeLabel) {
+        checkNotNull(fromVertex, "fromVertex was null");
+        checkNotNull(toVertex, "toVertex was null");
         Vertex titanFromVertex = getVertex(fromVertex);
         Vertex titanToVertex = getVertex(toVertex);
 
@@ -573,6 +575,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     private Vertex getVertex(GraphVertex v) {
+        checkNotNull(v, "GraphVertex cannot be null");
         if (v instanceof TitanGraphVertex) {
             return ((TitanGraphVertex) v).getVertex();
         }
