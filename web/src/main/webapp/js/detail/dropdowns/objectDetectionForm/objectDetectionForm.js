@@ -189,6 +189,7 @@ define([
                 var vertices = [];
                 vertices.push(resolvedVertex);
                 self.trigger(document, 'updateVertices', { vertices: vertices });
+                self.trigger(document, 'refreshRelationships');
 
                 if ($('.artifact').data('Jcrop')) {
                     $('.artifact').data('Jcrop').release ();
