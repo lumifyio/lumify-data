@@ -152,7 +152,7 @@ define([
         this.createEntity = function (parameters) {
             var self = this;
 
-            this.entityService.createEntity(parameters, function(err, data) {
+            this.entityService.resolveDetectedObject(parameters, function(err, data) {
                 if (err) {
                     console.error('createEntity', err);
                     return self.trigger(document, 'error', err);
@@ -202,7 +202,7 @@ define([
 
         this.updateEntity = function (parameters) {
             var self = this;
-            this.entityService.updateEntity (parameters, function(err, data) {
+            this.entityService.updateDetectedObject (parameters, function(err, data) {
                 if (err) {
                     console.error('createEntity', err);
                     return self.trigger(document, 'error', err);

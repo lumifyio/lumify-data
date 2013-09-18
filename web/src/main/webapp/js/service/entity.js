@@ -20,7 +20,7 @@ function(ServiceBase) {
 		});
 	};
 
-	EntityService.prototype.createEntity = function(createRequest, callback) {
+	EntityService.prototype.resolveDetectedObject = function(createRequest, callback) {
         this._ajaxPost({
             url: 'entity/createEntity',
             data: createRequest
@@ -29,7 +29,7 @@ function(ServiceBase) {
         });
     };
 
-    EntityService.prototype.updateEntity = function(updateRequest, callback) {
+    EntityService.prototype.updateDetectedObject = function(updateRequest, callback) {
         this._ajaxPost({
             url: 'entity/updateEntity',
             data: updateRequest
