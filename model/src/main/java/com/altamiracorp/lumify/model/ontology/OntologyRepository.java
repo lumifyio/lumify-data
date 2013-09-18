@@ -108,7 +108,7 @@ public class OntologyRepository {
         return concepts;
     }
 
-    public Concept getConceptById(GraphSession graphSession, String conceptVertexId) {
+    public Concept getConceptById(String conceptVertexId, User user) {
         Vertex conceptVertex = graphSession.getGraph().getVertex(conceptVertexId);
         if (conceptVertex == null) {
             return null;
@@ -116,7 +116,7 @@ public class OntologyRepository {
         return new VertexConcept(conceptVertex);
     }
 
-    public Concept getConceptByName(GraphSession graphSession, String title, User user) {
+    public Concept getConceptByName(String title, User user) {
         GraphVertex vertex = graphSession.findVertexByOntologyTitleAndType(title, VertexType.CONCEPT, user);
         if (vertex == null) {
             return null;
@@ -132,17 +132,17 @@ public class OntologyRepository {
         return graphSession.findVertexByOntologyTitle(title, user);
     }
 
-    public List<Relationship> getRelationships(GraphSession graphSession, String sourceConceptTypeId, String destConceptTypeId, User user) {
-        Concept sourceConcept = getConceptById(graphSession, sourceConceptTypeId);
+    public List<Relationship> getRelationships(String sourceConceptTypeId, String destConceptTypeId, User user) {
+        Concept sourceConcept = getConceptById(sourceConceptTypeId, user);
         if (sourceConcept == null) {
-            sourceConcept = getConceptByName(graphSession, sourceConceptTypeId, user);
+            sourceConcept = getConceptByName(sourceConceptTypeId, user);
             if (sourceConcept == null) {
                 throw new RuntimeException("Could not find concept: " + sourceConceptTypeId);
             }
         }
-        Concept destConcept = getConceptById(graphSession, destConceptTypeId);
+        Concept destConcept = getConceptById(destConceptTypeId, user);
         if (destConcept == null) {
-            destConcept = getConceptByName(graphSession, destConceptTypeId, user);
+            destConcept = getConceptByName(destConceptTypeId, user);
             if (destConcept == null) {
                 throw new RuntimeException("Could not find concept: " + destConceptTypeId);
             }
@@ -189,9 +189,9 @@ public class OntologyRepository {
     }
 
     public List<Property> getPropertiesByConceptId(String conceptVertexId, User user) {
-        Concept conceptVertex = getConceptById(graphSession, conceptVertexId);
+        Concept conceptVertex = getConceptById(conceptVertexId, user);
         if (conceptVertex == null) {
-            conceptVertex = getConceptByName(graphSession, conceptVertexId, user);
+            conceptVertex = getConceptByName(conceptVertexId, user);
             if (conceptVertex == null) {
                 throw new RuntimeException("Could not find concept: " + conceptVertexId);
             }
@@ -249,7 +249,7 @@ public class OntologyRepository {
 
     public List<Concept> getConceptByIdAndChildren(String conceptId, User user) {
         ArrayList<Concept> concepts = new ArrayList<Concept>();
-        Concept concept = getConceptById(graphSession, conceptId);
+        Concept concept = getConceptById(conceptId, user);
         if (concept == null) {
             return null;
         }
@@ -285,11 +285,11 @@ public class OntologyRepository {
     }
 
     public Concept getOrCreateConcept(Concept parent, String conceptName, String displayName, User user) {
-        Concept concept = getConceptByName(graphSession, conceptName, user);
+        Concept concept = getConceptByName(conceptName, user);
         if (concept == null) {
             InMemoryGraphVertex graphVertex = new InMemoryGraphVertex();
             String id = graphRepository.saveVertex(graphVertex, user);
-            concept = getConceptById(graphSession, id);
+            concept = getConceptById(id, user);
         }
         concept.setProperty(PropertyName.TYPE.toString(), VertexType.CONCEPT.toString());
         concept.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), conceptName);

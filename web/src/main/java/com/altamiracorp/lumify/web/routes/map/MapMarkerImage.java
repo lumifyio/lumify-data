@@ -1,21 +1,6 @@
 package com.altamiracorp.lumify.web.routes.map;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
-
-import javax.imageio.ImageIO;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnailRepository;
 import com.altamiracorp.lumify.model.ontology.Concept;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
@@ -27,6 +12,19 @@ import com.altamiracorp.web.HandlerChain;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 public class MapMarkerImage extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(MapMarkerImage.class);
@@ -44,7 +42,7 @@ public class MapMarkerImage extends BaseRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
         String typeStr = getAttributeString(request, "type");
         long scale = getOptionalParameterLong(request, "scale", 1L);
         int heading = roundHeadingAngle(getOptionalParameterDouble(request, "heading", 0.0));
@@ -54,24 +52,24 @@ public class MapMarkerImage extends BaseRequestHandler {
         if (imageData == null) {
             LOGGER.info("map marker cache miss " + typeStr + " (scale: " + scale + ", heading: " + heading + ")");
 
-            Concept concept = ontologyRepository.getConceptById(session.getGraphSession(), typeStr);
+            Concept concept = ontologyRepository.getConceptById(typeStr, user);
             if (concept == null) {
-                concept = ontologyRepository.getConceptByName(session.getGraphSession(), typeStr);
+                concept = ontologyRepository.getConceptByName(typeStr, user);
             }
 
             boolean isMapGlyphIcon = false;
-            String glyphIconRowKey = getMapGlyphIcon(session, concept);
+            String glyphIconRowKey = getMapGlyphIcon(concept, user);
             if (glyphIconRowKey != null) {
                 isMapGlyphIcon = true;
             } else {
-                glyphIconRowKey = getGlyphIcon(session, concept);
+                glyphIconRowKey = getGlyphIcon(concept, user);
                 if (glyphIconRowKey == null) {
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
                     return;
                 }
             }
 
-            Resource resource = resourceRepository.findByRowKey(session.getModelSession(), glyphIconRowKey);
+            Resource resource = resourceRepository.findByRowKey(glyphIconRowKey, user);
             if (resource == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;
@@ -159,27 +157,27 @@ public class MapMarkerImage extends BaseRequestHandler {
         return imageData.toByteArray();
     }
 
-    private String getMapGlyphIcon(AppSession session, Concept concept) {
+    private String getMapGlyphIcon(Concept concept, User user) {
         while (concept != null) {
             String mapGlyphIcon = (String) concept.getProperty(PropertyName.MAP_GLYPH_ICON);
             if (mapGlyphIcon != null) {
                 return mapGlyphIcon;
             }
 
-            concept = ontologyRepository.getParentConcept(session.getGraphSession(), concept.getId());
+            concept = ontologyRepository.getParentConcept(concept.getId(), user);
         }
 
         return null;
     }
 
-    private String getGlyphIcon(AppSession session, Concept concept) {
+    private String getGlyphIcon(Concept concept, User user) {
         while (concept != null) {
             String glyphIcon = (String) concept.getProperty(PropertyName.GLYPH_ICON);
             if (glyphIcon != null) {
                 return glyphIcon;
             }
 
-            concept = ontologyRepository.getParentConcept(session.getGraphSession(), concept.getId());
+            concept = ontologyRepository.getParentConcept(concept.getId(), user);
         }
 
         return null;
