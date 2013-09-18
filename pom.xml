@@ -297,7 +297,6 @@
         <module>model-titan</module>
         <module>analytics</module>
         <module>dictionary-seed</module>
-        <module>crawler</module>
         <module>oozie</module>
         <module>web-framework</module>
         <module>web</module>
