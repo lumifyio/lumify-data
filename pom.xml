@@ -291,14 +291,14 @@
     </build>
 
     <modules>
-        <module>core</module>
-        <module>web</module>
-        <module>web-framework</module>
         <module>model</module>
         <module>model-accumulo</module>
         <module>model-titan</module>
+        <module>core</module>
         <module>dictionary-seed</module>
         <module>crawler</module>
         <module>oozie</module>
+        <module>web-framework</module>
+        <module>web</module>
     </modules>
 </project>

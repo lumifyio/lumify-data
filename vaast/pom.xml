@@ -1,45 +1,49 @@
-<?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <artifactId>lumify</artifactId>
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>lumify</artifactId>
+        <groupId>com.altamiracorp.lumify</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    
     <groupId>com.altamiracorp.lumify</groupId>
+    <artifactId>vaast</artifactId>
     <version>1.0-SNAPSHOT</version>
-  </parent>
-  <groupId>com.altamiracorp.lumify</groupId>
-  <artifactId>vaast</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <name>vaast</name>
-  <url>http://maven.apache.org</url>
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-  <dependencies>
-    <dependency>
-      <groupId>com.altamiracorp.lumify</groupId>
-      <artifactId>core</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
-      <dependency>
-          <groupId>com.altamiracorp.lumify</groupId>
-          <artifactId>model</artifactId>
-          <version>1.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-          <groupId>com.altamiracorp.vaast</groupId>
-          <artifactId>vaast-core</artifactId>
-          <version>1.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-          <groupId>commons-io</groupId>
-          <artifactId>commons-io</artifactId>
-          <version>2.4</version>
-      </dependency>
-      <dependency>
-          <groupId>commons-configuration</groupId>
-          <artifactId>commons-configuration</artifactId>
-          <version>1.9</version>
-      </dependency>
-  </dependencies>
+    
+    <name>vaast</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-model</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.vaast</groupId>
+            <artifactId>vaast-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-configuration</groupId>
+            <artifactId>commons-configuration</artifactId>
+            <version>1.9</version>
+        </dependency>
+    </dependencies>
 </project>
