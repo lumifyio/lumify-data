@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.web;
 
 import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.Session;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.web.HandlerChain;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -35,7 +35,7 @@ public class X509AuthenticationProviderTest {
     @Mock
     private AppSession appSession;
     @Mock
-    private Session modelSession;
+    private ModelSession modelSession;
 
     @Before
     public void setupTests() {
