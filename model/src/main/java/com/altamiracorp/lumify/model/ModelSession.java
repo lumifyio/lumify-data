@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnail;
 import com.altamiracorp.lumify.model.dbpedia.DBPedia;
 import com.altamiracorp.lumify.model.geoNames.GeoName;
@@ -8,7 +9,6 @@ import com.altamiracorp.lumify.model.geoNames.GeoNameCountryInfo;
 import com.altamiracorp.lumify.model.geoNames.GeoNamePostalCode;
 import com.altamiracorp.lumify.model.resources.Resource;
 import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.user.User;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.model.workspace.Workspace;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
@@ -35,27 +35,25 @@ public abstract class ModelSession {
             VideoFrame.TABLE_NAME,
             DBPedia.TABLE_NAME,
             Resource.TABLE_NAME,
-            User.TABLE_NAME,
+            com.altamiracorp.lumify.model.user.User.TABLE_NAME,
             "atc_titan");// see com.altamiracorp.lumify.model.TitanGraphSession
-    private QueryUser queryUser;
 
-    public ModelSession(QueryUser queryUser) {
-        this.queryUser = queryUser;
+    public ModelSession() {
     }
 
     abstract void save(Row row);
 
     abstract void saveMany(String tableName, Collection<Row> rows);
 
-    public abstract List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, QueryUser queryUser);
+    public abstract List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, User user);
 
-    abstract List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, QueryUser queryUser);
+    abstract List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, User user);
 
-    abstract List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, QueryUser queryUser);
+    abstract List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, User user);
 
-    abstract Row findByRowKey(String tableName, String rowKey, QueryUser queryUser);
+    abstract Row findByRowKey(String tableName, String rowKey, User user);
 
-    abstract Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, QueryUser queryUser);
+    abstract Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, User user);
 
     abstract List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser,
                                                                                 long colFamOffset, long colFamLimit, String colFamRegex);
@@ -71,10 +69,6 @@ public abstract class ModelSession {
         for (String table : tables) {
             initializeTable(table);
         }
-    }
-
-    public QueryUser getQueryUser() {
-        return this.queryUser;
     }
 
     public void deleteTables() {

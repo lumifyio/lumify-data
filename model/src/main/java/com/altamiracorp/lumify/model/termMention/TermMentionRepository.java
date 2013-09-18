@@ -1,6 +1,10 @@
 package com.altamiracorp.lumify.model.termMention;
 
-import com.altamiracorp.lumify.model.*;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.Column;
+import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.Row;
 
 import java.util.Collection;
 import java.util.List;
@@ -31,7 +35,7 @@ public class TermMentionRepository extends Repository<TermMention> {
         return TermMention.TABLE_NAME;
     }
 
-    public List<TermMention> findByArtifactRowKey(ModelSession session, String artifactRowKey) {
-        return findByRowStartsWith(session, artifactRowKey + ":");
+    public List<TermMention> findByArtifactRowKey(String artifactRowKey, User user) {
+        return findByRowStartsWith(artifactRowKey + ":", user);
     }
 }

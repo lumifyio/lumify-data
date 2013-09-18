@@ -1,6 +1,10 @@
 package com.altamiracorp.lumify.model.geoNames;
 
-import com.altamiracorp.lumify.model.*;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.Column;
+import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.Row;
 
 import java.util.Collection;
 
@@ -30,7 +34,7 @@ public class GeoNameCountryInfoRepository extends Repository<GeoNameCountryInfo>
         return GeoNameCountryInfo.TABLE_NAME;
     }
 
-    public GeoNameCountryInfo findByCountryCode(ModelSession session, String countryCode) {
-        return findByRowKey(session, new GeoNameCountryInfoRowKey(countryCode).toString());
+    public GeoNameCountryInfo findByCountryCode(String countryCode, User user) {
+        return findByRowKey(new GeoNameCountryInfoRowKey(countryCode).toString(), user);
     }
 }

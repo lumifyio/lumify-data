@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.model.workspace;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class WorkspaceRepositoryTest {
 
         session.tables.get(Workspace.TABLE_NAME).add(row);
 
-        Workspace workspace = workspaceRepository.findByRowKey(session, rowKeyString);
+        Workspace workspace = workspaceRepository.findByRowKey(rowKeyString, new User());
         assertEquals(rowKeyString, workspace.getRowKey().toString());
         assertEquals(2, workspace.getColumnFamilies().size());
 
@@ -65,7 +66,7 @@ public class WorkspaceRepositoryTest {
                 new ColumnFamily("testExtraColumnFamily")
                         .set("testExtraColumn", "testExtraValue"));
 
-        workspaceRepository.save(session, workspace);
+        workspaceRepository.save(workspace);
 
         assertEquals(1, session.tables.get(Workspace.TABLE_NAME).size());
         Row row = session.tables.get(Workspace.TABLE_NAME).get(0);

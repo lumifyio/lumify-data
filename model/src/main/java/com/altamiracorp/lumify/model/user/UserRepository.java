@@ -1,6 +1,9 @@
 package com.altamiracorp.lumify.model.user;
 
-import com.altamiracorp.lumify.model.*;
+import com.altamiracorp.lumify.model.Column;
+import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.Row;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,20 +35,20 @@ public class UserRepository extends Repository<User> {
         return User.TABLE_NAME;
     }
 
-    public User findOrAddUser(ModelSession session, String userName) {
-        User user = findByUserName(session, userName);
+    public User findOrAddUser(String userName, com.altamiracorp.lumify.core.user.User authUser) {
+        User user = findByUserName(userName, authUser);
         if (user != null) {
             return user;
         }
 
         user = new User();
         user.getMetadata().setUserName(userName);
-        save(session, user);
+        save(user);
         return user;
     }
 
-    private User findByUserName(ModelSession session, String userName) {
-        List<User> users = findAll(session);
+    private User findByUserName(String userName, com.altamiracorp.lumify.core.user.User authUser) {
+        List<User> users = findAll(authUser);
         for (User user : users) {
             if (userName.equals(user.getMetadata().getUserName())) {
                 return user;

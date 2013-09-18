@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.model.videoFrames;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.*;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
 
@@ -46,11 +47,11 @@ public class VideoFrameRepository extends Repository<VideoFrame> {
         VideoFrame videoFrame = new VideoFrame(videoFrameRowKey);
         videoFrame.getMetadata()
                 .setHdfsPath(saveFileResults.getFullPath());
-        this.save(session, videoFrame);
+        this.save(videoFrame);
     }
 
-    public List<VideoFrame> findAllByArtifactRowKey(ModelSession session, String rowKey) {
-        return this.findByRowStartsWith(session, rowKey);
+    public List<VideoFrame> findAllByArtifactRowKey(String rowKey, User user) {
+        return this.findByRowStartsWith(rowKey, user);
     }
 
     public BufferedImage loadImage(ModelSession session, VideoFrame videoFrame) {

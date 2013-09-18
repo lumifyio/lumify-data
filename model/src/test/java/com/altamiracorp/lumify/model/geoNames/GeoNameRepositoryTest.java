@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.model.geoNames;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class GeoNameRepositoryTest {
 
         session.tables.get(GeoName.TABLE_NAME).add(row);
 
-        GeoName geoName = geoNameRepository.findByRowKey(session, rowKeyString);
+        GeoName geoName = geoNameRepository.findByRowKey(rowKeyString, new User());
         assertEquals(rowKeyString, geoName.getRowKey().toString());
         assertEquals(2, geoName.getColumnFamilies().size());
 
@@ -97,7 +98,7 @@ public class GeoNameRepositoryTest {
                 new ColumnFamily("testExtraColumnFamily")
                         .set("testExtraColumn", "testExtraValue"));
 
-        geoNameRepository.save(session, geoName);
+        geoNameRepository.save(geoName);
 
         assertEquals(1, session.tables.get(GeoName.TABLE_NAME).size());
         Row row = session.tables.get(GeoName.TABLE_NAME).get(0);
@@ -133,21 +134,21 @@ public class GeoNameRepositoryTest {
         geoName1.getMetadata()
                 .setName("Boston1")
                 .setPopulation(100L);
-        geoNameRepository.save(session, geoName1);
+        geoNameRepository.save(geoName1);
 
         GeoName geoName2 = new GeoName("Boston", "234");
         geoName2.getMetadata()
                 .setName("Boston2")
                 .setPopulation(300L);
-        geoNameRepository.save(session, geoName2);
+        geoNameRepository.save(geoName2);
 
-        GeoName match = geoNameRepository.findBestMatch(session, "boston");
+        GeoName match = geoNameRepository.findBestMatch("boston", new User());
         assertEquals("Boston2", match.getMetadata().getName());
     }
 
     @Test
     public void testFindBestMatchNoMatches() {
-        GeoName match = geoNameRepository.findBestMatch(session, "boston");
+        GeoName match = geoNameRepository.findBestMatch("boston", new User());
         assertNull("Found a match but shouldn't", match);
     }
 
@@ -157,14 +158,14 @@ public class GeoNameRepositoryTest {
         geoName1.getMetadata()
                 .setName("Boston1")
                 .setPopulation(100L);
-        geoNameRepository.save(session, geoName1);
+        geoNameRepository.save(geoName1);
 
         GeoName geoName2 = new GeoName("Boston", "234");
         geoName2.getMetadata()
                 .setName("Boston2");
-        geoNameRepository.save(session, geoName2);
+        geoNameRepository.save(geoName2);
 
-        GeoName match = geoNameRepository.findBestMatch(session, "boston");
+        GeoName match = geoNameRepository.findBestMatch("boston", new User());
         assertEquals("Boston1", match.getMetadata().getName());
     }
 }

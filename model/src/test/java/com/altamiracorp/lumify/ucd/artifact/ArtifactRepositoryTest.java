@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.ucd.artifact;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.ColumnFamily;
 import com.altamiracorp.lumify.model.MockSession;
 import com.altamiracorp.lumify.model.Row;
@@ -84,7 +85,7 @@ public class ArtifactRepositoryTest {
 
         session.tables.get(Artifact.TABLE_NAME).add(row);
 
-        Artifact artifact = artifactRepository.findByRowKey(session, "key1");
+        Artifact artifact = artifactRepository.findByRowKey("key1", new User());
         assertEquals("key1", artifact.getRowKey().toString());
 
         assertEquals("testDocArtifactBytes", new String(artifact.getContent().getDocArtifactBytes()));
@@ -179,7 +180,7 @@ public class ArtifactRepositoryTest {
                 new ColumnFamily("testExtraColumnFamily")
                         .set("testExtraColumn", "testExtraValue"));
 
-        artifactRepository.save(session, artifact);
+        artifactRepository.save(artifact);
 
         assertEquals(1, session.tables.get(Artifact.TABLE_NAME).size()); // includes the dbpedia artifact
         Row row = session.tables.get(Artifact.TABLE_NAME).get(0);

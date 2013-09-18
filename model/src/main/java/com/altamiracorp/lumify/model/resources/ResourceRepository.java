@@ -20,7 +20,7 @@ public class ResourceRepository extends Repository<Resource> {
             } else {
                 throw new RuntimeException("Unhandled content type: " + fileName);
             }
-            return importFile(session, in, contentType);
+            return importFile(in, contentType);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Could not import file: " + fileName, e);
         } finally {
@@ -34,11 +34,11 @@ public class ResourceRepository extends Repository<Resource> {
         }
     }
 
-    public String importFile(ModelSession session, InputStream in, String contentType) {
+    public String importFile(InputStream in, String contentType) {
         try {
             byte[] data = IOUtils.toByteArray(in);
             Resource res = new Resource(data, contentType);
-            save(session, res);
+            save(res);
             return res.getRowKey().toString();
         } catch (IOException e) {
             throw new RuntimeException("Could not import file", e);

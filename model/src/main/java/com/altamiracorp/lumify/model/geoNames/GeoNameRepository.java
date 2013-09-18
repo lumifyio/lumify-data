@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.model.geoNames;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.*;
 
 import java.util.Collection;
@@ -32,8 +33,8 @@ public class GeoNameRepository extends Repository<GeoName> {
         return GeoName.TABLE_NAME;
     }
 
-    public GeoName findBestMatch(ModelSession session, String name) {
-        List<GeoName> matches = this.findByRowStartsWith(session, name.toLowerCase() + RowKeyHelper.MINOR_FIELD_SEPARATOR);
+    public GeoName findBestMatch(String name, User user) {
+        List<GeoName> matches = this.findByRowStartsWith(name.toLowerCase() + RowKeyHelper.MINOR_FIELD_SEPARATOR, user);
         if (matches.size() == 0) {
             return null;
         }

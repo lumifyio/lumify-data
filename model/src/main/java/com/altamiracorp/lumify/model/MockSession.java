@@ -1,5 +1,7 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.core.user.User;
+
 import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -28,7 +30,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    public List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, QueryUser queryUser) {
+    public List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, User user) {
         List<Row> rows = this.tables.get(tableName);
         ArrayList<Row> results = new ArrayList<Row>();
         for (Row row : rows) {
@@ -42,7 +44,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, QueryUser queryUser) {
+    List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, User user) {
         List<Row> rows = this.tables.get(tableName);
         ArrayList<Row> results = new ArrayList<Row>();
         for (Row row : rows) {
@@ -56,7 +58,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, QueryUser queryUser) {
+    List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, User user) {
         List<Row> rows = this.tables.get(tableName);
         if (rows == null) {
             throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
@@ -72,7 +74,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    Row findByRowKey(String tableName, String rowKey, QueryUser queryUser) {
+    Row findByRowKey(String tableName, String rowKey, User user) {
         List<Row> rows = this.tables.get(tableName);
         if (rows == null) {
             throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
@@ -86,8 +88,8 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, QueryUser queryUser) {
-        return findByRowKey(tableName, rowKey, queryUser);
+    Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, User user) {
+        return findByRowKey(tableName, rowKey, user);
     }
 
     @Override

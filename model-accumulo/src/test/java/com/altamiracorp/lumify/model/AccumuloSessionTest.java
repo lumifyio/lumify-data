@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.core.user.User;
 import junit.framework.Assert;
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.client.mock.MockConnector;
@@ -20,7 +21,6 @@ import java.util.Map;
 
 import static junit.framework.Assert.fail;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 
 @RunWith(JUnit4.class)
 public class AccumuloSessionTest {
@@ -32,7 +32,7 @@ public class AccumuloSessionTest {
     private long maxMemory = 1000000L;
     private long maxLatency = 1000L;
     private int maxWriteThreads = 10;
-    private AccumuloQueryUser queryUser;
+    private User queryUser;
 
     @Before
     public void before() throws AccumuloSecurityException, AccumuloException {
@@ -44,9 +44,9 @@ public class AccumuloSessionTest {
 
         authorizations = new Authorizations("ALL");
 
-        queryUser = new AccumuloQueryUser();
+        queryUser = new User();
 
-        accumuloSession = new AccumuloSession(connector, null, null, queryUser, null);
+        accumuloSession = new AccumuloSession(connector, null, null, null);
         accumuloSession.initializeTable(TEST_TABLE_NAME);
     }
 
