@@ -261,12 +261,12 @@
             <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/artifact-highlighting</app-path>
 			<propagate-configuration/>
         </sub-workflow>
-        <ok to="blur-search-index-builder-node"/>
-        <error to="blur-search-index-builder-node"/>
+        <ok to="search-index-builder-node"/>
+        <error to="search-index-builder-node"/>
     </action>
-    <action name="blur-search-index-builder-node">
+    <action name="search-index-builder-node">
 		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/blur-search-index-builder</app-path>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/search-index-builder</app-path>
 			<propagate-configuration/>
         </sub-workflow>
         <ok to="end"/>
