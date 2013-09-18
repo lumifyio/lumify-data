@@ -1,14 +1,21 @@
 package com.altamiracorp.lumify.model.user;
 
-import com.altamiracorp.lumify.model.Column;
-import com.altamiracorp.lumify.model.ColumnFamily;
-import com.altamiracorp.lumify.model.Repository;
-import com.altamiracorp.lumify.model.Row;
-
 import java.util.Collection;
 import java.util.List;
 
+import com.altamiracorp.lumify.model.Column;
+import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.Row;
+import com.google.inject.Inject;
+
 public class UserRepository extends Repository<User> {
+    @Inject
+    public UserRepository(final ModelSession modelSession) {
+        super(modelSession);
+    }
+
     @Override
     public User fromRow(Row row) {
         User user = new User(row.getRowKey());

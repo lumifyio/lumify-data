@@ -1,16 +1,27 @@
 package com.altamiracorp.lumify.model.resources;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.*;
-import org.apache.commons.io.IOUtils;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
+import org.apache.commons.io.IOUtils;
+
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.Column;
+import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.Row;
+import com.google.inject.Inject;
+
 public class ResourceRepository extends Repository<Resource> {
+    @Inject
+    public ResourceRepository(final ModelSession modelSession) {
+        super(modelSession);
+    }
+
     public String importFile(ModelSession session, String fileName, User user) {
         FileInputStream in = null;
         try {
