@@ -166,7 +166,7 @@ define([
                     title: data.title,
                     info: data.info
                 };
-debugger;
+
                 // Temporarily creating a new tag to show on ui prior to backend update
                 var classes = $('.detected-object-labels .label').attr('class') + ' focused resolved entity';
                 var newTag = ' <a class="' + classes + '" href="#">' + data.title +' </a>';
