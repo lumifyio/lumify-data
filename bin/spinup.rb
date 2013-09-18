@@ -34,9 +34,9 @@ def check_env
   end
 end
 
-def load_config
+def load_config(config_file)
   require 'yaml'
-  hash = YAML.load(File.read('spinup.yml')) # TODO: search up if not in the current directory
+  hash = YAML.load(File.read(config_file))
 
   missing_config_keys = REQUIRED_CONFIG_KEYS.select do |key|
     hash[key] == nil || hash[key].length == 0
@@ -216,8 +216,9 @@ def mime_multipart(hash)
 end
 
 
+config_file = ARGV.first.match(/\.yml$/) ? ARGV.shift : 'spinup.yml' # TODO: search up if not in the current dir
 check_env || exit
-config = load_config || exit
+config = load_config(config_file) || exit
 DEFAULT_AVAILABILITY_ZONE = config['default_availability_zone']
 DEFAULT_SUBNET            = config['default_subnet']
 DEFAULT_SECURITY_GROUPS   = config['default_security_groups']
