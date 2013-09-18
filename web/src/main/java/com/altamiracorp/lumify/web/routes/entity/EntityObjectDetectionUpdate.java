@@ -45,7 +45,7 @@ public class EntityObjectDetectionUpdate extends BaseRequestHandler {
 
     @Override
     public void handle (HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        EntityHelper objectDetectionHelper = new EntityHelper(termMentionRepository, artifactRepository, graphRepository);
+        EntityHelper objectDetectionHelper = new EntityHelper(termMentionRepository, graphRepository);
 
         final String artifactRowKey = getRequiredParameter(request, "artifactKey");
         final String sign = getRequiredParameter(request, "sign");

@@ -49,7 +49,7 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        EntityHelper objectDetectionHelper = new EntityHelper(termMentionRepository, artifactRepository, graphRepository);
+        EntityHelper objectDetectionHelper = new EntityHelper(termMentionRepository, graphRepository);
 
         // required parameters
         final String artifactRowKey = getRequiredParameter(request, "artifactKey");
