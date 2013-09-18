@@ -18,8 +18,8 @@ razor setup
 -----------
 ```
 # download and add the microkernel image
-curl -L -O https://github.com/downloads/puppetlabs/Razor-Microkernel/rz_mk_prod-image.0.9.3.0.iso
-sudo razor image add -t mk -n mk-0.9.3.0 -p ./rz_mk_prod-image.0.9.3.0.iso
+curl -L -O https://github.com/downloads/puppetlabs/Razor-Microkernel/rz_mk_prod-image.0.9.1.6.iso
+sudo razor image add -t mk -n mk-0.9.3.0 -p ./rz_mk_prod-image.0.9.1.6.iso
 
 # download and add the os image
 curl -O http://centos.servint.com/centos-6/6.4/isos/x86_64/CentOS-6.4-x86_64-minimal.iso
