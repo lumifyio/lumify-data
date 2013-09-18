@@ -46,7 +46,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    void save(Row row) {
+    void save(Row row, User user) {
         try {
             if (context != null) {
                 context.write(new Text(row.getTableName()), row);
@@ -68,7 +68,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    void saveMany(String tableName, Collection<Row> rows) {
+    void saveMany(String tableName, Collection<Row> rows, User user) {
         if (rows.size() == 0) {
             return;
         }
@@ -175,7 +175,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    public void initializeTable(String tableName) {
+    public void initializeTable(String tableName, User user) {
         LOGGER.info("initializeTable: " + tableName);
         try {
             if (!connector.tableOperations().exists(tableName)) {
@@ -191,7 +191,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    public void deleteTable(String tableName) {
+    public void deleteTable(String tableName, User user) {
         LOGGER.info("deleteTable: " + tableName);
         try {
             if (connector.tableOperations().exists(tableName)) {
@@ -207,7 +207,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    public void deleteRow(String tableName, RowKey rowKey) {
+    public void deleteRow(String tableName, RowKey rowKey, User user) {
         LOGGER.info("deleteRow: " + rowKey);
         try {
             // TODO: Find a better way to delete a single row given the row key
@@ -228,7 +228,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    public SaveFileResults saveFile(InputStream in) {
+    public SaveFileResults saveFile(InputStream in, User user) {
         try {
             String dataRoot = hdfsRootDir + "/data/";
             FsPermission fsPermission = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
@@ -261,7 +261,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    public InputStream loadFile(String path) {
+    public InputStream loadFile(String path, User user) {
         try {
             LOGGER.info("Loading file: " + path);
             return this.hdfsFileSystem.open(new Path(path));
@@ -271,7 +271,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    public long getFileLength(String path) {
+    public long getFileLength(String path, User user) {
         try {
             return this.hdfsFileSystem.getFileStatus(new Path(path)).getLen();
         } catch (IOException ex) {
@@ -280,7 +280,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    public List<String> getTableList() {
+    public List<String> getTableList(User user) {
         return new ArrayList<String>(this.connector.tableOperations().list());
     }
 
