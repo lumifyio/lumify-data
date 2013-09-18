@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public abstract class Session {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Session.class.getName());
+public abstract class ModelSession {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModelSession.class.getName());
     private static final List<String> tables = Arrays.asList(
             Artifact.TABLE_NAME,
             ArtifactThumbnail.TABLE_NAME,
@@ -39,7 +39,7 @@ public abstract class Session {
             "atc_titan");// see com.altamiracorp.lumify.model.TitanGraphSession
     private QueryUser queryUser;
 
-    public Session(QueryUser queryUser) {
+    public ModelSession(QueryUser queryUser) {
         this.queryUser = queryUser;
     }
 

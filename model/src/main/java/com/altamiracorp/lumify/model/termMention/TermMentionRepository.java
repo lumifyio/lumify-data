@@ -31,7 +31,7 @@ public class TermMentionRepository extends Repository<TermMention> {
         return TermMention.TABLE_NAME;
     }
 
-    public List<TermMention> findByArtifactRowKey(Session session, String artifactRowKey) {
+    public List<TermMention> findByArtifactRowKey(ModelSession session, String artifactRowKey) {
         return findByRowStartsWith(session, artifactRowKey + ":");
     }
 }

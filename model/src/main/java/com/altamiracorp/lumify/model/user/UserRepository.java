@@ -32,7 +32,7 @@ public class UserRepository extends Repository<User> {
         return User.TABLE_NAME;
     }
 
-    public User findOrAddUser(Session session, String userName) {
+    public User findOrAddUser(ModelSession session, String userName) {
         User user = findByUserName(session, userName);
         if (user != null) {
             return user;
@@ -44,7 +44,7 @@ public class UserRepository extends Repository<User> {
         return user;
     }
 
-    private User findByUserName(Session session, String userName) {
+    private User findByUserName(ModelSession session, String userName) {
         List<User> users = findAll(session);
         for (User user : users) {
             if (userName.equals(user.getMetadata().getUserName())) {

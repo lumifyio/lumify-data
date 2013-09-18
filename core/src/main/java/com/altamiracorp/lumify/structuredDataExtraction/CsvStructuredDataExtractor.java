@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.structuredDataExtraction;
 
 import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.Session;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
@@ -31,7 +31,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
     private ArtifactRepository artifactRepository = new ArtifactRepository();
 
     @Override
-    public ArtifactExtractedInfo extractText(Session session, Artifact artifact) throws Exception {
+    public ArtifactExtractedInfo extractText(ModelSession session, Artifact artifact) throws Exception {
         JSONObject mappingJson = artifact.getGenericMetadata().getMappingJson();
         InputStream raw = artifactRepository.getRaw(session, artifact);
         try {

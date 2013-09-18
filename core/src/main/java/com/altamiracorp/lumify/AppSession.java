@@ -29,7 +29,7 @@ public class AppSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppSession.class);
     private static final String DEFAULT_SEARCH_PROVIDER = ElasticSearchProvider.class.getName();
     private static Properties applicationProps = new Properties();
-    private Session modelSession;
+    private ModelSession modelSession;
     private SearchProvider searchProvider;
     private GraphSession graphSession;
 
@@ -103,7 +103,7 @@ public class AppSession {
         }
     }
 
-    private static Session createModelSession(Properties props, TaskInputOutputContext context) throws AccumuloException, AccumuloSecurityException, IOException, URISyntaxException, InterruptedException {
+    private static ModelSession createModelSession(Properties props, TaskInputOutputContext context) throws AccumuloException, AccumuloSecurityException, IOException, URISyntaxException, InterruptedException {
         String zookeeperInstanceName = props.getProperty(AccumuloSession.ZOOKEEPER_INSTANCE_NAME);
         String zookeeperServerLocations = props.getProperty(AccumuloSession.ZOOKEEPER_SERVER_NAMES);
         String username = props.getProperty(AccumuloSession.USERNAME);
@@ -123,7 +123,7 @@ public class AppSession {
         graphSession.close();
     }
 
-    public Session getModelSession() {
+    public ModelSession getModelSession() {
         return modelSession;
     }
 

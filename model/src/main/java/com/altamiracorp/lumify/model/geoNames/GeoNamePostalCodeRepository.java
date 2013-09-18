@@ -31,11 +31,11 @@ public class GeoNamePostalCodeRepository extends Repository<GeoNamePostalCode>{
         return GeoNamePostalCode.TABLE_NAME;
     }
 
-    public GeoNamePostalCode findByCountryAndPostalCode (Session session, String countryCode, String postalCode) {
+    public GeoNamePostalCode findByCountryAndPostalCode (ModelSession session, String countryCode, String postalCode) {
         return this.findByRowKey(session,new GeoNamePostalCodeRowKey(countryCode,postalCode).toString());
     }
 
-    public GeoNamePostalCode findByUSZipCode (Session session, String zipCode) {
+    public GeoNamePostalCode findByUSZipCode (ModelSession session, String zipCode) {
         return findByCountryAndPostalCode(session,"US",zipCode);
     }
 }

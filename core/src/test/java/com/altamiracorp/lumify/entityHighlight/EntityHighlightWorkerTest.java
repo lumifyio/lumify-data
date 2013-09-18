@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.altamiracorp.lumify.model.Session;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactContent;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
@@ -65,19 +65,19 @@ public class EntityHighlightWorkerTest {
     @Test
     public void testHighlightInvalidArtifact() {
         // Configure the repo to return an invalid artifact
-        when(artifactRepoMock.findByRowKey(any(Session.class), anyString())).thenReturn(null);
+        when(artifactRepoMock.findByRowKey(any(ModelSession.class), anyString())).thenReturn(null);
 
         Whitebox.setInternalState(worker, ARTIFACT_REPO_FIELD, artifactRepoMock);
 
         worker.run();
         verify(sessionMock, times(1)).getModelSession();
-        verify(artifactRepoMock, times(1)).findByRowKey(any(Session.class), anyString());
+        verify(artifactRepoMock, times(1)).findByRowKey(any(ModelSession.class), anyString());
     }
 
     @Test
     public void testArtifactInvalidHighlightText() {
         // Configure the repo to return an invalid artifact
-        when(artifactRepoMock.findByRowKey(any(Session.class), anyString())).thenReturn(artifactMock);
+        when(artifactRepoMock.findByRowKey(any(ModelSession.class), anyString())).thenReturn(artifactMock);
 
         when(highlighterMock.getHighlightedText(any(AppSession.class), any(Artifact.class))).thenReturn(null);
 
@@ -86,14 +86,14 @@ public class EntityHighlightWorkerTest {
 
         worker.run();
         verify(sessionMock, times(1)).getModelSession();
-        verify(artifactRepoMock, times(1)).findByRowKey(any(Session.class), anyString());
+        verify(artifactRepoMock, times(1)).findByRowKey(any(ModelSession.class), anyString());
     }
 
 
     @Test
     public void testArtifactEmptyHighlightText() {
         // Configure the repo to return an invalid artifact
-        when(artifactRepoMock.findByRowKey(any(Session.class), anyString())).thenReturn(artifactMock);
+        when(artifactRepoMock.findByRowKey(any(ModelSession.class), anyString())).thenReturn(artifactMock);
 
         when(highlighterMock.getHighlightedText(any(AppSession.class), any(Artifact.class))).thenReturn("");
 
@@ -102,13 +102,13 @@ public class EntityHighlightWorkerTest {
 
         worker.run();
         verify(sessionMock, times(1)).getModelSession();
-        verify(artifactRepoMock, times(1)).findByRowKey(any(Session.class), anyString());
+        verify(artifactRepoMock, times(1)).findByRowKey(any(ModelSession.class), anyString());
     }
 
     @Test
     public void testArtifactHighlightText() {
         // Configure the repo to return an invalid artifact
-        when(artifactRepoMock.findByRowKey(any(Session.class), anyString())).thenReturn(artifactMock);
+        when(artifactRepoMock.findByRowKey(any(ModelSession.class), anyString())).thenReturn(artifactMock);
         when(artifactMock.getContent()).thenReturn(contentMock);
         when(highlighterMock.getHighlightedText(any(AppSession.class), any(Artifact.class))).thenReturn(HIGHLIGHTED_TEXT);
 
@@ -117,8 +117,8 @@ public class EntityHighlightWorkerTest {
 
         worker.run();
         verify(sessionMock, times(2)).getModelSession();
-        verify(artifactRepoMock, times(1)).findByRowKey(any(Session.class), anyString());
+        verify(artifactRepoMock, times(1)).findByRowKey(any(ModelSession.class), anyString());
         verify(contentMock, times(1)).setHighlightedText(HIGHLIGHTED_TEXT);
-        verify(artifactRepoMock, times(1)).save(any(Session.class), any(Artifact.class));
+        verify(artifactRepoMock, times(1)).save(any(ModelSession.class), any(Artifact.class));
     }
 }

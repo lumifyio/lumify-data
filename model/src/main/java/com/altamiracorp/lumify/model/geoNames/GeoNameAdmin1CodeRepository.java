@@ -30,7 +30,7 @@ public class GeoNameAdmin1CodeRepository extends Repository<GeoNameAdmin1Code> {
         return GeoNameAdmin1Code.TABLE_NAME;
     }
 
-    public GeoNameAdmin1Code findByCountryAndAdmin1Code(Session session, String countryCode, String admin1Code) {
+    public GeoNameAdmin1Code findByCountryAndAdmin1Code(ModelSession session, String countryCode, String admin1Code) {
         return findByRowKey(session, new GeoNameAdmin1CodeRowKey(countryCode, admin1Code).toString());
     }
 }

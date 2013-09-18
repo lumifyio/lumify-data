@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.cmdline;
 
 import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.Session;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.Concept;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
@@ -146,7 +146,7 @@ public class OwlImport extends CommandLineBase {
         throw new RuntimeException("Could not find english label on element " + elem.getTagName());
     }
 
-    private String importGlyphIconFile(Session session, String fileName) {
+    private String importGlyphIconFile(ModelSession session, String fileName) {
         File f = new File(inDir, fileName);
 
         LOGGER.info("  importing file: " + fileName);

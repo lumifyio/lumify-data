@@ -12,7 +12,7 @@ public abstract class Repository<T extends Row> {
 
     public abstract String getTableName();
 
-    public T findByRowKey(Session session, String rowKey) {
+    public T findByRowKey(ModelSession session, String rowKey) {
         Row row = session.findByRowKey(getTableName(), rowKey, session.getQueryUser());
         if (row == null) {
             return null;
@@ -22,7 +22,7 @@ public abstract class Repository<T extends Row> {
         return r;
     }
 
-    public T findByRowKey(Session session, String rowKey, Map<String, String> columnsToReturn) {
+    public T findByRowKey(ModelSession session, String rowKey, Map<String, String> columnsToReturn) {
         Row row = session.findByRowKey(getTableName(), rowKey, columnsToReturn, session.getQueryUser());
         if (row == null) {
             return null;
@@ -32,22 +32,22 @@ public abstract class Repository<T extends Row> {
         return r;
     }
 
-    public List<T> findByRowStartsWith(Session session, String rowKeyPrefix) {
+    public List<T> findByRowStartsWith(ModelSession session, String rowKeyPrefix) {
         Collection<Row> rows = session.findByRowStartsWith(getTableName(), rowKeyPrefix, session.getQueryUser());
         return fromRows(rows);
     }
 
-    public List<T> findAll(Session session) {
+    public List<T> findAll(ModelSession session) {
         Collection<Row> rows = session.findByRowStartsWith(getTableName(), null, session.getQueryUser());
         return fromRows(rows);
     }
 
-    public void save(Session session, T obj) {
+    public void save(ModelSession session, T obj) {
         Row r = toRow(obj);
         session.save(r);
     }
 
-    public void saveMany(Session session, Collection<T> objs) {
+    public void saveMany(ModelSession session, Collection<T> objs) {
         List<Row> rows = new ArrayList<Row>();
         String tableName = null;
         for (T obj : objs) {
@@ -70,7 +70,7 @@ public abstract class Repository<T extends Row> {
         return results;
     }
 
-    public void delete(Session session, RowKey rowKey) {
+    public void delete(ModelSession session, RowKey rowKey) {
         session.deleteRow(getTableName(), rowKey);
     }
 }

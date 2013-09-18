@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.textExtraction;
 
-import com.altamiracorp.lumify.model.Session;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
@@ -20,7 +20,7 @@ public class VideoFrameTextCombinerTextExtractor implements TextExtractor {
     }
 
     @Override
-    public ArtifactExtractedInfo extract(Session session, Artifact artifact) throws Exception {
+    public ArtifactExtractedInfo extract(ModelSession session, Artifact artifact) throws Exception {
         if (artifact.getType() != ArtifactType.VIDEO) {
             return null;
         }
@@ -46,7 +46,7 @@ public class VideoFrameTextCombinerTextExtractor implements TextExtractor {
     }
 
     @Override
-    public VideoFrameExtractedInfo extract(Session session, VideoFrame videoFrame) throws Exception {
+    public VideoFrameExtractedInfo extract(ModelSession session, VideoFrame videoFrame) throws Exception {
         return null;
     }
 

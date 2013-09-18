@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-public class AccumuloSession extends Session {
+public class AccumuloSession extends ModelSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSession.class.getName());
 
     public static final String ZOOKEEPER_INSTANCE_NAME = "zookeeperInstanceName";

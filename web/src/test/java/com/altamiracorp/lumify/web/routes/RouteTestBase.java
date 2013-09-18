@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.web.routes;
 
 import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.Session;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.WebApp;
@@ -22,7 +22,7 @@ public abstract class RouteTestBase {
     public HandlerChain mockHandlerChain;
     public WebApp mockApp;
     public AppSession mockAppSession;
-    public Session mockModelSession;
+    public ModelSession mockModelSession;
     public StringWriter responseStringWriter;
     public ServletOutputStream mockResponseOutputStream;
 
@@ -38,7 +38,7 @@ public abstract class RouteTestBase {
         mockResponse = Mockito.mock(HttpServletResponse.class);
         mockHandlerChain = Mockito.mock(HandlerChain.class);
         mockAppSession = Mockito.mock(AppSession.class);
-        mockModelSession = Mockito.mock(Session.class);
+        mockModelSession = Mockito.mock(ModelSession.class);
 
         mockArtifactRepository = Mockito.mock(ArtifactRepository.class);
         mockTermMentionRepository = Mockito.mock(TermMentionRepository.class);

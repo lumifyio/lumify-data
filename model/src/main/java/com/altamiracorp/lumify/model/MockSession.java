@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class MockSession extends Session {
+public class MockSession extends ModelSession {
     public HashMap<String, List<Row>> tables = new HashMap<String, List<Row>>();
 
     public MockSession() {

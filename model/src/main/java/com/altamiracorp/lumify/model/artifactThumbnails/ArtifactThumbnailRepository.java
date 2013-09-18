@@ -42,7 +42,7 @@ public class ArtifactThumbnailRepository extends Repository<ArtifactThumbnail> {
         return ArtifactThumbnail.TABLE_NAME;
     }
 
-    public byte[] getThumbnailData(Session modelSession, ArtifactRowKey artifactRowKey, String thumbnailType, int width, int height) {
+    public byte[] getThumbnailData(ModelSession modelSession, ArtifactRowKey artifactRowKey, String thumbnailType, int width, int height) {
         ArtifactThumbnailRowKey rowKey = new ArtifactThumbnailRowKey(artifactRowKey.toString(), thumbnailType, width, height);
         ArtifactThumbnail artifactThumbnail = findByRowKey(modelSession, rowKey.toString());
         if (artifactThumbnail == null) {
@@ -51,7 +51,7 @@ public class ArtifactThumbnailRepository extends Repository<ArtifactThumbnail> {
         return artifactThumbnail.getMetadata().getData();
     }
 
-    public byte[] createThumbnail(Session modelSession, ArtifactRowKey artifactRowKey, String thumbnailType, InputStream in, int[] boundaryDims) throws IOException {
+    public byte[] createThumbnail(ModelSession modelSession, ArtifactRowKey artifactRowKey, String thumbnailType, InputStream in, int[] boundaryDims) throws IOException {
         BufferedImage originalImage = ImageIO.read(in);
         int[] originalImageDims = new int[]{originalImage.getWidth(), originalImage.getHeight()};
         int[] newImageDims = getScaledDimension(originalImageDims, boundaryDims);
@@ -75,7 +75,7 @@ public class ArtifactThumbnailRepository extends Repository<ArtifactThumbnail> {
         return out.toByteArray();
     }
 
-    private void saveThumbnail(Session modelSession, ArtifactRowKey artifactRowKey, String thumbnailType, int[] boundaryDims, byte[] bytes) {
+    private void saveThumbnail(ModelSession modelSession, ArtifactRowKey artifactRowKey, String thumbnailType, int[] boundaryDims, byte[] bytes) {
         ArtifactThumbnailRowKey artifactThumbnailRowKey = new ArtifactThumbnailRowKey(artifactRowKey.toString(), thumbnailType, boundaryDims[0], boundaryDims[1]);
         ArtifactThumbnail artifactThumbnail = new ArtifactThumbnail(artifactThumbnailRowKey);
         artifactThumbnail.getMetadata().setData(bytes);

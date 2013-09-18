@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.location;
 
-import com.altamiracorp.lumify.model.Session;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.geoNames.*;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 
@@ -12,7 +12,7 @@ public class SimpleTermLocationExtractor {
     private GeoNameAdmin1CodeRepository geoNameAdmin1CodeRepository = new GeoNameAdmin1CodeRepository();
     private GeoNameCountryInfoRepository geoNameCountryInfoRepository = new GeoNameCountryInfoRepository();
 
-    public TermMention GetTermWithLocationLookup(Session session, GeoNameRepository geoNameRepository, TermMention termMention) {
+    public TermMention GetTermWithLocationLookup(ModelSession session, GeoNameRepository geoNameRepository, TermMention termMention) {
         String sign = termMention.getMetadata().getSign();
         GeoName geoName = geoNameRepository.findBestMatch(session, sign);
         Boolean termIsNotInGeoNames = geoName == null;
@@ -25,7 +25,7 @@ public class SimpleTermLocationExtractor {
                 geoName.getMetadata().getPopulation());
     }
 
-    public TermMention GetTermWithPostalCodeLookup(Session session, GeoNamePostalCodeRepository geoNamePostalCodeRepository, TermMention termMention) {
+    public TermMention GetTermWithPostalCodeLookup(ModelSession session, GeoNamePostalCodeRepository geoNamePostalCodeRepository, TermMention termMention) {
         //we are assuming all US zip codes at this point!
         String zip = termMention.getMetadata().getSign().length() == 5 ? termMention.getMetadata().getSign() : termMention.getMetadata().getSign().substring(0, 5);
         GeoNamePostalCode postalCode = geoNamePostalCodeRepository.findByUSZipCode(session, zip);
@@ -45,7 +45,7 @@ public class SimpleTermLocationExtractor {
         return term;
     }
 
-    private String getTitleFromGeoName(Session session, GeoName geoName) {
+    private String getTitleFromGeoName(ModelSession session, GeoName geoName) {
         GeoNameAdmin1Code code = geoNameAdmin1CodeRepository.findByCountryAndAdmin1Code(session, geoName.getMetadata().getCountryCode(), geoName.getMetadata().getAdmin1Code());
         GeoNameCountryInfo countryInfo = geoNameCountryInfoRepository.findByCountryCode(session, geoName.getMetadata().getCountryCode());
         String countryString = geoName.getMetadata().getCountryCode();

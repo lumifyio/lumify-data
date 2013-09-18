@@ -40,7 +40,7 @@ public class VideoFrameRepository extends Repository<VideoFrame> {
         return VideoFrame.TABLE_NAME;
     }
 
-    public void saveVideoFrame(Session session, ArtifactRowKey artifactRowKey, InputStream in, long frameStartTime) {
+    public void saveVideoFrame(ModelSession session, ArtifactRowKey artifactRowKey, InputStream in, long frameStartTime) {
         SaveFileResults saveFileResults = session.saveFile(in);
         VideoFrameRowKey videoFrameRowKey = new VideoFrameRowKey(artifactRowKey.toString(), frameStartTime);
         VideoFrame videoFrame = new VideoFrame(videoFrameRowKey);
@@ -49,11 +49,11 @@ public class VideoFrameRepository extends Repository<VideoFrame> {
         this.save(session, videoFrame);
     }
 
-    public List<VideoFrame> findAllByArtifactRowKey(Session session, String rowKey) {
+    public List<VideoFrame> findAllByArtifactRowKey(ModelSession session, String rowKey) {
         return this.findByRowStartsWith(session, rowKey);
     }
 
-    public BufferedImage loadImage(Session session, VideoFrame videoFrame) {
+    public BufferedImage loadImage(ModelSession session, VideoFrame videoFrame) {
         InputStream in = session.loadFile(videoFrame.getMetadata().getHdfsPath());
         try {
             return ImageIO.read(in);

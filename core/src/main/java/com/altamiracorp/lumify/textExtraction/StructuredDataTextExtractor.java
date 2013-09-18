@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.textExtraction;
 
-import com.altamiracorp.lumify.model.Session;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.structuredDataExtraction.StructuredDataExtractorBase;
 import com.altamiracorp.lumify.structuredDataExtraction.StructuredDataFactory;
@@ -18,7 +18,7 @@ public class StructuredDataTextExtractor implements TextExtractor {
     }
 
     @Override
-    public ArtifactExtractedInfo extract(Session session, Artifact artifact) throws Exception {
+    public ArtifactExtractedInfo extract(ModelSession session, Artifact artifact) throws Exception {
         JSONObject mappingJson = artifact.getGenericMetadata().getMappingJson();
         if (mappingJson == null) {
             return null;
@@ -29,7 +29,7 @@ public class StructuredDataTextExtractor implements TextExtractor {
     }
 
     @Override
-    public VideoFrameExtractedInfo extract(Session session, VideoFrame videoFrame) throws Exception {
+    public VideoFrameExtractedInfo extract(ModelSession session, VideoFrame videoFrame) throws Exception {
         return null;
     }
 

@@ -30,7 +30,7 @@ public class GeoNameCountryInfoRepository extends Repository<GeoNameCountryInfo>
         return GeoNameCountryInfo.TABLE_NAME;
     }
 
-    public GeoNameCountryInfo findByCountryCode(Session session, String countryCode) {
+    public GeoNameCountryInfo findByCountryCode(ModelSession session, String countryCode) {
         return findByRowKey(session, new GeoNameCountryInfoRowKey(countryCode).toString());
     }
 }

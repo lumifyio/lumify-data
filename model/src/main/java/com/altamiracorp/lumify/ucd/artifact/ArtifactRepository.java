@@ -55,11 +55,11 @@ public class ArtifactRepository extends Repository<Artifact> {
         return artifact;
     }
 
-    public SaveFileResults saveFile(Session session, InputStream in) {
+    public SaveFileResults saveFile(ModelSession session, InputStream in) {
         return session.saveFile(in);
     }
 
-    public InputStream getRaw(Session session, Artifact artifact) {
+    public InputStream getRaw(ModelSession session, Artifact artifact) {
         byte[] bytes = artifact.getContent().getDocArtifactBytes();
         if (bytes != null) {
             return new ByteArrayInputStream(bytes);
@@ -73,7 +73,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         return null;
     }
 
-    public BufferedImage getRawAsImage(Session session, Artifact artifact) {
+    public BufferedImage getRawAsImage(ModelSession session, Artifact artifact) {
         InputStream in = getRaw(session, artifact);
         try {
             try {
@@ -86,7 +86,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
     }
 
-    public InputStream getRawMp4(Session session, Artifact artifact) {
+    public InputStream getRawMp4(ModelSession session, Artifact artifact) {
         String path = artifact.getGenericMetadata().getMp4HdfsFilePath();
         if (path == null) {
             throw new RuntimeException("MP4 Video file path not set.");
@@ -94,7 +94,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         return session.loadFile(path);
     }
 
-    public long getRawMp4Length(Session session, Artifact artifact) {
+    public long getRawMp4Length(ModelSession session, Artifact artifact) {
         String path = artifact.getGenericMetadata().getMp4HdfsFilePath();
         if (path == null) {
             throw new RuntimeException("MP4 Video file path not set.");
@@ -102,7 +102,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         return session.getFileLength(path);
     }
 
-    public InputStream getRawWebm(Session session, Artifact artifact) {
+    public InputStream getRawWebm(ModelSession session, Artifact artifact) {
         String path = artifact.getGenericMetadata().getWebmHdfsFilePath();
         if (path == null) {
             throw new RuntimeException("WebM Video file path not set.");
@@ -110,7 +110,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         return session.loadFile(path);
     }
 
-    public long getRawWebmLength(Session session, Artifact artifact) {
+    public long getRawWebmLength(ModelSession session, Artifact artifact) {
         String path = artifact.getGenericMetadata().getWebmHdfsFilePath();
         if (path == null) {
             throw new RuntimeException("WebM Video file path not set.");
@@ -118,7 +118,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         return session.getFileLength(path);
     }
 
-    public InputStream getRawPosterFrame(Session session, Artifact artifact) {
+    public InputStream getRawPosterFrame(ModelSession session, Artifact artifact) {
         String path = artifact.getGenericMetadata().getPosterFrameHdfsFilePath();
         if (path == null) {
             throw new RuntimeException("Poster Frame file path not set.");
@@ -126,7 +126,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         return session.loadFile(path);
     }
 
-    public InputStream getVideoPreviewImage(Session session, Artifact artifact) {
+    public InputStream getVideoPreviewImage(ModelSession session, Artifact artifact) {
         String path = artifact.getGenericMetadata().getVideoPreviewImageHdfsFilePath();
         if (path == null) {
             throw new RuntimeException("Video preview image path not set.");
@@ -134,7 +134,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         return session.loadFile(path);
     }
 
-    public GraphVertex saveToGraph(Session session, GraphSession graphSession, Artifact artifact) {
+    public GraphVertex saveToGraph(ModelSession session, GraphSession graphSession, Artifact artifact) {
         GraphVertex vertex = null;
         String oldGraphVertexId = artifact.getGenericMetadata().getGraphVertexId();
         if (oldGraphVertexId != null) {
@@ -177,7 +177,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         return vertex;
     }
 
-    public Artifact createArtifactFromInputStream(Session session, long size, InputStream in, String fileName, long fileTimestamp) throws IOException {
+    public Artifact createArtifactFromInputStream(ModelSession session, long size, InputStream in, String fileName, long fileTimestamp) throws IOException {
         Artifact artifact;
 
         if (size > Artifact.MAX_SIZE_OF_INLINE_FILE) {

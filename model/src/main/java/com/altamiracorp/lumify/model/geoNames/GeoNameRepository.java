@@ -32,7 +32,7 @@ public class GeoNameRepository extends Repository<GeoName> {
         return GeoName.TABLE_NAME;
     }
 
-    public GeoName findBestMatch(Session session, String name) {
+    public GeoName findBestMatch(ModelSession session, String name) {
         List<GeoName> matches = this.findByRowStartsWith(session, name.toLowerCase() + RowKeyHelper.MINOR_FIELD_SEPARATOR);
         if (matches.size() == 0) {
             return null;

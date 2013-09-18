@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.util.Collection;
 
 public class ResourceRepository extends Repository<Resource> {
-    public String importFile(Session session, String fileName) {
+    public String importFile(ModelSession session, String fileName) {
         FileInputStream in = null;
         try {
             in = new FileInputStream(fileName);
@@ -34,7 +34,7 @@ public class ResourceRepository extends Repository<Resource> {
         }
     }
 
-    public String importFile(Session session, InputStream in, String contentType) {
+    public String importFile(ModelSession session, InputStream in, String contentType) {
         try {
             byte[] data = IOUtils.toByteArray(in);
             Resource res = new Resource(data, contentType);
