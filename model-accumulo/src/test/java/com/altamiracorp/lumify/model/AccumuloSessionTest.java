@@ -1,8 +1,21 @@
 package com.altamiracorp.lumify.model;
 
-import com.altamiracorp.lumify.core.user.User;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import junit.framework.Assert;
-import org.apache.accumulo.core.client.*;
+
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.BatchWriter;
+import org.apache.accumulo.core.client.MutationsRejectedException;
+import org.apache.accumulo.core.client.RowIterator;
+import org.apache.accumulo.core.client.Scanner;
+import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.mock.MockConnector;
 import org.apache.accumulo.core.client.mock.MockInstance;
 import org.apache.accumulo.core.data.Key;
@@ -15,12 +28,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import static junit.framework.Assert.fail;
-import static org.junit.Assert.assertEquals;
+import com.altamiracorp.lumify.core.user.User;
 
 @RunWith(JUnit4.class)
 public class AccumuloSessionTest {
@@ -69,7 +77,7 @@ public class AccumuloSessionTest {
 
         accumuloSession.save(row);
 
-        Scanner scanner = this.connector.createScanner(TEST_TABLE_NAME, authorizations);
+        Scanner scanner = connector.createScanner(TEST_TABLE_NAME, authorizations);
         scanner.setRange(new Range("testRowKey1"));
         RowIterator rowIterator = new RowIterator(scanner);
         int rowCount = 0;
