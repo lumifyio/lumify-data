@@ -29,6 +29,15 @@ function(ServiceBase) {
         });
     };
 
+    EntityService.prototype.updateEntity = function(updateRequest, callback) {
+        this._ajaxPost({
+            url: 'entity/updateEntity',
+            data: updateRequest
+        },function (err, response) {
+            callback (err,response);
+        });
+    };
+
     return EntityService;
 });
 
