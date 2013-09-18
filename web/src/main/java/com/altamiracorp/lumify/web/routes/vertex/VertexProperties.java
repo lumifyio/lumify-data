@@ -1,18 +1,16 @@
 package com.altamiracorp.lumify.web.routes.vertex;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 public class VertexProperties extends BaseRequestHandler {
     private final GraphRepository graphRepository;
@@ -25,9 +23,9 @@ public class VertexProperties extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         final String graphVertexId = getAttributeString(request, "graphVertexId");
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
 
-        Map<String, String> properties = graphRepository.getVertexProperties(session.getGraphSession(), graphVertexId);
+        Map<String, String> properties = graphRepository.getVertexProperties(graphVertexId, user);
         JSONObject propertiesJson = propertiesToJson(properties);
 
         JSONObject json = new JSONObject();

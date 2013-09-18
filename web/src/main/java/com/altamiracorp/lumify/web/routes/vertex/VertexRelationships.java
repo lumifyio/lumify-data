@@ -1,20 +1,18 @@
 package com.altamiracorp.lumify.web.routes.vertex;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRelationship;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 public class VertexRelationships extends BaseRequestHandler {
     private final GraphRepository graphRepository;
@@ -26,9 +24,9 @@ public class VertexRelationships extends BaseRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
 
-        Map<GraphRelationship, GraphVertex> relationships = graphRepository.getRelationships(session.getGraphSession(), (String) request.getAttribute("graphVertexId"));
+        Map<GraphRelationship, GraphVertex> relationships = graphRepository.getRelationships((String) request.getAttribute("graphVertexId"), user);
 
         JSONObject json = new JSONObject();
         JSONArray relationshipsJson = new JSONArray();

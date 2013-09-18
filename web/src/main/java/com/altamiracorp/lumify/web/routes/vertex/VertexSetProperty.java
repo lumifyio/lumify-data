@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.web.routes.vertex;
 
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
@@ -37,8 +37,8 @@ public class VertexSetProperty extends BaseRequestHandler {
         final String propertyName = getRequiredParameter(request, "propertyName");
         final String valueStr = getRequiredParameter(request, "value");
 
-        AppSession session = app.getAppSession(request);
-        Property property = ontologyRepository.getProperty(session.getGraphSession(), propertyName);
+        User user = getUser(request);
+        Property property = ontologyRepository.getProperty(propertyName, user);
         if (property == null) {
             throw new RuntimeException("Could not find property: " + propertyName);
         }
@@ -52,16 +52,16 @@ public class VertexSetProperty extends BaseRequestHandler {
             return;
         }
 
-        GraphVertex graphVertex = graphRepository.findVertex(session.getGraphSession(), graphVertexId);
+        GraphVertex graphVertex = graphRepository.findVertex(graphVertexId, user);
         graphVertex.setProperty(propertyName, value);
         if (propertyName.equals(PropertyName.GEO_LOCATION.toString())) {
             graphVertex.setProperty(PropertyName.GEO_LOCATION_DESCRIPTION, "");
         }
-        session.getGraphSession().commit();
+        graphRepository.commit();
 
         Messaging.broadcastPropertyChange(graphVertexId, propertyName, value);
 
-        Map<String, String> properties = graphRepository.getVertexProperties(session.getGraphSession(), graphVertexId);
+        Map<String, String> properties = graphRepository.getVertexProperties(graphVertexId, user);
         JSONObject propertiesJson = VertexProperties.propertiesToJson(properties);
         JSONObject json = new JSONObject();
         json.put("properties", propertiesJson);
