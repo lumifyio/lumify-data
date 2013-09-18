@@ -30,7 +30,7 @@
     </property>
     <property>
         <name>graph.storage.index.search.hostname</name>
-        <value><%= @elasticsearch_locations[0].split(':')[0] %></value>
+        <value><%= @elasticsearch_locations.map { |l| l.split(':')[0] }.join(',') %></value>
     </property>
     <property>
         <name>mapreduce.outputformat.class</name>
