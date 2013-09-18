@@ -1,28 +1,44 @@
 package com.altamiracorp.lumify.ucd.artifact;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.ColumnFamily;
-import com.altamiracorp.lumify.model.MockSession;
-import com.altamiracorp.lumify.model.Row;
-import com.altamiracorp.lumify.model.RowKey;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.GraphSession;
+import com.altamiracorp.lumify.model.MockSession;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.model.Row;
+import com.altamiracorp.lumify.model.RowKey;
 
 @RunWith(JUnit4.class)
 public class ArtifactRepositoryTest {
     private MockSession session;
     private ArtifactRepository artifactRepository;
 
+    @Mock
+    private User user;
+
+    @Mock
+    private ModelSession modelSession;
+
+    @Mock
+    private GraphSession graphSession;
+
     @Before
     public void before() {
+        MockitoAnnotations.initMocks(this);
+
         session = new MockSession();
-        session.initializeTables();
-        artifactRepository = new ArtifactRepository();
+        session.initializeTables(user);
+        artifactRepository = new ArtifactRepository(modelSession, graphSession);
     }
 
     @Test
@@ -180,7 +196,7 @@ public class ArtifactRepositoryTest {
                 new ColumnFamily("testExtraColumnFamily")
                         .set("testExtraColumn", "testExtraValue"));
 
-        artifactRepository.save(artifact);
+        artifactRepository.save(artifact, user);
 
         assertEquals(1, session.tables.get(Artifact.TABLE_NAME).size()); // includes the dbpedia artifact
         Row row = session.tables.get(Artifact.TABLE_NAME).get(0);

@@ -1,24 +1,43 @@
 package com.altamiracorp.lumify.model.geoNames;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-import static org.junit.Assert.*;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.MockSession;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.model.Row;
+import com.altamiracorp.lumify.model.RowKey;
+import com.altamiracorp.lumify.model.RowKeyHelper;
 
 @RunWith(JUnit4.class)
 public class GeoNameRepositoryTest {
     private MockSession session;
     private GeoNameRepository geoNameRepository;
 
+    @Mock
+    private User user;
+
+    @Mock
+    private ModelSession modelSession;
+
+
     @Before
     public void before() {
+        MockitoAnnotations.initMocks(this);
+
         session = new MockSession();
-        session.initializeTables();
-        geoNameRepository = new GeoNameRepository();
+        session.initializeTables(user);
+        geoNameRepository = new GeoNameRepository(modelSession);
     }
 
     @Test
@@ -98,7 +117,7 @@ public class GeoNameRepositoryTest {
                 new ColumnFamily("testExtraColumnFamily")
                         .set("testExtraColumn", "testExtraValue"));
 
-        geoNameRepository.save(geoName);
+        geoNameRepository.save(geoName, user);
 
         assertEquals(1, session.tables.get(GeoName.TABLE_NAME).size());
         Row row = session.tables.get(GeoName.TABLE_NAME).get(0);
@@ -134,13 +153,13 @@ public class GeoNameRepositoryTest {
         geoName1.getMetadata()
                 .setName("Boston1")
                 .setPopulation(100L);
-        geoNameRepository.save(geoName1);
+        geoNameRepository.save(geoName1, user);
 
         GeoName geoName2 = new GeoName("Boston", "234");
         geoName2.getMetadata()
                 .setName("Boston2")
                 .setPopulation(300L);
-        geoNameRepository.save(geoName2);
+        geoNameRepository.save(geoName2, user);
 
         GeoName match = geoNameRepository.findBestMatch("boston", new User());
         assertEquals("Boston2", match.getMetadata().getName());
@@ -158,12 +177,12 @@ public class GeoNameRepositoryTest {
         geoName1.getMetadata()
                 .setName("Boston1")
                 .setPopulation(100L);
-        geoNameRepository.save(geoName1);
+        geoNameRepository.save(geoName1, user);
 
         GeoName geoName2 = new GeoName("Boston", "234");
         geoName2.getMetadata()
                 .setName("Boston2");
-        geoNameRepository.save(geoName2);
+        geoNameRepository.save(geoName2, user);
 
         GeoName match = geoNameRepository.findBestMatch("boston", new User());
         assertEquals("Boston1", match.getMetadata().getName());
