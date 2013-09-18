@@ -1,14 +1,20 @@
 package com.altamiracorp.lumify.model.geoNames;
 
+import java.util.Collection;
+
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.Column;
 import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.Row;
-
-import java.util.Collection;
+import com.google.inject.Inject;
 
 public class GeoNamePostalCodeRepository extends Repository<GeoNamePostalCode> {
+    @Inject
+    public GeoNamePostalCodeRepository(final ModelSession modelSession) {
+        super(modelSession);
+    }
 
     @Override
     public GeoNamePostalCode fromRow(Row row) {
