@@ -1,27 +1,37 @@
 package com.altamiracorp.lumify.ucd.artifact;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.*;
-import com.altamiracorp.lumify.model.graph.GraphGeoLocation;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.model.ontology.PropertyName;
-import com.altamiracorp.lumify.model.ontology.VertexType;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
+import javax.imageio.ImageIO;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.Column;
+import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.GraphSession;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.Row;
+import com.altamiracorp.lumify.model.SaveFileResults;
+import com.altamiracorp.lumify.model.graph.GraphGeoLocation;
+import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
+import com.altamiracorp.lumify.model.ontology.PropertyName;
+import com.altamiracorp.lumify.model.ontology.VertexType;
+import com.google.inject.Inject;
+
 
 public class ArtifactRepository extends Repository<Artifact> {
-    private GraphSession graphSession;
+    private final GraphSession graphSession;
 
-    public ArtifactRepository(ModelSession modelSession, GraphSession graphSession) {
+    @Inject
+    public ArtifactRepository(final ModelSession modelSession, final GraphSession graphSession) {
         super(modelSession);
         this.graphSession = graphSession;
     }
@@ -179,7 +189,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         graphSession.commit();
         if (!vertexId.equals(oldGraphVertexId)) {
             artifact.getGenericMetadata().setGraphVertexId(vertexId);
-            this.save(artifact, user);
+            save(artifact, user);
         }
 
         return vertex;
