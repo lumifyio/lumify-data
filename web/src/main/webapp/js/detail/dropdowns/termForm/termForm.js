@@ -222,12 +222,12 @@ define([
 
             vertex.html(dropdownTemplate({
                 sign: $.trim(sign),
-                graphVertexId: data && data.graphVertexId,
+                graphVertexId: data && data.id,
                 objectSign: $.trim(objectSign) || '',
                 buttonText: existingEntity ? 'Update' : 'Resolve'
             }));
 
-            this.graphVertexChanged(data && data.graphVertexId, data, true);
+            this.graphVertexChanged(data && data.id, data, true);
 
             this.runQuery(sign).done(function(vertices) {
                 self.$node.find('.badge')

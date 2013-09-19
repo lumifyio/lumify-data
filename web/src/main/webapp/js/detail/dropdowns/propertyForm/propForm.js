@@ -18,6 +18,7 @@ define([
         });
 
         this.after('initialize', function() {
+            var vertex = self.attr.data;
 
             this.on('click', {
                 addPropertySelector: this.onAddPropertyClicked
@@ -33,8 +34,8 @@ define([
 
             var self = this;
 
-            if (self.attr.data._subType){
-                self.attr.service.propertiesByConceptId(self.attr.data._subType, function (err, properties){
+            if (vertex.properties._subType){
+                self.attr.service.propertiesByConceptId(vertex.properties._subType, function (err, properties){
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
@@ -57,7 +58,7 @@ define([
                     }));
                 });
             } else {
-                self.attr.service.propertiesByRelationshipLabel(self.attr.data.relationshipType, function (err, properties){
+                self.attr.service.propertiesByRelationshipLabel(vertex.relationshipType, function (err, properties){
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });

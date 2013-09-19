@@ -12,12 +12,23 @@ define([
     'service/ontology',
     'service/entity',
     'data'
-], function(defineComponent, VideoScrubber, Image, withTypeContent, withHighlighting, ObjectDetectionForm, Properties, template, transcriptEntryTemplate, OntologyService, EntityService, appData) {
+], function(
+    defineComponent, 
+    VideoScrubber, Image, 
+    withTypeContent, withHighlighting, 
+    ObjectDetectionForm,
+    Properties,
+    template,
+    transcriptEntryTemplate,
+    OntologyService,
+    EntityService,
+    appData) {
     'use strict';
 
     return defineComponent(Artifact, withTypeContent, withHighlighting);
 
     function Artifact() {
+
         this.ontologyService = new OntologyService();
         this.entityService = new EntityService();
 

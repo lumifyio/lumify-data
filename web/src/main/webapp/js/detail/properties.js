@@ -38,7 +38,7 @@ define([
             var self = this;
 
             self.vertexService.setProperty(
-                this.attr.data.id || this.attr.data.graphVertexId,
+                this.attr.data.id,
                 data.property.name,
                 data.property.value)
                 .fail(function(err) {
@@ -78,7 +78,7 @@ define([
         };
 
         this.onPropertyChange = function (propertyChangeData) {
-            if (propertyChangeData.graphVertexId != this.attr.data.graphVertexId) {
+            if (propertyChangeData.id != this.attr.data.id) {
                 return;
             }
             if(propertyChangeData.propertyName == 'title') {
