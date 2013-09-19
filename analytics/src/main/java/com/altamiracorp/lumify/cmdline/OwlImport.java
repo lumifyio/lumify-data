@@ -1,7 +1,8 @@
 package com.altamiracorp.lumify.cmdline;
 
 import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.GraphSession;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.Concept;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
@@ -34,6 +35,7 @@ public class OwlImport extends CommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(OwlImport.class.getName());
     private OntologyRepository ontologyRepository;
     private ResourceRepository resourceRepository;
+    private GraphSession graphSession;
     private String inFileName;
     private File inDir;
 
@@ -73,12 +75,12 @@ public class OwlImport extends CommandLineBase {
         session.initialize(getUser());
 
         File inFile = new File(inFileName);
-        importFile(session, inFile);
+        importFile(inFile, getUser());
 
         return 0;
     }
 
-    public void importFile(AppSession session, File inFile) throws ParserConfigurationException, SAXException, IOException {
+    public void importFile(File inFile, User user) throws ParserConfigurationException, SAXException, IOException {
         inDir = inFile.getParentFile();
 
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -93,17 +95,17 @@ public class OwlImport extends CommandLineBase {
             if (child instanceof Element) {
                 Element childElem = (Element) child;
                 if (childElem.getNamespaceURI().equals("http://www.w3.org/2002/07/owl#") && childElem.getLocalName().equals("Class")) {
-                    importClassElement(session, childElem);
+                    importClassElement(childElem, user);
                 } else if (childElem.getNamespaceURI().equals("http://www.w3.org/2002/07/owl#") && childElem.getLocalName().equals("DatatypeProperty")) {
-                    importDatatypePropertyElement(session, childElem);
+                    importDatatypePropertyElement(childElem, user);
                 } else if (childElem.getNamespaceURI().equals("http://www.w3.org/2002/07/owl#") && childElem.getLocalName().equals("ObjectProperty")) {
-                    importObjectPropertyElement(session, childElem);
+                    importObjectPropertyElement(childElem, user);
                 }
             }
         }
     }
 
-    private void importClassElement(AppSession session, Element classElem) {
+    private void importClassElement(Element classElem, User user) {
         String about = getName(classElem.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about"));
         Element labelElem = getEnglishLanguageLabel(classElem);
         String labelText = labelElem.getTextContent().trim();
@@ -114,11 +116,11 @@ public class OwlImport extends CommandLineBase {
         String parentName = getName(subClassOfResource);
 
         LOGGER.info("importClassElement: about: " + about + ", labelText: " + labelText + ", parentName: " + parentName);
-        Concept parent = ontologyRepository.getConceptByName(parentName, getUser());
+        Concept parent = ontologyRepository.getConceptByName(parentName, user);
         if (parent == null) {
             throw new RuntimeException("Could not find parent " + parentName + " for " + about);
         }
-        Concept concept = ontologyRepository.getOrCreateConcept(parent, about, labelText, getUser());
+        Concept concept = ontologyRepository.getOrCreateConcept(parent, about, labelText, user);
 
         for (Element propertyElem : propertyElems) {
             String propertyName = propertyElem.getAttributeNS("http://altamiracorp.com/ontology#", "name");
@@ -126,14 +128,14 @@ public class OwlImport extends CommandLineBase {
             LOGGER.info("  " + propertyName + " = " + propertyValue);
             if (propertyName.equals("glyphIconFileName")) {
                 propertyName = PropertyName.GLYPH_ICON.toString();
-                propertyValue = importGlyphIconFile(session.getModelSession(), propertyValue);
+                propertyValue = importGlyphIconFile(propertyValue, user);
             } else if (propertyName.equals("mapGlyphIconFileName")) {
                 propertyName = PropertyName.MAP_GLYPH_ICON.toString();
-                propertyValue = importGlyphIconFile(session.getModelSession(), propertyValue);
+                propertyValue = importGlyphIconFile(propertyValue, user);
             }
             concept.setProperty(propertyName, propertyValue);
         }
-        session.getGraphSession().commit();
+        graphSession.commit();
     }
 
     private Element getEnglishLanguageLabel(Element elem) {
@@ -147,16 +149,16 @@ public class OwlImport extends CommandLineBase {
         throw new RuntimeException("Could not find english label on element " + elem.getTagName());
     }
 
-    private String importGlyphIconFile(ModelSession session, String fileName) {
+    private String importGlyphIconFile(String fileName, User user) {
         File f = new File(inDir, fileName);
 
         LOGGER.info("  importing file: " + fileName);
-        String id = resourceRepository.importFile(f.getAbsolutePath(), getUser());
+        String id = resourceRepository.importFile(f.getAbsolutePath(), user);
         LOGGER.info("  resource key: " + id);
         return id;
     }
 
-    private void importDatatypePropertyElement(AppSession session, Element datatypePropertyElem) {
+    private void importDatatypePropertyElement(Element datatypePropertyElem, User user) {
         String about = datatypePropertyElem.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
         Element labelElem = getEnglishLanguageLabel(datatypePropertyElem);
         String labelText = labelElem.getTextContent().trim();
@@ -169,15 +171,15 @@ public class OwlImport extends CommandLineBase {
         String rangeResourceName = getName(rangeResource);
 
         LOGGER.info("importDatatypePropertyElement: about: " + about + ", labelText: " + labelText + ", domainResourceName: " + domainResourceName + ", rangeResourceName: " + rangeResourceName);
-        GraphVertex domain = ontologyRepository.getGraphVertexByTitle(domainResourceName, getUser());
+        GraphVertex domain = ontologyRepository.getGraphVertexByTitle(domainResourceName, user);
         PropertyType propertyType = PropertyType.convert(rangeResourceName);
-        session.getGraphSession().commit();
+        graphSession.commit();
 
-        ontologyRepository.addPropertyTo(domain, about, labelText, propertyType, getUser());
-        session.getGraphSession().commit();
+        ontologyRepository.addPropertyTo(domain, about, labelText, propertyType, user);
+        graphSession.commit();
     }
 
-    private void importObjectPropertyElement(AppSession session, Element objectPropertyElem) {
+    private void importObjectPropertyElement(Element objectPropertyElem, User user) {
         String about = objectPropertyElem.getAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "about");
         Element labelElem = getEnglishLanguageLabel(objectPropertyElem);
         String labelText = labelElem.getTextContent().trim();
@@ -190,11 +192,11 @@ public class OwlImport extends CommandLineBase {
         String rangeResourceName = getName(rangeResource);
 
         LOGGER.info("importObjectPropertyElement: about: " + about + ", labelText: " + labelText + ", domainResourceName: " + domainResourceName + ", rangeResourceName: " + rangeResourceName);
-        GraphVertex domain = ontologyRepository.getGraphVertexByTitle(domainResourceName, getUser());
-        GraphVertex range = ontologyRepository.getGraphVertexByTitle(rangeResourceName, getUser());
+        GraphVertex domain = ontologyRepository.getGraphVertexByTitle(domainResourceName, user);
+        GraphVertex range = ontologyRepository.getGraphVertexByTitle(rangeResourceName, user);
 
-        ontologyRepository.getOrCreateRelationshipType(domain, range, about, labelText, getUser());
-        session.getGraphSession().commit();
+        ontologyRepository.getOrCreateRelationshipType(domain, range, about, labelText, user);
+        graphSession.commit();
     }
 
     private Element getSingleChildElement(Element elem, String ns, String localName) {
@@ -243,5 +245,10 @@ public class OwlImport extends CommandLineBase {
     @Inject
     public void setResourceRepository(ResourceRepository resourceRepository) {
         this.resourceRepository = resourceRepository;
+    }
+
+    @Inject
+    public void setGraphSession(GraphSession graphSession) {
+        this.graphSession = graphSession;
     }
 }

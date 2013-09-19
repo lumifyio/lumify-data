@@ -1,10 +1,11 @@
 package com.altamiracorp.lumify.web.routes.admin;
 
-import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.cmdline.OwlImport;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.common.io.Files;
+import com.google.inject.Inject;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import org.apache.commons.io.FileUtils;
@@ -26,7 +27,12 @@ import java.util.List;
 
 public class AdminUploadOntology extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(AdminUploadOntology.class.getName());
+    private final OwlImport owlImport;
 
+    @Inject
+    public AdminUploadOntology(OwlImport owlImport) {
+        this.owlImport = owlImport;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
@@ -34,22 +40,20 @@ public class AdminUploadOntology extends BaseRequestHandler {
         if (files.size() != 1) {
             throw new RuntimeException("Wrong number of uploaded files. Expected 1 got " + files.size());
         }
-        AppSession session = app.getAppSession(request);
         Part file = files.get(0);
 
         File tempFile = File.createTempFile("ontologyUpload", ".bin");
         writeToTempFile(file, tempFile);
 
-        writePackage(session, tempFile);
+        User user = getUser(request);
+        writePackage(tempFile, user);
 
         tempFile.delete();
 
         respondWithPlaintext(response, "OK");
     }
 
-    private void writePackage(AppSession session, File file) throws ZipException, IOException, SAXException, ParserConfigurationException {
-        OwlImport owlImport = new OwlImport();
-
+    private void writePackage(File file, User user) throws ZipException, IOException, SAXException, ParserConfigurationException {
         ZipFile zipped = new ZipFile(file);
         if (zipped.isValidZipFile()) {
             File tempDir = Files.createTempDir();
@@ -58,12 +62,12 @@ public class AdminUploadOntology extends BaseRequestHandler {
                 zipped.extractAll(tempDir.getAbsolutePath());
 
                 File owlFile = findOwlFile(tempDir);
-                owlImport.importFile(session, owlFile);
+                owlImport.importFile(owlFile, user);
             } finally {
                 FileUtils.deleteDirectory(tempDir);
             }
         } else {
-            owlImport.importFile(session, file);
+            owlImport.importFile(file, user);
         }
     }
 

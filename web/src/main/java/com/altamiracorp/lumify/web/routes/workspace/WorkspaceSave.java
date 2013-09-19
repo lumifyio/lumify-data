@@ -44,6 +44,7 @@ public class WorkspaceSave extends BaseRequestHandler {
 
         if (!workspace.getRowKey().toString().equals(user.getMetadata().getCurrentWorkspace())) {
             user.getMetadata().setCurrentWorkspace(workspace.getRowKey().toString());
+            authUser.setCurrentWorkspace(workspace.getRowKey().toString());
             userRepository.save(user, authUser);
         }
 

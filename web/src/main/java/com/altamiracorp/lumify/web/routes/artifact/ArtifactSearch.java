@@ -36,7 +36,7 @@ public class ArtifactSearch extends BaseRequestHandler {
     }
 
     private Collection<ArtifactSearchResult> queryArtifacts(String query, User user) throws Exception {
-        return searchProvider.searchArtifacts(query);
+        return searchProvider.searchArtifacts(query, user);
     }
 
     private JSONObject artifactsToSearchResults(Collection<ArtifactSearchResult> artifacts, HttpServletRequest request) throws JSONException, UnsupportedEncodingException {

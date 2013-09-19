@@ -12,6 +12,7 @@ import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.objectDetection.DetectedObject;
 import com.altamiracorp.lumify.objectDetection.ObjectDetectionWorker;
+import com.altamiracorp.lumify.search.SearchProvider;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
@@ -31,17 +32,22 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
     private final GraphRepository graphRepository;
     private final ArtifactRepository artifactRepository;
     private final Repository<TermMention> termMentionRepository;
+    private final SearchProvider searchProvider;
 
     private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
             new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()),
             0L, TimeUnit.MILLISECONDS);
 
     @Inject
-    public EntityObjectDetectionCreate(final Repository<TermMention> termMentionRepo,
-                                       final ArtifactRepository artifactRepo, final GraphRepository graphRepo) {
-        termMentionRepository = termMentionRepo;
-        artifactRepository = artifactRepo;
-        graphRepository = graphRepo;
+    public EntityObjectDetectionCreate(
+            final Repository<TermMention> termMentionRepository,
+            final ArtifactRepository artifactRepository,
+            final GraphRepository graphRepository,
+            final SearchProvider searchProvider) {
+        this.termMentionRepository = termMentionRepository;
+        this.artifactRepository = artifactRepository;
+        this.graphRepository = graphRepository;
+        this.searchProvider = searchProvider;
     }
 
     @Override
@@ -104,7 +110,7 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
 
         detectedObject.setRowKey(detectedObjectRowKey);
         JSONObject obj = detectedObject.getJson();
-        executorService.execute(new ObjectDetectionWorker(artifactRowKey, detectedObjectRowKey, obj, user));
+        executorService.execute(new ObjectDetectionWorker(artifactRepository, searchProvider, artifactRowKey, detectedObjectRowKey, obj, user));
 
         respondWithJson(response, obj);
     }

@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.web.routes.entity;
 
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.entityHighlight.EntityHighlightWorker;
+import com.altamiracorp.lumify.entityHighlight.EntityHighlighter;
 import com.altamiracorp.lumify.entityHighlight.TermMentionOffsetItem;
 import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
@@ -12,6 +13,7 @@ import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -27,15 +29,23 @@ import java.util.concurrent.TimeUnit;
 public class EntityTermCreate extends BaseRequestHandler {
     private final Repository<TermMention> termMentionRepository;
     private final GraphRepository graphRepository;
+    private final ArtifactRepository artifactRepository;
+    private final EntityHighlighter highlighter;
 
     private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
             new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()),
             0L, TimeUnit.MILLISECONDS);
 
     @Inject
-    public EntityTermCreate(final Repository<TermMention> termMentionRepo, final GraphRepository graphRepo) {
-        termMentionRepository = termMentionRepo;
-        graphRepository = graphRepo;
+    public EntityTermCreate(
+            final Repository<TermMention> termMentionRepository,
+            final GraphRepository graphRepository,
+            ArtifactRepository artifactRepository,
+            EntityHighlighter highlighter) {
+        this.termMentionRepository = termMentionRepository;
+        this.graphRepository = graphRepository;
+        this.artifactRepository = artifactRepository;
+        this.highlighter = highlighter;
     }
 
     @Override
@@ -84,7 +94,7 @@ public class EntityTermCreate extends BaseRequestHandler {
         termMentionRepository.save(termMention, user);
 
         // Modify the highlighted artifact text in a background thread
-        executorService.execute(new EntityHighlightWorker(artifactKey, user));
+        executorService.execute(new EntityHighlightWorker(artifactRepository, highlighter, artifactKey, user));
 
         TermMentionOffsetItem offsetItem = new TermMentionOffsetItem(termMention, resolvedVertex);
 

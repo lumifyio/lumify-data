@@ -22,7 +22,7 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
         super.setup(context);
         session = ConfigurableMapJobBase.createAppSession(context);
         failOnFirstError = context.getConfiguration().getBoolean("failOnFirstError", false);
-        Injector injector;
+        Injector injector = null;
         injector.injectMembers(this);
         try {
             setup(context, injector);

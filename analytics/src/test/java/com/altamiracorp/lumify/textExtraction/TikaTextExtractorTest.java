@@ -1,11 +1,14 @@
 package com.altamiracorp.lumify.textExtraction;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.MockSession;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -16,10 +19,16 @@ import static org.junit.Assert.assertEquals;
 public class TikaTextExtractorTest {
     private MockSession session;
 
+    @Mock
+    private User user;
+
+    @Mock
+    private ArtifactRepository artifactRepository;
+
     @Before
     public void before() {
         session = new MockSession();
-        session.initializeTables();
+        session.initializeTables(user);
     }
 
     @Test
@@ -41,7 +50,7 @@ public class TikaTextExtractorTest {
         Artifact artifact = new Artifact();
         artifact.getContent().setDocArtifactBytes(data.getBytes());
         artifact.getGenericMetadata().setMimeType("text/html");
-        ArtifactExtractedInfo info = textExtractor.extract(session, artifact, );
+        ArtifactExtractedInfo info = textExtractor.extract(artifact, user);
 
         assertEquals("Test Title", info.getSubject());
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
