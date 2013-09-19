@@ -180,7 +180,12 @@ define([
                 self.select('detectedObjectTagSelector').find($(detectedObjectTag).next()).remove();
                 self.select('detectedObjectTagSelector').find($(detectedObjectTag)).remove();
 
-                self.trigger(document, 'deleteVertices', { vertices: [resolvedVertex] });
+                if (data.remove){
+                    self.trigger(document, 'deleteVertices', { vertices: [resolvedVertex] });
+                } else {
+                    self.trigger(document, 'updateVertices', { vertices: [resolvedVertex] });
+                    self.trigger(document, 'deleteEdge', { edgeId: data.edgeId });
+                }
             });
 
         };

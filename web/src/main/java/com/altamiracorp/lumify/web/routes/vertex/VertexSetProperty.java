@@ -59,7 +59,7 @@ public class VertexSetProperty extends BaseRequestHandler {
         }
         graphRepository.commit();
 
-        Messaging.broadcastPropertyChange(graphVertexId, propertyName, value);
+        Messaging.broadcastPropertyChange(graphVertexId, propertyName, value, toJson(graphVertex));
 
         Map<String, String> properties = graphRepository.getVertexProperties(graphVertexId, user);
         JSONObject propertiesJson = VertexProperties.propertiesToJson(properties);

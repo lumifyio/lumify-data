@@ -349,16 +349,20 @@ define([
             var self = this;
             var menu = this.select('edgeContextMenuSelector');
             var edgeId = menu.data('edgeId');
-            this.cy(function(cy) {
-                this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), menu.data('relationshipType'), function(err) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-                    cy.remove (cy.getElementById (edgeId));
-                });
+            this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), menu.data('relationshipType'), function(err) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+                self.onDeleteEdge ('', {edgeId: edgeId});
             });
         };
+
+        this.onDeleteEdge = function (event, data) {
+            this.cy(function (cy) {
+                cy.remove(cy.getElementById (data.edgeId));
+            });
+        }
 
         this.onContextMenuRemoveItem = function (){
             var menu = this.select('vertexContextMenuSelector');
@@ -834,6 +838,7 @@ define([
             this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);
             this.on(document, 'focusVertices', this.onFocusVertices);
             this.on(document, 'defocusVertices', this.onDefocusVertices);
+            this.on(document, 'deleteEdge', this.onDeleteEdge);
 
             if (self.attr.vertices && self.attr.vertices.length) {
                 this.select('emptyGraphSelector').hide();

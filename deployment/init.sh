@@ -3,7 +3,7 @@
 PUPPETLABS_RPM_URL='http://yum.puppetlabs.com/el/6/products/i386/puppetlabs-release-6-7.noarch.rpm'
 SSH_OPTS='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=QUIET'
 
-hosts_file=$1
+HOSTS_FILE=$1
 
 function heading {
   local text=$1
@@ -15,64 +15,78 @@ function heading {
   echo -n $'\e[00;00m'
 }
 
+function setup_local {
+  heading 'configure enviornment name resolution'
+  grep -q $(hostname) /etc/hosts || cat ${HOSTS_FILE} >> /etc/hosts
 
-heading 'configure enviornment name resolution'
-grep -q $(hostname) /etc/hosts || cat ${hosts_file} >> /etc/hosts
+  heading 'install LVM'
+  yum -y install lvm2
+  # TODO: reboot?
 
-heading 'install LVM'
-yum -y install lvm2
-# TODO: reboot?
+  heading 'add the PuppetLabs yum repo, install and enable puppet'
+  rpm -ivh ${PUPPETLABS_RPM_URL}
+  yum -y install puppet-server
+  chkconfig puppetmaster on
+  chkconfig puppet on
 
-heading 'add the PuppetLabs yum repo, install and enable puppet'
-rpm -ivh ${PUPPETLABS_RPM_URL}
-yum -y install puppet-server
-chkconfig puppetmaster on
-chkconfig puppet on
+  heading 'setup SSL certs'
+  puppet cert generate $(hostname) --dns_alt_names=puppet
+  awk -v localhost=$(hostname) '$2!=localhost {print $2}' ${HOSTS_FILE} > /etc/puppet/autosign.conf
 
-heading 'setup SSL certs'
-puppet cert generate $(hostname) --dns_alt_names=puppet
-awk -v localhost=$(hostname) '$2!=localhost {print $2}' ${hosts_file} > /etc/puppet/autosign.conf
+  heading 'insert firewall rules for the puppermaster and tinyproxy services'
+  local rule_number=$(iptables -L -n --line-numbers | awk '/tcp dpt:22/ {print $1}')
+  iptables -I INPUT ${rule_number} -p tcp -m state --state NEW -m tcp --dport 8140 -j ACCEPT
+  rule_number=$(iptables -L -n --line-numbers | awk '/tcp dpt:22/ {print $1}')
+  iptables -I INPUT ${rule_number} -p tcp -m state --state NEW -m tcp --dport 8080 -j ACCEPT
+  service iptables save
+  # TODO: use puppet to configure iptables now since it will later
 
-heading 'insert firewall rules for the puppermaster and tinyproxy services'
-rule_number=$(iptables -L -n --line-numbers | awk '/tcp dpt:22/ {print $1}')
-iptables -I INPUT ${rule_number} -p tcp -m state --state NEW -m tcp --dport 8140 -j ACCEPT
-rule_number=$(iptables -L -n --line-numbers | awk '/tcp dpt:22/ {print $1}')
-iptables -I INPUT ${rule_number} -p tcp -m state --state NEW -m tcp --dport 8080 -j ACCEPT
-service iptables save
-# TODO: use puppet to configure iptables now since it will later
-
-heading 'configure puppet'
-cat >> /etc/puppet/puppet.conf <<EO_PUPPET_CONF
+  heading 'configure puppet'
+  cat >> /etc/puppet/puppet.conf <<EO_PUPPET_CONF
 
 [master]
     modulepath = \$confdir/modules:/usr/share/puppet/modules:\$confdir/lumify-modules:\$confdir/puppet-modules
 EO_PUPPET_CONF
 
-heading 'install PuppetLabs modules'
-puppet module install puppetlabs/firewall
+  heading 'install PuppetLabs modules'
+  puppet module install puppetlabs/firewall
 
-heading 'install our configuration and modules, start the puppetmaster service'
-./update.sh start
+  heading 'install our configuration and modules, start the puppetmaster service'
+  ./update.sh start
 
-heading 'run puppet once in the forground'
-puppet agent -t || true
+  heading 'run puppet once in the forground'
+  puppet agent -t || true
 
-heading 'run puppet as a service'
-service puppet start
+  heading 'run puppet as a service'
+  service puppet start
+}
 
-heading 'stage conf, oozie, geonames, and import artifcats'
-jobtracker_host=$(awk '/jobtracker/ {print $1}' ${hosts_file})
-scp ${SSH_OPTS} conf-*.tgz oozie-*.tgz setup_conf.sh setup_oozie.sh setup_geonames.sh setup_import.sh ${jobtracker_host}:
+function stage_jobtracker {
+  heading 'stage artifcats on the jobtracker'
+  local jobtracker_host=$(awk '/jobtracker/ {print $1}' ${HOSTS_FILE})
+  scp ${SSH_OPTS} conf-*.tgz \
+                  oozie-*.tgz \
+                  setup_conf.sh \
+                  setup_oozie.sh \
+                  setup_geonames.sh \
+                  setup_import.sh \
+                  ${jobtracker_host}:
+}
 
-heading 'stage webserver artifcats'
-www_host=$(awk '/www/ {print $1}' ${hosts_file})
-scp ${SSH_OPTS} *.xml *.war ${www_host}:
+function stage_www {
+  heading 'stage artifcats on the webserver'
+  local www_host=$(awk '/www/ {print $1}' ${HOSTS_FILE})
+  scp ${SSH_OPTS} *.xml \
+                  *.war \
+                  ${www_host}:
+}
 
+function setup_remote {
+  local other_host=$1
 
-for other_host in $(awk -v localhost=$(hostname) '$2!=localhost {print $1}' ${hosts_file}); do
   heading "${other_host}: configure enviornment name resolution"
-  scp ${SSH_OPTS} ${hosts_file} ${other_host}:
-  ssh ${SSH_OPTS} ${other_host} "grep -q ${other_host} /etc/hosts || cat ${hosts_file} >> /etc/hosts"
+  scp ${SSH_OPTS} ${HOSTS_FILE} ${other_host}:
+  ssh ${SSH_OPTS} ${other_host} "grep -q ${other_host} /etc/hosts || cat ${HOSTS_FILE} >> /etc/hosts"
 
   heading "${other_host}: configure yum to use the proxy"
   cat <<EO_YUM_CONF | ssh ${SSH_OPTS} ${other_host} 'cat >> /etc/yum.conf'
@@ -105,7 +119,39 @@ EO_SYSCTL_CONF
 
   heading "${other_host}: run_puppet.sh"
   ./run_puppet.sh ${other_host} &> run_puppet.${other_host}.log &
-done
+}
 
-# TODO: format HDFS, start services
-# TODO: initalize Accumulo, start services
+function setup_other {
+  for other_host in $(awk -v localhost=$(hostname) '$2!=localhost {print $1}' ${HOSTS_FILE}); do
+    setup_remote ${other_host}
+  done
+}
+
+
+set +u
+[ "$2" ] && mode_or_ip=$2 || mode_or_ip=everything
+set -u
+case ${mode_or_ip} in
+  local)
+    setup_local
+    ;;
+  jt)
+    stage_jobtracker
+    ;;
+  www)
+    stage_www
+    ;;
+  everything)
+    setup_local
+    stage_jobtracker
+    stage_www
+    setup_other
+    ;;
+  *.*.*.*)
+    setup_remote ${mode_or_host}
+    ;;
+  *)
+    echo "invalid mode or ip: ${mode_or_ip}"
+    exit -1
+    ;;
+esac
