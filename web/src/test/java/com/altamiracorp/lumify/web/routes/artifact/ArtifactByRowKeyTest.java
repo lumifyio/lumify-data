@@ -1,21 +1,25 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
-
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.web.routes.RouteTestBase;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
 
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.web.routes.RouteTestBase;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class)
 public class ArtifactByRowKeyTest extends RouteTestBase {
     private ArtifactByRowKey artifactByRowKey;
+
+    @Mock
+    private User user;
 
     @Override
     @Before
@@ -34,7 +38,7 @@ public class ArtifactByRowKeyTest extends RouteTestBase {
         Artifact artifact = new Artifact(artifactRowKey);
         artifact.getGenericMetadata()
                 .setMimeType("text/html");
-        when(mockArtifactRepository.findByRowKey(mockModelSession, artifactRowKey.toString())).thenReturn(artifact);
+        when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user)).thenReturn(artifact);
 
         artifactByRowKey.handle(mockRequest, mockResponse, mockHandlerChain);
 

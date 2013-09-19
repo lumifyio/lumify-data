@@ -4,6 +4,7 @@ import com.altamiracorp.lumify.model.user.User;
 import com.altamiracorp.lumify.model.user.UserRepository;
 import com.altamiracorp.lumify.model.user.UserStatus;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
 import org.atmosphere.config.service.AtmosphereHandlerService;
@@ -32,19 +33,15 @@ import java.util.List;
 public class Messaging implements AtmosphereHandler { //extends AbstractReflectorAtmosphereHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(Messaging.class);
 
-    private final UserRepository userRepository;
+    private UserRepository userRepository;
 
     // TODO should we save off this broadcaster? When using the BroadcasterFactory
     //      we always get null when trying to get the default broadcaster
     private static Broadcaster broadcaster;
 
-    @Inject
-    public Messaging() {
-        userRepository = new UserRepository();
-    }
-
     @Override
     public void onRequest(AtmosphereResource resource) throws IOException {
+        ensureInitialized(resource);
         broadcaster = resource.getBroadcaster();
 
         AtmosphereRequest req = resource.getRequest();
@@ -56,6 +53,13 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
         }
     }
 
+    private void ensureInitialized(AtmosphereResource resource) {
+        final Injector injector = (Injector) resource.getRequest().getServletContext().getAttribute(Injector.class.getName());
+        if (userRepository == null) {
+            injector.injectMembers(this);
+        }
+    }
+
     @Override
     public void destroy() {
         LOGGER.debug("destroy");
@@ -63,6 +67,7 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
 
     @Override
     public void onStateChange(AtmosphereResourceEvent event) throws IOException {
+        ensureInitialized(event.getResource());
         AtmosphereResponse response = ((AtmosphereResourceImpl) event.getResource()).getResponse(false);
 
         if (event.getMessage() != null && List.class.isAssignableFrom(event.getMessage().getClass())) {
@@ -146,5 +151,10 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
         } catch (JSONException ex) {
             throw new RuntimeException("Could not create json", ex);
         }
+    }
+
+    @Inject
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 }

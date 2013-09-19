@@ -8,19 +8,15 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.*;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.model.user.UserRepository;
-import com.altamiracorp.lumify.model.workspace.Workspace;
 import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
 import com.altamiracorp.lumify.search.ElasticSearchProvider;
 import com.altamiracorp.lumify.search.SearchProvider;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.AuthenticationProvider;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
-import com.google.inject.TypeLiteral;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.hadoop.fs.FileSystem;
@@ -49,7 +45,7 @@ public class Bootstrap extends AbstractModule {
 
         bind(MapConfig.class).toInstance(configuration);
         bind(ApplicationConfig.class).toInstance(configuration);
-        bind(AuthenticationProvider.class).toInstance(getAuthenticationProviderInstance());
+        bind(AuthenticationProvider.class).to(getAuthenticationProviderClass());
         bind(ModelSession.class).toInstance(createModelSession());
         bind(GraphSession.class).toInstance(createGraphSession());
         bind(SearchProvider.class).toInstance(createSearchProvider(user));
@@ -62,14 +58,14 @@ public class Bootstrap extends AbstractModule {
         bind(GraphRepository.class).in(Singleton.class);
     }
 
-    private AuthenticationProvider getAuthenticationProviderInstance() {
+    private Class<AuthenticationProvider> getAuthenticationProviderClass() {
         String authProviderClass = configuration.getAuthenticationProvider();
         if (authProviderClass == null) {
             throw new RuntimeException("No " + ConfigConstants.AUTHENTICATION_PROVIDER + " config property set.");
         }
 
         try {
-            return (AuthenticationProvider) Class.forName(authProviderClass).newInstance();
+            return (Class<AuthenticationProvider>) Class.forName(authProviderClass);
         } catch (Exception e) {
             throw new RuntimeException("Unable to create AuthenticationProvider with class name " + authProviderClass, e);
         }

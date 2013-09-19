@@ -2,8 +2,8 @@ package com.altamiracorp.lumify.cmdline;
 
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.model.GraphSession;
-import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.ontology.*;
+import com.google.inject.Inject;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -30,8 +30,7 @@ import java.util.List;
 
 public class OwlExport extends CommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(OwlExport.class.getName());
-    private OntologyRepository ontologyRepository = new OntologyRepository();
-    private GraphRepository graphRepository = new GraphRepository();
+    private OntologyRepository ontologyRepository;
     private String outFileName;
     private Namespace NS_RDF = Namespace.getNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
     private Namespace NS_OWL = Namespace.getNamespace("owl", "http://www.w3.org/2002/07/owl#");
@@ -252,5 +251,10 @@ public class OwlExport extends CommandLineBase {
         ontologyElem.appendChild(versionInfoElem);
 
         return ontologyElem;
+    }
+
+    @Inject
+    public void setOntologyRepository(OntologyRepository ontologyRepository) {
+        this.ontologyRepository = ontologyRepository;
     }
 }

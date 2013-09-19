@@ -6,6 +6,7 @@ import com.altamiracorp.lumify.model.graph.GraphRelationship;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
+import com.google.inject.Inject;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
 
@@ -19,7 +20,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class OntologyRepository {
     private GraphRepository graphRepository = new GraphRepository();
     public static final String ROOT_CONCEPT_NAME = "rootConcept";
-    private GraphSession graphSession;
+    private final GraphSession graphSession;
+
+    @Inject
+    public OntologyRepository(GraphSession graphSession) {
+        this.graphSession = graphSession;
+    }
 
     public List<Relationship> getRelationshipLabels(User user) {
         Iterable<Vertex> vertices = graphSession.getGraph().query()

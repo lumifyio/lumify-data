@@ -1,7 +1,5 @@
 package com.altamiracorp.lumify.web.routes;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.WebApp;
@@ -21,8 +19,6 @@ public abstract class RouteTestBase {
     public HttpServletResponse mockResponse;
     public HandlerChain mockHandlerChain;
     public WebApp mockApp;
-    public AppSession mockAppSession;
-    public ModelSession mockModelSession;
     public StringWriter responseStringWriter;
     public ServletOutputStream mockResponseOutputStream;
 
@@ -37,8 +33,6 @@ public abstract class RouteTestBase {
         mockRequest = Mockito.mock(HttpServletRequest.class);
         mockResponse = Mockito.mock(HttpServletResponse.class);
         mockHandlerChain = Mockito.mock(HandlerChain.class);
-        mockAppSession = Mockito.mock(AppSession.class);
-        mockModelSession = Mockito.mock(ModelSession.class);
 
         mockArtifactRepository = Mockito.mock(ArtifactRepository.class);
         mockTermMentionRepository = Mockito.mock(TermMentionRepository.class);
@@ -50,7 +44,5 @@ public abstract class RouteTestBase {
 
         when(mockResponse.getWriter()).thenReturn(new PrintWriter(responseStringWriter));
         when(mockResponse.getOutputStream()).thenReturn(mockResponseOutputStream);
-        when(mockApp.getAppSession(mockRequest)).thenReturn(mockAppSession);
-        when(mockAppSession.getModelSession()).thenReturn(mockModelSession);
     }
 }

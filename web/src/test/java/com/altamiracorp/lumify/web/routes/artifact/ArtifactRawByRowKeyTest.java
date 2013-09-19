@@ -1,28 +1,30 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.web.routes.RouteTestBase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.web.routes.RouteTestBase;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
 
 @RunWith(JUnit4.class)
 public class ArtifactRawByRowKeyTest extends RouteTestBase {
     private ArtifactRawByRowKey artifactRawByRowKey;
+
+    @Mock
+    private User user;
 
     @Override
     @Before
@@ -45,10 +47,10 @@ public class ArtifactRawByRowKeyTest extends RouteTestBase {
                 .setFileName("testFile")
                 .setFileExtension("testExt")
                 .setMimeType("text/plain");
-        when(mockArtifactRepository.findByRowKey(mockModelSession, artifactRowKey.toString())).thenReturn(artifact);
+        when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user)).thenReturn(artifact);
 
         InputStream testInputStream = new ByteArrayInputStream("test data".getBytes());
-        when(mockArtifactRepository.getRaw(mockModelSession, artifact)).thenReturn(testInputStream);
+        when(mockArtifactRepository.getRaw(artifact, user)).thenReturn(testInputStream);
 
         doAnswer(new Answer<Void>() {
             @Override
@@ -84,11 +86,11 @@ public class ArtifactRawByRowKeyTest extends RouteTestBase {
                 .setFileName("testFile")
                 .setFileExtension("testExt")
                 .setMimeType("text/plain");
-        when(mockArtifactRepository.findByRowKey(mockModelSession, artifactRowKey.toString())).thenReturn(artifact);
+        when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user)).thenReturn(artifact);
 
         InputStream testInputStream = new ByteArrayInputStream("test data".getBytes());
-        when(mockArtifactRepository.getRawMp4(mockModelSession, artifact)).thenReturn(testInputStream);
-        when(mockArtifactRepository.getRawMp4Length(mockModelSession, artifact)).thenReturn((long) "test data".length());
+        when(mockArtifactRepository.getRawMp4(artifact, user)).thenReturn(testInputStream);
+        when(mockArtifactRepository.getRawMp4Length(artifact, user)).thenReturn((long) "test data".length());
 
         doAnswer(new Answer<Void>() {
             @Override

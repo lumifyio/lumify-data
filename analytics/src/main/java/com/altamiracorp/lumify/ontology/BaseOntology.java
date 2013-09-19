@@ -194,7 +194,7 @@ public class BaseOntology {
             Concept concept = ontologyRepository.getConceptByName(VertexType.ARTIFACT.toString(), user);
             return concept != null; // todo should check for more
         } catch (Exception e) {
-            if (e.getMessage().contains(PropertyName.ONTOLOGY_TITLE.toString())) {
+            if (e.getMessage() != null && e.getMessage().contains(PropertyName.ONTOLOGY_TITLE.toString())) {
                 return false;
             }
             throw new RuntimeException(e);

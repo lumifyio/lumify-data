@@ -4,7 +4,6 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.entityHighlight.EntityHighlightWorker;
 import com.altamiracorp.lumify.entityHighlight.EntityHighlighter;
 import com.altamiracorp.lumify.entityHighlight.TermMentionOffsetItem;
-import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
@@ -12,6 +11,7 @@ import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
 import com.altamiracorp.lumify.model.termMention.TermMention;
+import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
@@ -27,7 +27,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class EntityTermCreate extends BaseRequestHandler {
-    private final Repository<TermMention> termMentionRepository;
+    private final TermMentionRepository termMentionRepository;
     private final GraphRepository graphRepository;
     private final ArtifactRepository artifactRepository;
     private final EntityHighlighter highlighter;
@@ -38,10 +38,10 @@ public class EntityTermCreate extends BaseRequestHandler {
 
     @Inject
     public EntityTermCreate(
-            final Repository<TermMention> termMentionRepository,
+            final TermMentionRepository termMentionRepository,
             final GraphRepository graphRepository,
-            ArtifactRepository artifactRepository,
-            EntityHighlighter highlighter) {
+            final ArtifactRepository artifactRepository,
+            final EntityHighlighter highlighter) {
         this.termMentionRepository = termMentionRepository;
         this.graphRepository = graphRepository;
         this.artifactRepository = artifactRepository;

@@ -4,9 +4,17 @@ public class User {
     private String username;
     private String rowKey;
     private String currentWorkspace;
+    private ModelAuthorizations modelAuthorizations;
 
-    public ModelAuthorizations getAuthorizations() {
-        return new ModelAuthorizations(); // TODO: change to AccumuloAuthorizations
+    public User(String rowKey, String username, String currentWorkspace, ModelAuthorizations modelAuthorizations) {
+        this.rowKey = rowKey;
+        this.username = username;
+        this.currentWorkspace = currentWorkspace;
+        this.modelAuthorizations = modelAuthorizations;
+    }
+
+    public ModelAuthorizations getModelAuthorizations() {
+        return modelAuthorizations;
     }
 
     public String getUsername() {

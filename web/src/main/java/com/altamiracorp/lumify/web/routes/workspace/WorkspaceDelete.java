@@ -1,8 +1,7 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.Repository;
-import com.altamiracorp.lumify.model.workspace.Workspace;
+import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
 import com.altamiracorp.lumify.model.workspace.WorkspaceRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
@@ -15,12 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class WorkspaceDelete extends BaseRequestHandler {
-    private final Repository<Workspace> workspaceRepository;
+    private final WorkspaceRepository workspaceRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceDelete.class);
 
     @Inject
-    public WorkspaceDelete(final Repository<Workspace> repo) {
-        workspaceRepository = repo;
+    public WorkspaceDelete(final WorkspaceRepository workspaceRepository) {
+        this.workspaceRepository = workspaceRepository;
     }
 
     @Override

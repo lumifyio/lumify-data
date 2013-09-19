@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.workspace.Workspace;
+import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
@@ -14,11 +14,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 
 public class WorkspaceList extends BaseRequestHandler {
-    private final Repository<Workspace> workspaceRepository;
+    private final WorkspaceRepository workspaceRepository;
 
     @Inject
-    public WorkspaceList(final Repository<Workspace> repo) {
-        workspaceRepository = repo;
+    public WorkspaceList(final WorkspaceRepository workspaceRepository) {
+        this.workspaceRepository = workspaceRepository;
     }
 
     @Override
