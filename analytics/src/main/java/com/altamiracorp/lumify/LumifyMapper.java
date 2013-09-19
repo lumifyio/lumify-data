@@ -18,7 +18,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LumifyMapper.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(LumifyMapper.class);
 
     private boolean failOnFirstError;
     private User user;
@@ -30,7 +30,7 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
     protected final void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
         user = new SystemUser();
-        failOnFirstError = context.getConfiguration().getBoolean("failOnFirstError", false);
+        failOnFirstError = context.getConfiguration().getBoolean(ConfigurableMapJobBase.FAIL_FIRST_ERROR, false);
 
         final Injector injector = Guice.createInjector(MapperBootstrap.create(context));
         injector.injectMembers(this);
