@@ -169,7 +169,7 @@ define([
 
                 // Temporarily creating a new tag to show on ui prior to backend update
                 var classes = $('.detected-object-labels .label').attr('class') + ' focused resolved entity';
-                var newTag = ' <a class="' + classes + '" href="#">' + data.title +' </a>';
+                var newTag = ' <a class="' + classes + '" href="#">' + data.title +' </a><button class="delete-tag" type="button">X</button>';
                 var added = false;
 
                 $('.detected-object-labels .label').each(function(){

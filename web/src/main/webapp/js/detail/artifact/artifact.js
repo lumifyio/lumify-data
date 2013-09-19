@@ -9,8 +9,9 @@ define([
     'detail/dropdowns/objectDetectionForm/objectDetectionForm',
     'tpl!./artifact',
     'tpl!./transcriptEntry',
-    'service/ontology'
-], function(defineComponent, VideoScrubber, Image, withProperties, withTypeContent, withHighlighting, ObjectDetectionForm, template, transcriptEntryTemplate, OntologyService) {
+    'service/ontology',
+    'service/entity'
+], function(defineComponent, VideoScrubber, Image, withProperties, withTypeContent, withHighlighting, ObjectDetectionForm, template, transcriptEntryTemplate, OntologyService, EntityService) {
 
     'use strict';
 
@@ -18,6 +19,7 @@ define([
 
     function Artifact() {
         this.ontologyService = new OntologyService();
+        this.entityService = new EntityService();
 
         this.defaultAttrs({
             previewSelector: '.preview',
@@ -27,15 +29,19 @@ define([
             artifactSelector: '.artifact',
             propertiesSelector: '.properties',
             addNewPropertiesSelector: '.add-new-properties',
-            titleSelector: '.artifact-title'
+            titleSelector: '.artifact-title',
+            deleteTagSelector: '.delete-tag',
+            detectedObjectTagSelector: '.detected-object-labels'
         });
 
         this.after('initialize', function() {
             var self = this;
 
             this.on('click', {
-                detectedObjectSelector: this.onDetectedObjectClicked
+                detectedObjectSelector: this.onDetectedObjectClicked,
+                deleteTagSelector: this.onDeleteTagClicked
             });
+
             this.on(document, 'scrubberFrameChange', this.onScrubberFrameChange);
             this.on(document, 'videoTimeUpdate', this.onVideoTimeUpdate);
 
@@ -154,6 +160,30 @@ define([
             this.showForm(tagInfo, this.attr.data);
         };
 
+        this.onDeleteTagClicked = function (event) {
+            var self = this;
+
+            var detectedObjectTag = $(event.target).prev();
+            var info = { objectInfo: JSON.stringify(detectedObjectTag.data('info')) };
+            this.entityService.deleteDetectedObject(info, function(err, data) {
+                if (err) {
+                    console.error('createEntity', err);
+                    return self.trigger(document, 'error', err);
+                }
+
+                var resolvedVertex = {
+                    graphVertexId: data.id,
+                    _subType: data.properties._subType,
+                    _type: data.properties._type
+                };
+
+                self.select('detectedObjectTagSelector').find($(detectedObjectTag).next()).remove();
+                self.select('detectedObjectTagSelector').find($(detectedObjectTag)).remove();
+
+                self.trigger(document, 'deleteVertices', { vertices: [resolvedVertex] });
+            });
+
+        };
 
         this.onDetectedObjectHover = function(event) {
             if (event.type == 'mouseenter') {
