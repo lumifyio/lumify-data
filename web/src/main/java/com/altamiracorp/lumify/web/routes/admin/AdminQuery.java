@@ -1,9 +1,11 @@
 package com.altamiracorp.lumify.web.routes.admin;
 
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.Row;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -14,15 +16,22 @@ import java.util.List;
 
 public class AdminQuery extends BaseRequestHandler {
 
+    private final ModelSession modelSession;
+
+    @Inject
+    public AdminQuery(ModelSession modelSession) {
+        this.modelSession = modelSession;
+    }
+
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         final String tableName = getRequiredParameter(request, "tableName");
         final String beginKey = decodeKey(getRequiredParameter(request, "beginKey"));
         final String endEnd = decodeKey(getRequiredParameter(request, "endEnd"));
 
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
 
-        List<Row> rows = session.getModelSession().findByRowKeyRange(tableName, beginKey, endEnd, session.getModelSession().getQueryUser());
+        List<Row> rows = modelSession.findByRowKeyRange(tableName, beginKey, endEnd, user);
 
         JSONObject results = new JSONObject();
         JSONArray rowsJson = new JSONArray();

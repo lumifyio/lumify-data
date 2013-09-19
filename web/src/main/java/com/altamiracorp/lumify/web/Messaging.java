@@ -1,19 +1,15 @@
 package com.altamiracorp.lumify.web;
 
-import java.io.IOException;
-import java.util.List;
-
+import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.user.User;
 import com.altamiracorp.lumify.model.user.UserRepository;
+import com.altamiracorp.lumify.model.user.UserStatus;
+import com.google.inject.Inject;
 import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
 import org.atmosphere.config.service.AtmosphereHandlerService;
-import org.atmosphere.cpr.AtmosphereHandler;
-import org.atmosphere.cpr.AtmosphereRequest;
-import org.atmosphere.cpr.AtmosphereResource;
-import org.atmosphere.cpr.AtmosphereResourceEvent;
-import org.atmosphere.cpr.AtmosphereResourceImpl;
-import org.atmosphere.cpr.AtmosphereResponse;
-import org.atmosphere.cpr.Broadcaster;
+import org.atmosphere.cpr.*;
 import org.atmosphere.interceptor.AtmosphereResourceLifecycleInterceptor;
 import org.atmosphere.interceptor.BroadcastOnPostAtmosphereInterceptor;
 import org.atmosphere.interceptor.HeartbeatInterceptor;
@@ -23,11 +19,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.Repository;
-import com.altamiracorp.lumify.model.user.User;
-import com.altamiracorp.lumify.model.user.UserStatus;
-import com.google.inject.Inject;
+import java.io.IOException;
+import java.util.List;
 
 @AtmosphereHandlerService(
         path = "/messaging",
@@ -115,14 +108,14 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
 
     private void setStatus(AtmosphereResource resource, UserStatus status) {
         broadcaster = resource.getBroadcaster();
-        AppSession session = getAppSession(resource);
         try {
-            User user = AuthenticationProvider.getUser(resource.getRequest().getSession());
-            if (user == null) {
+            com.altamiracorp.lumify.core.user.User authUser = AuthenticationProvider.getUser(resource.getRequest().getSession());
+            if (authUser == null) {
                 throw new RuntimeException("Could not find user in session");
             }
+            User user = userRepository.findByRowKey(authUser.getRowKey(), authUser);
             user.getMetadata().setStatus(status);
-            userRepository.save(session.getModelSession(), user);
+            userRepository.save(user, authUser);
 
             JSONObject json = new JSONObject();
             json.put("type", "userStatusChange");

@@ -1,28 +1,15 @@
 package com.altamiracorp.lumify.web.guice.modules;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.net.URI;
-
-import org.apache.accumulo.core.client.Connector;
-import org.apache.accumulo.core.client.ZooKeeperInstance;
-import org.apache.hadoop.fs.FileSystem;
-
 import com.altamiracorp.lumify.config.ApplicationConfig;
 import com.altamiracorp.lumify.config.ConfigConstants;
 import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.config.MapConfig;
-import com.altamiracorp.lumify.model.AccumuloSession;
-import com.altamiracorp.lumify.model.GraphSession;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.Repository;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.model.TitanQueryFormatter;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.*;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
-import com.altamiracorp.lumify.model.user.User;
 import com.altamiracorp.lumify.model.user.UserRepository;
 import com.altamiracorp.lumify.model.workspace.Workspace;
 import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
@@ -34,6 +21,13 @@ import com.altamiracorp.lumify.web.AuthenticationProvider;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
+import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.ZooKeeperInstance;
+import org.apache.hadoop.fs.FileSystem;
+
+import java.net.URI;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Wires up the required injections for the web application
@@ -51,17 +45,18 @@ public class Bootstrap extends AbstractModule {
 
     @Override
     protected void configure() {
+        User user = new User();
+
         bind(MapConfig.class).toInstance(configuration);
         bind(ApplicationConfig.class).toInstance(configuration);
         bind(AuthenticationProvider.class).toInstance(getAuthenticationProviderInstance());
         bind(ModelSession.class).toInstance(createModelSession());
         bind(GraphSession.class).toInstance(createGraphSession());
-        bind(SearchProvider.class).toInstance(createSearchProvider());
+        bind(SearchProvider.class).toInstance(createSearchProvider(user));
 
-        bind(new TypeLiteral<Repository<Workspace>>() {}).to(WorkspaceRepository.class).in(Singleton.class);
-        bind(new TypeLiteral<Repository<User>>() {}).to(UserRepository.class).in(Singleton.class);
-        bind(new TypeLiteral<Repository<TermMention>>() {}).to(TermMentionRepository.class).in(Singleton.class);
-        bind(new TypeLiteral<Repository<Artifact>>() {}).to(ArtifactRepository.class).in(Singleton.class);
+        bind(WorkspaceRepository.class).in(Singleton.class);
+        bind(UserRepository.class).in(Singleton.class);
+        bind(TermMentionRepository.class).in(Singleton.class);
         bind(ArtifactRepository.class).in(Singleton.class);
         bind(OntologyRepository.class).in(Singleton.class);
         bind(GraphRepository.class).in(Singleton.class);
@@ -98,7 +93,7 @@ public class Bootstrap extends AbstractModule {
         return new TitanGraphSession(configuration.getProperties(), new TitanQueryFormatter());
     }
 
-    private SearchProvider createSearchProvider() {
+    private SearchProvider createSearchProvider(com.altamiracorp.lumify.core.user.User user) {
         String providerClass = DEFAULT_SEARCH_PROVIDER;
         final String searchProviderName = configuration.getSearchProvider();
 
@@ -108,7 +103,7 @@ public class Bootstrap extends AbstractModule {
 
         try {
             SearchProvider provider = (SearchProvider) Class.forName(providerClass).newInstance();
-            provider.setup(configuration.getProperties());
+            provider.setup(configuration.getProperties(), user);
             return provider;
         } catch (Exception e) {
             throw new RuntimeException("Failed to create search provider instance of class " + providerClass, e);

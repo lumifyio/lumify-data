@@ -30,14 +30,15 @@ public class MapMarkerImage extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(MapMarkerImage.class);
 
     private final OntologyRepository ontologyRepository;
-    private ResourceRepository resourceRepository = new ResourceRepository();
+    private final ResourceRepository resourceRepository;
     private Cache<String, byte[]> imageCache = CacheBuilder.newBuilder()
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .build();
 
     @Inject
-    public MapMarkerImage(final OntologyRepository repo) {
-        ontologyRepository = repo;
+    public MapMarkerImage(final OntologyRepository ontologyRepository, ResourceRepository resourceRepository) {
+        this.ontologyRepository = ontologyRepository;
+        this.resourceRepository = resourceRepository;
     }
 
     @Override
