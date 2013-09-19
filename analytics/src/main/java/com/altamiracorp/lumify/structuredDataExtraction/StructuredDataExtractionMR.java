@@ -59,8 +59,8 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
         private HashMap<String, Concept> conceptMap = new HashMap<String, Concept>();
 
         @Override
-        protected void setup(Context context, Injector injector) {
-            structuredDataFactory = injector.getInstance(StructuredDataFactory.class);
+        protected void setup(Context context, Injector injector) throws Exception {
+            structuredDataFactory = new StructuredDataFactory(context, injector);
         }
 
         @Override
