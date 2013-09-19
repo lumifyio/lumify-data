@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.cmdline;
 
+import com.altamiracorp.lumify.model.GraphSession;
 import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.search.ElasticSearchProvider;
+import com.altamiracorp.lumify.search.SearchProvider;
 import com.google.inject.Inject;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
@@ -10,8 +10,8 @@ import org.apache.hadoop.util.ToolRunner;
 
 public class FormatUcd extends CommandLineBase {
     private ModelSession modelSession;
-    private ElasticSearchProvider searchProvider;
-    private TitanGraphSession graphSession;
+    private SearchProvider searchProvider;
+    private GraphSession graphSession;
 
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new FormatUcd(), args);
@@ -34,12 +34,12 @@ public class FormatUcd extends CommandLineBase {
     }
 
     @Inject
-    public void setSearchProvider(ElasticSearchProvider searchProvider) {
+    public void setSearchProvider(SearchProvider searchProvider) {
         this.searchProvider = searchProvider;
     }
 
     @Inject
-    public void setGraphSession(TitanGraphSession graphSession) {
+    public void setGraphSession(GraphSession graphSession) {
         this.graphSession = graphSession;
     }
 }
