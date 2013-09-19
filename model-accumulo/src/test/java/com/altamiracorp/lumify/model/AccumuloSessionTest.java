@@ -1,7 +1,20 @@
 package com.altamiracorp.lumify.model;
 
-import com.altamiracorp.lumify.core.user.User;
-import org.apache.accumulo.core.client.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.BatchWriter;
+import org.apache.accumulo.core.client.MutationsRejectedException;
+import org.apache.accumulo.core.client.RowIterator;
+import org.apache.accumulo.core.client.Scanner;
+import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.mock.MockConnector;
 import org.apache.accumulo.core.client.mock.MockInstance;
 import org.apache.accumulo.core.data.Key;
@@ -15,13 +28,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import com.altamiracorp.lumify.core.user.User;
 
 @RunWith(JUnit4.class)
 public class AccumuloSessionTest {
@@ -37,8 +46,13 @@ public class AccumuloSessionTest {
     @Mock
     private User queryUser;
 
+    @Mock
+    private AccumuloModelAuthorizations modelAuths;
+
     @Before
     public void before() throws AccumuloSecurityException, AccumuloException {
+        MockitoAnnotations.initMocks(this);
+
         mockInstance = new MockInstance();
         AuthInfo authInfo = new AuthInfo();
         authInfo.setUser("testUser");
@@ -131,6 +145,8 @@ public class AccumuloSessionTest {
         writer.addMutation(mutation);
         writer.close();
 
+        when(queryUser.getModelAuthorizations()).thenReturn(modelAuths);
+
         Row row = accumuloSession.findByRowKey(TEST_TABLE_NAME, "testRowKey", queryUser);
         assertEquals(TEST_TABLE_NAME, row.getTableName());
         assertEquals("testRowKey", row.getRowKey().toString());
@@ -161,6 +177,8 @@ public class AccumuloSessionTest {
 
         writer.close();
 
+        when(queryUser.getModelAuthorizations()).thenReturn(modelAuths);
+
         List<Row> rows = accumuloSession.findByRowKeyRange(TEST_TABLE_NAME, "testRowKey", "testRowKeyZ", queryUser);
         assertEquals(2, rows.size());
 
@@ -186,6 +204,8 @@ public class AccumuloSessionTest {
         writer.addMutation(mutation);
 
         writer.close();
+
+        when(queryUser.getModelAuthorizations()).thenReturn(modelAuths);
 
         List<Row> rows = accumuloSession.findByRowKeyRegex(TEST_TABLE_NAME, ".*1", queryUser);
         assertEquals(1, rows.size());
