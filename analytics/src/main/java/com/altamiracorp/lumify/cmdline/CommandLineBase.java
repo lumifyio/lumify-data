@@ -1,9 +1,12 @@
 package com.altamiracorp.lumify.cmdline;
 
+import com.altamiracorp.lumify.CommandLineBootstrap;
 import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.core.user.ModelAuthorizations;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.apache.commons.cli.*;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
@@ -30,6 +33,10 @@ public abstract class CommandLineBase extends Configured implements Tool {
             printHelp(options);
             return -1;
         }
+
+        final Injector injector = Guice.createInjector(CommandLineBootstrap.create(getConfiguration().getProperties()));
+        injector.injectMembers(this);
+
         return run(cmd);
     }
 

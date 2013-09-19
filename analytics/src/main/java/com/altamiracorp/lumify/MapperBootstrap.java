@@ -9,8 +9,8 @@ import java.util.Properties;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MapperBootstrap extends BootstrapBase {
-    public MapperBootstrap(Configuration configuration, Properties properties, TaskInputOutputContext attemptContext) {
-        super(configuration,properties,attemptContext);
+    public MapperBootstrap(Properties properties, TaskInputOutputContext attemptContext) {
+        super(properties, attemptContext);
     }
 
     public static MapperBootstrap create(final TaskInputOutputContext context) {
@@ -23,6 +23,7 @@ public class MapperBootstrap extends BootstrapBase {
         for (Map.Entry<String, String> entry : configuration) {
             properties.setProperty(entry.getKey(), entry.getValue());
         }
-        return new MapperBootstrap(configuration, properties, attemptContext);
+
+        return new MapperBootstrap(properties, attemptContext);
     }
 }
