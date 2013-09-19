@@ -19,11 +19,12 @@ public class SimpleTermLocationExtractor {
         this.geoNameCountryInfoRepository = geoNameCountryInfoRepository;
     }
 
-    public TermMention GetTermWithLocationLookup(GeoNameRepository geoNameRepository, TermMention termMention, User user) {
+    public TermMention getTermWithLocationLookup(GeoNameRepository geoNameRepository, TermMention termMention, User user) {
         String sign = termMention.getMetadata().getSign();
         GeoName geoName = geoNameRepository.findBestMatch(sign, user);
-        Boolean termIsNotInGeoNames = geoName == null;
-        if (termIsNotInGeoNames) return null;
+        if (geoName == null) {
+            return null;
+        }
 
         return populateTermMentions(termMention,
                 geoName.getMetadata().getLatitude(),
@@ -32,12 +33,13 @@ public class SimpleTermLocationExtractor {
                 geoName.getMetadata().getPopulation());
     }
 
-    public TermMention GetTermWithPostalCodeLookup(GeoNamePostalCodeRepository geoNamePostalCodeRepository, TermMention termMention, User user) {
+    public TermMention getTermWithPostalCodeLookup(GeoNamePostalCodeRepository geoNamePostalCodeRepository, TermMention termMention, User user) {
         //we are assuming all US zip codes at this point!
         String zip = termMention.getMetadata().getSign().length() == 5 ? termMention.getMetadata().getSign() : termMention.getMetadata().getSign().substring(0, 5);
         GeoNamePostalCode postalCode = geoNamePostalCodeRepository.findByUSZipCode(zip, user);
-        Boolean termIsNotValidPostalCode = postalCode == null;
-        if (termIsNotValidPostalCode) return null;
+        if (postalCode == null) {
+            return null;
+        }
         return populateTermMentions(termMention,
                 postalCode.getMetadata().getLatitude(),
                 postalCode.getMetadata().getLongitude(),

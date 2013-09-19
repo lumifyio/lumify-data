@@ -61,9 +61,9 @@ public class TermLocationExtractionMR extends ConfigurableMapJobBase {
 
             TermMention updatedTerm;
             if (simpleTermLocationExtractor.isPostalCode(termMention)) {
-                updatedTerm = simpleTermLocationExtractor.GetTermWithPostalCodeLookup(geoNamePostalCodeRepository, termMention, getUser());
+                updatedTerm = simpleTermLocationExtractor.getTermWithPostalCodeLookup(geoNamePostalCodeRepository, termMention, getUser());
             } else {
-                updatedTerm = simpleTermLocationExtractor.GetTermWithLocationLookup(geoNameRepository, termMention, getUser());
+                updatedTerm = simpleTermLocationExtractor.getTermWithLocationLookup(geoNameRepository, termMention, getUser());
             }
             if (updatedTerm != null) {
                 updateGraphVertex(updatedTerm);
