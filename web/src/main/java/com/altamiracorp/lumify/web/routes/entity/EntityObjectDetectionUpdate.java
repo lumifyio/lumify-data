@@ -15,26 +15,17 @@ import com.altamiracorp.lumify.ucd.artifact.ArtifactDetectedObjects;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class EntityObjectDetectionUpdate extends BaseRequestHandler {
     private final GraphRepository graphRepository;
     private final ArtifactRepository artifactRepository;
     private final TermMentionRepository termMentionRepository;
     private final SearchProvider searchProvider;
-
-    private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
-            new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()),
-            0L, TimeUnit.MILLISECONDS);
 
     @Inject
     public EntityObjectDetectionUpdate(
@@ -87,7 +78,7 @@ public class EntityObjectDetectionUpdate extends BaseRequestHandler {
         detectedObject.setModel(info.get("model").toString());
 
         JSONObject obj = detectedObject.getJson();
-        executorService.execute(new ObjectDetectionWorker(artifactRepository, searchProvider, artifactRowKey, detectedObjectRowKey, obj, user));
+        objectDetectionHelper.executeService(new ObjectDetectionWorker(artifactRepository, searchProvider, artifactRowKey, detectedObjectRowKey, obj, user));
 
         respondWithJson(response, obj);
     }

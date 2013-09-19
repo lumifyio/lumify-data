@@ -7,10 +7,20 @@ import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.objectDetection.DetectedObject;
+import com.google.common.util.concurrent.MoreExecutors;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class EntityHelper {
     private final GraphRepository graphRepository;
     private final Repository<TermMention> termMentionRepository;
+
+    private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
+            new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()),
+            0L, TimeUnit.MILLISECONDS);
 
     public EntityHelper(final Repository<TermMention> termMentionRepo,
                         final GraphRepository graphRepo) {
@@ -39,6 +49,10 @@ public class EntityHelper {
         detectedObject.setResolvedVertex(resolvedVertex);
 
         return detectedObject;
+    }
+
+    public void executeService (Runnable helperClass) {
+        executorService.execute(helperClass);
     }
 
 }
