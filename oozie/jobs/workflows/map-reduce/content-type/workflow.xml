@@ -34,6 +34,10 @@
 					<name>tableName</name>
                     <value>${tableArtifact}</value>
 				</property>
+                <property>
+                    <name>contentTypeExtractor</name>
+                    <value>com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor</value>
+                </property>
 				<property>
 			        <name>mapreduce.inputformat.class</name>
 			        <value>${inputFormatArtifact}</value>
