@@ -1,9 +1,12 @@
 package com.altamiracorp.lumify.entityHighlight;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactContent;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,9 +14,10 @@ import org.mockito.Mock;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactContent;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 
 @RunWith(PowerMockRunner.class)
 public class EntityHighlightWorkerTest {
@@ -72,7 +76,6 @@ public class EntityHighlightWorkerTest {
         Whitebox.setInternalState(worker, ARTIFACT_REPO_FIELD, artifactRepoMock);
 
         worker.run();
-        verify(sessionMock, times(1)).getModelSession();
         verify(artifactRepoMock, times(1)).findByRowKey(anyString(), user);
     }
 
@@ -87,7 +90,6 @@ public class EntityHighlightWorkerTest {
         Whitebox.setInternalState(worker, HIGHLIGHTER_FIELD, highlighterMock);
 
         worker.run();
-        verify(sessionMock, times(1)).getModelSession();
         verify(artifactRepoMock, times(1)).findByRowKey(anyString(), user);
     }
 
@@ -103,7 +105,6 @@ public class EntityHighlightWorkerTest {
         Whitebox.setInternalState(worker, HIGHLIGHTER_FIELD, highlighterMock);
 
         worker.run();
-        verify(sessionMock, times(1)).getModelSession();
         verify(artifactRepoMock, times(1)).findByRowKey(anyString(), user);
     }
 
@@ -118,7 +119,6 @@ public class EntityHighlightWorkerTest {
         Whitebox.setInternalState(worker, HIGHLIGHTER_FIELD, highlighterMock);
 
         worker.run();
-        verify(sessionMock, times(2)).getModelSession();
         verify(artifactRepoMock, times(1)).findByRowKey(anyString(), user);
         verify(contentMock, times(1)).setHighlightedText(HIGHLIGHTED_TEXT);
         verify(artifactRepoMock, times(1)).save(any(Artifact.class), user);
