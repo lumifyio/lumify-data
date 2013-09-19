@@ -1,16 +1,15 @@
 package com.altamiracorp.lumify.textExtraction;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
-import com.altamiracorp.lumify.textExtraction.util.GenericDateExtractor;
-import com.altamiracorp.lumify.textExtraction.util.TikaMetadataUtils;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
-import com.google.inject.Injector;
-import de.l3s.boilerpipe.BoilerpipeProcessingException;
-import de.l3s.boilerpipe.extractors.ArticleExtractor;
-import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.tika.metadata.Metadata;
@@ -25,15 +24,19 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
+import com.altamiracorp.lumify.textExtraction.util.GenericDateExtractor;
+import com.altamiracorp.lumify.textExtraction.util.TikaMetadataUtils;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+
+import de.l3s.boilerpipe.BoilerpipeProcessingException;
+import de.l3s.boilerpipe.extractors.ArticleExtractor;
+import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
 
 public class TikaTextExtractor implements TextExtractor {
     public static final int WRITE_LIMIT = 1000000;
@@ -67,6 +70,7 @@ public class TikaTextExtractor implements TextExtractor {
     public void setup(Mapper.Context context, Injector injector) {
     }
 
+    @Inject
     public TikaTextExtractor(ArtifactRepository artifactRepository) {
         this.artifactRepository = artifactRepository;
 

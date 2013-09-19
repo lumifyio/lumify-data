@@ -1,14 +1,16 @@
 package com.altamiracorp.lumify;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.google.inject.Injector;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.io.IOException;
+
 import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.altamiracorp.lumify.core.user.User;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
     private static final Logger LOGGER = LoggerFactory.getLogger(LumifyMapper.class.getName());
@@ -20,7 +22,9 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
     protected final void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
         failOnFirstError = context.getConfiguration().getBoolean("failOnFirstError", false);
-        Injector injector = null;
+
+        final Injector injector = Guice.createInjector(new MapperBootstrap(context));
+
         injector.injectMembers(this);
         try {
             setup(context, injector);

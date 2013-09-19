@@ -1,16 +1,21 @@
 package com.altamiracorp.lumify;
 
-import com.altamiracorp.lumify.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.config.Configuration;
-import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Value;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.hadoop.mapreduce.*;
+import org.apache.hadoop.mapreduce.InputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.OutputFormat;
+import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 import org.apache.hadoop.util.Tool;
+
+import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
 
 public abstract class ConfigurableMapJobBase extends CommandLineBase implements Tool {
     private Class clazz;
@@ -82,7 +87,7 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
         job.getConfiguration().setBoolean("failOnFirstError", failOnFirstError);
         job.setJarByClass(this.getClass());
 
-        if (this.config != null) {
+        if (config != null) {
             for (String config : this.config) {
                 String[] parts = config.split("=", 2);
                 job.getConfiguration().set(parts[0], parts[1]);
@@ -122,6 +127,7 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
     protected abstract Class<? extends Mapper> getMapperClass(Job job, Class clazz);
 
     protected String[] getConfig() {
-        return this.config;
+        return config;
     }
+
 }
