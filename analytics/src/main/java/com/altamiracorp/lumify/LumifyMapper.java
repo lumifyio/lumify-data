@@ -31,7 +31,7 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
         this.user = new SystemUser();
         failOnFirstError = context.getConfiguration().getBoolean("failOnFirstError", false);
 
-        final Injector injector = Guice.createInjector(new MapperBootstrap(context));
+        final Injector injector = Guice.createInjector(MapperBootstrap.create(context));
 
         injector.injectMembers(this);
         try {
