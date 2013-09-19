@@ -21,6 +21,7 @@ require([
 
     // Make jQuery plugins available
     'withinScrollable',
+    'flightJquery',
     'scrollStop',
     'Jcrop',
     'removePrefixedClasses'
