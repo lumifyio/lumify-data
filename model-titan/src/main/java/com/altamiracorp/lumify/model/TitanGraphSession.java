@@ -620,6 +620,7 @@ public class TitanGraphSession extends GraphSession {
             throw new RuntimeException("Could not find vertex with id: " + graphVertexId);
         }
         vertex.remove();
+        commit();
     }
 
     @Override

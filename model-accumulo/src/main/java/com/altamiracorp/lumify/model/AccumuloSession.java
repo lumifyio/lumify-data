@@ -261,6 +261,23 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
+    public void deleteColumn(Row row, String tableName, String columnFamily, String columnQualifier, User user) {
+        LOGGER.info("delete column: " + columnQualifier + " from columnFamily: " + columnFamily + ", row: " + row.getRowKey().toString());
+        try {
+            BatchWriter writer = connector.createBatchWriter(tableName, getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
+            Mutation mutation = createMutationFromRow(row);
+            mutation.putDelete(new Text(columnFamily), new Text(columnQualifier));
+            writer.addMutation(mutation);
+            writer.flush();
+            writer.close();
+        } catch (TableNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (MutationsRejectedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
     public InputStream loadFile(String path, User user) {
         try {
             LOGGER.info("Loading file: " + path);

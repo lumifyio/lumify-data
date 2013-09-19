@@ -50,6 +50,8 @@ public class EntityTermCreate extends BaseRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
+        EntityHelper entityHelper = new EntityHelper(termMentionRepository, graphRepository);
+
         // required parameters
         final String artifactKey = getRequiredParameter(request, "artifactKey");
         final String artifactId = getRequiredParameter(request, "artifactId");
@@ -86,12 +88,8 @@ public class EntityTermCreate extends BaseRequestHandler {
         if (termMention == null) {
             termMention = new TermMention(termMentionRowKey);
         }
-        termMention.getMetadata()
-                .setSign(sign)
-                .setConcept((String) conceptVertex.getProperty(PropertyName.DISPLAY_NAME))
-                .setConceptGraphVertexId(conceptVertex.getId())
-                .setGraphVertexId(resolvedVertex.getId());
-        termMentionRepository.save(termMention, user);
+
+        entityHelper.updateTermMention(termMention, sign, conceptVertex, resolvedVertex, user);
 
         // Modify the highlighted artifact text in a background thread
         executorService.execute(new EntityHighlightWorker(artifactRepository, highlighter, artifactKey, user));

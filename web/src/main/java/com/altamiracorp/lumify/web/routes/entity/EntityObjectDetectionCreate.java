@@ -52,6 +52,8 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
+        EntityHelper objectDetectionHelper = new EntityHelper(termMentionRepository, graphRepository);
+
         // required parameters
         final String artifactRowKey = getRequiredParameter(request, "artifactKey");
         final String artifactId = getRequiredParameter(request, "artifactId");
@@ -70,33 +72,17 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, 0, 0);
 
         GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
+
+        // create new graph vertex
         GraphVertex resolvedVertex = createGraphVertex(conceptVertex, resolvedGraphVertexId,
                 sign, termMentionRowKey.toString(), boundingBox, artifactId, user);
 
-        // Creating/Updating term mention for resolved entity
-        TermMention termMention = termMentionRepository.findByRowKey(termMentionRowKey.toString(), user);
-        if (termMention == null) {
-            termMention = new TermMention(termMentionRowKey);
-        }
-        termMention.getMetadata()
-                .setSign(sign)
-                .setConcept((String) conceptVertex.getProperty(PropertyName.DISPLAY_NAME))
-                .setConceptGraphVertexId(conceptVertex.getId())
-                .setGraphVertexId(resolvedVertex.getId());
-        termMentionRepository.save(termMention, user);
+        // create new term mention
+        TermMention termMention = new TermMention(termMentionRowKey);
+        objectDetectionHelper.updateTermMention(termMention, sign, conceptVertex, resolvedVertex, user);
+        DetectedObject detectedObject = objectDetectionHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);
 
-
-        // Creating a new detected object tag
-        DetectedObject detectedObject = new DetectedObject(x1, y1, x2, y2);
-        detectedObject.setGraphVertexId(resolvedVertex.getId().toString());
-
-        if (conceptVertex.getProperty("ontologyTitle").toString().equals("person")) {
-            detectedObject.setConcept("face");
-        } else {
-            detectedObject.setConcept(conceptVertex.getProperty("ontologyTitle").toString());
-        }
-        detectedObject.setResolvedVertex(resolvedVertex);
-
+        // create a new detected object column
         Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user);
 
         if (detectedObjectRowKey == null && model == null) {

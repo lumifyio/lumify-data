@@ -110,6 +110,21 @@ public class MockSession extends ModelSession {
         }
     }
 
+    public void deleteColumn(Row row, String tableName, String columnFamily, String columnQualifier, User user) {
+        List<ColumnFamily> columnFamilies = (List<ColumnFamily>) row.getColumnFamilies();
+        for (int i = 0; i < columnFamilies.size(); i++) {
+            if (columnFamilies.get(i).getColumnFamilyName().equals(columnFamily)) {
+                List<Column> columns = (List<Column>) columnFamilies.get(i).getColumns();
+                for (int j = 0; j < columns.size(); j++) {
+                    if (columns.get(j).getName().equals(columnQualifier)) {
+                        columns.remove(j);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public SaveFileResults saveFile(InputStream in, User user) {
         try {
