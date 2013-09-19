@@ -1,13 +1,7 @@
 package com.altamiracorp.lumify.config;
 
-import com.altamiracorp.lumify.model.AccumuloSession;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.search.BlurSearchProvider;
-import com.altamiracorp.lumify.search.ElasticSearchProvider;
-import com.altamiracorp.lumify.search.SearchProvider;
-import com.google.common.base.Objects;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,8 +9,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.altamiracorp.lumify.model.AccumuloSession;
+import com.altamiracorp.lumify.model.TitanGraphSession;
+import com.altamiracorp.lumify.search.BlurSearchProvider;
+import com.altamiracorp.lumify.search.ElasticSearchProvider;
+import com.altamiracorp.lumify.search.SearchProvider;
+import com.google.common.base.Objects;
 
 /**
  * Responsible for parsing application configuration file and providing
@@ -142,7 +143,7 @@ public final class Configuration implements MapConfig, ApplicationConfig {
         checkNotNull(configUrl, "The specified config file URL was null");
         checkArgument(!configUrl.isEmpty(), "The specified config file URL was empty");
 
-        LOGGER.debug(String.format("Attemping to load configuration file: %s and credentials file: %s", configUrl, credentialsUrl));
+        LOGGER.debug(String.format("Attempting to load configuration file: %s and credentials file: %s", configUrl, credentialsUrl));
 
         final Properties mergedProps = new Properties();
 

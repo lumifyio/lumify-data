@@ -1,6 +1,5 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.cmdline.CommandLineBase;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -13,6 +12,8 @@ import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.server.ssl.SslSelectChannelConnector;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
+
+import com.altamiracorp.lumify.cmdline.CommandLineBase;
 
 public class Server extends CommandLineBase {
 
@@ -32,6 +33,10 @@ public class Server extends CommandLineBase {
         if (res != 0) {
             System.exit(res);
         }
+    }
+
+    public Server() {
+        initFramework = false;
     }
 
     @Override

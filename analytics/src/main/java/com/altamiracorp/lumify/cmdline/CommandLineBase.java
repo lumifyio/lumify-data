@@ -20,9 +20,10 @@ import com.google.inject.Injector;
 
 public abstract class CommandLineBase extends Configured implements Tool {
     private String configLocation = "file:///opt/lumify/config/configuration.properties";
-    private String credentialsLocation;
+    private String credentialsLocation = "file:///opt/lumify/config/credentials.properties";
     private Configuration configuration;
     private User user = new SystemUser();
+    protected boolean initFramework = true;
 
     @Override
     public int run(String[] args) throws Exception {
@@ -41,11 +42,13 @@ public abstract class CommandLineBase extends Configured implements Tool {
             return -1;
         }
 
-        final Injector injector = Guice.createInjector(CommandLineBootstrap.create(getConfiguration().getProperties()));
-        injector.injectMembers(this);
+        if( initFramework ) {
+            final Injector injector = Guice.createInjector(CommandLineBootstrap.create(getConfiguration().getProperties()));
+            injector.injectMembers(this);
 
-        final User user = new SystemUser();
-        FrameworkUtils.initializeFramework(injector, user);
+            final User user = new SystemUser();
+            FrameworkUtils.initializeFramework(injector, user);
+        }
 
         return run(cmd);
     }
@@ -61,10 +64,9 @@ public abstract class CommandLineBase extends Configured implements Tool {
         if (cmd.hasOption("configLocation")) {
             configLocation = cmd.getOptionValue("configLocation");
         }
+
         if (cmd.hasOption("credentialsLocation")) {
             credentialsLocation = cmd.getOptionValue("credentialsLocation");
-        } else {
-            credentialsLocation = configLocation;
         }
     }
 
