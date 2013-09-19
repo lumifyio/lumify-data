@@ -67,7 +67,8 @@ define([
                         _type: 'artifact',
                         _subType: artifact.type,
                         graphVertexId: artifact.Generic_Metadata['atc:graph_vertex_id'],
-                        _rowKey: artifact.key.value
+                        _rowKey: artifact.key.value,
+                        title: artifact.Generic_Metadata['subject']
                     });
 
                     if(artifact.Content.video_transcript) {
