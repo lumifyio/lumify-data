@@ -41,6 +41,7 @@ public class EntityObjectDetectionDelete extends BaseRequestHandler {
 
         // Delete from titan
         String graphVertexId = jsonObject.getString("graphVertexId");
+        JSONObject obj = graphRepository.findVertex(session.getGraphSession(), graphVertexId).toJson();
         graphRepository.remove(session.getGraphSession(), graphVertexId);
 
         // Delete column from Artifact
@@ -58,5 +59,7 @@ public class EntityObjectDetectionDelete extends BaseRequestHandler {
         // Overwrite old ElasticSearch index
         Artifact newArtifact = artifactRepository.findByRowKey(session.getModelSession(), termMentionRowKey.getArtifactRowKey());
         session.getSearchProvider().add(newArtifact);
+
+        respondWithJson(response, obj);
     }
 }
