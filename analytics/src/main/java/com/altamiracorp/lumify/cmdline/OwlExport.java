@@ -71,7 +71,7 @@ public class OwlExport extends CommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         AppSession session = createSession();
-        session.getModelSession().initializeTables();
+        session.getModelSession().initializeTables(getUser());
 
         OutputStream out;
         if (outFileName != null) {
@@ -93,13 +93,13 @@ public class OwlExport extends CommandLineBase {
 
         rootElem.appendChild(createVersionElement(doc));
 
-        Concept rootConcept = ontologyRepository.getRootConcept(session.getGraphSession());
+        Concept rootConcept = ontologyRepository.getRootConcept(getUser());
         List<Node> nodes = createConceptElements(session.getGraphSession(), doc, rootConcept, null);
         for (Node e : nodes) {
             rootElem.appendChild(e);
         }
 
-        List<Relationship> relationships = ontologyRepository.getRelationshipLabels(session.getGraphSession());
+        List<Relationship> relationships = ontologyRepository.getRelationshipLabels(getUser());
         for (Relationship relationship : relationships) {
             nodes = createRelationshipElements(session.getGraphSession(), doc, relationship);
             for (Node e : nodes) {
@@ -123,7 +123,7 @@ public class OwlExport extends CommandLineBase {
         List<Node> elems = new ArrayList<Node>();
         elems.add(createObjectPropertyElement(doc, relationship));
 
-        List<Property> properties = ontologyRepository.getPropertiesByRelationship(graphSession, relationship.getTitle());
+        List<Property> properties = ontologyRepository.getPropertiesByRelationship(relationship.getTitle(), getUser());
         for (Property property : properties) {
             elems.add(createDatatypePropertyElement(doc, property, relationship));
         }
@@ -167,12 +167,12 @@ public class OwlExport extends CommandLineBase {
             classElem.appendChild(createSubClassOfElement(doc, parentConcept));
         }
 
-        List<Property> properties = ontologyRepository.getPropertiesByConceptIdNoRecursion(graphSession, concept.getId());
+        List<Property> properties = ontologyRepository.getPropertiesByConceptIdNoRecursion(concept.getId(), getUser());
         for (Property property : properties) {
             elems.add(createDatatypePropertyElement(doc, property, concept));
         }
 
-        List<Concept> childConcepts = ontologyRepository.getChildConcepts(graphSession, concept);
+        List<Concept> childConcepts = ontologyRepository.getChildConcepts(concept, getUser());
         for (Concept childConcept : childConcepts) {
             elems.addAll(createConceptElements(graphSession, doc, childConcept, concept));
         }

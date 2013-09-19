@@ -1,34 +1,41 @@
 package com.altamiracorp.lumify.location;
 
-import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.geoNames.*;
 import com.altamiracorp.lumify.model.termMention.TermMention;
+import com.google.inject.Inject;
 
 import java.util.regex.Pattern;
 
 public class SimpleTermLocationExtractor {
     private static final String POSTAL_CODE_REGEX = "^\\d{5}$|^\\d{5}-\\d{4}$"; //US zip code
     private static final Long POSTAL_CODE_POPULATION = 1000000L; // in the absence of population data, let's make it up!
-    private GeoNameAdmin1CodeRepository geoNameAdmin1CodeRepository = new GeoNameAdmin1CodeRepository();
-    private GeoNameCountryInfoRepository geoNameCountryInfoRepository = new GeoNameCountryInfoRepository();
+    private GeoNameAdmin1CodeRepository geoNameAdmin1CodeRepository;
+    private GeoNameCountryInfoRepository geoNameCountryInfoRepository;
 
-    public TermMention GetTermWithLocationLookup(ModelSession session, GeoNameRepository geoNameRepository, TermMention termMention) {
+    @Inject
+    public SimpleTermLocationExtractor(GeoNameAdmin1CodeRepository geoNameAdmin1CodeRepository, GeoNameCountryInfoRepository geoNameCountryInfoRepository) {
+        this.geoNameAdmin1CodeRepository = geoNameAdmin1CodeRepository;
+        this.geoNameCountryInfoRepository = geoNameCountryInfoRepository;
+    }
+
+    public TermMention GetTermWithLocationLookup(GeoNameRepository geoNameRepository, TermMention termMention, User user) {
         String sign = termMention.getMetadata().getSign();
-        GeoName geoName = geoNameRepository.findBestMatch(session, sign);
+        GeoName geoName = geoNameRepository.findBestMatch(sign, user);
         Boolean termIsNotInGeoNames = geoName == null;
         if (termIsNotInGeoNames) return null;
 
         return populateTermMentions(termMention,
                 geoName.getMetadata().getLatitude(),
                 geoName.getMetadata().getLongitude(),
-                getTitleFromGeoName(session, geoName),
+                getTitleFromGeoName(geoName, user),
                 geoName.getMetadata().getPopulation());
     }
 
-    public TermMention GetTermWithPostalCodeLookup(ModelSession session, GeoNamePostalCodeRepository geoNamePostalCodeRepository, TermMention termMention) {
+    public TermMention GetTermWithPostalCodeLookup(GeoNamePostalCodeRepository geoNamePostalCodeRepository, TermMention termMention, User user) {
         //we are assuming all US zip codes at this point!
         String zip = termMention.getMetadata().getSign().length() == 5 ? termMention.getMetadata().getSign() : termMention.getMetadata().getSign().substring(0, 5);
-        GeoNamePostalCode postalCode = geoNamePostalCodeRepository.findByUSZipCode(session, zip);
+        GeoNamePostalCode postalCode = geoNamePostalCodeRepository.findByUSZipCode(zip, user);
         Boolean termIsNotValidPostalCode = postalCode == null;
         if (termIsNotValidPostalCode) return null;
         return populateTermMentions(termMention,
@@ -45,9 +52,9 @@ public class SimpleTermLocationExtractor {
         return term;
     }
 
-    private String getTitleFromGeoName(ModelSession session, GeoName geoName) {
-        GeoNameAdmin1Code code = geoNameAdmin1CodeRepository.findByCountryAndAdmin1Code(session, geoName.getMetadata().getCountryCode(), geoName.getMetadata().getAdmin1Code());
-        GeoNameCountryInfo countryInfo = geoNameCountryInfoRepository.findByCountryCode(session, geoName.getMetadata().getCountryCode());
+    private String getTitleFromGeoName(GeoName geoName, User user) {
+        GeoNameAdmin1Code code = geoNameAdmin1CodeRepository.findByCountryAndAdmin1Code(geoName.getMetadata().getCountryCode(), geoName.getMetadata().getAdmin1Code(), user);
+        GeoNameCountryInfo countryInfo = geoNameCountryInfoRepository.findByCountryCode(geoName.getMetadata().getCountryCode(), user);
         String countryString = geoName.getMetadata().getCountryCode();
         if (countryInfo != null) {
             countryString = countryInfo.getMetadata().getTitle();

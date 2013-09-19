@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.textExtraction;
 
-import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.textExtraction.util.GenericDateExtractor;
 import com.altamiracorp.lumify.textExtraction.util.TikaMetadataUtils;
@@ -36,7 +36,7 @@ import java.util.Properties;
 
 public class TikaTextExtractor implements TextExtractor {
     public static final int WRITE_LIMIT = 1000000;
-    ArtifactRepository artifactRepository = new ArtifactRepository();
+    private final ArtifactRepository artifactRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaTextExtractor.class);
     private static final String NAME = "tikaExtractor";
@@ -66,7 +66,9 @@ public class TikaTextExtractor implements TextExtractor {
     public void setup(Mapper.Context context) {
     }
 
-    public TikaTextExtractor() {
+    public TikaTextExtractor(ArtifactRepository artifactRepository) {
+        this.artifactRepository = artifactRepository;
+
         // TODO: Create an actual properties class?
         Properties tikaProperties = new Properties();
         try {
@@ -93,7 +95,7 @@ public class TikaTextExtractor implements TextExtractor {
     }
 
     @Override
-    public ArtifactExtractedInfo extract(ModelSession session, Artifact artifact) throws Exception {
+    public ArtifactExtractedInfo extract(Artifact artifact, User user) throws Exception {
         if (artifact.getType() != ArtifactType.DOCUMENT && artifact.getType() != ArtifactType.IMAGE) {
             return null;
         }
@@ -102,7 +104,7 @@ public class TikaTextExtractor implements TextExtractor {
         }
 
         InputStream in;
-        InputStream raw = artifactRepository.getRaw(session, artifact);
+        InputStream raw = artifactRepository.getRaw(artifact, user);
         if (raw == null) {
             return null;
         }
@@ -170,7 +172,7 @@ public class TikaTextExtractor implements TextExtractor {
     }
 
     @Override
-    public VideoFrameExtractedInfo extract(ModelSession session, VideoFrame videoFrame) throws Exception {
+    public VideoFrameExtractedInfo extract(VideoFrame videoFrame, User user) throws Exception {
         return null;
     }
 

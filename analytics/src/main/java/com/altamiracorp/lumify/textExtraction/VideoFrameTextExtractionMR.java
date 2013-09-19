@@ -6,7 +6,6 @@ import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.model.AccumuloVideoFrameInputFormat;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
-import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -57,7 +56,7 @@ public class VideoFrameTextExtractionMR extends ConfigurableMapJobBase {
         @Override
         public void safeMap(Text rowKey, VideoFrame videoFrame, Context context) throws Exception {
             LOGGER.info("Extracting text from video frame: " + videoFrame.getRowKey().toString());
-            VideoFrameExtractedInfo extractedInfo = textExtractor.extract(getSession().getModelSession(), videoFrame);
+            VideoFrameExtractedInfo extractedInfo = textExtractor.extract(videoFrame, getUser());
             if (extractedInfo == null) {
                 return;
             }

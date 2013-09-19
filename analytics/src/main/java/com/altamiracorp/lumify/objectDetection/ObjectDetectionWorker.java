@@ -18,14 +18,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ObjectDetectionWorker implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ObjectDetectionWorker.class.getName());
-    private final ArtifactRepository artifactRepository = new ArtifactRepository();
-    private final SearchProvider searchProvider = new SearchProvider();
+    private final ArtifactRepository artifactRepository;
+    private final SearchProvider searchProvider;
     private final User user;
     private final String artifactKey;
     private final String columnName;
     private final JSONObject info;
 
-    public ObjectDetectionWorker(final String artifactKey, final String columnName, final JSONObject info, User user) {
+    public ObjectDetectionWorker(ArtifactRepository artifactRepository, SearchProvider searchProvider, final String artifactKey, final String columnName, final JSONObject info, User user) {
         checkNotNull(artifactKey);
         checkArgument(!artifactKey.isEmpty(), "The provided artifact key is empty");
         checkNotNull(columnName);
@@ -33,6 +33,8 @@ public class ObjectDetectionWorker implements Runnable {
         checkNotNull(info);
         checkNotNull(user);
 
+        this.artifactRepository = artifactRepository;
+        this.searchProvider = searchProvider;
         this.user = user;
         this.artifactKey = artifactKey;
         this.columnName = columnName;
@@ -65,7 +67,7 @@ public class ObjectDetectionWorker implements Runnable {
         if (info != null) {
             artifact.getArtifactDetectedObjects().set(columnName, info);
             artifactRepository.save(artifact, user);
-            searchProvider.add(artifact);
+            searchProvider.add(artifact, user);
             modified = true;
         } else {
             LOGGER.info("Could not retrieve valid column value for detected object");

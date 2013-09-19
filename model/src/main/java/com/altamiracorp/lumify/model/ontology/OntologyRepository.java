@@ -124,11 +124,11 @@ public class OntologyRepository {
         return new GraphVertexConcept(vertex);
     }
 
-    public GraphVertex getGraphVertexByTitleAndType(GraphSession graphSession, String title, VertexType type, User user) {
+    public GraphVertex getGraphVertexByTitleAndType(String title, VertexType type, User user) {
         return graphSession.findVertexByOntologyTitleAndType(title, type, user);
     }
 
-    public GraphVertex getGraphVertexByTitle(GraphSession graphSession, String title, User user) {
+    public GraphVertex getGraphVertexByTitle(String title, User user) {
         return graphSession.findVertexByOntologyTitle(title, user);
     }
 
@@ -217,7 +217,7 @@ public class OntologyRepository {
         return properties;
     }
 
-    public List<Property> getPropertiesByConceptIdNoRecursion(String conceptVertexId) {
+    public List<Property> getPropertiesByConceptIdNoRecursion(String conceptVertexId, User user) {
         Vertex conceptVertex = graphSession.getGraph().getVertex(conceptVertexId);
         if (conceptVertex == null) {
             throw new RuntimeException("Could not find concept: " + conceptVertexId);

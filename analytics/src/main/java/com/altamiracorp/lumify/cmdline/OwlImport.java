@@ -8,6 +8,7 @@ import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.PropertyType;
 import com.altamiracorp.lumify.model.resources.ResourceRepository;
+import com.google.inject.Inject;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -31,8 +32,8 @@ import java.util.List;
 
 public class OwlImport extends CommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(OwlImport.class.getName());
-    private OntologyRepository ontologyRepository = new OntologyRepository();
-    private ResourceRepository resourceRepository = new ResourceRepository();
+    private OntologyRepository ontologyRepository;
+    private ResourceRepository resourceRepository;
     private String inFileName;
     private File inDir;
 
@@ -113,11 +114,11 @@ public class OwlImport extends CommandLineBase {
         String parentName = getName(subClassOfResource);
 
         LOGGER.info("importClassElement: about: " + about + ", labelText: " + labelText + ", parentName: " + parentName);
-        Concept parent = ontologyRepository.getConceptByName(session.getGraphSession(), parentName);
+        Concept parent = ontologyRepository.getConceptByName(parentName, getUser());
         if (parent == null) {
             throw new RuntimeException("Could not find parent " + parentName + " for " + about);
         }
-        Concept concept = ontologyRepository.getOrCreateConcept(session.getGraphSession(), parent, about, labelText);
+        Concept concept = ontologyRepository.getOrCreateConcept(parent, about, labelText, getUser());
 
         for (Element propertyElem : propertyElems) {
             String propertyName = propertyElem.getAttributeNS("http://altamiracorp.com/ontology#", "name");
@@ -150,7 +151,7 @@ public class OwlImport extends CommandLineBase {
         File f = new File(inDir, fileName);
 
         LOGGER.info("  importing file: " + fileName);
-        String id = resourceRepository.importFile(session, f.getAbsolutePath());
+        String id = resourceRepository.importFile(f.getAbsolutePath(), getUser());
         LOGGER.info("  resource key: " + id);
         return id;
     }
@@ -168,11 +169,11 @@ public class OwlImport extends CommandLineBase {
         String rangeResourceName = getName(rangeResource);
 
         LOGGER.info("importDatatypePropertyElement: about: " + about + ", labelText: " + labelText + ", domainResourceName: " + domainResourceName + ", rangeResourceName: " + rangeResourceName);
-        GraphVertex domain = ontologyRepository.getGraphVertexByTitle(session.getGraphSession(), domainResourceName);
+        GraphVertex domain = ontologyRepository.getGraphVertexByTitle(domainResourceName, getUser());
         PropertyType propertyType = PropertyType.convert(rangeResourceName);
         session.getGraphSession().commit();
 
-        ontologyRepository.addPropertyTo(session.getGraphSession(), domain, about, labelText, propertyType);
+        ontologyRepository.addPropertyTo(domain, about, labelText, propertyType, getUser());
         session.getGraphSession().commit();
     }
 
@@ -189,10 +190,10 @@ public class OwlImport extends CommandLineBase {
         String rangeResourceName = getName(rangeResource);
 
         LOGGER.info("importObjectPropertyElement: about: " + about + ", labelText: " + labelText + ", domainResourceName: " + domainResourceName + ", rangeResourceName: " + rangeResourceName);
-        GraphVertex domain = ontologyRepository.getGraphVertexByTitle(session.getGraphSession(), domainResourceName);
-        GraphVertex range = ontologyRepository.getGraphVertexByTitle(session.getGraphSession(), rangeResourceName);
+        GraphVertex domain = ontologyRepository.getGraphVertexByTitle(domainResourceName, getUser());
+        GraphVertex range = ontologyRepository.getGraphVertexByTitle(rangeResourceName, getUser());
 
-        ontologyRepository.getOrCreateRelationshipType(session.getGraphSession(), domain, range, about, labelText);
+        ontologyRepository.getOrCreateRelationshipType(domain, range, about, labelText, getUser());
         session.getGraphSession().commit();
     }
 
@@ -232,5 +233,15 @@ public class OwlImport extends CommandLineBase {
         }
 
         return s;
+    }
+
+    @Inject
+    public void setOntologyRepository(OntologyRepository ontologyRepository) {
+        this.ontologyRepository = ontologyRepository;
+    }
+
+    @Inject
+    public void setResourceRepository(ResourceRepository resourceRepository) {
+        this.resourceRepository = resourceRepository;
     }
 }

@@ -7,6 +7,7 @@ import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.google.inject.Inject;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -43,7 +44,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
         public static final String CONF_TEXT_EXTRACTOR_CLASS = "textExtractorClass";
         public static final Text ARTIFACT_TABLE_NAME = new Text(Artifact.TABLE_NAME);
         private TextExtractor textExtractor;
-        private ArtifactRepository artifactRepository = new ArtifactRepository();
+        private ArtifactRepository artifactRepository;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -59,7 +60,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
             LOGGER.info("Extracting text from artifact: " + artifact.getRowKey().toString());
-            ArtifactExtractedInfo extractedInfo = textExtractor.extract(getSession().getModelSession(), artifact);
+            ArtifactExtractedInfo extractedInfo = textExtractor.extract(artifact, getUser());
             if (extractedInfo == null) {
                 return;
             }
@@ -70,7 +71,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
 
             if (extractedInfo.getSubject() != null && !extractedInfo.getSubject().equals("")) {
                 artifact.getGenericMetadata().setSubject(extractedInfo.getSubject());
-                artifactRepository.saveToGraph(getSession().getModelSession(), getSession().getGraphSession(), artifact);
+                artifactRepository.saveToGraph(artifact, getUser());
             }
 
             if (extractedInfo.getDate() != null) {
@@ -119,6 +120,11 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
 
         public static void init(Job job, Class<? extends TextExtractor> textExtractorClass) {
             job.getConfiguration().setClass(CONF_TEXT_EXTRACTOR_CLASS, textExtractorClass, TextExtractor.class);
+        }
+
+        @Inject
+        public void setArtifactRepository(ArtifactRepository artifactRepository) {
+            this.artifactRepository = artifactRepository;
         }
     }
 

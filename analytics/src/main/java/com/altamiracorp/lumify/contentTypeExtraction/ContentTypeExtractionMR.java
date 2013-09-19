@@ -10,6 +10,7 @@ import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.google.inject.Inject;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -43,8 +44,8 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
     }
 
     public static class ContentTypeExtractorMapper extends LumifyMapper<Text, Artifact, Text, Artifact> {
-        private ArtifactRepository artifactRepository = new ArtifactRepository();
-        private GraphRepository graphRepository = new GraphRepository();
+        private ArtifactRepository artifactRepository;
+        private GraphRepository graphRepository;
         public static final String CONF_CONTENT_TYPE_EXTRACTOR_CLASS = "contentTypeExtractorClass";
         private ContentTypeExtractor contentTypeExtractor;
 
@@ -64,7 +65,7 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
             LOGGER.info("Extracting content type from artifact: " + artifact.getRowKey().toString());
-            InputStream in = artifactRepository.getRaw(getSession().getModelSession(), artifact);
+            InputStream in = artifactRepository.getRaw(artifact, getUser());
             if (in == null) {
                 LOGGER.warn("No data found for artifact: " + artifact.getRowKey().toString());
             }
@@ -74,13 +75,23 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
             }
             artifact.getGenericMetadata().setMimeType(contentType);
 
-            GraphVertex graphVertex = graphRepository.findVertexByRowKey(getSession().getGraphSession(), artifact.getRowKey().toString());
+            GraphVertex graphVertex = graphRepository.findVertexByRowKey(artifact.getRowKey().toString(), getUser());
             if (graphVertex != null) {
                 graphVertex.setProperty(PropertyName.SUBTYPE.toString(), artifact.getType().toString().toLowerCase());
                 getSession().getGraphSession().commit();
             }
 
             context.write(new Text(Artifact.TABLE_NAME), artifact);
+        }
+
+        @Inject
+        public void setArtifactRepository(ArtifactRepository artifactRepository) {
+            this.artifactRepository = artifactRepository;
+        }
+
+        @Inject
+        public void setGraphRepository(GraphRepository graphRepository) {
+            this.graphRepository = graphRepository;
         }
     }
 

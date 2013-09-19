@@ -84,7 +84,7 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
 
             StructuredDataExtractorBase structuredDataExtractor = structedDataFactory.get(structuredDataType);
             if (structuredDataExtractor != null) {
-                ExtractedData extractedData = structuredDataExtractor.extract(getSession(), artifact, text, mappingJson);
+                ExtractedData extractedData = structuredDataExtractor.extract(artifact, text, mappingJson, getUser());
 
                 saveToUcd(artifact, extractedData);
                 GraphVertex artifactVertex = saveArtifactToGraph(artifact);

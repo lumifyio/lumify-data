@@ -17,15 +17,17 @@ public final class EntityHighlightWorker implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityHighlightWorker.class.getName());
 
     private final User user;
-    private final ArtifactRepository artifactRepository = new ArtifactRepository();
-    private final EntityHighlighter highlighter = new EntityHighlighter();
+    private final ArtifactRepository artifactRepository;
+    private final EntityHighlighter highlighter;
     private final String artifactKey;
 
-    public EntityHighlightWorker(final String artifactKey, User user) {
+    public EntityHighlightWorker(ArtifactRepository artifactRepository, EntityHighlighter highlighter, final String artifactKey, User user) {
         checkNotNull(artifactKey);
         checkArgument(!artifactKey.isEmpty(), "The provided artifact key is empty");
         checkNotNull(user);
 
+        this.artifactRepository = artifactRepository;
+        this.highlighter = highlighter;
         this.user = user;
         this.artifactKey = artifactKey;
     }

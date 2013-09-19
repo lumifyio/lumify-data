@@ -1,13 +1,9 @@
 package com.altamiracorp.lumify;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Properties;
-
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.*;
+import com.altamiracorp.lumify.search.ElasticSearchProvider;
+import com.altamiracorp.lumify.search.SearchProvider;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.Connector;
@@ -18,15 +14,13 @@ import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.AccumuloSession;
-import com.altamiracorp.lumify.model.GraphSession;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.model.TitanQueryFormatter;
-import com.altamiracorp.lumify.ontology.BaseOntology;
-import com.altamiracorp.lumify.search.ElasticSearchProvider;
-import com.altamiracorp.lumify.search.SearchProvider;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Properties;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 
 public class AppSession {
@@ -102,7 +96,7 @@ public class AppSession {
 
         try {
             SearchProvider provider = (SearchProvider) Class.forName(providerClass).newInstance();
-            provider.setup(props);
+            provider.setup(props, new User());
             return provider;
         } catch (Exception e) {
             throw new RuntimeException("Failed to create search provider instance of class " + providerClass, e);
@@ -140,19 +134,20 @@ public class AppSession {
         return graphSession;
     }
 
-    public void initialize() {
-        getSearchProvider().initializeIndex();
-        getModelSession().initializeTables(new User());
+    public void initialize(User user) {
+        getSearchProvider().initializeIndex(user);
+        getModelSession().initializeTables(user);
         createBaseOntology();
     }
 
     private void createBaseOntology() {
-        BaseOntology baseOntology = new BaseOntology();
-        if (!baseOntology.isOntologyDefined(this)) {
-            LOGGER.info("Base ontology not defined. Creating a new ontology.");
-            baseOntology.defineOntology(this);
-        } else {
-            LOGGER.info("Base ontology already defined.");
-        }
+        throw new RuntimeException("TODO: this class is going away we need to run this code though");
+//        BaseOntology baseOntology = new BaseOntology(null, null);
+//        if (!baseOntology.isOntologyDefined(this)) {
+//            LOGGER.info("Base ontology not defined. Creating a new ontology.");
+//            baseOntology.defineOntology(this);
+//        } else {
+//            LOGGER.info("Base ontology already defined.");
+//        }
     }
 }

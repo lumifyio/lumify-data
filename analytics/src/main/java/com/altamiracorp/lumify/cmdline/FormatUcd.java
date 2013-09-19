@@ -16,9 +16,9 @@ public class FormatUcd extends CommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         AppSession session = createSession();
-        session.getModelSession().deleteTables();
-        session.getSearchProvider().deleteIndex();
-        session.getGraphSession().deleteSearchIndex();
+        session.getModelSession().deleteTables(getUser());
+        session.getSearchProvider().deleteIndex(getUser());
+        session.getGraphSession().deleteSearchIndex(getUser());
         session.close();
 
         session = createSession();

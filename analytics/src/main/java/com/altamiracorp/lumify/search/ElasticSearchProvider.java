@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.search;
 
-import java.text.SimpleDateFormat;
-import java.util.*;
-
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -24,8 +24,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class ElasticSearchProvider implements SearchProvider {
     public static final String ES_LOCATIONS_PROP_KEY = "elasticsearch.locations";
@@ -46,16 +46,16 @@ public class ElasticSearchProvider implements SearchProvider {
     private static TransportClient client;
 
     @Override
-    public void setup(Properties props) {
-        setup(props.getProperty(ES_LOCATIONS_PROP_KEY).split(","));
+    public void setup(Properties props, User user) {
+        setup(props.getProperty(ES_LOCATIONS_PROP_KEY).split(","), user);
     }
 
     @Override
-    public void setup(Mapper.Context context) throws Exception {
-        setup(context.getConfiguration().getStrings(ES_LOCATIONS_PROP_KEY));
+    public void setup(Mapper.Context context, User user) throws Exception {
+        setup(context.getConfiguration().getStrings(ES_LOCATIONS_PROP_KEY), user);
     }
 
-    private void setup(String[] esLocations) {
+    private void setup(String[] esLocations, User user) {
         if (client != null) {
             return;
         }
@@ -66,7 +66,7 @@ public class ElasticSearchProvider implements SearchProvider {
             client.addTransportAddress(new InetSocketTransportAddress(locationSocket[0], Integer.parseInt(locationSocket[1])));
         }
 
-        initializeIndex();
+        initializeIndex(user);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class ElasticSearchProvider implements SearchProvider {
     }
 
     @Override
-    public void add(Artifact artifact) throws Exception {
+    public void add(Artifact artifact, User user) throws Exception {
         if (artifact.getContent() == null) {
             return;
         }
@@ -114,7 +114,7 @@ public class ElasticSearchProvider implements SearchProvider {
         }
 
         if (!detectedObjects.isEmpty()) {
-            jsonBuilder = jsonBuilder.array(FIELD_DETECTED_OBJECTS,detectedObjects.toArray());
+            jsonBuilder = jsonBuilder.array(FIELD_DETECTED_OBJECTS, detectedObjects.toArray());
         }
 
         IndexResponse response = client.prepareIndex(ES_INDEX, ES_INDEX_TYPE, id)
@@ -127,7 +127,7 @@ public class ElasticSearchProvider implements SearchProvider {
     }
 
     @Override
-    public Collection<ArtifactSearchResult> searchArtifacts(String query) throws Exception {
+    public Collection<ArtifactSearchResult> searchArtifacts(String query, User user) throws Exception {
         SearchResponse response = client.prepareSearch(ES_INDEX)
                 .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                 .setTypes(ES_INDEX_TYPE)
@@ -157,7 +157,7 @@ public class ElasticSearchProvider implements SearchProvider {
     }
 
     @Override
-    public void deleteIndex() {
+    public void deleteIndex(User user) {
         DeleteIndexResponse response = client.admin().indices().delete(new DeleteIndexRequest(ES_INDEX)).actionGet();
         if (!response.isAcknowledged()) {
             LOGGER.error("Failed to delete elastic search index named " + ES_INDEX);
@@ -165,7 +165,7 @@ public class ElasticSearchProvider implements SearchProvider {
     }
 
     @Override
-    public void initializeIndex() {
+    public void initializeIndex(User user) {
         try {
             IndicesExistsResponse existsResponse = client.admin().indices().exists(new IndicesExistsRequest(ES_INDEX)).actionGet();
             if (existsResponse.isExists()) {

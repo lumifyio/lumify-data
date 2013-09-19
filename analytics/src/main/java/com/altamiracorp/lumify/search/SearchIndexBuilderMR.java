@@ -33,7 +33,7 @@ public class SearchIndexBuilderMR extends ConfigurableMapJobBase {
             super.setup(context);
             try {
                 searchProvider = (SearchProvider) context.getConfiguration().getClass(CONF_SEARCH_INDEX_BUILDER_CLASS, null).newInstance();
-                searchProvider.setup(context);
+                searchProvider.setup(context, getUser());
             } catch (Exception e) {
                 throw new IOException(e);
             }
@@ -41,7 +41,7 @@ public class SearchIndexBuilderMR extends ConfigurableMapJobBase {
 
         @Override
         protected void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
-            searchProvider.add(artifact);
+            searchProvider.add(artifact, getUser());
         }
 
         @Override

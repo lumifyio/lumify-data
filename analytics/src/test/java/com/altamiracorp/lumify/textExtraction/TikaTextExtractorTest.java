@@ -37,11 +37,11 @@ public class TikaTextExtractorTest {
         data += "</body>";
         data += "</html>";
 
-        TikaTextExtractor textExtractor = new TikaTextExtractor();
+        TikaTextExtractor textExtractor = new TikaTextExtractor(artifactRepository);
         Artifact artifact = new Artifact();
         artifact.getContent().setDocArtifactBytes(data.getBytes());
         artifact.getGenericMetadata().setMimeType("text/html");
-        ArtifactExtractedInfo info = textExtractor.extract(session, artifact);
+        ArtifactExtractedInfo info = textExtractor.extract(session, artifact, );
 
         assertEquals("Test Title", info.getSubject());
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");

@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.structuredDataExtraction;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
@@ -12,6 +11,7 @@ import com.altamiracorp.lumify.textExtraction.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.util.LineReader;
+import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,12 +28,17 @@ import java.util.*;
 public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
     private Map<String, SimpleDateFormat> dateFormatCache = new HashMap<String, SimpleDateFormat>();
 
-    private ArtifactRepository artifactRepository = new ArtifactRepository();
+    private final ArtifactRepository artifactRepository;
+
+    @Inject
+    public CsvStructuredDataExtractor(ArtifactRepository artifactRepository) {
+        this.artifactRepository = artifactRepository;
+    }
 
     @Override
-    public ArtifactExtractedInfo extractText(ModelSession session, Artifact artifact) throws Exception {
+    public ArtifactExtractedInfo extractText(Artifact artifact, User user) throws Exception {
         JSONObject mappingJson = artifact.getGenericMetadata().getMappingJson();
-        InputStream raw = artifactRepository.getRaw(session, artifact);
+        InputStream raw = artifactRepository.getRaw(artifact, user);
         try {
             StringWriter writer = new StringWriter();
             CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
@@ -57,7 +62,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
     }
 
     @Override
-    public ExtractedData extract(AppSession session, Artifact artifact, String text, JSONObject mappingJson) throws IOException, JSONException, ParseException {
+    public ExtractedData extract(Artifact artifact, String text, JSONObject mappingJson, User user) throws IOException, JSONException, ParseException {
         ExtractedData extractedData = new ExtractedData();
 
         int row = 0;

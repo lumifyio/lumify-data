@@ -32,7 +32,7 @@ public class SimpleTermLocationExtractorTest {
         addGeoName("baltimore", 1, 100L, 77.1, -51.1);
         addGeoName("baltimore", 2, 300L, 87.1, -61.1);
         addGeoName("baltimore", 3, 200L, 97.1, -71.1);
-        SimpleTermLocationExtractor simpleTermLocationExtractor = new SimpleTermLocationExtractor();
+        SimpleTermLocationExtractor simpleTermLocationExtractor = new SimpleTermLocationExtractor(, );
         TermMention termIn = new TermMention();
         termIn.getMetadata().setSign("baltimore");
         TermMention termOut = simpleTermLocationExtractor.GetTermWithLocationLookup(session, geoNameRepository, termIn);

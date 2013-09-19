@@ -11,7 +11,7 @@ import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
+import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
@@ -45,10 +45,10 @@ public class TermLocationExtractionMR extends ConfigurableMapJobBase {
 
     public static class TermLocationExtractorMapper extends LumifyMapper<Text, TermMention, Text, TermMention> {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "termLocationExtractorClass";
-        private GeoNameRepository geoNameRepository = new GeoNameRepository();
-        private GraphRepository graphRepository = new GraphRepository();
-        private GeoNamePostalCodeRepository geoNamePostalCodeRepository = new GeoNamePostalCodeRepository();
-        private SimpleTermLocationExtractor simpleTermLocationExtractor = new SimpleTermLocationExtractor();
+        private GeoNameRepository geoNameRepository;
+        private GraphRepository graphRepository;
+        private GeoNamePostalCodeRepository geoNamePostalCodeRepository;
+        private SimpleTermLocationExtractor simpleTermLocationExtractor;
 
         @Override
         protected void safeMap(Text key, TermMention termMention, Context context) throws Exception {
@@ -56,9 +56,9 @@ public class TermLocationExtractionMR extends ConfigurableMapJobBase {
 
             TermMention updatedTerm;
             if (simpleTermLocationExtractor.isPostalCode(termMention)) {
-                updatedTerm = simpleTermLocationExtractor.GetTermWithPostalCodeLookup(getSession().getModelSession(), geoNamePostalCodeRepository, termMention);
+                updatedTerm = simpleTermLocationExtractor.GetTermWithPostalCodeLookup(geoNamePostalCodeRepository, termMention, getUser());
             } else {
-                updatedTerm = simpleTermLocationExtractor.GetTermWithLocationLookup(getSession().getModelSession(), geoNameRepository, termMention);
+                updatedTerm = simpleTermLocationExtractor.GetTermWithLocationLookup(geoNameRepository, termMention, getUser());
             }
             if (updatedTerm != null) {
                 updateGraphVertex(updatedTerm);
@@ -69,7 +69,7 @@ public class TermLocationExtractionMR extends ConfigurableMapJobBase {
         private void updateGraphVertex(TermMention termMention) {
             String graphVertexId = termMention.getMetadata().getGraphVertexId();
             if (graphVertexId != null) {
-                GraphVertex vertex = graphRepository.findVertex(getSession().getGraphSession(), graphVertexId);
+                GraphVertex vertex = graphRepository.findVertex(graphVertexId, getUser());
                 if (vertex != null) {
                     Double lat = termMention.getMetadata().getLatitude();
                     Double lon = termMention.getMetadata().getLongitude();
@@ -82,6 +82,26 @@ public class TermLocationExtractionMR extends ConfigurableMapJobBase {
 
         public static void init(Job job, Class<? extends ArtifactLocationExtractor> entityExtractor) {
             job.getConfiguration().setClass(CONF_ENTITY_EXTRACTOR_CLASS, entityExtractor, ArtifactLocationExtractor.class);
+        }
+
+        @Inject
+        public void setGeoNameRepository(GeoNameRepository geoNameRepository) {
+            this.geoNameRepository = geoNameRepository;
+        }
+
+        @Inject
+        public void setGraphRepository(GraphRepository graphRepository) {
+            this.graphRepository = graphRepository;
+        }
+
+        @Inject
+        public void setGeoNamePostalCodeRepository(GeoNamePostalCodeRepository geoNamePostalCodeRepository) {
+            this.geoNamePostalCodeRepository = geoNamePostalCodeRepository;
+        }
+
+        @Inject
+        public void setSimpleTermLocationExtractor(SimpleTermLocationExtractor simpleTermLocationExtractor) {
+            this.simpleTermLocationExtractor = simpleTermLocationExtractor;
         }
     }
 

@@ -6,6 +6,7 @@ import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.google.inject.Inject;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
@@ -14,8 +15,14 @@ import org.json.JSONObject;
 import java.util.*;
 
 public class EntityHighlighter {
-    private TermMentionRepository termRepository = new TermMentionRepository();
-    private GraphRepository graphRepository = new GraphRepository();
+    private TermMentionRepository termRepository;
+    private GraphRepository graphRepository;
+
+    @Inject
+    public EntityHighlighter(TermMentionRepository termRepository, GraphRepository graphRepository) {
+        this.termRepository = termRepository;
+        this.graphRepository = graphRepository;
+    }
 
     public String getHighlightedText(Artifact artifact, User user) {
         try {
