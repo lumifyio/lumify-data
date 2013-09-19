@@ -1,36 +1,17 @@
 package com.altamiracorp.lumify.search;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import org.apache.blur.thirdparty.thrift_0_9_0.TException;
 import org.apache.blur.thrift.BlurClient;
-import org.apache.blur.thrift.generated.AnalyzerDefinition;
-import org.apache.blur.thrift.generated.Blur;
-import org.apache.blur.thrift.generated.BlurQuery;
-import org.apache.blur.thrift.generated.BlurResult;
-import org.apache.blur.thrift.generated.BlurResults;
-import org.apache.blur.thrift.generated.Column;
-import org.apache.blur.thrift.generated.Record;
-import org.apache.blur.thrift.generated.RecordMutation;
-import org.apache.blur.thrift.generated.RecordMutationType;
-import org.apache.blur.thrift.generated.Row;
-import org.apache.blur.thrift.generated.RowMutation;
-import org.apache.blur.thrift.generated.RowMutationType;
-import org.apache.blur.thrift.generated.Selector;
-import org.apache.blur.thrift.generated.SimpleQuery;
-import org.apache.blur.thrift.generated.TableDescriptor;
+import org.apache.blur.thrift.generated.*;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class BlurSearchProvider extends SearchProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(BlurSearchProvider.class.getName());
@@ -80,7 +61,7 @@ public class BlurSearchProvider extends SearchProvider {
     }
 
     @Override
-    public void teardown() throws Exception {
+    public void close() throws Exception {
         // noop
     }
 

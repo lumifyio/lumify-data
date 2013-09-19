@@ -15,8 +15,6 @@ public abstract class SearchProvider {
 
     public abstract void setup(Mapper.Context context, User user) throws Exception;
 
-    public abstract void teardown() throws Exception;
-
     public abstract void add(Artifact artifact, User user) throws Exception;
 
     public abstract Collection<ArtifactSearchResult> searchArtifacts(String query, User user) throws Exception;
@@ -24,4 +22,6 @@ public abstract class SearchProvider {
     public abstract void deleteIndex(User user);
 
     public abstract void initializeIndex(User user);
+
+    public abstract void close() throws Exception;
 }

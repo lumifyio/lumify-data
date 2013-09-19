@@ -2,7 +2,11 @@ package com.altamiracorp.lumify;
 
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.GraphSession;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.search.SearchProvider;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
@@ -17,6 +21,9 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
 
     private boolean failOnFirstError;
     private User user;
+    private ModelSession modelSession;
+    private GraphSession graphSession;
+    private SearchProvider searchProvider;
 
     @Override
     protected final void setup(Context context) throws IOException, InterruptedException {
@@ -56,8 +63,12 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
 
     @Override
     protected void cleanup(Context context) throws IOException, InterruptedException {
-        if (session != null) {
-            session.close();
+        try {
+            modelSession.close();
+            graphSession.close();
+            searchProvider.close();
+        } catch (Exception ex) {
+            throw new IOException("Could not close", ex);
         }
         super.cleanup(context);
     }
@@ -66,5 +77,20 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
         Class<T> clazz = (Class<T>) context.getConfiguration().getClass(configName, null);
         checkNotNull(clazz, "Could not find class name in configuration with name " + configName);
         return injector.getInstance(clazz);
+    }
+
+    @Inject
+    public void setModelSession(ModelSession modelSession) {
+        this.modelSession = modelSession;
+    }
+
+    @Inject
+    public void setGraphSession(GraphSession graphSession) {
+        this.graphSession = graphSession;
+    }
+
+    @Inject
+    public void setSearchProvider(SearchProvider searchProvider) {
+        this.searchProvider = searchProvider;
     }
 }

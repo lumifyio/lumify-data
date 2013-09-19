@@ -1,6 +1,5 @@
 package com.altamiracorp.lumify.entityHighlight;
 
-import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactContent;
@@ -24,7 +23,6 @@ public class EntityHighlightWorkerTest {
     private static final String HIGHLIGHTED_TEXT = "highlighted!";
     private static final String ARTIFACT_KEY = "FOO";
 
-    private AppSession sessionMock;
     private ArtifactRepository artifactRepoMock;
     private EntityHighlighter highlighterMock;
     private Artifact artifactMock;

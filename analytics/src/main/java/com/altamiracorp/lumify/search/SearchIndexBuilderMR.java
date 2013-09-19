@@ -43,7 +43,7 @@ public class SearchIndexBuilderMR extends ConfigurableMapJobBase {
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
             try {
-                searchProvider.teardown();
+                searchProvider.close();
             } catch (Exception e) {
                 throw new IOException(e);
             }

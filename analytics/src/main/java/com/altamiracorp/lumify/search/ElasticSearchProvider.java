@@ -1,13 +1,8 @@
 package com.altamiracorp.lumify.search;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -29,9 +24,8 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class ElasticSearchProvider extends SearchProvider {
     public static final String ES_LOCATIONS_PROP_KEY = "elasticsearch.locations";
@@ -76,7 +70,7 @@ public class ElasticSearchProvider extends SearchProvider {
     }
 
     @Override
-    public void teardown() throws Exception {
+    public void close() throws Exception {
         if (client != null) {
             client.close();
             client = null;
