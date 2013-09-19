@@ -94,7 +94,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         protected void setup(Context context, Injector injector) throws IOException, IllegalAccessException, InstantiationException {
             classifierConcept = context.getConfiguration().get(CONCEPT, DEFAULT_CONCEPT);
             classifierPath = resolveClassifierPath(context);
-            objectDetector = (ObjectDetector) context.getConfiguration().getClass(OBJECT_DETECTOR_CLASS, OpenCVObjectDetector.class).newInstance();
+            objectDetector = getAndInjectClassFromConfiguration(context, injector, OBJECT_DETECTOR_CLASS);
             String dictionaryFile = context.getConfiguration().get(DICTIONARY);
             if (dictionaryFile != null) {
                 FileSystem fs = FileSystem.get(context.getConfiguration());

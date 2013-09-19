@@ -31,7 +31,7 @@ public class SearchIndexBuilderMR extends ConfigurableMapJobBase {
 
         @Override
         protected void setup(Context context, Injector injector) throws Exception {
-            searchProvider = (SearchProvider) context.getConfiguration().getClass(CONF_SEARCH_INDEX_BUILDER_CLASS, null).newInstance();
+            searchProvider = getAndInjectClassFromConfiguration(context, injector, CONF_SEARCH_INDEX_BUILDER_CLASS);
             searchProvider.setup(context, getUser());
         }
 

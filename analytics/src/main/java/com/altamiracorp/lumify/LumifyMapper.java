@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
     private static final Logger LOGGER = LoggerFactory.getLogger(LumifyMapper.class.getName());
 
@@ -59,5 +61,11 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
 
     public AppSession getSession() {
         return session;
+    }
+
+    protected <T> T getAndInjectClassFromConfiguration(Context context, Injector injector, String configName) {
+        Class<T> clazz = (Class<T>) context.getConfiguration().getClass(configName, null);
+        checkNotNull(clazz, "Could not find class name in configuration with name " + configName);
+        return injector.getInstance(clazz);
     }
 }

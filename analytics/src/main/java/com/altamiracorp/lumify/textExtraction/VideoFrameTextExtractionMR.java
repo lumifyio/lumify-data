@@ -43,7 +43,7 @@ public class VideoFrameTextExtractionMR extends ConfigurableMapJobBase {
 
         @Override
         protected void setup(Context context, Injector injector) throws Exception {
-            textExtractor = (TextExtractor) context.getConfiguration().getClass(CONF_TEXT_EXTRACTOR_CLASS, TikaTextExtractor.class).newInstance();
+            textExtractor = getAndInjectClassFromConfiguration(context, injector, CONF_TEXT_EXTRACTOR_CLASS);
             textExtractor.setup(context, injector);
         }
 

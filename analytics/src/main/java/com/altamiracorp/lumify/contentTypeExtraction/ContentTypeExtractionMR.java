@@ -51,7 +51,7 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
 
         @Override
         protected void setup(Context context, Injector injector) throws IllegalAccessException, InstantiationException {
-            contentTypeExtractor = (ContentTypeExtractor) context.getConfiguration().getClass(CONF_CONTENT_TYPE_EXTRACTOR_CLASS, TikaContentTypeExtractor.class).newInstance();
+            contentTypeExtractor = getAndInjectClassFromConfiguration(context, injector, CONF_CONTENT_TYPE_EXTRACTOR_CLASS);
             contentTypeExtractor.setup(context);
         }
 

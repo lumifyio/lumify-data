@@ -56,7 +56,7 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
 
         @Override
         protected void setup(Context context, Injector injector) throws Exception {
-            entityExtractor = (ArtifactLocationExtractor) context.getConfiguration().getClass(CONF_ENTITY_EXTRACTOR_CLASS, SimpleArtifactLocationExtractor.class).newInstance();
+            entityExtractor = getAndInjectClassFromConfiguration(context, injector, CONF_ENTITY_EXTRACTOR_CLASS);
             entityExtractor.setup(context);
         }
 
