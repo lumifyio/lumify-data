@@ -147,7 +147,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    public void deleteColumn(Row row, String columnFamily, String columnQualifier) {
+    public void deleteColumn(Row row, String tableName, String columnFamily, String columnQualifier) {
         List<ColumnFamily> columnFamilies = (List<ColumnFamily>) row.getColumnFamilies();
         for (int i = 0; i < columnFamilies.size(); i++) {
             if (columnFamilies.get(i).getColumnFamilyName().equals(columnFamily)) {
