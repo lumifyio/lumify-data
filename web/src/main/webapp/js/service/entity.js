@@ -20,6 +20,15 @@ function(ServiceBase) {
 		});
 	};
 
+	EntityService.prototype.updateTerm = function(updateRequest, callback) {
+        this._ajaxPost({
+            url: 'entity/updateTerm',
+            data: updateRequest
+        },function (err, response) {
+            callback (err,response);
+        });
+    };
+
 	EntityService.prototype.resolveDetectedObject = function(createRequest, callback) {
         this._ajaxPost({
             url: 'entity/createResolvedDetectedObject',
