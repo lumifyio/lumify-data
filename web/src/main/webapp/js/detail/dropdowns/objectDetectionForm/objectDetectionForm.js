@@ -9,6 +9,7 @@ define([
     'service/entity',
     'service/ontology'
 ], function(defineComponent, withDropdown, artifact, template, options, Ucd, EntityService, OntologyService) {
+    'use strict';
 
     return defineComponent(ObjectDetectionForm, withDropdown);
 

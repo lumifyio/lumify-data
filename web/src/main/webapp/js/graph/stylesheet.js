@@ -4,6 +4,7 @@ define([
     'service/ontology',
     'util/retina'
 ], function(cytoscape, OntologyService, retina) {
+    'use strict';
 
     var ontologyService = new OntologyService(),
         style = cytoscape.stylesheet();

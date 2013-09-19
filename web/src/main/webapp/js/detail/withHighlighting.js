@@ -9,6 +9,7 @@ define([
     'service/entity',
     'service/ontology'
 ], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, colorjs, EntityService, OntologyService) {
+    'use strict';
 
     var HIGHLIGHT_STYLES = [
             { name: 'None', selector:'none' },

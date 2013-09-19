@@ -16,6 +16,7 @@ define([
     withVertexCache, withAjaxFilters, withAsyncQueue,
     // Service
     WorkspaceService, UcdService, undoManager) {
+    'use strict';
 
     var WORKSPACE_SAVE_DELAY = 1000,
         RELOAD_RELATIONSHIPS_DELAY = 250;

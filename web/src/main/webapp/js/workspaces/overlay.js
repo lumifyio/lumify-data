@@ -4,6 +4,7 @@ define([
     'tpl!./overlay',
     'sf'
 ], function(defineComponent, template, sf) {
+    'use strict';
 
     var LAST_SAVED_UPDATE_FREQUENCY_SECONDS = 30;
     var MENUBAR_WIDTH = 30;

@@ -6,6 +6,7 @@ define([
     'tpl!./relationship-options',
     'tpl!./connection'
 ], function(retina, RelationshipService, OntologyService, relationshipTypeTemplate, connectionTemplate) {
+    'use strict';
 
     return Connection;
 

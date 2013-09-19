@@ -1,6 +1,8 @@
 
 define(['atmosphere'],
     function() {
+        'use strict';
+
         function ServiceBase(options) {
             options = options || {};
 

@@ -3,6 +3,8 @@ define(
         'service/serviceBase'
     ],
     function (ServiceBase) {
+        'use strict';
+
         function ChatService() {
             ServiceBase.call(this);
 

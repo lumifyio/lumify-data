@@ -6,7 +6,6 @@ define([
     'service/relationship',
     'sf'
 ], function(defineComponent, withTypeContent, withHighlighting, template, propertiesTemplate, PropertyForm, RelationshipService, sf) {
-
     'use strict';
 
     var relationshipService = new RelationshipService();

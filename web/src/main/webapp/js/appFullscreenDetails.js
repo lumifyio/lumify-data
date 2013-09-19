@@ -8,6 +8,7 @@ define([
     'service/ucd',
     'detail/detail'
 ], function(defineComponent, registry, template, VertexService, UCD, Detail) {
+    'use strict';
 
     return defineComponent(FullscreenDetails);
 

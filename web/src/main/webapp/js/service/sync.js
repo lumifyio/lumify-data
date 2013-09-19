@@ -3,6 +3,8 @@ define(
         'service/serviceBase'
     ],
     function (ServiceBase) {
+        'use strict';
+
         function SyncService() {
             ServiceBase.call(this);
             return this;

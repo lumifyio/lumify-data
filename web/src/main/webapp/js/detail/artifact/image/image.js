@@ -4,6 +4,7 @@ define([
     'tpl!./image',
     'tpl!util/blur/blur-svg'
 ], function(defineComponent, template, blur, Jcrop) {
+    'use strict';
 
     return defineComponent(Image);
 

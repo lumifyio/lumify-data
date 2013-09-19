@@ -7,6 +7,7 @@ define([
  * Generate preview screenshots of artifact rendering (with highlighting)
  */
 function(UCD, template) {
+    'use strict';
 
     var PREVIEW_CACHE = {};
 

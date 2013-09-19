@@ -30,6 +30,7 @@ require([
     'removePrefixedClasses'
 ],
 function(compose, registry, advice, withLogging, debug, Visibility) {
+    'use strict';
 
     debug.enable(true);
     DEBUG.events.logAll();

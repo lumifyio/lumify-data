@@ -3,6 +3,8 @@ define(
         'service/serviceBase'
     ],
     function (ServiceBase) {
+        'use strict';
+
         function RelationshipService() {
             ServiceBase.call(this);
             return this;

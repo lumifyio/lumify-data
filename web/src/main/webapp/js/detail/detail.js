@@ -4,7 +4,6 @@ define([
     'flight/lib/registry',
     'tpl!./detail'
 ], function( defineComponent, registry, template) {
-
     'use strict';
 
     return defineComponent(Detail);

@@ -4,6 +4,8 @@ define(
     'service/serviceBase'
 ],
 function(ServiceBase) {
+    'use strict';
+
     function EntityService () {
         ServiceBase.call(this);
         return this;

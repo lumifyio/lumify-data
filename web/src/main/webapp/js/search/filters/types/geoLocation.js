@@ -4,6 +4,7 @@ define([
     'tpl!./geoLocation',
     './withFilter'
 ], function(defineComponent, template, withFilter) {
+    'use strict';
 
     return defineComponent(GeoLocationFilter, withFilter);
 

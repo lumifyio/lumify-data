@@ -3,6 +3,7 @@ define(
         'service/serviceBase'
     ],
     function (ServiceBase) {
+      'use strict';
 
         function GraphService() {
             ServiceBase.call(this);

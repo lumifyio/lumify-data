@@ -4,6 +4,7 @@ define([
     'tpl!./double',
     './withFilter'
 ], function(defineComponent, template, withFilter) {
+    'use strict';
 
     return defineComponent(DoubleFilter, withFilter);
        

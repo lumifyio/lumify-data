@@ -10,7 +10,6 @@ define([
     'tpl!./transcriptEntry',
     'service/ontology'
 ], function(defineComponent, VideoScrubber, Image, withTypeContent, withHighlighting, ObjectDetectionForm, template, transcriptEntryTemplate, OntologyService) {
-
     'use strict';
 
     return defineComponent(Artifact, withTypeContent, withHighlighting);

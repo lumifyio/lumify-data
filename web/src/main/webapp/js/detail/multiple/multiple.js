@@ -10,7 +10,6 @@ define([
     'tpl!./histogram',
     'util/vertexList/list'
 ], function (defineComponent, registry, withTypeContent, withHighlighting, VertexService, OntologyService, sf, template, histogramTemplate, VertexList) {
-
     'use strict';
 
     var NO_HISTOGRAM_PROPERTIES = [

@@ -4,7 +4,6 @@ define([
     'tpl!./image',
     'util/retina'
 ], function(defineComponent, template, retina) {
-
     'use strict';
 
     // Limit previews to 1MB since it's a dataUri

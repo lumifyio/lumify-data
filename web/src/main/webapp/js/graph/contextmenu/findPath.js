@@ -2,6 +2,7 @@ define([
     'util/retina',
     'service/graph'
 ], function (retina, GraphService) {
+    'use strict';
 
     return FindPath;
 

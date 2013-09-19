@@ -8,6 +8,7 @@ define([
     'util/video/scrubber',
     'util/withWorkspaceData'
 ], function(defineComponent, registry, appData, template, previews, VideoScrubber, withWorkspaceData) {
+    'use strict';
 
     return defineComponent(List, withWorkspaceData);
 

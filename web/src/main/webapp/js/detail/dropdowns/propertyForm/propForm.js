@@ -5,6 +5,7 @@ define([
     'tpl!./propForm',
     'tpl!./options'
 ], function(defineComponent, withDropdown, template, options) {
+    'use strict';
 
     return defineComponent(PropertyForm, withDropdown);
 

@@ -7,6 +7,7 @@ define([
     'tpl!./item',
     'service/ontology'
 ], function(defineComponent, registry, template, itemTemplate, OntologyService) {
+    'use strict';
 
     var FILTER_SEARCH_DELAY_SECONDS = 0.25;
 

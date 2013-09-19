@@ -3,6 +3,8 @@ define(
         'service/serviceBase'
     ],
     function (ServiceBase, atmosphere) {
+        'use strict';
+
         function UserService() {
             ServiceBase.call(this);
 

@@ -13,7 +13,6 @@ define([
     'service/vertex',
     'sf'
 ], function(defineComponent, Image, Properties, withTypeContent, withHighlighting, template, relationshipsTemplate, VertexList, PropertyForm, OntologyService, VertexService, sf) {
-
     'use strict';
 
     var ontologyService = new OntologyService();

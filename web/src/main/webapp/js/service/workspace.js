@@ -4,6 +4,8 @@ define(
     'service/serviceBase'
 ],
 function(ServiceBase) {
+    'use strict';
+
     function WorkspaceService() {
         ServiceBase.call(this);
 

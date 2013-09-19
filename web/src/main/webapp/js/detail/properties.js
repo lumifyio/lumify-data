@@ -6,6 +6,7 @@ define([
     './dropdowns/propertyForm/propForm',
     'tpl!./properties',
 ], function (defineComponent, OntologyService, VertexService, PropertyForm, propertiesTemplate) {
+    'use strict';
 
     Properties.filterPropertiesForDisplay = filterPropertiesForDisplay;
 

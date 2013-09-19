@@ -6,6 +6,7 @@ define([
     '3djs',
     'util/previews'
 ], function(defineComponent, OntologyService, $3djs, previews) {
+    'use strict';
 
     var imageCache = {};
 

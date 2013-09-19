@@ -1,5 +1,6 @@
 
 define( [], function() {
+    'use strict';
 
     $.ui.plugin.add( "draggable", "multi", {
 

@@ -4,6 +4,7 @@ define([
     'tpl!./toolbar/fullscreen',
     'tpl!./toolbar/fullscreen-item'
 ], function(UCD, fullscreenButtonTemplate, fullscreenItemTemplate) {
+    'use strict';
 
     var intercomInstance;
 
