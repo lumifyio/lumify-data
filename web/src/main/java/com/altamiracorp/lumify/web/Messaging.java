@@ -1,7 +1,5 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.user.User;
 import com.altamiracorp.lumify.model.user.UserRepository;
 import com.altamiracorp.lumify.model.user.UserStatus;
@@ -34,8 +32,7 @@ import java.util.List;
 public class Messaging implements AtmosphereHandler { //extends AbstractReflectorAtmosphereHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(Messaging.class);
 
-    private final Repository<User> userRepository;
-    private static AppSession cachedSession;
+    private final UserRepository userRepository;
 
     // TODO should we save off this broadcaster? When using the BroadcasterFactory
     //      we always get null when trying to get the default broadcaster
@@ -97,8 +94,6 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     }
 
     public void onDisconnect(AtmosphereResourceEvent event, AtmosphereResponse response) throws IOException {
-        LOGGER.debug("onDisconnect");
-
         setStatus(event.getResource(), UserStatus.OFFLINE);
     }
 
@@ -127,16 +122,6 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
             // TODO session is held open by getAppSession
             // session.close();
         }
-    }
-
-    private AppSession getAppSession(AtmosphereResource resource) {
-        // TODO: should we create a new session each time?
-        if (cachedSession != null) {
-            return cachedSession;
-        }
-        AppSession session = WebSessionFactory.createAppSession(resource.getRequest());
-        cachedSession = session;
-        return session;
     }
 
     public static void broadcastPropertyChange(String graphVertexId, String propertyName, Object value) {
