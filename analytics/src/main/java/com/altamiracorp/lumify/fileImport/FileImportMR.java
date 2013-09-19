@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.LumifyMapper;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -35,8 +36,7 @@ public class FileImportMR extends ConfigurableMapJobBase {
         private FileSystem fs;
 
         @Override
-        public void setup(Context context) throws IOException, InterruptedException {
-            super.setup(context);
+        public void setup(Context context, Injector injector) throws IOException {
             fs = FileSystem.get(context.getConfiguration());
         }
 

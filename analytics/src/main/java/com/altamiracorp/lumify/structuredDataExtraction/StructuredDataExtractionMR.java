@@ -27,7 +27,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -60,13 +59,8 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
         private HashMap<String, Concept> conceptMap = new HashMap<String, Concept>();
 
         @Override
-        protected void setup(Context context, Injector injector) throws IOException, InterruptedException {
-            super.setup(context);
-            try {
-                structuredDataFactory = new StructuredDataFactory(context);
-            } catch (Exception e) {
-                throw new IOException(e);
-            }
+        protected void setup(Context context, Injector injector) {
+            structuredDataFactory = injector.getInstance(StructuredDataFactory.class);
         }
 
         @Override

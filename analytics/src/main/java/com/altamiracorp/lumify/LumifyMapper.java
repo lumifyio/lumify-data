@@ -21,6 +21,7 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
         session = ConfigurableMapJobBase.createAppSession(context);
         failOnFirstError = context.getConfiguration().getBoolean("failOnFirstError", false);
         Injector injector;
+        injector.injectMembers(this);
         try {
             setup(context, injector);
         } catch (Exception ex) {

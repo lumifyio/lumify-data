@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.LumifyMapper;
 import com.altamiracorp.lumify.model.geoNames.GeoName;
 import com.altamiracorp.lumify.model.geoNames.GeoNameRepository;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -34,8 +35,7 @@ public class GeoNamesImportMR extends ConfigurableMapJobBase {
         private GeoNamesImporter geoNamesImporter;
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            super.setup(context);
+        protected void setup(Context context, Injector injector) throws IOException, InterruptedException {
             getSession().getModelSession().initializeTable(GeoName.TABLE_NAME, getUser());
         }
 

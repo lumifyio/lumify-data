@@ -8,6 +8,7 @@ import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -39,6 +40,10 @@ public class VideoPreviewMR extends ConfigurableMapJobBase {
 
     public static class VideoPreviewMapper extends LumifyMapper<Text, Artifact, Text, Artifact> {
         private ViewPreviewGenerator viewPreviewGenerator;
+
+        @Override
+        protected void setup(Context context, Injector injector) throws Exception {
+        }
 
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {

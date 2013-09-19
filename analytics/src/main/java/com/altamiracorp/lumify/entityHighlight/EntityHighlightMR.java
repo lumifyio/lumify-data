@@ -7,6 +7,7 @@ import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -39,6 +40,10 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
     public static class EntityHighlightMapper extends LumifyMapper<Text, Artifact, Text, Artifact> {
         private EntityHighlighter entityHighlighter;
         private static final Text KEY_ARTIFACT_TABLE = new Text(Artifact.TABLE_NAME);
+
+        @Override
+        protected void setup(Context context, Injector injector) throws Exception {
+        }
 
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
