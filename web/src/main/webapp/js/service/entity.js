@@ -20,10 +20,24 @@ function(ServiceBase) {
 		});
 	};
 
-	EntityService.prototype.createEntity = function(createRequest) {
+	EntityService.prototype.resolveDetectedObject = function(createRequest) {
         return this._ajaxPost({
             url: 'entity/createEntity',
             data: createRequest
+        });
+    };
+
+    EntityService.prototype.updateDetectedObject = function(updateRequest) {
+        return this._ajaxPost({
+            url: 'entity/updateEntity',
+            data: updateRequest
+        });
+    };
+
+    EntityService.prototype.deleteDetectedObject = function(deleteRequest) {
+        return this._ajaxPost({
+            url: 'entity/deleteEntity',
+            data: deleteRequest
         });
     };
 

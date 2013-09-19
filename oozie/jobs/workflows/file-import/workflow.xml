@@ -45,10 +45,6 @@
                     <name>mapreduce.map.class</name>
                     <value>${basePackage}.fileImport.FileImportMR$FileImportMapper</value>
                 </property>
-                <property>
-                    <name>mapred.map.tasks</name>
-                    <value>${numMapTasks}</value>
-                </property>
 				<property>
 					<name>tableName</name>
                     <value>${tableArtifact}</value>

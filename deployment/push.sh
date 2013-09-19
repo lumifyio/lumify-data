@@ -57,7 +57,7 @@ githash=$(cd ../oozie/target; git log -n 1 --format='%h')
 oozie_libs_tgz="/tmp/oozie-libs-${datetime}-${githash}.tgz"
 (cd ../oozie/target; tar czf ${oozie_libs_tgz} oozie-libs)
 
-scp ${SSH_OPTS} ../aws/bin-ec2/setup_disks.sh \
+scp ${SSH_OPTS} aws/bin-ec2/setup_disks.sh \
                 init.sh \
                 run_puppet.sh \
                 update.sh \

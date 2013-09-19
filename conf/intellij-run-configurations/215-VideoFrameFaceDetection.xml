@@ -1,0 +1,14 @@
+<configuration default="false" name="215 - VideoFrameFaceDetection" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.altamiracorp.lumify.objectDetection.ObjectDetectionMR" />
+    <option name="VM_PARAMETERS" value="-Djava.library.path=/usr/lib:/usr/local/lib/:/usr/local/lib/libopencv_java245.dylib:/usr/local/Cellar/opencv/2.4.5/share/OpenCV/java/libopencv_java245.dylib -Dfile.encoding=UTF-8" />
+    <option name="PROGRAM_PARAMETERS" value="--failOnFirstError --classname=com.altamiracorp.lumify.objectDetection.OpenCVObjectDetector -DopenCVConfPathPrefix=file:$PROJECT_DIR$ -Dclassifier.file=haarcascade_frontalface_alt.xml -Dclassifier.concept=face -DjobType=videoFrame" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+    <option name="ALTERNATIVE_JRE_PATH" value="" />
+    <option name="ENABLE_SWING_INSPECTOR" value="false" />
+    <option name="ENV_VARIABLES" />
+    <option name="PASS_PARENT_ENVS" value="true" />
+    <module name="lumify-analytics" />
+    <envs />
+    <method />
+</configuration>

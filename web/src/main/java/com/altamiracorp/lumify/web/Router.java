@@ -4,10 +4,7 @@ import com.altamiracorp.lumify.web.routes.admin.AdminQuery;
 import com.altamiracorp.lumify.web.routes.admin.AdminTables;
 import com.altamiracorp.lumify.web.routes.admin.AdminUploadOntology;
 import com.altamiracorp.lumify.web.routes.artifact.*;
-import com.altamiracorp.lumify.web.routes.entity.EntityObjectDetectionCreate;
-import com.altamiracorp.lumify.web.routes.entity.EntityRelationships;
-import com.altamiracorp.lumify.web.routes.entity.EntitySearch;
-import com.altamiracorp.lumify.web.routes.entity.EntityTermCreate;
+import com.altamiracorp.lumify.web.routes.entity.*;
 import com.altamiracorp.lumify.web.routes.graph.*;
 import com.altamiracorp.lumify.web.routes.map.MapInitHandler;
 import com.altamiracorp.lumify.web.routes.map.MapMarkerImage;
@@ -69,6 +66,8 @@ public class Router extends HttpServlet {
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.post("/entity/createTerm", authenticator, EntityTermCreate.class);
         app.post("/entity/createEntity", authenticator, EntityObjectDetectionCreate.class);
+        app.post("/entity/updateEntity", authenticator, EntityObjectDetectionUpdate.class);
+        app.post("/entity/deleteEntity", authenticator, EntityObjectDetectionDelete.class);
 
         app.post("/vertex/{graphVertexId}/property/set", authenticator, VertexSetProperty.class);
         app.get("/vertex/{graphVertexId}/properties", authenticator, VertexProperties.class);
