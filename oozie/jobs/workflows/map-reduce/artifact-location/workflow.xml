@@ -34,10 +34,6 @@
                     <name>artifactLocationExtractorClass</name>
                     <value>${basePackage}.location.SimpleArtifactLocationExtractor</value>
                 </property>
-                <property>
-                    <name>mapred.map.tasks</name>
-                    <value>${numMapTasks}</value>
-                </property>
 				<property>
 					<name>tableName</name>
                     <value>${tableArtifact}</value>
