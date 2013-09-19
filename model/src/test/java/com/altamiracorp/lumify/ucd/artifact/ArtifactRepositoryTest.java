@@ -1,7 +1,8 @@
 package com.altamiracorp.lumify.ucd.artifact;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,8 +10,12 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.GraphSession;
+import com.altamiracorp.lumify.model.MockSession;
+import com.altamiracorp.lumify.model.Row;
+import com.altamiracorp.lumify.model.RowKey;
 
 @RunWith(JUnit4.class)
 public class ArtifactRepositoryTest {
@@ -21,9 +26,6 @@ public class ArtifactRepositoryTest {
     private User user;
 
     @Mock
-    private ModelSession modelSession;
-
-    @Mock
     private GraphSession graphSession;
 
     @Before
@@ -32,7 +34,7 @@ public class ArtifactRepositoryTest {
 
         session = new MockSession();
         session.initializeTables(user);
-        artifactRepository = new ArtifactRepository(modelSession, graphSession);
+        artifactRepository = new ArtifactRepository(session, graphSession);
     }
 
     @Test
