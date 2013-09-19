@@ -1,14 +1,7 @@
 package com.altamiracorp.lumify.config;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.AccumuloSession;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.search.BlurSearchProvider;
-import com.altamiracorp.lumify.search.ElasticSearchProvider;
-import com.google.common.base.Objects;
-import org.apache.hadoop.mapreduce.Job;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,8 +9,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.model.AccumuloSession;
+import com.altamiracorp.lumify.model.TitanGraphSession;
+import com.altamiracorp.lumify.search.BlurSearchProvider;
+import com.altamiracorp.lumify.search.ElasticSearchProvider;
+import com.google.common.base.Objects;
 
 /**
  * Responsible for parsing application configuration file and providing
@@ -221,25 +221,5 @@ public final class Configuration implements MapConfig, ApplicationConfig {
         PropertyUtils.setPropertyValue(props, AppSession.SEARCH_PROVIDER_PROP_KEY, getSearchProvider());
         PropertyUtils.setPropertyValue(props, ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, getElasticSearchLocations());
         return props;
-    }
-
-    public void configureJob(Job job) {
-        job.getConfiguration().set(AccumuloSession.HADOOP_URL, getNamenodeUrl());
-        job.getConfiguration().set(AccumuloSession.ZOOKEEPER_INSTANCE_NAME, getZookeeperInstanceName());
-        job.getConfiguration().set(AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
-        job.getConfiguration().set(AccumuloSession.USERNAME, getDataStoreUserName());
-        job.getConfiguration().set(AccumuloSession.PASSWORD, new String(getDataStorePassword()));
-        if (getSearchIndexController() != null) {
-            job.getConfiguration().set(BlurSearchProvider.BLUR_CONTROLLER_LOCATION, getSearchIndexController());
-        }
-        if (getSearchIndexStoragePath() != null) {
-            job.getConfiguration().set(BlurSearchProvider.BLUR_PATH, getSearchIndexStoragePath());
-        }
-        if (getGraphSearchIndexHostname() != null) {
-            job.getConfiguration().set(TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, getGraphSearchIndexHostname());
-        }
-        if (getElasticSearchLocations() != null) {
-            job.getConfiguration().set(ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, getElasticSearchLocations());
-        }
     }
 }
