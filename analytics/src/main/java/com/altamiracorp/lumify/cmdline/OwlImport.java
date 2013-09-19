@@ -70,7 +70,7 @@ public class OwlImport extends CommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         AppSession session = createSession();
-        session.initialize();
+        session.initialize(getUser());
 
         File inFile = new File(inFileName);
         importFile(session, inFile);

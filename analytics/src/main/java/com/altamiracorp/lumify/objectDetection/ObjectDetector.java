@@ -5,7 +5,6 @@ import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import com.google.inject.Inject;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -16,7 +15,6 @@ public abstract class ObjectDetector {
     private final ArtifactRepository artifactRepository;
     private final VideoFrameRepository videoFrameRepository;
 
-    @Inject
     public ObjectDetector(ArtifactRepository artifactRepository, VideoFrameRepository videoFrameRepository) {
         this.artifactRepository = artifactRepository;
         this.videoFrameRepository = videoFrameRepository;

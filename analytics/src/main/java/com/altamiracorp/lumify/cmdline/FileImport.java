@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.cmdline;
 
 import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.FileImporter;
+import com.google.inject.Inject;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -20,7 +21,7 @@ public class FileImport extends CommandLineBase {
     private static String[] arguments;
     private boolean downloadZip;
     private String zipfile;
-    private FileImporter fileImporter = new FileImporter();
+    private FileImporter fileImporter;
 
     public static void main(String[] args) throws Exception {
         arguments = args;
@@ -100,14 +101,14 @@ public class FileImport extends CommandLineBase {
         File directory = new File(getDirectory());
         if (getZipfile() != null && !getZipfile().contains("import")) {
             String dirZip = getDirectory() + "/" + getZipfile();
-            if (getZipfile().contains("/")){
+            if (getZipfile().contains("/")) {
                 dirZip = getZipfile();
                 this.directory = getZipfile();
                 arguments[0] = getZipfile();
-                if(getZipfile().lastIndexOf("/") == getZipfile().length()-1){
-                    this.zipfile = getZipfile().substring(getZipfile().lastIndexOf("/", (getZipfile().length()-2)));
+                if (getZipfile().lastIndexOf("/") == getZipfile().length() - 1) {
+                    this.zipfile = getZipfile().substring(getZipfile().lastIndexOf("/", (getZipfile().length() - 2)));
                 } else {
-                    this.zipfile = getZipfile().substring((getZipfile().lastIndexOf("/")+1));
+                    this.zipfile = getZipfile().substring((getZipfile().lastIndexOf("/") + 1));
                 }
                 arguments[1] = this.zipfile;
                 getDataset(arguments);
@@ -123,9 +124,9 @@ public class FileImport extends CommandLineBase {
         }
         String pattern = getPattern();
         AppSession session = createSession();
-        session.getModelSession().initializeTables();
+        session.getModelSession().initializeTables(getUser());
 
-        fileImporter.writeDirectory(session, directory, pattern, source);
+        fileImporter.writeDirectory(directory, pattern, source, getUser());
 
         session.close();
         return 0;
@@ -167,5 +168,10 @@ public class FileImport extends CommandLineBase {
     private Boolean datasetExists(String dir) {
         File file = new File(dir);
         return (file.exists() || (dir.equals("sample/directory")));
+    }
+
+    @Inject
+    public void setFileImporter(FileImporter fileImporter) {
+        this.fileImporter = fileImporter;
     }
 }

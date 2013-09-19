@@ -1,35 +1,17 @@
 package com.altamiracorp.lumify.search;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import org.apache.blur.thirdparty.thrift_0_9_0.TException;
 import org.apache.blur.thrift.BlurClient;
-import org.apache.blur.thrift.generated.AnalyzerDefinition;
-import org.apache.blur.thrift.generated.Blur;
-import org.apache.blur.thrift.generated.BlurQuery;
-import org.apache.blur.thrift.generated.BlurResult;
-import org.apache.blur.thrift.generated.BlurResults;
-import org.apache.blur.thrift.generated.Column;
-import org.apache.blur.thrift.generated.Record;
-import org.apache.blur.thrift.generated.RecordMutation;
-import org.apache.blur.thrift.generated.RecordMutationType;
-import org.apache.blur.thrift.generated.Row;
-import org.apache.blur.thrift.generated.RowMutation;
-import org.apache.blur.thrift.generated.RowMutationType;
-import org.apache.blur.thrift.generated.Selector;
-import org.apache.blur.thrift.generated.SimpleQuery;
-import org.apache.blur.thrift.generated.TableDescriptor;
+import org.apache.blur.thrift.generated.*;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class BlurSearchProvider implements SearchProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(BlurSearchProvider.class.getName());
@@ -51,31 +33,31 @@ public class BlurSearchProvider implements SearchProvider {
     private String blurPath;
 
     @Override
-    public void setup(Mapper.Context context) throws Exception {
+    public void setup(Mapper.Context context, User user) throws Exception {
         String blurControllerLocation = context.getConfiguration().get(BLUR_CONTROLLER_LOCATION);
         String blurPath = context.getConfiguration().get(BLUR_PATH);
-        init(blurControllerLocation, blurPath);
+        init(blurControllerLocation, blurPath, user);
     }
 
     @Override
-    public void setup(Properties props) {
+    public void setup(Properties props, User user) {
         String blurControllerLocation = props.getProperty(BLUR_CONTROLLER_LOCATION);
         String blurPath = props.getProperty(BLUR_PATH);
 
         try {
-            init(blurControllerLocation, blurPath);
+            init(blurControllerLocation, blurPath, user);
         } catch (TException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void init(String blurControllerLocation, String blurPath) throws TException {
+    private void init(String blurControllerLocation, String blurPath, User user) throws TException {
         LOGGER.info("Connecting to blur: blurControllerLocation=" + blurControllerLocation + ", blurPath=" + blurPath);
 
         client = BlurClient.getClient(blurControllerLocation);
 
         this.blurPath = blurPath;
-        initializeIndex();
+        initializeIndex(user);
     }
 
     @Override
@@ -84,7 +66,7 @@ public class BlurSearchProvider implements SearchProvider {
     }
 
     @Override
-    public void initializeIndex() {
+    public void initializeIndex(User user) {
         LOGGER.info("Creating blur tables");
         AnalyzerDefinition ad = new AnalyzerDefinition();
         try {
@@ -118,7 +100,7 @@ public class BlurSearchProvider implements SearchProvider {
     }
 
     @Override
-    public void add(Artifact artifact) throws Exception {
+    public void add(Artifact artifact, User user) throws Exception {
         if (artifact.getContent() == null) {
             return;
         }
@@ -186,7 +168,7 @@ public class BlurSearchProvider implements SearchProvider {
     }
 
     @Override
-    public Collection<ArtifactSearchResult> searchArtifacts(String query) throws Exception {
+    public Collection<ArtifactSearchResult> searchArtifacts(String query, User user) throws Exception {
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         BlurQuery blurQuery = new BlurQuery();
         SimpleQuery simpleQuery = new SimpleQuery();
@@ -229,7 +211,7 @@ public class BlurSearchProvider implements SearchProvider {
     }
 
     @Override
-    public void deleteIndex() {
+    public void deleteIndex(User user) {
         deleteTable(ARTIFACT_BLUR_TABLE_NAME);
     }
 

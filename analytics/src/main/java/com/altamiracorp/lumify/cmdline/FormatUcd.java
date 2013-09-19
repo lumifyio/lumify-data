@@ -22,7 +22,7 @@ public class FormatUcd extends CommandLineBase {
         session.close();
 
         session = createSession();
-        session.initialize();
+        session.initialize(getUser());
 
         session.close();
         return 0;

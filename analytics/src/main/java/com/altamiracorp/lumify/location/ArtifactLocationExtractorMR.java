@@ -12,6 +12,7 @@ import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
@@ -50,8 +51,8 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
     public static class ArtifactLocationExtractorMapper extends LumifyMapper<Text, Artifact, Text, Row> {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "artifactLocationExtractorClass";
         private ArtifactLocationExtractor entityExtractor;
-        private TermMentionRepository termMentionRepository = new TermMentionRepository();
-        private GraphRepository graphRepository = new GraphRepository();
+        private TermMentionRepository termMentionRepository;
+        private GraphRepository graphRepository;
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
@@ -69,7 +70,7 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
             LOGGER.info("Extracting location from: " + artifact.getRowKey().toString());
 
-            List<TermMention> termAndTermMentions = termMentionRepository.findByArtifactRowKey(getSession().getModelSession(), artifact.getRowKey().toString());
+            List<TermMention> termAndTermMentions = termMentionRepository.findByArtifactRowKey(artifact.getRowKey().toString(), getUser());
             entityExtractor.extract(artifact, termAndTermMentions);
             updateGraphVertex(artifact);
             context.write(new Text(Artifact.TABLE_NAME), artifact);
@@ -78,7 +79,7 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
         private void updateGraphVertex(Artifact artifact) {
             String graphVertexId = artifact.getGenericMetadata().getGraphVertexId();
             if (graphVertexId != null) {
-                GraphVertex vertex = graphRepository.findVertex(getSession().getGraphSession(), graphVertexId);
+                GraphVertex vertex = graphRepository.findVertex(graphVertexId, getUser());
                 if (vertex != null) {
                     Double lat = artifact.getDynamicMetadata().getLatitude();
                     Double lon = artifact.getDynamicMetadata().getLongitude();
@@ -97,6 +98,15 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
             job.getConfiguration().setClass(CONF_ENTITY_EXTRACTOR_CLASS, entityExtractor, ArtifactLocationExtractor.class);
         }
 
+        @Inject
+        public void setTermMentionRepository(TermMentionRepository termMentionRepository) {
+            this.termMentionRepository = termMentionRepository;
+        }
+
+        @Inject
+        public void setGraphRepository(GraphRepository graphRepository) {
+            this.graphRepository = graphRepository;
+        }
     }
 
     public static void main(String[] args) throws Exception {

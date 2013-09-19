@@ -37,8 +37,8 @@ public class VideoFrameRepository extends Repository<VideoFrame> {
         return videoFrameBuilder.getTableName();
     }
 
-    public void saveVideoFrame(ModelSession session, ArtifactRowKey artifactRowKey, InputStream in, long frameStartTime, User user) {
-        SaveFileResults saveFileResults = session.saveFile(in, user);
+    public void saveVideoFrame(ArtifactRowKey artifactRowKey, InputStream in, long frameStartTime, User user) {
+        SaveFileResults saveFileResults = getModelSession().saveFile(in, user);
         VideoFrameRowKey videoFrameRowKey = new VideoFrameRowKey(artifactRowKey.toString(), frameStartTime);
         VideoFrame videoFrame = new VideoFrame(videoFrameRowKey);
         videoFrame.getMetadata()
