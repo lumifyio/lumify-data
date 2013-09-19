@@ -2,9 +2,8 @@
 define([
     'flight/lib/component',
     'tpl!./geoLocation',
-    './withFilter',
-    'underscore'
-], function(defineComponent, template, withFilter, _) {
+    './withFilter'
+], function(defineComponent, template, withFilter) {
 
     return defineComponent(GeoLocationFilter, withFilter);
 

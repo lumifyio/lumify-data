@@ -3,10 +3,9 @@
 define([
     'flight/lib/component',
     'videojs',
-    'underscore',
     'tpl!./scrubber',
     'tpl!./video'
-], function(defineComponent, videojs, _, template, videoTemplate) {
+], function(defineComponent, videojs, template, videoTemplate) {
     'use strict';
 
     // TODO: get this from the server

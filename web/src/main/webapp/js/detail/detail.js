@@ -2,9 +2,8 @@
 define([
     'flight/lib/component',
     'flight/lib/registry',
-    'underscore',
     'tpl!./detail'
-], function( defineComponent, registry, _, template) {
+], function( defineComponent, registry, template) {
 
     'use strict';
 
@@ -37,7 +36,7 @@ define([
 
         // Ignore drop events so they don't propagate to the graph/map
         this.preventDropEventsFromPropagating = function() {
-            this.$node.droppable({ accept: '*' });
+            this.$node.droppable({ tolerance: 'pointer', accept: '*' });
         };
 
 
@@ -63,6 +62,7 @@ define([
             if (data && data.remoteEvent) {
                 return;
             }
+
             if ($.isArray(data) && data.length === 1) {
                 data = data[0];
             }
@@ -80,9 +80,11 @@ define([
             }
 
             var self = this,
-                moduleName = (($.isArray(data) ? 'multiple' :
-                    (data._type != 'artifact' && data._type != 'relationship') ? 'entity' : data._type ) || 'entity')
-                    .toLowerCase();
+                moduleName = (
+                    ($.isArray(data) ? 'multiple' :
+                        (data.properties._type != 'artifact' && data.properties._type != 'relationship') ? 'entity' : 
+                        data.properties._type) || 'entity'
+                ).toLowerCase();
 
             require([
                 'detail/' + moduleName + '/' + moduleName,

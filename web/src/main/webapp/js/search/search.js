@@ -2,6 +2,7 @@
 define([
     'flight/lib/component',
     'flight/lib/registry',
+    'data',
     'service/ucd',
     'service/ontology',
     'util/vertexList/list',
@@ -14,6 +15,7 @@ define([
 ], function(
     defineComponent,
     registry,
+    appData,
     UCD,
     OntologyService,
     VertexList,
@@ -174,9 +176,10 @@ define([
         this.onShowSearchResults = function(evt, data) {
             var self = this,
                 $searchResults = this.select('resultsSelector'),
-                vertices = (this.searchResults[data._type][data._subType] || []).map(function(v) {
-                    return $.extend({ }, data, v);
-                });
+                vertexIds = (this.searchResults[data._type][data._subType] || []).map(function(v) {
+                    return v.graphVertexId || v.id;
+                }),
+                vertices = appData.vertices(vertexIds);
 
             this.hideSearchResults();
             this.select('filtersSelector').hide();

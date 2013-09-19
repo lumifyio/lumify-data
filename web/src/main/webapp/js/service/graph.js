@@ -11,12 +11,10 @@ define(
 
         GraphService.prototype = Object.create(ServiceBase.prototype);
 
-        GraphService.prototype.findPath = function (data, callback) {
-            this._ajaxGet({
+        GraphService.prototype.findPath = function(data) {
+            return this._ajaxGet({
                 url: 'graph/findPath',
                 data: data
-            }, function (err, response) {
-                callback(err, response);
             });
         };
 

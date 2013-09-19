@@ -141,6 +141,7 @@ define([
 
             this.select('createEntityButtonSelector').addClass('disabled');
 
+            // FIXME: remove callback
             this.entityService.createEntity(parameters, function(err, data) {
                 if (err) {
                     console.error('createEntity', err);

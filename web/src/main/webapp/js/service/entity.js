@@ -11,21 +11,17 @@ function(ServiceBase) {
 
     EntityService.prototype = Object.create(ServiceBase.prototype);
 
-	EntityService.prototype.createTerm = function(createRequest, callback) {
-		this._ajaxPost({
+	EntityService.prototype.createTerm = function(createRequest) {
+		return this._ajaxPost({
 			url: 'entity/createTerm',
 			data: createRequest
-		},function (err, response) {
-			callback (err,response);
 		});
 	};
 
-	EntityService.prototype.createEntity = function(createRequest, callback) {
-        this._ajaxPost({
+	EntityService.prototype.createEntity = function(createRequest) {
+        return this._ajaxPost({
             url: 'entity/createEntity',
             data: createRequest
-        },function (err, response) {
-            callback (err,response);
         });
     };
 

@@ -11,38 +11,29 @@ define(
 
         UserService.prototype = Object.create(ServiceBase.prototype);
 
-        UserService.prototype.getOnline = function (callback, onUserChange, onChatMessage) {
+        UserService.prototype.getOnline = function() {
             var self = this;
             var result = {};
 
-            self._ajaxGet({
-                url: 'user/me'
-            }, function (err, response) {
+            return $.when(
+                this._ajaxGet({ url: 'user/me' }),
+                this.getCurrentUsers()
+            ).then(function(userResponse, usersResponse) {
+                var user = userResponse[0],
+                    users = usersResponse[0].users;
 
-                if (err) {
-                    return callback(err);
-                }
-
-                result.user = response;
-
-                self.getCurrentUsers(function (err, users) {
-                    result.users = users;
-                    return callback(err, result);
-                });
+                return {
+                    user: user,
+                    users: users
+                };
             });
         };
 
-        UserService.prototype.getCurrentUsers = function (callback) {
-            this._ajaxGet({
+        UserService.prototype.getCurrentUsers = function() {
+            return this._ajaxGet({
                 url: '/user/'
-            }, function (err, response) {
-                if (err) {
-                    return callback(err);
-                }
-
-                return callback(null, response.users);
             });
-        }
+        };
 
         return UserService;
     });

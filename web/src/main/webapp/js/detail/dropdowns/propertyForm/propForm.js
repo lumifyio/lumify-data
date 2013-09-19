@@ -24,7 +24,7 @@ define([
 
             this.on('keyup', {
                 propertyValueSelector: this.onInputKeyUp
-            })
+            });
 
             this.on('addPropertyError', this.onAddPropertyError);
 

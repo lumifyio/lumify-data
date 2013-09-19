@@ -2,7 +2,7 @@
 define([
     'flight/lib/component',
     './image/image',
-    '../withProperties',
+    '../properties',
     '../withTypeContent',
     '../withHighlighting',
     'tpl!./entity',
@@ -12,14 +12,14 @@ define([
     'service/ontology',
     'service/vertex',
     'sf'
-], function(defineComponent, Image, withProperties, withTypeContent, withHighlighting, template, relationshipsTemplate, VertexList, PropertyForm, OntologyService, VertexService, sf) {
+], function(defineComponent, Image, Properties, withTypeContent, withHighlighting, template, relationshipsTemplate, VertexList, PropertyForm, OntologyService, VertexService, sf) {
 
     'use strict';
 
     var ontologyService = new OntologyService();
     var vertexService = new VertexService();
 
-    return defineComponent(Entity, withTypeContent, withHighlighting, withProperties);
+    return defineComponent(Entity, withTypeContent, withHighlighting);
 
     function Entity(withDropdown) {
 
@@ -27,8 +27,6 @@ define([
             glyphIconSelector: '.entity-glyphIcon',
             propertiesSelector: '.properties',
             relationshipsSelector: '.relationships',
-            addNewPropertiesSelector: '.add-new-properties',
-            addPropertySelector: '.add-property',
             titleSelector: '.entity-title'
         });
 
@@ -60,6 +58,10 @@ define([
                     defaultIconSrc: concept && concept.glyphIconHref || ''
                 });
 
+                Properties.attachTo(self.select('propertiesSelector'), {
+                    data: self.attr.data
+                });
+
                 self.loadEntity();
             }));
         });
@@ -76,10 +78,6 @@ define([
                     _rowKey: this.attr.data._rowKey
                 }
             };
-
-            this.getProperties(vertexInfo.id, function(properties) {
-                self.displayProperties (properties);
-            });
 
             this.getRelationships(vertexInfo.id, function(relationships) {
                 self.handleCancelling(self.ontologyService.relationships(function(err, ontologyRelationships) {
@@ -178,19 +176,6 @@ define([
 
                 }));
             });
-        };
-
-        this.getProperties = function(graphVertexId, callback) {
-            var self = this;
-
-            this.handleCancelling(this.ucdService.getVertexProperties(encodeURIComponent(graphVertexId), function(err, data) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-
-                callback(data.properties);
-            }));
         };
 
         this.getRelationships = function(graphVertexId, callback) {

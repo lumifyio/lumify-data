@@ -3,18 +3,17 @@
 define([
     'flight/lib/component',
     '../withDropdown',
-    '../../withProperties',
+    'detail/properties',
     'tpl!./termForm',
     'tpl!./concept-options',
     'tpl!./entity',
     'service/ucd',
     'service/entity',
-    'service/ontology',
-    'underscore'
-], function(defineComponent, withDropdown, withProperties, dropdownTemplate, conceptsTemplate, entityTemplate, Ucd, EntityService, OntologyService, _) {
+    'service/ontology'
+], function(defineComponent, withDropdown, Properties, dropdownTemplate, conceptsTemplate, entityTemplate, Ucd, EntityService, OntologyService) {
     'use strict';
 
-    return defineComponent(TermForm, withDropdown, withProperties);
+    return defineComponent(TermForm, withDropdown);
 
 
     function TermForm() {
@@ -153,21 +152,18 @@ define([
                 $mentionNode.attr('title', newObjectSign);
             }
 
-            this.entityService.createTerm(parameters, function(err, data) {
-                if (err) {
-                    console.error('createTerm', err);
-                    return self.trigger(document, 'error', err);
-                }
-                self.highlightTerm(data);
-                self.trigger(document, 'termCreated', data);
+            this.entityService.createTerm(parameters)
+                .done(function(data) {
+                    self.highlightTerm(data);
+                    self.trigger(document, 'termCreated', data);
 
-                var vertices = [];
-                vertices.push(data.info);
-                self.trigger(document, 'updateVertices', { vertices: vertices });
+                    var vertices = [];
+                    vertices.push(data.info);
+                    self.trigger(document, 'updateVertices', { vertices: vertices });
                 self.trigger(document, 'refreshRelationships');
 
-                _.defer(self.teardown.bind(self));
-            });
+                    _.defer(self.teardown.bind(self));
+                });
         };
 
         this.onConceptChanged = function(event) {
@@ -446,7 +442,7 @@ define([
                         return entityTemplate({
                             html: html,
                             item: item,
-                            properties: item.properties && self.filterPropertiesForDisplay(item.properties, ontologyProperties),
+                            properties: item.properties && Properties.filterPropertiesForDisplay(item.properties, ontologyProperties),
                             iconSrc: icon,
                             concept: concept
                         });

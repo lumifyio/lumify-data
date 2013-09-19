@@ -11,7 +11,7 @@ define(
 
         ChatService.prototype = Object.create(ServiceBase.prototype);
 
-        ChatService.prototype.sendChatMessage = function (users, messageData, callback) {
+        ChatService.prototype.sendChatMessage = function (users, messageData) {
             messageData.postDate = Date.now();
             var data = {
                 type: 'chatMessage',
@@ -22,7 +22,12 @@ define(
             };
 
             this.socketPush(data);
-            return callback(null, messageData);
+
+            var deferred = $.Deferred();
+
+            deferred.resolve(messageData);
+
+            return deferred;
         };
 
         return ChatService;

@@ -2,12 +2,12 @@
 define([
     'flight/lib/component',
     'flight/lib/registry',
+    'data',
     'tpl!./list',
     'util/previews',
     'util/video/scrubber',
-    'util/withWorkspaceData',
-    'underscore'
-], function(defineComponent, registry, template, previews, VideoScrubber, withWorkspaceData, _) {
+    'util/withWorkspaceData'
+], function(defineComponent, registry, appData, template, previews, VideoScrubber, withWorkspaceData) {
 
     return defineComponent(List, withWorkspaceData);
 
@@ -28,40 +28,37 @@ define([
         this.loadCurrentVertices = function() {
             var self = this;
             this.getWorkspaceVertices().forEach(function(v) {
-                _currentVertices[v.id || v.graphVertexId] = self.stateForVertex(v);
+                _currentVertices[v.id || v.id] = self.stateForVertex(v);
             });
         };
 
         this.after('initialize', function() {
             this.loadCurrentVertices();
 
-            var vertices = this.attr.vertices.map(function(v) {
-                v = $.extend({ }, v, v.properties || {});
-                delete v.properties;
-
-                // Bad attempt to merge artifact results and entity results
-                v.graphVertexId = v.id || v.graphVertexId;
-                v.title = v.title || v.subject;
-                v.url = v.url || '#';
+            var classNamesForVertex = {};
+            this.attr.vertices.forEach(function(v) {
 
                 // Check if this vertex is in the graph/map
-                var classes = ['gId' + encodeURIComponent(v.graphVertexId)];
-                var vertexState = _currentVertices[v.graphVertexId];
+                var classes = ['gId' + encodeURIComponent(v.id)];
+                var vertexState = _currentVertices[v.id];
                 if (vertexState) {
                     if ( vertexState.inGraph ) classes.push('graph-displayed');
                     if ( vertexState.inMap ) classes.push('map-displayed');
                 }
-                if (v._subType === 'video' || v._subType === 'image' || v._glyphIcon) {
+
+                if (v.properties._subType === 'video' || v.properties._subType === 'image' || v.properties._glyphIcon) {
                     classes.push('has_preview');
                 }
 
-                v.className = classes.join(' ');
-                return v;
+                classNamesForVertex[v.id] = classes.join(' ');
             });
 
             this.$node
                 .addClass('vertex-list')
-                .html(template({ vertices: vertices }));
+                .html(template({ 
+                    vertices:this.attr.vertices,
+                    classNamesForVertex: classNamesForVertex
+                }));
 
             this.attachEvents();
 
@@ -96,7 +93,7 @@ define([
 
         this.setupDraggables = function() {
             this.applyDraggable(this.$node.find('a'));
-            this.$node.droppable({ accept:'a' });
+            this.$node.droppable({ accept:'*', tolerance:'pointer' });
         };
 
         this.onHoverItem = function(evt) {
@@ -104,14 +101,14 @@ define([
                 return;
             } else if (this.disableHover) {
                 this.disableHover = 'defocused';
-                return this.trigger(document, 'defocusVertices', { vertexIds:[] });
+                return this.trigger(document, 'defocusVertices');
             }
 
-            var info = $(evt.target).closest('.vertex-item').data('info');
-            if (evt.type == 'mouseenter' && info && info.graphVertexId) {
-                this.trigger(document, 'focusVertices', { vertexIds:[info.graphVertexId] });
+            var id = $(evt.target).closest('.vertex-item').data('vertexId');
+            if (evt.type == 'mouseenter' && id) {
+                this.trigger(document, 'focusVertices', { vertexIds:[id] });
             } else {
-                this.trigger(document, 'defocusVertices', { vertexIds:[] });
+                this.trigger(document, 'defocusVertices');
             }
         };
 
@@ -135,37 +132,39 @@ define([
             if (this.scrollNode.length) {
                 lisVisible = lisVisible.withinScrollable(this.scrollNode);
             }
-            
+
             lisVisible.each(function() {
                 var li = $(this),
-                    info = li.data('info'),
-                    _rowKey = info._rowKey;
+                    vertex = appData.vertex(li.data('vertexId'));
 
-                if ((info._subType === 'video' || info._subType === 'image' || info._glyphIcon) && !li.data('preview-loaded')) {
-                    if (li.data('previewloaded')) return;
+                if ((vertex.properties._subType === 'video' || 
+                     vertex.properties._subType === 'image' || 
+                     vertex.properties._glyphIcon) && !li.data('preview-loaded')) {
 
-                    li.data('previewloaded', true).addClass('preview-loading');
+                        if (li.data('previewloaded')) return;
 
-                    if (info._glyphIcon) {
-                        li.removeClass('preview-loading')
-                            .data('preview-loaded', true)
-                            .find('.preview').html("<img src='" + info._glyphIcon + "' />");
-                    } else {
-                        previews.generatePreview(_rowKey, { width: 200 }, function(poster, frames) {
+                        li.data('previewloaded', true).addClass('preview-loading');
+
+                        if (vertex.properties._glyphIcon) {
                             li.removeClass('preview-loading')
-                              .data('preview-loaded', true);
+                                .data('preview-loaded', true)
+                                .find('.preview').html("<img src='" + vertex.properties._glyphIcon + "' />");
+                        } else {
+                            previews.generatePreview(vertex.artifact._rowKey, { width: 200 }, function(poster, frames) {
+                                li.removeClass('preview-loading')
+                                  .data('preview-loaded', true);
 
-                            if(info._subType === 'video') {
-                                VideoScrubber.attachTo(li.find('.preview'), {
-                                    posterFrameUrl: poster,
-                                    videoPreviewImageUrl: frames
-                                });
-                            } else if(info._subType === 'image') {
-                                li.find('.preview').html("<img src='" + poster + "' />");
-                            }
-                        });
+                                if(vertex.properties._subType === 'video') {
+                                    VideoScrubber.attachTo(li.find('.preview'), {
+                                        posterFrameUrl: poster,
+                                        videoPreviewImageUrl: frames
+                                    });
+                                } else if(vertex.properties._subType === 'image') {
+                                    li.find('.preview').html("<img src='" + poster + "' />");
+                                }
+                            });
+                        }
                     }
-                }
             });
         };
 
@@ -187,19 +186,19 @@ define([
                 },
                 otherDraggables: function(ev, ui){
                     self.trigger(document, 'addVertices', {
-                        vertices: ui.otherDraggables.map(function(){
-                            return this.data('original').parent().data('info');
-                        }).toArray()
+                        vertices: appData.vertices(ui.otherDraggables.map(function(){
+                            return this.data('original').parent().data('vertexId');
+                        }).toArray())
                     });
                 },
                 selection: function(ev, ui) {
                     var selected = ui.selected,
-                        info = selected.map(function() {
-                            return $(this).data('info');
-                        }).toArray();
+                        vertices = appData.vertices(selected.map(function() {
+                            return $(this).data('vertexId');
+                        }).toArray());
 
-                    self.trigger(document, 'defocusVertices', { vertexIds:[] });
-                    self.trigger('verticesSelected', [info]);
+                    self.trigger(document, 'defocusVertices');
+                    self.trigger('verticesSelected', [vertices]);
                 }
             });
         };
@@ -210,9 +209,9 @@ define([
 
         // Track changes to vertices so we display the "Displayed in Graph" icon
         // in search results
-        this.toggleItemIcons = function(graphVertexId, data) {
+        this.toggleItemIcons = function(id, data) {
             this.$node
-                .find('li.gId' + encodeURIComponent(graphVertexId))
+                .find('li.gId' + encodeURIComponent(id))
                 .toggleClass('graph-displayed', data.inGraph)
                 .toggleClass('map-displayed', data.inMap);
         };
@@ -229,8 +228,8 @@ define([
             (data.vertices || []).forEach(function(vertex) {
                 // Only care about vertex search results and location updates
                 if ( (vertex._type && vertex._subType) || vertex.location || vertex.locations ) {
-                    _currentVertices[vertex.graphVertexId] = self.stateForVertex(vertex);
-                    self.toggleItemIcons(vertex.graphVertexId, _currentVertices[vertex.graphVertexId]);
+                    _currentVertices[vertex.id] = self.stateForVertex(vertex);
+                    self.toggleItemIcons(vertex.id, _currentVertices[vertex.id]);
                 }
             });
         };
@@ -238,8 +237,8 @@ define([
         this.onVerticesDeleted = function(event, data) {
             var self = this;
             (data.vertices || []).forEach(function(vertex) {
-                delete _currentVertices[vertex.graphVertexId];
-                self.toggleItemIcons(vertex.graphVertexId, { inGraph:false, inMap:false });
+                delete _currentVertices[vertex.id];
+                self.toggleItemIcons(vertex.id, { inGraph:false, inMap:false });
             });
         };
 
@@ -250,7 +249,7 @@ define([
             }
             this.$node.find('.active').removeClass('active');
             $((data||[]).map(function(v) {
-                return '.gId' + v.graphVertexId;
+                return '.gId' + v.id;
             }).join(',')).addClass('active');
         };
     }

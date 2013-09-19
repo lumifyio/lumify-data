@@ -5,9 +5,8 @@ define([
     'flight/lib/registry',
     'tpl!./filters',
     'tpl!./item',
-    'service/ontology',
-    'underscore'
-], function(defineComponent, registry, template, itemTemplate, OntologyService, _) {
+    'service/ontology'
+], function(defineComponent, registry, template, itemTemplate, OntologyService) {
 
     var FILTER_SEARCH_DELAY_SECONDS = 0.25;
 

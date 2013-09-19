@@ -4,9 +4,8 @@ define([
     'tpl!./statementForm',
     'tpl!./relationship-options',
     'service/relationship',
-    'service/ontology',
-    'underscore'
-], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, RelationshipService, OntologyService, _) {
+    'service/ontology'
+], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, RelationshipService, OntologyService) {
     'use strict';
 
     return defineComponent(StatementForm, withDropdown);
@@ -121,11 +120,7 @@ define([
                 parameters.destGraphVertexId = swap;
             }
 
-            this.relationshipService.createRelationship(parameters, function (err, data) {
-                if (err) {
-                    console.error('createRelationship', err);
-                    return self.trigger(document, 'error', err);
-                }
+            this.relationshipService.createRelationship(parameters).done(function(data) {
                 _.defer(self.teardown.bind(self));
                 self.trigger(document, 'refreshRelationships');
             });

@@ -16,6 +16,9 @@ require([
     'flight/lib/advice',
     'flight/lib/logger',
     'flight/lib/debug',
+    
+     // Make underscore available everywhere
+    'underscore',
 
     'util/visibility',
 

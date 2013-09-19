@@ -8,9 +8,8 @@ define([
     'tpl!./instructions/regionLoading',
     'service/ucd',
     'util/retina',
-    'util/withContextMenu',
-    'underscore'
-], function(defineComponent, template, centerTemplate, radiusTemplate, loadingTemplate, UcdService, retina, withContextMenu, _) {
+    'util/withContextMenu'
+], function(defineComponent, template, centerTemplate, radiusTemplate, loadingTemplate, UcdService, retina, withContextMenu) {
     'use strict';
 
     var MODE_NORMAL = 0,
@@ -18,9 +17,9 @@ define([
         MODE_REGION_SELECTION_MODE_RADIUS = 2,
         MODE_REGION_SELECTION_MODE_LOADING = 3;
 
-    return defineComponent(Map, withContextMenu);
+    return defineComponent(MapView, withContextMenu);
 
-    function Map() {
+    function MapView() {
         var callbackQueue = [];
 
         this.ucdService = new UcdService();

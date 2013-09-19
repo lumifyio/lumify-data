@@ -1,5 +1,5 @@
 
-define(['underscore'], function(_) {
+define([], function() {
 
     function withDropdown() {
 

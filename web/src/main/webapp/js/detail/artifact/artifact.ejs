@@ -19,9 +19,10 @@
 
 <h1 class="generic-draggable artifact-title" data-info='<%= artifact.dataInfo %>'><%= vertex.properties.title || artifact.Generic_Metadata.subject || 'No title available' %></h1>
 
-<div class="nav-header properties">
-    Properties<span class="badge loading"/>
-    <ul class="nav nav-list"></ul>
+<div class="artifact-header">
+  <div class="properties">
+    <div class="nav-header">Properties<span class="badge loading"/></div>
+  </div>
 </div>
 
 <% if(artifact.type == 'video') { %>

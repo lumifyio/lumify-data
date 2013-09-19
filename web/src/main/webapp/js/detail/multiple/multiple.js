@@ -8,9 +8,8 @@ define([
     'sf',
     'tpl!./multiple',
     'tpl!./histogram',
-    'util/vertexList/list',
-    'underscore'
-], function (defineComponent, registry, withTypeContent, withHighlighting, VertexService, OntologyService, sf, template, histogramTemplate, VertexList, _) {
+    'util/vertexList/list'
+], function (defineComponent, registry, withTypeContent, withHighlighting, VertexService, OntologyService, sf, template, histogramTemplate, VertexList) {
 
     'use strict';
 

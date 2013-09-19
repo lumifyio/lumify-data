@@ -79,7 +79,7 @@ define([
                 return;
             }
             this.syncService.publishUserSyncEvent(evt.type, [this.currentUser.rowKey], data);
-        }
+        };
     }
 
 });

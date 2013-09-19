@@ -2,9 +2,8 @@
 define([
     'flight/lib/component',
     'tpl!./image',
-    'underscore',
     'util/retina'
-], function(defineComponent, template, _, retina) {
+], function(defineComponent, template, retina) {
 
     'use strict';
 

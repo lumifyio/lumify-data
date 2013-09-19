@@ -12,8 +12,7 @@ define([
     'service/ucd',
     'service/ontology',
     'util/retina',
-    'util/withContextMenu',
-    'underscore'
+    'util/withContextMenu'
 ], function(
     defineComponent,
     cytoscape,
@@ -26,8 +25,7 @@ define([
     UCD,
     OntologyService,
     retina,
-    withContextMenu,
-    _) {
+    withContextMenu) {
     'use strict';
 
         // Delay before showing hover effect on graph

@@ -1,3 +1,5 @@
+<div class="nav-header">Properties<span class="badge loading"/></div>
+<ul class="nav nav-list">
 <% properties.forEach(function(property) { %>
     <% if(property.key == 'title') { return; } %>
     <li class="property property-<%= property.key %>">
@@ -17,3 +19,4 @@
   <li class="buttons">
     <button class="add-new-properties btn btn-mini btn-default">Add Property</button>
   </li>
+</ul>

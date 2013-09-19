@@ -102,20 +102,15 @@ define([
                                 predicateLabel: val
                             };
 
-                            self.relationshipService.createRelationship(parameters, function(err, data) {
-                                if (err) {
-                                    console.error('createStatement', err);
-                                    self.trigger(document, 'error', err);
-                                } else {
-                                    self.on(document, 'relationshipsLoaded', function loaded() {
-                                        if (edge) {
-                                            cy.remove(edge);
-                                            edge = null;
-                                        }
-                                        self.off(document, 'relationshipsLoaded', loaded);
-                                    });
-                                    self.trigger(document, 'refreshRelationships');
-                                }
+                            self.relationshipService.createRelationship(parameters).done(function(data) {
+                                self.on(document, 'relationshipsLoaded', function loaded() {
+                                    if (edge) {
+                                        cy.remove(edge);
+                                        edge = null;
+                                    }
+                                    self.off(document, 'relationshipsLoaded', loaded);
+                                });
+                                self.trigger(document, 'refreshRelationships');
                             });
                         } else {
                             if (edge) {

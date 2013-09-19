@@ -7,9 +7,8 @@ define([
     'util/css-stylesheet',
     'colorjs',
     'service/entity',
-    'service/ontology',
-    'underscore'
-], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, colorjs, EntityService, OntologyService, _) {
+    'service/ontology'
+], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, colorjs, EntityService, OntologyService) {
 
     var HIGHLIGHT_STYLES = [
             { name: 'None', selector:'none' },

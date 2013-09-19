@@ -54,42 +54,42 @@ define([
                         hops: hops
                     };
 
-                    console.log('findPath', parameters);
-                    self.graphService.findPath(parameters, function (err, data) {
-                        if (edge) {
-                            cy.remove(edge);
-                            edge = null;
-                        }
+                    self.graphService.findPath(parameters)
+                        .done(function (data) {
+                            if (edge) {
+                                cy.remove(edge);
+                                edge = null;
+                            }
 
-                        if (err) {
-                            console.error('findPath', err);
-                            return self.trigger(document, 'error', err);
-                        }
+                            if (err) {
+                                console.error('findPath', err);
+                                return self.trigger(document, 'error', err);
+                            }
 
-                        console.log('findPath results', data);
+                            console.log('findPath results', data);
 
-                        var vertices = [];
-                        data.paths.forEach(function (path) {
-                            path.forEach(function (vertex) {
-                                // TODO: refactor this and combine with graph.js/onLoadRelatedSelected
-                                var graphVertexData = $.extend({}, vertex.properties, {
-                                    graphVertexId: vertex.id,
-                                    selected: true
+                            var vertices = [];
+                            data.paths.forEach(function (path) {
+                                path.forEach(function (vertex) {
+                                    // TODO: refactor this and combine with graph.js/onLoadRelatedSelected
+                                    var graphVertexData = $.extend({}, vertex.properties, {
+                                        graphVertexId: vertex.id,
+                                        selected: true
+                                    });
+                                    vertices.push(graphVertexData);
                                 });
-                                vertices.push(graphVertexData);
                             });
+                            if(vertices.length === 0) {
+                                // TODO: refactor this to some common function on graph
+                                var instructions = $('<div>')
+                                    .text(beginText)
+                                    .addClass('instructions')
+                                    .appendTo(self.$node);
+                                instructions.text('Could not find a path.');
+                            } else {
+                                self.trigger(document, 'addVertices', { vertices: vertices });
+                            }
                         });
-                        if(vertices.length == 0) {
-                            // TODO: refactor this to some common function on graph
-                            var instructions = $('<div>')
-                                .text(beginText)
-                                .addClass('instructions')
-                                .appendTo(self.$node);
-                            instructions.text('Could not find a path.');
-                        } else {
-                            self.trigger(document, 'addVertices', { vertices: vertices });
-                        }
-                    });
                 },
 
                 mouseEvents = {
