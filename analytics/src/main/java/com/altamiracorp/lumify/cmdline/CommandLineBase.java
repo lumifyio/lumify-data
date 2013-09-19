@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.core.user.ModelAuthorizations;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.ontology.BaseOntology;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.apache.commons.cli.*;
@@ -36,6 +37,9 @@ public abstract class CommandLineBase extends Configured implements Tool {
 
         final Injector injector = Guice.createInjector(CommandLineBootstrap.create(getConfiguration().getProperties()));
         injector.injectMembers(this);
+
+        // TODO: extract into class (see com.altamiracorp.lumify.LumifyMapper)
+        injector.getInstance(BaseOntology.class).initialize(getUser());
 
         return run(cmd);
     }

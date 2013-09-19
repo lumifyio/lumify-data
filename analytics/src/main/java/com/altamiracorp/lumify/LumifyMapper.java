@@ -4,6 +4,7 @@ import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.GraphSession;
 import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.ontology.BaseOntology;
 import com.altamiracorp.lumify.search.SearchProvider;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
@@ -32,6 +33,9 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
         failOnFirstError = context.getConfiguration().getBoolean("failOnFirstError", false);
 
         final Injector injector = Guice.createInjector(MapperBootstrap.create(context));
+
+        // TODO: extract into class (see CommandLineBase)
+        injector.getInstance(BaseOntology.class).initialize(getUser());
 
         injector.injectMembers(this);
         try {
