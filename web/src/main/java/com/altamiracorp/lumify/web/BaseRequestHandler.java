@@ -1,8 +1,6 @@
 package com.altamiracorp.lumify.web;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
@@ -18,15 +16,7 @@ import java.io.IOException;
  * Represents the base behavior that a {@link Handler} must support
  * and provides common methods for handler usage
  */
-public abstract class BaseRequestHandler implements Handler, AppAware {
-    protected WebApp app;
-
-    @Override
-    public void setApp(App application) {
-        app = (WebApp) application;
-    }
-
-
+public abstract class BaseRequestHandler implements Handler {
     @Override
     public abstract void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception;
 

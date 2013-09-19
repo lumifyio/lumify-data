@@ -4,6 +4,7 @@ import com.altamiracorp.lumify.config.ApplicationConfig;
 import com.altamiracorp.lumify.config.ConfigConstants;
 import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.config.MapConfig;
+import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.*;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
@@ -41,7 +42,7 @@ public class Bootstrap extends AbstractModule {
 
     @Override
     protected void configure() {
-        User user = new User();
+        User user = new SystemUser();
 
         bind(MapConfig.class).toInstance(configuration);
         bind(ApplicationConfig.class).toInstance(configuration);

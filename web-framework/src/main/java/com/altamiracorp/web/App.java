@@ -1,14 +1,13 @@
 package com.altamiracorp.web;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.altamiracorp.web.Route.Method;
+import com.google.inject.Injector;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.altamiracorp.web.Route.Method;
-import com.google.inject.Injector;
+import java.util.HashMap;
+import java.util.Map;
 
 public class App {
     private Router router;
@@ -22,7 +21,6 @@ public class App {
     }
 
     public void get(String path, Handler... handlers) {
-        setApp(handlers);
         router.addRoute(Method.GET, path, handlers);
     }
 
@@ -36,7 +34,6 @@ public class App {
     }
 
     public void post(String path, Handler... handlers) {
-        setApp(handlers);
         router.addRoute(Method.POST, path, handlers);
     }
 
@@ -50,7 +47,6 @@ public class App {
     }
 
     public void put(String path, Handler... handlers) {
-        setApp(handlers);
         router.addRoute(Method.PUT, path, handlers);
     }
 
@@ -64,7 +60,6 @@ public class App {
     }
 
     public void delete(String path, Handler... handlers) {
-        setApp(handlers);
         router.addRoute(Method.DELETE, path, handlers);
     }
 
@@ -96,7 +91,7 @@ public class App {
     public boolean isEnabled(String name) {
         Object value = config.get(name);
         if (value != null && value instanceof Boolean) {
-            return (Boolean)value;
+            return (Boolean) value;
         }
         return false;
     }
@@ -115,13 +110,5 @@ public class App {
             handlers[i] = injector.getInstance(handlerClasses[i]);
         }
         return handlers;
-    }
-
-    private void setApp(Handler[] handlers) {
-        for (Handler handler : handlers) {
-            if (handler instanceof AppAware) {
-                ((AppAware)handler).setApp(this);
-            }
-        }
     }
 }

@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.config.ConfigConstants;
 import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.ontology.BaseOntology;
@@ -45,13 +45,10 @@ public final class ApplicationBootstrap implements ServletContextListener {
             final SearchProvider searchProvider = injector.getInstance(SearchProvider.class);
             final BaseOntology baseOntology = injector.getInstance(BaseOntology.class);
 
-            User user = new User();
+            User user = new SystemUser();
             modelSession.initializeTables(user);
             searchProvider.initializeIndex(user);
             baseOntology.initialize(user);
-
-            setupSession(config);
-
         } else {
             LOGGER.error("Servlet context could not be acquired!");
         }
@@ -76,10 +73,5 @@ public final class ApplicationBootstrap implements ServletContextListener {
         final String credentialsLocation = appConfigProps.getProperty(ConfigConstants.APP_CREDENTIALS_LOCATION);
 
         return Configuration.loadConfigurationFile(configLocation, credentialsLocation);
-    }
-
-
-    private void setupSession(final Configuration config) {
-        AppSession.setApplicationProperties(config.getProperties());
     }
 }
