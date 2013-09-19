@@ -14,11 +14,15 @@ import com.thinkaurelius.titan.core.TypeMaker;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.Date;
 
 public class BaseOntology {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseOntology.class);
+
     private final OntologyRepository ontologyRepository;
     private final ResourceRepository resourceRepository;
     private final GraphSession graphSession;
@@ -194,6 +198,15 @@ public class BaseOntology {
                 return false;
             }
             throw new RuntimeException(e);
+        }
+    }
+
+    public void initialize(User user) {
+        if (!isOntologyDefined(user)) {
+            LOGGER.info("Base ontology not defined. Creating a new ontology.");
+            defineOntology(user);
+        } else {
+            LOGGER.info("Base ontology already defined.");
         }
     }
 }

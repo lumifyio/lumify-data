@@ -142,12 +142,6 @@ public class AppSession {
 
     private void createBaseOntology() {
         throw new RuntimeException("TODO: this class is going away we need to run this code though");
-//        BaseOntology baseOntology = new BaseOntology(null, null);
-//        if (!baseOntology.isOntologyDefined(this)) {
-//            LOGGER.info("Base ontology not defined. Creating a new ontology.");
-//            baseOntology.defineOntology(this);
-//        } else {
-//            LOGGER.info("Base ontology already defined.");
-//        }
+
     }
 }
