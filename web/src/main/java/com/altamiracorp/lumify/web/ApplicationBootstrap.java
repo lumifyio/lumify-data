@@ -9,13 +9,11 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.altamiracorp.lumify.FrameworkUtils;
 import com.altamiracorp.lumify.config.ConfigConstants;
 import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.ontology.BaseOntology;
-import com.altamiracorp.lumify.search.SearchProvider;
 import com.altamiracorp.lumify.web.config.ParameterExtractor;
 import com.altamiracorp.lumify.web.guice.modules.Bootstrap;
 import com.google.inject.Guice;
@@ -40,19 +38,11 @@ public final class ApplicationBootstrap implements ServletContextListener {
 
             final Injector injector = Guice.createInjector(new Bootstrap(config));
 
-            final User user = new SystemUser();
-            injector.getInstance(BaseOntology.class).initialize(user);
-
             // Store the injector in the context for a servlet to access later
             context.setAttribute(Injector.class.getName(), injector);
 
-            final ModelSession modelSession = injector.getInstance(ModelSession.class);
-            final SearchProvider searchProvider = injector.getInstance(SearchProvider.class);
-            final BaseOntology baseOntology = injector.getInstance(BaseOntology.class);
-
-            modelSession.initializeTables(user);
-            searchProvider.initializeIndex(user);
-            baseOntology.initialize(user);
+            final User user = new SystemUser();
+            FrameworkUtils.initializeFramework(injector, user);
         } else {
             LOGGER.error("Servlet context could not be acquired!");
         }

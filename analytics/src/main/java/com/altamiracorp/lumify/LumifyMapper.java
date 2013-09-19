@@ -1,21 +1,21 @@
 package com.altamiracorp.lumify;
 
-import com.altamiracorp.lumify.core.user.SystemUser;
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.GraphSession;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.ontology.BaseOntology;
-import com.altamiracorp.lumify.search.SearchProvider;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.io.IOException;
+
 import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.altamiracorp.lumify.core.user.SystemUser;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.GraphSession;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.search.SearchProvider;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
     private static final Logger LOGGER = LoggerFactory.getLogger(LumifyMapper.class.getName());
@@ -29,15 +29,14 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
     @Override
     protected final void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
-        this.user = new SystemUser();
+        user = new SystemUser();
         failOnFirstError = context.getConfiguration().getBoolean("failOnFirstError", false);
 
         final Injector injector = Guice.createInjector(MapperBootstrap.create(context));
-
-        // TODO: extract into class (see CommandLineBase)
-        injector.getInstance(BaseOntology.class).initialize(getUser());
-
         injector.injectMembers(this);
+
+        FrameworkUtils.initializeFramework(injector, user);
+
         try {
             setup(context, injector);
         } catch (Exception ex) {

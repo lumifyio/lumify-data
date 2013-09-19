@@ -1,16 +1,22 @@
 package com.altamiracorp.lumify.cmdline;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.util.Tool;
+
 import com.altamiracorp.lumify.CommandLineBootstrap;
+import com.altamiracorp.lumify.FrameworkUtils;
 import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.core.user.ModelAuthorizations;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.ontology.BaseOntology;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.apache.commons.cli.*;
-import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.util.Tool;
 
 public abstract class CommandLineBase extends Configured implements Tool {
     private String configLocation = "file:///opt/lumify/config/configuration.properties";
@@ -38,8 +44,8 @@ public abstract class CommandLineBase extends Configured implements Tool {
         final Injector injector = Guice.createInjector(CommandLineBootstrap.create(getConfiguration().getProperties()));
         injector.injectMembers(this);
 
-        // TODO: extract into class (see com.altamiracorp.lumify.LumifyMapper)
-        injector.getInstance(BaseOntology.class).initialize(getUser());
+        final User user = new SystemUser();
+        FrameworkUtils.initializeFramework(injector, user);
 
         return run(cmd);
     }
