@@ -4,6 +4,7 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.objectDetection.DetectedObject;
@@ -37,6 +38,14 @@ public class EntityHelper {
         termMentionRepository.save(termMention, user);
     }
 
+    public void updateGraphVertex(GraphVertex vertex, String subType, String title, String artifactId, User user) {
+        vertex.setProperty(PropertyName.SUBTYPE, subType);
+        vertex.setProperty(PropertyName.TITLE, title);
+
+        graphRepository.saveVertex(vertex, user);
+        graphRepository.saveRelationship(artifactId, vertex.getId(), LabelName.HAS_ENTITY, user);
+    }
+
     public DetectedObject createObjectTag(String x1, String x2, String y1, String y2, GraphVertex resolvedVertex, GraphVertex conceptVertex) {
         DetectedObject detectedObject = new DetectedObject(x1, y1, x2, y2);
         detectedObject.setGraphVertexId(resolvedVertex.getId().toString());
@@ -51,7 +60,7 @@ public class EntityHelper {
         return detectedObject;
     }
 
-    public void executeService (Runnable helperClass) {
+    public void executeService(Runnable helperClass) {
         executorService.execute(helperClass);
     }
 
