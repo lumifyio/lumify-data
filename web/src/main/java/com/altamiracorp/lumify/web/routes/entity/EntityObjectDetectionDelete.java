@@ -5,7 +5,11 @@ import com.altamiracorp.lumify.model.Column;
 import com.altamiracorp.lumify.model.ColumnFamily;
 import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.Row;
+import com.altamiracorp.lumify.model.graph.GraphRelationship;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
+import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.model.ontology.LabelName;
+import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
@@ -18,6 +22,7 @@ import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 public class EntityObjectDetectionDelete extends BaseRequestHandler {
     private final GraphRepository graphRepository;
@@ -39,10 +44,19 @@ public class EntityObjectDetectionDelete extends BaseRequestHandler {
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(jsonObject.getString("_rowKey"));
         session.getModelSession().deleteRow(TermMention.TABLE_NAME, termMentionRowKey);
 
-        // Delete from titan
+        // Delete just the relationship if vertex has more than one relationship otherwise delete vertex
         String graphVertexId = jsonObject.getString("graphVertexId");
         JSONObject obj = graphRepository.findVertex(session.getGraphSession(), graphVertexId).toJson();
-        graphRepository.remove(session.getGraphSession(), graphVertexId);
+        Map<GraphRelationship, GraphVertex> relationships = graphRepository.getRelationships(session.getGraphSession(), graphVertexId);
+        if (relationships.size() > 0) {
+            GraphVertex artifactVertex = graphRepository.findVertexByRowKey(session.getGraphSession(), termMentionRowKey.getArtifactRowKey().toString());
+            String edgeId = artifactVertex.getId() + ">" + graphVertexId + "|" + LabelName.CONTAINS_IMAGE_OF.toString();
+            obj.put("edgeId", edgeId);
+            graphRepository.removeRelationship(session.getGraphSession(), artifactVertex.getId(), graphVertexId, LabelName.CONTAINS_IMAGE_OF.toString());
+        } else {
+            graphRepository.remove(session.getGraphSession(), graphVertexId);
+            obj.put("remove", true);
+        }
 
         // Delete column from Artifact
         Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), termMentionRowKey.getArtifactRowKey());
