@@ -71,7 +71,7 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
             GraphVertex graphVertex = graphRepository.findVertexByRowKey(artifact.getRowKey().toString(), getUser());
             if (graphVertex != null) {
                 graphVertex.setProperty(PropertyName.SUBTYPE.toString(), artifact.getType().toString().toLowerCase());
-                getSession().getGraphSession().commit();
+                graphRepository.commit();
             }
 
             context.write(new Text(Artifact.TABLE_NAME), artifact);

@@ -51,7 +51,7 @@ public class GraphRepository {
         }
     }
 
-    private GraphRelationship save(GraphRelationship graphRelationship, User user) {
+    public GraphRelationship save(GraphRelationship graphRelationship, User user) {
         graphSession.save(graphRelationship, user);
         return graphRelationship;
     }

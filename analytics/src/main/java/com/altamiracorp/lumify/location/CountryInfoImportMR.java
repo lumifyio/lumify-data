@@ -2,7 +2,6 @@ package com.altamiracorp.lumify.location;
 
 import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
-import com.altamiracorp.lumify.model.geoNames.GeoNameCountryInfo;
 import com.altamiracorp.lumify.model.geoNames.GeoNameCountryInfoRepository;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -15,8 +14,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.util.ToolRunner;
-
-import java.io.IOException;
 
 public class CountryInfoImportMR extends ConfigurableMapJobBase {
     @Override
@@ -35,7 +32,6 @@ public class CountryInfoImportMR extends ConfigurableMapJobBase {
 
         @Override
         protected void setup(Context context, Injector injector) {
-            getSession().getModelSession().initializeTable(GeoNameCountryInfo.TABLE_NAME, getUser());
         }
 
         @Override

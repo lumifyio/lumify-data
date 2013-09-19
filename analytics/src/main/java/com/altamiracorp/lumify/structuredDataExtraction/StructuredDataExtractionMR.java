@@ -118,7 +118,7 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
 
         private GraphVertex saveArtifactToGraph(Artifact artifact) {
             GraphVertex artifactVertex = artifactRepository.saveToGraph(artifact, getUser());
-            getSession().getGraphSession().commit();
+            graphRepository.commit();
             return artifactVertex;
         }
 
@@ -151,22 +151,22 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                             }
                         }
                         graphRepository.saveVertex(graphVertex, getUser());
-                        getSession().getGraphSession().commit();
+                        graphRepository.commit();
                     }
 
                     termMention.getMetadata().setGraphVertexId(graphVertex.getId());
                     termMentionRepository.save(termAndGraphVertex.getTermMention(), getUser());
 
                     GraphRelationship artifactRelationship = new GraphRelationship(null, artifactVertex.getId(), graphVertex.getId(), LabelName.HAS_ENTITY.toString());
-                    getSession().getGraphSession().save(artifactRelationship, getUser());
+                    graphRepository.save(artifactRelationship, getUser());
                 } else {
-                    GraphVertex existingGraphVertex = getSession().getGraphSession().findGraphVertex(termMention.getMetadata().getGraphVertexId(), getUser());
+                    GraphVertex existingGraphVertex = graphRepository.findVertex(termMention.getMetadata().getGraphVertexId(), getUser());
                     existingGraphVertex.update(graphVertex);
                     graphVertex.update(existingGraphVertex);
-                    getSession().getGraphSession().commit();
+                    graphRepository.commit();
                 }
             }
-            getSession().getGraphSession().commit();
+            graphRepository.commit();
         }
 
         private void saveRelationships(List<StructuredDataRelationship> relationships) {
@@ -178,8 +178,8 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                     throw new RuntimeException("Invalid relationship: " + sourceVertexId + " -> " + label + " -> " + destVertexId);
                 }
                 GraphRelationship graphRelationship = new GraphRelationship(null, sourceVertexId, destVertexId, label);
-                getSession().getGraphSession().save(graphRelationship, getUser());
-                getSession().getGraphSession().commit();
+                graphRepository.save(graphRelationship, getUser());
+                graphRepository.commit();
             }
         }
 

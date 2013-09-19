@@ -1,9 +1,11 @@
 package com.altamiracorp.lumify.cmdline;
 
+import com.altamiracorp.lumify.model.TitanGraphSession;
 import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
+import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
@@ -17,6 +19,7 @@ import java.util.Iterator;
 
 public class GenerateGraph extends CommandLineBase {
     private PrintStream out = System.out;
+    private TitanGraphSession graphSession;
 
     public static void main(String[] args) throws Exception {
         new GenerateGraph().run(args);
@@ -24,7 +27,7 @@ public class GenerateGraph extends CommandLineBase {
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
-        TitanGraph graph = (TitanGraph) createSession().getGraphSession().getGraph();
+        TitanGraph graph = (TitanGraph) graphSession.getGraph();
 
         out.println("digraph {");
         out.println("\tsplines=curved;");
@@ -121,5 +124,10 @@ public class GenerateGraph extends CommandLineBase {
             String outputFileName = cmd.getOptionValue("out");
             out = new PrintStream(new FileOutputStream(outputFileName));
         }
+    }
+
+    @Inject
+    public void setGraphSession(TitanGraphSession graphSession) {
+        this.graphSession = graphSession;
     }
 }

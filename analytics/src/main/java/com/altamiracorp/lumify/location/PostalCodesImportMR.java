@@ -36,7 +36,6 @@ public class PostalCodesImportMR extends ConfigurableMapJobBase {
 
         @Override
         protected void setup(Context context, Injector injector) throws IOException, InterruptedException {
-            getSession().getModelSession().initializeTable(GeoNamePostalCode.TABLE_NAME, getUser());
         }
 
         @Override

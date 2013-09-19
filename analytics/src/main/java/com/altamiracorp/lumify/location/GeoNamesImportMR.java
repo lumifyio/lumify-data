@@ -36,7 +36,6 @@ public class GeoNamesImportMR extends ConfigurableMapJobBase {
 
         @Override
         protected void setup(Context context, Injector injector) throws IOException, InterruptedException {
-            getSession().getModelSession().initializeTable(GeoName.TABLE_NAME, getUser());
         }
 
         @Override

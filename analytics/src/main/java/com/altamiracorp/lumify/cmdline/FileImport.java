@@ -1,6 +1,5 @@
 package com.altamiracorp.lumify.cmdline;
 
-import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.FileImporter;
 import com.google.inject.Inject;
 import org.apache.accumulo.core.util.CachedConfiguration;
@@ -123,12 +122,9 @@ public class FileImport extends CommandLineBase {
             }
         }
         String pattern = getPattern();
-        AppSession session = createSession();
-        session.getModelSession().initializeTables(getUser());
 
         fileImporter.writeDirectory(directory, pattern, source, getUser());
 
-        session.close();
         return 0;
     }
 

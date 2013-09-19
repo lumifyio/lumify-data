@@ -119,10 +119,10 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
             }
 
             graphRepository.saveVertex(graphVertex, getUser());
-            getSession().getGraphSession().commit();
+            graphRepository.commit();
 
             graphRepository.saveRelationship(artifact.getGenericMetadata().getGraphVertexId(), graphVertex.getId(), LabelName.HAS_ENTITY, getUser());
-            getSession().getGraphSession().commit();
+            graphRepository.commit();
 
             return graphVertex.getId();
         }

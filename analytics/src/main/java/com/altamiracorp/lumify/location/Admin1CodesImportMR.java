@@ -36,7 +36,6 @@ public class Admin1CodesImportMR extends ConfigurableMapJobBase {
 
         @Override
         protected void setup(Context context, Injector injector) throws IOException, InterruptedException {
-            getSession().getModelSession().initializeTable(GeoNameAdmin1Code.TABLE_NAME, getUser());
         }
 
         @Override

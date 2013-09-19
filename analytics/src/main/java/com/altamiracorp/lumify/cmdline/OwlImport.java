@@ -1,6 +1,5 @@
 package com.altamiracorp.lumify.cmdline;
 
-import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.GraphSession;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
@@ -71,9 +70,6 @@ public class OwlImport extends CommandLineBase {
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
-        AppSession session = createSession();
-        session.initialize(getUser());
-
         File inFile = new File(inFileName);
         importFile(inFile, getUser());
 
