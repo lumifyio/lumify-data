@@ -45,7 +45,7 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
         broadcaster = resource.getBroadcaster();
 
         AtmosphereRequest req = resource.getRequest();
-        if (resource.getRequest().getMethod().equalsIgnoreCase("GET")) {
+        if (req.getMethod().equalsIgnoreCase("GET")) {
             onOpen(resource);
             resource.suspend();
         } else if (req.getMethod().equalsIgnoreCase("POST")) {
@@ -54,8 +54,8 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     }
 
     private void ensureInitialized(AtmosphereResource resource) {
-        final Injector injector = (Injector) resource.getRequest().getServletContext().getAttribute(Injector.class.getName());
         if (userRepository == null) {
+            Injector injector = (Injector) resource.getRequest().getServletContext().getAttribute(Injector.class.getName());
             injector.injectMembers(this);
         }
     }
