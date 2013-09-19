@@ -1,23 +1,18 @@
 package com.altamiracorp.lumify.cmdline;
 
+import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.core.user.SystemUser;
+import com.altamiracorp.lumify.core.user.User;
 import org.apache.accumulo.core.security.Authorizations;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
-
-import com.altamiracorp.lumify.config.Configuration;
-import com.altamiracorp.lumify.core.user.User;
 
 public abstract class CommandLineBase extends Configured implements Tool {
     private String configLocation = "file:///opt/lumify/config/configuration.properties";
     private String credentialsLocation;
     private Configuration configuration;
-    private User user = new User();
+    private User user = new SystemUser();
 
     @Override
     public int run(String[] args) throws Exception {

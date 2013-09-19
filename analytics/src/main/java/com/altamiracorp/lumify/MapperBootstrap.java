@@ -1,23 +1,8 @@
 package com.altamiracorp.lumify;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.net.URI;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.accumulo.core.client.Connector;
-import org.apache.accumulo.core.client.ZooKeeperInstance;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.mapreduce.TaskInputOutputContext;
-
+import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.AccumuloSession;
-import com.altamiracorp.lumify.model.GraphSession;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.model.TitanQueryFormatter;
+import com.altamiracorp.lumify.model.*;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
@@ -28,6 +13,17 @@ import com.altamiracorp.lumify.search.SearchProvider;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
+import org.apache.accumulo.core.client.Connector;
+import org.apache.accumulo.core.client.ZooKeeperInstance;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.mapreduce.TaskInputOutputContext;
+
+import java.net.URI;
+import java.util.Map;
+import java.util.Properties;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MapperBootstrap extends AbstractModule {
 
@@ -49,7 +45,7 @@ public class MapperBootstrap extends AbstractModule {
 
     @Override
     protected void configure() {
-        User user = new User();
+        User user = new SystemUser();
 
         bind(ModelSession.class).toInstance(createModelSession());
         bind(GraphSession.class).toInstance(createGraphSession());
