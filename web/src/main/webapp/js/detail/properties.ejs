@@ -1,8 +1,9 @@
-<div class="nav-header">Properties<span class="badge loading"/></div>
-<ul class="nav nav-list">
-<% properties.forEach(function(property) { %>
-    <% if(property.key == 'title') { return; } %>
-    <li class="property property-<%= property.key %>">
+<% if (properties) { %>
+  <ul class="nav nav-list">
+
+    <% properties.forEach(function(property) { %>
+      <% if(property.key == 'title') { return; } %>
+      <li class="property property-<%= property.key %>">
       <strong><%= property.displayName %></strong>
       <% if(property.value.latitude) { %>
         <span class="value">
@@ -13,10 +14,13 @@
       <% } else { %>
         <span class="value"><%= property.value %></span>
       <% } %>
-    </li>
-<% }); %>
+      </li>
+    <% }); %>
 
-  <li class="buttons">
-    <button class="add-new-properties btn btn-mini btn-default">Add Property</button>
-  </li>
-</ul>
+    <li class="buttons">
+      <button class="add-new-properties btn btn-mini btn-default">Add Property</button>
+    </li>
+  </ul>
+<% } else { %>
+  <div class="nav-header">Properties<span class="badge loading"/></div>
+<% } %>

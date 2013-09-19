@@ -4,7 +4,7 @@ define([
     'service/ontology',
     'service/vertex',
     './dropdowns/propertyForm/propForm',
-    'tpl!./properties',
+    'tpl!./properties'
 ], function (defineComponent, OntologyService, VertexService, PropertyForm, propertiesTemplate) {
     'use strict';
 
@@ -26,10 +26,11 @@ define([
                 addNewPropertiesSelector: this.onAddNewPropertiesClicked
             });
             this.on('addProperty', this.onAddProperty);
+            // TODO: move to data.js
             this.on(document, 'socketMessage', this.onSocketMessage);
 
-            this.getProperties(this.attr.data.id || this.attr.data.graphVertexId)
-                .done(this.displayProperties.bind(this));
+            this.$node.html(propertiesTemplate({properties:null}));
+            this.displayProperties(this.attr.data.properties);
         });
 
 
@@ -105,10 +106,7 @@ define([
                     }
 
                     var props = propertiesTemplate({properties:filtered});
-
-                    var $props = self.select('propertiesSelector');
-                    $props.find('ul').html(props);
-                    $props.find('.loading').remove();
+                    self.$node.html(props);
                 });
         };
     }
