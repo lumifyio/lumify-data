@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.model.GraphSession;
 import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
+import com.google.inject.Inject;
 import com.tinkerpop.blueprints.Edge;
 import org.json.JSONArray;
 import org.slf4j.Logger;
@@ -15,7 +16,12 @@ import java.util.Map;
 
 public class GraphRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphRepository.class.getName());
-    private GraphSession graphSession;
+    private final GraphSession graphSession;
+
+    @Inject
+    public GraphRepository(GraphSession graphSession) {
+        this.graphSession = graphSession;
+    }
 
     public Edge findEdge(String sourceId, String destId, String label, User user) {
         return graphSession.findEdge(sourceId, destId, label, user);

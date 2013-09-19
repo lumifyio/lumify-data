@@ -1,12 +1,12 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.Value;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.termMention.TermMention;
+import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.objectDetection.DetectedObject;
 import com.altamiracorp.lumify.objectDetection.ObjectDetectionWorker;
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 public class EntityObjectDetectionUpdate extends BaseRequestHandler {
     private final GraphRepository graphRepository;
     private final ArtifactRepository artifactRepository;
-    private final Repository<TermMention> termMentionRepository;
+    private final TermMentionRepository termMentionRepository;
     private final SearchProvider searchProvider;
 
     private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
@@ -38,7 +38,7 @@ public class EntityObjectDetectionUpdate extends BaseRequestHandler {
 
     @Inject
     public EntityObjectDetectionUpdate(
-            final Repository<TermMention> termMentionRepository,
+            final TermMentionRepository termMentionRepository,
             final ArtifactRepository artifactRepository,
             final GraphRepository graphRepository,
             final SearchProvider searchProvider) {

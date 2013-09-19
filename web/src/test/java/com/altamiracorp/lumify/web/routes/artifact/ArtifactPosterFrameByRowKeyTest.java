@@ -35,7 +35,6 @@ public class ArtifactPosterFrameByRowKeyTest extends RouteTestBase {
 
         final ArtifactThumbnailRepository mockThumbnailRepository = Mockito.mock(ArtifactThumbnailRepository.class);
         artifactPosterFrameByRowKey = new ArtifactPosterFrameByRowKey(mockArtifactRepository, mockThumbnailRepository);
-        artifactPosterFrameByRowKey.setApp(mockApp);
     }
 
     @Test

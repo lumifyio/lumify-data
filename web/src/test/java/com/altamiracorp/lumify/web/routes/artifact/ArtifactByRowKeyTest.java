@@ -27,7 +27,6 @@ public class ArtifactByRowKeyTest extends RouteTestBase {
         super.setUp();
 
         artifactByRowKey = new ArtifactByRowKey(mockArtifactRepository);
-        artifactByRowKey.setApp(mockApp);
     }
 
     @Test

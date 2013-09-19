@@ -18,12 +18,13 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class OntologyRepository {
-    private GraphRepository graphRepository = new GraphRepository();
+    private GraphRepository graphRepository;
     public static final String ROOT_CONCEPT_NAME = "rootConcept";
     private final GraphSession graphSession;
 
     @Inject
-    public OntologyRepository(GraphSession graphSession) {
+    public OntologyRepository(GraphRepository graphRepository, GraphSession graphSession) {
+        this.graphRepository = graphRepository;
         this.graphSession = graphSession;
     }
 
