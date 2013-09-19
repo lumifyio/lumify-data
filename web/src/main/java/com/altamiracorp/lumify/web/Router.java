@@ -118,7 +118,6 @@ public class Router extends HttpServlet {
             HttpServletResponse httpResponse = (HttpServletResponse) resp;
             httpResponse.addHeader("Accept-Ranges", "bytes");
             app.handle((HttpServletRequest) req, httpResponse);
-            app.close(req);
         } catch (Exception e) {
             throw new ServletException(e);
         }

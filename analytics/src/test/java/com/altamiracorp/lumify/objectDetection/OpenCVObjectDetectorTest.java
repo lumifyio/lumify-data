@@ -1,9 +1,12 @@
 package com.altamiracorp.lumify.objectDetection;
 
+import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -19,6 +22,12 @@ public class OpenCVObjectDetectorTest {
     private static final String TEST_IMAGE = "cnn.jpg";
     private static final String CLASSIFIER = "haarcascade_frontalface_alt.xml";
 
+    @Mock
+    ArtifactRepository artifactRepository;
+
+    @Mock
+    VideoFrameRepository videoFrameRepository;
+
     @Before
     public void setUp() throws Exception {
         System.out.println(System.getProperty("java.library.path"));
@@ -26,7 +35,7 @@ public class OpenCVObjectDetectorTest {
 
     @Test
     public void testObjectDetection() throws IOException {
-        OpenCVObjectDetector objectDetector = new OpenCVObjectDetector();
+        OpenCVObjectDetector objectDetector = new OpenCVObjectDetector(artifactRepository, videoFrameRepository);
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         BufferedImage bImage = ImageIO.read(cl.getResourceAsStream(TEST_IMAGE));
 

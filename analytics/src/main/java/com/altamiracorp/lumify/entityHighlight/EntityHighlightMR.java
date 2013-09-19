@@ -6,6 +6,8 @@ import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -36,8 +38,12 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
     }
 
     public static class EntityHighlightMapper extends LumifyMapper<Text, Artifact, Text, Artifact> {
-        private EntityHighlighter entityHighlighter = new EntityHighlighter();
+        private EntityHighlighter entityHighlighter;
         private static final Text KEY_ARTIFACT_TABLE = new Text(Artifact.TABLE_NAME);
+
+        @Override
+        protected void setup(Context context, Injector injector) throws Exception {
+        }
 
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
@@ -48,11 +54,16 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
 
             LOGGER.info("Creating highlight text for artifact rowkey: " + artifact.getRowKey().toString());
 
-            final String highlightedText = entityHighlighter.getHighlightedText(getSession(), artifact);
+            final String highlightedText = entityHighlighter.getHighlightedText(artifact, getUser());
             if (highlightedText != null) {
                 artifact.getContent().setHighlightedText(highlightedText);
                 context.write(KEY_ARTIFACT_TABLE, artifact);
             }
+        }
+
+        @Inject
+        public void setEntityHighlighter(EntityHighlighter entityHighlighter) {
+            this.entityHighlighter = entityHighlighter;
         }
     }
 

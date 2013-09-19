@@ -1,20 +1,18 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRelationship;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EntityRelationships extends BaseRequestHandler {
     private final GraphRepository graphRepository;
@@ -26,7 +24,7 @@ public class EntityRelationships extends BaseRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
 
         String[] ids = request.getParameterValues("ids[]");
         if (ids == null) {
@@ -41,14 +39,14 @@ public class EntityRelationships extends BaseRequestHandler {
 
         JSONArray resultsJson = new JSONArray();
 
-        List<GraphRelationship> graphRelationships = graphRepository.getRelationships(session.getGraphSession(), allIds);
+        List<GraphRelationship> graphRelationships = graphRepository.getRelationships(allIds, user);
 
         for (GraphRelationship graphRelationship : graphRelationships) {
-                JSONObject rel = new JSONObject();
-                rel.put("from", graphRelationship.getSourceVertexId());
-                rel.put("to", graphRelationship.getDestVertexId());
-                rel.put("relationshipType", graphRelationship.getLabel());
-                resultsJson.put(rel);
+            JSONObject rel = new JSONObject();
+            rel.put("from", graphRelationship.getSourceVertexId());
+            rel.put("to", graphRelationship.getDestVertexId());
+            rel.put("relationshipType", graphRelationship.getLabel());
+            resultsJson.put(rel);
         }
 
         respondWithJson(response, resultsJson);

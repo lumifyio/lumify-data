@@ -4,10 +4,11 @@ import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.MapWritable;
 import org.apache.hadoop.io.Text;
@@ -16,10 +17,9 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.util.ToolRunner;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-public class FileImportMR extends ConfigurableMapJobBase{
+public class FileImportMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
@@ -32,28 +32,33 @@ public class FileImportMR extends ConfigurableMapJobBase{
     }
 
     public static class FileImportMapper extends LumifyMapper<MapWritable, Text, Text, Artifact> {
-        ArtifactRepository artifactRepository = new ArtifactRepository();
-        FileSystem fs;
+        private ArtifactRepository artifactRepository;
+        private FileSystem fs;
 
         @Override
-        public void setup(Context context) throws IOException, InterruptedException{
-            super.setup(context);
+        public void setup(Context context, Injector injector) throws IOException {
             fs = FileSystem.get(context.getConfiguration());
         }
 
         @Override
         protected void safeMap(MapWritable metadata, Text value, Context context) throws Exception {
-            long length = ((LongWritable)metadata.get(new Text("length"))).get();
+            long length = ((LongWritable) metadata.get(new Text("length"))).get();
             String name = metadata.get(new Text("name")).toString();
-            long lastModified = ((LongWritable)metadata.get(new Text("lastModified"))).get();
+            long lastModified = ((LongWritable) metadata.get(new Text("lastModified"))).get();
 
-            Artifact artifact = artifactRepository.createArtifactFromInputStream(getSession().getModelSession(),
+            Artifact artifact = artifactRepository.createArtifactFromInputStream(
                     length,
                     fs.open(new Path(value.toString())),
                     name,
-                    lastModified);
-            artifactRepository.saveToGraph(getSession().getModelSession(), getSession().getGraphSession(), artifact);
-            context.write(new Text(Artifact.TABLE_NAME),artifact);
+                    lastModified,
+                    getUser());
+            artifactRepository.saveToGraph(artifact, getUser());
+            context.write(new Text(Artifact.TABLE_NAME), artifact);
+        }
+
+        @Inject
+        public void setArtifactRepository(ArtifactRepository artifactRepository) {
+            this.artifactRepository = artifactRepository;
         }
     }
 

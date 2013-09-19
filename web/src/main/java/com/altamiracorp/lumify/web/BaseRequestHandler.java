@@ -1,8 +1,6 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.model.user.User;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
@@ -18,21 +16,14 @@ import java.io.IOException;
  * Represents the base behavior that a {@link Handler} must support
  * and provides common methods for handler usage
  */
-public abstract class BaseRequestHandler implements Handler, AppAware {
-    protected WebApp app;
-
-    @Override
-    public void setApp(App application) {
-        app = (WebApp) application;
-    }
-
-
+public abstract class BaseRequestHandler implements Handler {
     @Override
     public abstract void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception;
 
     /**
      * Attempts to extract the specified parameter from the provided request
-     * @param request The request instance containing the parameter
+     *
+     * @param request       The request instance containing the parameter
      * @param parameterName The name of the parameter to extract
      * @return The value of the specified parameter
      * @throws RuntimeException Thrown if the required parameter was not in the request
@@ -45,7 +36,7 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
 
     protected long getOptionalParameterLong(final HttpServletRequest request, final String parameterName, long defaultValue) {
         String val = getOptionalParameter(request, parameterName);
-        if(val == null) {
+        if (val == null) {
             return defaultValue;
         }
         return Long.parseLong(val);
@@ -53,7 +44,7 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
 
     protected double getOptionalParameterDouble(final HttpServletRequest request, final String parameterName, double defaultValue) {
         String val = getOptionalParameter(request, parameterName);
-        if(val == null) {
+        if (val == null) {
             return defaultValue;
         }
         return Double.parseDouble(val);
@@ -61,7 +52,8 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
 
     /**
      * Attempts to extract the specified parameter from the provided request and convert it to a long value
-     * @param request The request instance containing the parameter
+     *
+     * @param request       The request instance containing the parameter
      * @param parameterName The name of the parameter to extract
      * @return The long value of the specified parameter
      * @throws RuntimeException Thrown if the required parameter was not in the request
@@ -73,7 +65,8 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
 
     /**
      * Attempts to extract the specified parameter from the provided request and convert it to a double value
-     * @param request The request instance containing the parameter
+     *
+     * @param request       The request instance containing the parameter
      * @param parameterName The name of the parameter to extract
      * @return The double value of the specified parameter
      * @throws RuntimeException Thrown if the required parameter was not in the request
@@ -85,7 +78,8 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
 
     /**
      * Attempts to extract the specified parameter from the provided request, if available
-     * @param request The request instance containing the parameter
+     *
+     * @param request       The request instance containing the parameter
      * @param parameterName The name of the parameter to extract
      * @return The value of the specified parameter if found, null otherwise
      */
@@ -99,8 +93,8 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
     private String getParameter(final HttpServletRequest request, final String parameterName, final boolean optional) {
         final String paramValue = request.getParameter(parameterName);
 
-        if( paramValue == null ) {
-            if( !optional ) {
+        if (paramValue == null) {
+            if (!optional) {
                 throw new RuntimeException(String.format("Parameter: '%s' is required in the request", parameterName));
             }
 
@@ -111,12 +105,13 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
     }
 
     protected String getAttributeString(final HttpServletRequest request, final String name) {
-        return (String)request.getAttribute(name);
+        return (String) request.getAttribute(name);
     }
 
     /**
      * Configures the content type for the provided response to contain {@link JSONObject} data
-     * @param response The response instance to modify
+     *
+     * @param response   The response instance to modify
      * @param jsonObject The JSON data to include in the response
      */
     protected void respondWithJson(final HttpServletResponse response, final JSONObject jsonObject) {
@@ -126,7 +121,8 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
 
     /**
      * Configures the content type for the provided response to contain {@link JSONArray} data
-     * @param response The response instance to modify
+     *
+     * @param response  The response instance to modify
      * @param jsonArray The JSON data to include in the response
      */
     protected void respondWithJson(final HttpServletResponse response, final JSONArray jsonArray) {
@@ -135,7 +131,8 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
 
     /**
      * Configures the content type for the provided response to contain plaintext data
-     * @param response The response instance to modify
+     *
+     * @param response  The response instance to modify
      * @param plaintext The data to include in the response
      */
     protected void respondWithPlaintext(final HttpServletResponse response, final String plaintext) {
@@ -151,15 +148,15 @@ public abstract class BaseRequestHandler implements Handler, AppAware {
         Preconditions.checkNotNull(responseData, "The provided data was invalid");
 
         try {
-            switch(type) {
+            switch (type) {
                 case JSON_OBJECT:
-                    Responder.respondWith(response, (JSONObject)responseData);
+                    Responder.respondWith(response, (JSONObject) responseData);
                     break;
                 case JSON_ARRAY:
-                    Responder.respondWith(response, (JSONArray)responseData);
+                    Responder.respondWith(response, (JSONArray) responseData);
                     break;
                 case PLAINTEXT:
-                    Responder.respondWith(response, (String)responseData);
+                    Responder.respondWith(response, (String) responseData);
                     break;
                 default:
                     throw new RuntimeException("Unsupported response type encountered");

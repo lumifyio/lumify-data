@@ -1,19 +1,23 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.config.ConfigConstants;
-import com.altamiracorp.lumify.config.Configuration;
-import com.altamiracorp.lumify.web.config.ParameterExtractor;
-import com.altamiracorp.lumify.web.guice.modules.Bootstrap;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Properties;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.altamiracorp.lumify.FrameworkUtils;
+import com.altamiracorp.lumify.config.ConfigConstants;
+import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.core.user.SystemUser;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.web.config.ParameterExtractor;
+import com.altamiracorp.lumify.web.guice.modules.Bootstrap;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 
 /**
  * Responsible for defining behavior corresponding to web servlet context
@@ -37,14 +41,11 @@ public final class ApplicationBootstrap implements ServletContextListener {
             // Store the injector in the context for a servlet to access later
             context.setAttribute(Injector.class.getName(), injector);
 
-            setupSession(config);
-
+            final User user = new SystemUser();
+            FrameworkUtils.initializeFramework(injector, user);
         } else {
             LOGGER.error("Servlet context could not be acquired!");
         }
-
-        AppSession session = AppSession.create();
-        session.initialize();
     }
 
     @Override
@@ -66,10 +67,5 @@ public final class ApplicationBootstrap implements ServletContextListener {
         final String credentialsLocation = appConfigProps.getProperty(ConfigConstants.APP_CREDENTIALS_LOCATION);
 
         return Configuration.loadConfigurationFile(configLocation, credentialsLocation);
-    }
-
-
-    private void setupSession(final Configuration config) {
-        AppSession.setApplicationProperties(config.getProperties());
     }
 }

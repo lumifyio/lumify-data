@@ -1,7 +1,13 @@
 package com.altamiracorp.lumify.config;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.altamiracorp.lumify.model.AccumuloSession;
+import com.altamiracorp.lumify.model.TitanGraphSession;
+import com.altamiracorp.lumify.search.BlurSearchProvider;
+import com.altamiracorp.lumify.search.ElasticSearchProvider;
+import com.altamiracorp.lumify.search.SearchProvider;
+import com.google.common.base.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,15 +15,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.AccumuloSession;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.search.BlurSearchProvider;
-import com.altamiracorp.lumify.search.ElasticSearchProvider;
-import com.google.common.base.Objects;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Responsible for parsing application configuration file and providing
@@ -142,15 +141,15 @@ public final class Configuration implements MapConfig, ApplicationConfig {
     public static Configuration loadConfigurationFile(final String configUrl, final String credentialsUrl) {
         checkNotNull(configUrl, "The specified config file URL was null");
         checkArgument(!configUrl.isEmpty(), "The specified config file URL was empty");
-        checkNotNull(credentialsUrl, "The specified credentials URL was null");
-        checkArgument(!credentialsUrl.isEmpty(), "The specified credentials URL was empty");
 
         LOGGER.debug(String.format("Attemping to load configuration file: %s and credentials file: %s", configUrl, credentialsUrl));
 
         final Properties mergedProps = new Properties();
 
         processFile(configUrl, mergedProps);
-        processFile(credentialsUrl, mergedProps);
+        if (credentialsUrl != null) {
+            processFile(credentialsUrl, mergedProps);
+        }
 
         // Extract the expected configuration properties
         nameNodeUrl = mergedProps.getProperty(ConfigConstants.HADOOP_URL, UNKNOWN_STRING);
@@ -218,7 +217,7 @@ public final class Configuration implements MapConfig, ApplicationConfig {
         PropertyUtils.setPropertyValue(props, BlurSearchProvider.BLUR_CONTROLLER_LOCATION, getSearchIndexController());
         PropertyUtils.setPropertyValue(props, BlurSearchProvider.BLUR_PATH, getSearchIndexStoragePath());
         PropertyUtils.setPropertyValue(props, TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, getGraphSearchIndexHostname());
-        PropertyUtils.setPropertyValue(props, AppSession.SEARCH_PROVIDER_PROP_KEY, getSearchProvider());
+        PropertyUtils.setPropertyValue(props, SearchProvider.SEARCH_PROVIDER_PROP_KEY, getSearchProvider());
         PropertyUtils.setPropertyValue(props, ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, getElasticSearchLocations());
         return props;
     }

@@ -1,12 +1,13 @@
 package com.altamiracorp.lumify.videoConversion;
 
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.SaveFileResults;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.VideoTranscript;
 import com.altamiracorp.lumify.util.StreamHelper;
+import com.google.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
@@ -24,21 +25,27 @@ import java.util.regex.Pattern;
 
 public class FFMPEGVideoConversion {
     private static final Logger LOGGER = LoggerFactory.getLogger(FFMPEGVideoConversion.class.getName());
-    private ArtifactRepository artifactRepository = new ArtifactRepository();
-    private VideoFrameRepository videoFrameRepository = new VideoFrameRepository();
+    private ArtifactRepository artifactRepository;
+    private VideoFrameRepository videoFrameRepository;
 
-    public void convert(AppSession session, Artifact artifact) throws IOException, InterruptedException {
-        File videoFile = writeFileToTemp(session, artifact);
-        extractCloseCaptioning(session, videoFile, artifact);
-        extractAudio(session, videoFile, artifact);
-        encodeMp4(session, videoFile, artifact);
-        encodeWebM(session, videoFile, artifact);
-        extractPosterFrame(session, videoFile, artifact);
-        extractFramesForAnalysis(session, videoFile, artifact);
+    @Inject
+    public FFMPEGVideoConversion(ArtifactRepository artifactRepository, VideoFrameRepository videoFrameRepository) {
+        this.artifactRepository = artifactRepository;
+        this.videoFrameRepository = videoFrameRepository;
+    }
+
+    public void convert(Artifact artifact, User user) throws IOException, InterruptedException {
+        File videoFile = writeFileToTemp(artifact, user);
+        extractCloseCaptioning(videoFile, artifact, user);
+        extractAudio(videoFile, artifact, user);
+        encodeMp4(videoFile, artifact, user);
+        encodeWebM(videoFile, artifact, user);
+        extractPosterFrame(videoFile, artifact, user);
+        extractFramesForAnalysis(videoFile, artifact, user);
         videoFile.delete();
     }
 
-    private void extractAudio(AppSession session, File file, Artifact artifact) throws IOException, InterruptedException {
+    private void extractAudio(File file, Artifact artifact, User user) throws IOException, InterruptedException {
         File audioFile = File.createTempFile("audio_", ".mp3");
 
         // pass 1
@@ -55,13 +62,13 @@ public class FFMPEGVideoConversion {
 
         // save file
         InputStream audioFileIn = new FileInputStream(audioFile);
-        SaveFileResults audioFileSaveResults = artifactRepository.saveFile(session.getModelSession(), audioFileIn);
+        SaveFileResults audioFileSaveResults = artifactRepository.saveFile(audioFileIn, user);
         artifact.getGenericMetadata().setAudioHdfsFilePath(audioFileSaveResults.getFullPath());
         audioFileIn.close();
         audioFile.delete();
     }
 
-    private void extractCloseCaptioning(AppSession session, File videoFile, Artifact artifact) throws IOException, InterruptedException {
+    private void extractCloseCaptioning(File videoFile, Artifact artifact, User user) throws IOException, InterruptedException {
         File ccFile = File.createTempFile("ccextract", "txt");
 
         LOGGER.info("Extracting close captioning from: " + videoFile.getAbsolutePath());
@@ -77,7 +84,7 @@ public class FFMPEGVideoConversion {
         ccFile.delete();
     }
 
-    private void extractFramesForAnalysis(AppSession session, File videoFile, Artifact artifact) throws IOException, InterruptedException {
+    private void extractFramesForAnalysis(File videoFile, Artifact artifact, User user) throws IOException, InterruptedException {
         Pattern fileNamePattern = Pattern.compile("image-([0-9]+)\\.png");
         File tempDir = createTempDir("video-frames");
 
@@ -102,7 +109,7 @@ public class FFMPEGVideoConversion {
             }
             FileInputStream frameIn = new FileInputStream(frameFile);
             try {
-                videoFrameRepository.saveVideoFrame(session.getModelSession(), artifact.getRowKey(), frameIn, frameStartTime);
+                videoFrameRepository.saveVideoFrame(artifact.getRowKey(), frameIn, frameStartTime, user);
             } finally {
                 frameIn.close();
             }
@@ -111,7 +118,7 @@ public class FFMPEGVideoConversion {
         FileUtils.deleteDirectory(tempDir);
     }
 
-    private void extractPosterFrame(AppSession session, File file, Artifact artifact) throws IOException, InterruptedException {
+    private void extractPosterFrame(File file, Artifact artifact, User user) throws IOException, InterruptedException {
         File posterFrameFile = File.createTempFile("posterframe_", ".png");
 
         // pass 1
@@ -130,13 +137,13 @@ public class FFMPEGVideoConversion {
 
         // save file
         InputStream posterFrameFileIn = new FileInputStream(posterFrameFile);
-        SaveFileResults posterFrameFileSaveResults = artifactRepository.saveFile(session.getModelSession(), posterFrameFileIn);
+        SaveFileResults posterFrameFileSaveResults = artifactRepository.saveFile(posterFrameFileIn, user);
         artifact.getGenericMetadata().setPosterFrameHdfsFilePath(posterFrameFileSaveResults.getFullPath());
         posterFrameFileIn.close();
         posterFrameFile.delete();
     }
 
-    private void encodeWebM(AppSession session, File file, Artifact artifact) throws IOException, InterruptedException {
+    private void encodeWebM(File file, Artifact artifact, User user) throws IOException, InterruptedException {
         File webmFile = File.createTempFile("encode_webm_", ".webm");
 
         // pass 1
@@ -159,13 +166,13 @@ public class FFMPEGVideoConversion {
 
         // save file
         InputStream webmFileIn = new FileInputStream(webmFile);
-        SaveFileResults webmFileSaveResults = artifactRepository.saveFile(session.getModelSession(), webmFileIn);
+        SaveFileResults webmFileSaveResults = artifactRepository.saveFile(webmFileIn, user);
         artifact.getGenericMetadata().setWebmHdfsFilePath(webmFileSaveResults.getFullPath());
         webmFileIn.close();
         //webmFile.delete();
     }
 
-    private void encodeMp4(AppSession session, File file, Artifact artifact) throws IOException, InterruptedException {
+    private void encodeMp4(File file, Artifact artifact, User user) throws IOException, InterruptedException {
         // encode mp4 file
         File mp4File = File.createTempFile("encode_mp4_", ".mp4");
         LOGGER.info("Encoding (mp4) " + file.getAbsolutePath() + " to " + mp4File.getAbsolutePath());
@@ -196,7 +203,7 @@ public class FFMPEGVideoConversion {
 
         // save file
         InputStream mp4ReloactedFileIn = new FileInputStream(mp4ReloactedFile);
-        SaveFileResults mp4FileSaveResults = artifactRepository.saveFile(session.getModelSession(), mp4ReloactedFileIn);
+        SaveFileResults mp4FileSaveResults = artifactRepository.saveFile(mp4ReloactedFileIn, user);
         artifact.getGenericMetadata().setMp4HdfsFilePath(mp4FileSaveResults.getFullPath());
         mp4ReloactedFileIn.close();
         mp4ReloactedFile.delete();
@@ -270,9 +277,9 @@ public class FFMPEGVideoConversion {
         return result.toString();
     }
 
-    private File writeFileToTemp(AppSession session, Artifact artifact) throws IOException {
+    private File writeFileToTemp(Artifact artifact, User user) throws IOException {
         File tempFile = File.createTempFile("video_", "." + artifact.getGenericMetadata().getFileExtension());
-        InputStream in = artifactRepository.getRaw(session.getModelSession(), artifact);
+        InputStream in = artifactRepository.getRaw(artifact, user);
         try {
             FileOutputStream out = new FileOutputStream(tempFile);
             try {

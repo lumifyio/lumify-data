@@ -1,9 +1,10 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.FileImporter;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 
@@ -18,22 +19,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArtifactImport extends BaseRequestHandler {
-    private FileImporter fileImporter = new FileImporter();
+    private final FileImporter fileImporter;
+
+    @Inject
+    public ArtifactImport(FileImporter fileImporter) {
+        this.fileImporter = fileImporter;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
+        User user = getUser(request);
+
         List<Part> files = new ArrayList<Part>(request.getParts());
         if (files.size() != 1) {
             throw new RuntimeException("Wrong number of uploaded files. Expected 1 got " + files.size());
         }
 
-        AppSession session = app.getAppSession(request);
         Part file = files.get(0);
 
         File tempFile = File.createTempFile("fileImport", ".bin");
         writeToTempFile(file, tempFile);
 
-        List<FileImporter.Result> results = fileImporter.writePackage(session, tempFile, "File Upload");
+        List<FileImporter.Result> results = fileImporter.writePackage(tempFile, "File Upload", user);
 
         tempFile.delete();
 

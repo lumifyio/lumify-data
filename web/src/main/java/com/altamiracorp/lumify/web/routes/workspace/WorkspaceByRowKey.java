@@ -1,26 +1,25 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONObject;
-
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.Repository;
-import com.altamiracorp.lumify.model.user.User;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.user.UserRepository;
 import com.altamiracorp.lumify.model.workspace.Workspace;
+import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
 import com.altamiracorp.lumify.model.workspace.WorkspaceRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class WorkspaceByRowKey extends BaseRequestHandler {
-    private final Repository<Workspace> workspaceRepository;
-    private final Repository<User> userRepository;
+    private final WorkspaceRepository workspaceRepository;
+    private final UserRepository userRepository;
 
     @Inject
-    public WorkspaceByRowKey(final Repository<Workspace> workspaceRepo,
-            final Repository<User> userRepo) {
+    public WorkspaceByRowKey(final WorkspaceRepository workspaceRepo,
+                             final UserRepository userRepo) {
         workspaceRepository = workspaceRepo;
         userRepository = userRepo;
     }
@@ -28,15 +27,16 @@ public class WorkspaceByRowKey extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         WorkspaceRowKey workspaceRowKey = new WorkspaceRowKey(getAttributeString(request, "workspaceRowKey"));
-        AppSession session = app.getAppSession(request);
+        User authUser = getUser(request);
 
-        User currentUser = getUser(request);
-        if (!workspaceRowKey.toString().equals(currentUser.getMetadata().getCurrentWorkspace())) {
-            currentUser.getMetadata().setCurrentWorkspace(workspaceRowKey.toString());
-            userRepository.save(session.getModelSession(), currentUser);
+        com.altamiracorp.lumify.model.user.User user = userRepository.findOrAddUser(authUser.getUsername(), authUser);
+        if (!workspaceRowKey.toString().equals(user.getMetadata().getCurrentWorkspace())) {
+            user.getMetadata().setCurrentWorkspace(workspaceRowKey.toString());
+            authUser.setCurrentWorkspace(workspaceRowKey.toString());
+            userRepository.save(user, authUser);
         }
 
-        Workspace workspace = workspaceRepository.findByRowKey(session.getModelSession(), workspaceRowKey.toString());
+        Workspace workspace = workspaceRepository.findByRowKey(workspaceRowKey.toString(), authUser);
 
         if (workspace == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);

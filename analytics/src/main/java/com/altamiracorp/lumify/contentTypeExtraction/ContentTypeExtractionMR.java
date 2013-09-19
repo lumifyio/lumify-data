@@ -10,6 +10,8 @@ import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -19,7 +21,6 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
@@ -27,6 +28,7 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class getMapperClass(Job job, Class clazz) {
+        ContentTypeExtractorMapper.init(job, clazz);
         return ContentTypeExtractorMapper.class;
     }
 
@@ -43,28 +45,21 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
     }
 
     public static class ContentTypeExtractorMapper extends LumifyMapper<Text, Artifact, Text, Artifact> {
-        private ArtifactRepository artifactRepository = new ArtifactRepository();
-        private GraphRepository graphRepository = new GraphRepository();
-        public static final String CONF_CONTENT_TYPE_EXTRACTOR_CLASS = "contentTypeExtractorClass";
+        private ArtifactRepository artifactRepository;
+        private GraphRepository graphRepository;
+        public static final String CONF_CONTENT_TYPE_EXTRACTOR_CLASS = "contentTypeExtractor";
         private ContentTypeExtractor contentTypeExtractor;
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            super.setup(context);
-            try {
-                contentTypeExtractor = (ContentTypeExtractor) context.getConfiguration().getClass(CONF_CONTENT_TYPE_EXTRACTOR_CLASS, TikaContentTypeExtractor.class).newInstance();
-                contentTypeExtractor.setup(context);
-            } catch (InstantiationException e) {
-                throw new IOException(e);
-            } catch (IllegalAccessException e) {
-                throw new IOException(e);
-            }
+        protected void setup(Context context, Injector injector) throws IllegalAccessException, InstantiationException {
+            contentTypeExtractor = getAndInjectClassFromConfiguration(context, injector, CONF_CONTENT_TYPE_EXTRACTOR_CLASS);
+            contentTypeExtractor.setup(context);
         }
 
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
             LOGGER.info("Extracting content type from artifact: " + artifact.getRowKey().toString());
-            InputStream in = artifactRepository.getRaw(getSession().getModelSession(), artifact);
+            InputStream in = artifactRepository.getRaw(artifact, getUser());
             if (in == null) {
                 LOGGER.warn("No data found for artifact: " + artifact.getRowKey().toString());
             }
@@ -74,13 +69,27 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
             }
             artifact.getGenericMetadata().setMimeType(contentType);
 
-            GraphVertex graphVertex = graphRepository.findVertexByRowKey(getSession().getGraphSession(), artifact.getRowKey().toString());
+            GraphVertex graphVertex = graphRepository.findVertexByRowKey(artifact.getRowKey().toString(), getUser());
             if (graphVertex != null) {
                 graphVertex.setProperty(PropertyName.SUBTYPE.toString(), artifact.getType().toString().toLowerCase());
-                getSession().getGraphSession().commit();
+                graphRepository.commit();
             }
 
             context.write(new Text(Artifact.TABLE_NAME), artifact);
+        }
+
+        @Inject
+        public void setArtifactRepository(ArtifactRepository artifactRepository) {
+            this.artifactRepository = artifactRepository;
+        }
+
+        @Inject
+        public void setGraphRepository(GraphRepository graphRepository) {
+            this.graphRepository = graphRepository;
+        }
+
+        public static void init(Job job, Class<? extends ContentTypeExtractor> contentTypeExtractor) {
+            job.getConfiguration().setClass(CONF_CONTENT_TYPE_EXTRACTOR_CLASS, contentTypeExtractor, ContentTypeExtractor.class);
         }
     }
 

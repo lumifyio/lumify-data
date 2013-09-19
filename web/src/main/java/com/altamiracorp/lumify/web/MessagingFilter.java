@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.model.user.User;
+import com.altamiracorp.lumify.core.user.User;
 import org.atmosphere.cpr.AtmosphereResource;
 import org.atmosphere.cpr.PerRequestBroadcastFilter;
 import org.json.JSONArray;
@@ -32,7 +32,7 @@ public class MessagingFilter implements PerRequestBroadcastFilter {
             JSONArray workspaces = permissionsJson.optJSONArray("workspaces");
             if (workspaces != null) {
                 User currentUser = DevBasicAuthenticationProvider.getUser(r.getRequest().getSession());
-                if (!isWorkspaceInList(workspaces, currentUser.getMetadata().getCurrentWorkspace())) {
+                if (!isWorkspaceInList(workspaces, currentUser.getCurrentWorkspace())) {
                     return new BroadcastAction(BroadcastAction.ACTION.ABORT, message);
                 }
             }
@@ -55,7 +55,7 @@ public class MessagingFilter implements PerRequestBroadcastFilter {
     }
 
     private boolean isUserInList(JSONArray users, User user) throws JSONException {
-        String userRowKey = user.getRowKey().toString();
+        String userRowKey = user.getRowKey();
         for (int i = 0; i < users.length(); i++) {
             String userItemRowKey = users.getString(i);
             if (userItemRowKey.equals(userRowKey)) {

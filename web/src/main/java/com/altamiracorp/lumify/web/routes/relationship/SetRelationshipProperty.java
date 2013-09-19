@@ -1,15 +1,6 @@
 package com.altamiracorp.lumify.web.routes.relationship;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.model.ontology.Property;
@@ -17,6 +8,13 @@ import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.lumify.web.routes.vertex.VertexProperties;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 public class SetRelationshipProperty extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(SetRelationshipProperty.class);
@@ -38,9 +36,9 @@ public class SetRelationshipProperty extends BaseRequestHandler {
         final String sourceId = getRequiredParameter(request, "source");
         final String destId = getRequiredParameter(request, "dest");
 
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
 
-        Property property = ontologyRepository.getProperty(session.getGraphSession(), propertyName);
+        Property property = ontologyRepository.getProperty(propertyName, user);
         if (property == null) {
             throw new RuntimeException("Could not find property: " + propertyName);
         }
@@ -54,11 +52,11 @@ public class SetRelationshipProperty extends BaseRequestHandler {
             return;
         }
 
-        graphRepository.setPropertyEdge(session.getGraphSession(), sourceId, destId, relationshipLabel, propertyName, value);
+        graphRepository.setPropertyEdge(sourceId, destId, relationshipLabel, propertyName, value, user);
 
-        Map<String, String> properties = graphRepository.getEdgeProperties(session.getGraphSession(), sourceId, destId, relationshipLabel);
+        Map<String, String> properties = graphRepository.getEdgeProperties(sourceId, destId, relationshipLabel, user);
         for (Map.Entry<String, String> p : properties.entrySet()) {
-            String displayName = ontologyRepository.getDisplayNameForLabel(session.getGraphSession(), p.getValue());
+            String displayName = ontologyRepository.getDisplayNameForLabel(p.getValue(), user);
             if (displayName != null) {
                 p.setValue(displayName);
             }

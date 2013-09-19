@@ -12,6 +12,8 @@ import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -49,22 +51,15 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "entityExtractorClass";
 
         private EntityExtractor entityExtractor;
-        private TermMentionRepository termMentionRepository = new TermMentionRepository();
-        private OntologyRepository ontologyRepository = new OntologyRepository();
-        private GraphRepository graphRepository = new GraphRepository();
+        private TermMentionRepository termMentionRepository;
+        private OntologyRepository ontologyRepository;
+        private GraphRepository graphRepository;
         private HashMap<String, Concept> conceptMap = new HashMap<String, Concept>();
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            super.setup(context);
-            try {
-                entityExtractor = (EntityExtractor) context.getConfiguration().getClass(CONF_ENTITY_EXTRACTOR_CLASS, null).newInstance();
-                entityExtractor.setup(context);
-            } catch (InstantiationException e) {
-                throw new IOException(e);
-            } catch (IllegalAccessException e) {
-                throw new IOException(e);
-            }
+        protected void setup(Context context, Injector injector) throws IOException, IllegalAccessException, InstantiationException {
+            entityExtractor = getAndInjectClassFromConfiguration(context, injector, CONF_ENTITY_EXTRACTOR_CLASS);
+            entityExtractor.setup(context);
         }
 
         @Override
@@ -86,7 +81,7 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
                 Concept concept = getConcept(termMention);
                 termMention.getMetadata().setConceptGraphVertexId(concept.getId());
 
-                TermMention existingTermMention = termMentionRepository.findByRowKey(getSession().getModelSession(), termMention.getRowKey().toString());
+                TermMention existingTermMention = termMentionRepository.findByRowKey(termMention.getRowKey().toString(), getUser());
                 if (existingTermMention != null) {
                     existingTermMention.update(termMention);
                 } else {
@@ -106,7 +101,7 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
                     }
                 }
 
-                termMentionRepository.save(getSession().getModelSession(), existingTermMention);
+                termMentionRepository.save(existingTermMention, getUser());
             }
         }
 
@@ -116,18 +111,18 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
             graphVertex.setProperty(PropertyName.SUBTYPE.toString(), concept.getId());
             graphVertex.setType(VertexType.ENTITY);
 
-            GraphVertex existingGraphVertex = graphRepository.findVertexByTitleAndType(getSession().getGraphSession(), (String) graphVertex.getProperty(PropertyName.TITLE), VertexType.ENTITY);
+            GraphVertex existingGraphVertex = graphRepository.findVertexByTitleAndType((String) graphVertex.getProperty(PropertyName.TITLE), VertexType.ENTITY, getUser());
             if (existingGraphVertex != null) {
                 existingGraphVertex.update(graphVertex);
                 graphVertex.update(existingGraphVertex);
                 graphVertex = existingGraphVertex;
             }
 
-            graphRepository.saveVertex(getSession().getGraphSession(), graphVertex);
-            getSession().getGraphSession().commit();
+            graphRepository.saveVertex(graphVertex, getUser());
+            graphRepository.commit();
 
-            graphRepository.saveRelationship(getSession().getGraphSession(), artifact.getGenericMetadata().getGraphVertexId(), graphVertex.getId(), LabelName.HAS_ENTITY);
-            getSession().getGraphSession().commit();
+            graphRepository.saveRelationship(artifact.getGenericMetadata().getGraphVertexId(), graphVertex.getId(), LabelName.HAS_ENTITY, getUser());
+            graphRepository.commit();
 
             return graphVertex.getId();
         }
@@ -136,7 +131,7 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
             String conceptLabel = termMention.getMetadata().getConcept();
             Concept concept = conceptMap.get(conceptLabel);
             if (concept == null) {
-                concept = ontologyRepository.getConceptByName(getSession().getGraphSession(), conceptLabel);
+                concept = ontologyRepository.getConceptByName(conceptLabel, getUser());
                 if (concept == null) {
                     throw new RuntimeException("Could not find concept: " + conceptLabel);
                 }
@@ -147,6 +142,21 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
 
         public static void init(Job job, Class<? extends EntityExtractor> entityExtractor) {
             job.getConfiguration().setClass(CONF_ENTITY_EXTRACTOR_CLASS, entityExtractor, EntityExtractor.class);
+        }
+
+        @Inject
+        public void setTermMentionRepository(TermMentionRepository termMentionRepository) {
+            this.termMentionRepository = termMentionRepository;
+        }
+
+        @Inject
+        public void setOntologyRepository(OntologyRepository ontologyRepository) {
+            this.ontologyRepository = ontologyRepository;
+        }
+
+        @Inject
+        public void setGraphRepository(GraphRepository graphRepository) {
+            this.graphRepository = graphRepository;
         }
     }
 

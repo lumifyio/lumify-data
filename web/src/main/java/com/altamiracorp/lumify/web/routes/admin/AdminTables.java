@@ -1,8 +1,10 @@
 package com.altamiracorp.lumify.web.routes.admin;
 
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -11,12 +13,18 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 public class AdminTables extends BaseRequestHandler {
+    private final ModelSession modelSession;
+
+    @Inject
+    public AdminTables(ModelSession modelSession) {
+        this.modelSession = modelSession;
+    }
+
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        AppSession session = app.getAppSession(request);
-
-        List<String> tables = session.getModelSession().getTableList();
+        User user = getUser(request);
+        List<String> tables = this.modelSession.getTableList(user);
 
         JSONObject results = new JSONObject();
         JSONArray tablesJson = new JSONArray();

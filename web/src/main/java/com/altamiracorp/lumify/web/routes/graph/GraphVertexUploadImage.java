@@ -1,15 +1,6 @@
 package com.altamiracorp.lumify.web.routes.graph;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
-
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.LabelName;
@@ -20,6 +11,14 @@ import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.lumify.web.routes.artifact.ArtifactThumbnailByRowKey;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class GraphVertexUploadImage extends BaseRequestHandler {
     private final ArtifactRepository artifactRepository;
@@ -38,7 +37,7 @@ public class GraphVertexUploadImage extends BaseRequestHandler {
         if (files.size() != 1) {
             throw new RuntimeException("Wrong number of uploaded files. Expected 1 got " + files.size());
         }
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
         Part file = files.get(0);
 
         String mimeType = "image";
@@ -50,7 +49,7 @@ public class GraphVertexUploadImage extends BaseRequestHandler {
 
         String fileName = file.getName();
 
-        GraphVertex entityVertex = graphRepository.findVertex(session.getGraphSession(), graphVertexId);
+        GraphVertex entityVertex = graphRepository.findVertex(graphVertexId, user);
         if (entityVertex == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -58,30 +57,30 @@ public class GraphVertexUploadImage extends BaseRequestHandler {
 
         InputStream fileInputStream = file.getInputStream();
         Artifact artifact = artifactRepository.createArtifactFromInputStream(
-                session.getModelSession(),
                 fileSize,
                 fileInputStream,
                 fileName,
-                new Date().getTime()
+                new Date().getTime(),
+                user
         );
         artifact.getGenericMetadata().setSource("User Upload");
         artifact.getGenericMetadata().setMimeType(mimeType);
         artifact.getGenericMetadata().setSubject("Image of " + entityVertex.getProperty(PropertyName.TITLE));
-        artifactRepository.save(session.getModelSession(), artifact);
-        artifact = artifactRepository.findByRowKey(session.getModelSession(), artifact.getRowKey().toString());
+        artifactRepository.save(artifact, user);
+        artifact = artifactRepository.findByRowKey(artifact.getRowKey().toString(), user);
         GraphVertex artifactVertex = null;
         if (artifact.getGenericMetadata().getGraphVertexId() != null) {
-            artifactVertex = graphRepository.findVertex(session.getGraphSession(), artifact.getGenericMetadata().getGraphVertexId());
+            artifactVertex = graphRepository.findVertex(artifact.getGenericMetadata().getGraphVertexId(), user);
         }
         if (artifactVertex == null) {
-            artifactVertex = artifactRepository.saveToGraph(session.getModelSession(), session.getGraphSession(), artifact);
+            artifactVertex = artifactRepository.saveToGraph(artifact, user);
         }
 
-        graphRepository.findOrAddRelationship(session.getGraphSession(), entityVertex.getId(), artifactVertex.getId(), LabelName.HAS_IMAGE);
-        graphRepository.commit(session.getGraphSession());
+        graphRepository.findOrAddRelationship(entityVertex.getId(), artifactVertex.getId(), LabelName.HAS_IMAGE, user);
+        graphRepository.commit();
 
         entityVertex.setProperty(PropertyName.GLYPH_ICON, ArtifactThumbnailByRowKey.getUrl(artifact.getRowKey()));
-        graphRepository.commit(session.getGraphSession());
+        graphRepository.commit();
 
         respondWithJson(response, entityVertex.toJson());
     }

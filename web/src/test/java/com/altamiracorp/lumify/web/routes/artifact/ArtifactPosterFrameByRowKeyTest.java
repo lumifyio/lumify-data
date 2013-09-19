@@ -1,30 +1,37 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnailRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.web.AuthenticationProvider;
 import com.altamiracorp.lumify.web.routes.RouteTestBase;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
-@RunWith(JUnit4.class)
+import javax.servlet.http.HttpSession;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
+@RunWith(MockitoJUnitRunner.class)
 public class ArtifactPosterFrameByRowKeyTest extends RouteTestBase {
     private ArtifactPosterFrameByRowKey artifactPosterFrameByRowKey;
+
+    @Mock
+    private User user;
+
+    @Mock
+    private HttpSession mockSession;
 
     @Override
     @Before
@@ -33,19 +40,20 @@ public class ArtifactPosterFrameByRowKeyTest extends RouteTestBase {
 
         final ArtifactThumbnailRepository mockThumbnailRepository = Mockito.mock(ArtifactThumbnailRepository.class);
         artifactPosterFrameByRowKey = new ArtifactPosterFrameByRowKey(mockArtifactRepository, mockThumbnailRepository);
-        artifactPosterFrameByRowKey.setApp(mockApp);
     }
 
     @Test
     public void testHandle() throws Exception {
         ArtifactRowKey artifactRowKey = ArtifactRowKey.build("testContents".getBytes());
         when(mockRequest.getAttribute("_rowKey")).thenReturn(artifactRowKey.toString());
+        when(mockRequest.getSession()).thenReturn(mockSession);
+        when(mockSession.getAttribute(AuthenticationProvider.CURRENT_USER_REQ_ATTR_NAME)).thenReturn(user);
 
         Artifact artifact = new Artifact(artifactRowKey);
-        when(mockArtifactRepository.findByRowKey(mockModelSession, artifactRowKey.toString())).thenReturn(artifact);
+        when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user)).thenReturn(artifact);
 
         InputStream testInputStream = new ByteArrayInputStream("test data".getBytes());
-        when(mockArtifactRepository.getRawPosterFrame(mockModelSession, artifact)).thenReturn(testInputStream);
+        when(mockArtifactRepository.getRawPosterFrame(artifact, user)).thenReturn(testInputStream);
 
         doAnswer(new Answer<Void>() {
             @Override

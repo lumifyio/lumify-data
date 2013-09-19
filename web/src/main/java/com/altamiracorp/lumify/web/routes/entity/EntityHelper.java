@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
@@ -29,21 +29,21 @@ public class EntityHelper {
         graphRepository = graphRepo;
     }
 
-    public void updateTermMention(AppSession session, TermMention termMention, String sign, GraphVertex conceptVertex, GraphVertex resolvedVertex) {
+    public void updateTermMention(TermMention termMention, String sign, GraphVertex conceptVertex, GraphVertex resolvedVertex, User user) {
         termMention.getMetadata()
                 .setSign(sign)
                 .setConcept((String) conceptVertex.getProperty(PropertyName.DISPLAY_NAME))
                 .setConceptGraphVertexId(conceptVertex.getId())
                 .setGraphVertexId(resolvedVertex.getId());
-        termMentionRepository.save(session.getModelSession(), termMention);
+        termMentionRepository.save(termMention, user);
     }
 
-    public void updateGraphVertex(AppSession session, GraphVertex vertex, String subType, String title, String artifactId) {
+    public void updateGraphVertex(GraphVertex vertex, String subType, String title, String artifactId, User user) {
         vertex.setProperty(PropertyName.SUBTYPE, subType);
         vertex.setProperty(PropertyName.TITLE, title);
 
-        graphRepository.saveVertex(session.getGraphSession(), vertex);
-        graphRepository.saveRelationship(session.getGraphSession(), artifactId, vertex.getId(), LabelName.HAS_ENTITY);
+        graphRepository.saveVertex(vertex, user);
+        graphRepository.saveRelationship(artifactId, vertex.getId(), LabelName.HAS_ENTITY, user);
     }
 
     public DetectedObject createObjectTag(String x1, String x2, String y1, String y2, GraphVertex resolvedVertex, GraphVertex conceptVertex) {

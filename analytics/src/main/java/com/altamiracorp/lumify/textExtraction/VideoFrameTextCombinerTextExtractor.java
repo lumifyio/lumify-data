@@ -1,11 +1,13 @@
 package com.altamiracorp.lumify.textExtraction;
 
-import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import com.altamiracorp.lumify.ucd.artifact.VideoTranscript;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.util.List;
@@ -13,14 +15,19 @@ import java.util.List;
 public class VideoFrameTextCombinerTextExtractor implements TextExtractor {
     private static final String NAME = "videoFrameTextCombinerExtractor";
 
-    private VideoFrameRepository videoFrameRepository = new VideoFrameRepository();
+    private VideoFrameRepository videoFrameRepository;
 
-    @Override
-    public void setup(Mapper.Context context) {
+    @Inject
+    public VideoFrameTextCombinerTextExtractor(VideoFrameRepository videoFrameRepository) {
+        this.videoFrameRepository = videoFrameRepository;
     }
 
     @Override
-    public ArtifactExtractedInfo extract(ModelSession session, Artifact artifact) throws Exception {
+    public void setup(Mapper.Context context, Injector injector) {
+    }
+
+    @Override
+    public ArtifactExtractedInfo extract(Artifact artifact, User user) throws Exception {
         if (artifact.getType() != ArtifactType.VIDEO) {
             return null;
         }
@@ -29,7 +36,7 @@ public class VideoFrameTextCombinerTextExtractor implements TextExtractor {
         if (transcript == null) {
             transcript = new VideoTranscript();
         }
-        List<VideoFrame> videoFrames = videoFrameRepository.findAllByArtifactRowKey(session, artifact.getRowKey().toString());
+        List<VideoFrame> videoFrames = videoFrameRepository.findAllByArtifactRowKey(artifact.getRowKey().toString(), user);
         for (VideoFrame videoFrame : videoFrames) {
             VideoTranscript.Time time = new VideoTranscript.Time(videoFrame.getRowKey().getTime(), null);
             String text = videoFrame.getMetadata().getText();
@@ -46,7 +53,7 @@ public class VideoFrameTextCombinerTextExtractor implements TextExtractor {
     }
 
     @Override
-    public VideoFrameExtractedInfo extract(ModelSession session, VideoFrame videoFrame) throws Exception {
+    public VideoFrameExtractedInfo extract(VideoFrame videoFrame, User user) throws Exception {
         return null;
     }
 

@@ -1,8 +1,6 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.GraphSession;
-import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
@@ -10,9 +8,11 @@ import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
 import com.altamiracorp.lumify.model.termMention.TermMention;
+import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.objectDetection.DetectedObject;
 import com.altamiracorp.lumify.objectDetection.ObjectDetectionWorker;
+import com.altamiracorp.lumify.search.SearchProvider;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
@@ -26,14 +26,19 @@ import javax.servlet.http.HttpServletResponse;
 public class EntityObjectDetectionCreate extends BaseRequestHandler {
     private final GraphRepository graphRepository;
     private final ArtifactRepository artifactRepository;
-    private final Repository<TermMention> termMentionRepository;
+    private final TermMentionRepository termMentionRepository;
+    private final SearchProvider searchProvider;
 
     @Inject
-    public EntityObjectDetectionCreate(final Repository<TermMention> termMentionRepo,
-                                       final ArtifactRepository artifactRepo, final GraphRepository graphRepo) {
-        termMentionRepository = termMentionRepo;
-        artifactRepository = artifactRepo;
-        graphRepository = graphRepo;
+    public EntityObjectDetectionCreate(
+            final TermMentionRepository termMentionRepository,
+            final ArtifactRepository artifactRepository,
+            final GraphRepository graphRepository,
+            final SearchProvider searchProvider) {
+        this.termMentionRepository = termMentionRepository;
+        this.artifactRepository = artifactRepository;
+        this.graphRepository = graphRepository;
+        this.searchProvider = searchProvider;
     }
 
     @Override
@@ -54,22 +59,22 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
         String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
         final String boundingBox = "[x1: " + x1 + ", y1: " + y1 + ", x2: " + x2 + ", y2: " + y2 + "]";
 
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, 0, 0);
 
-        GraphVertex conceptVertex = graphRepository.findVertex(session.getGraphSession(), conceptId);
+        GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
 
         // create new graph vertex
-        GraphVertex resolvedVertex = createGraphVertex(session.getGraphSession(), conceptVertex, resolvedGraphVertexId,
-                sign, termMentionRowKey.toString(), boundingBox, artifactId);
+        GraphVertex resolvedVertex = createGraphVertex(conceptVertex, resolvedGraphVertexId,
+                sign, termMentionRowKey.toString(), boundingBox, artifactId, user);
 
         // create new term mention
         TermMention termMention = new TermMention(termMentionRowKey);
-        objectDetectionHelper.updateTermMention(session, termMention, sign, conceptVertex, resolvedVertex);
+        objectDetectionHelper.updateTermMention(termMention, sign, conceptVertex, resolvedVertex, user);
         DetectedObject detectedObject = objectDetectionHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);
 
         // create a new detected object column
-        Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactRowKey);
+        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user);
 
         if (detectedObjectRowKey == null && model == null) {
             model = "manual";
@@ -82,18 +87,18 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
 
         detectedObject.setRowKey(detectedObjectRowKey);
         JSONObject obj = detectedObject.getJson();
-        objectDetectionHelper.executeService(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, obj));
+        objectDetectionHelper.executeService(new ObjectDetectionWorker(artifactRepository, searchProvider, artifactRowKey, detectedObjectRowKey, obj, user));
 
         respondWithJson(response, obj);
     }
 
-    private GraphVertex createGraphVertex(GraphSession graphSession, GraphVertex conceptVertex, String resolvedGraphVertexId,
-                                          String sign, String termMentionRowKey, String boundingBox, String artifactId) {
+    private GraphVertex createGraphVertex(GraphVertex conceptVertex, String resolvedGraphVertexId,
+                                          String sign, String termMentionRowKey, String boundingBox, String artifactId, User user) {
         GraphVertex resolvedVertex;
         if (resolvedGraphVertexId != null) {
-            resolvedVertex = graphRepository.findVertex(graphSession, resolvedGraphVertexId);
+            resolvedVertex = graphRepository.findVertex(resolvedGraphVertexId, user);
         } else {
-            resolvedVertex = graphRepository.findVertexByTitleAndType(graphSession, sign, VertexType.ENTITY);
+            resolvedVertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, user);
             if (resolvedVertex == null) {
                 resolvedVertex = new InMemoryGraphVertex();
                 resolvedVertex.setType(VertexType.ENTITY);
@@ -104,11 +109,11 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
         resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
         resolvedVertex.setProperty(PropertyName.TITLE, sign);
 
-        graphRepository.saveVertex(graphSession, resolvedVertex);
+        graphRepository.saveVertex(resolvedVertex, user);
 
-        graphRepository.saveRelationship(graphSession, artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF);
-        graphRepository.setPropertyEdge(graphSession, artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF.toString()
-                , PropertyName.BOUNDING_BOX.toString(), boundingBox);
+        graphRepository.saveRelationship(artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF, user);
+        graphRepository.setPropertyEdge(artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF.toString()
+                , PropertyName.BOUNDING_BOX.toString(), boundingBox, user);
         return resolvedVertex;
     }
 }

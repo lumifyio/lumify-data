@@ -1,33 +1,30 @@
 package com.altamiracorp.lumify.model.videoFrames;
 
-import com.altamiracorp.lumify.model.*;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.Row;
+import com.altamiracorp.lumify.model.SaveFileResults;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
+import com.google.inject.Inject;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collection;
 import java.util.List;
 
 public class VideoFrameRepository extends Repository<VideoFrame> {
+    private VideoFrameBuilder videoFrameBuilder = new VideoFrameBuilder();
+
+    @Inject
+    public VideoFrameRepository(final ModelSession modelSession) {
+        super(modelSession);
+    }
+
     @Override
     public VideoFrame fromRow(Row row) {
-        VideoFrame videoFrame = new VideoFrame(row.getRowKey());
-        Collection<ColumnFamily> families = row.getColumnFamilies();
-        for (ColumnFamily columnFamily : families) {
-            String columnFamilyName = columnFamily.getColumnFamilyName();
-            if (columnFamilyName.equals(VideoFrameMetadata.NAME)) {
-                Collection<Column> columns = columnFamily.getColumns();
-                videoFrame.addColumnFamily(new VideoFrameMetadata().addColumns(columns));
-            } else if (columnFamilyName.equals(VideoFrameDetectedObjects.NAME)) {
-                Collection<Column> columns = columnFamily.getColumns();
-                videoFrame.addColumnFamily(new VideoFrameDetectedObjects().addColumns(columns));
-            } else {
-                videoFrame.addColumnFamily(columnFamily);
-            }
-        }
-        return videoFrame;
+        return videoFrameBuilder.fromRow(row);
     }
 
     @Override
@@ -37,24 +34,24 @@ public class VideoFrameRepository extends Repository<VideoFrame> {
 
     @Override
     public String getTableName() {
-        return VideoFrame.TABLE_NAME;
+        return videoFrameBuilder.getTableName();
     }
 
-    public void saveVideoFrame(ModelSession session, ArtifactRowKey artifactRowKey, InputStream in, long frameStartTime) {
-        SaveFileResults saveFileResults = session.saveFile(in);
+    public void saveVideoFrame(ArtifactRowKey artifactRowKey, InputStream in, long frameStartTime, User user) {
+        SaveFileResults saveFileResults = getModelSession().saveFile(in, user);
         VideoFrameRowKey videoFrameRowKey = new VideoFrameRowKey(artifactRowKey.toString(), frameStartTime);
         VideoFrame videoFrame = new VideoFrame(videoFrameRowKey);
         videoFrame.getMetadata()
                 .setHdfsPath(saveFileResults.getFullPath());
-        this.save(session, videoFrame);
+        save(videoFrame, user);
     }
 
-    public List<VideoFrame> findAllByArtifactRowKey(ModelSession session, String rowKey) {
-        return this.findByRowStartsWith(session, rowKey);
+    public List<VideoFrame> findAllByArtifactRowKey(String rowKey, User user) {
+        return findByRowStartsWith(rowKey, user);
     }
 
-    public BufferedImage loadImage(ModelSession session, VideoFrame videoFrame) {
-        InputStream in = session.loadFile(videoFrame.getMetadata().getHdfsPath());
+    public BufferedImage loadImage(VideoFrame videoFrame, User user) {
+        InputStream in = getModelSession().loadFile(videoFrame.getMetadata().getHdfsPath(), user);
         try {
             return ImageIO.read(in);
         } catch (IOException e) {

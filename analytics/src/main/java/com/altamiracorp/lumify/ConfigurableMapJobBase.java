@@ -11,7 +11,6 @@ import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
-import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 import org.apache.hadoop.util.Tool;
 
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
@@ -20,7 +19,9 @@ import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 
 public abstract class ConfigurableMapJobBase extends CommandLineBase implements Tool {
-    private Class clazz;
+    public static final String FAIL_FIRST_ERROR = "failOnFirstError";
+
+    private Class pluginClass;
     private String[] config;
     private boolean failOnFirstError = false;
 
@@ -51,7 +52,7 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
 
         options.addOption(
                 OptionBuilder
-                        .withLongOpt("failOnFirstError")
+                        .withLongOpt(FAIL_FIRST_ERROR)
                         .withDescription("Enables failing on the first error that occurs")
                         .create()
         );
@@ -68,11 +69,11 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
             if (pluginClassName == null) {
                 throw new RuntimeException("'class' parameter is required");
             }
-            clazz = loadClass(pluginClassName);
+            pluginClass = loadClass(pluginClassName);
         }
 
         config = cmd.getOptionValues("config");
-        if (cmd.hasOption("failOnFirstError")) {
+        if (cmd.hasOption(FAIL_FIRST_ERROR)) {
             failOnFirstError = true;
         }
     }
@@ -100,7 +101,7 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
 
         job.setMapOutputKeyClass(Key.class);
         job.setMapOutputValueClass(Value.class);
-        job.setMapperClass(getMapperClass(job, clazz));
+        job.setMapperClass(getMapperClass(job, pluginClass));
 
         job.setNumReduceTasks(0);
 
@@ -126,53 +127,17 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
         return AccumuloModelOutputFormat.class;
     }
 
-    protected abstract Class<? extends Mapper> getMapperClass(Job job, Class clazz);
-
-    public static AppSession createAppSession(TaskInputOutputContext context) {
-        return AppSession.create(context);
-    }
+    protected abstract Class<? extends Mapper> getMapperClass(Job job, Class pluginClass);
 
     protected String[] getConfig() {
         return config;
     }
 
     private void configureJob(final Job job, final Properties properties) {
-        for(final Object key : properties.keySet()) {
-            job.getConfiguration().set((String)key, properties.getProperty((String) key));
+        for (final Object key : properties.keySet()) {
+            job.getConfiguration().set((String) key, properties.getProperty((String) key));
         }
 
-        job.getConfiguration().setBoolean("failOnFirstError", failOnFirstError);
+        job.getConfiguration().setBoolean(FAIL_FIRST_ERROR, failOnFirstError);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

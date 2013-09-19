@@ -1,25 +1,39 @@
 package com.altamiracorp.lumify.textExtraction;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.MockSession;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
+import java.io.ByteArrayInputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
 
-@RunWith(JUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class TikaTextExtractorTest {
     private MockSession session;
 
+    @Mock
+    private User user;
+
+    @Mock
+    private ArtifactRepository artifactRepository;
+
     @Before
     public void before() {
+        MockitoAnnotations.initMocks(this);
         session = new MockSession();
-        session.initializeTables();
+        session.initializeTables(user);
     }
 
     @Test
@@ -37,11 +51,14 @@ public class TikaTextExtractorTest {
         data += "</body>";
         data += "</html>";
 
-        TikaTextExtractor textExtractor = new TikaTextExtractor();
+        TikaTextExtractor textExtractor = new TikaTextExtractor(artifactRepository);
         Artifact artifact = new Artifact();
         artifact.getContent().setDocArtifactBytes(data.getBytes());
         artifact.getGenericMetadata().setMimeType("text/html");
-        ArtifactExtractedInfo info = textExtractor.extract(session, artifact);
+
+
+        when(artifactRepository.getRaw(eq(artifact), eq(user))).thenReturn(new ByteArrayInputStream(data.getBytes()));
+        ArtifactExtractedInfo info = textExtractor.extract(artifact, user);
 
         assertEquals("Test Title", info.getSubject());
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd");

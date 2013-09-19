@@ -1,8 +1,10 @@
 package com.altamiracorp.lumify.location;
 
-import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.geoNames.*;
+import com.google.inject.Inject;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
@@ -20,10 +22,11 @@ import java.util.List;
 
 public class GeoNamesImporter extends CommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesImporter.class.getName());
-    private GeoNameRepository geoNameRepository = new GeoNameRepository();
-    private GeoNameAdmin1CodeRepository geoNameAdmin1CodeRepository = new GeoNameAdmin1CodeRepository();
-    private GeoNameCountryInfoRepository geoNameCountryInfoRepository = new GeoNameCountryInfoRepository();
-    private GeoNamePostalCodeRepository geoNamePostalCodeRepository = new GeoNamePostalCodeRepository();
+    private GeoNameRepository geoNameRepository;
+    private GeoNameAdmin1CodeRepository geoNameAdmin1CodeRepository;
+    private GeoNameCountryInfoRepository geoNameCountryInfoRepository;
+    private GeoNamePostalCodeRepository geoNamePostalCodeRepository;
+    private ModelSession modelSession;
     private String fileName;
     private String admin1CodeFileName;
     private String countryInfoFileName;
@@ -94,26 +97,27 @@ public class GeoNamesImporter extends CommandLineBase {
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
-        AppSession session = createSession();
-        session.getModelSession().initializeTables();
+        User user = getUser();
+
+        modelSession.initializeTables(user);
 
         File f = new File(this.fileName);
-        writeFile(session, new FileInputStream(f));
+        writeFile(new FileInputStream(f), user);
 
         File admin1CodeFile = new File(this.admin1CodeFileName);
-        writeAdmin1CodeFile(session, new FileInputStream(admin1CodeFile));
+        writeAdmin1CodeFile(new FileInputStream(admin1CodeFile), user);
 
         File countryInfoFile = new File(this.countryInfoFileName);
-        writeCountryInfoFile(session, new FileInputStream(countryInfoFile));
+        writeCountryInfoFile(new FileInputStream(countryInfoFile), user);
 
         File postalCodeFile = new File(this.postalCodeFileName);
-        writePostalCodeFile (session, new FileInputStream(postalCodeFile));
+        writePostalCodeFile(new FileInputStream(postalCodeFile), user);
 
-        session.close();
+        modelSession.close();
         return 0;
     }
 
-    private void writeFile(AppSession session, InputStream in) throws IOException, MutationsRejectedException {
+    private void writeFile(InputStream in, User user) throws IOException, MutationsRejectedException {
         LOGGER.info("Importing GeoNames.");
 
         BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
@@ -124,12 +128,12 @@ public class GeoNamesImporter extends CommandLineBase {
             geoNames.add(lineToGeoName(line));
             count++;
             if ((count % 1000) == 0) {
-                geoNameRepository.saveMany(session.getModelSession(), geoNames);
+                geoNameRepository.saveMany(geoNames, user);
                 geoNames.clear();
                 LOGGER.info("Imported " + count + " of ~8500000  items.");
             }
         }
-        geoNameRepository.saveMany(session.getModelSession(), geoNames);
+        geoNameRepository.saveMany(geoNames, user);
         geoNames.clear();
         LOGGER.info("Imported " + count + " of ~8500000  items.");
 
@@ -217,7 +221,7 @@ public class GeoNamesImporter extends CommandLineBase {
     }
 
 
-    private void writeAdmin1CodeFile(AppSession session, InputStream in) throws IOException, MutationsRejectedException {
+    private void writeAdmin1CodeFile(InputStream in, User user) throws IOException, MutationsRejectedException {
         LOGGER.info("Importing GeoNames Admin1 Codes.");
 
         BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
@@ -228,12 +232,12 @@ public class GeoNamesImporter extends CommandLineBase {
             admin1Codes.add(lineToAdmin1Code(line));
             count++;
             if ((count % 1000) == 0) {
-                geoNameAdmin1CodeRepository.saveMany(session.getModelSession(), admin1Codes);
+                geoNameAdmin1CodeRepository.saveMany(admin1Codes, user);
                 admin1Codes.clear();
                 LOGGER.info("Imported " + count + " of ~4000  items.");
             }
         }
-        geoNameAdmin1CodeRepository.saveMany(session.getModelSession(), admin1Codes);
+        geoNameAdmin1CodeRepository.saveMany(admin1Codes, user);
         admin1Codes.clear();
         LOGGER.info("Imported " + count + " of ~4000  items.");
 
@@ -255,7 +259,7 @@ public class GeoNamesImporter extends CommandLineBase {
         return result;
     }
 
-    private void writeCountryInfoFile(AppSession session, InputStream in) throws IOException, MutationsRejectedException {
+    private void writeCountryInfoFile(InputStream in, User user) throws IOException, MutationsRejectedException {
         LOGGER.info("Importing GeoNames Country Info.");
 
         BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
@@ -270,12 +274,12 @@ public class GeoNamesImporter extends CommandLineBase {
             countryInfos.add(countryInfo);
             count++;
             if ((count % 100) == 0) {
-                geoNameCountryInfoRepository.saveMany(session.getModelSession(), countryInfos);
+                geoNameCountryInfoRepository.saveMany(countryInfos, user);
                 countryInfos.clear();
                 LOGGER.info("Imported " + count + " of ~400  items.");
             }
         }
-        geoNameCountryInfoRepository.saveMany(session.getModelSession(), countryInfos);
+        geoNameCountryInfoRepository.saveMany(countryInfos, user);
         countryInfos.clear();
         LOGGER.info("Imported " + count + " of ~400  items.");
 
@@ -296,7 +300,7 @@ public class GeoNamesImporter extends CommandLineBase {
         return result;
     }
 
-    private void writePostalCodeFile(AppSession session, FileInputStream in) throws IOException, MutationsRejectedException {
+    private void writePostalCodeFile(FileInputStream in, User user) throws IOException, MutationsRejectedException {
         LOGGER.info("Importing GeoNames Postal Code Info.");
 
         BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
@@ -311,12 +315,12 @@ public class GeoNamesImporter extends CommandLineBase {
             postalCodes.add(postalCode);
             count++;
             if ((count % 100) == 0) {
-                geoNamePostalCodeRepository.saveMany(session.getModelSession(), postalCodes);
+                geoNamePostalCodeRepository.saveMany(postalCodes, user);
                 postalCodes.clear();
                 LOGGER.info("Imported " + count + " of ~43630  items.");
             }
         }
-        geoNamePostalCodeRepository.saveMany(session.getModelSession(), postalCodes);
+        geoNamePostalCodeRepository.saveMany(postalCodes, user);
         postalCodes.clear();
         LOGGER.info("Imported " + count + " of ~43630  items.");
 
@@ -343,5 +347,30 @@ public class GeoNamesImporter extends CommandLineBase {
         postalCode.getMetadata().setLongitude(Double.parseDouble(longitude));
 
         return postalCode;
+    }
+
+    @Inject
+    public void setGeoNameRepository(GeoNameRepository geoNameRepository) {
+        this.geoNameRepository = geoNameRepository;
+    }
+
+    @Inject
+    public void setGeoNameAdmin1CodeRepository(GeoNameAdmin1CodeRepository geoNameAdmin1CodeRepository) {
+        this.geoNameAdmin1CodeRepository = geoNameAdmin1CodeRepository;
+    }
+
+    @Inject
+    public void setGeoNameCountryInfoRepository(GeoNameCountryInfoRepository geoNameCountryInfoRepository) {
+        this.geoNameCountryInfoRepository = geoNameCountryInfoRepository;
+    }
+
+    @Inject
+    public void setGeoNamePostalCodeRepository(GeoNamePostalCodeRepository geoNamePostalCodeRepository) {
+        this.geoNamePostalCodeRepository = geoNamePostalCodeRepository;
+    }
+
+    @Inject
+    public void setModelSession(ModelSession modelSession) {
+        this.modelSession = modelSession;
     }
 }
