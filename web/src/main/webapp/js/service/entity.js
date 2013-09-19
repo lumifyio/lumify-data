@@ -22,7 +22,7 @@ function(ServiceBase) {
 
 	EntityService.prototype.resolveDetectedObject = function(createRequest, callback) {
         this._ajaxPost({
-            url: 'entity/createEntity',
+            url: 'entity/createResolvedDetectedObject',
             data: createRequest
         },function (err, response) {
             callback (err,response);
@@ -31,7 +31,7 @@ function(ServiceBase) {
 
     EntityService.prototype.updateDetectedObject = function(updateRequest, callback) {
         this._ajaxPost({
-            url: 'entity/updateEntity',
+            url: 'entity/updateResolvedDetectedObject',
             data: updateRequest
         },function (err, response) {
             callback (err,response);
@@ -40,7 +40,7 @@ function(ServiceBase) {
 
     EntityService.prototype.deleteDetectedObject = function(deleteRequest, callback) {
         this._ajaxPost({
-            url: 'entity/deleteEntity',
+            url: 'entity/deleteResolvedDetectedObject',
             data: deleteRequest
         },function (err, response) {
             callback (err,response);
