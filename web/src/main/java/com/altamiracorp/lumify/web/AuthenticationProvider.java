@@ -1,5 +1,7 @@
 package com.altamiracorp.lumify.web;
 
+import com.altamiracorp.lumify.core.user.ModelAuthorizations;
+import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.web.Handler;
 
@@ -20,5 +22,16 @@ public abstract class AuthenticationProvider implements Handler {
 
     public static User getUser(HttpServletRequest request) {
         return AuthenticationProvider.getUser(request.getSession());
+    }
+
+    protected User createFromModelUser(com.altamiracorp.lumify.model.user.User user) {
+        // TODO change to user specific authorization
+        ModelAuthorizations modelAuthorizations = SystemUser.getSystemModelAuthorizations();
+
+        return new User(
+                user.getRowKey().toString(),
+                user.getMetadata().getUserName(),
+                user.getMetadata().getCurrentWorkspace(),
+                modelAuthorizations);
     }
 }
