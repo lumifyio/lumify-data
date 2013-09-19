@@ -1,21 +1,8 @@
 package com.altamiracorp.lumify.model;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import com.altamiracorp.lumify.core.user.User;
 import junit.framework.Assert;
-
-import org.apache.accumulo.core.client.AccumuloException;
-import org.apache.accumulo.core.client.AccumuloSecurityException;
-import org.apache.accumulo.core.client.BatchWriter;
-import org.apache.accumulo.core.client.MutationsRejectedException;
-import org.apache.accumulo.core.client.RowIterator;
-import org.apache.accumulo.core.client.Scanner;
-import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.client.mock.MockConnector;
 import org.apache.accumulo.core.client.mock.MockInstance;
 import org.apache.accumulo.core.data.Key;
@@ -27,8 +14,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
 
-import com.altamiracorp.lumify.core.user.User;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 @RunWith(JUnit4.class)
 public class AccumuloSessionTest {
@@ -40,8 +33,9 @@ public class AccumuloSessionTest {
     private long maxMemory = 1000000L;
     private long maxLatency = 1000L;
     private int maxWriteThreads = 10;
-    private User queryUser;
 
+    @Mock
+    private User queryUser;
 
     @Before
     public void before() throws AccumuloSecurityException, AccumuloException {
@@ -52,8 +46,6 @@ public class AccumuloSessionTest {
         connector = (MockConnector) mockInstance.getConnector(authInfo);
 
         authorizations = new Authorizations("ALL");
-
-        queryUser = new User();
 
         accumuloSession = new AccumuloSession(connector, null, null, null);
         accumuloSession.initializeTable(TEST_TABLE_NAME, queryUser);

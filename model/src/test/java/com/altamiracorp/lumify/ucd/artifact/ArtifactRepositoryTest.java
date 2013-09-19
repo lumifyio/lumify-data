@@ -1,8 +1,7 @@
 package com.altamiracorp.lumify.ucd.artifact;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,13 +9,8 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.ColumnFamily;
-import com.altamiracorp.lumify.model.GraphSession;
-import com.altamiracorp.lumify.model.MockSession;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.Row;
-import com.altamiracorp.lumify.model.RowKey;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(JUnit4.class)
 public class ArtifactRepositoryTest {
@@ -101,7 +95,7 @@ public class ArtifactRepositoryTest {
 
         session.tables.get(Artifact.TABLE_NAME).add(row);
 
-        Artifact artifact = artifactRepository.findByRowKey("key1", new User());
+        Artifact artifact = artifactRepository.findByRowKey("key1", user);
         assertEquals("key1", artifact.getRowKey().toString());
 
         assertEquals("testDocArtifactBytes", new String(artifact.getContent().getDocArtifactBytes()));

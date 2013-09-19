@@ -121,10 +121,6 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
 
     protected abstract Class<? extends Mapper> getMapperClass(Job job, Class clazz);
 
-    public static AppSession createAppSession(TaskInputOutputContext context) {
-        return AppSession.create(context);
-    }
-
     protected String[] getConfig() {
         return this.config;
     }

@@ -1,6 +1,5 @@
 package com.altamiracorp.lumify.cmdline;
 
-import com.altamiracorp.lumify.AppSession;
 import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.core.user.User;
 import org.apache.accumulo.core.security.Authorizations;
@@ -78,11 +77,6 @@ public abstract class CommandLineBase extends Configured implements Tool {
         );
 
         return options;
-    }
-
-    public AppSession createSession() {
-        Configuration conf = getConfiguration();
-        return AppSession.create(conf);
     }
 
     protected Configuration getConfiguration() {

@@ -13,14 +13,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Mapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> {
     private static final Logger LOGGER = LoggerFactory.getLogger(LumifyMapper.class.getName());
 
-    private AppSession session;
     private boolean failOnFirstError;
     private User user = new User();
 
     @Override
     protected final void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
-        session = ConfigurableMapJobBase.createAppSession(context);
         failOnFirstError = context.getConfiguration().getBoolean("failOnFirstError", false);
         Injector injector = null;
         injector.injectMembers(this);
@@ -57,10 +55,6 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
             session.close();
         }
         super.cleanup(context);
-    }
-
-    public AppSession getSession() {
-        return session;
     }
 
     protected <T> T getAndInjectClassFromConfiguration(Context context, Injector injector, String configName) {

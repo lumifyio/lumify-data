@@ -1,8 +1,7 @@
 package com.altamiracorp.lumify.model.workspace;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,13 +9,8 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.ColumnFamily;
-import com.altamiracorp.lumify.model.MockSession;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.Row;
-import com.altamiracorp.lumify.model.RowKey;
-import com.altamiracorp.lumify.model.RowKeyHelper;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(JUnit4.class)
 public class WorkspaceRepositoryTest {
@@ -56,7 +50,7 @@ public class WorkspaceRepositoryTest {
 
         session.tables.get(Workspace.TABLE_NAME).add(row);
 
-        Workspace workspace = workspaceRepository.findByRowKey(rowKeyString, new User());
+        Workspace workspace = workspaceRepository.findByRowKey(rowKeyString, user);
         assertEquals(rowKeyString, workspace.getRowKey().toString());
         assertEquals(2, workspace.getColumnFamilies().size());
 

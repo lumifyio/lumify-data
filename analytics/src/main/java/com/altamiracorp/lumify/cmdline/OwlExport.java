@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.cmdline;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.GraphSession;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.ontology.*;
 import com.google.inject.Inject;
 import org.apache.accumulo.core.util.CachedConfiguration;
@@ -31,6 +30,7 @@ import java.util.List;
 public class OwlExport extends CommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(OwlExport.class.getName());
     private OntologyRepository ontologyRepository;
+    private ModelSession modelSession;
     private String outFileName;
     private Namespace NS_RDF = Namespace.getNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
     private Namespace NS_OWL = Namespace.getNamespace("owl", "http://www.w3.org/2002/07/owl#");
@@ -69,8 +69,7 @@ public class OwlExport extends CommandLineBase {
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
-        AppSession session = createSession();
-        session.getModelSession().initializeTables(getUser());
+        modelSession.initializeTables(getUser());
 
         OutputStream out;
         if (outFileName != null) {
@@ -93,14 +92,14 @@ public class OwlExport extends CommandLineBase {
         rootElem.appendChild(createVersionElement(doc));
 
         Concept rootConcept = ontologyRepository.getRootConcept(getUser());
-        List<Node> nodes = createConceptElements(session.getGraphSession(), doc, rootConcept, null);
+        List<Node> nodes = createConceptElements(doc, rootConcept, null);
         for (Node e : nodes) {
             rootElem.appendChild(e);
         }
 
         List<Relationship> relationships = ontologyRepository.getRelationshipLabels(getUser());
         for (Relationship relationship : relationships) {
-            nodes = createRelationshipElements(session.getGraphSession(), doc, relationship);
+            nodes = createRelationshipElements(doc, relationship);
             for (Node e : nodes) {
                 rootElem.appendChild(e);
             }
@@ -118,7 +117,7 @@ public class OwlExport extends CommandLineBase {
         return 0;
     }
 
-    private List<Node> createRelationshipElements(GraphSession graphSession, Document doc, Relationship relationship) {
+    private List<Node> createRelationshipElements(Document doc, Relationship relationship) {
         List<Node> elems = new ArrayList<Node>();
         elems.add(createObjectPropertyElement(doc, relationship));
 
@@ -139,7 +138,7 @@ public class OwlExport extends CommandLineBase {
         return elem;
     }
 
-    private List<Node> createConceptElements(GraphSession graphSession, Document doc, Concept concept, Concept parentConcept) {
+    private List<Node> createConceptElements(Document doc, Concept concept, Concept parentConcept) {
         List<Node> elems = new ArrayList<Node>();
 
         elems.add(doc.createComment(" Concept: " + concept.getTitle() + " "));
@@ -173,7 +172,7 @@ public class OwlExport extends CommandLineBase {
 
         List<Concept> childConcepts = ontologyRepository.getChildConcepts(concept, getUser());
         for (Concept childConcept : childConcepts) {
-            elems.addAll(createConceptElements(graphSession, doc, childConcept, concept));
+            elems.addAll(createConceptElements(doc, childConcept, concept));
         }
 
         return elems;
@@ -256,5 +255,10 @@ public class OwlExport extends CommandLineBase {
     @Inject
     public void setOntologyRepository(OntologyRepository ontologyRepository) {
         this.ontologyRepository = ontologyRepository;
+    }
+
+    @Inject
+    public void setModelSession(ModelSession modelSession) {
+        this.modelSession = modelSession;
     }
 }
