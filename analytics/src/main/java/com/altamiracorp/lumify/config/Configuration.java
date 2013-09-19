@@ -1,13 +1,7 @@
 package com.altamiracorp.lumify.config;
 
-import com.altamiracorp.lumify.model.AccumuloSession;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.search.BlurSearchProvider;
-import com.altamiracorp.lumify.search.ElasticSearchProvider;
-import com.google.common.base.Objects;
-import org.apache.hadoop.mapreduce.Job;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,8 +9,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import org.apache.hadoop.mapreduce.Job;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.altamiracorp.lumify.model.AccumuloSession;
+import com.altamiracorp.lumify.model.TitanGraphSession;
+import com.altamiracorp.lumify.search.BlurSearchProvider;
+import com.altamiracorp.lumify.search.ElasticSearchProvider;
+import com.altamiracorp.lumify.search.SearchProvider;
+import com.google.common.base.Objects;
 
 /**
  * Responsible for parsing application configuration file and providing
@@ -217,7 +219,7 @@ public final class Configuration implements MapConfig, ApplicationConfig {
         PropertyUtils.setPropertyValue(props, BlurSearchProvider.BLUR_CONTROLLER_LOCATION, getSearchIndexController());
         PropertyUtils.setPropertyValue(props, BlurSearchProvider.BLUR_PATH, getSearchIndexStoragePath());
         PropertyUtils.setPropertyValue(props, TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, getGraphSearchIndexHostname());
-        PropertyUtils.setPropertyValue(props, AppSession.SEARCH_PROVIDER_PROP_KEY, getSearchProvider());
+        PropertyUtils.setPropertyValue(props, SearchProvider.SEARCH_PROVIDER_PROP_KEY, getSearchProvider());
         PropertyUtils.setPropertyValue(props, ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, getElasticSearchLocations());
         return props;
     }
@@ -228,7 +230,7 @@ public final class Configuration implements MapConfig, ApplicationConfig {
         job.getConfiguration().set(AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
         job.getConfiguration().set(AccumuloSession.USERNAME, getDataStoreUserName());
         job.getConfiguration().set(AccumuloSession.PASSWORD, new String(getDataStorePassword()));
-        job.getConfiguration().set(AppSession.SEARCH_PROVIDER_PROP_KEY, getSearchProvider());
+        job.getConfiguration().set(SearchProvider.SEARCH_PROVIDER_PROP_KEY, getSearchProvider());
         if (getSearchIndexController() != null) {
             job.getConfiguration().set(BlurSearchProvider.BLUR_CONTROLLER_LOCATION, getSearchIndexController());
         }

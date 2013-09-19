@@ -1,24 +1,27 @@
 package com.altamiracorp.lumify.search;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import org.apache.hadoop.mapreduce.Mapper;
-
 import java.util.Collection;
 import java.util.Properties;
 
-public interface SearchProvider {
-    void setup(Properties props, User user);
+import org.apache.hadoop.mapreduce.Mapper;
 
-    void setup(Mapper.Context context, User user) throws Exception;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
 
-    void teardown() throws Exception;
+public abstract class SearchProvider {
+    public static final String SEARCH_PROVIDER_PROP_KEY = "search.provider";
 
-    void add(Artifact artifact, User user) throws Exception;
+    abstract void setup(Properties props, User user);
 
-    Collection<ArtifactSearchResult> searchArtifacts(String query, User user) throws Exception;
+    abstract void setup(Mapper.Context context, User user) throws Exception;
 
-    void deleteIndex(User user);
+    abstract void teardown() throws Exception;
 
-    void initializeIndex(User user);
+    abstract void add(Artifact artifact, User user) throws Exception;
+
+    abstract Collection<ArtifactSearchResult> searchArtifacts(String query, User user) throws Exception;
+
+    abstract void deleteIndex(User user);
+
+    abstract void initializeIndex(User user);
 }
