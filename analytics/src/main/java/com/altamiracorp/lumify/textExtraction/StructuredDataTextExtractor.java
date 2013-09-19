@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.structuredDataExtraction.StructuredDataExtractorBase;
 import com.altamiracorp.lumify.structuredDataExtraction.StructuredDataFactory;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.google.inject.Injector;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.json.JSONObject;
 
@@ -13,8 +14,8 @@ public class StructuredDataTextExtractor implements TextExtractor {
     private StructuredDataFactory structedDataFactory;
 
     @Override
-    public void setup(Mapper.Context context) throws Exception {
-        structedDataFactory = new StructuredDataFactory(context);
+    public void setup(Mapper.Context context, Injector injector) throws Exception {
+        structedDataFactory = new StructuredDataFactory(context, injector);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import com.altamiracorp.lumify.ucd.artifact.VideoTranscript;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class VideoFrameTextCombinerTextExtractor implements TextExtractor {
     }
 
     @Override
-    public void setup(Mapper.Context context) {
+    public void setup(Mapper.Context context, Injector injector) {
     }
 
     @Override

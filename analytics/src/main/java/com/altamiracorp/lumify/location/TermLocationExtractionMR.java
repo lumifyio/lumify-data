@@ -12,6 +12,7 @@ import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
@@ -49,6 +50,10 @@ public class TermLocationExtractionMR extends ConfigurableMapJobBase {
         private GraphRepository graphRepository;
         private GeoNamePostalCodeRepository geoNamePostalCodeRepository;
         private SimpleTermLocationExtractor simpleTermLocationExtractor;
+
+        @Override
+        protected void setup(Context context, Injector injector) throws Exception {
+        }
 
         @Override
         protected void safeMap(Text key, TermMention termMention, Context context) throws Exception {

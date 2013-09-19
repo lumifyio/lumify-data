@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.LumifyMapper;
 import com.altamiracorp.lumify.model.geoNames.GeoNamePostalCode;
 import com.altamiracorp.lumify.model.geoNames.GeoNamePostalCodeRepository;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -34,8 +35,7 @@ public class PostalCodesImportMR extends ConfigurableMapJobBase {
         private GeoNamePostalCodeRepository geoNamePostalCodeRepository;
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            super.setup(context);
+        protected void setup(Context context, Injector injector) throws IOException, InterruptedException {
             getSession().getModelSession().initializeTable(GeoNamePostalCode.TABLE_NAME, getUser());
         }
 

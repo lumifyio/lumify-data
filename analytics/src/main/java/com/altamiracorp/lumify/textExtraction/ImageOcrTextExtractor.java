@@ -7,6 +7,7 @@ import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.vietocr.ImageHelper;
@@ -30,7 +31,7 @@ public class ImageOcrTextExtractor implements TextExtractor {
     }
 
     @Override
-    public void setup(Mapper.Context context) {
+    public void setup(Mapper.Context context, Injector injector) {
         tesseract = Tesseract.getInstance();
     }
 

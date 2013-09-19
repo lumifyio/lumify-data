@@ -7,6 +7,7 @@ import com.altamiracorp.lumify.textExtraction.util.TikaMetadataUtils;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import com.google.inject.Injector;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
@@ -63,7 +64,7 @@ public class TikaTextExtractor implements TextExtractor {
     private List<String> customFlickrMetadataKeys;
 
     @Override
-    public void setup(Mapper.Context context) {
+    public void setup(Mapper.Context context, Injector injector) {
     }
 
     public TikaTextExtractor(ArtifactRepository artifactRepository) {
