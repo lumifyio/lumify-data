@@ -100,7 +100,7 @@ public class AccumuloSession extends ModelSession {
     @Override
     public List<Row> findByRowKeyRange(String tableName, String rowKeyStart, String rowKeyEnd, User user) {
         try {
-            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloAuthorizations) user.getModelAuthorizations()).getAuthorizations());
+            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloModelAuthorizations) user.getModelAuthorizations()).getAuthorizations());
             if (rowKeyStart != null) {
                 scanner.setRange(new Range(rowKeyStart, rowKeyEnd));
             }
@@ -118,7 +118,7 @@ public class AccumuloSession extends ModelSession {
     @Override
     List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, User user) {
         try {
-            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloAuthorizations) user.getModelAuthorizations()).getAuthorizations());
+            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloModelAuthorizations) user.getModelAuthorizations()).getAuthorizations());
             scanner.setRange(new Range());
 
             IteratorSetting iter = new IteratorSetting(15, "regExFilter", RegExFilter.class);
@@ -134,7 +134,7 @@ public class AccumuloSession extends ModelSession {
     @Override
     Row findByRowKey(String tableName, String rowKey, User user) {
         try {
-            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloAuthorizations) user.getModelAuthorizations()).getAuthorizations());
+            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloModelAuthorizations) user.getModelAuthorizations()).getAuthorizations());
             scanner.setRange(new Range(rowKey));
             List<Row> rows = AccumuloHelper.scannerToRows(tableName, scanner);
             if (rows.size() == 0) {
@@ -152,7 +152,7 @@ public class AccumuloSession extends ModelSession {
     @Override
     Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, User user) {
         try {
-            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloAuthorizations) user.getModelAuthorizations()).getAuthorizations());
+            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloModelAuthorizations) user.getModelAuthorizations()).getAuthorizations());
             scanner.setRange(new Range(rowKey));
             for (Map.Entry<String, String> columnFamilyAndColumnQualifier : columnsToReturn.entrySet()) {
                 if (columnFamilyAndColumnQualifier.getValue().equals("*")) {

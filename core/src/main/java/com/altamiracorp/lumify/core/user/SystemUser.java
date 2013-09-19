@@ -11,11 +11,11 @@ public class SystemUser extends User {
 
     public static ModelAuthorizations getSystemModelAuthorizations() {
         // TODO: figure out a better way to create this
-        String className = "com.altamiracorp.lumify.model.AccumuloAuthorizations";
+        String className = "com.altamiracorp.lumify.model.AccumuloModelAuthorizations";
         try {
             return (ModelAuthorizations) Class.forName(className).newInstance();
         } catch (Exception e) {
-            throw new RuntimeException("Could not create className");
+            throw new RuntimeException("Could not create: " + className);
         }
     }
 }

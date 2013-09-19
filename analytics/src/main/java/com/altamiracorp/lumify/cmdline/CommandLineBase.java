@@ -1,9 +1,9 @@
 package com.altamiracorp.lumify.cmdline;
 
 import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.core.user.ModelAuthorizations;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
-import org.apache.accumulo.core.security.Authorizations;
 import org.apache.commons.cli.*;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
@@ -87,8 +87,8 @@ public abstract class CommandLineBase extends Configured implements Tool {
         return configuration;
     }
 
-    public Authorizations getAuthorizations() {
-        return new Authorizations(); // TODO configurable
+    public ModelAuthorizations getAuthorizations() {
+        return getUser().getModelAuthorizations();
     }
 
     protected Class loadClass(String className) {
