@@ -55,14 +55,14 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
         private OntologyRepository ontologyRepository;
         private GraphRepository graphRepository;
         private TermMentionRepository termMentionRepository;
-        private StructuredDataFactory structedDataFactory;
+        private StructuredDataFactory structuredDataFactory;
         private HashMap<String, Concept> conceptMap = new HashMap<String, Concept>();
 
         @Override
         protected void setup(Context context) throws IOException, InterruptedException {
             super.setup(context);
             try {
-                structedDataFactory = new StructuredDataFactory(context);
+                structuredDataFactory = new StructuredDataFactory(context);
             } catch (Exception e) {
                 throw new IOException(e);
             }
@@ -82,7 +82,7 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
             String structuredDataType = mappingJson.getString("type");
             LOGGER.info("Extracting structured data from: " + artifact.getRowKey().toString() + ", type: " + structuredDataType);
 
-            StructuredDataExtractorBase structuredDataExtractor = structedDataFactory.get(structuredDataType);
+            StructuredDataExtractorBase structuredDataExtractor = structuredDataFactory.get(structuredDataType);
             if (structuredDataExtractor != null) {
                 ExtractedData extractedData = structuredDataExtractor.extract(artifact, text, mappingJson, getUser());
 

@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify;
 
 import com.altamiracorp.lumify.core.user.User;
+import com.google.inject.Injector;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,11 +16,15 @@ public abstract class LumifyMapper<KEYIN, VALUEIN, KEYOUT, VALUEOUT> extends Map
     private User user = new User();
 
     @Override
-    protected void setup(Context context) throws IOException, InterruptedException {
+    protected final void setup(Context context) throws IOException, InterruptedException {
         super.setup(context);
         session = ConfigurableMapJobBase.createAppSession(context);
         failOnFirstError = context.getConfiguration().getBoolean("failOnFirstError", false);
+        Injector injector;
+        setup(context, injector);
     }
+
+    protected abstract void setup(Context context, Injector injector);
 
     protected User getUser() {
         return user;
