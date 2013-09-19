@@ -3,7 +3,7 @@ nameNode=hdfs://<%= @hadoop_masters[0] %>:8020
 hdfsRoot=hdfs://<%= @hadoop_masters[0] %>
 jobTracker=<%= @hadoop_masters[0] %>:8021
 queueName=default
-numMapTasks=<%= @hadoop_slaves.count %>
+
 jobRoot=oozie-jobs
 workflowRoot=${jobRoot}/workflows
 coordinatorRoot=${jobRoot}/coordinators
@@ -17,16 +17,6 @@ launcherClass=${basePackage}.oozie.AccumuloMRMain
 
 #Ontology you would like to run with
 ontologyClass=${basePackage}.ontology.Dev
-
-#Non-MR jobs need these!
-zookeeperInstanceNameProp=lumify
-zookeeperServerNamesProp=<%= @zookeeper_nodes.values.join(',') %>
-usernameProp=root
-passwordProp=password
-hadoopUrlProp=${nameNode}
-blurControllerLocationProp=<%= @hadoop_masters[0] %>:40010
-blurPathProp=${nameNode}/blur
-graphStorageIndexSearchHostnameProp=<%= @elasticsearch_locations.map { |l| l.split(':')[0] }.join(',') %>
 
 #File import related
 fileImportReadyDir=/import/1-ready/

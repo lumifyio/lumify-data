@@ -37,6 +37,10 @@
         <value>com.altamiracorp.lumify.model.AccumuloModelOutputFormat</value>
     </property>
     <property>
+        <name>mapred.map.tasks</name>
+        <value><%= @hadoop_slaves.count %></value>
+    </property>
+    <property>
         <name>mapred.reduce.tasks</name>
         <value>0</value>
     </property>
