@@ -51,15 +51,19 @@ define([
             switch (message.type) {
                 case 'propertiesChange':
                     for(var i=0; i<message.data.properties.length; i++) {
-                        var propertyChangeData = message.data.properties[i];
-                        self.onPropertyChange(propertyChangeData);
+                        var data = {
+                            properties: message.data.properties[i],
+                            vertex: message.data.vertex
+                        };
+                        self.onPropertyChange(data);
                     }
                     break;
             }
         };
 
-        this.onPropertyChange = function(propertyChangeData) {
+        this.onPropertyChange = function(data) {
             var self = this;
+            var propertyChangeData = data.properties;
 
             if(propertyChangeData.propertyName == 'geoLocation') {
                 var m = propertyChangeData.value.match(/point\[(.*?),(.*?)\]/);
@@ -68,6 +72,8 @@ define([
                 }
                 var latitude = m[1];
                 var longitude = m[2];
+
+                self.updateVertexLocation (data.vertex);
 
                 this.map(function(map) {
                     var markers = map.markers

@@ -146,7 +146,7 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
         return session;
     }
 
-    public static void broadcastPropertyChange(String graphVertexId, String propertyName, Object value) {
+    public static void broadcastPropertyChange(String graphVertexId, String propertyName, Object value, JSONObject vertexJson) {
         try {
             JSONObject propertyJson = new JSONObject();
             propertyJson.put("graphVertexId", graphVertexId);
@@ -158,6 +158,9 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
 
             JSONObject dataJson = new JSONObject();
             dataJson.put("properties", propertiesJson);
+            if (vertexJson != null){
+                dataJson.put("vertex", vertexJson);
+            }
 
             JSONObject json = new JSONObject();
             json.put("type", "propertiesChange");
