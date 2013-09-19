@@ -38,6 +38,15 @@ function(ServiceBase) {
         });
     };
 
+    EntityService.prototype.deleteDetectedObject = function(deleteRequest, callback) {
+        this._ajaxPost({
+            url: 'entity/deleteEntity',
+            data: deleteRequest
+        },function (err, response) {
+            callback (err,response);
+        });
+    };
+
     return EntityService;
 });
 
