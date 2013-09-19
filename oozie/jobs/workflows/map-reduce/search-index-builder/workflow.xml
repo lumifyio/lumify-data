@@ -12,7 +12,7 @@
   See the License for the specific language governing permissions and
   limitations under the License. See accompanying LICENSE file.
 -->
-<workflow-app xmlns="uri:oozie:workflow:0.1" name="blur-search-map-reduce-wf">
+<workflow-app xmlns="uri:oozie:workflow:0.1" name="search-index-builder-map-reduce-wf">
     <start to="mr-node"/>
     <action name="mr-node">
         <map-reduce>
@@ -32,11 +32,7 @@
                 </property>
                 <property>
                     <name>searchIndexBuilderClass</name>
-                    <value>${basePackage}.search.BlurSearchProvider</value>
-                </property>
-                <property>
-                    <name>mapred.map.tasks</name>
-                    <value>${numMapTasks}</value>
+                    <value>${basePackage}.search.ElasticSearchProvider</value>
                 </property>
 				<property>
 					<name>tableName</name>

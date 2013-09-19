@@ -34,10 +34,6 @@
                     <name>textExtractorClass</name>
                     <value>${basePackage}.textExtraction.VideoFrameTextCombinerTextExtractor</value>
                 </property>
-                <property>
-                    <name>mapred.map.tasks</name>
-                    <value>${numMapTasks}</value>
-                </property>
 				<property>
 					<name>tableName</name>
                     <value>${tableArtifact}</value>

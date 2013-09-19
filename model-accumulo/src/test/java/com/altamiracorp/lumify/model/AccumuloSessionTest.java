@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.model;
 
 import com.altamiracorp.lumify.core.user.User;
-import junit.framework.Assert;
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.client.mock.MockConnector;
 import org.apache.accumulo.core.client.mock.MockInstance;
@@ -10,6 +9,7 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.thrift.AuthInfo;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

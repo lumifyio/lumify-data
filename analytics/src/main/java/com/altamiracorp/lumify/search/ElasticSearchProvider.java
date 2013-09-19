@@ -40,6 +40,7 @@ public class ElasticSearchProvider extends SearchProvider {
     private static final String FIELD_SOURCE = "source";
     private static final String FIELD_DETECTED_OBJECTS = "detectedObjects";
     private static final String FIELD_ARTIFACT_TYPE = "type";
+    private static final String FIELD_GEO_LOCATION_DESCRIPTION = "geoLocationDescription";
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final int ES_QUERY_MAX_SIZE = 100;
 
@@ -93,6 +94,7 @@ public class ElasticSearchProvider extends SearchProvider {
         String id = artifact.getRowKey().toString();
         String graphVertexId = artifact.getGenericMetadata().getGraphVertexId();
         String source = artifact.getGenericMetadata().getSource();
+        String geoLocationDescription = artifact.getDynamicMetadata().getGeoLocationTitle();
         String text = artifact.getContent().getDocExtractedTextString();
         text = text == null ? "" : text;
         String subject = artifact.getGenericMetadata().getSubject();
@@ -111,6 +113,10 @@ public class ElasticSearchProvider extends SearchProvider {
 
         if (source != null) {
             jsonBuilder = jsonBuilder.field(FIELD_SOURCE, source);
+        }
+
+        if (geoLocationDescription != null) {
+            jsonBuilder = jsonBuilder.field(FIELD_GEO_LOCATION_DESCRIPTION, geoLocationDescription);
         }
 
         if (!detectedObjects.isEmpty()) {
@@ -183,6 +189,7 @@ public class ElasticSearchProvider extends SearchProvider {
             properties.put(FIELD_DETECTED_OBJECTS, new JSONObject().put("type", "string").put("store", "yes"));
             properties.put(FIELD_ARTIFACT_TYPE, new JSONObject().put("type", "string").put("store", "yes"));
             properties.put(FIELD_PUBLISHED_DATE, new JSONObject().put("type", "date").put("store", "yes"));
+            properties.put(FIELD_GEO_LOCATION_DESCRIPTION, new JSONObject().put("type", "string").put("store", "no"));
             indexConfig.put("properties", properties);
             JSONObject indexType = new JSONObject();
             indexType.put(ES_INDEX_TYPE, indexConfig);
