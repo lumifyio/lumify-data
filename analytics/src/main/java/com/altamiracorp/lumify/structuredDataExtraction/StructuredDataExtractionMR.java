@@ -16,6 +16,7 @@ import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
@@ -59,7 +60,7 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
         private HashMap<String, Concept> conceptMap = new HashMap<String, Concept>();
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
+        protected void setup(Context context, Injector injector) throws IOException, InterruptedException {
             super.setup(context);
             try {
                 structuredDataFactory = new StructuredDataFactory(context);
