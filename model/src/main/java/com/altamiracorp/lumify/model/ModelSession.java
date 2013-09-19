@@ -36,6 +36,10 @@ public abstract class ModelSession {
             DBPedia.TABLE_NAME,
             Resource.TABLE_NAME,
             com.altamiracorp.lumify.model.user.User.TABLE_NAME,
+            GeoName.TABLE_NAME,
+            GeoNameAdmin1Code.TABLE_NAME,
+            GeoNameCountryInfo.TABLE_NAME,
+            GeoNamePostalCode.TABLE_NAME,
             "atc_titan");// see com.altamiracorp.lumify.model.TitanGraphSession
 
     public ModelSession() {

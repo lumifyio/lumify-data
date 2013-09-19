@@ -1,7 +1,13 @@
 package com.altamiracorp.lumify.config;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.altamiracorp.lumify.model.AccumuloSession;
+import com.altamiracorp.lumify.model.TitanGraphSession;
+import com.altamiracorp.lumify.search.BlurSearchProvider;
+import com.altamiracorp.lumify.search.ElasticSearchProvider;
+import com.google.common.base.Objects;
+import org.apache.hadoop.mapreduce.Job;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,16 +15,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import org.apache.hadoop.mapreduce.Job;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.AccumuloSession;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.search.BlurSearchProvider;
-import com.altamiracorp.lumify.search.ElasticSearchProvider;
-import com.google.common.base.Objects;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Responsible for parsing application configuration file and providing
