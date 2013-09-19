@@ -14,37 +14,28 @@ import com.altamiracorp.lumify.ucd.artifact.ArtifactDetectedObjects;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 public class EntityObjectDetectionUpdate extends BaseRequestHandler {
     private final GraphRepository graphRepository;
     private final ArtifactRepository artifactRepository;
     private final Repository<TermMention> termMentionRepository;
 
-    private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
-            new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()),
-            0L, TimeUnit.MILLISECONDS);
-
     @Inject
-    public EntityObjectDetectionUpdate (final Repository<TermMention> termMentionRepo,
-                            final ArtifactRepository artifactRepo,
-                            final GraphRepository graphRepo) {
+    public EntityObjectDetectionUpdate(final Repository<TermMention> termMentionRepo,
+                                       final ArtifactRepository artifactRepo,
+                                       final GraphRepository graphRepo) {
         termMentionRepository = termMentionRepo;
         artifactRepository = artifactRepo;
         graphRepository = graphRepo;
     }
 
     @Override
-    public void handle (HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
+    public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         EntityHelper objectDetectionHelper = new EntityHelper(termMentionRepository, graphRepository);
 
         final String artifactRowKey = getRequiredParameter(request, "artifactKey");
@@ -82,7 +73,7 @@ public class EntityObjectDetectionUpdate extends BaseRequestHandler {
         detectedObject.setModel(info.get("model").toString());
 
         JSONObject obj = detectedObject.getJson();
-        executorService.execute(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, obj));
+        objectDetectionHelper.executeService(new ObjectDetectionWorker(session, artifactRowKey, detectedObjectRowKey, obj));
 
         respondWithJson(response, obj);
     }
