@@ -3,15 +3,17 @@ package com.altamiracorp.lumify.web.routes.artifact;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.web.AuthenticationProvider;
 import com.altamiracorp.lumify.web.routes.RouteTestBase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
+import javax.servlet.http.HttpSession;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
@@ -19,12 +21,15 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
-@RunWith(JUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class ArtifactRawByRowKeyTest extends RouteTestBase {
     private ArtifactRawByRowKey artifactRawByRowKey;
 
     @Mock
     private User user;
+
+    @Mock
+    private HttpSession mockSession;
 
     @Override
     @Before
@@ -40,6 +45,8 @@ public class ArtifactRawByRowKeyTest extends RouteTestBase {
         when(mockRequest.getParameter("download")).thenReturn(null);
         when(mockRequest.getParameter("playback")).thenReturn(null);
         when(mockRequest.getAttribute("_rowKey")).thenReturn(artifactRowKey.toString());
+        when(mockRequest.getSession()).thenReturn(mockSession);
+        when(mockSession.getAttribute(AuthenticationProvider.CURRENT_USER_REQ_ATTR_NAME)).thenReturn(user);
 
         Artifact artifact = new Artifact(artifactRowKey);
         artifact.getGenericMetadata()
@@ -79,6 +86,8 @@ public class ArtifactRawByRowKeyTest extends RouteTestBase {
         when(mockRequest.getParameter("type")).thenReturn("video/mp4");
         when(mockRequest.getHeader("Range")).thenReturn("bytes=1-4");
         when(mockRequest.getAttribute("_rowKey")).thenReturn(artifactRowKey.toString());
+        when(mockRequest.getSession()).thenReturn(mockSession);
+        when(mockSession.getAttribute(AuthenticationProvider.CURRENT_USER_REQ_ATTR_NAME)).thenReturn(user);
 
         Artifact artifact = new Artifact(artifactRowKey);
         artifact.getGenericMetadata()
