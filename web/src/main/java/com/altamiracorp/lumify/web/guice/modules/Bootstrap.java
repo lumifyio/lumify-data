@@ -1,13 +1,13 @@
 package com.altamiracorp.lumify.web.guice.modules;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.altamiracorp.lumify.BootstrapBase;
 import com.altamiracorp.lumify.config.ApplicationConfig;
 import com.altamiracorp.lumify.config.ConfigConstants;
 import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.config.MapConfig;
 import com.altamiracorp.lumify.web.AuthenticationProvider;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Wires up the required injections for the web application
@@ -25,6 +25,7 @@ public class Bootstrap extends BootstrapBase {
 
     @Override
     protected void configure() {
+        super.configure();
         bind(MapConfig.class).toInstance(configuration);
         bind(ApplicationConfig.class).toInstance(configuration);
         bind(AuthenticationProvider.class).to(getAuthenticationProviderClass());

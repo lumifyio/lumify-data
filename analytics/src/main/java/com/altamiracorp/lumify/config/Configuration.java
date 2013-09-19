@@ -141,15 +141,15 @@ public final class Configuration implements MapConfig, ApplicationConfig {
     public static Configuration loadConfigurationFile(final String configUrl, final String credentialsUrl) {
         checkNotNull(configUrl, "The specified config file URL was null");
         checkArgument(!configUrl.isEmpty(), "The specified config file URL was empty");
-        checkNotNull(credentialsUrl, "The specified credentials URL was null");
-        checkArgument(!credentialsUrl.isEmpty(), "The specified credentials URL was empty");
 
         LOGGER.debug(String.format("Attemping to load configuration file: %s and credentials file: %s", configUrl, credentialsUrl));
 
         final Properties mergedProps = new Properties();
 
         processFile(configUrl, mergedProps);
-        processFile(credentialsUrl, mergedProps);
+        if (credentialsUrl != null) {
+            processFile(credentialsUrl, mergedProps);
+        }
 
         // Extract the expected configuration properties
         nameNodeUrl = mergedProps.getProperty(ConfigConstants.HADOOP_URL, UNKNOWN_STRING);
