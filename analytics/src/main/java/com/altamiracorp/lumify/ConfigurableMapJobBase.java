@@ -18,7 +18,7 @@ import org.apache.hadoop.util.Tool;
 import java.util.Properties;
 
 public abstract class ConfigurableMapJobBase extends CommandLineBase implements Tool {
-    private Class clazz;
+    private Class pluginClass;
     private String[] config;
     private boolean failOnFirstError = false;
 
@@ -66,7 +66,7 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
             if (pluginClassName == null) {
                 throw new RuntimeException("'class' parameter is required");
             }
-            clazz = loadClass(pluginClassName);
+            pluginClass = loadClass(pluginClassName);
         }
 
         config = cmd.getOptionValues("config");
@@ -98,7 +98,7 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
 
         job.setMapOutputKeyClass(Key.class);
         job.setMapOutputValueClass(Value.class);
-        job.setMapperClass(getMapperClass(job, clazz));
+        job.setMapperClass(getMapperClass(job, pluginClass));
 
         job.setNumReduceTasks(0);
 
@@ -124,7 +124,7 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
         return AccumuloModelOutputFormat.class;
     }
 
-    protected abstract Class<? extends Mapper> getMapperClass(Job job, Class clazz);
+    protected abstract Class<? extends Mapper> getMapperClass(Job job, Class pluginClass);
 
     protected String[] getConfig() {
         return config;

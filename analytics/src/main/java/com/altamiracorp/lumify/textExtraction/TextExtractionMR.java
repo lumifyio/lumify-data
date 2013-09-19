@@ -22,8 +22,8 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(TextExtractionMR.class.getName());
 
     @Override
-    protected Class getMapperClass(Job job, Class clazz) {
-        TextExtractorMapper.init(job, clazz);
+    protected Class getMapperClass(Job job, Class pluginClass) {
+        TextExtractorMapper.init(job, pluginClass);
         return TextExtractorMapper.class;
     }
 

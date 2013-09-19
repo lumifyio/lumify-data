@@ -28,6 +28,7 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class getMapperClass(Job job, Class clazz) {
+        ContentTypeExtractorMapper.init(job, clazz);
         return ContentTypeExtractorMapper.class;
     }
 
@@ -46,7 +47,7 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
     public static class ContentTypeExtractorMapper extends LumifyMapper<Text, Artifact, Text, Artifact> {
         private ArtifactRepository artifactRepository;
         private GraphRepository graphRepository;
-        public static final String CONF_CONTENT_TYPE_EXTRACTOR_CLASS = "contentTypeExtractorClass";
+        public static final String CONF_CONTENT_TYPE_EXTRACTOR_CLASS = "contentTypeExtractor";
         private ContentTypeExtractor contentTypeExtractor;
 
         @Override
@@ -85,6 +86,10 @@ public class ContentTypeExtractionMR extends ConfigurableMapJobBase {
         @Inject
         public void setGraphRepository(GraphRepository graphRepository) {
             this.graphRepository = graphRepository;
+        }
+
+        public static void init(Job job, Class<? extends ContentTypeExtractor> contentTypeExtractor) {
+            job.getConfiguration().setClass(CONF_CONTENT_TYPE_EXTRACTOR_CLASS, contentTypeExtractor, ContentTypeExtractor.class);
         }
     }
 
