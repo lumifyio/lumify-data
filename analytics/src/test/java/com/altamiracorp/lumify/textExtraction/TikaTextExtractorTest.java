@@ -1,21 +1,23 @@
 package com.altamiracorp.lumify.textExtraction;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.MockSession;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.mockito.Mock;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
-import static org.junit.Assert.assertEquals;
-
-@RunWith(JUnit4.class)
 public class TikaTextExtractorTest {
     private MockSession session;
 
@@ -27,6 +29,7 @@ public class TikaTextExtractorTest {
 
     @Before
     public void before() {
+        MockitoAnnotations.initMocks(this);
         session = new MockSession();
         session.initializeTables(user);
     }
@@ -50,6 +53,9 @@ public class TikaTextExtractorTest {
         Artifact artifact = new Artifact();
         artifact.getContent().setDocArtifactBytes(data.getBytes());
         artifact.getGenericMetadata().setMimeType("text/html");
+
+
+        when(artifactRepository.getRaw(eq(artifact), eq(user))).thenReturn(new ByteArrayInputStream(data.getBytes()));
         ArtifactExtractedInfo info = textExtractor.extract(artifact, user);
 
         assertEquals("Test Title", info.getSubject());
