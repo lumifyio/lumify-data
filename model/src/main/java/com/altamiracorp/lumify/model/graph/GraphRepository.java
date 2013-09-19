@@ -6,6 +6,7 @@ import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.tinkerpop.blueprints.Edge;
 import org.json.JSONArray;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
+@Singleton
 public class GraphRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(GraphRepository.class.getName());
     private final GraphSession graphSession;

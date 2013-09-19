@@ -1,14 +1,12 @@
 package com.altamiracorp.lumify.model.workspace;
 
+import com.altamiracorp.lumify.model.*;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+
 import java.util.Collection;
 
-import com.altamiracorp.lumify.model.Column;
-import com.altamiracorp.lumify.model.ColumnFamily;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.Repository;
-import com.altamiracorp.lumify.model.Row;
-import com.google.inject.Inject;
-
+@Singleton
 public class WorkspaceRepository extends Repository<Workspace> {
     @Inject
     public WorkspaceRepository(final ModelSession modelSession) {

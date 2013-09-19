@@ -5,9 +5,11 @@ import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.Row;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 import java.util.List;
 
+@Singleton
 public class TermMentionRepository extends Repository<TermMention> {
     private TermMentionBuilder termMentionBuilder = new TermMentionBuilder();
 

@@ -8,6 +8,7 @@ import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -17,7 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-
+@Singleton
 public class ArtifactRepository extends Repository<Artifact> {
     private final ArtifactBuilder artifactBuilder = new ArtifactBuilder();
     private final GraphSession graphSession;

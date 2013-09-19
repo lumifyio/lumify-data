@@ -9,7 +9,9 @@ import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.Row;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
+@Singleton
 public class UserRepository extends Repository<User> {
     @Inject
     public UserRepository(final ModelSession modelSession) {
