@@ -1,13 +1,14 @@
 package com.altamiracorp.lumify.entityHighlight;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 
 /**
  * Responsible for modifying the highlighted text portion of an {@link Artifact}
@@ -22,6 +23,8 @@ public final class EntityHighlightWorker implements Runnable {
     private final String artifactKey;
 
     public EntityHighlightWorker(ArtifactRepository artifactRepository, EntityHighlighter highlighter, final String artifactKey, User user) {
+        checkNotNull(artifactRepository);
+        checkNotNull(highlighter);
         checkNotNull(artifactKey);
         checkArgument(!artifactKey.isEmpty(), "The provided artifact key is empty");
         checkNotNull(user);
