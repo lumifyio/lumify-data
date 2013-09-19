@@ -1,5 +1,14 @@
 package com.altamiracorp.lumify.web;
 
+import java.util.Properties;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.altamiracorp.lumify.config.ConfigConstants;
 import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.core.user.SystemUser;
@@ -11,13 +20,6 @@ import com.altamiracorp.lumify.web.config.ParameterExtractor;
 import com.altamiracorp.lumify.web.guice.modules.Bootstrap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import java.util.Properties;
 
 /**
  * Responsible for defining behavior corresponding to web servlet context
@@ -38,6 +40,9 @@ public final class ApplicationBootstrap implements ServletContextListener {
 
             final Injector injector = Guice.createInjector(new Bootstrap(config));
 
+            final User user = new SystemUser();
+            injector.getInstance(BaseOntology.class).initialize(user);
+
             // Store the injector in the context for a servlet to access later
             context.setAttribute(Injector.class.getName(), injector);
 
@@ -45,7 +50,6 @@ public final class ApplicationBootstrap implements ServletContextListener {
             final SearchProvider searchProvider = injector.getInstance(SearchProvider.class);
             final BaseOntology baseOntology = injector.getInstance(BaseOntology.class);
 
-            User user = new SystemUser();
             modelSession.initializeTables(user);
             searchProvider.initializeIndex(user);
             baseOntology.initialize(user);
