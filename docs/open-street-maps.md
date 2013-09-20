@@ -129,10 +129,16 @@ mkdir -p /opt/map-tile-server
 chown maptiles:maptiles /opt/map-tile-server
 sudo -u maptiles git clone https://github.com/nearinfinity/map-tile-server.git /opt/map-tile-server
 
+mv ~/mapnik-stylesheets ~maptiles
+chown -R maptiles:maptiles ~maptiles/mapnik-stylesheets
+
 su - maptiles
 cd /opt/map-tile-server
 /opt/node/bin/npm install
 mkdir -p /home/maptiles/cache
+
+sed -i 's|<Parameter name="user">.*</Parameter>|<Parameter name="user">gisuser</Parameter>|' inc/datasource-settings.xml.inc
+sed -i 's|<!ENTITY world_boundaries ".*">|<!ENTITY world_boundaries "/home/maptiles/mapnik-stylesheets/world_boundaries">|' inc/settings.xml.inc
 ```
 
 
@@ -141,7 +147,9 @@ run the tile server
 ```
 su - maptiles
 cd /opt/map-tile-server
-LD_LIBRARY_PATH=/usr/local/lib /opt/node/bin/node server.js --cachedir=/home/maptiles/cache
+LD_LIBRARY_PATH=/usr/local/lib /opt/node/bin/node server.js \
+                                                  --cachedir=/home/maptiles/cache \
+                                                  --fontsdir=/usr/local/lib/mapnik/fonts
 
 # http://nic-hadoop-smmc02:9999/openlayers/index.html
 ```
@@ -153,5 +161,6 @@ import the planet
 
 ```
 cd /home/openstreetmap
-osm2pgsql --database gis --username gisuser --slim planet-130606.osm.pbf
+bunzip2 planet-latest.osm.bz2
+osm2pgsql --database gis --username gisuser --slim planet-latest.osm
 ```
