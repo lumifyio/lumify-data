@@ -4,6 +4,8 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.ucd.artifact.VideoTranscript;
+import com.altamiracorp.lumify.videoConversion.YoutubeccReader;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
 import net.lingala.zip4j.core.ZipFile;
@@ -29,18 +31,20 @@ import java.util.Iterator;
 public class FileImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileImporter.class.getName());
     public static final String MAPPING_JSON_FILE_NAME_SUFFIX = ".mapping.json";
+    public static final String YOUTUBE_CC_FILE_NAME_SUFFIC = ".youtubecc";
     private final ArtifactRepository artifactRepository;
+    private final YoutubeccReader youtubeccReader = new YoutubeccReader();
 
     @Inject
     public FileImporter(ArtifactRepository artifactRepository) {
         this.artifactRepository = artifactRepository;
     }
 
-    public Result writeFile(File file, String source, JSONObject mappingJson, User user) throws IOException, MutationsRejectedException {
+    public Result writeFile(File file, String source, JSONObject mappingJson, VideoTranscript videoTranscript, User user) throws IOException, MutationsRejectedException {
         if (file.getName().startsWith(".")) {
             return null;
         }
-        if (file.getName().endsWith(".mapping.json")) {
+        if (isSupportingFile(file)) {
             return null;
         }
         Artifact artifact = artifactRepository.createArtifactFromInputStream(
@@ -53,6 +57,9 @@ public class FileImporter {
         artifact.getGenericMetadata().setSource(source);
         if (mappingJson != null) {
             artifact.getGenericMetadata().setMappingJson(mappingJson);
+        }
+        if (videoTranscript != null) {
+            artifact.getContent().mergeVideoTranscript(videoTranscript);
         }
 
         LOGGER.info("Writing artifact: " + artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension() + " (rowId: " + artifact.getRowKey().toString() + ")");
@@ -77,7 +84,7 @@ public class FileImporter {
             }
         } else {
             results = new ArrayList<Result>();
-            Result r = writeFile(file, source, null, user);
+            Result r = writeFile(file, source, null, null, user);
             results.add(r);
         }
         return results;
@@ -91,15 +98,26 @@ public class FileImporter {
 
         while (fileIterator.hasNext()) {
             File f = fileIterator.next();
-            if (f.isFile() && !f.getName().endsWith(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
+            if (f.isFile() && !isSupportingFile(f)) {
                 JSONObject mappingJson = readMappingJsonFile(f);
-                Result r = writeFile(f, source, mappingJson, user);
+                VideoTranscript videoTranscript = readVideoTranscript(f);
+                Result r = writeFile(f, source, mappingJson, videoTranscript, user);
                 if (r != null) {
                     results.add(r);
                 }
             }
         }
         return results;
+    }
+
+    private boolean isSupportingFile(File f) {
+        if (f.getName().endsWith(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
+            return true;
+        }
+        if (f.getName().endsWith(FileImporter.YOUTUBE_CC_FILE_NAME_SUFFIC)) {
+            return true;
+        }
+        return false;
     }
 
     private JSONObject readMappingJsonFile(File f) throws JSONException, IOException {
@@ -114,6 +132,17 @@ public class FileImporter {
             }
         }
         return mappingJson;
+    }
+
+    private VideoTranscript readVideoTranscript(File f) throws Exception {
+        VideoTranscript videoTranscript = null;
+        File youtubeccFile = new File(f.getAbsolutePath() + FileImporter.YOUTUBE_CC_FILE_NAME_SUFFIC);
+        if (youtubeccFile.exists()) {
+            videoTranscript = new VideoTranscript();
+            VideoTranscript youtubeccTranscript = youtubeccReader.read(youtubeccFile);
+            videoTranscript.merge(youtubeccTranscript);
+        }
+        return videoTranscript;
     }
 
     public static class Result {
