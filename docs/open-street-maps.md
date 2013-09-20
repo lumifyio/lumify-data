@@ -118,6 +118,12 @@ osm2pgsql --database gis --username gisuser --slim WashingtonDC.osm.pbf
 install the tile server
 -----------------------
 ```
+yum install protobuf-lite-devel
+
+iptables -I INPUT $(iptables -L -n --line-numbers | awk '/tcp dpt:22/ {print $1}') \
+         -p tcp -m state --state NEW -m tcp --dport 9999 -j ACCEPT
+service iptables save
+
 useradd -m maptiles
 mkdir -p /opt/map-tile-server
 chown maptiles:maptiles /opt/map-tile-server
@@ -126,7 +132,7 @@ sudo -u maptiles git clone https://github.com/nearinfinity/map-tile-server.git /
 su - maptiles
 cd /opt/map-tile-server
 /opt/node/bin/npm install
-mkdir -p /opt/map-tile-server/cache
+mkdir -p /home/maptiles/cache
 ```
 
 
@@ -135,7 +141,9 @@ run the tile server
 ```
 su - maptiles
 cd /opt/map-tile-server
-/opt/node/bin/node server.js --cachedir=/home/maptiles/cache
+LD_LIBRARY_PATH=/usr/local/lib /opt/node/bin/node server.js --cachedir=/home/maptiles/cache
+
+# http://nic-hadoop-smmc02:9999/openlayers/index.html
 ```
 
 
