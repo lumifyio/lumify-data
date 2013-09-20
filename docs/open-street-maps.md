@@ -1,12 +1,24 @@
-Postgress
-=========
+download the planet
+-------------------
+- it's 30GB
+- `/home` on `nic-hadoop-smmc02` is 1.7TB
 
 ```
-sudo ln -s /usr/bin/bunzip2 /bin/bunzip2
+mkdir -p /home/openstreetmap
+cd /home/openstreetmap
+curl -L -O http://planet.openstreetmap.org/planet/planet-latest.osm.bz2
+```
 
-curl -O http://yum.postgresql.org/9.2/redhat/rhel-6-x86_64/pgdg-centos92-9.2-6.noarch.rpm
-sudo rpm -ivh pgdg-centos92-9.2-6.noarch.rpm 
-sudo yum install postgresql-server
+
+install PostgreSQL
+------------------
+```
+mkdir -p /home/postgresql
+
+### sudo ln -s /usr/bin/bunzip2 /bin/bunzip2
+
+rpm -ivh http://yum.postgresql.org/9.2/redhat/rhel-6.4-x86_64/pgdg-centos92-9.2-6.noarch.rpm
+yum install postgresql-server
 
 sudo -u postgres initdb -D /data/postgresql
 sudo sed -i'' -e 's/PGDATA=.*/PGDATA=\/data\/postgresql/' /etc/init.d/postgresql
