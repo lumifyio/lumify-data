@@ -42,7 +42,7 @@
         var classes = 'label label-info detected-object resolved entity subType-' + object._subType;%>
         <a class="<%= classes %>" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.title || object.info.concept %></a><button class="delete-tag" type="button">X</button>
     <%} else { %>
-        <a class="label label-info detected-object" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.info.title || object.info.concept %></a><button class="delete-tag" type="button">X</button>
+        <a class="label label-info detected-object" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.info.title || object.info.concept %></a>
   <% }}); %>
 <% } %>
 </div>
