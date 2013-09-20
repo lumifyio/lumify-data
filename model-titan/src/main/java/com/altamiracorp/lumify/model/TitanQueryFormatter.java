@@ -162,13 +162,13 @@ public class TitanQueryFormatter {
     }
 
     private GremlinPipeline<Vertex, Vertex> addFilter(JSONObject filterJson, GremlinPipeline<Vertex, Vertex> pipeline) {
-        String propertyDataType = filterJson.optString("propertyDataType");
+        String propertyDataType = filterJson.optString("propertyDataType", null);
         if (propertyDataType == null) {
             throw new RuntimeException("Could not find 'propertyDataType' on filter JSON.");
         }
 
         PropertyType propertyDateType = PropertyType.convert(propertyDataType);
-        String propertyName = filterJson.optString("propertyName");
+        String propertyName = filterJson.optString("propertyName", null);
         if (propertyName == null) {
             throw new RuntimeException("Could not find 'propertyName' to filter on.");
         }
