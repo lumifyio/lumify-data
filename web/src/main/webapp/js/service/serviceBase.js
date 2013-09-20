@@ -77,10 +77,6 @@ define(['atmosphere'],
             options.type = options.type || "GET";
             options.dataType = options.dataType || this._resolveDataType();
             options.resolvedUrl = options.resolvedUrl || this._resolveUrl(options.url);
-            options.error = options.error || function(xhr, textStatus, errorThrown) {
-                if (textStatus === 'abort') return;
-                throw new Error("Failed in request: " + options.resolvedUrl);
-            };
 
             return $.ajax(options);
         };

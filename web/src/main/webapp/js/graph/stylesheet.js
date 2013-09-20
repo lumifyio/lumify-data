@@ -28,7 +28,7 @@ define([
             .css({
                 'width': 30 * retina.devicePixelRatio,
                 'height': 30 * retina.devicePixelRatio,
-                'content': 'data(title)',
+                'content': 'data(truncatedTitle)',
                 'font-family': 'helvetica',
                 'font-size': 18 * retina.devicePixelRatio,
                 'text-outline-width': 2,

@@ -8,6 +8,7 @@ define([
     'util/withAsyncQueue',
     'service/workspace',
     'service/ucd',
+    'service/vertex',
     'util/undoManager',
 ], function(
     // Flight
@@ -15,7 +16,7 @@ define([
     // Mixins
     withVertexCache, withAjaxFilters, withAsyncQueue,
     // Service
-    WorkspaceService, UcdService, undoManager) {
+    WorkspaceService, UcdService, VertexService, undoManager) {
     'use strict';
 
     var WORKSPACE_SAVE_DELAY = 1000,
@@ -42,7 +43,9 @@ define([
 
         this.workspaceService = new WorkspaceService();
         this.ucdService = new UcdService();
+        this.vertexService = new VertexService();
         this.workspaceVertices = {};
+        this.id = null;
 
         this.defaultAttrs({
             droppableSelector: 'body'
@@ -59,7 +62,7 @@ define([
             // Vertices
             this.on('addVertices', this.onAddVertices);
             this.on('updateVertices', this.onUpdateVertices);
-            //this.on('deleteVertices', this.onDeleteVertices);
+            this.on('deleteVertices', this.onDeleteVertices);
             //this.on('refreshRelationships', this.refreshRelationships);
 
             // Workspaces
@@ -67,8 +70,6 @@ define([
             this.on('switchWorkspace', this.onSwitchWorkspace);
             this.on('workspaceDeleted', this.onWorkspaceDeleted);
             this.on('workspaceDeleting', this.onWorkspaceDeleting);
-
-            this.loadActiveWorkspace();
         });
 
 
@@ -76,18 +77,16 @@ define([
             var self = this,
                 saveFn;
 
-            if (self.currentWorkspaceRowKey) {
-                saveFn = self.workspaceService.save.bind(self.workspaceService, self.currentWorkspaceRowKey);
+            if (self.id) {
+                saveFn = self.workspaceService.save.bind(self.workspaceService, self.id);
             } else {
                 saveFn = self.workspaceService.saveNew.bind(self.workspaceService);
             }
 
             self.workspaceReady(function(ws) {
-                ws.data.vertices = _.values(self.workspaceVertices);
-
                 self.trigger('workspaceSaving', ws);
-                saveFn({ data:ws.data }).done(function(data) {
-                    self.currentWorkspaceRowKey = data._rowKey;
+                saveFn({ data:self.workspaceVertices }).done(function(data) {
+                    self.id = data._rowKey;
                     self.trigger('workspaceSaved', data);
                 });
             });
@@ -104,23 +103,26 @@ define([
                 });
         };
 
+        this.updateVertexWorkspaceInfo = function(vertex) {
+            this.workspaceVertices[vertex.id] = vertex.workspace || {};
+        };
+
 
         this.onAddVertices = function(evt, data) {
             this.workspaceReady(function(ws) {
                 var self = this,
-                    allVertices = ws.vertices,
                     added = [],
                     existing = [];
 
                 data.vertices.forEach(function(vertex) {
-
                     var inWorkspace = self.workspaceVertices[vertex.id],
                         cache = self.updateCacheWithVertex(vertex);
+
+                    self.updateVertexWorkspaceInfo(vertex);
 
                     if (inWorkspace) {
                         existing.push(cache);
                     } else {
-                        self.workspaceVertices[vertex.id] = cache;
                         added.push(cache);
                     }
                 });
@@ -148,7 +150,8 @@ define([
 
                 this.trigger('refreshRelationships');
                 this.trigger('saveWorkspace');
-                this.trigger('verticesAdded', { vertices:Object.freeze(added) } );
+                // TODO: freeze
+                this.trigger('verticesAdded', { vertices:added } );
             });
         };
 
@@ -188,7 +191,8 @@ define([
                 if (inWorkspace) {
                     this.trigger('saveWorkspace');
                 }
-                this.trigger('verticesUpdated', { vertices:Object.freeze(updated) });
+                // TODO: freeze
+                this.trigger('verticesUpdated', { vertices:updated });
             });
         };
 
@@ -196,42 +200,34 @@ define([
             var self = this;
 
             this.workspaceReady(function(ws) {
-                throw "implement";
 
-                // get all the workspace vertices to delete (used by the undo manager)
-                var workspaceVerticesToDelete = ws.data.vertices
-                    .filter(function(workspaceVertex) {
-                        return data.vertices.filter(function(dataVertex) {
-                            return workspaceVertex.graphVertexId == dataVertex.graphVertexId;
-                        }).length > 0;
-                    });
-
-                // remove all workspace vertices from list
-                ws.data.vertices = ws.data.vertices
-                    .filter(function(workspaceVertex) {
-                        return workspaceVerticesToDelete.filter(function(workspaceVerticesToDelete) {
-                            return workspaceVertex._rowKey == workspaceVerticesToDelete._rowKey;
-                        }).length === 0;
-                    });
+                var toDelete = [];
+                data.vertices.forEach(function(deletedVertex) {
+                    var workspaceInfo = self.workspaceVertices[deletedVertex.id];
+                    if (workspaceInfo) {
+                        delete self.workspaceVertices[deletedVertex.id];
+                        toDelete.push(self.vertex(deletedVertex.id));
+                    }
+                });
 
                 if(!data.noUndo) {
                     var undoDataClone = JSON.parse(JSON.stringify({
                         noUndo: true,
-                        vertices: workspaceVerticesToDelete
+                        vertices: toDelete
                     }));
-                    undoManager.performedAction( 'Delete ' + data.vertices.length + ' vertices', {
+                    undoManager.performedAction( 'Delete ' + toDelete.length + ' vertices', {
                         undo: function() {
                             self.trigger(document, 'addVertices', undoDataClone);
                         },
                         redo: function() {
                             self.trigger(document, 'deleteVertices', undoDataClone);
-                        },
-                        bind: this
+                        }
                     });
                 }
 
+                // TODO: freeze
                 this.trigger('saveWorkspace');
-                this.trigger('verticesDeleted', data);
+                this.trigger('verticesDeleted', { vertices:toDelete });
             });
         };
 
@@ -252,52 +248,98 @@ define([
         };
 
         this.onSwitchWorkspace = function(evt, data) {
-            if (data._rowKey != this.currentWorkspaceRowKey) {
+            if (data._rowKey != this.id) {
                 this.loadWorkspace(data._rowKey);
             }
         };
 
         this.onWorkspaceDeleted = function(evt, data) {
-            if (this.currentWorkspaceRowKey === data._rowKey) {
-                this.currentWorkspaceRowKey = null;
+            if (this.id === data._rowKey) {
+                this.id = null;
                 this.loadActiveWorkspace();
             }
         };
 
 
         this.onWorkspaceDeleting = function (evt, data) {
-            if (this.currentWorkspaceRowKey == data._rowKey) {
+            if (this.id == data._rowKey) {
                 // TODO: use activity to display message
             }
         };
 
         this.loadWorkspace = function(workspaceRowKey) {
+            console.log(workspaceRowKey);
             var self = this;
 
-            self.currentWorkspaceRowKey = workspaceRowKey;
+            self.id = workspaceRowKey;
 
             // Queue up any requests to modify workspace
             self.workspaceUnload();
 
-            var loaded = $.Deferred();
-            if (self.currentWorkspaceRowKey) {
-                self.workspaceService.getByRowKey(self.currentWorkspaceRowKey)
-                    .done(function(workspace) { loaded.resolve(workspace); });
+            self.getWorkspace(workspaceRowKey).done(function(workspace) {
+                console.log(_.keys(workspace.data));
+                self.loadWorkspaceVertices(workspace).done(function(vertices) {
+                    // TODO: freeze
+                    workspace.data.vertices = vertices;
+                    self.workspaceMarkReady(workspace);
+                    self.trigger('workspaceLoaded', workspace);
+                });
+            });
+        };
+
+        this.getWorkspace = function(id) {
+            var self = this,
+                deferred = $.Deferred();
+
+            if (id) {
+                self.workspaceService.getByRowKey(id).done(function(workspace) { 
+                    deferred.resolve(workspace); 
+                });
             } else {
-                loaded.resolve();
+                deferred.resolve();
+            }
+            return deferred.then(function(workspace) {
+                    workspace = workspace || {};
+                    workspace.data = workspace.data || {};
+
+                    if (workspace.data.vertices) {
+                        console.warn('Legacy workspace found, resetting');
+                        workspace.data = {};
+                        self.trigger('saveWorkspace');
+                    }
+
+                    return workspace;
+                });
+        };
+
+        this.loadWorkspaceVertices = function(workspace) {
+            var self = this,
+                deferred = $.Deferred(),
+                ids = Object.keys(workspace.data);
+
+            self.workspaceVertices = {};
+            if (ids.length) {
+                self.vertexService.getMultiple(ids).done(function(serverVertices) {
+
+                    var vertices = serverVertices.map(function(vertex) {
+                        var workspaceData = workspace.data[vertex.id];
+                        self.workspaceVertices[vertex.id] = workspaceData;
+
+                        var cache = self.updateCacheWithVertex(vertex);
+                        cache.workspace = workspaceData || {};
+                        return cache;
+                    });
+
+                    undoManager.reset();
+
+                    self.refreshRelationships();
+                    deferred.resolve(vertices);
+                });
+            } else {
+                deferred.resolve([]);
             }
 
-            loaded.done(function(workspace) {
-                workspace = workspace || {};
-                workspace.data = workspace.data || {};
-                workspace.data.vertices = workspace.data.vertices || [];
-
-                undoManager.reset();
-
-                self.refreshRelationships();
-                self.workspaceMarkReady(workspace);
-                self.trigger('workspaceLoaded', workspace);
-            });
+            return deferred;
         };
 
 
@@ -346,7 +388,6 @@ define([
                     appDroppable = target.is(droppable),
                     parentDroppables = target.parents('.ui-droppable');
 
-                console.log('target', e.type, e.target);
                 if (appDroppable) {
                     // Ignore events from this droppable
                     return;
@@ -356,8 +397,6 @@ define([
                 if (parentDroppables.length === 1 && parentDroppables.is(droppable)) {
                     enabled = e.type === 'dropout';
                 }
-
-                console.log(enabled);
             });
 
             droppable.droppable({
@@ -382,7 +421,7 @@ define([
                     if (!vertex) throw "Unable to find vertex " + id + " in cache";
 
                     if ($(event.target).is('.graph-pane')) {
-                        vertex.dropPosition = { x: event.clientX, y: event.clientY };
+                        vertex.workspace.dropPosition = { x: event.clientX, y: event.clientY };
                     }
 
                     self.trigger('addVertices', { vertices:[vertex] });

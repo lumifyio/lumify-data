@@ -65,28 +65,27 @@ define([
             var self = this,
                 vertex = self.attr.data;
 
-            $.when(
-                self.handleCancelling(self.ucdService.getArtifactById(vertex.artifact._rowKey)),
-                self.handleCancelling(self.ucdService.getVertexProperties(vertex.id))
-            ).done(function(artifactResponse, vertexResponse) {
+            appData.refresh(vertex)
+                   .done(this.handleVertexLoaded.bind(this));
+        };
 
-                self.videoTranscript = vertex.artifact.videoTranscript;
-                self.videoDuration = vertex.artifact.videoDuration;
+        this.handleVertexLoaded = function(vertex) {
+            this.videoTranscript = vertex.artifact.videoTranscript;
+            this.videoDuration = vertex.artifact.videoDuration;
 
-                self.$node.html(template({
-                    artifact: vertex.artifact,
-                    vertex: vertex,
-                    highlightButton: self.highlightButton(),
-                    fullscreenButton: self.fullscreenButton([vertex.id])
-                }));
+            this.$node.html(template({
+                artifact: vertex.artifact,
+                vertex: vertex,
+                highlightButton: this.highlightButton(),
+                fullscreenButton: this.fullscreenButton([vertex.id])
+            }));
 
 
-                Properties.attachTo(self.select('propertiesSelector'), { data: vertex });
+            Properties.attachTo(this.select('propertiesSelector'), { data: vertex });
 
-                if (self[vertex.artifact.type + 'Setup']) {
-                    self[vertex.artifact.type + 'Setup'](vertex);
-                }
-            });
+            if (this[vertex.artifact.type + 'Setup']) {
+                this[vertex.artifact.type + 'Setup'](vertex);
+            }
         };
 
         this.onVideoTimeUpdate = function(evt, data) {

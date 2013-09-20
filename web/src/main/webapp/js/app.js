@@ -95,6 +95,8 @@ define([
 
             this.setupWindowResizeTrigger();
             this.triggerPaneResized();
+
+            data.loadActiveWorkspace();
         });
 
         this.trapAnchorClicks = function(e) {

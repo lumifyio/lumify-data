@@ -42,7 +42,7 @@ function(ServiceBase) {
         });
     };
 
-    WorkspaceService.prototype.delete = function(_rowKey) {
+    WorkspaceService.prototype['delete'] = function(_rowKey) {
         return this._ajaxDelete({
             url: 'workspace/' + _rowKey,
             data: {
