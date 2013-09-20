@@ -12,85 +12,138 @@ curl -L -O http://planet.openstreetmap.org/planet/planet-latest.osm.bz2
 
 install PostgreSQL
 ------------------
-```
-mkdir -p /home/postgresql
+- the database will be at least 1TB
+- initialize data files and update the start script to use space in `/home`
 
-### sudo ln -s /usr/bin/bunzip2 /bin/bunzip2
+```
+mkdir -p /home/postgres/data
+chown -R postgres:postgres /home/postgres
 
 rpm -ivh http://yum.postgresql.org/9.2/redhat/rhel-6.4-x86_64/pgdg-centos92-9.2-6.noarch.rpm
 yum install postgresql-server
 
-sudo -u postgres initdb -D /data/postgresql
-sudo sed -i'' -e 's/PGDATA=.*/PGDATA=\/data\/postgresql/' /etc/init.d/postgresql
-sudo sed -i'' -e 's/PGLOG=.*/PGLOG=\/data\/postgresql\/pgstartup.log/' /etc/init.d/postgresql
-sudo chkconfig postgresql on
-sudo service postgresql start
+sudo -u postgres initdb -D /home/postgres/data
+sed -i'' -e 's|PGDATA=.*|PGDATA=/home/postgres/data|' /etc/init.d/postgresql
+sed -i'' -e 's|PGLOG=.*|PGLOG=/home/postgres/pgstartup.log|' /etc/init.d/postgresql
+chkconfig postgresql on
+service postgresql start
+```
 
-# install node.js (this is used to host the map tile server)
-wget http://nodejs.org/dist/v0.8.25/node-v0.8.25-linux-x64.tar.gz
-tar xzf node-v0.8.25-linux-x64.tar.gz
-sudo mv node-v0.8.25-linux-x64 /opt/node-v0.8.25-linux-x64
-sudo ln -s /opt/node-v0.8.25-linux-x64 /opt/node
 
-# install osm2pgsql and mapnik
-yum install geos-devel proj-devel postgresql-devel libxml2-devel bzip2-devel 
-yum install gcc-c++ protobuf-c-devel autoconf automake libtool
-sudo rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
-sudo yum install -y geos geos-devel
-sudo yum install -y postgis
-sudo yum install -y proj proj-devel proj-epsg
-sudo yum install -y lua lua-devel
-sudo yum install -y protobuf protobuf-devel protobuf-c protobuf-c-devel
-sudo yum install -y freetype freetype-devel
-sudo yum install -y libpng-devel
-sudo yum install -y libtiff-devel
-sudo yum install -y libjpeg-devel
-sudo yum install -y libicu-devel
-sudo yum install -y python-devel
+install node.js
+---------------
+```
+cd /opt
+curl -O http://nodejs.org/dist/v0.10.18/node-v0.10.18-linux-x64.tar.gz
+tar xzf node-v0.10.18-linux-x64.tar.gz
+ln -s node-v0.10.18-linux-x64 node
+```
 
-wget http://sourceforge.net/projects/boost/files/boost/1.53.0/boost_1_53_0.tar.gz/download
+
+install osm2pgsql and mapnik
+----------------------------
+```
+rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+
+yum install geos-devel proj-devel postgresql-devel libxml2-devel bzip2-devel \
+            gcc-c++ protobuf-c-devel autoconf automake libtool \
+            geos geos-devel \
+            postgis \
+            proj proj-devel proj-epsg \
+            lua lua-devel \
+            protobuf protobuf-devel protobuf-c protobuf-c-devel \
+            freetype freetype-devel \
+            libpng-devel \
+            libtiff-devel \
+            libjpeg-devel \
+            libicu-devel \
+            python-devel \
+            git \
+            make \
+            unzip \
+            wget
+
+cd ~
+curl http://sourceforge.net/projects/boost/files/boost/1.53.0/boost_1_53_0.tar.gz/download -o boost_1_53_0.tar.gz
 tar xzf boost_1_53_0.tar.gz
 cd boost_1_53_0
 ./bootstrap.sh
-sudo ./bjam install
+./bjam install
 
+cd ~
 git clone https://github.com/openstreetmap/osm2pgsql.git
-cd osm2pgsql/
+cd osm2pgsql
 ./autogen.sh
 ./configure
 sed -i 's/-g -O2/-O2 -march=native -fomit-frame-pointer/' Makefile
-make
-sudo make install
+make -j4
+make install
 
+cd ~
 git clone https://github.com/mapnik/mapnik.git
 cd mapnik
 git checkout v2.2.0
 ./configure
-make
-sudo make install
+make -j4
+make install
 
+cd ~
 git clone git://github.com/openstreetmap/mapnik-stylesheets.git
-cd mapnik-stylesheets/
+cd mapnik-stylesheets
+sed -i "s|BUNZIP2=.*|BUNZIP2=$(which bunzip2)|" get-coastlines.sh
 ./get-coastlines.sh
+```
 
+
+configure the PostgreSQL user and db
+------------------------------------
+```
 sudo -u postgres createuser gisuser
 sudo -u postgres createdb --encoding=UTF8 --owner=gisuser gis
 sudo -u postgres createlang plpgsql gis
-
-# to shell into postgresql use: psql -U gisuser gis
-
 psql -U gisuser -d gis -f /usr/share/pgsql/contrib/postgis-64.sql
 psql -U gisuser -d gis -f /usr/share/pgsql/contrib/postgis-1.5/spatial_ref_sys.sql
+```
 
-# test osm2pgsql
-wget http://download.bbbike.org/osm/bbbike/WashingtonDC/WashingtonDC.osm.pbf
+
+test osm2pgsql
+--------------
+```
+cd /home/openstreetmap
+curl -O http://download.bbbike.org/osm/bbbike/WashingtonDC/WashingtonDC.osm.pbf
 osm2pgsql --database gis --username gisuser --slim WashingtonDC.osm.pbf
+```
 
-cd /data/red-dawn/map-tile-server/
+
+install the tile server
+-----------------------
+```
+useradd -m maptiles
+mkdir -p /opt/map-tile-server
+chown maptiles:maptiles /opt/map-tile-server
+sudo -u maptiles git clone https://github.com/nearinfinity/map-tile-server.git /opt/map-tile-server
+
+su - maptiles
+cd /opt/map-tile-server
 /opt/node/bin/npm install
-/opt/node/bin/node server.js --cachedir=/data/maptiles/
+mkdir -p /opt/map-tile-server/cache
+```
 
-# import the whole planet... this will take a long time
+
+run the tile server
+-------------------
+```
+su - maptiles
+cd /opt/map-tile-server
+/opt/node/bin/node server.js --cachedir=/home/maptiles/cache
+```
+
+
+import the planet
+-----------------
+- this will take a _very_ long time...
+
+```
+cd /home/openstreetmap
 osm2pgsql --database gis --username gisuser --slim planet-130606.osm.pbf
-
 ```
