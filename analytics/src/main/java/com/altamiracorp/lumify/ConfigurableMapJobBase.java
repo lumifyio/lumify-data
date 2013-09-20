@@ -76,6 +76,8 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
         if (cmd.hasOption(FAIL_FIRST_ERROR)) {
             failOnFirstError = true;
         }
+
+        disableFrameworkInitialization();
     }
 
     protected boolean hasConfigurableClassname() {
@@ -139,5 +141,9 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
         }
 
         job.getConfiguration().setBoolean(FAIL_FIRST_ERROR, failOnFirstError);
+    }
+
+    private void disableFrameworkInitialization() {
+        initFramework = false;
     }
 }
