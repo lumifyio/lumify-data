@@ -24,7 +24,8 @@ define([
             resolveButtonSelector: '.resolve',
             buttonDivSelector: '.buttons',
             entityNameInputSelector: 'input',
-            draggablesSelector: '.resolved'
+            draggablesSelector: '.resolved',
+            detectedObjectTagSelector: '.detected-object-labels .focused'
         });
 
         this.after('initialize', function() {
@@ -172,30 +173,34 @@ define([
                 var newTag = ' <a class="' + classes + '" href="#">' + data.title +' </a><button class="delete-tag" type="button">X</button>';
                 var added = false;
 
-                $('.detected-object-labels .label').each(function(){
-                    if(parseFloat($(this).data("info").info.coords.x1) > data.info.coords.x1){
-                        $(newTag).insertBefore(this).removePrefixedClasses('subType-').addClass('subType-' + parameters.conceptId).after(' ');
-                        added = true;
-                        return false;
-                    }
-                });
-                if (!added){
-                    $('.detected-object-labels').append ($(newTag));
-                }
-
-                $('.detected-object-labels .focused').data('info', data);
-                $('.detected-object-labels .focused').removeClass('focused');
-                self.trigger(document, 'termCreated', data);
-
-                var vertices = [];
-                vertices.push(resolvedVertex);
-                self.trigger(document, 'updateVertices', { vertices: vertices });
-                self.trigger(document, 'refreshRelationships');
-
-                if ($('.artifact').data('Jcrop')) {
-                    $('.artifact').data('Jcrop').release ();
+                if ($('.detected-object-labels .label').hasClass('focused')) {
+                    self.updateEntityTag (data, parameters.conceptId);
                 } else {
-                    _.defer(self.teardown.bind(self));
+                    $('.detected-object-labels .label').each(function(){
+                        if(parseFloat($(this).data("info").info.coords.x1) > data.info.coords.x1){
+                            $(newTag).insertBefore(this).removePrefixedClasses('subType-').addClass('subType-' + parameters.conceptId).after(' ');
+                            added = true;
+                            return false;
+                        }
+                    });
+                    if (!added){
+                        $('.detected-object-labels').append ($(newTag));
+                    }
+
+                    $('.detected-object-labels .focused').data('info', data);
+                    $('.detected-object-labels .focused').removeClass('focused');
+                    self.trigger(document, 'termCreated', data);
+
+                    var vertices = [];
+                    vertices.push(resolvedVertex);
+                    self.trigger(document, 'updateVertices', { vertices: vertices });
+                    self.trigger(document, 'refreshRelationships');
+
+                    if ($('.artifact').data('Jcrop')) {
+                        $('.artifact').data('Jcrop').release ();
+                    } else {
+                        _.defer(self.teardown.bind(self));
+                    }
                 }
             });
         };
@@ -208,29 +213,41 @@ define([
                     return self.trigger(document, 'error', err);
                 }
 
-                var resolvedVertex ={
-                    graphVertexId: data.graphVertexId,
-                    _rowKey: data._rowKey,
-                    _subType: data._subType,
-                    _type: data._type,
-                    title: data.title,
-                    info: data.info
-                };
-
-                $('.detected-object-labels .focused').text(data.title).data('info', data).removePrefixedClasses('subType-');
-                $('.detected-object-labels .focused').addClass('resolved entity subType-' + parameters.conceptId).removeClass('focused');
-
-                var vertices = [];
-                vertices.push(resolvedVertex);
-                self.trigger(document, 'updateVertices', { vertices: vertices });
-
-                if ($('.artifact').data('Jcrop')) {
-                    $('.artifact').data('Jcrop').release ();
-                } else {
-                    _.defer(self.teardown.bind(self));
-                }
+                self.updateEntityTag (data, parameters.conceptId);
             });
         };
+
+        this.updateEntityTag = function (data, conceptId) {
+            var self = this;
+            var resolvedVertex ={
+                graphVertexId: data.graphVertexId,
+                _rowKey: data._rowKey,
+                _subType: data._subType,
+                _type: data._type,
+                title: data.title,
+                info: data.info
+            };
+
+            $('.detected-object-labels .focused').text(data.title).data('info', data).removePrefixedClasses('subType-');
+            $('.detected-object-labels .focused').addClass('resolved entity subType-' + conceptId);
+
+            if (!$('.detected-object-labels .focused').next().hasClass('delete-tag')){
+                var buttonTag = '<button class="delete-tag" type="button">X</button>';
+                $(buttonTag).insertAfter($('.detected-object-labels .focused'));
+                self.trigger(document, 'termCreated', data);
+            }
+            $('.detected-object-labels .focused').removeClass('focused');
+
+            var vertices = [];
+            vertices.push(resolvedVertex);
+            self.trigger(document, 'updateVertices', { vertices: vertices });
+
+            if ($('.artifact').data('Jcrop')) {
+                $('.artifact').data('Jcrop').release ();
+            } else {
+                _.defer(self.teardown.bind(self));
+            }
+        }
 
         this.onConceptChanged = function(event) {
             var select = $(event.target);
