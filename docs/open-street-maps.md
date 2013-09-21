@@ -16,11 +16,11 @@ install PostgreSQL
 - initialize data files and update the start script to use space in `/home`
 
 ```
-mkdir -p /home/postgres/data
-chown -R postgres:postgres /home/postgres
-
 rpm -ivh http://yum.postgresql.org/9.2/redhat/rhel-6.4-x86_64/pgdg-centos92-9.2-6.noarch.rpm
 yum install postgresql-server
+
+mkdir -p /home/postgres/data
+chown -R postgres:postgres /home/postgres
 
 sudo -u postgres initdb -D /home/postgres/data
 sed -i'' -e 's|PGDATA=.*|PGDATA=/home/postgres/data|' /etc/init.d/postgresql
