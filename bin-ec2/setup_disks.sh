@@ -58,6 +58,7 @@ function _octet4 {
 }
 
 # setup a single instance store disk (to be run in parallel)
+# assumes use for Hadoop with 'noatime' mount option
 function _instance_store_disk {
   local instance_store_disk=$1
   local label_prefix=$2
@@ -77,7 +78,6 @@ function _instance_store_disk {
 }
 
 # prepare and use any not previously configured Instance Storage devices as /data[0-3]
-# assumes use for Hadoop with 'noatime' mount option
 function _instance {
   local label_prefix=$(_octet4)
   local n=$(awk '/-i[1234]/ {print $2}' /etc/fstab | sort | tail -1 | sed -e 's/\/data//')
