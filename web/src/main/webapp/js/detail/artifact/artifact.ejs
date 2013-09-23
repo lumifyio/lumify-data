@@ -19,12 +19,6 @@
 
 <h1 class="generic-draggable artifact-title" data-vertex-id='<%= vertex.id %>'><%= vertex.properties.title %></h1>
 
-<div class="artifact-header">
-  <div class="properties">
-    <div class="nav-header">Properties<span class="badge loading"/></div>
-  </div>
-</div>
-
 <% if(artifact.type == 'video') { %>
   <div class="preview"/>
   <div class="currentTranscript"/>
@@ -34,6 +28,12 @@
     <img src='<%= artifact.rawUrl %>' width="auto" height="300"/>
   </div>
 <% } %>
+
+<div class="artifact-header">
+  <div class="properties">
+    <div class="nav-header">Properties<span class="badge loading"/></div>
+  </div>
+</div>
 
 <div class='detected-object-labels'>
   <% artifact.detectedObjects.forEach(function(object) {
