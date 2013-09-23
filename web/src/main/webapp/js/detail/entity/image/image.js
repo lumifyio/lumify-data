@@ -35,7 +35,6 @@ define([
                 change: this.onFileChange.bind(this)
             });
 
-
             this.$node.addClass('upload-available');
             this.$node.on({
                 mouseenter: function() { $(this).addClass('file-hover'); },

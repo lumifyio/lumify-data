@@ -56,7 +56,6 @@ define([
                     return self.trigger(document, 'error', err);
                 }
 
-
                 self.loadEntity();
             }));
         });
@@ -71,7 +70,7 @@ define([
                 var concept = concepts.byId[self.attr.data._subType];
 
                 self.$node.html(template({
-                    title: self.attr.data.properties.title,
+                    vertex: self.attr.data,
                     highlightButton: self.highlightButton(),
                     fullscreenButton: self.fullscreenButton([self.attr.data.id])
                 }));
@@ -85,6 +84,8 @@ define([
                 Properties.attachTo(self.select('propertiesSelector'), {
                     data: self.attr.data
                 });
+
+                self.updateEntityAndArtifactDraggables();
 
                 $.when(
                     self.handleCancelling(self.ontologyService.relationships()),
