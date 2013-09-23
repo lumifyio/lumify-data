@@ -11,7 +11,10 @@ import com.thinkaurelius.titan.core.*;
 import com.thinkaurelius.titan.core.attribute.Geo;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.thinkaurelius.titan.core.attribute.Text;
-import com.tinkerpop.blueprints.*;
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Graph;
+import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import com.tinkerpop.pipes.PipeFunction;
 import com.tinkerpop.pipes.branch.LoopPipe;
@@ -383,15 +386,12 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public List<GraphVertex> searchVerticesWithinGraphVertexIds(final List<String> vertexIds, JSONArray filterJson, User user) {
-        GraphQuery query = graph.query();
-        Iterable<Vertex> r = query.vertices();
+        ArrayList<Vertex> r = new ArrayList<Vertex>();
+        for (String vertexId : vertexIds) {
+            r.add(findVertex(vertexId));
+        }
+
         GremlinPipeline<Vertex, Vertex> queryPipeline = queryFormatter.createQueryPipeline(r, filterJson);
-        queryPipeline = queryPipeline.filter(new PipeFunction<Vertex, Boolean>() {
-            @Override
-            public Boolean compute(Vertex argument) {
-                return vertexIds.contains(argument.getId().toString());
-            }
-        });
         ArrayList<Vertex> results = new ArrayList<Vertex>();
         for (Vertex v : queryPipeline.toList()) {
             if (vertexIds.contains(v.getId().toString())) {
