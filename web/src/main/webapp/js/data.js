@@ -62,7 +62,7 @@ define([
             this.on('addVertices', this.onAddVertices);
             this.on('updateVertices', this.onUpdateVertices);
             this.on('deleteVertices', this.onDeleteVertices);
-            //this.on('refreshRelationships', this.refreshRelationships);
+            this.on('refreshRelationships', this.refreshRelationships);
 
             // Workspaces
             this.on('saveWorkspace', this.onSaveWorkspace);
