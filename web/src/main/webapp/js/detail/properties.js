@@ -59,6 +59,7 @@ define([
         this.onAddNewPropertiesClicked = function (evt) {
             var root = $('<div class="underneath">').insertAfter(evt.target);
 
+            PropertyForm.teardownAll();
             PropertyForm.attachTo(root, {
                 service: this.ontologyService,
                 data: this.attr.data

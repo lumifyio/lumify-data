@@ -179,7 +179,6 @@ define([
             }
 
             var merged = $.extend(data, _.pick(vertex.properties, '_rowKey', '_subType', '_type', '_glyphIcon', 'title')); 
-            merged.id = vertex.id;
             merged.truncatedTitle = truncatedTitle;
 
             return merged;
@@ -246,7 +245,8 @@ define([
                                 cyNode.position( retina.pointsToPixels(updatedVertex.workspace.graphPosition) );
                             }
 
-                            self.updateCyNodeData(cyNode.data(), updatedVertex);
+                            var newData = self.updateCyNodeData(cyNode.data(), updatedVertex);
+                            cyNode.data(newData);
                             if (cyNode._private.classes) {
                                 cyNode._private.classes.length = 0;
                             }
