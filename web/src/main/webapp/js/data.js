@@ -44,7 +44,6 @@ define([
         this.workspaceService = new WorkspaceService();
         this.ucdService = new UcdService();
         this.vertexService = new VertexService();
-        this.workspaceVertices = {};
         this.id = null;
 
         this.defaultAttrs({
@@ -103,10 +102,6 @@ define([
                 });
         };
 
-        this.updateVertexWorkspaceInfo = function(vertex) {
-            this.workspaceVertices[vertex.id] = vertex.workspace || {};
-        };
-
 
         this.onAddVertices = function(evt, data) {
             this.workspaceReady(function(ws) {
@@ -118,7 +113,7 @@ define([
                     var inWorkspace = self.workspaceVertices[vertex.id],
                         cache = self.updateCacheWithVertex(vertex);
 
-                    self.updateVertexWorkspaceInfo(vertex);
+                    self.workspaceVertices[vertex.id] = cache.workspace;
 
                     if (inWorkspace) {
                         existing.push(cache);
@@ -163,21 +158,17 @@ define([
                 var undoData = { noUndo: true, vertices: [] };
                 var redoData = { noUndo: true, vertices: [] };
 
-                var inWorkspace = 0,
+                var shouldSave = false,
                     updated = data.vertices.map(function(vertex) {
 
-                        var cache = self.cachedVertices[vertex.id];
-                        if (!cache) {
-                            cache = self.cachedVertices[vertex.id] = vertex;
+                        // Only save if workspace updated
+                        if (self.workspaceVertices[vertex.id] && vertex.workspace) {
+                            shouldSave = true;
                         }
 
-                        if (self.workspaceVertices[vertex.id]) {
-                            inWorkspace++;
-                        }
-
-                        undoData.vertices.push(JSON.parse(JSON.stringify(cache)));
-                        $.extend(true, cache, vertex);
-                        redoData.vertices.push(JSON.parse(JSON.stringify(cache)));
+                        //undoData.vertices.push(JSON.parse(JSON.stringify(cache)));
+                        var cache = self.updateCacheWithVertex(vertex);
+                        //redoData.vertices.push(JSON.parse(JSON.stringify(cache)));
                         return cache;
                     });
 
@@ -188,7 +179,7 @@ define([
                     });
                 }
 
-                if (inWorkspace) {
+                if (shouldSave) {
                     this.trigger('saveWorkspace');
                 }
                 // TODO: freeze
@@ -280,7 +271,10 @@ define([
                 console.log(_.keys(workspace.data));
                 self.loadWorkspaceVertices(workspace).done(function(vertices) {
                     // TODO: freeze
-                    workspace.data.vertices = vertices;
+                    workspace.data.vertices = vertices.sort(function(a,b) { 
+                        if (a.workspace.graphPosition && b.workspace.graphPosition) return 0;
+                        return a.workspace.graphPosition ? -1 : b.workspace.graphPosition ? 1 : 0;
+                    });
                     self.workspaceMarkReady(workspace);
                     self.trigger('workspaceLoaded', workspace);
                 });
@@ -323,10 +317,12 @@ define([
 
                     var vertices = serverVertices.map(function(vertex) {
                         var workspaceData = workspace.data[vertex.id];
-                        self.workspaceVertices[vertex.id] = workspaceData;
 
                         var cache = self.updateCacheWithVertex(vertex);
                         cache.workspace = workspaceData || {};
+                        cache.workspace.selected = false;
+                        self.workspaceVertices[vertex.id] = cache.workspace;
+
                         return cache;
                     });
 
@@ -346,32 +342,6 @@ define([
         this.getIds = function () {
             return Object.keys(this.workspaceVertices);
         };
-
-        /*
-        this.getEntityIds = function() {
-            if (this.workspaceData.data === undefined || this.workspaceData.data.vertices === undefined) {
-                return [];
-            }
-            return this.workspaceData.data.vertices
-                .map(function(vertex) {
-                    return vertex.graphVertexId;
-                });
-        };
-
-        this.getArtifactIds = function() {
-            if (this.workspaceData.data === undefined || this.workspaceData.data.vertices === undefined) {
-                return [];
-            }
-            return this.workspaceData.data.vertices
-                .filter(function(vertex) {
-                    return vertex.type == 'artifact';
-                })
-                .map(function(vertex) {
-                    return vertex.graphVertexId;
-                });
-        };
-        */
-
 
         this.setupDroppable = function() {
             var self = this;
@@ -414,17 +384,42 @@ define([
                         id = draggable.data('vertexId') || draggable.closest('li').data('vertexId');
 
                     if (!id) {
-                        return console.error('No data-vertex-id attribute for draggable element found', draggable[0]);
+
+                        // Highlighted entities (legacy info)
+                        var info = draggable.data('info') || draggable.closest('li').data('info');
+                        if (info && info.graphVertexId) {
+
+                            // TODO: fix on server
+                            if (info.type) {
+                                info._type = info.type;
+                                delete info.type;
+                            }
+
+                            self.updateCacheWithVertex({
+                                id: info.graphVertexId,
+                                properties: _.omit(info, 'start', 'end', 'graphVertexId')
+                            });
+                            id = info.graphVertexId;
+                        } 
+                        
+                        if (!id) return console.error('No data-vertex-id attribute for draggable element found', draggable[0]);
                     }
 
                     var vertex = self.vertex(id);
-                    if (!vertex) throw "Unable to find vertex " + id + " in cache";
-
-                    if ($(event.target).is('.graph-pane')) {
-                        vertex.workspace.dropPosition = { x: event.clientX, y: event.clientY };
+                    if (vertex) {
+                        addVertex(vertex);
+                    } else {
+                        self.refresh(id).done(addVertex);
                     }
 
-                    self.trigger('addVertices', { vertices:[vertex] });
+                    function addVertex(vertex) {
+                        if ($(event.toElement).parents('.graph-pane').length) {
+                            vertex.workspace.dropPosition = { x: event.clientX, y: event.clientY };
+                        }
+
+                        self.trigger('addVertices', { vertices:[vertex] });
+                    }
+
                 }.bind(this)
             });
         };

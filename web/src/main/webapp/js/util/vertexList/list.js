@@ -5,47 +5,41 @@ define([
     'data',
     'tpl!./list',
     'util/previews',
-    'util/video/scrubber',
-    'util/withWorkspaceData'
-], function(defineComponent, registry, appData, template, previews, VideoScrubber, withWorkspaceData) {
+    'util/video/scrubber'
+], function(defineComponent, registry, appData, template, previews, VideoScrubber) {
     'use strict';
 
-    return defineComponent(List, withWorkspaceData);
+    return defineComponent(List);
 
     function List() {
-        var _currentVertices = {};
 
         this.defaultAttrs({
             itemSelector: '.vertex-item'
         });
 
         this.stateForVertex = function(vertex) {
+            var inWorkspace = appData.inWorkspace(vertex);
             return {
-                inGraph: true,
-                inMap: !!(vertex.location || (vertex.locations && vertex.locations.length))
+                inGraph: inWorkspace,
+                inMap: inWorkspace && !!(
+                        vertex.properties.geoLocation || 
+                        (vertex.location || (vertex.locations && vertex.locations.length)) ||
+                        (vertex.properties.latitude && vertex.properties.longitude)
+                )
             };
         };
 
-        this.loadCurrentVertices = function() {
-            var self = this;
-            this.getWorkspaceVertices().forEach(function(v) {
-                _currentVertices[v.id || v.id] = self.stateForVertex(v);
-            });
-        };
-
         this.after('initialize', function() {
-            this.loadCurrentVertices();
+            var self = this,
+                classNamesForVertex = {};
 
-            var classNamesForVertex = {};
             this.attr.vertices.forEach(function(v) {
 
                 // Check if this vertex is in the graph/map
                 var classes = ['gId' + encodeURIComponent(v.id)];
-                var vertexState = _currentVertices[v.id];
-                if (vertexState) {
-                    if ( vertexState.inGraph ) classes.push('graph-displayed');
-                    if ( vertexState.inMap ) classes.push('map-displayed');
-                }
+                var vertexState = self.stateForVertex(v);
+                if ( vertexState.inGraph ) classes.push('graph-displayed');
+                if ( vertexState.inMap ) classes.push('map-displayed');
 
                 if (v.properties._subType === 'video' || v.properties._subType === 'image' || v.properties._glyphIcon) {
                     classes.push('has_preview');
@@ -221,28 +215,21 @@ define([
         this.onWorkspaceClear = function() {
             this.$node.find('li.graph-displayed').removeClass('graph-displayed');
             this.$node.find('li.map-displayed').removeClass('map-displayed');
-            _currentVertices = {};
         };
 
         this.onVerticesUpdated = function(event, data) {
             var self = this;
             (data.vertices || []).forEach(function(vertex) {
-                // Only care about vertex search results and location updates
-                if ( (vertex._type && vertex._subType) || vertex.location || vertex.locations ) {
-                    _currentVertices[vertex.id] = self.stateForVertex(vertex);
-                    self.toggleItemIcons(vertex.id, _currentVertices[vertex.id]);
-                }
+                self.toggleItemIcons(vertex.id, self.stateForVertex(vertex));
             });
         };
 
         this.onVerticesDeleted = function(event, data) {
             var self = this;
             (data.vertices || []).forEach(function(vertex) {
-                delete _currentVertices[vertex.id];
                 self.toggleItemIcons(vertex.id, { inGraph:false, inMap:false });
             });
         };
-
 
         this.onVerticesSelected = function(event, data) {
             if (data && data.remoteEvent) {

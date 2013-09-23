@@ -118,7 +118,7 @@ define([
 
             // TODO: move to entityService
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/graph/vertex/' + this.attr.data.graphVertexId + '/uploadImage');
+            xhr.open('POST', '/graph/vertex/' + this.attr.data.id + '/uploadImage');
             xhr.onload = function(event) {
                 if (xhr.status === 200) {
                     var result = JSON.parse(xhr.responseText);
@@ -201,13 +201,6 @@ define([
 
             this.updateImageBackground(this.srcForGlyphIconUrl(data.vertex.properties._glyphIcon));
             
-            // FIXME: this should be necessary, convert all workspace code to
-            // new id, properties:{} format
-            var vertex = data.vertex;
-            if (data.vertex.properties) {
-                vertex = data.vertex.properties;
-                vertex.graphVertexId = data.vertex.id;
-            }
             this.trigger(document, 'updateVertices', { vertices:[vertex] });
         };
 

@@ -157,9 +157,12 @@ define([
                     self.highlightTerm(data);
                     self.trigger(document, 'termCreated', data);
 
-                    var vertices = [];
-                    vertices.push(data.info);
-                    self.trigger(document, 'updateVertices', { vertices: vertices });
+                    self.trigger(document, 'updateVertices', { 
+                        vertices:[{
+                            id: data.info.graphVertexId,
+                            properties: _.omit(data.info, 'start', 'end', 'graphVertexId')
+                        }]
+                    });
                     self.trigger(document, 'refreshRelationships');
 
                     _.defer(self.teardown.bind(self));
