@@ -67,7 +67,7 @@ define([
                 appData.refresh(this.attr.data),
                 this.handleCancelling(ontologyService.concepts())
             ).done(function(vertex, concepts) {
-                var concept = concepts.byId[self.attr.data._subType];
+                var concept = concepts.byId[self.attr.data.properties._subType];
 
                 self.$node.html(template({
                     vertex: self.attr.data,

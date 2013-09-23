@@ -57,10 +57,11 @@ define([
         };
 
         this.updateImageBackground = function(src) {
+            console.log("this.attr", this.attr);
             this.$node.css({
-                backgroundImage: 'url("' + (src || this.srcForGlyphIconUrl(this.attr.data._glyphIcon) || this.attr.defaultIconSrc) + '")'
+                backgroundImage: 'url("' + (src || this.srcForGlyphIconUrl(this.attr.data.properties._glyphIcon) || this.attr.defaultIconSrc) + '")'
             });
-            this.$node.toggleClass('custom-image', !!(src || this.attr.data._glyphIcon));
+            this.$node.toggleClass('custom-image', !!(src || this.attr.data.properties._glyphIcon));
         };
 
         this.onFileChange = function(e) {
@@ -89,7 +90,7 @@ define([
         this.onUpdateIcon = function(e, data) {
             var src = this.srcForGlyphIconUrl(data.src);
 
-            if (src !== this.srcForGlyphIconUrl(this.attr.data._glyphIcon)) {
+            if (src !== this.srcForGlyphIconUrl(this.attr.data.properties._glyphIcon)) {
                 this.updateImageBackground(src);
             }
         };
