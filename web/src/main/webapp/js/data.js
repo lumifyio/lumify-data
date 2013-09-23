@@ -120,6 +120,15 @@ define([
                     existing = [];
 
 
+                var dragging = $('.ui-draggable-dragging:not(.clone-vertex)'),
+                    cloned = null;
+                if (dragging.length) {
+                    cloned = dragging.clone()
+                        .css({width:'auto'})
+                        .addClass('clone-vertex')
+                        .insertAfter(dragging);
+                }
+
                 // Check if vertices are missing properties (from search results)
                 var needsRefreshing = data.vertices.filter(function(v) { 
                     return !v.properties.geoLocation && v.properties.geoLocation !== null; 
@@ -150,6 +159,8 @@ define([
                     });
 
                     if (existing.length) self.trigger('existingVerticesAdded', { vertices:existing });
+                    else if (cloned) cloned.remove();
+
                     if (added.length === 0) {
                         // TODO: make mixin
                         $(".graph-pane .instructions").text("No New Vertices Added");

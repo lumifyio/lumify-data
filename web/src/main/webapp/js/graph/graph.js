@@ -262,22 +262,18 @@ define([
         this.onExistingVerticesAdded = function(evt, data) {
             if (this.$node.closest('.visible').length === 0) return;
             var self = this;
+            
             this.cy(function(cy) {
 
                 // FIXME: support multiple dragging
                 var el = cy.getElementById( data.vertices[0].id ),
                     p = retina.pixelsToPoints(el.renderedPosition()),
-                    dragging = $('.ui-draggable-dragging:not(.clone-vertex)'),
-                    position = dragging.position(),
-                    offset = dragging.offset(),
+                    cloned = $('.clone-vertex'),
+                    position = cloned.position(),
+                    offset = cloned.offset(),
                     graphOffset = this.$node.offset();
 
-                if (dragging.length != 1) return;
-
-                var cloned = dragging.clone()
-                    .css({width:'auto'})
-                    .addClass('clone-vertex')
-                    .insertAfter(dragging);
+                if (cloned.length != 1) return;
 
                 // Is existing element visible (not covered by search/detail panes)
                 this.focusGraphToVertex(el, function() {
