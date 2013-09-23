@@ -109,6 +109,9 @@ define([
                 var tapEvents = {
                     tap: function (event) {
                         complete();
+                    },
+                    cxttap: function (event) {
+                        complete();
                     }
                 };
 
