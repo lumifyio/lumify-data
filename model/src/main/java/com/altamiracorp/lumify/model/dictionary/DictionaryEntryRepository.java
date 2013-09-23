@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.model.*;
 import com.google.inject.Inject;
 
 import java.util.Collection;
+import java.util.List;
 
 public class DictionaryEntryRepository extends Repository<DictionaryEntry>{
 
@@ -38,6 +39,11 @@ public class DictionaryEntryRepository extends Repository<DictionaryEntry>{
         return DictionaryEntry.TABLE_NAME;
     }
 
+    public List<DictionaryEntry> findByConcept (String concept, User user) {
+        List<Row> rows = getModelSession().findByRowKeyRegex(DictionaryEntry.TABLE_NAME,".*\\c_" + concept, user);
+        return fromRows(rows);
+    }
+
     public DictionaryEntry createNew (String tokens, String concept) {
         return createNew(tokens, concept, null);
     }
@@ -56,11 +62,15 @@ public class DictionaryEntryRepository extends Repository<DictionaryEntry>{
         return entry;
     }
 
-    public void saveNew (String tokens, String concept, String resolvedName, User user) {
-        this.save(createNew(tokens,concept,resolvedName), user);
+    public DictionaryEntry saveNew (String tokens, String concept, String resolvedName, User user) {
+        DictionaryEntry entry = createNew(tokens, concept, resolvedName);
+        this.save(entry, user);
+        return entry;
     }
 
-    public void saveNew (String tokens, String concept, User user) {
-        this.save(createNew(tokens,concept), user);
+    public DictionaryEntry saveNew (String tokens, String concept, User user) {
+        DictionaryEntry entry = createNew(tokens,concept);
+        this.save(entry, user);
+        return entry;
     }
 }

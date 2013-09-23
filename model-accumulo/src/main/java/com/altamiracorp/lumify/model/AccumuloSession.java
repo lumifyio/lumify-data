@@ -116,7 +116,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, User user) {
+    public List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, User user) {
         try {
             Scanner scanner = this.connector.createScanner(tableName, ((AccumuloModelAuthorizations) user.getModelAuthorizations()).getAuthorizations());
             scanner.setRange(new Range());

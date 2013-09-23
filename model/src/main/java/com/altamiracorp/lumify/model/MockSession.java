@@ -54,7 +54,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, User user) {
+    public List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, User user) {
         List<Row> rows = this.tables.get(tableName);
         if (rows == null) {
             throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
