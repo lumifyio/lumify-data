@@ -1,22 +1,28 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Collection;
+import java.util.Date;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.search.ArtifactSearchResult;
 import com.altamiracorp.lumify.search.SearchProvider;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
-import java.util.Collection;
-import java.util.Date;
 
 public class ArtifactSearch extends BaseRequestHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactSearch.class);
+
     private SearchProvider searchProvider;
 
     @Inject
@@ -30,6 +36,8 @@ public class ArtifactSearch extends BaseRequestHandler {
 
         User user = getUser(request);
         Collection<ArtifactSearchResult> artifactSearchResults = queryArtifacts(query, user);
+        LOGGER.info(String.format("Search returned %d artifacts for query", artifactSearchResults.size()));
+
         JSONObject results = artifactsToSearchResults(artifactSearchResults, request);
 
         respondWithJson(response, results);
