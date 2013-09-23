@@ -35,7 +35,6 @@ define([
                 return id.id ? id.id : '' + id;
             });
 
-            console.log('getting', ids);
             return _.values(_.pick(this.cachedVertices, ids));
         };
 
