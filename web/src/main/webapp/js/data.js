@@ -109,44 +109,61 @@ define([
                     added = [],
                     existing = [];
 
-                data.vertices.forEach(function(vertex) {
-                    var inWorkspace = self.workspaceVertices[vertex.id],
-                        cache = self.updateCacheWithVertex(vertex);
 
-                    self.workspaceVertices[vertex.id] = cache.workspace;
-
-                    if (inWorkspace) {
-                        existing.push(cache);
-                    } else {
-                        added.push(cache);
-                    }
+                // Check if vertices are missing properties (from search results)
+                var needsRefreshing = data.vertices.filter(function(v) { 
+                    return !v.properties.geoLocation && v.properties.geoLocation !== null; 
                 });
 
-                if (existing.length) this.trigger('existingVerticesAdded', { vertices:existing });
-                if (added.length === 0) {
-                    // TODO: make mixin
-                    $(".graph-pane .instructions").text("No New Vertices Added");
-                    return;
-                }
-
-                if(!data.noUndo) {
-                    var dataClone = JSON.parse(JSON.stringify(data));
-                    dataClone.noUndo = true;
-                    undoManager.performedAction( 'Add ' + dataClone.vertices.length + ' vertices', {
-                        undo: function() {
-                            this.trigger('deleteVertices', dataClone);
-                        },
-                        redo: function() {
-                            this.trigger('addVertices', dataClone);
-                        },
-                        bind: this
+                var deferred = $.Deferred();
+                if (needsRefreshing.length) {
+                    this.vertexService.getMultiple(_.pluck(needsRefreshing, 'id')).done(function(vertices) {
+                        deferred.resolve(data.vertices);
                     });
-                }
+                } else deferred.resolve(data.vertices);
 
-                this.trigger('refreshRelationships');
-                this.trigger('saveWorkspace');
-                // TODO: freeze
-                this.trigger('verticesAdded', { vertices:added } );
+                deferred.done(function(vertices) {
+                    vertices = self.vertices(vertices);
+
+                    // TODO: augment if search result vertex using getMultiple
+                    vertices.forEach(function(vertex) {
+                        var inWorkspace = self.workspaceVertices[vertex.id],
+                            cache = self.updateCacheWithVertex(vertex);
+
+                        self.workspaceVertices[vertex.id] = cache.workspace;
+
+                        if (inWorkspace) {
+                            existing.push(cache);
+                        } else {
+                            added.push(cache);
+                        }
+                    });
+
+                    if (existing.length) self.trigger('existingVerticesAdded', { vertices:existing });
+                    if (added.length === 0) {
+                        // TODO: make mixin
+                        $(".graph-pane .instructions").text("No New Vertices Added");
+                        return;
+                    }
+
+                    if(!data.noUndo) {
+                        var dataClone = JSON.parse(JSON.stringify(data));
+                        dataClone.noUndo = true;
+                        undoManager.performedAction( 'Add ' + dataClone.vertices.length + ' vertices', {
+                            undo: function() {
+                                self.trigger('deleteVertices', dataClone);
+                            },
+                            redo: function() {
+                                self.trigger('addVertices', dataClone);
+                            }
+                        });
+                    }
+
+                    self.trigger('refreshRelationships');
+                    self.trigger('saveWorkspace');
+                    // TODO: freeze
+                    self.trigger('verticesAdded', { vertices:added } );
+                });
             });
         };
 
@@ -166,6 +183,7 @@ define([
                             shouldSave = true;
                         }
 
+                        // TODO: fix undo/redo
                         //undoData.vertices.push(JSON.parse(JSON.stringify(cache)));
                         var cache = self.updateCacheWithVertex(vertex);
                         //redoData.vertices.push(JSON.parse(JSON.stringify(cache)));
