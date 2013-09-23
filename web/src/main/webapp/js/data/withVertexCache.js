@@ -18,6 +18,10 @@ define([
             return val && val.length && val[0].id && val[0].properties;
         };
 
+        this.verticesInWorkspace = function() {
+            return _.values(_.pick(this.cachedVertices, _.keys(this.workspaceVertices)));
+        };
+
         this.inWorkspace = function(vertex) {
             return !!this.workspaceVertices[_.isString(vertex) ? vertex : vertex.id];
         };

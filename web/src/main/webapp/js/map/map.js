@@ -2,6 +2,7 @@
 
 define([
     'flight/lib/component',
+    'data',
     'tpl!./map',
     'tpl!./instructions/regionCenter',
     'tpl!./instructions/regionRadius',
@@ -10,7 +11,16 @@ define([
     'service/vertex',
     'util/retina',
     'util/withContextMenu'
-], function(defineComponent, template, centerTemplate, radiusTemplate, loadingTemplate, UcdService, VertexService, retina, withContextMenu) {
+], function(defineComponent,
+    appData,
+    template,
+    centerTemplate,
+    radiusTemplate,
+    loadingTemplate,
+    UcdService,
+    VertexService,
+    retina,
+    withContextMenu) {
     'use strict';
 
     var MODE_NORMAL = 0,
@@ -45,6 +55,8 @@ define([
             this.on(document, 'syncEnded', this.onSyncEnded);
             this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
             this.on(document, 'socketMessage', this.onSocketMessage);
+
+            this.updateOrAddVertices(appData.verticesInWorkspace(), { adding:true });
         });
 
         this.onSocketMessage = function (evt, message) {
@@ -269,14 +281,7 @@ define([
         };
 
         this.onVerticesAdded = function(evt, data) {
-            var self = this,
-                ids = _.pluck(_.filter(data.vertices, function(v) { return v.properties.geoLocation !== null; }), 'id');
-            
-            debugger;
-            if (ids.length === 0) return;
-            this.vertexService.getMultiple(ids).done(function(vertices) {
-                self.updateOrAddVertices(vertices, { adding:true });
-            });
+            this.updateOrAddVertices(vertices, { adding:true });
         };
 
         this.updateOrAddVertices = function(vertices, options) {
@@ -294,8 +299,10 @@ define([
 
                     var marker = self.markerForId(map, vertex.id);
 
-                    if (marker && adding) {
-                        map.removeMarker(marker);
+                    if (adding) {
+                        if (marker.length) {
+                            map.removeMarker(marker);
+                        }
 
                         marker = new mxn.Marker(new mxn.LatLonPoint(geoLocation.latitude, geoLocation.longitude));
                         marker.setAttribute('graphVertexId', vertex.id);
