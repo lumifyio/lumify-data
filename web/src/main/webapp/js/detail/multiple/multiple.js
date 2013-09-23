@@ -99,7 +99,7 @@ define([
 
             var self = this,
                 moduleName = (($.isArray(data) ? 'multiple' :
-                    (data._type != 'artifact' && data._type != 'relationship') ? 'entity' : data._type ) || 'entity')
+                    (data.properties._type != 'artifact' && data.properties._type != 'relationship') ? 'entity' : data.properties._type ) || 'entity')
                     .toLowerCase();
 
             this._selectedGraphId = data.id;
