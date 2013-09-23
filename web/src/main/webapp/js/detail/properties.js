@@ -26,13 +26,21 @@ define([
                 addNewPropertiesSelector: this.onAddNewPropertiesClicked
             });
             this.on('addProperty', this.onAddProperty);
-            // TODO: move to data.js
-            this.on(document, 'socketMessage', this.onSocketMessage);
+            this.on(document, 'verticesUpdated', this.onVerticesUpdated);
 
             this.$node.html(propertiesTemplate({properties:null}));
             this.displayProperties(this.attr.data.properties);
         });
 
+        this.onVerticesUpdated = function(event, data) {
+            var self = this;
+
+            data.vertices.forEach(function(vertex) {
+                if (vertex.id === self.attr.data.id) {
+                    self.displayProperties(vertex.properties);
+                }
+            });
+        };
 
         this.onAddProperty = function (event, data) {
             var self = this;
@@ -66,17 +74,6 @@ define([
             });
         };
 
-        this.onSocketMessage = function (evt, message) {
-            var self = this;
-            switch (message.type) {
-                case 'propertiesChange':
-                    for(var i=0; i<message.data.properties.length; i++) {
-                        var propertyChangeData = message.data.properties[i];
-                        self.onPropertyChange(propertyChangeData);
-                    }
-                    break;
-            }
-        };
 
         this.onPropertyChange = function (propertyChangeData) {
             if (propertyChangeData.id != this.attr.data.id) {
@@ -141,7 +138,7 @@ define([
                 displayName: displayName
             };
 
-            if (/^[^_]/.test(name)) {
+            if (/^[^_]/.test(name) && name !== 'graphVertexId') {
                 displayProperties.push(data);
             }
         });

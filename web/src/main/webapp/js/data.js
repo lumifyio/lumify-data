@@ -69,8 +69,18 @@ define([
             this.on('switchWorkspace', this.onSwitchWorkspace);
             this.on('workspaceDeleted', this.onWorkspaceDeleted);
             this.on('workspaceDeleting', this.onWorkspaceDeleting);
+
+            this.on(document, 'socketMessage', this.onSocketMessage);
         });
 
+        this.onSocketMessage = function (evt, message) {
+            var self = this;
+            switch (message.type) {
+                case 'propertiesChange':
+                    self.trigger('updateVertices', { vertices:[message.data.vertex]});
+                    break;
+            }
+        };
 
         this.onSaveWorkspace = function(evt, workspace) {
             var self = this,
@@ -177,6 +187,12 @@ define([
 
                 var shouldSave = false,
                     updated = data.vertices.map(function(vertex) {
+                        if (!vertex.id && vertex.graphVertexId) {
+                            vertex = {
+                                id: vertex.graphVertexId,
+                                properties: vertex
+                            };
+                        }
 
                         // Only save if workspace updated
                         if (self.workspaceVertices[vertex.id] && vertex.workspace) {
