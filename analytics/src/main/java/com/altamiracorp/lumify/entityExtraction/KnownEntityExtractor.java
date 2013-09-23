@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.entityExtraction;
 
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
@@ -31,7 +32,7 @@ public class KnownEntityExtractor extends EntityExtractor {
     private AhoCorasick tree = new AhoCorasick();
 
     @Override
-    void setup(Mapper.Context context) throws IOException {
+    void setup(Mapper.Context context, ModelSession modelSession) throws IOException {
         this.pathPrefix = context.getConfiguration().get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX);
         this.fs = FileSystem.get(context.getConfiguration());
         loadDictionaries();
