@@ -1,12 +1,12 @@
 package com.altamiracorp.lumify.entityHighlight;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.GraphSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.google.inject.Inject;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
@@ -15,13 +15,19 @@ import org.json.JSONObject;
 import java.util.*;
 
 public class EntityHighlighter {
-    private TermMentionRepository termRepository = new TermMentionRepository();
-    private GraphRepository graphRepository = new GraphRepository();
+    private TermMentionRepository termRepository;
+    private GraphRepository graphRepository;
 
-    public String getHighlightedText(AppSession session, Artifact artifact) {
+    @Inject
+    public EntityHighlighter(TermMentionRepository termRepository, GraphRepository graphRepository) {
+        this.termRepository = termRepository;
+        this.graphRepository = graphRepository;
+    }
+
+    public String getHighlightedText(Artifact artifact, User user) {
         try {
-            Collection<TermMention> terms = termRepository.findByArtifactRowKey(session.getModelSession(), artifact.getRowKey().toString());
-            List<OffsetItem> termAndTermMetadata = getTermAndTermMetadataForArtifact(session.getGraphSession(), terms);
+            Collection<TermMention> terms = termRepository.findByArtifactRowKey(artifact.getRowKey().toString(), user);
+            List<OffsetItem> termAndTermMetadata = getTermAndTermMetadataForArtifact(terms, user);
 
             ArrayList<OffsetItem> offsetItems = new ArrayList<OffsetItem>();
             offsetItems.addAll(termAndTermMetadata);
@@ -100,13 +106,13 @@ public class EntityHighlighter {
         return result.toString();
     }
 
-    public List<OffsetItem> getTermAndTermMetadataForArtifact(GraphSession graphSession, Collection<TermMention> termMentions) {
+    public List<OffsetItem> getTermAndTermMetadataForArtifact(Collection<TermMention> termMentions, User user) {
         ArrayList<OffsetItem> termMetadataOffsetItems = new ArrayList<OffsetItem>();
         for (TermMention termMention : termMentions) {
             GraphVertex glyphVertex = null;
             String graphVertexId = termMention.getMetadata().getGraphVertexId();
-            if (graphSession != null && graphVertexId != null) {
-                glyphVertex = graphRepository.findVertex(graphSession, graphVertexId);
+            if (graphVertexId != null) {
+                glyphVertex = graphRepository.findVertex(graphVertexId, user);
             }
             termMetadataOffsetItems.add(new TermMentionOffsetItem(termMention, glyphVertex));
         }

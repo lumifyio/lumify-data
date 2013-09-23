@@ -152,21 +152,35 @@ define([
                 $mentionNode.attr('title', newObjectSign);
             }
 
-            this.entityService.createTerm(parameters)
-                .done(function(data) {
+            if (this.currentGraphVertexId == "") {
+                this.entityService.createTerm(parameters, function(err, data) {
+                    if (err) {
+                        console.error('createTerm', err);
+                        return self.trigger(document, 'error', err);
+                    }
                     self.highlightTerm(data);
                     self.trigger(document, 'termCreated', data);
 
-                    self.trigger(document, 'updateVertices', { 
-                        vertices:[{
-                            id: data.info.graphVertexId,
-                            properties: _.omit(data.info, 'start', 'end', 'graphVertexId')
-                        }]
-                    });
                     self.trigger(document, 'refreshRelationships');
 
                     _.defer(self.teardown.bind(self));
                 });
+            } else {
+                this.entityService.updateTerm(parameters, function(err, data) {
+                    if (err) {
+                        console.error('createTerm', err);
+                        return self.trigger(document, 'error', err);
+                    }
+                    self.highlightTerm(data);
+
+                    var vertices = [];
+                    vertices.push(data.info);
+                    self.trigger(document, 'updateVertices', { vertices: vertices });
+                    self.trigger(document, 'refreshRelationships');
+
+                    _.defer(self.teardown.bind(self));
+                });
+            }
         };
 
         this.onConceptChanged = function(event) {

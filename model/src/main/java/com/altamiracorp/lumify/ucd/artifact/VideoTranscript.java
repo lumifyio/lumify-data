@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -24,6 +26,10 @@ public class VideoTranscript {
         } catch (JSONException e) {
             throw new RuntimeException("Could not parse video transcript JSON", e);
         }
+    }
+
+    public List<TimedText> getEntries() {
+        return new ArrayList<TimedText>(entries);
     }
 
     public void add(Time time, String text) {

@@ -1,21 +1,19 @@
 package com.altamiracorp.lumify.web.routes.vertex;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 public class VertexToVertexRelationship extends BaseRequestHandler {
     private final GraphRepository graphRepository;
@@ -33,10 +31,10 @@ public class VertexToVertexRelationship extends BaseRequestHandler {
         final String target = getRequiredParameter(request, "target");
         final String label = getRequiredParameter(request, "label");
 
-        AppSession session = app.getAppSession(request);
-        Map<String, String> properties = graphRepository.getEdgeProperties(session.getGraphSession(), source, target, label);
-        GraphVertex sourceVertex = graphRepository.findVertex(session.getGraphSession(), source);
-        GraphVertex targetVertex = graphRepository.findVertex(session.getGraphSession(), target);
+        User user = getUser(request);
+        Map<String, String> properties = graphRepository.getEdgeProperties(source, target, label, user);
+        GraphVertex sourceVertex = graphRepository.findVertex(source, user);
+        GraphVertex targetVertex = graphRepository.findVertex(target, user);
 
         JSONObject results = new JSONObject();
         results.put("source", resultsToJson(source, sourceVertex));
@@ -46,7 +44,7 @@ public class VertexToVertexRelationship extends BaseRequestHandler {
         for (Map.Entry<String, String> p : properties.entrySet()) {
             JSONObject property = new JSONObject();
             property.put("key", p.getKey());
-            String displayName = ontologyRepository.getDisplayNameForLabel(session.getGraphSession(), p.getValue());
+            String displayName = ontologyRepository.getDisplayNameForLabel(p.getValue(), user);
             if (displayName == null) {
                 property.put("value", p.getValue());
             } else {

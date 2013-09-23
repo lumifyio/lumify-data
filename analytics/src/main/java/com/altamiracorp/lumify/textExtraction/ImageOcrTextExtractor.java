@@ -1,11 +1,13 @@
 package com.altamiracorp.lumify.textExtraction;
 
-import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.vietocr.ImageHelper;
@@ -18,17 +20,23 @@ import java.util.List;
 public class ImageOcrTextExtractor implements TextExtractor {
     private static final String NAME = "imageOCRExtractor";
     private static final List<String> ICON_MIME_TYPES = Arrays.asList(new String[]{"image/x-icon", "image/vnd.microsoft.icon"});
-    private ArtifactRepository artifactRepository = new ArtifactRepository();
-    private VideoFrameRepository videoFrameRepository = new VideoFrameRepository();
+    private ArtifactRepository artifactRepository;
+    private VideoFrameRepository videoFrameRepository;
     private Tesseract tesseract;
 
+    @Inject
+    public ImageOcrTextExtractor(ArtifactRepository artifactRepository, VideoFrameRepository videoFrameRepository) {
+        this.artifactRepository = artifactRepository;
+        this.videoFrameRepository = videoFrameRepository;
+    }
+
     @Override
-    public void setup(Mapper.Context context) {
+    public void setup(Mapper.Context context, Injector injector) {
         tesseract = Tesseract.getInstance();
     }
 
     @Override
-    public ArtifactExtractedInfo extract(ModelSession session, Artifact artifact) throws Exception {
+    public ArtifactExtractedInfo extract(Artifact artifact, User user) throws Exception {
         if (artifact.getType() != ArtifactType.IMAGE) {
             return null;
         }
@@ -37,8 +45,8 @@ public class ImageOcrTextExtractor implements TextExtractor {
             return null;
         }
 
-        BufferedImage image = artifactRepository.getRawAsImage(session, artifact);
-        if (image == null){
+        BufferedImage image = artifactRepository.getRawAsImage(artifact, user);
+        if (image == null) {
             return null;
         }
         String ocrResults = extractTextFromImage(image);
@@ -51,8 +59,8 @@ public class ImageOcrTextExtractor implements TextExtractor {
     }
 
     @Override
-    public VideoFrameExtractedInfo extract(ModelSession session, VideoFrame videoFrame) throws Exception {
-        BufferedImage image = videoFrameRepository.loadImage(session, videoFrame);
+    public VideoFrameExtractedInfo extract(VideoFrame videoFrame, User user) throws Exception {
+        BufferedImage image = videoFrameRepository.loadImage(videoFrame, user);
         String ocrResults = extractTextFromImage(image);
         if (ocrResults == null) {
             return null;
@@ -78,7 +86,7 @@ public class ImageOcrTextExtractor implements TextExtractor {
         return ocrResults;
     }
 
-    private boolean isIcon (Artifact artifact) {
+    private boolean isIcon(Artifact artifact) {
         return ICON_MIME_TYPES.contains(artifact.getGenericMetadata().getMimeType());
     }
 }

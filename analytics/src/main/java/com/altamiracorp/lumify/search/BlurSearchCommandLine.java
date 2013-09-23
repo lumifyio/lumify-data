@@ -73,9 +73,9 @@ public class BlurSearchCommandLine extends CommandLineBase {
         if (blurHdfsPath != null) {
             props.setProperty(BlurSearchProvider.BLUR_PATH, blurHdfsPath);
         }
-        blurSearch.setup(props);
+        blurSearch.setup(props, getUser());
 
-        Collection<ArtifactSearchResult> searchResults = blurSearch.searchArtifacts(query);
+        Collection<ArtifactSearchResult> searchResults = blurSearch.searchArtifacts(query, getUser());
         for (ArtifactSearchResult searchResult : searchResults) {
             System.out.println(searchResult.toString());
         }

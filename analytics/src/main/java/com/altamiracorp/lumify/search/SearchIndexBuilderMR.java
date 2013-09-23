@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.LumifyMapper;
 import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
@@ -29,25 +30,20 @@ public class SearchIndexBuilderMR extends ConfigurableMapJobBase {
         private SearchProvider searchProvider;
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            super.setup(context);
-            try {
-                searchProvider = (SearchProvider) context.getConfiguration().getClass(CONF_SEARCH_INDEX_BUILDER_CLASS, null).newInstance();
-                searchProvider.setup(context);
-            } catch (Exception e) {
-                throw new IOException(e);
-            }
+        protected void setup(Context context, Injector injector) throws Exception {
+            searchProvider = getAndInjectClassFromConfiguration(context, injector, CONF_SEARCH_INDEX_BUILDER_CLASS);
+            searchProvider.setup(context, getUser());
         }
 
         @Override
         protected void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
-            searchProvider.add(artifact);
+            searchProvider.add(artifact, getUser());
         }
 
         @Override
         protected void cleanup(Context context) throws IOException, InterruptedException {
             try {
-                searchProvider.teardown();
+                searchProvider.close();
             } catch (Exception e) {
                 throw new IOException(e);
             }

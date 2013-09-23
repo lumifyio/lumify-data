@@ -1,10 +1,21 @@
 package com.altamiracorp.lumify.model.geoNames;
 
-import com.altamiracorp.lumify.model.*;
-
 import java.util.Collection;
 
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.Column;
+import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.Row;
+import com.google.inject.Inject;
+
 public class GeoNameCountryInfoRepository extends Repository<GeoNameCountryInfo> {
+    @Inject
+    public GeoNameCountryInfoRepository(final ModelSession modelSession) {
+        super(modelSession);
+    }
+
     @Override
     public GeoNameCountryInfo fromRow(Row row) {
         GeoNameCountryInfo geoNameCountryInfo = new GeoNameCountryInfo(row.getRowKey());
@@ -30,7 +41,7 @@ public class GeoNameCountryInfoRepository extends Repository<GeoNameCountryInfo>
         return GeoNameCountryInfo.TABLE_NAME;
     }
 
-    public GeoNameCountryInfo findByCountryCode(ModelSession session, String countryCode) {
-        return findByRowKey(session, new GeoNameCountryInfoRowKey(countryCode).toString());
+    public GeoNameCountryInfo findByCountryCode(String countryCode, User user) {
+        return findByRowKey(new GeoNameCountryInfoRowKey(countryCode).toString(), user);
     }
 }

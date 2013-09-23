@@ -1,20 +1,34 @@
 package com.altamiracorp.lumify.model.artifactThumbnails;
 
-import com.altamiracorp.lumify.model.*;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
+import javax.imageio.ImageIO;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.Column;
+import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.Row;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
+import com.google.inject.Inject;
+
 public class ArtifactThumbnailRepository extends Repository<ArtifactThumbnail> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactThumbnailRepository.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactThumbnailRepository.class);
+
+    @Inject
+    public ArtifactThumbnailRepository(final ModelSession modelSession) {
+        super(modelSession);
+    }
 
     @Override
     public ArtifactThumbnail fromRow(Row row) {
@@ -42,16 +56,16 @@ public class ArtifactThumbnailRepository extends Repository<ArtifactThumbnail> {
         return ArtifactThumbnail.TABLE_NAME;
     }
 
-    public byte[] getThumbnailData(ModelSession modelSession, ArtifactRowKey artifactRowKey, String thumbnailType, int width, int height) {
+    public byte[] getThumbnailData(ArtifactRowKey artifactRowKey, String thumbnailType, int width, int height, User user) {
         ArtifactThumbnailRowKey rowKey = new ArtifactThumbnailRowKey(artifactRowKey.toString(), thumbnailType, width, height);
-        ArtifactThumbnail artifactThumbnail = findByRowKey(modelSession, rowKey.toString());
+        ArtifactThumbnail artifactThumbnail = findByRowKey(rowKey.toString(), user);
         if (artifactThumbnail == null) {
             return null;
         }
         return artifactThumbnail.getMetadata().getData();
     }
 
-    public byte[] createThumbnail(ModelSession modelSession, ArtifactRowKey artifactRowKey, String thumbnailType, InputStream in, int[] boundaryDims) throws IOException {
+    public byte[] createThumbnail(ArtifactRowKey artifactRowKey, String thumbnailType, InputStream in, int[] boundaryDims, User user) throws IOException {
         BufferedImage originalImage = ImageIO.read(in);
         int[] originalImageDims = new int[]{originalImage.getWidth(), originalImage.getHeight()};
         int[] newImageDims = getScaledDimension(originalImageDims, boundaryDims);
@@ -70,16 +84,16 @@ public class ArtifactThumbnailRepository extends Repository<ArtifactThumbnail> {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(resizedImage, "jpg", out);
 
-        saveThumbnail(modelSession, artifactRowKey, thumbnailType, boundaryDims, out.toByteArray());
+        saveThumbnail(artifactRowKey, thumbnailType, boundaryDims, out.toByteArray(), user);
 
         return out.toByteArray();
     }
 
-    private void saveThumbnail(ModelSession modelSession, ArtifactRowKey artifactRowKey, String thumbnailType, int[] boundaryDims, byte[] bytes) {
+    private void saveThumbnail(ArtifactRowKey artifactRowKey, String thumbnailType, int[] boundaryDims, byte[] bytes, User user) {
         ArtifactThumbnailRowKey artifactThumbnailRowKey = new ArtifactThumbnailRowKey(artifactRowKey.toString(), thumbnailType, boundaryDims[0], boundaryDims[1]);
         ArtifactThumbnail artifactThumbnail = new ArtifactThumbnail(artifactThumbnailRowKey);
         artifactThumbnail.getMetadata().setData(bytes);
-        save(modelSession, artifactThumbnail);
+        save(artifactThumbnail, user);
     }
 
     public static int[] getScaledDimension(int[] imgSize, int[] boundary) {

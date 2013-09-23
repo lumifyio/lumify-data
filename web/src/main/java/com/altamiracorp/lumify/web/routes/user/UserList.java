@@ -1,34 +1,31 @@
 package com.altamiracorp.lumify.web.routes.user;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.user.UserRepository;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
+import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.Repository;
-import com.altamiracorp.lumify.model.user.User;
-import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
-import com.google.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 public class UserList extends BaseRequestHandler {
-    private final Repository<User> userRepository;
+    private final UserRepository userRepository;
 
     @Inject
-    public UserList(final Repository<User> repo) {
-        userRepository = repo;
+    public UserList(final UserRepository repo) {
+        this.userRepository = repo;
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        AppSession session = app.getAppSession(request);
+        User authUser = getUser(request);
 
-        List<User> users = userRepository.findAll(session.getModelSession());
+        List<com.altamiracorp.lumify.model.user.User> users = userRepository.findAll(authUser);
 
         JSONObject resultJson = new JSONObject();
         JSONArray usersJson = getJson(users);
@@ -37,9 +34,9 @@ public class UserList extends BaseRequestHandler {
         respondWithJson(response, resultJson);
     }
 
-    private JSONArray getJson(List<User> users) throws JSONException {
+    private JSONArray getJson(List<com.altamiracorp.lumify.model.user.User> users) throws JSONException {
         JSONArray usersJson = new JSONArray();
-        for (User user : users) {
+        for (com.altamiracorp.lumify.model.user.User user : users) {
             usersJson.put(user.toJson());
         }
         return usersJson;

@@ -1,17 +1,27 @@
 package com.altamiracorp.lumify.web.routes.user;
 
-import com.altamiracorp.lumify.model.user.User;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.user.UserRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class MeGet extends BaseRequestHandler {
 
+    private final UserRepository userRepository;
+
+    @Inject
+    public MeGet(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        User user = getUser(request);
+        User authUser = getUser(request);
+        com.altamiracorp.lumify.model.user.User user = userRepository.findOrAddUser(authUser.getUsername(), authUser);
         respondWithJson(response, user.toJson());
     }
 }

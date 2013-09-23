@@ -9,6 +9,7 @@ import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocalFileSystem;
@@ -90,24 +91,17 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         protected String classifierConcept;
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            super.setup(context);
-            try {
-                classifierConcept = context.getConfiguration().get(CONCEPT, DEFAULT_CONCEPT);
-                classifierPath = resolveClassifierPath(context);
-                objectDetector = (ObjectDetector) context.getConfiguration().getClass(OBJECT_DETECTOR_CLASS, OpenCVObjectDetector.class).newInstance();
-                String dictionaryFile = context.getConfiguration().get(DICTIONARY);
-                if (dictionaryFile != null) {
-                    FileSystem fs = FileSystem.get(context.getConfiguration());
-                    Path dictionaryPath = new Path(context.getConfiguration().get(PATH_PREFIX, DEFAULT_PATH_PREFIX) + OPEN_CV_CONF_DIR + dictionaryFile);
-                    objectDetector.setup(classifierPath, fs.open(dictionaryPath));
-                } else {
-                    objectDetector.setup(classifierPath);
-                }
-            } catch (InstantiationException e) {
-                throw new IOException(e);
-            } catch (IllegalAccessException e) {
-                throw new IOException(e);
+        protected void setup(Context context, Injector injector) throws IOException, IllegalAccessException, InstantiationException {
+            classifierConcept = context.getConfiguration().get(CONCEPT, DEFAULT_CONCEPT);
+            classifierPath = resolveClassifierPath(context);
+            objectDetector = getAndInjectClassFromConfiguration(context, injector, OBJECT_DETECTOR_CLASS);
+            String dictionaryFile = context.getConfiguration().get(DICTIONARY);
+            if (dictionaryFile != null) {
+                FileSystem fs = FileSystem.get(context.getConfiguration());
+                Path dictionaryPath = new Path(context.getConfiguration().get(PATH_PREFIX, DEFAULT_PATH_PREFIX) + OPEN_CV_CONF_DIR + dictionaryFile);
+                objectDetector.setup(classifierPath, fs.open(dictionaryPath));
+            } else {
+                objectDetector.setup(classifierPath);
             }
         }
 
@@ -146,7 +140,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
             }
 
             LOGGER.info("Detecting objects of concept " + classifierConcept + " for artifact " + rowKey.toString());
-            List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), artifact);
+            List<DetectedObject> detectedObjects = objectDetector.detectObjects(artifact, getUser());
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
                     artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, objectDetector.getModelName(),
@@ -162,7 +156,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
 
         public void safeMap(Text rowKey, VideoFrame videoFrame, Context context) throws Exception {
             LOGGER.info("Detecting objects of concept " + classifierConcept + " for video frame " + rowKey.toString());
-            List<DetectedObject> detectedObjects = objectDetector.detectObjects(getSession(), videoFrame);
+            List<DetectedObject> detectedObjects = objectDetector.detectObjects(videoFrame, getUser());
             if (!detectedObjects.isEmpty()) {
                 for (DetectedObject detectedObject : detectedObjects) {
                     videoFrame.getDetectedObjects().addDetectedObject(classifierConcept, objectDetector.getModelName(), detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());

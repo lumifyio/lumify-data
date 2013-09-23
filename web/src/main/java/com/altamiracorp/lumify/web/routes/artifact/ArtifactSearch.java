@@ -1,10 +1,11 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.search.ArtifactSearchResult;
 import com.altamiracorp.lumify.search.SearchProvider;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,21 +17,26 @@ import java.util.Collection;
 import java.util.Date;
 
 public class ArtifactSearch extends BaseRequestHandler {
+    private SearchProvider searchProvider;
+
+    @Inject
+    public ArtifactSearch(SearchProvider searchProvider) {
+        this.searchProvider = searchProvider;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         final String query = getRequiredParameter(request, "q");
 
-        AppSession session = app.getAppSession(request);
-        SearchProvider searchProvider = session.getSearchProvider();
-        Collection<ArtifactSearchResult> artifactSearchResults = queryArtifacts(searchProvider, query);
+        User user = getUser(request);
+        Collection<ArtifactSearchResult> artifactSearchResults = queryArtifacts(query, user);
         JSONObject results = artifactsToSearchResults(artifactSearchResults, request);
 
         respondWithJson(response, results);
     }
 
-    private Collection<ArtifactSearchResult> queryArtifacts(SearchProvider searchProvider, String query) throws Exception {
-        return searchProvider.searchArtifacts(query);
+    private Collection<ArtifactSearchResult> queryArtifacts(String query, User user) throws Exception {
+        return searchProvider.searchArtifacts(query, user);
     }
 
     private JSONObject artifactsToSearchResults(Collection<ArtifactSearchResult> artifacts, HttpServletRequest request) throws JSONException, UnsupportedEncodingException {

@@ -1,33 +1,31 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
-import java.util.Collection;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.workspace.Workspace;
+import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Collection;
 
 public class WorkspaceList extends BaseRequestHandler {
-    private final Repository<Workspace> workspaceRepository;
+    private final WorkspaceRepository workspaceRepository;
 
     @Inject
-    public WorkspaceList(final Repository<Workspace> repo) {
-        workspaceRepository = repo;
+    public WorkspaceList(final WorkspaceRepository workspaceRepository) {
+        this.workspaceRepository = workspaceRepository;
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
 
-        Collection<Workspace> workspaces = workspaceRepository.findAll(session.getModelSession());
+        Collection<Workspace> workspaces = workspaceRepository.findAll(user);
 
         JSONArray workspacesJson = new JSONArray();
         for (Workspace workspace : workspaces) {

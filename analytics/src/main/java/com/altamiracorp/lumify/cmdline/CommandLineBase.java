@@ -1,16 +1,29 @@
 package com.altamiracorp.lumify.cmdline;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.config.Configuration;
-import org.apache.accumulo.core.security.Authorizations;
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.Tool;
 
+import com.altamiracorp.lumify.CommandLineBootstrap;
+import com.altamiracorp.lumify.FrameworkUtils;
+import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.core.user.ModelAuthorizations;
+import com.altamiracorp.lumify.core.user.SystemUser;
+import com.altamiracorp.lumify.core.user.User;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 public abstract class CommandLineBase extends Configured implements Tool {
     private String configLocation = "file:///opt/lumify/config/configuration.properties";
-    private String credentialsLocation;
+    private String credentialsLocation = "file:///opt/lumify/config/credentials.properties";
     private Configuration configuration;
+    private User user = new SystemUser();
+    protected boolean initFramework = true;
 
     @Override
     public int run(String[] args) throws Exception {
@@ -28,6 +41,15 @@ public abstract class CommandLineBase extends Configured implements Tool {
             printHelp(options);
             return -1;
         }
+
+        if( initFramework ) {
+            final Injector injector = Guice.createInjector(CommandLineBootstrap.create(getConfiguration().getProperties()));
+            injector.injectMembers(this);
+
+            final User user = new SystemUser();
+            FrameworkUtils.initializeFramework(injector, user);
+        }
+
         return run(cmd);
     }
 
@@ -42,10 +64,9 @@ public abstract class CommandLineBase extends Configured implements Tool {
         if (cmd.hasOption("configLocation")) {
             configLocation = cmd.getOptionValue("configLocation");
         }
+
         if (cmd.hasOption("credentialsLocation")) {
             credentialsLocation = cmd.getOptionValue("credentialsLocation");
-        } else {
-            credentialsLocation = configLocation;
         }
     }
 
@@ -78,11 +99,6 @@ public abstract class CommandLineBase extends Configured implements Tool {
         return options;
     }
 
-    public AppSession createSession() {
-        Configuration conf = getConfiguration();
-        return AppSession.create(conf);
-    }
-
     protected Configuration getConfiguration() {
         if (configuration == null) {
             configuration = Configuration.loadConfigurationFile(configLocation, credentialsLocation);
@@ -90,8 +106,8 @@ public abstract class CommandLineBase extends Configured implements Tool {
         return configuration;
     }
 
-    public Authorizations getAuthorizations() {
-        return new Authorizations(); // TODO configurable
+    public ModelAuthorizations getAuthorizations() {
+        return getUser().getModelAuthorizations();
     }
 
     protected Class loadClass(String className) {
@@ -100,5 +116,9 @@ public abstract class CommandLineBase extends Configured implements Tool {
         } catch (Exception e) {
             throw new RuntimeException("Could not find class '" + className + "'", e);
         }
+    }
+
+    protected User getUser() {
+        return user;
     }
 }

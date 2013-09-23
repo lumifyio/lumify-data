@@ -1,10 +1,8 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.user.User;
+import com.altamiracorp.lumify.core.user.SystemUser;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.user.UserRepository;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.HandlerChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,13 +14,16 @@ import java.security.cert.CertificateExpiredException;
 import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 
-public abstract class X509AuthenticationProvider extends AuthenticationProvider implements AppAware {
+public abstract class X509AuthenticationProvider extends AuthenticationProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(X509AuthenticationProvider.class);
 
-    private UserRepository userRepository = new UserRepository();
-    private WebApp app;
-
     protected abstract String getUsername(X509Certificate cert);
+
+    private final UserRepository userRepository;
+
+    public X509AuthenticationProvider(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
@@ -38,15 +39,10 @@ public abstract class X509AuthenticationProvider extends AuthenticationProvider 
             return;
         }
 
-        AppSession session = app.getAppSession(request);
-        User user = userRepository.findOrAddUser(session.getModelSession(), username);
-        setUser(request, user);
+        com.altamiracorp.lumify.model.user.User user = userRepository.findOrAddUser(username, new SystemUser());
+        User authUser = createFromModelUser(user);
+        setUser(request, authUser);
         chain.next(request, response);
-    }
-
-    @Override
-    public void setApp(App app) {
-        this.app = (WebApp)app;
     }
 
     private boolean isInvalid(X509Certificate cert) {

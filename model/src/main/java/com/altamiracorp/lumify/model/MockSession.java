@@ -1,5 +1,7 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.core.user.User;
+
 import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -7,12 +9,8 @@ import java.util.regex.Pattern;
 public class MockSession extends ModelSession {
     public HashMap<String, List<Row>> tables = new HashMap<String, List<Row>>();
 
-    public MockSession() {
-        super(new QueryUser());
-    }
-
     @Override
-    void save(Row row) {
+    void save(Row row, User user) {
         List<Row> table = tables.get(row.getTableName());
         if (table == null) {
             throw new NullPointerException("Could not find table with name: " + row.getTableName());
@@ -21,14 +19,14 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    void saveMany(String tableName, Collection<Row> rows) {
+    void saveMany(String tableName, Collection<Row> rows, User user) {
         for (Row r : rows) {
-            save(r);
+            save(r, user);
         }
     }
 
     @Override
-    public List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, QueryUser queryUser) {
+    public List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, User user) {
         List<Row> rows = this.tables.get(tableName);
         ArrayList<Row> results = new ArrayList<Row>();
         for (Row row : rows) {
@@ -42,7 +40,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, QueryUser queryUser) {
+    List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, User user) {
         List<Row> rows = this.tables.get(tableName);
         ArrayList<Row> results = new ArrayList<Row>();
         for (Row row : rows) {
@@ -56,7 +54,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, QueryUser queryUser) {
+    List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, User user) {
         List<Row> rows = this.tables.get(tableName);
         if (rows == null) {
             throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
@@ -72,7 +70,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    Row findByRowKey(String tableName, String rowKey, QueryUser queryUser) {
+    Row findByRowKey(String tableName, String rowKey, User user) {
         List<Row> rows = this.tables.get(tableName);
         if (rows == null) {
             throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
@@ -86,56 +84,22 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, QueryUser queryUser) {
-        return findByRowKey(tableName, rowKey, queryUser);
+    Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, User user) {
+        return findByRowKey(tableName, rowKey, user);
     }
 
     @Override
-    List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
-        List<Row> rows = this.tables.get(tableName);
-        if (rows == null) {
-            throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
-        }
-
-        Row matchedRow = null;
-        for (Row row : rows) {
-            if (row.getRowKey().toString().equals(rowKey)) {
-                matchedRow = row;
-                break;
-            }
-        }
-
-        List<ColumnFamily> result = new ArrayList<ColumnFamily>();
-        long count = 0L;
-        for (ColumnFamily colFam : (Collection<ColumnFamily>) matchedRow.getColumnFamilies()) {
-            if (Pattern.matches(colFamRegex, colFam.getColumnFamilyName())) {
-                if (count < colFamOffset + colFamLimit) {
-                    if (count >= colFamOffset) {
-                        result.add(colFam);
-                    }
-                } else {
-                    break;
-                }
-
-                count++;
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public void initializeTable(String tableName) {
+    public void initializeTable(String tableName, User user) {
         this.tables.put(tableName, new ArrayList<Row>());
     }
 
     @Override
-    public void deleteTable(String tableName) {
+    public void deleteTable(String tableName, User user) {
         this.tables.remove(tableName);
     }
 
     @Override
-    public void deleteRow(String tableName, RowKey rowKey) {
+    public void deleteRow(String tableName, RowKey rowKey, User user) {
         String rowKeyStr = rowKey.toString();
         List<Row> rows = this.tables.get(tableName);
         for (int i = 0; i < rows.size(); i++) {
@@ -146,8 +110,7 @@ public class MockSession extends ModelSession {
         }
     }
 
-    @Override
-    public void deleteColumn(Row row, String tableName, String columnFamily, String columnQualifier) {
+    public void deleteColumn(Row row, String tableName, String columnFamily, String columnQualifier, User user) {
         List<ColumnFamily> columnFamilies = (List<ColumnFamily>) row.getColumnFamilies();
         for (int i = 0; i < columnFamilies.size(); i++) {
             if (columnFamilies.get(i).getColumnFamilyName().equals(columnFamily)) {
@@ -163,7 +126,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    public SaveFileResults saveFile(InputStream in) {
+    public SaveFileResults saveFile(InputStream in, User user) {
         try {
             File temp = File.createTempFile("lumify", ".bin");
             OutputStream out = new FileOutputStream(temp);
@@ -179,7 +142,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    public InputStream loadFile(String path) {
+    public InputStream loadFile(String path, User user) {
         try {
             return new FileInputStream(path);
         } catch (FileNotFoundException ex) {
@@ -188,12 +151,16 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    public long getFileLength(String path) {
+    public long getFileLength(String path, User user) {
         return new File(path).length();
     }
 
     @Override
-    public List<String> getTableList() {
+    public List<String> getTableList(User user) {
         return new ArrayList<String>(this.tables.keySet());
+    }
+
+    @Override
+    public void close() {
     }
 }

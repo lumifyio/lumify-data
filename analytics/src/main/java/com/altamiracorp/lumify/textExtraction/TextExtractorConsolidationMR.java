@@ -6,6 +6,7 @@ import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.model.Column;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.Text;
@@ -36,6 +37,10 @@ public class TextExtractorConsolidationMR extends ConfigurableMapJobBase {
     }
 
     public static class TextExtractorConsolidationMapper extends LumifyMapper<Text, Artifact, Text, Artifact> {
+
+        @Override
+        protected void setup(Context context, Injector injector) throws Exception {
+        }
 
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {

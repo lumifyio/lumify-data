@@ -7,6 +7,8 @@ import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -16,14 +18,12 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-
 public class TextExtractionMR extends ConfigurableMapJobBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(TextExtractionMR.class.getName());
 
     @Override
-    protected Class getMapperClass(Job job, Class clazz) {
-        TextExtractorMapper.init(job, clazz);
+    protected Class getMapperClass(Job job, Class pluginClass) {
+        TextExtractorMapper.init(job, pluginClass);
         return TextExtractorMapper.class;
     }
 
@@ -43,23 +43,18 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
         public static final String CONF_TEXT_EXTRACTOR_CLASS = "textExtractorClass";
         public static final Text ARTIFACT_TABLE_NAME = new Text(Artifact.TABLE_NAME);
         private TextExtractor textExtractor;
-        private ArtifactRepository artifactRepository = new ArtifactRepository();
+        private ArtifactRepository artifactRepository;
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            super.setup(context);
-            try {
-                textExtractor = (TextExtractor) context.getConfiguration().getClass(CONF_TEXT_EXTRACTOR_CLASS, TikaTextExtractor.class).newInstance();
-                textExtractor.setup(context);
-            } catch (Exception e) {
-                throw new IOException(e);
-            }
+        protected void setup(Context context, Injector injector) throws Exception {
+            textExtractor = getAndInjectClassFromConfiguration(context, injector, CONF_TEXT_EXTRACTOR_CLASS);
+            textExtractor.setup(context, injector);
         }
 
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
             LOGGER.info("Extracting text from artifact: " + artifact.getRowKey().toString());
-            ArtifactExtractedInfo extractedInfo = textExtractor.extract(getSession().getModelSession(), artifact);
+            ArtifactExtractedInfo extractedInfo = textExtractor.extract(artifact, getUser());
             if (extractedInfo == null) {
                 return;
             }
@@ -70,7 +65,7 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
 
             if (extractedInfo.getSubject() != null && !extractedInfo.getSubject().equals("")) {
                 artifact.getGenericMetadata().setSubject(extractedInfo.getSubject());
-                artifactRepository.saveToGraph(getSession().getModelSession(), getSession().getGraphSession(), artifact);
+                artifactRepository.saveToGraph(artifact, getUser());
             }
 
             if (extractedInfo.getDate() != null) {
@@ -119,6 +114,11 @@ public class TextExtractionMR extends ConfigurableMapJobBase {
 
         public static void init(Job job, Class<? extends TextExtractor> textExtractorClass) {
             job.getConfiguration().setClass(CONF_TEXT_EXTRACTOR_CLASS, textExtractorClass, TextExtractor.class);
+        }
+
+        @Inject
+        public void setArtifactRepository(ArtifactRepository artifactRepository) {
+            this.artifactRepository = artifactRepository;
         }
     }
 

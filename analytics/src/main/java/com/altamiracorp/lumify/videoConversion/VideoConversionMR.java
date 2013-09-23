@@ -7,6 +7,8 @@ import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -37,7 +39,11 @@ public class VideoConversionMR extends ConfigurableMapJobBase {
     }
 
     public static class VideoConversionMapper extends LumifyMapper<Text, Artifact, Text, Artifact> {
-        private FFMPEGVideoConversion videoConversion = new FFMPEGVideoConversion();
+        private FFMPEGVideoConversion videoConversion;
+
+        @Override
+        protected void setup(Context context, Injector injector) throws Exception {
+        }
 
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
@@ -45,8 +51,13 @@ public class VideoConversionMR extends ConfigurableMapJobBase {
                 return;
             }
             LOGGER.info("Converting video for artifact: " + artifact.getRowKey().toString());
-            videoConversion.convert(getSession(), artifact);
+            videoConversion.convert(artifact, getUser());
             context.write(new Text(Artifact.TABLE_NAME), artifact);
+        }
+
+        @Inject
+        public void setVideoConversion(FFMPEGVideoConversion videoConversion) {
+            this.videoConversion = videoConversion;
         }
     }
 

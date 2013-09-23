@@ -15,6 +15,8 @@ import com.altamiracorp.lumify.textExtraction.StructuredDataTextExtractor;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
@@ -25,7 +27,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -50,21 +51,16 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
     }
 
     public static class StructuredDataExtractorMapper extends LumifyMapper<Text, Artifact, Text, Artifact> {
-        private ArtifactRepository artifactRepository = new ArtifactRepository();
-        private OntologyRepository ontologyRepository = new OntologyRepository();
-        private GraphRepository graphRepository = new GraphRepository();
-        private TermMentionRepository termMentionRepository = new TermMentionRepository();
-        private StructuredDataFactory structedDataFactory;
+        private ArtifactRepository artifactRepository;
+        private OntologyRepository ontologyRepository;
+        private GraphRepository graphRepository;
+        private TermMentionRepository termMentionRepository;
+        private StructuredDataFactory structuredDataFactory;
         private HashMap<String, Concept> conceptMap = new HashMap<String, Concept>();
 
         @Override
-        protected void setup(Context context) throws IOException, InterruptedException {
-            super.setup(context);
-            try {
-                structedDataFactory = new StructuredDataFactory(context);
-            } catch (Exception e) {
-                throw new IOException(e);
-            }
+        protected void setup(Context context, Injector injector) throws Exception {
+            structuredDataFactory = new StructuredDataFactory(context, injector);
         }
 
         @Override
@@ -81,9 +77,9 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
             String structuredDataType = mappingJson.getString("type");
             LOGGER.info("Extracting structured data from: " + artifact.getRowKey().toString() + ", type: " + structuredDataType);
 
-            StructuredDataExtractorBase structuredDataExtractor = structedDataFactory.get(structuredDataType);
+            StructuredDataExtractorBase structuredDataExtractor = structuredDataFactory.get(structuredDataType);
             if (structuredDataExtractor != null) {
-                ExtractedData extractedData = structuredDataExtractor.extract(getSession(), artifact, text, mappingJson);
+                ExtractedData extractedData = structuredDataExtractor.extract(artifact, text, mappingJson, getUser());
 
                 saveToUcd(artifact, extractedData);
                 GraphVertex artifactVertex = saveArtifactToGraph(artifact);
@@ -95,34 +91,34 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
         }
 
         private void saveToUcd(Artifact artifact, ExtractedData extractedData) {
-            artifactRepository.save(getSession().getModelSession(), artifact);
+            artifactRepository.save(artifact, getUser());
 
             for (TermAndGraphVertex termAndGraphVertex : extractedData.getTermsAndGraphVertices()) {
                 if (termAndGraphVertex == null) {
                     continue;
                 }
 
-                Concept concept = ontologyRepository.getConceptByName(getSession().getGraphSession(), termAndGraphVertex.getTermMention().getMetadata().getConcept());
+                Concept concept = ontologyRepository.getConceptByName(termAndGraphVertex.getTermMention().getMetadata().getConcept(), getUser());
                 if (concept == null) {
                     throw new RuntimeException("Could not find concept: " + termAndGraphVertex.getTermMention().getMetadata().getConcept());
                 }
                 termAndGraphVertex.getTermMention().getMetadata().setConceptGraphVertexId(concept.getId());
 
                 String termRowKey = termAndGraphVertex.getTermMention().getRowKey().toString();
-                TermMention existingTerm = termMentionRepository.findByRowKey(getSession().getModelSession(), termRowKey);
+                TermMention existingTerm = termMentionRepository.findByRowKey(termRowKey, getUser());
                 if (existingTerm != null) {
                     existingTerm.update(termAndGraphVertex.getTermMention());
-                    termMentionRepository.save(getSession().getModelSession(), existingTerm);
+                    termMentionRepository.save(existingTerm, getUser());
                     termAndGraphVertex.getTermMention().update(existingTerm);
                 } else {
-                    termMentionRepository.save(getSession().getModelSession(), termAndGraphVertex.getTermMention());
+                    termMentionRepository.save(termAndGraphVertex.getTermMention(), getUser());
                 }
             }
         }
 
         private GraphVertex saveArtifactToGraph(Artifact artifact) {
-            GraphVertex artifactVertex = artifactRepository.saveToGraph(getSession().getModelSession(), getSession().getGraphSession(), artifact);
-            getSession().getGraphSession().commit();
+            GraphVertex artifactVertex = artifactRepository.saveToGraph(artifact, getUser());
+            graphRepository.commit();
             return artifactVertex;
         }
 
@@ -138,7 +134,7 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                         String conceptLabel = termAndGraphVertex.getTermMention().getMetadata().getConcept();
                         Concept concept = conceptMap.get(conceptLabel);
                         if (concept == null) {
-                            concept = ontologyRepository.getConceptByName(getSession().getGraphSession(), conceptLabel);
+                            concept = ontologyRepository.getConceptByName(conceptLabel, getUser());
                             if (concept == null) {
                                 throw new RuntimeException("Could not find concept: " + conceptLabel);
                             }
@@ -147,30 +143,30 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
 
                         graphVertex.setProperty(PropertyName.SUBTYPE.toString(), concept.getId());
                         if (termAndGraphVertex.isUseExisting()) {
-                            GraphVertex existingGraphVertex = graphRepository.findVertexByTitleAndType(getSession().getGraphSession(), (String) graphVertex.getProperty(PropertyName.TITLE), VertexType.ENTITY);
+                            GraphVertex existingGraphVertex = graphRepository.findVertexByTitleAndType((String) graphVertex.getProperty(PropertyName.TITLE), VertexType.ENTITY, getUser());
                             if (existingGraphVertex != null) {
                                 existingGraphVertex.update(graphVertex);
                                 graphVertex.update(existingGraphVertex);
                                 graphVertex = existingGraphVertex;
                             }
                         }
-                        graphRepository.saveVertex(getSession().getGraphSession(), graphVertex);
-                        getSession().getGraphSession().commit();
+                        graphRepository.saveVertex(graphVertex, getUser());
+                        graphRepository.commit();
                     }
 
                     termMention.getMetadata().setGraphVertexId(graphVertex.getId());
-                    termMentionRepository.save(getSession().getModelSession(), termAndGraphVertex.getTermMention());
+                    termMentionRepository.save(termAndGraphVertex.getTermMention(), getUser());
 
                     GraphRelationship artifactRelationship = new GraphRelationship(null, artifactVertex.getId(), graphVertex.getId(), LabelName.HAS_ENTITY.toString());
-                    getSession().getGraphSession().save(artifactRelationship);
+                    graphRepository.save(artifactRelationship, getUser());
                 } else {
-                    GraphVertex existingGraphVertex = getSession().getGraphSession().findGraphVertex(termMention.getMetadata().getGraphVertexId());
+                    GraphVertex existingGraphVertex = graphRepository.findVertex(termMention.getMetadata().getGraphVertexId(), getUser());
                     existingGraphVertex.update(graphVertex);
                     graphVertex.update(existingGraphVertex);
-                    getSession().getGraphSession().commit();
+                    graphRepository.commit();
                 }
             }
-            getSession().getGraphSession().commit();
+            graphRepository.commit();
         }
 
         private void saveRelationships(List<StructuredDataRelationship> relationships) {
@@ -182,9 +178,29 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                     throw new RuntimeException("Invalid relationship: " + sourceVertexId + " -> " + label + " -> " + destVertexId);
                 }
                 GraphRelationship graphRelationship = new GraphRelationship(null, sourceVertexId, destVertexId, label);
-                getSession().getGraphSession().save(graphRelationship);
-                getSession().getGraphSession().commit();
+                graphRepository.save(graphRelationship, getUser());
+                graphRepository.commit();
             }
+        }
+
+        @Inject
+        public void setArtifactRepository(ArtifactRepository artifactRepository) {
+            this.artifactRepository = artifactRepository;
+        }
+
+        @Inject
+        public void setOntologyRepository(OntologyRepository ontologyRepository) {
+            this.ontologyRepository = ontologyRepository;
+        }
+
+        @Inject
+        public void setGraphRepository(GraphRepository graphRepository) {
+            this.graphRepository = graphRepository;
+        }
+
+        @Inject
+        public void setTermMentionRepository(TermMentionRepository termMentionRepository) {
+            this.termMentionRepository = termMentionRepository;
         }
     }
 

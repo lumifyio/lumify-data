@@ -20,23 +20,30 @@ function(ServiceBase) {
 		});
 	};
 
+	EntityService.prototype.updateTerm = function(updateRequest) {
+        return this._ajaxPost({
+            url: 'entity/updateTerm',
+            data: updateRequest
+        });
+    };
+
 	EntityService.prototype.resolveDetectedObject = function(createRequest) {
         return this._ajaxPost({
-            url: 'entity/createEntity',
+            url: 'entity/createResolvedDetectedObject',
             data: createRequest
         });
     };
 
     EntityService.prototype.updateDetectedObject = function(updateRequest) {
         return this._ajaxPost({
-            url: 'entity/updateEntity',
+            url: 'entity/updateResolvedDetectedObject',
             data: updateRequest
         });
     };
 
     EntityService.prototype.deleteDetectedObject = function(deleteRequest) {
         return this._ajaxPost({
-            url: 'entity/deleteEntity',
+            url: 'entity/deleteResolvedDetectedObject',
             data: deleteRequest
         });
     };

@@ -1,5 +1,7 @@
 package com.altamiracorp.lumify.web;
 
+import com.altamiracorp.lumify.model.user.UserRepository;
+import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,6 +12,11 @@ import java.security.cert.X509Certificate;
 
 public class DevX509AuthenticationProvider extends X509AuthenticationProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(DevX509AuthenticationProvider.class);
+
+    @Inject
+    public DevX509AuthenticationProvider(UserRepository userRepository) {
+        super(userRepository);
+    }
 
     @Override
     protected String getUsername(X509Certificate cert) {
@@ -24,8 +31,8 @@ public class DevX509AuthenticationProvider extends X509AuthenticationProvider {
 
     private String getCn(String dn) throws InvalidNameException {
         LdapName ldapDN = new LdapName(dn);
-        for(Rdn rdn : ldapDN.getRdns()) {
-            if(rdn.getType().equalsIgnoreCase("CN")) {
+        for (Rdn rdn : ldapDN.getRdns()) {
+            if (rdn.getType().equalsIgnoreCase("CN")) {
                 return rdn.getValue().toString();
             }
         }
