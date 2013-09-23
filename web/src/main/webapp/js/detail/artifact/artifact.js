@@ -89,6 +89,7 @@ define([
                 fullscreenButton: this.fullscreenButton([vertex.id])
             }));
 
+            this.updateEntityAndArtifactDraggables();
 
             Properties.attachTo(this.select('propertiesSelector'), { data: vertex });
 
