@@ -25,7 +25,7 @@ define([
             buttonDivSelector: '.buttons',
             entityNameInputSelector: 'input',
             draggablesSelector: '.resolved',
-            detectedObjectTagSelector: '.detected-object-labels .focused'
+            detectedObjectTagSelector: '.detected-object-tag .focused'
         });
 
         this.after('initialize', function() {
@@ -169,28 +169,27 @@ define([
                 };
 
                 // Temporarily creating a new tag to show on ui prior to backend update
-                var classes = $('.detected-object-labels .label').attr('class') + ' focused resolved entity';
-                var newTag = ' <a class="' + classes + '" href="#">' + data.title +' </a><button class="delete-tag" type="button">X</button>';
+                var classes = $('.detected-object-labels .label-info').attr('class') + ' focused resolved entity';
+                var newTag = '<span class="label detected-object-tag"><a class="' + classes + '" href="#">' + data.title +'</a><a class="delete-tag" href="#">x</a></span>';
                 var added = false;
-
-                if ($('.detected-object-labels .label').hasClass('focused')) {
+                if ($('.detected-object').hasClass('focused')) {
                     self.updateEntityTag (data, parameters.conceptId);
                 } else {
-                    $('.detected-object-labels .label').each(function(){
+                    $('.detected-object-tag .label-info').each(function(){
                         if(parseFloat($(this).data("info").info.coords.x1) > data.info.coords.x1){
-                            $(newTag).insertBefore(this).removePrefixedClasses('subType-').addClass('subType-' + parameters.conceptId).after(' ');
+                            $(newTag).insertBefore($(this).parent()).find('.label-info').removePrefixedClasses('subType-').addClass('subType-' + parameters.conceptId).parent().after(' ');
                             added = true;
                             return false;
                         }
                     });
                     if (!added){
+                        $(newTag).addClass('subType-' + parameters.conceptId);
                         $('.detected-object-labels').append ($(newTag));
                     }
 
-                    $('.detected-object-labels .focused').data('info', data);
-                    $('.detected-object-labels .focused').removeClass('focused');
+                    $('.focused').data('info', data);
+                    $('.focused').removeClass('focused');
                     self.trigger(document, 'termCreated', data);
-
                     var vertices = [];
                     vertices.push(resolvedVertex);
                     self.trigger(document, 'updateVertices', { vertices: vertices });
@@ -227,16 +226,17 @@ define([
                 title: data.title,
                 info: data.info
             };
+            var $focused = $('.focused');
 
-            $('.detected-object-labels .focused').text(data.title).data('info', data).removePrefixedClasses('subType-');
-            $('.detected-object-labels .focused').addClass('resolved entity subType-' + conceptId);
+            $('.focused').text(data.title).data('info',data).removePrefixedClasses('subType-');
+            $('.focused').addClass('resolved entity subType-' + conceptId);
 
-            if (!$('.detected-object-labels .focused').next().hasClass('delete-tag')){
-                var buttonTag = '<button class="delete-tag" type="button">X</button>';
-                $(buttonTag).insertAfter($('.detected-object-labels .focused'));
+            if (!$('.focused').siblings().hasClass('delete-tag')){
+                var buttonTag = '<span class="delete-tag">x</span>';
+                $(buttonTag).insertAfter($('.focused'));
                 self.trigger(document, 'termCreated', data);
             }
-            $('.detected-object-labels .focused').removeClass('focused');
+            $('.focused').removeClass('focused');
 
             var vertices = [];
             vertices.push(resolvedVertex);

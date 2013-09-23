@@ -39,10 +39,14 @@
   <% artifact['atc:Artifact_Detected_Objects'].detectedObjects.forEach(function(object) {
     console.log ('object', object);
     if (object.graphVertexId) {
-        var classes = 'label label-info detected-object resolved entity subType-' + object._subType;%>
-        <a class="<%= classes %>" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.title || object.info.concept %></a><button class="delete-tag" type="button">X</button>
+        var classes = 'label-info detected-object resolved entity subType-' + object._subType;%>
+        <span class="label detected-object-tag">
+        <a class="<%= classes %>" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.title || object.info.concept %></a><a class="delete-tag">x</a>
+        </span>
     <%} else { %>
-        <a class="label label-info detected-object" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.info.title || object.info.concept %></a>
+    <span class="label detected-object-tag">
+        <a class="label-info detected-object" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.info.title || object.info.concept %></a>
+    </span>
   <% }}); %>
 <% } %>
 </div>

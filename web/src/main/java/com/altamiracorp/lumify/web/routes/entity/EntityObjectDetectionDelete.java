@@ -48,7 +48,7 @@ public class EntityObjectDetectionDelete extends BaseRequestHandler {
 
         // Delete from term mention
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(jsonObject.getString("_rowKey"));
-        modelSession.deleteRow(TermMention.TABLE_NAME, termMentionRowKey, user);
+//        modelSession.deleteRow(TermMention.TABLE_NAME, termMentionRowKey, user);
 
         // Delete just the relationship if vertex has more than one relationship otherwise delete vertex
         String graphVertexId = jsonObject.getString("graphVertexId");

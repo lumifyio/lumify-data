@@ -30,7 +30,7 @@ define([
             propertiesSelector: '.properties',
             addNewPropertiesSelector: '.add-new-properties',
             titleSelector: '.artifact-title',
-            deleteTagSelector: '.delete-tag',
+            deleteTagSelector: '.detected-object-tag .delete-tag',
             detectedObjectTagSelector: '.detected-object-labels'
         });
 
@@ -47,7 +47,7 @@ define([
 
             this.$node.on('mouseenter', '.image-preview', this.onImageEnter.bind(this));
 
-            this.$node.on('mouseenter mouseleave', '.detected-object', this.onDetectedObjectHover.bind(this));
+            this.$node.on('mouseenter mouseleave', '.detected-object-tag', this.onDetectedObjectHover.bind(this));
 
             this.loadArtifact();
         });
@@ -163,8 +163,7 @@ define([
 
         this.onDeleteTagClicked = function (event) {
             var self = this;
-
-            var detectedObjectTag = $(event.target).prev();
+            var detectedObjectTag = $(event.target).siblings();
             var info = { objectInfo: JSON.stringify(detectedObjectTag.data('info')) };
             this.entityService.deleteDetectedObject(info, function(err, data) {
                 if (err) {
@@ -193,9 +192,9 @@ define([
 
         this.onDetectedObjectHover = function(event) {
             if (event.type == 'mouseenter') {
-                this.trigger(document, 'DetectedObjectEnter', $(event.target).data('info'));
+                this.trigger(document, 'DetectedObjectEnter', $(event.currentTarget).find('.label-info').data('info'));
             } else {
-                this.trigger(document, 'DetectedObjectLeave', $(event.target).data('info'));
+                this.trigger(document, 'DetectedObjectLeave', $(event.currentTarget).find('.label-info').data('info'));
             }
         };
 
