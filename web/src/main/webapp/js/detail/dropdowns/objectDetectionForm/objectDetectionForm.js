@@ -195,7 +195,8 @@ define([
                     } else {
                         _.defer(self.teardown.bind(self));
                     }
-                });
+                }
+            });
         };
 
         this.updateEntity = function (parameters) {

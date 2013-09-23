@@ -413,7 +413,7 @@ define([
                     }
 
                     function addVertex(vertex) {
-                        if ($(event.toElement).parents('.graph-pane').length) {
+                        if ($('.graph-pane').is('.visible')) {
                             vertex.workspace.dropPosition = { x: event.clientX, y: event.clientY };
                         }
 

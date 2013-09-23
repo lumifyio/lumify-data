@@ -241,15 +241,17 @@ define([
                 data.vertices
                     .forEach(function(updatedVertex) {
                         var cyNode = cy.getElementById(updatedVertex.id);
-                        if (updatedVertex.workspace.graphPosition) {
-                            cyNode.position( retina.pointsToPixels(updatedVertex.workspace.graphPosition) );
-                        }
+                        if (cyNode.length) {
+                            if (updatedVertex.workspace.graphPosition) {
+                                cyNode.position( retina.pointsToPixels(updatedVertex.workspace.graphPosition) );
+                            }
 
-                        self.updateCyNodeData(cyNode.data(), updatedVertex);
-                        if (cyNode._private.classes) {
-                            cyNode._private.classes.length = 0;
+                            self.updateCyNodeData(cyNode.data(), updatedVertex);
+                            if (cyNode._private.classes) {
+                                cyNode._private.classes.length = 0;
+                            }
+                            cyNode.addClass(self.classesForVertex(updatedVertex));
                         }
-                        cyNode.addClass(self.classesForVertex(updatedVertex));
                     });
             });
 
