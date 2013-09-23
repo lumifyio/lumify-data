@@ -1,5 +1,7 @@
 package com.altamiracorp.lumify.entityExtraction;
 
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
@@ -19,7 +21,7 @@ public class RegexEntityExtractor extends EntityExtractor {
     private String entityType;
 
     @Override
-    public void setup(Context context) throws IOException {
+    public void setup(Context context, User user) throws IOException {
         String regularExpression = context.getConfiguration().get(REGULAR_EXPRESSION);
         if (regularExpression == null) {
             throw new IOException("No regular expression was provided!");

@@ -6,6 +6,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.ModelSession;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
@@ -29,6 +31,7 @@ public abstract class OpenNlpEntityExtractor extends EntityExtractor {
     private FileSystem fs;
     private String pathPrefix;
 
+    private User user;
     private Tokenizer tokenizer;
     private List<TokenNameFinder> finders;
 
@@ -37,10 +40,11 @@ public abstract class OpenNlpEntityExtractor extends EntityExtractor {
     private static final int NEW_LINE_CHARACTER_LENGTH = 1;
 
     @Override
-    public void setup(Context context) throws IOException {
+    public void setup(Context context, User user) throws IOException {
         setPathPrefix(context.getConfiguration().get(PATH_PREFIX_CONFIG,
                 DEFAULT_PATH_PREFIX));
-        fs = FileSystem.get(context.getConfiguration());
+        this.fs = FileSystem.get(context.getConfiguration());
+        this.user = user;
 
         setTokenizer(loadTokenizer());
         setFinders(loadFinders());
@@ -100,6 +104,10 @@ public abstract class OpenNlpEntityExtractor extends EntityExtractor {
 
     protected FileSystem getFS() {
         return fs;
+    }
+
+    protected User getUser() {
+        return user;
     }
 
     protected Tokenizer loadTokenizer() throws IOException {

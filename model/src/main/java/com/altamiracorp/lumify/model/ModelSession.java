@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.model;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnail;
 import com.altamiracorp.lumify.model.dbpedia.DBPedia;
+import com.altamiracorp.lumify.model.dictionary.DictionaryEntry;
 import com.altamiracorp.lumify.model.geoNames.GeoName;
 import com.altamiracorp.lumify.model.geoNames.GeoNameAdmin1Code;
 import com.altamiracorp.lumify.model.geoNames.GeoNameCountryInfo;
@@ -40,6 +41,7 @@ public abstract class ModelSession {
             GeoNameAdmin1Code.TABLE_NAME,
             GeoNameCountryInfo.TABLE_NAME,
             GeoNamePostalCode.TABLE_NAME,
+            DictionaryEntry.TABLE_NAME,
             "atc_titan");// see com.altamiracorp.lumify.model.TitanGraphSession
 
     public ModelSession() {
