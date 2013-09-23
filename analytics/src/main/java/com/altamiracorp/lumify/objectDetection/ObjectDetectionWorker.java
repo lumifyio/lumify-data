@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.objectDetection;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.search.SearchProvider;
+import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import org.json.JSONObject;

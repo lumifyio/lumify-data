@@ -101,24 +101,31 @@ define([
                 this.updateConceptSections(concepts);
 
                 $.when(
-                    this.ucd.artifactSearch(query),
+                    this.ucd.artifactSearch(query || this.select('querySelector').val(), this.filters),
                     this.ucd.graphVertexSearch(query || this.select('querySelector').val(), this.filters)
                 ).done(function(artifactSearch, vertexSearch) {
-                    var results = { artifact:artifactSearch[0], entity:{} };
+                    var results = {
+                        artifact:{
+                            document: [],
+                            image: [],
+                            video: []
+                        },
+                        entity:{}
+                    };
 
-                    // Organize vertexSearch Items
-                    vertexSearch[0].vertices.forEach(function(v) {
+                    var sortVerticesIntoResults = function(v) {
                         var props = v.properties,
                             type = props._type,
                             subType = props._subType;
-
-                        if (type === 'artifact') return;
 
                         if (!results[type]) results[type] = {};
                         if (!results[type][subType]) results[type][subType] = [];
 
                         results[type][subType].push(v);
-                    });
+                    };
+
+                    vertexSearch[0].vertices.forEach(sortVerticesIntoResults);
+                    artifactSearch[0].vertices.forEach(sortVerticesIntoResults);
                     self.searchResults = results;
 
                     Object.keys(results).forEach(function(type) {
@@ -249,6 +256,7 @@ define([
         };
 
         this.after('initialize', function() {
+            var self = this;
             this.searchResults = {};
             this.$node.html(template({}));
 

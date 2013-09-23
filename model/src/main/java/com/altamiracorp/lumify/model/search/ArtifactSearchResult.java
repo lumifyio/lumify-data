@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.search;
+package com.altamiracorp.lumify.model.search;
 
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 

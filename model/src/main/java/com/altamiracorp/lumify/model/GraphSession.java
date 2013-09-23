@@ -42,6 +42,8 @@ public abstract class GraphSession {
 
     public abstract List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson, User user);
 
+    public abstract List<GraphVertex> searchVerticesWithinGraphVertexIds(List<String> artifactGraphVertexIds, JSONArray filterJson, User user);
+
     public abstract Graph getGraph();
 
     public abstract List<GraphVertex> searchVerticesByTitleAndType(String query, VertexType type, User user);

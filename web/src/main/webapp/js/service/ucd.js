@@ -59,8 +59,19 @@ function(ServiceBase) {
         return this._get("statement", statementRowKey);
     };
 
-    Ucd.prototype.artifactSearch = function(query) {
-        return this._search("artifact", query);
+    Ucd.prototype.artifactSearch = function(query, filters) {
+        if (typeof filters === 'function') {
+            callback = filters;
+            filters = [];
+        }
+
+        return this._ajaxGet({
+            url: 'artifact/search',
+            data: {
+                q: query.query || query,
+                filter: JSON.stringify(filters || [])
+            }
+        });
     };
 
     Ucd.prototype.getArtifactById = function (id) {

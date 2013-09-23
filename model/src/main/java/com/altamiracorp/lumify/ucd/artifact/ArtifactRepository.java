@@ -7,26 +7,37 @@ import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
+import com.altamiracorp.lumify.model.search.ArtifactSearchResult;
+import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Singleton
 public class ArtifactRepository extends Repository<Artifact> {
     private final ArtifactBuilder artifactBuilder = new ArtifactBuilder();
     private final GraphSession graphSession;
+    private final SearchProvider searchProvider;
 
     @Inject
-    public ArtifactRepository(final ModelSession modelSession, final GraphSession graphSession) {
+    public ArtifactRepository(
+            final ModelSession modelSession,
+            final GraphSession graphSession,
+            final SearchProvider searchProvider) {
         super(modelSession);
         this.graphSession = graphSession;
+        this.searchProvider = searchProvider;
     }
 
     @Override
@@ -194,5 +205,19 @@ public class ArtifactRepository extends Repository<Artifact> {
                 .setFileTimestamp(fileTimestamp);
 
         return artifact;
+    }
+
+    public List<GraphVertex> search(String query, JSONArray filter, User user) throws Exception {
+        Collection<ArtifactSearchResult> artifactSearchResults = searchProvider.searchArtifacts(query, user);
+        List<String> artifactGraphVertexIds = getGraphVertexIds(artifactSearchResults);
+        return graphSession.searchVerticesWithinGraphVertexIds(artifactGraphVertexIds, filter, user);
+    }
+
+    private List<String> getGraphVertexIds(Collection<ArtifactSearchResult> artifactSearchResults) {
+        ArrayList<String> results = new ArrayList<String>();
+        for (ArtifactSearchResult artifactSearchResult : artifactSearchResults) {
+            results.add(artifactSearchResult.getGraphVertexId());
+        }
+        return results;
     }
 }

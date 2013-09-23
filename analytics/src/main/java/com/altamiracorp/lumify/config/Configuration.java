@@ -16,7 +16,7 @@ import com.altamiracorp.lumify.model.AccumuloSession;
 import com.altamiracorp.lumify.model.TitanGraphSession;
 import com.altamiracorp.lumify.search.BlurSearchProvider;
 import com.altamiracorp.lumify.search.ElasticSearchProvider;
-import com.altamiracorp.lumify.search.SearchProvider;
+import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.google.common.base.Objects;
 
 /**

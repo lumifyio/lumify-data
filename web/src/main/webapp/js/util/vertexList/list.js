@@ -145,7 +145,7 @@ define([
                                 .data('preview-loaded', true)
                                 .find('.preview').html("<img src='" + vertex.properties._glyphIcon + "' />");
                         } else {
-                            previews.generatePreview(vertex.artifact._rowKey, { width: 200 }, function(poster, frames) {
+                            previews.generatePreview(vertex.properties._rowKey, { width: 200 }, function(poster, frames) {
                                 li.removeClass('preview-loading')
                                   .data('preview-loaded', true);
 

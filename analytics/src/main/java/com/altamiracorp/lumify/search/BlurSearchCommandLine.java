@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.search;
 
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.model.search.ArtifactSearchResult;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;

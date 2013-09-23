@@ -46,23 +46,25 @@ public class TitanQueryFormatter {
             throw new RuntimeException("'values' is required for data type 'date'");
         }
 
-        if (values.isNull(0))
+        if (values.isNull(0)) {
             return pipeline;
+        }
 
-        Date value = Property.DATE_FORMAT.parse(values.getString(0));
+        long value = Property.DATE_FORMAT.parse(values.getString(0)).getTime();
         if (predicate.equals(RANGE)) {
             if (values.length() != 2) {
                 throw new RuntimeException(String.format("'%s' requires 2 values, found %d", predicate, values.length()));
             }
 
-            Date otherValue = Property.DATE_FORMAT.parse(values.getString(1));
+            long otherValue = Property.DATE_FORMAT.parse(values.getString(1)).getTime();
             return pipeline.interval(propertyName, value, otherValue);
         } else {
             throwIfMissingValue(predicate, values);
 
             Tokens.T comparison = tokenMap.get(predicate);
-            if (comparison != null)
+            if (comparison != null) {
                 return pipeline.has(propertyName, comparison, value);
+            }
             throw new RuntimeException("Invalid predicate " + predicate);
         }
     }
