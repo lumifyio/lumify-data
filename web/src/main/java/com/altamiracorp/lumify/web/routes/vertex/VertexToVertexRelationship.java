@@ -1,11 +1,12 @@
 package com.altamiracorp.lumify.web.routes.vertex;
 
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,8 +16,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 public class VertexToVertexRelationship extends BaseRequestHandler {
-    private GraphRepository graphRepository = new GraphRepository();
-    private OntologyRepository ontologyRepository = new OntologyRepository();
+    private final GraphRepository graphRepository;
+    private final OntologyRepository ontologyRepository;
+
+    @Inject
+    public VertexToVertexRelationship(final OntologyRepository ontologyRepo, final GraphRepository graphRepo) {
+        ontologyRepository = ontologyRepo;
+        graphRepository = graphRepo;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
@@ -24,20 +31,20 @@ public class VertexToVertexRelationship extends BaseRequestHandler {
         final String target = getRequiredParameter(request, "target");
         final String label = getRequiredParameter(request, "label");
 
-        AppSession session = app.getAppSession(request);
-        Map<String, String> properties = graphRepository.getEdgeProperties(session.getGraphSession(), source, target, label);
-        GraphVertex sourceVertex = graphRepository.findVertex(session.getGraphSession(), source);
-        GraphVertex targetVertex = graphRepository.findVertex(session.getGraphSession(), target);
+        User user = getUser(request);
+        Map<String, String> properties = graphRepository.getEdgeProperties(source, target, label, user);
+        GraphVertex sourceVertex = graphRepository.findVertex(source, user);
+        GraphVertex targetVertex = graphRepository.findVertex(target, user);
 
         JSONObject results = new JSONObject();
-        results = resultsToJson(source, "source", sourceVertex, results);
-        results = resultsToJson(target, "target", targetVertex, results);
+        results.put("source", resultsToJson(source, sourceVertex));
+        results.put("target", resultsToJson(target, targetVertex));
 
         JSONArray propertyJson = new JSONArray();
         for (Map.Entry<String, String> p : properties.entrySet()) {
             JSONObject property = new JSONObject();
             property.put("key", p.getKey());
-            String displayName = ontologyRepository.getDisplayNameForLabel(session.getGraphSession(), p.getValue());
+            String displayName = ontologyRepository.getDisplayNameForLabel(p.getValue(), user);
             if (displayName == null) {
                 property.put("value", p.getValue());
             } else {
@@ -50,23 +57,13 @@ public class VertexToVertexRelationship extends BaseRequestHandler {
         respondWithJson(response, results);
     }
 
-    private JSONObject resultsToJson(String id, String prefix, GraphVertex graphVertex, JSONObject obj) throws JSONException {
-        if (graphVertex.getProperty("_rowKey") == null) {
-            obj.put(prefix + "RowKey", "");
-        } else {
-            obj.put(prefix + "RowKey", graphVertex.getProperty("_rowKey"));
+    private JSONObject resultsToJson(String id, GraphVertex graphVertex) throws JSONException {
+        JSONObject json = new JSONObject();
+        json.put("id", id);
+        for (String property : graphVertex.getPropertyKeys()) {
+            json.put(property, graphVertex.getProperty(property));
         }
 
-        obj.put(prefix + "Id", id);
-        obj.put(prefix + "SubType", graphVertex.getProperty("_subType"));
-
-        if (graphVertex.getProperty("title") != "") {
-            obj.put(prefix + "Title", graphVertex.getProperty("title"));
-        } else {
-            obj.put(prefix + "Title", graphVertex.getProperty("_type").toString().toLowerCase());
-        }
-
-        obj.put(prefix + "Type", graphVertex.getProperty("_type").toString().toLowerCase());
-        return obj;
+        return json;
     }
 }

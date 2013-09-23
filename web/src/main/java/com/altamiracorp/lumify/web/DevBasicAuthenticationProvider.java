@@ -1,24 +1,27 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.AppSession;
-import com.altamiracorp.lumify.model.user.User;
+import com.altamiracorp.lumify.core.user.SystemUser;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.user.UserRepository;
-import com.altamiracorp.web.App;
-import com.altamiracorp.web.AppAware;
 import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class DevBasicAuthenticationProvider extends AuthenticationProvider implements AppAware {
+public class DevBasicAuthenticationProvider extends AuthenticationProvider {
     private static final String HTTP_BASIC_REALM = "lumify";
     private static final String HTTP_AUTHORIZATION_HEADER = "Authorization";
     private static final String HTTP_AUTHENTICATE_HEADER = "WWW-Authenticate";
     private static final int HTTP_NOT_AUTHORIZED_ERROR_CODE = 401;
-    private UserRepository userRepository = new UserRepository();
-    private WebApp app;
+    private final UserRepository userRepository;
+
+    @Inject
+    public DevBasicAuthenticationProvider(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
@@ -27,20 +30,14 @@ public class DevBasicAuthenticationProvider extends AuthenticationProvider imple
             if (username == null) {
                 requestAuthorization(response);
             } else {
-                AppSession session = app.getAppSession(request);
-
-                User user = userRepository.findOrAddUser(session.getModelSession(), username);
-                setUser(request, user);
+                com.altamiracorp.lumify.model.user.User user = userRepository.findOrAddUser(username, new SystemUser());
+                User authUser = createFromModelUser(user);
+                setUser(request, authUser);
                 chain.next(request, response);
             }
         } else {
             requestAuthorization(response);
         }
-    }
-
-    @Override
-    public void setApp(App application) {
-        app = (WebApp) application;
     }
 
     private void requestAuthorization(HttpServletResponse response) throws IOException {

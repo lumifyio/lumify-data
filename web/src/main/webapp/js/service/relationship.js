@@ -25,6 +25,15 @@ define(
             });
         };
 
+        RelationshipService.prototype.createRelationship = function (createRequest, callback) {
+            this._ajaxPost({
+                url: 'relationship/create',
+                data: createRequest
+            }, function (err, response) {
+                callback(err, response);
+            });
+        };
+
         return RelationshipService;
     });
 

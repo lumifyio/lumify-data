@@ -13,9 +13,9 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import java.io.IOException;
 import java.util.Map;
 
-public abstract class AccumuloBaseInputFormat<TModel extends Row, TRepo extends Repository<TModel>> extends InputFormatBase<Text, TModel> {
+public abstract class AccumuloBaseInputFormat<TModel extends Row, TRepo extends BaseBuilder<TModel>> extends InputFormatBase<Text, TModel> {
 
-    public abstract TRepo getRepository();
+    public abstract TRepo getBuilder();
 
     @Override
     public RecordReader<Text, TModel> createRecordReader(InputSplit split, TaskAttemptContext context) throws IOException, InterruptedException {
@@ -36,8 +36,8 @@ public abstract class AccumuloBaseInputFormat<TModel extends Row, TRepo extends 
                     return false;
                 }
                 PeekingIterator<Map.Entry<Key, Value>> it = new PeekingIterator<Map.Entry<Key, Value>>(rowIterator.next());
-                TRepo repository = getRepository();
-                this.currentV = repository.fromRow(AccumuloHelper.accumuloRowToRow(repository.getTableName(), it));
+                TRepo builder = getBuilder();
+                this.currentV = builder.fromRow(AccumuloHelper.accumuloRowToRow(builder.getTableName(), it));
                 this.currentV.setDirtyBits(false);
                 this.numKeysRead = this.rowIterator.getKVCount();
                 this.currentKey = new Key(this.currentV.getRowKey().toString());

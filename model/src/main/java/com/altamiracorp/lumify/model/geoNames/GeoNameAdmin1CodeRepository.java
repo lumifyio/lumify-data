@@ -1,10 +1,21 @@
 package com.altamiracorp.lumify.model.geoNames;
 
-import com.altamiracorp.lumify.model.*;
-
 import java.util.Collection;
 
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.Column;
+import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.Row;
+import com.google.inject.Inject;
+
 public class GeoNameAdmin1CodeRepository extends Repository<GeoNameAdmin1Code> {
+    @Inject
+    public GeoNameAdmin1CodeRepository(final ModelSession modelSession) {
+        super(modelSession);
+    }
+
     @Override
     public GeoNameAdmin1Code fromRow(Row row) {
         GeoNameAdmin1Code geoNameAdmin1Code = new GeoNameAdmin1Code(row.getRowKey());
@@ -30,7 +41,7 @@ public class GeoNameAdmin1CodeRepository extends Repository<GeoNameAdmin1Code> {
         return GeoNameAdmin1Code.TABLE_NAME;
     }
 
-    public GeoNameAdmin1Code findByCountryAndAdmin1Code(Session session, String countryCode, String admin1Code) {
-        return findByRowKey(session, new GeoNameAdmin1CodeRowKey(countryCode, admin1Code).toString());
+    public GeoNameAdmin1Code findByCountryAndAdmin1Code(String countryCode, String admin1Code, User user) {
+        return findByRowKey(new GeoNameAdmin1CodeRowKey(countryCode, admin1Code).toString(), user);
     }
 }

@@ -1,12 +1,13 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
+import com.google.inject.Inject;
 import org.apache.poi.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,12 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactRawByRowKey.class);
     private static final Pattern RANGE_PATTERN = Pattern.compile("bytes=([0-9]*)-([0-9]*)");
 
-    ArtifactRepository artifactRepository = new ArtifactRepository();
+    private final ArtifactRepository artifactRepository;
+
+    @Inject
+    public ArtifactRawByRowKey(final ArtifactRepository repo) {
+        artifactRepository = repo;
+    }
 
     public static String getUrl(ArtifactRowKey artifactKey) {
         return "/artifact/" + UrlUtils.urlEncode(artifactKey.toString()) + "/raw";
@@ -34,9 +40,9 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
         boolean download = getOptionalParameter(request, "download") != null;
         boolean videoPlayback = getOptionalParameter(request, "playback") != null;
 
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
         ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
-        Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactKey.toString());
+        Artifact artifact = artifactRepository.findByRowKey(artifactKey.toString(), user);
 
         if (artifact == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -46,7 +52,7 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
 
         String fileName = getFileName(artifact);
         if (videoPlayback) {
-            handlePartialPlayback(request, response, session, artifact, fileName);
+            handlePartialPlayback(request, response, artifact, fileName, user);
         } else {
             String mimeType = getMimeType(artifact);
             response.setContentType(mimeType);
@@ -55,7 +61,7 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
             } else {
                 response.addHeader("Content-Disposition", "inline; filename=" + fileName);
             }
-            InputStream in = artifactRepository.getRaw(session.getModelSession(), artifact);
+            InputStream in = artifactRepository.getRaw(artifact, user);
             try {
                 IOUtils.copy(in, response.getOutputStream());
             } finally {
@@ -66,7 +72,7 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
         chain.next(request, response);
     }
 
-    private void handlePartialPlayback(HttpServletRequest request, HttpServletResponse response, AppSession session, Artifact artifact, String fileName) throws IOException {
+    private void handlePartialPlayback(HttpServletRequest request, HttpServletResponse response, Artifact artifact, String fileName, User user) throws IOException {
         String videoType = getRequiredParameter(request, "type");
         InputStream in;
         long totalLength;
@@ -90,13 +96,13 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
         if (videoType.equals("video/mp4")) {
             response.setContentType("video/mp4");
             response.addHeader("Content-Disposition", "attachment; filename=" + fileName + ".mp4");
-            in = artifactRepository.getRawMp4(session.getModelSession(), artifact);
-            totalLength = artifactRepository.getRawMp4Length(session.getModelSession(), artifact);
+            in = artifactRepository.getRawMp4(artifact, user);
+            totalLength = artifactRepository.getRawMp4Length(artifact, user);
         } else if (videoType.equals("video/webm")) {
             response.setContentType("video/webm");
             response.addHeader("Content-Disposition", "attachment; filename=" + fileName + ".webm");
-            in = artifactRepository.getRawWebm(session.getModelSession(), artifact);
-            totalLength = artifactRepository.getRawWebmLength(session.getModelSession(), artifact);
+            in = artifactRepository.getRawWebm(artifact, user);
+            totalLength = artifactRepository.getRawWebmLength(artifact, user);
         } else {
             throw new RuntimeException("Invalid video type: " + videoType);
         }
@@ -135,9 +141,5 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
             mimeType = "application/octet-stream";
         }
         return mimeType;
-    }
-
-    public void setArtifactRepository(ArtifactRepository artifactRepository) {
-        this.artifactRepository = artifactRepository;
     }
 }

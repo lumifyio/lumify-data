@@ -1,7 +1,20 @@
 package com.altamiracorp.lumify.model;
 
-import junit.framework.Assert;
-import org.apache.accumulo.core.client.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.accumulo.core.client.AccumuloException;
+import org.apache.accumulo.core.client.AccumuloSecurityException;
+import org.apache.accumulo.core.client.BatchWriter;
+import org.apache.accumulo.core.client.MutationsRejectedException;
+import org.apache.accumulo.core.client.RowIterator;
+import org.apache.accumulo.core.client.Scanner;
+import org.apache.accumulo.core.client.TableNotFoundException;
 import org.apache.accumulo.core.client.mock.MockConnector;
 import org.apache.accumulo.core.client.mock.MockInstance;
 import org.apache.accumulo.core.data.Key;
@@ -9,18 +22,15 @@ import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.accumulo.core.security.thrift.AuthInfo;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import static junit.framework.Assert.fail;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import com.altamiracorp.lumify.core.user.User;
 
 @RunWith(JUnit4.class)
 public class AccumuloSessionTest {
@@ -32,10 +42,17 @@ public class AccumuloSessionTest {
     private long maxMemory = 1000000L;
     private long maxLatency = 1000L;
     private int maxWriteThreads = 10;
-    private AccumuloQueryUser queryUser;
+
+    @Mock
+    private User queryUser;
+
+    @Mock
+    private AccumuloModelAuthorizations modelAuths;
 
     @Before
     public void before() throws AccumuloSecurityException, AccumuloException {
+        MockitoAnnotations.initMocks(this);
+
         mockInstance = new MockInstance();
         AuthInfo authInfo = new AuthInfo();
         authInfo.setUser("testUser");
@@ -44,10 +61,8 @@ public class AccumuloSessionTest {
 
         authorizations = new Authorizations("ALL");
 
-        queryUser = new AccumuloQueryUser();
-
-        accumuloSession = new AccumuloSession(connector, null, null, queryUser, null);
-        accumuloSession.initializeTable(TEST_TABLE_NAME);
+        accumuloSession = new AccumuloSession(connector, null, null, null);
+        accumuloSession.initializeTable(TEST_TABLE_NAME, queryUser);
     }
 
     @Test
@@ -67,9 +82,9 @@ public class AccumuloSessionTest {
         columnFamily2.set("2testColumn3", 222L);
         row.addColumnFamily(columnFamily2);
 
-        accumuloSession.save(row);
+        accumuloSession.save(row, queryUser);
 
-        Scanner scanner = this.connector.createScanner(TEST_TABLE_NAME, authorizations);
+        Scanner scanner = connector.createScanner(TEST_TABLE_NAME, authorizations);
         scanner.setRange(new Range("testRowKey1"));
         RowIterator rowIterator = new RowIterator(scanner);
         int rowCount = 0;
@@ -130,6 +145,8 @@ public class AccumuloSessionTest {
         writer.addMutation(mutation);
         writer.close();
 
+        when(queryUser.getModelAuthorizations()).thenReturn(modelAuths);
+
         Row row = accumuloSession.findByRowKey(TEST_TABLE_NAME, "testRowKey", queryUser);
         assertEquals(TEST_TABLE_NAME, row.getTableName());
         assertEquals("testRowKey", row.getRowKey().toString());
@@ -160,6 +177,8 @@ public class AccumuloSessionTest {
 
         writer.close();
 
+        when(queryUser.getModelAuthorizations()).thenReturn(modelAuths);
+
         List<Row> rows = accumuloSession.findByRowKeyRange(TEST_TABLE_NAME, "testRowKey", "testRowKeyZ", queryUser);
         assertEquals(2, rows.size());
 
@@ -186,38 +205,13 @@ public class AccumuloSessionTest {
 
         writer.close();
 
+        when(queryUser.getModelAuthorizations()).thenReturn(modelAuths);
+
         List<Row> rows = accumuloSession.findByRowKeyRegex(TEST_TABLE_NAME, ".*1", queryUser);
         assertEquals(1, rows.size());
 
         Row row1 = rows.get(0);
         assertEquals("testRowKey1", row1.getRowKey().toString());
         assertEquals("testValue1", row1.get("testColumnFamily1").get("testColumn1").toString());
-    }
-
-    @Test
-    public void testFindByRowKeyWithOffset() throws TableNotFoundException, MutationsRejectedException {
-        BatchWriter writer = connector.createBatchWriter(TEST_TABLE_NAME, maxMemory, maxLatency, maxWriteThreads);
-
-        Mutation mutation = new Mutation("testRowKey1");
-        mutation.put("testColumnFamily1", "testColumn1", "testValue1");
-        mutation.put("testColumnFamily2", "testColumn1", "testValue2");
-        mutation.put("testColumnFamily2", "testColumn2", "testValue3");
-        mutation.put("testColumnFamily3", "testColumn1", "testValue4");
-        mutation.put("testColumnFamily4", "testColumn1", "testValue5");
-        writer.addMutation(mutation);
-
-        writer.close();
-
-        List<ColumnFamily> colFams = accumuloSession.findByRowKeyWithColumnFamilyRegexOffsetAndLimit(TEST_TABLE_NAME, "testRowKey1", queryUser, 1L, 2L, "test.*");
-        assertEquals(2, colFams.size());
-
-        ColumnFamily colFam1 = colFams.get(0);
-        assertEquals("testColumnFamily2", colFam1.getColumnFamilyName());
-        assertEquals("testValue2", colFam1.get("testColumn1").toString());
-        assertEquals("testValue3", colFam1.get("testColumn2").toString());
-
-        ColumnFamily colFam2 = colFams.get(1);
-        assertEquals("testColumnFamily3", colFam2.getColumnFamilyName());
-        assertEquals("testValue4", colFam2.get("testColumn1").toString());
     }
 }

@@ -4,19 +4,15 @@ import com.altamiracorp.lumify.web.routes.admin.AdminQuery;
 import com.altamiracorp.lumify.web.routes.admin.AdminTables;
 import com.altamiracorp.lumify.web.routes.admin.AdminUploadOntology;
 import com.altamiracorp.lumify.web.routes.artifact.*;
-import com.altamiracorp.lumify.web.routes.entity.EntityObjectDetectionCreate;
-import com.altamiracorp.lumify.web.routes.entity.EntityRelationships;
-import com.altamiracorp.lumify.web.routes.entity.EntitySearch;
-import com.altamiracorp.lumify.web.routes.entity.EntityTermCreate;
+import com.altamiracorp.lumify.web.routes.entity.*;
 import com.altamiracorp.lumify.web.routes.graph.*;
 import com.altamiracorp.lumify.web.routes.map.MapInitHandler;
 import com.altamiracorp.lumify.web.routes.map.MapMarkerImage;
 import com.altamiracorp.lumify.web.routes.map.MapTileHandler;
 import com.altamiracorp.lumify.web.routes.ontology.*;
+import com.altamiracorp.lumify.web.routes.relationship.RelationshipCreate;
 import com.altamiracorp.lumify.web.routes.relationship.SetRelationshipProperty;
 import com.altamiracorp.lumify.web.routes.resource.ResourceGet;
-import com.altamiracorp.lumify.web.routes.statement.Relationships;
-import com.altamiracorp.lumify.web.routes.statement.StatementCreate;
 import com.altamiracorp.lumify.web.routes.user.MeGet;
 import com.altamiracorp.lumify.web.routes.user.UserList;
 import com.altamiracorp.lumify.web.routes.vertex.*;
@@ -66,13 +62,13 @@ public class Router extends HttpServlet {
         app.get("/artifact/{_rowKey}", authenticator, ArtifactByRowKey.class);
         app.post("/artifact/import", authenticator, ArtifactImport.class);
 
-        app.post("/statement/create", authenticator, StatementCreate.class);
-        app.get("/statement/relationship/", authenticator, Relationships.class);
-
         app.post("/entity/relationships", authenticator, EntityRelationships.class);
         app.get("/entity/search", authenticator, EntitySearch.class);
         app.post("/entity/createTerm", authenticator, EntityTermCreate.class);
-        app.post("/entity/createEntity", authenticator, EntityObjectDetectionCreate.class);
+        app.post("/entity/updateTerm", authenticator, EntityTermUpdate.class);
+        app.post("/entity/createResolvedDetectedObject", authenticator, EntityObjectDetectionCreate.class);
+        app.post("/entity/updateResolvedDetectedObject", authenticator, EntityObjectDetectionUpdate.class);
+        app.post("/entity/deleteResolvedDetectedObject", authenticator, EntityObjectDetectionDelete.class);
 
         app.post("/vertex/{graphVertexId}/property/set", authenticator, VertexSetProperty.class);
         app.get("/vertex/{graphVertexId}/properties", authenticator, VertexProperties.class);
@@ -82,13 +78,13 @@ public class Router extends HttpServlet {
         app.get("/vertex/multiple", authenticator, VertexMultiple.class);
 
         app.post("/relationship/property/set", authenticator, SetRelationshipProperty.class);
+        app.post("/relationship/create", authenticator, RelationshipCreate.class);
 
         app.get("/graph/findPath", authenticator, GraphFindPath.class);
         app.get("/graph/{graphVertexId}/relatedVertices", authenticator, GraphRelatedVertices.class);
         app.get("/graph/vertex/search", authenticator, GraphVertexSearch.class);
         app.get("/graph/vertex/geoLocationSearch", authenticator, GraphGeoLocationSearch.class);
         app.post("/graph/vertex/{graphVertexId}/uploadImage", authenticator, GraphVertexUploadImage.class);
-        app.get("/graph/vertex/{graphVertexId}", authenticator, GraphGetVertex.class);
 
         app.get("/workspace/", authenticator, WorkspaceList.class);
         app.post("/workspace/save", authenticator, WorkspaceSave.class);
@@ -122,7 +118,6 @@ public class Router extends HttpServlet {
             HttpServletResponse httpResponse = (HttpServletResponse) resp;
             httpResponse.addHeader("Accept-Ranges", "bytes");
             app.handle((HttpServletRequest) req, httpResponse);
-            app.close(req);
         } catch (Exception e) {
             throw new ServletException(e);
         }

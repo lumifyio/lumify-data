@@ -3,16 +3,18 @@
 define([
     'flight/lib/component',
     '../withDropdown',
+    '../../withProperties',
     'tpl!./termForm',
     'tpl!./concept-options',
+    'tpl!./entity',
     'service/ucd',
     'service/entity',
     'service/ontology',
     'underscore'
-], function(defineComponent, withDropdown, dropdownTemplate, conceptsTemplate, Ucd, EntityService, OntologyService, _) {
+], function(defineComponent, withDropdown, withProperties, dropdownTemplate, conceptsTemplate, entityTemplate, Ucd, EntityService, OntologyService, _) {
     'use strict';
 
-    return defineComponent(TermForm, withDropdown);
+    return defineComponent(TermForm, withDropdown, withProperties);
 
 
     function TermForm() {
@@ -24,10 +26,11 @@ define([
             entityConceptMenuSelector: '.underneath .dropdown-menu a',
             createTermButtonSelector: '.create-term',
             buttonDivSelector: '.buttons',
-            termNameInputSelector: 'input',
-            signSelector: '.sign',
             objectSignSelector: '.object-sign',
-            conceptSelector: 'select'
+            graphVertexSelector: '.graphVertexId',
+            conceptSelector: 'select',
+            helpSelector: '.help',
+            addNewPropertiesSelector: '.none'
         });
 
         this.after('teardown', function() {
@@ -48,31 +51,72 @@ define([
         });
 
         this.after('initialize', function() {
+            this.deferredConcepts = $.Deferred();
             this.setupContent();
             this.registerEvents();
         });
 
-        this.onInputKeyUp = function (event) {
-            switch (event.which) {
-                case $.ui.keyCode.ENTER:
-                    this.onCreateTermClicked(event);
+        this.showTypeahead = function() {
+            this.select('objectSignSelector').typeahead('lookup');
+        };
+
+        this.onKeyPress = function(event) {
+            if (!this.lastQuery || this.lastQuery === this.select('objectSignSelector').val()) {
+                return;
             }
-        }
+
+            if (!this.debouncedLookup) {
+                this.debouncedLookup = _.debounce(function() {
+                    this.select('objectSignSelector').typeahead('lookup');
+                }.bind(this), 100);
+            }
+
+            this.debouncedLookup();
+        };
+
+        this.graphVertexChanged = function(newGraphVertexId, item, initial) {
+            var self = this;
+
+            this.currentGraphVertexId = newGraphVertexId;
+            if (!initial || newGraphVertexId) {
+                this.select('graphVertexSelector').val(newGraphVertexId);
+                var info = _.isObject(item) ? item.properties || item : $(this.attr.mentionNode).data('info');
+                this.updateConceptSelect(info && info._subType || '').show();
+                this.select('createTermButtonSelector')
+                    .text(newGraphVertexId && initial ? 'Update' : newGraphVertexId ? 'Resolve to Existing' : 'Resolve as New')
+                    .show();
+                this.select('helpSelector').hide();
+            }
+
+            if (newGraphVertexId) {
+                this.ucd.getVertexProperties(newGraphVertexId)
+                    .done(this.updateResolveImageIcon.bind(this));
+            } else this.updateResolveImageIcon();
+        };
+
+        this.updateConceptSelect = function(val) {
+            var conceptSelect = this.select('conceptSelector').val(val).show();
+
+            if (val) {
+                this.select('createTermButtonSelector').removeAttr('disabled');
+            } else {
+                this.select('createTermButtonSelector').attr('disabled', true);
+            }
+
+            return conceptSelect;
+        };
 
         this.onCreateTermClicked = function(event) {
             var self = this,
                 $mentionNode = $(this.attr.mentionNode),
-                sign = this.select('signSelector').text(),
                 newObjectSign = $.trim(this.select('objectSignSelector').val()),
                 mentionStart,
-                mentionEnd,
-                graphVertexId;
+                mentionEnd;
 
             if (this.attr.existing){
                 var dataInfo = $mentionNode.data('info');
                 mentionStart = dataInfo.start;
                 mentionEnd = dataInfo.end;
-                graphVertexId = $mentionNode.data('info').graphVertexId;
             } else {
                 mentionStart = this.selectedStart;
                 mentionEnd = this.selectedEnd;
@@ -80,7 +124,6 @@ define([
             var parameters = {
                     sign: newObjectSign,
                     conceptId: this.select('conceptSelector').val(),
-                    graphVertexId: graphVertexId,
                     artifactKey: this.attr.artifactKey,
                     mentionStart: mentionStart,
                     mentionEnd: mentionEnd,
@@ -90,9 +133,16 @@ define([
                     .addClass("badge")
                     .addClass("loading");
 
+            if (this.currentGraphVertexId) {
+                parameters.graphVertexId = this.currentGraphVertexId;
+            }
+
             // TODO: extract button loading and disabling to withDropdown mixin
             this.select('buttonDivSelector').prepend($loading);
-            this.select('createTermButtonSelector').addClass('disabled');
+            this.select('createTermButtonSelector')
+                .attr('disabled', true)
+                .addClass('disabled');
+
             if ( !parameters.conceptId || parameters.conceptId.length === 0) {
                 this.select('conceptSelector').focus();
                 return;
@@ -103,21 +153,35 @@ define([
                 $mentionNode.attr('title', newObjectSign);
             }
 
-            this.entityService.createTerm(parameters, function(err, data) {
-                if (err) {
-                    self.trigger(document, 'error', err);
-                } else {
+            if (this.currentGraphVertexId == "") {
+                this.entityService.createTerm(parameters, function(err, data) {
+                    if (err) {
+                        console.error('createTerm', err);
+                        return self.trigger(document, 'error', err);
+                    }
                     self.highlightTerm(data);
-                    console.log(data);
                     self.trigger(document, 'termCreated', data);
+
+                    self.trigger(document, 'refreshRelationships');
+
+                    _.defer(self.teardown.bind(self));
+                });
+            } else {
+                this.entityService.updateTerm(parameters, function(err, data) {
+                    if (err) {
+                        console.error('createTerm', err);
+                        return self.trigger(document, 'error', err);
+                    }
+                    self.highlightTerm(data);
 
                     var vertices = [];
                     vertices.push(data.info);
                     self.trigger(document, 'updateVertices', { vertices: vertices });
+                    self.trigger(document, 'refreshRelationships');
 
                     _.defer(self.teardown.bind(self));
-                }
-            });
+                });
+            }
         };
 
         this.onConceptChanged = function(event) {
@@ -127,11 +191,11 @@ define([
         };
 
         this.updateConceptLabel = function(conceptId, vertex) {
-            if (conceptId == '') {
+            if (conceptId === '') {
                 this.select('createTermButtonSelector').attr('disabled', true);
                 return;
             }
-            this.select('createTermButtonSelector').attr('disabled', false);
+            this.select('createTermButtonSelector').removeAttr('disabled');
 
             if (this.allConcepts && this.allConcepts.length) {
 
@@ -159,6 +223,11 @@ define([
             if (this.attr.selection && !existingEntity) {
                 this.trigger(document, 'ignoreSelectionChanges.detail');
                 this.promoted = this.promoteSelectionToSpan();
+
+                // Promoted span might have been auto-expanded to avoid nested
+                // spans
+                sign = this.promoted.text();
+
                 setTimeout(function() {
                     self.trigger(document, 'resumeSelectionChanges.detail');
                 }, 10);
@@ -168,20 +237,69 @@ define([
                 objectSign = title;
             }
 
+
             vertex.html(dropdownTemplate({
-                // Promoted span might have been auto-expanded to avoid nested
-                // spans
-                sign: this.promoted ? this.promoted.text() : sign,
-                objectSign: objectSign || '',
+                sign: $.trim(sign),
+                graphVertexId: data && data.graphVertexId,
+                objectSign: $.trim(objectSign) || '',
                 buttonText: existingEntity ? 'Update' : 'Resolve'
             }));
+
+            this.graphVertexChanged(data && data.graphVertexId, data, true);
+
+            this.runQuery(sign).done(function(vertices) {
+                self.$node.find('.badge')
+                    .attr('title', vertices.length + ' match' + (vertices.length === 1 ? '' : 'es') + ' found')
+                    .text(vertices.length);
+            });
+
+            this.sign = sign;
+            this.startSign = sign;
+        };
+
+        this.updateResolveImageIcon = function(vertex) {
+            var self = this,
+                info = $(self.attr.mentionNode).data('info');
+
+            if (vertex) {
+                $.extend(vertex, {}, vertex.properties);
+            }
+
+            if (!vertex && info) {
+                self.deferredConcepts.done(function(allConcepts) {
+                    var concept = self.conceptForSubType(info._subType, allConcepts);
+                    if (concept) {
+                        updateCss(concept.glyphIconHref);
+                    }
+                });
+            } else if (!vertex) {
+                updateCss();
+            } else if (vertex.properties._glyphIcon) {
+                updateCss(vertex && vertex.properties._glyphIcon);
+            } else {
+                self.deferredConcepts.done(function(allConcepts) {
+                    var concept = self.conceptForSubType(vertex.properties._subType, allConcepts);
+                    if (concept) {
+                        updateCss(concept.glyphIconHref);
+                    }
+                });
+            }
+
+            function updateCss(src) {
+                var url = 'url("' + (src || "/img/glyphicons/glyphicons_194_circle_question_mark@2x.png")  + '")',
+                    preview = self.$node.find('.resolve-wrapper .preview');
+                
+                if (preview.css('background-image') !== url) {
+                    preview.css('background-image', url);
+                }
+            }
+        };
+
+        this.conceptForSubType = function(subType, allConcepts) {
+            return _.findWhere(allConcepts, { id:subType });
         };
 
         this.registerEvents = function() {
-            this.on('opened', function() {
-                this.setupObjectTypeAhead();
-                this.loadConcepts();
-            });
 
             this.on('change', {
                 conceptSelector: this.onConceptChanged
@@ -189,19 +307,31 @@ define([
 
             this.on('click', {
                 entityConceptMenuSelector: this.onEntityConceptSelected,
-                createTermButtonSelector: this.onCreateTermClicked
+                createTermButtonSelector: this.onCreateTermClicked,
+                objectSignSelector: this.showTypeahead,
+                helpSelector: function() { 
+                    this.select('objectSignSelector').focus(); 
+                    this.showTypeahead();
+                }
             });
 
-            this.on('keyup', {
-                termNameInputSelector: this.onInputKeyUp
-            })
+            this.on('keydown', {
+                objectSignSelector: this.onKeyPress
+            });
+
+            this.on('opened', function() {
+                this.loadConcepts()
+                    .done(this.setupObjectTypeAhead.bind(this))
+                    .done(function() { 
+                        this.deferredConcepts.resolve(this.allConcepts);
+                    }.bind(this));
+            });
         };
 
-        // TODO: clean up code; duplicate code in entityForm.js
         this.loadConcepts = function() {
             var self = this;
             self.allConcepts = [];
-            self.ontologyService.concepts(function(err, concepts) {
+            return self.ontologyService.concepts(function(err, concepts) {
                 var mentionVertex = $(self.attr.mentionNode),
                     mentionVertexInfo = mentionVertex.data('info');
 
@@ -218,30 +348,183 @@ define([
             });
         };
 
-        // TODO: clean up code; duplicate code in entityForm.js
-        this.setupObjectTypeAhead = function (self, selector) {
-            var self = this;
-            self.select('objectSignSelector').typeahead({
-                source: function(query, callback) {
-                    self.ucd.entitySearch(query, function(err, entities) {
-                        if(err) {
-                            console.error('Error', err);
-                            callback([]);
-                            return self.trigger(document, 'error', { message: err.toString() });
+
+        this.runQuery = function(query) {
+            return this.ucd.graphVertexSearch(query)
+                .then(function(response) {
+                    return _.filter(response.vertices, function(v) { return v.properties._type === 'entity'; });
+                });
+        };
+
+
+        this.setupObjectTypeAhead = function() {
+            var self = this,
+                items = {},
+                createNewText = 'Resolve as new entity';
+
+            self.ontologyService.properties().done(function(ontologyProperties) {
+                var field = self.select('objectSignSelector').typeahead({
+                    source: function(query, callback) {
+                        if (!self.sourceCache) self.sourceCache = {};
+                        else if (self.sourceCache[query]) {
+                            self.sourceCache[query](callback);
+                            return;
+                        }
+                    
+                        self.lastQuery = query;
+                        var instance = this;
+
+                        self.runQuery(query).done(function(entities) {
+                            var all = _.map(entities, function(e) {
+                                    return $.extend({
+                                        toLowerCase: function() { return e.properties.title.toLowerCase(); },
+                                        toString: function() { return e.id; },
+                                        indexOf: function(s) { return e.properties.title.indexOf(s); }
+                                    }, e);
+                                });
+
+                            items = _.groupBy(all, 'id');
+                            items[createNewText] = [query];
+
+                            self.sourceCache[query] = function(aCallback) {
+                                var list = [createNewText].concat(all);
+                                aCallback(list);
+
+                                var selectedId = self.currentGraphVertexId;
+                                if (selectedId) {
+                                    var shouldSelect = instance.$menu.find('.gId-' + selectedId).closest('li');
+                                    if (shouldSelect.length) {
+                                        instance.$menu.find('.active').not(shouldSelect).removeClass('active');
+                                        shouldSelect.addClass('active');
+                                    }
+                                }
+                            };
+
+                            self.sourceCache[query](callback);
+                        });
+                    },
+                    matcher: function(item) {
+                        if (item === createNewText) return true;
+                        return Object.getPrototypeOf(this).matcher.apply(this, [item.properties.title]);
+                    },
+                    sorter: function(items) {
+                        var sorted = Object.getPrototypeOf(this).sorter.apply(this, arguments),
+                            index;
+
+                        sorted.forEach(function(item, i) {
+                            if (item === createNewText) {
+                                index = i;
+                                return false;
+                            }
+                        });
+
+                        if (index) {
+                            sorted.splice(0, 0, sorted.splice(index, 1)[0]);
                         }
 
-                        // Convert dictionary map with type keys into flat
-                        // array
-                        var types = Object.keys(entities);
-                        var entityArrays = types.map(function(type) { return entities[type]; });
-                        var all = Array.prototype.concat.apply([], entityArrays);
+                        return sorted;
+                    },
+                    updater: function(item) {
+                        var matchingItem = items[item],
+                            graphVertexId = '',
+                            label = item;
 
-                        callback(all.map(function(e) {
-                            return e.properties.title;
-                        }));
-                    });
-                    return;
-                }
+                        if (matchingItem && matchingItem.length) {
+                            graphVertexId = item;
+                            label = matchingItem[0].properties ? matchingItem[0].properties.title : matchingItem[0];
+
+                            if (graphVertexId == createNewText) {
+                                graphVertexId = '';
+                            } else {
+                                self.sign = label;
+                            }
+
+                            matchingItem = matchingItem[0];
+                        }
+
+                        self.graphVertexChanged(graphVertexId, matchingItem);
+                        return label;
+                    },
+                    highlighter: function(item) {
+
+                        var html = (item === createNewText) ? 
+                                item : Object.getPrototypeOf(this).highlighter.apply(this, [item.properties.title]),
+                            icon = '',
+                            concept = _.find(self.allConcepts, function(c) { 
+                                    return item.properties && c.id === item.properties._subType; 
+                            });
+
+                        if (item.properties) {
+                            icon = item._glyphIcon || item.properties._glyphIcon || concept.glyphIconHref;
+                        }
+                        return entityTemplate({
+                            html: html,
+                            item: item,
+                            properties: item.properties && self.filterPropertiesForDisplay(item.properties, ontologyProperties),
+                            iconSrc: icon,
+                            concept: concept
+                        });
+                    }
+                });
+
+                var typeahead = field.data('typeahead'),
+                    show = typeahead.show,
+                    hide = typeahead.hide;
+
+                typeahead.$menu.on('mousewheel DOMMouseScroll', function(e) {
+                    var delta = e.wheelDelta || (e.originalEvent && e.originalEvent.wheelDelta) || -e.detail,
+                        bottomOverflow = this.scrollTop + $(this).outerHeight() - this.scrollHeight >= 0,
+                        topOverflow = this.scrollTop <= 0;
+
+                    if ((delta < 0 && bottomOverflow) || (delta > 0 && topOverflow)) {
+                        e.preventDefault();
+                    }
+                });
+
+                typeahead.hide = function() {
+                    hide.apply(typeahead);
+                    typeahead.$menu.css('max-height', 'none');
+                };
+
+                typeahead.show = function() {
+                    show.apply(typeahead);
+
+                    if (~typeahead.$menu.css('max-height').indexOf('px')) {
+                        typeahead.$menu.css('max-height', 'none');
+                        _.defer(scrollToShow);
+                        return;
+                    } else {
+                        scrollToShow();
+                    }
+
+                    function scrollToShow() {
+
+                        var scrollParent = typeahead.$element.scrollParent(),
+                            scrollTotalHeight = scrollParent[0].scrollHeight,
+                            scrollTop = scrollParent.scrollTop(),
+                            scrollHeight = scrollParent.outerHeight(true),
+                            menuHeight = Math.min(scrollHeight - 100, typeahead.$menu.outerHeight(true)), 
+                            menuMaxY = menuHeight + typeahead.$menu.offset().top,
+                            bottomSpace = scrollHeight - menuMaxY,
+                            padding = 10;
+
+                        typeahead.$menu.css({
+                            maxHeight: (menuHeight - padding) + 'px',
+                            overflow: 'auto'
+                        });
+
+                        if (bottomSpace < 0) {
+                            var scrollNeeded = scrollTop + Math.abs(bottomSpace) + padding;
+                            if (scrollNeeded > scrollTotalHeight) {
+                                // TODO: add padding or grow upwards?
+                            }
+
+                            scrollParent.animate({
+                                scrollTop: scrollNeeded
+                            });
+                        }
+                    }
+                };
             });
         };
 

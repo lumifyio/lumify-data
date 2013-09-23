@@ -1,10 +1,20 @@
 package com.altamiracorp.lumify.model.geoNames;
 
-import com.altamiracorp.lumify.model.*;
-
 import java.util.Collection;
 
-public class GeoNamePostalCodeRepository extends Repository<GeoNamePostalCode>{
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.Column;
+import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.Row;
+import com.google.inject.Inject;
+
+public class GeoNamePostalCodeRepository extends Repository<GeoNamePostalCode> {
+    @Inject
+    public GeoNamePostalCodeRepository(final ModelSession modelSession) {
+        super(modelSession);
+    }
 
     @Override
     public GeoNamePostalCode fromRow(Row row) {
@@ -31,11 +41,11 @@ public class GeoNamePostalCodeRepository extends Repository<GeoNamePostalCode>{
         return GeoNamePostalCode.TABLE_NAME;
     }
 
-    public GeoNamePostalCode findByCountryAndPostalCode (Session session, String countryCode, String postalCode) {
-        return this.findByRowKey(session,new GeoNamePostalCodeRowKey(countryCode,postalCode).toString());
+    public GeoNamePostalCode findByCountryAndPostalCode(String countryCode, String postalCode, User user) {
+        return this.findByRowKey(new GeoNamePostalCodeRowKey(countryCode, postalCode).toString(), user);
     }
 
-    public GeoNamePostalCode findByUSZipCode (Session session, String zipCode) {
-        return findByCountryAndPostalCode(session,"US",zipCode);
+    public GeoNamePostalCode findByUSZipCode(String zipCode, User user) {
+        return findByCountryAndPostalCode("US", zipCode, user);
     }
 }

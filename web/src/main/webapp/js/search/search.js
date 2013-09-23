@@ -59,6 +59,9 @@ define([
             $searchQueryValidation.html('');
 
             var query = this.select('querySelector').val();
+            if(query) {
+                query = $.trim(query);
+            }
             if(!query) {
                 this.select('resultsSummarySelector').empty();
                 return $searchQueryValidation.html(alertTemplate({ error: 'Query cannot be empty' }));
@@ -89,7 +92,7 @@ define([
 			if (this.select('querySelector').val() != query.query) {
 				this.select('querySelector').val(query.query);
 			}
-			
+
             var self = this;
 
             this.ontologyService.concepts(function(err, concepts) {
@@ -123,13 +126,15 @@ define([
                             });
                         }
                     });
-                    
+
                     concepts.byTitle.forEach(function(concept) {
                         self.onEntitySearchResultsForConcept(self.select('resultsSummarySelector'), concept, results.entity);
                     });
 
                 }).fail(function() {
-                    self.$node.find('.loading').removeClass('loading').text('!');
+                    var $searchQueryValidation = self.select('queryValidationSelector');
+                    self.select('resultsSummarySelector').empty();
+                    return $searchQueryValidation.html(alertTemplate({ error: 'Invalid query' }));
                 });
             }.bind(this));
         };
@@ -194,7 +199,7 @@ define([
             return node.resizable({
                 handles: 'e',
                 minWidth: 200,
-                maxWidth: 350, 
+                maxWidth: 350,
                 resize: function() {
                     self.trigger(document, 'paneResized');
                 }
@@ -225,12 +230,12 @@ define([
             });
             this.trigger(document, 'paneResized');
         };
-		
+
 		this.onQueryChange = function (evt, data) {
 			if (!data.remoteEvent) {
 				return;
 			}
-			
+
 			this.select('querySelector').val(data.query);
 			this.currentQuery = data.query;
 		};
@@ -280,7 +285,7 @@ define([
 
         this.onFiltersChange = function(evt, data) {
             this.filters = data.filters;
-            
+
             var query = this.select('querySelector').val() || '*';
 
             this.trigger(document, 'search', { query:query });

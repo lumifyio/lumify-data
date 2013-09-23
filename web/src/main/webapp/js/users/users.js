@@ -145,9 +145,10 @@ define([
             var self = this;
             self.usersService.getOnline(function (err, data) {
                 if (err) {
+                    console.error('getOnline', err);
                     var $usersList = self.select('usersListSelector');
                     $usersList.html('Could not get online: ' + err);
-                    return;
+                    return self.trigger(document, 'error', { message: err.toString() });
                 }
 
                 if (data.messages && data.messages.length > 0) {

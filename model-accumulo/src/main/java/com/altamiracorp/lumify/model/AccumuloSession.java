@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.core.user.User;
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Mutation;
@@ -20,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-public class AccumuloSession extends Session {
+public class AccumuloSession extends ModelSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSession.class.getName());
 
     public static final String ZOOKEEPER_INSTANCE_NAME = "zookeeperInstanceName";
@@ -37,8 +38,7 @@ public class AccumuloSession extends Session {
     private long maxLatency = 1000L;
     private int maxWriteThreads = 10;
 
-    public AccumuloSession(Connector connector, FileSystem hdfsFileSystem, String hdfsRootDir, AccumuloQueryUser queryUser, TaskInputOutputContext context) {
-        super(queryUser);
+    public AccumuloSession(Connector connector, FileSystem hdfsFileSystem, String hdfsRootDir, TaskInputOutputContext context) {
         this.hdfsFileSystem = hdfsFileSystem;
         this.hdfsRootDir = hdfsRootDir;
         this.connector = connector;
@@ -46,7 +46,7 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    void save(Row row) {
+    void save(Row row, User user) {
         try {
             if (context != null) {
                 context.write(new Text(row.getTableName()), row);
@@ -68,7 +68,7 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    void saveMany(String tableName, Collection<Row> rows) {
+    void saveMany(String tableName, Collection<Row> rows, User user) {
         if (rows.size() == 0) {
             return;
         }
@@ -98,9 +98,9 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    public List<Row> findByRowKeyRange(String tableName, String rowKeyStart, String rowKeyEnd, QueryUser queryUser) {
+    public List<Row> findByRowKeyRange(String tableName, String rowKeyStart, String rowKeyEnd, User user) {
         try {
-            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
+            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloModelAuthorizations) user.getModelAuthorizations()).getAuthorizations());
             if (rowKeyStart != null) {
                 scanner.setRange(new Range(rowKeyStart, rowKeyEnd));
             }
@@ -111,14 +111,14 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, QueryUser queryUser) {
-        return findByRowKeyRange(tableName, rowKeyPrefix, rowKeyPrefix + "ZZZZ", queryUser); // TODO is this the best way?
+    List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, User user) {
+        return findByRowKeyRange(tableName, rowKeyPrefix, rowKeyPrefix + "ZZZZ", user); // TODO is this the best way?
     }
 
     @Override
-    List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, QueryUser queryUser) {
+    List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, User user) {
         try {
-            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
+            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloModelAuthorizations) user.getModelAuthorizations()).getAuthorizations());
             scanner.setRange(new Range());
 
             IteratorSetting iter = new IteratorSetting(15, "regExFilter", RegExFilter.class);
@@ -132,9 +132,9 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    Row findByRowKey(String tableName, String rowKey, QueryUser queryUser) {
+    Row findByRowKey(String tableName, String rowKey, User user) {
         try {
-            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
+            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloModelAuthorizations) user.getModelAuthorizations()).getAuthorizations());
             scanner.setRange(new Range(rowKey));
             List<Row> rows = AccumuloHelper.scannerToRows(tableName, scanner);
             if (rows.size() == 0) {
@@ -150,9 +150,9 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, QueryUser queryUser) {
+    Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, User user) {
         try {
-            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
+            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloModelAuthorizations) user.getModelAuthorizations()).getAuthorizations());
             scanner.setRange(new Range(rowKey));
             for (Map.Entry<String, String> columnFamilyAndColumnQualifier : columnsToReturn.entrySet()) {
                 if (columnFamilyAndColumnQualifier.getValue().equals("*")) {
@@ -175,18 +175,7 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    List<ColumnFamily> findByRowKeyWithColumnFamilyRegexOffsetAndLimit(String tableName, String rowKey, QueryUser queryUser, long colFamOffset, long colFamLimit, String colFamRegex) {
-        try {
-            Scanner scanner = this.connector.createScanner(tableName, ((AccumuloQueryUser) queryUser).getAuthorizations());
-            scanner.setRange(new Range(rowKey));
-            return AccumuloHelper.scannerToColumnFamiliesFilteredByRegex(scanner, colFamOffset, colFamLimit, colFamRegex);
-        } catch (TableNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void initializeTable(String tableName) {
+    public void initializeTable(String tableName, User user) {
         LOGGER.info("initializeTable: " + tableName);
         try {
             if (!connector.tableOperations().exists(tableName)) {
@@ -202,7 +191,7 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    public void deleteTable(String tableName) {
+    public void deleteTable(String tableName, User user) {
         LOGGER.info("deleteTable: " + tableName);
         try {
             if (connector.tableOperations().exists(tableName)) {
@@ -218,7 +207,7 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    public void deleteRow(String tableName, RowKey rowKey) {
+    public void deleteRow(String tableName, RowKey rowKey, User user) {
         LOGGER.info("deleteRow: " + rowKey);
         try {
             // TODO: Find a better way to delete a single row given the row key
@@ -239,7 +228,7 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    public SaveFileResults saveFile(InputStream in) {
+    public SaveFileResults saveFile(InputStream in, User user) {
         try {
             String dataRoot = hdfsRootDir + "/data/";
             FsPermission fsPermission = new FsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL);
@@ -272,7 +261,24 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    public InputStream loadFile(String path) {
+    public void deleteColumn(Row row, String tableName, String columnFamily, String columnQualifier, User user) {
+        LOGGER.info("delete column: " + columnQualifier + " from columnFamily: " + columnFamily + ", row: " + row.getRowKey().toString());
+        try {
+            BatchWriter writer = connector.createBatchWriter(tableName, getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
+            Mutation mutation = createMutationFromRow(row);
+            mutation.putDelete(new Text(columnFamily), new Text(columnQualifier));
+            writer.addMutation(mutation);
+            writer.flush();
+            writer.close();
+        } catch (TableNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (MutationsRejectedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public InputStream loadFile(String path, User user) {
         try {
             LOGGER.info("Loading file: " + path);
             return this.hdfsFileSystem.open(new Path(path));
@@ -282,7 +288,7 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    public long getFileLength(String path) {
+    public long getFileLength(String path, User user) {
         try {
             return this.hdfsFileSystem.getFileStatus(new Path(path)).getLen();
         } catch (IOException ex) {
@@ -291,8 +297,13 @@ public class AccumuloSession extends Session {
     }
 
     @Override
-    public List<String> getTableList() {
+    public List<String> getTableList(User user) {
         return new ArrayList<String>(this.connector.tableOperations().list());
+    }
+
+    @Override
+    public void close() {
+        // TODO: close me
     }
 
     public long getMaxMemory() {

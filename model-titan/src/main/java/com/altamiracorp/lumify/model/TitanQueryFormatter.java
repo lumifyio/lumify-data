@@ -36,7 +36,7 @@ public class TitanQueryFormatter {
     private static final String PREDICATE = "predicate";
 
     private static GremlinPipeline filterDate(GremlinPipeline pipeline, JSONObject filterJson, String propertyName) throws JSONException, ParseException {
-        String predicate = filterJson.optString(PREDICATE);
+        String predicate = filterJson.optString(PREDICATE, null);
         if (predicate == null) {
             throw new RuntimeException("'predicate' is required for data type 'date'");
         }
@@ -68,7 +68,7 @@ public class TitanQueryFormatter {
     }
 
     private static GremlinPipeline filterNumber(GremlinPipeline pipeline, JSONObject filterJson, String propertyName) throws JSONException, ParseException {
-        String predicate = filterJson.optString(PREDICATE);
+        String predicate = filterJson.optString(PREDICATE, null);
         if (predicate == null) {
             throw new RuntimeException("'predicate' is required for data type 'number'");
         }
@@ -162,13 +162,13 @@ public class TitanQueryFormatter {
     }
 
     private GremlinPipeline<Vertex, Vertex> addFilter(JSONObject filterJson, GremlinPipeline<Vertex, Vertex> pipeline) {
-        String propertyDataType = filterJson.optString("propertyDataType");
+        String propertyDataType = filterJson.optString("propertyDataType", null);
         if (propertyDataType == null) {
             throw new RuntimeException("Could not find 'propertyDataType' on filter JSON.");
         }
 
         PropertyType propertyDateType = PropertyType.convert(propertyDataType);
-        String propertyName = filterJson.optString("propertyName");
+        String propertyName = filterJson.optString("propertyName", null);
         if (propertyName == null) {
             throw new RuntimeException("Could not find 'propertyName' to filter on.");
         }

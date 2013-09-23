@@ -45,6 +45,10 @@
         <value>com.altamiracorp.lumify.model.AccumuloModelOutputFormat</value>
     </property>
 	<property>
+        <name>mapred.map.tasks</name>
+        <value>1</value>
+    </property>
+	<property>
         <name>mapred.reduce.tasks</name>
         <value>0</value>
     </property>

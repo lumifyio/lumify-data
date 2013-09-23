@@ -1,22 +1,23 @@
 package com.altamiracorp.lumify.web.guice.modules;
 
+import com.altamiracorp.lumify.BootstrapBase;
+import com.altamiracorp.lumify.config.ApplicationConfig;
+import com.altamiracorp.lumify.config.ConfigConstants;
+import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.config.MapConfig;
 import com.altamiracorp.lumify.web.AuthenticationProvider;
-import com.altamiracorp.lumify.web.config.ApplicationConfig;
-import com.altamiracorp.lumify.web.config.Configuration;
-import com.altamiracorp.lumify.web.config.MapConfig;
-import com.altamiracorp.lumify.web.config.WebConfigConstants;
-import com.google.inject.AbstractModule;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Wires up the required injections for the web application
  */
-public class Bootstrap extends AbstractModule {
+public class Bootstrap extends BootstrapBase {
 
     private final Configuration configuration;
 
     public Bootstrap(final Configuration config) {
+        super(config.getProperties(), null);
         checkNotNull(config);
 
         configuration = config;
@@ -24,22 +25,22 @@ public class Bootstrap extends AbstractModule {
 
     @Override
     protected void configure() {
+        super.configure();
         bind(MapConfig.class).toInstance(configuration);
         bind(ApplicationConfig.class).toInstance(configuration);
-        bind(AuthenticationProvider.class).toInstance(getAuthenticationProviderInstance());
+        bind(AuthenticationProvider.class).to(getAuthenticationProviderClass());
     }
 
-    private AuthenticationProvider getAuthenticationProviderInstance() {
+    private Class<AuthenticationProvider> getAuthenticationProviderClass() {
         String authProviderClass = configuration.getAuthenticationProvider();
         if (authProviderClass == null) {
-            throw new RuntimeException("No " + WebConfigConstants.AUTHENTICATION_PROVIDER + " config property set.");
+            throw new RuntimeException("No " + ConfigConstants.AUTHENTICATION_PROVIDER + " config property set.");
         }
 
         try {
-            return (AuthenticationProvider)Class.forName(authProviderClass).newInstance();
+            return (Class<AuthenticationProvider>) Class.forName(authProviderClass);
         } catch (Exception e) {
             throw new RuntimeException("Unable to create AuthenticationProvider with class name " + authProviderClass, e);
         }
     }
-
 }

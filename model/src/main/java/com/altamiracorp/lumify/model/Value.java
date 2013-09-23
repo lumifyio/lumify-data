@@ -2,10 +2,11 @@ package com.altamiracorp.lumify.model;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONString;
 
 import java.nio.ByteBuffer;
 
-public class Value {
+public class Value implements JSONString {
     private final byte[] value;
 
     public Value(Object value) {
@@ -29,7 +30,7 @@ public class Value {
         }
 
         if (value instanceof Integer) {
-            return intToBytes((Integer)value);
+            return intToBytes((Integer) value);
         }
 
         if (value instanceof Double) {
@@ -125,7 +126,7 @@ public class Value {
         return value.toDouble();
     }
 
-    public static Integer toInteger (Value value) {
+    public static Integer toInteger(Value value) {
         if (value == null) {
             return null;
         }
@@ -145,5 +146,37 @@ public class Value {
         } catch (JSONException e) {
             throw new RuntimeException("Could not parse JSON", e);
         }
+    }
+
+    @Override
+    public String toJSONString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append('"');
+        for (int i = 0; i < this.value.length; i++) {
+            byte b = this.value[i];
+            if (b == '"') {
+                sb.append("\\\"");
+            } else if (b == '\\') {
+                sb.append("\\\\");
+            } else if (b == '/') {
+                sb.append("\\/");
+            } else if (b == '\b') {
+                sb.append("\\b");
+            } else if (b == '\f') {
+                sb.append("\\f");
+            } else if (b == '\n') {
+                sb.append("\\n");
+            } else if (b == '\r') {
+                sb.append("\\r");
+            } else if (b == '\t') {
+                sb.append("\\t");
+            } else if (b >= ' ' && b <= '~') {
+                sb.append((char) b);
+            } else {
+                sb.append("\\u" + String.format("%04X", b));
+            }
+        }
+        sb.append('"');
+        return sb.toString();
     }
 }

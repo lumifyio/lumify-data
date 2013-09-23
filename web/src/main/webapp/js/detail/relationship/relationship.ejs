@@ -4,27 +4,27 @@
 
 <h1>
 <% var data = JSON.stringify({
-      graphVertexId : relationshipData.sourceId,
-      title : relationshipData.sourceTitle,
-      _type : relationshipData.sourceType,
-      _rowKey : relationshipData.sourceRowKey,
-      _subType : relationshipData.sourceSubType}); %>
+      graphVertexId : relationshipData.source.id || '',
+      title : relationshipData.source.title || relationshipData.source._type,
+      _type : relationshipData.source._type,
+      _rowKey : relationshipData.source._rowKey,
+      _subType : relationshipData.source._subType}); %>
 
 <span class="vertex-to-vertex-relationship generic-draggable fake-link" data-info='<%- data %>' >
-        <%= relationshipData.sourceTitle || "No title available" %>
+        <%= relationshipData.source.title || "No title available" %>
 </span>
 
 &#8674;
 
 <% var data = JSON.stringify({
-      graphVertexId : relationshipData.targetId,
-      title : relationshipData.targetTitle,
-      _type : relationshipData.targetType,
-      _rowKey : relationshipData.targetRowKey,
-      _subType : relationshipData.targetSubType}); %>
+      graphVertexId : relationshipData.target.id || '',
+      title : relationshipData.target.title || relationshipData.target._type,
+      _type : relationshipData.target._type,
+      _rowKey : relationshipData.target._rowKey,
+      _subType : relationshipData.target._subType}); %>
 
 <span class="vertex-to-vertex-relationship generic-draggable fake-link" data-info='<%- data %>'>
-        <%= relationshipData.targetTitle || "No title available" %>
+        <%= relationshipData.target.title || "No title available" %>
 </span>
 </h1>
 

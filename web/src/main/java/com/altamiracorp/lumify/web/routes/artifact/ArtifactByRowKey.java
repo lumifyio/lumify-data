@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
@@ -8,23 +8,29 @@ import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.altamiracorp.web.utils.UrlUtils;
+import com.google.inject.Inject;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class ArtifactByRowKey extends BaseRequestHandler {
-    private ArtifactRepository artifactRepository = new ArtifactRepository();
+    private final ArtifactRepository artifactRepository;
+
+    @Inject
+    public ArtifactByRowKey(final ArtifactRepository artifactRepository) {
+        this.artifactRepository = artifactRepository;
+    }
 
     public static String getUrl(HttpServletRequest request, String artifactKey) {
-        return UrlUtils.getRootRef(request) + "/artifact/" + UrlUtils.urlEncode(artifactKey.toString());
+        return UrlUtils.getRootRef(request) + "/artifact/" + UrlUtils.urlEncode(artifactKey);
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
         ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
-        Artifact artifact = artifactRepository.findByRowKey(session.getModelSession(), artifactKey.toString());
+        Artifact artifact = artifactRepository.findByRowKey(artifactKey.toString(), user);
 
         if (artifact == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -41,9 +47,5 @@ public class ArtifactByRowKey extends BaseRequestHandler {
         }
 
         chain.next(request, response);
-    }
-
-    public void setArtifactRepository(ArtifactRepository artifactRepository) {
-        this.artifactRepository = artifactRepository;
     }
 }

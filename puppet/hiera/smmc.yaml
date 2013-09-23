@@ -1,0 +1,31 @@
+---
+proxy_url: 'http://nic-hadoop-smmc01.nearinfinity.com:8080'
+hadoop_masters:
+  - nic-hadoop-smmc02.nearinfinity.com
+hadoop_slaves:
+  - nic-hadoop-smmc04.nearinfinity.com
+  - nic-hadoop-smmc05.nearinfinity.com
+  - nic-hadoop-smmc06.nearinfinity.com
+  - nic-hadoop-smmc07.nearinfinity.com
+accumulo_example_config: 3GB/native-standalone
+accumulo_masters:
+  - nic-hadoop-smmc03.nearinfinity.com
+accumulo_slaves:
+  - nic-hadoop-smmc04.nearinfinity.com
+  - nic-hadoop-smmc05.nearinfinity.com
+  - nic-hadoop-smmc06.nearinfinity.com
+  - nic-hadoop-smmc07.nearinfinity.com
+zookeeper_nodes:
+  1: nic-hadoop-smmc04.nearinfinity.com:2181
+  2: nic-hadoop-smmc05.nearinfinity.com:2181
+  3: nic-hadoop-smmc06.nearinfinity.com:2181
+namenode_ipaddress: 192.168.203.202
+elasticsearch_locations:
+  - nic-hadoop-smmc04.nearinfinity.com:9300
+  - nic-hadoop-smmc05.nearinfinity.com:9300
+  - nic-hadoop-smmc06.nearinfinity.com:9300
+  - nic-hadoop-smmc07.nearinfinity.com:9300
+jetty_confidential_port: 443
+jetty_key_store_path: /opt/lumify/config/smmc.jks
+jetty_key_store_password: OBF:tbd
+authentication_provider: com.altamiracorp.lumify.web.DevBasicAuthenticationProvider

@@ -1,15 +1,21 @@
 package com.altamiracorp.lumify.web.routes.vertex;
 
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class VertexRelationshipRemoval extends BaseRequestHandler {
-    private GraphRepository graphRepository = new GraphRepository();
+    private final GraphRepository graphRepository;
+
+    @Inject
+    public VertexRelationshipRemoval(final GraphRepository repo) {
+        graphRepository = repo;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
@@ -17,7 +23,7 @@ public class VertexRelationshipRemoval extends BaseRequestHandler {
         final String target = getRequiredParameter(request, "targetId");
         final String label = getRequiredParameter(request, "label");
 
-        AppSession session = app.getAppSession(request);
-        graphRepository.removeRelationship(session.getGraphSession(), source, target, label);
+        User user = getUser(request);
+        graphRepository.removeRelationship(source, target, label, user);
     }
 }

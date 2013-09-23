@@ -118,11 +118,4 @@ public class AppTest {
         app.handle(request, response);
         verify(request, times(2)).setAttribute("handled", "true");
     }
-
-    @Test
-    public void testSettingOfAppInstance() throws Exception {
-        TestAppAwareHandler handler = new TestAppAwareHandler();
-        app.get(path, handler);
-        assertNotNull(handler.getApp());
-    }
 }

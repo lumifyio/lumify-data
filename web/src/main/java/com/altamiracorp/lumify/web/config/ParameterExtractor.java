@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.web.config;
 
+import com.altamiracorp.lumify.config.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -89,6 +89,8 @@ define([
                     maxWidth = validBox ? retina.pixelsToPoints({ x:boundingBox.w, y:boundingBox.h}).x : 0,
                     startX = nextAvailablePosition.x;
 
+                cy.filter(":selected").unselect();
+
                 maxWidth = Math.max(maxWidth, inc * 10);
 
                 vertices.forEach(function(vertex) {
@@ -344,18 +346,23 @@ define([
         };
 
         this.onContextMenuDeleteEdge = function () {
+            var self = this;
             var menu = this.select('edgeContextMenuSelector');
             var edgeId = menu.data('edgeId');
-            this.cy(function(cy) {
-                this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), menu.data('relationshipType'), function(err) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-                    cy.remove (cy.getElementById (edgeId));
-                });
+            this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), menu.data('relationshipType'), function(err) {
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
+                self.onDeleteEdge ('', {edgeId: edgeId});
             });
         };
+
+        this.onDeleteEdge = function (event, data) {
+            this.cy(function (cy) {
+                cy.remove(cy.getElementById (data.edgeId));
+            });
+        }
 
         this.onContextMenuRemoveItem = function (){
             var menu = this.select('vertexContextMenuSelector');
@@ -788,10 +795,6 @@ define([
                 data = data[0];
             }
 
-            var xOffset = 100, yOffset = 100;
-            var x = data.originalPosition.x;
-            var y = data.originalPosition.y;
-
             this.ucd.getRelatedVertices(data, function(err, vertices) {
                 if(err) {
                     console.error('Error', err);
@@ -800,15 +803,8 @@ define([
                 vertices = vertices.vertices;
 
                 vertices = vertices.map(function(vertex, index) {
-                    if (index % 10 === 0) {
-                        y += yOffset;
-                    }
                     return $.extend({}, vertex.properties, {
                         graphVertexId: vertex.id,
-                        graphPosition: {
-                            x: x + xOffset * (index % 10 + 1),
-                            y: y
-                        },
                         selected: true
                     });
                 });
@@ -842,6 +838,7 @@ define([
             this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);
             this.on(document, 'focusVertices', this.onFocusVertices);
             this.on(document, 'defocusVertices', this.onDefocusVertices);
+            this.on(document, 'deleteEdge', this.onDeleteEdge);
 
             if (self.attr.vertices && self.attr.vertices.length) {
                 this.select('emptyGraphSelector').hide();
@@ -850,6 +847,7 @@ define([
 
             this.ontologyService.concepts(function(err, concepts) {
                 if (err) {
+                    console.error('concepts', err);
                     return self.trigger(document, 'error', err);
                 }
 

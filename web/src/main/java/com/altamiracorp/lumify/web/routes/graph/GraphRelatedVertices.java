@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.web.routes.graph;
 
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.Concept;
@@ -9,6 +9,7 @@ import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -17,25 +18,31 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 public class GraphRelatedVertices extends BaseRequestHandler {
-    private GraphRepository graphRepository = new GraphRepository();
-    private OntologyRepository ontologyRepository = new OntologyRepository();
+    private final GraphRepository graphRepository;
+    private final OntologyRepository ontologyRepository;
+
+    @Inject
+    public GraphRelatedVertices(final OntologyRepository ontologyRepo, final GraphRepository graphRepo) {
+        ontologyRepository = ontologyRepo;
+        graphRepository = graphRepo;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         String graphVertexId = getAttributeString(request, "graphVertexId");
         String limitParentConceptId = getOptionalParameter(request, "limitParentConceptId");
 
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
         List<Concept> limitConcepts = null;
 
         if (limitParentConceptId != null) {
-            limitConcepts = ontologyRepository.getConceptByIdAndChildren(session.getGraphSession(), limitParentConceptId);
+            limitConcepts = ontologyRepository.getConceptByIdAndChildren(limitParentConceptId, user);
             if (limitConcepts == null) {
                 throw new RuntimeException("Bad 'limitParentConceptId', no concept found for id: " + limitParentConceptId);
             }
         }
 
-        List<GraphVertex> graphVertices = graphRepository.getRelatedVertices(session.getGraphSession(), graphVertexId);
+        List<GraphVertex> graphVertices = graphRepository.getRelatedVertices(graphVertexId, user);
 
         JSONObject json = new JSONObject();
         JSONArray verticesJson = new JSONArray();

@@ -224,7 +224,7 @@ define([
                     }, info)];
 
                     if(info.resolvedGraphVertexId) {
-                        this.ucdService.getGraphVertexById(info.resolvedGraphVertexId, function(err, data) {
+                        this.ucdService.getVertexProperties(info.resolvedGraphVertexId, function(err, data) {
                             if(err) {
                                 console.error('Error', err);
                                 return self.trigger(document, 'error', { message: err.toString() });

@@ -3,16 +3,16 @@ define([
     '../withDropdown',
     'tpl!./statementForm',
     'tpl!./relationship-options',
-    'service/statement',
+    'service/relationship',
     'service/ontology',
     'underscore'
-], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, StatementService, OntologyService, _) {
+], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, RelationshipService, OntologyService, _) {
     'use strict';
 
     return defineComponent(StatementForm, withDropdown);
 
     function StatementForm() {
-        this.statementService = new StatementService();
+        this.relationshipService = new RelationshipService();
         this.ontologyService = new OntologyService();
 
         this.defaultAttrs({
@@ -46,6 +46,9 @@ define([
                 invertAnchorSelector: this.onInvert
             });
             this.on('opened', this.onOpened);
+            this.on('keyup', {
+                relationshipSelector: this.onInputKeyUp
+            })
         });
 
         this.after('teardown', function () {
@@ -53,6 +56,12 @@ define([
             this.attr.destTerm.removeClass('focused');
         });
 
+        this.onInputKeyUp = function (event) {
+            switch (event.which) {
+                case $.ui.keyCode.ENTER:
+                    this.onCreateStatement(event);
+            }
+        }
 
         this.applyTermClasses = function (el, applyToElement) {
             var classes = el.attr('class').split(/\s+/),
@@ -112,13 +121,13 @@ define([
                 parameters.destGraphVertexId = swap;
             }
 
-            this.statementService.createStatement(parameters, function (err, data) {
+            this.relationshipService.createRelationship(parameters, function (err, data) {
                 if (err) {
-                    self.trigger(document, 'error', err);
-                } else {
-                    _.defer(self.teardown.bind(self));
-                    self.trigger(document, 'refreshRelationships');
+                    console.error('createRelationship', err);
+                    return self.trigger(document, 'error', err);
                 }
+                _.defer(self.teardown.bind(self));
+                self.trigger(document, 'refreshRelationships');
             });
         };
 
@@ -126,7 +135,7 @@ define([
             var self = this;
             var sourceConceptTypeId = this.attr.sourceTerm.data('info')._subType;
             var destConceptTypeId = this.attr.destTerm.data('info')._subType;
-            self.statementService.relationships (sourceConceptTypeId, destConceptTypeId, function (err, results){
+            self.ontologyService.conceptToConceptRelationships(sourceConceptTypeId, destConceptTypeId, function (err, results){
                 if (err) {
                     console.error ('Error', err);
                     return self.trigger (document, 'error', { message: err.toString () });

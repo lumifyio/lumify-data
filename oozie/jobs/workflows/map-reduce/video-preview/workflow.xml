@@ -30,10 +30,6 @@
                     <name>mapreduce.map.class</name>
                     <value>${basePackage}.videoPreview.VideoPreviewMR$VideoPreviewMapper</value>
                 </property>
-                <property>
-                    <name>mapred.map.tasks</name>
-                    <value>${numMapTasks}</value>
-                </property>
 				<property>
 					<name>tableName</name>
                     <value>${tableArtifact}</value>

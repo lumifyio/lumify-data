@@ -1,12 +1,13 @@
 package com.altamiracorp.lumify.web.config;
 
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
+import com.altamiracorp.lumify.config.PropertyUtils;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.Properties;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class PropertyUtilsTest {
 

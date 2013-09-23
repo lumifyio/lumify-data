@@ -1,24 +1,26 @@
 package com.altamiracorp.lumify.model.termMention;
 
-import com.altamiracorp.lumify.model.*;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.Row;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
-import java.util.Collection;
 import java.util.List;
 
+@Singleton
 public class TermMentionRepository extends Repository<TermMention> {
+    private TermMentionBuilder termMentionBuilder = new TermMentionBuilder();
+
+    @Inject
+    public TermMentionRepository(final ModelSession modelSession) {
+        super(modelSession);
+    }
+
     @Override
     public TermMention fromRow(Row row) {
-        TermMention termMention = new TermMention(row.getRowKey());
-        Collection<ColumnFamily> families = row.getColumnFamilies();
-        for (ColumnFamily columnFamily : families) {
-            if (columnFamily.getColumnFamilyName().equals(TermMentionMetadata.NAME)) {
-                Collection<Column> columns = columnFamily.getColumns();
-                termMention.addColumnFamily(new TermMentionMetadata().addColumns(columns));
-            } else {
-                termMention.addColumnFamily(columnFamily);
-            }
-        }
-        return termMention;
+        return termMentionBuilder.fromRow(row);
     }
 
     @Override
@@ -28,10 +30,10 @@ public class TermMentionRepository extends Repository<TermMention> {
 
     @Override
     public String getTableName() {
-        return TermMention.TABLE_NAME;
+        return termMentionBuilder.getTableName();
     }
 
-    public List<TermMention> findByArtifactRowKey(Session session, String artifactRowKey) {
-        return findByRowStartsWith(session, artifactRowKey + ":");
+    public List<TermMention> findByArtifactRowKey(String artifactRowKey, User user) {
+        return findByRowStartsWith(artifactRowKey + ":", user);
     }
 }

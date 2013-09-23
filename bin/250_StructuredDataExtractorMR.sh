@@ -10,16 +10,10 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh core)
+classpath=$(${DIR}/classpath.sh analytics)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
-fi
-
-if [ "${VIRTUALIZATION_DISABLED}" = 'true' ]; then
-  ip=$(ifconfig eth0 | awk -F ':| +' '/inet addr/ {print $4}')
-else
-  ip=192.168.33.10
 fi
 
 java \
@@ -27,13 +21,4 @@ java \
 -classpath ${classpath} \
 -Xmx1024M \
 com.altamiracorp.lumify.structuredDataExtraction.StructuredDataExtractionMR \
---zookeeperInstanceName=lumify \
---zookeeperServerNames=${ip} \
---blurControllerLocation=${ip}:40010 \
---blurPath=hdfs://${ip}/blur \
---graph.storage.index.search.hostname=${ip} \
---hadoopUrl=hdfs://${ip}:8020 \
---failOnFirstError \
---username=root \
---password=password \
---elasticsearch.locations=192.168.33.10:9300
+--failOnFirstError

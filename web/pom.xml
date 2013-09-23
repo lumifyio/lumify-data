@@ -52,19 +52,31 @@
 
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>lumify-analytics</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
-            <artifactId>web-framework</artifactId>
+            <artifactId>lumify-model</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-model-accumulo</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-model-titan</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>        
 
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
-            <artifactId>model-accumulo</artifactId>
+            <artifactId>lumify-web-framework</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 

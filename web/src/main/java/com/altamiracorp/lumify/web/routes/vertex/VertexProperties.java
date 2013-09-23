@@ -1,10 +1,10 @@
 package com.altamiracorp.lumify.web.routes.vertex;
 
-import com.altamiracorp.lumify.AppSession;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
-import org.json.JSONArray;
+import com.google.inject.Inject;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,29 +13,32 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 public class VertexProperties extends BaseRequestHandler {
-    private GraphRepository graphRepository = new GraphRepository();
+    private final GraphRepository graphRepository;
+
+    @Inject
+    public VertexProperties(final GraphRepository repo) {
+        graphRepository = repo;
+    }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         final String graphVertexId = getAttributeString(request, "graphVertexId");
-        AppSession session = app.getAppSession(request);
+        User user = getUser(request);
 
-        Map<String, String> properties = graphRepository.getVertexProperties(session.getGraphSession(), graphVertexId);
-        JSONArray propertiesJson = propertiesToJson(properties);
+        Map<String, String> properties = graphRepository.getVertexProperties(graphVertexId, user);
+        JSONObject propertiesJson = propertiesToJson(properties);
 
         JSONObject json = new JSONObject();
+        json.put("id", graphVertexId);
         json.put("properties", propertiesJson);
 
         respondWithJson(response, json);
     }
 
-    public static JSONArray propertiesToJson(Map<String, String> properties) throws JSONException {
-        JSONArray resultsJson = new JSONArray();
+    public static JSONObject propertiesToJson(Map<String, String> properties) throws JSONException {
+        JSONObject resultsJson = new JSONObject();
         for (Map.Entry<String, String> property : properties.entrySet()) {
-            JSONObject propertyJson = new JSONObject();
-            propertyJson.put("key", property.getKey());
-            propertyJson.put("value", property.getValue());
-            resultsJson.put(propertyJson);
+            resultsJson.put(property.getKey(), property.getValue());
         }
         return resultsJson;
     }

@@ -1,6 +1,8 @@
 package com.altamiracorp.lumify.model.resources;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.*;
+import com.google.inject.Inject;
 import org.apache.commons.io.IOUtils;
 
 import java.io.FileInputStream;
@@ -10,7 +12,12 @@ import java.io.InputStream;
 import java.util.Collection;
 
 public class ResourceRepository extends Repository<Resource> {
-    public String importFile(Session session, String fileName) {
+    @Inject
+    public ResourceRepository(final ModelSession modelSession) {
+        super(modelSession);
+    }
+
+    public String importFile(String fileName, User user) {
         FileInputStream in = null;
         try {
             in = new FileInputStream(fileName);
@@ -20,7 +27,7 @@ public class ResourceRepository extends Repository<Resource> {
             } else {
                 throw new RuntimeException("Unhandled content type: " + fileName);
             }
-            return importFile(session, in, contentType);
+            return importFile(in, contentType, user);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Could not import file: " + fileName, e);
         } finally {
@@ -34,11 +41,11 @@ public class ResourceRepository extends Repository<Resource> {
         }
     }
 
-    public String importFile(Session session, InputStream in, String contentType) {
+    public String importFile(InputStream in, String contentType, User user) {
         try {
             byte[] data = IOUtils.toByteArray(in);
             Resource res = new Resource(data, contentType);
-            save(session, res);
+            save(res, user);
             return res.getRowKey().toString();
         } catch (IOException e) {
             throw new RuntimeException("Could not import file", e);

@@ -1,18 +1,18 @@
 
 define([
     'util/retina',
-    'service/statement',
+    'service/relationship',
     'service/ontology',
     'tpl!./relationship-options',
     'tpl!./connection'
-], function(retina, StatementService, OntologyService, relationshipTypeTemplate, connectionTemplate) {
+], function(retina, RelationshipService, OntologyService, relationshipTypeTemplate, connectionTemplate) {
 
     return Connection;
 
     function Connection() {
 
-        if (!this.statementService) {
-            this.statementService = new StatementService();
+        if (!this.relationshipService) {
+            this.relationshipService = new RelationshipService();
             this.ontologyService = new OntologyService();
         }
 
@@ -20,7 +20,7 @@ define([
             var self = this;
             var sourceConceptTypeId = source.data('_subType');
             var destConceptTypeId = dest.data('_subType');
-            self.statementService.relationships(sourceConceptTypeId, destConceptTypeId, function (err, results){
+            self.ontologyService.conceptToConceptRelationships(sourceConceptTypeId, destConceptTypeId, function (err, results){
                 if (err) {
                     console.error ('Error', err);
                     return self.trigger (document, 'error', { message: err.toString () });
@@ -102,8 +102,9 @@ define([
                                 predicateLabel: val
                             };
 
-                            self.statementService.createStatement(parameters, function(err, data) {
+                            self.relationshipService.createRelationship(parameters, function(err, data) {
                                 if (err) {
+                                    console.error('createStatement', err);
                                     self.trigger(document, 'error', err);
                                 } else {
                                     self.on(document, 'relationshipsLoaded', function loaded() {

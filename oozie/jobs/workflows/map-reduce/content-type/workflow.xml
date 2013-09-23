@@ -30,14 +30,14 @@
                     <name>mapreduce.map.class</name>
                     <value>${basePackage}.contentTypeExtraction.ContentTypeExtractionMR$ContentTypeExtractorMapper</value>
                 </property>
-                <property>
-                    <name>mapred.map.tasks</name>
-                    <value>${numMapTasks}</value>
-                </property>
 				<property>
 					<name>tableName</name>
                     <value>${tableArtifact}</value>
 				</property>
+                <property>
+                    <name>contentTypeExtractor</name>
+                    <value>com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor</value>
+                </property>
 				<property>
 			        <name>mapreduce.inputformat.class</name>
 			        <value>${inputFormatArtifact}</value>

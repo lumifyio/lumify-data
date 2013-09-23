@@ -51,7 +51,7 @@ public class ColumnFamily {
         try {
             JSONObject json = new JSONObject();
             for (Column column : getColumns()) {
-                json.put(column.getName(), column.getValue().toString());
+                json.put(column.getName(), column.getValue());
             }
             return json;
         } catch (JSONException e) {

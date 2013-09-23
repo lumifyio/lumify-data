@@ -14,7 +14,8 @@ import java.util.regex.Pattern;
 
 public abstract class Property extends GraphVertex {
     public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-    public static Pattern GEO_LOCATION_FORMAT = Pattern.compile("POINT\\((.*?),(.*?)\\)");
+    public static Pattern GEO_LOCATION_FORMAT = Pattern.compile("POINT\\((.*?),(.*?)\\)", Pattern.CASE_INSENSITIVE);
+    public static Pattern GEO_LOCATION_ALTERNATE_FORMAT = Pattern.compile("(.*?),(.*)", Pattern.CASE_INSENSITIVE);
 
     public abstract String getId();
 
@@ -62,10 +63,16 @@ public abstract class Property extends GraphVertex {
     protected Object parseGeoLocation(String valueStr) {
         Matcher match = GEO_LOCATION_FORMAT.matcher(valueStr);
         if (match.find()) {
-            double latitude = Double.parseDouble(match.group(1));
-            double longitude = Double.parseDouble(match.group(2));
+            double latitude = Double.parseDouble(match.group(1).trim());
+            double longitude = Double.parseDouble(match.group(2).trim());
             return Geoshape.point(latitude, longitude);
         }
-        return valueStr;
+        match = GEO_LOCATION_ALTERNATE_FORMAT.matcher(valueStr);
+        if (match.find()) {
+            double latitude = Double.parseDouble(match.group(1).trim());
+            double longitude = Double.parseDouble(match.group(2).trim());
+            return Geoshape.point(latitude, longitude);
+        }
+        throw new RuntimeException("Could not parse location: " + valueStr);
     }
 }

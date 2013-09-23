@@ -1,12 +1,24 @@
 package com.altamiracorp.lumify.model.geoNames;
 
-import com.altamiracorp.lumify.model.*;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.Column;
+import com.altamiracorp.lumify.model.ColumnFamily;
+import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.model.Repository;
+import com.altamiracorp.lumify.model.Row;
+import com.altamiracorp.lumify.model.RowKeyHelper;
+import com.google.inject.Inject;
+
 public class GeoNameRepository extends Repository<GeoName> {
+    @Inject
+    public GeoNameRepository(final ModelSession modelSession) {
+        super(modelSession);
+    }
+
     @Override
     public GeoName fromRow(Row row) {
         GeoName geoName = new GeoName(row.getRowKey());
@@ -32,8 +44,8 @@ public class GeoNameRepository extends Repository<GeoName> {
         return GeoName.TABLE_NAME;
     }
 
-    public GeoName findBestMatch(Session session, String name) {
-        List<GeoName> matches = this.findByRowStartsWith(session, name.toLowerCase() + RowKeyHelper.MINOR_FIELD_SEPARATOR);
+    public GeoName findBestMatch(String name, User user) {
+        List<GeoName> matches = findByRowStartsWith(name.toLowerCase() + RowKeyHelper.MINOR_FIELD_SEPARATOR, user);
         if (matches.size() == 0) {
             return null;
         }

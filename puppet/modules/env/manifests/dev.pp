@@ -1,9 +1,13 @@
 class env::dev {
   include role::hadoop::pseudo
+  include ::zookeeper
   include role::accumulo::pseudo
-  include role::blur::pseudo
-  include role::oozie::pseudo
   include role::elasticsearch::pseudo
+  include ::ffmpeg
+  include ::ccextractor
+  include ::tesseract
+  include ::opencv
+  include role::oozie::pseudo
 
   # TODO: configure firewall rules
   service { 'iptables' :

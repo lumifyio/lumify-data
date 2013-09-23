@@ -81,6 +81,7 @@ function(ServiceBase) {
     Ucd.prototype.graphVertexSearch = function (query, filters, callback) {
         if (typeof filters === 'function') {
             callback = filters;
+            filters = [];
         }
 
         return this._ajaxGet({ 
@@ -90,10 +91,6 @@ function(ServiceBase) {
                 filter: JSON.stringify(filters || [])
             }
         }, callback);
-    };
-
-    Ucd.prototype.getGraphVertexById = function (id, callback) {
-        return this._get("graph/vertex", id, callback);
     };
 
     Ucd.prototype.getRelatedVertices = function(data, callback) {

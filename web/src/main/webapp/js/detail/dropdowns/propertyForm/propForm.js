@@ -21,6 +21,11 @@ define([
             this.on('click', {
                 addPropertySelector: this.onAddPropertyClicked
             });
+
+            this.on('keyup', {
+                propertyValueSelector: this.onInputKeyUp
+            })
+
             this.on('addPropertyError', this.onAddPropertyError);
 
             this.$node.html(template({}));
@@ -76,6 +81,13 @@ define([
             }
 
         });
+
+        this.onInputKeyUp = function (event) {
+            switch (event.which) {
+                case $.ui.keyCode.ENTER:
+                    this.onAddPropertyClicked(event);
+            }
+        }
 
         this.onAddPropertyError = function(event) {
             this.select('propertyValueSelector').addClass('validation-error');

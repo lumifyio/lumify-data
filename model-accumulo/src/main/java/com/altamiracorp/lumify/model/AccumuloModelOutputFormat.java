@@ -10,9 +10,9 @@ import java.io.IOException;
 public class AccumuloModelOutputFormat extends OutputFormat<Text, Row> {
     private AccumuloOutputFormat accumuloOutputFormat = new AccumuloOutputFormat();
 
-    public static void init(Job job, String username, byte[] password, String zookeeperInstanceName, String zookeeperServerNames, String tableName) {
+    public static void init(Job job, String username, String password, String zookeeperInstanceName, String zookeeperServerNames, String tableName) {
         AccumuloOutputFormat.setZooKeeperInstance(job.getConfiguration(), zookeeperInstanceName, zookeeperServerNames);
-        AccumuloOutputFormat.setOutputInfo(job.getConfiguration(), username, password, false, tableName);
+        AccumuloOutputFormat.setOutputInfo(job.getConfiguration(), username, password.getBytes(), false, tableName);
     }
 
     @Override

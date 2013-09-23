@@ -8,6 +8,7 @@ public enum PropertyName {
     ONTOLOGY_TITLE("ontologyTitle"),
     DISPLAY_NAME("displayName"),
     GEO_LOCATION("geoLocation"),
+    GEO_LOCATION_DESCRIPTION("_geoLocationDescription"),
     ROW_KEY("_rowKey"),
     GLYPH_ICON("_glyphIcon"),
     MAP_GLYPH_ICON("_mapGlyphIcon"),

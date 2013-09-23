@@ -9,6 +9,8 @@ define([
     'underscore'
 ], function(defineComponent, registry, template, itemTemplate, OntologyService, _) {
 
+    var FILTER_SEARCH_DELAY_SECONDS = 0.25;
+
     return defineComponent(Filters);
 
     function Filters() {
@@ -22,6 +24,8 @@ define([
         });
 
         this.after('initialize', function() {
+            this.notifyOfFilters = _.debounce(this.notifyOfFilters.bind(this), FILTER_SEARCH_DELAY_SECONDS * 1000);
+
             this.$node.html(template({}));
 
             this.on('change', { propertySelector: this.onPropertyFilterChanged });
@@ -88,7 +92,7 @@ define([
             if (instanceInfo && instanceInfo.length) {
                 instanceInfo.forEach(function(info) {
                     delete self.currentFilters[info.instance.attr.id];
-                    if (info.instance.isValid && info.instance.isValid()) {
+                    if (!info.instance.isValid || info.instance.isValid()) {
                         self.notifyOfFilters();
                     }
                     info.instance.teardown();
@@ -102,7 +106,10 @@ define([
             var self = this;
 
             this.ontologyService.properties(function(err, properties) {
-                if (err) return;
+                if(err) {
+                    console.error('Error', err);
+                    return self.trigger(document, 'error', { message: err.toString() });
+                }
 
                 self.properties = properties.list;
                 self.$node.find('.nav-header').after(itemTemplate({properties:properties.list}));

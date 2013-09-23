@@ -229,8 +229,13 @@ define([
             (data.vertices || []).forEach(function(vertex) {
                 // Only care about vertex search results and location updates
                 if ( (vertex._type && vertex._subType) || vertex.location || vertex.locations ) {
-                    _currentVertices[vertex.graphVertexId] = self.stateForVertex(vertex);
-                    self.toggleItemIcons(vertex.graphVertexId, _currentVertices[vertex.graphVertexId]);
+                    self.getWorkspaceVertices().forEach(function(v) {
+                        if (v.graphVertexId == vertex.graphVertexId || v._rowKey == vertex._rowKey)
+                        {
+                            _currentVertices[vertex.graphVertexId] = self.stateForVertex(vertex);
+                            self.toggleItemIcons(vertex.graphVertexId, _currentVertices[vertex.graphVertexId]);
+                        }
+                    });
                 }
             });
         };
@@ -245,7 +250,7 @@ define([
 
 
         this.onVerticesSelected = function(event, data) {
-            if (data.remoteEvent) {
+            if (data && data.remoteEvent) {
                 return;
             }
             this.$node.find('.active').removeClass('active');

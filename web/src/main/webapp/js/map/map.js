@@ -51,15 +51,19 @@ define([
             switch (message.type) {
                 case 'propertiesChange':
                     for(var i=0; i<message.data.properties.length; i++) {
-                        var propertyChangeData = message.data.properties[i];
-                        self.onPropertyChange(propertyChangeData);
+                        var data = {
+                            properties: message.data.properties[i],
+                            vertex: message.data.vertex
+                        };
+                        self.onPropertyChange(data);
                     }
                     break;
             }
         };
 
-        this.onPropertyChange = function(propertyChangeData) {
+        this.onPropertyChange = function(data) {
             var self = this;
+            var propertyChangeData = data.properties;
 
             if(propertyChangeData.propertyName == 'geoLocation') {
                 var m = propertyChangeData.value.match(/point\[(.*?),(.*?)\]/);
@@ -68,6 +72,8 @@ define([
                 }
                 var latitude = m[1];
                 var longitude = m[2];
+
+                self.updateVertexLocation (data.vertex);
 
                 this.map(function(map) {
                     var markers = map.markers
@@ -392,24 +398,24 @@ define([
                     }
                 });
             } else {
-                this.ucdService.getGraphVertexById(vertex.graphVertexId, function(err, entity) {
+                this.ucdService.getVertexProperties(vertex.graphVertexId, function(err, entity) {
                     if(err) {
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
                     var locations = [];
 
-                    Object.keys(entity).forEach(function(entityKey) {
-                        var mention = entity[entityKey];
-                        if(mention.latitude && mention.latitude) {
-                            if(locations.filter(function(l) { return (mention.latitude == l.latitude) && (mention.longitude == l.longitude); }).length == 0) {
-                                locations.push({
-                                    latitude: mention.latitude,
-                                    longitude: mention.longitude
-                                });
-                            }
+                    if(entity.properties.geoLocation) {
+                        var m = entity.properties.geoLocation.match(/point\[(.*?),(.*)\]/);
+                        if(m){
+                            var latitude = m[1];
+                            var longitude = m[2];
+                            locations.push({
+                                latitude: latitude,
+                                longitude: longitude
+                            });
                         }
-                    });
+                    }
 
                     vertex.locations = locations;
                     if (locations.length === 0) {

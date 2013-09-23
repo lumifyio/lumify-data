@@ -30,10 +30,6 @@
                     <name>mapreduce.map.class</name>
                     <value>${basePackage}.location.GeoNamesImportMR$GeoNamesImportMapper</value>
                 </property>
-                <property>
-                    <name>mapred.map.tasks</name>
-                    <value>${numMapTasks}</value>
-                </property>
 				<property>
 					<name>tableName</name>
                     <value>${tablePlaceNames}</value>
@@ -66,10 +62,6 @@
                 <property>
                     <name>mapreduce.map.class</name>
                     <value>${basePackage}.location.Admin1CodesImportMR$Admin1CodesImportMapper</value>
-                </property>
-                <property>
-                    <name>mapred.map.tasks</name>
-                    <value>${numMapTasks}</value>
                 </property>
 				<property>
 					<name>tableName</name>
@@ -104,10 +96,6 @@
                     <name>mapreduce.map.class</name>
                     <value>${basePackage}.location.CountryInfoImportMR$CountryInfoImportMapper</value>
                 </property>
-                <property>
-                    <name>mapred.map.tasks</name>
-                    <value>${numMapTasks}</value>
-                </property>
 				<property>
 					<name>tableName</name>
                     <value>${tableCountryInfo}</value>
@@ -140,10 +128,6 @@
                 <property>
                     <name>mapreduce.map.class</name>
                     <value>${basePackage}.location.PostalCodesImportMR$PostalCodesImportMapper</value>
-                </property>
-                <property>
-                    <name>mapred.map.tasks</name>
-                    <value>${numMapTasks}</value>
                 </property>
 				<property>
 					<name>tableName</name>
