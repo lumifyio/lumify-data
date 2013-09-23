@@ -54,67 +54,9 @@ define([
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'syncEnded', this.onSyncEnded);
             this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
-            this.on(document, 'socketMessage', this.onSocketMessage);
 
             this.updateOrAddVertices(appData.verticesInWorkspace(), { adding:true });
         });
-
-        this.onSocketMessage = function (evt, message) {
-            var self = this;
-            switch (message.type) {
-                case 'propertiesChange':
-                    for(var i=0; i<message.data.properties.length; i++) {
-                        var data = {
-                            properties: message.data.properties[i],
-                            vertex: message.data.vertex
-                        };
-                        self.onPropertyChange(data);
-                    }
-                    break;
-            }
-        };
-
-        this.onPropertyChange = function(data) {
-            var self = this;
-            var propertyChangeData = data.properties;
-
-            if(propertyChangeData.propertyName == 'geoLocation') {
-                var m = propertyChangeData.value.match(/point\[(.*?),(.*?)\]/);
-                if(!m) {
-                    return;
-                }
-                var latitude = m[1];
-                var longitude = m[2];
-
-                //self.updateVertexLocation (data.vertex);
-
-                this.map(function(map) {
-                    var markers = map.markers
-                        .filter(function(marker) {
-                            return marker.getAttribute('graphVertexId') == propertyChangeData.graphVertexId;
-                        });
-                    markers.forEach(function(marker) {
-                        var pt = new mxn.LatLonPoint(latitude, longitude);
-                        if (map.api == 'googlev3') {
-                            var p = pt.toProprietary('googlev3');
-                            marker.proprietary_marker.setPosition(p);
-                        }
-                    });
-                });
-            }
-
-            if(propertyChangeData.propertyName == 'heading') {
-                this.map(function(map) {
-                    var markers = map.markers
-                        .filter(function(marker) {
-                            return marker.getAttribute('graphVertexId') == propertyChangeData.graphVertexId;
-                        });
-                    markers.forEach(function(marker) {
-                        self.updateMarkerIcon(marker, propertyChangeData.value);
-                    });
-                });
-            }
-        };
 
         this.map = function(callback) {
             if ( this.mapLoaded ) {

@@ -157,8 +157,9 @@ define([
                     this.trigger(document, 'updateVertices', { vertices:addedVertices });
                 }
 
-                this.setWorkspaceDirty();
             });
+
+            this.setWorkspaceDirty();
         };
 
         this.classesForVertex = function(vertex) {
@@ -255,6 +256,7 @@ define([
                     });
             });
 
+            this.setWorkspaceDirty();
         };
 
         this.onExistingVerticesAdded = function(evt, data) {

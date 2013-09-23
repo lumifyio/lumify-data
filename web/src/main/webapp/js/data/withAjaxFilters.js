@@ -135,7 +135,6 @@ define([], function() {
                         }
 
                         if (updated.length) {
-                            console.log('updated:', updated);
                             _.defer(function() {
                                 self.trigger('verticesUpdated', { vertices:updated });
                             });
