@@ -7,9 +7,10 @@ define([
     'tpl!./instructions/regionRadius',
     'tpl!./instructions/regionLoading',
     'service/ucd',
+    'service/vertex',
     'util/retina',
     'util/withContextMenu'
-], function(defineComponent, template, centerTemplate, radiusTemplate, loadingTemplate, UcdService, retina, withContextMenu) {
+], function(defineComponent, template, centerTemplate, radiusTemplate, loadingTemplate, UcdService, VertexService, retina, withContextMenu) {
     'use strict';
 
     var MODE_NORMAL = 0,
@@ -23,6 +24,7 @@ define([
         var callbackQueue = [];
 
         this.ucdService = new UcdService();
+        this.vertexService = new VertexService();
         this.mode = MODE_NORMAL;
 
         this.defaultAttrs({
@@ -72,7 +74,7 @@ define([
                 var latitude = m[1];
                 var longitude = m[2];
 
-                self.updateVertexLocation (data.vertex);
+                //self.updateVertexLocation (data.vertex);
 
                 this.map(function(map) {
                     var markers = map.markers
@@ -192,7 +194,7 @@ define([
                 map.markers.forEach(function(marker) {
                     window.marker = marker;
                     data.vertices.forEach(function(vertex) {
-                        if (marker.getAttribute('graphVertexId') === vertex.graphVertexId) {
+                        if (marker.getAttribute('graphVertexId') === vertex.id) {
                             points.push(marker.location);
                         }
                     });
@@ -262,52 +264,54 @@ define([
             this.map(function(map) {
                 map.removeAllMarkers();
 
-                if (workspaceData.data === undefined || workspaceData.data.vertices === undefined) {
-                    return;
-                }
-                workspaceData.data.vertices.forEach(function(vertex) {
-                    if(vertex.location || vertex.locations) {
-                        self.updateOrAddVertex(vertex);
-                    }
-                });
+                self.updateOrAddVertices(workspaceData.data.vertices);
             });
         };
 
         this.onVerticesAdded = function(evt, data) {
-            var self = this;
-            data.vertices.forEach(function(vertex) {
-                self.updateOrAddVertex(vertex);
-                self.updateVertexLocation(vertex);
+            var self = this,
+                ids = _.pluck(_.filter(data.vertices, function(v) { return v.properties.geoLocation !== null; }), 'id');
+            
+            debugger;
+            if (ids.length === 0) return;
+            this.vertexService.getMultiple(ids).done(function(vertices) {
+                self.updateOrAddVertices(vertices, { adding:true });
             });
         };
 
-        this.updateOrAddVertex = function(vertex) {
-            var self = this;
-            if(!vertex.location && !vertex.locations) {
-                return;
-            }
+        this.updateOrAddVertices = function(vertices, options) {
+            var self = this,
+                adding = options && options.adding;
 
-            this.map(function(map) {
-                this.deleteVertex(vertex);
+            self.map(function(map) {
+                var fit = false;
 
-                var locations = $.isArray(vertex.locations) ? vertex.locations : [ vertex.location ];
+                vertices.forEach(function(vertex) {
+                    var geoLocation = vertex.properties.geoLocation;
+                    if (!geoLocation) return;
 
-                locations.forEach(function(location) {
-                    var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
-                    var marker = new mxn.Marker(pt);
-                    marker.setAttribute('graphVertexId', vertex.graphVertexId);
-                    marker.setAttribute('subType', vertex._subType);
+                    fit = true;
 
-                    self.updateMarkerIcon(marker, vertex.heading);
+                    var marker = self.markerForId(map, vertex.id);
 
-                    marker.click.addHandler(function(eventType, marker) {
-                        self.trigger('verticesSelected', [ vertex ]);
-                    });
-                    map.addMarker(marker);
+                    if (marker && adding) {
+                        map.removeMarker(marker);
+
+                        marker = new mxn.Marker(new mxn.LatLonPoint(geoLocation.latitude, geoLocation.longitude));
+                        marker.setAttribute('graphVertexId', vertex.id);
+                        marker.setAttribute('subType', vertex.properties._subType);
+
+                        self.updateMarkerIcon(marker, vertex.properties.heading);
+
+                        marker.click.addHandler(function(eventType, marker) {
+                            self.trigger('verticesSelected', [ vertex ]);
+                        });
+                        map.addMarker(marker);
+                    }
                 });
 
-                if (locations.length) {
-                    self.fit(map);
+                if (fit) {
+                    this.fit();
                 }
             });
         };
@@ -327,10 +331,7 @@ define([
         };
 
         this.onVerticesUpdated = function(evt, data) {
-            var self = this;
-            data.vertices.forEach(function(vertex) {
-                self.updateOrAddVertex(vertex);
-            });
+            this.updateOrAddVertices(data.vertices);
         };
 
         this.onVerticesDeleted = function(evt, data) {
@@ -362,16 +363,20 @@ define([
             var self = this;
 
             this.map(function(map) {
-                map.markers
-                    .filter(function(marker) {
-                        return marker.getAttribute('graphVertexId') == vertex.graphVertexId;
-                    })
-                    .forEach(function(marker) {
-                        map.removeMarker(marker);
-                    });
+                this.markerForId(map, vertex.id).forEach(function(marker) {
+                    map.removeMarker(marker);
+                });
             });
         };
 
+        this.markerForId = function(map, id) {
+            return map.markers
+                    .filter(function(marker) {
+                        return marker.getAttribute('graphVertexId') === id;
+                    });
+        };
+
+        /*
         this.updateVertexLocation = function(vertex) {
             var self = this;
             if(vertex._type == 'artifact') {
@@ -428,6 +433,7 @@ define([
                 });
             }
         };
+        */
 
         this.invalidMap = function() {
             var map = this.select('mapSelector'),

@@ -62,7 +62,6 @@ define([
                 workspacesPane = content.filter('.workspaces-pane').data(DATA_MENUBAR_NAME, 'workspaces'),
                 usersPane = content.filter('.users-pane').data(DATA_MENUBAR_NAME, 'users'),
                 graphPane = content.filter('.graph-pane').data(DATA_MENUBAR_NAME, 'graph'),
-                mapPane = content.filter('.map-pane').data(DATA_MENUBAR_NAME, 'map'),
                 detailPane = content.filter('.detail-pane');
 
             Sync.attachTo(window);
@@ -72,8 +71,6 @@ define([
             Users.attachTo(usersPane.find('.content'));
             Graph.attachTo(graphPane);
             Detail.attachTo(detailPane.find('.content'));
-            // FIXME:
-            // Map.attachTo(mapPane);
             Keyboard.attachTo(document);
             WorkspaceOverlay.attachTo(content.filter('.workspace-overlay'));
 
@@ -175,6 +172,8 @@ define([
                 this.trigger(document, 'graphShow');
             } else if (data.name === 'map' && !pane.hasClass('visible')) {
                 this.trigger(document, 'graphHide');
+                var mapPane = this.$node.find('.map-pane').data(DATA_MENUBAR_NAME, 'map');
+                Map.attachTo(mapPane);
                 this.trigger(document, 'mapShow');
                 this.collapse([
                     this.select('searchSelector'),
