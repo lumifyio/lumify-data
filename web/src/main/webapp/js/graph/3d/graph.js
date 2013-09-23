@@ -80,10 +80,10 @@ define([
                 deferredImages = [];
 
             vertices.forEach(function(vertex) {
-                var node = new $3djs.Graph.Node(vertex.graphVertexId);
+                var node = new $3djs.Graph.Node(vertex.id);
 
                 node.data = vertex;
-                node.data.icon = vertex._glyphIcon || this.icons[vertex._subType];
+                node.data.icon = vertex.properties._glyphIcon || this.icons[vertex.properties._subType];
 
                 if (node.data.icon) {
                     deferredImages.push(
@@ -109,7 +109,7 @@ define([
             function addToGraph(width, height, node) {
                 node.data.iconWidth = width;
                 node.data.iconHeight = height;
-                node.data.label = node.data.title || 'No title Available';
+                node.data.label = node.data.properties.title;
                 node.needsUpdate = true;
                 graph.addNode(node);
             }

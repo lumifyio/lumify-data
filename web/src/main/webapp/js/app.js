@@ -147,13 +147,13 @@ define([
                 if (!self._graphDimensions || self._graphDimensions === 2) {
                     Graph.teardownAll();
                     Graph3D.attachTo(node, {
-                        vertices: self.workspaceData.data.vertices
+                        vertices: data.verticesInWorkspace()
                     });
                     self._graphDimensions = 3;
                 } else {
                     Graph3D.teardownAll();
                     Graph.attachTo(node, {
-                        vertices: self.workspaceData.data.vertices
+                        vertices: data.verticesInWorkspace()
                     });
                     self._graphDimensions = 2;
                     self.triggerPaneResized();
