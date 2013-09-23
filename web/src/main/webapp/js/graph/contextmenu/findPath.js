@@ -32,7 +32,7 @@ define([
                 var edge = null;
                 var targetGraphId = null;
 
-                complete = function (val) {
+                var complete = function () {
                     cy.off(tapEvents);
                     cy.off(mouseEvents);
                     cy.panningEnabled(true)
@@ -62,22 +62,12 @@ define([
                                 edge = null;
                             }
 
-                            if (err) {
-                                console.error('findPath', err);
-                                return self.trigger(document, 'error', err);
-                            }
-
                             console.log('findPath results', data);
 
                             var vertices = [];
                             data.paths.forEach(function (path) {
                                 path.forEach(function (vertex) {
-                                    // TODO: refactor this and combine with graph.js/onLoadRelatedSelected
-                                    var graphVertexData = $.extend({}, vertex.properties, {
-                                        graphVertexId: vertex.id,
-                                        selected: true
-                                    });
-                                    vertices.push(graphVertexData);
+                                    vertices.push(vertex);
                                 });
                             });
                             if(vertices.length === 0) {
