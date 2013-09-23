@@ -1,19 +1,14 @@
 package com.altamiracorp.lumify.entityExtraction;
 
-import com.altamiracorp.lumify.ConfigurableMapJobBase;
-import com.altamiracorp.lumify.LumifyMapper;
-import com.altamiracorp.lumify.config.Configuration;
-import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
-import com.altamiracorp.lumify.model.Row;
-import com.altamiracorp.lumify.model.graph.GraphRepository;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.ontology.*;
-import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
-import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -23,9 +18,24 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
+import com.altamiracorp.lumify.ConfigurableMapJobBase;
+import com.altamiracorp.lumify.LumifyMapper;
+import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
+import com.altamiracorp.lumify.model.Row;
+import com.altamiracorp.lumify.model.graph.GraphRepository;
+import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.model.ontology.Concept;
+import com.altamiracorp.lumify.model.ontology.LabelName;
+import com.altamiracorp.lumify.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.model.ontology.PropertyName;
+import com.altamiracorp.lumify.model.ontology.VertexType;
+import com.altamiracorp.lumify.model.termMention.TermMention;
+import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
+import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 public class EntityExtractionMR extends ConfigurableMapJobBase {
     @Override
@@ -47,6 +57,11 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
     }
 
     public static class EntityExtractorMapper extends LumifyMapper<Text, Artifact, Text, Row> {
+        /**
+         * The time period (in milliseconds) that progress should be reported to the framework
+         */
+        private static final int PROGRESS_REPORT_PERIOD_MS = 5000;
+
         private static final Logger LOGGER = LoggerFactory.getLogger(EntityExtractorMapper.class);
         public static final String CONF_ENTITY_EXTRACTOR_CLASS = "entityExtractorClass";
 
@@ -54,7 +69,10 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
         private TermMentionRepository termMentionRepository;
         private OntologyRepository ontologyRepository;
         private GraphRepository graphRepository;
-        private HashMap<String, Concept> conceptMap = new HashMap<String, Concept>();
+        private final HashMap<String, Concept> conceptMap = new HashMap<String, Concept>();
+        private final ExecutorService executorService = Executors.newFixedThreadPool(1);
+
+
 
         @Override
         protected void setup(Context context, Injector injector) throws IOException, IllegalAccessException, InstantiationException {
@@ -63,18 +81,31 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
         }
 
         @Override
+        protected void cleanup(Context context) throws IOException, InterruptedException {
+            super.cleanup(context);
+
+            if( executorService != null ) {
+                executorService.shutdownNow();
+            }
+        }
+
+        @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
             if (artifact.getGenericMetadata().getMappingJson() != null) {
                 LOGGER.info("Skipping extracting entities from artifact: " + artifact.getRowKey().toString() + " (cause: structured data)");
                 return;
             }
+
             LOGGER.info("Extracting entities from artifact: " + artifact.getRowKey().toString());
 
             String artifactText = artifact.getContent().getDocExtractedTextString();
             if (artifactText == null) {
                 return;
             }
-            Collection<ExtractedEntity> extractedEntities = entityExtractor.extract(artifact, artifactText);
+
+            final List<ExtractedEntity> extractedEntities = extractEntities(artifact, artifactText, context);
+
+            LOGGER.info("Processing extracted entities");
             for (ExtractedEntity extractedEntity : extractedEntities) {
                 TermMention termMention = extractedEntity.getTermMention();
 
@@ -103,6 +134,29 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
 
                 termMentionRepository.save(existingTermMention, getUser());
             }
+            LOGGER.info("Processing complete");
+        }
+
+        private List<ExtractedEntity> extractEntities(final Artifact artifact, final String artifactText, final Context context) throws Exception {
+            final Callable<List<ExtractedEntity>> callable = new EntityExtractorCallable(entityExtractor, artifact, artifactText);
+            final Future<List<ExtractedEntity>> future = executorService.submit(callable);
+
+            final long startTime = System.currentTimeMillis();
+
+            // Report progress to the framework while waiting for extraction to be completed
+            while(!future.isDone()) {
+                LOGGER.debug("Reporting progress to the framework");
+                context.progress();
+
+                // Report progress periodically
+                Thread.sleep(PROGRESS_REPORT_PERIOD_MS);
+            }
+
+            final List<ExtractedEntity> extractedEntities = future.get();
+            LOGGER.info(String.format("Extraction ran for %d seconds", TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - startTime)));
+            LOGGER.info("Number of entities extracted: " + extractedEntities.size());
+
+            return extractedEntities;
         }
 
         private String createEntityGraphVertex(Artifact artifact, ExtractedEntity extractedEntity, Concept concept) {
