@@ -1,6 +1,6 @@
 class jetty(
   $major_version='8',
-  $version='8.1.12.v20130726'
+  $version='8.1.13.v20130916'
 ){
   require java
 
