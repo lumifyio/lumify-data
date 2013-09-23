@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.entityExtraction;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import org.apache.hadoop.conf.Configuration;
@@ -8,13 +9,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -22,8 +26,12 @@ import static org.mockito.Mockito.when;
 public class RegexEntityExtractorTest extends BaseExtractorTest {
 
     private EntityExtractor extractor;
+
+    @Mock
     private Context context;
-    private ModelSession modelSession;
+
+    @Mock
+    private User user;
 
     private String textWith = "This is some text that contains an e-mail address for Bob, bob@gmail.com and an e-mail address for Bob's friend Bill, bill@outlook.com.";
     private String textWithNewlines = "This is some text that contains\n an e-mail address for Bob, bob@gmail.com and an e-mail address\n for Bob's friend Bill, bill@outlook.com.";
@@ -31,19 +39,18 @@ public class RegexEntityExtractorTest extends BaseExtractorTest {
 
     @Before
     public void setUp() {
-        context = Mockito.mock(Context.class);
-        modelSession = mock(ModelSession.class);
+        MockitoAnnotations.initMocks(this);
         Configuration config = new Configuration();
         config.set("regularExpression", "(?i)\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b");
         config.set("entityType", "emailAddress");
-        when(context.getConfiguration()).thenReturn(config);
+        doReturn(config).when(context).getConfiguration();
 
         extractor = new RegexEntityExtractor();
     }
 
     @Test
     public void testRegularExpressionExtraction() throws Exception {
-        extractor.setup(context,modelSession);
+        extractor.setup(context,user);
         ArrayList<ExtractedEntity> extractedEntities = new ArrayList<ExtractedEntity>(extractor.extract(createArtifact(textWith), textWith));
         assertEquals("Not enough extractedEntities extracted", 2, extractedEntities.size());
         boolean found = false;
@@ -60,7 +67,7 @@ public class RegexEntityExtractorTest extends BaseExtractorTest {
 
     @Test
     public void testRegularExpressionExtractionWithNewlines() throws Exception {
-        extractor.setup(context,modelSession);
+        extractor.setup(context,user);
         ArrayList<ExtractedEntity> extractedEntities = new ArrayList<ExtractedEntity>(extractor.extract(createArtifact(textWithNewlines), textWithNewlines));
         assertEquals("Not enough extractedEntities extracted", 2, extractedEntities.size());
         boolean found = false;
@@ -77,7 +84,7 @@ public class RegexEntityExtractorTest extends BaseExtractorTest {
 
     @Test
     public void testNegativeRegularExpressionExtraction() throws Exception {
-        extractor.setup(context,modelSession);
+        extractor.setup(context,user);
         Collection<ExtractedEntity> terms = extractor.extract(createArtifact(textWithout), textWithout);
         assertTrue(terms.isEmpty());
     }

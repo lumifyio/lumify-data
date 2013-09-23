@@ -41,6 +41,7 @@ public abstract class ModelSession {
             GeoNameAdmin1Code.TABLE_NAME,
             GeoNameCountryInfo.TABLE_NAME,
             GeoNamePostalCode.TABLE_NAME,
+            DictionaryEntry.TABLE_NAME,
             "atc_titan");// see com.altamiracorp.lumify.model.TitanGraphSession
 
     public ModelSession() {

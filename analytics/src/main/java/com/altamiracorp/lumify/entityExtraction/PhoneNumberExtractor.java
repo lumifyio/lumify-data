@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.entityExtraction;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
@@ -21,7 +22,7 @@ public class PhoneNumberExtractor extends EntityExtractor {
     private String defaultRegionCode;
 
     @Override
-    public void setup(Context context, ModelSession session) throws IOException {
+    public void setup(Context context, User user) throws IOException {
         phoneNumberUtil = PhoneNumberUtil.getInstance();
         defaultRegionCode = context.getConfiguration().get(DEFAULT_REGION_CODE, DEFAULT_DEFAULT_REGION_CODE);
     }

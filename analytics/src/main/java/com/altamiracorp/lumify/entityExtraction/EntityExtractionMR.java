@@ -59,7 +59,7 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
         @Override
         protected void setup(Context context, Injector injector) throws IOException, IllegalAccessException, InstantiationException {
             entityExtractor = getAndInjectClassFromConfiguration(context, injector, CONF_ENTITY_EXTRACTOR_CLASS);
-            entityExtractor.setup(context);
+            entityExtractor.setup(context, getUser());
         }
 
         @Override

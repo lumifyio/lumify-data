@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.entityExtraction;
 
 import com.altamiracorp.lumify.model.dictionary.DictionaryEntry;
 import com.altamiracorp.lumify.model.dictionary.DictionaryEntryRepository;
+import com.google.inject.Inject;
 import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.namefind.DictionaryNameFinder;
 import opennlp.tools.namefind.TokenNameFinder;
@@ -15,7 +16,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
-    private DictionaryEntryRepository dictionaryEntryRepository = new DictionaryEntryRepository();
+
+    private DictionaryEntryRepository dictionaryEntryRepository;
 
     @Override
     protected List<TokenNameFinder> loadFinders() throws IOException {
@@ -28,7 +30,7 @@ public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
 
     private Map<String, Dictionary> getDictionaries () {
         Map<String,Dictionary> dictionaries = new HashMap<String, Dictionary>();
-        List<DictionaryEntry> entries = dictionaryEntryRepository.findAll(getModelSession());
+        List<DictionaryEntry> entries = dictionaryEntryRepository.findAll(getUser());
         for (DictionaryEntry entry : entries) {
 
             if (!dictionaries.containsKey(entry.getMetadata().getConcept())) {
@@ -39,6 +41,11 @@ public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
         }
 
         return dictionaries;
+    }
+
+    @Inject
+    public void setDictionaryEntryRepository (DictionaryEntryRepository dictionaryEntryRepository) {
+        this.dictionaryEntryRepository = dictionaryEntryRepository;
     }
 
     private StringList tokensToStringList (String tokens) {
