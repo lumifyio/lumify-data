@@ -140,7 +140,7 @@ define([
 
                     if (vertex.properties._type === 'artifact' && /^(image|video)$/i.test(vertex.properties._subType)) {
                         _.delay(function() {
-                            previews.generatePreview(vertex.artifact._rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
+                            previews.generatePreview(vertex.properties._rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
                                 if (dataUri) {
                                     cyNode.css('background-image', dataUri);
                                 }

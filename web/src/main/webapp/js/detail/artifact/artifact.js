@@ -54,12 +54,21 @@ define([
 
             this.on(document, 'scrubberFrameChange', this.onScrubberFrameChange);
             this.on(document, 'videoTimeUpdate', this.onVideoTimeUpdate);
+            this.on(document, 'verticesUpdated', this.onVerticesUpdated);
 
             this.$node.on('mouseenter', '.image-preview', this.onImageEnter.bind(this));
             this.$node.on('mouseenter mouseleave', '.detected-object', this.onDetectedObjectHover.bind(this));
 
             this.loadArtifact();
         });
+
+        this.onVerticesUpdated = function(event, data) {
+            var matching = _.findWhere(data.vertices, { id: this.attr.data.id });
+
+            if (matching) {
+                this.select('titleSelector').html( matching.properties.title );
+            }
+        };
 
         this.loadArtifact = function() {
             var self = this,
