@@ -15,10 +15,6 @@ define([
         this.onContextMenuFindShortestPath = function (hops) {
             var menu = this.select('vertexContextMenuSelector');
             var graphVertexId = menu.data('currentVertexGraphVertexId');
-            var sourceVertexPosX = menu.data("currentVertexPositionX");
-            var sourceVertexPosY = menu.data("currentVertexPositionY");
-
-            this.findingPath = true;
 
             this.cy(function (cy) {
                 var self = this;
@@ -39,7 +35,7 @@ define([
                         .zoomingEnabled(true)
                         .boxSelectionEnabled(true);
                     self.findingPath = false;
-                    
+
                     if (!edge) {
                         instructions.remove();
                         return;
@@ -70,7 +66,7 @@ define([
                                     vertices.push(vertex);
                                 });
                             });
-                            if(vertices.length === 0) {
+                            if (vertices.length === 0) {
                                 // TODO: refactor this to some common function on graph
                                 var instructions = $('<div>')
                                     .text(beginText)
@@ -81,9 +77,9 @@ define([
                                 self.trigger(document, 'addVertices', { vertices: vertices });
                             }
                         });
-                },
+                };
 
-                mouseEvents = {
+                var mouseEvents = {
                     mouseover: function (event) {
                         if (event.cy == event.cyTarget) return;
                         if (event.cyTarget.id() === graphVertexId) return;
@@ -108,9 +104,9 @@ define([
                         }
                         instructions.text(beginText);
                     }
-                },
+                };
 
-                tapEvents = {
+                var tapEvents = {
                     tap: function (event) {
                         complete();
                     }
