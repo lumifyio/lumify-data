@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.entityExtraction;
 
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Mapper.Context;
@@ -21,6 +22,7 @@ import static org.mockito.Mockito.when;
 public class OpenNlpMEEntityExtractorTest extends BaseExtractorTest {
     private OpenNlpMaximumEntropyEntityExtractor extractor;
     private Context context;
+    private ModelSession modelSession;
 
     private String text = "This is a sentence, written by Bob Robertson, who currently makes 2 million "
             + "a year. If by 1:30, you don't know what you are doing, you should go watch CNN and see "
@@ -28,6 +30,7 @@ public class OpenNlpMEEntityExtractorTest extends BaseExtractorTest {
 
     @Before
     public void setUp() throws IOException {
+        modelSession = mock(ModelSession.class);
         context = mock(Context.class);
         Configuration config = new Configuration();
         config.set("nlpConfPathPrefix", Thread.currentThread().getContextClassLoader().getResource("fs/").toString());
@@ -37,7 +40,7 @@ public class OpenNlpMEEntityExtractorTest extends BaseExtractorTest {
 
     @Test
     public void testEntityExtraction() throws Exception {
-        extractor.setup(context);
+        extractor.setup(context,modelSession);
         Collection<ExtractedEntity> terms = extractor.extract(createArtifact(text), text);
         HashMap<String, TermMention> extractedTerms = new HashMap<String, TermMention>();
         for (ExtractedEntity term : terms) {
