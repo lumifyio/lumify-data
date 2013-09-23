@@ -134,7 +134,7 @@ define([
 
 
         this.onWorkspaceLoaded = function(evt, workspace) {
-            if (workspace.data.vertices.length === 0) {
+            if (!this.$node.find('.workspaces-pane').is('.visible') && workspace.data.vertices.length === 0) {
                 this.trigger(document, 'menubarToggleDisplay', { name:'search' });
             }
         };
