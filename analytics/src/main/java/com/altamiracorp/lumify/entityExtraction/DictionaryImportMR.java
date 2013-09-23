@@ -4,6 +4,8 @@ import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
 import com.altamiracorp.lumify.model.dictionary.DictionaryEntry;
 import com.altamiracorp.lumify.model.dictionary.DictionaryEntryRepository;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.Path;
@@ -24,7 +26,6 @@ public class DictionaryImportMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
-       // FileInputFormat.setInputPathFilter(job,DictionaryPathFilter.class);
         return DictionaryFileInputFormat.class;
     }
 
@@ -35,12 +36,22 @@ public class DictionaryImportMR extends ConfigurableMapJobBase {
 
     public static class DictionaryImportMapper extends LumifyMapper<Text, Text, Text, DictionaryEntry> {
 
-        DictionaryEntryRepository dictionaryEntryRepository = new DictionaryEntryRepository();
+        DictionaryEntryRepository dictionaryEntryRepository;
+
+        @Override
+        protected void setup(Context context, Injector injector) throws Exception {
+            //no-op
+        }
 
         @Override
         protected void safeMap(Text concept, Text tokens, Context context) throws Exception {
             DictionaryEntry entry = dictionaryEntryRepository.createNew(tokens.toString(), concept.toString());
             context.write(new Text(DictionaryEntry.TABLE_NAME), entry);
+        }
+
+        @Inject
+        public void setDictionaryEntryRepository (DictionaryEntryRepository dictionaryEntryRepository) {
+            this.dictionaryEntryRepository = dictionaryEntryRepository;
         }
     }
 

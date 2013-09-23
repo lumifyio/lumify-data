@@ -1,10 +1,18 @@
 package com.altamiracorp.lumify.model.dictionary;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.*;
+import com.google.inject.Inject;
 
 import java.util.Collection;
 
 public class DictionaryEntryRepository extends Repository<DictionaryEntry>{
+
+    @Inject
+    public DictionaryEntryRepository(ModelSession modelSession) {
+        super(modelSession);
+    }
+
     @Override
     public DictionaryEntry fromRow(Row row) {
         DictionaryEntry dictionaryEntry = new DictionaryEntry(row.getRowKey());
@@ -48,11 +56,11 @@ public class DictionaryEntryRepository extends Repository<DictionaryEntry>{
         return entry;
     }
 
-    public void saveNew (ModelSession session, String tokens, String concept, String resolvedName) {
-        this.save(session,createNew(tokens,concept,resolvedName));
+    public void saveNew (String tokens, String concept, String resolvedName, User user) {
+        this.save(createNew(tokens,concept,resolvedName), user);
     }
 
-    public void saveNew (ModelSession session, String tokens, String concept) {
-        this.save(session,createNew(tokens,concept));
+    public void saveNew (String tokens, String concept, User user) {
+        this.save(createNew(tokens,concept), user);
     }
 }

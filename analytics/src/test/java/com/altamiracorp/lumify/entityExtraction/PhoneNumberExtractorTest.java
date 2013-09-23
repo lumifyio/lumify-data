@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.entityExtraction;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import org.apache.hadoop.conf.Configuration;
@@ -8,19 +9,26 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class)
 public class PhoneNumberExtractorTest extends BaseExtractorTest {
+    @Mock
     private Context context;
-    private ModelSession modelSession;
+
+    @Mock
+    private User user;
+
     private EntityExtractor extractor;
 
     private String textWith = "This terrorist's phone number is 410-678-2230, and his best buddy's phone number is +44 (0)207 437 0478";
@@ -30,15 +38,14 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest {
 
     @Before
     public void setUp() {
-        context = Mockito.mock(Context.class);
-        modelSession = mock(ModelSession.class);
-        when(context.getConfiguration()).thenReturn(new Configuration());
+        MockitoAnnotations.initMocks(this);
+        doReturn(new Configuration()).when(context).getConfiguration();
         extractor = new PhoneNumberExtractor();
     }
 
     @Test
     public void testPhoneNumberExtraction() throws Exception {
-        extractor.setup(context,modelSession);
+        extractor.setup(context,user);
         ArrayList<ExtractedEntity> termList = new ArrayList<ExtractedEntity>(extractor.extract(createArtifact(textWith), textWith));
 
         assertTrue("Incorrect number of phone numbers extracted", termList.size() == 2);
@@ -55,7 +62,7 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest {
 
     @Test
     public void testPhoneNumberExtractionWithNewlines() throws Exception {
-        extractor.setup(context,modelSession);
+        extractor.setup(context,user);
         ArrayList<ExtractedEntity> termList = new ArrayList<ExtractedEntity>(extractor.extract(createArtifact(textWithNewLines), textWithNewLines));
 
         assertTrue("Incorrect number of phone numbers extracted", termList.size() == 2);
@@ -72,7 +79,7 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest {
 
     @Test
     public void testNegativePhoneNumberExtraction() throws Exception {
-        extractor.setup(context,modelSession);
+        extractor.setup(context,user);
         Collection<ExtractedEntity> terms = extractor.extract(createArtifact(textWithout), textWithout);
 
         assertNotNull(terms);
