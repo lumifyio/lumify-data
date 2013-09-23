@@ -5,14 +5,14 @@
       <% if(property.key == 'title') { return; } %>
       <li class="property property-<%= property.key %>">
       <strong><%= property.displayName %></strong>
-      <% if(property.value.latitude) { %>
+      <% if (property.key === 'geoLocation' && property.value) { %>
         <span class="value">
             <a href="#" class="map-coordinates" latitude="<%= property.value.latitude %>" longitude="<%= property.value.longitude %>">
                 <%= property.value.title || (property.value.latitude + ', ' + property.value.longitude) %>
             </a>
         </span>
       <% } else { %>
-        <span class="value"><%= property.value %></span>
+        <span class="value"><%= property.value !== undefined && property.value !== null ? property.value : '' %></span>
       <% } %>
       </li>
     <% }); %>

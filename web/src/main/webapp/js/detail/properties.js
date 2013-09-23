@@ -93,14 +93,10 @@ define([
         this.displayProperties = function (properties){
             var self = this;
 
-            if (!this.ontologyProperties) {
-                this.ontologyProperties = self.ontologyService.properties();
-            }
+            this.ontologyService.properties().done(function(ontologyProperties) {
+                    var filtered = filterPropertiesForDisplay(properties, ontologyProperties);
 
-            this.ontologyProperties
-                .done(function(ontologyProperties) {
-                    var filtered = filterPropertiesForDisplay(properties, ontologyProperties),
-                        iconProperty = _.findWhere(properties, { key: '_glyphIcon' });
+                    var iconProperty = _.findWhere(filtered, { key: '_glyphIcon' });
 
                     if (iconProperty) {
                         self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: iconProperty.value });
@@ -125,29 +121,29 @@ define([
 
         Object.keys(properties).forEach(function (name) {
             var displayName, value,
-            ontologyProperty = ontologyProperties.byTitle[name];
+                ontologyProperty = ontologyProperties.byTitle[name];
 
-        if (ontologyProperty) {
-            displayName = ontologyProperty.displayName;
-            if (ontologyProperty.dataType == 'date') {
-                value = sf("{0:yyyy/MM/dd}", new Date(properties[name]));
+            if (ontologyProperty) {
+                displayName = ontologyProperty.displayName;
+                if (ontologyProperty.dataType == 'date') {
+                    value = sf("{0:yyyy/MM/dd}", new Date(properties[name]));
+                } else {
+                    value = properties[name];
+                }
             } else {
+                displayName = name;
                 value = properties[name];
             }
-        } else {
-            displayName = name;
-            value = properties[name];
-        }
 
-        var data = {
-            key: name,
-        value: value,
-        displayName: displayName
-        };
+            var data = {
+                key: name,
+                value: value,
+                displayName: displayName
+            };
 
-        if (/^[^_]/.test(name)) {
-            displayProperties.push(data);
-        }
+            if (/^[^_]/.test(name)) {
+                displayProperties.push(data);
+            }
         });
         return displayProperties;
     }
