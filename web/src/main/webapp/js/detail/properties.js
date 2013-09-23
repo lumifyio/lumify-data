@@ -8,9 +8,9 @@ define([
 ], function (defineComponent, OntologyService, VertexService, PropertyForm, propertiesTemplate) {
     'use strict';
 
-    Properties.filterPropertiesForDisplay = filterPropertiesForDisplay;
-
-    return defineComponent(Properties);
+    var component = defineComponent(Properties);
+    component.filterPropertiesForDisplay = filterPropertiesForDisplay;
+    return component;
 
     function Properties() {
 
