@@ -217,6 +217,10 @@ define([
                         delete self.workspaceVertices[deletedVertex.id];
                         toDelete.push(self.vertex(deletedVertex.id));
                     }
+                    var cache = self.vertex(deletedVertex.id);
+                    if (cache) {
+                        cache.workspace = {};
+                    }
                 });
 
                 if(!data.noUndo) {
