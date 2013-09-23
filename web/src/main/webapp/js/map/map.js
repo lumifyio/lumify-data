@@ -276,7 +276,7 @@ define([
             this.map(function(map) {
                 map.removeAllMarkers();
 
-                self.updateOrAddVertices(workspaceData.data.vertices);
+                self.updateOrAddVertices(workspaceData.data.vertices, { adding:true });
             });
         };
 
