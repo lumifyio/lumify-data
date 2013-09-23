@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.VideoTranscript;
+import com.altamiracorp.lumify.videoConversion.SubRip;
 import com.altamiracorp.lumify.videoConversion.YoutubeccReader;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
@@ -31,7 +32,8 @@ import java.util.Iterator;
 public class FileImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileImporter.class.getName());
     public static final String MAPPING_JSON_FILE_NAME_SUFFIX = ".mapping.json";
-    public static final String YOUTUBE_CC_FILE_NAME_SUFFIC = ".youtubecc";
+    public static final String YOUTUBE_CC_FILE_NAME_SUFFIX = ".youtubecc";
+    public static final String SRT_CC_FILE_NAME_SUFFIX = ".srt";
     private final ArtifactRepository artifactRepository;
     private final YoutubeccReader youtubeccReader = new YoutubeccReader();
 
@@ -114,7 +116,10 @@ public class FileImporter {
         if (f.getName().endsWith(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
             return true;
         }
-        if (f.getName().endsWith(FileImporter.YOUTUBE_CC_FILE_NAME_SUFFIC)) {
+        if (f.getName().endsWith(FileImporter.YOUTUBE_CC_FILE_NAME_SUFFIX)) {
+            return true;
+        }
+        if (f.getName().endsWith((FileImporter.SRT_CC_FILE_NAME_SUFFIX))) {
             return true;
         }
         return false;
@@ -136,10 +141,17 @@ public class FileImporter {
 
     private VideoTranscript readVideoTranscript(File f) throws Exception {
         VideoTranscript videoTranscript = null;
-        File youtubeccFile = new File(f.getAbsolutePath() + FileImporter.YOUTUBE_CC_FILE_NAME_SUFFIC);
+        File youtubeccFile = new File(f.getAbsolutePath() + FileImporter.YOUTUBE_CC_FILE_NAME_SUFFIX);
         if (youtubeccFile.exists()) {
             videoTranscript = new VideoTranscript();
             VideoTranscript youtubeccTranscript = youtubeccReader.read(youtubeccFile);
+            videoTranscript.merge(youtubeccTranscript);
+        }
+
+        File srtccFile = new File(f.getAbsolutePath() + FileImporter.SRT_CC_FILE_NAME_SUFFIX);
+        if ( srtccFile.exists() ) {
+            videoTranscript = videoTranscript == null ? new VideoTranscript() : videoTranscript;
+            VideoTranscript youtubeccTranscript = SubRip.read(srtccFile);
             videoTranscript.merge(youtubeccTranscript);
         }
         return videoTranscript;
