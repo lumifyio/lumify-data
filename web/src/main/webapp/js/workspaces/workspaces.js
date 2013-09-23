@@ -97,11 +97,14 @@ define([
 
         this.switchActive = function( rowKey ) {
             var self = this;
+            this.workspaceRowKey = rowKey;
 
+            var found = false;
             this.select( 'workspaceListItemSelector' )
                 .removeClass('active')
                 .each(function() {
                     if ($(this).data('_rowKey') == rowKey) {
+                        found = true;
                         $(this).addClass('active');
                         self.trigger(document, 'workspaceSwitched', {
                             workspace: $(this).data()
@@ -109,6 +112,10 @@ define([
                         return false;
                     }
                 });
+
+            if (!found) {
+                this.loadWorkspaceList();
+            }
         };
 
         this.loadWorkspaceList = function() {

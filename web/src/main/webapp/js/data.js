@@ -250,13 +250,20 @@ define([
                 .done(function(data) {
                     var workspaces = data.workspaces || [];
 
+                    if (workspaces.length === 0) {
+                        self.workspaceService.saveNew({data:{}}).done(function(workspace) {
+                            self.loadWorkspace(workspace);
+                        });
+                        return;
+                    }
+
                     for (var i = 0; i < workspaces.length; i++) {
                         if (workspaces[i].active) {
-                            return self.loadWorkspace(workspaces[i]._rowKey);
+                            return self.loadWorkspace(workspaces[i]);
                         }
                     }
 
-                    self.loadWorkspace(workspaces.length ? workspaces[0]._rowKey : null);
+                    self.loadWorkspace(workspaces[0]);
                 });
         };
 
@@ -280,9 +287,9 @@ define([
             }
         };
 
-        this.loadWorkspace = function(workspaceRowKey) {
-            console.log(workspaceRowKey);
-            var self = this;
+        this.loadWorkspace = function(workspaceData) {
+            var self = this,
+                workspaceRowKey = _.isString(workspaceData) ? workspaceData : workspaceData._rowKey;
 
             self.id = workspaceRowKey;
 
@@ -290,9 +297,11 @@ define([
             self.workspaceUnload();
 
             self.getWorkspace(workspaceRowKey).done(function(workspace) {
-                console.log(_.keys(workspace.data));
                 self.loadWorkspaceVertices(workspace).done(function(vertices) {
                     // TODO: freeze
+                    if (workspaceData && workspaceData.title) {
+                        workspace.title = workspaceData.title;
+                    }
                     workspace.data.vertices = vertices.sort(function(a,b) { 
                         if (a.workspace.graphPosition && b.workspace.graphPosition) return 0;
                         return a.workspace.graphPosition ? -1 : b.workspace.graphPosition ? 1 : 0;
