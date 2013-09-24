@@ -133,20 +133,13 @@ define([
                     mentionStart: mentionStart,
                     mentionEnd: mentionEnd,
                     artifactId: this.attr.artifactId
-                },
-                $loading = $("<span>")
-                    .addClass("badge")
-                    .addClass("loading");
+                };
 
             if (this.currentGraphVertexId) {
                 parameters.graphVertexId = this.currentGraphVertexId;
             }
 
-            // TODO: extract button loading and disabling to withDropdown mixin
-            this.select('buttonDivSelector').prepend($loading);
-            this.select('createTermButtonSelector')
-                .attr('disabled', true)
-                .addClass('disabled');
+            _.defer(this.buttonLoading.bind(this));
 
             if ( !parameters.conceptId || parameters.conceptId.length === 0) {
                 this.select('conceptSelector').focus();

@@ -36,6 +36,16 @@ define([], function() {
             this.$node.remove();
         });
 
+        this.after('buttonLoading', function () {
+            var $loading = $("<span>")
+                .addClass("badge")
+                .addClass("loading");
+            this.select('buttonDivSelector').prepend($loading);
+            this.select('buttonDivSelector').find('.btn')
+                .attr('disabled', true)
+                .addClass('disabled');
+        });
+
         this.after('initialize', function() {
             this.$node.closest('.text').addClass('dropdown');
             _.defer(this.open.bind(this));
