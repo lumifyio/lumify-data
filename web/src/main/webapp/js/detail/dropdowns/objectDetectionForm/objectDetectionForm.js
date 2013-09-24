@@ -134,12 +134,9 @@ define([
                         y2: this.attr.coords.y2
                     }),
                     detectedObjectRowKey: this.attr.detectedObjectRowKey
-                },
-                $loading = $("<span>")
-                    .addClass("badge")
-                    .addClass("loading");
+                };
 
-            this.select('createEntityButtonSelector').addClass('disabled');
+            _.defer(this.buttonLoading.bind(this));
 
             if (this.attr.existing) {
                 self.updateEntity (parameters);
