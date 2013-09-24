@@ -26,7 +26,7 @@ define(
         };
 
         RelationshipService.prototype.createRelationship = function (createRequest) {
-            this._ajaxPost({
+            return this._ajaxPost({
                 url: 'relationship/create',
                 data: createRequest
             });

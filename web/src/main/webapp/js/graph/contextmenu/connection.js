@@ -20,45 +20,38 @@ define([
             var self = this;
             var sourceConceptTypeId = source.data('_subType');
             var destConceptTypeId = dest.data('_subType');
-            self.ontologyService.conceptToConceptRelationships(sourceConceptTypeId, destConceptTypeId, function (err, results) {
-                if (err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-
-                self.displayRelationships(results.relationships);
-            });
+            self.ontologyService.conceptToConceptRelationships(sourceConceptTypeId, destConceptTypeId)
+                .done(function(results) {
+                    self.displayRelationships(results.relationships);
+                });
         };
 
         this.displayRelationships = function (relationships) {
             var self = this;
-            self.ontologyService.relationships(function (err, ontologyRelationships) {
-                if (err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
+            self.ontologyService.relationships()
+                .done(function(ontologyRelationships) {
 
-                var relationshipsTpl = [];
+                    var relationshipsTpl = [];
 
-                relationships.forEach(function (relationship) {
-                    var ontologyRelationship = ontologyRelationships.byTitle[relationship.title];
-                    var displayName;
-                    if (ontologyRelationship) {
-                        displayName = ontologyRelationship.displayName;
-                    } else {
-                        displayName = relationship.title;
-                    }
+                    relationships.forEach(function (relationship) {
+                        var ontologyRelationship = ontologyRelationships.byTitle[relationship.title];
+                        var displayName;
+                        if (ontologyRelationship) {
+                            displayName = ontologyRelationship.displayName;
+                        } else {
+                            displayName = relationship.title;
+                        }
 
-                    var data = {
-                        title: relationship.title,
-                        displayName: displayName
-                    };
+                        var data = {
+                            title: relationship.title,
+                            displayName: displayName
+                        };
 
-                    relationshipsTpl.push(data);
+                        relationshipsTpl.push(data);
+                    });
+
+                    $(".concept-label").html(relationshipTypeTemplate({ relationships: relationshipsTpl }));
                 });
-
-                $(".concept-label").html(relationshipTypeTemplate({ relationships: relationshipsTpl }));
-            });
         };
 
         this.onContextMenuConnect = function () {
