@@ -33,7 +33,9 @@ define([
         // Delay before showing hover effect on graph
     var HOVER_FOCUS_DELAY_SECONDS = 0.25,
         MAX_TITLE_LENGTH = 15,
-        SELECTION_THROTTLE = 100;
+        SELECTION_THROTTLE = 100,
+        // How many edges are required before we don't show them on zoom/pan
+        SHOW_EDGES_ON_ZOOM_THRESHOLD = 50;
 
     return defineComponent(Graph, withContextMenu, withGraphContextMenuItems);
 
@@ -199,6 +201,7 @@ define([
                         })
                     ).done(function() {
                         edges.remove();
+                        self.updateEdgeOptions(cy);
                     });
                 } else if (nodes.length) {
                     this.trigger(document, 'deleteVertices', { vertices:$.map(nodes, function(node) {
@@ -361,6 +364,7 @@ define([
         this.onDeleteEdge = function (event, data) {
             this.cy(function (cy) {
                 cy.remove(cy.getElementById(data.edgeId));
+                this.updateEdgeOptions(cy);
             });
         };
 
@@ -374,6 +378,10 @@ define([
 
         this.onContextMenuFitToWindow = function() {
             this.fit();
+        };
+
+        this.updateEdgeOptions = function(cy) {
+            cy.renderer().hideEdgesOnViewport = cy.edges().length > SHOW_EDGES_ON_ZOOM_THRESHOLD;
         };
 
         this.fit = function() {
@@ -746,12 +754,15 @@ define([
                 if (noVertices) {
                     cy.reset();
                 }
+
+                this.updateEdgeOptions(cy);
             });
         };
 
         this.resetGraph = function() {
             this.cy(function(cy) {
                 cy.nodes().remove();
+                this.setWorkspaceDirty();
             });
         };
 
@@ -781,10 +792,14 @@ define([
                             },
                         });
                     });
+
+                    // Hide edges when zooming if more than threshold
                     cy.add(relationshipEdges);
+                    this.updateEdgeOptions(cy);
                 }
             });
         };
+
 
         this.onLoadRelatedSelected = function(data) {
             var instructions = $('<div>')
@@ -872,7 +887,6 @@ define([
                 showOverlay: false,
                 minZoom: 1 / 4,
                 maxZoom: 4,
-                hideEdgesOnViewport: true,
                 graphPaperEnabled: false, // :( sorry chris
                 container: this.select('cytoscapeContainerSelector').css({height:'100%'})[0],
                 renderer: {

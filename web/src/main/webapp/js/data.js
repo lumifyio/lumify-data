@@ -39,6 +39,16 @@ define([
         }
     }
 
+    function freeze(obj) {
+        if (_.isArray(obj)) {
+            return _.map(obj, function(v) {
+                return Object.freeze(Object.create(v));
+            });
+        }
+
+        return Object.freeze(obj);
+    }
+
     function Data() {
 
         this.workspaceService = new WorkspaceService();
@@ -144,7 +154,6 @@ define([
                 deferred.done(function(vertices) {
                     vertices = self.vertices(vertices);
 
-                    // TODO: augment if search result vertex using getMultiple
                     vertices.forEach(function(vertex) {
                         var inWorkspace = self.workspaceVertices[vertex.id],
                             cache = self.updateCacheWithVertex(vertex);
@@ -158,7 +167,7 @@ define([
                         }
                     });
 
-                    if (existing.length) self.trigger('existingVerticesAdded', { vertices:existing });
+                    if (existing.length) self.trigger('existingVerticesAdded', { vertices:freeze(existing) });
                     else if (cloned) cloned.remove();
 
                     if (added.length === 0) {
@@ -182,8 +191,7 @@ define([
 
                     self.trigger('refreshRelationships');
                     self.trigger('saveWorkspace');
-                    // TODO: freeze
-                    self.trigger('verticesAdded', { vertices:added } );
+                    self.trigger('verticesAdded', { vertices:freeze(added) } );
                 });
             });
         };
@@ -227,8 +235,7 @@ define([
                 if (shouldSave) {
                     this.trigger('saveWorkspace');
                 }
-                // TODO: freeze
-                this.trigger('verticesUpdated', { vertices:updated });
+                this.trigger('verticesUpdated', { vertices:freeze(updated) });
             });
         };
 
@@ -265,9 +272,8 @@ define([
                     });
                 }
 
-                // TODO: freeze
                 this.trigger('saveWorkspace');
-                this.trigger('verticesDeleted', { vertices:toDelete });
+                this.trigger('verticesDeleted', { vertices:freeze(toDelete) });
             });
         };
 
@@ -325,14 +331,13 @@ define([
 
             self.getWorkspace(workspaceRowKey).done(function(workspace) {
                 self.loadWorkspaceVertices(workspace).done(function(vertices) {
-                    // TODO: freeze
                     if (workspaceData && workspaceData.title) {
                         workspace.title = workspaceData.title;
                     }
-                    workspace.data.vertices = vertices.sort(function(a,b) { 
+                    workspace.data.vertices = freeze(vertices.sort(function(a,b) { 
                         if (a.workspace.graphPosition && b.workspace.graphPosition) return 0;
                         return a.workspace.graphPosition ? -1 : b.workspace.graphPosition ? 1 : 0;
-                    });
+                    }));
                     self.workspaceMarkReady(workspace);
                     self.trigger('workspaceLoaded', workspace);
                 });

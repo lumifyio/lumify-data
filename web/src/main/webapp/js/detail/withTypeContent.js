@@ -130,7 +130,7 @@ define([
                 cls.push('artifact');
                 cls.push(props._subType);
             } else {
-                cls.push('entity');
+                cls.push('entity resolved');
                 cls.push('subType-' + props._subType);
             }
             cls.push('gId-' + (vertex.id || props.graphNodeId));
