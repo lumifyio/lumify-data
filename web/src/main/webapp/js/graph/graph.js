@@ -341,18 +341,15 @@ define([
             var self = this;
             var menu = this.select('edgeContextMenuSelector');
             var edgeId = menu.data('edgeId');
-            this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), menu.data('relationshipType'), function(err) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-                self.onDeleteEdge ('', {edgeId: edgeId});
-            });
+            this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), menu.data('relationshipType'))
+                .done(function() {
+                    self.onDeleteEdge('', {edgeId: edgeId});
+                });
         };
 
         this.onDeleteEdge = function (event, data) {
             this.cy(function (cy) {
-                cy.remove(cy.getElementById (data.edgeId));
+                cy.remove(cy.getElementById(data.edgeId));
             });
         }
 

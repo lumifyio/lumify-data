@@ -113,7 +113,10 @@ define([], function() {
                     try {
                         var updated = [],
                             converterFound = _.any(JSON_CONVERTERS, function(c) {
-                                return c.call(self, json, updated) === true;
+                                if (!json) return;
+
+                                var result = c.call(self, json, updated);
+                                return result === true;
                             });
 
                         if (!converterFound) {

@@ -23,7 +23,7 @@ function(ServiceBase) {
     };
 
     Ucd.prototype.deleteEdge = function(sourceId, targetId, label) {
-        return this._ajaxGet({
+        return this._ajaxPost({
             url: '/vertex/removeRelationship',
             data: {
                 sourceId: sourceId,
