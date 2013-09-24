@@ -195,10 +195,10 @@ define([
             }
 
             if ($target.is('.entity, .artifact, span.relationship')) {
-                this.trigger('verticesSelected', $target.data('info'));
+                var id = $target.data('vertexId');
+                this.trigger('verticesSelected', [appData.vertex(id)]);
                 evt.stopPropagation();
             }
-
         };
 
     }

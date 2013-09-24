@@ -126,7 +126,7 @@ define([
             var cls = [],
                 props = vertex.properties || vertex;
 
-            if (props._type == 'artifact') {
+            if (props._type === 'artifact') {
                 cls.push('artifact');
                 cls.push(props._subType);
             } else {

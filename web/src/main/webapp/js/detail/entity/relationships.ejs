@@ -11,18 +11,15 @@
     <% relationships.forEach(function(r) { %>
         <li class="relationship">
         <% if (type === 'inverse') { %>
-            <span class="<%= r.vertices.src.cssClasses %>"
-                  data-info="<%= r.vertices.src.json %>"
-                  ><%- r.vertices.src.properties.title || 'No Title' %></span>
+            <span class="<%= r.vertices.classes.src %>" 
+                  data-vertex-id="<%= r.vertices.src.id %>"><%- r.vertices.src.properties.title %></span>
             <span data-info='<%= JSON.stringify(r.dataInfo) %>' class="relationship"><%= r.displayLabel %></span>
-            <span class="<%= r.vertices.dest.cssClasses %>"
-                  data-info='<%= r.vertices.dest.json %>'
-                  ><%- r.vertices.dest.properties.title || 'No Title' %></span>
+            <span class="<%= r.vertices.classes.dest %>"
+                  data-vertex-id='<%= r.vertices.dest.id %>'><%- r.vertices.dest.properties.title %></span>
         <% } else if (type !== 'references') { %>
           <span 
-            class="<%= r.vertices.other.cssClasses %>"
-            data-info="<%= r.vertices.other.json %>"
-            ><%- r.vertices.other.properties.title || 'No Title Available' %></span>
+            class="<%= r.vertices.classes.other %>"
+            data-vertex-id="<%= r.vertices.other.id %>"><%- r.vertices.other.properties.title %></span>
         <% } %>
         </li>
     <% }); %>
