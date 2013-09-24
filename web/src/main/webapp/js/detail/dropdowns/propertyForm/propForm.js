@@ -38,7 +38,7 @@ define([
                     .done(function(properties) {
                         var propertiesList = [];
 
-                        properties.properties.forEach (function (property){
+                        properties.list.forEach (function (property){
                             if (property.title.charAt(0) !== '_') {
                                 var data = {
                                     title: property.title,
