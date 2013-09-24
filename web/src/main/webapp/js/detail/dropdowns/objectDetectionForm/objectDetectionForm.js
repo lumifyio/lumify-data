@@ -171,7 +171,7 @@ define([
                 };
 
                 // Temporarily creating a new tag to show on ui prior to backend update
-                var classes = $('.detected-object-labels .label-info').attr('class') + ' focused resolved entity';
+                var classes = $('.detected-object-tag .label-info').attr('class') + ' focused resolved entity';
                 var newTag = '<span class="label detected-object-tag"><a class="' + classes + '" href="#">' + data.title +'</a><a class="delete-tag" href="#">x</a></span>';
                 var added = false;
                 if ($('.detected-object').hasClass('focused')) {
