@@ -44,11 +44,12 @@ public class EntityObjectDetectionDelete extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         JSONObject jsonObject = new JSONObject(getRequiredParameter(request, "objectInfo"));
+        JSONObject infoJson = jsonObject.getJSONObject("info");
         User user = getUser(request);
 
         // Delete from term mention
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(jsonObject.getString("_rowKey"));
-//        modelSession.deleteRow(TermMention.TABLE_NAME, termMentionRowKey, user);
+        modelSession.deleteRow(TermMention.TABLE_NAME, termMentionRowKey, user);
 
         // Delete just the relationship if vertex has more than one relationship otherwise delete vertex
         String graphVertexId = jsonObject.getString("graphVertexId");
@@ -68,7 +69,7 @@ public class EntityObjectDetectionDelete extends BaseRequestHandler {
         Artifact artifact = artifactRepository.findByRowKey(termMentionRowKey.getArtifactRowKey(), user);
         Row<ArtifactRowKey> rowKey = artifactRepository.toRow(artifact);
         String columnFamily = artifact.getArtifactDetectedObjects().getColumnFamilyName();
-        String columnQualifier = jsonObject.getJSONObject("info").getString("_rowKey");
+        String columnQualifier = infoJson.getString("_rowKey");
         for (Column column : rowKey.get(columnFamily).getColumns()) {
             if (column.getName().equals(columnQualifier)) {
                 column.setDirty(true);

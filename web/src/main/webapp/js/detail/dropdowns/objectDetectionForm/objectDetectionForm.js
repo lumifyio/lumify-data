@@ -130,10 +130,12 @@ define([
                     graphVertexId: this.attr.graphVertexId,
                     artifactKey: this.attr.artifactData._rowKey,
                     artifactId: this.attr.artifactData.graphVertexId,
-                    x1: this.attr.coords.x1,
-                    y1: this.attr.coords.y1,
-                    x2: this.attr.coords.x2,
-                    y2: this.attr.coords.y2,
+                    coords: JSON.stringify({
+                        x1: this.attr.coords.x1,
+                        y1: this.attr.coords.y1,
+                        x2: this.attr.coords.x2,
+                        y2: this.attr.coords.y2
+                    }),
                     detectedObjectRowKey: this.attr.detectedObjectRowKey
                 },
                 $loading = $("<span>")

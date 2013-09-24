@@ -48,10 +48,9 @@ public class EntityObjectDetectionUpdate extends BaseRequestHandler {
         final String sign = getRequiredParameter(request, "sign");
         final String conceptId = getRequiredParameter(request, "conceptId");
         final String resolvedGraphVertexId = getRequiredParameter(request, "graphVertexId");
-        final String x1 = getRequiredParameter(request, "x1");
-        final String y1 = getRequiredParameter(request, "y1");
-        final String x2 = getRequiredParameter(request, "x2");
-        final String y2 = getRequiredParameter(request, "y2");
+        final JSONObject coords = new JSONObject(getRequiredParameter(request, "coords"));
+        String x1 = Double.toString(coords.getDouble("x1")), x2 = Double.toString(coords.getDouble("x2")),
+                y1 = Double.toString(coords.getDouble("y1")), y2 = Double.toString(coords.getDouble("y2"));
         String detectedObjectRowKey = getRequiredParameter(request, "detectedObjectRowKey");
 
         GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
@@ -63,7 +62,7 @@ public class EntityObjectDetectionUpdate extends BaseRequestHandler {
         graphRepository.saveVertex(resolvedVertex, user);
 
         // update the term mention
-        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, 0, 0);
+        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, (long)coords.getDouble("x1"), (long)coords.getDouble("y1"));
         TermMention termMention = termMentionRepository.findByRowKey(termMentionRowKey.toString(), user);
         objectDetectionHelper.updateTermMention(termMention, sign, conceptVertex, resolvedVertex, user);
 

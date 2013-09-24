@@ -51,16 +51,15 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
         final String sign = getRequiredParameter(request, "sign");
         final String conceptId = getRequiredParameter(request, "conceptId");
         final String resolvedGraphVertexId = getOptionalParameter(request, "graphVertexId");
-        final String x1 = getRequiredParameter(request, "x1");
-        final String y1 = getRequiredParameter(request, "y1");
-        final String x2 = getRequiredParameter(request, "x2");
-        final String y2 = getRequiredParameter(request, "y2");
+        final JSONObject coords = new JSONObject(getRequiredParameter(request, "coords"));
+        String x1 = Double.toString(coords.getDouble("x1")), x2 = Double.toString(coords.getDouble("x2")),
+                y1 = Double.toString(coords.getDouble("y1")), y2 = Double.toString(coords.getDouble("y2"));
         String model = getOptionalParameter(request, "model");
         String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
-        final String boundingBox = "[x1: " + x1 + ", y1: " + y1 + ", x2: " + x2 + ", y2: " + y2 + "]";
+        final String boundingBox = "[x1: " + x1 + ", y1: " + y1 +", x2: " + x2 + ", y2: " + y2 + "]";
 
         User user = getUser(request);
-        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, 0, 0);
+        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, coords.getLong("x1"), coords.getLong("y1"));
 
         GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
 
