@@ -1,19 +1,26 @@
-<% properties.forEach(function(property) { %>
-    <% if(property.key == 'title') { return; } %>
-    <li class="property property-<%= property.key %>">
+<% if (properties) { %>
+  <ul class="nav nav-list">
+
+    <% properties.forEach(function(property) { %>
+      <% if(property.key == 'title') { return; } %>
+      <li class="property property-<%= property.key %>">
       <strong><%= property.displayName %></strong>
-      <% if(property.value.latitude) { %>
+      <% if (property.key === 'geoLocation' && property.value) { %>
         <span class="value">
-            <a href="#" class="map-coordinates" latitude="<%= property.value.latitude %>" longitude="<%= property.value.longitude %>">
+            <a href="#" class="map-coordinates" data-latitude="<%= property.value.latitude %>" data-longitude="<%= property.value.longitude %>">
                 <%= property.value.title || (property.value.latitude + ', ' + property.value.longitude) %>
             </a>
         </span>
       <% } else { %>
-        <span class="value"><%= property.value %></span>
+        <span class="value"><%= property.value !== undefined && property.value !== null ? property.value : '' %></span>
       <% } %>
-    </li>
-<% }); %>
+      </li>
+    <% }); %>
 
-  <li class="buttons">
-    <button class="add-new-properties btn btn-mini btn-default">Add Property</button>
-  </li>
+    <li class="buttons">
+      <button class="add-new-properties btn btn-mini btn-default">Add Property</button>
+    </li>
+  </ul>
+<% } else { %>
+  <div class="nav-header">Properties<span class="badge loading"/></div>
+<% } %>

@@ -8,10 +8,8 @@ define([
     'sf',
     'tpl!./multiple',
     'tpl!./histogram',
-    'util/vertexList/list',
-    'underscore'
-], function (defineComponent, registry, withTypeContent, withHighlighting, VertexService, OntologyService, sf, template, histogramTemplate, VertexList, _) {
-
+    'util/vertexList/list'
+], function (defineComponent, registry, withTypeContent, withHighlighting, VertexService, OntologyService, sf, template, histogramTemplate, VertexList) {
     'use strict';
 
     var NO_HISTOGRAM_PROPERTIES = [
@@ -39,30 +37,24 @@ define([
         });
 
         this.after('initialize', function () {
-            var self = this;
-            var vertices = this.attr.data
-                .filter(function (v) {
-                    return v._type != 'relationship';
-                });
+            var self = this,
+                vertices = this.attr.data.filter(function (v) {
+                    return v.properties._type != 'relationship';
+                }),
+                ids = _.pluck(vertices, 'id');
+
             this.$node.html(template({
                 getClasses: this.classesForVertex,
                 vertices: vertices,
-                fullscreenButton: self.fullscreenButton(_.pluck(vertices, 'graphVertexId'))
+                fullscreenButton: self.fullscreenButton(ids)
             }));
 
             this.on('verticesSelected', this.onVertexSelection);
 
-
-            var vertexIds = vertices.map(function (v) {
-                return v.graphVertexId;
-            }).filter(function (v) {
-                return v !== null && v !== undefined;
-            });
-
             var d3_deferred = $.Deferred();
             require(['d3'], d3_deferred.resolve);
             $.when(
-                this.vertexService.getMultiple(vertexIds),
+                this.vertexService.getMultiple(ids),
                 this.ontologyService.concepts(),
                 this.ontologyService.properties(),
                 d3_deferred
@@ -98,7 +90,7 @@ define([
 
             data = data[0];
 
-            if (this._selectedGraphId === data.graphVertexId) {
+            if (this._selectedGraphId === data.id) {
                 this.$node.find('.multiple').removeClass('viewing-vertex');
                 this.$node.find('.vertices-list').show().find('.active').removeClass('active');
                 this._selectedGraphId = null;
@@ -107,10 +99,10 @@ define([
 
             var self = this,
                 moduleName = (($.isArray(data) ? 'multiple' :
-                    (data._type != 'artifact' && data._type != 'relationship') ? 'entity' : data._type ) || 'entity')
+                    (data.properties._type != 'artifact' && data.properties._type != 'relationship') ? 'entity' : data.properties._type ) || 'entity')
                     .toLowerCase();
 
-            this._selectedGraphId = data.graphVertexId;
+            this._selectedGraphId = data.id;
             require([
                 'detail/' + moduleName + '/' + moduleName,
             ], function(Module) {

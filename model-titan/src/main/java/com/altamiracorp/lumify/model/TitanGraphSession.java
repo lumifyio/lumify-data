@@ -155,7 +155,7 @@ public class TitanGraphSession extends GraphSession {
         for (String propertyKey : relationship.getPropertyKeys()) {
             edge.setProperty(propertyKey, relationship.getProperty(propertyKey));
         }
-        edge.setProperty(PropertyName.TIME_STAMP.toString(), new Date());
+        edge.setProperty(PropertyName.TIME_STAMP.toString(), new Date().getTime());
         commit();
         return "" + edge.getId();
     }
@@ -204,7 +204,7 @@ public class TitanGraphSession extends GraphSession {
             Class vertexDataType = String.class;
             switch (dataType) {
                 case DATE:
-                    vertexDataType = Date.class;
+                    vertexDataType = Long.class;
                     break;
                 case CURRENCY:
                     vertexDataType = Double.class;
@@ -403,6 +403,23 @@ public class TitanGraphSession extends GraphSession {
         Iterable<Vertex> r = query.vertices();
         GremlinPipeline<Vertex, Vertex> queryPipeline = queryFormatter.createQueryPipeline(r, filterJson);
         return toGraphVertices(queryPipeline.toList());
+    }
+
+    @Override
+    public List<GraphVertex> searchVerticesWithinGraphVertexIds(final List<String> vertexIds, JSONArray filterJson, User user) {
+        ArrayList<Vertex> r = new ArrayList<Vertex>();
+        for (String vertexId : vertexIds) {
+            r.add(findVertex(vertexId));
+        }
+
+        GremlinPipeline<Vertex, Vertex> queryPipeline = queryFormatter.createQueryPipeline(r, filterJson);
+        ArrayList<Vertex> results = new ArrayList<Vertex>();
+        for (Vertex v : queryPipeline.toList()) {
+            if (vertexIds.contains(v.getId().toString())) {
+                results.add(v);
+            }
+        }
+        return toGraphVertices(results);
     }
 
     @Override
@@ -625,8 +642,8 @@ public class TitanGraphSession extends GraphSession {
     private class GraphRelationshipDateComparator implements Comparator<GraphRelationship> {
         @Override
         public int compare(GraphRelationship rel1, GraphRelationship rel2) {
-            Date e1Date = (Date) rel1.getProperty(PropertyName.TIME_STAMP.toString());
-            Date e2Date = (Date) rel2.getProperty(PropertyName.TIME_STAMP.toString());
+            Long e1Date = (Long)rel1.getProperty(PropertyName.TIME_STAMP.toString());
+            Long e2Date = (Long)rel2.getProperty(PropertyName.TIME_STAMP.toString());
             if (e1Date == null || e2Date == null) {
                 return 1;
             }

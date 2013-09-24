@@ -40,7 +40,7 @@ public class GraphVertexSearch extends BaseRequestHandler {
         User user = getUser(request);
         JSONArray filterJson = new JSONArray(filter);
 
-        resolvePropertyIds(filterJson, user);
+        ontologyRepository.resolvePropertyIds(filterJson, user);
 
         graphRepository.commit();
         List<GraphVertex> vertices = graphRepository.searchVerticesByTitle(query, filterJson, user);
@@ -50,20 +50,5 @@ public class GraphVertexSearch extends BaseRequestHandler {
         results.put("vertices", GraphVertex.toJson(vertices));
 
         respondWithJson(response, results);
-    }
-
-    private void resolvePropertyIds(JSONArray filterJson, User user) throws JSONException {
-        for (int i = 0; i < filterJson.length(); i++) {
-            JSONObject filter = filterJson.getJSONObject(i);
-            if (filter.has("propertyId") && !filter.has("propertyName")) {
-                String propertyId = filter.getString("propertyId");
-                Property property = ontologyRepository.getPropertyById(propertyId, user);
-                if (property == null) {
-                    throw new RuntimeException("Could not find property with id: " + propertyId);
-                }
-                filter.put("propertyName", property.getTitle());
-                filter.put("propertyDataType", property.getDataType());
-            }
-        }
     }
 }

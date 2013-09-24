@@ -4,6 +4,7 @@ define([
     'tpl!./currency',
     './withFilter'
 ], function(defineComponent, template, withFilter) {
+    'use strict';
 
     return defineComponent(CurrencyFilter, withFilter);
        

@@ -2,6 +2,7 @@
 
 define([
     'flight/lib/component',
+    'data',
     'cytoscape',
     './renderer',
     './stylesheet',
@@ -12,10 +13,10 @@ define([
     'service/ucd',
     'service/ontology',
     'util/retina',
-    'util/withContextMenu',
-    'underscore'
+    'util/withContextMenu'
 ], function(
     defineComponent,
+    appData,
     cytoscape,
     Renderer,
     stylesheet,
@@ -26,8 +27,7 @@ define([
     UCD,
     OntologyService,
     retina,
-    withContextMenu,
-    _) {
+    withContextMenu) {
     'use strict';
 
         // Delay before showing hover effect on graph
@@ -99,20 +99,20 @@ define([
                         group: 'nodes',
                         classes: self.classesForVertex(vertex),
                         data: {
-                            id: vertex.graphVertexId,
+                            id: vertex.id,
                         },
-                        selected: !!vertex.selected
+                        selected: !!vertex.workspace.selected
                     };
                     self.updateCyNodeData(cyNodeData.data, vertex);
 
                     var needsUpdate = false;
-                    if (vertex.graphPosition) {
-                        cyNodeData.position = retina.pointsToPixels(vertex.graphPosition);
-                    } else if (vertex.dropPosition) {
+                    if (vertex.workspace.graphPosition) {
+                        cyNodeData.position = retina.pointsToPixels(vertex.workspace.graphPosition);
+                    } else if (vertex.workspace.dropPosition) {
                         var offset = self.$node.offset();
                         cyNodeData.renderedPosition = retina.pointsToPixels({
-                            x: vertex.dropPosition.x - offset.left,
-                            y: vertex.dropPosition.y - offset.top
+                            x: vertex.workspace.dropPosition.x - offset.left,
+                            y: vertex.workspace.dropPosition.y - offset.top
                         });
                         needsUpdate = true;
                     } else {
@@ -131,14 +131,16 @@ define([
 
                     if (needsUpdate) {
                         addedVertices.push({
-                            graphVertexId: vertex.graphVertexId,
-                            graphPosition: retina.pixelsToPoints(cyNode.position())
+                            id: vertex.id,
+                            workspace: {
+                                graphPosition: retina.pixelsToPoints(cyNode.position())
+                            }
                         });
                     }
 
-                    if (vertex._type === 'artifact' && /^(image|video)$/i.test(vertex._subType)) {
+                    if (vertex.properties._type === 'artifact' && /^(image|video)$/i.test(vertex.properties._subType)) {
                         _.delay(function() {
-                            previews.generatePreview(vertex._rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
+                            previews.generatePreview(vertex.properties._rowKey, { width:178 * retina.devicePixelRatio }, function(dataUri) {
                                 if (dataUri) {
                                     cyNode.css('background-image', dataUri);
                                 }
@@ -155,60 +157,65 @@ define([
                     this.trigger(document, 'updateVertices', { vertices:addedVertices });
                 }
 
-                this.setWorkspaceDirty();
             });
+
+            this.setWorkspaceDirty();
         };
 
         this.classesForVertex = function(vertex) {
             var cls = [];
 
-            if (vertex._subType) cls.push('concept-' + vertex._subType);
-            if (vertex._type) cls.push(vertex._type);
-            if (vertex._glyphIcon) cls.push('hasCustomGlyph');
+            if (vertex.properties._subType) cls.push('concept-' + vertex.properties._subType);
+            if (vertex.properties._type) cls.push(vertex.properties._type);
+            if (vertex.properties._glyphIcon) cls.push('hasCustomGlyph');
             
             return cls.join(' ');
         };
 
         this.updateCyNodeData = function (data, vertex) {
-            var originalTitle = vertex.title || data.title || 'No title available',
-                title = originalTitle;
+            var truncatedTitle = vertex.properties.title;
 
-            if (title.length > MAX_TITLE_LENGTH) {
-                title = $.trim(title.substring(0, MAX_TITLE_LENGTH)) + "...";
+            if (truncatedTitle.length > MAX_TITLE_LENGTH) {
+                truncatedTitle = $.trim(truncatedTitle.substring(0, MAX_TITLE_LENGTH)) + "...";
             }
 
-            var merged = $.extend(data, _.pick(vertex, '_rowKey', '_subType', '_type', '_glyphIcon', 'graphVertexId')); 
-            merged.id = merged.graphVertexId;
-            merged.title = title;
-            merged.originalTitle = originalTitle;
+            var merged = $.extend(data, _.pick(vertex.properties, '_rowKey', '_subType', '_type', '_glyphIcon', 'title')); 
+            merged.truncatedTitle = truncatedTitle;
 
             return merged;
         };
 
-        this.removeSelectedVertices = function() {
+        this.removeSelected = function() {
             this.cy(function(cy) {
-                var verticesToDelete = $.map(cy.nodes().filter(':selected'), function(vertex) {
-                    return {
-                        graphVertexId: vertex.data('graphVertexId'),
-                        _type: vertex.data('_type'),
-                        _subType: vertex.data('_subType')
-                    };
-                });
+                
+                var self = this,
+                    edges = cy.edges().filter(':selected'),
+                    nodes = cy.nodes().filter(':selected');
 
-                this.trigger(document, 'deleteVertices', { vertices: verticesToDelete });
+                if (edges.length && nodes.length === 0) {
+                    $.when(
+                        $.map(edges, function(edge) {
+                            return self.ucd.deleteEdge(edge.data('source'), edge.data('target'), edge.data('relationshipType'));
+                        })
+                    ).done(function() {
+                        edges.remove();
+                    });
+                } else if (nodes.length) {
+                    this.trigger(document, 'deleteVertices', { vertices:$.map(nodes, function(node) {
+                        return { id:node.id() };
+                    })});
+                }
             });
         };
 
         this.onVerticesDeleted = function(event, data) {
             this.cy(function(cy) {
-                var matchingVertices = cy.nodes().filter(function(idx, vertex) {
-                    return data.vertices.filter(function(vertexToDelete) {
-                        return vertex.data('graphVertexId') == vertexToDelete.graphVertexId;
-                    }).length > 0;
-                });
-                matchingVertices.remove();
-                this.setWorkspaceDirty();
 
+                cy.$( 
+                    data.vertices.map(function(v) { return '#' + v.id; }).join(',')
+                ).remove();
+
+                this.setWorkspaceDirty();
                 this.updateVertexSelections(cy);
             });
         };
@@ -228,7 +235,7 @@ define([
                 if (data.length) {
                     cy.$( 
                         data.map(function(v) {
-                            return '#' + v.graphVertexId;
+                            return '#' + v.id;
                         }).join(',')
                     ).select();
                 }
@@ -244,44 +251,40 @@ define([
             this.cy(function(cy) {
                 data.vertices
                     .forEach(function(updatedVertex) {
-                        cy.nodes()
-                            .filter(function(idx, vertex) {
-                                return vertex.data('graphVertexId') === updatedVertex.graphVertexId;
-                            })
-                            .each(function(idx, vertex) {
-                                if (updatedVertex.graphPosition) {
-                                    vertex.position( retina.pointsToPixels(updatedVertex.graphPosition) );
-                                    updatedVertex = _.omit(updatedVertex, 'graphPosition', 'dropPosition');
-                                }
+                        var cyNode = cy.getElementById(updatedVertex.id);
+                        if (cyNode.length) {
+                            if (updatedVertex.workspace.graphPosition) {
+                                cyNode.position( retina.pointsToPixels(updatedVertex.workspace.graphPosition) );
+                            }
 
-                                self.updateCyNodeData(vertex.data(), updatedVertex);
-                                vertex._private.classes.length = 0;
-                                vertex.addClass(self.classesForVertex(updatedVertex));
-                            });
+                            var newData = self.updateCyNodeData(cyNode.data(), updatedVertex);
+                            cyNode.data(newData);
+                            if (cyNode._private.classes) {
+                                cyNode._private.classes.length = 0;
+                            }
+                            cyNode.addClass(self.classesForVertex(updatedVertex));
+                        }
                     });
             });
 
+            this.setWorkspaceDirty();
         };
 
         this.onExistingVerticesAdded = function(evt, data) {
             if (this.$node.closest('.visible').length === 0) return;
             var self = this;
+            
             this.cy(function(cy) {
 
                 // FIXME: support multiple dragging
-                var el = cy.getElementById( data.vertices[0].graphVertexId ),
+                var el = cy.getElementById( data.vertices[0].id ),
                     p = retina.pixelsToPoints(el.renderedPosition()),
-                    dragging = $('.ui-draggable-dragging:not(.clone-vertex)'),
-                    position = dragging.position(),
-                    offset = dragging.offset(),
+                    cloned = $('.clone-vertex'),
+                    position = cloned.position(),
+                    offset = cloned.offset(),
                     graphOffset = this.$node.offset();
 
-                if (dragging.length != 1) return;
-
-                var cloned = dragging.clone()
-                    .css({width:'auto'})
-                    .addClass('clone-vertex')
-                    .insertAfter(dragging);
+                if (cloned.length != 1) return;
 
                 // Is existing element visible (not covered by search/detail panes)
                 this.focusGraphToVertex(el, function() {
@@ -349,31 +352,24 @@ define([
             var self = this;
             var menu = this.select('edgeContextMenuSelector');
             var edgeId = menu.data('edgeId');
-            this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), menu.data('relationshipType'), function(err) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-                self.onDeleteEdge ('', {edgeId: edgeId});
-            });
+            this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), menu.data('relationshipType'))
+                .done(function() {
+                    self.onDeleteEdge('', {edgeId: edgeId});
+                });
         };
 
         this.onDeleteEdge = function (event, data) {
             this.cy(function (cy) {
-                cy.remove(cy.getElementById (data.edgeId));
+                cy.remove(cy.getElementById(data.edgeId));
             });
-        }
+        };
 
         this.onContextMenuRemoveItem = function (){
-            var menu = this.select('vertexContextMenuSelector');
-            var vertices = [];
-            var data = {
-                _subType: menu.data("currentVertexSubtype"),
-                _type: menu.data("currentVertexType"),
-                graphVertexId: menu.data('currentVertexGraphVertexId')
-            };
-            vertices.push (data);
-            this.trigger (document,'deleteVertices', {vertices: vertices});
+            var menu = this.select('vertexContextMenuSelector'),
+                vertex = {
+                    id: menu.data('currentVertexGraphVertexId')
+                };
+            this.trigger(document,'deleteVertices', {vertices:[vertex] });
         };
 
         this.onContextMenuFitToWindow = function() {
@@ -491,8 +487,10 @@ define([
                         }
                         var updates = $.map(cy.nodes(), function(vertex) {
                             return {
-                                graphVertexId: vertex.data('graphVertexId'),
-                                graphPosition: retina.pixelsToPoints(vertex.position())
+                                id: vertex.id(),
+                                workspace: {
+                                    graphPosition: retina.pixelsToPoints(vertex.position())
+                                }
                             };
                         });
                         self.trigger(document, 'updateVertices', { vertices:updates });
@@ -561,7 +559,7 @@ define([
             } else {
                 menu = this.select ('vertexContextMenuSelector');
                 menu.data("currentVertexRowKey",event.cyTarget.data('_rowKey'));
-                menu.data("currentVertexGraphVertexId", event.cyTarget.data('graphVertexId'));
+                menu.data("currentVertexGraphVertexId", event.cyTarget.id());
                 menu.data("currentVertexPositionX", event.cyTarget.position ('x'));
                 menu.data("currentVertexPositionY", event.cyTarget.position ('y'));
                 menu.data("currentVertexType", event.cyTarget.data('_type'));
@@ -604,16 +602,22 @@ define([
         });
 
         this.updateVertexSelections = function(cy) {
-            var selection = cy.nodes().filter(':selected');
-            var edgeSelection = cy.edges().filter(':selected');
-            var info = [];
+            var nodes = cy.nodes().filter(':selected'),
+                edges = cy.edges().filter(':selected'),
+                info = [];
 
-            selection.each(function(index, vertex) {
-                info.push(vertex.data());
+            nodes.each(function(index, cyNode) {
+                info.push(appData.vertex(cyNode.id()));
             });
-            edgeSelection.each(function(index, vertex) {
-                info.push(vertex.data());
+
+            edges.each(function(index, cyEdge) {
+                info.push({ id: cyEdge.id(), properties:cyEdge.data() });
             });
+
+            // Only allow one edge selected
+            if (nodes.length === 0 && edges.length > 1) {
+                info = [info[0]];
+            }
 
             this.trigger('verticesSelected', [info]);
         };
@@ -628,7 +632,7 @@ define([
                 case $.ui.keyCode.BACKSPACE:
                 case $.ui.keyCode.DELETE:
                     if ( down ) {
-                        this.removeSelectedVertices();
+                        this.removeSelected();
                     }
                     break;
                 case 65:
@@ -714,9 +718,10 @@ define([
             var graphMovedVerticesData = {
                 vertices: $.map(vertices, function(vertex) {
                     return {
-                        _rowKey: vertex.data('_rowKey'),
-                        graphVertexId: vertex.data('id'),
-                        graphPosition: vertex.data('targetPosition')
+                        id: vertex.id(),
+                        workspace: {
+                            graphPosition: vertex.data('targetPosition')
+                        }
                     };
                 })
             };
@@ -752,10 +757,7 @@ define([
 
         this.onWorkspaceLoaded = function(evt, workspace) {
             this.resetGraph();
-            if (workspace.data && workspace.data.vertices) {
-                workspace.data.vertices.forEach(function(vertex){
-                    vertex.selected = false;
-                });
+            if (workspace.data.vertices.length) {
                 this.addVertices(workspace.data.vertices, { fit:true });
             }
 
@@ -795,22 +797,18 @@ define([
                 data = data[0];
             }
 
-            this.ucd.getRelatedVertices(data, function(err, vertices) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-                vertices = vertices.vertices;
-
-                vertices = vertices.map(function(vertex, index) {
-                    return $.extend({}, vertex.properties, {
-                        graphVertexId: vertex.id,
-                        selected: true
+            this.ucd.getRelatedVertices(data)
+                .done(function(data) {
+                    var added = data.vertices;
+                    
+                    added.forEach(function(vertex, index) {
+                        vertex.workspace = {
+                            selected: true
+                        };
                     });
-                });
 
-                self.trigger(document, 'addVertices', { vertices: vertices });
-            });
+                    self.trigger(document, 'addVertices', { vertices: added });
+                });
         };
 
         this.onMenubarToggleDisplay = function(e, data) {

@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.search;
 import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
 import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.google.inject.Injector;

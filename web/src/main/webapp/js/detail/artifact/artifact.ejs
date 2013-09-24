@@ -17,12 +17,7 @@
 
 </div>
 
-<h1 class="generic-draggable artifact-title" data-info='<%= artifact.dataInfo %>'><%= vertex.properties.title || artifact.Generic_Metadata.subject || 'No title available' %></h1>
-
-<div class="nav-header properties">
-    Properties<span class="badge loading"/>
-    <ul class="nav nav-list"></ul>
-</div>
+<h1 class="generic-draggable artifact-title" data-vertex-id='<%= vertex.id %>'><%= vertex.properties.title %></h1>
 
 <% if(artifact.type == 'video') { %>
   <div class="preview"/>
@@ -34,10 +29,14 @@
   </div>
 <% } %>
 
+<div class="artifact-header">
+  <div class="properties">
+    <div class="nav-header">Properties<span class="badge loading"/></div>
+  </div>
+</div>
+
 <div class='detected-object-labels'>
-<% if(artifact['atc:Artifact_Detected_Objects']) { %>
-  <% artifact['atc:Artifact_Detected_Objects'].detectedObjects.forEach(function(object) {
-    console.log ('object', object);
+  <% artifact.detectedObjects.forEach(function(object) {
     if (object.graphVertexId) {
         var classes = 'label-info detected-object resolved entity subType-' + object._subType;%>
         <span class="label detected-object-tag">
@@ -48,7 +47,6 @@
         <a class="label-info detected-object" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.info.title || object.info.concept %></a>
     </span>
   <% }}); %>
-<% } %>
 </div>
 
 <div class="text"><%- artifact.contentHtml %></div>

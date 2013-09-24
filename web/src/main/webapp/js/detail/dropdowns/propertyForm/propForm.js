@@ -5,6 +5,7 @@ define([
     'tpl!./propForm',
     'tpl!./options'
 ], function(defineComponent, withDropdown, template, options) {
+    'use strict';
 
     return defineComponent(PropertyForm, withDropdown);
 
@@ -17,6 +18,8 @@ define([
         });
 
         this.after('initialize', function() {
+            var self = this,
+                vertex = this.attr.data;
 
             this.on('click', {
                 addPropertySelector: this.onAddPropertyClicked
@@ -24,60 +27,50 @@ define([
 
             this.on('keyup', {
                 propertyValueSelector: this.onInputKeyUp
-            })
+            });
 
             this.on('addPropertyError', this.onAddPropertyError);
 
             this.$node.html(template({}));
 
-            var self = this;
+            if (vertex.properties._subType){
+                self.attr.service.propertiesByConceptId(vertex.properties._subType)
+                    .done(function(properties) {
+                        var propertiesList = [];
 
-            if (self.attr.data._subType){
-                self.attr.service.propertiesByConceptId(self.attr.data._subType, function (err, properties){
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
+                        properties.list.forEach (function (property){
+                            if (property.title.charAt(0) !== '_') {
+                                var data = {
+                                    title: property.title,
+                                    displayName: property.displayName
+                                };
+                                propertiesList.push (data);
+                            }
+                        });
 
-                    var propertiesList = [];
-
-                    properties.list.forEach (function (property){
-                        if (property.title.charAt(0) != '_'){
-                            var data = {
-                                title: property.title,
-                                displayName: property.displayName
-                            };
-                            propertiesList.push (data);
-                        }
+                        self.select('propertySelector').html(options({
+                            properties: propertiesList || ''
+                        }));
                     });
-
-                    self.select('propertySelector').html(options({
-                        properties: propertiesList || ''
-                    }));
-                });
             } else {
-                self.attr.service.propertiesByRelationshipLabel(self.attr.data.relationshipType, function (err, properties){
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
+                self.attr.service.propertiesByRelationshipLabel(vertex.properties.relationshipLabel)
+                    .done(function(properties){
+                        var propertiesList = [];
 
-                    var propertiesList = [];
+                        properties.list.forEach (function (property){
+                            if (property.title.charAt(0) != '_'){
+                                var data = {
+                                    title: property.title,
+                                    displayName: property.displayName
+                                };
+                                propertiesList.push (data);
+                            }
+                        });
 
-                    properties.list.forEach (function (property){
-                        if (property.title.charAt(0) != '_'){
-                            var data = {
-                                title: property.title,
-                                displayName: property.displayName
-                            };
-                            propertiesList.push (data);
-                        }
+                        self.select('propertySelector').html(options({
+                            properties: propertiesList || ''
+                        }));
                     });
-
-                    self.select('propertySelector').html(options({
-                        properties: propertiesList || ''
-                    }));
-                });
             }
 
         });
@@ -87,7 +80,7 @@ define([
                 case $.ui.keyCode.ENTER:
                     this.onAddPropertyClicked(event);
             }
-        }
+        };
 
         this.onAddPropertyError = function(event) {
             this.select('propertyValueSelector').addClass('validation-error');

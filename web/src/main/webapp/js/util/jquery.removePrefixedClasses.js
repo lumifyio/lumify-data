@@ -1,5 +1,6 @@
 
 ;(function( $, window, undefined ) {
+    'use strict';
   
     $.fn.removePrefixedClasses = function(prefix) {
 

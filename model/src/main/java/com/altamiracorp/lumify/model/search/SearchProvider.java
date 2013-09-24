@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.search;
+package com.altamiracorp.lumify.model.search;
 
 import java.util.Collection;
 import java.util.Properties;

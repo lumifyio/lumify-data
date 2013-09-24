@@ -9,6 +9,7 @@ define([
     'service/entity',
     'service/ontology'
 ], function(defineComponent, withDropdown, artifact, template, options, Ucd, EntityService, OntologyService) {
+    'use strict';
 
     return defineComponent(ObjectDetectionForm, withDropdown);
 
@@ -49,7 +50,7 @@ define([
 
             vertex.html(template({
                 entitySign: entitySign,
-                buttonText: existingEntity ? 'Update' : 'Resolve'
+                buttonText: existingEntity ? 'Resolve to Existing' : 'Resolve to New'
             }));
         };
 
@@ -71,7 +72,7 @@ define([
 
             this.on('keyup', {
                 entityNameInputSelector: this.onInputKeyUp
-            })
+            });
         };
 
         this.setupObjectTypeAhead = function () {
@@ -79,23 +80,18 @@ define([
 
             self.select('entitySignSelector').typeahead({
                 source: function(query, callback) {
-                    self.ucd.entitySearch(query, function(err, entities) {
-                        if(err) {
-                            console.error('Error', err);
-                            callback([]);
-                            return self.trigger(document, 'error', { message: err.toString() });
-                        }
+                    self.ucd.entitySearch(query)
+                        .done(function(entities) {
+                            // Convert dictionary map with type keys into flat
+                            // array
+                            var types = Object.keys(entities);
+                            var entityArrays = types.map(function(type) { return entities[type]; });
+                            var all = Array.prototype.concat.apply([], entityArrays);
 
-                        // Convert dictionary map with type keys into flat
-                        // array
-                        var types = Object.keys(entities);
-                        var entityArrays = types.map(function(type) { return entities[type]; });
-                        var all = Array.prototype.concat.apply([], entityArrays);
-
-                        callback(all.map(function(e) {
-                            return e.properties.title;
-                        }));
-                    });
+                            callback(all.map(function(e) {
+                                return e.properties.title;
+                            }));
+                        });
                     return;
                 }
             });
@@ -104,20 +100,21 @@ define([
         this.loadConcepts = function() {
             var self = this;
             self.allConcepts = [];
-            self.ontologyService.concepts(function(err, concepts) {
-                var resolvedVertexInfo = self.attr.resolvedVertex;
+            self.ontologyService.concepts()
+                .done(function(concepts) {
+                    var resolvedVertexInfo = self.attr.resolvedVertex;
 
-                self.allConcepts = concepts.byTitle;
+                    self.allConcepts = concepts.byTitle;
 
-                self.select('conceptSelector').html(options({
-                    concepts: self.allConcepts,
-                    selectedConceptId: (self.attr.existing && resolvedVertexInfo && resolvedVertexInfo._subType) || ''
-                }));
+                    self.select('conceptSelector').html(options({
+                        concepts: self.allConcepts,
+                        selectedConceptId: (self.attr.existing && resolvedVertexInfo && resolvedVertexInfo._subType) || ''
+                    }));
 
-                if (self.select('conceptSelector').val() === '') {
-                    self.select('createEntityButtonSelector').attr('disabled', true);
-                }
-            });
+                    if (self.select('conceptSelector').val() === '') {
+                        self.select('createEntityButtonSelector').attr('disabled', true);
+                    }
+                });
         };
 
         this.onResolveClicked = function (event){
@@ -155,25 +152,23 @@ define([
         this.createEntity = function (parameters) {
             var self = this;
 
-            this.entityService.resolveDetectedObject(parameters, function(err, data) {
-                if (err) {
-                    console.error('createEntity', err);
-                    return self.trigger(document, 'error', err);
-                }
+            this.entityService.resolveDetectedObject(parameters)
+                .done(function(data) {
 
-                var resolvedVertex ={
-                    graphVertexId: data.graphVertexId,
-                    _rowKey: data._rowKey,
-                    _subType: data._subType,
-                    _type: data._type,
-                    title: data.title,
-                    info: data.info
-                };
+                    var resolvedVertex ={
+                        graphVertexId: data.graphVertexId,
+                        _rowKey: data._rowKey,
+                        _subType: data._subType,
+                        _type: data._type,
+                        title: data.title,
+                        info: data.info
+                    };
 
-                // Temporarily creating a new tag to show on ui prior to backend update
-                var classes = 'label-info detected-object focused resolved entity';
-                var newTag = '<span class="label detected-object-tag"><a class="' + classes + '" href="#">' + data.title +'</a><a class="delete-tag" href="#">x</a></span>';
-                var added = false;
+                    // Temporarily creating a new tag to show on ui prior to backend update
+                    var classes = $('.detected-object-labels .label').attr('class') + ' focused resolved entity';
+                    var newTag = ' <a class="' + classes + '" href="#">' + data.title +' </a><button class="delete-tag" type="button">X</button>';
+                    var added = false;
+
                 if ($('.detected-object').hasClass('focused')) {
                     self.updateEntityTag (data, parameters.conceptId);
                 } else {
@@ -208,19 +203,14 @@ define([
 
         this.updateEntity = function (parameters) {
             var self = this;
-            this.entityService.updateDetectedObject (parameters, function(err, data) {
-                if (err) {
-                    console.error('createEntity', err);
-                    return self.trigger(document, 'error', err);
-                }
-
-                self.updateEntityTag (data, parameters.conceptId);
+            this.entityService.updateDetectedObject(parameters).done(function(data) {
+                self.updateEntityTag(data, parameters.conceptId);
             });
         };
 
         this.updateEntityTag = function (data, conceptId) {
             var self = this;
-            var resolvedVertex ={
+            var resolvedVertex = {
                 graphVertexId: data.graphVertexId,
                 _rowKey: data._rowKey,
                 _subType: data._subType,

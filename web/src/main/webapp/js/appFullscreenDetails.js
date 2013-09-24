@@ -6,9 +6,9 @@ define([
     'tpl!./appFullscreenDetails',
     'service/vertex',
     'service/ucd',
-    'detail/detail',
-    'underscore'
-], function(defineComponent, registry, template, VertexService, UCD, Detail, _) {
+    'detail/detail'
+], function(defineComponent, registry, template, VertexService, UCD, Detail) {
+    'use strict';
 
     return defineComponent(FullscreenDetails);
 

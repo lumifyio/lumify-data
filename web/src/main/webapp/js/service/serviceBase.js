@@ -1,6 +1,8 @@
 
 define(['atmosphere'],
     function() {
+        'use strict';
+
         function ServiceBase(options) {
             options = options || {};
 
@@ -61,35 +63,20 @@ define(['atmosphere'],
             document.subSocketId = Date.now();
         };
 
-        ServiceBase.prototype._ajaxPost = function(options, callback) {
+        ServiceBase.prototype._ajaxPost = function(options) {
             options.type = options.type || "POST";
-            return this._ajaxGet(options, callback);
+            return this._ajaxGet(options);
         };
 
-        ServiceBase.prototype._ajaxDelete = function(options, callback) {
+        ServiceBase.prototype._ajaxDelete = function(options) {
             options.type = options.type || "DELETE";
-            return this._ajaxGet(options, callback);
+            return this._ajaxGet(options);
         };
 
-        ServiceBase.prototype._ajaxGet = function(options, callback) {
+        ServiceBase.prototype._ajaxGet = function(options) {
             options.type = options.type || "GET";
             options.dataType = options.dataType || this._resolveDataType();
             options.resolvedUrl = options.resolvedUrl || this._resolveUrl(options.url);
-            callback = callback || function() {};
-
-            options.success = options.success || function(results) {
-                return callback(null, results);
-            };
-
-            options.error = options.error || function(xhr, textStatus, errorThrown) {
-                if (textStatus === 'abort') return;
-                var err = new Error("Failed in request: " + options.resolvedUrl);
-                err.xhr = xhr;
-                err.textStatus = textStatus;
-                err.errorThrown = err.errorThrown;
-                console.error(err);
-                return callback(err);
-            };
 
             return $.ajax(options);
         };

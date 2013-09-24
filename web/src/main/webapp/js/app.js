@@ -1,7 +1,8 @@
 
 define([
-    'tpl!app',
     'flight/lib/component',
+    'tpl!app',
+    'data',
     'menubar/menubar',
     'search/search',
     'workspaces/workspaces',
@@ -11,23 +12,16 @@ define([
     'graph/graph',
     'detail/detail',
     'map/map',
-    'service/workspace',
-    'service/ucd',
-    'util/keyboard',
-    'util/undoManager',
-    'underscore'
-], function(appTemplate, defineComponent, Menubar, Search, Workspaces, WorkspaceOverlay, Sync, Users, Graph, Detail, Map, WorkspaceService, UcdService, Keyboard, undoManager, _) {
+    'util/keyboard'
+], function(defineComponent, appTemplate, data, Menubar, Search, Workspaces, WorkspaceOverlay, Sync, Users, Graph, Detail, Map, Keyboard) {
     'use strict';
 
     return defineComponent(App);
 
     function App() {
-        var WORKSPACE_SAVE_TIMEOUT = 1000;
         var MAX_RESIZE_TRIGGER_INTERVAL = 250;
         var DATA_MENUBAR_NAME = 'menubar-name';
 
-        this.workspaceService = new WorkspaceService();
-        this.ucdService = new UcdService();
 
         this.onError = function(evt, err) {
             alert("Error: " + err.message); // TODO better error handling
@@ -41,25 +35,9 @@ define([
             usersSelector: '.users-pane',
             graphSelector: '.graph-pane',
             mapSelector: '.map-pane',
-            detailPaneSelector: '.detail-pane',
-            droppableSelector: '.graph-pane, .map-pane'
+            detailPaneSelector: '.detail-pane'
         });
 
-        var wsStack = [];
-        this.workspace = function(callback) {
-            if (this.workspaceData) {
-                callback.call(this, this.workspaceData);
-            } else {
-                wsStack.push(callback);
-            }
-        };
-
-        this.drainWorkspaceQueue = function() {
-            var self = this;
-            wsStack.forEach(function(c) {
-                c.call(self, self.workspaceData);
-            });
-        };
 
         this.after('initialize', function() {
             window.lumifyApp = this;
@@ -84,8 +62,9 @@ define([
                 workspacesPane = content.filter('.workspaces-pane').data(DATA_MENUBAR_NAME, 'workspaces'),
                 usersPane = content.filter('.users-pane').data(DATA_MENUBAR_NAME, 'users'),
                 graphPane = content.filter('.graph-pane').data(DATA_MENUBAR_NAME, 'graph'),
-                mapPane = content.filter('.map-pane').data(DATA_MENUBAR_NAME, 'map'),
                 detailPane = content.filter('.detail-pane');
+                
+            content.filter('.map-pane').data(DATA_MENUBAR_NAME, 'map');
 
             Sync.attachTo(window);
             Menubar.attachTo(menubarPane.find('.content'));
@@ -94,7 +73,6 @@ define([
             Users.attachTo(usersPane.find('.content'));
             Graph.attachTo(graphPane);
             Detail.attachTo(detailPane.find('.content'));
-            Map.attachTo(mapPane);
             Keyboard.attachTo(document);
             WorkspaceOverlay.attachTo(content.filter('.workspace-overlay'));
 
@@ -105,32 +83,19 @@ define([
 
             this.$node.html(content);
 
-            this.setupDroppable();
-
             // Open search when the page is loaded
             this.trigger(document, 'menubarToggleDisplay', { name: graphPane.data(DATA_MENUBAR_NAME) });
 
-            this.on(document, 'addVertices', this.onAddVertices);
-            this.on(document, 'updateVertices', this.onUpdateVertices);
-            this.on(document, 'deleteVertices', this.onDeleteVertices);
             this.on(document, 'windowResize', this.triggerPaneResized);
-
-            this.on(document, 'refreshRelationships', this.refreshRelationships);
-
-            this.on(document, 'switchWorkspace', this.onSwitchWorkspace);
-
-            this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
-            this.on(document, 'workspaceSave', this.onSaveWorkspace);
-            this.on(document, 'workspaceDeleted', this.onWorkspaceDeleted);
-            this.on(document, 'workspaceDeleting', this.onWorkspaceDeleting);
-
             this.on(document, 'mapCenter', this.onMapAction);
-
             this.on(document, 'changeView', this.onChangeView);
 
-            this.loadActiveWorkspace();
+            this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
+
             this.setupWindowResizeTrigger();
             this.triggerPaneResized();
+
+            data.loadActiveWorkspace();
         });
 
         this.trapAnchorClicks = function(e) {
@@ -153,7 +118,7 @@ define([
         };
 
         this.onMapAction = function(event, data) {
-            this.trigger(document, 'changeView', { view: 'map' });
+            this.trigger(document, 'changeView', { view: 'map', data:data });
         };
 
         this.onChangeView = function(event, data) {
@@ -163,394 +128,17 @@ define([
             if (pane && pane.hasClass('visible')) {
                 return;
             } else if (pane) {
-                this.trigger(document, 'menubarToggleDisplay', { name: pane.data(DATA_MENUBAR_NAME) });
+                this.trigger(document, 'menubarToggleDisplay', { name: pane.data(DATA_MENUBAR_NAME), data:data.data });
             } else {
                 console.log("View " + data.view + " isn't supported");
             }
         };
 
-        this.setupDroppable = function() {
-            var self = this;
 
-            var enabled = false,
-                droppable = this.select('droppableSelector');
-
-            // Other droppables might be on top of graph, listen to 
-            // their over/out events and ignore drops if the user hasn't
-            // dragged outside of them. Can't use greedy option since they are
-            // absolutely positioned
-            $(document).on('dropover dropout', function(e, ui) {
-                var target = $(e.target),
-                    appDroppable = target.is(droppable),
-                    noParentDroppables = target.parents('.ui-droppable').length === 0;
-
-                if (appDroppable) {
-                    // Ignore events from this droppable
-                    return;
-                }
-
-                // If this droppable has no parent droppables
-                if (noParentDroppables) {
-                    enabled = e.type === 'dropout';
-                }
-            });
-
-            droppable.droppable({
-                accept: function(item) {
-                    return true;
-                },
-                drop: function( event, ui ) {
-                    // Early exit if should leave to a different droppable
-                    if (!enabled) return;
-                    var draggable = ui.draggable,
-                        droppable = $(event.target);
-
-                    var info = draggable.data('info') || draggable.parents('li').data('info');
-                    if ( !info ) {
-                        console.warn('No data-info attribute for draggable element found');
-                        return;
-                    }
-
-                    var dropPosition;
-                    if ($(event.target).is('.graph-pane')) {
-                        dropPosition = {
-                            x: event.clientX,
-                            y: event.clientY
-                        };
-                    }
-
-                    var vertices = [$.extend({
-                        dropPosition: dropPosition
-                    }, info)];
-
-                    if(info.resolvedGraphVertexId) {
-                        this.ucdService.getVertexProperties(info.resolvedGraphVertexId, function(err, data) {
-                            if(err) {
-                                console.error('Error', err);
-                                return self.trigger(document, 'error', { message: err.toString() });
-                            }
-
-                            vertices.push({
-                                graphVertexId: data.id,
-                                title: data.properties.title || 'No title available',
-                                _type: data.properties._type,
-                                _subType: data.properties._subType,
-                                dropPosition: {
-                                    x: dropPosition.x + droppable.width()/10,
-                                    y: dropPosition.y
-                                }
-                            });
-
-                            self.trigger(document, 'addVertices', {
-                                vertices: vertices
-                            });
-                        });
-                    } else {
-                        self.trigger(document, 'addVertices', {
-                            vertices: vertices
-                        });
-                    }
-                }.bind(this)
-            });
-        };
-
-        this.loadActiveWorkspace = function() {
-            var self = this;
-            self.workspaceService.list(function(err, data) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-                var workspaces = data.workspaces || [];
-                if(workspaces.length === 0) {
-                    self.loadWorkspace(null);
-                } else {
-                    for (var i = 0; i < workspaces.length; i++) {
-                        if (workspaces[i].active) {
-                            self.loadWorkspace(workspaces[i]._rowKey);
-                            return;
-                        }
-                    }
-                    // backwards compatibility when no current workspace
-                    self.loadWorkspace(workspaces[0]._rowKey);
-                }
-            });
-        };
-
-        this.loadWorkspace = function(workspaceRowKey) {
-            var self = this;
-            self.workspaceRowKey = workspaceRowKey;
-            if(self.workspaceRowKey == null) {
-                self.trigger(document, 'workspaceLoaded', { data: { vertices: [] } });
-                return;
-            }
-
-            self.workspaceService.getByRowKey(self.workspaceRowKey, function(err, workspace) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-                self.trigger(document, 'workspaceLoaded', workspace);
-            });
-        };
-
-        this.onSwitchWorkspace = function(evt, data) {
-            if (data._rowKey != this.workspaceRowKey) {
-                this.loadWorkspace(data._rowKey);
-            }
-        };
-
-        this.onSaveWorkspace = function(evt, workspace) {
-            var self = this;
-            var saveFn;
-            if(self.workspaceRowKey) {
-                saveFn = self.workspaceService.save.bind(self.workspaceService, self.workspaceRowKey);
-            } else {
-                saveFn = self.workspaceService.saveNew.bind(self.workspaceService);
-            }
-
-            self.trigger(document, 'workspaceSaving', workspace);
-            saveFn({ data: workspace }, function(err, data) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-				self.workspaceRowKey = data._rowKey;
-                self.trigger(document, 'workspaceSaved', data);
-            });
-        };
-
-        this.onWorkspaceLoaded = function(evt, data) {
-            this.workspaceData = data || {};
-            this.workspaceData.data = this.workspaceData.data || {};
-            this.workspaceData.data.vertices = this.workspaceData.data.vertices || [];
-
-            if (this.workspaceData.data.vertices.length === 0) {
+        this.onWorkspaceLoaded = function(evt, workspace) {
+            if (!this.$node.find('.workspaces-pane').is('.visible') && workspace.data.vertices.length === 0) {
                 this.trigger(document, 'menubarToggleDisplay', { name:'search' });
             }
-
-            undoManager.reset();
-            this.refreshRelationships();
-            this.drainWorkspaceQueue();
-        };
-
-        this.onWorkspaceDeleting = function (evt, data) {
-            if (this.workspaceRowKey == data._rowKey) {
-                var instructions = $('<div>')
-                                .text("Deleting current workspace...")
-                                .addClass('instructions')
-                                .appendTo(this.$node);
-            }
-        }
-
-        this.onWorkspaceDeleted = function(evt, data) {
-            if (this.workspaceRowKey == data._rowKey) {
-                $(".instructions").remove();
-                this.workspaceRowKey = null;
-                this.loadActiveWorkspace();
-            }
-        };
-
-        this.setWorkspaceDirty = function() {
-            if(this.saveWorkspaceTimeout) {
-                clearTimeout(this.saveWorkspaceTimeout);
-            }
-            this.saveWorkspaceTimeout = setTimeout(this.saveWorkspace.bind(this), WORKSPACE_SAVE_TIMEOUT);
-        };
-
-        this.saveWorkspace = function() {
-            this.trigger(document, 'workspaceSave', this.workspaceData.data);
-        };
-
-        this.onUpdateVertices = function(evt, data) {
-
-            this.workspace(function(ws) {
-                var undoData = {
-                    noUndo: true,
-                    vertices: []
-                };
-                var redoData = {
-                    noUndo: true,
-                    vertices: []
-                };
-                data.vertices.forEach(function(vertex) {
-                    var matchingWorkspaceVertices = ws.data.vertices.filter(function(workspaceVertex) {
-                        return workspaceVertex.graphVertexId == vertex.graphVertexId;
-                    });
-
-                    matchingWorkspaceVertices.forEach(function(workspaceVertex) {
-                        undoData.vertices.push(JSON.parse(JSON.stringify(workspaceVertex)));
-                        $.extend(workspaceVertex, vertex);
-                        redoData.vertices.push(JSON.parse(JSON.stringify(workspaceVertex)));
-                    });
-                });
-
-                if(!data.noUndo) {
-                    undoManager.performedAction( 'Update ' + undoData.vertices.length + ' vertices', {
-                        undo: function() {
-                            this.trigger(document, 'updateVertices', undoData);
-                        },
-                        redo: function() {
-                            this.trigger(document, 'updateVertices', redoData);
-                        },
-                        bind: this
-                    });
-                }
-
-                this.setWorkspaceDirty();
-
-                this.trigger(document, 'verticesUpdated', data);
-            });
-        };
-
-        this.onAddVertices = function(evt, data) {
-            this.workspace(function(ws) {
-                var allVertices = this.workspaceData.data.vertices,
-                    added = [],
-                    existing = [],
-                    win = $(window);
-
-                // FIXME: How should we store vertices in the workspace?
-                // currently mapping { id:[graphVertexId], properties:{} }
-                // to { graphVertexId:..., [properties] }
-                data.vertices = data.vertices.map(function(n) {
-                    var vertex = n;
-                    if (n.properties) {
-                        vertex = n.properties;
-                        vertex.graphVertexId = n.id;
-                    }
-
-                    // Fix characters
-                    vertex._rowKey = encodeURIComponent((vertex._rowKey || '').replace(/\\[x](1f)/ig, '\u001f'));
-
-                    return vertex;
-                });
-
-                // Check if already in workspace
-                data.vertices.forEach(function(vertex) {
-                    if (ws.data.vertices.filter(function(n) { return n.graphVertexId === vertex.graphVertexId; }).length === 0) {
-                        added.push(vertex);
-                        ws.data.vertices.push(vertex);
-                    } else {
-                        existing.push(vertex);
-                    }
-                });
-
-                if (existing.length) this.trigger(document, 'existingVerticesAdded', { vertices:existing });
-                if (added.length === 0) {
-                    $(".graph-pane .instructions").text("No New Vertices Added");
-                    return;
-                }
-
-                if(!data.noUndo) {
-                    var dataClone = JSON.parse(JSON.stringify(data));
-                    dataClone.noUndo = true;
-                    undoManager.performedAction( 'Add ' + dataClone.vertices.length + ' vertices', {
-                        undo: function() {
-                            this.trigger(document, 'deleteVertices', dataClone);
-                        },
-                        redo: function() {
-                            this.trigger(document, 'addVertices', dataClone);
-                        },
-                        bind: this
-                    });
-                }
-
-                this.setWorkspaceDirty();
-
-                this.refreshRelationships();
-
-                this.trigger(document, 'verticesAdded', { vertices:added } );
-            });
-        };
-
-        this.onDeleteVertices = function(evt, data) {
-            var self = this;
-
-            this.workspace(function(ws) {
-
-                // get all the workspace vertices to delete (used by the undo manager)
-                var workspaceVerticesToDelete = ws.data.vertices
-                    .filter(function(workspaceVertex) {
-                        return data.vertices.filter(function(dataVertex) {
-                            return workspaceVertex.graphVertexId == dataVertex.graphVertexId;
-                        }).length > 0;
-                    });
-
-                // remove all workspace vertices from list
-                ws.data.vertices = ws.data.vertices
-                    .filter(function(workspaceVertex) {
-                        return workspaceVerticesToDelete.filter(function(workspaceVerticesToDelete) {
-                            return workspaceVertex._rowKey == workspaceVerticesToDelete._rowKey;
-                        }).length === 0;
-                    });
-
-                if(!data.noUndo) {
-                    var undoDataClone = JSON.parse(JSON.stringify({
-                        noUndo: true,
-                        vertices: workspaceVerticesToDelete
-                    }));
-                    undoManager.performedAction( 'Delete ' + data.vertices.length + ' vertices', {
-                        undo: function() {
-                            self.trigger(document, 'addVertices', undoDataClone);
-                        },
-                        redo: function() {
-                            self.trigger(document, 'deleteVertices', undoDataClone);
-                        },
-                        bind: this
-                    });
-                }
-
-                this.setWorkspaceDirty();
-
-                this.trigger(document, 'verticesDeleted', data);
-            });
-        };
-
-        this.refreshRelationships = function() {
-            var self = this;
-            var ids = this.getIds();
-
-            this.ucdService.getRelationships(ids, function(err, relationships) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-                self.trigger(document, 'relationshipsLoaded', { relationships: relationships });
-            });
-        };
-
-        this.getIds = function () {
-           if (this.workspaceData.data === undefined || this.workspaceData.data.vertices === undefined) {
-               return [];
-           }
-           return this.workspaceData.data.vertices
-               .map(function(vertex) {
-                   return vertex.graphVertexId;
-               });
-        };
-
-        this.getEntityIds = function() {
-            if (this.workspaceData.data === undefined || this.workspaceData.data.vertices === undefined) {
-                return [];
-            }
-            return this.workspaceData.data.vertices
-                .map(function(vertex) {
-                    return vertex.graphVertexId;
-                });
-        };
-
-        this.getArtifactIds = function() {
-            if (this.workspaceData.data === undefined || this.workspaceData.data.vertices === undefined) {
-                return [];
-            }
-            return this.workspaceData.data.vertices
-                .filter(function(vertex) {
-                    return vertex.type == 'artifact';
-                })
-                .map(function(vertex) {
-                    return vertex.graphVertexId;
-                });
         };
 
         this.onToggleGraphDimensions = function(e) {
@@ -561,19 +149,19 @@ define([
                 if (!self._graphDimensions || self._graphDimensions === 2) {
                     Graph.teardownAll();
                     Graph3D.attachTo(node, {
-                        vertices: self.workspaceData.data.vertices
+                        vertices: data.verticesInWorkspace()
                     });
                     self._graphDimensions = 3;
                 } else {
                     Graph3D.teardownAll();
                     Graph.attachTo(node, {
-                        vertices: self.workspaceData.data.vertices
+                        vertices: data.verticesInWorkspace()
                     });
                     self._graphDimensions = 2;
                     self.triggerPaneResized();
                 }
 
-                self.refreshRelationships();
+                self.trigger('refreshRelationships');
             });
         };
 
@@ -586,7 +174,9 @@ define([
                 this.trigger(document, 'graphShow');
             } else if (data.name === 'map' && !pane.hasClass('visible')) {
                 this.trigger(document, 'graphHide');
-                this.trigger(document, 'mapShow');
+                var mapPane = this.$node.find('.map-pane');
+                Map.attachTo(mapPane);
+                this.trigger(document, 'mapShow', { data:(data && data.data) });
                 this.collapse([
                     this.select('searchSelector'),
                     this.select('workspacesSelector'),
@@ -723,6 +313,7 @@ define([
                     self.trigger(document, 'menubarToggleDisplay', { name:name, syncToRemote:false });
                 }
             });
+            this.triggerPaneResized();
         };
     }
 

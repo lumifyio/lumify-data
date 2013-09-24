@@ -1,8 +1,9 @@
 define([
     'flight/lib/component',
+    'data',
     'service/sync',
     './syncCursor'
-], function (defineComponent, SyncService, SyncCursor) {
+], function (defineComponent, appData, SyncService, SyncCursor) {
     'use strict';
 
     return defineComponent(Sync);
@@ -13,9 +14,10 @@ define([
 
         //PUT EVENTS YOU WANT TO SYNC HERE!
         this.events = [
-            'verticesAdded',
-            'verticesUpdated',
-            'verticesDeleted'
+            // Disabling until fixed
+            //'verticesAdded',
+            //'verticesUpdated',
+            //'verticesDeleted'
         ];
 
         if (this.syncCursors) {
@@ -26,6 +28,7 @@ define([
 
         this.after('initialize', function () {
             this.on(document, 'workspaceSwitched', this.onWorkspaceSwitched);
+            this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'socketMessage', this.onSocketMessage);
 
             this.on(document, 'onlineStatusChanged', this.onOnlineStatusChanged);
@@ -38,6 +41,10 @@ define([
                 SyncCursor.attachTo(window);
             }
         });
+
+        this.onWorkspaceLoaded = function(evt, workspace) {
+            this.currentWorkspaceRowKey = workspace.id;
+        };
 
         this.onWorkspaceSwitched = function (evt, data) {
             this.currentWorkspaceRowKey = data.workspace._rowKey;
@@ -62,6 +69,17 @@ define([
             if (data.remoteEvent) {
                 return;
             }
+
+            console.log('onSyncedEvent', this.currentWorkspaceRowKey, evt.type, data);
+            if (data && data.vertices) {
+                data.vertices = data.vertices.map(function(vertex) {
+                    return {
+                        id: vertex.id,
+                        workspace: vertex.workspace
+                    };
+                });
+            }
+
             this.syncService.publishWorkspaceSyncEvent(evt.type, this.currentWorkspaceRowKey, data);
         };
 
@@ -79,7 +97,7 @@ define([
                 return;
             }
             this.syncService.publishUserSyncEvent(evt.type, [this.currentUser.rowKey], data);
-        }
+        };
     }
 
 });

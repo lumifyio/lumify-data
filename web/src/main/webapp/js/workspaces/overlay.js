@@ -4,6 +4,7 @@ define([
     'tpl!./overlay',
     'sf'
 ], function(defineComponent, template, sf) {
+    'use strict';
 
     var LAST_SAVED_UPDATE_FREQUENCY_SECONDS = 30;
     var MENUBAR_WIDTH = 30;
@@ -23,6 +24,7 @@ define([
             this.on(document, 'workspaceSwitched', this.onWorkspaceSwitched);
             this.on(document, 'workspaceSaving', this.onWorkspaceSaving);
             this.on(document, 'workspaceSaved', this.onWorkspaceSaved);
+            this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'graphPaddingUpdated', this.onGraphPaddingUpdated);
         });
 
@@ -33,6 +35,11 @@ define([
         this.setContent = function(title, subtitle) {
             this.select('nameSelector').text(title);
             this.select('subtitleSelector').html(subtitle);
+        };
+
+        this.onWorkspaceLoaded = function(event, data) {
+            this.setContent(data.title, 'no changes');
+            clearTimeout(this.updateTimer);
         };
 
         this.onWorkspaceSwitched = function(event, data) {

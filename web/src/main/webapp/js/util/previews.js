@@ -7,6 +7,7 @@ define([
  * Generate preview screenshots of artifact rendering (with highlighting)
  */
 function(UCD, template) {
+    'use strict';
 
     var PREVIEW_CACHE = {};
 
@@ -33,35 +34,34 @@ function(UCD, template) {
 
     Preview.prototype.start = function() {
         var self = this;
-        new UCD().getArtifactById(this._rowKey, function(err, artifact) {
-            if (err) {
-                console.error(err);
-                this.callback();
-                return self.trigger(document, 'error', { message: err.toString() });
-            }
-            if (artifact.type == 'image') {
-                var thumbnailUrl = artifact.thumbnailUrl;
-                if(thumbnailUrl) {
-                    if(self.options.width) {
-                        thumbnailUrl += '?width=' + self.options.width;
+        new UCD().getArtifactById(this._rowKey)
+            .fail(function() {
+                self.callback();
+            })
+            .done(function(artifact) {
+                if (artifact.type == 'image') {
+                    var thumbnailUrl = artifact.thumbnailUrl;
+                    if(thumbnailUrl) {
+                        if(self.options.width) {
+                            thumbnailUrl += '?width=' + self.options.width;
+                        }
+                    } else {
+                        thumbnailUrl = artifact.rawUrl;
                     }
+                    self.callback(thumbnailUrl, thumbnailUrl);
+                } else if (artifact.type == 'video') {
+                    var posterFrameUrl = artifact.posterFrameUrl;
+                    var videoPreviewImageUrl = artifact.videoPreviewImageUrl;
+                    if(self.options.width) {
+                        posterFrameUrl += '?width=' + self.options.width;
+                        videoPreviewImageUrl += '?width=' + self.options.width;
+                    }
+                    self.callback(posterFrameUrl, videoPreviewImageUrl);
                 } else {
-                    thumbnailUrl = artifact.rawUrl;
+                    // TODO: Generate artifact preview on server
+                    self.callback();
                 }
-                this.callback(thumbnailUrl, thumbnailUrl);
-            } else if (artifact.type == 'video') {
-                var posterFrameUrl = artifact.posterFrameUrl;
-                var videoPreviewImageUrl = artifact.videoPreviewImageUrl;
-                if(self.options.width) {
-                    posterFrameUrl += '?width=' + self.options.width;
-                    videoPreviewImageUrl += '?width=' + self.options.width;
-                }
-                this.callback(posterFrameUrl, videoPreviewImageUrl);
-            } else {
-                // TODO: Generate artifact preview on server
-                this.callback();
-            }
-        }.bind(this));
+            });
     };
 
 

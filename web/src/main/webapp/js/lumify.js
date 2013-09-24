@@ -16,6 +16,9 @@ require([
     'flight/lib/advice',
     'flight/lib/logger',
     'flight/lib/debug',
+    
+     // Make underscore available everywhere
+    'underscore',
 
     'util/visibility',
 
@@ -26,7 +29,8 @@ require([
     'Jcrop',
     'removePrefixedClasses'
 ],
-function(compose, registry, advice, withLogging, debug, Visibility) {
+function(compose, registry, advice, withLogging, debug, _, Visibility) {
+    'use strict';
 
     debug.enable(true);
     DEBUG.events.logAll();

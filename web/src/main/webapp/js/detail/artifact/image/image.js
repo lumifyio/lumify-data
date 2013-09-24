@@ -4,6 +4,7 @@ define([
     'tpl!./image',
     'tpl!util/blur/blur-svg'
 ], function(defineComponent, template, blur, Jcrop) {
+    'use strict';
 
     return defineComponent(Image);
 
@@ -22,14 +23,10 @@ define([
                 backgroundImage: this.attr.src
             }).html(html);
 
+            // TODO: make local events for full-screen support
             this.on(document, 'DetectedObjectEnter', this.onHover);
             this.on(document, 'DetectedObjectLeave', this.onHoverLeave);
         });
-
-        this.prefixed = function(val) {
-            return '#' + this.attr.svgPrefix + '-' + val;
-        };
-
 
         this.onHover = function(event, data) {
             var box = this.select('boxSelector');

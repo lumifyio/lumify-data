@@ -4,6 +4,7 @@ define([
     'tpl!./toolbar/fullscreen',
     'tpl!./toolbar/fullscreen-item'
 ], function(UCD, fullscreenButtonTemplate, fullscreenItemTemplate) {
+    'use strict';
 
     var intercomInstance;
 
@@ -125,7 +126,7 @@ define([
             var cls = [],
                 props = vertex.properties || vertex;
 
-            if (props._type == 'artifact') {
+            if (props._type === 'artifact') {
                 cls.push('artifact');
                 cls.push(props._subType);
             } else {

@@ -1,23 +1,24 @@
 
-define(['underscore'], function(_) {
+define([], function() {
+    'use strict';
 
     function withDropdown() {
 
         this.open = function() {
             var self = this,
-                vertex = this.$node;
+                node = this.$node;
 
-            if (vertex.outerWidth() <= 0) {
+            if (node.outerWidth() <= 0) {
                 // Fix issue where dropdown is zero width/height 
                 // when opening dropdown later in detail pane when
                 // dropdown is already open earlier in detail pane
-                vertex.css({position:'relative'});
+                node.css({position:'relative'});
                 return _.defer(this.open.bind(this));
             }
 
-            vertex.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
-                vertex.off('transitionend webkitTransitionEnd oTransitionEnd otransitionend');
-                vertex.css({
+            node.one('transitionend webkitTransitionEnd oTransitionEnd otransitionend', function() {
+                node.off('transitionend webkitTransitionEnd oTransitionEnd otransitionend');
+                node.css({
                     transition: 'none',
                     height: 'auto',
                     width: '100%',
@@ -25,14 +26,24 @@ define(['underscore'], function(_) {
                 });
                 self.trigger('opened');
             });
-            var form = vertex.find('.form');
-            vertex.css({ height:form.outerHeight(true) + 'px' });
+            var form = node.find('.form');
+            node.css({ height:form.outerHeight(true) + 'px' });
         };
 
         this.after('teardown', function() {
             this.$node.closest('.text').removeClass('dropdown');
 
             this.$node.remove();
+        });
+
+        this.after('buttonLoading', function () {
+            var $loading = $("<span>")
+                .addClass("badge")
+                .addClass("loading");
+            this.select('buttonDivSelector').prepend($loading);
+            this.select('buttonDivSelector').find('.btn')
+                .attr('disabled', true)
+                .addClass('disabled');
         });
 
         this.after('initialize', function() {

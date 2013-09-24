@@ -109,6 +109,12 @@
       margin: 0;
       padding: 0;
 
+      .vertex-list ul li ul {
+        left: 0;
+      }
+      .vertex-list ul li.has_preview ul {
+        left: 83px;
+      }
       .multiple-container { 
         display:none;
       }
@@ -230,11 +236,18 @@
     }
   }
 
+  .properties, .relationships {
+    .nav-list {
+      margin: 0;
+    }
+  }
+
+  .artifact-header {
+    margin: 0 -1em;
+  }
+
   .nav-with-background {
     margin: 118px -1em 0 -1em;
-
-    .nav-list { margin: 0; }
-
 
     .relationships {
       padding-bottom: 1em;
@@ -284,6 +297,7 @@
       bottom: 0;
       text-shadow: 0 0px 20px rgba(0,0,0,0.2), 0 0px 2px rgba(0,0,0,1);
       font-size: 200%;
+      z-index: 10000;
     }
   }
 

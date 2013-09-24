@@ -3,6 +3,8 @@ define(
         'service/serviceBase'
     ],
     function (ServiceBase) {
+        'use strict';
+
         function RelationshipService() {
             ServiceBase.call(this);
             return this;
@@ -10,8 +12,8 @@ define(
 
         RelationshipService.prototype = Object.create(ServiceBase.prototype);
 
-        RelationshipService.prototype.setProperty = function (propertyName, value, sourceId, destId, label, callback) {
-            this._ajaxPost({
+        RelationshipService.prototype.setProperty = function (propertyName, value, sourceId, destId, label) {
+            return this._ajaxPost({
                 url: 'relationship/property/set',
                 data: {
                     propertyName: propertyName,
@@ -20,17 +22,13 @@ define(
                     dest: destId,
                     relationshipLabel: label
                 }
-            }, function (err, response) {
-                callback(err, response);
             });
         };
 
-        RelationshipService.prototype.createRelationship = function (createRequest, callback) {
-            this._ajaxPost({
+        RelationshipService.prototype.createRelationship = function (createRequest) {
+            return this._ajaxPost({
                 url: 'relationship/create',
                 data: createRequest
-            }, function (err, response) {
-                callback(err, response);
             });
         };
 

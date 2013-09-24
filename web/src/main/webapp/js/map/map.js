@@ -2,15 +2,25 @@
 
 define([
     'flight/lib/component',
+    'data',
     'tpl!./map',
     'tpl!./instructions/regionCenter',
     'tpl!./instructions/regionRadius',
     'tpl!./instructions/regionLoading',
     'service/ucd',
+    'service/vertex',
     'util/retina',
-    'util/withContextMenu',
-    'underscore'
-], function(defineComponent, template, centerTemplate, radiusTemplate, loadingTemplate, UcdService, retina, withContextMenu, _) {
+    'util/withContextMenu'
+], function(defineComponent,
+    appData,
+    template,
+    centerTemplate,
+    radiusTemplate,
+    loadingTemplate,
+    UcdService,
+    VertexService,
+    retina,
+    withContextMenu) {
     'use strict';
 
     var MODE_NORMAL = 0,
@@ -18,12 +28,13 @@ define([
         MODE_REGION_SELECTION_MODE_RADIUS = 2,
         MODE_REGION_SELECTION_MODE_LOADING = 3;
 
-    return defineComponent(Map, withContextMenu);
+    return defineComponent(MapView, withContextMenu);
 
-    function Map() {
+    function MapView() {
         var callbackQueue = [];
 
         this.ucdService = new UcdService();
+        this.vertexService = new VertexService();
         this.mode = MODE_NORMAL;
 
         this.defaultAttrs({
@@ -43,65 +54,9 @@ define([
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'syncEnded', this.onSyncEnded);
             this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
-            this.on(document, 'socketMessage', this.onSocketMessage);
+
+            this.updateOrAddVertices(appData.verticesInWorkspace(), { adding:true });
         });
-
-        this.onSocketMessage = function (evt, message) {
-            var self = this;
-            switch (message.type) {
-                case 'propertiesChange':
-                    for(var i=0; i<message.data.properties.length; i++) {
-                        var data = {
-                            properties: message.data.properties[i],
-                            vertex: message.data.vertex
-                        };
-                        self.onPropertyChange(data);
-                    }
-                    break;
-            }
-        };
-
-        this.onPropertyChange = function(data) {
-            var self = this;
-            var propertyChangeData = data.properties;
-
-            if(propertyChangeData.propertyName == 'geoLocation') {
-                var m = propertyChangeData.value.match(/point\[(.*?),(.*?)\]/);
-                if(!m) {
-                    return;
-                }
-                var latitude = m[1];
-                var longitude = m[2];
-
-                self.updateVertexLocation (data.vertex);
-
-                this.map(function(map) {
-                    var markers = map.markers
-                        .filter(function(marker) {
-                            return marker.getAttribute('graphVertexId') == propertyChangeData.graphVertexId;
-                        });
-                    markers.forEach(function(marker) {
-                        var pt = new mxn.LatLonPoint(latitude, longitude);
-                        if (map.api == 'googlev3') {
-                            var p = pt.toProprietary('googlev3');
-                            marker.proprietary_marker.setPosition(p);
-                        }
-                    });
-                });
-            }
-
-            if(propertyChangeData.propertyName == 'heading') {
-                this.map(function(map) {
-                    var markers = map.markers
-                        .filter(function(marker) {
-                            return marker.getAttribute('graphVertexId') == propertyChangeData.graphVertexId;
-                        });
-                    markers.forEach(function(marker) {
-                        self.updateMarkerIcon(marker, propertyChangeData.value);
-                    });
-                });
-            }
-        };
 
         this.map = function(callback) {
             if ( this.mapLoaded ) {
@@ -193,7 +148,7 @@ define([
                 map.markers.forEach(function(marker) {
                     window.marker = marker;
                     data.vertices.forEach(function(vertex) {
-                        if (marker.getAttribute('graphVertexId') === vertex.graphVertexId) {
+                        if (marker.getAttribute('graphVertexId') === vertex.id) {
                             points.push(marker.location);
                         }
                     });
@@ -263,52 +218,49 @@ define([
             this.map(function(map) {
                 map.removeAllMarkers();
 
-                if (workspaceData.data === undefined || workspaceData.data.vertices === undefined) {
-                    return;
-                }
-                workspaceData.data.vertices.forEach(function(vertex) {
-                    if(vertex.location || vertex.locations) {
-                        self.updateOrAddVertex(vertex);
-                    }
-                });
+                self.updateOrAddVertices(workspaceData.data.vertices, { adding:true });
             });
         };
 
         this.onVerticesAdded = function(evt, data) {
-            var self = this;
-            data.vertices.forEach(function(vertex) {
-                self.updateOrAddVertex(vertex);
-                self.updateVertexLocation(vertex);
-            });
+            this.updateOrAddVertices(data.vertices, { adding:true });
         };
 
-        this.updateOrAddVertex = function(vertex) {
-            var self = this;
-            if(!vertex.location && !vertex.locations) {
-                return;
-            }
+        this.updateOrAddVertices = function(vertices, options) {
+            var self = this,
+                adding = options && options.adding;
 
-            this.map(function(map) {
-                this.deleteVertex(vertex);
+            self.map(function(map) {
+                var fit = false;
 
-                var locations = $.isArray(vertex.locations) ? vertex.locations : [ vertex.location ];
+                vertices.forEach(function(vertex) {
+                    var geoLocation = vertex.properties.geoLocation;
+                    if (!geoLocation) return;
 
-                locations.forEach(function(location) {
-                    var pt = new mxn.LatLonPoint(location.latitude, location.longitude);
-                    var marker = new mxn.Marker(pt);
-                    marker.setAttribute('graphVertexId', vertex.graphVertexId);
-                    marker.setAttribute('subType', vertex._subType);
+                    fit = true;
 
-                    self.updateMarkerIcon(marker, vertex.heading);
+                    var marker = self.markerForId(map, vertex.id);
 
-                    marker.click.addHandler(function(eventType, marker) {
-                        self.trigger('verticesSelected', [ vertex ]);
-                    });
-                    map.addMarker(marker);
+                    if (adding) {
+                        if (marker.length) {
+                            map.removeMarker(marker);
+                        }
+
+                        marker = new mxn.Marker(new mxn.LatLonPoint(geoLocation.latitude, geoLocation.longitude));
+                        marker.setAttribute('graphVertexId', vertex.id);
+                        marker.setAttribute('subType', vertex.properties._subType);
+
+                        self.updateMarkerIcon(marker, vertex.properties.heading);
+
+                        marker.click.addHandler(function(eventType, marker) {
+                            self.trigger('verticesSelected', [ vertex ]);
+                        });
+                        map.addMarker(marker);
+                    }
                 });
 
-                if (locations.length) {
-                    self.fit(map);
+                if (fit) {
+                    this.fit();
                 }
             });
         };
@@ -328,10 +280,7 @@ define([
         };
 
         this.onVerticesUpdated = function(evt, data) {
-            var self = this;
-            data.vertices.forEach(function(vertex) {
-                self.updateOrAddVertex(vertex);
-            });
+            this.updateOrAddVertices(data.vertices);
         };
 
         this.onVerticesDeleted = function(evt, data) {
@@ -363,71 +312,17 @@ define([
             var self = this;
 
             this.map(function(map) {
-                map.markers
-                    .filter(function(marker) {
-                        return marker.getAttribute('graphVertexId') == vertex.graphVertexId;
-                    })
-                    .forEach(function(marker) {
-                        map.removeMarker(marker);
-                    });
+                this.markerForId(map, vertex.id).forEach(function(marker) {
+                    map.removeMarker(marker);
+                });
             });
         };
 
-        this.updateVertexLocation = function(vertex) {
-            var self = this;
-            if(vertex._type == 'artifact') {
-                this.ucdService.getArtifactById(vertex._rowKey, function(err, artifact) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-
-                    if(artifact && artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) {
-
-                        vertex.location = {
-                            latitude: artifact.Dynamic_Metadata.latitude,
-                            longitude: artifact.Dynamic_Metadata.longitude
-                        };
-
-                        var verticesUpdateData = {
-                            vertices: [vertex]
-                        };
-                        self.trigger(document, 'updateVertices', verticesUpdateData);
-                    } else {
-                        self.invalidMap();
-                    }
-                });
-            } else {
-                this.ucdService.getVertexProperties(vertex.graphVertexId, function(err, entity) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-                    var locations = [];
-
-                    if(entity.properties.geoLocation) {
-                        var m = entity.properties.geoLocation.match(/point\[(.*?),(.*)\]/);
-                        if(m){
-                            var latitude = m[1];
-                            var longitude = m[2];
-                            locations.push({
-                                latitude: latitude,
-                                longitude: longitude
-                            });
-                        }
-                    }
-
-                    vertex.locations = locations;
-                    if (locations.length === 0) {
-                        self.invalidMap();
-                    }
-
-                    var verticesUpdateData = {
-                        vertices: [vertex]
-                    };
-                    self.trigger(document, 'updateVertices', verticesUpdateData);
-                });
-            }
+        this.markerForId = function(map, id) {
+            return map.markers
+                    .filter(function(marker) {
+                        return marker.getAttribute('graphVertexId') === id;
+                    });
         };
 
         this.invalidMap = function() {
@@ -464,15 +359,21 @@ define([
             });
         };
 
-        this.onMapShow = function(evt) {
+        this.onMapShow = function(evt, data) {
             var self = this;
             if (!this.timeout && !this.mapLoaded) {
                 this.timeout = setTimeout(this.initializeMap.bind(this), 100);
             }
 
+            if (data && data.latitude && data.longitude) {
+                this.map(function(map) {
+                    var latlon = new mxn.LatLonPoint(data.latitude, data.longitude);
+                    map.setCenterAndZoom(latlon, 7);
+                });
+            }
+
             if (this.mapLoaded) {
                 setTimeout(function() {
-                    console.log('fixing');
                     this.fixSize();
                 }.bind(this), 250);
             }

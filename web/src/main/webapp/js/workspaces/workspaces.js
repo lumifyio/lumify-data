@@ -30,15 +30,20 @@ define([
         };
 
         this.onAddNew = function(event) {
-            var title = $(event.target).parents('li').children('input')[0].value;
+            var self = this;
+
+            var title = $(event.target).parents('li').find('input').val();
             if (!title) return;
+
             var data = { title: title };
-            this.workspaceService.saveNew(data, function (err, workspace) {
-				this.loadWorkspaceList(function () {
-                    this.onWorkspaceLoad(null, workspace);
-                    this.trigger( document, 'switchWorkspace', { _rowKey: workspace._rowKey });
-				}.bind(this));
-			}.bind(this));
+            this.workspaceService.saveNew(data)
+                .done(function(workspace) {
+                    self.loadWorkspaceList()
+                        .done(function() {
+                            self.onWorkspaceLoad(null, workspace);
+                            self.trigger( document, 'switchWorkspace', { _rowKey: workspace._rowKey });
+                        });
+                });
         };
 
         this.onInputKeyUp = function(event) {
@@ -49,21 +54,29 @@ define([
         };
 
         this.onDelete = function( event ) {
-            var currentRowKey = this.select('listSelector').find('li.active').data('_rowKey');
-            var _rowKey = $(event.target).parents('li').data('_rowKey'),
-                $loading = $("<span>")
-                            .addClass("badge")
-                            .addClass("loading");
+            var self = this,
+                currentRowKey = this.select('listSelector').find('li.active').data('_rowKey'),
+                _rowKey = $(event.target).parents('li').data('_rowKey'),
+                $loading = $("<span>").addClass("badge loading");
+
             this.trigger(document, 'workspaceDeleting', { _rowKey: _rowKey });
+
             $(event.target).replaceWith($loading);
-            this.workspaceService.delete(_rowKey, function() {
-                this.loadWorkspaceList(function () {
-                    this.trigger(document, 'workspaceDeleted', { _rowKey: _rowKey });
-                    if ( currentRowKey != _rowKey ) {
-                        this.switchActive(currentRowKey);
+
+            this.workspaceService['delete'](_rowKey)
+                .fail(function(xhr) {
+                    if (xhr.status === 403) {
+                        // TODO: alert user with error:
+                        // can't delete other users workspaces
                     }
-                }.bind(this));
-            }.bind(this));
+                })
+                .always(this.loadWorkspaceList.bind(this))
+                .done(function() {
+                    self.trigger(document, 'workspaceDeleted', { _rowKey: _rowKey });
+                    if ( currentRowKey != _rowKey ) {
+                        self.switchActive(currentRowKey);
+                    }
+                });
         };
 
         this.onWorkspaceLoad = function ( event, data ) {
@@ -84,11 +97,14 @@ define([
 
         this.switchActive = function( rowKey ) {
             var self = this;
+            this.workspaceRowKey = rowKey;
 
+            var found = false;
             this.select( 'workspaceListItemSelector' )
                 .removeClass('active')
                 .each(function() {
                     if ($(this).data('_rowKey') == rowKey) {
+                        found = true;
                         $(this).addClass('active');
                         self.trigger(document, 'workspaceSwitched', {
                             workspace: $(this).data()
@@ -96,27 +112,38 @@ define([
                         return false;
                     }
                 });
+
+            if (!found) {
+                this.loadWorkspaceList();
+            }
         };
 
-        this.loadWorkspaceList = function(callback) {
-            this.workspaceService.list(function(err, data) {
-                var workspaces = data.workspaces || [];
-                this.$node.html( workspacesTemplate({}) );
-                this.select( 'listSelector' ).html(
-                    listTemplate({
-                        results: workspaces,
-                        selected: this.workspaceRowKey
-                    })
-                );
-                if (callback) {
-                    callback(err,workspaces);
-                }
-            }.bind(this));
+        this.loadWorkspaceList = function() {
+            var self = this;
+
+            return this.workspaceService.list()
+                        .done(function(data) {
+                            var workspaces = data.workspaces || [];
+                            self.$node.html( workspacesTemplate({}) );
+                            self.select('listSelector').html(
+                                listTemplate({
+                                    results: workspaces,
+                                    selected: self.workspaceRowKey
+                                })
+                            );
+                        });
+        };
+
+        this.onToggleMenu = function(event, data) {
+            if (data.name === 'workspaces') {
+                this.loadWorkspaceList();
+            }
         };
 
         this.after( 'initialize', function() {
             this.on( document, 'workspaceLoaded', this.onWorkspaceLoad );
             this.on( document, 'workspaceSaved', this.onWorkspaceSaved );
+            this.on( document, 'menubarToggleDisplay', this.onToggleMenu );
             this.on( 'click', {
                 workspaceListItemSelector: this.onWorkspaceItemClick,
                 addNewSelector: this.onAddNew,
@@ -125,8 +152,6 @@ define([
             this.on( 'keyup', {
                 addNewInputSelector: this.onInputKeyUp
             });
-
-            this.loadWorkspaceList();
         });
     }
 

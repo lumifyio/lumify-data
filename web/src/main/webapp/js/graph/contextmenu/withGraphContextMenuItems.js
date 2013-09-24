@@ -7,6 +7,7 @@ define([
     // Add context menu mixins here...
 
 ], function() {
+    'use strict';
 
     var args = $.makeArray(arguments);
 

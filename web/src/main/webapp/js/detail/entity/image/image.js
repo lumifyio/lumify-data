@@ -2,10 +2,8 @@
 define([
     'flight/lib/component',
     'tpl!./image',
-    'underscore',
     'util/retina'
-], function(defineComponent, template, _, retina) {
-
+], function(defineComponent, template, retina) {
     'use strict';
 
     // Limit previews to 1MB since it's a dataUri
@@ -37,7 +35,6 @@ define([
                 change: this.onFileChange.bind(this)
             });
 
-
             this.$node.addClass('upload-available');
             this.$node.on({
                 mouseenter: function() { $(this).addClass('file-hover'); },
@@ -60,10 +57,11 @@ define([
         };
 
         this.updateImageBackground = function(src) {
+            console.log("this.attr", this.attr);
             this.$node.css({
-                backgroundImage: 'url("' + (src || this.srcForGlyphIconUrl(this.attr.data._glyphIcon) || this.attr.defaultIconSrc) + '")'
+                backgroundImage: 'url("' + (src || this.srcForGlyphIconUrl(this.attr.data.properties._glyphIcon) || this.attr.defaultIconSrc) + '")'
             });
-            this.$node.toggleClass('custom-image', !!(src || this.attr.data._glyphIcon));
+            this.$node.toggleClass('custom-image', !!(src || this.attr.data.properties._glyphIcon));
         };
 
         this.onFileChange = function(e) {
@@ -92,7 +90,7 @@ define([
         this.onUpdateIcon = function(e, data) {
             var src = this.srcForGlyphIconUrl(data.src);
 
-            if (src !== this.srcForGlyphIconUrl(this.attr.data._glyphIcon)) {
+            if (src !== this.srcForGlyphIconUrl(this.attr.data.properties._glyphIcon)) {
                 this.updateImageBackground(src);
             }
         };
@@ -120,7 +118,7 @@ define([
 
             // TODO: move to entityService
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/graph/vertex/' + this.attr.data.graphVertexId + '/uploadImage');
+            xhr.open('POST', '/graph/vertex/' + this.attr.data.id + '/uploadImage');
             xhr.onload = function(event) {
                 if (xhr.status === 200) {
                     var result = JSON.parse(xhr.responseText);
@@ -203,13 +201,6 @@ define([
 
             this.updateImageBackground(this.srcForGlyphIconUrl(data.vertex.properties._glyphIcon));
             
-            // FIXME: this should be necessary, convert all workspace code to
-            // new id, properties:{} format
-            var vertex = data.vertex;
-            if (data.vertex.properties) {
-                vertex = data.vertex.properties;
-                vertex.graphVertexId = data.vertex.id;
-            }
             this.trigger(document, 'updateVertices', { vertices:[vertex] });
         };
 

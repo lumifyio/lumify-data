@@ -1,15 +1,15 @@
 
-<li class="<%= vertex.className %> vertex-item" 
-    data-info="<%= JSON.stringify(vertex) %>"
-    ><a><%= vertex.title || "No title available" %>
+<li class="<%= classNamesForVertex[vertex.id] || '' %> vertex-item" 
+    data-vertex-id="<%= vertex.id %>"
+    ><a><%= vertex.properties.title || "No title available" %>
       <ul>
         <li class="graph"><button title="Displayed in Graph" href="#">Graph</button></li>
         <li class="map"><button title="Displayed in Map" href="#">Map</button></li>
       </ul>
       <div>
         <span class="preview"/>
-        <span class="date"><%= vertex.publishedDate ? new Date(vertex.publishedDate).toDateString() : '' %></span>
-        <span class="source"><%= vertex.source || '' %></span>
+        <span class="date"><%= vertex.artifact && vertex.artifact.publishedDate ? new Date(vertex.artifact.publishedDate).toDateString() : '' %></span>
+        <span class="source"><%= vertex.properties.source || '' %></span>
       </div>
     </a>
 </li>

@@ -3,35 +3,15 @@
 </div>
 
 <h1>
-<% var data = JSON.stringify({
-      graphVertexId : relationshipData.source.id || '',
-      title : relationshipData.source.title || relationshipData.source._type,
-      _type : relationshipData.source._type,
-      _rowKey : relationshipData.source._rowKey,
-      _subType : relationshipData.source._subType}); %>
-
-<span class="vertex-to-vertex-relationship generic-draggable fake-link" data-info='<%- data %>' >
-        <%= relationshipData.source.title || "No title available" %>
+<span class="vertex-to-vertex-relationship generic-draggable fake-link" data-vertex-id='<%- relationshipData.source.id %>' >
+        <%= relationshipData.source.title %>
 </span>
 
 &#8674;
 
-<% var data = JSON.stringify({
-      graphVertexId : relationshipData.target.id || '',
-      title : relationshipData.target.title || relationshipData.target._type,
-      _type : relationshipData.target._type,
-      _rowKey : relationshipData.target._rowKey,
-      _subType : relationshipData.target._subType}); %>
-
-<span class="vertex-to-vertex-relationship generic-draggable fake-link" data-info='<%- data %>'>
-        <%= relationshipData.target.title || "No title available" %>
+<span class="vertex-to-vertex-relationship generic-draggable fake-link" data-vertex-id='<%- relationshipData.target.id %>'>
+        <%= relationshipData.target.title %>
 </span>
 </h1>
 
-<ul class="nav nav-list">
-  <li class="properties">Properties<span class="badge loading"/></li>
-</ul>
-
-<div class="buttons">
-    <button class="add-relationship-properties btn btn-mini btn-default">Add Property</button>
-</div>
+<div style="margin:0 -1em" class="properties"/>
