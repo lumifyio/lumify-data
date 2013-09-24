@@ -50,7 +50,7 @@ define([
 
             vertex.html(template({
                 entitySign: entitySign,
-                buttonText: existingEntity ? 'Update' : 'Resolve'
+                buttonText: existingEntity ? 'Resolve to Existing' : 'Resolve to New'
             }));
         };
 

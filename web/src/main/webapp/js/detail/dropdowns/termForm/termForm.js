@@ -61,6 +61,12 @@ define([
 
         this.onKeyPress = function(event) {
             if (!this.lastQuery || this.lastQuery === this.select('objectSignSelector').val()) {
+                if (!this.select('createTermButtonSelector').is(":disabled")) {
+                    switch (event.which) {
+                        case $.ui.keyCode.ENTER:
+                            this.onCreateTermClicked(event);
+                    }
+                }
                 return;
             }
 
@@ -179,7 +185,7 @@ define([
 
         this.onConceptChanged = function(event) {
             var select = $(event.target);
-            
+
             this.updateConceptLabel(select.val());
         };
 
@@ -230,12 +236,11 @@ define([
                 objectSign = title;
             }
 
-
             vertex.html(dropdownTemplate({
                 sign: $.trim(sign),
                 graphVertexId: data && data.id,
                 objectSign: $.trim(objectSign) || '',
-                buttonText: existingEntity ? 'Update' : 'Resolve'
+                buttonText: existingEntity ? 'Resolve to Existing' : 'Resolve as New'
             }));
 
             this.graphVertexChanged(data && data.id, data, true);
@@ -309,7 +314,8 @@ define([
             });
 
             this.on('keydown', {
-                objectSignSelector: this.onKeyPress
+                objectSignSelector: this.onKeyPress,
+                conceptSelector: this.onKeyPress
             });
 
             this.on('opened', function() {
