@@ -173,12 +173,12 @@ define([
             //graphRenderer.showStats();
 
             graphRenderer.addEventListener('node_click', function(event) {
+                var selected = [];
                 if (event.content) {
                     var data = graph.node(event.content).data;
-                    self.trigger('verticesSelected', [data]);
-                } else {
-                    self.trigger('verticesSelected', []);
+                    selected.push(data);
                 }
+                self.trigger('verticesSelected', [selected]);
             }, false);
         };
     }
