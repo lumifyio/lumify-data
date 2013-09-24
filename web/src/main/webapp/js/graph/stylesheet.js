@@ -90,7 +90,7 @@ define([
 
             .selector('edge')
             .css({
-                'width': 2,
+                'width': 1.5 * retina.devicePixelRatio,
                 'target-arrow-shape': 'triangle'
             })
 

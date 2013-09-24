@@ -163,21 +163,14 @@ define(
             return cachedProperties;
         };
 
-        OntologyService.prototype.propertiesByConceptId = function (conceptId, callback) {
+        OntologyService.prototype.propertiesByConceptId = function (conceptId) {
             return this._ajaxGet({
                 url: 'ontology/concept/' + conceptId + '/properties'
-            }, function (err, response) {
-                if (err) {
-                    return callback(err);
-                }
-
-                var props = {
+            }).then(function(response) {
+                return {
                     list: response.properties,
                     byTitle: buildPropertiesByTitle(response.properties)
                 };
-                console.log('propertiesByConceptId', props);
-
-                return callback(null, props);
             });
         };
 

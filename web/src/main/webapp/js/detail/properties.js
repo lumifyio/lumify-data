@@ -3,9 +3,10 @@ define([
     'flight/lib/component',
     'service/ontology',
     'service/vertex',
+    'service/relationship',
     './dropdowns/propertyForm/propForm',
     'tpl!./properties'
-], function (defineComponent, OntologyService, VertexService, PropertyForm, propertiesTemplate) {
+], function (defineComponent, OntologyService, VertexService, RelationshipService, PropertyForm, propertiesTemplate) {
     'use strict';
 
     var component = defineComponent(Properties);
@@ -16,6 +17,7 @@ define([
 
         this.ontologyService = new OntologyService();
         this.vertexService = new VertexService();
+        this.relationshipService = new RelationshipService();
 
         this.defaultAttrs({
             addNewPropertiesSelector: '.add-new-properties'
@@ -45,23 +47,44 @@ define([
         this.onAddProperty = function (event, data) {
             var self = this;
 
-            self.vertexService.setProperty(
-                this.attr.data.id,
-                data.property.name,
-                data.property.value)
-                .fail(function(err) {
-                    // TODO: check if correct
-                    if (err.xhr.status == 400) {
-                        console.error('Validation error');
-                        self.trigger(self.$node.find('.underneath'), 'addPropertyError', {});
-                        return;
+            if (self.attr.data.properties._type === 'relationship') {
+                self.relationshipService.setProperty(
+                        data.property.name,
+                        data.property.value,
+                        this.attr.data.properties.source,
+                        this.attr.data.properties.target,
+                        this.attr.data.properties.relationshipLabel
+                ).done(function(newProperties) {
+                    //_timeStamp: "1380037609054"
+                    //relationshipType: "works at"
+                    //startDate: "946706400000"
+                    //
+                    var properties = $.extend({}, self.attr.data.properties, newProperties);
+                    self.displayProperties(properties);
+                    self.trigger('updateRelationships', [{
+                        id: self.attr.data.id,
+                        properties: properties
+                    }]);
+                });
+            } else {
+                self.vertexService.setProperty(
+                    this.attr.data.id,
+                    data.property.name,
+                    data.property.value)
+                    .fail(function(err) {
+                        // TODO: check if correct
+                        if (err.xhr.status == 400) {
+                            console.error('Validation error');
+                            self.trigger(self.$node.find('.underneath'), 'addPropertyError', {});
+                            return;
+                        }
+                    })
+                    .done(function(vertexData) {
+                        self.displayProperties(vertexData.properties);
+                        self.trigger (document, "updateVertices", { vertices: [vertexData.vertex] });
                     }
-                })
-                .done(function(vertexData) {
-                    self.displayProperties(vertexData.properties);
-                    self.trigger (document, "updateVertices", { vertices: [vertexData.vertex] });
-                }
-            );
+                );
+            }
         };
 
         this.onAddNewPropertiesClicked = function (evt) {
@@ -91,17 +114,17 @@ define([
             var self = this;
 
             this.ontologyService.properties().done(function(ontologyProperties) {
-                    var filtered = filterPropertiesForDisplay(properties, ontologyProperties);
+                var filtered = filterPropertiesForDisplay(properties, ontologyProperties);
 
-                    var iconProperty = _.findWhere(filtered, { key: '_glyphIcon' });
+                var iconProperty = _.findWhere(filtered, { key: '_glyphIcon' });
 
-                    if (iconProperty) {
-                        self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: iconProperty.value });
-                    }
+                if (iconProperty) {
+                    self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: iconProperty.value });
+                }
 
-                    var props = propertiesTemplate({properties:filtered});
-                    self.$node.html(props);
-                });
+                var props = propertiesTemplate({properties:filtered});
+                self.$node.html(props);
+            });
         };
     }
 
@@ -116,33 +139,44 @@ define([
             properties = o;
         }
 
-        Object.keys(properties).forEach(function (name) {
+        var keys = Object.keys(properties).sort(function(a,b) {
+            if (a === 'startDate' && b === 'endDate') return -1;
+            if (b === 'startDate' && a === 'endDate') return 1;
+
+            return a < b ? -1 : a > b ? 1 : 0;
+        });
+
+        keys.forEach(function (name) {
             var displayName, value,
-                ontologyProperty = ontologyProperties.byTitle[name];
+                ontologyProperty = ontologyProperties.byTitle[name],
+                isRelationshipType = name === 'relationshipType' && properties._type === 'relationship';
 
             if (ontologyProperty) {
                 displayName = ontologyProperty.displayName;
+
                 if (ontologyProperty.dataType == 'date') {
-                    value = sf("{0:yyyy/MM/dd}", new Date(properties[name]));
+                    value = sf("{0:yyyy/MM/dd}", new Date(parseInt(properties[name], 10)));
                 } else {
                     value = properties[name];
                 }
-            } else {
-                displayName = name;
-                value = properties[name];
-            }
 
-            var data = {
-                key: name,
-                value: value,
-                displayName: displayName
-            };
-
-            if (/^[^_]/.test(name) && name !== 'graphVertexId') {
-                displayProperties.push(data);
+                var isRelationshipSourceProperty = name === 'source' && properties._type === 'relationship';
+                if (/^[^_]/.test(name) && !isRelationshipSourceProperty) {
+                    addProperty(name, displayName, value);
+                }
+            } else if (isRelationshipType) {
+                addProperty(name, 'relationship type', properties[name]);
             }
         });
         return displayProperties;
+
+        function addProperty(name, displayName, value) {
+            displayProperties.push({
+                key: name,
+                value: value,
+                displayName: displayName || name
+            });
+        }
     }
 });
 

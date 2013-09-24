@@ -64,7 +64,7 @@ define([
             this.cy(function (cy) {
                 var self = this,
                     sourceVertex = cy.getElementById(graphVertexId),
-                    title = sourceVertex.data('originalTitle'),
+                    title = sourceVertex.data('title'),
                     beginText = 'Select item to connect to "' + title + '"',
                     instructions = $('<div>')
                         .text(beginText)
@@ -121,7 +121,7 @@ define([
 
 
                         targetGraphId = event.cyTarget.id();
-                        instructions.text('Click to connect "' + title + '" with "' + event.cyTarget.data('originalTitle') + '"');
+                        instructions.text('Click to connect "' + title + '" with "' + event.cyTarget.data('title') + '"');
 
                         edge = cy.add({
                             group: 'edges',

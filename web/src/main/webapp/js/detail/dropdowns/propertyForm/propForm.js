@@ -53,7 +53,7 @@ define([
                         }));
                     });
             } else {
-                self.attr.service.propertiesByRelationshipLabel(vertex.properties.relationshipType)
+                self.attr.service.propertiesByRelationshipLabel(vertex.properties.relationshipLabel)
                     .done(function(properties){
                         var propertiesList = [];
 

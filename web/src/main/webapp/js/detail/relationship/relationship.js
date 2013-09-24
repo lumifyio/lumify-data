@@ -57,8 +57,17 @@ define([
                     relationshipData: relationshipData
                 }));
 
+                var properties = $.extend({}, data.properties);
+                properties.relationshipLabel = data.properties.relationshipType;
+                relationshipData.properties.forEach(function(prop) {
+                    properties[prop.key] = prop.value;
+                });
+
                 Properties.attachTo(self.select('propertiesSelector'), {
-                    data: data
+                    data: {
+                        id: encodeURIComponent(data.id),
+                        properties: properties
+                    }
                 });
 
                 self.updateEntityAndArtifactDraggables();

@@ -19,7 +19,7 @@ define([
             this.cy(function (cy) {
                 var self = this;
                 var sourceVertex = cy.getElementById(graphVertexId);
-                var title = sourceVertex.data('originalTitle');
+                var title = sourceVertex.data('title');
                 var beginText = 'Select item to find path to "' + title + '"';
                 var instructions = $('<div>')
                     .text(beginText)

@@ -236,9 +236,13 @@ define([
                 return;
             }
             this.$node.find('.active').removeClass('active');
-            $((data||[]).map(function(v) {
-                return '.gId' + v.id;
-            }).join(',')).addClass('active');
+
+            var ids = _.chain(data || [])
+                .filter(function(v) { return v.properties._type !== 'relationship'; })
+                .map(function(v) { return '.gId' + v.id; })
+                .value().join(',');
+
+            $(ids).addClass('active');
         };
     }
 });

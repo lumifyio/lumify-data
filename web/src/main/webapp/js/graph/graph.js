@@ -614,6 +614,11 @@ define([
                 info.push({ id: cyEdge.id(), properties:cyEdge.data() });
             });
 
+            // Only allow one edge selected
+            if (nodes.length === 0 && edges.length > 1) {
+                info = [info[0]];
+            }
+
             this.trigger('verticesSelected', [info]);
         };
 
