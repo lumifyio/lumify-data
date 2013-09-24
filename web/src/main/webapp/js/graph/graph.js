@@ -185,15 +185,26 @@ define([
             return merged;
         };
 
-        this.removeSelectedVertices = function() {
+        this.removeSelected = function() {
             this.cy(function(cy) {
-                var verticesToDelete = $.map(cy.nodes().filter(':selected'), function(cyNode) {
-                    return {
-                        id: cyNode.id()
-                    };
-                });
+                
+                var self = this,
+                    edges = cy.edges().filter(':selected'),
+                    nodes = cy.nodes().filter(':selected');
 
-                this.trigger(document, 'deleteVertices', { vertices: verticesToDelete });
+                if (edges.length && nodes.length === 0) {
+                    $.when(
+                        $.map(edges, function(edge) {
+                            return self.ucd.deleteEdge(edge.data('source'), edge.data('target'), edge.data('relationshipType'));
+                        })
+                    ).done(function() {
+                        edges.remove();
+                    });
+                } else if (nodes.length) {
+                    this.trigger(document, 'deleteVertices', { vertices:$.map(nodes, function(node) {
+                        return { id:node.id() };
+                    })});
+                }
             });
         };
 
@@ -351,7 +362,7 @@ define([
             this.cy(function (cy) {
                 cy.remove(cy.getElementById(data.edgeId));
             });
-        }
+        };
 
         this.onContextMenuRemoveItem = function (){
             var menu = this.select('vertexContextMenuSelector'),
@@ -591,19 +602,17 @@ define([
         });
 
         this.updateVertexSelections = function(cy) {
-            var selection = cy.nodes().filter(':selected');
-            var edgeSelection = cy.edges().filter(':selected');
-            var info = [];
+            var nodes = cy.nodes().filter(':selected'),
+                edges = cy.edges().filter(':selected'),
+                info = [];
 
-            selection.each(function(index, cyNode) {
+            nodes.each(function(index, cyNode) {
                 info.push(appData.vertex(cyNode.id()));
             });
-            // TODO: edges
-            /*
-            edgeSelection.each(function(index, vertex) {
-                info.push(appData.vertex(vertex.id));
+
+            edges.each(function(index, cyEdge) {
+                info.push({ id: cyEdge.id(), properties:cyEdge.data() });
             });
-            */
 
             this.trigger('verticesSelected', [info]);
         };
@@ -618,7 +627,7 @@ define([
                 case $.ui.keyCode.BACKSPACE:
                 case $.ui.keyCode.DELETE:
                     if ( down ) {
-                        this.removeSelectedVertices();
+                        this.removeSelected();
                     }
                     break;
                 case 65:

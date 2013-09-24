@@ -181,21 +181,14 @@ define(
             });
         };
 
-        OntologyService.prototype.propertiesByRelationshipLabel = function (relationshipLabel, callback) {
-            this._ajaxGet({
+        OntologyService.prototype.propertiesByRelationshipLabel = function (relationshipLabel) {
+            return this._ajaxGet({
                 url: 'ontology/' + relationshipLabel + '/properties'
-            }, function (err, response) {
-                if (err) {
-                    return callback(err);
-                }
-
-                var props = {
+            }).then(function(response) {
+                return {
                     list: response.properties,
                     byTitle: buildPropertiesByTitle(response.properties)
                 };
-                console.log('propertiesByRelationshipLabel', props);
-
-                return callback(null, props);
             });
         };
 

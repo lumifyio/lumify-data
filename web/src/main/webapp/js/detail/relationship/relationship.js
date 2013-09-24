@@ -1,11 +1,21 @@
 define([
     'flight/lib/component',
+    'data',
     '../withTypeContent',
     '../withHighlighting',
     'tpl!./relationship',
     'service/relationship',
+    'detail/properties',
     'sf'
-], function(defineComponent, withTypeContent, withHighlighting, template, propertiesTemplate, PropertyForm, RelationshipService, sf) {
+], function(
+    defineComponent,
+    appData,
+    withTypeContent,
+    withHighlighting,
+    template,
+    RelationshipService,
+    Properties,
+    sf) {
     'use strict';
 
     var relationshipService = new RelationshipService();
@@ -29,7 +39,7 @@ define([
                 vertexToVertexRelationshipSelector: this.onVertexToVertexRelationshipClicked
             });
 
-            this.loadRelationship ();
+            this.loadRelationship();
         });
 
 
@@ -37,38 +47,36 @@ define([
             var self = this,
                 data = this.attr.data;
 
-            this.ucdService.getVertexToVertexRelationshipDetails (data.source, data.target, data.relationshipType, function (err, relationshipData){
-                if (err) {
-                    console.error ('Error', err);
-                    return self.trigger (document, 'error', { message: err.toString () });
-                }
-
-                self.$node.html (template({
+            this.ucdService.getVertexToVertexRelationshipDetails(
+                    data.properties.source,
+                    data.properties.target,
+                    data.properties.relationshipType
+            ).done(function(relationshipData) {
+                self.$node.html(template({
                     highlightButton: self.highlightButton(),
                     relationshipData: relationshipData
                 }));
 
-                self.displayProperties(relationshipData.properties);
+                Properties.attachTo(self.select('propertiesSelector'), {
+                    data: data
+                });
+
                 self.updateEntityAndArtifactDraggables();
             });
         };
 
         this.onVertexToVertexRelationshipClicked = function(evt) {
-            var self = this;
             var $target = $(evt.target);
-
-            this.trigger('verticesSelected', $target.data('info'));
+            var id = $target.data('vertexId');
+            this.trigger('verticesSelected', [appData.vertex(id)]);
         };
 
         this.onPaneClicked = function(evt) {
             var $target = $(evt.target);
 
-            if ($target.not('.add-relationship-properties') && $target.parents('.underneath').length === 0) {
-                PropertyForm.teardownAll();
-            }
-
             if ($target.is('.entity, .artifact, span.relationship')) {
-                this.trigger('verticesSelected', $target.data('info'));
+                var id = $target.data('vertexId');
+                this.trigger('verticesSelected', [appData.vertex(id)]);
                 evt.stopPropagation();
             }
         };
