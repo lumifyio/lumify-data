@@ -621,8 +621,8 @@ public class TitanGraphSession extends GraphSession {
     private class GraphRelationshipDateComparator implements Comparator<GraphRelationship> {
         @Override
         public int compare(GraphRelationship rel1, GraphRelationship rel2) {
-            Date e1Date = (Date) rel1.getProperty(PropertyName.TIME_STAMP.toString());
-            Date e2Date = (Date) rel2.getProperty(PropertyName.TIME_STAMP.toString());
+            Long e1Date = (Long)rel1.getProperty(PropertyName.TIME_STAMP.toString());
+            Long e2Date = (Long)rel2.getProperty(PropertyName.TIME_STAMP.toString());
             if (e1Date == null || e2Date == null) {
                 return 1;
             }
