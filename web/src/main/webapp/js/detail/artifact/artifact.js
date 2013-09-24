@@ -177,8 +177,7 @@ define([
                     _type: data.properties._type
                 };
 
-                self.select('detectedObjectTagSelector').find($(detectedObjectTag).next()).remove();
-                self.select('detectedObjectTagSelector').find($(detectedObjectTag)).remove();
+                self.select('detectedObjectTagSelector').find($(detectedObjectTag)).parent().remove();
 
                 if (data.remove){
                     self.trigger(document, 'deleteVertices', { vertices: [resolvedVertex] });
