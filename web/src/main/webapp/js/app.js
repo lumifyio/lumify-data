@@ -63,6 +63,8 @@ define([
                 usersPane = content.filter('.users-pane').data(DATA_MENUBAR_NAME, 'users'),
                 graphPane = content.filter('.graph-pane').data(DATA_MENUBAR_NAME, 'graph'),
                 detailPane = content.filter('.detail-pane');
+                
+            content.filter('.map-pane').data(DATA_MENUBAR_NAME, 'map');
 
             Sync.attachTo(window);
             Menubar.attachTo(menubarPane.find('.content'));
@@ -116,7 +118,7 @@ define([
         };
 
         this.onMapAction = function(event, data) {
-            this.trigger(document, 'changeView', { view: 'map' });
+            this.trigger(document, 'changeView', { view: 'map', data:data });
         };
 
         this.onChangeView = function(event, data) {
@@ -126,7 +128,7 @@ define([
             if (pane && pane.hasClass('visible')) {
                 return;
             } else if (pane) {
-                this.trigger(document, 'menubarToggleDisplay', { name: pane.data(DATA_MENUBAR_NAME) });
+                this.trigger(document, 'menubarToggleDisplay', { name: pane.data(DATA_MENUBAR_NAME), data:data.data });
             } else {
                 console.log("View " + data.view + " isn't supported");
             }
@@ -172,9 +174,9 @@ define([
                 this.trigger(document, 'graphShow');
             } else if (data.name === 'map' && !pane.hasClass('visible')) {
                 this.trigger(document, 'graphHide');
-                var mapPane = this.$node.find('.map-pane').data(DATA_MENUBAR_NAME, 'map');
+                var mapPane = this.$node.find('.map-pane');
                 Map.attachTo(mapPane);
-                this.trigger(document, 'mapShow');
+                this.trigger(document, 'mapShow', { data:(data && data.data) });
                 this.collapse([
                     this.select('searchSelector'),
                     this.select('workspacesSelector'),
@@ -311,6 +313,7 @@ define([
                     self.trigger(document, 'menubarToggleDisplay', { name:name, syncToRemote:false });
                 }
             });
+            this.triggerPaneResized();
         };
     }
 

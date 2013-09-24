@@ -7,7 +7,7 @@
       <strong><%= property.displayName %></strong>
       <% if (property.key === 'geoLocation' && property.value) { %>
         <span class="value">
-            <a href="#" class="map-coordinates" latitude="<%= property.value.latitude %>" longitude="<%= property.value.longitude %>">
+            <a href="#" class="map-coordinates" data-latitude="<%= property.value.latitude %>" data-longitude="<%= property.value.longitude %>">
                 <%= property.value.title || (property.value.latitude + ', ' + property.value.longitude) %>
             </a>
         </span>

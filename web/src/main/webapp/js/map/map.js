@@ -418,15 +418,21 @@ define([
             });
         };
 
-        this.onMapShow = function(evt) {
+        this.onMapShow = function(evt, data) {
             var self = this;
             if (!this.timeout && !this.mapLoaded) {
                 this.timeout = setTimeout(this.initializeMap.bind(this), 100);
             }
 
+            if (data && data.latitude && data.longitude) {
+                this.map(function(map) {
+                    var latlon = new mxn.LatLonPoint(data.latitude, data.longitude);
+                    map.setCenterAndZoom(latlon, 7);
+                });
+            }
+
             if (this.mapLoaded) {
                 setTimeout(function() {
-                    console.log('fixing');
                     this.fixSize();
                 }.bind(this), 250);
             }

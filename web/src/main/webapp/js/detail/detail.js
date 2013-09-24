@@ -43,8 +43,8 @@ define([
             evt.preventDefault();
             var $target = $(evt.target);
             data = {
-                latitude: $target.attr('latitude'),
-                longitude: $target.attr('longitude')
+                latitude: $target.data('latitude'),
+                longitude: $target.data('longitude')
             };
             this.trigger('mapCenter', data);
         };
