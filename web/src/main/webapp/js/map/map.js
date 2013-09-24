@@ -325,65 +325,6 @@ define([
                     });
         };
 
-        /*
-        this.updateVertexLocation = function(vertex) {
-            var self = this;
-            if(vertex._type == 'artifact') {
-                this.ucdService.getArtifactById(vertex._rowKey, function(err, artifact) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-
-                    if(artifact && artifact.Dynamic_Metadata && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) {
-
-                        vertex.location = {
-                            latitude: artifact.Dynamic_Metadata.latitude,
-                            longitude: artifact.Dynamic_Metadata.longitude
-                        };
-
-                        var verticesUpdateData = {
-                            vertices: [vertex]
-                        };
-                        self.trigger(document, 'updateVertices', verticesUpdateData);
-                    } else {
-                        self.invalidMap();
-                    }
-                });
-            } else {
-                this.ucdService.getVertexProperties(vertex.graphVertexId, function(err, entity) {
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
-                    var locations = [];
-
-                    if(entity.properties.geoLocation) {
-                        var m = entity.properties.geoLocation.match(/point\[(.*?),(.*)\]/);
-                        if(m){
-                            var latitude = m[1];
-                            var longitude = m[2];
-                            locations.push({
-                                latitude: latitude,
-                                longitude: longitude
-                            });
-                        }
-                    }
-
-                    vertex.locations = locations;
-                    if (locations.length === 0) {
-                        self.invalidMap();
-                    }
-
-                    var verticesUpdateData = {
-                        vertices: [vertex]
-                    };
-                    self.trigger(document, 'updateVertices', verticesUpdateData);
-                });
-            }
-        };
-        */
-
         this.invalidMap = function() {
             var map = this.select('mapSelector'),
                 cls = 'invalid',
