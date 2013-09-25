@@ -92,7 +92,9 @@ define([
         this.onConceptChanged = function (event) {
             if (this.select('propertySelector').val () != '') {
                 this.select ('addPropertySelector').attr('disabled', false);
-            }
+            } else if (this.select('propertySelector').val () == '') {
+              this.select ('addPropertySelector').attr('disabled', true);
+          }
         }
 
         this.onAddPropertyError = function(event) {
