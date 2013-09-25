@@ -22,6 +22,24 @@ define([
             return _.values(_.pick(this.cachedVertices, _.keys(this.workspaceVertices)));
         };
 
+        this.copy = function(obj) {
+            return JSON.parse(JSON.stringify(obj));
+        };
+
+        this.workspaceOnlyVertexCopy = function(vertex) {
+            return {
+                id: vertex.id,
+                workspace: this.copy(vertex.workspace || this.workspaceVertices[vertex.id] || {})
+            };
+        };
+
+        this.workspaceOnlyVertex = function(id) {
+            return {
+                id: id,
+                workspace: this.workspaceVertices[id] || {}
+            };
+        };
+
         this.inWorkspace = function(vertex) {
             return !!this.workspaceVertices[_.isString(vertex) ? vertex : vertex.id];
         };

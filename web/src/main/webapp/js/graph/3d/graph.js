@@ -68,12 +68,17 @@ define([
 
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'verticesAdded', this.onVerticesAdded);
+            this.on(document, 'verticesDropped', this.onVerticesDropped);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
         });
-        
+
+        this.onVerticesDropped = function(event, data) {
+            this.addVertices(data.vertices);
+            this.trigger(document, 'addVertices', data);
+        };
 
         this.addVertices = function(vertices) {
             var graph = this.graph,

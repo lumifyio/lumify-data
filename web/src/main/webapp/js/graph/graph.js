@@ -156,7 +156,7 @@ define([
                 }
 
                 if (addedVertices.length) {
-                    this.trigger(document, 'updateVertices', { vertices:addedVertices });
+                    this.trigger(document, 'addVertices', { vertices:addedVertices });
                 }
 
             });
@@ -842,6 +842,7 @@ define([
             var self = this;
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'verticesAdded', this.onVerticesAdded);
+            this.on(document, 'verticesDropped', this.onVerticesAdded);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesSelected', this.onVerticesSelected);

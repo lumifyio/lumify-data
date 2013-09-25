@@ -180,7 +180,7 @@ define([
                     $(ui.helper).addClass('vertex-dragging');
                 },
                 otherDraggables: function(ev, ui){
-                    self.trigger(document, 'addVertices', {
+                    self.trigger(document, 'verticesDropped', {
                         vertices: appData.vertices(ui.otherDraggables.map(function(){
                             return this.data('original').parent().data('vertexId');
                         }).toArray())

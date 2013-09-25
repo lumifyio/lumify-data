@@ -141,7 +141,12 @@ define([
 
                 // Check if vertices are missing properties (from search results)
                 var needsRefreshing = data.vertices.filter(function(v) { 
-                    return !v.properties.geoLocation && v.properties.geoLocation !== null; 
+                        return !v.properties || !v.properties._refreshedFromServer;
+                    }),
+                    passedWorkspace = {};
+
+                data.vertices.forEach(function(v) {
+                    passedWorkspace[v.id] = self.copy(v.workspace);
                 });
 
                 var deferred = $.Deferred();
@@ -155,9 +160,13 @@ define([
                     vertices = self.vertices(vertices);
 
                     vertices.forEach(function(vertex) {
+                        vertex.properties._refreshedFromServer = true;
+                        if (passedWorkspace[vertex.id]) {
+                            vertex.workspace = passedWorkspace[vertex.id];
+                        }
                         var inWorkspace = self.workspaceVertices[vertex.id],
                             cache = self.updateCacheWithVertex(vertex);
-
+                        
                         self.workspaceVertices[vertex.id] = cache.workspace;
 
                         if (inWorkspace) {
@@ -218,14 +227,14 @@ define([
                             shouldSave = true;
                         }
 
-                        // TODO: fix undo/redo
-                        //undoData.vertices.push(JSON.parse(JSON.stringify(cache)));
+
+                        if (shouldSave) undoData.vertices.push(self.workspaceOnlyVertexCopy({id:vertex.id}));
                         var cache = self.updateCacheWithVertex(vertex);
-                        //redoData.vertices.push(JSON.parse(JSON.stringify(cache)));
+                        if (shouldSave) redoData.vertices.push(self.workspaceOnlyVertexCopy(cache));
                         return cache;
                     });
 
-                if(!data.noUndo) {
+                if(!data.noUndo && undoData.vertices.length) {
                     undoManager.performedAction( 'Update ' + undoData.vertices.length + ' vertices', {
                         undo: function() { self.trigger('updateVertices', undoData); },
                         redo: function() { self.trigger('updateVertices', redoData); }
@@ -244,12 +253,17 @@ define([
 
             this.workspaceReady(function(ws) {
 
-                var toDelete = [];
+                var toDelete = [],
+                    undoDelete = [],
+                    redoDelete = [];
                 data.vertices.forEach(function(deletedVertex) {
                     var workspaceInfo = self.workspaceVertices[deletedVertex.id];
                     if (workspaceInfo) {
-                        delete self.workspaceVertices[deletedVertex.id];
+                        redoDelete.push(self.workspaceOnlyVertexCopy(deletedVertex.id));
+                        undoDelete.push(self.copy(self.vertex(deletedVertex.id)));
                         toDelete.push(self.vertex(deletedVertex.id));
+
+                        delete self.workspaceVertices[deletedVertex.id];
                     }
                     var cache = self.vertex(deletedVertex.id);
                     if (cache) {
@@ -257,18 +271,10 @@ define([
                     }
                 });
 
-                if(!data.noUndo) {
-                    var undoDataClone = JSON.parse(JSON.stringify({
-                        noUndo: true,
-                        vertices: toDelete
-                    }));
+                if(!data.noUndo && undoDelete.length) {
                     undoManager.performedAction( 'Delete ' + toDelete.length + ' vertices', {
-                        undo: function() {
-                            self.trigger(document, 'addVertices', undoDataClone);
-                        },
-                        redo: function() {
-                            self.trigger(document, 'deleteVertices', undoDataClone);
-                        }
+                        undo: function() { self.trigger(document, 'addVertices', { noUndo:true, vertices:undoDelete }); },
+                        redo: function() { self.trigger(document, 'deleteVertices', { noUndo:true, vertices:redoDelete }); }
                     });
                 }
 
@@ -382,6 +388,7 @@ define([
                         var workspaceData = workspace.data[vertex.id];
 
                         var cache = self.updateCacheWithVertex(vertex);
+                        cache._refreshedFromServer = true;
                         cache.workspace = workspaceData || {};
                         cache.workspace.selected = false;
                         self.workspaceVertices[vertex.id] = cache.workspace;
@@ -480,7 +487,7 @@ define([
                             vertex.workspace.dropPosition = { x: event.clientX, y: event.clientY };
                         }
 
-                        self.trigger('addVertices', { vertices:[vertex] });
+                        self.trigger('verticesDropped', { vertices:[vertex] });
                     }
 
                 }.bind(this)
