@@ -14,7 +14,8 @@ define([
         this.defaultAttrs({
             propertySelector: 'select',
             propertyValueSelector: '.property-value',
-            addPropertySelector: '.add-property'
+            addPropertySelector: '.add-property',
+            buttonDivSelector: '.buttons'
         });
 
         this.after('initialize', function() {
@@ -102,6 +103,8 @@ define([
             var vertexId = this.attr.data.id,
                 propertyName = this.select('propertySelector').val(),
                 value = $.trim(this.select('propertyValueSelector').val());
+
+            _.defer(this.buttonLoading.bind(this));
 
             this.select('propertyValueSelector').removeClass('validation-error');
             if (propertyName.length && value.length) {
