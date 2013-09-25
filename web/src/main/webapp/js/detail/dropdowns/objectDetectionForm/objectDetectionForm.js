@@ -49,7 +49,6 @@ define([
                 resolvedVertex = this.attr.resolvedVertex,
                 entitySign = this.attr.resolvedVertex.title || '',
                 existingEntity = this.attr.existing;
-
             this.select('resolveButtonSelector').attr('disabled', true);
 
             vertex.html(template({
@@ -166,17 +165,23 @@ define([
                     };
 
                     // Temporarily creating a new tag to show on ui prior to backend update
-                    var $allDetectedObjects = $('.detected-object-labels .label');
+                    var $allDetectedObjects = $('.detected-object-labels');
                     var $allDetectedObjectLabels = $('.detected-object-tag .label-info');
                     var $parentSpan = $('<span>').addClass ('label detected-object-tag focused');
                     var $deleteButton = $("<a>").addClass("delete-tag").text('x');
-                    var $tag = $("<a>").addClass($allDetectedObjectLabels.attr('class') + ' resolved entity').attr("href", "#").text(data.title);
+
+                    var classes = $allDetectedObjectLabels.attr('class');
+                    if (!classes){
+                        classes = 'label-info detected-object'
+                    }
+                    var $tag = $("<a>").addClass(classes + ' resolved entity').attr("href", "#").text(data.title);
+
                     var added = false;
 
                     $deleteButton.appendTo($tag);
                     $parentSpan.append($tag);
 
-                    if ($allDetectedObjects.hasClass('focused')) {
+                    if ($allDetectedObjects.children().hasClass('focused')) {
                         self.updateEntityTag (data, parameters.conceptId);
                     } else {
                         $allDetectedObjectLabels.each(function(){
@@ -189,10 +194,10 @@ define([
 
                     if (!added){
                         $tag.addClass('subType-' + parameters.conceptId);
-                        $allDetectedObjects.parent().append($parentSpan);
+                        $allDetectedObjects.append($parentSpan);
                     }
 
-                    $tag.data('info', data);
+                    $tag.attr('data-info', JSON.stringify(data));
                     $parentSpan.removeClass('focused');
                     self.trigger(document, 'termCreated', data);
 
