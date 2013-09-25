@@ -22,7 +22,8 @@ define([
             createStatementButtonSelector: '.create-statement',
             statementLabelSelector: '.statement-label',
             invertAnchorSelector: 'a.invert',
-            relationshipSelector: 'select'
+            relationshipSelector: 'select',
+            buttonDivSelector: '.buttons'
         });
 
         this.after('initialize', function () {
@@ -120,6 +121,8 @@ define([
                 parameters.destGraphVertexId = swap;
             }
 
+            _.defer(this.buttonLoading.bind(this));
+
             this.relationshipService.createRelationship(parameters).done(function(data) {
                 _.defer(self.teardown.bind(self));
                 self.trigger(document, 'refreshRelationships');
@@ -130,24 +133,14 @@ define([
             var self = this;
             var sourceConceptTypeId = this.attr.sourceTerm.data('info')._subType;
             var destConceptTypeId = this.attr.destTerm.data('info')._subType;
-            self.ontologyService.conceptToConceptRelationships(sourceConceptTypeId, destConceptTypeId, function (err, results){
-                if (err) {
-                    console.error ('Error', err);
-                    return self.trigger (document, 'error', { message: err.toString () });
-                }
-
+            self.ontologyService.conceptToConceptRelationships(sourceConceptTypeId, destConceptTypeId).done(function (results){
                 self.displayRelationships (results.relationships);
             });
         };
 
         this.displayRelationships = function (relationships) {
             var self = this;
-            self.ontologyService.relationships(function(err, ontologyRelationships) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-
+            self.ontologyService.relationships().done(function(ontologyRelationships) {
                 var relationshipsTpl = [];
 
                 relationships.forEach(function(relationship) {
