@@ -30,6 +30,7 @@ define([
     };
 
     GraphRenderer.prototype.teardown = function() {
+        this.running = false;
         this._layout.stop_calculating();
         this.teardownEvents();
     };
@@ -64,6 +65,7 @@ define([
         controls.noPan = false;
         controls.staticMoving = true;
         controls.dynamicDampingFactor = 0.3;
+        controls.maxDistance = 8000;
 
         var self = this;
 
@@ -172,6 +174,8 @@ define([
             pickedId = null,
             self = this;
 
+        this.running = true;
+
         function pick() {
             if ( ! mouse.x || ! mouse.y ) {
                 return;
@@ -200,6 +204,7 @@ define([
         }
 
         function render() {
+            if (!self.running) return;
             requestAnimationFrame(render);
 
             var needsUpdateGeometry = false;
