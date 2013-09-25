@@ -31,7 +31,13 @@ define([
 
             this.on('addPropertyError', this.onAddPropertyError);
 
+            this.on('change', {
+                propertySelector: this.onConceptChanged
+            });
+
             this.$node.html(template({}));
+
+            self.select ('addPropertySelector').attr('disabled', true);
 
             if (vertex.properties._subType){
                 self.attr.service.propertiesByConceptId(vertex.properties._subType)
@@ -81,6 +87,12 @@ define([
                     this.onAddPropertyClicked(event);
             }
         };
+
+        this.onConceptChanged = function (event) {
+            if (this.select('propertySelector').val () != '') {
+                this.select ('addPropertySelector').attr('disabled', false);
+            }
+        }
 
         this.onAddPropertyError = function(event) {
             this.select('propertyValueSelector').addClass('validation-error');
