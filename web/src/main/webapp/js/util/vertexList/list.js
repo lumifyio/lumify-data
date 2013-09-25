@@ -179,13 +179,6 @@ define([
                 start: function(ev, ui) {
                     $(ui.helper).addClass('vertex-dragging');
                 },
-                otherDraggables: function(ev, ui){
-                    self.trigger(document, 'verticesDropped', {
-                        vertices: appData.vertices(ui.otherDraggables.map(function(){
-                            return this.data('original').parent().data('vertexId');
-                        }).toArray())
-                    });
-                },
                 selection: function(ev, ui) {
                     var selected = ui.selected,
                         vertices = appData.vertices(selected.map(function() {

@@ -80,8 +80,19 @@ define([
                 $(".instructions").text ('Related Entities Added');
             }
 
+            var dragging = $('.ui-draggable-dragging:not(.clone-vertex)'),
+                cloned = null;
+            if (dragging.length && this.$node.closest('.visible').length === 1) {
+                cloned = dragging.clone()
+                    .css({width:'auto'})
+                    .addClass('clone-vertex')
+                    .insertAfter(dragging);
+            }
+
+
             this.cy(function(cy) {
-                var boundingBox = cy.nodes().boundingBox(),
+                var currentNodes = cy.nodes(),
+                    boundingBox = currentNodes.boundingBox(),
                     validBox = isFinite(boundingBox.x1),
                     inc = 200,
                     nextAvailablePosition = retina.pixelsToPoints({ 
@@ -94,6 +105,9 @@ define([
                 cy.filter(":selected").unselect();
 
                 maxWidth = Math.max(maxWidth, inc * 10);
+
+                var vertexIds = _.pluck(vertices, 'id'),
+                    existingNodes = currentNodes.filter(function(i, n) { return vertexIds.indexOf(n.id()) >= 0; });
 
                 vertices.forEach(function(vertex) {
 
@@ -154,6 +168,12 @@ define([
                 if (options.fit && cy.nodes().length) {
                     this.fit();
                 }
+
+                if (existingNodes.length && cloned && cloned.length) {
+                    // Animate to something
+                    this.animateToExistingNode(existingNodes[0], cloned);
+                } else if (cloned) cloned.remove();
+
 
                 if (addedVertices.length) {
                     this.trigger(document, 'addVertices', { vertices:addedVertices });
@@ -273,47 +293,42 @@ define([
             this.setWorkspaceDirty();
         };
 
-        this.onExistingVerticesAdded = function(evt, data) {
-            if (this.$node.closest('.visible').length === 0) return;
-            var self = this;
+        this.animateToExistingNode = function(el, cloned) {
+            var self = this,
+                cy = el.cy;
             
-            this.cy(function(cy) {
+            // FIXME: support multiple dragging
+            var p = retina.pixelsToPoints(el.renderedPosition()),
+                position = cloned.position(),
+                offset = cloned.offset(),
+                graphOffset = this.$node.offset();
 
-                // FIXME: support multiple dragging
-                var el = cy.getElementById( data.vertices[0].id ),
-                    p = retina.pixelsToPoints(el.renderedPosition()),
-                    cloned = $('.clone-vertex'),
-                    position = cloned.position(),
-                    offset = cloned.offset(),
-                    graphOffset = this.$node.offset();
+            if (cloned.length != 1) return;
 
-                if (cloned.length != 1) return;
+            // Is existing element visible (not covered by search/detail panes)
+            this.focusGraphToVertex(el, function() {
+                var p = retina.pixelsToPoints(el.renderedPosition());
 
-                // Is existing element visible (not covered by search/detail panes)
-                this.focusGraphToVertex(el, function() {
-                    var p = retina.pixelsToPoints(el.renderedPosition());
+                // Adjust rendered position to page coordinate system
+                p.x += graphOffset.left;
+                p.y += graphOffset.top;
 
-                    // Adjust rendered position to page coordinate system
-                    p.x += graphOffset.left;
-                    p.y += graphOffset.top;
+                // Move draggable coordinates from top/left to center
+                offset.left += cloned.outerWidth(true) / 2;
+                offset.top += cloned.outerHeight(true) / 2;
 
-                    // Move draggable coordinates from top/left to center
-                    offset.left += cloned.outerWidth(true) / 2;
-                    offset.top += cloned.outerHeight(true) / 2;
-
-                    cloned
-                        .animate({
-                            left: (position.left + (p.x-offset.left))  + 'px',
-                            top: (position.top +  (p.y-offset.top)) + 'px'
-                        }, {
-                            complete: function() {
-                                cloned.addClass('shrink');
-                                _.delay(function() { 
-                                    cloned.remove(); 
-                                }, 1000); 
-                            }
-                        });
-                });
+                cloned
+                    .animate({
+                        left: (position.left + (p.x-offset.left))  + 'px',
+                        top: (position.top +  (p.y-offset.top)) + 'px'
+                    }, {
+                        complete: function() {
+                            cloned.addClass('shrink');
+                            _.delay(function() { 
+                                cloned.remove(); 
+                            }, 1000); 
+                        }
+                    });
             });
         };
 
@@ -846,7 +861,7 @@ define([
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesSelected', this.onVerticesSelected);
-            this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
+            //this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
             this.on(document, 'graphPaddingUpdated', this.onGraphPaddingUpdated);
             this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);

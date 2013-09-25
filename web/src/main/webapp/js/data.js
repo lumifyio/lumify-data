@@ -130,18 +130,13 @@ define([
                     existing = [];
 
 
-                var dragging = $('.ui-draggable-dragging:not(.clone-vertex)'),
-                    cloned = null;
-                if (dragging.length) {
-                    cloned = dragging.clone()
-                        .css({width:'auto'})
-                        .addClass('clone-vertex')
-                        .insertAfter(dragging);
-                }
-
                 // Check if vertices are missing properties (from search results)
                 var needsRefreshing = data.vertices.filter(function(v) { 
-                        return !v.properties || !v.properties._refreshedFromServer;
+                        var cached = self.vertex(v.id);
+                        if (!cached) {
+                            return !v.properties || !v.properties._refreshedFromServer;
+                        }
+                        return !cached.properties._refreshedFromServer;
                     }),
                     passedWorkspace = {};
 
@@ -177,7 +172,6 @@ define([
                     });
 
                     if (existing.length) self.trigger('existingVerticesAdded', { vertices:freeze(existing) });
-                    else if (cloned) cloned.remove();
 
                     if (added.length === 0) {
                         // TODO: make mixin
@@ -199,8 +193,11 @@ define([
                     }
 
                     self.trigger('refreshRelationships');
-                    self.trigger('saveWorkspace');
-                    self.trigger('verticesAdded', { vertices:freeze(added) } );
+                    if (!data.remoteEvent) self.trigger('saveWorkspace');
+                    self.trigger('verticesAdded', { 
+                        vertices:freeze(added),
+                        remoteEvent: data.remoteEvent
+                    });
                 });
             });
         };
@@ -241,10 +238,13 @@ define([
                     });
                 }
 
-                if (shouldSave) {
+                if (shouldSave && !data.remoteEvent) {
                     this.trigger('saveWorkspace');
                 }
-                this.trigger('verticesUpdated', { vertices:freeze(updated) });
+                this.trigger('verticesUpdated', { 
+                    vertices:freeze(updated),
+                    remoteEvent: data.remoteEvent
+                });
             });
         };
 
@@ -278,8 +278,13 @@ define([
                     });
                 }
 
-                this.trigger('saveWorkspace');
-                this.trigger('verticesDeleted', { vertices:freeze(toDelete) });
+                if (!data.remoteEvent) {
+                    this.trigger('saveWorkspace');
+                }
+                this.trigger('verticesDeleted', { 
+                    vertices:freeze(toDelete),
+                    remoteEvent: data.remoteEvent
+                });
             });
         };
 
@@ -388,7 +393,7 @@ define([
                         var workspaceData = workspace.data[vertex.id];
 
                         var cache = self.updateCacheWithVertex(vertex);
-                        cache._refreshedFromServer = true;
+                        cache.properties._refreshedFromServer = true;
                         cache.workspace = workspaceData || {};
                         cache.workspace.selected = false;
                         self.workspaceVertices[vertex.id] = cache.workspace;
@@ -451,43 +456,53 @@ define([
 
                     var draggable = ui.draggable,
                         droppable = $(event.target),
-                        id = draggable.data('vertexId') || draggable.closest('li').data('vertexId');
+                        graphVisible = $('.graph-pane').is('.visible'),
+                        alsoDragging = draggable.data('ui-draggable').alsoDragging,
+                        refresh = [];
 
-                    if (!id) {
-
-                        // Highlighted entities (legacy info)
-                        var info = draggable.data('info') || draggable.closest('li').data('info');
-                        if (info && info.graphVertexId) {
-
-                            // TODO: fix on server
-                            if (info.type) {
-                                info._type = info.type;
-                                delete info.type;
-                            }
-
-                            self.updateCacheWithVertex({
-                                id: info.graphVertexId,
-                                properties: _.omit(info, 'start', 'end', 'graphVertexId')
-                            });
-                            id = info.graphVertexId;
-                        } 
-                        
-                        if (!id) return console.error('No data-vertex-id attribute for draggable element found', draggable[0]);
+                    if (alsoDragging && alsoDragging.length) {
+                        draggable.add(alsoDragging);
                     }
+                    var vertices = draggable.map(function(i, a) {
+                        a = $(a);
+                        var id = a.data('vertexId') || a.closest('li').data('vertexId');
+                        if (!id) {
 
-                    var vertex = self.vertex(id);
-                    if (vertex) {
-                        addVertex(vertex);
-                    } else {
-                        self.refresh(id).done(addVertex);
-                    }
+                            // Highlighted entities (legacy info)
+                            var info = a.data('info') || a.closest('li').data('info');
+                            if (info && info.graphVertexId) {
 
-                    function addVertex(vertex) {
-                        if ($('.graph-pane').is('.visible')) {
-                            vertex.workspace.dropPosition = { x: event.clientX, y: event.clientY };
+                                // TODO: fix on server
+                                if (info.type) {
+                                    info._type = info.type;
+                                    delete info.type;
+                                }
+
+                                self.updateCacheWithVertex({
+                                    id: info.graphVertexId,
+                                    properties: _.omit(info, 'start', 'end', 'graphVertexId')
+                                });
+                                id = info.graphVertexId;
+                            } 
+                            
+                            if (!id) return console.error('No data-vertex-id attribute for draggable element found', draggable[0]);
                         }
 
-                        self.trigger('verticesDropped', { vertices:[vertex] });
+                        var vertex = self.vertex(id);
+                        if (vertex) {
+                            if (graphVisible) {
+                                vertex.workspace.dropPosition = { x: event.clientX, y: event.clientY };
+                            }
+                            return vertex;
+                        } else refresh.push(id);
+                    }).toArray();
+
+                    if (refresh.length) {
+                        this.vertexService.getMultiple(refresh).done(function() {
+                            self.trigger('verticesDropped', { vertices:vertices });
+                        });
+                    } else {
+                        self.trigger('verticesDropped', { vertices:vertices });
                     }
 
                 }.bind(this)

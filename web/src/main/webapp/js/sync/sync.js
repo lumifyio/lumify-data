@@ -15,7 +15,9 @@ define([
         //PUT EVENTS YOU WANT TO SYNC HERE!
         this.events = [
             // Disabling until fixed
-            //'verticesAdded',
+            'addVertices',
+            'updateVertices',
+            'deleteVertices'
             //'verticesUpdated',
             //'verticesDeleted'
         ];
