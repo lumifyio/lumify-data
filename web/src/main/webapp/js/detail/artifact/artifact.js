@@ -141,7 +141,7 @@ define([
 
         this.onDetectedObjectClicked = function(event) {
             var tagInfo = $(event.target).data('info');
-            $(event.target).addClass('focused');
+            $(event.target).parent().addClass('focused');
             this.showForm(tagInfo, this.attr.data);
         };
 
@@ -242,6 +242,7 @@ define([
             if (dataInfo.graphVertexId){
                 existing = true;
             }
+
             ObjectDetectionForm.attachTo (root, {
                 artifactData: artifactInfo,
                 coords: dataInfo.info.coords,

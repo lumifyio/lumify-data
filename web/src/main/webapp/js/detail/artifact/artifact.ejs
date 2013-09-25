@@ -40,7 +40,7 @@
     if (object.graphVertexId) {
         var classes = 'label-info detected-object resolved entity subType-' + object._subType;%>
         <span class="label detected-object-tag">
-        <a class="<%= classes %>" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.title || object.info.concept %></a><a class="delete-tag">x</a>
+            <a class="<%= classes %>" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.title || object.info.concept %></a><a class="delete-tag">x</a>
         </span>
     <%} else { %>
     <span class="label detected-object-tag">

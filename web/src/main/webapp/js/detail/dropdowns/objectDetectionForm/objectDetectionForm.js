@@ -35,9 +35,11 @@ define([
         });
 
         this.onInputKeyUp = function (event) {
-            switch (event.which) {
-                case $.ui.keyCode.ENTER:
-                    this.onResolveClicked(event);
+            if (this.select('conceptSelector').val () != '') {
+                switch (event.which) {
+                    case $.ui.keyCode.ENTER:
+                        this.onResolveClicked(event);
+                }
             }
         }
 
@@ -47,6 +49,8 @@ define([
                 resolvedVertex = this.attr.resolvedVertex,
                 entitySign = this.attr.resolvedVertex.title || '',
                 existingEntity = this.attr.existing;
+
+            this.select('resolveButtonSelector').attr('disabled', true);
 
             vertex.html(template({
                 entitySign: entitySign,
@@ -112,7 +116,7 @@ define([
                     }));
 
                     if (self.select('conceptSelector').val() === '') {
-                        self.select('createEntityButtonSelector').attr('disabled', true);
+                        self.select('resolveButtonSelector').attr('disabled', true);
                     }
                 });
         };
@@ -125,8 +129,8 @@ define([
                     conceptId: this.select('conceptSelector').val(),
                     model: this.attr.model,
                     graphVertexId: this.attr.graphVertexId,
-                    artifactKey: this.attr.artifactData._rowKey,
-                    artifactId: this.attr.artifactData.graphVertexId,
+                    artifactKey: this.attr.artifactData.properties._rowKey,
+                    artifactId: this.attr.artifactData.id,
                     coords: JSON.stringify({
                         x1: this.attr.coords.x1,
                         y1: this.attr.coords.y1,
@@ -162,28 +166,36 @@ define([
                     };
 
                     // Temporarily creating a new tag to show on ui prior to backend update
-                    var classes = $('.detected-object-labels .label').attr('class') + ' focused resolved entity';
-                    var newTag = ' <a class="' + classes + '" href="#">' + data.title +' </a><button class="delete-tag" type="button">X</button>';
+                    var $allDetectedObjects = $('.detected-object-labels .label');
+                    var $allDetectedObjectLabels = $('.detected-object-tag .label-info');
+                    var $parentSpan = $('<span>').addClass ('label detected-object-tag focused');
+                    var $deleteButton = $("<a>").addClass("delete-tag").text('x');
+                    var $tag = $("<a>").addClass($allDetectedObjectLabels.attr('class') + ' resolved entity').attr("href", "#").text(data.title);
                     var added = false;
 
-                if ($('.detected-object').hasClass('focused')) {
-                    self.updateEntityTag (data, parameters.conceptId);
-                } else {
-                    $('.detected-object-tag .label-info').each(function(){
-                        if(parseFloat($(this).data("info").info.coords.x1) > data.info.coords.x1){
-                            $(newTag).insertBefore($(this).parent()).find('.label-info').removePrefixedClasses('subType-').addClass('subType-' + parameters.conceptId).parent().after(' ');
-                            added = true;
-                            return false;
-                        }
+                    $deleteButton.appendTo($tag);
+                    $parentSpan.append($tag);
+
+                    if ($allDetectedObjects.hasClass('focused')) {
+                        self.updateEntityTag (data, parameters.conceptId);
+                    } else {
+                        $allDetectedObjectLabels.each(function(){
+                            if(parseFloat($(this).data("info").info.coords.x1) > data.info.coords.x1){
+                                $tag.removePrefixedClasses('subType-').addClass('subType-' + parameters.conceptId).parent().insertBefore($(this).parent()).after(' ');
+                                added = true;
+                                return false;
+                            }
                     });
+
                     if (!added){
-                        $(newTag).addClass('subType-' + parameters.conceptId);
-                        $('.detected-object-labels').append ($(newTag));
+                        $tag.addClass('subType-' + parameters.conceptId);
+                        $allDetectedObjects.parent().append($parentSpan);
                     }
 
-                    $('.focused').data('info', data);
-                    $('.focused').removeClass('focused');
+                    $tag.data('info', data);
+                    $parentSpan.removeClass('focused');
                     self.trigger(document, 'termCreated', data);
+
                     var vertices = [];
                     vertices.push(resolvedVertex);
                     self.trigger(document, 'updateVertices', { vertices: vertices });
@@ -246,10 +258,10 @@ define([
 
         this.updateConceptLabel = function(conceptId, vertex) {
             if (conceptId == '') {
-                this.select('createEntityButtonSelector').attr('disabled', true);
+                this.select('resolveButtonSelector').attr('disabled', true);
                 return;
             }
-            this.select('createEntityButtonSelector').attr('disabled', false);
+            this.select('resolveButtonSelector').attr('disabled', false);
 
             if (this.allConcepts && this.allConcepts.length) {
 
