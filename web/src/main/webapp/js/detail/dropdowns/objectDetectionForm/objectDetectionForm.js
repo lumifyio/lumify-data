@@ -35,7 +35,7 @@ define([
         });
 
         this.onInputKeyUp = function (event) {
-            if (this.select('conceptSelector').val () != '') {
+            if (!this.select('resolveButtonSelector').is(":disabled")) {
                 switch (event.which) {
                     case $.ui.keyCode.ENTER:
                         this.onResolveClicked(event);

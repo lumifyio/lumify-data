@@ -57,9 +57,11 @@ define([
         });
 
         this.onInputKeyUp = function (event) {
-            switch (event.which) {
-                case $.ui.keyCode.ENTER:
-                    this.onCreateStatement(event);
+            if (!this.select('createStatementButtonSelector').is(":disabled")) {
+                switch (event.which) {
+                    case $.ui.keyCode.ENTER:
+                        this.onCreateStatement(event);
+                }
             }
         }
 

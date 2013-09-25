@@ -83,9 +83,11 @@ define([
         });
 
         this.onInputKeyUp = function (event) {
-            switch (event.which) {
-                case $.ui.keyCode.ENTER:
-                    this.onAddPropertyClicked(event);
+            if (!this.select('addPropertySelector').is(":disabled")) {
+                switch (event.which) {
+                    case $.ui.keyCode.ENTER:
+                        this.onAddPropertyClicked(event);
+                }
             }
         };
 
