@@ -69,7 +69,7 @@ public class EntityTermCreate extends BaseRequestHandler {
             resolvedVertex.setType(VertexType.ENTITY);
         }
         resolvedVertex.setProperty(PropertyName.ROW_KEY, termMentionRowKey.toString());
-        entityHelper.updateGraphVertex(resolvedVertex, conceptId, sign, artifactId, user);
+        entityHelper.updateGraphVertex(resolvedVertex, conceptId, sign, user);
 
         TermMention termMention = new TermMention(termMentionRowKey);
 

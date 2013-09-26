@@ -183,6 +183,7 @@ define([
 
                     if ($allDetectedObjects.children().hasClass('focused')) {
                         self.updateEntityTag (data, parameters.conceptId);
+                        return;
                     } else {
                         $allDetectedObjectLabels.each(function(){
                             if(parseFloat($(this).data("info").info.coords.x1) > data.info.coords.x1){
@@ -233,16 +234,18 @@ define([
                 info: data.info
             };
             var $focused = $('.focused');
+            var $tag = $focused.find('.label-info');
 
-            $('.focused').text(data.title).data('info',data).removePrefixedClasses('subType-');
-            $('.focused').addClass('resolved entity subType-' + conceptId);
+            $tag.text(data.title).removeAttr('data-info').data('info', data).removePrefixedClasses('subType-');
+            $tag.addClass('resolved entity subType-' + conceptId);
 
-            if (!$('.focused').siblings().hasClass('delete-tag')){
-                var buttonTag = '<span class="delete-tag">x</span>';
-                $(buttonTag).insertAfter($('.focused'));
+            if (!$focused.children().hasClass('delete-tag')){
+                var $buttonTag = $('<span>').addClass('delete-tag').text('x');
+                $focused.append($buttonTag);
                 self.trigger(document, 'termCreated', data);
             }
-            $('.focused').removeClass('focused');
+
+            $focused.removeClass('focused');
 
             var vertices = [];
             vertices.push(resolvedVertex);

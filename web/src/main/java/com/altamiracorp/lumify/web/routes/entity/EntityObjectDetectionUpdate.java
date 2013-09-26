@@ -57,9 +57,7 @@ public class EntityObjectDetectionUpdate extends BaseRequestHandler {
         GraphVertex resolvedVertex = graphRepository.findVertex(resolvedGraphVertexId, user);
 
         // update graph vertex
-        resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
-        resolvedVertex.setProperty(PropertyName.TITLE, sign);
-        graphRepository.saveVertex(resolvedVertex, user);
+        objectDetectionHelper.updateGraphVertex(resolvedVertex, conceptId, sign, user);
 
         // update the term mention
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, (long)coords.getDouble("x1"), (long)coords.getDouble("y1"));

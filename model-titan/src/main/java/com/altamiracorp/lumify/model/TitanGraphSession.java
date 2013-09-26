@@ -106,6 +106,7 @@ public class TitanGraphSession extends GraphSession {
     public String save(GraphVertex vertex, User user) {
         Vertex v = null;
         if (vertex instanceof TitanGraphVertex) {
+            commit ();
             return vertex.getId(); // properties are already set
         }
 
