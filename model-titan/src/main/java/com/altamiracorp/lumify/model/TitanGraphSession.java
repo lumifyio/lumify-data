@@ -35,6 +35,7 @@ import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.PropertyType;
 import com.altamiracorp.lumify.model.ontology.VertexProperty;
 import com.altamiracorp.lumify.model.ontology.VertexType;
+import com.altamiracorp.lumify.model.query.utils.LuceneTokenizer;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.thinkaurelius.titan.core.TitanFactory;
 import com.thinkaurelius.titan.core.TitanGraph;
@@ -394,16 +395,18 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson, User user) {
-        String[] titleParts = title.split(" ");
+        List<GraphVertex> vertices = Lists.newArrayList();
+        final List<String> tokens = LuceneTokenizer.standardTokenize(title);
 
-        TitanGraphQuery query = graph.query();
-        for (String titlePart : titleParts) {
-            query.has(PropertyName.TITLE.toString(), Text.PREFIX, titlePart);
+        if( !tokens.isEmpty() ) {
+            final TitanGraphQuery query = generateTitleQuery(tokens);
+
+            final GremlinPipeline<Vertex, Vertex> queryPipeline = queryFormatter.createQueryPipeline(query.vertices(), filterJson);
+
+            vertices = toGraphVertices(queryPipeline.toList());
         }
 
-        Iterable<Vertex> r = query.vertices();
-        GremlinPipeline<Vertex, Vertex> queryPipeline = queryFormatter.createQueryPipeline(r, filterJson);
-        return toGraphVertices(queryPipeline.toList());
+        return vertices;
     }
 
     @Override
@@ -425,18 +428,27 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public List<GraphVertex> searchVerticesByTitleAndType(String title, VertexType type, User user) {
-        String[] titleParts = title.split(" ");
+        List<GraphVertex> vertices = Lists.newArrayList();
+        final List<String> tokens = LuceneTokenizer.standardTokenize(title);
 
-        TitanGraphQuery query = graph.query();
+        if( !tokens.isEmpty() ) {
+            final TitanGraphQuery query = generateTitleQuery(tokens);
+            query.has(PropertyName.TYPE.toString(), type.toString());
 
-        for (String titlePart : titleParts) {
-            query.has(PropertyName.TITLE.toString(), Text.PREFIX, titlePart);
+            vertices = toGraphVertices(query.vertices());
         }
 
-        Iterable<Vertex> r = query
-                .has(PropertyName.TYPE.toString(), type.toString())
-                .vertices();
-        return toGraphVertices(r);
+        return vertices;
+    }
+
+    private TitanGraphQuery generateTitleQuery(final List<String> titleTokens) {
+        final TitanGraphQuery query = graph.query();
+
+        for (String token : titleTokens) {
+            query.has(PropertyName.TITLE.toString(), Text.PREFIX, token);
+        }
+
+        return query;
     }
 
     @Override
