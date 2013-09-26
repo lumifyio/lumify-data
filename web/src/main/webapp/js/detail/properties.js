@@ -5,8 +5,9 @@ define([
     'service/vertex',
     'service/relationship',
     './dropdowns/propertyForm/propForm',
-    'tpl!./properties'
-], function (defineComponent, OntologyService, VertexService, RelationshipService, PropertyForm, propertiesTemplate) {
+    'tpl!./properties',
+    'sf'
+], function (defineComponent, OntologyService, VertexService, RelationshipService, PropertyForm, propertiesTemplate, sf) {
     'use strict';
 
     var component = defineComponent(Properties);

@@ -50,21 +50,14 @@ define([
             var self = this;
             this.$node.on('click.paneClick', this.onPaneClicked.bind(this));
 
-            this.handleCancelling(ontologyService.concepts(function(err, concepts) {
-                if (err) {
-                    console.error('handleCancelling', err);
-                    return self.trigger(document, 'error', err);
-                }
-
-                self.loadEntity();
-            }));
+            self.loadEntity();
         });
 
         this.loadEntity = function() {
             var self = this;
 
             $.when( 
-                appData.refresh(this.attr.data),
+                this.handleCancelling(appData.refresh(this.attr.data)),
                 this.handleCancelling(ontologyService.concepts())
             ).done(function(vertex, concepts) {
                 var concept = concepts.byId[self.attr.data.properties._subType];

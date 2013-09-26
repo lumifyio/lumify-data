@@ -74,8 +74,8 @@ define([
             var self = this,
                 vertex = self.attr.data;
 
-            appData.refresh(vertex)
-                   .done(this.handleVertexLoaded.bind(this));
+            this.handleCancelling(appData.refresh(vertex))
+                .done(this.handleVertexLoaded.bind(this));
         };
 
         this.handleVertexLoaded = function(vertex) {

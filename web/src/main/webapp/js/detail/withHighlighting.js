@@ -286,7 +286,7 @@ define([
                 selection: sel && { anchor:sel.anchorNode, focus:sel.focusNode, anchorOffset: sel.anchorOffset, focusOffset: sel.focusOffset, range:sel.rangeCount && sel.getRangeAt(0).cloneRange() },
                 mentionNode: insertAfterNode,
                 existing: !creating,
-                artifactKey: this.attr.data.artifact._rowKey,
+                artifactKey: this.attr.data.properties._rowKey,
                 artifactId: this.attr.data.id
             });
         };
