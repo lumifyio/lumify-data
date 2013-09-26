@@ -18,7 +18,7 @@ import com.google.common.collect.Lists;
 /**
  * Provides a utility for tokenizing an input value with a Lucene {@link Analyzer}
  */
-public class LuceneTokenizer {
+public final class LuceneTokenizer {
     private static final Logger LOGGER = LoggerFactory.getLogger(LuceneTokenizer.class);
 
     /**
