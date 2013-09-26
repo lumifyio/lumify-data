@@ -42,7 +42,7 @@ public class KnownEntityExtractor extends EntityExtractor {
     @Override
     List<ExtractedEntity> extract(Artifact artifact, String text) throws Exception {
         ArrayList<ExtractedEntity> result = new ArrayList<ExtractedEntity>();
-        List<OutputResult> searchResults = tree.completeSearch(text, false, false);
+        List<OutputResult> searchResults = tree.completeSearch(text, false, true);
         for (OutputResult searchResult : searchResults) {
             result.add(searchResultToExtractedEntity(artifact, searchResult));
         }
