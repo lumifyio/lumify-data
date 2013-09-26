@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +14,6 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.model.ontology.Property;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
@@ -44,7 +42,7 @@ public class GraphVertexSearch extends BaseRequestHandler {
 
         graphRepository.commit();
         List<GraphVertex> vertices = graphRepository.searchVerticesByTitle(query, filterJson, user);
-        LOGGER.info(String.format("Search returned %d vertices for query", vertices.size()));
+        LOGGER.info("Number of vertices returned for query: " + vertices.size());
 
         JSONObject results = new JSONObject();
         results.put("vertices", GraphVertex.toJson(vertices));
