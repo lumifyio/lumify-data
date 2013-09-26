@@ -30,7 +30,9 @@ define([
             if ($target.closest('.workspace-form').length) return;
 
             var _rowKey = $(event.target).parents('li').data('_rowKey');
-            this.trigger( document, 'switchWorkspace', { _rowKey: _rowKey });
+            if (_rowKey) {
+                this.trigger( document, 'switchWorkspace', { _rowKey: _rowKey });
+            }
         };
 
         this.onAddNew = function(event) {
@@ -89,31 +91,12 @@ define([
             this.trigger(document, 'paneResized');
         };
 
-        this.onDelete = function(event) {
-            var self = this,
-                $target = $(event.target),
-                currentRowKey = $target.closest('ul').find('.active').data('_rowKey'),
-                _rowKey = $target.closest('li').data('_rowKey'),
-                $loading = $("<span>").addClass("badge loading");
+        this.onWorkspaceDeleted = function ( event, data ) {
+            WorkspaceForm.teardownAll();
+            this.select('formSelector').hide();
+            this.trigger(document, 'paneResized');
 
-            this.trigger(document, 'workspaceDeleting', { _rowKey: _rowKey });
-
-            $target.replaceWith($loading);
-
-            this.workspaceService['delete'](_rowKey)
-                .fail(function(xhr) {
-                    if (xhr.status === 403) {
-                        // TODO: alert user with error:
-                        // can't delete other users workspaces
-                    }
-                })
-                .always(this.loadWorkspaceList.bind(this))
-                .always(this.trigger.bind(this, document, 'workspaceDeleted', { _rowKey: _rowKey }))
-                .done(function() {
-                    if ( currentRowKey != _rowKey ) {
-                        self.switchActive(currentRowKey);
-                    }
-                });
+            this.loadWorkspaceList();
         };
 
         this.onWorkspaceLoad = function ( event, data ) {
@@ -180,6 +163,7 @@ define([
         this.after( 'initialize', function() {
             this.on( document, 'workspaceLoaded', this.onWorkspaceLoad );
             this.on( document, 'workspaceSaved', this.onWorkspaceSaved );
+            this.on( document, 'workspaceDeleted', this.onWorkspaceDeleted );
             this.on( document, 'menubarToggleDisplay', this.onToggleMenu );
             this.on( 'click', {
                 workspaceListItemSelector: this.onWorkspaceItemClick,

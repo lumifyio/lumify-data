@@ -54,7 +54,7 @@ li {
   z-index: 89;  // so it floats above graph, but below splitbar handles
 
   .content {
-    padding: 1em;
+    padding: 0 1em;
   }
 
   .badge {
@@ -64,7 +64,7 @@ li {
   .popover {
     width: 12em;
   }
-  .popover-content {
+  .permissions-list {
     input {
       margin: 0;
       padding: 0;
@@ -73,7 +73,7 @@ li {
     }
     button {
       width: 100%;
-      margin-bottom: 0.5em;
+      float: none;
     }
   }
 
@@ -85,17 +85,31 @@ li {
   }
   input[type=text] {
     width: 100%;
-    box-sizing: border-box;
-    padding: 1em;
+    .box-sizing(border-box);
+    margin: 0.5em 0;
   }
   ul {
     list-style: none;
     margin: 0;
     padding: 0;
   }
-  .delete {
+  .scroller {
+    position: absolute;
+    bottom: 4em;
+    top: 0;
+    overflow: auto;
+    left: 0;
     width: 100%;
-    margin: 2em 0;
+    padding: 0 1em;
+    .box-sizing(border-box);
+  }
+  .delete {
+    position: absolute;
+    margin: 0;
+    bottom: 1em;
+    right: 1em;
+    left: 1em;
+    width: auto;
   }
   .share-list li.user-row {
     margin: 0.5em 0;
