@@ -178,8 +178,8 @@ define([
 
                     var added = false;
 
-                    $deleteButton.appendTo($tag);
                     $parentSpan.append($tag);
+                    $parentSpan.append($deleteButton);
 
                     if ($allDetectedObjects.children().hasClass('focused')) {
                         self.updateEntityTag (data, parameters.conceptId);
