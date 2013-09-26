@@ -83,7 +83,7 @@ define([
 
             this.$node.html(content);
 
-            // Open search when the page is loaded
+            // Activate Graph
             this.trigger(document, 'menubarToggleDisplay', { name: graphPane.data(DATA_MENUBAR_NAME) });
 
             this.on(document, 'windowResize', this.triggerPaneResized);
@@ -257,12 +257,17 @@ define([
                     .filter('.visible:not(.collapsed)')
                     .outerWidth(true) || 0,
 
+                workspaceFormWidth = workspacesWidth > 0 ? 
+                    $('.workspace-form:visible:not(.collapsed)')
+                        .outerWidth(true) || 0 : 0,
+
                 detailWidth = this.select('detailPaneSelector')
                     .filter('.visible:not(.collapsed)')
                     .outerWidth(true) || 0,
 
                 padding = {
-                    l:searchWidth + searchResultsWidth + searchFiltersWidth + workspacesWidth, 
+                    l:searchWidth + searchResultsWidth + searchFiltersWidth +
+                      workspacesWidth + workspaceFormWidth, 
                     r:detailWidth,
                     t:0, 
                     b:0

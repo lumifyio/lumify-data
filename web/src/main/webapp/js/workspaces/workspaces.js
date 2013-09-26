@@ -2,10 +2,11 @@
 define([
     'flight/lib/component',
     'service/workspace',
+    './form/form',
     'tpl!./workspaces',
     'tpl!./list',
     'tpl!./item'
-], function(defineComponent, WorkspaceService, workspacesTemplate, listTemplate, itemTemplate) {
+], function(defineComponent, WorkspaceService, WorkspaceForm, workspacesTemplate, listTemplate, itemTemplate) {
     'use strict';
 
     return defineComponent(Workspaces);
@@ -18,13 +19,16 @@ define([
             workspaceListItemSelector: 'ul.nav-list li',
             addNewInputSelector: 'input.new',
             addNewSelector: 'button.new',
-            deleteSelector: 'button.delete'
+            disclosureSelector: 'button.disclosure',
+            formSelector: '.workspace-form'
         });
 
         this.onWorkspaceItemClick = function( event ) {
-			if ($(event.target).is('input') || $(event.target).is('button') || $(event.target).is('.new-workspace')) {
-				return;
-			}
+            var $target = $(event.target);
+
+			if ($target.is('input') || $target.is('button') || $target.is('.new-workspace')) return;
+            if ($target.closest('.workspace-form').length) return;
+
             var _rowKey = $(event.target).parents('li').data('_rowKey');
             this.trigger( document, 'switchWorkspace', { _rowKey: _rowKey });
         };
@@ -53,15 +57,48 @@ define([
             }
         };
 
-        this.onDelete = function( event ) {
+        this.onDisclosure = function( event ) {
             var self = this,
-                currentRowKey = this.select('listSelector').find('li.active').data('_rowKey'),
-                _rowKey = $(event.target).parents('li').data('_rowKey'),
+                $target = $(event.target),
+                data = $target.closest('li').data();
+
+            event.preventDefault();
+
+            var container = this.select('formSelector'),
+                form = container.resizable({
+                    handles: 'e',
+                    minWidth: 120,
+                    maxWidth: 250,
+                    resize: function() {
+                        self.trigger(document, 'paneResized');
+                    }
+                }).show().find('.content');
+            
+            var instance = form.lookupComponent(WorkspaceForm);
+            if (instance && instance.attr.data._rowKey === data._rowKey) {
+                container.hide();
+                instance.teardown();
+                return self.trigger(document, 'paneResized');
+            }
+            
+            WorkspaceForm.teardownAll();
+            WorkspaceForm.attachTo(form, {
+                data: data
+            });
+
+            this.trigger(document, 'paneResized');
+        };
+
+        this.onDelete = function(event) {
+            var self = this,
+                $target = $(event.target),
+                currentRowKey = $target.closest('ul').find('.active').data('_rowKey'),
+                _rowKey = $target.closest('li').data('_rowKey'),
                 $loading = $("<span>").addClass("badge loading");
 
             this.trigger(document, 'workspaceDeleting', { _rowKey: _rowKey });
 
-            $(event.target).replaceWith($loading);
+            $target.replaceWith($loading);
 
             this.workspaceService['delete'](_rowKey)
                 .fail(function(xhr) {
@@ -71,8 +108,8 @@ define([
                     }
                 })
                 .always(this.loadWorkspaceList.bind(this))
+                .always(this.trigger.bind(this, document, 'workspaceDeleted', { _rowKey: _rowKey }))
                 .done(function() {
-                    self.trigger(document, 'workspaceDeleted', { _rowKey: _rowKey });
                     if ( currentRowKey != _rowKey ) {
                         self.switchActive(currentRowKey);
                     }
@@ -147,7 +184,7 @@ define([
             this.on( 'click', {
                 workspaceListItemSelector: this.onWorkspaceItemClick,
                 addNewSelector: this.onAddNew,
-                deleteSelector: this.onDelete
+                disclosureSelector: this.onDisclosure
             });
             this.on( 'keyup', {
                 addNewInputSelector: this.onInputKeyUp

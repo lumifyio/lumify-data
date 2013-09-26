@@ -1,4 +1,5 @@
 <li class="<%= selected === workspace._rowKey ? 'active' : '' %>" 
     data-title="<%= workspace.title %>"
     data-_row-key="<%= workspace._rowKey %>"
-    ><a href="#"><button class="delete btn btn-mini btn-danger">Delete</button><span><%= workspace.title || workspace._rowKey %></span></a></li>
+    ><a href="#">
+      <button class="disclosure btn btn-mini"></button><span><%= workspace.title || workspace._rowKey %></span></a></li>

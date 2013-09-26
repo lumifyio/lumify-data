@@ -1,0 +1,18 @@
+
+<input class="workspace-title" type="text" value="<%= workspace.title %>" required>
+
+<ul class="share-list nav nav-list">
+  <li class="nav-header">Sharing</li>
+
+  <% shareUsers.forEach(function(user) { %>
+    <% include workspaces/form/shareRow %>
+  <% }); %>
+
+  <li class="share-form">
+      <input name="title" type="text" autocomplete="off" placeholder="Share with user..." />
+  </li>
+  <li class="divider"/>
+</ul>
+
+<button class="delete btn btn-danger">Delete</button>
+

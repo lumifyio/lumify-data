@@ -1,4 +1,5 @@
 @import "../util/badge-loading.less";
+@import "../util/positioning.less";
 
 width: 200px;
 
@@ -15,18 +16,97 @@ li {
     height: 2em;
   }
 
-  button {
-    float: right;
-    .opacity(10);
+  .disclosure {
+    border: 0;
+    width: 2em;
+    height: 1.95em;
+    box-shadow: none;
+    background-color: inherit;
+    background-size: auto 80%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: url(/img/glyphicons/glyphicons_019_cogwheel@2x.png);
+    .opacity(30);
+    &:hover { .opacity(100); }
   }
 
-  &:hover {
-    button {
-      .opacity(100);
-    }
+  &.active .disclosure {
+    .opacity(60);
+    &:hover { .opacity(100); }
+    background-image: url(/img/glyphicons/white/glyphicons_019_cogwheel@2x.png);
+  }
+
+
+  button {
+    float: right;
   }
 
   .badge {
     float:right;
+  }
+}
+
+.workspace-form {
+  .pin-left-split;
+
+  width: 200px;
+  background: @pane-background;
+  z-index: 89;  // so it floats above graph, but below splitbar handles
+
+  .content {
+    padding: 1em;
+  }
+
+  .badge {
+    cursor: pointer;
+  }
+
+  .popover {
+    width: 12em;
+  }
+  .popover-content {
+    input {
+      margin: 0;
+      padding: 0;
+      width: auto;
+      margin-right: 1em;
+    }
+    button {
+      width: 100%;
+      margin-bottom: 0.5em;
+    }
+  }
+
+  .caret {
+    top: 0.9ex;
+    position: relative;
+    border-top-color: white;
+    left: 0.3ex;
+  }
+  input[type=text] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1em;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .delete {
+    width: 100%;
+    margin: 2em 0;
+  }
+  .share-list li.user-row {
+    margin: 0.5em 0;
+  }
+  .share-form {
+    position: relative;
+    margin: 1em 0 2em 0;
+    input { margin: 0; }
+    .typeahead { width: 100%; }
+    button {
+        float: none;
+    }
   }
 }
