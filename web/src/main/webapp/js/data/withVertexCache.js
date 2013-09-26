@@ -81,7 +81,6 @@ define([
         };
 
         this.updateCacheWithArtifact = function(artifact, subType) {
-
             // Determine differences between artifact search and artifact get requests
             var id = artifact.graphVertexId || artifact.Generic_Metadata['atc:graph_vertex_id'],
                 rowKey = artifact._rowKey || artifact.key.value,
@@ -140,6 +139,10 @@ define([
             }
 
             $.extend(true, cache.artifact || (cache.artifact = {}), artifact);
+            if (cache.artifact.detectedObjects != artifact.detectedObjects) {
+                cache.artifact['atc:Artifact_Detected_Objects'] = artifact['atc:Artifact_Detected_Objects'];
+                cache.artifact.detectedObjects = artifact.detectedObjects;
+            }
             return cache;
         };
 

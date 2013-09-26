@@ -147,21 +147,17 @@ define([
 
         this.onDeleteTagClicked = function (event) {
             var self = this;
-            var detectedObjectTag = $(event.target).siblings();
-            var info = { objectInfo: JSON.stringify(detectedObjectTag.data('info')) };
-            this.entityService.deleteDetectedObject(info, function(err, data) {
-                if (err) {
-                    console.error('createEntity', err);
-                    return self.trigger(document, 'error', err);
-                }
-
+            var $detectedObjectTag = $(event.target).siblings();
+            var info = { objectInfo: JSON.stringify($detectedObjectTag.data('info')) };
+            $.when(this.entityService.deleteDetectedObject(info)).then(function(data) {
                 var resolvedVertex = {
-                    graphVertexId: data.id,
+                    id: data.id,
                     _subType: data.properties._subType,
                     _type: data.properties._type
                 };
 
-                self.select('detectedObjectTagSelector').find($(detectedObjectTag)).parent().remove();
+                $detectedObjectTag.parent().remove();
+                self.trigger(document, 'DetectedObjectLeave', $detectedObjectTag.data('info'));
 
                 if (data.remove){
                     self.trigger(document, 'deleteVertices', { vertices: [resolvedVertex] });
@@ -170,7 +166,6 @@ define([
                     self.trigger(document, 'deleteEdge', { edgeId: data.edgeId });
                 }
             });
-
         };
 
         this.onDetectedObjectHover = function(event) {

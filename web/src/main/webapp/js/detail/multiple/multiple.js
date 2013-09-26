@@ -78,7 +78,7 @@ define([
             event.stopPropagation();
             this.$node.find('.vertices-list').hide();
             this.$node.find('.multiple').addClass('viewing-vertex');
-            
+
             var detailsContainer = this.$node.find('.details-container'),
                 detailsContent = detailsContainer.find('.content'),
                 instanceInfos = registry.findInstanceInfoByNode(detailsContent[0]);

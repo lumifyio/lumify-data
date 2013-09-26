@@ -253,7 +253,7 @@ define([
 
             this.cy(function(cy) {
                 this.ignoreCySelectionEvents = true;
-                
+
                 cy.$(':selected').unselect();
                 if (data.length) {
                     cy.$( 
@@ -641,8 +641,9 @@ define([
             if (nodes.length === 0 && edges.length > 1) {
                 info = [info[0]];
             }
-
-            this.trigger('verticesSelected', [info]);
+            if (info.length > 0){
+                this.trigger('verticesSelected', [info]);
+            }
         };
 
         this.onKeyHandler = function(event) {
