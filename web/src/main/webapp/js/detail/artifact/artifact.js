@@ -149,6 +149,13 @@ define([
             var self = this;
             var $detectedObjectTag = $(event.target).siblings();
             var info = { objectInfo: JSON.stringify($detectedObjectTag.data('info')) };
+            var $loading = $("<span>")
+                .addClass("badge")
+                .addClass("loading");
+
+            $(event.target).addClass('focused').replaceWith($loading).removeClass('focused');
+            $detectedObjectTag.bind('click', false);
+
             $.when(this.entityService.deleteDetectedObject(info)).then(function(data) {
                 var resolvedVertex = {
                     id: data.id,
