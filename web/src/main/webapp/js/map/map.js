@@ -458,12 +458,10 @@ define([
                     self.ucdService.locationSearch(
                         self.regionCenterPoint.lat,
                         self.regionCenterPoint.lon,
-                        self.regionRadiusDistance,
-                        function(err, data) {
+                        self.regionRadiusDistance).done(
+                        function(data) {
                             self.endRegionSelection();
-                            if (!err) {
-                                self.trigger(document, 'addVertices', data);
-                            }
+                            self.trigger(document, 'addVertices', data);
                         }
                     );
 
