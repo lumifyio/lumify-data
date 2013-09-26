@@ -102,6 +102,11 @@ define([
 
         this.loadConcepts = function() {
             var self = this;
+
+            if (self.attr.existing) {
+                this.select('conceptSelector').attr('disabled', true);
+            }
+
             self.allConcepts = [];
             self.ontologyService.concepts()
                 .done(function(concepts) {

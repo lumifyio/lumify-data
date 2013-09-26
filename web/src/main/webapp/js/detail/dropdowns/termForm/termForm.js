@@ -86,6 +86,12 @@ define([
             if (!initial || newGraphVertexId) {
                 this.select('graphVertexSelector').val(newGraphVertexId);
                 var info = _.isObject(item) ? item.properties || item : $(this.attr.mentionNode).data('info');
+
+                if (newGraphVertexId) {
+                    this.select('conceptSelector').attr('disabled', true);
+                } else {
+                    this.select('conceptSelector').attr('disabled', false);
+                }
                 this.updateConceptSelect(info && info._subType || '').show();
                 this.select('createTermButtonSelector')
                     .text(newGraphVertexId && initial ? 'Update' : newGraphVertexId ? 'Resolve to Existing' : 'Resolve as New')
@@ -100,7 +106,7 @@ define([
         };
 
         this.updateConceptSelect = function(val) {
-            var conceptSelect = this.select('conceptSelector').val(val).show();
+            var conceptSelect = this.select('conceptSelector').val(val);
 
             if (val) {
                 this.select('createTermButtonSelector').removeAttr('disabled');
@@ -300,7 +306,8 @@ define([
                 entityConceptMenuSelector: this.onEntityConceptSelected,
                 createTermButtonSelector: this.onCreateTermClicked,
                 objectSignSelector: this.showTypeahead,
-                helpSelector: function() { 
+                helpSelector: function() {
+debugger;
                     this.select('objectSignSelector').focus(); 
                     this.showTypeahead();
                 }
