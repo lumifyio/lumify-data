@@ -606,7 +606,6 @@ define([
 
         this.graphSelect = throttle('selection', SELECTION_THROTTLE, function(event) {
             if (this.ignoreCySelectionEvents) return;
-
             if (this.creatingStatement) {
                 return event.cy.elements().unselect();
             }
