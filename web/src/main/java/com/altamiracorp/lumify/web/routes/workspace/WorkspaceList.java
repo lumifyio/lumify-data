@@ -39,9 +39,8 @@ public class WorkspaceList extends BaseRequestHandler {
             workspaceJson.put("createdBy", workspace.getMetadata().getCreator());
 
             JSONArray permissions = new JSONArray();
-            if (workspace.getPermissions() != null) {
-                Collection <Column> columnList = workspace.getPermissions().getColumns();
-                for (Column col : columnList) {
+            if (workspace.get(WorkspacePermissions.NAME) != null) {
+                for (Column col : workspace.get(WorkspacePermissions.NAME).getColumns()) {
                     JSONObject users = new JSONObject();
                     users.put("user", col.getName());
                     users.put("userPermissions", Value.toJson(col.getValue()));

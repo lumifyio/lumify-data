@@ -20,9 +20,4 @@ public class WorkspacePermissions extends ColumnFamily {
     public String getUsers () {
         return Value.toString(get(USER));
     }
-
-    public WorkspacePermissions setPermissions (String columnName, Object value) {
-        this.set(columnName, value);
-        return this;
-    }
 }

@@ -99,16 +99,18 @@ public class WorkspaceSave extends BaseRequestHandler {
     }
 
     private void updateUserList(Workspace workspace, JSONArray userList, com.altamiracorp.lumify.core.user.User user) {
-        boolean updateList = workspace.getPermissions().getColumns().size() > 0;
+        boolean updateList = workspace.get(WorkspacePermissions.NAME).getColumns() != null;
+
         List <String> users = new ArrayList<String>();
 
         for (int i = 0; i < userList.length(); i ++){
             JSONObject obj = userList.getJSONObject(i);
-            workspace.getPermissions().setPermissions(obj.getString("user"), obj.getJSONObject("userPermissions"));
+            workspace.get(WorkspacePermissions.NAME).set(obj.getString("user"), obj.getJSONObject("userPermissions"));
             if (updateList) {
                 users.add(obj.getString("user"));
             }
         }
+
     }
 
     private boolean hasWritePermissions(String user, Workspace workspace, JSONArray userList) {
