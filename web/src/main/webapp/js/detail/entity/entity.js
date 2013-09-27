@@ -50,8 +50,20 @@ define([
             var self = this;
             this.$node.on('click.paneClick', this.onPaneClicked.bind(this));
 
+            this.on(document, 'verticesUpdated', this.onVerticesUpdated);
+
             self.loadEntity();
         });
+
+        this.onVerticesUpdated = function(event, data) {
+            var self = this;
+
+            data.vertices.forEach(function(vertex) {
+                if (vertex.id === self.attr.data.id) {
+                    self.select('titleSelector').html(vertex.properties.title);
+                }
+            });
+        };
 
         this.loadEntity = function() {
             var self = this;
