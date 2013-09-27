@@ -141,6 +141,9 @@ define([
                     passedWorkspace = {};
 
                 data.vertices.forEach(function(v) {
+                    v.workspace = v.workspace || {
+                        selected: true
+                    };
                     passedWorkspace[v.id] = self.copy(v.workspace);
                 });
 
