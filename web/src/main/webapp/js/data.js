@@ -461,12 +461,15 @@ define([
                         droppable = $(event.target),
                         graphVisible = $('.graph-pane').is('.visible'),
                         alsoDragging = draggable.data('ui-draggable').alsoDragging,
+                        anchors = draggable,
                         refresh = [];
 
                     if (alsoDragging && alsoDragging.length) {
-                        draggable.add(alsoDragging);
+                        anchors = draggable.add(alsoDragging.map(function(i, a) {
+                            return a.data('original');
+                        }));
                     }
-                    var vertices = draggable.map(function(i, a) {
+                    var vertices = anchors.map(function(i, a) {
                         a = $(a);
                         var id = a.data('vertexId') || a.closest('li').data('vertexId');
                         if (!id) {
@@ -488,12 +491,12 @@ define([
                                 id = info.graphVertexId;
                             } 
                             
-                            if (!id) return console.error('No data-vertex-id attribute for draggable element found', draggable[0]);
+                            if (!id) return console.error('No data-vertex-id attribute for draggable element found', a[0]);
                         }
 
                         var vertex = self.vertex(id);
                         if (vertex) {
-                            if (graphVisible) {
+                            if (graphVisible && i === 0) {
                                 vertex.workspace.dropPosition = { x: event.clientX, y: event.clientY };
                             }
                             return vertex;
