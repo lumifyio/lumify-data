@@ -30,6 +30,13 @@ define([], function() {
             node.css({ height:form.outerHeight(true) + 'px' });
         };
 
+        this.after('clearLoading', function() {
+            $('.loading', this.select('buttonDivSelector')).remove();
+            this.select('buttonDivSelector').find('.btn')
+                .attr('disabled', false)
+                .removeClass('disabled');
+        });
+
         this.after('teardown', function() {
             this.$node.closest('.text').removeClass('dropdown');
 

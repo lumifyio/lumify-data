@@ -101,6 +101,7 @@ define([
 
         this.onAddPropertyError = function(event) {
             this.select('propertyValueSelector').addClass('validation-error');
+            _.defer(this.clearLoading.bind(this));
         };
 
         this.onAddPropertyClicked = function (evt){

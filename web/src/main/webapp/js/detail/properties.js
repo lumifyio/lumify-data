@@ -56,35 +56,31 @@ define([
                         this.attr.data.properties.target,
                         this.attr.data.properties.relationshipLabel
                 ).done(function(newProperties) {
-                    //_timeStamp: "1380037609054"
-                    //relationshipType: "works at"
-                    //startDate: "946706400000"
-                    //
                     var properties = $.extend({}, self.attr.data.properties, newProperties);
                     self.displayProperties(properties);
                     self.trigger('updateRelationships', [{
                         id: self.attr.data.id,
                         properties: properties
                     }]);
-                });
+                }).fail(onFail);
             } else {
                 self.vertexService.setProperty(
                     this.attr.data.id,
                     data.property.name,
                     data.property.value)
-                    .fail(function(err) {
-                        // TODO: check if correct
-                        if (err.xhr.status == 400) {
-                            console.error('Validation error');
-                            self.trigger(self.$node.find('.underneath'), 'addPropertyError', {});
-                            return;
-                        }
-                    })
+                    .fail(onFail)
                     .done(function(vertexData) {
                         self.displayProperties(vertexData.properties);
                         self.trigger (document, "updateVertices", { vertices: [vertexData.vertex] });
-                    }
-                );
+                    });
+            }
+
+            function onFail(err) {
+                if (err.status == 400) {
+                    console.error('Validation error');
+                    return self.trigger(self.$node.find('.underneath'), 'addPropertyError', {});
+                }
+                return 0;
             }
         };
 
