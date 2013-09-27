@@ -1,5 +1,15 @@
 package com.altamiracorp.lumify.model;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.text.ParseException;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.altamiracorp.lumify.model.ontology.Property;
 import com.altamiracorp.lumify.model.ontology.PropertyType;
 import com.google.common.collect.Maps;
@@ -8,16 +18,6 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.Tokens;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import com.tinkerpop.pipes.PipeFunction;
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.text.ParseException;
-import java.util.Date;
-import java.util.Map;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TitanQueryFormatter {
     private static final Map<String, Tokens.T> tokenMap = Maps.newHashMap();
@@ -79,8 +79,9 @@ public class TitanQueryFormatter {
         if (values == null) {
             throw new RuntimeException("'values' is required for data type 'number'");
         }
-        if (values.isNull(0))
+        if (values.isNull(0)) {
             return pipeline;
+        }
 
         double value = values.getDouble(0);
 
@@ -95,8 +96,9 @@ public class TitanQueryFormatter {
             throwIfMissingValue(predicate, values);
 
             Tokens.T comparison = tokenMap.get(predicate);
-            if (comparison != null)
+            if (comparison != null) {
                 return pipeline.has(propertyName, comparison, value);
+            }
             throw new RuntimeException("Invalid predicate " + predicate);
         }
     }
