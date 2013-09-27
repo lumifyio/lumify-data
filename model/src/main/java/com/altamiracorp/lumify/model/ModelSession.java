@@ -51,6 +51,8 @@ public abstract class ModelSession {
 
     abstract void saveMany(String tableName, Collection<Row> rows, User user);
 
+    public abstract void addManyCols(Row row, String tableName, String columnFamily, Collection<Column> cols, User user);
+
     public abstract List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, User user);
 
     abstract List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, User user);
@@ -68,6 +70,8 @@ public abstract class ModelSession {
     public abstract void deleteRow(String tableName, RowKey rowKey, User user);
 
     public abstract void deleteColumn(Row row, String tableName, String columnFamily, String columnQualifier, User user);
+
+    public abstract void deleteColumnsList(Row row, String tableName, String columnFamily, List<Column> cols, User user);
 
     public void initializeTables(User user) {
         LOGGER.info("initializeTables");
