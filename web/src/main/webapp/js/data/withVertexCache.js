@@ -147,8 +147,8 @@ define([
         };
 
         this.updateCacheWithVertex = function(vertex, options) {
-            var id = vertex.id,
-                cache = this.cachedVertices[id] || (this.cachedVertices[id] = { id:id });
+            var id = vertex.id;
+            var cache = this.cachedVertices[id] || (this.cachedVertices[id] = { id: id });
 
             $.extend(true, cache.properties || (cache.properties = {}), vertex.properties);
             $.extend(true, cache.workspace ||  (cache.workspace = {}),  vertex.workspace || {});

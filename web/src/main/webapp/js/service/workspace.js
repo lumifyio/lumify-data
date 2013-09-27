@@ -27,6 +27,7 @@ function(ServiceBase) {
     };
 
     WorkspaceService.prototype.saveNew = function (workspace) {
+        console.log("saving new workspace\n" + JSON.stringify(workspace, null, '  '));
         workspace.data = JSON.stringify(workspace.data);
         return this._ajaxPost({
             url: 'workspace/save',
@@ -35,6 +36,7 @@ function(ServiceBase) {
     };
 
     WorkspaceService.prototype.save = function (_rowKey, workspace) {
+        console.log("saving workspace " + _rowKey + "\n" + JSON.stringify(workspace, null, '  '));
         workspace.data = JSON.stringify(workspace.data);
         return this._ajaxPost({
             url: 'workspace/' + _rowKey + '/save',

@@ -68,7 +68,6 @@ define([
 
             this.onSaveWorkspace = _.debounce(this.onSaveWorkspace.bind(this), WORKSPACE_SAVE_DELAY);
             this.refreshRelationships = _.debounce(this.refreshRelationships.bind(this), RELOAD_RELATIONSHIPS_DELAY);
-            this.onAddVertices = _.debounce(this.onAddVertices.bind(this), ADD_VERTICES_DELAY, true);
 
             // Vertices
             this.on('addVertices', this.onAddVertices);
@@ -162,11 +161,12 @@ define([
                     vertices.forEach(function(vertex) {
                         vertex.properties._refreshedFromServer = true;
                         if (passedWorkspace[vertex.id]) {
-                            vertex.workspace = passedWorkspace[vertex.id];
+                            vertex.workspace = $.extend(vertex.workspace, passedWorkspace[vertex.id]);
                         }
-                        var inWorkspace = self.workspaceVertices[vertex.id],
-                            cache = self.updateCacheWithVertex(vertex);
-                        
+
+                        var inWorkspace = self.workspaceVertices[vertex.id];
+                        var cache = self.updateCacheWithVertex(vertex);
+
                         self.workspaceVertices[vertex.id] = cache.workspace;
 
                         if (inWorkspace) {
