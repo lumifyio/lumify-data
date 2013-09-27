@@ -23,10 +23,16 @@ public class AccumuloHelper {
 
     private static void addColumnFamilyToMutation(Mutation mutation, ColumnFamily columnFamily) {
         for (Column column : columnFamily.getColumns()) {
-            if (column.isDirty()) {
+            if (column.isDelete()) {
+                addColumnDeleteToMutation(mutation, column, columnFamily.getColumnFamilyName());
+            } else if (column.isDirty()) {
                 addColumnToMutation(mutation, column, columnFamily.getColumnFamilyName());
             }
         }
+    }
+
+    private static void addColumnDeleteToMutation(Mutation mutation, Column column, String columnFamilyName) {
+        mutation.putDelete(columnFamilyName, column.getName());
     }
 
     private static void addColumnToMutation(Mutation mutation, Column column, String columnFamilyName) {

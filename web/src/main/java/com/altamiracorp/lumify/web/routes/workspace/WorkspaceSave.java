@@ -28,13 +28,11 @@ public class WorkspaceSave extends BaseRequestHandler {
 
     private final WorkspaceRepository workspaceRepository;
     private final UserRepository userRepository;
-    private final ModelSession modelSession;
 
     @Inject
-    public WorkspaceSave(final WorkspaceRepository workspaceRepository, final UserRepository userRepository, final ModelSession modelSession) {
+    public WorkspaceSave(final WorkspaceRepository workspaceRepository, final UserRepository userRepository) {
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
-        this.modelSession = modelSession;
     }
 
     @Override
@@ -113,6 +111,14 @@ public class WorkspaceSave extends BaseRequestHandler {
             workspace.get(WorkspacePermissions.NAME).set(obj.getString("user"), obj.getJSONObject("userPermissions"));
             if (updateList) {
                 users.add(obj.getString("user"));
+            }
+        }
+
+        if (updateList) {
+            for (Column col : workspace.get(WorkspacePermissions.NAME).getColumns()) {
+                if (!users.contains(col.getName())) {
+                    col.setDelete(true);
+                }
             }
         }
     }

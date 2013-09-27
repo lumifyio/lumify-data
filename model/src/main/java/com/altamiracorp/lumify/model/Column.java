@@ -4,6 +4,7 @@ public class Column {
     private final String name;
     private final Value value;
     private boolean dirty;
+    private boolean delete;
 
     public Column(String name, Object value) {
         this.name = name;
@@ -35,5 +36,13 @@ public class Column {
 
     public void toString(StringBuilder out, String indent) {
         out.append(indent + getName() + ": " + getValue() + "\n");
+    }
+
+    public boolean isDelete() {
+        return delete;
+    }
+
+    public void setDelete(boolean delete) {
+        this.delete = delete;
     }
 }
