@@ -240,13 +240,14 @@ define([
                     fit = true;
 
                     var marker = self.markerForId(map, vertex.id);
+                    var pt = new mxn.LatLonPoint(geoLocation.latitude, geoLocation.longitude);
 
                     if (adding) {
                         if (marker.length) {
                             map.removeMarker(marker);
                         }
 
-                        marker = new mxn.Marker(new mxn.LatLonPoint(geoLocation.latitude, geoLocation.longitude));
+                        marker = new mxn.Marker(pt);
                         marker.setAttribute('graphVertexId', vertex.id);
                         marker.setAttribute('subType', vertex.properties._subType);
 
@@ -256,6 +257,19 @@ define([
                             self.trigger('verticesSelected', [ vertex ]);
                         });
                         map.addMarker(marker);
+                    } else {
+                        marker.forEach(function(m) {
+                            if (map.api == 'googlev3') {
+                                var p = pt.toProprietary('googlev3');
+                                if(m.proprietary_marker) {
+                                    m.proprietary_marker.setPosition(p);
+                                } else {
+                                    console.error('could not find proprietary_marker property on marker', m);
+                                }
+                            } else {
+                                console.error('could not move marker location. not implemented for non-google maps apis');
+                            }
+                        });
                     }
                 });
 
