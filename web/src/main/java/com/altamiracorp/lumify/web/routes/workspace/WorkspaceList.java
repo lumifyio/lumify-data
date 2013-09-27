@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.web.routes.workspace;
 
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.Column;
+import com.altamiracorp.lumify.model.Value;
 import com.altamiracorp.lumify.model.workspace.Workspace;
 import com.altamiracorp.lumify.model.workspace.WorkspacePermissions;
 import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
@@ -14,6 +15,7 @@ import org.json.JSONObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
+import java.util.List;
 
 public class WorkspaceList extends BaseRequestHandler {
     private final WorkspaceRepository workspaceRepository;
@@ -37,13 +39,16 @@ public class WorkspaceList extends BaseRequestHandler {
             workspaceJson.put("createdBy", workspace.getMetadata().getCreator());
 
             JSONArray permissions = new JSONArray();
-            for (Column col : workspace.getUsers().getColumns()) {
-                JSONObject users = new JSONObject();
-                users.put("user", col.getName());
-                users.put("userPermissions", new JSONObject(col.getValue()));
-                permissions.put(users);
+            if (workspace.getPermissions() != null) {
+                Collection <Column> columnList = workspace.getPermissions().getColumns();
+                for (Column col : columnList) {
+                    JSONObject users = new JSONObject();
+                    users.put("user", col.getName());
+                    users.put("userPermissions", Value.toJson(col.getValue()));
+                    permissions.put(users);
+                }
+                workspaceJson.put("permissions", permissions);
             }
-            workspaceJson.put("permissions", permissions);
 
             workspacesJson.put(workspaceJson);
         }

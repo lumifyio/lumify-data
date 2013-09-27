@@ -48,7 +48,7 @@ public class WorkspaceSave extends BaseRequestHandler {
         if (workspaceRowKeyString == null) {
             workspace = handleNew(request, user);
         } else {
-            workspace = new Workspace(new WorkspaceRowKey(workspaceRowKeyString));
+            workspace = workspaceRepository.findByRowKey(workspaceRowKeyString, authUser);
         }
 
         if (!workspace.getRowKey().toString().equals(user.getMetadata().getCurrentWorkspace())) {
@@ -62,8 +62,6 @@ public class WorkspaceSave extends BaseRequestHandler {
         if (data != null) {
             workspace.getContent().setData(data);
             if (new JSONObject(data).keySet().contains("users")) {
-                workspace.getUsers();
-
                 // Getting user permissions
                 JSONArray userList = new JSONObject(data).getJSONArray("users");
                 String userRowkey = user.getRowKey().toString();
@@ -73,9 +71,9 @@ public class WorkspaceSave extends BaseRequestHandler {
                     updateUserList(workspace, userList, authUser);
                 }
             }
+            workspaceRepository.save(workspace, authUser);
         }
 
-        workspaceRepository.save(workspace, authUser);
         JSONObject resultJson = new JSONObject();
         resultJson.put("_rowKey", workspace.getRowKey().toString());
         resultJson.put("title", workspace.getMetadata().getTitle());
@@ -101,36 +99,30 @@ public class WorkspaceSave extends BaseRequestHandler {
     }
 
     private void updateUserList(Workspace workspace, JSONArray userList, com.altamiracorp.lumify.core.user.User user) {
-        List<Column> deleteList = new ArrayList<Column>();
-        List<Column> addList = new ArrayList<Column>();
+        boolean updateList = workspace.getPermissions().getColumns().size() > 0;
+        List <String> users = new ArrayList<String>();
 
-        Row<WorkspaceRowKey> rowKey = workspaceRepository.toRow(workspace);
-        for (Column column : workspace.getUsers().getColumns()) {
-            boolean added = false;
-            for (int i = 0; i < userList.length(); i++) {
-                JSONObject obj = userList.getJSONObject(i);
-                Column col = new Column(obj.getString("user"), obj.getJSONObject("permissions"));
-                if (!addList.contains(col)) {
-                    addList.add(col);
-                }
-
-                if (column.getName().equals(obj.getString("user"))) {
-                    added = true;
-                }
-            }
-            if (!added) {
-                column.setDirty(true);
-                deleteList.add(column);
+        for (int i = 0; i < userList.length(); i ++){
+            JSONObject obj = userList.getJSONObject(i);
+            workspace.getPermissions().setPermissions(obj.getString("user"), obj.getJSONObject("userPermissions"));
+            if (updateList) {
+                users.add(obj.getString("user"));
             }
         }
-        modelSession.deleteColumnsList(rowKey, Workspace.TABLE_NAME, WorkspacePermissions.NAME, deleteList, user);
 
-        modelSession.addManyCols(rowKey, Workspace.TABLE_NAME, WorkspacePermissions.NAME, addList, user);
+        if (updateList) {
+            Row<WorkspaceRowKey> rowKey = workspaceRepository.toRow(workspace);
+            for (Column col : workspace.getPermissions().getColumns()) {
+                if (!users.contains(col.getName())) {
+                    modelSession.deleteColumn(rowKey, Workspace.TABLE_NAME, WorkspacePermissions.NAME, col.getName(), user);
+                }
+            }
+        }
     }
 
     private boolean hasWritePermissions(String user, Workspace workspace, JSONArray userList) {
-        if (workspace.getUsers().get(user) != null) {
-            JSONObject permissions = new JSONObject(workspace.getUsers().get(user));
+        if (workspace.getPermissions().getUsers() != null) {
+            JSONObject permissions = new JSONObject(workspace.getPermissions().get(user));
             if (permissions.getBoolean("edit")) {
                 return true;
             }

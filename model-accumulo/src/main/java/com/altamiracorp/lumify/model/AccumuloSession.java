@@ -98,26 +98,6 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    public void addManyCols(Row row, String tableName, String columnFamily, Collection<Column> cols, User user) {
-        try {
-            BatchWriter writer = connector.createBatchWriter(tableName, getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
-            Mutation mutation = createMutationFromRow(row);
-            List <Mutation> mutationList = new ArrayList<Mutation>();
-            for (Column col : cols) {
-                mutation.put(columnFamily, col.getName(), col.getValue().toString());
-                mutationList.add(mutation);
-            }
-            writer.addMutation(mutation);
-            writer.flush();
-            writer.close();
-        } catch (TableNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (MutationsRejectedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public List<Row> findByRowKeyRange(String tableName, String rowKeyStart, String rowKeyEnd, User user) {
         try {
             Scanner scanner = this.connector.createScanner(tableName, ((AccumuloModelAuthorizations) user.getModelAuthorizations()).getAuthorizations());
@@ -288,27 +268,6 @@ public class AccumuloSession extends ModelSession {
             Mutation mutation = createMutationFromRow(row);
             mutation.putDelete(new Text(columnFamily), new Text(columnQualifier));
             writer.addMutation(mutation);
-            writer.flush();
-            writer.close();
-        } catch (TableNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (MutationsRejectedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public void deleteColumnsList(Row row, String tableName, String columnFamily, List<Column> cols, User user) {
-        LOGGER.info("delete all specified columns of column family: " + columnFamily + ", from row: " + row.getRowKey() + ", table: " + tableName);
-        try {
-            Mutation mutate = createMutationFromRow(row);
-            List <Mutation> mutations = new ArrayList<Mutation> ();
-            for (Column col : cols) {
-                mutate.putDelete(new Text(columnFamily), new Text(col.getName()));
-                mutations.add(mutate);
-            }
-            BatchWriter writer = connector.createBatchWriter(tableName, getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
-            writer.addMutations(mutations);
             writer.flush();
             writer.close();
         } catch (TableNotFoundException e) {

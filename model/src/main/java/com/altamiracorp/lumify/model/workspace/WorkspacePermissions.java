@@ -21,12 +21,8 @@ public class WorkspacePermissions extends ColumnFamily {
         return Value.toString(get(USER));
     }
 
-    public WorkspacePermissions setUsers (String userRowkey){
-        set (USER, userRowkey);
-        return this;
-    }
-
-    public void setPermissions (String columnName, String value) {
+    public WorkspacePermissions setPermissions (String columnName, Object value) {
         this.set(columnName, value);
+        return this;
     }
 }

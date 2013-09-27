@@ -26,13 +26,6 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    public void addManyCols(Row row, String tableName, String columnFamily, Collection<Column> cols, User user) {
-        for (Column col : cols) {
-            row.get(columnFamily).addColumn(col);
-        }
-    }
-
-    @Override
     public List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, User user) {
         List<Row> rows = this.tables.get(tableName);
         ArrayList<Row> results = new ArrayList<Row>();
@@ -128,18 +121,6 @@ public class MockSession extends ModelSession {
                         return;
                     }
                 }
-            }
-        }
-    }
-
-    public void deleteColumnsList(Row row, String tableName, String columnFamily, List<Column> cols, User user) {
-        List<ColumnFamily> columnFamilies = (List<ColumnFamily>) row.getColumnFamilies();
-        for (int i = 0; i < columnFamilies.size(); i++) {
-            if (columnFamilies.get(i).getColumnFamilyName().equals(columnFamily)) {
-                for (int j = 0; j < cols.size(); j++) {
-                    cols.remove(j);
-                }
-                continue;
             }
         }
     }

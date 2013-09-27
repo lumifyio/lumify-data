@@ -104,6 +104,7 @@ define([
 
             self.workspaceReady(function(ws) {
                 self.trigger('workspaceSaving', ws);
+
                 saveFn({ data:self.workspaceVertices }).done(function(data) {
                     self.id = data._rowKey;
                     self.trigger('workspaceSaved', data);
