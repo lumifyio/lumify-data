@@ -91,10 +91,18 @@ define([
             this.trigger(document, 'paneResized');
         };
 
-        this.onWorkspaceDeleted = function ( event, data ) {
+        this.collapseEditForm = function() {
             WorkspaceForm.teardownAll();
             this.select('formSelector').hide();
             this.trigger(document, 'paneResized');
+        };
+
+        this.onSwitchWorkspace = function ( event, data ) {
+            this.collapseEditForm();
+        };
+
+        this.onWorkspaceDeleted = function ( event, data ) {
+            this.collapseEditForm();
 
             this.loadWorkspaceList();
         };
@@ -103,15 +111,25 @@ define([
             this.switchActive( data.id );
         };
 
-        this.onWorkspaceSaved = function ( event, data ) {
-            var li = this.select('workspaceListItemSelector').filter(function() {
-                return $(this).data('_rowKey') == data._rowKey;
+        this.findWorkspaceRow = function(rowKey) {
+            return this.select('workspaceListItemSelector').filter(function() {
+                return $(this).data('_rowKey') == rowKey;
             });
+        };
+
+        this.onWorkspaceSaving = function ( event, data ) {
+            var li = this.findWorkspaceRow(data._rowKey);
+            li.find('.badge').addClass('loading').show().next().hide();
+        };
+
+        this.onWorkspaceSaved = function ( event, data ) {
+            var li = this.findWorkspaceRow(data._rowKey);
+            li.find('.badge').removeClass('loading').hide().next().show();
+            var content = $(itemTemplate({ workspace: data, selected: data._rowKey }));
             if (li.length === 0) {
-                $(itemTemplate({
-                    workspace: data,
-                    selected: data._rowKey
-                })).insertAfter( this.$node.find('li.nav-header') );
+                content.insertAfter( this.$node.find('li.nav-header') );
+            } else {
+                li.replaceWith(content);
             }
         };
 
@@ -147,7 +165,9 @@ define([
                             self.$node.html( workspacesTemplate({}) );
                             self.select('listSelector').html(
                                 listTemplate({
-                                    results: workspaces,
+                                    results: _.groupBy(workspaces, function(w) { 
+                                        return w.isSharedToUser ? 'shared' : 'mine';
+                                    }),
                                     selected: self.workspaceRowKey
                                 })
                             );
@@ -162,9 +182,11 @@ define([
 
         this.after( 'initialize', function() {
             this.on( document, 'workspaceLoaded', this.onWorkspaceLoad );
+            this.on( document, 'workspaceSaving', this.onWorkspaceSaving );
             this.on( document, 'workspaceSaved', this.onWorkspaceSaved );
             this.on( document, 'workspaceDeleted', this.onWorkspaceDeleted );
             this.on( document, 'menubarToggleDisplay', this.onToggleMenu );
+            this.on( document, 'switchWorkspace', this.onSwitchWorkspace );
             this.on( 'click', {
                 workspaceListItemSelector: this.onWorkspaceItemClick,
                 addNewSelector: this.onAddNew,

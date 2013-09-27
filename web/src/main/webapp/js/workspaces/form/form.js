@@ -25,6 +25,7 @@ define([
         this.defaultAttrs({
             titleSelector: '.workspace-title',
             shareListSelector: '.share-list',
+            shareHeader: '.share-header',
             shareFormSelector: '.share-form',
             userSearchSelector: '.share-form input',
             permissionsSelector: '.permissions',
@@ -40,46 +41,88 @@ define([
         this.after('initialize', function() {
             var self = this;
 
+            this.editable = this.attr.data.isEditable;
+
             this.$node.html(template({
-                workspace:this.attr.data,
-                shareUsers: []
+                workspace: this.attr.data,
+                editable: this.editable
             }));
-            this.attr.data.shareUsers = this.attr.data.shareUsers || [];
-            this.updatePopovers();
+            this.userService.getCurrentUsers().done(this.loadUserPermissionsList.bind(this));
 
-            this.setupTypeahead();
-            $(document).on('click.permPopover', function(event) {
-                var $target = $(event.target);
+            if (this.editable) {
+                this.setupTypeahead();
+                $(document).on('click.permPopover', function(event) {
+                    var $target = $(event.target);
 
-                if ($target.closest('.permissions').length === 0) {
-                    self.$node.find('.permissions').popover('hide');
-                }
-            });
-            this.on('shareWorkspaceWithUser', this.onShareWorkspaceWithUser);
-            this.on('click', {
-                deleteSelector: this.onDelete,
-                removeAccessSelector: this.onRemoveAccess
-            });
-            this.on('change', {
-                permissionsRadioSelector: this.onPermissionsChange
-            });
-            this.select('titleSelector').on('change keyup paste', this.onChangeTitle.bind(this));
+                    if ($target.closest('.permissions').length === 0) {
+                        self.$node.find('.permissions').popover('hide');
+                    }
+                });
+                this.on('shareWorkspaceWithUser', this.onShareWorkspaceWithUser);
+                this.on('click', {
+                    deleteSelector: this.onDelete,
+                    removeAccessSelector: this.onRevokeAccess
+                });
+                this.on('change', {
+                    permissionsRadioSelector: this.onPermissionsChange
+                });
+                this.select('titleSelector').on('change keyup paste', this.onChangeTitle.bind(this));
+            }
         });
 
         var timeout, deferred = [];
-        this.saveWorkspace = function() {
+        this.saveWorkspace = function(immediate) {
             var self = this,
                 d = $.Deferred();
             deferred.push(d);
 
             clearTimeout(timeout);
             timeout = setTimeout(function() {
-                console.log('saving', deferred, self.attr.data.title, self.attr.data.shareUsers);
-                _.invoke(deferred, 'resolve', { workspace: self.attr.data });
-                deferred.length = 0;
-            }, 1000);
+                self.trigger(document, 'workspaceSaving', self.attr.data);
+                self.workspaceService.save(self.attr.data._rowKey, self.attr.data)
+                    .done(function(workspace) {
+                        self.trigger(document, 'workspaceSaved', self.attr.data);
+                        _.invoke(deferred, 'resolve', { workspace: self.attr.data });
+                        deferred.length = 0;
+                    });
+            }, immediate ? 10 : 1000);
 
             return d;
+        };
+
+        this.loadUserPermissionsList = function(response) {
+            var self = this,
+                workspace = this.attr.data,
+                html = $();
+
+            this.currentUsers = response.users;
+
+            (workspace.users || (workspace.users = [])).forEach(function(userPermission) {
+                var data = self.shareRowDataForPermission(userPermission);
+                if (data) {
+                    html = html.add(shareRowTemplate(data));
+                }
+            });
+            this.select('shareHeader').after(html).find('.loading').remove();
+            if (this.editable) {
+                this.select('shareFormSelector').show();
+                this.updatePopovers();
+            }
+        };
+
+        this.shareRowDataForPermission = function(userPermission) {
+            var user = _.findWhere(this.currentUsers, { rowKey: userPermission.user });
+            if (user) {
+                return {
+                    user: {
+                        userPermissions: userPermission.userPermissions,
+                        permissionLabel: userPermission.userPermissions.edit ? 'edit' : 'view',
+                        rowKey: user.rowKey,
+                        userName: user.userName
+                    },
+                    editable: this.editable
+                };
+            } else console.warn('User ' + userPermission.user + ' in permissions is not a current user');
         };
 
         this.updatePopovers = function() {
@@ -93,7 +136,7 @@ define([
                 container: this.$node,
                 content: function() {
                     var row = $(this).closest('.user-row');
-                    return $(permissionsTemplate({})).data('userRow', row);
+                    return $(permissionsTemplate($(this).data())).data('userRow', row);
                 }
             });
         };
@@ -113,7 +156,25 @@ define([
         };
 
         this.onPermissionsChange = function(event) {
-            debugger;
+            var self = this,
+                $target = $(event.target),
+                newPermissions = $target.data('permissions'),
+                list = $target.closest('.permissions-list'),
+                userRow = list.data('userRow'),
+                badge = userRow.find('.permissions'),
+                rowKey = userRow.data('rowKey'),
+                user = _.findWhere(this.attr.data.users, { user: rowKey });
+
+            if (user) {
+                user.userPermissions = newPermissions;
+                badge.popover('disable').addClass('loading');
+                this.saveWorkspace(true)
+                    .done(function() {
+                        var newUserRow = $(shareRowTemplate(self.shareRowDataForPermission(user)));
+                        userRow.replaceWith(newUserRow);
+                        self.makePopover(newUserRow.find('.badge'));
+                    });
+            } else console.warn('Unable to update permissions because user "' + rowKey + '" not found');
         };
 
         this.onDelete = function(event) {
@@ -141,16 +202,16 @@ define([
                 });
         };
 
-        this.onRemoveAccess = function(event) {
+        this.onRevokeAccess = function(event) {
             var list = $(event.target).closest('.permissions-list'),
                 row = list.data('userRow'),
                 rowKey = row.data('rowKey');
             
             row.find('.permissions').popover('disable').addClass('loading');
-            this.attr.data.shareUsers = _.reject(this.attr.data.shareUsers, function(user) {
-                return user.rowKey === rowKey;
+            this.attr.data.users = _.reject(this.attr.data.users, function(user) {
+                return user.user === rowKey;
             });
-            this.saveWorkspace()
+            this.saveWorkspace(true)
                 .done(function() {
                     row.remove();
                 });
@@ -160,11 +221,17 @@ define([
 
             var self = this,
                 form = this.select('shareFormSelector'),
-                row = $(shareRowTemplate({ user:data.user })).insertBefore(form),
+                userPermission = {
+                    user: data.user.rowKey,
+                    userPermissions: { view: true, edit: false }
+                },
+                row = $(shareRowTemplate(this.shareRowDataForPermission(userPermission))).insertBefore(form),
                 badge = row.find('.permissions');
 
+            this.attr.data.users.push(userPermission);
+
             badge.addClass('loading');
-            this.saveWorkspace().
+            this.saveWorkspace(true).
                 done(function() {
                     badge.removeClass('loading');
                     badge.popover('destroy');
@@ -180,23 +247,28 @@ define([
 
             this.select('userSearchSelector').typeahead({
                 source: function(query, callback) {
+                    // TODO: pass query to backend to scale
                     self.userService.getCurrentUsers()
                         .done(function(response) {
                             var users = response.users,
                                 regex = new RegExp(query, 'i'),
                                 search = users.filter(function(user) {
                                     userMap[user.userName] = user;
+
+                                    // Can't share with oneself
+                                    if (user.rowKey === self.attr.data.createdBy) return false;
+
                                     return regex.test(user.userName);
                                 }),
                                 names = _.pluck(search, 'userName');
                                 
+                            self.currentUsers = users;
                             callback(names);
                         });
                 },
                 updater: function(userName) {
                     var user = userMap[userName];
                     if (user) {
-                        self.attr.data.shareUsers.push(user);
                         self.trigger('shareWorkspaceWithUser', {
                             workspace: self.attr.data,
                             user: user

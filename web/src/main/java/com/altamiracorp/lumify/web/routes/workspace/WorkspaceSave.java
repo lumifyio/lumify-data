@@ -38,6 +38,8 @@ public class WorkspaceSave extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         final String data = getOptionalParameter(request, "data");
+        final String users = getOptionalParameter(request, "users");
+        final String title = getOptionalParameter(request, "title");
         final String workspaceRowKeyString = getAttributeString(request, "workspaceRowKey");
 
         User authUser = getUser(request);
@@ -57,18 +59,32 @@ public class WorkspaceSave extends BaseRequestHandler {
 
         LOGGER.info("Saving workspace: " + workspace.getRowKey() + "\ntitle: " + workspace.getMetadata().getTitle() + "\ndata: " + data);
 
+        Boolean shouldSave = false;
+
+        if (title != null) {
+            workspace.getMetadata().setTitle(title);
+            shouldSave = true;
+        }
+
         if (data != null) {
             workspace.getContent().setData(data);
-            if (new JSONObject(data).keySet().contains("users")) {
-                // Getting user permissions
-                JSONArray userList = new JSONObject(data).getJSONArray("users");
-                String userRowkey = user.getRowKey().toString();
+            shouldSave = true;
+        }
 
-                if (workspace.getMetadata().getCreator().equals(userRowkey) ||
-                        hasWritePermissions(userRowkey, workspace, userList)) {
-                    updateUserList(workspace, userList, authUser);
-                }
+        if (users != null) {
+            // Getting user permissions
+            JSONArray userList = new JSONArray(users);
+            String userRowKey = user.getRowKey().toString();
+
+            if (workspace.getMetadata().getCreator() == null ||
+                    workspace.getMetadata().getCreator().equals(userRowKey) ||
+                    hasWritePermissions(userRowKey, workspace)) {
+                updateUserList(workspace, userList, authUser);
+                shouldSave = true;
             }
+        }
+
+        if (shouldSave) {
             workspaceRepository.save(workspace, authUser);
         }
 
@@ -123,7 +139,7 @@ public class WorkspaceSave extends BaseRequestHandler {
         }
     }
 
-    private boolean hasWritePermissions(String user, Workspace workspace, JSONArray userList) {
+    private boolean hasWritePermissions(String user, Workspace workspace) {
         if (workspace.get(WorkspacePermissions.NAME) != null && workspace.get(WorkspacePermissions.NAME).get(user) != null) {
             JSONObject permissions = new JSONObject(workspace.get(WorkspacePermissions.NAME).get(user).toString());
             if (permissions.length() > 0 && permissions.getBoolean("edit")) {
@@ -131,12 +147,6 @@ public class WorkspaceSave extends BaseRequestHandler {
             }
         }
 
-        for (int i = 0; i < userList.length(); i++) {
-            if (userList.getJSONObject(i).getString("user").equals(user) &&
-                    userList.getJSONObject(i).getJSONObject("userPermissions").getBoolean("edit")) {
-                return true;
-            }
-        }
         return false;
     }
 }

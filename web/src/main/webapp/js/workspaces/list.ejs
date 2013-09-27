@@ -1,7 +1,7 @@
 
 <li class="nav-header">Workspaces</li>
 
-<% results.forEach(function(workspace) { %>
+<% (results.mine || []).forEach(function(workspace) { %>
   <% include workspaces/item %>
 <% }); %>
 
@@ -12,3 +12,9 @@
   </div>
 </li>
 
+<li class="divider"/>
+<li class="nav-header">Shared with me</li>
+
+<% (results.shared || []).forEach(function(workspace) { %>
+  <% include workspaces/item %>
+<% }); %>

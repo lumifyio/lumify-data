@@ -3,8 +3,6 @@
 
 width: 200px;
 
-button.new {
-}
 
 li {
 
@@ -17,8 +15,10 @@ li {
   }
 
   .disclosure {
+    float: right;
     border: 0;
-    width: 2em;
+    width: 4em;
+    margin-right: -0.4em;
     height: 1.95em;
     box-shadow: none;
     background-color: inherit;
@@ -36,15 +36,35 @@ li {
     background-image: url(/img/glyphicons/white/glyphicons_019_cogwheel@2x.png);
   }
 
-
-  button {
-    float: right;
-  }
-
   .badge {
     float:right;
   }
 }
+
+.workspaces-list .loading {
+    position: relative;
+    left: -7px;
+}
+
+.new-workspace {
+  padding-top: 1em;
+  padding-bottom: 0em;
+  .input-append {
+    width: 100%;
+  }
+
+  input.new {
+    width: 80%;
+    margin: 0;
+  }
+  button.new {
+    width: 20%;
+    height: 2.7em;
+    position: relative;
+    left: -1px;
+  }
+}
+
 
 .workspace-form {
   .pin-left-split;

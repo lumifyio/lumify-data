@@ -78,7 +78,7 @@ define([
 
             // Configure splitpane resizing
             resizable(searchPane, 'e', 160, 200, this.onPaneResize.bind(this));
-            resizable(workspacesPane, 'e', undefined, 200, this.onPaneResize.bind(this));
+            resizable(workspacesPane, 'e', 190, 250, this.onPaneResize.bind(this));
             resizable(detailPane, 'w', 4, 500, this.onPaneResize.bind(this));
 
             this.$node.html(content);

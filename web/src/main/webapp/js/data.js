@@ -103,9 +103,10 @@ define([
             }
 
             self.workspaceReady(function(ws) {
+                ws.data.vertices = self.workspaceVertices;
                 self.trigger('workspaceSaving', ws);
 
-                saveFn({ data:self.workspaceVertices }).done(function(data) {
+                saveFn(_.pick(ws, 'data')).done(function(data) {
                     self.id = data._rowKey;
                     self.trigger('workspaceSaved', data);
                 });
@@ -293,9 +294,12 @@ define([
             var self = this;
             self.workspaceService.list()
                 .done(function(data) {
-                    var workspaces = data.workspaces || [];
+                    var workspaces = data.workspaces || [],
+                        myWorkspaces = _.filter(workspaces, function(w) { 
+                            return !w.isSharedToUser;
+                        });
 
-                    if (workspaces.length === 0) {
+                    if (myWorkspaces.length === 0) {
                         self.workspaceService.saveNew({data:{}}).done(function(workspace) {
                             self.loadWorkspace(workspace);
                         });
@@ -308,7 +312,7 @@ define([
                         }
                     }
 
-                    self.loadWorkspace(workspaces[0]);
+                    self.loadWorkspace(myWorkspaces[0]);
                 });
         };
 
@@ -361,19 +365,21 @@ define([
                 deferred = $.Deferred();
 
             if (id) {
-                self.workspaceService.getByRowKey(id).done(function(workspace) { 
-                    deferred.resolve(workspace); 
-                });
+                self.workspaceService.getByRowKey(id)
+                    .done(function(workspace) { 
+                        deferred.resolve(workspace); 
+                    });
             } else {
                 deferred.resolve();
             }
             return deferred.then(function(workspace) {
                     workspace = workspace || {};
                     workspace.data = workspace.data || {};
+                    workspace.data.vertices = workspace.data.vertices || {};
 
-                    if (workspace.data.vertices) {
+                    if (_.isArray(workspace.data.vertices)) {
                         console.warn('Legacy workspace found, resetting');
-                        workspace.data = {};
+                        workspace.data.vertices = {};
                         self.trigger('saveWorkspace');
                     }
 
@@ -384,14 +390,14 @@ define([
         this.loadWorkspaceVertices = function(workspace) {
             var self = this,
                 deferred = $.Deferred(),
-                ids = Object.keys(workspace.data);
+                ids = Object.keys(workspace.data.vertices);
 
             self.workspaceVertices = {};
             if (ids.length) {
                 self.vertexService.getMultiple(ids).done(function(serverVertices) {
 
                     var vertices = serverVertices.map(function(vertex) {
-                        var workspaceData = workspace.data[vertex.id];
+                        var workspaceData = workspace.data.vertices[vertex.id];
 
                         var cache = self.updateCacheWithVertex(vertex);
                         cache.properties._refreshedFromServer = true;
