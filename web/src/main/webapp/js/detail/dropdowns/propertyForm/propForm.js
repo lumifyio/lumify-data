@@ -91,9 +91,21 @@ define([
         };
 
         this.onConceptChanged = function (event) {
-            if (this.select('propertySelector').val() != '') {
+            var propertyName = this.select('propertySelector').val();
+            if (propertyName != '') {
+                var previousValue = this.attr.data.properties[propertyName];
+                if(previousValue) {
+                    if(previousValue.latitude) {
+                        previousValue = 'point(' + previousValue.latitude + ',' + previousValue.longitude + ')';
+                    }
+                    this.select('addPropertySelector').html('Update Property');
+                    this.select('propertyValueSelector').val(previousValue);
+                } else {
+                    this.select('addPropertySelector').html('Add Property');
+                    this.select('propertyValueSelector').val('');
+                }
                 this.select('addPropertySelector').attr('disabled', false);
-            } else if (this.select('propertySelector').val() == '') {
+            } else if (propertyName == '') {
                 this.select('addPropertySelector').attr('disabled', true);
             }
         };
