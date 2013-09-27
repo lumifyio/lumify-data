@@ -13,9 +13,9 @@ define([
     'service/entity',
     'data'
 ], function(
-    defineComponent, 
-    VideoScrubber, Image, 
-    withTypeContent, withHighlighting, 
+    defineComponent,
+    VideoScrubber, Image,
+    withTypeContent, withHighlighting,
     ObjectDetectionForm,
     Properties,
     template,
@@ -140,15 +140,45 @@ define([
         };
 
         this.onDetectedObjectClicked = function(event) {
+            var self = this;
             var tagInfo = $(event.target).data('info');
             $(event.target).parent().addClass('focused');
-            this.showForm(tagInfo, this.attr.data);
+            if ($(event.target).hasClass('resolved')){
+                var imageInfo = $('.artifact .image');
+                var aspectHeight = imageInfo.height()/imageInfo[0].naturalHeight;
+                var aspectWidth = imageInfo.width()/imageInfo[0].naturalWidth;
+                var coords = {
+                    x: (tagInfo.info.coords.x1 * aspectWidth),
+                    y: (tagInfo.info.coords.y1 * aspectHeight),
+                    x2: (tagInfo.info.coords.x2 * aspectWidth),
+                    y2: (tagInfo.info.coords.y2 * aspectHeight)
+                };
+
+                $('.image-preview').unbind("mouseenter");
+
+                $(this.select('artifactSelector')).Jcrop({
+                    setSelect: [coords.x, coords.y, coords.x2, coords.y2],
+                    onSelect: function (x) {self.onSelectImage(x, self.attr.data, tagInfo); },
+                    onRelease: function () {
+                       self.onSelectImageRelease();
+                    }
+                });
+            } else {
+                this.showForm(tagInfo, this.attr.data);
+            };
         };
 
         this.onDeleteTagClicked = function (event) {
             var self = this;
             var $detectedObjectTag = $(event.target).siblings();
             var info = { objectInfo: JSON.stringify($detectedObjectTag.data('info')) };
+            var $loading = $("<span>")
+                .addClass("badge")
+                .addClass("loading");
+
+            $(event.target).addClass('focused').replaceWith($loading).removeClass('focused');
+            $detectedObjectTag.bind('click', false);
+
             $.when(this.entityService.deleteDetectedObject(info)).then(function(data) {
                 var resolvedVertex = {
                     id: data.id,
@@ -195,27 +225,35 @@ define([
 
         this.onImageEnter = function(event){
             var self = this;
+            var dataInfo = $('.focused .label-info').data('info');
 
-            $(this.select('artifactSelector')).Jcrop({
-                onSelect: function (x) { self.onSelectImage(x, self.attr.data); },
-                onRelease: self.onSelectImageRelease
+            $(self.select('artifactSelector')).Jcrop({
+                onSelect: function (x) {
+                    $('.detected-object-tag').unbind ('mouseenter mouseleave');
+                    self.onSelectImage(x, self.attr.data, dataInfo);
+                },
+                onRelease: function () {
+                    self.onSelectImageRelease();
+                }
             });
         };
 
-        this.onSelectImage = function (coords, artifactInfo){
+        this.onSelectImage = function (coords, artifactInfo, dataInfo){
             var imageInfo = $('.artifact .image');
             var aspectHeight = imageInfo.height()/imageInfo[0].naturalHeight;
             var aspectWidth = imageInfo.width()/imageInfo[0].naturalWidth;
 
-            var dataInfo = {
-                info : {
-                    coords: {
-                        x1: (coords.x / aspectWidth),
-                        x2: (coords.x2 / aspectWidth),
-                        y1: (coords.y / aspectHeight),
-                        y2: (coords.y2 / aspectHeight)
-                    }
-                }
+            if (!dataInfo) {
+                dataInfo = {
+                    info: {}
+                };
+            }
+
+            dataInfo.info.coords = {
+                    x1: (coords.x / aspectWidth),
+                    x2: (coords.x2 / aspectWidth),
+                    y1: (coords.y / aspectHeight),
+                    y2: (coords.y2 / aspectHeight)
             };
 
             this.showForm(dataInfo, artifactInfo);
@@ -249,9 +287,12 @@ define([
             });
         };
 
-        this.onSelectImageRelease = function (){
+        this.onSelectImageRelease = function (event){
             if ($('.detected-object-labels .underneath').length === 0) {
                 ObjectDetectionForm.teardownAll ();
+                $('.focused').removeClass('focused');
+                $('.detected-object-tag').bind('mouseenter mouseleave');
+                $('.image-preview').bind("mouseenter");
             }
         };
      }

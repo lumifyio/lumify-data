@@ -15,6 +15,7 @@ define([
         this.onContextMenuFindShortestPath = function (hops) {
             var menu = this.select('vertexContextMenuSelector');
             var graphVertexId = menu.data('currentVertexGraphVertexId');
+            this.ignoreCySelectionEvents = true;
 
             this.cy(function (cy) {
                 var self = this;
@@ -53,6 +54,8 @@ define([
 
                     self.graphService.findPath(parameters)
                         .done(function (data) {
+                            self.ignoreCySelectionEvents = false;
+
                             if (edge) {
                                 cy.remove(edge);
                                 edge = null;
@@ -76,6 +79,9 @@ define([
                             } else {
                                 self.trigger(document, 'addVertices', { vertices: vertices });
                             }
+                        })
+                        .fail(function() {
+                            self.ignoreCySelectionEvents = false;
                         });
                 };
 

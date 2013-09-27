@@ -20,7 +20,8 @@ define([
     'use strict';
 
     var WORKSPACE_SAVE_DELAY = 1000,
-        RELOAD_RELATIONSHIPS_DELAY = 250;
+        RELOAD_RELATIONSHIPS_DELAY = 250,
+        ADD_VERTICES_DELAY = 100;
 
     return initializeData();
 
@@ -143,6 +144,9 @@ define([
                     passedWorkspace = {};
 
                 data.vertices.forEach(function(v) {
+                    v.workspace = v.workspace || {
+                        selected: true
+                    };
                     passedWorkspace[v.id] = self.copy(v.workspace);
                 });
 
@@ -159,11 +163,12 @@ define([
                     vertices.forEach(function(vertex) {
                         vertex.properties._refreshedFromServer = true;
                         if (passedWorkspace[vertex.id]) {
-                            vertex.workspace = passedWorkspace[vertex.id];
+                            vertex.workspace = $.extend(vertex.workspace, passedWorkspace[vertex.id]);
                         }
-                        var inWorkspace = self.workspaceVertices[vertex.id],
-                            cache = self.updateCacheWithVertex(vertex);
-                        
+
+                        var inWorkspace = self.workspaceVertices[vertex.id];
+                        var cache = self.updateCacheWithVertex(vertex);
+
                         self.workspaceVertices[vertex.id] = cache.workspace;
 
                         if (inWorkspace) {
@@ -465,12 +470,15 @@ define([
                         droppable = $(event.target),
                         graphVisible = $('.graph-pane').is('.visible'),
                         alsoDragging = draggable.data('ui-draggable').alsoDragging,
+                        anchors = draggable,
                         refresh = [];
 
                     if (alsoDragging && alsoDragging.length) {
-                        draggable.add(alsoDragging);
+                        anchors = draggable.add(alsoDragging.map(function(i, a) {
+                            return a.data('original');
+                        }));
                     }
-                    var vertices = draggable.map(function(i, a) {
+                    var vertices = anchors.map(function(i, a) {
                         a = $(a);
                         var id = a.data('vertexId') || a.closest('li').data('vertexId');
                         if (!id) {
@@ -492,12 +500,12 @@ define([
                                 id = info.graphVertexId;
                             } 
                             
-                            if (!id) return console.error('No data-vertex-id attribute for draggable element found', draggable[0]);
+                            if (!id) return console.error('No data-vertex-id attribute for draggable element found', a[0]);
                         }
 
                         var vertex = self.vertex(id);
                         if (vertex) {
-                            if (graphVisible) {
+                            if (graphVisible && i === 0) {
                                 vertex.workspace.dropPosition = { x: event.clientX, y: event.clientY };
                             }
                             return vertex;

@@ -60,7 +60,6 @@ define([
 
             this.creatingStatement = true;
 
-
             this.cy(function (cy) {
                 var self = this,
                     sourceVertex = cy.getElementById(graphVertexId),

@@ -242,7 +242,7 @@ define([
             var $focused = $('.focused');
             var $tag = $focused.find('.label-info');
 
-            $tag.text(data.title).removeAttr('data-info').data('info', data).removePrefixedClasses('subType-');
+            $tag.text(data.title).removeAttr('data-info').attr('data-info', JSON.stringify(data)).removePrefixedClasses('subType-');
             $tag.addClass('resolved entity subType-' + conceptId);
 
             if (!$focused.children().hasClass('delete-tag')){

@@ -1,15 +1,11 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +43,7 @@ public class ArtifactSearch extends BaseRequestHandler {
         ontologyRepository.resolvePropertyIds(filterJson, user);
 
         List<GraphVertex> vertices = artifactRepository.search(query, filterJson, user);
-        LOGGER.info(String.format("Search returned %d artifacts for query", vertices.size()));
+        LOGGER.info("Number of artifacts returned for query: " + vertices.size());
 
         JSONObject results = new JSONObject();
         results.put("vertices", GraphVertex.toJson(vertices));

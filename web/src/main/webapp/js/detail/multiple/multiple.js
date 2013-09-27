@@ -234,7 +234,7 @@ define([
                 } else if (properties.byTitle[propertyName]) {
                     switch (properties.byTitle[propertyName].dataType) {
                         case 'date':
-                            propertyValueDisplay = sf("{0:yyyy/MM/dd}", new Date(propertyValue));
+                            propertyValueDisplay = sf("{0:yyyy/MM/dd}", new Date(parseInt(propertyValue)));
                             break;
                     }
                 }
