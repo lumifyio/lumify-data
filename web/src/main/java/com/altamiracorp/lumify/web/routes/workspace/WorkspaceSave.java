@@ -109,15 +109,6 @@ public class WorkspaceSave extends BaseRequestHandler {
                 users.add(obj.getString("user"));
             }
         }
-
-        if (updateList) {
-            Row<WorkspaceRowKey> rowKey = workspaceRepository.toRow(workspace);
-            for (Column col : workspace.getPermissions().getColumns()) {
-                if (!users.contains(col.getName())) {
-                    modelSession.deleteColumn(rowKey, Workspace.TABLE_NAME, WorkspacePermissions.NAME, col.getName(), user);
-                }
-            }
-        }
     }
 
     private boolean hasWritePermissions(String user, Workspace workspace, JSONArray userList) {
