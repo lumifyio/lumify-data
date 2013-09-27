@@ -33,4 +33,12 @@ public class Workspace extends Row<WorkspaceRowKey> {
         }
         return get(WorkspaceMetadata.NAME);
     }
+
+    public WorkspacePermissions getUsers () {
+        WorkspacePermissions workspaceUsers = get(WorkspacePermissions.NAME);
+        if (workspaceUsers == null) {
+            addColumnFamily(new WorkspacePermissions());
+        }
+        return get(WorkspacePermissions.NAME);
+    }
 }
