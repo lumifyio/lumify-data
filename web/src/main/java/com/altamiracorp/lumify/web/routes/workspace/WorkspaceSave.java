@@ -99,7 +99,12 @@ public class WorkspaceSave extends BaseRequestHandler {
     }
 
     private void updateUserList(Workspace workspace, JSONArray userList, com.altamiracorp.lumify.core.user.User user) {
-        boolean updateList = workspace.get(WorkspacePermissions.NAME).getColumns() != null;
+        boolean updateList = false;
+        if (workspace.get(WorkspacePermissions.NAME) != null) {
+            updateList = workspace.get(WorkspacePermissions.NAME).getColumns().size() > 0;
+        } else {
+            workspace.getPermissions();
+        }
 
         List <String> users = new ArrayList<String>();
 
@@ -110,21 +115,20 @@ public class WorkspaceSave extends BaseRequestHandler {
                 users.add(obj.getString("user"));
             }
         }
-
     }
 
     private boolean hasWritePermissions(String user, Workspace workspace, JSONArray userList) {
-        if (workspace.getPermissions().getUsers() != null) {
-            JSONObject permissions = new JSONObject(workspace.getPermissions().get(user));
-            if (permissions.getBoolean("edit")) {
+        if (workspace.get(WorkspacePermissions.NAME) != null && workspace.get(WorkspacePermissions.NAME).get(user) != null) {
+            JSONObject permissions = new JSONObject(workspace.get(WorkspacePermissions.NAME).get(user).toString());
+            if (permissions.length() > 0 && permissions.getBoolean("edit")) {
                 return true;
             }
-        } else {
-            for (int i = 0; i < userList.length(); i++) {
-                if (userList.getJSONObject(i).getString("user").equals(user) &&
-                        userList.getJSONObject(i).getBoolean("edit")) {
-                    return true;
-                }
+        }
+
+        for (int i = 0; i < userList.length(); i++) {
+            if (userList.getJSONObject(i).getString("user").equals(user) &&
+                    userList.getJSONObject(i).getJSONObject("userPermissions").getBoolean("edit")) {
+                return true;
             }
         }
         return false;
