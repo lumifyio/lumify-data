@@ -20,7 +20,8 @@ define([
     'use strict';
 
     var WORKSPACE_SAVE_DELAY = 1000,
-        RELOAD_RELATIONSHIPS_DELAY = 250;
+        RELOAD_RELATIONSHIPS_DELAY = 250,
+        ADD_VERTICES_DELAY = 100;
 
     return initializeData();
 
@@ -67,6 +68,7 @@ define([
 
             this.onSaveWorkspace = _.debounce(this.onSaveWorkspace.bind(this), WORKSPACE_SAVE_DELAY);
             this.refreshRelationships = _.debounce(this.refreshRelationships.bind(this), RELOAD_RELATIONSHIPS_DELAY);
+            this.onAddVertices = _.debounce(this.onAddVertices.bind(this), ADD_VERTICES_DELAY, true);
 
             // Vertices
             this.on('addVertices', this.onAddVertices);
