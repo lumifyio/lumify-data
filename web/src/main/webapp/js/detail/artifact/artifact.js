@@ -243,7 +243,7 @@ define([
             var aspectHeight = imageInfo.height()/imageInfo[0].naturalHeight;
             var aspectWidth = imageInfo.width()/imageInfo[0].naturalWidth;
 
-            if (!dataInfo) {
+            if (!dataInfo || $('.focused').length == 0) {
                 dataInfo = {
                     info: {}
                 };
@@ -287,7 +287,7 @@ define([
             });
         };
 
-        this.onSelectImageRelease = function (event){
+        this.onSelectImageRelease = function (){
             if ($('.detected-object-labels .underneath').length === 0) {
                 ObjectDetectionForm.teardownAll ();
                 $('.focused').removeClass('focused');
