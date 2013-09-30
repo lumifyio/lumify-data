@@ -55,9 +55,6 @@ public class Workspace extends Row<WorkspaceRowKey> {
             workspaceJson.put("_rowKey", getRowKey());
             workspaceJson.put("title", getMetadata().getTitle());
             workspaceJson.put("createdBy", getMetadata().getCreator());
-            if ( getMetadata().getCreator() == null )   {
-                getMetadata().setCreator(user.getRowKey());
-            }
             workspaceJson.put("isSharedToUser", !getMetadata().getCreator().equals(user.getRowKey()));
 
             Boolean hasAccess = false;
