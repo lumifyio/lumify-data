@@ -72,9 +72,10 @@ define([
         };
 
         this.addVertices = function(vertices, opts) {
-            var options = $.extend({ fit:false }, opts);
-            var addedVertices = [];
-            var self = this;
+            var options = $.extend({ fit:false }, opts),
+                addedVertices = [],
+                updatedVertices = [],
+                self = this;
 
             if ($(".instructions").length > 0) {
                 $(".instructions").text ('Related Entities Added');
@@ -122,7 +123,9 @@ define([
                     };
                     self.updateCyNodeData(cyNodeData.data, vertex);
 
-                    var needsUpdate = false;
+                    var needsAdding = false,
+                        needsUpdating = false;
+
                     if (vertex.workspace.graphPosition) {
                         cyNodeData.position = retina.pointsToPixels(vertex.workspace.graphPosition);
                     } else if (vertex.workspace.dropPosition) {
@@ -131,7 +134,7 @@ define([
                             x: vertex.workspace.dropPosition.x - offset.left,
                             y: vertex.workspace.dropPosition.y - offset.top
                         });
-                        needsUpdate = true;
+                        needsAdding = true;
                     } else {
 
                         cyNodeData.position = retina.pointsToPixels(nextAvailablePosition);
@@ -141,13 +144,13 @@ define([
                             nextAvailablePosition.y += inc;
                             nextAvailablePosition.x = startX;
                         }
-                        needsUpdate = true;
+                        needsUpdating = true;
                     }
 
                     var cyNode = cy.add(cyNodeData);
 
-                    if (needsUpdate) {
-                        addedVertices.push({
+                    if (needsAdding || needsUpdating) {
+                        (needsAdding ? addedVertices : updatedVertices).push({
                             id: vertex.id,
                             workspace: {
                                 graphPosition: retina.pixelsToPoints(cyNode.position())
@@ -180,6 +183,9 @@ define([
                     this.trigger(document, 'addVertices', { vertices:addedVertices });
                 }
 
+                if (updatedVertices.length) {
+                    this.trigger(document, 'updateVertices', { vertices:updatedVertices });
+                }
             });
 
             this.setWorkspaceDirty();
