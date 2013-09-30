@@ -173,13 +173,7 @@ define([
                 return u.rowKey;
             });
 
-            this.chatService.sendChatMessage(userRowKeys, messageData, function (err, messageData) {
-                if (err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-                return 0;
-            });
+            this.chatService.sendChatMessage(userRowKeys, messageData);
 
             $messageInput.val('');
             $messageInput.focus();

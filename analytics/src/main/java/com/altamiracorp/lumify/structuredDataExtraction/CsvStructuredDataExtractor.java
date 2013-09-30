@@ -165,7 +165,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
             }
         }
 
-        return sdf.parse(columnData);
+        return sdf.parse(columnData).getTime();
     }
 
     private TermAndGraphVertex createTermAndGraphVertex(Artifact artifact, int offset, String sign, Map<String, GraphVertex> allGraphVertex, JSONObject columnMappingJson) throws JSONException {

@@ -7,9 +7,9 @@ define([
     'util/css-stylesheet',
     'colorjs',
     'service/entity',
-    'service/ontology',
-    'underscore'
-], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, colorjs, EntityService, OntologyService, _) {
+    'service/ontology'
+], function(TermForm, StatementForm, highlightButtonTemplate, stylesheet, colorjs, EntityService, OntologyService) {
+    'use strict';
 
     var HIGHLIGHT_STYLES = [
             { name: 'None', selector:'none' },
@@ -286,8 +286,8 @@ define([
                 selection: sel && { anchor:sel.anchorNode, focus:sel.focusNode, anchorOffset: sel.anchorOffset, focusOffset: sel.focusOffset, range:sel.rangeCount && sel.getRangeAt(0).cloneRange() },
                 mentionNode: insertAfterNode,
                 existing: !creating,
-                artifactKey: this.attr.data._rowKey,
-                artifactId: this.attr.data.graphVertexId
+                artifactKey: this.attr.data.properties._rowKey,
+                artifactId: this.attr.data.id
             });
         };
 

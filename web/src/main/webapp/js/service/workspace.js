@@ -4,6 +4,8 @@ define(
     'service/serviceBase'
 ],
 function(ServiceBase) {
+    'use strict';
+
     function WorkspaceService() {
         ServiceBase.call(this);
 
@@ -12,45 +14,50 @@ function(ServiceBase) {
 
     WorkspaceService.prototype = Object.create(ServiceBase.prototype);
 
-    WorkspaceService.prototype.list = function (callback) {
+    WorkspaceService.prototype.list = function() {
         return this._ajaxGet({
             url: 'workspace/'
-        }, callback);
+        });
     };
 
-    WorkspaceService.prototype.getByRowKey = function (_rowKey, callback) {
+    WorkspaceService.prototype.getByRowKey = function (_rowKey) {
         return this._ajaxGet({
-            url: 'workspace/' + _rowKey
-        }, callback);
+            url: 'workspace/' + encodeURIComponent(_rowKey)
+        });
     };
 
-    WorkspaceService.prototype.saveNew = function (workspace, callback) {
-        console.log("workspace saveNew:", workspace);
-        workspace.data = JSON.stringify(workspace.data);
-        this._ajaxPost({
-            url: 'workspace/save',
-            data: workspace
-        }, callback);
+    WorkspaceService.prototype.saveNew = function (workspace) {
+        return this.save(null, workspace);
     };
 
-    WorkspaceService.prototype.save = function (_rowKey, workspace, callback) {
-        console.log("workspace save:", _rowKey, workspace);
-        workspace.data = JSON.stringify(workspace.data);
-        this._ajaxPost({
-            url: 'workspace/' + _rowKey + '/save',
-            data: workspace
-        }, callback);
+    WorkspaceService.prototype.save = function (_rowKey, workspace) {
+        var options = {
+            url: _rowKey === null ? 
+                    'workspace/save' :
+                    'workspace/' + encodeURIComponent(_rowKey) + '/save',
+            data: {}
+        };
+        
+        if (workspace.data) {
+            options.data.data = JSON.stringify(workspace.data);
+        }
+        if (workspace.title) {
+            options.data.title = workspace.title;
+        }
+        if (workspace.users) {
+            options.data.users = JSON.stringify(workspace.users);
+        }
+        return this._ajaxPost(options);
     };
 
-    WorkspaceService.prototype.delete = function(_rowKey, callback) {
-        console.log("workspace delete:", _rowKey);
-        this._ajaxDelete({
-            url: 'workspace/' + _rowKey,
+    WorkspaceService.prototype['delete'] = function(_rowKey) {
+        return this._ajaxDelete({
+            url: 'workspace/' + encodeURIComponent(_rowKey),
             data: {
                 _rowKey: _rowKey
             }
-        }, callback);
-    }
+        });
+    };
 
     return WorkspaceService;
 });

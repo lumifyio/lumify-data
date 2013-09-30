@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.search;
 
+import com.altamiracorp.lumify.model.search.ArtifactSearchResult;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import org.junit.Before;
 import org.junit.Test;

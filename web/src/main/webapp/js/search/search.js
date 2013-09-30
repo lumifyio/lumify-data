@@ -2,6 +2,7 @@
 define([
     'flight/lib/component',
     'flight/lib/registry',
+    'data',
     'service/ucd',
     'service/ontology',
     'util/vertexList/list',
@@ -14,6 +15,7 @@ define([
 ], function(
     defineComponent,
     registry,
+    appData,
     UCD,
     OntologyService,
     VertexList,
@@ -99,24 +101,31 @@ define([
                 this.updateConceptSections(concepts);
 
                 $.when(
-                    this.ucd.artifactSearch(query),
+                    this.ucd.artifactSearch(query || this.select('querySelector').val(), this.filters),
                     this.ucd.graphVertexSearch(query || this.select('querySelector').val(), this.filters)
                 ).done(function(artifactSearch, vertexSearch) {
-                    var results = { artifact:artifactSearch[0], entity:{} };
+                    var results = {
+                        artifact:{
+                            document: [],
+                            image: [],
+                            video: []
+                        },
+                        entity:{}
+                    };
 
-                    // Organize vertexSearch Items
-                    vertexSearch[0].vertices.forEach(function(v) {
+                    var sortVerticesIntoResults = function(v) {
                         var props = v.properties,
                             type = props._type,
                             subType = props._subType;
-
-                        if (type === 'artifact') return;
 
                         if (!results[type]) results[type] = {};
                         if (!results[type][subType]) results[type][subType] = [];
 
                         results[type][subType].push(v);
-                    });
+                    };
+
+                    vertexSearch[0].vertices.forEach(sortVerticesIntoResults);
+                    artifactSearch[0].vertices.forEach(sortVerticesIntoResults);
                     self.searchResults = results;
 
                     Object.keys(results).forEach(function(type) {
@@ -174,9 +183,10 @@ define([
         this.onShowSearchResults = function(evt, data) {
             var self = this,
                 $searchResults = this.select('resultsSelector'),
-                vertices = (this.searchResults[data._type][data._subType] || []).map(function(v) {
-                    return $.extend({ }, data, v);
-                });
+                vertexIds = (this.searchResults[data._type][data._subType] || []).map(function(v) {
+                    return v.graphVertexId || v.id;
+                }),
+                vertices = appData.vertices(vertexIds);
 
             this.hideSearchResults();
             this.select('filtersSelector').hide();
@@ -246,6 +256,7 @@ define([
         };
 
         this.after('initialize', function() {
+            var self = this;
             this.searchResults = {};
             this.$node.html(template({}));
 

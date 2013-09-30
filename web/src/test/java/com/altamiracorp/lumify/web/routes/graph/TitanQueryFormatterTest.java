@@ -35,13 +35,13 @@ public class TitanQueryFormatterTest extends RouteTestBase {
         graph = new TinkerGraph();
         Vertex person1 = graph.addVertex("1");
         person1.setProperty(PropertyName.TITLE.toString(), "person1");
-        person1.setProperty("birthDate", Property.DATE_FORMAT.parse("1978-10-30"));
+        person1.setProperty("birthDate", Property.DATE_FORMAT.parse("1978-10-30").getTime());
         person1.setProperty("alias", "Joe");
         person1.setProperty("income", 500.12);
 
         Vertex person2 = graph.addVertex("2");
         person2.setProperty(PropertyName.TITLE.toString(), "person2");
-        person2.setProperty("birthDate", Property.DATE_FORMAT.parse("1977-01-30"));
+        person2.setProperty("birthDate", Property.DATE_FORMAT.parse("1977-01-30").getTime());
         person2.setProperty("alias", "Bob Smith");
         person2.setProperty("income", 300.5);
     }

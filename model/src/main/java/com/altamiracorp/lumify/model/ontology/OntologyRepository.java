@@ -10,6 +10,9 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Vertex;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -363,5 +366,20 @@ public class OntologyRepository {
         graphSession.commit();
 
         return relationshipLabel;
+    }
+
+    public void resolvePropertyIds(JSONArray filterJson, User user) throws JSONException {
+        for (int i = 0; i < filterJson.length(); i++) {
+            JSONObject filter = filterJson.getJSONObject(i);
+            if (filter.has("propertyId") && !filter.has("propertyName")) {
+                String propertyId = filter.getString("propertyId");
+                Property property = getPropertyById(propertyId, user);
+                if (property == null) {
+                    throw new RuntimeException("Could not find property with id: " + propertyId);
+                }
+                filter.put("propertyName", property.getTitle());
+                filter.put("propertyDataType", property.getDataType());
+            }
+        }
     }
 }

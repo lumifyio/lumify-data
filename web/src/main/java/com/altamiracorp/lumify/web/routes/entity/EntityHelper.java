@@ -38,12 +38,11 @@ public class EntityHelper {
         termMentionRepository.save(termMention, user);
     }
 
-    public void updateGraphVertex(GraphVertex vertex, String subType, String title, String artifactId, User user) {
+    public void updateGraphVertex(GraphVertex vertex, String subType, String title, User user) {
         vertex.setProperty(PropertyName.SUBTYPE, subType);
         vertex.setProperty(PropertyName.TITLE, title);
 
         graphRepository.saveVertex(vertex, user);
-        graphRepository.saveRelationship(artifactId, vertex.getId(), LabelName.HAS_ENTITY, user);
     }
 
     public DetectedObject createObjectTag(String x1, String x2, String y1, String y2, GraphVertex resolvedVertex, GraphVertex conceptVertex) {

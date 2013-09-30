@@ -1,16 +1,18 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.Value;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.objectDetection.DetectedObject;
 import com.altamiracorp.lumify.objectDetection.ObjectDetectionWorker;
-import com.altamiracorp.lumify.search.SearchProvider;
+import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactDetectedObjects;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
@@ -26,17 +28,20 @@ public class EntityObjectDetectionUpdate extends BaseRequestHandler {
     private final ArtifactRepository artifactRepository;
     private final TermMentionRepository termMentionRepository;
     private final SearchProvider searchProvider;
+    private final ModelSession modelSession;
 
     @Inject
     public EntityObjectDetectionUpdate(
             final TermMentionRepository termMentionRepository,
             final ArtifactRepository artifactRepository,
             final GraphRepository graphRepository,
-            final SearchProvider searchProvider) {
+            final SearchProvider searchProvider,
+            final ModelSession modelSession) {
         this.termMentionRepository = termMentionRepository;
         this.artifactRepository = artifactRepository;
         this.graphRepository = graphRepository;
         this.searchProvider = searchProvider;
+        this.modelSession = modelSession;
     }
 
     @Override
@@ -48,33 +53,41 @@ public class EntityObjectDetectionUpdate extends BaseRequestHandler {
         final String sign = getRequiredParameter(request, "sign");
         final String conceptId = getRequiredParameter(request, "conceptId");
         final String resolvedGraphVertexId = getRequiredParameter(request, "graphVertexId");
-        final String x1 = getRequiredParameter(request, "x1");
-        final String y1 = getRequiredParameter(request, "y1");
-        final String x2 = getRequiredParameter(request, "x2");
-        final String y2 = getRequiredParameter(request, "y2");
+        final JSONObject coords = new JSONObject(getRequiredParameter(request, "coords"));
+        String x1 = Double.toString(coords.getDouble("x1")), x2 = Double.toString(coords.getDouble("x2")),
+                y1 = Double.toString(coords.getDouble("y1")), y2 = Double.toString(coords.getDouble("y2"));
         String detectedObjectRowKey = getRequiredParameter(request, "detectedObjectRowKey");
+        final String boundingBox = "[x1: " + x1 + ", y1: " + y1 +", x2: " + x2 + ", y2: " + y2 + "]";
 
         GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
         GraphVertex resolvedVertex = graphRepository.findVertex(resolvedGraphVertexId, user);
+        GraphVertex artifactVertex = graphRepository.findVertexByRowKey(artifactRowKey, user);
 
         // update graph vertex
-        resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
-        resolvedVertex.setProperty(PropertyName.TITLE, sign);
-        graphRepository.saveVertex(resolvedVertex, user);
+        objectDetectionHelper.updateGraphVertex(resolvedVertex, conceptId, sign, user);
+        graphRepository.setPropertyEdge(artifactVertex.getId(), resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF.toString()
+                , PropertyName.BOUNDING_BOX.toString(), boundingBox, user);
+
+        ArtifactDetectedObjects artifactDetectedObjects = artifactRepository.findByRowKey(artifactRowKey, user).getArtifactDetectedObjects();
+        JSONObject value = Value.toJson(artifactDetectedObjects.get(detectedObjectRowKey));
+        JSONObject info = value.getJSONObject("info");
 
         // update the term mention
-        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, 0, 0);
-        TermMention termMention = termMentionRepository.findByRowKey(termMentionRowKey.toString(), user);
+        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, (long)coords.getDouble("x1"), (long)coords.getDouble("y1"));
+        TermMention termMention = null;
+        if (coords.getDouble("x1") != info.getJSONObject("coords").getDouble("x1") ||  coords.getDouble("y1") != info.getJSONObject("coords").getDouble("y1")) {
+            TermMentionRowKey oldTermMentionRowKey = new TermMentionRowKey(artifactRowKey, (long)info.getJSONObject("coords").getDouble("x1"), (long)info.getJSONObject("coords").getDouble("y1"));
+            modelSession.deleteRow(TermMention.TABLE_NAME, oldTermMentionRowKey, user);
+            termMention = new TermMention(termMentionRowKey);
+        } else {
+            termMention = termMentionRepository.findByRowKey(termMentionRowKey.toString(), user);
+        }
         objectDetectionHelper.updateTermMention(termMention, sign, conceptVertex, resolvedVertex, user);
 
         // update the detected object column
-        ArtifactDetectedObjects artifactDetectedObjects = artifactRepository.findByRowKey(artifactRowKey, user).getArtifactDetectedObjects();
-
         DetectedObject detectedObject = objectDetectionHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);
         detectedObject.setRowKey(detectedObjectRowKey);
 
-        JSONObject value = Value.toJson(artifactDetectedObjects.get(detectedObjectRowKey));
-        JSONObject info = value.getJSONObject("info");
         detectedObject.setModel(info.get("model").toString());
 
         JSONObject obj = detectedObject.getJson();

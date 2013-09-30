@@ -3,6 +3,7 @@
 define([
     'flight/lib/registry'
 ], function(registry) {
+    'use strict';
 
     return withWorkspaceData;
 

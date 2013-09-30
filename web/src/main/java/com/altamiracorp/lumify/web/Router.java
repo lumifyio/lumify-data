@@ -1,8 +1,6 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.web.routes.admin.AdminQuery;
-import com.altamiracorp.lumify.web.routes.admin.AdminTables;
-import com.altamiracorp.lumify.web.routes.admin.AdminUploadOntology;
+import com.altamiracorp.lumify.web.routes.admin.*;
 import com.altamiracorp.lumify.web.routes.artifact.*;
 import com.altamiracorp.lumify.web.routes.entity.*;
 import com.altamiracorp.lumify.web.routes.graph.*;
@@ -74,7 +72,7 @@ public class Router extends HttpServlet {
         app.get("/vertex/{graphVertexId}/properties", authenticator, VertexProperties.class);
         app.get("/vertex/{graphVertexId}/relationships", authenticator, VertexRelationships.class);
         app.get("/vertex/relationship", authenticator, VertexToVertexRelationship.class);
-        app.get("/vertex/removeRelationship", authenticator, VertexRelationshipRemoval.class);
+        app.post("/vertex/removeRelationship", authenticator, VertexRelationshipRemoval.class);
         app.get("/vertex/multiple", authenticator, VertexMultiple.class);
 
         app.post("/relationship/property/set", authenticator, SetRelationshipProperty.class);
@@ -103,6 +101,10 @@ public class Router extends HttpServlet {
         app.get("/admin/query", authenticator, AdminQuery.class);
         app.get("/admin/tables", authenticator, AdminTables.class);
         app.post("/admin/uploadOntology", authenticator, AdminUploadOntology.class);
+        app.get("/admin/dictionary",authenticator, AdminDictionary.class);
+        app.get("/admin/dictionary/{concept}",authenticator,AdminDictionaryByConcept.class);
+        app.post("/admin/dictionary",authenticator,AdminDictionaryEntryAdd.class);
+        app.delete("/admin/dictionary/{entryRowKey}",authenticator, AdminDictionaryEntryDelete.class);
 
         LessRestlet.init(rootDir);
         app.get("/css/{file}.css", LessRestlet.class);

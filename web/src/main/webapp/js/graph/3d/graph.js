@@ -6,6 +6,7 @@ define([
     '3djs',
     'util/previews'
 ], function(defineComponent, OntologyService, $3djs, previews) {
+    'use strict';
 
     var imageCache = {};
 
@@ -67,22 +68,27 @@ define([
 
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'verticesAdded', this.onVerticesAdded);
+            this.on(document, 'verticesDropped', this.onVerticesDropped);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
         });
-        
+
+        this.onVerticesDropped = function(event, data) {
+            this.addVertices(data.vertices);
+            this.trigger(document, 'addVertices', data);
+        };
 
         this.addVertices = function(vertices) {
             var graph = this.graph,
                 deferredImages = [];
 
             vertices.forEach(function(vertex) {
-                var node = new $3djs.Graph.Node(vertex.graphVertexId);
+                var node = new $3djs.Graph.Node(vertex.id);
 
                 node.data = vertex;
-                node.data.icon = vertex._glyphIcon || this.icons[vertex._subType];
+                node.data.icon = vertex.properties._glyphIcon || this.icons[vertex.properties._subType];
 
                 if (node.data.icon) {
                     deferredImages.push(
@@ -108,7 +114,7 @@ define([
             function addToGraph(width, height, node) {
                 node.data.iconWidth = width;
                 node.data.iconHeight = height;
-                node.data.label = node.data.title || 'No title Available';
+                node.data.label = node.data.properties.title;
                 node.needsUpdate = true;
                 graph.addNode(node);
             }
@@ -172,12 +178,12 @@ define([
             //graphRenderer.showStats();
 
             graphRenderer.addEventListener('node_click', function(event) {
+                var selected = [];
                 if (event.content) {
                     var data = graph.node(event.content).data;
-                    self.trigger('verticesSelected', [data]);
-                } else {
-                    self.trigger('verticesSelected', []);
+                    selected.push(data);
                 }
+                self.trigger('verticesSelected', [selected]);
             }, false);
         };
     }

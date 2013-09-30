@@ -51,7 +51,7 @@ public abstract class Property extends GraphVertex {
         Object value = valueStr;
         switch (dateType) {
             case DATE:
-                value = DATE_FORMAT.parse(valueStr);
+                value = DATE_FORMAT.parse(valueStr).getTime();
                 break;
             case GEO_LOCATION:
                 value = parseGeoLocation(valueStr);

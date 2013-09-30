@@ -55,7 +55,7 @@ public abstract class ModelSession {
 
     abstract List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, User user);
 
-    abstract List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, User user);
+    public abstract List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, User user);
 
     abstract Row findByRowKey(String tableName, String rowKey, User user);
 

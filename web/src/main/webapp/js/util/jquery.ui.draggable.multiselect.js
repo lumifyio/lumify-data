@@ -1,5 +1,6 @@
 
 define( [], function() {
+    'use strict';
 
     $.ui.plugin.add( "draggable", "multi", {
 
@@ -131,7 +132,7 @@ define( [], function() {
                         var $this = $(this),
                             cloned = $this.clone().removeAttr('id href').data('original', $this);
 
-                        cloned.addClass('ui-draggable-dragging');
+                        //cloned.addClass('ui-draggable-dragging');
                         if (instance.options.otherDraggablesClass) {
                             cloned.addClass(instance.options.otherDraggablesClass);
                         }

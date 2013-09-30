@@ -1,10 +1,10 @@
-
 define([
     'flight/lib/component',
     '../withDropdown',
     'tpl!./propForm',
     'tpl!./options'
-], function(defineComponent, withDropdown, template, options) {
+], function (defineComponent, withDropdown, template, options) {
+    'use strict';
 
     return defineComponent(PropertyForm, withDropdown);
 
@@ -13,10 +13,13 @@ define([
         this.defaultAttrs({
             propertySelector: 'select',
             propertyValueSelector: '.property-value',
-            addPropertySelector: '.add-property'
+            addPropertySelector: '.add-property',
+            buttonDivSelector: '.buttons'
         });
 
-        this.after('initialize', function() {
+        this.after('initialize', function () {
+            var self = this,
+                vertex = this.attr.data;
 
             this.on('click', {
                 addPropertySelector: this.onAddPropertyClicked
@@ -24,83 +27,104 @@ define([
 
             this.on('keyup', {
                 propertyValueSelector: this.onInputKeyUp
-            })
+            });
 
             this.on('addPropertyError', this.onAddPropertyError);
 
+            this.on('change', {
+                propertySelector: this.onConceptChanged
+            });
+
             this.$node.html(template({}));
 
-            var self = this;
+            self.select('addPropertySelector').attr('disabled', true);
 
-            if (self.attr.data._subType){
-                self.attr.service.propertiesByConceptId(self.attr.data._subType, function (err, properties){
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
+            if (vertex.properties._subType) {
+                self.attr.service.propertiesByConceptId(vertex.properties._subType)
+                    .done(function (properties) {
+                        var propertiesList = [];
 
-                    var propertiesList = [];
+                        properties.list.forEach(function (property) {
+                            if (property.title.charAt(0) !== '_') {
+                                var data = {
+                                    title: property.title,
+                                    displayName: property.displayName
+                                };
+                                propertiesList.push(data);
+                            }
+                        });
 
-                    properties.list.forEach (function (property){
-                        if (property.title.charAt(0) != '_'){
-                            var data = {
-                                title: property.title,
-                                displayName: property.displayName
-                            };
-                            propertiesList.push (data);
-                        }
+                        self.select('propertySelector').html(options({
+                            properties: propertiesList || ''
+                        }));
                     });
-
-                    self.select('propertySelector').html(options({
-                        properties: propertiesList || ''
-                    }));
-                });
             } else {
-                self.attr.service.propertiesByRelationshipLabel(self.attr.data.relationshipType, function (err, properties){
-                    if(err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
-                    }
+                self.attr.service.propertiesByRelationshipLabel(vertex.properties.relationshipLabel)
+                    .done(function (properties) {
+                        var propertiesList = [];
 
-                    var propertiesList = [];
+                        properties.list.forEach(function (property) {
+                            if (property.title.charAt(0) != '_') {
+                                var data = {
+                                    title: property.title,
+                                    displayName: property.displayName
+                                };
+                                propertiesList.push(data);
+                            }
+                        });
 
-                    properties.list.forEach (function (property){
-                        if (property.title.charAt(0) != '_'){
-                            var data = {
-                                title: property.title,
-                                displayName: property.displayName
-                            };
-                            propertiesList.push (data);
-                        }
+                        self.select('propertySelector').html(options({
+                            properties: propertiesList || ''
+                        }));
                     });
-
-                    self.select('propertySelector').html(options({
-                        properties: propertiesList || ''
-                    }));
-                });
             }
 
         });
 
         this.onInputKeyUp = function (event) {
-            switch (event.which) {
-                case $.ui.keyCode.ENTER:
-                    this.onAddPropertyClicked(event);
+            if (!this.select('addPropertySelector').is(":disabled")) {
+                switch (event.which) {
+                    case $.ui.keyCode.ENTER:
+                        this.onAddPropertyClicked(event);
+                }
             }
-        }
-
-        this.onAddPropertyError = function(event) {
-            this.select('propertyValueSelector').addClass('validation-error');
         };
 
-        this.onAddPropertyClicked = function (evt){
+        this.onConceptChanged = function (event) {
+            var propertyName = this.select('propertySelector').val();
+            if (propertyName != '') {
+                var previousValue = this.attr.data.properties[propertyName];
+                if(previousValue) {
+                    if(previousValue.latitude) {
+                        previousValue = 'point(' + previousValue.latitude + ',' + previousValue.longitude + ')';
+                    }
+                    this.select('addPropertySelector').html('Update Property');
+                    this.select('propertyValueSelector').val(previousValue);
+                } else {
+                    this.select('addPropertySelector').html('Add Property');
+                    this.select('propertyValueSelector').val('');
+                }
+                this.select('addPropertySelector').attr('disabled', false);
+            } else if (propertyName == '') {
+                this.select('addPropertySelector').attr('disabled', true);
+            }
+        };
+
+        this.onAddPropertyError = function (event) {
+            this.select('propertyValueSelector').addClass('validation-error');
+            _.defer(this.clearLoading.bind(this));
+        };
+
+        this.onAddPropertyClicked = function (evt) {
             var vertexId = this.attr.data.id,
                 propertyName = this.select('propertySelector').val(),
                 value = $.trim(this.select('propertyValueSelector').val());
 
+            _.defer(this.buttonLoading.bind(this));
+
             this.select('propertyValueSelector').removeClass('validation-error');
             if (propertyName.length && value.length) {
-                this.trigger('addProperty', { 
+                this.trigger('addProperty', {
                     property: {
                         name: propertyName,
                         value: value

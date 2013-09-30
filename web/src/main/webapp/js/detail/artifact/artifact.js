@@ -3,21 +3,32 @@ define([
     'flight/lib/component',
     'util/video/scrubber',
     './image/image',
-    '../withProperties',
     '../withTypeContent',
     '../withHighlighting',
     'detail/dropdowns/objectDetectionForm/objectDetectionForm',
+    'detail/properties',
     'tpl!./artifact',
     'tpl!./transcriptEntry',
     'service/ontology',
-    'service/entity'
-], function(defineComponent, VideoScrubber, Image, withProperties, withTypeContent, withHighlighting, ObjectDetectionForm, template, transcriptEntryTemplate, OntologyService, EntityService) {
-
+    'service/entity',
+    'data'
+], function(
+    defineComponent,
+    VideoScrubber, Image,
+    withTypeContent, withHighlighting,
+    ObjectDetectionForm,
+    Properties,
+    template,
+    transcriptEntryTemplate,
+    OntologyService,
+    EntityService,
+    appData) {
     'use strict';
 
-    return defineComponent(Artifact, withProperties, withTypeContent, withHighlighting);
+    return defineComponent(Artifact, withTypeContent, withHighlighting);
 
     function Artifact() {
+
         this.ontologyService = new OntologyService();
         this.entityService = new EntityService();
 
@@ -28,9 +39,8 @@ define([
             detectedObjectSelector: '.detected-object',
             artifactSelector: '.artifact',
             propertiesSelector: '.properties',
-            addNewPropertiesSelector: '.add-new-properties',
             titleSelector: '.artifact-title',
-            deleteTagSelector: '.delete-tag',
+            deleteTagSelector: '.detected-object-tag .delete-tag',
             detectedObjectTagSelector: '.detected-object-labels'
         });
 
@@ -44,74 +54,48 @@ define([
 
             this.on(document, 'scrubberFrameChange', this.onScrubberFrameChange);
             this.on(document, 'videoTimeUpdate', this.onVideoTimeUpdate);
+            this.on(document, 'verticesUpdated', this.onVerticesUpdated);
 
             this.$node.on('mouseenter', '.image-preview', this.onImageEnter.bind(this));
-
-            this.$node.on('mouseenter mouseleave', '.detected-object', this.onDetectedObjectHover.bind(this));
+            this.$node.on('mouseenter mouseleave', '.detected-object-tag', this.onDetectedObjectHover.bind(this));
 
             this.loadArtifact();
         });
 
+        this.onVerticesUpdated = function(event, data) {
+            var matching = _.findWhere(data.vertices, { id: this.attr.data.id });
+
+            if (matching) {
+                this.select('titleSelector').html( matching.properties.title );
+            }
+        };
+
         this.loadArtifact = function() {
-            var self = this;
+            var self = this,
+                vertex = self.attr.data;
 
-            self.ontologyService.properties().done(function(ontologyProperties) {
-                $.when(
-                    self.handleCancelling(self.ucdService.getArtifactById(self.attr.data._rowKey)),
-                    self.handleCancelling(self.ucdService.getVertexProperties(self.attr.data.graphVertexId))
-                ).done(function(artifactResponse, vertexResponse) {
-                    var artifact = artifactResponse[0],
-                        vertex = vertexResponse[0];
+            this.handleCancelling(appData.refresh(vertex))
+                .done(this.handleVertexLoaded.bind(this));
+        };
 
-                    artifact.dataInfo = JSON.stringify({
-                        _type: 'artifact',
-                        _subType: artifact.type,
-                        graphVertexId: artifact.Generic_Metadata['atc:graph_vertex_id'],
-                        _rowKey: artifact.key.value,
-                        title: artifact.Generic_Metadata['subject']
-                    });
+        this.handleVertexLoaded = function(vertex) {
+            this.videoTranscript = vertex.artifact.videoTranscript;
+            this.videoDuration = vertex.artifact.videoDuration;
 
-                    if(artifact.Content.video_transcript) {
-                        self.videoTranscript = JSON.parse(artifact.Content.video_transcript);
-                        self.videoDuration =  artifact.Content['atc:video_duration'];
-                    } else {
-                        self.videoTranscript = null;
-                        self.videoDuration =  null;
-                    }
+            this.$node.html(template({
+                artifact: vertex.artifact,
+                vertex: vertex,
+                highlightButton: this.highlightButton(),
+                fullscreenButton: this.fullscreenButton([vertex.id])
+            }));
 
-                    self.$node.html(template({
-                        artifact: self.setupContentHtml(artifact),
-                        vertex: vertex,
-                        highlightButton: self.highlightButton(),
-                        fullscreenButton: self.fullscreenButton([artifact.Generic_Metadata['atc:graph_vertex_id']])
-                    }));
+            this.updateEntityAndArtifactDraggables();
 
-                    if(vertex.properties.geoLocation) {
-                        var m = vertex.properties.geoLocation.match(/point\[(.*?),(.*?)\]/);
-                        if(m) {
-                            var latitude = m[1];
-                            var longitude = m[2];
-                            vertex.properties.geoLocation = {
-                                latitude: latitude,
-                                longitude: longitude,
-                                title: vertex.properties._geoLocationDescription
-                            };
-                        }
-                    } else if(artifact.Dynamic_Metadata && artifact.Dynamic_Metadata['atc:geoLocationTitle'] && artifact.Dynamic_Metadata.latitude && artifact.Dynamic_Metadata.longitude) {
-                        vertex.properties.geoLocation = {
-                            latitude: artifact.Dynamic_Metadata.latitude,
-                            longitude: artifact.Dynamic_Metadata.longitude,
-                            title: artifact.Dynamic_Metadata['atc:geoLocationTitle']
-                        };
-                    }
+            Properties.attachTo(this.select('propertiesSelector'), { data: vertex });
 
-                    self.displayProperties(vertex.properties);
-
-                    if (self[artifact.type + 'Setup']) {
-                        self[artifact.type + 'Setup'](artifact);
-                    }
-                });
-            });
+            if (this[vertex.artifact.type + 'Setup']) {
+                this[vertex.artifact.type + 'Setup'](vertex);
+            }
         };
 
         this.onVideoTimeUpdate = function(evt, data) {
@@ -156,30 +140,54 @@ define([
         };
 
         this.onDetectedObjectClicked = function(event) {
+            var self = this;
             var tagInfo = $(event.target).data('info');
-            $(event.target).addClass('focused');
-            this.showForm(tagInfo, this.attr.data);
+            $(event.target).parent().addClass('focused');
+            if ($(event.target).hasClass('resolved')){
+                var imageInfo = $('.artifact .image');
+                var aspectHeight = imageInfo.height()/imageInfo[0].naturalHeight;
+                var aspectWidth = imageInfo.width()/imageInfo[0].naturalWidth;
+                var coords = {
+                    x: (tagInfo.info.coords.x1 * aspectWidth),
+                    y: (tagInfo.info.coords.y1 * aspectHeight),
+                    x2: (tagInfo.info.coords.x2 * aspectWidth),
+                    y2: (tagInfo.info.coords.y2 * aspectHeight)
+                };
+
+                $('.image-preview').unbind("mouseenter");
+
+                $(this.select('artifactSelector')).Jcrop({
+                    setSelect: [coords.x, coords.y, coords.x2, coords.y2],
+                    onSelect: function (x) {self.onSelectImage(x, self.attr.data, tagInfo); },
+                    onRelease: function () {
+                       self.onSelectImageRelease();
+                    }
+                });
+            } else {
+                this.showForm(tagInfo, this.attr.data);
+            };
         };
 
         this.onDeleteTagClicked = function (event) {
             var self = this;
+            var $detectedObjectTag = $(event.target).siblings();
+            var info = { objectInfo: JSON.stringify($detectedObjectTag.data('info')) };
+            var $loading = $("<span>")
+                .addClass("badge")
+                .addClass("loading");
 
-            var detectedObjectTag = $(event.target).prev();
-            var info = { objectInfo: JSON.stringify(detectedObjectTag.data('info')) };
-            this.entityService.deleteDetectedObject(info, function(err, data) {
-                if (err) {
-                    console.error('createEntity', err);
-                    return self.trigger(document, 'error', err);
-                }
+            $(event.target).addClass('focused').replaceWith($loading).removeClass('focused');
+            $detectedObjectTag.bind('click', false);
 
+            $.when(this.entityService.deleteDetectedObject(info)).then(function(data) {
                 var resolvedVertex = {
-                    graphVertexId: data.id,
+                    id: data.id,
                     _subType: data.properties._subType,
                     _type: data.properties._type
                 };
 
-                self.select('detectedObjectTagSelector').find($(detectedObjectTag).next()).remove();
-                self.select('detectedObjectTagSelector').find($(detectedObjectTag)).remove();
+                $detectedObjectTag.parent().remove();
+                self.trigger(document, 'DetectedObjectLeave', $detectedObjectTag.data('info'));
 
                 if (data.remove){
                     self.trigger(document, 'deleteVertices', { vertices: [resolvedVertex] });
@@ -188,73 +196,68 @@ define([
                     self.trigger(document, 'deleteEdge', { edgeId: data.edgeId });
                 }
             });
-
         };
 
         this.onDetectedObjectHover = function(event) {
             if (event.type == 'mouseenter') {
-                this.trigger(document, 'DetectedObjectEnter', $(event.target).data('info'));
+                this.trigger(document, 'DetectedObjectEnter', $(event.currentTarget).find('.label-info').data('info'));
             } else {
-                this.trigger(document, 'DetectedObjectLeave', $(event.target).data('info'));
+                this.trigger(document, 'DetectedObjectLeave', $(event.currentTarget).find('.label-info').data('info'));
             }
         };
 
-        this.setupContentHtml = function(artifact) {
-            artifact.contentHtml = (artifact.Content.highlighted_text || artifact.Content.doc_extracted_text || "")
-                    .replace(/[\n]+/g, "<br><br>\n");
-            if (artifact['atc:Artifact_Detected_Objects']){
-                artifact['atc:Artifact_Detected_Objects'].detectedObjects.sort(function (a, b){
-                    var aX = a.info.coords.x1, bX = b.info.coords.x1;
-                    return aX-bX;
-                });
-            }
-            return artifact;
-        };
-
-        this.videoSetup = function(artifact) {
+        this.videoSetup = function(vertex) {
             VideoScrubber.attachTo(this.select('previewSelector'), {
-                rawUrl: artifact.rawUrl,
-                posterFrameUrl: artifact.posterFrameUrl,
-                videoPreviewImageUrl: artifact.videoPreviewImageUrl,
+                rawUrl: vertex.artifact.rawUrl,
+                posterFrameUrl: vertex.artifact.posterFrameUrl,
+                videoPreviewImageUrl: vertex.artifact.videoPreviewImageUrl,
                 allowPlayback: true
             });
         };
 
-        this.imageSetup = function(artifact) {
+        this.imageSetup = function(vertex) {
             var data = {
-                src: artifact.rawUrl,
-                id: artifact.Generic_Metadata['atc:graph_vertex_id']
+                src: vertex.artifact.rawUrl,
+                id: vertex.id
             };
             Image.attachTo(this.select('imagePreviewSelector'), { data: data });
         };
 
         this.onImageEnter = function(event){
             var self = this;
+            var dataInfo = $('.focused .label-info').data('info');
 
-            $(this.select('artifactSelector')).Jcrop({
-                onSelect: function (x) { self.onSelectImage(x, self.attr.data); },
-                onRelease: self.onSelectImageRelease
+            $(self.select('artifactSelector')).Jcrop({
+                onSelect: function (x) {
+                    $('.detected-object-tag').unbind ('mouseenter mouseleave');
+                    self.onSelectImage(x, self.attr.data, dataInfo);
+                },
+                onRelease: function () {
+                    self.onSelectImageRelease();
+                }
             });
-        }
+        };
 
-        this.onSelectImage = function (coords, artifactInfo){
+        this.onSelectImage = function (coords, artifactInfo, dataInfo){
             var imageInfo = $('.artifact .image');
             var aspectHeight = imageInfo.height()/imageInfo[0].naturalHeight;
             var aspectWidth = imageInfo.width()/imageInfo[0].naturalWidth;
 
-            var dataInfo = {
-                info : {
-                    coords: {
-                        x1: (coords.x / aspectWidth),
-                        x2: (coords.x2 / aspectWidth),
-                        y1: (coords.y / aspectHeight),
-                        y2: (coords.y2 / aspectHeight)
-                    }
-                }
+            if (!dataInfo || $('.focused').length == 0) {
+                dataInfo = {
+                    info: {}
+                };
+            }
+
+            dataInfo.info.coords = {
+                    x1: (coords.x / aspectWidth),
+                    x2: (coords.x2 / aspectWidth),
+                    y1: (coords.y / aspectHeight),
+                    y2: (coords.y2 / aspectHeight)
             };
 
             this.showForm(dataInfo, artifactInfo);
-        }
+        };
 
         this.showForm = function (dataInfo, artifactInfo){
             if ($('.detected-object-labels .underneath').length === 0) {
@@ -272,6 +275,7 @@ define([
             if (dataInfo.graphVertexId){
                 existing = true;
             }
+
             ObjectDetectionForm.attachTo (root, {
                 artifactData: artifactInfo,
                 coords: dataInfo.info.coords,
@@ -281,12 +285,15 @@ define([
                 model: dataInfo.info.model,
                 existing: existing
             });
-        }
+        };
 
         this.onSelectImageRelease = function (){
             if ($('.detected-object-labels .underneath').length === 0) {
                 ObjectDetectionForm.teardownAll ();
+                $('.focused').removeClass('focused');
+                $('.detected-object-tag').bind('mouseenter mouseleave');
+                $('.image-preview').bind("mouseenter");
             }
-        }
+        };
      }
 });

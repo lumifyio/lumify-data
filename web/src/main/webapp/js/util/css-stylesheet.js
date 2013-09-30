@@ -1,5 +1,6 @@
 
 define([], function() {
+    'use strict';
 
     var sheet = (function() {
         var style = document.createElement("style");

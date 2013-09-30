@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.ucd.artifact;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.*;
+import com.altamiracorp.lumify.model.search.SearchProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,12 +10,8 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.ColumnFamily;
-import com.altamiracorp.lumify.model.GraphSession;
-import com.altamiracorp.lumify.model.MockSession;
-import com.altamiracorp.lumify.model.Row;
-import com.altamiracorp.lumify.model.RowKey;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(JUnit4.class)
 public class ArtifactRepositoryTest {
@@ -28,13 +24,16 @@ public class ArtifactRepositoryTest {
     @Mock
     private GraphSession graphSession;
 
+    @Mock
+    private SearchProvider searchProvider;
+
     @Before
     public void before() {
         MockitoAnnotations.initMocks(this);
 
         session = new MockSession();
         session.initializeTables(user);
-        artifactRepository = new ArtifactRepository(session, graphSession);
+        artifactRepository = new ArtifactRepository(session, graphSession, searchProvider);
     }
 
     @Test

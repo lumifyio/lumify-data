@@ -41,7 +41,7 @@ public class WorkspaceByRowKey extends BaseRequestHandler {
         if (workspace == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            JSONObject resultJSON = new JSONObject();
+            JSONObject resultJSON = workspace.toJson(authUser);
             resultJSON.put("id", workspace.getRowKey().toString());
 
             if (workspace.getContent().getData() != null) {

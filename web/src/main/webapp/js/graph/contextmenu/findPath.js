@@ -2,6 +2,7 @@ define([
     'util/retina',
     'service/graph'
 ], function (retina, GraphService) {
+    'use strict';
 
     return FindPath;
 
@@ -14,15 +15,12 @@ define([
         this.onContextMenuFindShortestPath = function (hops) {
             var menu = this.select('vertexContextMenuSelector');
             var graphVertexId = menu.data('currentVertexGraphVertexId');
-            var sourceVertexPosX = menu.data("currentVertexPositionX");
-            var sourceVertexPosY = menu.data("currentVertexPositionY");
-
-            this.findingPath = true;
+            this.ignoreCySelectionEvents = true;
 
             this.cy(function (cy) {
                 var self = this;
                 var sourceVertex = cy.getElementById(graphVertexId);
-                var title = sourceVertex.data('originalTitle');
+                var title = sourceVertex.data('title');
                 var beginText = 'Select item to find path to "' + title + '"';
                 var instructions = $('<div>')
                     .text(beginText)
@@ -31,14 +29,14 @@ define([
                 var edge = null;
                 var targetGraphId = null;
 
-                complete = function (val) {
+                var complete = function () {
                     cy.off(tapEvents);
                     cy.off(mouseEvents);
                     cy.panningEnabled(true)
                         .zoomingEnabled(true)
                         .boxSelectionEnabled(true);
                     self.findingPath = false;
-                    
+
                     if (!edge) {
                         instructions.remove();
                         return;
@@ -54,45 +52,40 @@ define([
                         hops: hops
                     };
 
-                    console.log('findPath', parameters);
-                    self.graphService.findPath(parameters, function (err, data) {
-                        if (edge) {
-                            cy.remove(edge);
-                            edge = null;
-                        }
+                    self.graphService.findPath(parameters)
+                        .done(function (data) {
+                            self.ignoreCySelectionEvents = false;
 
-                        if (err) {
-                            console.error('findPath', err);
-                            return self.trigger(document, 'error', err);
-                        }
+                            if (edge) {
+                                cy.remove(edge);
+                                edge = null;
+                            }
 
-                        console.log('findPath results', data);
+                            console.log('findPath results', data);
 
-                        var vertices = [];
-                        data.paths.forEach(function (path) {
-                            path.forEach(function (vertex) {
-                                // TODO: refactor this and combine with graph.js/onLoadRelatedSelected
-                                var graphVertexData = $.extend({}, vertex.properties, {
-                                    graphVertexId: vertex.id,
-                                    selected: true
+                            var vertices = [];
+                            data.paths.forEach(function (path) {
+                                path.forEach(function (vertex) {
+                                    vertices.push(vertex);
                                 });
-                                vertices.push(graphVertexData);
                             });
+                            if (vertices.length === 0) {
+                                // TODO: refactor this to some common function on graph
+                                var instructions = $('<div>')
+                                    .text(beginText)
+                                    .addClass('instructions')
+                                    .appendTo(self.$node);
+                                instructions.text('Could not find a path.');
+                            } else {
+                                self.trigger(document, 'addVertices', { vertices: vertices });
+                            }
+                        })
+                        .fail(function() {
+                            self.ignoreCySelectionEvents = false;
                         });
-                        if(vertices.length == 0) {
-                            // TODO: refactor this to some common function on graph
-                            var instructions = $('<div>')
-                                .text(beginText)
-                                .addClass('instructions')
-                                .appendTo(self.$node);
-                            instructions.text('Could not find a path.');
-                        } else {
-                            self.trigger(document, 'addVertices', { vertices: vertices });
-                        }
-                    });
-                },
+                };
 
-                mouseEvents = {
+                var mouseEvents = {
                     mouseover: function (event) {
                         if (event.cy == event.cyTarget) return;
                         if (event.cyTarget.id() === graphVertexId) return;
@@ -117,10 +110,13 @@ define([
                         }
                         instructions.text(beginText);
                     }
-                },
+                };
 
-                tapEvents = {
+                var tapEvents = {
                     tap: function (event) {
+                        complete();
+                    },
+                    cxttap: function (event) {
                         complete();
                     }
                 };

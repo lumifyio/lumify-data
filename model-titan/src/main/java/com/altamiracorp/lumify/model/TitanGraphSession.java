@@ -1,23 +1,18 @@
 package com.altamiracorp.lumify.model;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.graph.GraphGeoLocation;
-import com.altamiracorp.lumify.model.graph.GraphRelationship;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.model.ontology.*;
-import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
-import com.thinkaurelius.titan.core.*;
-import com.thinkaurelius.titan.core.attribute.Geo;
-import com.thinkaurelius.titan.core.attribute.Geoshape;
-import com.thinkaurelius.titan.core.attribute.Text;
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.gremlin.java.GremlinPipeline;
-import com.tinkerpop.pipes.PipeFunction;
-import com.tinkerpop.pipes.branch.LoopPipe;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
@@ -28,18 +23,47 @@ import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.graph.GraphGeoLocation;
+import com.altamiracorp.lumify.model.graph.GraphRelationship;
+import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
+import com.altamiracorp.lumify.model.ontology.Concept;
+import com.altamiracorp.lumify.model.ontology.LabelName;
+import com.altamiracorp.lumify.model.ontology.Property;
+import com.altamiracorp.lumify.model.ontology.PropertyName;
+import com.altamiracorp.lumify.model.ontology.PropertyType;
+import com.altamiracorp.lumify.model.ontology.VertexProperty;
+import com.altamiracorp.lumify.model.ontology.VertexType;
+import com.altamiracorp.lumify.model.query.utils.LuceneTokenizer;
+import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
+import com.google.common.base.Preconditions;
+import com.thinkaurelius.titan.core.TitanFactory;
+import com.thinkaurelius.titan.core.TitanGraph;
+import com.thinkaurelius.titan.core.TitanGraphQuery;
+import com.thinkaurelius.titan.core.TitanKey;
+import com.thinkaurelius.titan.core.TitanType;
+import com.thinkaurelius.titan.core.TypeMaker;
+import com.thinkaurelius.titan.core.attribute.Geo;
+import com.thinkaurelius.titan.core.attribute.Geoshape;
+import com.thinkaurelius.titan.core.attribute.Text;
+import com.tinkerpop.blueprints.Direction;
+import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Graph;
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.gremlin.java.GremlinPipeline;
+import com.tinkerpop.pipes.PipeFunction;
+import com.tinkerpop.pipes.branch.LoopPipe;
 
 public class TitanGraphSession extends GraphSession {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TitanGraphSession.class);
+
     public static final String STORAGE_BACKEND_KEY = "graph.storage.backend";
     public static final String STORAGE_TABLE_NAME_KEY = "graph.storage.tablename";
     public static final String STORAGE_INDEX_SEARCH_HOSTNAME = "graph.storage.index.search.hostname";
     public static final String DEFAULT_STORAGE_TABLE_NAME = "atc_titan";
     public static final String DEFAULT_BACKEND_NAME = AccumuloStorageManager.class.getName();
     public static final String DEFAULT_SEARCH_NAME = "elasticsearch";
-    private static final Logger LOGGER = LoggerFactory.getLogger(TitanGraphSession.class.getName());
     private static final String DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME = "titan";
     private static final Integer DEFAULT_STORAGE_INDEX_SEARCH_PORT = 9300;
     private final TitanGraph graph;
@@ -85,14 +109,15 @@ public class TitanGraphSession extends GraphSession {
     public String save(GraphVertex vertex, User user) {
         Vertex v = null;
         if (vertex instanceof TitanGraphVertex) {
+            commit ();
             return vertex.getId(); // properties are already set
         }
 
         if (vertex.getId() != null) {
-            v = this.graph.getVertex(vertex.getId());
+            v = graph.getVertex(vertex.getId());
         }
         if (v == null) {
-            v = this.graph.addVertex(vertex.getId());
+            v = graph.addVertex(vertex.getId());
         }
         for (String propertyKey : vertex.getPropertyKeys()) {
             Object val = vertex.getProperty(propertyKey);
@@ -129,12 +154,12 @@ public class TitanGraphSession extends GraphSession {
                 throw new RuntimeException("Could not find destination vertex: " + relationship.getDestVertexId());
             }
 
-            edge = this.graph.addEdge(relationship.getId(), sourceVertex, destVertex, relationship.getLabel());
+            edge = graph.addEdge(relationship.getId(), sourceVertex, destVertex, relationship.getLabel());
         }
         for (String propertyKey : relationship.getPropertyKeys()) {
             edge.setProperty(propertyKey, relationship.getProperty(propertyKey));
         }
-        edge.setProperty(PropertyName.TIME_STAMP.toString(), new Date());
+        edge.setProperty(PropertyName.TIME_STAMP.toString(), new Date().getTime());
         commit();
         return "" + edge.getId();
     }
@@ -144,7 +169,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     private List<Edge> findAllEdges(String sourceId, final String destId) {
-        List<Edge> vertices = new GremlinPipeline(this.graph.getVertex(sourceId))
+        List<Edge> vertices = new GremlinPipeline(graph.getVertex(sourceId))
                 .outE()
                 .toList();
         List<Edge> edgeList = new ArrayList<Edge>();
@@ -158,7 +183,7 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public Edge findEdge(String sourceId, String destId, String label, User user) {
-        Vertex sourceVertex = this.graph.getVertex(sourceId);
+        Vertex sourceVertex = graph.getVertex(sourceId);
         if (sourceVertex == null) {
             throw new RuntimeException("Could not find vertex with id: " + sourceId);
         }
@@ -183,7 +208,7 @@ public class TitanGraphSession extends GraphSession {
             Class vertexDataType = String.class;
             switch (dataType) {
                 case DATE:
-                    vertexDataType = Date.class;
+                    vertexDataType = Long.class;
                     break;
                 case CURRENCY:
                     vertexDataType = Double.class;
@@ -196,7 +221,7 @@ public class TitanGraphSession extends GraphSession {
                     vertexDataType = Geoshape.class;
                     break;
             }
-            v = new VertexProperty(graph.makeType().name(name).dataType(vertexDataType).unique(Direction.OUT).indexed(Vertex.class).makePropertyKey());
+            v = new VertexProperty(graph.makeType().name(name).dataType(vertexDataType).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).indexed(Vertex.class).makePropertyKey());
         }
         v.setProperty(PropertyName.TYPE.toString(), VertexType.PROPERTY.toString());
         v.setProperty(PropertyName.ONTOLOGY_TITLE.toString(), name);
@@ -309,25 +334,34 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public List<GraphVertex> getRelatedVertices(String graphVertexId, User user) {
-        ArrayList<GraphVertex> results = new ArrayList<GraphVertex>();
-        Vertex vertex = this.graph.getVertex(graphVertexId);
+        Preconditions.checkNotNull(graphVertexId);
+        Preconditions.checkNotNull(user);
 
-        List<Vertex> vertices = new GremlinPipeline(vertex)
-                .bothE()
-                .bothV()
-                .toList();
-        for (Vertex v : vertices) {
-            results.add(new TitanGraphVertex(v));
+        final List<GraphVertex> relatedVertices = Lists.newArrayList();
+        final Vertex vertex = graph.getVertex(graphVertexId);
+
+        if( vertex != null ) {
+            final GremlinPipeline<Vertex, Vertex> adjVerticesPipeline = new GremlinPipeline<Vertex, Vertex>(vertex);
+            adjVerticesPipeline.both();
+
+            final List<Vertex> adjacentVertices = adjVerticesPipeline.toList();
+            LOGGER.info(String.format("Found %d vertices adjacent to vertex id: %s", adjacentVertices.size(), graphVertexId));
+
+            for (final Vertex adjVertex : adjacentVertices) {
+                relatedVertices.add(new TitanGraphVertex(adjVertex));
+            }
+        } else {
+            LOGGER.warn("Could not find graph vertex with id: " + graphVertexId);
         }
 
-        return results;
+        return relatedVertices;
     }
 
     @Override
     public List<GraphRelationship> getRelationships(List<String> allIds, User user) {
         List<GraphRelationship> graphRelationships = new ArrayList<GraphRelationship>();
         for (String id : allIds) {
-            Vertex vertex = this.graph.getVertex(id);
+            Vertex vertex = graph.getVertex(id);
             if (vertex == null) {
                 throw new RuntimeException("Could not find vertex with id: " + id);
             }
@@ -372,32 +406,60 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson, User user) {
-        String[] titleParts = title.split(" ");
+        List<GraphVertex> vertices = Lists.newArrayList();
+        final List<String> tokens = LuceneTokenizer.standardTokenize(title);
 
-        TitanGraphQuery query = graph.query();
-        for (String titlePart : titleParts) {
-            query.has(PropertyName.TITLE.toString(), Text.PREFIX, titlePart);
+        if( !tokens.isEmpty() ) {
+            final TitanGraphQuery query = generateTitleQuery(tokens);
+
+            final GremlinPipeline<Vertex, Vertex> queryPipeline = queryFormatter.createQueryPipeline(query.vertices(), filterJson);
+
+            vertices = toGraphVertices(queryPipeline.toList());
         }
 
-        Iterable<Vertex> r = query.vertices();
+        return vertices;
+    }
+
+    @Override
+    public List<GraphVertex> searchVerticesWithinGraphVertexIds(final List<String> vertexIds, JSONArray filterJson, User user) {
+        ArrayList<Vertex> r = new ArrayList<Vertex>();
+        for (String vertexId : vertexIds) {
+            r.add(findVertex(vertexId));
+        }
+
         GremlinPipeline<Vertex, Vertex> queryPipeline = queryFormatter.createQueryPipeline(r, filterJson);
-        return toGraphVertices(queryPipeline.toList());
+        ArrayList<Vertex> results = new ArrayList<Vertex>();
+        for (Vertex v : queryPipeline.toList()) {
+            if (vertexIds.contains(v.getId().toString())) {
+                results.add(v);
+            }
+        }
+        return toGraphVertices(results);
     }
 
     @Override
     public List<GraphVertex> searchVerticesByTitleAndType(String title, VertexType type, User user) {
-        String[] titleParts = title.split(" ");
+        List<GraphVertex> vertices = Lists.newArrayList();
+        final List<String> tokens = LuceneTokenizer.standardTokenize(title);
 
-        TitanGraphQuery query = graph.query();
+        if( !tokens.isEmpty() ) {
+            final TitanGraphQuery query = generateTitleQuery(tokens);
+            query.has(PropertyName.TYPE.toString(), type.toString());
 
-        for (String titlePart : titleParts) {
-            query.has(PropertyName.TITLE.toString(), Text.PREFIX, titlePart);
+            vertices = toGraphVertices(query.vertices());
         }
 
-        Iterable<Vertex> r = query
-                .has(PropertyName.TYPE.toString(), type.toString())
-                .vertices();
-        return toGraphVertices(r);
+        return vertices;
+    }
+
+    private TitanGraphQuery generateTitleQuery(final List<String> titleTokens) {
+        final TitanGraphQuery query = graph.query();
+
+        for (String token : titleTokens) {
+            query.has(PropertyName.TITLE.toString(), Text.PREFIX, token);
+        }
+
+        return query;
     }
 
     @Override
@@ -470,9 +532,9 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public void close() {
-        if (this.graph.isOpen()) {
+        if (graph.isOpen()) {
             commit();
-            this.graph.shutdown();
+            graph.shutdown();
         }
     }
 
@@ -486,7 +548,7 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public Map<String, String> getVertexProperties(String graphVertexId, User user) {
-        Vertex vertex = this.graph.getVertex(graphVertexId);
+        Vertex vertex = graph.getVertex(graphVertexId);
         GremlinPipeline gremlinPipeline = new GremlinPipeline(vertex).map();
 
         Map<String, String> properties = (Map<String, String>) gremlinPipeline.toList().get(0);
@@ -573,12 +635,12 @@ public class TitanGraphSession extends GraphSession {
         if (v instanceof TitanGraphVertex) {
             return ((TitanGraphVertex) v).getVertex();
         }
-        return this.graph.getVertex(v.getId());
+        return graph.getVertex(v.getId());
     }
 
     @Override
     public Map<GraphRelationship, GraphVertex> getRelationships(String graphVertexId, User user) {
-        Vertex vertex = this.graph.getVertex(graphVertexId);
+        Vertex vertex = graph.getVertex(graphVertexId);
         if (vertex == null) {
             throw new RuntimeException("Could not find vertex with id: " + graphVertexId);
         }
@@ -604,8 +666,8 @@ public class TitanGraphSession extends GraphSession {
     private class GraphRelationshipDateComparator implements Comparator<GraphRelationship> {
         @Override
         public int compare(GraphRelationship rel1, GraphRelationship rel2) {
-            Date e1Date = (Date) rel1.getProperty(PropertyName.TIME_STAMP.toString());
-            Date e2Date = (Date) rel2.getProperty(PropertyName.TIME_STAMP.toString());
+            Long e1Date = (Long)rel1.getProperty(PropertyName.TIME_STAMP.toString());
+            Long e2Date = (Long)rel2.getProperty(PropertyName.TIME_STAMP.toString());
             if (e1Date == null || e2Date == null) {
                 return 1;
             }
@@ -615,7 +677,7 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public void remove(String graphVertexId, User user) {
-        Vertex vertex = this.graph.getVertex(graphVertexId);
+        Vertex vertex = graph.getVertex(graphVertexId);
         if (vertex == null) {
             throw new RuntimeException("Could not find vertex with id: " + graphVertexId);
         }
@@ -639,6 +701,6 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public void commit() {
-        this.graph.commit();
+        graph.commit();
     }
 }

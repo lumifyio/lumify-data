@@ -3,6 +3,8 @@ define(
     'service/serviceBase'
 ],
 function(ServiceBase) {
+    'use strict';
+
     function Ucd() {
         ServiceBase.call(this);
 
@@ -11,27 +13,27 @@ function(ServiceBase) {
 
     Ucd.prototype = Object.create(ServiceBase.prototype);
 
-    Ucd.prototype.getRelationships = function(ids, callback) {
+    Ucd.prototype.getRelationships = function(ids) {
         return this._ajaxPost({
             url: 'entity/relationships',
             data: {
                 ids: ids
             }
-        }, callback);
+        });
     };
 
-    Ucd.prototype.deleteEdge = function(sourceId, targetId, label, callback) {
-        return this._ajaxGet({
+    Ucd.prototype.deleteEdge = function(sourceId, targetId, label) {
+        return this._ajaxPost({
             url: '/vertex/removeRelationship',
             data: {
                 sourceId: sourceId,
                 targetId: targetId,
                 label: label
             }
-        }, callback);
+        });
     };
 
-    Ucd.prototype.getVertexToVertexRelationshipDetails = function (source, target, label, callback){
+    Ucd.prototype.getVertexToVertexRelationshipDetails = function (source, target, label) {
         return this._ajaxGet({
             url: 'vertex/relationship',
             data: {
@@ -39,10 +41,10 @@ function(ServiceBase) {
                 target: target,
                 label: label
             }
-        }, callback);
+        });
     };
 
-    Ucd.prototype.locationSearch = function(lat, lon, radiuskm, callback) {
+    Ucd.prototype.locationSearch = function(lat, lon, radiuskm) {
         return this._ajaxGet({
             url: 'graph/vertex/geoLocationSearch',
             data: {
@@ -50,35 +52,46 @@ function(ServiceBase) {
                 lon: lon,
                 radius: radiuskm
             }
-        }, callback);
+        });
     };
 
-    Ucd.prototype.getStatementByRowKey = function(statementRowKey, callback) {
-        return this._get("statement", statementRowKey, callback);
+    Ucd.prototype.getStatementByRowKey = function(statementRowKey) {
+        return this._get("statement", statementRowKey);
     };
 
-    Ucd.prototype.artifactSearch = function(query, callback) {
-        return this._search("artifact", query, callback);
+    Ucd.prototype.artifactSearch = function(query, filters) {
+        if (typeof filters === 'function') {
+            callback = filters;
+            filters = [];
+        }
+
+        return this._ajaxGet({
+            url: 'artifact/search',
+            data: {
+                q: query.query || query,
+                filter: JSON.stringify(filters || [])
+            }
+        });
     };
 
-    Ucd.prototype.getArtifactById = function (id, callback) {
-        return this._get("artifact", id, callback);
+    Ucd.prototype.getArtifactById = function (id) {
+        return this._get("artifact", id);
     };
 
-    Ucd.prototype.getRawArtifactById = function (id, callback) {
+    Ucd.prototype.getRawArtifactById = function (id) {
         //maybe it's an object for future options stuff?
         var i = typeof id == "object" ? id.id : id;
 
         return this._ajaxGet({
             url: "artifact/" + i + "/raw",
-        }, callback);
+        });
     };
 
-    Ucd.prototype.entitySearch = function (query, callback) {
-        return this._search('entity', query, callback);
+    Ucd.prototype.entitySearch = function (query) {
+        return this._search('entity', query);
     };
 
-    Ucd.prototype.graphVertexSearch = function (query, filters, callback) {
+    Ucd.prototype.graphVertexSearch = function (query, filters) {
         if (typeof filters === 'function') {
             callback = filters;
             filters = [];
@@ -90,28 +103,27 @@ function(ServiceBase) {
                 q: query.query || query,
                 filter: JSON.stringify(filters || [])
             }
-        }, callback);
+        });
     };
 
-    Ucd.prototype.getRelatedVertices = function(data, callback) {
+    Ucd.prototype.getRelatedVertices = function(data) {
         return this._ajaxGet({
             url: 'graph/' + encodeURIComponent(data.graphVertexId) + '/relatedVertices',
             data: {
                 limitParentConceptId: data.limitParentConceptId
             }
-        }, callback);
+        });
     };
 
-    Ucd.prototype.getVertexRelationships = function(graphVertexId, callback) {
-        return this._ajaxGet({ url: 'vertex/' + encodeURIComponent(graphVertexId) + '/relationships'}, callback);
+    Ucd.prototype.getVertexRelationships = function(graphVertexId) {
+        return this._ajaxGet({ url: 'vertex/' + graphVertexId + '/relationships'});
     };
 
-    Ucd.prototype.getVertexProperties = function(graphVertexId, callback) {
-        console.log('getVertexProperties:', graphVertexId);
-        return this._ajaxGet({ url: 'vertex/' + encodeURIComponent(graphVertexId) + '/properties'}, callback);
+    Ucd.prototype.getVertexProperties = function(graphVertexId) {
+        return this._ajaxGet({ url: 'vertex/' + graphVertexId + '/properties'});
     };
 
-    Ucd.prototype._search = function (resource, query, callback) {
+    Ucd.prototype._search = function (resource, query) {
         //maybe it's an object for future options stuff?
         var q = typeof query == "object" ? query.query : query;
         var url = resource + "/search";
@@ -121,19 +133,19 @@ function(ServiceBase) {
             data: {
                 'q' : q
             }
-        }, callback);
+        });
     };
 
-    Ucd.prototype._get = function (resource, id, callback) {
+    Ucd.prototype._get = function (resource, id) {
         if(!id) {
-            return callback(new Error("Invalid or no id specified for resource '" + resource + "'"));
+            throw new Error("Invalid or no id specified for resource '" + resource + "'");
         }
 
         //maybe it's an object for future options stuff?
         var i = encodeURIComponent(typeof id == "object" ? id.id : id);
         return this._ajaxGet({
             url: resource + "/" + i,
-        }, callback);
+        });
     };
 
     return Ucd;

@@ -6,9 +6,9 @@ define([
     'tpl!./appFullscreenDetails',
     'service/vertex',
     'service/ucd',
-    'detail/detail',
-    'underscore'
-], function(defineComponent, registry, template, VertexService, UCD, Detail, _) {
+    'detail/detail'
+], function(defineComponent, registry, template, VertexService, UCD, Detail) {
+    'use strict';
 
     return defineComponent(FullscreenDetails);
 
@@ -51,13 +51,13 @@ define([
 
             var self = this,
                 pane = $(event.target).closest('.detail-pane'),
-                node = pane.find('.content');
+                node = pane.find('.content'),
                 instanceInfos = registry.findInstanceInfoByNode(node[0]);
 
             if (instanceInfos.length) {
                 instanceInfos.forEach(function(info) {
                     self.vertices = _.reject(self.vertices, function(v) {
-                        return v.id === info.instance.attr.loadGraphVertexData.graphVertexId;
+                        return v.id === info.instance.attr.loadGraphVertexData.id;
                     });
                     info.instance.teardown();
                 });
@@ -98,27 +98,11 @@ define([
         };
 
         this.handleVerticesLoaded = function(vertices) {
-            var artifactTitleDeferred = [];
 
             Detail.teardownAll();
             this.$node.find('.detail-pane').remove();
 
-            vertices.forEach(function(v) {
-                v.properties.graphVertexId = v.id;
-
-                if (v.properties._type === 'artifact' && v.properties._subType === 'document') {
-                    artifactTitleDeferred.push(
-                        this.ucd.getArtifactById(v.properties._rowKey)
-                        .done(function(a) {
-                            v.properties.title = a.Generic_Metadata.subject || 'No title available';
-                        })
-                    );
-                }
-
-                this.vertices.push(v);
-            }.bind(this));
-
-            this.vertices = _.sortBy(this.vertices, function(v) {
+            this.vertices = _.sortBy(vertices, function(v) {
                 var descriptors = [];
 
                 // Entities first
@@ -140,26 +124,19 @@ define([
                 Detail.attachTo(this.$node.find('.detail-pane').last()
                                 .addClass('type-' + v.properties._type + ' subType-' + v.properties._subType)
                                 .find('.content'), {
-                    loadGraphVertexData: v.properties,
+                    loadGraphVertexData: v,
                     highlightStyle: 2
                 });
             }.bind(this));
 
             this.updateLocationHash();
             this.updateLayout();
+            this.updateTitle();
 
-            var self = this;
-            $.when.apply(null, artifactTitleDeferred)
-             .done(function() {
-
-                self.updateTitle();
-
-
-                if (!self._commSetup) {
-                    self.setupTabCommunications();
-                    self._commSetup = true;
-                }
-            });
+            if (!this._commSetup) {
+                this.setupTabCommunications();
+                this._commSetup = true;
+            }
         };
 
         this.onVisibilityChange = function(event, data) {
@@ -193,7 +170,7 @@ define([
             }
 
             this.vertexService
-                .getMultiple(newVertices)
+                .getMultiple(existingVertexIds.concat(newVertices))
                 .done(this.handleVerticesLoaded.bind(this))
                 .done(this.flashTitle.bind(this, newVertices));
         };

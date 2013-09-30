@@ -4,6 +4,7 @@ define([
     'service/ontology',
     'util/retina'
 ], function(cytoscape, OntologyService, retina) {
+    'use strict';
 
     var ontologyService = new OntologyService(),
         style = cytoscape.stylesheet();
@@ -27,7 +28,7 @@ define([
             .css({
                 'width': 30 * retina.devicePixelRatio,
                 'height': 30 * retina.devicePixelRatio,
-                'content': 'data(title)',
+                'content': 'data(truncatedTitle)',
                 'font-family': 'helvetica',
                 'font-size': 18 * retina.devicePixelRatio,
                 'text-outline-width': 2,
@@ -89,7 +90,7 @@ define([
 
             .selector('edge')
             .css({
-                'width': 2,
+                'width': 1.5 * retina.devicePixelRatio,
                 'target-arrow-shape': 'triangle'
             })
 

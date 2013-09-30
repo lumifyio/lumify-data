@@ -1,6 +1,8 @@
 package com.altamiracorp.lumify.search;
 
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.search.ArtifactSearchResult;
+import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import org.apache.hadoop.mapreduce.Mapper;

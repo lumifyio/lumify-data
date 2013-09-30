@@ -10,7 +10,7 @@ import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
-import com.altamiracorp.lumify.search.SearchProvider;
+import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
@@ -44,6 +44,7 @@ public class EntityObjectDetectionDelete extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         JSONObject jsonObject = new JSONObject(getRequiredParameter(request, "objectInfo"));
+        JSONObject infoJson = jsonObject.getJSONObject("info");
         User user = getUser(request);
 
         // Delete from term mention
@@ -68,7 +69,7 @@ public class EntityObjectDetectionDelete extends BaseRequestHandler {
         Artifact artifact = artifactRepository.findByRowKey(termMentionRowKey.getArtifactRowKey(), user);
         Row<ArtifactRowKey> rowKey = artifactRepository.toRow(artifact);
         String columnFamily = artifact.getArtifactDetectedObjects().getColumnFamilyName();
-        String columnQualifier = jsonObject.getJSONObject("info").getString("_rowKey");
+        String columnQualifier = infoJson.getString("_rowKey");
         for (Column column : rowKey.get(columnFamily).getColumns()) {
             if (column.getName().equals(columnQualifier)) {
                 column.setDirty(true);

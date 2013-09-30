@@ -9,6 +9,7 @@
  */
 
 ;(function( $, window, undefined ) {
+    'use strict';
   
     $.fn.withinScrollable = function(scrollable) {
         var elems = [];

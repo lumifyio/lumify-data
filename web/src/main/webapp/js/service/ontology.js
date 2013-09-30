@@ -3,6 +3,7 @@ define(
         'service/serviceBase'
     ],
     function (ServiceBase) {
+      'use strict';
 
         function OntologyService() {
             ServiceBase.call(this);
@@ -127,16 +128,13 @@ define(
             }
         };
 
-        OntologyService.prototype.conceptToConceptRelationships = function (sourceConceptTypeId, destConceptTypeId, callback) {
-            console.log('getting relationships (sourceConceptTypeId:', sourceConceptTypeId, ', destConceptTypeId:', destConceptTypeId, ')');
-            this._ajaxGet({
+        OntologyService.prototype.conceptToConceptRelationships = function(sourceConceptTypeId, destConceptTypeId) {
+            return this._ajaxGet({
                 url: 'ontology/relationship',
                 data: {
                     sourceConceptTypeId: sourceConceptTypeId,
                     destConceptTypeId: destConceptTypeId
                 }
-            }, function (err, response) {
-                callback(err, response);
             });
         };
 
@@ -165,39 +163,25 @@ define(
             return cachedProperties;
         };
 
-        OntologyService.prototype.propertiesByConceptId = function (conceptId, callback) {
+        OntologyService.prototype.propertiesByConceptId = function (conceptId) {
             return this._ajaxGet({
                 url: 'ontology/concept/' + conceptId + '/properties'
-            }, function (err, response) {
-                if (err) {
-                    return callback(err);
-                }
-
-                var props = {
+            }).then(function(response) {
+                return {
                     list: response.properties,
                     byTitle: buildPropertiesByTitle(response.properties)
                 };
-                console.log('propertiesByConceptId', props);
-
-                return callback(null, props);
             });
         };
 
-        OntologyService.prototype.propertiesByRelationshipLabel = function (relationshipLabel, callback) {
-            this._ajaxGet({
+        OntologyService.prototype.propertiesByRelationshipLabel = function (relationshipLabel) {
+            return this._ajaxGet({
                 url: 'ontology/' + relationshipLabel + '/properties'
-            }, function (err, response) {
-                if (err) {
-                    return callback(err);
-                }
-
-                var props = {
+            }).then(function(response) {
+                return {
                     list: response.properties,
                     byTitle: buildPropertiesByTitle(response.properties)
                 };
-                console.log('propertiesByRelationshipLabel', props);
-
-                return callback(null, props);
             });
         };
 

@@ -3,18 +3,17 @@
 define([
     'flight/lib/component',
     '../withDropdown',
-    '../../withProperties',
+    'detail/properties',
     'tpl!./termForm',
     'tpl!./concept-options',
     'tpl!./entity',
     'service/ucd',
     'service/entity',
-    'service/ontology',
-    'underscore'
-], function(defineComponent, withDropdown, withProperties, dropdownTemplate, conceptsTemplate, entityTemplate, Ucd, EntityService, OntologyService, _) {
+    'service/ontology'
+], function(defineComponent, withDropdown, Properties, dropdownTemplate, conceptsTemplate, entityTemplate, Ucd, EntityService, OntologyService) {
     'use strict';
 
-    return defineComponent(TermForm, withDropdown, withProperties);
+    return defineComponent(TermForm, withDropdown);
 
 
     function TermForm() {
@@ -62,6 +61,12 @@ define([
 
         this.onKeyPress = function(event) {
             if (!this.lastQuery || this.lastQuery === this.select('objectSignSelector').val()) {
+                if (!this.select('createTermButtonSelector').is(":disabled")) {
+                    switch (event.which) {
+                        case $.ui.keyCode.ENTER:
+                            this.onCreateTermClicked(event);
+                    }
+                }
                 return;
             }
 
@@ -81,6 +86,12 @@ define([
             if (!initial || newGraphVertexId) {
                 this.select('graphVertexSelector').val(newGraphVertexId);
                 var info = _.isObject(item) ? item.properties || item : $(this.attr.mentionNode).data('info');
+
+                if (newGraphVertexId) {
+                    this.select('conceptSelector').attr('disabled', true);
+                } else {
+                    this.select('conceptSelector').attr('disabled', false);
+                }
                 this.updateConceptSelect(info && info._subType || '').show();
                 this.select('createTermButtonSelector')
                     .text(newGraphVertexId && initial ? 'Update' : newGraphVertexId ? 'Resolve to Existing' : 'Resolve as New')
@@ -95,7 +106,7 @@ define([
         };
 
         this.updateConceptSelect = function(val) {
-            var conceptSelect = this.select('conceptSelector').val(val).show();
+            var conceptSelect = this.select('conceptSelector').val(val);
 
             if (val) {
                 this.select('createTermButtonSelector').removeAttr('disabled');
@@ -128,20 +139,13 @@ define([
                     mentionStart: mentionStart,
                     mentionEnd: mentionEnd,
                     artifactId: this.attr.artifactId
-                },
-                $loading = $("<span>")
-                    .addClass("badge")
-                    .addClass("loading");
+                };
 
             if (this.currentGraphVertexId) {
                 parameters.graphVertexId = this.currentGraphVertexId;
             }
 
-            // TODO: extract button loading and disabling to withDropdown mixin
-            this.select('buttonDivSelector').prepend($loading);
-            this.select('createTermButtonSelector')
-                .attr('disabled', true)
-                .addClass('disabled');
+            _.defer(this.buttonLoading.bind(this));
 
             if ( !parameters.conceptId || parameters.conceptId.length === 0) {
                 this.select('conceptSelector').focus();
@@ -153,40 +157,34 @@ define([
                 $mentionNode.attr('title', newObjectSign);
             }
 
-            if (this.currentGraphVertexId == "") {
-                this.entityService.createTerm(parameters, function(err, data) {
-                    if (err) {
-                        console.error('createTerm', err);
-                        return self.trigger(document, 'error', err);
-                    }
-                    self.highlightTerm(data);
-                    self.trigger(document, 'termCreated', data);
+            if (!this.currentGraphVertexId) {
+                this.entityService.createTerm(parameters)
+                    .done(function(data) {
+                        self.highlightTerm(data);
+                        self.trigger(document, 'termCreated', data);
 
-                    self.trigger(document, 'refreshRelationships');
+                        self.trigger(document, 'refreshRelationships');
 
-                    _.defer(self.teardown.bind(self));
-                });
+                        _.defer(self.teardown.bind(self));
+                    });
             } else {
-                this.entityService.updateTerm(parameters, function(err, data) {
-                    if (err) {
-                        console.error('createTerm', err);
-                        return self.trigger(document, 'error', err);
-                    }
-                    self.highlightTerm(data);
+                this.entityService.updateTerm(parameters)
+                    .done(function(data) {
+                        self.highlightTerm(data);
 
-                    var vertices = [];
-                    vertices.push(data.info);
-                    self.trigger(document, 'updateVertices', { vertices: vertices });
-                    self.trigger(document, 'refreshRelationships');
+                        var vertices = [];
+                        vertices.push(data.info);
+                        self.trigger(document, 'updateVertices', { vertices: vertices });
+                        self.trigger(document, 'refreshRelationships');
 
-                    _.defer(self.teardown.bind(self));
-                });
+                        _.defer(self.teardown.bind(self));
+                    });
             }
         };
 
         this.onConceptChanged = function(event) {
             var select = $(event.target);
-            
+
             this.updateConceptLabel(select.val());
         };
 
@@ -237,15 +235,14 @@ define([
                 objectSign = title;
             }
 
-
             vertex.html(dropdownTemplate({
                 sign: $.trim(sign),
-                graphVertexId: data && data.graphVertexId,
+                graphVertexId: data && data.id,
                 objectSign: $.trim(objectSign) || '',
-                buttonText: existingEntity ? 'Update' : 'Resolve'
+                buttonText: existingEntity ? 'Resolve to Existing' : 'Resolve as New'
             }));
 
-            this.graphVertexChanged(data && data.graphVertexId, data, true);
+            this.graphVertexChanged(data && data.id, data, true);
 
             this.runQuery(sign).done(function(vertices) {
                 self.$node.find('.badge')
@@ -309,14 +306,16 @@ define([
                 entityConceptMenuSelector: this.onEntityConceptSelected,
                 createTermButtonSelector: this.onCreateTermClicked,
                 objectSignSelector: this.showTypeahead,
-                helpSelector: function() { 
+                helpSelector: function() {
+debugger;
                     this.select('objectSignSelector').focus(); 
                     this.showTypeahead();
                 }
             });
 
             this.on('keydown', {
-                objectSignSelector: this.onKeyPress
+                objectSignSelector: this.onKeyPress,
+                conceptSelector: this.onKeyPress
             });
 
             this.on('opened', function() {
@@ -460,7 +459,7 @@ define([
                         return entityTemplate({
                             html: html,
                             item: item,
-                            properties: item.properties && self.filterPropertiesForDisplay(item.properties, ontologyProperties),
+                            properties: item.properties && Properties.filterPropertiesForDisplay(item.properties, ontologyProperties),
                             iconSrc: icon,
                             concept: concept
                         });

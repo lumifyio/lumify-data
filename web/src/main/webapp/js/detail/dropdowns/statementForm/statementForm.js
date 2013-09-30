@@ -4,9 +4,8 @@ define([
     'tpl!./statementForm',
     'tpl!./relationship-options',
     'service/relationship',
-    'service/ontology',
-    'underscore'
-], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, RelationshipService, OntologyService, _) {
+    'service/ontology'
+], function (defineComponent, withDropdown, statementFormTemplate, relationshipTypeTemplate, RelationshipService, OntologyService) {
     'use strict';
 
     return defineComponent(StatementForm, withDropdown);
@@ -23,7 +22,8 @@ define([
             createStatementButtonSelector: '.create-statement',
             statementLabelSelector: '.statement-label',
             invertAnchorSelector: 'a.invert',
-            relationshipSelector: 'select'
+            relationshipSelector: 'select',
+            buttonDivSelector: '.buttons'
         });
 
         this.after('initialize', function () {
@@ -57,9 +57,11 @@ define([
         });
 
         this.onInputKeyUp = function (event) {
-            switch (event.which) {
-                case $.ui.keyCode.ENTER:
-                    this.onCreateStatement(event);
+            if (!this.select('createStatementButtonSelector').is(":disabled")) {
+                switch (event.which) {
+                    case $.ui.keyCode.ENTER:
+                        this.onCreateStatement(event);
+                }
             }
         }
 
@@ -121,11 +123,9 @@ define([
                 parameters.destGraphVertexId = swap;
             }
 
-            this.relationshipService.createRelationship(parameters, function (err, data) {
-                if (err) {
-                    console.error('createRelationship', err);
-                    return self.trigger(document, 'error', err);
-                }
+            _.defer(this.buttonLoading.bind(this));
+
+            this.relationshipService.createRelationship(parameters).done(function(data) {
                 _.defer(self.teardown.bind(self));
                 self.trigger(document, 'refreshRelationships');
             });
@@ -135,24 +135,14 @@ define([
             var self = this;
             var sourceConceptTypeId = this.attr.sourceTerm.data('info')._subType;
             var destConceptTypeId = this.attr.destTerm.data('info')._subType;
-            self.ontologyService.conceptToConceptRelationships(sourceConceptTypeId, destConceptTypeId, function (err, results){
-                if (err) {
-                    console.error ('Error', err);
-                    return self.trigger (document, 'error', { message: err.toString () });
-                }
-
+            self.ontologyService.conceptToConceptRelationships(sourceConceptTypeId, destConceptTypeId).done(function (results){
                 self.displayRelationships (results.relationships);
             });
         };
 
         this.displayRelationships = function (relationships) {
             var self = this;
-            self.ontologyService.relationships(function(err, ontologyRelationships) {
-                if(err) {
-                    console.error('Error', err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-
+            self.ontologyService.relationships().done(function(ontologyRelationships) {
                 var relationshipsTpl = [];
 
                 relationships.forEach(function(relationship) {

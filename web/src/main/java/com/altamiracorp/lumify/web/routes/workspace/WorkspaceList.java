@@ -1,7 +1,10 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.Column;
+import com.altamiracorp.lumify.model.Value;
 import com.altamiracorp.lumify.model.workspace.Workspace;
+import com.altamiracorp.lumify.model.workspace.WorkspacePermissions;
 import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
@@ -12,6 +15,7 @@ import org.json.JSONObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
+import java.util.List;
 
 public class WorkspaceList extends BaseRequestHandler {
     private final WorkspaceRepository workspaceRepository;
@@ -29,10 +33,10 @@ public class WorkspaceList extends BaseRequestHandler {
 
         JSONArray workspacesJson = new JSONArray();
         for (Workspace workspace : workspaces) {
-            JSONObject workspaceJson = new JSONObject();
-            workspaceJson.put("_rowKey", workspace.getRowKey());
-            workspaceJson.put("title", workspace.getMetadata().getTitle());
-            workspacesJson.put(workspaceJson);
+            JSONObject workspaceJson = workspace.toJson(user);
+            if (workspaceJson != null) {
+                workspacesJson.put(workspaceJson);
+            }
         }
 
         JSONObject json = new JSONObject();

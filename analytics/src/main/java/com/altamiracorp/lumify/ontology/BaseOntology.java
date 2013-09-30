@@ -76,7 +76,7 @@ public class BaseOntology {
 
         TitanKey timeStampProperty = (TitanKey) graph.getType(PropertyName.TIME_STAMP.toString());
         if (timeStampProperty == null) {
-            graph.makeType().name(PropertyName.TIME_STAMP.toString()).dataType(Date.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).makePropertyKey();
+            graph.makeType().name(PropertyName.TIME_STAMP.toString()).dataType(Long.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).makePropertyKey();
         }
 
         TitanKey subTypeProperty = (TitanKey) graph.getType(PropertyName.SUBTYPE.toString());

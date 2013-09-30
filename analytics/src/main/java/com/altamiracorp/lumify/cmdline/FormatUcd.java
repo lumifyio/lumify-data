@@ -2,7 +2,7 @@ package com.altamiracorp.lumify.cmdline;
 
 import com.altamiracorp.lumify.model.GraphSession;
 import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.search.SearchProvider;
+import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.google.inject.Inject;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;

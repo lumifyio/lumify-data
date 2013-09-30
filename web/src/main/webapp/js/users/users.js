@@ -143,35 +143,35 @@ define([
 
         this.doGetOnline = function () {
             var self = this;
-            self.usersService.getOnline(function (err, data) {
-                if (err) {
+            self.usersService.getOnline()
+                .fail(function(err) {
                     console.error('getOnline', err);
                     var $usersList = self.select('usersListSelector');
                     $usersList.html('Could not get online: ' + err);
-                    return self.trigger(document, 'error', { message: err.toString() });
-                }
-
-                if (data.messages && data.messages.length > 0) {
-                    data.messages.forEach(function (message) {
-                        self.trigger(document, 'chatMessage', message);
-                    });
-                }
-
-                if (self.currentUserRowKey != data.user.rowKey) {
-                    self.currentUserRowKey = data.user.rowKey;
-                    self.trigger(document, 'onlineStatusChanged', data);
-                }
-
-                self.updateUsers(data.users);
-
-                self.usersService.subscribe(self.currentUserRowKey, function (err, message) {
-                    if (err) {
-                        console.error('Error', err);
-                        return self.trigger(document, 'error', { message: err.toString() });
+                })
+                .done(function(data) {
+                
+                    if (data.messages && data.messages.length > 0) {
+                        data.messages.forEach(function (message) {
+                            self.trigger(document, 'chatMessage', message);
+                        });
                     }
-                    self.trigger(document, 'socketMessage', message);
+
+                    if (self.currentUserRowKey != data.user.rowKey) {
+                        self.currentUserRowKey = data.user.rowKey;
+                        self.trigger(document, 'onlineStatusChanged', data);
+                    }
+
+                    self.updateUsers(data.users);
+
+                    self.usersService.subscribe(self.currentUserRowKey, function (err, message) {
+                        if (err) {
+                            console.error('Error', err);
+                            return self.trigger(document, 'error', { message: err.toString() });
+                        }
+                        self.trigger(document, 'socketMessage', message);
+                    });
                 });
-            });
         };
     }
 });
