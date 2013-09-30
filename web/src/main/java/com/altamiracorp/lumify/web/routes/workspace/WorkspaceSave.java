@@ -2,8 +2,6 @@ package com.altamiracorp.lumify.web.routes.workspace;
 
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.Column;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.Row;
 import com.altamiracorp.lumify.model.user.UserRepository;
 import com.altamiracorp.lumify.model.workspace.Workspace;
 import com.altamiracorp.lumify.model.workspace.WorkspacePermissions;
@@ -55,6 +53,8 @@ public class WorkspaceSave extends BaseRequestHandler {
             user.getMetadata().setCurrentWorkspace(workspace.getRowKey().toString());
             authUser.setCurrentWorkspace(workspace.getRowKey().toString());
             userRepository.save(user, authUser);
+
+            LOGGER.debug("User " + user.getRowKey() + " switched current workspace to " + workspace.getRowKey());
         }
 
         LOGGER.info("Saving workspace: " + workspace.getRowKey() + "\ntitle: " + workspace.getMetadata().getTitle() + "\ndata: " + data);
@@ -120,9 +120,9 @@ public class WorkspaceSave extends BaseRequestHandler {
             workspace.getPermissions();
         }
 
-        List <String> users = new ArrayList<String>();
+        List<String> users = new ArrayList<String>();
 
-        for (int i = 0; i < userList.length(); i ++){
+        for (int i = 0; i < userList.length(); i++) {
             JSONObject obj = userList.getJSONObject(i);
             workspace.get(WorkspacePermissions.NAME).set(obj.getString("user"), obj.getJSONObject("userPermissions"));
             if (updateList) {
