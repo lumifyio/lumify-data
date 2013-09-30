@@ -62,7 +62,7 @@ EO_PUPPET_CONF
 }
 
 function stage_jobtracker {
-  heading 'stage artifcats on the jobtracker'
+  heading 'stage artifacts on the jobtracker'
   local jobtracker_host=$(awk '/jobtracker/ {print $1}' ${HOSTS_FILE})
   scp ${SSH_OPTS} conf-*.tgz \
                   oozie-*.tgz \
@@ -74,7 +74,7 @@ function stage_jobtracker {
 }
 
 function stage_www {
-  heading 'stage artifcats on the webserver'
+  heading 'stage artifacts on the webserver'
   local www_host=$(awk '/www/ {print $1}' ${HOSTS_FILE})
   scp ${SSH_OPTS} *.xml \
                   *.war \
