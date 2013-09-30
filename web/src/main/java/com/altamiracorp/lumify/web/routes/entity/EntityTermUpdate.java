@@ -56,6 +56,9 @@ public class EntityTermUpdate extends BaseRequestHandler {
 
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactKey, mentionStart, mentionEnd);
         TermMention termMention = termMentionRepository.findByRowKey(termMentionRowKey.toString(), user);
+        if (termMention == null) {
+            termMention = new TermMention(termMentionRowKey);
+        }
         entityHelper.updateTermMention(termMention, sign, conceptVertex, resolvedVertex, user);
 
         entityHelper.executeService(new EntityHighlightWorker(artifactRepository, highlighter, artifactKey, user));

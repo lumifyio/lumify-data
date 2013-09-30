@@ -123,7 +123,8 @@ define([
                 newObjectSign = $.trim(this.select('objectSignSelector').val()),
                 mentionStart,
                 mentionEnd;
-
+console.log ('term create');
+debugger;
             if (this.attr.existing){
                 var dataInfo = $mentionNode.data('info');
                 mentionStart = dataInfo.start;
@@ -171,6 +172,7 @@ define([
                 this.entityService.updateTerm(parameters)
                     .done(function(data) {
                         self.highlightTerm(data);
+                        self.trigger(document, 'termCreated', data);
 
                         var vertices = [];
                         vertices.push(data.info);
@@ -307,7 +309,6 @@ define([
                 createTermButtonSelector: this.onCreateTermClicked,
                 objectSignSelector: this.showTypeahead,
                 helpSelector: function() {
-debugger;
                     this.select('objectSignSelector').focus(); 
                     this.showTypeahead();
                 }
