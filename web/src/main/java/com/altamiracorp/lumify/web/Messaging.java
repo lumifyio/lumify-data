@@ -103,7 +103,46 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     }
 
     public void onMessage(AtmosphereResourceEvent event, AtmosphereResponse response, String message) throws IOException {
+        try {
+            processMessage(event, message);
+        } catch (Exception ex) {
+            LOGGER.error("Could not handle async message: " + message, ex);
+        }
         response.write(message);
+    }
+
+    private void processMessage(AtmosphereResourceEvent event, String message) {
+        JSONObject messageJson = new JSONObject(message);
+
+        JSONObject messageDataJson = messageJson.optJSONObject("data");
+        if (messageDataJson == null) {
+            return;
+        }
+
+        String eventName = messageDataJson.optString("eventName");
+        if (eventName == null) {
+            return;
+        }
+
+        if ("switchWorkspace".equals(eventName)) {
+            JSONObject eventData = messageDataJson.getJSONObject("eventData");
+            com.altamiracorp.lumify.core.user.User user = AuthenticationProvider.getUser(event.getResource().session());
+            String workspaceRowKey = eventData.getString("_rowKey");
+            switchWorkspace(user, workspaceRowKey);
+        }
+    }
+
+    private void switchWorkspace(com.altamiracorp.lumify.core.user.User authUser, String workspaceRowKey) {
+        if (!workspaceRowKey.equals(authUser.getCurrentWorkspace())) {
+            authUser.setCurrentWorkspace(workspaceRowKey);
+
+            User user = userRepository.findByRowKey(authUser.getRowKey(), authUser);
+            user.getMetadata().setCurrentWorkspace(workspaceRowKey);
+            authUser.setCurrentWorkspace(workspaceRowKey);
+            userRepository.save(user, authUser);
+
+            LOGGER.debug("User " + user.getRowKey() + " switched current workspace to " + workspaceRowKey);
+        }
     }
 
     private void setStatus(AtmosphereResource resource, UserStatus status) {

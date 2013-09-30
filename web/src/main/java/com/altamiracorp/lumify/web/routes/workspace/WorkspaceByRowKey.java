@@ -32,15 +32,6 @@ public class WorkspaceByRowKey extends BaseRequestHandler {
         WorkspaceRowKey workspaceRowKey = new WorkspaceRowKey(getAttributeString(request, "workspaceRowKey"));
         User authUser = getUser(request);
 
-        com.altamiracorp.lumify.model.user.User user = userRepository.findOrAddUser(authUser.getUsername(), authUser);
-        if (!workspaceRowKey.toString().equals(user.getMetadata().getCurrentWorkspace())) {
-            user.getMetadata().setCurrentWorkspace(workspaceRowKey.toString());
-            authUser.setCurrentWorkspace(workspaceRowKey.toString());
-            userRepository.save(user, authUser);
-
-            LOGGER.debug("User " + user.getRowKey() + " switched current workspace to " + workspaceRowKey);
-        }
-
         Workspace workspace = workspaceRepository.findByRowKey(workspaceRowKey.toString(), authUser);
 
         if (workspace == null) {

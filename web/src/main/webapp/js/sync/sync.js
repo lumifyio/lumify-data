@@ -16,7 +16,8 @@ define([
         this.events = [
             'addVertices',
             'updateVertices',
-            'deleteVertices'
+            'deleteVertices',
+            'switchWorkspace'
         ];
 
         if (this.syncCursors) {
