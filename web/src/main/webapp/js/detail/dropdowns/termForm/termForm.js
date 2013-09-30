@@ -123,8 +123,7 @@ define([
                 newObjectSign = $.trim(this.select('objectSignSelector').val()),
                 mentionStart,
                 mentionEnd;
-console.log ('term create');
-debugger;
+
             if (this.attr.existing){
                 var dataInfo = $mentionNode.data('info');
                 mentionStart = dataInfo.start;
