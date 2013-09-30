@@ -66,7 +66,7 @@ define([
             if (!this.currentWorkspaceRowKey) {
                 return;
             }
-            if (!this.workspaceEditable) {
+            if (!this.workspaceEditable && !data.remoteEvent) {
                 return;
             }
             if (data.remoteEvent) {
