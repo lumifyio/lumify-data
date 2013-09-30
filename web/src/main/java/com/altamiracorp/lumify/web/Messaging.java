@@ -124,10 +124,13 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
             return;
         }
 
-        if ("switchWorkspace".equals(eventName)) {
+        if ("switchWorkspace".equals(eventName) || "workspaceLoaded".equals(eventName)) {
             JSONObject eventData = messageDataJson.getJSONObject("eventData");
             com.altamiracorp.lumify.core.user.User user = AuthenticationProvider.getUser(event.getResource().session());
-            String workspaceRowKey = eventData.getString("_rowKey");
+            String workspaceRowKey = eventData.optString("_rowKey");
+            if (workspaceRowKey == null) {
+                workspaceRowKey = eventData.getString("id");
+            }
             switchWorkspace(user, workspaceRowKey);
         }
     }

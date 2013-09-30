@@ -17,7 +17,8 @@ define([
             'addVertices',
             'updateVertices',
             'deleteVertices',
-            'switchWorkspace'
+            'switchWorkspace',
+            'workspaceLoaded'
         ];
 
         if (this.syncCursors) {
