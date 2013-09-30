@@ -126,13 +126,11 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
-            <version>1.5.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -149,45 +147,6 @@
                     </warSourceExcludes>
                 </configuration>
             </plugin>
-            <!--
-            <plugin>
-              <groupId>com.kelveden</groupId>
-              <artifactId>maven-karma-plugin</artifactId>
-              <version>1.2</version>
-              <executions>
-                  <execution>
-                      <goals>
-                          <goal>start</goal>
-                      </goals>
-                  </execution>
-              </executions>
-              <configuration>
-                  <browsers>Chrome</browsers>
-                  <configFile>${basedir}/src/main/webapp/karma.conf.js</configFile>
-              </configuration>
-            </plugin>
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>exec-maven-plugin</artifactId>
-              <version>1.2.1</version>
-              <executions>
-                <execution>
-                  <id>npm-install</id>
-                  <phase>generate-test-resources</phase>
-                  <goals>
-                    <goal>exec</goal>
-                  </goals>
-                </execution>
-              </executions>
-              <configuration>
-                <executable>npm</executable>
-                <workingDirectory>${basedir}/src/main/webapp</workingDirectory>
-                <arguments>
-                  <argument>install</argument>
-                </arguments>
-              </configuration>
-            </plugin>
-            -->
         </plugins>
     </build>
 </project>
