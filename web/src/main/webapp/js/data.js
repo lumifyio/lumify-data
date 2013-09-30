@@ -128,6 +128,8 @@ define([
 
         this.onAddVertices = function(evt, data) {
             this.workspaceReady(function(ws) {
+                if (!ws.isEditable && !data.remoteEvent) return;
+
                 var self = this,
                     added = [],
                     existing = [];
@@ -259,6 +261,7 @@ define([
             var self = this;
 
             this.workspaceReady(function(ws) {
+                if (!ws.isEditable && !data.remoteEvent) return;
 
                 var toDelete = [],
                     undoDelete = [],
@@ -512,13 +515,17 @@ define([
                         } else refresh.push(id);
                     }).toArray();
 
-                    if (refresh.length) {
-                        this.vertexService.getMultiple(refresh).done(function() {
-                            self.trigger('verticesDropped', { vertices:vertices });
-                        });
-                    } else {
-                        self.trigger('verticesDropped', { vertices:vertices });
-                    }
+                    self.workspaceReady(function(ws) {
+                        if (ws.isEditable) {
+                            if (refresh.length) {
+                                this.vertexService.getMultiple(refresh).done(function() {
+                                    self.trigger('verticesDropped', { vertices:vertices });
+                                });
+                            } else {
+                                self.trigger('verticesDropped', { vertices:vertices });
+                            }
+                        }
+                    });
 
                 }.bind(this)
             });

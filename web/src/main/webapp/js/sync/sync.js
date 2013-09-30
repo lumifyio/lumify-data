@@ -14,12 +14,9 @@ define([
 
         //PUT EVENTS YOU WANT TO SYNC HERE!
         this.events = [
-            // Disabling until fixed
             'addVertices',
             'updateVertices',
             'deleteVertices'
-            //'verticesUpdated',
-            //'verticesDeleted'
         ];
 
         if (this.syncCursors) {
@@ -45,6 +42,7 @@ define([
         });
 
         this.onWorkspaceLoaded = function(evt, workspace) {
+            this.workspaceEditable = workspace.isEditable;
             this.currentWorkspaceRowKey = workspace.id;
         };
 
@@ -66,6 +64,9 @@ define([
 
         this.onSyncedEvent = function (evt, data) {
             if (!this.currentWorkspaceRowKey) {
+                return;
+            }
+            if (!this.workspaceEditable) {
                 return;
             }
             if (data.remoteEvent) {

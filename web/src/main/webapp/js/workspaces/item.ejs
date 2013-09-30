@@ -5,4 +5,5 @@
     data-title="<%= workspace.title %>"
     data-_row-key="<%= workspace._rowKey %>"
     ><a>
-      <span class="badge" style="display:none"/><button class="disclosure btn btn-mini"></button><span><%= workspace.title || workspace._rowKey %></span></a></li>
+      <span class="badge" style="display:none"/><button class="disclosure btn btn-mini"></button><span class="nav-list-title"><%= workspace.title || workspace._rowKey %></span><% if (workspace.sharingSubtitle) { %><span class="nav-list-subtitle"><%= workspace.sharingSubtitle %></span><% } %></a></li>
+

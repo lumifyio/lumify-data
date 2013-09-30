@@ -117,6 +117,7 @@ define([
                         data: {
                             id: vertex.id,
                         },
+                        grabbable: self.isWorkspaceEditable,
                         selected: !!vertex.workspace.selected
                     };
                     self.updateCyNodeData(cyNodeData.data, vertex);
@@ -244,6 +245,7 @@ define([
         };
 
         this.onVerticesSelected = function(evt, data) {
+            if (!data) return;
             if (data && data.remoteEvent) {
                 return;
             }
@@ -678,9 +680,6 @@ define([
             }
         };
 
-        this.graphDrag = function(event) {
-        };
-
         this.graphGrab = function(event) {
             var self = this;
             this.cy(function(cy) {
@@ -694,6 +693,7 @@ define([
         };
 
         this.graphFree = function(event) {
+            if (!this.isWorkspaceEditable) return;
             var self = this;
 
             // CY is sending multiple "free" events, prevent that...
@@ -783,6 +783,7 @@ define([
 
         this.onWorkspaceLoaded = function(evt, workspace) {
             this.resetGraph();
+            this.isWorkspaceEditable = workspace.isEditable;
             if (workspace.data.vertices.length) {
                 this.addVertices(workspace.data.vertices, { fit:true });
             }
@@ -953,8 +954,7 @@ define([
                         select: self.graphSelect.bind(self),
                         unselect: self.graphUnselect.bind(self),
                         grab: self.graphGrab.bind(self),
-                        free: self.graphFree.bind(self),
-                        drag: self.graphDrag.bind(self)
+                        free: self.graphFree.bind(self)
                     });
 
                 },

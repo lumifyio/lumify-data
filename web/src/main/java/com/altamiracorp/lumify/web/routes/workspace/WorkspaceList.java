@@ -33,42 +33,8 @@ public class WorkspaceList extends BaseRequestHandler {
 
         JSONArray workspacesJson = new JSONArray();
         for (Workspace workspace : workspaces) {
-            JSONObject workspaceJson = new JSONObject();
-            workspaceJson.put("_rowKey", workspace.getRowKey());
-            workspaceJson.put("title", workspace.getMetadata().getTitle());
-            workspaceJson.put("createdBy", workspace.getMetadata().getCreator());
-            workspaceJson.put("isSharedToUser", !workspace.getMetadata().getCreator().equals(user.getRowKey()));
-
-            Boolean hasAccess = false;
-            Boolean hasEdit = false;
-
-            if (workspace.getMetadata().getCreator().equals(user.getRowKey())) {
-                hasAccess = true;
-                hasEdit = true;
-            }
-
-            JSONArray permissions = new JSONArray();
-            if (workspace.get(WorkspacePermissions.NAME) != null) {
-                for (Column col : workspace.get(WorkspacePermissions.NAME).getColumns()) {
-                    String rowKey = col.getName();
-                    JSONObject users = new JSONObject();
-                    JSONObject userPermissions = Value.toJson(col.getValue());
-                    users.put("user", rowKey);
-                    users.put("userPermissions", userPermissions);
-                    permissions.put(users);
-                    if (rowKey.equals(user.getRowKey())) {
-                        if (userPermissions.getBoolean("edit")) {
-                            hasEdit = true;
-                        }
-                        hasAccess = true;
-                    }
-                }
-
-                workspaceJson.put("permissions", permissions);
-            }
-
-            if (hasAccess) {
-                workspaceJson.put("isEditable", hasEdit);
+            JSONObject workspaceJson = workspace.toJson(user);
+            if (workspaceJson != null) {
                 workspacesJson.put(workspaceJson);
             }
         }

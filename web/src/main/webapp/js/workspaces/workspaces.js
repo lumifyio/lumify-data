@@ -2,17 +2,19 @@
 define([
     'flight/lib/component',
     'service/workspace',
+    'service/user',
     './form/form',
     'tpl!./workspaces',
     'tpl!./list',
     'tpl!./item'
-], function(defineComponent, WorkspaceService, WorkspaceForm, workspacesTemplate, listTemplate, itemTemplate) {
+], function(defineComponent, WorkspaceService, UserService, WorkspaceForm, workspacesTemplate, listTemplate, itemTemplate) {
     'use strict';
 
     return defineComponent(Workspaces);
 
     function Workspaces() {
         this.workspaceService = new WorkspaceService();
+        this.userService = new UserService();
 
         this.defaultAttrs({
             listSelector: 'ul.nav-list',
@@ -125,7 +127,8 @@ define([
         this.onWorkspaceSaved = function ( event, data ) {
             var li = this.findWorkspaceRow(data._rowKey);
             li.find('.badge').removeClass('loading').hide().next().show();
-            var content = $(itemTemplate({ workspace: data, selected: data._rowKey }));
+            data = this.workspaceDataForItemRow(data);
+            var content = $(itemTemplate({ workspace: data, selected: this.workspaceRowKey }));
             if (li.length === 0) {
                 content.insertAfter( this.$node.find('li.nav-header') );
             } else {
@@ -159,19 +162,49 @@ define([
         this.loadWorkspaceList = function() {
             var self = this;
 
-            return this.workspaceService.list()
-                        .done(function(data) {
-                            var workspaces = data.workspaces || [];
-                            self.$node.html( workspacesTemplate({}) );
-                            self.select('listSelector').html(
-                                listTemplate({
-                                    results: _.groupBy(workspaces, function(w) { 
-                                        return w.isSharedToUser ? 'shared' : 'mine';
-                                    }),
-                                    selected: self.workspaceRowKey
-                                })
-                            );
-                        });
+            return $.when(
+                    this.userService.getCurrentUsers(),
+                    this.workspaceService.list()
+                   )
+                   .done(function(usersResponse, workspaceResponse) {
+                       var users = usersResponse[0].users || [],
+                           workspaces = workspaceResponse[0].workspaces || [],
+                           usersByRowKey = _.groupBy(users, function(u) { return u.rowKey; }); 
+
+                        self.usersByRowKey = usersByRowKey;
+                        self.$node.html( workspacesTemplate({}) );
+                        self.select('listSelector').html(
+                            listTemplate({
+                                results: _.groupBy(workspaces, function(w) { 
+                                    w = self.workspaceDataForItemRow(w);
+                                    return w.isSharedToUser ? 'shared' : 'mine';
+                                }),
+                                selected: self.workspaceRowKey
+                            })
+                        );
+                    });
+        };
+
+        this.workspaceDataForItemRow = function(w) {
+            var createdBy = w.createdBy,
+                foundUsers = this.usersByRowKey[w.createdBy];
+
+            if (foundUsers && foundUsers.length) {
+                createdBy = foundUsers[0].userName;
+            }
+
+            var text = w.isSharedToUser ? 'Shared by ' + createdBy + ' to': 'Shared with',
+                people = (w.permissions && w.permissions.length) ||
+                        (w.users && w.users.length) || 0;
+
+            if (people === 1) {
+                w.sharingSubtitle = text + ' 1 person';
+            } else if (people) {
+                w.sharingSubtitle = text + ' ' + people + ' people';
+            } else {
+                w.sharingSubtitle = null;
+            }
+            return w;
         };
 
         this.onToggleMenu = function(event, data) {

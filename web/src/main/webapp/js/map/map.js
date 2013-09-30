@@ -215,6 +215,8 @@ define([
         this.onWorkspaceLoaded = function(evt, workspaceData) {
             var self = this;
 
+            this.isWorkspaceEditable = workspaceData.isEditable;
+
             this.map(function(map) {
                 map.removeAllMarkers();
 

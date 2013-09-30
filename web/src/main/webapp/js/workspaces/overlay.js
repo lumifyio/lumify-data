@@ -32,18 +32,18 @@ define([
             this.$node.css('left', data.padding.l + MENUBAR_WIDTH);
         };
 
-        this.setContent = function(title, subtitle) {
+        this.setContent = function(title, isEditable, subtitle) {
             this.select('nameSelector').text(title);
-            this.select('subtitleSelector').html(subtitle);
+            this.select('subtitleSelector').html(isEditable === false ? 'read only' : subtitle);
         };
 
         this.onWorkspaceLoaded = function(event, data) {
-            this.setContent(data.title, 'no changes');
+            this.setContent(data.title, data.isEditable, 'no changes');
             clearTimeout(this.updateTimer);
         };
 
         this.onWorkspaceSwitched = function(event, data) {
-            this.setContent(data.workspace.title, 'no changes');
+            this.setContent(data.workspace.title, true, 'no changes');
             clearTimeout(this.updateTimer);
         };
 
