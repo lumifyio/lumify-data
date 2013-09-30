@@ -88,11 +88,7 @@ public class WorkspaceSave extends BaseRequestHandler {
             workspaceRepository.save(workspace, authUser);
         }
 
-        JSONObject resultJson = new JSONObject();
-        resultJson.put("_rowKey", workspace.getRowKey().toString());
-        resultJson.put("title", workspace.getMetadata().getTitle());
-
-        respondWithJson(response, resultJson);
+        respondWithJson(response, workspace.toJson(authUser));
     }
 
     public Workspace handleNew(HttpServletRequest request, com.altamiracorp.lumify.model.user.User user) {
