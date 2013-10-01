@@ -75,18 +75,13 @@
     </appender>    
 
 
-    <logger name="com.altamiracorp.lumify.web">
+    <logger name="com.altamiracorp.lumify">
         <level value="DEBUG" />
         <appender-ref ref="webLog" />
         <appender-ref ref="webLogError" />
     </logger>
-    <logger name="com.altamiracorp.lumify.model">
-        <level value="DEBUG" />
-        <appender-ref ref="modelLog" />
-        <appender-ref ref="modelLogError" />
-    </logger>    
     <root>
-        <level value="INFO" />
+        <level value="WARN" />
         <appender-ref ref="console" />
         <appender-ref ref="applicationLog" />
         <appender-ref ref="applicationLogError" />

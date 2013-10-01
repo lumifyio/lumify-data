@@ -17,12 +17,10 @@ import java.io.File;
 import java.util.*;
 
 public class DevFileSystemSpout extends BaseRichSpout {
-    public static final String FILE_NAME_FIELD_NAME = "fileName";
     private final File dataDir;
     private Queue<File> files;
     private SpoutOutputCollector collector;
     private HashMap<String, File> workingFiles;
-    private TopologyContext topologyContext;
 
     public DevFileSystemSpout(File dataDir) {
         this.dataDir = dataDir;
@@ -30,12 +28,11 @@ public class DevFileSystemSpout extends BaseRichSpout {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields(FILE_NAME_FIELD_NAME));
+        outputFieldsDeclarer.declare(new Fields(FieldNames.FILE_NAME));
     }
 
     @Override
     public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector collector) {
-        this.topologyContext = topologyContext;
         this.collector = collector;
         this.files = new LinkedList<File>();
         this.workingFiles = new HashMap<String, File>();
@@ -47,7 +44,7 @@ public class DevFileSystemSpout extends BaseRichSpout {
         while (fileIterator.hasNext()) {
             try {
                 File f = fileIterator.next();
-                if (f.isFile() && !isSupportingFile(f)) {
+                if (f.isFile() && !isSupportingFile(f) && !f.getName().startsWith(".")) {
                     this.files.add(f);
                 }
             } catch (Exception ex) {

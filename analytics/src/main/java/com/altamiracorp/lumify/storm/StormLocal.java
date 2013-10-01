@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.cmdline;
+package com.altamiracorp.lumify.storm;
 
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
@@ -10,7 +10,8 @@ import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.utils.Utils;
-import com.altamiracorp.lumify.storm.DevFileSystemSpout;
+import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeSorterBolt;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -18,12 +19,16 @@ import org.apache.commons.cli.Options;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import storm.kafka.KafkaConfig;
+import storm.kafka.KafkaSpout;
+import storm.kafka.SpoutConfig;
 
 import java.io.File;
 import java.util.Map;
 
 public class StormLocal extends CommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(StormLocal.class.getName());
+    public static final String FILE_CONTENT_TYPE_SORTER_ID = "fileContentTypeExtraction";
     private boolean isDone;
 
     public static void main(String[] args) throws Exception {
@@ -54,6 +59,9 @@ public class StormLocal extends CommandLineBase {
 
         Config conf = new Config();
         conf.put("topology.kryo.factory", "com.altamiracorp.lumify.storm.DefaultKryoFactory");
+        for (Map.Entry<Object, Object> configEntry : getConfiguration().getProperties().entrySet()) {
+            conf.put(configEntry.getKey().toString(), configEntry.getValue());
+        }
         conf.setDebug(false);
         conf.setNumWorkers(2);
 
@@ -62,6 +70,7 @@ public class StormLocal extends CommandLineBase {
         LocalCluster cluster = new LocalCluster();
         StormTopology topology = createTopology(devFileSystemSpout);
         cluster.submitTopology("local", conf, topology);
+        // TODO: how do we know when we are done?
         while (!isDone) {
             Utils.sleep(100);
         }
@@ -73,13 +82,25 @@ public class StormLocal extends CommandLineBase {
 
     public StormTopology createTopology(DevFileSystemSpout devFileSystemSpout) {
         TopologyBuilder builder = new TopologyBuilder();
-        builder.setSpout("files", devFileSystemSpout, 10);
-        builder.setBolt("print", new PrintBolt(), 10)
-                .shuffleGrouping("files");
+        builder.setSpout(FILE_CONTENT_TYPE_SORTER_ID, devFileSystemSpout, 10);
+        builder.setBolt("contentTypeSorterBolt", new ContentTypeSorterBolt(), 10)
+                .shuffleGrouping(FILE_CONTENT_TYPE_SORTER_ID);
+
+        String contentTypeName = ContentTypeSorterBolt.SimpleType.TEXT.toString().toLowerCase();
+        SpoutConfig spoutConfig = new SpoutConfig(
+                new KafkaConfig.ZkHosts(getConfiguration().getZookeeperServerNames(), "/brokers"),
+                contentTypeName,
+                "/consumers",
+                contentTypeName);
+        builder.setSpout(contentTypeName, new KafkaSpout(spoutConfig), 10);
+        builder.setBolt("debug", new DebugBolt(), 10)
+                .shuffleGrouping(contentTypeName);
+
         return builder.createTopology();
     }
 
-    private static class PrintBolt extends BaseRichBolt {
+    public static class DebugBolt extends BaseRichBolt {
+
         private OutputCollector collector;
 
         @Override
@@ -89,7 +110,8 @@ public class StormLocal extends CommandLineBase {
 
         @Override
         public void execute(Tuple input) {
-            LOGGER.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + input.getStringByField(DevFileSystemSpout.FILE_NAME_FIELD_NAME));
+            LOGGER.info("debug: " + new String((byte[]) input.getValue(0)));
+
             collector.ack(input);
         }
 

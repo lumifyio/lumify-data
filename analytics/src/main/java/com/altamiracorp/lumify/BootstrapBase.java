@@ -1,10 +1,12 @@
 package com.altamiracorp.lumify;
 
+import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
+import com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.*;
-import com.altamiracorp.lumify.search.ElasticSearchProvider;
 import com.altamiracorp.lumify.model.search.SearchProvider;
+import com.altamiracorp.lumify.search.ElasticSearchProvider;
 import com.google.inject.AbstractModule;
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
@@ -32,6 +34,7 @@ public abstract class BootstrapBase extends AbstractModule {
         bind(ModelSession.class).toInstance(createModelSession());
         bind(GraphSession.class).toInstance(createGraphSession());
         bind(SearchProvider.class).toInstance(createSearchProvider(user));
+        bind(ContentTypeExtractor.class).toInstance(new TikaContentTypeExtractor());
     }
 
 

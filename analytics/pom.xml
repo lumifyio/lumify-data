@@ -250,5 +250,10 @@
             <artifactId>storm</artifactId>
             <version>${storm-version}</version>
         </dependency>
+        <dependency>
+            <groupId>storm</groupId>
+            <artifactId>storm-kafka</artifactId>
+            <version>0.8.0-wip4</version>
+        </dependency>
     </dependencies>
 </project>
