@@ -50,6 +50,7 @@ define([
                 permissions: {
                 },
                 data: {
+                    userRowKey: this.currentUser.rowKey,
                     workspaceRowKey: this.currentWorkspaceRowKey
                 }
             };

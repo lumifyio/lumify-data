@@ -135,8 +135,11 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
 
         if ("changedWorkspace".equals(type)) {
             com.altamiracorp.lumify.core.user.User user = AuthenticationProvider.getUser(resource.session());
-            String workspaceRowKey = dataJson.optString("workspaceRowKey");
-            switchWorkspace(user, workspaceRowKey);
+            String workspaceRowKey = dataJson.getString("workspaceRowKey");
+            String userRowKey = dataJson.getString("userRowKey");
+            if (userRowKey.equals(user.getRowKey())) {
+                switchWorkspace(user, workspaceRowKey);
+            }
         }
     }
 
