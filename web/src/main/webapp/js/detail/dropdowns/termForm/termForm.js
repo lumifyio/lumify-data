@@ -79,6 +79,14 @@ define([
             this.debouncedLookup();
         };
 
+        this.reset = function() {
+            this.currentGraphVertexId = null;
+            this.select('helpSelector').show();
+            this.select('conceptSelector').attr('disabled', true).hide();
+            this.select('createTermButtonSelector').hide();
+            this.updateResolveImageIcon();
+        };
+
         this.graphVertexChanged = function(newGraphVertexId, item, initial) {
             var self = this;
 
@@ -93,9 +101,14 @@ define([
                     this.select('conceptSelector').attr('disabled', false);
                 }
                 this.updateConceptSelect(info && info._subType || '').show();
-                this.select('createTermButtonSelector')
-                    .text(newGraphVertexId && initial ? 'Update' : newGraphVertexId ? 'Resolve to Existing' : 'Resolve as New')
-                    .show();
+                if (newGraphVertexId && initial) {
+                    this.select('createTermButtonSelector')
+                        .hide();
+                } else {
+                    this.select('createTermButtonSelector')
+                        .text(newGraphVertexId ? 'Resolve to Existing' : 'Resolve as New')
+                        .show();
+                }
                 this.select('helpSelector').hide();
             }
 
@@ -215,6 +228,7 @@ define([
                 mentionVertex = $(this.attr.mentionNode),
                 sign = this.attr.sign || mentionVertex.text(),
                 data = mentionVertex.data('info'),
+                graphVertexId = data && (data.id || data.graphVertexId), 
                 title = $.trim(data && data.title || ''),
                 existingEntity = this.attr.existing ? mentionVertex.addClass('focused').hasClass('resolved') : false,
                 objectSign = '';
@@ -238,18 +252,14 @@ define([
 
             vertex.html(dropdownTemplate({
                 sign: $.trim(sign),
-                graphVertexId: data && data.id,
+                graphVertexId: graphVertexId,
                 objectSign: $.trim(objectSign) || '',
                 buttonText: existingEntity ? 'Resolve to Existing' : 'Resolve as New'
             }));
 
-            this.graphVertexChanged(data && data.id, data, true);
+            this.graphVertexChanged(graphVertexId, data, true);
 
-            this.runQuery(sign).done(function(vertices) {
-                self.$node.find('.badge')
-                    .attr('title', vertices.length + ' match' + (vertices.length === 1 ? '' : 'es') + ' found')
-                    .text(vertices.length);
-            });
+            this.runQuery(sign);
 
             this.sign = sign;
             this.startSign = sign;
@@ -352,9 +362,14 @@ define([
             return this.ucd.graphVertexSearch(query)
                 .then(function(response) {
                     return _.filter(response.vertices, function(v) { return v.properties._type === 'entity'; });
-                });
+                }).done(this.updateQueryCountBadge.bind(this));
         };
 
+        this.updateQueryCountBadge = function(vertices) {
+            this.$node.find('.badge')
+                .attr('title', vertices.length + ' match' + (vertices.length === 1 ? '' : 'es') + ' found')
+                .text(vertices.length);
+        };
 
         this.setupObjectTypeAhead = function() {
             var self = this,
@@ -364,6 +379,11 @@ define([
             self.ontologyService.properties().done(function(ontologyProperties) {
                 var field = self.select('objectSignSelector').typeahead({
                     source: function(query, callback) {
+
+                        if (self.lastQuery && query !== self.lastQuery) {
+                            self.reset();
+                        }
+
                         if (!self.sourceCache) self.sourceCache = {};
                         else if (self.sourceCache[query]) {
                             self.sourceCache[query](callback);
@@ -382,7 +402,8 @@ define([
                                     }, e);
                                 });
 
-                            items = _.groupBy(all, 'id');
+
+                            items = $.extend(true, {}, items, _.groupBy(all, 'id'));
                             items[createNewText] = [query];
 
                             self.sourceCache[query] = function(aCallback) {
@@ -397,6 +418,8 @@ define([
                                         shouldSelect.addClass('active');
                                     }
                                 }
+
+                                self.updateQueryCountBadge(all);
                             };
 
                             self.sourceCache[query](callback);
@@ -434,6 +457,7 @@ define([
 
                             if (graphVertexId == createNewText) {
                                 graphVertexId = '';
+                                label = this.$element.val();
                             } else {
                                 self.sign = label;
                             }
@@ -441,6 +465,7 @@ define([
                             matchingItem = matchingItem[0];
                         }
 
+                        self.lastQuery = label;
                         self.graphVertexChanged(graphVertexId, matchingItem);
                         return label;
                     },
