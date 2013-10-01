@@ -21,6 +21,7 @@
         <jetty-version>8.1.11.v20130520</jetty-version>
         <elasticsearch-version>0.90.0</elasticsearch-version>
         <titan-version>0.3.2.atc-SNAPSHOT</titan-version>
+        <storm-version>0.8.2</storm-version>
         <site.config.location>conf/maven/site</site.config.location>
         <javadoc.stylesheetfile>conf/maven/javadoc/stylesheet.css</javadoc.stylesheetfile>
         <maven.build.timestamp.format>EEE MMM dd HH:mm z yyyy</maven.build.timestamp.format>
@@ -36,6 +37,10 @@
         <repository>
             <id>lumify-releases</id>
             <url>${internal.project.repo}/libs-release/</url>
+        </repository>
+        <repository>
+            <id>clojars.org</id>
+            <url>http://clojars.org/repo</url>
         </repository>
         <repository>
             <snapshots>
@@ -112,7 +117,6 @@
                 <artifactId>elasticsearch</artifactId>
                 <version>${elasticsearch-version}</version>
             </dependency>
-
 
             <!-- Test Dependencies -->
             <dependency>
