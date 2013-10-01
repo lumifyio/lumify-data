@@ -78,6 +78,8 @@ public class StormLocal extends CommandLineBase {
     public StormTopology createTopology() {
         TopologyBuilder builder = new TopologyBuilder();
         createContentTypeSorterTopology(builder);
+        createVideoTopology(builder);
+        createImageTopology(builder);
         createDocumentTopology(builder);
 
         return builder.createTopology();
@@ -90,6 +92,32 @@ public class StormLocal extends CommandLineBase {
         return builder;
     }
 
+    private void createImageTopology(TopologyBuilder builder) {
+        String queueName = "image";
+        SpoutConfig spoutConfig = new SpoutConfig(
+                new KafkaConfig.ZkHosts(getConfiguration().getZookeeperServerNames(), "/brokers"),
+                queueName,
+                "/consumers",
+                queueName);
+        spoutConfig.scheme = new StringScheme();
+        builder.setSpout(queueName, new KafkaSpout(spoutConfig), 10);
+        builder.setBolt("debug-" + queueName, new DebugBolt(queueName), 10)
+                .shuffleGrouping(queueName);
+    }
+
+    private void createVideoTopology(TopologyBuilder builder) {
+        String queueName = "video";
+        SpoutConfig spoutConfig = new SpoutConfig(
+                new KafkaConfig.ZkHosts(getConfiguration().getZookeeperServerNames(), "/brokers"),
+                queueName,
+                "/consumers",
+                queueName);
+        spoutConfig.scheme = new StringScheme();
+        builder.setSpout(queueName, new KafkaSpout(spoutConfig), 10);
+        builder.setBolt("debug-" + queueName, new DebugBolt(queueName), 10)
+                .shuffleGrouping(queueName);
+    }
+
     private void createDocumentTopology(TopologyBuilder builder) {
         String queueName = "document";
         SpoutConfig spoutConfig = new SpoutConfig(
@@ -99,7 +127,7 @@ public class StormLocal extends CommandLineBase {
                 queueName);
         spoutConfig.scheme = new StringScheme();
         builder.setSpout(queueName, new KafkaSpout(spoutConfig), 10);
-        builder.setBolt("debug", new DebugBolt(queueName), 10)
+        builder.setBolt("debug-" + queueName, new DebugBolt(queueName), 10)
                 .shuffleGrouping(queueName);
     }
 }
