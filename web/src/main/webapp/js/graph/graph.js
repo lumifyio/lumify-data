@@ -167,7 +167,7 @@ define([
                 });
 
                 if (options.fit && cy.nodes().length) {
-                    this.fit();
+                    _.defer(this.fit.bind(this));
                 }
 
                 if (existingNodes.length && cloned && cloned.length) {
@@ -413,6 +413,7 @@ define([
                     // prevents extreme closeup when one vertex
                     var maxZoom = cy._private.maxZoom;
                     cy._private.maxZoom *= 0.5;
+                    cy.panningEnabled(true).zoomingEnabled(true).boxSelectionEnabled(true);
                     cy.fit(undefined, $.extend({}, this.graphPadding));
                     cy._private.maxZoom = maxZoom;
                 }
@@ -482,7 +483,7 @@ define([
 
             var padding = $.extend({}, data.padding);
 
-            padding.r += this.select('graphToolsSelector').outerWidth(true);
+            padding.r += this.select('graphToolsSelector').outerWidth(true) || 65;
             padding.l += border;
             padding.t += border;
             padding.b += border;
@@ -769,6 +770,7 @@ define([
                     .zoomingEnabled(!noVertices)
                     .boxSelectionEnabled(!noVertices);
 
+                this.select('graphToolsSelector').toggle(!noVertices);
                 if (noVertices) {
                     cy.reset();
                 }
@@ -789,9 +791,7 @@ define([
             this.isWorkspaceEditable = workspace.isEditable;
             if (workspace.data.vertices.length) {
                 this.addVertices(workspace.data.vertices, { fit:true });
-            }
-
-            this.checkEmptyGraph();
+            } else this.checkEmptyGraph();
         };
 
         this.onRelationshipsLoaded = function(evt, relationshipData) {

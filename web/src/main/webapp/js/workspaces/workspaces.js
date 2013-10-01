@@ -94,9 +94,11 @@ define([
         };
 
         this.collapseEditForm = function() {
-            WorkspaceForm.teardownAll();
-            this.select('formSelector').hide();
-            this.trigger(document, 'paneResized');
+            if (this.select('formSelector').is(':visible')) {
+                WorkspaceForm.teardownAll();
+                this.select('formSelector').hide();
+                this.trigger(document, 'paneResized');
+            }
         };
 
         this.onSwitchWorkspace = function ( event, data ) {
