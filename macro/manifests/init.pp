@@ -78,20 +78,31 @@ class macro {
     }
   }
 
-  define git-clone ($url = $title, $path, $options = "", $timeout = 300) {
-    $hiera_proxy_url = hiera('proxy_url', nil)
-    if ($hiera_proxy_url != nil) {
-      $git_environment = "http_proxy=${hiera_proxy_url}"
-    } else {
-      $git_environment = "proxy_is=not_available"
+  $hiera_proxy_url = hiera('proxy_url', nil)
+  if ($hiera_proxy_url != nil) {
+    exec { "git configure http.proxy as ${hiera_proxy_url}" :
+      command => "/usr/bin/git config --global --replace-all http.proxy ${hiera_proxy_url}",
+      environment => 'HOME=/root',
+      require => Package['git'],
+      logoutput => true,
     }
+  } else {
+    exec { "git unconfigure http.proxy" :
+      command => "/usr/bin/git config --global --unset-all http.proxy",
+      environment => 'HOME=/root',
+      require => Package['git'],
+      logoutput => on_failure,
+    }
+  }
 
+  define git-clone ($url = $title, $path, $options = "", $timeout = 300) {
     exec { "git clone ${options} ${url}" :
       command => "/usr/bin/git clone ${options} ${url} ${path}",
-      environment => "${git_environment}",
+      environment => [ 'HOME=/root', 'GIT_CURL_VERBOSE=1' ],
       timeout => $timeout,
       creates => "${path}/.git",
       require => Package['git'],
+      logoutput => on_failure,
     }
   }
 
