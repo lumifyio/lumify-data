@@ -82,7 +82,7 @@ public class StormLocal extends CommandLineBase {
 
     public StormTopology createTopology(DevFileSystemSpout devFileSystemSpout) {
         TopologyBuilder builder = new TopologyBuilder();
-        builder.setSpout(FILE_CONTENT_TYPE_SORTER_ID, devFileSystemSpout, 10);
+        builder.setSpout(FILE_CONTENT_TYPE_SORTER_ID, devFileSystemSpout, 1);
         builder.setBolt("contentTypeSorterBolt", new ContentTypeSorterBolt(), 10)
                 .shuffleGrouping(FILE_CONTENT_TYPE_SORTER_ID);
 
