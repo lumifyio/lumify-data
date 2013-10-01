@@ -647,7 +647,7 @@ define([
             }
             if (info.length > 0){
                 this.trigger('verticesSelected', [info]);
-            }
+            } else this.trigger('verticesSelected', []);
         };
 
         this.onKeyHandler = function(event) {
