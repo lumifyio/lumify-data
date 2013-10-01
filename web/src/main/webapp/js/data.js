@@ -91,7 +91,9 @@ define([
                         console.error('Error', err);
                         return self.trigger(document, 'error', { message: err.toString() });
                     }
-                    self.trigger(document, 'socketMessage', message);
+                    if (message) {
+                        self.trigger(document, 'socketMessage', message);
+                    }
                 },
                 onOpen: function(response) {
                     self.trigger(document, 'subscribeSocketOpened');
