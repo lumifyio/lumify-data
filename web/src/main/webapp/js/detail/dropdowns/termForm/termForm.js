@@ -295,7 +295,7 @@ define([
 
             function updateCss(src) {
                 var url = 'url("' + (src || "/img/glyphicons/glyphicons_194_circle_question_mark@2x.png")  + '")',
-                    preview = self.$node.find('.resolve-wrapper .preview');
+                    preview = self.$node.find('.resolve-wrapper > .preview');
                 
                 if (preview.css('background-image') !== url) {
                     preview.css('background-image', url);
