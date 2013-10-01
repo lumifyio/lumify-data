@@ -93,7 +93,7 @@ public class StormLocal extends CommandLineBase {
                 "/consumers",
                 contentTypeName);
         builder.setSpout(contentTypeName, new KafkaSpout(spoutConfig), 10);
-        builder.setBolt("debug", new DebugBolt(), 10)
+        builder.setBolt("debug", new DebugBolt(contentTypeName), 10)
                 .shuffleGrouping(contentTypeName);
 
         return builder.createTopology();
@@ -101,7 +101,12 @@ public class StormLocal extends CommandLineBase {
 
     public static class DebugBolt extends BaseRichBolt {
 
+        private final String contentTypeName;
         private OutputCollector collector;
+
+        public DebugBolt(String contentTypeName) {
+            this.contentTypeName = contentTypeName;
+        }
 
         @Override
         public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -110,7 +115,7 @@ public class StormLocal extends CommandLineBase {
 
         @Override
         public void execute(Tuple input) {
-            LOGGER.info("debug: " + new String((byte[]) input.getValue(0)));
+            LOGGER.info("debug (" + contentTypeName + "): " + new String((byte[]) input.getValue(0)));
 
             collector.ack(input);
         }
