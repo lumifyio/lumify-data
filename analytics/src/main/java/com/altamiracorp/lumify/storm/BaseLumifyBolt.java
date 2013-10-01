@@ -5,7 +5,6 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import kafka.javaapi.producer.Producer;
@@ -44,6 +43,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
             safeExecute(input);
         } catch (Exception e) {
             getCollector().reportError(e);
+            getCollector().fail(input);
         }
     }
 

@@ -18,11 +18,14 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
         String fileName = input.getStringByField(FieldNames.FILE_NAME);
         checkNotNull(fileName, "this bolt requires a field with name " + FieldNames.FILE_NAME);
         InputStream in = openFile(fileName);
-        SimpleType contentType = toSimpleType(this.contentTypeExtractor.extract(in, FilenameUtils.getExtension(fileName)));
+        try {
+            String queueName = calculateQueueNameFromMimeType(this.contentTypeExtractor.extract(in, FilenameUtils.getExtension(fileName)));
+            pushOnQueue(queueName, fileName);
 
-        pushOnQueue(contentType.toString().toLowerCase(), fileName);
-
-        getCollector().ack(input);
+            getCollector().ack(input);
+        } finally {
+            in.close();
+        }
     }
 
     @Inject
@@ -30,21 +33,17 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
         this.contentTypeExtractor = contentTypeExtractor;
     }
 
-    private SimpleType toSimpleType(String mimeType) {
+    private String calculateQueueNameFromMimeType(String mimeType) {
         if (mimeType == null) {
-            return SimpleType.TEXT;
+            return "document";
         }
         mimeType = mimeType.toLowerCase();
         if (mimeType.contains("video")
                 || mimeType.contains("mp4"))
-            return SimpleType.VIDEO;
+            return "video";
         else if (mimeType.contains("image"))
-            return SimpleType.IMAGE;
+            return "image";
         else
-            return SimpleType.TEXT;
-    }
-
-    public static enum SimpleType {
-        IMAGE, TEXT, VIDEO
+            return "document";
     }
 }

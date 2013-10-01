@@ -17,14 +17,11 @@ import java.io.File;
 import java.util.*;
 
 public class DevFileSystemSpout extends BaseRichSpout {
-    private final File dataDir;
+    public static final String DATADIR_CONFIG_NAME = "datadir";
+    private File dataDir;
     private Queue<File> files;
     private SpoutOutputCollector collector;
     private HashMap<String, File> workingFiles;
-
-    public DevFileSystemSpout(File dataDir) {
-        this.dataDir = dataDir;
-    }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -32,7 +29,8 @@ public class DevFileSystemSpout extends BaseRichSpout {
     }
 
     @Override
-    public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector collector) {
+    public void open(Map conf, TopologyContext topologyContext, SpoutOutputCollector collector) {
+        this.dataDir = new File((String) conf.get(DATADIR_CONFIG_NAME));
         this.collector = collector;
         this.files = new LinkedList<File>();
         this.workingFiles = new HashMap<String, File>();
