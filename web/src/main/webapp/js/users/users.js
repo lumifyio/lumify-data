@@ -35,7 +35,7 @@ define([
                 userListItemSelector: this.onUserListItemClicked
             });
 
-            this.doGetOnline();
+            this.on(document, 'subscribeSocketOpened', this.doGetOnline.bind(this));
         });
 
         this.onUserListItemClicked = function (evt) {
@@ -158,14 +158,6 @@ define([
                     }
 
                     self.updateUsers(data.users);
-
-                    self.usersService.subscribe(self.currentUserRowKey, function (err, message) {
-                        if (err) {
-                            console.error('Error', err);
-                            return self.trigger(document, 'error', { message: err.toString() });
-                        }
-                        self.trigger(document, 'socketMessage', message);
-                    });
                 });
         };
     }
