@@ -1,13 +1,17 @@
 package com.altamiracorp.lumify.web;
 
 import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.model.user.User;
+import com.altamiracorp.lumify.model.user.UserMetadata;
+import com.altamiracorp.lumify.model.user.UserRepository;
+import com.altamiracorp.lumify.model.user.UserRowKey;
 import com.altamiracorp.web.HandlerChain;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.powermock.reflect.Whitebox;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,11 +37,18 @@ public class X509AuthenticationProviderTest {
     private WebApp app;
     @Mock
     private ModelSession modelSession;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private User user;
+    @Mock
+    private UserMetadata userMetadata;
 
     @Before
     public void setupTests() {
         mock = Mockito.mock(X509AuthenticationProvider.class);
         MockitoAnnotations.initMocks(this);
+        Whitebox.setInternalState(mock, "userRepository", userRepository);
     }
 
     @Test
@@ -57,7 +68,7 @@ public class X509AuthenticationProviderTest {
         verify(response).sendError(HttpServletResponse.SC_FORBIDDEN);
     }
 
-    @Ignore("Un-ignore after Sep 19th")
+    @Test
     public void testExpiredCertificate() throws Exception {
         X509Certificate cert = getCertificate("expired");
         X509Certificate[] certs = new X509Certificate[]{cert};
@@ -68,9 +79,20 @@ public class X509AuthenticationProviderTest {
         verify(response).sendError(HttpServletResponse.SC_FORBIDDEN);
     }
 
-    @Ignore("Implement after refactor that injects repository objects")
+    @Test
     public void testValidCertificate() throws Exception {
-        // TODO: Implement after refactor that injects repository objects
+        X509Certificate cert = getCertificate("valid");
+        X509Certificate[] certs = new X509Certificate[]{cert};
+        when(request.getAttribute(X509_REQ_ATTR_NAME)).thenReturn(certs);
+        when(mock.getUsername(cert)).thenReturn(TEST_USERNAME);
+        when(userRepository.findOrAddUser(eq(TEST_USERNAME), any(com.altamiracorp.lumify.core.user.User.class))).thenReturn(user);
+        when(user.getRowKey()).thenReturn(new UserRowKey("rowkey"));
+        when(user.getMetadata()).thenReturn(userMetadata);
+        when(userMetadata.getUserName()).thenReturn(TEST_USERNAME);
+        when(userMetadata.getCurrentWorkspace()).thenReturn("workspaceName");
+        doCallRealMethod().when(mock).handle(request, response, chain);
+        mock.handle(request, response, chain);
+        verify(chain).next(request, response);
     }
 
     private X509Certificate getCertificate(String name) {
