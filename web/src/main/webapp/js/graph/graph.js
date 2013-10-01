@@ -90,7 +90,6 @@ define([
                     .insertAfter(dragging);
             }
 
-
             this.cy(function(cy) {
                 var currentNodes = cy.nodes(),
                     boundingBox = currentNodes.boundingBox(),
@@ -102,8 +101,6 @@ define([
                     }),
                     maxWidth = validBox ? retina.pixelsToPoints({ x:boundingBox.w, y:boundingBox.h}).x : 0,
                     startX = nextAvailablePosition.x;
-
-                cy.filter(":selected").unselect();
 
                 maxWidth = Math.max(maxWidth, inc * 10);
 
@@ -838,13 +835,17 @@ define([
                 .done(function(data) {
                     var added = data.vertices;
                     
-                    added.forEach(function(vertex, index) {
-                        vertex.workspace = {
-                            selected: true
-                        };
-                    });
+                    self.cy(function(cy) {
+                        cy.filter(':selected').unselect();
+                        cy.container().focus();
+                        added.forEach(function(vertex, index) {
+                            vertex.workspace = {
+                                selected: true
+                            };
+                        });
 
-                    self.trigger(document, 'addVertices', { vertices: added });
+                        self.trigger(document, 'addVertices', { vertices: added });
+                    });
                 });
         };
 

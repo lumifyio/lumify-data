@@ -77,6 +77,8 @@ define([
                                     .appendTo(self.$node);
                                 instructions.text('Could not find a path.');
                             } else {
+                                cy.filter(':selected').unselect();
+                                cy.container().focus();
                                 self.trigger(document, 'addVertices', { vertices: vertices });
                             }
                         })
