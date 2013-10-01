@@ -16,9 +16,7 @@ define([
         this.events = [
             'addVertices',
             'updateVertices',
-            'deleteVertices',
-            'switchWorkspace',
-            'workspaceLoaded'
+            'deleteVertices'
         ];
 
         if (this.syncCursors) {
@@ -46,6 +44,16 @@ define([
         this.onWorkspaceLoaded = function(evt, workspace) {
             this.workspaceEditable = workspace.isEditable;
             this.currentWorkspaceRowKey = workspace.id;
+
+            var data = {
+                type: 'changedWorkspace',
+                permissions: {
+                },
+                data: {
+                    workspaceRowKey: this.currentWorkspaceRowKey
+                }
+            };
+            this.syncService.socketPush(data);
         };
 
         this.onWorkspaceSwitched = function (evt, data) {

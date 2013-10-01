@@ -123,23 +123,19 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     private void processRequestData(AtmosphereResource resource, String message) {
         JSONObject messageJson = new JSONObject(message);
 
-        JSONObject messageDataJson = messageJson.optJSONObject("data");
-        if (messageDataJson == null) {
+        String type = messageJson.optString("type");
+        if (type == null) {
             return;
         }
 
-        String eventName = messageDataJson.optString("eventName");
-        if (eventName == null) {
+        JSONObject dataJson = messageJson.optJSONObject("data");
+        if (dataJson == null) {
             return;
         }
 
-        if ("switchWorkspace".equals(eventName) || "workspaceLoaded".equals(eventName)) {
-            JSONObject eventData = messageDataJson.getJSONObject("eventData");
+        if ("changedWorkspace".equals(type)) {
             com.altamiracorp.lumify.core.user.User user = AuthenticationProvider.getUser(resource.session());
-            String workspaceRowKey = eventData.optString("_rowKey");
-            if (workspaceRowKey == null) {
-                workspaceRowKey = eventData.getString("id");
-            }
+            String workspaceRowKey = dataJson.optString("workspaceRowKey");
             switchWorkspace(user, workspaceRowKey);
         }
     }
