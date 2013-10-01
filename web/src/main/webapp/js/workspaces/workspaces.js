@@ -76,17 +76,19 @@ define([
 
             event.preventDefault();
 
+            this.trigger( document, 'switchWorkspace', { _rowKey: data._rowKey });
+
             var container = this.select('formSelector'),
                 form = container.resizable({
-                    handles: 'e',
-                    minWidth: 120,
-                    maxWidth: 250,
-                    resize: function() {
-                        self.trigger(document, 'paneResized');
-                    }
-                }).show().find('.content');
-            
-            var instance = form.lookupComponent(WorkspaceForm);
+                        handles: 'e',
+                        minWidth: 120,
+                        maxWidth: 250,
+                        resize: function() {
+                            self.trigger(document, 'paneResized');
+                        }
+                    }).show().find('.content'),
+                instance = form.lookupComponent(WorkspaceForm);
+
             if (instance && instance.attr.data._rowKey === data._rowKey) {
                 container.hide();
                 instance.teardown();
@@ -98,7 +100,7 @@ define([
                 data: data
             });
 
-            this.trigger(document, 'paneResized');
+            self.trigger(document, 'paneResized');
         };
 
         this.collapseEditForm = function() {
@@ -120,6 +122,7 @@ define([
         };
 
         this.onWorkspaceLoad = function ( event, data ) {
+            this.updateListItemWithData(data);
             this.switchActive( data.id );
         };
 
@@ -134,7 +137,8 @@ define([
             li.find('.badge').addClass('loading').show().next().hide();
         };
 
-        this.onWorkspaceSaved = function ( event, data ) {
+        this.updateListItemWithData = function(data) {
+            if (!this.usersByRowKey) return;
             var li = this.findWorkspaceRow(data._rowKey);
             li.find('.badge').removeClass('loading').hide().next().show();
             data = this.workspaceDataForItemRow(data);
@@ -144,6 +148,10 @@ define([
             } else {
                 li.replaceWith(content);
             }
+        };
+
+        this.onWorkspaceSaved = function ( event, data ) {
+            this.updateListItemWithData(data);
 
             this.trigger(document, 'workspaceRemoteSave', data);
         };
@@ -151,11 +159,10 @@ define([
         this.onWorkspaceRemoteSave = function ( event, data) {
             if (!data || !data.remoteEvent) return;
 
-            if (this.$node.closest('.visible').length) {
-                this.loadWorkspaceList();
-            }
             if (this.workspaceRowKey === data._rowKey) {
                 appData.loadWorkspace(data);
+            } else {
+                this.updateListItemWithData(data);
             }
         };
 
@@ -205,6 +212,7 @@ define([
                                 selected: self.workspaceRowKey
                             })
                         );
+                        self.trigger(document, 'paneResized');
                     });
         };
 
