@@ -790,8 +790,10 @@ define([
             this.resetGraph();
             this.isWorkspaceEditable = workspace.isEditable;
             if (workspace.data.vertices.length) {
-                this.addVertices(workspace.data.vertices, { fit:true });
+                this.addVertices(workspace.data.vertices, { fit:(this.previousWorkspace && this.previousWorkspace != workspace.id) });
             } else this.checkEmptyGraph();
+
+            this.previousWorkspace = workspace.id;
         };
 
         this.onRelationshipsLoaded = function(evt, relationshipData) {

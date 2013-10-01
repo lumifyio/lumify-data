@@ -1,5 +1,5 @@
 <li class="<%= selected === workspace._rowKey ? 'active' : '' %>" 
-    data-users="<%= JSON.stringify(workspace.permissions || []) %>"
+    data-users="<%= JSON.stringify(workspace.permissions || workspace.users || []) %>"
     data-created-by="<%= workspace.createdBy || '' %>"
     data-is-editable="<%= workspace.isEditable || false %>"
     data-title="<%= workspace.title %>"

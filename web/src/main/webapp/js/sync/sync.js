@@ -16,7 +16,8 @@ define([
         this.events = [
             'addVertices',
             'updateVertices',
-            'deleteVertices'
+            'deleteVertices',
+            'workspaceRemoteSave'
         ];
 
         if (this.syncCursors) {

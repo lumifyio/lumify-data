@@ -1,13 +1,21 @@
 
 define([
     'flight/lib/component',
+    'data',
     'service/workspace',
     'service/user',
     './form/form',
     'tpl!./workspaces',
     'tpl!./list',
     'tpl!./item'
-], function(defineComponent, WorkspaceService, UserService, WorkspaceForm, workspacesTemplate, listTemplate, itemTemplate) {
+], function(defineComponent,
+    appData,
+    WorkspaceService,
+    UserService,
+    WorkspaceForm,
+    workspacesTemplate,
+    listTemplate,
+    itemTemplate) {
     'use strict';
 
     return defineComponent(Workspaces);
@@ -136,6 +144,19 @@ define([
             } else {
                 li.replaceWith(content);
             }
+
+            this.trigger(document, 'workspaceRemoteSave', data);
+        };
+
+        this.onWorkspaceRemoteSave = function ( event, data) {
+            if (!data || !data.remoteEvent) return;
+
+            if (this.$node.closest('.visible').length) {
+                this.loadWorkspaceList();
+            }
+            if (this.workspaceRowKey === data._rowKey) {
+                appData.loadWorkspace(data);
+            }
         };
 
         this.switchActive = function( rowKey ) {
@@ -220,6 +241,8 @@ define([
             this.on( document, 'workspaceSaving', this.onWorkspaceSaving );
             this.on( document, 'workspaceSaved', this.onWorkspaceSaved );
             this.on( document, 'workspaceDeleted', this.onWorkspaceDeleted );
+            this.on( document, 'workspaceRemoteSave', this.onWorkspaceRemoteSave );
+
             this.on( document, 'menubarToggleDisplay', this.onToggleMenu );
             this.on( document, 'switchWorkspace', this.onSwitchWorkspace );
             this.on( 'click', {
