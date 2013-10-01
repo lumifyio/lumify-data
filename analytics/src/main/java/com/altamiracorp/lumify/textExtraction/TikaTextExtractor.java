@@ -1,17 +1,11 @@
 package com.altamiracorp.lumify.textExtraction;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.mapreduce.Mapper;
+import com.altamiracorp.lumify.textExtraction.util.GenericDateExtractor;
+import com.altamiracorp.lumify.textExtraction.util.TikaMetadataUtils;
+import com.google.inject.Inject;
+import de.l3s.boilerpipe.BoilerpipeProcessingException;
+import de.l3s.boilerpipe.extractors.ArticleExtractor;
+import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
@@ -24,28 +18,20 @@ import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
-import com.altamiracorp.lumify.textExtraction.util.GenericDateExtractor;
-import com.altamiracorp.lumify.textExtraction.util.TikaMetadataUtils;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 
-import de.l3s.boilerpipe.BoilerpipeProcessingException;
-import de.l3s.boilerpipe.extractors.ArticleExtractor;
-import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
-
-public class TikaTextExtractor implements TextExtractor {
+public class TikaTextExtractor {
     public static final int WRITE_LIMIT = 1000000;
-    private final ArtifactRepository artifactRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaTextExtractor.class);
     private static final String NAME = "tikaExtractor";
-
-    private static final String MIME_TYPE_KEY = "Content-Type";
 
     private static final String PROPS_FILE = "tika-extractor.properties";
     private static final String DATE_KEYS_PROPERTY = "tika.extraction.datekeys";
@@ -66,14 +52,8 @@ public class TikaTextExtractor implements TextExtractor {
     private List<String> retrievalTimestampKeys;
     private List<String> customFlickrMetadataKeys;
 
-    @Override
-    public void setup(Mapper.Context context, Injector injector) {
-    }
-
     @Inject
-    public TikaTextExtractor(ArtifactRepository artifactRepository) {
-        this.artifactRepository = artifactRepository;
-
+    public TikaTextExtractor() {
         // TODO: Create an actual properties class?
         Properties tikaProperties = new Properties();
         try {
@@ -99,91 +79,58 @@ public class TikaTextExtractor implements TextExtractor {
 
     }
 
-    @Override
-    public ArtifactExtractedInfo extract(Artifact artifact, User user) throws Exception {
-        if (artifact.getType() != ArtifactType.DOCUMENT && artifact.getType() != ArtifactType.IMAGE) {
-            return null;
-        }
-        if (artifact.getGenericMetadata().getMappingJson() != null) {
-            return null;
-        }
+    public ArtifactExtractedInfo extract(String sourceName, InputStream in, String mimeType) throws Exception {
+        ArtifactExtractedInfo result = new ArtifactExtractedInfo();
+        Parser parser = new AutoDetectParser(); // TODO: the content type should already be detected. To speed this up we should be able to grab the parser from content type.
+        String text = "";
+        ContentHandler handler = new BodyContentHandler(WRITE_LIMIT);
+        Metadata metadata = new Metadata();
+        ParseContext ctx = new ParseContext();
 
-        InputStream in;
-        InputStream raw = artifactRepository.getRaw(artifact, user);
-        if (raw == null) {
-            return null;
-        }
         try {
-            ArtifactExtractedInfo result = new ArtifactExtractedInfo();
-            Parser parser = new AutoDetectParser(); // TODO: the content type should already be detected. To speed this up we should be able to grab the parser from content type.
-            String text = "";
-            ContentHandler handler = new BodyContentHandler(WRITE_LIMIT);
-            if (isHtml(artifact)) {
-                text = IOUtils.toString(raw);
-                in = new ByteArrayInputStream(text.getBytes());
-            } else {
-                in = raw;
-            }
-            Metadata metadata = new Metadata();
-            ParseContext ctx = new ParseContext();
+            parser.parse(in, handler, metadata, ctx);
+        } catch (SAXException ex) {
+            // TODO: this exception occures after we reached the write limit specified above
+            LOGGER.warn("Failed to process all the data for: " + sourceName, ex);
+        }
 
-            try {
-                parser.parse(in, handler, metadata, ctx);
-            } catch (SAXException ex) {
-                // TODO: this exception occures after we reached the write limit specified above
-                LOGGER.warn("Failed to process all the data for artifact: " + artifact.getRowKey(), ex);
-            }
-
-            // since we are using the AutoDetectParser, it is safe to assume that
-            //the Content-Type metadata key will always return a value
-            if (isHtml(artifact)) {
-                text = extractTextFromHtml(text);
-                if (text == null || text.length() == 0) {
-                    text = handler.toString();
-                }
-            } else {
+        // since we are using the AutoDetectParser, it is safe to assume that
+        //the Content-Type metadata key will always return a value
+        if (isHtml(mimeType)) {
+            text = extractTextFromHtml(text);
+            if (text == null || text.length() == 0) {
                 text = handler.toString();
             }
-
-            result.setText(text);
-
-            result.setDate(extractDate(metadata));
-            result.setSubject(extractTextField(metadata, subjectKeys));
-            result.setUrl(extractUrl(metadata));
-            result.setType(extractTextField(metadata, typeKeys));
-            result.setExtUrl(extractTextField(metadata, extUrlKeys));
-            result.setSrcType(extractTextField(metadata, srcTypeKeys));
-            result.setRetrievalTime(extractRetrievalTime(metadata));
-
-            String customImageMetadata = extractTextField(metadata, customFlickrMetadataKeys);
-            if (customImageMetadata != null && !customImageMetadata.equals("")) {
-                try {
-                    JSONObject customImageMetadataJson = new JSONObject(customImageMetadata);
-                    result.setText(new JSONObject(customImageMetadataJson.get("description").toString()).get("_content") +
-                            "\n" + customImageMetadataJson.get("tags").toString());
-                    result.setDate(GenericDateExtractor
-                            .extractSingleDate(customImageMetadataJson.get("lastupdate").toString()));
-                    result.setRetrievalTime(Long.parseLong(customImageMetadataJson.get("atc:retrieval-timestamp").toString()));
-                    result.setSubject(customImageMetadataJson.get("title").toString());
-                } catch (JSONException e) {
-                    LOGGER.warn("Image returned invalid custom metadata");
-                }
-            }
-
-            return result;
-        } finally {
-            raw.close();
+        } else {
+            text = handler.toString();
         }
-    }
 
-    @Override
-    public VideoFrameExtractedInfo extract(VideoFrame videoFrame, User user) throws Exception {
-        return null;
-    }
+        result.setText(text);
 
-    @Override
-    public String getName() {
-        return NAME;
+        result.setDate(extractDate(metadata));
+        result.setSubject(extractTextField(metadata, subjectKeys));
+        result.setUrl(extractUrl(metadata));
+        result.setType(extractTextField(metadata, typeKeys));
+        result.setExtUrl(extractTextField(metadata, extUrlKeys));
+        result.setSrcType(extractTextField(metadata, srcTypeKeys));
+        result.setRetrievalTime(extractRetrievalTime(metadata));
+
+        String customImageMetadata = extractTextField(metadata, customFlickrMetadataKeys);
+        if (customImageMetadata != null && !customImageMetadata.equals("")) {
+            try {
+                JSONObject customImageMetadataJson = new JSONObject(customImageMetadata);
+                result.setText(new JSONObject(customImageMetadataJson.get("description").toString()).get("_content") +
+                        "\n" + customImageMetadataJson.get("tags").toString());
+                result.setDate(GenericDateExtractor
+                        .extractSingleDate(customImageMetadataJson.get("lastupdate").toString()));
+                result.setRetrievalTime(Long.parseLong(customImageMetadataJson.get("atc:retrieval-timestamp").toString()));
+                result.setSubject(customImageMetadataJson.get("title").toString());
+            } catch (JSONException e) {
+                LOGGER.warn("Image returned invalid custom metadata");
+            }
+        }
+
+        return result;
     }
 
     private String extractTextFromHtml(String text) throws BoilerpipeProcessingException {
@@ -260,8 +207,8 @@ public class TikaTextExtractor implements TextExtractor {
         return host;
     }
 
-    private boolean isHtml(Artifact artifact) {
-        return artifact.getGenericMetadata().getMimeType().contains("html");
+    private boolean isHtml(String mimeType) {
+        return mimeType.contains("html");
     }
 
 }

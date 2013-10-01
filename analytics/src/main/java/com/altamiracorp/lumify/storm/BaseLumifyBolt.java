@@ -5,20 +5,32 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
+import com.altamiracorp.lumify.core.user.SystemUser;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.model.ontology.PropertyName;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import kafka.javaapi.producer.Producer;
 import kafka.javaapi.producer.ProducerData;
 import kafka.producer.ProducerConfig;
+import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 
 public abstract class BaseLumifyBolt extends BaseRichBolt {
     private OutputCollector collector;
-    private Producer<String, String> kafkaProducer;
+    private Producer<String, JSONObject> kafkaProducer;
+    private ArtifactRepository artifactRepository;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -28,9 +40,9 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
 
         Properties props = new Properties();
         props.put("zk.connect", stormConf.get("zookeeperServerNames"));
-        props.put("serializer.class", "kafka.serializer.StringEncoder");
+        props.put("serializer.class", KafkaJsonEncoder.class.getName());
         ProducerConfig config = new ProducerConfig(props);
-        kafkaProducer = new Producer<String, String>(config);
+        kafkaProducer = new Producer<String, JSONObject>(config);
     }
 
     @Override
@@ -49,8 +61,8 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
 
     protected abstract void safeExecute(Tuple input) throws Exception;
 
-    protected void pushOnQueue(String queueName, String value) {
-        ProducerData<String, String> data = new ProducerData<String, String>(queueName, value);
+    protected void pushOnQueue(String queueName, JSONObject json) {
+        ProducerData<String, JSONObject> data = new ProducerData<String, JSONObject>(queueName, json);
         kafkaProducer.send(data);
     }
 
@@ -58,7 +70,29 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         return new FileInputStream(fileName); // TODO change to use hdfs or file system depending on format
     }
 
+    protected long getFileSize(String fileName) {
+        return new File(fileName).length(); // TODO change to use hdfs or file system depending on format
+    }
+
     public OutputCollector getCollector() {
         return collector;
+    }
+
+    protected GraphVertex addArtifact(long rawSize, InputStream rawInputStream, String text, String classUri, ArtifactType artifactType) throws IOException {
+        Artifact artifact = artifactRepository.createArtifactFromInputStream(rawSize, rawInputStream, getUser());
+        artifact.getContent().setDocExtractedText(text.getBytes());
+        GraphVertex artifactVertex = artifactRepository.saveToGraph(artifact, getUser());
+        artifactVertex.setProperty(PropertyName.TYPE, artifactType.toString());
+        artifactVertex.setProperty(PropertyName.SUBTYPE, classUri);
+        return artifactVertex;
+    }
+
+    private User getUser() {
+        return new SystemUser();
+    }
+
+    @Inject
+    public void setArtifactRepository(ArtifactRepository artifactRepository) {
+        this.artifactRepository = artifactRepository;
     }
 }

@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import storm.kafka.KafkaConfig;
 import storm.kafka.KafkaSpout;
 import storm.kafka.SpoutConfig;
-import storm.kafka.StringScheme;
 
 import java.io.File;
 import java.util.Map;
@@ -94,12 +93,7 @@ public class StormLocal extends CommandLineBase {
 
     private void createImageTopology(TopologyBuilder builder) {
         String queueName = "image";
-        SpoutConfig spoutConfig = new SpoutConfig(
-                new KafkaConfig.ZkHosts(getConfiguration().getZookeeperServerNames(), "/brokers"),
-                queueName,
-                "/consumers",
-                queueName);
-        spoutConfig.scheme = new StringScheme();
+        SpoutConfig spoutConfig = createSpoutConfig(queueName);
         builder.setSpout(queueName, new KafkaSpout(spoutConfig), 10);
         builder.setBolt("debug-" + queueName, new DebugBolt(queueName), 10)
                 .shuffleGrouping(queueName);
@@ -107,12 +101,7 @@ public class StormLocal extends CommandLineBase {
 
     private void createVideoTopology(TopologyBuilder builder) {
         String queueName = "video";
-        SpoutConfig spoutConfig = new SpoutConfig(
-                new KafkaConfig.ZkHosts(getConfiguration().getZookeeperServerNames(), "/brokers"),
-                queueName,
-                "/consumers",
-                queueName);
-        spoutConfig.scheme = new StringScheme();
+        SpoutConfig spoutConfig = createSpoutConfig(queueName);
         builder.setSpout(queueName, new KafkaSpout(spoutConfig), 10);
         builder.setBolt("debug-" + queueName, new DebugBolt(queueName), 10)
                 .shuffleGrouping(queueName);
@@ -120,14 +109,19 @@ public class StormLocal extends CommandLineBase {
 
     private void createDocumentTopology(TopologyBuilder builder) {
         String queueName = "document";
+        SpoutConfig spoutConfig = createSpoutConfig(queueName);
+        builder.setSpout(queueName + "-spout", new KafkaSpout(spoutConfig), 10);
+        builder.setBolt(queueName + "-bolt", new DocumentBolt(), 10)
+                .shuffleGrouping(queueName + "-spout");
+    }
+
+    private SpoutConfig createSpoutConfig(String queueName) {
         SpoutConfig spoutConfig = new SpoutConfig(
                 new KafkaConfig.ZkHosts(getConfiguration().getZookeeperServerNames(), "/brokers"),
                 queueName,
                 "/consumers",
                 queueName);
-        spoutConfig.scheme = new StringScheme();
-        builder.setSpout(queueName, new KafkaSpout(spoutConfig), 10);
-        builder.setBolt("debug-" + queueName, new DebugBolt(queueName), 10)
-                .shuffleGrouping(queueName);
+        spoutConfig.scheme = new KafkaJsonEncoder();
+        return spoutConfig;
     }
 }

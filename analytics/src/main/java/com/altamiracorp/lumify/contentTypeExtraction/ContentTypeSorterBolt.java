@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.altamiracorp.lumify.storm.FieldNames;
 import com.google.inject.Inject;
 import org.apache.commons.io.FilenameUtils;
+import org.json.JSONObject;
 
 import java.io.InputStream;
 
@@ -19,8 +20,12 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
         checkNotNull(fileName, "this bolt requires a field with name " + FieldNames.FILE_NAME);
         InputStream in = openFile(fileName);
         try {
-            String queueName = calculateQueueNameFromMimeType(this.contentTypeExtractor.extract(in, FilenameUtils.getExtension(fileName)));
-            pushOnQueue(queueName, fileName);
+            String mimeType = this.contentTypeExtractor.extract(in, FilenameUtils.getExtension(fileName));
+            String queueName = calculateQueueNameFromMimeType(mimeType);
+            JSONObject json = new JSONObject();
+            json.put("fileName", fileName);
+            json.put("mimeType", mimeType);
+            pushOnQueue(queueName, json);
 
             getCollector().ack(input);
         } finally {
