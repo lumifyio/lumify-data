@@ -82,6 +82,22 @@ define([
             this.on('workspaceDeleting', this.onWorkspaceDeleting);
 
             this.on(document, 'socketMessage', this.onSocketMessage);
+
+            var self = this;
+            this.setupAsyncQueue('socketSubscribe');
+            this.workspaceService.subscribe({
+                onMessage: function (err, message) {
+                    if (err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+                    self.trigger(document, 'socketMessage', message);
+                },
+                onOpen: function(response) {
+                    self.trigger(document, 'subscribeSocketOpened');
+                    self.socketSubscribeMarkReady(response);
+                }
+            });
         });
 
         this.onSocketMessage = function (evt, message) {
@@ -353,17 +369,20 @@ define([
             // Queue up any requests to modify workspace
             self.workspaceUnload();
 
-            self.getWorkspace(workspaceRowKey).done(function(workspace) {
-                self.loadWorkspaceVertices(workspace).done(function(vertices) {
-                    if (workspaceData && workspaceData.title) {
-                        workspace.title = workspaceData.title;
-                    }
-                    workspace.data.vertices = freeze(vertices.sort(function(a,b) { 
-                        if (a.workspace.graphPosition && b.workspace.graphPosition) return 0;
-                        return a.workspace.graphPosition ? -1 : b.workspace.graphPosition ? 1 : 0;
-                    }));
-                    self.workspaceMarkReady(workspace);
-                    self.trigger('workspaceLoaded', workspace);
+            self.socketSubscribeReady(function() {
+                self.getWorkspace(workspaceRowKey).done(function(workspace) {
+                    self.loadWorkspaceVertices(workspace).done(function(vertices) {
+                        if (workspaceData && workspaceData.title) {
+                            workspace.title = workspaceData.title;
+                        }
+                        workspace.data.vertices = freeze(vertices.sort(function(a,b) { 
+                            if (a.workspace.graphPosition && b.workspace.graphPosition) return 0;
+                            return a.workspace.graphPosition ? -1 : b.workspace.graphPosition ? 1 : 0;
+                        }));
+                        self.trigger('workspaceSwitched', {workspace:workspace});
+                        self.trigger('workspaceLoaded', workspace);
+                        self.workspaceMarkReady(workspace);                        
+                    });
                 });
             });
         };

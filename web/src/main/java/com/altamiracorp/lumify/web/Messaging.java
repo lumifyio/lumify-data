@@ -44,6 +44,15 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
         ensureInitialized(resource);
         broadcaster = resource.getBroadcaster();
 
+        String requestData = org.apache.commons.io.IOUtils.toString(resource.getRequest().getInputStream());
+        try {
+            if (requestData != null && requestData.length() > 0) {
+                processRequestData(resource, requestData);
+            }
+        } catch (Exception ex) {
+            LOGGER.error("Could not handle async message: " + requestData, ex);
+        }
+
         AtmosphereRequest req = resource.getRequest();
         if (req.getMethod().equalsIgnoreCase("GET")) {
             onOpen(resource);
@@ -104,33 +113,29 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
 
     public void onMessage(AtmosphereResourceEvent event, AtmosphereResponse response, String message) throws IOException {
         try {
-            processMessage(event, message);
+            processRequestData(event.getResource(), message);
         } catch (Exception ex) {
             LOGGER.error("Could not handle async message: " + message, ex);
         }
         response.write(message);
     }
 
-    private void processMessage(AtmosphereResourceEvent event, String message) {
+    private void processRequestData(AtmosphereResource resource, String message) {
         JSONObject messageJson = new JSONObject(message);
 
-        JSONObject messageDataJson = messageJson.optJSONObject("data");
-        if (messageDataJson == null) {
+        String type = messageJson.optString("type");
+        if (type == null) {
             return;
         }
 
-        String eventName = messageDataJson.optString("eventName");
-        if (eventName == null) {
+        JSONObject dataJson = messageJson.optJSONObject("data");
+        if (dataJson == null) {
             return;
         }
 
-        if ("switchWorkspace".equals(eventName) || "workspaceLoaded".equals(eventName)) {
-            JSONObject eventData = messageDataJson.getJSONObject("eventData");
-            com.altamiracorp.lumify.core.user.User user = AuthenticationProvider.getUser(event.getResource().session());
-            String workspaceRowKey = eventData.optString("_rowKey");
-            if (workspaceRowKey == null) {
-                workspaceRowKey = eventData.getString("id");
-            }
+        if ("changedWorkspace".equals(type)) {
+            com.altamiracorp.lumify.core.user.User user = AuthenticationProvider.getUser(resource.session());
+            String workspaceRowKey = dataJson.optString("workspaceRowKey");
             switchWorkspace(user, workspaceRowKey);
         }
     }
