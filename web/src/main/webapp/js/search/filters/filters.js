@@ -6,7 +6,12 @@ define([
     'tpl!./filters',
     'tpl!./item',
     'service/ontology'
-], function(defineComponent, registry, template, itemTemplate, OntologyService) {
+], function(
+    defineComponent,
+    registry,
+    template,
+    itemTemplate,
+    OntologyService) {
     'use strict';
 
     var FILTER_SEARCH_DELAY_SECONDS = 0.25;
@@ -28,8 +33,8 @@ define([
 
             this.$node.html(template({}));
 
-            this.on('change', { propertySelector: this.onPropertyFilterChanged });
-            this.on('filterchange', this.onFilterItemChanged);
+            this.on('change', { propertySelector: this.onPropertyChanged });
+            this.on('propertychange', this.onPropertyFieldItemChanged);
 
             this.loadPropertyFilters();
         });
@@ -46,13 +51,13 @@ define([
             });
         };
 
-        this.onFilterItemChanged = function(event, data) {
+        this.onPropertyFieldItemChanged = function(event, data) {
             this.currentFilters[data.id] = data;
             this.notifyOfFilters();
             event.stopPropagation();
         };
 
-        this.onPropertyFilterChanged = function(event, data) {
+        this.onPropertyChanged = function(event, data) {
             var self = this,
                 target = $(event.target),
                 property = target.find(':selected').data('info'),
@@ -60,21 +65,22 @@ define([
                 addRemoveOption = target.find('option').eq(0);
 
             if (!property || !property.dataType) {
-                this.teardownFilter(target.next('.configuration'));
+                this.teardownField(target.next('.configuration'));
                 li.remove();
                 return;
             }
 
             addRemoveOption.text('Remove filter');
 
-            require(['search/filters/types/' + property.dataType], function(FilterItem) {
+            require(['fields/' + property.dataType], function(PropertyFieldItem) {
                 var node = target.next('.configuration');
 
-                self.teardownFilter(node);
+                self.teardownField(node);
 
-                FilterItem.attachTo(node, {
+                PropertyFieldItem.attachTo(node, {
                     property: property,
-                    id: self.filterId++
+                    id: self.filterId++,
+                    predicates: true
                 });
 
                 li.removeClass('newrow');
@@ -85,10 +91,9 @@ define([
             });
         };
 
-        this.teardownFilter = function(node) {
-            var self = this,
+        this.teardownField = function(node) {
+            var self = this, 
                 instanceInfo = registry.findInstanceInfoByNode(node[0]);
-
             if (instanceInfo && instanceInfo.length) {
                 instanceInfo.forEach(function(info) {
                     delete self.currentFilters[info.instance.attr.id];

@@ -27,10 +27,13 @@ require([
     'flightJquery',
     'scrollStop',
     'Jcrop',
+    'bootstrap-datepicker',
     'removePrefixedClasses'
 ],
 function(compose, registry, advice, withLogging, debug, _, Visibility) {
     'use strict';
+
+    $.fn.datepicker.defaults.format = "yyyy-mm-dd";
 
     debug.enable(true);
     //DEBUG.events.logAll();

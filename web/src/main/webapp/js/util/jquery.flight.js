@@ -10,6 +10,15 @@ define(['flight/lib/registry'],function(registry) {
         if (instance) {
             instance.teardown();
         }
+        return this;
+    };
+
+    $.fn.teardownAllComponents = function() {
+        var results = registry.findInstanceInfoByNode(this[0]);
+        for (var i = 0; i < results.length; ++i) {
+            results[i].instance.teardown();
+        }
+        return this;
     };
 
     function _lookupComponent (elem, instanceConstructor) {
