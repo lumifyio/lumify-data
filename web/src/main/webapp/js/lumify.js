@@ -33,7 +33,8 @@ function(compose, registry, advice, withLogging, debug, _, Visibility) {
     'use strict';
 
     debug.enable(true);
-    DEBUG.events.logAll();
+    //DEBUG.events.logAll();
+    DEBUG.events.logByAction('trigger');
 
     Visibility.attachTo(document);
 
