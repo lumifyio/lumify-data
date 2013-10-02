@@ -27,6 +27,10 @@ function elasticsearch {
     sudo /usr/lib/elasticsearch/bin/service/elasticsearch stop
 }
 
+function kafka {
+    sudo -u kafka JMX_PORT=10000 /opt/kafka/bin/kafka-server-stop.sh /opt/kafka/config/server.properties
+}
+
 case "$1" in
   hadoop)
     hadoop
@@ -46,7 +50,11 @@ case "$1" in
   elasticsearch)
     elasticsearch
     ;;
+  kafka)
+    kafka
+    ;;
   *)
+    kafka
     elasticsearch
     blur
     oozie
