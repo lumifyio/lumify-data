@@ -91,13 +91,10 @@ public class DocumentBolt extends BaseLumifyBolt {
         moveFile(fileName, rawArtifactHdfsPath);
         artifactExtractedInfo.setRawHdfsPath(rawArtifactHdfsPath);
 
-        // TODO refactor to use the hash calculated from the workers
-        GraphVertex graphVertex;
-        try {
-            graphVertex = addArtifact(artifactExtractedInfo);
-        } finally {
-            in.close();
-        }
+        GraphVertex graphVertex = addArtifact(artifactExtractedInfo);
+        JSONObject textQueueDataJson = new JSONObject();
+        textQueueDataJson.put("graphVertexId", graphVertex.getId());
+        pushOnQueue("text", textQueueDataJson);
 
         getCollector().ack(input);
     }

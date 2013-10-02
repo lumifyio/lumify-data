@@ -39,9 +39,9 @@ import java.util.Properties;
 public abstract class BaseLumifyBolt extends BaseRichBolt {
     private OutputCollector collector;
     private Producer<String, JSONObject> kafkaProducer;
-    private ArtifactRepository artifactRepository;
+    protected ArtifactRepository artifactRepository;
     private FileSystem hdfsFileSystem;
-    private GraphRepository graphRepository;
+    protected GraphRepository graphRepository;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -160,6 +160,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         artifactVertex.setProperty(PropertyName.ROW_KEY.toString(), artifact.getRowKey().toString());
         artifactVertex.setProperty(PropertyName.TYPE, VertexType.ARTIFACT.toString());
         artifactVertex.setProperty(PropertyName.SUBTYPE, artifactExtractedInfo.getOntologyClassUri());
+        artifactVertex.setProperty(PropertyName.TITLE, artifactExtractedInfo.getTitle());
         if (artifactExtractedInfo.getRawHdfsPath() != null) {
             artifactVertex.setProperty(PropertyName.RAW_HDFS_PATH, artifactExtractedInfo.getRawHdfsPath());
         }
@@ -177,7 +178,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         return artifactVertex;
     }
 
-    private User getUser() {
+    protected User getUser() {
         return new SystemUser();
     }
 

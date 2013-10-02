@@ -80,6 +80,7 @@ public class StormLocal extends CommandLineBase {
         createVideoTopology(builder);
         createImageTopology(builder);
         createDocumentTopology(builder);
+        createTextTopology(builder);
 
         return builder.createTopology();
     }
@@ -112,6 +113,14 @@ public class StormLocal extends CommandLineBase {
         SpoutConfig spoutConfig = createSpoutConfig(queueName);
         builder.setSpout(queueName + "-spout", new KafkaSpout(spoutConfig), 1);
         builder.setBolt(queueName + "-bolt", new DocumentBolt(), 1)
+                .shuffleGrouping(queueName + "-spout");
+    }
+
+    private void createTextTopology(TopologyBuilder builder) {
+        String queueName = "text";
+        SpoutConfig spoutConfig = createSpoutConfig(queueName);
+        builder.setSpout(queueName + "-spout", new KafkaSpout(spoutConfig), 1);
+        builder.setBolt(queueName + "-bolt", new TextBolt(), 1)
                 .shuffleGrouping(queueName + "-spout");
     }
 

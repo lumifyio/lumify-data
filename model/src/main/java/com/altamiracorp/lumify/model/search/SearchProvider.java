@@ -1,12 +1,13 @@
 package com.altamiracorp.lumify.model.search;
 
-import java.util.Collection;
-import java.util.Properties;
-
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import org.apache.hadoop.mapreduce.Mapper;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.Properties;
 
 public abstract class SearchProvider {
     public static final String SEARCH_PROVIDER_PROP_KEY = "search.provider";
@@ -16,6 +17,8 @@ public abstract class SearchProvider {
     public abstract void setup(Mapper.Context context, User user) throws Exception;
 
     public abstract void add(Artifact artifact, User user) throws Exception;
+
+    public abstract void add(GraphVertex graphVertex, InputStream textIn) throws Exception;
 
     public abstract Collection<ArtifactSearchResult> searchArtifacts(String query, User user) throws Exception;
 

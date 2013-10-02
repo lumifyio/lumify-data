@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.search;
 
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.search.ArtifactSearchResult;
 import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
@@ -12,6 +13,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -168,6 +170,11 @@ public class BlurSearchProvider extends SearchProvider {
 //        mutation.setRecordMutations(recordMutations);
 //
 //        client.mutate(mutation);
+    }
+
+    @Override
+    public void add(GraphVertex graphVertex, InputStream textIn) {
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
     }
 
     @Override

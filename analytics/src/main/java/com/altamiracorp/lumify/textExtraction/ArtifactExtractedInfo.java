@@ -43,6 +43,10 @@ public class ArtifactExtractedInfo {
         properties.put(TITLE, title);
     }
 
+    public String getTitle() {
+        return (String) properties.get(TITLE);
+    }
+
     public void setDate(Date date) {
         properties.put(DATE, date);
     }

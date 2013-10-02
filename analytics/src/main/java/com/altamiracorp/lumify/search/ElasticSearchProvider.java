@@ -1,10 +1,13 @@
 package com.altamiracorp.lumify.search;
 
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.search.ArtifactSearchResult;
 import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -26,6 +29,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -133,6 +137,60 @@ public class ElasticSearchProvider extends SearchProvider {
 //        if (response.getId() == null) {
 //            LOGGER.error("Failed to index artifact " + id + " with elastic search");
 //        }
+    }
+
+    @Override
+    public void add(GraphVertex graphVertex, InputStream textIn) throws Exception {
+        LOGGER.info("Adding artifact \"" + graphVertex.getProperty(PropertyName.ROW_KEY) + "\" to elastic search index.");
+
+        // TODO storm refactor
+//        List<String> detectedObjects = new ArrayList<String>();
+//        if (artifact.getArtifactDetectedObjects() != null) {
+//            detectedObjects = artifact.getArtifactDetectedObjects().getResolvedDetectedObjects();
+//        }
+
+        String id = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
+        String graphVertexId = graphVertex.getId();
+//        String source = artifact.getGenericMetadata().getSource(); TODO storm refactor
+//        String geoLocationDescription = artifact.getDynamicMetadata().getGeoLocationTitle(); TODO storm refactor
+        String text = IOUtils.toString(textIn); // TODO if the text is really large this is going to eat all the memory
+        text = text == null ? "" : text;
+        String subject = (String) graphVertex.getProperty(PropertyName.TITLE);
+        subject = subject == null ? "" : subject;
+
+        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()
+                .startObject()
+                .field(FIELD_TEXT, text)
+                .field(FIELD_SUBJECT, subject);
+
+        // TODO storm refactor
+//                .field(FIELD_PUBLISHED_DATE, artifact.getPublishedDate())
+//                .field(FIELD_ARTIFACT_TYPE, artifact.getType().toString());
+
+        if (graphVertexId != null) {
+            jsonBuilder = jsonBuilder.field(FIELD_GRAPH_VERTEX_ID, graphVertexId);
+        }
+
+        // TODO storm refactor
+//        if (source != null) {
+//            jsonBuilder = jsonBuilder.field(FIELD_SOURCE, source);
+//        }
+//
+//        if (geoLocationDescription != null) {
+//            jsonBuilder = jsonBuilder.field(FIELD_GEO_LOCATION_DESCRIPTION, geoLocationDescription);
+//        }
+//
+//        if (!detectedObjects.isEmpty()) {
+//            jsonBuilder = jsonBuilder.array(FIELD_DETECTED_OBJECTS, detectedObjects.toArray());
+//        }
+
+        IndexResponse response = client.prepareIndex(ES_INDEX, ES_INDEX_TYPE, id)
+                .setSource(jsonBuilder.endObject())
+                .execute().actionGet();
+
+        if (response.getId() == null) {
+            LOGGER.error("Failed to index artifact " + id + " with elastic search");
+        }
     }
 
     @Override
