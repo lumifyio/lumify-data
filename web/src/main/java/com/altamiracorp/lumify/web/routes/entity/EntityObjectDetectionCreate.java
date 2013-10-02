@@ -43,52 +43,53 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        EntityHelper objectDetectionHelper = new EntityHelper(termMentionRepository, graphRepository);
-
-        // required parameters
-        final String artifactRowKey = getRequiredParameter(request, "artifactKey");
-        final String artifactId = getRequiredParameter(request, "artifactId");
-        final String sign = getRequiredParameter(request, "sign");
-        final String conceptId = getRequiredParameter(request, "conceptId");
-        final String resolvedGraphVertexId = getOptionalParameter(request, "graphVertexId");
-        final JSONObject coords = new JSONObject(getRequiredParameter(request, "coords"));
-        String x1 = Double.toString(coords.getDouble("x1")), x2 = Double.toString(coords.getDouble("x2")),
-                y1 = Double.toString(coords.getDouble("y1")), y2 = Double.toString(coords.getDouble("y2"));
-        String model = getOptionalParameter(request, "model");
-        String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
-        final String boundingBox = "[x1: " + x1 + ", y1: " + y1 +", x2: " + x2 + ", y2: " + y2 + "]";
-
-        User user = getUser(request);
-        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, coords.getLong("x1"), coords.getLong("y1"));
-
-        GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
-
-        // create new graph vertex
-        GraphVertex resolvedVertex = createGraphVertex(conceptVertex, resolvedGraphVertexId,
-                sign, termMentionRowKey.toString(), boundingBox, artifactId, user);
-
-        // create new term mention
-        TermMention termMention = new TermMention(termMentionRowKey);
-        objectDetectionHelper.updateTermMention(termMention, sign, conceptVertex, resolvedVertex, user);
-        DetectedObject detectedObject = objectDetectionHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);
-
-        // create a new detected object column
-        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user);
-
-        if (detectedObjectRowKey == null && model == null) {
-            model = "manual";
-            detectedObject.setModel(model);
-            detectedObjectRowKey = artifact.getArtifactDetectedObjects().addDetectedObject
-                    (detectedObject.getConcept(), model, x1, y1, x2, y2);
-        } else {
-            detectedObject.setModel(model);
-        }
-
-        detectedObject.setRowKey(detectedObjectRowKey);
-        JSONObject obj = detectedObject.getJson();
-        objectDetectionHelper.executeService(new ObjectDetectionWorker(artifactRepository, searchProvider, artifactRowKey, detectedObjectRowKey, obj, user));
-
-        respondWithJson(response, obj);
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        EntityHelper objectDetectionHelper = new EntityHelper(termMentionRepository, graphRepository);
+//
+//        // required parameters
+//        final String artifactRowKey = getRequiredParameter(request, "artifactKey");
+//        final String artifactId = getRequiredParameter(request, "artifactId");
+//        final String sign = getRequiredParameter(request, "sign");
+//        final String conceptId = getRequiredParameter(request, "conceptId");
+//        final String resolvedGraphVertexId = getOptionalParameter(request, "graphVertexId");
+//        final JSONObject coords = new JSONObject(getRequiredParameter(request, "coords"));
+//        String x1 = Double.toString(coords.getDouble("x1")), x2 = Double.toString(coords.getDouble("x2")),
+//                y1 = Double.toString(coords.getDouble("y1")), y2 = Double.toString(coords.getDouble("y2"));
+//        String model = getOptionalParameter(request, "model");
+//        String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
+//        final String boundingBox = "[x1: " + x1 + ", y1: " + y1 +", x2: " + x2 + ", y2: " + y2 + "]";
+//
+//        User user = getUser(request);
+//        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, coords.getLong("x1"), coords.getLong("y1"));
+//
+//        GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
+//
+//        // create new graph vertex
+//        GraphVertex resolvedVertex = createGraphVertex(conceptVertex, resolvedGraphVertexId,
+//                sign, termMentionRowKey.toString(), boundingBox, artifactId, user);
+//
+//        // create new term mention
+//        TermMention termMention = new TermMention(termMentionRowKey);
+//        objectDetectionHelper.updateTermMention(termMention, sign, conceptVertex, resolvedVertex, user);
+//        DetectedObject detectedObject = objectDetectionHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);
+//
+//        // create a new detected object column
+//        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user);
+//
+//        if (detectedObjectRowKey == null && model == null) {
+//            model = "manual";
+//            detectedObject.setModel(model);
+//            detectedObjectRowKey = artifact.getArtifactDetectedObjects().addDetectedObject
+//                    (detectedObject.getConcept(), model, x1, y1, x2, y2);
+//        } else {
+//            detectedObject.setModel(model);
+//        }
+//
+//        detectedObject.setRowKey(detectedObjectRowKey);
+//        JSONObject obj = detectedObject.getJson();
+//        objectDetectionHelper.executeService(new ObjectDetectionWorker(artifactRepository, searchProvider, artifactRowKey, detectedObjectRowKey, obj, user));
+//
+//        respondWithJson(response, obj);
     }
 
     private GraphVertex createGraphVertex(GraphVertex conceptVertex, String resolvedGraphVertexId,

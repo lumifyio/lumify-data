@@ -15,25 +15,26 @@ public class SimpleArtifactLocationExtractor implements ArtifactLocationExtracto
 
     @Override
     public void extract(Artifact artifact, List<TermMention> termMentions) throws Exception {
-        TermMention largest = null;
-
-        for (TermMention termMention : termMentions) {
-            if (termMention.getMetadata().getGeoLocation() != null) {
-                if (largest == null) {
-                    largest = termMention;
-                    continue;
-                }
-                if (termMention.getMetadata().getGeoLocationPopulation() > largest.getMetadata().getGeoLocationPopulation()) {
-                    largest = termMention;
-                    continue;
-                }
-            }
-        }
-
-        if (largest != null) {
-            artifact.getDynamicMetadata().setGeolocation(largest.getMetadata().getGeoLocation());
-            artifact.getDynamicMetadata().setGeoLocationPopulation(largest.getMetadata().getGeoLocationPopulation());
-            artifact.getDynamicMetadata().setGeoLocationTitle(largest.getMetadata().getGeoLocationTitle());
-        }
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        TermMention largest = null;
+//
+//        for (TermMention termMention : termMentions) {
+//            if (termMention.getMetadata().getGeoLocation() != null) {
+//                if (largest == null) {
+//                    largest = termMention;
+//                    continue;
+//                }
+//                if (termMention.getMetadata().getGeoLocationPopulation() > largest.getMetadata().getGeoLocationPopulation()) {
+//                    largest = termMention;
+//                    continue;
+//                }
+//            }
+//        }
+//
+//        if (largest != null) {
+//            artifact.getDynamicMetadata().setGeolocation(largest.getMetadata().getGeoLocation());
+//            artifact.getDynamicMetadata().setGeoLocationPopulation(largest.getMetadata().getGeoLocationPopulation());
+//            artifact.getDynamicMetadata().setGeoLocationTitle(largest.getMetadata().getGeoLocationTitle());
+//        }
     }
 }

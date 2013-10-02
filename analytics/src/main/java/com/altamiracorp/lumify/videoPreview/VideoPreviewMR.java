@@ -47,12 +47,13 @@ public class VideoPreviewMR extends ConfigurableMapJobBase {
 
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
-            if (artifact.getType() != ArtifactType.VIDEO) {
-                return;
-            }
-            LOGGER.info("Creating video preview for artifact: " + artifact.getRowKey().toString());
-            viewPreviewGenerator.createPreview(artifact, getUser());
-            context.write(new Text(Artifact.TABLE_NAME), artifact);
+            throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//            if (artifact.getType() != ArtifactType.VIDEO) {
+//                return;
+//            }
+//            LOGGER.info("Creating video preview for artifact: " + artifact.getRowKey().toString());
+//            viewPreviewGenerator.createPreview(artifact, getUser());
+//            context.write(new Text(Artifact.TABLE_NAME), artifact);
         }
 
         @Inject

@@ -82,56 +82,57 @@ public class ElasticSearchProvider extends SearchProvider {
 
     @Override
     public void add(Artifact artifact, User user) throws Exception {
-        if (artifact.getContent() == null) {
-            return;
-        }
-
-        LOGGER.info("Adding artifact \"" + artifact.getRowKey().toString() + "\" to elastic search index.");
-
-        List<String> detectedObjects = new ArrayList<String>();
-        if (artifact.getArtifactDetectedObjects() != null) {
-            detectedObjects = artifact.getArtifactDetectedObjects().getResolvedDetectedObjects();
-        }
-
-        String id = artifact.getRowKey().toString();
-        String graphVertexId = artifact.getGenericMetadata().getGraphVertexId();
-        String source = artifact.getGenericMetadata().getSource();
-        String geoLocationDescription = artifact.getDynamicMetadata().getGeoLocationTitle();
-        String text = artifact.getContent().getDocExtractedTextString();
-        text = text == null ? "" : text;
-        String subject = artifact.getGenericMetadata().getSubject();
-        subject = subject == null ? "" : subject;
-
-        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()
-                .startObject()
-                .field(FIELD_TEXT, text)
-                .field(FIELD_SUBJECT, subject)
-                .field(FIELD_PUBLISHED_DATE, artifact.getPublishedDate())
-                .field(FIELD_ARTIFACT_TYPE, artifact.getType().toString());
-
-        if (graphVertexId != null) {
-            jsonBuilder = jsonBuilder.field(FIELD_GRAPH_VERTEX_ID, graphVertexId);
-        }
-
-        if (source != null) {
-            jsonBuilder = jsonBuilder.field(FIELD_SOURCE, source);
-        }
-
-        if (geoLocationDescription != null) {
-            jsonBuilder = jsonBuilder.field(FIELD_GEO_LOCATION_DESCRIPTION, geoLocationDescription);
-        }
-
-        if (!detectedObjects.isEmpty()) {
-            jsonBuilder = jsonBuilder.array(FIELD_DETECTED_OBJECTS, detectedObjects.toArray());
-        }
-
-        IndexResponse response = client.prepareIndex(ES_INDEX, ES_INDEX_TYPE, id)
-                .setSource(jsonBuilder.endObject())
-                .execute().actionGet();
-
-        if (response.getId() == null) {
-            LOGGER.error("Failed to index artifact " + id + " with elastic search");
-        }
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        if (artifact.getContent() == null) {
+//            return;
+//        }
+//
+//        LOGGER.info("Adding artifact \"" + artifact.getRowKey().toString() + "\" to elastic search index.");
+//
+//        List<String> detectedObjects = new ArrayList<String>();
+//        if (artifact.getArtifactDetectedObjects() != null) {
+//            detectedObjects = artifact.getArtifactDetectedObjects().getResolvedDetectedObjects();
+//        }
+//
+//        String id = artifact.getRowKey().toString();
+//        String graphVertexId = artifact.getGenericMetadata().getGraphVertexId();
+//        String source = artifact.getGenericMetadata().getSource();
+//        String geoLocationDescription = artifact.getDynamicMetadata().getGeoLocationTitle();
+//        String text = artifact.getContent().getDocExtractedTextString();
+//        text = text == null ? "" : text;
+//        String subject = artifact.getGenericMetadata().getSubject();
+//        subject = subject == null ? "" : subject;
+//
+//        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()
+//                .startObject()
+//                .field(FIELD_TEXT, text)
+//                .field(FIELD_SUBJECT, subject)
+//                .field(FIELD_PUBLISHED_DATE, artifact.getPublishedDate())
+//                .field(FIELD_ARTIFACT_TYPE, artifact.getType().toString());
+//
+//        if (graphVertexId != null) {
+//            jsonBuilder = jsonBuilder.field(FIELD_GRAPH_VERTEX_ID, graphVertexId);
+//        }
+//
+//        if (source != null) {
+//            jsonBuilder = jsonBuilder.field(FIELD_SOURCE, source);
+//        }
+//
+//        if (geoLocationDescription != null) {
+//            jsonBuilder = jsonBuilder.field(FIELD_GEO_LOCATION_DESCRIPTION, geoLocationDescription);
+//        }
+//
+//        if (!detectedObjects.isEmpty()) {
+//            jsonBuilder = jsonBuilder.array(FIELD_DETECTED_OBJECTS, detectedObjects.toArray());
+//        }
+//
+//        IndexResponse response = client.prepareIndex(ES_INDEX, ES_INDEX_TYPE, id)
+//                .setSource(jsonBuilder.endObject())
+//                .execute().actionGet();
+//
+//        if (response.getId() == null) {
+//            LOGGER.error("Failed to index artifact " + id + " with elastic search");
+//        }
     }
 
     @Override

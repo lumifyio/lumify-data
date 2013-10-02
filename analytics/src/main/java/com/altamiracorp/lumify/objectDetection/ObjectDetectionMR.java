@@ -135,19 +135,20 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactObjectDetectionMapper.class);
 
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
-            if (artifact.getType() != ArtifactType.IMAGE) {
-                return;
-            }
-
-            LOGGER.info("Detecting objects of concept " + classifierConcept + " for artifact " + rowKey.toString());
-            List<DetectedObject> detectedObjects = objectDetector.detectObjects(artifact, getUser());
-            if (!detectedObjects.isEmpty()) {
-                for (DetectedObject detectedObject : detectedObjects) {
-                    artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, objectDetector.getModelName(),
-                            detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());
-                }
-                context.write(new Text(Artifact.TABLE_NAME), artifact);
-            }
+            throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//            if (artifact.getType() != ArtifactType.IMAGE) {
+//                return;
+//            }
+//
+//            LOGGER.info("Detecting objects of concept " + classifierConcept + " for artifact " + rowKey.toString());
+//            List<DetectedObject> detectedObjects = objectDetector.detectObjects(artifact, getUser());
+//            if (!detectedObjects.isEmpty()) {
+//                for (DetectedObject detectedObject : detectedObjects) {
+//                    artifact.getArtifactDetectedObjects().addDetectedObject(classifierConcept, objectDetector.getModelName(),
+//                            detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());
+//                }
+//                context.write(new Text(Artifact.TABLE_NAME), artifact);
+//            }
         }
     }
 

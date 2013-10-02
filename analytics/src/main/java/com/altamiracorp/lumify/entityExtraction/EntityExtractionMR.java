@@ -91,50 +91,51 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
 
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
-            if (artifact.getGenericMetadata().getMappingJson() != null) {
-                LOGGER.info("Skipping extracting entities from artifact: " + artifact.getRowKey().toString() + " (cause: structured data)");
-                return;
-            }
-
-            LOGGER.info("Extracting entities from artifact: " + artifact.getRowKey().toString());
-
-            String artifactText = artifact.getContent().getDocExtractedTextString();
-            if (artifactText == null) {
-                return;
-            }
-
-            final List<ExtractedEntity> extractedEntities = extractEntities(artifact, artifactText, context);
-
-            LOGGER.info("Processing extracted entities");
-            for (ExtractedEntity extractedEntity : extractedEntities) {
-                TermMention termMention = extractedEntity.getTermMention();
-
-                Concept concept = getConcept(termMention);
-                termMention.getMetadata().setConceptGraphVertexId(concept.getId());
-
-                TermMention existingTermMention = termMentionRepository.findByRowKey(termMention.getRowKey().toString(), getUser());
-                if (existingTermMention != null) {
-                    existingTermMention.update(termMention);
-                } else {
-                    existingTermMention = termMention;
-                }
-
-                if (extractedEntity.getGraphVertex() != null) {
-                    if (existingTermMention.getMetadata().getGraphVertexId() != null) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Skipping resolve entity, term already resolved: " + existingTermMention.getRowKey().toString() + " to " + existingTermMention.getMetadata().getGraphVertexId());
-                        }
-                    } else {
-                        String graphVertexId = createEntityGraphVertex(artifact, extractedEntity, concept);
-                        if (graphVertexId != null) {
-                            existingTermMention.getMetadata().setGraphVertexId(graphVertexId);
-                        }
-                    }
-                }
-
-                termMentionRepository.save(existingTermMention, getUser());
-            }
-            LOGGER.info("Processing complete");
+            throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//            if (artifact.getGenericMetadata().getMappingJson() != null) {
+//                LOGGER.info("Skipping extracting entities from artifact: " + artifact.getRowKey().toString() + " (cause: structured data)");
+//                return;
+//            }
+//
+//            LOGGER.info("Extracting entities from artifact: " + artifact.getRowKey().toString());
+//
+//            String artifactText = artifact.getContent().getDocExtractedTextString();
+//            if (artifactText == null) {
+//                return;
+//            }
+//
+//            final List<ExtractedEntity> extractedEntities = extractEntities(artifact, artifactText, context);
+//
+//            LOGGER.info("Processing extracted entities");
+//            for (ExtractedEntity extractedEntity : extractedEntities) {
+//                TermMention termMention = extractedEntity.getTermMention();
+//
+//                Concept concept = getConcept(termMention);
+//                termMention.getMetadata().setConceptGraphVertexId(concept.getId());
+//
+//                TermMention existingTermMention = termMentionRepository.findByRowKey(termMention.getRowKey().toString(), getUser());
+//                if (existingTermMention != null) {
+//                    existingTermMention.update(termMention);
+//                } else {
+//                    existingTermMention = termMention;
+//                }
+//
+//                if (extractedEntity.getGraphVertex() != null) {
+//                    if (existingTermMention.getMetadata().getGraphVertexId() != null) {
+//                        if (LOGGER.isDebugEnabled()) {
+//                            LOGGER.debug("Skipping resolve entity, term already resolved: " + existingTermMention.getRowKey().toString() + " to " + existingTermMention.getMetadata().getGraphVertexId());
+//                        }
+//                    } else {
+//                        String graphVertexId = createEntityGraphVertex(artifact, extractedEntity, concept);
+//                        if (graphVertexId != null) {
+//                            existingTermMention.getMetadata().setGraphVertexId(graphVertexId);
+//                        }
+//                    }
+//                }
+//
+//                termMentionRepository.save(existingTermMention, getUser());
+//            }
+//            LOGGER.info("Processing complete");
         }
 
         private List<ExtractedEntity> extractEntities(final Artifact artifact, final String artifactText, final Context context) throws Exception {
@@ -160,25 +161,26 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
         }
 
         private String createEntityGraphVertex(Artifact artifact, ExtractedEntity extractedEntity, Concept concept) {
-            GraphVertex graphVertex = extractedEntity.getGraphVertex();
-
-            graphVertex.setProperty(PropertyName.SUBTYPE.toString(), concept.getId());
-            graphVertex.setType(VertexType.ENTITY);
-
-            GraphVertex existingGraphVertex = graphRepository.findVertexByTitleAndType((String) graphVertex.getProperty(PropertyName.TITLE), VertexType.ENTITY, getUser());
-            if (existingGraphVertex != null) {
-                existingGraphVertex.update(graphVertex);
-                graphVertex.update(existingGraphVertex);
-                graphVertex = existingGraphVertex;
-            }
-
-            graphRepository.saveVertex(graphVertex, getUser());
-            graphRepository.commit();
-
-            graphRepository.saveRelationship(artifact.getGenericMetadata().getGraphVertexId(), graphVertex.getId(), LabelName.HAS_ENTITY, getUser());
-            graphRepository.commit();
-
-            return graphVertex.getId();
+            throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//            GraphVertex graphVertex = extractedEntity.getGraphVertex();
+//
+//            graphVertex.setProperty(PropertyName.SUBTYPE.toString(), concept.getId());
+//            graphVertex.setType(VertexType.ENTITY);
+//
+//            GraphVertex existingGraphVertex = graphRepository.findVertexByTitleAndType((String) graphVertex.getProperty(PropertyName.TITLE), VertexType.ENTITY, getUser());
+//            if (existingGraphVertex != null) {
+//                existingGraphVertex.update(graphVertex);
+//                graphVertex.update(existingGraphVertex);
+//                graphVertex = existingGraphVertex;
+//            }
+//
+//            graphRepository.saveVertex(graphVertex, getUser());
+//            graphRepository.commit();
+//
+//            graphRepository.saveRelationship(artifact.getGenericMetadata().getGraphVertexId(), graphVertex.getId(), LabelName.HAS_ENTITY, getUser());
+//            graphRepository.commit();
+//
+//            return graphVertex.getId();
         }
 
         private Concept getConcept(TermMention termMention) {

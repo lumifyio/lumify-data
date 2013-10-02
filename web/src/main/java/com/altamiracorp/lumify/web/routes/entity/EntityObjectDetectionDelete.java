@@ -43,44 +43,45 @@ public class EntityObjectDetectionDelete extends BaseRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        JSONObject jsonObject = new JSONObject(getRequiredParameter(request, "objectInfo"));
-        JSONObject infoJson = jsonObject.getJSONObject("info");
-        User user = getUser(request);
-
-        // Delete from term mention
-        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(jsonObject.getString("_rowKey"));
-        modelSession.deleteRow(TermMention.TABLE_NAME, termMentionRowKey, user);
-
-        // Delete just the relationship if vertex has more than one relationship otherwise delete vertex
-        String graphVertexId = jsonObject.getString("graphVertexId");
-        JSONObject obj = graphRepository.findVertex(graphVertexId, user).toJson();
-        Map<GraphRelationship, GraphVertex> relationships = graphRepository.getRelationships(graphVertexId, user);
-        if (relationships.size() > 1) {
-            GraphVertex artifactVertex = graphRepository.findVertexByRowKey(termMentionRowKey.getArtifactRowKey().toString(), user);
-            String edgeId = artifactVertex.getId() + ">" + graphVertexId + "|" + LabelName.CONTAINS_IMAGE_OF.toString();
-            obj.put("edgeId", edgeId);
-            graphRepository.removeRelationship(artifactVertex.getId(), graphVertexId, LabelName.CONTAINS_IMAGE_OF.toString(), user);
-        } else {
-            graphRepository.remove(graphVertexId, user);
-            obj.put("remove", true);
-        }
-
-        // Delete column from Artifact
-        Artifact artifact = artifactRepository.findByRowKey(termMentionRowKey.getArtifactRowKey(), user);
-        Row<ArtifactRowKey> rowKey = artifactRepository.toRow(artifact);
-        String columnFamily = artifact.getArtifactDetectedObjects().getColumnFamilyName();
-        String columnQualifier = infoJson.getString("_rowKey");
-        for (Column column : rowKey.get(columnFamily).getColumns()) {
-            if (column.getName().equals(columnQualifier)) {
-                column.setDirty(true);
-            }
-        }
-        modelSession.deleteColumn(rowKey, Artifact.TABLE_NAME, columnFamily, columnQualifier, user);
-
-        // Overwrite old ElasticSearch index
-        Artifact newArtifact = artifactRepository.findByRowKey(termMentionRowKey.getArtifactRowKey(), user);
-        searchProvider.add(newArtifact, user);
-
-        respondWithJson(response, obj);
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        JSONObject jsonObject = new JSONObject(getRequiredParameter(request, "objectInfo"));
+//        JSONObject infoJson = jsonObject.getJSONObject("info");
+//        User user = getUser(request);
+//
+//        // Delete from term mention
+//        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(jsonObject.getString("_rowKey"));
+//        modelSession.deleteRow(TermMention.TABLE_NAME, termMentionRowKey, user);
+//
+//        // Delete just the relationship if vertex has more than one relationship otherwise delete vertex
+//        String graphVertexId = jsonObject.getString("graphVertexId");
+//        JSONObject obj = graphRepository.findVertex(graphVertexId, user).toJson();
+//        Map<GraphRelationship, GraphVertex> relationships = graphRepository.getRelationships(graphVertexId, user);
+//        if (relationships.size() > 1) {
+//            GraphVertex artifactVertex = graphRepository.findVertexByRowKey(termMentionRowKey.getArtifactRowKey().toString(), user);
+//            String edgeId = artifactVertex.getId() + ">" + graphVertexId + "|" + LabelName.CONTAINS_IMAGE_OF.toString();
+//            obj.put("edgeId", edgeId);
+//            graphRepository.removeRelationship(artifactVertex.getId(), graphVertexId, LabelName.CONTAINS_IMAGE_OF.toString(), user);
+//        } else {
+//            graphRepository.remove(graphVertexId, user);
+//            obj.put("remove", true);
+//        }
+//
+//        // Delete column from Artifact
+//        Artifact artifact = artifactRepository.findByRowKey(termMentionRowKey.getArtifactRowKey(), user);
+//        Row<ArtifactRowKey> rowKey = artifactRepository.toRow(artifact);
+//        String columnFamily = artifact.getArtifactDetectedObjects().getColumnFamilyName();
+//        String columnQualifier = infoJson.getString("_rowKey");
+//        for (Column column : rowKey.get(columnFamily).getColumns()) {
+//            if (column.getName().equals(columnQualifier)) {
+//                column.setDirty(true);
+//            }
+//        }
+//        modelSession.deleteColumn(rowKey, Artifact.TABLE_NAME, columnFamily, columnQualifier, user);
+//
+//        // Overwrite old ElasticSearch index
+//        Artifact newArtifact = artifactRepository.findByRowKey(termMentionRowKey.getArtifactRowKey(), user);
+//        searchProvider.add(newArtifact, user);
+//
+//        respondWithJson(response, obj);
     }
 }

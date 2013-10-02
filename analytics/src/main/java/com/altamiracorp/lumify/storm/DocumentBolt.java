@@ -7,16 +7,20 @@ import com.altamiracorp.lumify.model.RowKeyHelper;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.textExtraction.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.textExtraction.TikaTextExtractor;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +28,6 @@ import java.util.Map;
 
 public class DocumentBolt extends BaseLumifyBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentBolt.class.getName());
-    private static final int MAX_TEXT_COLUMN_SIZE = 100000; // This is the maximum size of the text to store in the table as opposed to HDFS
     private TikaTextExtractor tikaTextExtractor;
     private ThreadedInputStreamProcess<ArtifactExtractedInfo, AdditionalWorkData> threadedInputStreamProcess;
 
@@ -35,6 +38,16 @@ public class DocumentBolt extends BaseLumifyBolt {
         workers.add(new TextExtractorWorker());
         workers.add(new HashCalculationWorker());
         threadedInputStreamProcess = new ThreadedInputStreamProcess<ArtifactExtractedInfo, AdditionalWorkData>("documentBoltWorkers", workers);
+
+        try {
+            mkdir("/tmp");
+            mkdir("/lumify");
+            mkdir("/lumify/artifacts");
+            mkdir("/lumify/artifacts/text");
+            mkdir("/lumify/artifacts/raw");
+        } catch (IOException e) {
+            collector.reportError(e);
+        }
     }
 
     @Override
@@ -52,8 +65,9 @@ public class DocumentBolt extends BaseLumifyBolt {
         LOGGER.info("processing: " + fileName + " (mimeType: " + mimeType + ")");
 
         ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
+        artifactExtractedInfo.setOntologyClassUri("http://altamiracorp.com/lumify#document");
 
-        InputStream in = openFile(fileName);
+        InputStream in = getInputStream(fileName, artifactExtractedInfo);
         AdditionalWorkData additionalWorkData = new AdditionalWorkData();
         additionalWorkData.setFileName(fileName);
         additionalWorkData.setMimeType(mimeType);
@@ -73,18 +87,37 @@ public class DocumentBolt extends BaseLumifyBolt {
             in.close();
         }
 
+        String rawArtifactHdfsPath = "/lumify/artifacts/raw/" + artifactExtractedInfo.getRowKey();
+        moveFile(fileName, rawArtifactHdfsPath);
+        artifactExtractedInfo.setRawHdfsPath(rawArtifactHdfsPath);
+
         // TODO refactor to use the hash calculated from the workers
         GraphVertex graphVertex;
-        in = openFile(fileName);
         try {
-            String classUri = "http://altamiracorp.com/lumify#document";
-            long rawSize = getFileSize(fileName);
-            graphVertex = addArtifact(rawSize, in, artifactExtractedInfo.getText(), classUri, ArtifactType.DOCUMENT);
+            graphVertex = addArtifact(artifactExtractedInfo);
         } finally {
             in.close();
         }
 
         getCollector().ack(input);
+    }
+
+    private InputStream getInputStream(String fileName, ArtifactExtractedInfo artifactExtractedInfo) throws Exception {
+        InputStream in;
+        if (getFileSize(fileName) < Artifact.MAX_SIZE_OF_INLINE_FILE) {
+            InputStream rawIn = openFile(fileName);
+            byte[] data;
+            try {
+                data = IOUtils.toByteArray(rawIn);
+                artifactExtractedInfo.setRaw(data);
+            } finally {
+                rawIn.close();
+            }
+            in = new ByteArrayInputStream(data);
+        } else {
+            in = openFile(fileName);
+        }
+        return in;
     }
 
     private class AdditionalWorkData {
@@ -126,10 +159,18 @@ public class DocumentBolt extends BaseLumifyBolt {
     private class TextExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalWorkData> {
         @Override
         protected ArtifactExtractedInfo doWork(InputStream work, AdditionalWorkData data) throws Exception {
-            HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(data.getHdfsFileSystem(), MAX_TEXT_COLUMN_SIZE);
-            ArtifactExtractedInfo info = tikaTextExtractor.extract(work, data.getFileName(), data.getMimeType(), textOut);
+            HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(data.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
+            ArtifactExtractedInfo info;
+            try {
+                info = tikaTextExtractor.extract(work, data.getMimeType(), textOut);
+            } finally {
+                textOut.close();
+            }
             if (textOut.hasExceededSizeLimit()) {
-                info.setTextHdfsPath(textOut.getHdfsPath().toString()); // TODO: we should move this file to a known MD5 location or something.
+                String newPath = "/lumify/artifacts/text/" + textOut.getRowKey();
+                getHdfsFileSystem().delete(new Path(newPath), false);
+                getHdfsFileSystem().rename(new Path(textOut.getHdfsPath().toString()), new Path(newPath));
+                info.setTextHdfsPath(newPath);
             } else {
                 info.setText(new String(textOut.getSmall()));
             }

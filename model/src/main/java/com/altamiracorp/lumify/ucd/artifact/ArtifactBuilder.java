@@ -12,21 +12,9 @@ public class ArtifactBuilder extends BaseBuilder<Artifact> {
         Artifact artifact = new Artifact(row.getRowKey());
         Collection<ColumnFamily> families = row.getColumnFamilies();
         for (ColumnFamily columnFamily : families) {
-            if (columnFamily.getColumnFamilyName().equals(ArtifactContent.NAME)) {
+            if (columnFamily.getColumnFamilyName().equals(ArtifactMetadata.NAME)) {
                 Collection<Column> columns = columnFamily.getColumns();
-                artifact.addColumnFamily(new ArtifactContent().addColumns(columns));
-            } else if (columnFamily.getColumnFamilyName().equals(ArtifactGenericMetadata.NAME)) {
-                Collection<Column> columns = columnFamily.getColumns();
-                artifact.addColumnFamily(new ArtifactGenericMetadata().addColumns(columns));
-            } else if (columnFamily.getColumnFamilyName().equals(ArtifactDynamicMetadata.NAME)) {
-                Collection<Column> columns = columnFamily.getColumns();
-                artifact.addColumnFamily(new ArtifactDynamicMetadata().addColumns(columns));
-            } else if (columnFamily.getColumnFamilyName().equals(ArtifactDetectedObjects.NAME)) {
-                Collection<Column> columns = columnFamily.getColumns();
-                artifact.addColumnFamily(new ArtifactDetectedObjects().addColumns(columns));
-            } else if (columnFamily.getColumnFamilyName().equals(ArtifactExtractedText.NAME)) {
-                Collection<Column> columns = columnFamily.getColumns();
-                artifact.addColumnFamily(new ArtifactExtractedText().addColumns(columns));
+                artifact.addColumnFamily(new ArtifactMetadata().addColumns(columns));
             } else {
                 artifact.addColumnFamily(columnFamily);
             }

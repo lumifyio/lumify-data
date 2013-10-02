@@ -5,7 +5,6 @@ import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import net.sourceforge.tess4j.Tesseract;
@@ -37,25 +36,26 @@ public class ImageOcrTextExtractor implements TextExtractor {
 
     @Override
     public ArtifactExtractedInfo extract(Artifact artifact, User user) throws Exception {
-        if (artifact.getType() != ArtifactType.IMAGE) {
-            return null;
-        }
-
-        if (isIcon(artifact)) {
-            return null;
-        }
-
-        BufferedImage image = artifactRepository.getRawAsImage(artifact, user);
-        if (image == null) {
-            return null;
-        }
-        String ocrResults = extractTextFromImage(image);
-        if (ocrResults == null) {
-            return null;
-        }
-        ArtifactExtractedInfo extractedInfo = new ArtifactExtractedInfo();
-        extractedInfo.setText(ocrResults);
-        return extractedInfo;
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        if (artifact.getType() != ArtifactType.IMAGE) {
+//            return null;
+//        }
+//
+//        if (isIcon(artifact)) {
+//            return null;
+//        }
+//
+//        BufferedImage image = artifactRepository.getRawAsImage(artifact, user);
+//        if (image == null) {
+//            return null;
+//        }
+//        String ocrResults = extractTextFromImage(image);
+//        if (ocrResults == null) {
+//            return null;
+//        }
+//        ArtifactExtractedInfo extractedInfo = new ArtifactExtractedInfo();
+//        extractedInfo.setText(ocrResults);
+//        return extractedInfo;
     }
 
     @Override
@@ -87,6 +87,7 @@ public class ImageOcrTextExtractor implements TextExtractor {
     }
 
     private boolean isIcon(Artifact artifact) {
-        return ICON_MIME_TYPES.contains(artifact.getGenericMetadata().getMimeType());
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        return ICON_MIME_TYPES.contains(artifact.getGenericMetadata().getMimeType());
     }
 }

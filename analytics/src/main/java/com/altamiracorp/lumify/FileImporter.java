@@ -43,32 +43,33 @@ public class FileImporter {
     }
 
     public Result writeFile(File file, String source, JSONObject mappingJson, VideoTranscript videoTranscript, User user) throws IOException, MutationsRejectedException {
-        if (file.getName().startsWith(".")) {
-            return null;
-        }
-        if (isSupportingFile(file)) {
-            return null;
-        }
-        Artifact artifact = artifactRepository.createArtifactFromInputStream(
-                file.length(),
-                new FileInputStream(file),
-                file.getName(),
-                file.lastModified(),
-                user);
-        artifact.getGenericMetadata().setSubject(artifact.getGenericMetadata().getFileName());
-        artifact.getGenericMetadata().setSource(source);
-        if (mappingJson != null) {
-            artifact.getGenericMetadata().setMappingJson(mappingJson);
-        }
-        if (videoTranscript != null) {
-            artifact.getContent().mergeVideoTranscript(videoTranscript);
-        }
-
-        LOGGER.info("Writing artifact: " + artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension() + " (rowId: " + artifact.getRowKey().toString() + ")");
-        artifactRepository.save(artifact, user);
-        artifact = artifactRepository.findByRowKey(artifact.getRowKey().toString(), user);
-        GraphVertex graphVertex = artifactRepository.saveToGraph(artifact, user);
-        return new Result(file, artifact, graphVertex);
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        if (file.getName().startsWith(".")) {
+//            return null;
+//        }
+//        if (isSupportingFile(file)) {
+//            return null;
+//        }
+//        Artifact artifact = artifactRepository.createArtifactFromInputStream(
+//                file.length(),
+//                new FileInputStream(file),
+//                file.getName(),
+//                file.lastModified(),
+//                user);
+//        artifact.getGenericMetadata().setSubject(artifact.getGenericMetadata().getFileName());
+//        artifact.getGenericMetadata().setSource(source);
+//        if (mappingJson != null) {
+//            artifact.getGenericMetadata().setMappingJson(mappingJson);
+//        }
+//        if (videoTranscript != null) {
+//            artifact.getContent().mergeVideoTranscript(videoTranscript);
+//        }
+//
+//        LOGGER.info("Writing artifact: " + artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension() + " (rowId: " + artifact.getRowKey().toString() + ")");
+//        artifactRepository.save(artifact, user);
+//        artifact = artifactRepository.findByRowKey(artifact.getRowKey().toString(), user);
+//        GraphVertex graphVertex = artifactRepository.saveToGraph(artifact, user);
+//        return new Result(file, artifact, graphVertex);
     }
 
     public ArrayList<Result> writePackage(File file, String source, User user) throws Exception {

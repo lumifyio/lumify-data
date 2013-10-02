@@ -19,7 +19,9 @@ public enum PropertyName {
     RELATIONSHIP_TYPE("relationshipType"),
     BOUNDING_BOX("boundingBox"),
     PUBLISHED_DATE("publishedDate"),
-    TIME_STAMP("_timeStamp");
+    TIME_STAMP("_timeStamp"),
+    RAW_HDFS_PATH("rawHdfsPath"),
+    TEXT_HDFS_PATH("textHdfsPath");
 
     private final String text;
 

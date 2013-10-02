@@ -34,18 +34,19 @@ public class ViewPreviewGenerator {
     }
 
     public void createPreview(Artifact artifact, User user) {
-        try {
-            List<VideoFrame> videoFrames = videoFrameRepository.findAllByArtifactRowKey(artifact.getRowKey().toString(), user);
-            List<VideoFrame> videoFramesForPreview = getFramesForPreview(videoFrames);
-            for (VideoFrame v : videoFramesForPreview) {
-                LOGGER.info(v.getRowKey().toString());
-            }
-            BufferedImage previewImage = createPreviewImage(videoFramesForPreview, user);
-            SaveFileResults saveFileResults = saveImage(previewImage, user);
-            artifact.getGenericMetadata().setVideoPreviewImageHdfsFilePath(saveFileResults.getFullPath());
-        } catch (IOException e) {
-            throw new RuntimeException("Could not create preview image for artifact: " + artifact.getRowKey(), e);
-        }
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        try {
+//            List<VideoFrame> videoFrames = videoFrameRepository.findAllByArtifactRowKey(artifact.getRowKey().toString(), user);
+//            List<VideoFrame> videoFramesForPreview = getFramesForPreview(videoFrames);
+//            for (VideoFrame v : videoFramesForPreview) {
+//                LOGGER.info(v.getRowKey().toString());
+//            }
+//            BufferedImage previewImage = createPreviewImage(videoFramesForPreview, user);
+//            SaveFileResults saveFileResults = saveImage(previewImage, user);
+//            artifact.getGenericMetadata().setVideoPreviewImageHdfsFilePath(saveFileResults.getFullPath());
+//        } catch (IOException e) {
+//            throw new RuntimeException("Could not create preview image for artifact: " + artifact.getRowKey(), e);
+//        }
     }
 
     private SaveFileResults saveImage(BufferedImage previewImage, User user) throws IOException {

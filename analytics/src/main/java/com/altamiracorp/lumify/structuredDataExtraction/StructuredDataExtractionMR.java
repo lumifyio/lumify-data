@@ -65,29 +65,30 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
 
         @Override
         protected void safeMap(Text key, Artifact artifact, Context context) throws Exception {
-            JSONObject mappingJson = artifact.getGenericMetadata().getMappingJson();
-            if (mappingJson == null) {
-                return;
-            }
-            Value textValue = artifact.getArtifactExtractedText().get(StructuredDataTextExtractor.NAME);
-            if (textValue == null || textValue.toString().length() == 0) {
-                return;
-            }
-            String text = textValue.toString();
-            String structuredDataType = mappingJson.getString("type");
-            LOGGER.info("Extracting structured data from: " + artifact.getRowKey().toString() + ", type: " + structuredDataType);
-
-            StructuredDataExtractorBase structuredDataExtractor = structuredDataFactory.get(structuredDataType);
-            if (structuredDataExtractor != null) {
-                ExtractedData extractedData = structuredDataExtractor.extract(artifact, text, mappingJson, getUser());
-
-                saveToUcd(artifact, extractedData);
-                GraphVertex artifactVertex = saveArtifactToGraph(artifact);
-                saveTermsAndGraphVertices(extractedData.getTermsAndGraphVertices(), artifactVertex);
-                saveRelationships(extractedData.getRelationships());
-            } else {
-                throw new Exception("Unknown or unhandled structured data type: " + structuredDataType);
-            }
+            throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//            JSONObject mappingJson = artifact.getGenericMetadata().getMappingJson();
+//            if (mappingJson == null) {
+//                return;
+//            }
+//            Value textValue = artifact.getArtifactExtractedText().get(StructuredDataTextExtractor.NAME);
+//            if (textValue == null || textValue.toString().length() == 0) {
+//                return;
+//            }
+//            String text = textValue.toString();
+//            String structuredDataType = mappingJson.getString("type");
+//            LOGGER.info("Extracting structured data from: " + artifact.getRowKey().toString() + ", type: " + structuredDataType);
+//
+//            StructuredDataExtractorBase structuredDataExtractor = structuredDataFactory.get(structuredDataType);
+//            if (structuredDataExtractor != null) {
+//                ExtractedData extractedData = structuredDataExtractor.extract(artifact, text, mappingJson, getUser());
+//
+//                saveToUcd(artifact, extractedData);
+//                GraphVertex artifactVertex = saveArtifactToGraph(artifact);
+//                saveTermsAndGraphVertices(extractedData.getTermsAndGraphVertices(), artifactVertex);
+//                saveRelationships(extractedData.getRelationships());
+//            } else {
+//                throw new Exception("Unknown or unhandled structured data type: " + structuredDataType);
+//            }
         }
 
         private void saveToUcd(Artifact artifact, ExtractedData extractedData) {

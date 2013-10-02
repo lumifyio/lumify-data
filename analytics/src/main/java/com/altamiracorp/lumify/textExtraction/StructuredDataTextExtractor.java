@@ -20,13 +20,14 @@ public class StructuredDataTextExtractor implements TextExtractor {
 
     @Override
     public ArtifactExtractedInfo extract(Artifact artifact, User user) throws Exception {
-        JSONObject mappingJson = artifact.getGenericMetadata().getMappingJson();
-        if (mappingJson == null) {
-            return null;
-        }
-        String type = mappingJson.getString("type");
-        StructuredDataExtractorBase extractor = structedDataFactory.get(type);
-        return extractor.extractText(artifact, user);
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        JSONObject mappingJson = artifact.getGenericMetadata().getMappingJson();
+//        if (mappingJson == null) {
+//            return null;
+//        }
+//        String type = mappingJson.getString("type");
+//        StructuredDataExtractorBase extractor = structedDataFactory.get(type);
+//        return extractor.extractText(artifact, user);
     }
 
     @Override

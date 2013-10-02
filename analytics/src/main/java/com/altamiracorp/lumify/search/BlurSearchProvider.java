@@ -103,70 +103,71 @@ public class BlurSearchProvider extends SearchProvider {
 
     @Override
     public void add(Artifact artifact, User user) throws Exception {
-        if (artifact.getContent() == null) {
-            return;
-        }
-        LOGGER.info("Adding artifact \"" + artifact.getRowKey().toString() + "\" to full text search.");
-        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-
-        String text = artifact.getContent().getDocExtractedTextString();
-        String subject = artifact.getGenericMetadata().getSubject();
-        String id = artifact.getRowKey().toString();
-        String publishedDate = dateFormat.format(artifact.getPublishedDate());
-        String source = artifact.getGenericMetadata().getSource();
-        String graphVertexId = artifact.getGenericMetadata().getGraphVertexId();
-
-        List<String> resolvedObjects = new ArrayList<String>();
-        if (artifact.getArtifactDetectedObjects() != null) {
-            resolvedObjects = artifact.getArtifactDetectedObjects().getResolvedDetectedObjects();
-        }
-
-        if (text == null) {
-            text = "";
-        }
-        if (subject == null) {
-            subject = "";
-        }
-
-        List<Column> columns = new ArrayList<Column>();
-        columns.add(new Column(TEXT_COLUMN_NAME, text));
-        columns.add(new Column(SUBJECT_COLUMN_NAME, subject));
-        columns.add(new Column(PUBLISHED_DATE_COLUMN_NAME, publishedDate));
-        columns.add(new Column(ARTIFACT_TYPE_COLUMN_NAME, artifact.getType().toString()));
-
-        if (graphVertexId != null) {
-            columns.add(new Column(GRAPH_VERTEX_ID_COLUMN_NAME, graphVertexId));
-        }
-        if (source != null) {
-            columns.add(new Column(SOURCE_COLUMN_NAME, source));
-        }
-        if (!resolvedObjects.isEmpty()) {
-            StringBuilder resolvedObjectString = new StringBuilder();
-            for (String resolvedObject : resolvedObjects) {
-                resolvedObjectString.append(resolvedObject).append(" ");
-            }
-            columns.add(new Column(RESOLVED_OBJECTS_COLUMN_NAME, resolvedObjectString.toString().trim()));
-        }
-
-        Record record = new Record();
-        record.setRecordId(id);
-        record.setFamily(GENERIC_COLUMN_FAMILY_NAME);
-        record.setColumns(columns);
-
-        RecordMutation recordMutation = new RecordMutation();
-        recordMutation.setRecord(record);
-        recordMutation.setRecordMutationType(RecordMutationType.REPLACE_ENTIRE_RECORD);
-
-        List<RecordMutation> recordMutations = new ArrayList<RecordMutation>();
-        recordMutations.add(recordMutation);
-
-        RowMutation mutation = new RowMutation();
-        mutation.setTable(ARTIFACT_BLUR_TABLE_NAME);
-        mutation.setRowId(id);
-        mutation.setRowMutationType(RowMutationType.REPLACE_ROW);
-        mutation.setRecordMutations(recordMutations);
-
-        client.mutate(mutation);
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        if (artifact.getContent() == null) {
+//            return;
+//        }
+//        LOGGER.info("Adding artifact \"" + artifact.getRowKey().toString() + "\" to full text search.");
+//        SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+//
+//        String text = artifact.getContent().getDocExtractedTextString();
+//        String subject = artifact.getGenericMetadata().getSubject();
+//        String id = artifact.getRowKey().toString();
+//        String publishedDate = dateFormat.format(artifact.getPublishedDate());
+//        String source = artifact.getGenericMetadata().getSource();
+//        String graphVertexId = artifact.getGenericMetadata().getGraphVertexId();
+//
+//        List<String> resolvedObjects = new ArrayList<String>();
+//        if (artifact.getArtifactDetectedObjects() != null) {
+//            resolvedObjects = artifact.getArtifactDetectedObjects().getResolvedDetectedObjects();
+//        }
+//
+//        if (text == null) {
+//            text = "";
+//        }
+//        if (subject == null) {
+//            subject = "";
+//        }
+//
+//        List<Column> columns = new ArrayList<Column>();
+//        columns.add(new Column(TEXT_COLUMN_NAME, text));
+//        columns.add(new Column(SUBJECT_COLUMN_NAME, subject));
+//        columns.add(new Column(PUBLISHED_DATE_COLUMN_NAME, publishedDate));
+//        columns.add(new Column(ARTIFACT_TYPE_COLUMN_NAME, artifact.getType().toString()));
+//
+//        if (graphVertexId != null) {
+//            columns.add(new Column(GRAPH_VERTEX_ID_COLUMN_NAME, graphVertexId));
+//        }
+//        if (source != null) {
+//            columns.add(new Column(SOURCE_COLUMN_NAME, source));
+//        }
+//        if (!resolvedObjects.isEmpty()) {
+//            StringBuilder resolvedObjectString = new StringBuilder();
+//            for (String resolvedObject : resolvedObjects) {
+//                resolvedObjectString.append(resolvedObject).append(" ");
+//            }
+//            columns.add(new Column(RESOLVED_OBJECTS_COLUMN_NAME, resolvedObjectString.toString().trim()));
+//        }
+//
+//        Record record = new Record();
+//        record.setRecordId(id);
+//        record.setFamily(GENERIC_COLUMN_FAMILY_NAME);
+//        record.setColumns(columns);
+//
+//        RecordMutation recordMutation = new RecordMutation();
+//        recordMutation.setRecord(record);
+//        recordMutation.setRecordMutationType(RecordMutationType.REPLACE_ENTIRE_RECORD);
+//
+//        List<RecordMutation> recordMutations = new ArrayList<RecordMutation>();
+//        recordMutations.add(recordMutation);
+//
+//        RowMutation mutation = new RowMutation();
+//        mutation.setTable(ARTIFACT_BLUR_TABLE_NAME);
+//        mutation.setRowId(id);
+//        mutation.setRowMutationType(RowMutationType.REPLACE_ROW);
+//        mutation.setRecordMutations(recordMutations);
+//
+//        client.mutate(mutation);
     }
 
     @Override

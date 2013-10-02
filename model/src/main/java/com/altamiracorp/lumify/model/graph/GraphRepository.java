@@ -64,6 +64,10 @@ public class GraphRepository {
         return graphRelationship;
     }
 
+    public String save(GraphVertex graphVertex, User user) {
+        return graphSession.save(graphVertex, user);
+    }
+
     public GraphRelationship saveRelationship(String sourceGraphVertexId, String destGraphVertexId, String label, User user) {
         GraphRelationship relationship = new GraphRelationship(null, sourceGraphVertexId, destGraphVertexId, label);
         relationship.setProperty(PropertyName.RELATIONSHIP_TYPE.toString(), label);

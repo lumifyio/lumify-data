@@ -44,33 +44,34 @@ public class ArtifactPosterFrameByRowKeyTest extends RouteTestBase {
 
     @Test
     public void testHandle() throws Exception {
-        ArtifactRowKey artifactRowKey = ArtifactRowKey.build("testContents".getBytes());
-        when(mockRequest.getAttribute("_rowKey")).thenReturn(artifactRowKey.toString());
-        when(mockRequest.getSession()).thenReturn(mockSession);
-        when(mockSession.getAttribute(AuthenticationProvider.CURRENT_USER_REQ_ATTR_NAME)).thenReturn(user);
-
-        Artifact artifact = new Artifact(artifactRowKey);
-        when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user)).thenReturn(artifact);
-
-        InputStream testInputStream = new ByteArrayInputStream("test data".getBytes());
-        when(mockArtifactRepository.getRawPosterFrame(artifact, user)).thenReturn(testInputStream);
-
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                byte[] data = (byte[]) invocation.getArguments()[0];
-                int start = (Integer) invocation.getArguments()[1];
-                int len = (Integer) invocation.getArguments()[2];
-
-                assertEquals(0, start);
-                assertEquals(9, len);
-                assertEquals("test data", new String(data, start, len));
-                return null;
-            }
-        }).when(mockResponseOutputStream).write(any(byte[].class), any(Integer.class), any(Integer.class));
-
-        artifactPosterFrameByRowKey.handle(mockRequest, mockResponse, mockHandlerChain);
-
-        verify(mockResponse).setContentType("image/png");
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        ArtifactRowKey artifactRowKey = ArtifactRowKey.build("testContents".getBytes());
+//        when(mockRequest.getAttribute("_rowKey")).thenReturn(artifactRowKey.toString());
+//        when(mockRequest.getSession()).thenReturn(mockSession);
+//        when(mockSession.getAttribute(AuthenticationProvider.CURRENT_USER_REQ_ATTR_NAME)).thenReturn(user);
+//
+//        Artifact artifact = new Artifact(artifactRowKey);
+//        when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user)).thenReturn(artifact);
+//
+//        InputStream testInputStream = new ByteArrayInputStream("test data".getBytes());
+//        when(mockArtifactRepository.getRawPosterFrame(artifact, user)).thenReturn(testInputStream);
+//
+//        doAnswer(new Answer<Void>() {
+//            @Override
+//            public Void answer(InvocationOnMock invocation) throws Throwable {
+//                byte[] data = (byte[]) invocation.getArguments()[0];
+//                int start = (Integer) invocation.getArguments()[1];
+//                int len = (Integer) invocation.getArguments()[2];
+//
+//                assertEquals(0, start);
+//                assertEquals(9, len);
+//                assertEquals("test data", new String(data, start, len));
+//                return null;
+//            }
+//        }).when(mockResponseOutputStream).write(any(byte[].class), any(Integer.class), any(Integer.class));
+//
+//        artifactPosterFrameByRowKey.handle(mockRequest, mockResponse, mockHandlerChain);
+//
+//        verify(mockResponse).setContentType("image/png");
     }
 }

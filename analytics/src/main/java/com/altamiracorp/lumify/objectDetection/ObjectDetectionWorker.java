@@ -62,16 +62,17 @@ public class ObjectDetectionWorker implements Runnable {
     }
 
     private boolean modifyObjectDetection(final Artifact artifact) throws Exception {
-        boolean modified = false;
-
-        if (info != null) {
-            artifact.getArtifactDetectedObjects().set(columnName, info);
-            artifactRepository.save(artifact, user);
-            searchProvider.add(artifact, user);
-            modified = true;
-        } else {
-            LOGGER.info("Could not retrieve valid column value for detected object");
-        }
-        return modified;
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        boolean modified = false;
+//
+//        if (info != null) {
+//            artifact.getArtifactDetectedObjects().set(columnName, info);
+//            artifactRepository.save(artifact, user);
+//            searchProvider.add(artifact, user);
+//            modified = true;
+//        } else {
+//            LOGGER.info("Could not retrieve valid column value for detected object");
+//        }
+//        return modified;
     }
 }

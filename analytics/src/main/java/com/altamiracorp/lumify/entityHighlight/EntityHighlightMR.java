@@ -47,18 +47,19 @@ public class EntityHighlightMR extends ConfigurableMapJobBase {
 
         @Override
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
-            final byte[] docExtractedText = artifact.getContent().getDocExtractedText();
-            if (docExtractedText == null || docExtractedText.length < 1) {
-                return;
-            }
-
-            LOGGER.info("Creating highlight text for artifact rowkey: " + artifact.getRowKey().toString());
-
-            final String highlightedText = entityHighlighter.getHighlightedText(artifact, getUser());
-            if (highlightedText != null) {
-                artifact.getContent().setHighlightedText(highlightedText);
-                context.write(KEY_ARTIFACT_TABLE, artifact);
-            }
+            throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//            final byte[] docExtractedText = artifact.getContent().getDocExtractedText();
+//            if (docExtractedText == null || docExtractedText.length < 1) {
+//                return;
+//            }
+//
+//            LOGGER.info("Creating highlight text for artifact rowkey: " + artifact.getRowKey().toString());
+//
+//            final String highlightedText = entityHighlighter.getHighlightedText(artifact, getUser());
+//            if (highlightedText != null) {
+//                artifact.getContent().setHighlightedText(highlightedText);
+//                context.write(KEY_ARTIFACT_TABLE, artifact);
+//            }
         }
 
         @Inject

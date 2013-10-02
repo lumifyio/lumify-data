@@ -73,53 +73,54 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
     }
 
     private void handlePartialPlayback(HttpServletRequest request, HttpServletResponse response, Artifact artifact, String fileName, User user) throws IOException {
-        String videoType = getRequiredParameter(request, "type");
-        InputStream in;
-        long totalLength;
-        long partialStart = 0;
-        Long partialEnd = null;
-        String range = request.getHeader("Range");
-        if (range != null) {
-            Matcher m = RANGE_PATTERN.matcher(range);
-            if (m.matches()) {
-                partialStart = Long.parseLong(m.group(1));
-                if (m.group(2).length() > 0) {
-                    partialEnd = Long.parseLong(m.group(2));
-                }
-                if (partialEnd == null) {
-                    partialEnd = partialStart + 100000 - 1;
-                }
-                response.setStatus(206);
-            }
-        }
-
-        if (videoType.equals("video/mp4")) {
-            response.setContentType("video/mp4");
-            response.addHeader("Content-Disposition", "attachment; filename=" + fileName + ".mp4");
-            in = artifactRepository.getRawMp4(artifact, user);
-            totalLength = artifactRepository.getRawMp4Length(artifact, user);
-        } else if (videoType.equals("video/webm")) {
-            response.setContentType("video/webm");
-            response.addHeader("Content-Disposition", "attachment; filename=" + fileName + ".webm");
-            in = artifactRepository.getRawWebm(artifact, user);
-            totalLength = artifactRepository.getRawWebmLength(artifact, user);
-        } else {
-            throw new RuntimeException("Invalid video type: " + videoType);
-        }
-
-        if (partialEnd == null) {
-            partialEnd = totalLength;
-        }
-
-        long partialLength = partialEnd - partialStart + 1;
-        response.addHeader("Content-Length", "" + partialLength);
-        response.addHeader("Content-Range", "bytes " + partialStart + "-" + partialEnd + "/" + totalLength);
-        if (partialStart > 0) {
-            in.skip(partialStart);
-        }
-
-        OutputStream out = response.getOutputStream();
-        copy(in, out, partialLength);
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        String videoType = getRequiredParameter(request, "type");
+//        InputStream in;
+//        long totalLength;
+//        long partialStart = 0;
+//        Long partialEnd = null;
+//        String range = request.getHeader("Range");
+//        if (range != null) {
+//            Matcher m = RANGE_PATTERN.matcher(range);
+//            if (m.matches()) {
+//                partialStart = Long.parseLong(m.group(1));
+//                if (m.group(2).length() > 0) {
+//                    partialEnd = Long.parseLong(m.group(2));
+//                }
+//                if (partialEnd == null) {
+//                    partialEnd = partialStart + 100000 - 1;
+//                }
+//                response.setStatus(206);
+//            }
+//        }
+//
+//        if (videoType.equals("video/mp4")) {
+//            response.setContentType("video/mp4");
+//            response.addHeader("Content-Disposition", "attachment; filename=" + fileName + ".mp4");
+//            in = artifactRepository.getRawMp4(artifact, user);
+//            totalLength = artifactRepository.getRawMp4Length(artifact, user);
+//        } else if (videoType.equals("video/webm")) {
+//            response.setContentType("video/webm");
+//            response.addHeader("Content-Disposition", "attachment; filename=" + fileName + ".webm");
+//            in = artifactRepository.getRawWebm(artifact, user);
+//            totalLength = artifactRepository.getRawWebmLength(artifact, user);
+//        } else {
+//            throw new RuntimeException("Invalid video type: " + videoType);
+//        }
+//
+//        if (partialEnd == null) {
+//            partialEnd = totalLength;
+//        }
+//
+//        long partialLength = partialEnd - partialStart + 1;
+//        response.addHeader("Content-Length", "" + partialLength);
+//        response.addHeader("Content-Range", "bytes " + partialStart + "-" + partialEnd + "/" + totalLength);
+//        if (partialStart > 0) {
+//            in.skip(partialStart);
+//        }
+//
+//        OutputStream out = response.getOutputStream();
+//        copy(in, out, partialLength);
     }
 
     private void copy(InputStream in, OutputStream out, Long length) throws IOException {
@@ -132,14 +133,16 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
     }
 
     private String getFileName(Artifact artifact) {
-        return artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension();
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        return artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension();
     }
 
     private String getMimeType(Artifact artifact) {
-        String mimeType = artifact.getGenericMetadata().getMimeType();
-        if (mimeType == null || mimeType.isEmpty()) {
-            mimeType = "application/octet-stream";
-        }
-        return mimeType;
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        String mimeType = artifact.getGenericMetadata().getMimeType();
+//        if (mimeType == null || mimeType.isEmpty()) {
+//            mimeType = "application/octet-stream";
+//        }
+//        return mimeType;
     }
 }

@@ -37,21 +37,22 @@ public class ArtifactByRowKeyTest extends RouteTestBase {
 
     @Test
     public void testHandle() throws Exception {
-        ArtifactRowKey artifactRowKey = ArtifactRowKey.build("testContents".getBytes());
-        when(mockRequest.getAttribute("_rowKey")).thenReturn(artifactRowKey.toString());
-        when(mockRequest.getSession()).thenReturn(mockSession);
-        when(mockSession.getAttribute(AuthenticationProvider.CURRENT_USER_REQ_ATTR_NAME)).thenReturn(user);
-
-        Artifact artifact = new Artifact(artifactRowKey);
-        artifact.getGenericMetadata()
-                .setMimeType("text/html");
-        when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user)).thenReturn(artifact);
-
-        artifactByRowKey.handle(mockRequest, mockResponse, mockHandlerChain);
-
-        JSONObject responseJson = new JSONObject(responseStringWriter.getBuffer().toString());
-        assertEquals(ArtifactRawByRowKey.getUrl(artifactRowKey), responseJson.getString("rawUrl"));
-        assertEquals(artifactRowKey.toString(), responseJson.getJSONObject("key").getString("value"));
-        assertEquals("document", responseJson.getString("type"));
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        ArtifactRowKey artifactRowKey = ArtifactRowKey.build("testContents".getBytes());
+//        when(mockRequest.getAttribute("_rowKey")).thenReturn(artifactRowKey.toString());
+//        when(mockRequest.getSession()).thenReturn(mockSession);
+//        when(mockSession.getAttribute(AuthenticationProvider.CURRENT_USER_REQ_ATTR_NAME)).thenReturn(user);
+//
+//        Artifact artifact = new Artifact(artifactRowKey);
+//        artifact.getGenericMetadata()
+//                .setMimeType("text/html");
+//        when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user)).thenReturn(artifact);
+//
+//        artifactByRowKey.handle(mockRequest, mockResponse, mockHandlerChain);
+//
+//        JSONObject responseJson = new JSONObject(responseStringWriter.getBuffer().toString());
+//        assertEquals(ArtifactRawByRowKey.getUrl(artifactRowKey), responseJson.getString("rawUrl"));
+//        assertEquals(artifactRowKey.toString(), responseJson.getJSONObject("key").getString("value"));
+//        assertEquals("document", responseJson.getString("type"));
     }
 }

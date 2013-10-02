@@ -32,57 +32,58 @@ public class GraphVertexUploadImage extends BaseRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        final String graphVertexId = getAttributeString(request, "graphVertexId");
-        List<Part> files = new ArrayList<Part>(request.getParts());
-        if (files.size() != 1) {
-            throw new RuntimeException("Wrong number of uploaded files. Expected 1 got " + files.size());
-        }
-        User user = getUser(request);
-        Part file = files.get(0);
-
-        String mimeType = "image";
-        if (file.getContentType() != null) {
-            mimeType = file.getContentType();
-        }
-
-        long fileSize = file.getSize();
-
-        String fileName = file.getName();
-
-        GraphVertex entityVertex = graphRepository.findVertex(graphVertexId, user);
-        if (entityVertex == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            return;
-        }
-
-        InputStream fileInputStream = file.getInputStream();
-        Artifact artifact = artifactRepository.createArtifactFromInputStream(
-                fileSize,
-                fileInputStream,
-                fileName,
-                new Date().getTime(),
-                user
-        );
-        artifact.getGenericMetadata().setSource("User Upload");
-        artifact.getGenericMetadata().setMimeType(mimeType);
-        artifact.getGenericMetadata().setSubject("Image of " + entityVertex.getProperty(PropertyName.TITLE));
-        artifactRepository.save(artifact, user);
-        artifact = artifactRepository.findByRowKey(artifact.getRowKey().toString(), user);
-        GraphVertex artifactVertex = null;
-        if (artifact.getGenericMetadata().getGraphVertexId() != null) {
-            artifactVertex = graphRepository.findVertex(artifact.getGenericMetadata().getGraphVertexId(), user);
-        }
-        if (artifactVertex == null) {
-            artifactVertex = artifactRepository.saveToGraph(artifact, user);
-        }
-
-        graphRepository.findOrAddRelationship(entityVertex.getId(), artifactVertex.getId(), LabelName.HAS_IMAGE, user);
-        graphRepository.commit();
-
-        entityVertex.setProperty(PropertyName.GLYPH_ICON, ArtifactThumbnailByRowKey.getUrl(artifact.getRowKey()));
-        graphRepository.commit();
-
-        respondWithJson(response, entityVertex.toJson());
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        final String graphVertexId = getAttributeString(request, "graphVertexId");
+//        List<Part> files = new ArrayList<Part>(request.getParts());
+//        if (files.size() != 1) {
+//            throw new RuntimeException("Wrong number of uploaded files. Expected 1 got " + files.size());
+//        }
+//        User user = getUser(request);
+//        Part file = files.get(0);
+//
+//        String mimeType = "image";
+//        if (file.getContentType() != null) {
+//            mimeType = file.getContentType();
+//        }
+//
+//        long fileSize = file.getSize();
+//
+//        String fileName = file.getName();
+//
+//        GraphVertex entityVertex = graphRepository.findVertex(graphVertexId, user);
+//        if (entityVertex == null) {
+//            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+//            return;
+//        }
+//
+//        InputStream fileInputStream = file.getInputStream();
+//        Artifact artifact = artifactRepository.createArtifactFromInputStream(
+//                fileSize,
+//                fileInputStream,
+//                fileName,
+//                new Date().getTime(),
+//                user
+//        );
+//        artifact.getGenericMetadata().setSource("User Upload");
+//        artifact.getGenericMetadata().setMimeType(mimeType);
+//        artifact.getGenericMetadata().setSubject("Image of " + entityVertex.getProperty(PropertyName.TITLE));
+//        artifactRepository.save(artifact, user);
+//        artifact = artifactRepository.findByRowKey(artifact.getRowKey().toString(), user);
+//        GraphVertex artifactVertex = null;
+//        if (artifact.getGenericMetadata().getGraphVertexId() != null) {
+//            artifactVertex = graphRepository.findVertex(artifact.getGenericMetadata().getGraphVertexId(), user);
+//        }
+//        if (artifactVertex == null) {
+//            artifactVertex = artifactRepository.saveToGraph(artifact, user);
+//        }
+//
+//        graphRepository.findOrAddRelationship(entityVertex.getId(), artifactVertex.getId(), LabelName.HAS_IMAGE, user);
+//        graphRepository.commit();
+//
+//        entityVertex.setProperty(PropertyName.GLYPH_ICON, ArtifactThumbnailByRowKey.getUrl(artifact.getRowKey()));
+//        graphRepository.commit();
+//
+//        respondWithJson(response, entityVertex.toJson());
     }
 }
 

@@ -70,21 +70,22 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
         }
 
         private void updateGraphVertex(Artifact artifact) {
-            String graphVertexId = artifact.getGenericMetadata().getGraphVertexId();
-            if (graphVertexId != null) {
-                GraphVertex vertex = graphRepository.findVertex(graphVertexId, getUser());
-                if (vertex != null) {
-                    Double lat = artifact.getDynamicMetadata().getLatitude();
-                    Double lon = artifact.getDynamicMetadata().getLongitude();
-                    if (lat != null && lon != null) {
-                        vertex.setProperty(PropertyName.GEO_LOCATION, Geoshape.point(lat, lon));
-                    }
-                    String geoLocationTitle = artifact.getDynamicMetadata().getGeoLocationTitle();
-                    if (geoLocationTitle != null) {
-                        vertex.setProperty(PropertyName.GEO_LOCATION_DESCRIPTION, geoLocationTitle);
-                    }
-                }
-            }
+            throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//            String graphVertexId = artifact.getGenericMetadata().getGraphVertexId();
+//            if (graphVertexId != null) {
+//                GraphVertex vertex = graphRepository.findVertex(graphVertexId, getUser());
+//                if (vertex != null) {
+//                    Double lat = artifact.getDynamicMetadata().getLatitude();
+//                    Double lon = artifact.getDynamicMetadata().getLongitude();
+//                    if (lat != null && lon != null) {
+//                        vertex.setProperty(PropertyName.GEO_LOCATION, Geoshape.point(lat, lon));
+//                    }
+//                    String geoLocationTitle = artifact.getDynamicMetadata().getGeoLocationTitle();
+//                    if (geoLocationTitle != null) {
+//                        vertex.setProperty(PropertyName.GEO_LOCATION_DESCRIPTION, geoLocationTitle);
+//                    }
+//                }
+//            }
         }
 
         public static void init(Job job, Class<? extends ArtifactLocationExtractor> entityExtractor) {

@@ -37,28 +37,29 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
 
     @Override
     public ArtifactExtractedInfo extractText(Artifact artifact, User user) throws Exception {
-        JSONObject mappingJson = artifact.getGenericMetadata().getMappingJson();
-        InputStream raw = artifactRepository.getRaw(artifact, user);
-        try {
-            StringWriter writer = new StringWriter();
-            CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
-            CsvListReader csvReader = new CsvListReader(new InputStreamReader(raw), csvPrefs);
-            CsvListWriter csvWriter = new CsvListWriter(writer, csvPrefs);
-            List<String> line;
-            while ((line = csvReader.read()) != null) {
-                csvWriter.write(line);
-            }
-            csvWriter.close();
-
-            ArtifactExtractedInfo extractedInfo = new ArtifactExtractedInfo();
-            extractedInfo.setText(writer.toString());
-            if (mappingJson.has("subject")) {
-                artifact.getGenericMetadata().setSubject(mappingJson.getString("subject"));
-            }
-            return extractedInfo;
-        } finally {
-            raw.close();
-        }
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        JSONObject mappingJson = artifact.getGenericMetadata().getMappingJson();
+//        InputStream raw = artifactRepository.getRaw(artifact, user);
+//        try {
+//            StringWriter writer = new StringWriter();
+//            CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
+//            CsvListReader csvReader = new CsvListReader(new InputStreamReader(raw), csvPrefs);
+//            CsvListWriter csvWriter = new CsvListWriter(writer, csvPrefs);
+//            List<String> line;
+//            while ((line = csvReader.read()) != null) {
+//                csvWriter.write(line);
+//            }
+//            csvWriter.close();
+//
+//            ArtifactExtractedInfo extractedInfo = new ArtifactExtractedInfo();
+//            extractedInfo.setText(writer.toString());
+//            if (mappingJson.has("subject")) {
+//                artifact.getGenericMetadata().setSubject(mappingJson.getString("subject"));
+//            }
+//            return extractedInfo;
+//        } finally {
+//            raw.close();
+//        }
     }
 
     @Override
@@ -169,34 +170,35 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
     }
 
     private TermAndGraphVertex createTermAndGraphVertex(Artifact artifact, int offset, String sign, Map<String, GraphVertex> allGraphVertex, JSONObject columnMappingJson) throws JSONException {
-        TermAndGraphVertex termAndGraphVertex;
-        String conceptLabel = columnMappingJson.getString("conceptLabel");
-        boolean useExisting = columnMappingJson.optBoolean("useExisting", false);
-
-        // TODO these offsets need to be fixed. If the csv file has quotes or other characters which CsvListReader removes this will be wrong
-        int termMentionStart = offset;
-        int termMentionEnd = offset + sign.length();
-
-        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifact.getRowKey().toString(), termMentionStart, termMentionEnd);
-        TermMention termMention = new TermMention(termMentionRowKey);
-        termMention.getMetadata()
-                .setSign(artifact.getGenericMetadata().getSubject())
-                .setSign(sign)
-                .setConcept(conceptLabel);
-
-
-        GraphVertex vertex = allGraphVertex.get(sign);
-        if (vertex == null) {
-            vertex = new InMemoryGraphVertex();
-            vertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
-            vertex.setProperty(PropertyName.ROW_KEY.toString(), termMention.getRowKey().toString());
-            vertex.setProperty(PropertyName.TITLE.toString(), sign);
-            vertex.setProperty(PropertyName.SOURCE.toString(), artifact.getGenericMetadata().getSubject() == null ? "" : artifact.getGenericMetadata().getSubject());
-            allGraphVertex.put(sign, vertex);
-        }
-
-        termAndGraphVertex = new TermAndGraphVertex(termMention, vertex, useExisting);
-        return termAndGraphVertex;
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        TermAndGraphVertex termAndGraphVertex;
+//        String conceptLabel = columnMappingJson.getString("conceptLabel");
+//        boolean useExisting = columnMappingJson.optBoolean("useExisting", false);
+//
+//        // TODO these offsets need to be fixed. If the csv file has quotes or other characters which CsvListReader removes this will be wrong
+//        int termMentionStart = offset;
+//        int termMentionEnd = offset + sign.length();
+//
+//        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifact.getRowKey().toString(), termMentionStart, termMentionEnd);
+//        TermMention termMention = new TermMention(termMentionRowKey);
+//        termMention.getMetadata()
+//                .setSign(artifact.getGenericMetadata().getSubject())
+//                .setSign(sign)
+//                .setConcept(conceptLabel);
+//
+//
+//        GraphVertex vertex = allGraphVertex.get(sign);
+//        if (vertex == null) {
+//            vertex = new InMemoryGraphVertex();
+//            vertex.setProperty(PropertyName.TYPE.toString(), VertexType.ENTITY.toString());
+//            vertex.setProperty(PropertyName.ROW_KEY.toString(), termMention.getRowKey().toString());
+//            vertex.setProperty(PropertyName.TITLE.toString(), sign);
+//            vertex.setProperty(PropertyName.SOURCE.toString(), artifact.getGenericMetadata().getSubject() == null ? "" : artifact.getGenericMetadata().getSubject());
+//            allGraphVertex.put(sign, vertex);
+//        }
+//
+//        termAndGraphVertex = new TermAndGraphVertex(termMention, vertex, useExisting);
+//        return termAndGraphVertex;
     }
 
     private List<StructuredDataRelationship> getRelationships(List<TermAndGraphVertex> termAndGraphVertexes, JSONObject mappingJson) throws JSONException {

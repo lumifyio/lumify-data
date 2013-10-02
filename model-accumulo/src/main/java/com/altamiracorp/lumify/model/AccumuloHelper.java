@@ -12,13 +12,17 @@ import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
 import java.util.*;
 
 public class AccumuloHelper {
-    public static void addRowToWriter(BatchWriter writer, Row row) throws MutationsRejectedException {
+    public static boolean addRowToWriter(BatchWriter writer, Row row) throws MutationsRejectedException {
         Mutation mutation = new Mutation(row.getRowKey().toString());
         Collection<ColumnFamily> columnFamilies = row.getColumnFamilies();
         for (ColumnFamily columnFamily : columnFamilies) {
             addColumnFamilyToMutation(mutation, columnFamily);
         }
+        if (mutation.size() == 0) {
+            return false;
+        }
         writer.addMutation(mutation);
+        return true;
     }
 
     private static void addColumnFamilyToMutation(Mutation mutation, ColumnFamily columnFamily) {

@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.util.Date;
 
 public class BaseOntology {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseOntology.class);
@@ -77,6 +76,16 @@ public class BaseOntology {
         TitanKey timeStampProperty = (TitanKey) graph.getType(PropertyName.TIME_STAMP.toString());
         if (timeStampProperty == null) {
             graph.makeType().name(PropertyName.TIME_STAMP.toString()).dataType(Long.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).makePropertyKey();
+        }
+
+        TitanKey rawHdfsPath = (TitanKey) graph.getType(PropertyName.RAW_HDFS_PATH.toString());
+        if (rawHdfsPath == null) {
+            graph.makeType().name(PropertyName.RAW_HDFS_PATH.toString()).dataType(String.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).makePropertyKey();
+        }
+
+        TitanKey textHdfsPath = (TitanKey) graph.getType(PropertyName.TEXT_HDFS_PATH.toString());
+        if (textHdfsPath == null) {
+            graph.makeType().name(PropertyName.TEXT_HDFS_PATH.toString()).dataType(String.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).makePropertyKey();
         }
 
         TitanKey subTypeProperty = (TitanKey) graph.getType(PropertyName.SUBTYPE.toString());

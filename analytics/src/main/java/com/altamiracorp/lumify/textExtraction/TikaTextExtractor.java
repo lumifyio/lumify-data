@@ -16,7 +16,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,33 +77,27 @@ public class TikaTextExtractor {
 
     }
 
-    public ArtifactExtractedInfo extract(InputStream in, String sourceName, String mimeType, OutputStream textOut) throws Exception {
+    public ArtifactExtractedInfo extract(InputStream in, String mimeType, OutputStream textOut) throws Exception {
         ArtifactExtractedInfo result = new ArtifactExtractedInfo();
         Parser parser = new AutoDetectParser(); // TODO: the content type should already be detected. To speed this up we should be able to grab the parser from content type.
         String text = "";
-        ContentHandler handler = new BodyContentHandler(textOut);
         Metadata metadata = new Metadata();
         ParseContext ctx = new ParseContext();
-
-        try {
-            parser.parse(in, handler, metadata, ctx);
-        } catch (SAXException ex) {
-            // TODO: this exception occures after we reached the write limit specified above
-            LOGGER.warn("Failed to process all the data for: " + sourceName, ex);
-        }
 
         // since we are using the AutoDetectParser, it is safe to assume that
         //the Content-Type metadata key will always return a value
         if (isHtml(mimeType)) {
             text = extractTextFromHtml(text);
             if (text == null || text.length() == 0) {
-                text = handler.toString();
+                ContentHandler handler = new BodyContentHandler(textOut);
+                parser.parse(in, handler, metadata, ctx);
+            } else {
+                textOut.write(text.getBytes());
             }
         } else {
-            text = handler.toString();
+            ContentHandler handler = new BodyContentHandler(textOut);
+            parser.parse(in, handler, metadata, ctx);
         }
-
-        result.setText(text);
 
         result.setDate(extractDate(metadata));
         result.setTitle(extractTextField(metadata, subjectKeys));

@@ -38,7 +38,7 @@ public class TikaTextExtractorTest {
 
     @Test
     public void testExtract() throws Exception {
-        // TODO storm refactor... fix me
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
 //        String data = "<html>";
 //        data += "<head>";
 //        data += "<title>Test Title</title>";

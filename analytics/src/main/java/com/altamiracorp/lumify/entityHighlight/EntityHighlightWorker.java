@@ -53,18 +53,19 @@ public final class EntityHighlightWorker implements Runnable {
 
 
     private boolean modifyHighlightedText(final Artifact artifact, User user) {
-        boolean modified = false;
-        final String highlightedText = highlighter.getHighlightedText(artifact, user);
-
-        if (highlightedText != null && !highlightedText.isEmpty()) {
-            artifact.getContent().setHighlightedText(highlightedText);
-
-            artifactRepository.save(artifact, user);
-            modified = true;
-        } else {
-            LOGGER.info("Could not retrieve valid highlighted text for artifact");
-        }
-
-        return modified;
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        boolean modified = false;
+//        final String highlightedText = highlighter.getHighlightedText(artifact, user);
+//
+//        if (highlightedText != null && !highlightedText.isEmpty()) {
+//            artifact.getContent().setHighlightedText(highlightedText);
+//
+//            artifactRepository.save(artifact, user);
+//            modified = true;
+//        } else {
+//            LOGGER.info("Could not retrieve valid highlighted text for artifact");
+//        }
+//
+//        return modified;
     }
 }

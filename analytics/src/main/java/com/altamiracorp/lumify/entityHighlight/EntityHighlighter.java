@@ -25,17 +25,18 @@ public class EntityHighlighter {
     }
 
     public String getHighlightedText(Artifact artifact, User user) {
-        try {
-            Collection<TermMention> terms = termRepository.findByArtifactRowKey(artifact.getRowKey().toString(), user);
-            List<OffsetItem> termAndTermMetadata = getTermAndTermMetadataForArtifact(terms, user);
-
-            ArrayList<OffsetItem> offsetItems = new ArrayList<OffsetItem>();
-            offsetItems.addAll(termAndTermMetadata);
-
-            return getHighlightedText(artifact.getContent().getDocExtractedTextString(), 0, offsetItems);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        try {
+//            Collection<TermMention> terms = termRepository.findByArtifactRowKey(artifact.getRowKey().toString(), user);
+//            List<OffsetItem> termAndTermMetadata = getTermAndTermMetadataForArtifact(terms, user);
+//
+//            ArrayList<OffsetItem> offsetItems = new ArrayList<OffsetItem>();
+//            offsetItems.addAll(termAndTermMetadata);
+//
+//            return getHighlightedText(artifact.getContent().getDocExtractedTextString(), 0, offsetItems);
+//        } catch (JSONException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     public static String getHighlightedText(String text, int textStartOffset, List<OffsetItem> offsetItems) throws JSONException {

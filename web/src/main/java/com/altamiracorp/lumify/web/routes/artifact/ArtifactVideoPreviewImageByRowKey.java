@@ -37,50 +37,51 @@ public class ArtifactVideoPreviewImageByRowKey extends BaseRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        User user = getUser(request);
-        ArtifactRowKey artifactRowKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
-
-        String widthStr = getOptionalParameter(request, "width");
-        int[] boundaryDims = new int[]{200 * ViewPreviewGenerator.FRAMES_PER_PREVIEW, 200};
-
-        if (widthStr != null) {
-            boundaryDims[0] = Integer.parseInt(widthStr) * ViewPreviewGenerator.FRAMES_PER_PREVIEW;
-            boundaryDims[1] = Integer.parseInt(widthStr);
-
-            response.setContentType("image/jpeg");
-            response.addHeader("Content-Disposition", "inline; filename=thumnail" + boundaryDims[0] + ".jpg");
-
-            byte[] thumbnailData = artifactThumbnailRepository.getThumbnailData(artifactRowKey, "video-preview", boundaryDims[0], boundaryDims[1], user);
-            if (thumbnailData != null) {
-                LOGGER.debug("Cache hit for: " + artifactRowKey.toString() + " (video-preview) " + boundaryDims[0] + "x" + boundaryDims[1]);
-                ServletOutputStream out = response.getOutputStream();
-                out.write(thumbnailData);
-                out.close();
-                return;
-            }
-        }
-
-        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey.toString(), user);
-        if (artifact == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-            chain.next(request, response);
-            return;
-        }
-
-        InputStream in = artifactRepository.getVideoPreviewImage(artifact, user);
-        try {
-            if (widthStr != null) {
-                LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " (video-preview) " + boundaryDims[0] + "x" + boundaryDims[1]);
-                byte[] thumbnailData = artifactThumbnailRepository.createThumbnail(artifact.getRowKey(), "video-preview", in, boundaryDims, user);
-                ServletOutputStream out = response.getOutputStream();
-                out.write(thumbnailData);
-                out.close();
-            } else {
-                response.setContentType("image/png");
-                IOUtils.copy(in, response.getOutputStream());
-            }
-        } finally {
-            in.close();
-        }
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        User user = getUser(request);
+//        ArtifactRowKey artifactRowKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
+//
+//        String widthStr = getOptionalParameter(request, "width");
+//        int[] boundaryDims = new int[]{200 * ViewPreviewGenerator.FRAMES_PER_PREVIEW, 200};
+//
+//        if (widthStr != null) {
+//            boundaryDims[0] = Integer.parseInt(widthStr) * ViewPreviewGenerator.FRAMES_PER_PREVIEW;
+//            boundaryDims[1] = Integer.parseInt(widthStr);
+//
+//            response.setContentType("image/jpeg");
+//            response.addHeader("Content-Disposition", "inline; filename=thumnail" + boundaryDims[0] + ".jpg");
+//
+//            byte[] thumbnailData = artifactThumbnailRepository.getThumbnailData(artifactRowKey, "video-preview", boundaryDims[0], boundaryDims[1], user);
+//            if (thumbnailData != null) {
+//                LOGGER.debug("Cache hit for: " + artifactRowKey.toString() + " (video-preview) " + boundaryDims[0] + "x" + boundaryDims[1]);
+//                ServletOutputStream out = response.getOutputStream();
+//                out.write(thumbnailData);
+//                out.close();
+//                return;
+//            }
+//        }
+//
+//        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey.toString(), user);
+//        if (artifact == null) {
+//            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+//            chain.next(request, response);
+//            return;
+//        }
+//
+//        InputStream in = artifactRepository.getVideoPreviewImage(artifact, user);
+//        try {
+//            if (widthStr != null) {
+//                LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " (video-preview) " + boundaryDims[0] + "x" + boundaryDims[1]);
+//                byte[] thumbnailData = artifactThumbnailRepository.createThumbnail(artifact.getRowKey(), "video-preview", in, boundaryDims, user);
+//                ServletOutputStream out = response.getOutputStream();
+//                out.write(thumbnailData);
+//                out.close();
+//            } else {
+//                response.setContentType("image/png");
+//                IOUtils.copy(in, response.getOutputStream());
+//            }
+//        } finally {
+//            in.close();
+//        }
     }
 }
