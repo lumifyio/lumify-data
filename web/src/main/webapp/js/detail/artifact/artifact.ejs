@@ -24,8 +24,8 @@
   <div class="currentTranscript"/>
 <% } %>
 <% if(artifact.type == 'image') { %>
-  <div class="image-preview" style="background-image:url(<%= artifact.rawUrl %>);">
-    <img src='<%= artifact.rawUrl %>' width="auto" height="300"/>
+  <div class="image-preview">
+    <img class="target" src='<%= artifact.rawUrl %>' width="auto" height="300"/>
   </div>
 <% } %>
 
