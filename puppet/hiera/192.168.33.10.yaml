@@ -1,4 +1,5 @@
 ---
+# proxy_url: 'http://nic-isa:8080'
 hadoop_masters:
   - localhost
 hadoop_slaves:
