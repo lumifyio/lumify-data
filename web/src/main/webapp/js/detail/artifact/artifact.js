@@ -5,7 +5,7 @@ define([
     './image/image',
     '../withTypeContent',
     '../withHighlighting',
-    'detail/dropdowns/objectDetectionForm/objectDetectionForm',
+    'detail/dropdowns/termForm/termForm',
     'detail/properties',
     'tpl!./artifact',
     'tpl!./transcriptEntry',
@@ -14,9 +14,10 @@ define([
     'data'
 ], function(
     defineComponent,
-    VideoScrubber, Image,
+    VideoScrubber,
+    Image,
     withTypeContent, withHighlighting,
-    ObjectDetectionForm,
+    TermForm,
     Properties,
     template,
     transcriptEntryTemplate,
@@ -40,23 +41,27 @@ define([
             artifactSelector: '.artifact',
             propertiesSelector: '.properties',
             titleSelector: '.artifact-title',
-            deleteTagSelector: '.detected-object-tag .delete-tag',
-            detectedObjectTagSelector: '.detected-object-labels'
+            deleteTagSelector: '.detected-object-tag .delete-tag'
         });
 
         this.after('initialize', function() {
             var self = this;
 
             this.on('click', {
-                detectedObjectSelector: this.onDetectedObjectClicked,
+                detectedObjectSelector: self.onDetectedObjectClicked,
                 deleteTagSelector: this.onDeleteTagClicked
             });
 
-            this.on(document, 'scrubberFrameChange', this.onScrubberFrameChange);
-            this.on(document, 'videoTimeUpdate', this.onVideoTimeUpdate);
+            this.on('scrubberFrameChange', this.onScrubberFrameChange);
+            this.on('videoTimeUpdate', this.onVideoTimeUpdate);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
+            this.on(document, 'graphPaddingUpdated', function () {
+                if (self.select('artifactSelector').data('Jcrop')) {
+                    self.onSelectImageRelease ();
+                }
+            });
 
-            this.$node.on('mouseenter', '.image-preview', this.onImageEnter.bind(this));
+            this.$node.on('mouseenter', '.image', this.onImageEnter.bind(this));
             this.$node.on('mouseenter mouseleave', '.detected-object-tag', this.onDetectedObjectHover.bind(this));
 
             this.loadArtifact();
@@ -187,7 +192,7 @@ define([
                 };
 
                 $detectedObjectTag.parent().remove();
-                self.trigger(document, 'DetectedObjectLeave', $detectedObjectTag.data('info'));
+                self.trigger('DetectedObjectLeave', $detectedObjectTag.data('info'));
 
                 if (data.remove){
                     self.trigger(document, 'deleteVertices', { vertices: [resolvedVertex] });
@@ -200,9 +205,9 @@ define([
 
         this.onDetectedObjectHover = function(event) {
             if (event.type == 'mouseenter') {
-                this.trigger(document, 'DetectedObjectEnter', $(event.currentTarget).find('.label-info').data('info'));
+                this.trigger('DetectedObjectEnter', $(event.currentTarget).find('.label-info').data('info'));
             } else {
-                this.trigger(document, 'DetectedObjectLeave', $(event.currentTarget).find('.label-info').data('info'));
+                this.trigger('DetectedObjectLeave', $(event.currentTarget).find('.label-info').data('info'));
             }
         };
 
@@ -216,24 +221,90 @@ define([
         };
 
         this.imageSetup = function(vertex) {
+            var self = this;
             var data = {
                 src: vertex.artifact.rawUrl,
                 id: vertex.id
             };
             Image.attachTo(this.select('imagePreviewSelector'), { data: data });
+            this.before('teardown', function (){
+                self.select('imagePreviewSelector').teardownComponent(Image);
+            });
         };
 
         this.onImageEnter = function(event){
             var self = this;
             var dataInfo = $('.focused .label-info').data('info');
-
+            var artifactDiv = self.select('artifactSelector');
+            if (this.jcropDisabled){
+                return;
+            }
+            $('.artifact .image').attr('width',$(artifactDiv).width());
+            $('.artifact .image').attr('height',$(artifactDiv).height());
             $(self.select('artifactSelector')).Jcrop({
                 onSelect: function (x) {
-                    $('.detected-object-tag').unbind ('mouseenter mouseleave');
-                    self.onSelectImage(x, self.attr.data, dataInfo);
+                    self.onSelectImage(x, self.attr.data);
                 },
                 onRelease: function () {
                     self.onSelectImageRelease();
+                }
+            });
+        };
+
+
+        this.onDetectedObjectClicked = function(event) {
+            var self = this;
+            this.detectedObjectClicked = true;
+            var tagInfo = $(event.target).data('info');
+            $(event.target).parent().addClass('focused');
+            var imageInfo = $('.artifact .image');
+            var aspectHeight = imageInfo.height()/imageInfo[0].naturalHeight;
+            var aspectWidth = imageInfo.width()/imageInfo[0].naturalWidth;
+            var coords = {
+                x: (tagInfo.info.coords.x1 * aspectWidth),
+                y: (tagInfo.info.coords.y1 * aspectHeight),
+                x2: (tagInfo.info.coords.x2 * aspectWidth),
+                y2: (tagInfo.info.coords.y2 * aspectHeight)
+            };
+
+            var artifactDiv = self.select('artifactSelector');
+            $('.artifact .image').attr('width',$(artifactDiv).width());
+            $('.artifact .image').attr('height',$(artifactDiv).height());
+            $(this.select('artifactSelector')).Jcrop({
+                setSelect: [coords.x, coords.y, coords.x2, coords.y2],
+                onSelect: function (x) {self.onSelectImage(x, self.attr.data, tagInfo); },
+                onRelease: function () {
+                   self.onSelectImageRelease();
+                }
+            });
+        };
+
+        this.onDeleteTagClicked = function (event) {
+            var self = this;
+            var $detectedObjectTag = $(event.target).siblings();
+            var info = { objectInfo: JSON.stringify($detectedObjectTag.data('info')) };
+            var $loading = $("<span>")
+                .addClass("badge")
+                .addClass("loading");
+
+            $(event.target).addClass('focused').replaceWith($loading).removeClass('focused');
+            $detectedObjectTag.bind('click', false);
+
+            $.when(this.entityService.deleteDetectedObject(info)).then(function(data) {
+                var resolvedVertex = {
+                    id: data.id,
+                    _subType: data.properties._subType,
+                    _type: data.properties._type
+                };
+
+                $detectedObjectTag.parent().remove();
+                self.trigger(document, 'DetectedObjectLeave', $detectedObjectTag.data('info'));
+
+                if (data.remove){
+                    self.trigger(document, 'deleteVertices', { vertices: [resolvedVertex] });
+                } else {
+                    self.trigger(document, 'updateVertices', { vertices: [resolvedVertex] });
+                    self.trigger(document, 'deleteEdge', { edgeId: data.edgeId });
                 }
             });
         };
@@ -261,7 +332,7 @@ define([
 
         this.showForm = function (dataInfo, artifactInfo){
             if ($('.detected-object-labels .underneath').length === 0) {
-                ObjectDetectionForm.teardownAll ();
+                TermForm.teardownAll ();
             }
             var root = $('<div class="underneath">').insertAfter('.detected-object-labels');
             var resolvedVertex = {
@@ -276,23 +347,34 @@ define([
                 existing = true;
             }
 
-            ObjectDetectionForm.attachTo (root, {
+            TermForm.attachTo (root, {
                 artifactData: artifactInfo,
                 coords: dataInfo.info.coords,
                 detectedObjectRowKey: dataInfo.info._rowKey,
                 graphVertexId: dataInfo.graphVertexId,
                 resolvedVertex: resolvedVertex,
                 model: dataInfo.info.model,
-                existing: existing
+                existing: existing,
+                detectedObject: true
             });
         };
 
         this.onSelectImageRelease = function (){
             if ($('.detected-object-labels .underneath').length === 0) {
-                ObjectDetectionForm.teardownAll ();
+                var $artifact = this.select('artifactSelector');
+                TermForm.teardownAll ();
                 $('.focused').removeClass('focused');
-                $('.detected-object-tag').bind('mouseenter mouseleave');
-                $('.image-preview').bind("mouseenter");
+                this.select('artifactSelector').data('Jcrop').disable();
+
+                // Removing jcrop styling and resetting the image
+                $('.jcrop-holder').remove();
+                $artifact.css({"position": "relative"}).insertBefore($('.facebox'));
+                this.select('artifactSelector').removeAttr('style');
+
+                // If the user didn't complete the modification of coordinates, modify the dom coords back to the old positions
+                if (this.select('detectedObjectSelector').attr('data-info')) {
+                    this.select('detectedObjectSelector').data('info').info.coords = JSON.parse(this.select('detectedObjectSelector').attr('data-info')).info.coords;
+                }
             }
         };
      }

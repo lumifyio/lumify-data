@@ -1,43 +1,42 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.user.UserRepository;
-import com.altamiracorp.lumify.model.workspace.Workspace;
-import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
-import com.altamiracorp.lumify.model.workspace.WorkspaceRowKey;
-import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
-import com.google.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.workspace.Workspace;
+import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
+import com.altamiracorp.web.HandlerChain;
+import com.google.inject.Inject;
 
 public class WorkspaceByRowKey extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorkspaceByRowKey.class);
     private final WorkspaceRepository workspaceRepository;
-    private final UserRepository userRepository;
 
     @Inject
-    public WorkspaceByRowKey(final WorkspaceRepository workspaceRepo,
-                             final UserRepository userRepo) {
+    public WorkspaceByRowKey(final WorkspaceRepository workspaceRepo) {
         workspaceRepository = workspaceRepo;
-        userRepository = userRepo;
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        WorkspaceRowKey workspaceRowKey = new WorkspaceRowKey(getAttributeString(request, "workspaceRowKey"));
-        User authUser = getUser(request);
+        final String workspaceRowKey = getAttributeString(request, "workspaceRowKey");
+        final User authUser = getUser(request);
 
-        Workspace workspace = workspaceRepository.findByRowKey(workspaceRowKey.toString(), authUser);
+        LOGGER.info("Attempting to retrieve workspace: " + workspaceRowKey);
+        final Workspace workspace = workspaceRepository.findByRowKey(workspaceRowKey.toString(), authUser);
 
         if (workspace == null) {
+            LOGGER.warn("Could not find workspace: " + workspaceRowKey);
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
-            JSONObject resultJSON = workspace.toJson(authUser);
+            LOGGER.debug("Successfully found workspace");
+            final JSONObject resultJSON = workspace.toJson(authUser);
             resultJSON.put("id", workspace.getRowKey().toString());
 
             if (workspace.getContent().getData() != null) {
