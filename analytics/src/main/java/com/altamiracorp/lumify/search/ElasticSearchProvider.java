@@ -161,15 +161,13 @@ public class ElasticSearchProvider extends SearchProvider {
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()
                 .startObject()
                 .field(FIELD_TEXT, text)
-                .field(FIELD_SUBJECT, subject);
+                .field(FIELD_SUBJECT, subject)
+                .field(FIELD_ARTIFACT_TYPE, graphVertex.getProperty(PropertyName.SUBTYPE))
+                .field(FIELD_GRAPH_VERTEX_ID, graphVertexId);
 
         // TODO storm refactor
 //                .field(FIELD_PUBLISHED_DATE, artifact.getPublishedDate())
-//                .field(FIELD_ARTIFACT_TYPE, artifact.getType().toString());
-
-        if (graphVertexId != null) {
-            jsonBuilder = jsonBuilder.field(FIELD_GRAPH_VERTEX_ID, graphVertexId);
-        }
+//                ;
 
         // TODO storm refactor
 //        if (source != null) {
@@ -214,8 +212,10 @@ public class ElasticSearchProvider extends SearchProvider {
             String subject = getString(fields, FIELD_SUBJECT);
             String source = getString(fields, FIELD_SOURCE);
             String graphVertexId = getString(fields, FIELD_GRAPH_VERTEX_ID);
-            ArtifactType type = ArtifactType.valueOf(getString(fields, FIELD_ARTIFACT_TYPE).toUpperCase());
-            Date publishedDate = dateFormat.parse(fields.get(FIELD_PUBLISHED_DATE).getValue().toString());
+            ArtifactType type = ArtifactType.convert(getString(fields, FIELD_ARTIFACT_TYPE));
+            // TODO storm refactor
+            //Date publishedDate = dateFormat.parse(fields.get(FIELD_PUBLISHED_DATE).getValue().toString());
+            Date publishedDate = new Date();
             ArtifactSearchResult result = new ArtifactSearchResult(id, subject, publishedDate, source, type, graphVertexId);
             results.add(result);
         }

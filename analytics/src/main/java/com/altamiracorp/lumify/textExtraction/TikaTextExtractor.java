@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import de.l3s.boilerpipe.BoilerpipeProcessingException;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.extractors.NumWordsRulesExtractor;
+import org.apache.commons.io.IOUtils;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.parser.ParseContext;
@@ -80,14 +81,13 @@ public class TikaTextExtractor {
     public ArtifactExtractedInfo extract(InputStream in, String mimeType, OutputStream textOut) throws Exception {
         ArtifactExtractedInfo result = new ArtifactExtractedInfo();
         Parser parser = new AutoDetectParser(); // TODO: the content type should already be detected. To speed this up we should be able to grab the parser from content type.
-        String text = "";
         Metadata metadata = new Metadata();
         ParseContext ctx = new ParseContext();
 
         // since we are using the AutoDetectParser, it is safe to assume that
         //the Content-Type metadata key will always return a value
         if (isHtml(mimeType)) {
-            text = extractTextFromHtml(text);
+            String text = extractTextFromHtml(IOUtils.toString(in));
             if (text == null || text.length() == 0) {
                 ContentHandler handler = new BodyContentHandler(textOut);
                 parser.parse(in, handler, metadata, ctx);
@@ -100,7 +100,10 @@ public class TikaTextExtractor {
         }
 
         result.setDate(extractDate(metadata));
-        result.setTitle(extractTextField(metadata, subjectKeys));
+        String title = extractTextField(metadata, subjectKeys);
+        if (title != null && title.length() > 0) {
+            result.setTitle(title);
+        }
         result.set("url", extractUrl(metadata));
         result.set("type", extractTextField(metadata, typeKeys));
         result.set("extUrl", extractTextField(metadata, extUrlKeys));

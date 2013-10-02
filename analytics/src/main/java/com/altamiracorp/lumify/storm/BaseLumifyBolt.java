@@ -16,6 +16,7 @@ import com.altamiracorp.lumify.model.ontology.VertexType;
 import com.altamiracorp.lumify.textExtraction.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -159,7 +160,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
 
         artifactVertex.setProperty(PropertyName.ROW_KEY.toString(), artifact.getRowKey().toString());
         artifactVertex.setProperty(PropertyName.TYPE, VertexType.ARTIFACT.toString());
-        artifactVertex.setProperty(PropertyName.SUBTYPE, artifactExtractedInfo.getOntologyClassUri());
+        artifactVertex.setProperty(PropertyName.SUBTYPE, ArtifactType.DOCUMENT.toString());
         artifactVertex.setProperty(PropertyName.TITLE, artifactExtractedInfo.getTitle());
         if (artifactExtractedInfo.getRawHdfsPath() != null) {
             artifactVertex.setProperty(PropertyName.RAW_HDFS_PATH, artifactExtractedInfo.getRawHdfsPath());

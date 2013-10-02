@@ -12,6 +12,7 @@ import com.altamiracorp.lumify.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -66,6 +67,7 @@ public class DocumentBolt extends BaseLumifyBolt {
 
         ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
         artifactExtractedInfo.setOntologyClassUri("http://altamiracorp.com/lumify#document");
+        artifactExtractedInfo.setTitle(FilenameUtils.getName(fileName));
 
         InputStream in = getInputStream(fileName, artifactExtractedInfo);
         AdditionalWorkData additionalWorkData = new AdditionalWorkData();

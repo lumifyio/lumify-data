@@ -123,7 +123,6 @@ define([
 
                         results[type][subType].push(v);
                     };
-
                     vertexSearch[0].vertices.forEach(sortVerticesIntoResults);
                     artifactSearch[0].vertices.forEach(sortVerticesIntoResults);
                     self.searchResults = results;
