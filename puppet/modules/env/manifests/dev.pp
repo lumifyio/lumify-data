@@ -8,6 +8,7 @@ class env::dev {
   include ::tesseract
   include ::opencv
   include role::oozie::pseudo
+  include ::kafka
 
   # TODO: configure firewall rules
   service { 'iptables' :
