@@ -162,6 +162,7 @@ define([
                     self.triggerPaneResized();
                 }
 
+                self.trigger('verticesSelected', []);
                 self.trigger('refreshRelationships');
             });
         };

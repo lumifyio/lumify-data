@@ -22,6 +22,7 @@
 // this is put as a global var in the browser
 // or it's just a global to this module if commonjs
 var cytoscape;
+var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
 (function(){
 
@@ -4242,7 +4243,6 @@ var cytoscape;
 
 
 ;(function($$){
-    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 	
 	$$.fn.core({
 		
@@ -8049,7 +8049,6 @@ var cytoscape;
 
 (function($$) {
 
-    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 	var isTouch = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
 	var time = function() { return Date.now(); } ; 
 	var arrowShapes = {}; var nodeShapes = {}; 
@@ -8075,6 +8074,10 @@ var cytoscape;
 			bufferCanvases: new Array(BUFFER_COUNT)
 
 		};
+
+        this.updatePixelRatio = function() {
+            pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
+        };
 		
 		//--Pointer-related data
 		this.hoverData = {down: null, last: null, 
@@ -14435,7 +14438,6 @@ var cytoscape;
 })(cytoscape);
 
 ;(function($$){
-    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 	
 	var defaults = {
 		ready: undefined, // callback on layoutready
@@ -14499,7 +14501,6 @@ var cytoscape;
 })(cytoscape);
 
 ;(function($$){
-    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 	
 	var defaults = {
 		fit: true, // whether to fit the viewport to the graph
@@ -14735,7 +14736,6 @@ var cytoscape;
 })(cytoscape);
 
 ;(function($$){
-    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 	
 	var defaults = {
 		liveUpdate: true, // whether to show the layout as it's running
@@ -15023,7 +15023,6 @@ var cytoscape;
 
 ;(function($$){
     
-    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
     var defaults = {
         fit: true, // whether to fit the viewport to the graph
         ready: undefined, // callback on layoutready
@@ -15137,7 +15136,6 @@ var cytoscape;
 })( cytoscape );
 
 ;(function($$){
-    var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
     
     var defaults = {
         fit: true, // whether to fit the viewport to the graph

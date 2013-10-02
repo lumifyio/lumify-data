@@ -404,6 +404,13 @@ define([
             cy.renderer().hideEdgesOnViewport = cy.edges().length > SHOW_EDGES_ON_ZOOM_THRESHOLD;
         };
 
+        this.onDevicePixelRatioChanged = function() {
+            this.cy(function(cy) {
+                cy.renderer().updatePixelRatio();
+                this.fit();
+            });
+        };
+
         this.fit = function() {
             this.cy(function(cy) {
                 if( cy.elements().size() === 0 ){
@@ -871,9 +878,9 @@ define([
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesSelected', this.onVerticesSelected);
-            //this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
             this.on(document, 'graphPaddingUpdated', this.onGraphPaddingUpdated);
+            this.on(document, 'devicePixelRatioChanged', this.onDevicePixelRatioChanged);
             this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);
             this.on(document, 'focusVertices', this.onFocusVertices);
             this.on(document, 'defocusVertices', this.onDefocusVertices);
