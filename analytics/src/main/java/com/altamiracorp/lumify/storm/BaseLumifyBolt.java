@@ -49,7 +49,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         }
 
         Properties props = new Properties();
-        props.put("zk.connect", stormConf.get("zookeeperServerNames"));
+        props.put("zk.connect", stormConf.get("zookeeperServerNames") + "/kafka"); // TODO what happens if zookeeperServerNames has multiple names
         props.put("serializer.class", KafkaJsonEncoder.class.getName());
         ProducerConfig config = new ProducerConfig(props);
         kafkaProducer = new Producer<String, JSONObject>(config);

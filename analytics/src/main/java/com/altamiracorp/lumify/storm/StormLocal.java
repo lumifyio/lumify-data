@@ -117,9 +117,9 @@ public class StormLocal extends CommandLineBase {
 
     private SpoutConfig createSpoutConfig(String queueName) {
         SpoutConfig spoutConfig = new SpoutConfig(
-                new KafkaConfig.ZkHosts(getConfiguration().getZookeeperServerNames(), "/brokers"),
+                new KafkaConfig.ZkHosts(getConfiguration().getZookeeperServerNames(), "/kafka/brokers"),
                 queueName,
-                "/consumers",
+                "/kafka/consumers",
                 queueName);
         spoutConfig.scheme = new KafkaJsonEncoder();
         return spoutConfig;
