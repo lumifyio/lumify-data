@@ -91,6 +91,7 @@ class macro {
       command => "/usr/bin/git config --global --unset-all http.proxy",
       environment => 'HOME=/root',
       require => Package['git'],
+      returns => [ 0, 5 ],
       logoutput => on_failure,
     }
   }
