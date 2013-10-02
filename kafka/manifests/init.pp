@@ -39,9 +39,11 @@ class kafka(
   }
 
   file { $extractdir:
+    ensure  => directory,
     owner   => $user,
     group   => $group,
     recurse => true,
+    require => Macro::Extract[$downloadpath],
   }
 
   file { $home:
@@ -87,11 +89,13 @@ class kafka(
     require  => File[$home],
   }
 
+  $java_home = hiera("java_home")
   exec { "sbt update" :
-    command => "${home}/sbt update",
+    command => "/bin/sh sbt update",
     user    => $user,
     group   => $group,
-    cwd     => $home,
+    cwd     => $extractdir,
+    environment => "JAVA_HOME=${java_home}",
 #    unless  => "/usr/bin/test -f ${home}/lib_managed",
     require => [
       File["${configdir}/consumer.properties"],
@@ -103,10 +107,11 @@ class kafka(
   }
 
   exec { "sbt package" :
-    command => "${home}/sbt update",
+    command => "/bin/sh sbt package",
     user    => $user,
     group   => $group,
-    cwd     => $home,
+    cwd     => $extractdir,
+    environment => "JAVA_HOME=${java_home}",
     #    unless  => "/usr/bin/test -f ${home}/lib_managed",
     require => Exec["sbt update"],
   }
