@@ -90,7 +90,6 @@ define([
                     .insertAfter(dragging);
             }
 
-
             this.cy(function(cy) {
                 var currentNodes = cy.nodes(),
                     boundingBox = currentNodes.boundingBox(),
@@ -102,8 +101,6 @@ define([
                     }),
                     maxWidth = validBox ? retina.pixelsToPoints({ x:boundingBox.w, y:boundingBox.h}).x : 0,
                     startX = nextAvailablePosition.x;
-
-                cy.filter(":selected").unselect();
 
                 maxWidth = Math.max(maxWidth, inc * 10);
 
@@ -170,7 +167,7 @@ define([
                 });
 
                 if (options.fit && cy.nodes().length) {
-                    this.fit();
+                    _.defer(this.fit.bind(this));
                 }
 
                 if (existingNodes.length && cloned && cloned.length) {
@@ -416,6 +413,7 @@ define([
                     // prevents extreme closeup when one vertex
                     var maxZoom = cy._private.maxZoom;
                     cy._private.maxZoom *= 0.5;
+                    cy.panningEnabled(true).zoomingEnabled(true).boxSelectionEnabled(true);
                     cy.fit(undefined, $.extend({}, this.graphPadding));
                     cy._private.maxZoom = maxZoom;
                 }
@@ -485,7 +483,7 @@ define([
 
             var padding = $.extend({}, data.padding);
 
-            padding.r += this.select('graphToolsSelector').outerWidth(true);
+            padding.r += this.select('graphToolsSelector').outerWidth(true) || 65;
             padding.l += border;
             padding.t += border;
             padding.b += border;
@@ -650,7 +648,7 @@ define([
             }
             if (info.length > 0){
                 this.trigger('verticesSelected', [info]);
-            }
+            } else this.trigger('verticesSelected', []);
         };
 
         this.onKeyHandler = function(event) {
@@ -772,6 +770,7 @@ define([
                     .zoomingEnabled(!noVertices)
                     .boxSelectionEnabled(!noVertices);
 
+                this.select('graphToolsSelector').toggle(!noVertices);
                 if (noVertices) {
                     cy.reset();
                 }
@@ -791,10 +790,10 @@ define([
             this.resetGraph();
             this.isWorkspaceEditable = workspace.isEditable;
             if (workspace.data.vertices.length) {
-                this.addVertices(workspace.data.vertices, { fit:true });
-            }
+                this.addVertices(workspace.data.vertices, { fit:(this.previousWorkspace && this.previousWorkspace != workspace.id) });
+            } else this.checkEmptyGraph();
 
-            this.checkEmptyGraph();
+            this.previousWorkspace = workspace.id;
         };
 
         this.onRelationshipsLoaded = function(evt, relationshipData) {
@@ -838,13 +837,17 @@ define([
                 .done(function(data) {
                     var added = data.vertices;
                     
-                    added.forEach(function(vertex, index) {
-                        vertex.workspace = {
-                            selected: true
-                        };
-                    });
+                    self.cy(function(cy) {
+                        cy.filter(':selected').unselect();
+                        cy.container().focus();
+                        added.forEach(function(vertex, index) {
+                            vertex.workspace = {
+                                selected: true
+                            };
+                        });
 
-                    self.trigger(document, 'addVertices', { vertices: added });
+                        self.trigger(document, 'addVertices', { vertices: added });
+                    });
                 });
         };
 

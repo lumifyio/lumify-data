@@ -2,11 +2,12 @@ define([
     'flight/lib/component',
     'data',
     'service/sync',
-    './syncCursor'
-], function (defineComponent, appData, SyncService, SyncCursor) {
+    './syncCursor',
+    'util/withAsyncQueue'
+], function (defineComponent, appData, SyncService, SyncCursor, withAsyncQueue) {
     'use strict';
 
-    return defineComponent(Sync);
+    return defineComponent(Sync, withAsyncQueue);
 
     function Sync() {
         this.syncCursors = false; // TODO should we sync cursors? Maybe allow enabling/disabling.
@@ -16,7 +17,8 @@ define([
         this.events = [
             'addVertices',
             'updateVertices',
-            'deleteVertices'
+            'deleteVertices',
+            'workspaceRemoteSave'
         ];
 
         if (this.syncCursors) {
@@ -39,21 +41,27 @@ define([
             if (this.syncCursors) {
                 SyncCursor.attachTo(window);
             }
+
+            this.setupAsyncQueue('users');
         });
 
         this.onWorkspaceLoaded = function(evt, workspace) {
             this.workspaceEditable = workspace.isEditable;
             this.currentWorkspaceRowKey = workspace.id;
 
-            var data = {
-                type: 'changedWorkspace',
-                permissions: {
-                },
-                data: {
-                    workspaceRowKey: this.currentWorkspaceRowKey
-                }
-            };
-            this.syncService.socketPush(data);
+            this.usersReady(function(usersData) {
+                var user = usersData.user,
+                    data = {
+                        type: 'changedWorkspace',
+                        permissions: {
+                        },
+                        data: {
+                            userRowKey: user.rowKey,
+                            workspaceRowKey: this.currentWorkspaceRowKey
+                        }
+                    };
+                this.syncService.socketPush(data);
+            });
         };
 
         this.onWorkspaceSwitched = function (evt, data) {
@@ -97,6 +105,7 @@ define([
         };
 
         this.onOnlineStatusChanged = function (evt, data) {
+            this.usersMarkReady(data);
             this.currentUser = data.user;
         };
 

@@ -73,10 +73,25 @@ define([
                 resolvableSelector: this.onResolvableClicked,
                 highlightTypeSelector: this.onHighlightTypeClicked
             });
+            this.on('mousedown mouseup click dblclick', this.trackMouse.bind(this));
             this.on(document, 'termCreated', this.updateEntityAndArtifactDraggables);
 
             this.applyHighlightStyle();
         });
+
+        this.trackMouse = function(event) {
+            if (event.type === 'mouseup' || event.type === 'click' || event.type === 'dblclick') {
+                this.mouseDown = false;
+            } else {
+                this.mouseDown = true;
+            }
+
+            if (event.type === 'mouseup' || event.type === 'dblclick') {
+                this.handleSelectionChange();
+            } else if (event.type == 'click' && $(event.target).closest('.underneath').length === 0) {
+                this.tearDownDropdowns();
+            }
+        };
 
         this.onHighlightTypeClicked = function(evt) {
             var target = $(evt.target),
@@ -211,6 +226,11 @@ define([
                  $(selection.anchorNode).parents('.underneath').length ||
                  $(selection.focusNode).is('.underneath') ||
                  $(selection.focusNode).parents('.underneath').length) {
+                return;
+            }
+
+            // Ignore if mouse cursor still down
+            if (this.mouseDown) {
                 return;
             }
 
