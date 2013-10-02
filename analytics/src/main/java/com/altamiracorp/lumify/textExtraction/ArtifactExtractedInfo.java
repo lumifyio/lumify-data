@@ -1,87 +1,53 @@
 package com.altamiracorp.lumify.textExtraction;
 
+import org.json.JSONObject;
+
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ArtifactExtractedInfo {
-    private String mediaType;
-    private String subject;
-    private String text;
-    private Date date;
-    private String url;
-    private String type;
-    private String extUrl;
-    private String srcType;
-    private Long retrievalTime;
+    private static final String ROW_KEY = "rowKey";
+    private static final String TEXT = "text";
+    private static final String TITLE = "title";
+    private static final String DATE = "date";
+    private HashMap<String, Object> properties = new HashMap<String, Object>();
 
-    public void setText(String text) {
-        this.text = text;
+    public void mergeFrom(ArtifactExtractedInfo artifactExtractedInfo) {
+        for (Map.Entry<String, Object> prop : artifactExtractedInfo.properties.entrySet()) {
+            this.properties.put(prop.getKey(), prop.getValue());
+        }
+    }
+
+    public void setRowKey(String rowKey) {
+        properties.put(ROW_KEY, rowKey);
     }
 
     public String getText() {
-        return text;
+        return (String) properties.get(TEXT);
     }
 
-    public String getSubject() {
-        return subject;
+    public void setText(String text) {
+        properties.put(TEXT, text);
     }
 
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public Date getDate() {
-        return date;
+    public void setTitle(String title) {
+        properties.put(TITLE, title);
     }
 
     public void setDate(Date date) {
-        this.date = date;
+        properties.put(DATE, date);
     }
 
-    public String getMediaType() {
-        return mediaType;
+    public void set(String key, Object val) {
+        properties.put(key, val);
     }
 
-    public void setMediaType(String mediaType) {
-        this.mediaType = mediaType;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getExtUrl() {
-        return extUrl;
-    }
-
-    public void setExtUrl(String extUrl) {
-        this.extUrl = extUrl;
-    }
-
-    public String getSrcType() {
-        return srcType;
-    }
-
-    public void setSrcType(String srcType) {
-        this.srcType = srcType;
-    }
-
-    public Long getRetrievalTime() {
-        return retrievalTime;
-    }
-
-    public void setRetrievalTime(Long retrievalTime) {
-        this.retrievalTime = retrievalTime;
+    public JSONObject toJson() {
+        JSONObject json = new JSONObject();
+        for (Map.Entry<String, Object> prop : properties.entrySet()) {
+            json.put(prop.getKey(), prop.getValue());
+        }
+        return json;
     }
 }

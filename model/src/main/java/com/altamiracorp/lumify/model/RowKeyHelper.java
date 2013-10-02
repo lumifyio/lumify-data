@@ -42,6 +42,22 @@ public class RowKeyHelper {
         }
     }
 
+    public static String buildSHA256KeyString(InputStream in) throws IOException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            int bufferSize = 4096;
+            byte[] buffer = new byte[bufferSize];
+            int read;
+            while ((read = in.read(buffer, 0, buffer.length)) > 0) {
+                digest.update(buffer, 0, read);
+            }
+            byte[] sha = digest.digest();
+            return "urn" + MINOR_FIELD_SEPARATOR + "sha256" + MINOR_FIELD_SEPARATOR + Hex.encodeHexString(sha);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static String buildSHA256KeyString(InputStream in, OutputStream out) throws IOException {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

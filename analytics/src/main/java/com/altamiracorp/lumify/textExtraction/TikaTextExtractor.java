@@ -79,7 +79,7 @@ public class TikaTextExtractor {
 
     }
 
-    public ArtifactExtractedInfo extract(String sourceName, InputStream in, String mimeType) throws Exception {
+    public ArtifactExtractedInfo extract(InputStream in, String sourceName, String mimeType) throws Exception {
         ArtifactExtractedInfo result = new ArtifactExtractedInfo();
         Parser parser = new AutoDetectParser(); // TODO: the content type should already be detected. To speed this up we should be able to grab the parser from content type.
         String text = "";
@@ -108,12 +108,12 @@ public class TikaTextExtractor {
         result.setText(text);
 
         result.setDate(extractDate(metadata));
-        result.setSubject(extractTextField(metadata, subjectKeys));
-        result.setUrl(extractUrl(metadata));
-        result.setType(extractTextField(metadata, typeKeys));
-        result.setExtUrl(extractTextField(metadata, extUrlKeys));
-        result.setSrcType(extractTextField(metadata, srcTypeKeys));
-        result.setRetrievalTime(extractRetrievalTime(metadata));
+        result.setTitle(extractTextField(metadata, subjectKeys));
+        result.set("url", extractUrl(metadata));
+        result.set("type", extractTextField(metadata, typeKeys));
+        result.set("extUrl", extractTextField(metadata, extUrlKeys));
+        result.set("srcType", extractTextField(metadata, srcTypeKeys));
+        result.set("retrievalTime", extractRetrievalTime(metadata));
 
         String customImageMetadata = extractTextField(metadata, customFlickrMetadataKeys);
         if (customImageMetadata != null && !customImageMetadata.equals("")) {
@@ -123,8 +123,8 @@ public class TikaTextExtractor {
                         "\n" + customImageMetadataJson.get("tags").toString());
                 result.setDate(GenericDateExtractor
                         .extractSingleDate(customImageMetadataJson.get("lastupdate").toString()));
-                result.setRetrievalTime(Long.parseLong(customImageMetadataJson.get("atc:retrieval-timestamp").toString()));
-                result.setSubject(customImageMetadataJson.get("title").toString());
+                result.set("retrievalTime", Long.parseLong(customImageMetadataJson.get("atc:retrieval-timestamp").toString()));
+                result.setTitle(customImageMetadataJson.get("title").toString());
             } catch (JSONException e) {
                 LOGGER.warn("Image returned invalid custom metadata");
             }
