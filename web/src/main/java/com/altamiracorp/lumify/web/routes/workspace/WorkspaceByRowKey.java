@@ -37,13 +37,17 @@ public class WorkspaceByRowKey extends BaseRequestHandler {
         } else {
             LOGGER.debug("Successfully found workspace");
             final JSONObject resultJSON = workspace.toJson(authUser);
-            resultJSON.put("id", workspace.getRowKey().toString());
+            if (resultJSON == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            } else {
+                resultJSON.put("id", workspace.getRowKey().toString());
 
-            if (workspace.getContent().getData() != null) {
-                resultJSON.put("data", new JSONObject(workspace.getContent().getData()));
+                if (workspace.getContent().getData() != null) {
+                    resultJSON.put("data", new JSONObject(workspace.getContent().getData()));
+                }
+
+                respondWithJson(response, resultJSON);
             }
-
-            respondWithJson(response, resultJSON);
         }
 
         chain.next(request, response);

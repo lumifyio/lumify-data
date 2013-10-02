@@ -166,6 +166,10 @@ define([
             }
         };
 
+        this.onWorkspaceNotAvailable = function ( event, data) {
+            this.loadWorkspaceList();
+        };
+
         this.switchActive = function( rowKey ) {
             var self = this;
             this.workspaceRowKey = rowKey;
@@ -250,6 +254,7 @@ define([
             this.on( document, 'workspaceSaved', this.onWorkspaceSaved );
             this.on( document, 'workspaceDeleted', this.onWorkspaceDeleted );
             this.on( document, 'workspaceRemoteSave', this.onWorkspaceRemoteSave );
+            this.on( document, 'workspaceNotAvailable', this.onWorkspaceNotAvailable );
 
             this.on( document, 'menubarToggleDisplay', this.onToggleMenu );
             this.on( document, 'switchWorkspace', this.onSwitchWorkspace );
