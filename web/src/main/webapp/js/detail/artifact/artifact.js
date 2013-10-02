@@ -145,13 +145,17 @@ define([
         };
 
         this.onDetectedObjectClicked = function(event) {
-            var self = this;
-            var tagInfo = $(event.target).data('info');
-            $(event.target).parent().addClass('focused');
-            if ($(event.target).hasClass('resolved')){
-                var imageInfo = $('.artifact .image');
-                var aspectHeight = imageInfo.height()/imageInfo[0].naturalHeight;
-                var aspectWidth = imageInfo.width()/imageInfo[0].naturalWidth;
+            event.preventDefault();
+            var self = this,
+                tagInfo = $(event.target).data('info'),
+                $target = $(event.target),
+                $targetArtifact = $(event.target).closest('.type-content').find('.artifact');
+
+            $target.parent().addClass('focused');
+            if ($target.hasClass('resolved')){
+                var $targetImage = $targetArtifact.find('.image');
+                var aspectHeight = $targetImage.height()/$targetImage[0].naturalHeight;
+                var aspectWidth = $targetImage.width()/$targetImage[0].naturalWidth;
                 var coords = {
                     x: (tagInfo.info.coords.x1 * aspectWidth),
                     y: (tagInfo.info.coords.y1 * aspectHeight),
@@ -163,13 +167,13 @@ define([
 
                 $(this.select('artifactSelector')).Jcrop({
                     setSelect: [coords.x, coords.y, coords.x2, coords.y2],
-                    onSelect: function (x) {self.onSelectImage(x, self.attr.data, tagInfo); },
+                    onSelect: function (x) {self.onSelectImage(x, self.attr.data, tagInfo, $targetImage)},
                     onRelease: function () {
-                       self.onSelectImageRelease();
+                       self.onSelectImageRelease($targetImage);
                     }
                 });
             } else {
-                this.showForm(tagInfo, this.attr.data);
+                this.showForm(tagInfo, this.attr.data, $target);
             };
         };
 
@@ -235,6 +239,8 @@ define([
         this.onImageEnter = function(event){
             var self = this;
             var dataInfo = $('.focused .label-info').data('info');
+            var $targetImage = $(event.target).parent().find('.image');
+
             var artifactDiv = self.select('artifactSelector');
             if (this.jcropDisabled){
                 return;
@@ -243,76 +249,28 @@ define([
             $('.artifact .image').attr('height',$(artifactDiv).height());
             $(self.select('artifactSelector')).Jcrop({
                 onSelect: function (x) {
-                    self.onSelectImage(x, self.attr.data);
+                    self.onSelectImage(x, self.attr.data, dataInfo, $targetImage);
                 },
                 onRelease: function () {
-                    self.onSelectImageRelease();
+                    self.onSelectImageRelease($targetImage);
                 }
             });
+            $targetImage.closest('.jcrop-holder').on('mouseleave',this.onImageLeave.bind(self));
         };
 
-
-        this.onDetectedObjectClicked = function(event) {
-            var self = this;
-            this.detectedObjectClicked = true;
-            var tagInfo = $(event.target).data('info');
-            $(event.target).parent().addClass('focused');
-            var imageInfo = $('.artifact .image');
-            var aspectHeight = imageInfo.height()/imageInfo[0].naturalHeight;
-            var aspectWidth = imageInfo.width()/imageInfo[0].naturalWidth;
-            var coords = {
-                x: (tagInfo.info.coords.x1 * aspectWidth),
-                y: (tagInfo.info.coords.y1 * aspectHeight),
-                x2: (tagInfo.info.coords.x2 * aspectWidth),
-                y2: (tagInfo.info.coords.y2 * aspectHeight)
-            };
-
-            var artifactDiv = self.select('artifactSelector');
-            $('.artifact .image').attr('width',$(artifactDiv).width());
-            $('.artifact .image').attr('height',$(artifactDiv).height());
-            $(this.select('artifactSelector')).Jcrop({
-                setSelect: [coords.x, coords.y, coords.x2, coords.y2],
-                onSelect: function (x) {self.onSelectImage(x, self.attr.data, tagInfo); },
-                onRelease: function () {
-                   self.onSelectImageRelease();
-                }
-            });
+        this.onImageLeave = function (event) {
+            var $artifact = $(event.target).siblings('.artifact');
+            var jcrop = $artifact.data('Jcrop');
+            var coords = jcrop.tellSelect();
+            if (coords.h === 0 && coords.w === 0) {
+                $(event.target).closest('.jcrop-holder').off('mouseleave');
+                this.disableJcrop($artifact);
+            }
         };
 
-        this.onDeleteTagClicked = function (event) {
-            var self = this;
-            var $detectedObjectTag = $(event.target).siblings();
-            var info = { objectInfo: JSON.stringify($detectedObjectTag.data('info')) };
-            var $loading = $("<span>")
-                .addClass("badge")
-                .addClass("loading");
-
-            $(event.target).addClass('focused').replaceWith($loading).removeClass('focused');
-            $detectedObjectTag.bind('click', false);
-
-            $.when(this.entityService.deleteDetectedObject(info)).then(function(data) {
-                var resolvedVertex = {
-                    id: data.id,
-                    _subType: data.properties._subType,
-                    _type: data.properties._type
-                };
-
-                $detectedObjectTag.parent().remove();
-                self.trigger(document, 'DetectedObjectLeave', $detectedObjectTag.data('info'));
-
-                if (data.remove){
-                    self.trigger(document, 'deleteVertices', { vertices: [resolvedVertex] });
-                } else {
-                    self.trigger(document, 'updateVertices', { vertices: [resolvedVertex] });
-                    self.trigger(document, 'deleteEdge', { edgeId: data.edgeId });
-                }
-            });
-        };
-
-        this.onSelectImage = function (coords, artifactInfo, dataInfo){
-            var imageInfo = $('.artifact .image');
-            var aspectHeight = imageInfo.height()/imageInfo[0].naturalHeight;
-            var aspectWidth = imageInfo.width()/imageInfo[0].naturalWidth;
+        this.onSelectImage = function (coords, artifactInfo, dataInfo, $targetImage){
+            var aspectHeight = $targetImage.height()/$targetImage[0].naturalHeight;
+            var aspectWidth = $targetImage.width()/$targetImage[0].naturalWidth;
 
             if (!dataInfo || $('.focused').length == 0) {
                 dataInfo = {
@@ -327,14 +285,14 @@ define([
                     y2: (coords.y2 / aspectHeight)
             };
 
-            this.showForm(dataInfo, artifactInfo);
+            this.showForm(dataInfo, artifactInfo, $targetImage);
         };
 
-        this.showForm = function (dataInfo, artifactInfo){
+        this.showForm = function (dataInfo, artifactInfo, $target){
             if ($('.detected-object-labels .underneath').length === 0) {
                 TermForm.teardownAll ();
             }
-            var root = $('<div class="underneath">').insertAfter('.detected-object-labels');
+            var root = $('<div class="underneath">').insertAfter($target.closest('.type-content').find('.detected-object-labels'));
             var resolvedVertex = {
                 graphVertexId: dataInfo.graphVertexId,
                 _rowKey: dataInfo._rowKey,
@@ -359,23 +317,26 @@ define([
             });
         };
 
-        this.onSelectImageRelease = function (){
+        this.onSelectImageRelease = function ($targetImage){
             if ($('.detected-object-labels .underneath').length === 0) {
-                var $artifact = this.select('artifactSelector');
                 TermForm.teardownAll ();
                 $('.focused').removeClass('focused');
-                this.select('artifactSelector').data('Jcrop').disable();
-
-                // Removing jcrop styling and resetting the image
-                $('.jcrop-holder').remove();
-                $artifact.css({"position": "relative"}).insertBefore($('.facebox'));
-                this.select('artifactSelector').removeAttr('style');
+                this.disableJcrop($targetImage.closest('.artifact'));
 
                 // If the user didn't complete the modification of coordinates, modify the dom coords back to the old positions
                 if (this.select('detectedObjectSelector').attr('data-info')) {
                     this.select('detectedObjectSelector').data('info').info.coords = JSON.parse(this.select('detectedObjectSelector').attr('data-info')).info.coords;
                 }
             }
+        };
+
+        this.disableJcrop = function($artifact) {
+            var $jcropHolder = $artifact.closest('.jcrop-holder');
+            var $parent = $jcropHolder.parent();
+            $artifact.data('Jcrop').disable();
+
+            $jcropHolder.remove();
+            $parent.prepend($artifact.css({"position": "relative"}).removeAttr('style'));
         };
      }
 });
