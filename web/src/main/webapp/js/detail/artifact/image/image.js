@@ -24,8 +24,12 @@ define([
             }).html(html);
 
             // TODO: make local events for full-screen support
-            this.on(document, 'DetectedObjectEnter', this.onHover);
-            this.on(document, 'DetectedObjectLeave', this.onHoverLeave);
+            this.$node.closest('.detail-pane').on('DetectedObjectEnter', this.onHover.bind(this));
+            this.$node.closest('.detail-pane').on('DetectedObjectLeave', this.onHoverLeave.bind(this));
+            this.before('teardown',function () {
+                this.$node.closest('.detail-pane').off('DetectedObjectEnter');
+                this.$node.closest('.detail-pane').off('DetectedObjectLeave');
+            });
         });
 
         this.onHover = function(event, data) {

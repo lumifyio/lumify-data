@@ -52,8 +52,8 @@ define([
                 deleteTagSelector: this.onDeleteTagClicked
             });
 
-            this.on(document, 'scrubberFrameChange', this.onScrubberFrameChange);
-            this.on(document, 'videoTimeUpdate', this.onVideoTimeUpdate);
+            this.on('scrubberFrameChange', this.onScrubberFrameChange);
+            this.on('videoTimeUpdate', this.onVideoTimeUpdate);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
 
             this.$node.on('mouseenter', '.image-preview', this.onImageEnter.bind(this));
@@ -187,7 +187,7 @@ define([
                 };
 
                 $detectedObjectTag.parent().remove();
-                self.trigger(document, 'DetectedObjectLeave', $detectedObjectTag.data('info'));
+                self.trigger('DetectedObjectLeave', $detectedObjectTag.data('info'));
 
                 if (data.remove){
                     self.trigger(document, 'deleteVertices', { vertices: [resolvedVertex] });
@@ -200,9 +200,9 @@ define([
 
         this.onDetectedObjectHover = function(event) {
             if (event.type == 'mouseenter') {
-                this.trigger(document, 'DetectedObjectEnter', $(event.currentTarget).find('.label-info').data('info'));
+                this.trigger('DetectedObjectEnter', $(event.currentTarget).find('.label-info').data('info'));
             } else {
-                this.trigger(document, 'DetectedObjectLeave', $(event.currentTarget).find('.label-info').data('info'));
+                this.trigger('DetectedObjectLeave', $(event.currentTarget).find('.label-info').data('info'));
             }
         };
 
@@ -216,11 +216,15 @@ define([
         };
 
         this.imageSetup = function(vertex) {
+            var self = this;
             var data = {
                 src: vertex.artifact.rawUrl,
                 id: vertex.id
             };
             Image.attachTo(this.select('imagePreviewSelector'), { data: data });
+            this.before('teardown', function (){
+                self.select('imagePreviewSelector').teardownComponent(Image);
+            });
         };
 
         this.onImageEnter = function(event){

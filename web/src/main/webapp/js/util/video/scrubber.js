@@ -53,7 +53,7 @@ define([
             this.showing = FRAMES;
             this.currentFrame = index;
 
-            this.trigger(document, 'scrubberFrameChange', {
+            this.trigger('scrubberFrameChange', {
                index: index,
                numberOfFrames: NUMBER_FRAMES
             });
@@ -76,7 +76,7 @@ define([
             this.showing = POSTER;
             this.currentFrame = -1;
 
-            this.trigger(document, 'scrubberFrameChange', {
+            this.trigger('scrubberFrameChange', {
                index: 0,
                numberOfFrames: NUMBER_FRAMES
             });
@@ -99,6 +99,8 @@ define([
                     delete players[player];
                 }
             });
+
+            this.trigger('videoPlayerInitialized');
 
             var scrubPercent = this.scrubPercent;
             _.defer(videojs, video[0], { autoplay:true }, function() {
@@ -137,6 +139,12 @@ define([
 
             var image = new Image();
             image.src = this.attr.videoPreviewImageUrl;
+
+            this.on('videoPlayerInitialized', function (e) {
+                self.off('mousemove');
+                self.off('mouseleave');
+                self.off('click');
+            });
 
             this.on('mousemove', {
                 scrubbingLineSelector: function(e) { e.stopPropagation(); }
