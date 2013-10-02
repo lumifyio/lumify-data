@@ -11,6 +11,7 @@ public class ArtifactExtractedInfo {
     private static final String TEXT = "text";
     private static final String TITLE = "title";
     private static final String DATE = "date";
+    private static final String TEXT_HDFS_PATH = "textHdfsPath";
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 
     public void mergeFrom(ArtifactExtractedInfo artifactExtractedInfo) {
@@ -49,5 +50,13 @@ public class ArtifactExtractedInfo {
             json.put(prop.getKey(), prop.getValue());
         }
         return json;
+    }
+
+    public void setTextHdfsPath(String textHdfsPath) {
+        set(TEXT_HDFS_PATH, textHdfsPath);
+    }
+
+    public String getTextHdfsPath() {
+        return (String) properties.get(TEXT_HDFS_PATH);
     }
 }

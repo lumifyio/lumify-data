@@ -86,7 +86,7 @@ public class StormLocal extends CommandLineBase {
 
     private TopologyBuilder createContentTypeSorterTopology(TopologyBuilder builder) {
         builder.setSpout(FILE_CONTENT_TYPE_SORTER_ID, new DevFileSystemSpout(), 1);
-        builder.setBolt("contentTypeSorterBolt", new ContentTypeSorterBolt(), 10)
+        builder.setBolt("contentTypeSorterBolt", new ContentTypeSorterBolt(), 1)
                 .shuffleGrouping(FILE_CONTENT_TYPE_SORTER_ID);
         return builder;
     }
@@ -94,24 +94,24 @@ public class StormLocal extends CommandLineBase {
     private void createImageTopology(TopologyBuilder builder) {
         String queueName = "image";
         SpoutConfig spoutConfig = createSpoutConfig(queueName);
-        builder.setSpout(queueName, new KafkaSpout(spoutConfig), 10);
-        builder.setBolt("debug-" + queueName, new DebugBolt(queueName), 10)
+        builder.setSpout(queueName, new KafkaSpout(spoutConfig), 1);
+        builder.setBolt("debug-" + queueName, new DebugBolt(queueName), 1)
                 .shuffleGrouping(queueName);
     }
 
     private void createVideoTopology(TopologyBuilder builder) {
         String queueName = "video";
         SpoutConfig spoutConfig = createSpoutConfig(queueName);
-        builder.setSpout(queueName, new KafkaSpout(spoutConfig), 10);
-        builder.setBolt("debug-" + queueName, new DebugBolt(queueName), 10)
+        builder.setSpout(queueName, new KafkaSpout(spoutConfig), 1);
+        builder.setBolt("debug-" + queueName, new DebugBolt(queueName), 1)
                 .shuffleGrouping(queueName);
     }
 
     private void createDocumentTopology(TopologyBuilder builder) {
         String queueName = "document";
         SpoutConfig spoutConfig = createSpoutConfig(queueName);
-        builder.setSpout(queueName + "-spout", new KafkaSpout(spoutConfig), 10);
-        builder.setBolt(queueName + "-bolt", new DocumentBolt(), 10)
+        builder.setSpout(queueName + "-spout", new KafkaSpout(spoutConfig), 1);
+        builder.setBolt(queueName + "-bolt", new DocumentBolt(), 1)
                 .shuffleGrouping(queueName + "-spout");
     }
 

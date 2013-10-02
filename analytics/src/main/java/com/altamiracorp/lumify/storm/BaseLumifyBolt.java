@@ -18,6 +18,8 @@ import com.google.inject.Injector;
 import kafka.javaapi.producer.Producer;
 import kafka.javaapi.producer.ProducerData;
 import kafka.producer.ProducerConfig;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -31,6 +33,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
     private OutputCollector collector;
     private Producer<String, JSONObject> kafkaProducer;
     private ArtifactRepository artifactRepository;
+    private FileSystem hdfsFileSystem;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -38,11 +41,31 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         final Injector injector = Guice.createInjector(StormBootstrap.create(stormConf));
         injector.injectMembers(this);
 
+        Configuration conf = createHadoopConfiguration(stormConf);
+        try {
+            hdfsFileSystem = FileSystem.get(conf);
+        } catch (IOException e) {
+            collector.reportError(e);
+        }
+
         Properties props = new Properties();
         props.put("zk.connect", stormConf.get("zookeeperServerNames"));
         props.put("serializer.class", KafkaJsonEncoder.class.getName());
         ProducerConfig config = new ProducerConfig(props);
         kafkaProducer = new Producer<String, JSONObject>(config);
+    }
+
+    protected Configuration createHadoopConfiguration(Map stormConf) {
+        Configuration configuration = new Configuration();
+        for (Object entrySetObject : stormConf.entrySet()) {
+            Map.Entry entrySet = (Map.Entry) entrySetObject;
+            configuration.set("" + entrySet.getKey(), "" + entrySet.getValue());
+        }
+        return configuration;
+    }
+
+    protected FileSystem getHdfsFileSystem() {
+        return hdfsFileSystem;
     }
 
     @Override

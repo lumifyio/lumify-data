@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -28,8 +29,6 @@ import java.util.List;
 import java.util.Properties;
 
 public class TikaTextExtractor {
-    public static final int WRITE_LIMIT = 1000000;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(TikaTextExtractor.class);
     private static final String NAME = "tikaExtractor";
 
@@ -79,11 +78,11 @@ public class TikaTextExtractor {
 
     }
 
-    public ArtifactExtractedInfo extract(InputStream in, String sourceName, String mimeType) throws Exception {
+    public ArtifactExtractedInfo extract(InputStream in, String sourceName, String mimeType, OutputStream textOut) throws Exception {
         ArtifactExtractedInfo result = new ArtifactExtractedInfo();
         Parser parser = new AutoDetectParser(); // TODO: the content type should already be detected. To speed this up we should be able to grab the parser from content type.
         String text = "";
-        ContentHandler handler = new BodyContentHandler(WRITE_LIMIT);
+        ContentHandler handler = new BodyContentHandler(textOut);
         Metadata metadata = new Metadata();
         ParseContext ctx = new ParseContext();
 
