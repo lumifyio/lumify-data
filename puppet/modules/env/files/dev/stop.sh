@@ -28,7 +28,7 @@ function elasticsearch {
 }
 
 function kafka {
-    sudo -u kafka /opt/kafka/bin/kafka-server-stop.sh /opt/kafka/config/server.properties
+    sudo -u kafka JMX_PORT=10000 /opt/kafka/bin/kafka-server-stop.sh /opt/kafka/config/server.properties
 }
 
 case "$1" in
