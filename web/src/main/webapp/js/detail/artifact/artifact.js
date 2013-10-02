@@ -5,7 +5,7 @@ define([
     './image/image',
     '../withTypeContent',
     '../withHighlighting',
-    'detail/dropdowns/objectDetectionForm/objectDetectionForm',
+    'detail/dropdowns/termForm/termForm',
     'detail/properties',
     'tpl!./artifact',
     'tpl!./transcriptEntry',
@@ -17,7 +17,7 @@ define([
     VideoScrubber,
     Image,
     withTypeContent, withHighlighting,
-    ObjectDetectionForm,
+    TermForm,
     Properties,
     template,
     transcriptEntryTemplate,
@@ -332,7 +332,7 @@ define([
 
         this.showForm = function (dataInfo, artifactInfo){
             if ($('.detected-object-labels .underneath').length === 0) {
-                ObjectDetectionForm.teardownAll ();
+                TermForm.teardownAll ();
             }
             var root = $('<div class="underneath">').insertAfter('.detected-object-labels');
             var resolvedVertex = {
@@ -347,21 +347,22 @@ define([
                 existing = true;
             }
 
-            ObjectDetectionForm.attachTo (root, {
+            TermForm.attachTo (root, {
                 artifactData: artifactInfo,
                 coords: dataInfo.info.coords,
                 detectedObjectRowKey: dataInfo.info._rowKey,
                 graphVertexId: dataInfo.graphVertexId,
                 resolvedVertex: resolvedVertex,
                 model: dataInfo.info.model,
-                existing: existing
+                existing: existing,
+                detectedObject: true
             });
         };
 
         this.onSelectImageRelease = function (){
             if ($('.detected-object-labels .underneath').length === 0) {
                 var $artifact = this.select('artifactSelector');
-                ObjectDetectionForm.teardownAll ();
+                TermForm.teardownAll ();
                 $('.focused').removeClass('focused');
                 this.select('artifactSelector').data('Jcrop').disable();
 
