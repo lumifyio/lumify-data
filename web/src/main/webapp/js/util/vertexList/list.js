@@ -5,7 +5,8 @@ define([
     'data',
     'tpl!./list',
     'util/previews',
-    'util/video/scrubber'
+    'util/video/scrubber',
+    'util/jquery.ui.draggable.multiselect'
 ], function(defineComponent, registry, appData, template, previews, VideoScrubber) {
     'use strict';
 

@@ -359,9 +359,14 @@ define([
                         return isEntity;
                     },
                     drop: function(event, ui) {
-                        var destTerm = $(this),
-                            form = $('<div class="underneath"/>').insertAfter(destTerm);
+                        var destTerm = $(this);
+                        var form;
 
+                        if (destTerm.hasClass('opens-dropdown')) {
+                            form = $('<div class="underneath"/>').insertAfter (destTerm.closest('.detected-object-labels'));
+                        } else {
+                            form = $('<div class="underneath"/>').insertAfter(destTerm);
+                        }
                         self.tearDownDropdowns();
 
                         StatementForm.attachTo(form, {

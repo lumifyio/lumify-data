@@ -1,17 +1,17 @@
 package com.altamiracorp.lumify.entityExtraction;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import org.apache.hadoop.mapreduce.Mapper.Context;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.hadoop.mapreduce.Mapper.Context;
+
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.termMention.TermMention;
+import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
 
 public class RegexEntityExtractor extends EntityExtractor {
     private static final String REGULAR_EXPRESSION = "regularExpression";
@@ -27,7 +27,7 @@ public class RegexEntityExtractor extends EntityExtractor {
             throw new IOException("No regular expression was provided!");
         }
 
-        this.pattern = Pattern.compile(regularExpression, Pattern.MULTILINE);
+        pattern = Pattern.compile(regularExpression, Pattern.MULTILINE);
 
         entityType = context.getConfiguration().get(ENTITY_TYPE);
         if (entityType == null) {

@@ -221,12 +221,13 @@ define([
                         x2: parseFloat(this.attr.coords.x2),
                         y2: parseFloat(this.attr.coords.y2)
                     }),
-                    detectedObjectRowKey: this.attr.detectedObjectRowKey
+                    detectedObjectRowKey: this.attr.detectedObjectRowKey,
+                    existing: this.currentGraphVertexId
                 };
 
             _.defer(this.buttonLoading.bind(this));
 
-            if (this.attr.exisiting) {
+            if (this.attr.existing) {
                 self.updateEntity (parameters);
             } else {
                 self.createEntity (parameters);
