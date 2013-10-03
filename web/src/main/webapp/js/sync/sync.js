@@ -112,6 +112,9 @@ define([
             if (data && data.remoteEvent) {
                 return;
             }
+            if (_.isObject(data)) {
+                data = [data];
+            }
             data = (data || []).map(function(v) { return { id: v.id }; });
             this.syncService.publishUserSyncEvent(evt.type, [this.currentUser.rowKey], data);
         };
