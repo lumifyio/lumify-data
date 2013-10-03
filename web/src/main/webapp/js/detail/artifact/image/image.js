@@ -63,36 +63,38 @@ define([
 
                 var box = this.select('boxEditingSelector'),
                     offsetParent = this.$node.offset(),
+                    offsetParentWidth = this.$node.width(),
+                    offsetParentHeight = this.$node.height(),
                     startPosition = {
                         left: event.pageX - offsetParent.left,
                         top: event.pageY - offsetParent.top,
                         width: 1,
                         height: 1
                     };
-                self.$node.on('mousemove.facebox', function(evt) {
-                    var currentPosition = {
-                            left: evt.pageX - offsetParent.left,
-                            top: evt.pageY - offsetParent.top
-                        },
-                        width = Math.abs(startPosition.left - currentPosition.left),
-                        height = Math.abs(startPosition.top - currentPosition.top);
+                $(document).on('mousemove.facebox', function(evt) {
+                        var currentPosition = {
+                                left: Math.min(offsetParentWidth, Math.max(0, evt.pageX - offsetParent.left)),
+                                top: Math.min(offsetParentHeight, Math.max(0, evt.pageY - offsetParent.top))
+                            },
+                            width = Math.abs(startPosition.left - currentPosition.left),
+                            height = Math.abs(startPosition.top - currentPosition.top);
 
-                    if (width >= 5 && height >= 5) {
-                        box.css({
-                            left: Math.min(startPosition.left, currentPosition.left),
-                            top: Math.min(startPosition.top, currentPosition.top),
-                            width: width,
-                            height: height
-                        }).show();
-                    } else {
-                        box.hide();
-                    }
-                });
-                self.$node.on('mouseup.facebox', function(evt) {
-                    self.$node.off('mousemove.facebox mouseup.facebox');
-                    self.currentlyEditing = 'NEW';
-                    convertToPercentageAndTrigger(evt, { element:box });
-                });
+                        if (width >= 5 && height >= 5) {
+                            box.css({
+                                left: Math.min(startPosition.left, currentPosition.left),
+                                top: Math.min(startPosition.top, currentPosition.top),
+                                width: width,
+                                height: height
+                            }).show();
+                        } else {
+                            box.hide();
+                        }
+                    })
+                    .on('mouseup.facebox', function(evt) {
+                        $(document).off('mouseup.facebox mousemove.facebox');
+                        self.currentlyEditing = 'NEW';
+                        convertToPercentageAndTrigger(evt, { element:box });
+                    });
 
                 box.css(startPosition).hide();
             });
