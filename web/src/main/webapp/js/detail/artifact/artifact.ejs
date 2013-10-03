@@ -29,12 +29,6 @@
   </div>
 <% } %>
 
-<div class="artifact-header">
-  <div class="properties">
-    <div class="nav-header">Properties<span class="badge loading"/></div>
-  </div>
-</div>
-
 <div class='detected-object-labels'>
   <% artifact.detectedObjects.forEach(function(object) {
     if (object.graphVertexId) {
@@ -47,6 +41,12 @@
         <a class="label-info detected-object opens-dropdown" data-info="<%= JSON.stringify(object) %>" href="#"><%= object.info.title || object.info.concept %></a>
     </span>
   <% }}); %>
+</div>
+
+<div class="artifact-header">
+  <div class="properties">
+    <div class="nav-header">Properties<span class="badge loading"/></div>
+  </div>
 </div>
 
 <div class="text"><%- artifact.contentHtml %></div>
