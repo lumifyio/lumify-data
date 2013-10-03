@@ -1,30 +1,24 @@
 package com.altamiracorp.lumify.entityExtraction;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.storm.TextExtractedInfo;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.arabidopsis.ahocorasick.AhoCorasick;
 import org.arabidopsis.ahocorasick.OutputResult;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.model.ontology.PropertyName;
-import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
 
-public class KnownEntityExtractor extends EntityExtractor {
+public class KnownEntityExtractor {
     private FileSystem fs;
     private String pathPrefix;
 
@@ -32,36 +26,30 @@ public class KnownEntityExtractor extends EntityExtractor {
     private static final String DEFAULT_PATH_PREFIX = "hdfs://";
     private AhoCorasick tree = new AhoCorasick();
 
-    @Override
-    void setup(Mapper.Context context, User user) throws IOException {
-        pathPrefix = context.getConfiguration().get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX);
-        fs = FileSystem.get(context.getConfiguration());
+    public KnownEntityExtractor(Configuration configuration, User user) throws IOException {
+        pathPrefix = configuration.get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX);
+        fs = FileSystem.get(configuration);
+    }
+
+    public void init() throws IOException {
         loadDictionaries();
     }
 
-    @Override
-    List<ExtractedEntity> extract(Artifact artifact, String text) throws Exception {
-        ArrayList<ExtractedEntity> result = new ArrayList<ExtractedEntity>();
+    public TextExtractedInfo extract(InputStream textInputStream) throws IOException {
+        TextExtractedInfo textExtractedInfo = new TextExtractedInfo();
+        String text = IOUtils.toString(textInputStream); // TODO convert AhoCorasick to use InputStream
         List<OutputResult> searchResults = tree.completeSearch(text, false, true);
         for (OutputResult searchResult : searchResults) {
-            result.add(searchResultToExtractedEntity(artifact, searchResult));
+            textExtractedInfo.add(outputResultToTermMention(searchResult));
         }
-        return result;
+        return textExtractedInfo;
     }
 
-    private ExtractedEntity searchResultToExtractedEntity(Artifact artifact, OutputResult searchResult) {
+    private TextExtractedInfo.TermMention outputResultToTermMention(OutputResult searchResult) {
         Match match = (Match) searchResult.getOutput();
-
-        long start = searchResult.getStartIndex();
-        long end = searchResult.getLastIndex();
-        TermMention termMention = new TermMention(new TermMentionRowKey(artifact.getRowKey().toString(), start, end));
-        termMention.getMetadata().setSign(match.getEntityTitle());
-        termMention.getMetadata().setOntologyClassUri(match.getConceptTitle());
-
-        GraphVertex vertex = new InMemoryGraphVertex();
-        vertex.setProperty(PropertyName.TITLE, match.getEntityTitle());
-
-        return new ExtractedEntity(termMention, vertex);
+        int start = searchResult.getStartIndex();
+        int end = searchResult.getLastIndex();
+        return new TextExtractedInfo.TermMention(start, end, match.getEntityTitle(), match.getConceptTitle(), true);
     }
 
     private void loadDictionaries() throws IOException {

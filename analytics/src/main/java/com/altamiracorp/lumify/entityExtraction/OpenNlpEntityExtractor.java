@@ -37,7 +37,9 @@ public abstract class OpenNlpEntityExtractor {
         setPathPrefix(configuration.get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX));
         this.fs = FileSystem.get(configuration);
         this.user = user;
+    }
 
+    public void init() throws IOException {
         setTokenizer(loadTokenizer());
         setFinders(loadFinders());
     }
@@ -82,7 +84,7 @@ public abstract class OpenNlpEntityExtractor {
         String name = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
         int start = charOffset + tokenListPositions[foundName.getStart()].getStart();
         int end = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
-        return new TextExtractedInfo.TermMention(start, end, name, foundName.getType());
+        return new TextExtractedInfo.TermMention(start, end, name, foundName.getType(), false);
     }
 
     protected abstract List<TokenNameFinder> loadFinders() throws IOException;

@@ -43,11 +43,12 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
     protected ArtifactRepository artifactRepository;
     private FileSystem hdfsFileSystem;
     protected GraphRepository graphRepository;
+    private Injector injector;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
         this.collector = collector;
-        final Injector injector = Guice.createInjector(StormBootstrap.create(stormConf));
+        injector = Guice.createInjector(StormBootstrap.create(stormConf));
         injector.injectMembers(this);
 
         Configuration conf = createHadoopConfiguration(stormConf);
@@ -72,6 +73,10 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
             configuration.set("" + entrySet.getKey(), "" + entrySet.getValue());
         }
         return configuration;
+    }
+
+    public Injector getInjector() {
+        return injector;
     }
 
     protected FileSystem getHdfsFileSystem() {

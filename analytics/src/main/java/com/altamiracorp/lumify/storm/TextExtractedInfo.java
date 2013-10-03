@@ -6,6 +6,10 @@ import java.util.List;
 public class TextExtractedInfo {
     private List<TermMention> termMentions = new ArrayList<TermMention>();
 
+    public void add(TermMention termMention) {
+        this.termMentions.add(termMention);
+    }
+
     public void addAll(List<TermMention> termMentions) {
         this.termMentions.addAll(termMentions);
     }
@@ -24,12 +28,14 @@ public class TextExtractedInfo {
         private final int end;
         private final String sign;
         private final String ontologyClassUri;
+        private final boolean resolved;
 
-        public TermMention(int start, int end, String sign, String ontologyClassUri) {
+        public TermMention(int start, int end, String sign, String ontologyClassUri, boolean resolved) {
             this.start = start;
             this.end = end;
             this.sign = sign;
             this.ontologyClassUri = ontologyClassUri;
+            this.resolved = resolved;
         }
 
         public int getStart() {
@@ -46,6 +52,10 @@ public class TextExtractedInfo {
 
         public String getOntologyClassUri() {
             return ontologyClassUri;
+        }
+
+        public boolean isResolved() {
+            return resolved;
         }
     }
 }
