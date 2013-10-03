@@ -145,6 +145,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         }
         if (artifactExtractedInfo.getText() != null) {
             artifact.getMetadata().setText(artifactExtractedInfo.getText());
+            artifact.getMetadata().setHighlightedText(artifactExtractedInfo.getText());
         }
 
         artifactRepository.save(artifact, getUser());
@@ -167,6 +168,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         }
         if (artifactExtractedInfo.getTextHdfsPath() != null) {
             artifactVertex.setProperty(PropertyName.TEXT_HDFS_PATH, artifactExtractedInfo.getTextHdfsPath());
+            artifactVertex.setProperty(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH, artifactExtractedInfo.getTextHdfsPath());
         }
         String vertexId = this.graphRepository.save(artifactVertex, getUser());
         this.graphRepository.commit();

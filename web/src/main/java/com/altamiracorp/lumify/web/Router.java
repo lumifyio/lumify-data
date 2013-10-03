@@ -57,6 +57,7 @@ public class Router extends HttpServlet {
         app.get("/resource/{_rowKey}", authenticator, ResourceGet.class);
 
         app.get("/artifact/search", authenticator, ArtifactSearch.class);
+        app.get("/artifact/{graphVertexId}/highlightedText", authenticator, ArtifactHighlightedText.class);
         app.get("/artifact/{_rowKey}/raw", authenticator, ArtifactRawByRowKey.class);
         app.get("/artifact/{_rowKey}/thumbnail", authenticator, ArtifactThumbnailByRowKey.class);
         app.get("/artifact/{_rowKey}/poster-frame", authenticator, ArtifactPosterFrameByRowKey.class);
@@ -105,10 +106,10 @@ public class Router extends HttpServlet {
         app.get("/admin/query", authenticator, AdminQuery.class);
         app.get("/admin/tables", authenticator, AdminTables.class);
         app.post("/admin/uploadOntology", authenticator, AdminUploadOntology.class);
-        app.get("/admin/dictionary",authenticator, AdminDictionary.class);
-        app.get("/admin/dictionary/{concept}",authenticator,AdminDictionaryByConcept.class);
-        app.post("/admin/dictionary",authenticator,AdminDictionaryEntryAdd.class);
-        app.delete("/admin/dictionary/{entryRowKey}",authenticator, AdminDictionaryEntryDelete.class);
+        app.get("/admin/dictionary", authenticator, AdminDictionary.class);
+        app.get("/admin/dictionary/{concept}", authenticator, AdminDictionaryByConcept.class);
+        app.post("/admin/dictionary", authenticator, AdminDictionaryEntryAdd.class);
+        app.delete("/admin/dictionary/{entryRowKey}", authenticator, AdminDictionaryEntryDelete.class);
 
         LessRestlet.init(rootDir);
         app.get("/css/{file}.css", LessRestlet.class);

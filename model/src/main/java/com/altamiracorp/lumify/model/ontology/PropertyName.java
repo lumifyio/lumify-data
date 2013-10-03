@@ -21,7 +21,8 @@ public enum PropertyName {
     PUBLISHED_DATE("publishedDate"),
     TIME_STAMP("_timeStamp"),
     RAW_HDFS_PATH("rawHdfsPath"),
-    TEXT_HDFS_PATH("textHdfsPath");
+    TEXT_HDFS_PATH("textHdfsPath"),
+    HIGHLIGHTED_TEXT_HDFS_PATH("highlightedTextHdfsPath");
 
     private final String text;
 

@@ -3,10 +3,12 @@ package com.altamiracorp.lumify.ucd.artifact;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.*;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.search.ArtifactSearchResult;
 import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 
 import javax.imageio.ImageIO;
@@ -14,9 +16,12 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Singleton
 public class ArtifactRepository extends Repository<Artifact> {
@@ -168,5 +173,18 @@ public class ArtifactRepository extends Repository<Artifact> {
             results.add(artifactSearchResult.getGraphVertexId());
         }
         return results;
+    }
+
+    public void writeHighlightedTextTo(GraphVertex artifactVertex, OutputStream out, User user) throws IOException {
+        checkNotNull(artifactVertex, "artifactVertex cannot be null");
+        String hdfsPath = (String) artifactVertex.getProperty(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH);
+        if (hdfsPath == null) {
+            String artifactRowKey = (String) artifactVertex.getProperty(PropertyName.ROW_KEY);
+            Artifact artifact = findByRowKey(artifactRowKey, user);
+            out.write(artifact.getMetadata().getHighlightedText().getBytes());
+        } else {
+            InputStream in = getModelSession().loadFile(hdfsPath, user);
+            IOUtils.copy(in, out);
+        }
     }
 }

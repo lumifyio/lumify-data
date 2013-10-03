@@ -9,6 +9,7 @@ public class ArtifactMetadata extends ColumnFamily {
     public static final String NAME = "Generic_Metadata";
     public static final String RAW = "raw";
     public static final String TEXT = "text";
+    public static final String HIGHLIGHTED_TEXT = "highlightedText";
     private static final String GRAPH_VERTEX_ID = "graphVertexId";
     private static final String CREATE_DATE = "createDate";
 
@@ -31,6 +32,15 @@ public class ArtifactMetadata extends ColumnFamily {
 
     public ArtifactMetadata setText(String text) {
         set(TEXT, text);
+        return this;
+    }
+
+    public String getHighlightedText() {
+        return Value.toString(get(HIGHLIGHTED_TEXT));
+    }
+
+    public ArtifactMetadata setHighlightedText(String highlightedText) {
+        set(HIGHLIGHTED_TEXT, highlightedText);
         return this;
     }
 

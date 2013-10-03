@@ -41,7 +41,8 @@ define([
             artifactSelector: '.artifact-image',
             propertiesSelector: '.properties',
             titleSelector: '.artifact-title',
-            deleteTagSelector: '.detected-object-tag .delete-tag'
+            deleteTagSelector: '.detected-object-tag .delete-tag',
+            textSelector: '.text'
         });
 
         this.after('initialize', function() {
@@ -84,23 +85,26 @@ define([
         };
 
         this.handleVertexLoaded = function(vertex) {
-            this.videoTranscript = vertex.artifact.videoTranscript;
-            this.videoDuration = vertex.artifact.videoDuration;
+            var self = this;
+            this.videoTranscript = vertex.videoTranscript;
+            this.videoDuration = vertex.videoDuration;
 
             this.$node.html(template({
-                artifact: vertex.artifact,
                 vertex: vertex,
                 highlightButton: this.highlightButton(),
                 fullscreenButton: this.fullscreenButton([vertex.id])
             }));
 
-            this.updateEntityAndArtifactDraggables();
-
             Properties.attachTo(this.select('propertiesSelector'), { data: vertex });
 
-            if (this[vertex.artifact.type + 'Setup']) {
-                this[vertex.artifact.type + 'Setup'](vertex);
-            }
+            this.ucdService.getArtifactHighlightedTextById(vertex.id).done(function(artifactText) {
+                self.select('textSelector').html(artifactText);
+                self.updateEntityAndArtifactDraggables();
+
+                if (self[vertex.properties._subType + 'Setup']) {
+                    self[vertex.properties._subType + 'Setup'](vertex);
+                }
+            });
         };
 
         this.onVideoTimeUpdate = function(evt, data) {

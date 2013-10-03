@@ -78,6 +78,13 @@ function(ServiceBase) {
         return this._get("artifact", id);
     };
 
+    Ucd.prototype.getArtifactHighlightedTextById = function(graphVertexId) {
+        return this._ajaxGet({
+            dataType: 'html',
+            url: "artifact/" + graphVertexId + "/highlightedText"
+        });
+    };
+
     Ucd.prototype.getRawArtifactById = function (id) {
         //maybe it's an object for future options stuff?
         var i = typeof id == "object" ? id.id : id;

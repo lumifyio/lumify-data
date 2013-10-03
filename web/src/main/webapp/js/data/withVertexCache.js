@@ -61,19 +61,8 @@ define([
         };
 
         this.refresh = function(vertex) {
-            var self = this,
-                deferred = null;
-
-            if (_.isString(vertex)) {
-                deferred = this.ucdService.getVertexProperties(vertex);
-            } else if (vertex.properties._type === 'artifact' && vertex.properties._rowKey) {
-                deferred = $.when(
-                    this.ucdService.getArtifactById(vertex.properties._rowKey),
-                    this.ucdService.getVertexProperties(vertex.id)
-                );
-            } else {
-                deferred = this.ucdService.getVertexProperties(vertex.id);
-            }
+            var self = this;
+            var deferred = this.ucdService.getVertexProperties(vertex.id);
 
             return deferred.then(function() {
                 return self.vertex(vertex.id);
