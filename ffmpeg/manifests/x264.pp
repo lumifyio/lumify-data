@@ -1,18 +1,19 @@
 class ffmpeg::x264($prefix="/usr/local", $tmpdir="/usr/local/src") {
   require buildtools
   include macro
+  include macro::git
 
   $srcdir = "${tmpdir}/x264"
 
-  macro::git-clone { "x264-clone":
+  macro::git::clone { "x264-clone":
     url     => "http://git.videolan.org/git/x264.git",
     path    => $srcdir,
   }
 
-  macro::git-checkout { 'x264-checkout':
+  macro::git::checkout { 'x264-checkout':
     path    => $srcdir,
     branch  => "stable",
-    require => Macro::Git-clone["x264-clone"],
+    require => Macro::Git::Clone["x264-clone"],
   }
 
   $configure = "${srcdir}/configure --prefix='${prefix}' --bindir='${prefix}/bin' --enable-static"
@@ -25,6 +26,6 @@ class ffmpeg::x264($prefix="/usr/local", $tmpdir="/usr/local/src") {
     cwd     => $srcdir,
     command => $cmd,
     creates => "${prefix}/bin/x264",
-    require => Macro::Git-checkout['x264-checkout'],
+    require => Macro::Git::Checkout['x264-checkout'],
   }
 }

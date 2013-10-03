@@ -8,6 +8,7 @@ class elasticsearch(
   $tmpdir = '/tmp'
 ) {
   include macro
+  include macro::git
   require hadoop
 
   $homedir = "${installdir}/elasticsearch-${version}"
@@ -123,7 +124,7 @@ class elasticsearch(
     group   => $group,
   }
 
-  macro::git-clone { "elasticsearch-servicewrapper-clone":
+  macro::git::clone { "elasticsearch-servicewrapper-clone":
     url     => "https://github.com/elasticsearch/elasticsearch-servicewrapper.git",
     path    => "${tmpdir}/elasticsearch-servicewrapper",
     options => "--depth 1",
@@ -132,7 +133,7 @@ class elasticsearch(
   exec { "copy-elasticsearch-servicewrapper" :
     command => "/bin/cp -r ${tmpdir}/elasticsearch-servicewrapper/service/ ${homedir}/bin",
     unless  => "/usr/bin/test -f ${homedir}/bin/service/",
-    require => [Macro::Git-clone["elasticsearch-servicewrapper-clone"], Macro::Extract[$downloadpath]],
+    require => [ Macro::Git::Clone["elasticsearch-servicewrapper-clone"], Macro::Extract[$downloadpath] ],
   }
 
   file { "elasticsearch-service-config":

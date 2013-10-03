@@ -1,19 +1,20 @@
 class ffmpeg::libvpx($prefix="/usr/local", $tmpdir="/usr/local/src") {
   require buildtools
   include macro
+  include macro::git
 
   $srcdir = "${tmpdir}/libvpx"
-  
-  macro::git-clone { "libvpx-clone":
+
+  macro::git::clone { "libvpx-clone":
     url     => "http://git.chromium.org/webm/libvpx.git",
     path    => $srcdir,
     options => "--depth 1",
   }
-  
-  macro::git-checkout { 'libvpx-checkout':
+
+  macro::git::checkout { 'libvpx-checkout':
     path    => $srcdir,
     branch  => "v1.2.0",
-    require => Macro::Git-clone["libvpx-clone"],
+    require => Macro::Git::Clone["libvpx-clone"],
   }
 
   $configure  = "${srcdir}/configure --prefix=${prefix} --disable-examples"
@@ -26,6 +27,6 @@ class ffmpeg::libvpx($prefix="/usr/local", $tmpdir="/usr/local/src") {
     cwd     => $srcdir,
     command => $cmd,
     creates => "${prefix}/lib/libvpx.a",
-    require => Macro::Git-checkout['libvpx-checkout'],
+    require => Macro::Git::Checkout['libvpx-checkout'],
   }
 }
