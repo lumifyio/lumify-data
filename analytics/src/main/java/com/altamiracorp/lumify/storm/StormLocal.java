@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.storm;
 
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
+import backtype.storm.StormSubmitter;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
@@ -54,6 +55,13 @@ public class StormLocal extends CommandLineBase {
                         .create()
         );
 
+        opts.addOption(
+                OptionBuilder
+                        .withLongOpt("local")
+                        .withDescription("Run local")
+                        .create()
+        );
+
         return opts;
     }
 
@@ -61,6 +69,7 @@ public class StormLocal extends CommandLineBase {
     protected int run(CommandLine cmd) throws Exception {
         File dataDir = new File(cmd.getOptionValue("datadir"));
         String rootDir = cmd.getOptionValue("rootdir");
+        boolean isLocal = cmd.hasOption("local");
 
         Config conf = new Config();
         conf.put(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, rootDir);
@@ -72,15 +81,21 @@ public class StormLocal extends CommandLineBase {
         conf.setDebug(false);
         conf.setNumWorkers(2);
 
-        LocalCluster cluster = new LocalCluster();
         StormTopology topology = createTopology();
-        cluster.submitTopology("local", conf, topology);
-        // TODO: how do we know when we are done?
-        while (!isDone) {
-            Utils.sleep(100);
+
+        if (isLocal) {
+            LocalCluster cluster = new LocalCluster();
+            cluster.submitTopology("local", conf, topology);
+
+            // TODO: how do we know when we are done?
+            while (!isDone) {
+                Utils.sleep(100);
+            }
+            cluster.killTopology("local");
+            cluster.shutdown();
+        } else {
+            StormSubmitter.submitTopology("lumify", conf, topology);
         }
-        cluster.killTopology("local");
-        cluster.shutdown();
 
         return 0;
     }
