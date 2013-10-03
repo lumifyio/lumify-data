@@ -147,8 +147,6 @@ define([
                 $target = $(event.target),
                 info = $target.closest('.label-info').data('info');
 
-            //TODO: needed?
-            //$target.parent().addClass('focused');
             this.trigger('DetectedObjectEdit', info);
             this.showForm(info, this.attr.data, $target);
         };
@@ -177,8 +175,8 @@ define([
                 .addClass("badge")
                 .addClass("loading");
 
-            $(event.target).addClass('focused').replaceWith($loading).removeClass('focused');
-            $detectedObjectTag.bind('click', false);
+            $detectedObjectTag.closest('.detected-object-tag').addClass('loading');
+            $(event.target).replaceWith($loading);
 
             this.entityService.deleteDetectedObject(info)
                 .done(function(data) {

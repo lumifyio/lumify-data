@@ -26,6 +26,25 @@
       }
   }
 
+  .detected-object-labels {
+    padding-top: 1em;
+    .label.detected-object-tag.loading {
+        background: #efefef;
+        a {
+            background: inherit;
+            color: black;
+        }
+        .badge.loading {
+            height: 1.6ex;
+            margin-left: 1ex;
+        }
+        .label-info {
+            color: #999;
+            text-shadow: 0 1px 0 white;
+        }
+    }
+  }
+
   .detected-object-tag {
       background-color: #2d6987;
 
@@ -34,10 +53,13 @@
       }
 
       .delete-tag {
-        padding-left: 5px;
-        color: #B1B1B1;
+        padding: 1ex 0.9ex 1ex 1.3ex;
+        color: #eaeaea;
         text-decoration: none;
         cursor: pointer;
+        &:hover {
+          color: white;
+        }
       }
   }
 
