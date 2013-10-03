@@ -109,7 +109,7 @@ define([
         };
 
 
-        this.onCreateStatement = function (event) {bin/ 
+        this.onCreateStatement = function (event) {
             var self = this,
                 parameters = {
                     sourceGraphVertexId: this.attr.sourceTerm.data('info').graphVertexId,
