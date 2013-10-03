@@ -56,20 +56,16 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
                 y1 = Double.toString(coords.getDouble("y1")), y2 = Double.toString(coords.getDouble("y2"));
         String model = getOptionalParameter(request, "model");
         String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
+        String existing = getOptionalParameter(request, "existing");
         final String boundingBox = "[x1: " + x1 + ", y1: " + y1 +", x2: " + x2 + ", y2: " + y2 + "]";
 
         User user = getUser(request);
-        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, coords.getLong("x1"), coords.getLong("y1"));
 
         GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
 
         // create new graph vertex
-        GraphVertex resolvedVertex = createGraphVertex(conceptVertex, resolvedGraphVertexId,
-                sign, termMentionRowKey.toString(), boundingBox, artifactId, user);
+        GraphVertex resolvedVertex = createGraphVertex(conceptVertex, sign, existing, boundingBox, artifactId, user);
 
-        // create new term mention
-        TermMention termMention = new TermMention(termMentionRowKey);
-        objectDetectionHelper.updateTermMention(termMention, sign, conceptVertex, resolvedVertex, user);
         DetectedObject detectedObject = objectDetectionHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);
 
         // create a new detected object column
@@ -86,23 +82,20 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
 
         detectedObject.setRowKey(detectedObjectRowKey);
         JSONObject obj = detectedObject.getJson();
+        obj.put("artifactRowKey", artifactRowKey);
         objectDetectionHelper.executeService(new ObjectDetectionWorker(artifactRepository, searchProvider, artifactRowKey, detectedObjectRowKey, obj, user));
 
         respondWithJson(response, obj);
     }
 
-    private GraphVertex createGraphVertex(GraphVertex conceptVertex, String resolvedGraphVertexId,
-                                          String sign, String termMentionRowKey, String boundingBox, String artifactId, User user) {
+    private GraphVertex createGraphVertex(GraphVertex conceptVertex, String sign, String existing, String boundingBox,
+                                          String artifactId, User user) {
         GraphVertex resolvedVertex;
-        if (resolvedGraphVertexId != null) {
-            resolvedVertex = graphRepository.findVertex(resolvedGraphVertexId, user);
-        } else {
+        if (existing != "") {
             resolvedVertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, user);
-            if (resolvedVertex == null) {
-                resolvedVertex = new InMemoryGraphVertex();
-                resolvedVertex.setType(VertexType.ENTITY);
-            }
-            resolvedVertex.setProperty(PropertyName.ROW_KEY, termMentionRowKey);
+        } else {
+            resolvedVertex = new InMemoryGraphVertex();
+            resolvedVertex.setType(VertexType.ENTITY);
         }
 
         resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
