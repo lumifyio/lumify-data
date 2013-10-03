@@ -124,11 +124,20 @@ define([
                         other: self.classesForVertex(other)
                     }
                 };
-                r.dataInfo = {
-                    source: src.id,
-                    target: dest.id,
-                    _type: 'relationship',
-                    relationshipType: r.relationship.label
+
+                var id = r.relationship.sourceVertexId + '>' +
+                        r.relationship.destVertexId + '|' + 
+                        r.relationship.label;
+                r.relationshipInfo = {
+                    id: id,
+                    properties: $.extend({}, r.relationship.properties, {
+                        _type: 'relationship',
+                        _rowKey: r.relationship.sourceVertexId + '->' + r.relationship.destVertexId,
+                        id: id,
+                        relationshipType: r.relationship.label,
+                        source: r.relationship.sourceVertexId,
+                        target: r.relationship.destVertexId
+                    })
                 };
                 r.displayLabel = ontologyRelationships.byTitle[r.relationship.label].displayName;
             });
@@ -199,9 +208,13 @@ define([
                 PropertyForm.teardownAll();
             }
 
-            if ($target.is('.entity, .artifact, span.relationship')) {
+            if ($target.is('.entity, .artifact')) {
                 var id = $target.data('vertexId');
                 this.trigger('verticesSelected', [appData.vertex(id)]);
+                evt.stopPropagation();
+            } else if ($target.is('.relationship')) {
+                var info = $target.data('info');
+                this.trigger('verticesSelected', [info]);
                 evt.stopPropagation();
             }
         };

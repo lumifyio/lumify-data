@@ -52,6 +52,7 @@ define([
             this.on(document, 'verticesAdded', this.onVerticesAdded);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
+            this.on(document, 'verticesDropped', this.onVerticesDropped);
             this.on(document, 'syncEnded', this.onSyncEnded);
             this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
 
@@ -228,6 +229,10 @@ define([
             this.updateOrAddVertices(data.vertices, { adding:true });
         };
 
+        this.onVerticesDropped = function(evt, data) {
+            this.updateOrAddVertices(data.vertices, { adding:true });
+        };
+
         this.updateOrAddVertices = function(vertices, options) {
             var self = this,
                 adding = options && options.adding;
@@ -239,12 +244,11 @@ define([
                     var geoLocation = vertex.properties.geoLocation;
                     if (!geoLocation) return;
 
-                    fit = true;
-
                     var marker = self.markerForId(map, vertex.id);
                     var pt = new mxn.LatLonPoint(geoLocation.latitude, geoLocation.longitude);
 
                     if (adding) {
+                        fit = true;
                         if (marker.length) {
                             map.removeMarker(marker);
                         }
@@ -310,16 +314,21 @@ define([
 
         this.fit = function(map) {
             if (this.$node.is(':visible')) {
-
                 var _fit = function(map) {
+                    if(!map.markers || map.markers.length == 0) {
+                        return;
+                    }
                     map.autoCenterAndZoom();
                     if ( map.getZoom() > 10 ) {
                         map.setZoom(10);
                     }
+                };
+                if (map) {
+                    _fit(map);
                 }
-
-                if (map) _fit(map);
-                else this.map(_fit);
+                else {
+                    this.map(_fit);
+                }
             }
         };
 

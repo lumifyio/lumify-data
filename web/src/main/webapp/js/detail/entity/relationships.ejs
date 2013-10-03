@@ -13,7 +13,7 @@
         <% if (type === 'inverse') { %>
             <span class="<%= r.vertices.classes.src %>" 
                   data-vertex-id="<%= r.vertices.src.id %>"><%- r.vertices.src.properties.title %></span>
-            <span data-info='<%= JSON.stringify(r.dataInfo) %>' class="relationship"><%= r.displayLabel %></span>
+            <span data-info='<%= JSON.stringify(r.relationshipInfo) %>' class="relationship"><%= r.displayLabel %></span>
             <span class="<%= r.vertices.classes.dest %>"
                   data-vertex-id='<%= r.vertices.dest.id %>'><%- r.vertices.dest.properties.title %></span>
         <% } else if (type !== 'references') { %>

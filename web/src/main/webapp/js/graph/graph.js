@@ -74,7 +74,6 @@ define([
         this.addVertices = function(vertices, opts) {
             var options = $.extend({ fit:false }, opts),
                 addedVertices = [],
-                updatedVertices = [],
                 self = this;
 
             if ($(".instructions").length > 0) {
@@ -120,8 +119,7 @@ define([
                     };
                     self.updateCyNodeData(cyNodeData.data, vertex);
 
-                    var needsAdding = false,
-                        needsUpdating = false;
+                    var needsAdding = false;
 
                     if (vertex.workspace.graphPosition) {
                         cyNodeData.position = retina.pointsToPixels(vertex.workspace.graphPosition);
@@ -141,13 +139,13 @@ define([
                             nextAvailablePosition.y += inc;
                             nextAvailablePosition.x = startX;
                         }
-                        needsUpdating = true;
+                        needsAdding = true;
                     }
 
                     var cyNode = cy.add(cyNodeData);
 
-                    if (needsAdding || needsUpdating) {
-                        (needsAdding ? addedVertices : updatedVertices).push({
+                    if (needsAdding) {
+                        addedVertices.push({
                             id: vertex.id,
                             workspace: {
                                 graphPosition: retina.pixelsToPoints(cyNode.position())
@@ -178,10 +176,6 @@ define([
 
                 if (addedVertices.length) {
                     this.trigger(document, 'addVertices', { vertices:addedVertices });
-                }
-
-                if (updatedVertices.length) {
-                    this.trigger(document, 'updateVertices', { vertices:updatedVertices });
                 }
             });
 
@@ -238,12 +232,14 @@ define([
         this.onVerticesDeleted = function(event, data) {
             this.cy(function(cy) {
 
-                cy.$( 
-                    data.vertices.map(function(v) { return '#' + v.id; }).join(',')
-                ).remove();
+                if (data.vertices.length) {
+                    cy.$( 
+                        data.vertices.map(function(v) { return '#' + v.id; }).join(',')
+                    ).remove();
 
-                this.setWorkspaceDirty();
-                this.updateVertexSelections(cy);
+                    this.setWorkspaceDirty();
+                    this.updateVertexSelections(cy);
+                }
             });
         };
 

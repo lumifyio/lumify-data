@@ -144,7 +144,7 @@ define([
             data = this.workspaceDataForItemRow(data);
             var content = $(itemTemplate({ workspace: data, selected: this.workspaceRowKey }));
             if (li.length === 0) {
-                content.insertAfter( this.$node.find('li.nav-header') );
+                this.$node.find('li.nav-header').eq(+data.isSharedToUser).after(content);
             } else {
                 li.replaceWith(content);
             }
@@ -181,9 +181,6 @@ define([
                     if ($(this).data('_rowKey') == rowKey) {
                         found = true;
                         $(this).addClass('active');
-                        self.trigger(document, 'workspaceSwitched', {
-                            workspace: $(this).data()
-                        });
                         return false;
                     }
                 });

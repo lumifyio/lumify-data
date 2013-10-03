@@ -28,7 +28,6 @@ define([
         }
 
         this.after('initialize', function () {
-            this.on(document, 'workspaceSwitched', this.onWorkspaceSwitched);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'socketMessage', this.onSocketMessage);
 
@@ -62,10 +61,6 @@ define([
                     };
                 this.syncService.socketPush(data);
             });
-        };
-
-        this.onWorkspaceSwitched = function (evt, data) {
-            this.currentWorkspaceRowKey = data.workspace._rowKey;
         };
 
         this.onSocketMessage = function (evt, message) {
@@ -114,10 +109,13 @@ define([
             if (!this.currentUser) {
                 return;
             }
-            data = data || {};
-            if (data.remoteEvent) {
+            if (data && data.remoteEvent) {
                 return;
             }
+            if (_.isObject(data)) {
+                data = [data];
+            }
+            data = (data || []).map(function(v) { return { id: v.id }; });
             this.syncService.publishUserSyncEvent(evt.type, [this.currentUser.rowKey], data);
         };
     }

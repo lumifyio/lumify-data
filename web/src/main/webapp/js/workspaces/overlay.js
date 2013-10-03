@@ -21,7 +21,6 @@ define([
         this.after('initialize', function() {
             this.$node.html(template({}));
 
-            this.on(document, 'workspaceSwitched', this.onWorkspaceSwitched);
             this.on(document, 'workspaceSaving', this.onWorkspaceSaving);
             this.on(document, 'workspaceSaved', this.onWorkspaceSaved);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
@@ -39,11 +38,6 @@ define([
 
         this.onWorkspaceLoaded = function(event, data) {
             this.setContent(data.title, data.isEditable, 'no changes');
-            clearTimeout(this.updateTimer);
-        };
-
-        this.onWorkspaceSwitched = function(event, data) {
-            this.setContent(data.workspace.title, true, 'no changes');
             clearTimeout(this.updateTimer);
         };
 
