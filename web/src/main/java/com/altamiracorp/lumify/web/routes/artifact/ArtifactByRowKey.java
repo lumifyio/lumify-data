@@ -1,6 +1,9 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.graph.GraphRepository;
+import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
@@ -16,10 +19,12 @@ import javax.servlet.http.HttpServletResponse;
 
 public class ArtifactByRowKey extends BaseRequestHandler {
     private final ArtifactRepository artifactRepository;
+    private final GraphRepository graphRepository;
 
     @Inject
-    public ArtifactByRowKey(final ArtifactRepository artifactRepository) {
+    public ArtifactByRowKey(final ArtifactRepository artifactRepository, GraphRepository graphRepository) {
         this.artifactRepository = artifactRepository;
+        this.graphRepository = graphRepository;
     }
 
     public static String getUrl(HttpServletRequest request, String artifactKey) {
@@ -28,25 +33,27 @@ public class ArtifactByRowKey extends BaseRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        User user = getUser(request);
-//        ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
-//        Artifact artifact = artifactRepository.findByRowKey(artifactKey.toString(), user);
-//
-//        if (artifact == null) {
-//            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-//        } else {
-//            JSONObject artifactJson = artifact.toJson();
-//            artifactJson.put("rawUrl", ArtifactRawByRowKey.getUrl(artifact.getRowKey()));
-//            artifactJson.put("thumbnailUrl", ArtifactThumbnailByRowKey.getUrl(artifact.getRowKey()));
-//            artifactJson.put("source", artifact.getGenericMetadata().getSource());
-//            if (artifact.getType() == ArtifactType.VIDEO) {
-//                artifactJson.put("posterFrameUrl", ArtifactPosterFrameByRowKey.getUrl(request, artifact.getRowKey()));
-//                artifactJson.put("videoPreviewImageUrl", ArtifactVideoPreviewImageByRowKey.getUrl(request, artifact.getRowKey()));
-//            }
-//            respondWithJson(response, artifactJson);
-//        }
-//
-//        chain.next(request, response);
+        User user = getUser(request);
+        ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
+        GraphVertex artifactVertex = this.graphRepository.findVertexByRowKey(artifactKey.toString(), user);
+        Artifact artifact = artifactRepository.findByRowKey(artifactKey.toString(), user);
+
+        if (artifactVertex == null || artifact == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+        } else {
+            JSONObject artifactJson = artifact.toJson();
+            artifactJson.put("rawUrl", ArtifactRawByRowKey.getUrl(artifact.getRowKey()));
+            artifactJson.put("thumbnailUrl", ArtifactThumbnailByRowKey.getUrl(artifact.getRowKey()));
+            artifactJson.put("source", artifactVertex.getProperty(PropertyName.SOURCE));
+
+            ArtifactType artifactType = ArtifactType.convert((String) artifactVertex.getProperty(PropertyName.SUBTYPE));
+            if (artifactType == ArtifactType.VIDEO) {
+                artifactJson.put("posterFrameUrl", ArtifactPosterFrameByRowKey.getUrl(request, artifact.getRowKey()));
+                artifactJson.put("videoPreviewImageUrl", ArtifactVideoPreviewImageByRowKey.getUrl(request, artifact.getRowKey()));
+            }
+            respondWithJson(response, artifactJson);
+        }
+
+        chain.next(request, response);
     }
 }

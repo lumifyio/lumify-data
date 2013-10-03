@@ -1,11 +1,8 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.web.AuthenticationProvider;
+import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.web.routes.RouteTestBase;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,9 +10,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpSession;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ArtifactByRowKeyTest extends RouteTestBase {
@@ -27,12 +21,15 @@ public class ArtifactByRowKeyTest extends RouteTestBase {
     @Mock
     private HttpSession mockSession;
 
+    @Mock
+    private GraphRepository mockGraphRepository;
+
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
 
-        artifactByRowKey = new ArtifactByRowKey(mockArtifactRepository);
+        artifactByRowKey = new ArtifactByRowKey(mockArtifactRepository, mockGraphRepository);
     }
 
     @Test
