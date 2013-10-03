@@ -84,7 +84,7 @@ class storm(
     creates     => '/usr/local/lib/libjzmq.so',
     environment => ["JAVA_HOME=/usr/java/default"], 
     timeout     => 0,
-    require     => [Macro::Git-clone['jzmq-clone'], Exec['zeromq-build']]
+    require     => [ Macro::Git-clone['jzmq-clone'], Exec['zeromq-build'] ],
   }
 
   macro::download { "https://github.com/downloads/nathanmarz/storm/storm-${version}.zip":
@@ -107,7 +107,7 @@ class storm(
     ensure  => directory,
     owner   => $user,
     group   => $group,
-    require => [User[$user]]
+    require => User[$user],
   }
 
   # Ensure that the unzipped distro is owned by the proper user
@@ -116,7 +116,7 @@ class storm(
     owner   => $user,
     group   => $group,
     recurse => true,
-    require => [Macro::Extract[$downloadpath], User[$user]]
+    require => [ Macro::Extract[$downloadpath], User[$user] ],
   }
 
   # Ensure that the storm user's home points to the distro
