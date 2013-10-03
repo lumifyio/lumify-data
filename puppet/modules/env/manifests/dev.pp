@@ -9,7 +9,8 @@ class env::dev {
   include ::opencv
   include role::oozie::pseudo
   include ::kafka
-  include ::storm
+  include role::storm::master
+  include role::storm::supervisor
 
   # TODO: configure firewall rules
   service { 'iptables' :

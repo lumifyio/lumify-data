@@ -31,6 +31,10 @@ function kafka {
     sudo -u kafka JMX_PORT=10000 /opt/kafka/bin/kafka-server-stop.sh /opt/kafka/config/server.properties
 }
 
+function storm {
+    sudo initctl stop storm-$1
+}
+
 case "$1" in
   hadoop)
     hadoop
@@ -53,7 +57,19 @@ case "$1" in
   kafka)
     kafka
     ;;
+  storm-nimbus)
+    storm nimbus
+    ;;
+  storm-supervisor)
+    storm supervisor
+    ;;
+  storm-ui)
+    storm ui
+    ;;
   *)
+    storm ui
+    storm supervisor
+    storm nimbus
     kafka
     elasticsearch
     blur

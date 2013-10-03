@@ -33,7 +33,7 @@ function kafka {
 }
 
 function storm {
-    sudo -u storm /opt/storm/bin/storm $1
+    sudo initctl start storm-$1
 }
 
 case "$1" in
@@ -75,5 +75,8 @@ case "$1" in
     blur; sleep 10; sudo -u blur /usr/lib/apache-blur/bin/blur safemodewait
     elasticsearch
     kafka
+    storm nimbus
+    storm supervisor
+    storm ui
     ;;
 esac
