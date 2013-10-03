@@ -112,7 +112,7 @@ define([
                 player.on("timeupdate", timeupdate);
 
                 function timeupdate(event) {
-                    self.trigger(document, 'videoTimeUpdate', {
+                    self.trigger('videoTimeUpdate', {
                         currentTime: player.currentTime(),
                         duration: player.duration()
                     });

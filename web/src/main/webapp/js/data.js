@@ -318,7 +318,7 @@ define([
 
         this.loadActiveWorkspace = function() {
             var self = this;
-            self.workspaceService.list()
+            return self.workspaceService.list()
                 .done(function(data) {
                     var workspaces = data.workspaces || [],
                         myWorkspaces = _.filter(workspaces, function(w) { 
@@ -395,6 +395,13 @@ define([
 
             if (id) {
                 self.workspaceService.getByRowKey(id)
+                    .fail(function(xhr) {
+                        if (xhr.status === 404) {
+                            self.trigger('workspaceNotAvailable');
+                            self.loadActiveWorkspace();
+                        }
+                        deferred.reject();
+                    })
                     .done(function(workspace) { 
                         deferred.resolve(workspace); 
                     });

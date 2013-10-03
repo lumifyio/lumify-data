@@ -23,7 +23,6 @@ define([
                 backgroundImage: this.attr.src
             }).html(html);
 
-            // TODO: make local events for full-screen support
             this.$node.closest('.detail-pane').on('DetectedObjectEnter', this.onHover.bind(this));
             this.$node.closest('.detail-pane').on('DetectedObjectLeave', this.onHoverLeave.bind(this));
             this.before('teardown',function () {
