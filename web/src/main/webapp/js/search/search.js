@@ -31,7 +31,7 @@ define([
     function Search() {
         this.ucd = new UCD();
         this.ontologyService = new OntologyService();
-		this.currentQuery = null;
+        this.currentQuery = null;
 
         this.defaultAttrs({
             formSelector: '.navbar-search',
@@ -91,9 +91,9 @@ define([
             if (!this.searchResults) {
                 this.searchResults = {};
             }
-			if (this.select('querySelector').val() != query.query) {
-				this.select('querySelector').val(query.query);
-			}
+            if (this.select('querySelector').val() != query.query) {
+                this.select('querySelector').val(query.query);
+            }
 
             var self = this;
 
@@ -121,7 +121,14 @@ define([
                         if (!results[type]) results[type] = {};
                         if (!results[type][subType]) results[type][subType] = [];
 
-                        results[type][subType].push(v);
+
+                        // Check for an existing result with the same id
+                        var resultFound = results[type][subType].some(function(result) { return result.id === v.id; });
+
+                        // Only store unique results
+                        if (resultFound === false) {
+                            results[type][subType].push(v);
+                        }
                     };
 
                     vertexSearch[0].vertices.forEach(sortVerticesIntoResults);
@@ -216,13 +223,13 @@ define([
             });
         };
 
-		this.onKeyUp = function (evt) {
-			var query = this.select('querySelector').val();
-			if (query != this.currentQuery) {
-				this.trigger("searchQueryChanged", { query: query});
-				this.currentQuery = query;
-			}
-		};
+        this.onKeyUp = function (evt) {
+            var query = this.select('querySelector').val();
+            if (query != this.currentQuery) {
+                this.trigger("searchQueryChanged", { query: query});
+                this.currentQuery = query;
+            }
+        };
 
         this.onQueryFocus = function (evt, data) {
             var filters = this.select('filtersSelector');
@@ -241,14 +248,14 @@ define([
             this.trigger(document, 'paneResized');
         };
 
-		this.onQueryChange = function (evt, data) {
-			if (!data.remoteEvent) {
-				return;
-			}
+        this.onQueryChange = function (evt, data) {
+            if (!data.remoteEvent) {
+                return;
+            }
 
-			this.select('querySelector').val(data.query);
-			this.currentQuery = data.query;
-		};
+            this.select('querySelector').val(data.query);
+            this.currentQuery = data.query;
+        };
 
         this.close = function(e) {
             this.hideSearchResults();
@@ -267,7 +274,7 @@ define([
 
             this.on(document,'search', this.doSearch);
             this.on(document,'showSearchResults', this.onShowSearchResults);
-			this.on(document,'searchQueryChanged',this.onQueryChange);
+            this.on(document,'searchQueryChanged',this.onQueryChange);
             this.on(document, 'menubarToggleDisplay', this.onMenubarToggle);
             this.on('submit', {
                 formSelector: this.onFormSearch
@@ -275,9 +282,9 @@ define([
             this.on('click', {
                 summaryResultItemSelector: this.onSummaryResultItemClick
             });
-			this.on('keyup', {
-				querySelector: this.onKeyUp
-			});
+            this.on('keyup', {
+                querySelector: this.onKeyUp
+            });
 
             this.select('querySelector').on('focus', this.onQueryFocus.bind(this));
         });
