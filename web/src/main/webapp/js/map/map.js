@@ -310,16 +310,21 @@ define([
 
         this.fit = function(map) {
             if (this.$node.is(':visible')) {
-
                 var _fit = function(map) {
+                    if(!map.markers || map.markers.length == 0) {
+                        return;
+                    }
                     map.autoCenterAndZoom();
                     if ( map.getZoom() > 10 ) {
                         map.setZoom(10);
                     }
+                };
+                if (map) {
+                    _fit(map);
                 }
-
-                if (map) _fit(map);
-                else this.map(_fit);
+                else {
+                    this.map(_fit);
+                }
             }
         };
 
