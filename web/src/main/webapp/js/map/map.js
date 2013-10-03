@@ -52,6 +52,7 @@ define([
             this.on(document, 'verticesAdded', this.onVerticesAdded);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
+            this.on(document, 'verticesDropped', this.onVerticesDropped);
             this.on(document, 'syncEnded', this.onSyncEnded);
             this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
 
@@ -225,6 +226,10 @@ define([
         };
 
         this.onVerticesAdded = function(evt, data) {
+            this.updateOrAddVertices(data.vertices, { adding:true });
+        };
+
+        this.onVerticesDropped = function(evt, data) {
             this.updateOrAddVertices(data.vertices, { adding:true });
         };
 
