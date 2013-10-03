@@ -74,6 +74,7 @@ define([
         this.addVertices = function(vertices, opts) {
             var options = $.extend({ fit:false }, opts),
                 addedVertices = [],
+                updatedVertices = [],
                 self = this;
 
             if ($(".instructions").length > 0) {
@@ -119,7 +120,8 @@ define([
                     };
                     self.updateCyNodeData(cyNodeData.data, vertex);
 
-                    var needsAdding = false;
+                    var needsAdding = false,
+                        needsUpdating = false;
 
                     if (vertex.workspace.graphPosition) {
                         cyNodeData.position = retina.pointsToPixels(vertex.workspace.graphPosition);
@@ -139,13 +141,18 @@ define([
                             nextAvailablePosition.y += inc;
                             nextAvailablePosition.x = startX;
                         }
-                        needsAdding = true;
+
+                        if (dragging.length === 0) {
+                            needsUpdating = true;
+                        } else {
+                            needsAdding = true;
+                        }
                     }
 
                     var cyNode = cy.add(cyNodeData);
 
-                    if (needsAdding) {
-                        addedVertices.push({
+                    if (needsAdding || needsUpdating) {
+                        (needsAdding ? addedVertices : updatedVertices).push({
                             id: vertex.id,
                             workspace: {
                                 graphPosition: retina.pixelsToPoints(cyNode.position())
@@ -173,10 +180,12 @@ define([
                     this.animateToExistingNode(existingNodes[0], cloned);
                 } else if (cloned) cloned.remove();
 
-
-                if (addedVertices.length) {
+                if (updatedVertices.length) {
+                    this.trigger(document, 'updateVertices', { vertices:updatedVertices });
+                } else if (addedVertices.length) {
                     this.trigger(document, 'addVertices', { vertices:addedVertices });
                 }
+
             });
 
             this.setWorkspaceDirty();
