@@ -1,13 +1,11 @@
 package com.altamiracorp.lumify.entityExtraction;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.model.ontology.PropertyName;
-import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -18,11 +16,13 @@ import org.arabidopsis.ahocorasick.OutputResult;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
+import com.altamiracorp.lumify.model.ontology.PropertyName;
+import com.altamiracorp.lumify.model.termMention.TermMention;
+import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
 
 public class KnownEntityExtractor extends EntityExtractor {
     private FileSystem fs;
@@ -34,8 +34,8 @@ public class KnownEntityExtractor extends EntityExtractor {
 
     @Override
     void setup(Mapper.Context context, User user) throws IOException {
-        this.pathPrefix = context.getConfiguration().get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX);
-        this.fs = FileSystem.get(context.getConfiguration());
+        pathPrefix = context.getConfiguration().get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX);
+        fs = FileSystem.get(context.getConfiguration());
         loadDictionaries();
     }
 
@@ -95,11 +95,11 @@ public class KnownEntityExtractor extends EntityExtractor {
     }
 
     protected String getPathPrefix() {
-        return this.pathPrefix;
+        return pathPrefix;
     }
 
     protected FileSystem getFS() {
-        return this.fs;
+        return fs;
     }
 
     private class Match {
@@ -109,7 +109,7 @@ public class KnownEntityExtractor extends EntityExtractor {
         private final String matchText;
 
         public Match(String type, String matchText, String entityTitle) {
-            this.conceptTitle = type;
+            conceptTitle = type;
             this.matchText = matchText;
             this.entityTitle = entityTitle;
         }

@@ -181,8 +181,7 @@ define([
                 this.trigger(document, 'mapShow', { data:(data && data.data) });
                 this.collapse([
                     this.select('searchSelector'),
-                    this.select('workspacesSelector'),
-                    this.select('detailPaneSelector')
+                    this.select('workspacesSelector')
                 ]);
             }
 
