@@ -7,18 +7,12 @@ import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
-import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
-import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
-import com.altamiracorp.lumify.objectDetection.DetectedObject;
-import com.altamiracorp.lumify.objectDetection.ObjectDetectionWorker;
 import com.altamiracorp.lumify.model.search.SearchProvider;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
-import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -57,20 +51,16 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
 //                y1 = Double.toString(coords.getDouble("y1")), y2 = Double.toString(coords.getDouble("y2"));
 //        String model = getOptionalParameter(request, "model");
 //        String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
+//        String existing = getOptionalParameter(request, "existing");
 //        final String boundingBox = "[x1: " + x1 + ", y1: " + y1 +", x2: " + x2 + ", y2: " + y2 + "]";
 //
 //        User user = getUser(request);
-//        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, coords.getLong("x1"), coords.getLong("y1"));
 //
 //        GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
 //
 //        // create new graph vertex
-//        GraphVertex resolvedVertex = createGraphVertex(conceptVertex, resolvedGraphVertexId,
-//                sign, termMentionRowKey.toString(), boundingBox, artifactId, user);
+//        GraphVertex resolvedVertex = createGraphVertex(conceptVertex, sign, existing, boundingBox, artifactId, user);
 //
-//        // create new term mention
-//        TermMention termMention = new TermMention(termMentionRowKey);
-//        objectDetectionHelper.updateTermMention(termMention, sign, conceptVertex, resolvedVertex, user);
 //        DetectedObject detectedObject = objectDetectionHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);
 //
 //        // create a new detected object column
@@ -80,40 +70,37 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
 //            model = "manual";
 //            detectedObject.setModel(model);
 //            detectedObjectRowKey = artifact.getArtifactDetectedObjects().addDetectedObject
-//                    (detectedObject.getOntologyClassUri(), model, x1, y1, x2, y2);
+//                    (detectedObject.getConcept(), model, x1, y1, x2, y2);
 //        } else {
 //            detectedObject.setModel(model);
 //        }
 //
 //        detectedObject.setRowKey(detectedObjectRowKey);
 //        JSONObject obj = detectedObject.getJson();
+//        obj.put("artifactRowKey", artifactRowKey);
 //        objectDetectionHelper.executeService(new ObjectDetectionWorker(artifactRepository, searchProvider, artifactRowKey, detectedObjectRowKey, obj, user));
 //
 //        respondWithJson(response, obj);
     }
 
-    private GraphVertex createGraphVertex(GraphVertex conceptVertex, String resolvedGraphVertexId,
-                                          String sign, String termMentionRowKey, String boundingBox, String artifactId, User user) {
-        GraphVertex resolvedVertex;
-        if (resolvedGraphVertexId != null) {
-            resolvedVertex = graphRepository.findVertex(resolvedGraphVertexId, user);
-        } else {
-            resolvedVertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, user);
-            if (resolvedVertex == null) {
-                resolvedVertex = new InMemoryGraphVertex();
-                resolvedVertex.setType(VertexType.ENTITY);
-            }
-            resolvedVertex.setProperty(PropertyName.ROW_KEY, termMentionRowKey);
-        }
-
-        resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
-        resolvedVertex.setProperty(PropertyName.TITLE, sign);
-
-        graphRepository.saveVertex(resolvedVertex, user);
-
-        graphRepository.saveRelationship(artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF, user);
-        graphRepository.setPropertyEdge(artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF.toString()
-                , PropertyName.BOUNDING_BOX.toString(), boundingBox, user);
-        return resolvedVertex;
-    }
+//    private GraphVertex createGraphVertex(GraphVertex conceptVertex, String sign, String existing, String boundingBox,
+//                                          String artifactId, User user) {
+//        GraphVertex resolvedVertex;
+//        if (existing != "") {
+//            resolvedVertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, user);
+//        } else {
+//            resolvedVertex = new InMemoryGraphVertex();
+//            resolvedVertex.setType(VertexType.ENTITY);
+//        }
+//
+//        resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
+//        resolvedVertex.setProperty(PropertyName.TITLE, sign);
+//
+//        graphRepository.saveVertex(resolvedVertex, user);
+//
+//        graphRepository.saveRelationship(artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF, user);
+//        graphRepository.setPropertyEdge(artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF.toString()
+//                , PropertyName.BOUNDING_BOX.toString(), boundingBox, user);
+//        return resolvedVertex;
+//    }
 }

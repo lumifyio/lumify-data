@@ -25,28 +25,23 @@ import javax.servlet.http.HttpServletResponse;
 public class EntityObjectDetectionUpdate extends BaseRequestHandler {
     private final GraphRepository graphRepository;
     private final ArtifactRepository artifactRepository;
-    private final TermMentionRepository termMentionRepository;
     private final SearchProvider searchProvider;
-    private final ModelSession modelSession;
 
     @Inject
     public EntityObjectDetectionUpdate(
-            final TermMentionRepository termMentionRepository,
             final ArtifactRepository artifactRepository,
             final GraphRepository graphRepository,
-            final SearchProvider searchProvider,
-            final ModelSession modelSession) {
-        this.termMentionRepository = termMentionRepository;
+            final SearchProvider searchProvider) {
         this.artifactRepository = artifactRepository;
         this.graphRepository = graphRepository;
         this.searchProvider = searchProvider;
-        this.modelSession = modelSession;
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        EntityHelper objectDetectionHelper = new EntityHelper(termMentionRepository, graphRepository);
+
+//        EntityHelper objectDetectionHelper = new EntityHelper(null, graphRepository);
 //
 //        User user = getUser(request);
 //        final String artifactRowKey = getRequiredParameter(request, "artifactKey");
@@ -56,7 +51,7 @@ public class EntityObjectDetectionUpdate extends BaseRequestHandler {
 //        final JSONObject coords = new JSONObject(getRequiredParameter(request, "coords"));
 //        String x1 = Double.toString(coords.getDouble("x1")), x2 = Double.toString(coords.getDouble("x2")),
 //                y1 = Double.toString(coords.getDouble("y1")), y2 = Double.toString(coords.getDouble("y2"));
-//        String detectedObjectRowKey = getRequiredParameter(request, "detectedObjectRowKey");
+//        String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
 //        final String boundingBox = "[x1: " + x1 + ", y1: " + y1 +", x2: " + x2 + ", y2: " + y2 + "]";
 //
 //        GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
@@ -65,24 +60,20 @@ public class EntityObjectDetectionUpdate extends BaseRequestHandler {
 //
 //        // update graph vertex
 //        objectDetectionHelper.updateGraphVertex(resolvedVertex, conceptId, sign, user);
-//        graphRepository.setPropertyEdge(artifactVertex.getId(), resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF.toString()
-//                , PropertyName.BOUNDING_BOX.toString(), boundingBox, user);
 //
 //        ArtifactDetectedObjects artifactDetectedObjects = artifactRepository.findByRowKey(artifactRowKey, user).getArtifactDetectedObjects();
+//        if (detectedObjectRowKey == null) {
+//            DetectedObject detectedObject = objectDetectionHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);
+//            detectedObject.setModel("manual");
+//            detectedObjectRowKey = artifactDetectedObjects.addDetectedObject
+//                    (detectedObject.getConcept(), "manual", x1, y1, x2, y2);
+//            graphRepository.saveRelationship(artifactVertex.getId(), resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF, user);
+//        } else {
+//            graphRepository.setPropertyEdge(artifactVertex.getId(), resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF.toString()
+//                    , PropertyName.BOUNDING_BOX.toString(), boundingBox, user);
+//        }
 //        JSONObject value = Value.toJson(artifactDetectedObjects.get(detectedObjectRowKey));
 //        JSONObject info = value.getJSONObject("info");
-//
-//        // update the term mention
-//        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactRowKey, (long)coords.getDouble("x1"), (long)coords.getDouble("y1"));
-//        TermMention termMention = null;
-//        if (coords.getDouble("x1") != info.getJSONObject("coords").getDouble("x1") ||  coords.getDouble("y1") != info.getJSONObject("coords").getDouble("y1")) {
-//            TermMentionRowKey oldTermMentionRowKey = new TermMentionRowKey(artifactRowKey, (long)info.getJSONObject("coords").getDouble("x1"), (long)info.getJSONObject("coords").getDouble("y1"));
-//            modelSession.deleteRow(TermMention.TABLE_NAME, oldTermMentionRowKey, user);
-//            termMention = new TermMention(termMentionRowKey);
-//        } else {
-//            termMention = termMentionRepository.findByRowKey(termMentionRowKey.toString(), user);
-//        }
-//        objectDetectionHelper.updateTermMention(termMention, sign, conceptVertex, resolvedVertex, user);
 //
 //        // update the detected object column
 //        DetectedObject detectedObject = objectDetectionHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);

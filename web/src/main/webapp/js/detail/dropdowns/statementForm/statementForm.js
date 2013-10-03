@@ -67,7 +67,7 @@ define([
 
         this.applyTermClasses = function (el, applyToElement) {
             var classes = el.attr('class').split(/\s+/),
-                ignored = [/^ui-*/, /^term$/, /^entity$/];
+                ignored = [/^ui-*/, /^term$/, /^entity$/, /^label-info$/, /^detected-object$/];
 
             classes.forEach(function (cls) {
                 var ignore = _.any(ignored, function (regex) {
