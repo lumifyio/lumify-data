@@ -48,6 +48,12 @@ define([
                 return;
             }
 
+            this.on('click', function(event) {
+                var $target = $(event.target);
+                if ($target.closest('.facebox').length) return;
+                this.select('boxSelector').hide();
+                this.currentlyEditing = null;
+            });
             this.on('mousedown', function(event) {
                 var $target = $(event.target);
                 if ($target.closest('.facebox').length) return;
@@ -84,13 +90,11 @@ define([
                 });
                 self.$node.on('mouseup.facebox', function(evt) {
                     self.$node.off('mousemove.facebox mouseup.facebox');
-                    if (box.is(':visible')) {
-                        self.currentlyEditing = 'NEW';
-                        convertToPercentageAndTrigger(evt, { element:box });
-                    }
+                    self.currentlyEditing = 'NEW';
+                    convertToPercentageAndTrigger(evt, { element:box });
                 });
 
-                box.css(startPosition);
+                box.css(startPosition).hide();
             });
 
             this.select('boxEditingSelector')

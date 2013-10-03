@@ -156,7 +156,13 @@ define([
                 vertex = appData.vertex(this.attr.data.id),
                 detectedObject = $.extend(true, {}, _.find(vertex.artifact.detectedObjects, function(obj) {
                     return (obj.info && obj.info._rowKey) === data.id;
-                }));
+                })),
+                width = parseFloat(data.coords.x2)-parseFloat(data.coords.x1),
+                height = parseFloat(data.coords.y2)-parseFloat(data.coords.y1);
+
+            if (width < 5 || height < 5) {
+                return TermForm.teardownAll();
+            }
 
             detectedObject.info = detectedObject.info || {};
             detectedObject.info.coords = data.coords;
@@ -229,26 +235,6 @@ define([
             this.before('teardown', function (){
                 self.select('imagePreviewSelector').teardownComponent(Image);
             });
-        };
-
-        this.onSelectImage = function (coords, artifactInfo, dataInfo, $targetImage){
-            var aspectHeight = $targetImage.height()/$targetImage[0].naturalHeight;
-            var aspectWidth = $targetImage.width()/$targetImage[0].naturalWidth;
-
-            if (!dataInfo || $('.focused').length === 0) {
-                dataInfo = {
-                    info: {}
-                };
-            }
-
-            dataInfo.info.coords = {
-                    x1: (coords.x / aspectWidth),
-                    x2: (coords.x2 / aspectWidth),
-                    y1: (coords.y / aspectHeight),
-                    y2: (coords.y2 / aspectHeight)
-            };
-
-            this.showForm(dataInfo, artifactInfo, $targetImage);
         };
 
         this.showForm = function (dataInfo, artifactInfo, $target){
