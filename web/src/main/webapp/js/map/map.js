@@ -239,12 +239,11 @@ define([
                     var geoLocation = vertex.properties.geoLocation;
                     if (!geoLocation) return;
 
-                    fit = true;
-
                     var marker = self.markerForId(map, vertex.id);
                     var pt = new mxn.LatLonPoint(geoLocation.latitude, geoLocation.longitude);
 
                     if (adding) {
+                        fit = true;
                         if (marker.length) {
                             map.removeMarker(marker);
                         }
