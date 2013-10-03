@@ -31,7 +31,6 @@ define([
         };
 
         this.after('initialize', function() {
-            debugger;
             var self = this,
                 classNamesForVertex = {};
 

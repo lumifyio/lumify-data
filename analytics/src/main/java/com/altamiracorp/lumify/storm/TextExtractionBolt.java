@@ -9,6 +9,8 @@ import backtype.storm.tuple.Values;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.entityExtraction.OpenNlpMaximumEntropyEntityExtractor;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.model.ontology.Concept;
+import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
@@ -29,6 +31,7 @@ public class TextExtractionBolt extends BaseTextProcessingBolt {
     private ThreadedInputStreamProcess<TextExtractedInfo, TextExtractedAdditionalWorkData> textExtractionStreamProcess;
     private SearchProvider searchProvider;
     private TermMentionRepository termMentionRepository;
+    private OntologyRepository ontologyRepository;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -83,6 +86,12 @@ public class TextExtractionBolt extends BaseTextProcessingBolt {
             TermMention termMentionModel = new TermMention(new TermMentionRowKey(graphVertexId, termMention.getStart(), termMention.getEnd()));
             termMentionModel.getMetadata().setSign(termMention.getSign());
             termMentionModel.getMetadata().setOntologyClassUri(termMention.getOntologyClassUri());
+
+            Concept concept = ontologyRepository.getConceptByName(termMention.getOntologyClassUri(), getUser());
+            if (concept != null) {
+                termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId());
+            }
+
             termMentionRepository.save(termMentionModel, getUser());
         }
     }
@@ -110,6 +119,11 @@ public class TextExtractionBolt extends BaseTextProcessingBolt {
     @Inject
     public void setTermMentionRepository(TermMentionRepository termMentionRepository) {
         this.termMentionRepository = termMentionRepository;
+    }
+
+    @Inject
+    public void setOntologyRepository(OntologyRepository ontologyRepository) {
+        this.ontologyRepository = ontologyRepository;
     }
 
     private class TextExtractedAdditionalWorkData {
