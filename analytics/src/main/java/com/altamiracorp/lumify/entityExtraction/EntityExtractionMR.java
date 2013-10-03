@@ -24,12 +24,8 @@ import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.model.Row;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.Concept;
-import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.model.ontology.PropertyName;
-import com.altamiracorp.lumify.model.ontology.VertexType;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
@@ -110,7 +106,7 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
 //            for (ExtractedEntity extractedEntity : extractedEntities) {
 //                TermMention termMention = extractedEntity.getTermMention();
 //
-//                Concept concept = getConcept(termMention);
+//                Concept concept = getOntologyClassUri(termMention);
 //                termMention.getMetadata().setConceptGraphVertexId(concept.getId());
 //
 //                TermMention existingTermMention = termMentionRepository.findByRowKey(termMention.getRowKey().toString(), getUser());
@@ -184,7 +180,7 @@ public class EntityExtractionMR extends ConfigurableMapJobBase {
         }
 
         private Concept getConcept(TermMention termMention) {
-            String conceptLabel = termMention.getMetadata().getConcept();
+            String conceptLabel = termMention.getMetadata().getOntologyClassUri();
             Concept concept = conceptMap.get(conceptLabel);
             if (concept == null) {
                 concept = ontologyRepository.getConceptByName(conceptLabel, getUser());

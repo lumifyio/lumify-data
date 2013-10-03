@@ -76,12 +76,7 @@ public class DocumentBolt extends BaseLumifyBolt {
         additionalWorkData.setHdfsFileSystem(getHdfsFileSystem());
         try {
             List<ThreadedTeeInputStreamWorker.WorkResult<ArtifactExtractedInfo>> results = threadedInputStreamProcess.doWork(in, additionalWorkData);
-            for (ThreadedTeeInputStreamWorker.WorkResult<ArtifactExtractedInfo> result : results) {
-                if (result.getError() != null) {
-                    throw result.getError();
-                }
-                artifactExtractedInfo.mergeFrom(result.getResult());
-            }
+            mergeResults(artifactExtractedInfo, results);
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Extracted document info:\n" + artifactExtractedInfo.toJson().toString(2));
             }
@@ -99,6 +94,15 @@ public class DocumentBolt extends BaseLumifyBolt {
         pushOnQueue("text", textQueueDataJson);
 
         getCollector().ack(input);
+    }
+
+    private void mergeResults(ArtifactExtractedInfo artifactExtractedInfo, List<ThreadedTeeInputStreamWorker.WorkResult<ArtifactExtractedInfo>> results) throws Exception {
+        for (ThreadedTeeInputStreamWorker.WorkResult<ArtifactExtractedInfo> result : results) {
+            if (result.getError() != null) {
+                throw result.getError();
+            }
+            artifactExtractedInfo.mergeFrom(result.getResult());
+        }
     }
 
     private InputStream getInputStream(String fileName, ArtifactExtractedInfo artifactExtractedInfo) throws Exception {

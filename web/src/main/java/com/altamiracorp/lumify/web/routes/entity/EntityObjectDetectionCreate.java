@@ -80,7 +80,7 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
 //            model = "manual";
 //            detectedObject.setModel(model);
 //            detectedObjectRowKey = artifact.getArtifactDetectedObjects().addDetectedObject
-//                    (detectedObject.getConcept(), model, x1, y1, x2, y2);
+//                    (detectedObject.getOntologyClassUri(), model, x1, y1, x2, y2);
 //        } else {
 //            detectedObject.setModel(model);
 //        }

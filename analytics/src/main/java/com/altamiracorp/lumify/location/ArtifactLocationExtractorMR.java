@@ -6,15 +6,12 @@ import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.model.Row;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputFormat;
@@ -63,7 +60,7 @@ public class ArtifactLocationExtractorMR extends ConfigurableMapJobBase {
         public void safeMap(Text rowKey, Artifact artifact, Context context) throws Exception {
             LOGGER.info("Extracting location from: " + artifact.getRowKey().toString());
 
-            List<TermMention> termAndTermMentions = termMentionRepository.findByArtifactRowKey(artifact.getRowKey().toString(), getUser());
+            List<TermMention> termAndTermMentions = termMentionRepository.findByGraphVertexId(artifact.getRowKey().toString(), getUser());
             entityExtractor.extract(artifact, termAndTermMentions);
             updateGraphVertex(artifact);
             context.write(new Text(Artifact.TABLE_NAME), artifact);

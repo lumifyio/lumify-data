@@ -31,7 +31,7 @@ public class EntityHelper {
     public void updateTermMention(TermMention termMention, String sign, GraphVertex conceptVertex, GraphVertex resolvedVertex, User user) {
         termMention.getMetadata()
                 .setSign(sign)
-                .setConcept((String) conceptVertex.getProperty(PropertyName.DISPLAY_NAME))
+                .setOntologyClassUri((String) conceptVertex.getProperty(PropertyName.DISPLAY_NAME))
                 .setConceptGraphVertexId(conceptVertex.getId())
                 .setGraphVertexId(resolvedVertex.getId());
         termMentionRepository.save(termMention, user);

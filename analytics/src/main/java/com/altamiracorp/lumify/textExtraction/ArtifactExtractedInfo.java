@@ -58,6 +58,9 @@ public class ArtifactExtractedInfo {
     public JSONObject toJson() {
         JSONObject json = new JSONObject();
         for (Map.Entry<String, Object> prop : properties.entrySet()) {
+            if ("raw".equals(prop.getKey())) {
+                continue;
+            }
             json.put(prop.getKey(), prop.getValue());
         }
         return json;

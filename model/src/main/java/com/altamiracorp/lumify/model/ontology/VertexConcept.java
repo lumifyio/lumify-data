@@ -23,6 +23,12 @@ public class VertexConcept extends Concept {
     }
 
     @Override
+    public GraphVertex removeProperty(String key) {
+        vertex.removeProperty(key);
+        return this;
+    }
+
+    @Override
     public Set<String> getPropertyKeys() {
         return this.vertex.getPropertyKeys();
     }

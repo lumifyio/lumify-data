@@ -184,7 +184,7 @@ public class CsvStructuredDataExtractor extends StructuredDataExtractorBase {
 //        termMention.getMetadata()
 //                .setSign(artifact.getGenericMetadata().getSubject())
 //                .setSign(sign)
-//                .setConcept(conceptLabel);
+//                .setOntologyClassUri(conceptLabel);
 //
 //
 //        GraphVertex vertex = allGraphVertex.get(sign);

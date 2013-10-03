@@ -16,6 +16,8 @@ public abstract class GraphVertex {
 
     public abstract GraphVertex setProperty(String key, Object value);
 
+    public abstract GraphVertex removeProperty(String key);
+
     public abstract Set<String> getPropertyKeys();
 
     public Object getProperty(PropertyName propertyKey) {

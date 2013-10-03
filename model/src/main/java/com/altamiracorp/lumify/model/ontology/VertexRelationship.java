@@ -28,6 +28,12 @@ public class VertexRelationship extends Relationship {
     }
 
     @Override
+    public GraphVertex removeProperty(String key) {
+        vertex.removeProperty(key);
+        return this;
+    }
+
+    @Override
     public Set<String> getPropertyKeys() {
         return getVertex().getPropertyKeys();
     }

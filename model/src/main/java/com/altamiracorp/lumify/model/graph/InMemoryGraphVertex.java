@@ -25,6 +25,14 @@ public class InMemoryGraphVertex extends GraphVertex {
     }
 
     @Override
+    public GraphVertex removeProperty(String key) {
+        if (properties.containsKey(key)) {
+            properties.remove(key);
+        }
+        return this;
+    }
+
+    @Override
     public Set<String> getPropertyKeys() {
         return properties.keySet();
     }

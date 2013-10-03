@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -50,6 +51,16 @@ public abstract class ThreadedTeeInputStreamWorker<T, TData> implements Runnable
     }
 
     public WorkResult<T> dequeueResult() {
+        if (workResults.size() == 0) {
+            long startTime = new Date().getTime();
+            while (workResults.size() == 0 && (new Date().getTime() - startTime < 10 * 1000)) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
         return workResults.remove();
     }
 

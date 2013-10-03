@@ -33,7 +33,7 @@ public class TermMentionRepository extends Repository<TermMention> {
         return termMentionBuilder.getTableName();
     }
 
-    public List<TermMention> findByArtifactRowKey(String artifactRowKey, User user) {
-        return findByRowStartsWith(artifactRowKey + ":", user);
+    public List<TermMention> findByGraphVertexId(String graphVertexId, User user) {
+        return findByRowStartsWith(graphVertexId + ":", user);
     }
 }

@@ -45,7 +45,7 @@ public class PhoneNumberExtractor extends EntityExtractor {
         int end = phoneNumber.end();
         TermMention termMention = new TermMention(new TermMentionRowKey(artifact.getRowKey().toString(), start, end));
         termMention.getMetadata().setSign(name);
-        termMention.getMetadata().setConcept(ENTITY_TYPE);
+        termMention.getMetadata().setOntologyClassUri(ENTITY_TYPE);
         return new ExtractedEntity(termMention, null);
     }
 }

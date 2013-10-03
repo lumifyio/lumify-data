@@ -7,7 +7,7 @@ import com.altamiracorp.lumify.model.Value;
 public class TermMentionMetadata extends ColumnFamily {
     public static final String NAME = "Metadata";
     public static final String SIGN = "sign";
-    public static final String CONCEPT = "concept";
+    public static final String ONTOLOGY_CLASS_URI = "ontologyClassUri";
     public static final String GRAPH_VERTEX_ID = "graphVertexId";
     public static final String CONCEPT_GRAPH_VERTEX_ID = "conceptGraphVertexId";
     public static final String GEO_LOCATION = "geoLocation";
@@ -36,13 +36,13 @@ public class TermMentionMetadata extends ColumnFamily {
         return Value.toString(get(GRAPH_VERTEX_ID));
     }
 
-    public TermMentionMetadata setConcept(String concept) {
-        set(CONCEPT, concept);
+    public TermMentionMetadata setOntologyClassUri(String ontologyClassUri) {
+        set(ONTOLOGY_CLASS_URI, ontologyClassUri);
         return this;
     }
 
-    public String getConcept() {
-        return Value.toString(get(CONCEPT));
+    public String getOntologyClassUri() {
+        return Value.toString(get(ONTOLOGY_CLASS_URI));
     }
 
     public TermMentionMetadata setConceptGraphVertexId(String conceptGraphVertexId) {

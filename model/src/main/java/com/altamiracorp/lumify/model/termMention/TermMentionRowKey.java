@@ -9,19 +9,19 @@ public class TermMentionRowKey extends RowKey {
         super(rowKey);
     }
 
-    public TermMentionRowKey(String artifactRowKey, long startOffset, long endOffset) {
-        this(buildKey(artifactRowKey, startOffset, endOffset));
+    public TermMentionRowKey(String graphVertexId, long startOffset, long endOffset) {
+        this(buildKey(graphVertexId, startOffset, endOffset));
     }
 
-    private static String buildKey(String artifactRowKey, long startOffset, long endOffset) {
-        return artifactRowKey
+    private static String buildKey(String graphVertexId, long startOffset, long endOffset) {
+        return graphVertexId
                 + ":"
                 + StringUtils.leftPad(Long.toString(endOffset), RowKeyHelper.OFFSET_WIDTH, '0')
                 + ":"
                 + StringUtils.leftPad(Long.toString(startOffset), RowKeyHelper.OFFSET_WIDTH, '0');
     }
 
-    public String getArtifactRowKey() {
+    public String getGraphVertexId() {
         String[] keyElements = this.toString().split(":");
         int elementsToGet = keyElements.length - 2;
         String result = "";

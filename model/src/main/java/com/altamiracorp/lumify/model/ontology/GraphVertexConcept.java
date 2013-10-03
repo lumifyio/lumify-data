@@ -24,6 +24,12 @@ public class GraphVertexConcept extends Concept {
     }
 
     @Override
+    public GraphVertex removeProperty(String key) {
+        graphVertex.removeProperty(key);
+        return this;
+    }
+
+    @Override
     public Set<String> getPropertyKeys() {
         return graphVertex.getPropertyKeys();
     }

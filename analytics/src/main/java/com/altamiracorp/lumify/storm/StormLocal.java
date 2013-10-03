@@ -7,6 +7,7 @@ import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeSorterBolt;
+import com.altamiracorp.lumify.entityExtraction.OpenNlpEntityExtractor;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -45,14 +46,24 @@ public class StormLocal extends CommandLineBase {
                         .create()
         );
 
+        opts.addOption(
+                OptionBuilder
+                        .withLongOpt("rootdir")
+                        .withDescription("Root config")
+                        .hasArg()
+                        .create()
+        );
+
         return opts;
     }
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
         File dataDir = new File(cmd.getOptionValue("datadir"));
+        String rootDir = cmd.getOptionValue("rootdir");
 
         Config conf = new Config();
+        conf.put(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, rootDir);
         conf.put("topology.kryo.factory", "com.altamiracorp.lumify.storm.DefaultKryoFactory");
         for (Map.Entry<Object, Object> configEntry : getConfiguration().getProperties().entrySet()) {
             conf.put(configEntry.getKey().toString(), configEntry.getValue());
@@ -117,11 +128,12 @@ public class StormLocal extends CommandLineBase {
     }
 
     private void createTextTopology(TopologyBuilder builder) {
-        String queueName = "text";
-        SpoutConfig spoutConfig = createSpoutConfig(queueName);
-        builder.setSpout(queueName + "-spout", new KafkaSpout(spoutConfig), 1);
-        builder.setBolt(queueName + "-bolt", new TextBolt(), 1)
-                .shuffleGrouping(queueName + "-spout");
+        SpoutConfig spoutConfig = createSpoutConfig("text");
+        builder.setSpout("textSpout", new KafkaSpout(spoutConfig), 1);
+        builder.setBolt("textExtractionBolt", new TextExtractionBolt(), 1)
+                .shuffleGrouping("textSpout");
+        builder.setBolt("textHighlightingBolt", new TextHighlightingBolt(), 1)
+                .shuffleGrouping("textExtractionBolt");
     }
 
     private SpoutConfig createSpoutConfig(String queueName) {

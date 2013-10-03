@@ -1,8 +1,10 @@
 package com.altamiracorp.lumify.entityExtraction;
 
+import com.altamiracorp.lumify.core.user.User;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.namefind.TokenNameFinderModel;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 
 import java.io.IOException;
@@ -13,6 +15,10 @@ import java.util.List;
 public class OpenNlpMaximumEntropyEntityExtractor extends OpenNlpEntityExtractor {
 
     private static final String MODEL = "OpenNlpMaximumEntropy";
+
+    public OpenNlpMaximumEntropyEntityExtractor(Configuration configuration, User user) throws IOException {
+        super(configuration, user);
+    }
 
     @Override
     protected List<TokenNameFinder> loadFinders()

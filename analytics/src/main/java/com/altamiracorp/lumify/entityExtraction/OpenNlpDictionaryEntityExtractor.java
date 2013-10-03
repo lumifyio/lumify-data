@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.entityExtraction;
 
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.dictionary.DictionaryEntry;
 import com.altamiracorp.lumify.model.dictionary.DictionaryEntryRepository;
 import com.google.inject.Inject;
@@ -7,6 +8,7 @@ import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.namefind.DictionaryNameFinder;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.util.StringList;
+import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +21,10 @@ public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
 
     private DictionaryEntryRepository dictionaryEntryRepository;
 
+    public OpenNlpDictionaryEntityExtractor(Configuration configuration, User user) throws IOException {
+        super(configuration, user);
+    }
+
     @Override
     protected List<TokenNameFinder> loadFinders() throws IOException {
         List<TokenNameFinder> finders = new ArrayList<TokenNameFinder>();
@@ -28,13 +34,13 @@ public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
         return finders;
     }
 
-    private Map<String, Dictionary> getDictionaries () {
-        Map<String,Dictionary> dictionaries = new HashMap<String, Dictionary>();
+    private Map<String, Dictionary> getDictionaries() {
+        Map<String, Dictionary> dictionaries = new HashMap<String, Dictionary>();
         List<DictionaryEntry> entries = dictionaryEntryRepository.findAll(getUser());
         for (DictionaryEntry entry : entries) {
 
             if (!dictionaries.containsKey(entry.getMetadata().getConcept())) {
-                dictionaries.put(entry.getMetadata().getConcept(),new Dictionary());
+                dictionaries.put(entry.getMetadata().getConcept(), new Dictionary());
             }
 
             dictionaries.get(entry.getMetadata().getConcept()).put(tokensToStringList(entry.getMetadata().getTokens()));
@@ -44,11 +50,11 @@ public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
     }
 
     @Inject
-    public void setDictionaryEntryRepository (DictionaryEntryRepository dictionaryEntryRepository) {
+    public void setDictionaryEntryRepository(DictionaryEntryRepository dictionaryEntryRepository) {
         this.dictionaryEntryRepository = dictionaryEntryRepository;
     }
 
-    private StringList tokensToStringList (String tokens) {
+    private StringList tokensToStringList(String tokens) {
         return new StringList(tokens.split(" "));
     }
 }

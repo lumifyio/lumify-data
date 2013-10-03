@@ -27,8 +27,8 @@ public class EntityHighlighter {
     public String getHighlightedText(Artifact artifact, User user) {
         throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
 //        try {
-//            Collection<TermMention> terms = termRepository.findByArtifactRowKey(artifact.getRowKey().toString(), user);
-//            List<OffsetItem> termAndTermMetadata = getTermAndTermMetadataForArtifact(terms, user);
+//            Collection<TermMention> terms = termRepository.findByGraphVertexId(artifact.getRowKey().toString(), user);
+//            List<OffsetItem> termAndTermMetadata = convertTermMentionsToOffsetItems(terms, user);
 //
 //            ArrayList<OffsetItem> offsetItems = new ArrayList<OffsetItem>();
 //            offsetItems.addAll(termAndTermMetadata);
@@ -39,6 +39,12 @@ public class EntityHighlighter {
 //        }
     }
 
+    public String getHighlightedText(String text, List<TermMention> termMentions, User user) {
+        List<OffsetItem> offsetItems = convertTermMentionsToOffsetItems(termMentions, user);
+        return getHighlightedText(text, 0, offsetItems);
+    }
+
+    // TODO: change to use an InputStream?
     public static String getHighlightedText(String text, int textStartOffset, List<OffsetItem> offsetItems) throws JSONException {
         Collections.sort(offsetItems, new OffsetItemComparator());
         StringBuilder result = new StringBuilder();
@@ -107,7 +113,7 @@ public class EntityHighlighter {
         return result.toString();
     }
 
-    public List<OffsetItem> getTermAndTermMetadataForArtifact(Collection<TermMention> termMentions, User user) {
+    public List<OffsetItem> convertTermMentionsToOffsetItems(Collection<TermMention> termMentions, User user) {
         ArrayList<OffsetItem> termMetadataOffsetItems = new ArrayList<OffsetItem>();
         for (TermMention termMention : termMentions) {
             GraphVertex glyphVertex = null;

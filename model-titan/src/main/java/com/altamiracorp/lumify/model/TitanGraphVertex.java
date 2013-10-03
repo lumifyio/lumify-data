@@ -32,6 +32,12 @@ public class TitanGraphVertex extends GraphVertex {
         return this;
     }
 
+    @Override
+    public GraphVertex removeProperty(String key) {
+        this.vertex.removeProperty(key);
+        return this;
+    }
+
     public Set<String> getPropertyKeys() {
         return this.vertex.getPropertyKeys();
     }

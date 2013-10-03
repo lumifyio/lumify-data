@@ -44,45 +44,48 @@ public class OpenNlpDictionaryEntityExtractorTest extends BaseExtractorTest {
 
     @Before
     public void setUp() throws IOException {
-        MockitoAnnotations.initMocks(this);
-        Configuration config = new Configuration();
-        config.set("nlpConfPathPrefix", Thread.currentThread().getContextClassLoader().getResource("fs/").toString());
-        doReturn(config).when(context).getConfiguration();
-        extractor = spy(new OpenNlpDictionaryEntityExtractor());
-        List<TokenNameFinder> finders = loadFinders();
-        doReturn(finders).when(extractor).loadFinders();
+        throw new RuntimeException("storm refactor"); // TODO storm refactor
+//        MockitoAnnotations.initMocks(this);
+//        Configuration config = new Configuration();
+//        config.set("nlpConfPathPrefix", Thread.currentThread().getContextClassLoader().getResource("fs/").toString());
+//        doReturn(config).when(context).getConfiguration();
+//        extractor = spy(new OpenNlpDictionaryEntityExtractor());
+//        List<TokenNameFinder> finders = loadFinders();
+//        doReturn(finders).when(extractor).loadFinders();
     }
 
     @Test
     public void testEntityExtraction() throws Exception {
-        extractor.setup(context,user);
-        List<ExtractedEntity> terms = extractor.extract(createArtifact(text), text);
-        assertEquals(3, terms.size());
-        ArrayList<String> signs = new ArrayList<String>();
-        for (ExtractedEntity term : terms) {
-            signs.add(term.getTermMention().getMetadata().getSign());
-        }
-
-        assertTrue("Bob Robertson not found", signs.contains("Bob Robertson"));
-        assertTrue("Altamira Corporation not found", signs.contains("Altamira Corporation"));
-        assertTrue("Boston , MA not found", signs.contains("Boston , MA"));
+        throw new RuntimeException("storm refactor"); // TODO storm refactor
+//        extractor.setup(context,user);
+//        List<ExtractedEntity> terms = extractor.extract(createArtifact(text), text);
+//        assertEquals(3, terms.size());
+//        ArrayList<String> signs = new ArrayList<String>();
+//        for (ExtractedEntity term : terms) {
+//            signs.add(term.getTermMention().getMetadata().getSign());
+//        }
+//
+//        assertTrue("Bob Robertson not found", signs.contains("Bob Robertson"));
+//        assertTrue("Altamira Corporation not found", signs.contains("Altamira Corporation"));
+//        assertTrue("Boston , MA not found", signs.contains("Boston , MA"));
     }
 
     @Test
     public void testEntityExtractionSetsMentionRelativeToArtifactNotSentence() throws Exception {
-        extractor.setup(context,user);
-        Collection<ExtractedEntity> extractedEntities = extractor.extract(createArtifact(text), text);
-        boolean found = false;
-        for (ExtractedEntity extractedEntity : extractedEntities) {
-            TermMention term = extractedEntity.getTermMention();
-            if (term.getMetadata().getSign().equals("Bob Robertson")) {
-                found = true;
-                assertEquals(63, term.getRowKey().getStartOffset());
-                assertEquals(76, term.getRowKey().getEndOffset());
-                break;
-            }
-        }
-        assertTrue("Expected name not found!", found);
+        throw new RuntimeException("storm refactor"); // TODO storm refactor
+//        extractor.setup(context,user);
+//        Collection<ExtractedEntity> extractedEntities = extractor.extract(createArtifact(text), text);
+//        boolean found = false;
+//        for (ExtractedEntity extractedEntity : extractedEntities) {
+//            TermMention term = extractedEntity.getTermMention();
+//            if (term.getMetadata().getSign().equals("Bob Robertson")) {
+//                found = true;
+//                assertEquals(63, term.getRowKey().getStartOffset());
+//                assertEquals(76, term.getRowKey().getEndOffset());
+//                break;
+//            }
+//        }
+//        assertTrue("Expected name not found!", found);
     }
 
     private List<TokenNameFinder> loadFinders() {

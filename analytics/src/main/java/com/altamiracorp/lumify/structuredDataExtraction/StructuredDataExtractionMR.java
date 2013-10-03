@@ -4,14 +4,12 @@ import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
 import com.altamiracorp.lumify.config.Configuration;
 import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
-import com.altamiracorp.lumify.model.Value;
 import com.altamiracorp.lumify.model.graph.GraphRelationship;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.*;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
-import com.altamiracorp.lumify.textExtraction.StructuredDataTextExtractor;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
@@ -23,7 +21,6 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.ToolRunner;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,9 +96,9 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                     continue;
                 }
 
-                Concept concept = ontologyRepository.getConceptByName(termAndGraphVertex.getTermMention().getMetadata().getConcept(), getUser());
+                Concept concept = ontologyRepository.getConceptByName(termAndGraphVertex.getTermMention().getMetadata().getOntologyClassUri(), getUser());
                 if (concept == null) {
-                    throw new RuntimeException("Could not find concept: " + termAndGraphVertex.getTermMention().getMetadata().getConcept());
+                    throw new RuntimeException("Could not find concept: " + termAndGraphVertex.getTermMention().getMetadata().getOntologyClassUri());
                 }
                 termAndGraphVertex.getTermMention().getMetadata().setConceptGraphVertexId(concept.getId());
 
@@ -132,7 +129,7 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
                 TermMention termMention = termAndGraphVertex.getTermMention();
                 if (termMention.getMetadata().getGraphVertexId() == null) {
                     if (graphVertex.getId() == null) {
-                        String conceptLabel = termAndGraphVertex.getTermMention().getMetadata().getConcept();
+                        String conceptLabel = termAndGraphVertex.getTermMention().getMetadata().getOntologyClassUri();
                         Concept concept = conceptMap.get(conceptLabel);
                         if (concept == null) {
                             concept = ontologyRepository.getConceptByName(conceptLabel, getUser());

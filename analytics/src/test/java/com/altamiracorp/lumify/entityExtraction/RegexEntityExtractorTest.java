@@ -53,7 +53,7 @@ public class RegexEntityExtractorTest extends BaseExtractorTest {
         boolean found = false;
         for (ExtractedEntity extractedEntity : extractedEntities) {
             TermMention term = extractedEntity.getTermMention();
-            if (term.getMetadata().getConcept().equals("emailAddress") && term.getMetadata().getSign().equals("bob@gmail.com")) {
+            if (term.getMetadata().getOntologyClassUri().equals("emailAddress") && term.getMetadata().getSign().equals("bob@gmail.com")) {
                 found = true;
                 assertEquals(59L, term.getRowKey().getStartOffset());
                 assertEquals(72L, term.getRowKey().getEndOffset());
@@ -70,7 +70,7 @@ public class RegexEntityExtractorTest extends BaseExtractorTest {
         boolean found = false;
         for (ExtractedEntity extractedEntity : extractedEntities) {
             TermMention term = extractedEntity.getTermMention();
-            if (term.getMetadata().getSign().equals("bob@gmail.com") && term.getMetadata().getConcept().equals("emailAddress")) {
+            if (term.getMetadata().getSign().equals("bob@gmail.com") && term.getMetadata().getOntologyClassUri().equals("emailAddress")) {
                 found = true;
                 assertEquals(60L, term.getRowKey().getStartOffset());
                 assertEquals(73L, term.getRowKey().getEndOffset());

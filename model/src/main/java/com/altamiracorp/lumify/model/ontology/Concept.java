@@ -7,8 +7,6 @@ import org.json.JSONObject;
 
 public abstract class Concept extends GraphVertex {
 
-    private Object vertex;
-
     public abstract String getId();
 
     public abstract String getTitle();
