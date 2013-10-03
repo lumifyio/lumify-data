@@ -61,6 +61,21 @@ public class TermMentionOffsetItem extends OffsetItem implements Comparable<Term
         return termMention.getMetadata().getSign();
     }
 
+
+    private Double getLatitude() {
+        if (graphVertex == null || graphVertex.getProperty(PropertyName.GEO_LOCATION) == null) {
+            return null;
+        }
+        return GraphVertex.parseLatLong(graphVertex.getProperty(PropertyName.GEO_LOCATION))[0];
+    }
+
+    private Double getLongitude() {
+        if (graphVertex == null || graphVertex.getProperty(PropertyName.GEO_LOCATION) == null) {
+            return null;
+        }
+        return GraphVertex.parseLatLong(graphVertex.getProperty(PropertyName.GEO_LOCATION))[1];
+    }
+
     @Override
     public boolean shouldHighlight() {
         if (!super.shouldHighlight()) {
@@ -78,6 +93,10 @@ public class TermMentionOffsetItem extends OffsetItem implements Comparable<Term
             infoJson.put("end", getEnd());
             if (getConceptGraphVertexId() != null) {
                 infoJson.put("_subType", getConceptGraphVertexId());
+            }
+            if (getLongitude() != null && getLatitude() != null) {
+                infoJson.put("longitude", getLongitude());
+                infoJson.put("latitude", getLatitude());
             }
             return infoJson;
         } catch (JSONException e) {
