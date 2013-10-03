@@ -181,9 +181,6 @@ define([
                     if ($(this).data('_rowKey') == rowKey) {
                         found = true;
                         $(this).addClass('active');
-                        self.trigger(document, 'workspaceSwitched', {
-                            workspace: $(this).data()
-                        });
                         return false;
                     }
                 });

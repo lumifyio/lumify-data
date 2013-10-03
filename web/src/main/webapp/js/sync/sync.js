@@ -28,7 +28,6 @@ define([
         }
 
         this.after('initialize', function () {
-            this.on(document, 'workspaceSwitched', this.onWorkspaceSwitched);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'socketMessage', this.onSocketMessage);
 
@@ -62,10 +61,6 @@ define([
                     };
                 this.syncService.socketPush(data);
             });
-        };
-
-        this.onWorkspaceSwitched = function (evt, data) {
-            this.currentWorkspaceRowKey = data.workspace._rowKey;
         };
 
         this.onSocketMessage = function (evt, message) {

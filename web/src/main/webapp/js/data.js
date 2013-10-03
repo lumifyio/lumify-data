@@ -387,7 +387,6 @@ define([
                             if (a.workspace.graphPosition && b.workspace.graphPosition) return 0;
                             return a.workspace.graphPosition ? -1 : b.workspace.graphPosition ? 1 : 0;
                         }));
-                        self.trigger('workspaceSwitched', {workspace:workspace});
                         self.trigger('workspaceLoaded', workspace);
                         self.workspaceMarkReady(workspace);                        
                     });
@@ -434,6 +433,9 @@ define([
                 deferred = $.Deferred(),
                 ids = Object.keys(workspace.data.vertices);
 
+            _.each(_.values(self.cachedVertices), function(v) {
+                delete v.workspace;
+            });
             self.workspaceVertices = {};
             if (ids.length) {
                 self.vertexService.getMultiple(ids).done(function(serverVertices) {
