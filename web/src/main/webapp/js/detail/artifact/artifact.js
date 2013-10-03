@@ -256,11 +256,13 @@ define([
 
         this.onImageLeave = function (event) {
             var $artifact = $(event.target).siblings('.artifact');
-            var jcrop = $artifact.data('Jcrop');
-            var coords = jcrop.tellSelect();
-            if (coords.h === 0 && coords.w === 0) {
-                $(event.target).closest('.jcrop-holder').off('mouseleave');
-                this.disableJcrop($artifact);
+            if ($artifact.data('Jcrop')) {
+                var jcrop = $artifact.data('Jcrop');
+                var coords = jcrop.tellSelect();
+                if (coords.h === 0 && coords.w === 0) {
+                    $(event.target).closest('.jcrop-holder').off('mouseleave');
+                    this.disableJcrop($artifact);
+                }
             }
         };
 
