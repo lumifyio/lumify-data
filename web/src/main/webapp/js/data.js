@@ -221,10 +221,12 @@ define([
 
                     self.trigger('refreshRelationships');
                     if (!data.remoteEvent) self.trigger('saveWorkspace');
-                    self.trigger('verticesAdded', { 
-                        vertices:freeze(added),
-                        remoteEvent: data.remoteEvent
-                    });
+                    if (added.length) {
+                        self.trigger('verticesAdded', { 
+                            vertices:freeze(added),
+                            remoteEvent: data.remoteEvent
+                        });
+                    }
                 });
             });
         };
@@ -268,10 +270,12 @@ define([
                 if (shouldSave && !data.remoteEvent) {
                     this.trigger('saveWorkspace');
                 }
-                this.trigger('verticesUpdated', { 
-                    vertices:freeze(updated),
-                    remoteEvent: data.remoteEvent
-                });
+                if (updated.length) {
+                    this.trigger('verticesUpdated', { 
+                        vertices:freeze(updated),
+                        remoteEvent: data.remoteEvent
+                    });
+                }
             });
         };
 
@@ -309,10 +313,12 @@ define([
                 if (!data.remoteEvent) {
                     this.trigger('saveWorkspace');
                 }
-                this.trigger('verticesDeleted', { 
-                    vertices:freeze(toDelete),
-                    remoteEvent: data.remoteEvent
-                });
+                if (toDelete.length) {
+                    this.trigger('verticesDeleted', { 
+                        vertices:freeze(toDelete),
+                        remoteEvent: data.remoteEvent
+                    });
+                }
             });
         };
 

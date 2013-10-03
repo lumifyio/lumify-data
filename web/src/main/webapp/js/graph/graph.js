@@ -238,12 +238,14 @@ define([
         this.onVerticesDeleted = function(event, data) {
             this.cy(function(cy) {
 
-                cy.$( 
-                    data.vertices.map(function(v) { return '#' + v.id; }).join(',')
-                ).remove();
+                if (data.vertices.length) {
+                    cy.$( 
+                        data.vertices.map(function(v) { return '#' + v.id; }).join(',')
+                    ).remove();
 
-                this.setWorkspaceDirty();
-                this.updateVertexSelections(cy);
+                    this.setWorkspaceDirty();
+                    this.updateVertexSelections(cy);
+                }
             });
         };
 
