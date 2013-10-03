@@ -434,7 +434,7 @@ define([
                 ids = Object.keys(workspace.data.vertices);
 
             _.each(_.values(self.cachedVertices), function(v) {
-                delete v.workspace;
+                v.workspace = {};
             });
             self.workspaceVertices = {};
             if (ids.length) {
