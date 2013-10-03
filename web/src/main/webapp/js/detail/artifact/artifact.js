@@ -56,8 +56,8 @@ define([
             this.on('videoTimeUpdate', this.onVideoTimeUpdate);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'graphPaddingUpdated', function () {
-                if (self.select('artifactSelector').data('Jcrop')) {
-                    self.onSelectImageRelease ();
+                if (self.$node.find('.artifact').data('Jcrop')) {
+                    self.onSelectImageRelease ($('.artifact .image'));
                 }
             });
 
@@ -331,6 +331,7 @@ define([
         };
 
         this.disableJcrop = function($artifact) {
+debugger;
             var $jcropHolder = $artifact.closest('.jcrop-holder');
             var $parent = $jcropHolder.parent();
             $artifact.data('Jcrop').disable();
