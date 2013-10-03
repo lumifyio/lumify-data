@@ -31,6 +31,10 @@ function kafka {
     sudo -u kafka /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties
 }
 
+function storm {
+    sudo -u storm /opt/storm/bin/storm $1
+}
+
 case "$1" in
   hadoop)
     hadoop
@@ -52,6 +56,15 @@ case "$1" in
     ;;
   kafka)
     kafka
+    ;;
+  storm-nimbus)
+    storm nimbus
+    ;;
+  storm-supervisor)
+    storm supervisor
+    ;;
+  storm-ui)
+    storm ui
     ;;
   *)
     hadoop

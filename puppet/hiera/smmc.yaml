@@ -15,6 +15,7 @@ accumulo_slaves:
   - nic-hadoop-smmc05.nearinfinity.com
   - nic-hadoop-smmc06.nearinfinity.com
   - nic-hadoop-smmc07.nearinfinity.com
+zookeeper_port:2181
 zookeeper_nodes:
   1: nic-hadoop-smmc04.nearinfinity.com:2181
   2: nic-hadoop-smmc05.nearinfinity.com:2181
