@@ -109,10 +109,10 @@ define([
             if (!this.currentUser) {
                 return;
             }
-            data = data || {};
-            if (data.remoteEvent) {
+            if (data && data.remoteEvent) {
                 return;
             }
+            data = (data || []).map(function(v) { return { id: v.id }; });
             this.syncService.publishUserSyncEvent(evt.type, [this.currentUser.rowKey], data);
         };
     }
