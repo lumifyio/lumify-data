@@ -101,7 +101,7 @@ define([
                     this.select('conceptSelector').attr('disabled', false);
                 }
                 this.updateConceptSelect(info && info._subType || '').show();
-                if (newGraphVertexId && initial) {
+                if (newGraphVertexId && initial && !this.attr.coords) {
                     this.select('resolveButtonSelector')
                         .hide();
                 } else {
@@ -183,7 +183,7 @@ define([
                 this.entityService.createTerm(parameters)
                     .done(function(data) {
                         self.highlightTerm(data);
-                        self.trigger(document, 'termCreated', data);
+                        self.trigger('termCreated', data);
 
                         self.trigger(document, 'refreshRelationships');
 
@@ -193,7 +193,7 @@ define([
                 this.entityService.updateTerm(parameters)
                     .done(function(data) {
                         self.highlightTerm(data);
-                        self.trigger(document, 'termCreated', data);
+                        self.trigger('termCreated', data);
 
                         var vertices = [];
                         vertices.push(data.info);
@@ -216,10 +216,10 @@ define([
                     artifactKey: this.attr.artifactData.properties._rowKey,
                     artifactId: this.attr.artifactData.id,
                     coords: JSON.stringify({
-                        x1: this.attr.coords.x1,
-                        y1: this.attr.coords.y1,
-                        x2: this.attr.coords.x2,
-                        y2: this.attr.coords.y2
+                        x1: parseFloat(this.attr.coords.x1),
+                        y1: parseFloat(this.attr.coords.y1),
+                        x2: parseFloat(this.attr.coords.x2),
+                        y2: parseFloat(this.attr.coords.y2)
                     }),
                     detectedObjectRowKey: this.attr.detectedObjectRowKey
                 };
@@ -285,18 +285,14 @@ define([
 
                     $tag.attr('data-info', JSON.stringify(data));
                     $parentSpan.removeClass('focused');
-                    self.trigger(document, 'termCreated', data);
+                    self.trigger('termCreated', data);
 
                     var vertices = [];
                     vertices.push(resolvedVertex);
                     self.trigger(document, 'updateVertices', { vertices: vertices });
                     self.trigger(document, 'refreshRelationships');
 
-                    if ($('.artifact-image').data('Jcrop')) {
-                        $('.artifact-image').data('Jcrop').release ();
-                    } else {
-                        _.defer(self.teardown.bind(self));
-                    }
+                    _.defer(self.teardown.bind(self));
                 }
             });
         };
@@ -327,7 +323,7 @@ define([
             if (!$focused.children().hasClass('delete-tag')){
                 var $buttonTag = $('<span>').addClass('delete-tag').text('x');
                 $focused.append($buttonTag);
-                self.trigger(document, 'termCreated', data);
+                self.trigger('termCreated', data);
             }
 
             $focused.removeClass('focused');
@@ -337,11 +333,7 @@ define([
             self.trigger(document, 'updateVertices', { vertices: vertices });
             self.trigger(document, 'refreshRelationships');
 
-            if ($('.artifact-image').data('Jcrop')) {
-                $('.artifact-image').data('Jcrop').release ();
-            } else {
-                _.defer(self.teardown.bind(self));
-            }
+            _.defer(self.teardown.bind(self));
         }
 
 

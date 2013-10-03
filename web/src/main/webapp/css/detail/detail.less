@@ -203,10 +203,28 @@
     display: inline-block;
     max-width: 100%;
     position: relative;
+    cursor: crosshair;
 
     .facebox {
+      cursor: move;
       position: absolute;
       .box-shadow(~"#2D6987 0px 0px 0px 1px, rgba(255,255,255,0.4) 0 0 0 2px, #2D6987 0px 0px 8px 5px");
+
+      .ui-resizable-handle {
+          background: none;
+          border: none;
+          &:before, &:after {
+            background: none;
+            border: none;
+          }
+
+          &.ui-resizable-se {
+            width: 9px;
+            height: 9px;
+            right: -5px;
+            bottom: -5px;
+          }
+      }
     }
   }
   .detected-object {
