@@ -152,29 +152,25 @@ define([
                 $targetArtifact = $(event.target).closest('.type-content').find('.artifact');
 
             $target.parent().addClass('focused');
-            if ($target.hasClass('resolved')){
-                var $targetImage = $targetArtifact.find('.image');
-                var aspectHeight = $targetImage.height()/$targetImage[0].naturalHeight;
-                var aspectWidth = $targetImage.width()/$targetImage[0].naturalWidth;
-                var coords = {
-                    x: (tagInfo.info.coords.x1 * aspectWidth),
-                    y: (tagInfo.info.coords.y1 * aspectHeight),
-                    x2: (tagInfo.info.coords.x2 * aspectWidth),
-                    y2: (tagInfo.info.coords.y2 * aspectHeight)
-                };
-
-                $('.image-preview').unbind("mouseenter");
-
-                $(this.select('artifactSelector')).Jcrop({
-                    setSelect: [coords.x, coords.y, coords.x2, coords.y2],
-                    onSelect: function (x) {self.onSelectImage(x, self.attr.data, tagInfo, $targetImage)},
-                    onRelease: function () {
-                       self.onSelectImageRelease($targetImage);
-                    }
-                });
-            } else {
-                this.showForm(tagInfo, this.attr.data, $target);
+            var $targetImage = $targetArtifact.find('.image');
+            var aspectHeight = $targetImage.height()/$targetImage[0].naturalHeight;
+            var aspectWidth = $targetImage.width()/$targetImage[0].naturalWidth;
+            var coords = {
+                x: (tagInfo.info.coords.x1 * aspectWidth),
+                y: (tagInfo.info.coords.y1 * aspectHeight),
+                x2: (tagInfo.info.coords.x2 * aspectWidth),
+                y2: (tagInfo.info.coords.y2 * aspectHeight)
             };
+
+            $('.image-preview').unbind("mouseenter");
+
+            $(this.select('artifactSelector')).Jcrop({
+                setSelect: [coords.x, coords.y, coords.x2, coords.y2],
+                onSelect: function (x) {self.onSelectImage(x, self.attr.data, tagInfo, $targetImage)},
+                onRelease: function () {
+                   self.onSelectImageRelease($targetImage);
+                }
+            });
         };
 
         this.onDeleteTagClicked = function (event) {
@@ -331,7 +327,6 @@ define([
         };
 
         this.disableJcrop = function($artifact) {
-debugger;
             var $jcropHolder = $artifact.closest('.jcrop-holder');
             var $parent = $jcropHolder.parent();
             $artifact.data('Jcrop').disable();
