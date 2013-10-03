@@ -1,8 +1,12 @@
 package com.altamiracorp.lumify.entityExtraction;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.termMention.TermMention;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+
+import java.util.Collection;
+import java.util.HashMap;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.junit.Before;
@@ -12,15 +16,8 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.termMention.TermMention;
 
 @RunWith(JUnit4.class)
 public class OpenNlpMEEntityExtractorTest extends BaseExtractorTest {
@@ -36,7 +33,7 @@ public class OpenNlpMEEntityExtractorTest extends BaseExtractorTest {
             + "what the latest is on the Benghazi nonsense. I'm 47% sure that this test will pass, but will it?";
 
     @Before
-    public void setUp() throws IOException {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
         Configuration config = new Configuration();
         config.set("nlpConfPathPrefix", Thread.currentThread().getContextClassLoader().getResource("fs/").toString());
