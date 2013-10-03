@@ -373,8 +373,8 @@ define([
         };
 
         this.tearDownDropdowns = function() {
-            if ($('.artifact').data('Jcrop')) {
-                $('.artifact').data('Jcrop').release ();
+            if ($('.artifact-image').data('Jcrop')) {
+                $('.artifact-image').data('Jcrop').release ();
             }
             TermForm.teardownAll();
             StatementForm.teardownAll();

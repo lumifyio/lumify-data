@@ -226,7 +226,7 @@ define([
 
             _.defer(this.buttonLoading.bind(this));
 
-            if (this.attr.existing) {
+            if (this.attr.exisiting) {
                 self.updateEntity (parameters);
             } else {
                 self.createEntity (parameters);
@@ -239,7 +239,6 @@ define([
 
             this.entityService.resolveDetectedObject(parameters)
                 .done(function(data) {
-
                     var resolvedVertex ={
                         graphVertexId: data.graphVertexId,
                         _rowKey: data._rowKey,
@@ -250,8 +249,8 @@ define([
                     };
 
                     // Temporarily creating a new tag to show on ui prior to backend update
-                    var $allDetectedObjects = $('.detected-object-labels');
-                    var $allDetectedObjectLabels = $('.detected-object-tag .label-info');
+                    var $allDetectedObjects = self.$node.closest('.type-content').find('.detected-object-labels');
+                    var $allDetectedObjectLabels =$allDetectedObjects.find('.detected-object-tag .label-info');
                     var $parentSpan = $('<span>').addClass ('label detected-object-tag focused');
                     var $deleteButton = $("<a>").addClass("delete-tag").text('x');
 
@@ -293,8 +292,8 @@ define([
                     self.trigger(document, 'updateVertices', { vertices: vertices });
                     self.trigger(document, 'refreshRelationships');
 
-                    if ($('.artifact').data('Jcrop')) {
-                        $('.artifact').data('Jcrop').release ();
+                    if ($('.artifact-image').data('Jcrop')) {
+                        $('.artifact-image').data('Jcrop').release ();
                     } else {
                         _.defer(self.teardown.bind(self));
                     }
@@ -338,8 +337,8 @@ define([
             self.trigger(document, 'updateVertices', { vertices: vertices });
             self.trigger(document, 'refreshRelationships');
 
-            if ($('.artifact').data('Jcrop')) {
-                $('.artifact').data('Jcrop').release ();
+            if ($('.artifact-image').data('Jcrop')) {
+                $('.artifact-image').data('Jcrop').release ();
             } else {
                 _.defer(self.teardown.bind(self));
             }

@@ -38,7 +38,7 @@ define([
             currentTranscriptSelector: '.currentTranscript',
             imagePreviewSelector: '.image-preview',
             detectedObjectSelector: '.detected-object',
-            artifactSelector: '.artifact',
+            artifactSelector: '.artifact-image',
             propertiesSelector: '.properties',
             titleSelector: '.artifact-title',
             deleteTagSelector: '.detected-object-tag .delete-tag'
@@ -56,8 +56,8 @@ define([
             this.on('videoTimeUpdate', this.onVideoTimeUpdate);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'graphPaddingUpdated', function () {
-                if (self.$node.find('.artifact').data('Jcrop')) {
-                    self.onSelectImageRelease ($('.artifact .image'));
+                if (self.$node.find('.artifact-image').data('Jcrop')) {
+                    self.onSelectImageRelease ($('.artifact-image .image'));
                 }
             });
 
@@ -149,7 +149,7 @@ define([
             var self = this,
                 tagInfo = $(event.target).data('info'),
                 $target = $(event.target),
-                $targetArtifact = $(event.target).closest('.type-content').find('.artifact');
+                $targetArtifact = $(event.target).closest('.type-content').find('.artifact-image');
 
             $target.parent().addClass('focused');
             var $targetImage = $targetArtifact.find('.image');
@@ -237,13 +237,11 @@ define([
             var dataInfo = $('.focused .label-info').data('info');
             var $targetImage = $(event.target).parent().find('.image');
 
-            var artifactDiv = self.select('artifactSelector');
-            if (this.jcropDisabled){
-                return;
-            }
-            $('.artifact .image').attr('width',$(artifactDiv).width());
-            $('.artifact .image').attr('height',$(artifactDiv).height());
-            $(self.select('artifactSelector')).Jcrop({
+            var $artifactDiv = $targetImage.closest('.artifact-image');
+            $targetImage.attr('width', $artifactDiv.width());
+            $targetImage.attr('height',$artifactDiv.height());
+
+            $artifactDiv.Jcrop({
                 onSelect: function (x) {
                     self.onSelectImage(x, self.attr.data, dataInfo, $targetImage);
                 },
@@ -255,7 +253,7 @@ define([
         };
 
         this.onImageLeave = function (event) {
-            var $artifact = $(event.target).siblings('.artifact');
+            var $artifact = $(event.target).siblings('.artifact-image');
             if ($artifact.data('Jcrop')) {
                 var jcrop = $artifact.data('Jcrop');
                 var coords = jcrop.tellSelect();
@@ -319,7 +317,7 @@ define([
             if ($('.detected-object-labels .underneath').length === 0) {
                 TermForm.teardownAll ();
                 $('.focused').removeClass('focused');
-                this.disableJcrop($targetImage.closest('.artifact'));
+                this.disableJcrop($targetImage.closest('.artifact-image'));
 
                 // If the user didn't complete the modification of coordinates, modify the dom coords back to the old positions
                 if (this.select('detectedObjectSelector').attr('data-info')) {
