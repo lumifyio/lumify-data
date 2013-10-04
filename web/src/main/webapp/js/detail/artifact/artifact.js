@@ -147,6 +147,7 @@ define([
                 $target = $(event.target),
                 info = $target.closest('.label-info').data('info');
 
+            $target.closest('.label-info').parent().addClass('focused');
             this.trigger('DetectedObjectEdit', info);
             this.showForm(info, this.attr.data, $target);
         };
