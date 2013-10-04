@@ -24,9 +24,9 @@ public class OpenNlpMaximumEntropyEntityExtractor extends OpenNlpEntityExtractor
     protected List<TokenNameFinder> loadFinders()
             throws IOException {
         Path finderHdfsPaths[] = {
-                new Path(getPathPrefix() + "/conf/opennlp/en-ner-location.bin"),
-                new Path(getPathPrefix() + "/conf/opennlp/en-ner-organization.bin"),
-                new Path(getPathPrefix() + "/conf/opennlp/en-ner-person.bin")};
+                new Path(getPathPrefix() + "/en-ner-location.bin"),
+                new Path(getPathPrefix() + "/en-ner-organization.bin"),
+                new Path(getPathPrefix() + "/en-ner-person.bin")};
         List<TokenNameFinder> finders = new ArrayList<TokenNameFinder>();
         for (Path finderHdfsPath : finderHdfsPaths) {
             InputStream finderModelInputStream = getFS().open(finderHdfsPath);

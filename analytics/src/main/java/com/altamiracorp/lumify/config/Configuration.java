@@ -1,7 +1,13 @@
 package com.altamiracorp.lumify.config;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.altamiracorp.lumify.model.AccumuloSession;
+import com.altamiracorp.lumify.model.TitanGraphSession;
+import com.altamiracorp.lumify.model.search.SearchProvider;
+import com.altamiracorp.lumify.search.BlurSearchProvider;
+import com.altamiracorp.lumify.search.ElasticSearchProvider;
+import com.google.common.base.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -9,15 +15,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.altamiracorp.lumify.model.AccumuloSession;
-import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.search.BlurSearchProvider;
-import com.altamiracorp.lumify.search.ElasticSearchProvider;
-import com.altamiracorp.lumify.model.search.SearchProvider;
-import com.google.common.base.Objects;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Responsible for parsing application configuration file and providing
@@ -35,100 +34,85 @@ public final class Configuration implements MapConfig, ApplicationConfig {
      * Default value for a {@link Integer} property that could not be parsed
      */
     private static final String UNKNOWN_INT = "-999";
+    private final Properties properties;
 
-    private static String nameNodeUrl;
-    private static String zkInstanceName;
-    private static String zkServerNames;
-    private static String dataStoreUserName;
-    private static String dataStorePassword;
-    private static String searchIndexController;
-    private static String searchIndexStoragePath;
-    private static String graphSearchIndexHostname;
-    private static String mapProvider;
-    private static String mapAccessKey;
-    private static String mapTileServerHostname;
-    private static String searchProvider;
-    private static String elasticSearchLocations;
-    private static String authenticationProvider;
-    private static int mapTileServerPort;
-
-    private Configuration() {
-
+    private Configuration(Properties properties) {
+        this.properties = properties;
     }
 
     @Override
     public String getNamenodeUrl() {
-        return nameNodeUrl;
+        return properties.getProperty(ConfigConstants.HADOOP_URL, UNKNOWN_STRING);
     }
 
     @Override
     public String getZookeeperInstanceName() {
-        return zkInstanceName;
+        return properties.getProperty(ConfigConstants.ZK_INSTANCENAME, UNKNOWN_STRING);
     }
 
     @Override
     public String getZookeeperServerNames() {
-        return zkServerNames;
+        return properties.getProperty(ConfigConstants.ZK_SERVERS, UNKNOWN_STRING);
     }
 
     @Override
     public String getDataStoreUserName() {
-        return dataStoreUserName;
+        return properties.getProperty(ConfigConstants.ACCUMULO_USER, UNKNOWN_STRING);
     }
 
     @Override
     public String getDataStorePassword() {
-        return dataStorePassword;
+        return properties.getProperty(ConfigConstants.ACCUMULO_PASSWORD, UNKNOWN_STRING);
     }
 
     @Override
     public String getSearchIndexController() {
-        return searchIndexController;
+        return properties.getProperty(ConfigConstants.BLUR_CONTROLLER, UNKNOWN_STRING);
     }
 
     @Override
     public String getSearchIndexStoragePath() {
-        return searchIndexStoragePath;
+        return properties.getProperty(ConfigConstants.BLUR_PATH, UNKNOWN_STRING);
     }
 
     @Override
     public String getGraphSearchIndexHostname() {
-        return graphSearchIndexHostname;
+        return properties.getProperty(ConfigConstants.GRAPH_SEARCH_HOSTNAME, UNKNOWN_STRING);
     }
 
     @Override
     public String getSearchProvider() {
-        return searchProvider;
+        return properties.getProperty(ConfigConstants.SEARCH_PROVIDER);
     }
 
     @Override
     public String getElasticSearchLocations() {
-        return elasticSearchLocations;
+        return properties.getProperty(ConfigConstants.ELASTIC_SEARCH_LOCATIONS);
     }
 
     @Override
     public String getMapProvider() {
-        return mapProvider;
+        return properties.getProperty(ConfigConstants.MAP_PROVIDER, UNKNOWN_STRING);
     }
 
     @Override
     public String getMapAccessKey() {
-        return mapAccessKey;
+        return properties.getProperty(ConfigConstants.MAP_ACCESS_KEY, UNKNOWN_STRING);
     }
 
     @Override
     public String getMapTileServerHostname() {
-        return mapTileServerHostname;
+        return properties.getProperty(ConfigConstants.MAP_TILE_SERVER_HOST, UNKNOWN_STRING);
     }
 
     @Override
     public String getAuthenticationProvider() {
-        return authenticationProvider;
+        return properties.getProperty(ConfigConstants.AUTHENTICATION_PROVIDER);
     }
 
     @Override
     public int getMapTileServerPort() {
-        return mapTileServerPort;
+        return Integer.parseInt(properties.getProperty(ConfigConstants.MAP_TILE_SERVER_PORT, UNKNOWN_INT));
     }
 
     /**
@@ -145,31 +129,14 @@ public final class Configuration implements MapConfig, ApplicationConfig {
 
         LOGGER.debug(String.format("Attempting to load configuration file: %s and credentials file: %s", configUrl, credentialsUrl));
 
-        final Properties mergedProps = new Properties();
+        Properties properties = new Properties();
 
-        processFile(configUrl, mergedProps);
+        processFile(configUrl, properties);
         if (credentialsUrl != null) {
-            processFile(credentialsUrl, mergedProps);
+            processFile(credentialsUrl, properties);
         }
 
-        // Extract the expected configuration properties
-        nameNodeUrl = mergedProps.getProperty(ConfigConstants.HADOOP_URL, UNKNOWN_STRING);
-        zkInstanceName = mergedProps.getProperty(ConfigConstants.ZK_INSTANCENAME, UNKNOWN_STRING);
-        zkServerNames = mergedProps.getProperty(ConfigConstants.ZK_SERVERS, UNKNOWN_STRING);
-        dataStoreUserName = mergedProps.getProperty(ConfigConstants.ACCUMULO_USER, UNKNOWN_STRING);
-        dataStorePassword = mergedProps.getProperty(ConfigConstants.ACCUMULO_PASSWORD, UNKNOWN_STRING);
-        searchIndexController = mergedProps.getProperty(ConfigConstants.BLUR_CONTROLLER, UNKNOWN_STRING);
-        searchIndexStoragePath = mergedProps.getProperty(ConfigConstants.BLUR_PATH, UNKNOWN_STRING);
-        graphSearchIndexHostname = mergedProps.getProperty(ConfigConstants.GRAPH_SEARCH_HOSTNAME, UNKNOWN_STRING);
-        mapProvider = mergedProps.getProperty(ConfigConstants.MAP_PROVIDER, UNKNOWN_STRING);
-        mapAccessKey = mergedProps.getProperty(ConfigConstants.MAP_ACCESS_KEY, UNKNOWN_STRING);
-        mapTileServerHostname = mergedProps.getProperty(ConfigConstants.MAP_TILE_SERVER_HOST, UNKNOWN_STRING);
-        mapTileServerPort = Integer.parseInt(mergedProps.getProperty(ConfigConstants.MAP_TILE_SERVER_PORT, UNKNOWN_INT));
-        searchProvider = mergedProps.getProperty(ConfigConstants.SEARCH_PROVIDER);
-        elasticSearchLocations = mergedProps.getProperty(ConfigConstants.ELASTIC_SEARCH_LOCATIONS);
-        authenticationProvider = mergedProps.getProperty(ConfigConstants.AUTHENTICATION_PROVIDER);
-
-        return new Configuration();
+        return new Configuration(properties);
     }
 
     private static void processFile(final String fileUrl, final Properties props) {
@@ -190,36 +157,35 @@ public final class Configuration implements MapConfig, ApplicationConfig {
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
-                .add(ConfigConstants.HADOOP_URL, nameNodeUrl)
-                .add(ConfigConstants.ZK_INSTANCENAME, zkInstanceName)
-                .add(ConfigConstants.ZK_SERVERS, zkServerNames)
-                .add(ConfigConstants.ACCUMULO_USER, dataStoreUserName)
-                .add(ConfigConstants.ACCUMULO_PASSWORD, dataStorePassword)
-                .add(ConfigConstants.BLUR_CONTROLLER, searchIndexController)
-                .add(ConfigConstants.BLUR_PATH, searchIndexStoragePath)
-                .add(ConfigConstants.GRAPH_SEARCH_HOSTNAME, graphSearchIndexHostname)
-                .add(ConfigConstants.MAP_PROVIDER, mapProvider)
-                .add(ConfigConstants.MAP_ACCESS_KEY, mapAccessKey)
-                .add(ConfigConstants.MAP_TILE_SERVER_HOST, mapTileServerHostname)
-                .add(ConfigConstants.MAP_TILE_SERVER_PORT, mapTileServerPort)
-                .add(ConfigConstants.SEARCH_PROVIDER, searchProvider)
-                .add(ConfigConstants.ELASTIC_SEARCH_LOCATIONS, elasticSearchLocations)
-                .add(ConfigConstants.AUTHENTICATION_PROVIDER, authenticationProvider)
+                .add(ConfigConstants.HADOOP_URL, getNamenodeUrl())
+                .add(ConfigConstants.ZK_INSTANCENAME, getZookeeperInstanceName())
+                .add(ConfigConstants.ZK_SERVERS, getZookeeperServerNames())
+                .add(ConfigConstants.ACCUMULO_USER, getDataStoreUserName())
+                .add(ConfigConstants.ACCUMULO_PASSWORD, getDataStorePassword())
+                .add(ConfigConstants.BLUR_CONTROLLER, getSearchIndexController())
+                .add(ConfigConstants.BLUR_PATH, getSearchIndexStoragePath())
+                .add(ConfigConstants.GRAPH_SEARCH_HOSTNAME, getGraphSearchIndexHostname())
+                .add(ConfigConstants.MAP_PROVIDER, getMapProvider())
+                .add(ConfigConstants.MAP_ACCESS_KEY, getMapAccessKey())
+                .add(ConfigConstants.MAP_TILE_SERVER_HOST, getMapTileServerHostname())
+                .add(ConfigConstants.MAP_TILE_SERVER_PORT, getMapTileServerPort())
+                .add(ConfigConstants.SEARCH_PROVIDER, getSearchProvider())
+                .add(ConfigConstants.ELASTIC_SEARCH_LOCATIONS, getElasticSearchLocations())
+                .add(ConfigConstants.AUTHENTICATION_PROVIDER, getAuthenticationProvider())
                 .toString();
     }
 
     public Properties getProperties() {
-        final Properties props = new Properties();
-        PropertyUtils.setPropertyValue(props, AccumuloSession.HADOOP_URL, getNamenodeUrl());
-        PropertyUtils.setPropertyValue(props, AccumuloSession.ZOOKEEPER_INSTANCE_NAME, getZookeeperInstanceName());
-        PropertyUtils.setPropertyValue(props, AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
-        PropertyUtils.setPropertyValue(props, AccumuloSession.USERNAME, getDataStoreUserName());
-        PropertyUtils.setPropertyValue(props, AccumuloSession.PASSWORD, getDataStorePassword());
-        PropertyUtils.setPropertyValue(props, BlurSearchProvider.BLUR_CONTROLLER_LOCATION, getSearchIndexController());
-        PropertyUtils.setPropertyValue(props, BlurSearchProvider.BLUR_PATH, getSearchIndexStoragePath());
-        PropertyUtils.setPropertyValue(props, TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, getGraphSearchIndexHostname());
-        PropertyUtils.setPropertyValue(props, SearchProvider.SEARCH_PROVIDER_PROP_KEY, getSearchProvider());
-        PropertyUtils.setPropertyValue(props, ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, getElasticSearchLocations());
-        return props;
+        PropertyUtils.setPropertyValue(properties, AccumuloSession.HADOOP_URL, getNamenodeUrl());
+        PropertyUtils.setPropertyValue(properties, AccumuloSession.ZOOKEEPER_INSTANCE_NAME, getZookeeperInstanceName());
+        PropertyUtils.setPropertyValue(properties, AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
+        PropertyUtils.setPropertyValue(properties, AccumuloSession.USERNAME, getDataStoreUserName());
+        PropertyUtils.setPropertyValue(properties, AccumuloSession.PASSWORD, getDataStorePassword());
+        PropertyUtils.setPropertyValue(properties, BlurSearchProvider.BLUR_CONTROLLER_LOCATION, getSearchIndexController());
+        PropertyUtils.setPropertyValue(properties, BlurSearchProvider.BLUR_PATH, getSearchIndexStoragePath());
+        PropertyUtils.setPropertyValue(properties, TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, getGraphSearchIndexHostname());
+        PropertyUtils.setPropertyValue(properties, SearchProvider.SEARCH_PROVIDER_PROP_KEY, getSearchProvider());
+        PropertyUtils.setPropertyValue(properties, ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, getElasticSearchLocations());
+        return properties;
     }
 }

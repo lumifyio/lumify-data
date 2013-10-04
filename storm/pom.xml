@@ -50,17 +50,30 @@
         </dependency>
     </dependencies>
 
-    <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-            <descriptorRefs>
-                <descriptorRef>jar-with-dependencies</descriptorRef>
-            </descriptorRefs>
-            <archive>
-                <manifest>
-                    <mainClass>com.altamiracorp.lumify.storm.StormRunner</mainClass>
-                </manifest>
-            </archive>
-        </configuration>
-    </plugin>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.altamiracorp.lumify.storm.StormRunner</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

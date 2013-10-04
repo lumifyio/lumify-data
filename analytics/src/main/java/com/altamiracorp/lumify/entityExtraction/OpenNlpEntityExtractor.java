@@ -97,8 +97,7 @@ public abstract class OpenNlpEntityExtractor {
     }
 
     protected Tokenizer loadTokenizer() throws IOException {
-        Path tokenizerHdfsPath = new Path(pathPrefix
-                + "/conf/opennlp/en-token.bin");
+        Path tokenizerHdfsPath = new Path(pathPrefix + "/en-token.bin");
 
         TokenizerModel tokenizerModel = null;
         InputStream tokenizerModelInputStream = fs.open(tokenizerHdfsPath);

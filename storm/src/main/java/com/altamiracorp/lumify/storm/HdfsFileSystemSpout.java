@@ -18,12 +18,9 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
     private FileSystem hdfsFileSystem;
     private String rootDataPath;
 
-    public HdfsFileSystemSpout(String rootDataPath) {
-        this.rootDataPath = rootDataPath;
-    }
-
     @Override
     public void open(Map stormConf, TopologyContext context, SpoutOutputCollector collector) {
+        this.rootDataPath = (String) stormConf.get(BaseFileSystemSpout.DATADIR_CONFIG_NAME);
         Configuration conf = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
         try {
             String hdfsRootDir = (String) stormConf.get(AccumuloSession.HADOOP_URL);

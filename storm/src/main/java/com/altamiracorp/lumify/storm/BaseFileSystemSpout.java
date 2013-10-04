@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class BaseFileSystemSpout extends BaseRichSpout {
+    public static final String DATADIR_CONFIG_NAME = "datadir";
     private SpoutOutputCollector collector;
     private HashMap<String, String> workingFiles;
 

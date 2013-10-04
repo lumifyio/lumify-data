@@ -20,7 +20,6 @@ import storm.kafka.KafkaConfig;
 import storm.kafka.KafkaSpout;
 import storm.kafka.SpoutConfig;
 
-import java.io.File;
 import java.util.Map;
 
 public class StormRunner extends CommandLineBase {
@@ -49,14 +48,6 @@ public class StormRunner extends CommandLineBase {
 
         opts.addOption(
                 OptionBuilder
-                        .withLongOpt("rootdir")
-                        .withDescription("Root config")
-                        .hasArg()
-                        .create()
-        );
-
-        opts.addOption(
-                OptionBuilder
                         .withLongOpt("local")
                         .withDescription("Run local")
                         .create()
@@ -67,17 +58,15 @@ public class StormRunner extends CommandLineBase {
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
-        File dataDir = new File(cmd.getOptionValue("datadir"));
-        String rootDir = cmd.getOptionValue("rootdir");
+        String dataDir = cmd.getOptionValue("datadir");
         boolean isLocal = cmd.hasOption("local");
 
         Config conf = new Config();
-        conf.put(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, rootDir);
         conf.put("topology.kryo.factory", "com.altamiracorp.lumify.storm.DefaultKryoFactory");
         for (Map.Entry<Object, Object> configEntry : getConfiguration().getProperties().entrySet()) {
             conf.put(configEntry.getKey().toString(), configEntry.getValue());
         }
-        conf.put(DevFileSystemSpout.DATADIR_CONFIG_NAME, dataDir.getAbsolutePath());
+        conf.put(BaseFileSystemSpout.DATADIR_CONFIG_NAME, dataDir);
         conf.setDebug(false);
         conf.setNumWorkers(2);
 
@@ -93,7 +82,7 @@ public class StormRunner extends CommandLineBase {
             cluster.killTopology("local");
             cluster.shutdown();
         } else {
-            StormTopology topology = createTopology(new HdfsFileSystemSpout("/lumify/import"));
+            StormTopology topology = createTopology(new HdfsFileSystemSpout());
             StormSubmitter.submitTopology("lumify", conf, topology);
         }
 

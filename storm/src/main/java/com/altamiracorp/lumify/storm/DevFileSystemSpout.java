@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Queue;
 
 public class DevFileSystemSpout extends BaseFileSystemSpout {
-    public static final String DATADIR_CONFIG_NAME = "datadir";
     private File dataDir;
     private Queue<File> files;
 
