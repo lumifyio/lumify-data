@@ -49,16 +49,28 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout {
         return this.workingFiles.containsKey(fileName);
     }
 
+    protected String getPathFromMessageId(Object msgId) {
+        return this.workingFiles.get(msgId);
+    }
+
     protected void emit(String path) {
         this.workingFiles.put(path, path);
         getCollector().emit(new Values(path), path);
     }
 
     @Override
-    public void ack(Object msgId) {
+    public final void ack(Object msgId) {
+        try {
+            safeAck(msgId);
+        } catch (Exception ex) {
+            getCollector().reportError(ex);
+            return;
+        }
         this.workingFiles.remove(msgId);
         super.ack(msgId);
     }
+
+    protected abstract void safeAck(Object msgId) throws Exception;
 
     @Override
     public void fail(Object msgId) {

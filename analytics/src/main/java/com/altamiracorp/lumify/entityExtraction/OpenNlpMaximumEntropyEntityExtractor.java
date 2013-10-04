@@ -16,7 +16,7 @@ public class OpenNlpMaximumEntropyEntityExtractor extends OpenNlpEntityExtractor
 
     private static final String MODEL = "OpenNlpMaximumEntropy";
 
-    public OpenNlpMaximumEntropyEntityExtractor(Configuration configuration, User user) throws IOException {
+    public OpenNlpMaximumEntropyEntityExtractor(Configuration configuration, User user) throws Exception {
         super(configuration, user);
     }
 

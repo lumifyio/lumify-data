@@ -21,7 +21,7 @@ public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
 
     private DictionaryEntryRepository dictionaryEntryRepository;
 
-    public OpenNlpDictionaryEntityExtractor(Configuration configuration, User user) throws IOException {
+    public OpenNlpDictionaryEntityExtractor(Configuration configuration, User user) throws Exception {
         super(configuration, user);
     }
 

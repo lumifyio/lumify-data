@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.entityExtraction;
 
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.AccumuloSession;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
@@ -17,6 +18,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,9 +35,10 @@ public abstract class OpenNlpEntityExtractor {
     private List<TokenNameFinder> finders;
     private User user;
 
-    public OpenNlpEntityExtractor(Configuration configuration, User user) throws IOException {
+    public OpenNlpEntityExtractor(Configuration configuration, User user) throws IOException, URISyntaxException, InterruptedException {
         setPathPrefix(configuration.get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX));
-        this.fs = FileSystem.get(configuration);
+        String hdfsRootDir = configuration.get(AccumuloSession.HADOOP_URL);
+        this.fs = FileSystem.get(new URI(hdfsRootDir), configuration, "hadoop");
         this.user = user;
     }
 

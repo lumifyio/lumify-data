@@ -179,7 +179,7 @@ public class TextExtractionBolt extends BaseTextProcessingBolt {
     private class OpenNlpMaximumEntropyEntityExtractorWorker extends ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData> {
         private OpenNlpMaximumEntropyEntityExtractor openNlpMaximumEntropyEntityExtractor;
 
-        public OpenNlpMaximumEntropyEntityExtractorWorker(Configuration configuration, User user) throws IOException {
+        public OpenNlpMaximumEntropyEntityExtractorWorker(Configuration configuration, User user) throws Exception {
             openNlpMaximumEntropyEntityExtractor = new OpenNlpMaximumEntropyEntityExtractor(configuration, user);
             getInjector().injectMembers(openNlpMaximumEntropyEntityExtractor);
             openNlpMaximumEntropyEntityExtractor.init();
@@ -194,7 +194,7 @@ public class TextExtractionBolt extends BaseTextProcessingBolt {
     private class OpenNlpDictionaryEntityExtractorWorker extends ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData> {
         private OpenNlpDictionaryEntityExtractor openNlpDictionaryEntityExtractor;
 
-        public OpenNlpDictionaryEntityExtractorWorker(Configuration configuration, User user) throws IOException {
+        public OpenNlpDictionaryEntityExtractorWorker(Configuration configuration, User user) throws Exception {
             openNlpDictionaryEntityExtractor = new OpenNlpDictionaryEntityExtractor(configuration, user);
             getInjector().injectMembers(openNlpDictionaryEntityExtractor);
             openNlpDictionaryEntityExtractor.init();

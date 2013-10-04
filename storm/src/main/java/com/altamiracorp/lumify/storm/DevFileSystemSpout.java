@@ -21,6 +21,7 @@ public class DevFileSystemSpout extends BaseFileSystemSpout {
     @Override
     public void open(Map conf, TopologyContext topologyContext, SpoutOutputCollector collector) {
         super.open(conf, topologyContext, collector);
+
         this.dataDir = new File((String) conf.get(DATADIR_CONFIG_NAME));
         this.files = new LinkedList<File>();
 
