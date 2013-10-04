@@ -39,16 +39,20 @@
 			        <value>${objectDetectionInputFormat}</value>
 			    </property>
 				<property>
+			        <name>objectDetectorClass</name>
+			        <value>${objectDetectorClass}</value>
+			    </property>
+				<property>
 			        <name>oozie.launcher.action.main.class</name>
 			        <value>${launcherClass}</value>
 			    </property>
 				<property>
 			        <name>classifier.file</name>
-			        <value>haarcascade_frontalface_alt.xml</value>
+			        <value>${classifierFile}</value>
 			    </property>
 				<property>
 			        <name>classifier.concept</name>
-			        <value>face</value>
+			        <value>${classifierConcept}</value>
 			    </property>
             </configuration>
         </map-reduce>
