@@ -40,7 +40,7 @@
     </action>
     <action name="artifact-face-detection-node">
 		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/face-detection</app-path>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/object-detection</app-path>
 			<propagate-configuration/>
 			<configuration>
 				<property>
@@ -74,7 +74,7 @@
     </action>
     <action name="video-frame-face-detection-node">
 		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/face-detection</app-path>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/object-detection</app-path>
 			<propagate-configuration/>
 			<configuration>
 				<property>
