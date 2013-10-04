@@ -26,7 +26,6 @@ require([
     'withinScrollable',
     'flightJquery',
     'scrollStop',
-    'Jcrop',
     'bootstrap-datepicker',
     'removePrefixedClasses'
 ],

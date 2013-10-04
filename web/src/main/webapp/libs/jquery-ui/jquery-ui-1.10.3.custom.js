@@ -2878,9 +2878,9 @@ $.widget("ui.resizable", $.ui.mouse, {
 				axis.css({ zIndex: o.zIndex });
 
 				//TODO : What's going on here?
-				if ("se" === handle) {
-					axis.addClass("ui-icon ui-icon-gripsmall-diagonal-se");
-				}
+				//if ("se" === handle) {
+				//	axis.addClass("ui-icon ui-icon-gripsmall-diagonal-se");
+				//}
 
 				//Insert into internal handles object and append to element
 				this.handles[handle] = ".ui-resizable-"+handle;
@@ -3027,9 +3027,10 @@ $.widget("ui.resizable", $.ui.mouse, {
 		this.resizing = true;
 
 		// bugfix for http://dev.jquery.com/ticket/1749
-		if ( (/absolute/).test( el.css("position") ) ) {
-			el.css({ position: "absolute", top: el.css("top"), left: el.css("left") });
-		} else if (el.is(".ui-draggable")) {
+		//if ( (/absolute/).test( el.css("position") ) ) {
+		//	el.css({ position: "absolute", top: el.css("top"), left: el.css("left") });
+	    //} else 
+        if (el.is(".ui-draggable")) {
 			el.css({ position: "absolute", top: iniPos.top, left: iniPos.left });
 		}
 
