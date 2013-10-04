@@ -114,7 +114,9 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
 
     public void onMessage(AtmosphereResourceEvent event, AtmosphereResponse response, String message) throws IOException {
         try {
-            processRequestData(event.getResource(), message);
+            if (!StringUtils.isBlank(message)) {
+                processRequestData(event.getResource(), message);
+            }
         } catch (Exception ex) {
             LOGGER.error("Could not handle async message: " + message, ex);
         }
