@@ -69,7 +69,8 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
         checkNotNull(path, "path was null");
         String newPath = this.processedPath + path.substring(path.indexOf(importPath) + importPath.length());
         LOGGER.info("moving " + path + " to " + newPath);
-        hdfsFileSystem.rename(new Path(path), new Path(newPath));
+        //hdfsFileSystem.rename(new Path(path), new Path(newPath));
+        super.safeAck(msgId);
     }
 
     // TODO: we could speed this up by caching the list of files to work on instead of reading all of them each time

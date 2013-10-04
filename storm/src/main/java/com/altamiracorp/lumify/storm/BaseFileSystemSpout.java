@@ -64,13 +64,13 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout {
             safeAck(msgId);
         } catch (Exception ex) {
             getCollector().reportError(ex);
-            return;
         }
+    }
+
+    protected void safeAck(Object msgId) throws Exception {
         this.workingFiles.remove(msgId);
         super.ack(msgId);
     }
-
-    protected abstract void safeAck(Object msgId) throws Exception;
 
     @Override
     public void fail(Object msgId) {

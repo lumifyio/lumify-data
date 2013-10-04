@@ -1,2 +1,2 @@
 #!/bin/bash
-mvn clean package -Pcluster
+mvn clean package -Pcluster -DskipTests
