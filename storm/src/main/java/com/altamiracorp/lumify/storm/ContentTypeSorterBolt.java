@@ -1,6 +1,7 @@
-package com.altamiracorp.lumify.contentTypeExtraction;
+package com.altamiracorp.lumify.storm;
 
 import backtype.storm.tuple.Tuple;
+import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.altamiracorp.lumify.storm.FieldNames;
 import com.google.inject.Inject;

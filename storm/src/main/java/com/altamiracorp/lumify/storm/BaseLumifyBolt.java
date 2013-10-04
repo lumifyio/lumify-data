@@ -5,6 +5,7 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
+import com.altamiracorp.lumify.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.AccumuloSession;
@@ -51,7 +52,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         injector = Guice.createInjector(StormBootstrap.create(stormConf));
         injector.injectMembers(this);
 
-        Configuration conf = createHadoopConfiguration(stormConf);
+        Configuration conf = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
         try {
             String hdfsRootDir = (String) stormConf.get(AccumuloSession.HADOOP_URL);
             hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), conf, "hadoop");
@@ -64,15 +65,6 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         props.put("serializer.class", KafkaJsonEncoder.class.getName());
         ProducerConfig config = new ProducerConfig(props);
         kafkaProducer = new Producer<String, JSONObject>(config);
-    }
-
-    protected Configuration createHadoopConfiguration(Map stormConf) {
-        Configuration configuration = new Configuration();
-        for (Object entrySetObject : stormConf.entrySet()) {
-            Map.Entry entrySet = (Map.Entry) entrySetObject;
-            configuration.set("" + entrySet.getKey(), "" + entrySet.getValue());
-        }
-        return configuration;
     }
 
     public Injector getInjector() {

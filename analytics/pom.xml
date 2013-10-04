@@ -245,15 +245,5 @@
             <artifactId>powermock-module-junit4</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>storm</groupId>
-            <artifactId>storm</artifactId>
-            <version>${storm-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>storm</groupId>
-            <artifactId>storm-kafka</artifactId>
-            <version>0.8.0-wip4</version>
-        </dependency>
     </dependencies>
 </project>

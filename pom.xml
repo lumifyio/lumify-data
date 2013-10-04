@@ -322,5 +322,6 @@
         <module>oozie</module>
         <module>web-framework</module>
         <module>web</module>
+        <module>storm</module>
     </modules>
 </project>

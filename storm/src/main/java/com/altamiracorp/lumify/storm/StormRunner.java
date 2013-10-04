@@ -4,10 +4,10 @@ import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.generated.StormTopology;
+import backtype.storm.topology.IRichSpout;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeSorterBolt;
 import com.altamiracorp.lumify.entityExtraction.OpenNlpEntityExtractor;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
@@ -23,13 +23,13 @@ import storm.kafka.SpoutConfig;
 import java.io.File;
 import java.util.Map;
 
-public class StormLocal extends CommandLineBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StormLocal.class.getName());
+public class StormRunner extends CommandLineBase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(StormRunner.class.getName());
     public static final String FILE_CONTENT_TYPE_SORTER_ID = "fileContentTypeExtraction";
     private boolean isDone;
 
     public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(CachedConfiguration.getInstance(), new StormLocal(), args);
+        int res = ToolRunner.run(CachedConfiguration.getInstance(), new StormRunner(), args);
         if (res != 0) {
             System.exit(res);
         }
@@ -81,9 +81,8 @@ public class StormLocal extends CommandLineBase {
         conf.setDebug(false);
         conf.setNumWorkers(2);
 
-        StormTopology topology = createTopology();
-
         if (isLocal) {
+            StormTopology topology = createTopology(new DevFileSystemSpout());
             LocalCluster cluster = new LocalCluster();
             cluster.submitTopology("local", conf, topology);
 
@@ -94,15 +93,16 @@ public class StormLocal extends CommandLineBase {
             cluster.killTopology("local");
             cluster.shutdown();
         } else {
+            StormTopology topology = createTopology(new HdfsFileSystemSpout("/lumify/import"));
             StormSubmitter.submitTopology("lumify", conf, topology);
         }
 
         return 0;
     }
 
-    public StormTopology createTopology() {
+    public StormTopology createTopology(IRichSpout fileSpout) {
         TopologyBuilder builder = new TopologyBuilder();
-        createContentTypeSorterTopology(builder);
+        createContentTypeSorterTopology(builder, fileSpout);
         createVideoTopology(builder);
         createImageTopology(builder);
         createDocumentTopology(builder);
@@ -111,8 +111,8 @@ public class StormLocal extends CommandLineBase {
         return builder.createTopology();
     }
 
-    private TopologyBuilder createContentTypeSorterTopology(TopologyBuilder builder) {
-        builder.setSpout(FILE_CONTENT_TYPE_SORTER_ID, new DevFileSystemSpout(), 1);
+    private TopologyBuilder createContentTypeSorterTopology(TopologyBuilder builder, IRichSpout fileSpout) {
+        builder.setSpout(FILE_CONTENT_TYPE_SORTER_ID, fileSpout, 1);
         builder.setBolt("contentTypeSorterBolt", new ContentTypeSorterBolt(), 1)
                 .shuffleGrouping(FILE_CONTENT_TYPE_SORTER_ID);
         return builder;

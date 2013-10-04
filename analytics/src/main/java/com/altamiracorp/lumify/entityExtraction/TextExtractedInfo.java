@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.storm;
+package com.altamiracorp.lumify.entityExtraction;
 
 import java.util.ArrayList;
 import java.util.List;

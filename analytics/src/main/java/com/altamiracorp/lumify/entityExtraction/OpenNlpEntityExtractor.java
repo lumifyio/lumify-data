@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.entityExtraction;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.storm.TextExtractedInfo;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;

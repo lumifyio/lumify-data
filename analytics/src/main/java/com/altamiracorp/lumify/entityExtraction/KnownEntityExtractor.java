@@ -1,7 +1,6 @@
 package com.altamiracorp.lumify.entityExtraction;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.storm.TextExtractedInfo;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;

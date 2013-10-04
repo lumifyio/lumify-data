@@ -6,10 +6,12 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import com.altamiracorp.lumify.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.entityExtraction.KnownEntityExtractor;
 import com.altamiracorp.lumify.entityExtraction.OpenNlpDictionaryEntityExtractor;
 import com.altamiracorp.lumify.entityExtraction.OpenNlpMaximumEntropyEntityExtractor;
+import com.altamiracorp.lumify.entityExtraction.TextExtractedInfo;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.model.ontology.*;
@@ -42,7 +44,7 @@ public class TextExtractionBolt extends BaseTextProcessingBolt {
         super.prepare(stormConf, context, collector);
 
         try {
-            Configuration configuration = createHadoopConfiguration(stormConf);
+            Configuration configuration = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
 
             List<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>> workers = new ArrayList<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>>();
             workers.add(new SearchWorker());
