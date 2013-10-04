@@ -1,13 +1,7 @@
 package com.altamiracorp.lumify.storm;
 
-import backtype.storm.Config;
-import backtype.storm.LocalCluster;
-import backtype.storm.StormSubmitter;
-import backtype.storm.generated.StormTopology;
-import backtype.storm.topology.IRichSpout;
-import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.utils.Utils;
-import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import java.util.Map;
+
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -15,14 +9,22 @@ import org.apache.commons.cli.Options;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import storm.kafka.KafkaConfig;
 import storm.kafka.KafkaSpout;
 import storm.kafka.SpoutConfig;
+import backtype.storm.Config;
+import backtype.storm.LocalCluster;
+import backtype.storm.StormSubmitter;
+import backtype.storm.generated.StormTopology;
+import backtype.storm.topology.IRichSpout;
+import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.utils.Utils;
 
-import java.util.Map;
+import com.altamiracorp.lumify.cmdline.CommandLineBase;
 
 public class StormRunner extends CommandLineBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StormRunner.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(StormRunner.class);
     public static final String FILE_CONTENT_TYPE_SORTER_ID = "fileContentTypeExtraction";
     public static final String LOCAL_CONFIG_KEY = "local";
     private boolean isDone;
@@ -35,7 +37,7 @@ public class StormRunner extends CommandLineBase {
     }
 
     public StormRunner() {
-        initFramework = false;
+        initFramework = true;
     }
 
     @Override
