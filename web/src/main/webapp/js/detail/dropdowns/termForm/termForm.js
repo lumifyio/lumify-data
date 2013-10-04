@@ -324,13 +324,14 @@ define([
             if (!$focused.children().hasClass('delete-tag')){
                 var $buttonTag = $('<span>').addClass('delete-tag').text('x');
                 $focused.append($buttonTag);
-                self.trigger('termCreated', data);
             }
 
             $focused.removeClass('focused');
 
             var vertices = [];
             vertices.push(resolvedVertex);
+
+            self.trigger('termCreated', data);
             self.trigger(document, 'updateVertices', { vertices: vertices });
             self.trigger(document, 'refreshRelationships');
 
