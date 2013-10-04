@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.model.user.UserRepository;
 import com.altamiracorp.lumify.model.user.UserStatus;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import org.apache.commons.lang.StringUtils;
 import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
 import org.atmosphere.config.service.AtmosphereHandlerService;
@@ -46,7 +47,7 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
 
         String requestData = org.apache.commons.io.IOUtils.toString(resource.getRequest().getInputStream());
         try {
-            if (requestData != null && requestData.length() > 0) {
+            if (!StringUtils.isBlank(requestData)) {
                 processRequestData(resource, requestData);
             }
         } catch (Exception ex) {
