@@ -44,7 +44,7 @@ define(['atmosphere'],
                 fallbackTransport: 'long-polling',
                 contentType: "application/json",
                 trackMessageSize: true,
-                shared: true,
+                shared: false,
                 logLevel: 'debug',
                 onOpen: function(response) {
                     if (config.onOpen) config.onOpen.apply(null, arguments);
