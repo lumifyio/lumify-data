@@ -123,6 +123,7 @@ define([
             var self = this;
 
             this.mode = MODE_REGION_SELECTION_MODE_POINT;
+            this.$node.find('.instructions').remove();
             this.$node.append(centerTemplate({}));
             $(document).on('keydown.regionselection', function(e) {
                 if (e.which === $.ui.keyCode.ESCAPE) {
