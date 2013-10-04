@@ -15,6 +15,7 @@ accumulo_slaves:
   - nic-hadoop-smmc05.nearinfinity.com
   - nic-hadoop-smmc06.nearinfinity.com
   - nic-hadoop-smmc07.nearinfinity.com
+zookeeper_port:2181
 zookeeper_nodes:
   1: nic-hadoop-smmc04.nearinfinity.com:2181
   2: nic-hadoop-smmc05.nearinfinity.com:2181
@@ -29,3 +30,7 @@ jetty_confidential_port: 443
 jetty_key_store_path: /opt/lumify/config/smmc.jks
 jetty_key_store_password: OBF:tbd
 authentication_provider: com.altamiracorp.lumify.web.DevBasicAuthenticationProvider
+storm_nimbus_host: nic-hadoop-smmc02.nearinfinity.com
+storm_nimbus_thrift_port: 6627
+storm_supervisor_slots_ports: [6700, 6701, 6702, 6703]
+storm_ui_port: 8080
