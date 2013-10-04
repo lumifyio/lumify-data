@@ -24,6 +24,7 @@ import java.util.Map;
 public class StormRunner extends CommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(StormRunner.class.getName());
     public static final String FILE_CONTENT_TYPE_SORTER_ID = "fileContentTypeExtraction";
+    public static final String LOCAL_CONFIG_KEY = "local";
     private boolean isDone;
 
     public static void main(String[] args) throws Exception {
@@ -66,6 +67,7 @@ public class StormRunner extends CommandLineBase {
 
         Config conf = new Config();
         conf.put("topology.kryo.factory", "com.altamiracorp.lumify.storm.DefaultKryoFactory");
+        conf.put(LOCAL_CONFIG_KEY, isLocal);
         for (Map.Entry<Object, Object> configEntry : getConfiguration().getProperties().entrySet()) {
             conf.put(configEntry.getKey().toString(), configEntry.getValue());
         }

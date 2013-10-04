@@ -45,10 +45,12 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
     private FileSystem hdfsFileSystem;
     protected GraphRepository graphRepository;
     private Injector injector;
+    private boolean isLocal;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
         this.collector = collector;
+        this.isLocal = (Boolean) stormConf.get(StormRunner.LOCAL_CONFIG_KEY);
         injector = Guice.createInjector(StormBootstrap.create(stormConf));
         injector.injectMembers(this);
 
@@ -124,7 +126,11 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
     protected void moveFile(String sourceFileName, String destFileName) throws IOException {
         Path sourcePath = new Path(sourceFileName);
         Path destPath = new Path(destFileName);
-        getHdfsFileSystem().copyFromLocalFile(false, sourcePath, destPath);
+        if (this.isLocal) {
+            getHdfsFileSystem().copyFromLocalFile(false, sourcePath, destPath);
+        } else {
+            getHdfsFileSystem().rename(sourcePath, destPath);
+        }
     }
 
     public OutputCollector getCollector() {

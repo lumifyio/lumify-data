@@ -24,7 +24,6 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
     private FileSystem hdfsFileSystem;
     private String rootDataPath;
     private String importPath;
-    private String processedPath;
 
     @Override
     public void open(Map stormConf, TopologyContext context, SpoutOutputCollector collector) {
@@ -33,13 +32,11 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
         this.rootDataPath = (String) stormConf.get(BaseFileSystemSpout.DATADIR_CONFIG_NAME);
         checkNotNull(this.rootDataPath, BaseFileSystemSpout.DATADIR_CONFIG_NAME + " is a required configuration parameter");
         this.importPath = rootDataPath + "/import";
-        this.processedPath = rootDataPath + "/processed";
         Configuration conf = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
         try {
             String hdfsRootDir = (String) stormConf.get(AccumuloSession.HADOOP_URL);
             hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), conf, "hadoop");
             mkdirs(new Path(this.importPath));
-            mkdirs(new Path(this.processedPath));
         } catch (Exception e) {
             collector.reportError(e);
         }
@@ -56,7 +53,7 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
         try {
             Path path = new Path(importPath);
             if (!processPath(path)) {
-                Utils.sleep(100);
+                Utils.sleep(10 * 1000);
             }
         } catch (IOException e) {
             getCollector().reportError(e);
@@ -67,9 +64,9 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
     public void safeAck(Object msgId) throws Exception {
         String path = getPathFromMessageId(msgId);
         checkNotNull(path, "path was null");
-        String newPath = this.processedPath + path.substring(path.indexOf(importPath) + importPath.length());
-        LOGGER.info("moving " + path + " to " + newPath);
-        //hdfsFileSystem.rename(new Path(path), new Path(newPath));
+        if (hdfsFileSystem.exists(new Path(path))) {
+            hdfsFileSystem.delete(new Path(path), false);
+        }
         super.safeAck(msgId);
     }
 
