@@ -116,8 +116,12 @@ define([
                     return self.trigger(document, 'error', { message: err.toString() });
                 }
 
-                self.properties = properties.list;
-                self.$node.find('.nav-header').after(itemTemplate({properties:properties.list}));
+                self.properties = _.filter(properties.list, function(p) { 
+                    if (p.title === 'boundingBox') return false; 
+                    if (/^_/.test(p.title)) return false;
+                    return true; 
+                });
+                self.$node.find('.nav-header').after(itemTemplate({properties:self.properties}));
             });
         };
     }

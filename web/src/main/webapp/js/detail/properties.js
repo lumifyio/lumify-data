@@ -158,7 +158,9 @@ define([
                 }
 
                 var isRelationshipSourceProperty = name === 'source' && properties._type === 'relationship';
-                if (/^[^_]/.test(name) && !isRelationshipSourceProperty) {
+                if (/^[^_]/.test(name) && 
+                    name !== 'boundingBox' &&
+                    !isRelationshipSourceProperty) {
                     addProperty(name, displayName, value);
                 }
             } else if (isRelationshipType) {
