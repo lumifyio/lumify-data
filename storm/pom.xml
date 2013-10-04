@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -15,18 +15,31 @@
 
     <name>Storm</name>
 
+    <properties>
+        <storm.dep.scope>compile</storm.dep.scope>
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>cluster</id>
+            <properties>
+                <storm.dep.scope>provided</storm.dep.scope>
+            </properties>
+        </profile>
+    </profiles>
+
     <dependencies>
         <dependency>
             <groupId>storm</groupId>
             <artifactId>storm</artifactId>
             <version>${storm-version}</version>
+            <scope>${storm.dep.scope}</scope>
             <exclusions>
                 <exclusion>
                     <groupId>com.esotericsoftware.kryo</groupId>
                     <artifactId>kryo</artifactId>
                 </exclusion>
             </exclusions>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>storm</groupId>
