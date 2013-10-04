@@ -8,7 +8,6 @@ import backtype.storm.topology.IRichSpout;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.entityExtraction.OpenNlpEntityExtractor;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -32,6 +31,10 @@ public class StormRunner extends CommandLineBase {
         if (res != 0) {
             System.exit(res);
         }
+    }
+
+    public StormRunner() {
+        initFramework = false;
     }
 
     @Override
