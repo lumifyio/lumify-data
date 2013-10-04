@@ -118,8 +118,13 @@ define([
                 if (iconProperty) {
                     self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: iconProperty.value });
                 }
+                var popoutEnabled = false;
 
-                var props = propertiesTemplate({properties:filtered});
+                if ($('#app').hasClass('fullscreen-details')) {
+                    popoutEnabled = true;
+                }
+
+                var props = propertiesTemplate({properties:filtered, popout: popoutEnabled});
                 self.$node.html(props);
             });
         };
