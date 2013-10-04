@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash 
 
 function hadoop {
     for service in /etc/init.d/hadoop-0.20-*
@@ -13,14 +13,6 @@ function zk {
 
 function accumulo {
     sudo -u accumulo /usr/lib/accumulo/bin/stop-all.sh
-}
-
-function blur {
-    sudo -u blur /usr/lib/apache-blur/bin/stop-all.sh
-}
-
-function oozie {
-    sudo service oozie stop
 }
 
 function elasticsearch {
@@ -45,12 +37,6 @@ case "$1" in
   accumulo)
     accumulo
     ;;
-  blur)
-    blur
-    ;;
-  oozie)
-    oozie
-    ;;
   elasticsearch)
     elasticsearch
     ;;
@@ -66,16 +52,17 @@ case "$1" in
   storm-ui)
     storm ui
     ;;
-  *)
+  "")
     storm ui
     storm supervisor
     storm nimbus
     kafka
     elasticsearch
-    blur
-    oozie
     accumulo
     zk
     hadoop
+    ;;
+  *)
+    echo "Invalid command line option $1"
     ;;
 esac
