@@ -29,7 +29,7 @@ function elasticsearch {
 
 function kafka {
     sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh create /kafka null
-    sudo -u kafka JMX_PORT=10000 /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties &
+    sudo initctl start kafka
 }
 
 case "$1" in
