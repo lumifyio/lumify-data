@@ -14,6 +14,7 @@ class kafka(
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')
   $kafka_consumer_group_id = hiera('kafka_consumer_group_id')
   $kafka_host_ipaddress = hiera('kafka_host_ipaddress')
+  $kafka_jmx_port = hiera('kafka_jmx_port')
 
   $downloadpath = "${tmpdir}/kafka-${version}-incubating-src.tgz"
   $configdir = "${home}/config"
@@ -57,6 +58,12 @@ class kafka(
     owner  => $user,
     group  => $group,
     require => File[$home]
+  }
+
+  file { "/etc/init/kafka.conf":
+    ensure   => file,
+    content  => template('kafka/upstart.conf.erb'),
+    require  => File[$home],
   }
 
   file { "${configdir}/consumer.properties":
