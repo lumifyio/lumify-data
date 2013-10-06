@@ -18,9 +18,9 @@ File.read(ARGV[0]).each_line do |line|
   aliases = aliases.split(/,/)
 
   puts "node '#{name}' {"
-  aliases.each do |alais|
+  aliases.each do |a|
     MAP.keys.each do |regex|
-      if alais.match(regex)
+      if a.match(regex)
         puts MAP[regex].join("\n")
       end
     end
