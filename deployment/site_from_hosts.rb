@@ -11,11 +11,8 @@ MAP = {
 
 
 File.read(ARGV[0]).each_line do |line|
-  break if line.match(/^\s*#STOP\s*$/)
-  next if line.match(/^\s*#|^\s*$/)
-
-  _, _, _, name, aliases, _ = line.split(/\s+/)
-  aliases = aliases.split(/,/)
+  ip, name, *aliases_and_comment = line.split(/\s+/)
+  aliases = aliases_and_comment.reject {|a| a.match(/#|i-[0-9a-f]{8}/)}
 
   puts "node '#{name}' {"
   aliases.each do |a|
