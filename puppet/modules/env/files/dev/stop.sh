@@ -52,6 +52,11 @@ case "$1" in
   storm-ui)
     storm ui
     ;;
+  storm)
+    storm nimbus
+    storm supervisor
+    storm ui
+    ;;
   "")
     storm ui
     storm supervisor
