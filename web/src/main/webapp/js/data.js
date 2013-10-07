@@ -201,8 +201,14 @@ define([
                     if (existing.length) self.trigger('existingVerticesAdded', { vertices:freeze(existing) });
 
                     if (added.length === 0) {
+                        var message = "No New Vertices Added";
+                        if ($(".map-pane").is(":visible")) {
+                           var instructions = $('<div>').text(message).addClass('instructions');
+                           $(instructions).appendTo($(".map-pane")).show();
+                        }
+                        
                         // TODO: make mixin
-                        $(".graph-pane .instructions").text("No New Vertices Added");
+                        $(".graph-pane .instructions").text(message);
                         return;
                     }
 

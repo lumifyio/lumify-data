@@ -51,7 +51,7 @@ define([
                 var propertiesList = [];
 
                 properties.list.forEach(function (property) {
-                    if (property.title.charAt(0) !== '_') {
+                    if (property.title.charAt(0) !== '_' && property.title !== 'boundingBox') {
                         var data = {
                             title: property.title,
                             displayName: property.displayName

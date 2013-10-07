@@ -36,7 +36,7 @@
 				</property>
                 <property>
                     <name>contentTypeExtractor</name>
-                    <value>com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor</value>
+                    <value>${basePackage}.contentTypeExtraction.TikaContentTypeExtractor</value>
                 </property>
 				<property>
 			        <name>mapreduce.inputformat.class</name>

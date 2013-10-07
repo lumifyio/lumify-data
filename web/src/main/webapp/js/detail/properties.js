@@ -118,8 +118,13 @@ define([
                 if (iconProperty) {
                     self.trigger(self.select('glyphIconSelector'), 'iconUpdated', { src: iconProperty.value });
                 }
+                var popoutEnabled = false;
 
-                var props = propertiesTemplate({properties:filtered});
+                if ($('#app').hasClass('fullscreen-details')) {
+                    popoutEnabled = true;
+                }
+
+                var props = propertiesTemplate({properties:filtered, popout: popoutEnabled});
                 self.$node.html(props);
             });
         };
@@ -158,7 +163,9 @@ define([
                 }
 
                 var isRelationshipSourceProperty = name === 'source' && properties._type === 'relationship';
-                if (/^[^_]/.test(name) && !isRelationshipSourceProperty) {
+                if (/^[^_]/.test(name) && 
+                    name !== 'boundingBox' &&
+                    !isRelationshipSourceProperty) {
                     addProperty(name, displayName, value);
                 }
             } else if (isRelationshipType) {

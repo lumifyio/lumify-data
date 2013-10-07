@@ -40,10 +40,10 @@ function elasticsearch {
 
 function kafka {
     echo "Starting kafka..."
-    sudo netstat -nl | grep -q \:10000
+    sudo initctl status kafka | grep -q running
     if [ $? -eq 1 ]; then
         sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh create /kafka null
-        JMX_PORT=10000 sudo -u kafka -E sh -c "/opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties &> /var/log/kafka/server.log" &
+        sudo initctl start kafka
     else
         echo "kafka already running"
     fi
