@@ -179,10 +179,6 @@ define([
                 var mapPane = this.$node.find('.map-pane');
                 Map.attachTo(mapPane);
                 this.trigger(document, 'mapShow', { data:(data && data.data) });
-                this.collapse([
-                    this.select('searchSelector'),
-                    this.select('workspacesSelector')
-                ]);
             }
 
             if (SLIDE_OUT.indexOf(data.name) >= 0) {
