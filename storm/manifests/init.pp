@@ -17,6 +17,7 @@ class storm(
   $storm_local_dir = '/var/storm',
 ) {
   include macro
+  include macro::git
   require java
   require zookeeper
 
@@ -72,7 +73,7 @@ class storm(
     require     => [Macro::Extract['extract-zeromq'], Package['libuuid-devel']],
   }
 
-  macro::git-clone { 'jzmq-clone':
+  macro::git::clone { 'jzmq-clone':
     url     => 'https://github.com/nathanmarz/jzmq.git',
     path    => "${tmpdir}/jzmq",
     options => '--depth 1'
@@ -84,7 +85,7 @@ class storm(
     creates     => '/usr/local/lib/libjzmq.so',
     environment => ["JAVA_HOME=/usr/java/default"], 
     timeout     => 0,
-    require     => [ Macro::Git-clone['jzmq-clone'], Exec['zeromq-build'] ],
+    require     => [ Macro::Git::Clone['jzmq-clone'], Exec['zeromq-build'] ],
   }
 
   macro::download { "https://github.com/downloads/nathanmarz/storm/storm-${version}.zip":
