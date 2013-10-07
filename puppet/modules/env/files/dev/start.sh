@@ -15,7 +15,7 @@ function hadoop {
 
 function zk {
     echo "Starting zookeeper..."
-    sudo service hadoop-zookeeper-server status | grep -q running
+    sudo service hadoop-zookeeper-server status | grep -q "is running"
     if [ $? -eq 1 ]; then
         sudo service hadoop-zookeeper-server start
     else
@@ -30,7 +30,7 @@ function accumulo {
 
 function elasticsearch {
     echo "Starting elasticsearch..."
-    sudo /usr/lib/elasticsearch/bin/service/elasticsearch status | grep -q running
+    sudo /usr/lib/elasticsearch/bin/service/elasticsearch status | grep -q "is running"
     if [ $? -eq 1 ]; then
         sudo /usr/lib/elasticsearch/bin/service/elasticsearch start
     else
