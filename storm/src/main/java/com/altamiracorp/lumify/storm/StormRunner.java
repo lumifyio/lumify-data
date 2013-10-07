@@ -1,18 +1,5 @@
 package com.altamiracorp.lumify.storm;
 
-import java.util.Map;
-
-import org.apache.accumulo.core.util.CachedConfiguration;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.hadoop.util.ToolRunner;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import storm.kafka.KafkaConfig;
-import storm.kafka.KafkaSpout;
-import storm.kafka.SpoutConfig;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
@@ -20,12 +7,22 @@ import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.IRichSpout;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
-
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import org.apache.accumulo.core.util.CachedConfiguration;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.hadoop.util.ToolRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import storm.kafka.KafkaConfig;
+import storm.kafka.KafkaSpout;
+import storm.kafka.SpoutConfig;
+
+import java.util.Map;
 
 public class StormRunner extends CommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(StormRunner.class);
-    public static final String FILE_CONTENT_TYPE_SORTER_ID = "fileContentTypeExtraction";
     public static final String LOCAL_CONFIG_KEY = "local";
     private boolean isDone;
 
@@ -78,7 +75,12 @@ public class StormRunner extends CommandLineBase {
         conf.setNumWorkers(2);
 
         if (isLocal) {
-            StormTopology topology = createTopology(new DevFileSystemSpout());
+            TopologyConfig topologyConfig = new TopologyConfig()
+                    .setUnknownSpout(new DevFileSystemSpout())
+                    .setDocumentSpout(new KafkaSpout(createSpoutConfig("document")))
+                    .setImageSpout(new KafkaSpout(createSpoutConfig("image")))
+                    .setVideoSpout(new KafkaSpout(createSpoutConfig("video")));
+            StormTopology topology = createTopology(topologyConfig);
             LocalCluster cluster = new LocalCluster();
             cluster.submitTopology("local", conf, topology);
 
@@ -89,51 +91,53 @@ public class StormRunner extends CommandLineBase {
             cluster.killTopology("local");
             cluster.shutdown();
         } else {
-            StormTopology topology = createTopology(new HdfsFileSystemSpout("/import/unknown"));
+            TopologyConfig topologyConfig = new TopologyConfig()
+                    .setUnknownSpout(new HdfsFileSystemSpout("/unknown"))
+                    .setDocumentSpout(new HdfsFileSystemSpout("/document"))
+                    .setImageSpout(new HdfsFileSystemSpout("/image"))
+                    .setVideoSpout(new HdfsFileSystemSpout("/video"));
+            StormTopology topology = createTopology(topologyConfig);
             StormSubmitter.submitTopology("lumify", conf, topology);
         }
 
         return 0;
     }
 
-    public StormTopology createTopology(IRichSpout fileSpout) {
+    public StormTopology createTopology(TopologyConfig topologyConfig) {
         TopologyBuilder builder = new TopologyBuilder();
-        createContentTypeSorterTopology(builder, fileSpout);
-        createVideoTopology(builder);
-        createImageTopology(builder);
-        createDocumentTopology(builder);
+        createContentTypeSorterTopology(builder, topologyConfig);
+        createVideoTopology(builder, topologyConfig);
+        createImageTopology(builder, topologyConfig);
+        createDocumentTopology(builder, topologyConfig);
         createTextTopology(builder);
 
         return builder.createTopology();
     }
 
-    private TopologyBuilder createContentTypeSorterTopology(TopologyBuilder builder, IRichSpout fileSpout) {
-        builder.setSpout(FILE_CONTENT_TYPE_SORTER_ID, fileSpout, 1);
+    private TopologyBuilder createContentTypeSorterTopology(TopologyBuilder builder, TopologyConfig topologyConfig) {
+        builder.setSpout("fileSorter", topologyConfig.getUnknownSpout(), 1);
         builder.setBolt("contentTypeSorterBolt", new ContentTypeSorterBolt(), 1)
-                .shuffleGrouping(FILE_CONTENT_TYPE_SORTER_ID);
+                .shuffleGrouping("fileSorter");
         return builder;
     }
 
-    private void createImageTopology(TopologyBuilder builder) {
+    private void createImageTopology(TopologyBuilder builder, TopologyConfig topologyConfig) {
         String queueName = "image";
-        SpoutConfig spoutConfig = createSpoutConfig(queueName);
-        builder.setSpout(queueName, new KafkaSpout(spoutConfig), 1);
+        builder.setSpout(queueName, topologyConfig.getImageSpout(), 1);
         builder.setBolt("debug-" + queueName, new DebugBolt(queueName), 1)
                 .shuffleGrouping(queueName);
     }
 
-    private void createVideoTopology(TopologyBuilder builder) {
+    private void createVideoTopology(TopologyBuilder builder, TopologyConfig topologyConfig) {
         String queueName = "video";
-        SpoutConfig spoutConfig = createSpoutConfig(queueName);
-        builder.setSpout(queueName, new KafkaSpout(spoutConfig), 1);
+        builder.setSpout(queueName, topologyConfig.getVideoSpout(), 1);
         builder.setBolt("debug-" + queueName, new DebugBolt(queueName), 1)
                 .shuffleGrouping(queueName);
     }
 
-    private void createDocumentTopology(TopologyBuilder builder) {
+    private void createDocumentTopology(TopologyBuilder builder, TopologyConfig topologyConfig) {
         String queueName = "document";
-        SpoutConfig spoutConfig = createSpoutConfig(queueName);
-        builder.setSpout(queueName + "-spout", new KafkaSpout(spoutConfig), 1);
+        builder.setSpout(queueName + "-spout", topologyConfig.getDocumentSpout(), 1);
         builder.setBolt(queueName + "-bolt", new DocumentBolt(), 1)
                 .shuffleGrouping(queueName + "-spout");
     }
@@ -141,7 +145,7 @@ public class StormRunner extends CommandLineBase {
     private void createTextTopology(TopologyBuilder builder) {
         SpoutConfig spoutConfig = createSpoutConfig("text");
         builder.setSpout("textSpout", new KafkaSpout(spoutConfig), 1);
-        builder.setBolt("termExtractionBolt", new TermExtractionBolt(), 1)
+        builder.setBolt("textExtractionBolt", new TermExtractionBolt(), 1)
                 .shuffleGrouping("textSpout");
         builder.setBolt("textHighlightingBolt", new TextHighlightingBolt(), 1)
                 .shuffleGrouping("textExtractionBolt");
@@ -155,5 +159,48 @@ public class StormRunner extends CommandLineBase {
                 queueName);
         spoutConfig.scheme = new KafkaJsonEncoder();
         return spoutConfig;
+    }
+
+    private class TopologyConfig {
+        private IRichSpout unknownSpout;
+        private IRichSpout imageSpout;
+        private IRichSpout videoSpout;
+        private IRichSpout documentSpout;
+
+        private IRichSpout getUnknownSpout() {
+            return unknownSpout;
+        }
+
+        private TopologyConfig setUnknownSpout(IRichSpout unknownSpout) {
+            this.unknownSpout = unknownSpout;
+            return this;
+        }
+
+        private IRichSpout getImageSpout() {
+            return imageSpout;
+        }
+
+        private TopologyConfig setImageSpout(IRichSpout imageSpout) {
+            this.imageSpout = imageSpout;
+            return this;
+        }
+
+        private IRichSpout getVideoSpout() {
+            return videoSpout;
+        }
+
+        private TopologyConfig setVideoSpout(IRichSpout videoSpout) {
+            this.videoSpout = videoSpout;
+            return this;
+        }
+
+        private IRichSpout getDocumentSpout() {
+            return documentSpout;
+        }
+
+        private TopologyConfig setDocumentSpout(IRichSpout documentSpout) {
+            this.documentSpout = documentSpout;
+            return this;
+        }
     }
 }
