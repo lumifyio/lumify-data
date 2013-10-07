@@ -28,6 +28,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +41,8 @@ import java.util.Map;
 import java.util.Properties;
 
 public abstract class BaseLumifyBolt extends BaseRichBolt {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseLumifyBolt.class.getName());
+
     private OutputCollector collector;
     private Producer<String, JSONObject> kafkaProducer;
     protected ArtifactRepository artifactRepository;
@@ -67,6 +71,15 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         props.put("serializer.class", KafkaJsonEncoder.class.getName());
         ProducerConfig config = new ProducerConfig(props);
         kafkaProducer = new Producer<String, JSONObject>(config);
+    }
+
+    protected JSONObject getJsonFromTuple(Tuple input) throws Exception {
+        String str = input.getString(0);
+        try {
+            return new JSONObject(str);
+        } catch (Exception ex) {
+            throw new RuntimeException("Invalid input format. Expected JSON got.\n" + str, ex);
+        }
     }
 
     public Injector getInjector() {

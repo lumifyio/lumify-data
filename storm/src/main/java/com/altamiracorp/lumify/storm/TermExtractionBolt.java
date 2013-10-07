@@ -59,14 +59,13 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
     @Override
     protected void safeExecute(Tuple input) throws Exception {
-        String jsonString = input.getString(0);
-        JSONObject json = new JSONObject(jsonString);
+        JSONObject json = getJsonFromTuple(input);
         String graphVertexId = json.getString("graphVertexId");
 
         GraphVertex artifactGraphVertex = graphRepository.findVertex(graphVertexId, getUser());
         runTextExtractions(artifactGraphVertex);
 
-        getCollector().emit(new Values(jsonString));
+        getCollector().emit(new Values(json.toString()));
         getCollector().ack(input);
     }
 

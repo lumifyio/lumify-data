@@ -59,9 +59,20 @@ public class DocumentBolt extends BaseLumifyBolt {
 
     @Override
     protected void safeExecute(Tuple input) throws Exception {
-        JSONObject json = new JSONObject(input.getString(0));
-        String fileName = json.getString("fileName");
-        String mimeType = json.getString("mimeType");
+        String fileName = input.getString(0);
+        String mimeType = null;
+
+        if (fileName.startsWith("{")) {
+            JSONObject json = getJsonFromTuple(input);
+            fileName = json.optString("fileName");
+            mimeType = json.optString("mimeType");
+            if (fileName == null) {
+                throw new RuntimeException("Expected 'fileName' in JSON document but got.\n" + json.toString());
+            }
+        }
+        if (mimeType == null) {
+            mimeType = getMimeType(fileName);
+        }
 
         LOGGER.info("processing: " + fileName + " (mimeType: " + mimeType + ")");
 
@@ -94,6 +105,15 @@ public class DocumentBolt extends BaseLumifyBolt {
         pushOnQueue("text", textQueueDataJson);
 
         getCollector().ack(input);
+    }
+
+    // TODO: need a better check for mime type
+    private String getMimeType(String fileName) {
+        String ext = FilenameUtils.getExtension(fileName).toLowerCase();
+        if (ext.equals("html") || ext.equals("htm")) {
+            return "text/html";
+        }
+        return "binary";
     }
 
     private void mergeResults(ArtifactExtractedInfo artifactExtractedInfo, List<ThreadedTeeInputStreamWorker.WorkResult<ArtifactExtractedInfo>> results) throws Exception {

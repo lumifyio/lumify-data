@@ -21,7 +21,7 @@ public class TextHighlightingBolt extends BaseTextProcessingBolt {
 
     @Override
     protected void safeExecute(Tuple input) throws Exception {
-        JSONObject json = new JSONObject(input.getString(0));
+        JSONObject json = getJsonFromTuple(input);
         String graphVertexId = json.getString("graphVertexId");
         GraphVertex graphVertex = graphRepository.findVertex(graphVertexId, getUser());
         String text = getText(graphVertex);
