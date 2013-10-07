@@ -20,10 +20,15 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class HdfsFileSystemSpout extends BaseFileSystemSpout {
     private static final Logger LOGGER = LoggerFactory.getLogger(HdfsFileSystemSpout.class.getName());
+    private final String subDir;
 
     private FileSystem hdfsFileSystem;
     private String rootDataPath;
     private String importPath;
+
+    public HdfsFileSystemSpout(String subDir) {
+        this.subDir = subDir;
+    }
 
     @Override
     public void open(Map stormConf, TopologyContext context, SpoutOutputCollector collector) {
@@ -31,7 +36,7 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
 
         this.rootDataPath = (String) stormConf.get(BaseFileSystemSpout.DATADIR_CONFIG_NAME);
         checkNotNull(this.rootDataPath, BaseFileSystemSpout.DATADIR_CONFIG_NAME + " is a required configuration parameter");
-        this.importPath = rootDataPath + "/import";
+        this.importPath = rootDataPath + this.subDir;
         Configuration conf = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
         try {
             String hdfsRootDir = (String) stormConf.get(AccumuloSession.HADOOP_URL);

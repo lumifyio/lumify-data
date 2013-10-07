@@ -89,7 +89,7 @@ public class StormRunner extends CommandLineBase {
             cluster.killTopology("local");
             cluster.shutdown();
         } else {
-            StormTopology topology = createTopology(new HdfsFileSystemSpout());
+            StormTopology topology = createTopology(new HdfsFileSystemSpout("/import/unknown"));
             StormSubmitter.submitTopology("lumify", conf, topology);
         }
 
