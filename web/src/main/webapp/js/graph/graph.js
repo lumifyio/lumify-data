@@ -183,6 +183,7 @@ define([
                 if (updatedVertices.length) {
                     this.trigger(document, 'updateVertices', { vertices:updatedVertices });
                 } else if (addedVertices.length) {
+                    cy.container().focus();
                     this.trigger(document, 'addVertices', { vertices:addedVertices });
                 }
 
