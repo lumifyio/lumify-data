@@ -187,6 +187,13 @@ define([
                             return $(this).data('vertexId');
                         }).toArray());
 
+                    if (vertices.length > 1) {
+                        vertices.forEach (function (vertex) {
+                            vertex.workspace = {
+                                selected: true
+                            };
+                        })
+                    }
                     self.trigger(document, 'defocusVertices');
                     self.trigger('verticesSelected', [vertices]);
                 }
