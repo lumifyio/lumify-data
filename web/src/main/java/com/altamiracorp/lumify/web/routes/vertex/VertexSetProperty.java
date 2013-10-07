@@ -6,9 +6,7 @@ import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.model.ontology.Property;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.lumify.web.Messaging;
 import com.altamiracorp.web.HandlerChain;
@@ -62,9 +60,7 @@ public class VertexSetProperty extends BaseRequestHandler {
         if (propertyName.equals(PropertyName.GEO_LOCATION.toString())) {
             graphVertex.setProperty(PropertyName.GEO_LOCATION_DESCRIPTION, "");
         } else if (propertyName.equals(PropertyName.SOURCE.toString())) {
-            Artifact artifact = artifactRepository.findByRowKey((String)graphVertex.getProperty("_rowKey"), user);
-            artifact.getGenericMetadata().setSource((String)value);
-            artifactRepository.save(artifact,user);
+            graphVertex.setProperty(PropertyName.SOURCE, value);
         }
         graphRepository.commit();
 
