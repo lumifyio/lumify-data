@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
+import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,16 +30,20 @@ public class ArtifactImport extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         User user = getUser(request);
+        InputStream fis;
+        if (request.getContentType().equals(MediaType.MULTIPART_FORM_DATA)) {
+            List<Part> files = new ArrayList<Part>(request.getParts());
+            if (files.size() != 1) {
+                throw new RuntimeException("Wrong number of uploaded files. Expected 1 got " + files.size());
+            }
 
-        List<Part> files = new ArrayList<Part>(request.getParts());
-        if (files.size() != 1) {
-            throw new RuntimeException("Wrong number of uploaded files. Expected 1 got " + files.size());
+            Part file = files.get(0);
+            fis = file.getInputStream();
+        } else {
+            fis = request.getInputStream();
         }
-
-        Part file = files.get(0);
-
         File tempFile = File.createTempFile("fileImport", ".bin");
-        writeToTempFile(file, tempFile);
+        writeToTempFile(fis, tempFile);
 
         List<FileImporter.Result> results = fileImporter.writePackage(tempFile, "File Upload", user);
 
@@ -50,8 +55,7 @@ public class ArtifactImport extends BaseRequestHandler {
         respondWithJson(response, json);
     }
 
-    private void writeToTempFile(Part file, File tempFile) throws IOException {
-        InputStream in = file.getInputStream();
+    private void writeToTempFile(InputStream in, File tempFile) throws IOException {
         try {
             FileOutputStream out = new FileOutputStream(tempFile);
             try {
