@@ -148,7 +148,7 @@ public class StormRunner extends CommandLineBase {
         builder.setBolt("textTermExtractionBolt", new TermExtractionBolt(), 1)
                 .shuffleGrouping("text");
         builder.setBolt("textHighlightingBolt", new TextHighlightingBolt(), 1)
-                .shuffleGrouping("textExtractionBolt");
+                .shuffleGrouping("textTermExtractionBolt");
     }
 
     private SpoutConfig createSpoutConfig(String queueName) {
