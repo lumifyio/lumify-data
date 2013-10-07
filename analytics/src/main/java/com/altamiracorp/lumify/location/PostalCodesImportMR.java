@@ -1,11 +1,7 @@
 package com.altamiracorp.lumify.location;
 
-import com.altamiracorp.lumify.ConfigurableMapJobBase;
-import com.altamiracorp.lumify.LumifyMapper;
-import com.altamiracorp.lumify.model.geoNames.GeoNamePostalCode;
-import com.altamiracorp.lumify.model.geoNames.GeoNamePostalCodeRepository;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
+import java.io.IOException;
+
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -16,7 +12,11 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.util.ToolRunner;
 
-import java.io.IOException;
+import com.altamiracorp.lumify.ConfigurableMapJobBase;
+import com.altamiracorp.lumify.LumifyMapper;
+import com.altamiracorp.lumify.model.geoNames.GeoNamePostalCodeRepository;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 public class PostalCodesImportMR extends ConfigurableMapJobBase {
 

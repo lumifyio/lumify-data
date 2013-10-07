@@ -5,7 +5,8 @@ define([
     'data',
     'tpl!./list',
     'util/previews',
-    'util/video/scrubber'
+    'util/video/scrubber',
+    'util/jquery.ui.draggable.multiselect'
 ], function(defineComponent, registry, appData, template, previews, VideoScrubber) {
     'use strict';
 
@@ -70,10 +71,11 @@ define([
         });
 
         this.attachEvents = function() {
-            this.scrollNode = this.$node.parents().filter(function(i, n) { 
-                    return $(n).css('overflow') === 'auto'; 
-                }).eq(0)
-                  .on('scroll.vertexList', this.onResultsScroll.bind(this));
+            this.scrollNode = this.$node;
+            while (this.scrollNode.length && this.scrollNode.css('overflow') !== 'auto') {
+                this.scrollNode = this.scrollNode.parent();
+            }
+            this.scrollNode.on('scroll.vertexList', this.onResultsScroll.bind(this));
 
             this.$node.on('mouseenter mouseleave', '.vertex-item', this.onHoverItem.bind(this));
 

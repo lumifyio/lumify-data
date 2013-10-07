@@ -27,6 +27,11 @@ function elasticsearch {
     sudo /usr/lib/elasticsearch/bin/service/elasticsearch start
 }
 
+function kafka {
+    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh create /kafka null
+    sudo initctl start kafka
+}
+
 case "$1" in
   hadoop)
     hadoop
@@ -46,6 +51,9 @@ case "$1" in
   elasticsearch)
     elasticsearch
     ;;
+  kafka)
+    kafka
+    ;;
   *)
     hadoop
     zk
@@ -53,5 +61,6 @@ case "$1" in
     oozie
     blur; sleep 10; sudo -u blur /usr/lib/apache-blur/bin/blur safemodewait
     elasticsearch
+    kafka
     ;;
 esac

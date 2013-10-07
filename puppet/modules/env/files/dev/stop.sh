@@ -27,6 +27,10 @@ function elasticsearch {
     sudo /usr/lib/elasticsearch/bin/service/elasticsearch stop
 }
 
+function kafka {
+    sudo initctl stop kafka
+}
+
 case "$1" in
   hadoop)
     hadoop
@@ -46,7 +50,11 @@ case "$1" in
   elasticsearch)
     elasticsearch
     ;;
+  kafka)
+    kafka
+    ;;
   *)
+    kafka
     elasticsearch
     blur
     oozie

@@ -1,13 +1,21 @@
 
 define([
     'flight/lib/component',
+    'data',
     'service/workspace',
     'service/user',
     './form/form',
     'tpl!./workspaces',
     'tpl!./list',
     'tpl!./item'
-], function(defineComponent, WorkspaceService, UserService, WorkspaceForm, workspacesTemplate, listTemplate, itemTemplate) {
+], function(defineComponent,
+    appData,
+    WorkspaceService,
+    UserService,
+    WorkspaceForm,
+    workspacesTemplate,
+    listTemplate,
+    itemTemplate) {
     'use strict';
 
     return defineComponent(Workspaces);
@@ -68,17 +76,19 @@ define([
 
             event.preventDefault();
 
+            this.trigger( document, 'switchWorkspace', { _rowKey: data._rowKey });
+
             var container = this.select('formSelector'),
                 form = container.resizable({
-                    handles: 'e',
-                    minWidth: 120,
-                    maxWidth: 250,
-                    resize: function() {
-                        self.trigger(document, 'paneResized');
-                    }
-                }).show().find('.content');
-            
-            var instance = form.lookupComponent(WorkspaceForm);
+                        handles: 'e',
+                        minWidth: 120,
+                        maxWidth: 250,
+                        resize: function() {
+                            self.trigger(document, 'paneResized');
+                        }
+                    }).show().find('.content'),
+                instance = form.lookupComponent(WorkspaceForm);
+
             if (instance && instance.attr.data._rowKey === data._rowKey) {
                 container.hide();
                 instance.teardown();
@@ -90,13 +100,15 @@ define([
                 data: data
             });
 
-            this.trigger(document, 'paneResized');
+            self.trigger(document, 'paneResized');
         };
 
         this.collapseEditForm = function() {
-            WorkspaceForm.teardownAll();
-            this.select('formSelector').hide();
-            this.trigger(document, 'paneResized');
+            if (this.select('formSelector').is(':visible')) {
+                WorkspaceForm.teardownAll();
+                this.select('formSelector').hide();
+                this.trigger(document, 'paneResized');
+            }
         };
 
         this.onSwitchWorkspace = function ( event, data ) {
@@ -110,6 +122,7 @@ define([
         };
 
         this.onWorkspaceLoad = function ( event, data ) {
+            this.updateListItemWithData(data);
             this.switchActive( data.id );
         };
 
@@ -124,16 +137,37 @@ define([
             li.find('.badge').addClass('loading').show().next().hide();
         };
 
-        this.onWorkspaceSaved = function ( event, data ) {
+        this.updateListItemWithData = function(data) {
+            if (!this.usersByRowKey) return;
             var li = this.findWorkspaceRow(data._rowKey);
             li.find('.badge').removeClass('loading').hide().next().show();
             data = this.workspaceDataForItemRow(data);
             var content = $(itemTemplate({ workspace: data, selected: this.workspaceRowKey }));
             if (li.length === 0) {
-                content.insertAfter( this.$node.find('li.nav-header') );
+                this.$node.find('li.nav-header').eq(+data.isSharedToUser).after(content);
             } else {
                 li.replaceWith(content);
             }
+        };
+
+        this.onWorkspaceSaved = function ( event, data ) {
+            this.updateListItemWithData(data);
+
+            this.trigger(document, 'workspaceRemoteSave', data);
+        };
+
+        this.onWorkspaceRemoteSave = function ( event, data) {
+            if (!data || !data.remoteEvent) return;
+
+            if (this.workspaceRowKey === data._rowKey) {
+                appData.loadWorkspace(data);
+            } else {
+                this.updateListItemWithData(data);
+            }
+        };
+
+        this.onWorkspaceNotAvailable = function ( event, data) {
+            this.loadWorkspaceList();
         };
 
         this.switchActive = function( rowKey ) {
@@ -147,9 +181,6 @@ define([
                     if ($(this).data('_rowKey') == rowKey) {
                         found = true;
                         $(this).addClass('active');
-                        self.trigger(document, 'workspaceSwitched', {
-                            workspace: $(this).data()
-                        });
                         return false;
                     }
                 });
@@ -182,6 +213,7 @@ define([
                                 selected: self.workspaceRowKey
                             })
                         );
+                        self.trigger(document, 'paneResized');
                     });
         };
 
@@ -218,6 +250,9 @@ define([
             this.on( document, 'workspaceSaving', this.onWorkspaceSaving );
             this.on( document, 'workspaceSaved', this.onWorkspaceSaved );
             this.on( document, 'workspaceDeleted', this.onWorkspaceDeleted );
+            this.on( document, 'workspaceRemoteSave', this.onWorkspaceRemoteSave );
+            this.on( document, 'workspaceNotAvailable', this.onWorkspaceNotAvailable );
+
             this.on( document, 'menubarToggleDisplay', this.onToggleMenu );
             this.on( document, 'switchWorkspace', this.onSwitchWorkspace );
             this.on( 'click', {

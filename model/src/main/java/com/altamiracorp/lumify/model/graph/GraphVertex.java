@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.model.graph;
 
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
+import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.tinkerpop.blueprints.Vertex;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,8 +33,7 @@ public abstract class GraphVertex {
                 if (key.equals("_type")) {
                     propertiesJson.put(key, getProperty(key).toString().toLowerCase());
                 } else if (key.equals("geoLocation")) {
-                    String val = getProperty(key).toString();
-                    String[] latlong = val.substring(val.indexOf('[') + 1, val.indexOf(']')).split(",");
+                    Double[] latlong = parseLatLong(getProperty(key));
                     propertiesJson.put("latitude", latlong[0]);
                     propertiesJson.put("longitude", latlong[1]);
                 } else {
@@ -83,5 +83,20 @@ public abstract class GraphVertex {
 
     public Vertex getVertex() {
         return null;
+    }
+
+    public static Double[] parseLatLong(Object val) {
+        Double[] result = new Double[2];
+        if (val instanceof String) {
+            String valStr = (String) val;
+            String[] latlong = valStr.substring(valStr.indexOf('[') + 1, valStr.indexOf(']')).split(",");
+            result[0] = Double.parseDouble(latlong[0]);
+            result[1] = Double.parseDouble(latlong[1]);
+        } else if (val instanceof Geoshape) {
+            Geoshape valGeoShape = (Geoshape) val;
+            result[0] = (double) valGeoShape.getPoint().getLatitude();
+            result[1] = (double) valGeoShape.getPoint().getLongitude();
+        }
+        return result;
     }
 }

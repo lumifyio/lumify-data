@@ -93,9 +93,10 @@ define([
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
 
             this.setupWindowResizeTrigger();
-            this.triggerPaneResized();
 
             data.loadActiveWorkspace();
+
+            _.defer(this.triggerPaneResized.bind(this));
         });
 
         this.trapAnchorClicks = function(e) {
@@ -161,6 +162,7 @@ define([
                     self.triggerPaneResized();
                 }
 
+                self.trigger('verticesSelected', []);
                 self.trigger('refreshRelationships');
             });
         };
@@ -179,8 +181,7 @@ define([
                 this.trigger(document, 'mapShow', { data:(data && data.data) });
                 this.collapse([
                     this.select('searchSelector'),
-                    this.select('workspacesSelector'),
-                    this.select('detailPaneSelector')
+                    this.select('workspacesSelector')
                 ]);
             }
 

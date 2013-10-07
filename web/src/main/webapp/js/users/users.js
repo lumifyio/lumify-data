@@ -35,7 +35,7 @@ define([
                 userListItemSelector: this.onUserListItemClicked
             });
 
-            this.doGetOnline();
+            this.on(document, 'subscribeSocketOpened', this.doGetOnline.bind(this));
         });
 
         this.onUserListItemClicked = function (evt) {
@@ -54,10 +54,8 @@ define([
         };
 
         this.onNewUserOnline = function (evt, userData) {
-            console.log('onNewUserOnline', userData);
             var $usersList = this.select('usersListSelector');
             var html = userListItemTemplate({ user: userData });
-            console.log('li.status-' + userData.status);
             $usersList.find('li.status-' + userData.status).after(html);
         };
 
@@ -66,7 +64,6 @@ define([
         };
 
         this.createOrActivateConversation = function (chat) {
-            console.log('createOrActivateConversation', chat);
             var $usersList = this.select('usersListSelector');
             var activeChat = $usersList.find('li.conversation-' + chat.rowKey);
 
@@ -86,7 +83,6 @@ define([
         };
 
         this.onChatMessage = function (evt, message) {
-            console.log('onChatMessage', message);
             var chat = {
                 rowKey: message.chatRowKey,
                 users: [message.from]
@@ -99,7 +95,6 @@ define([
 
 
         this.onUserOnlineStatusChanged = function (evt, userData) {
-            console.log('onUserOnlineStatusChanged', userData);
             var $usersList = this.select('usersListSelector');
             var $user = $('.user-' + userData.rowKey, $usersList);
             if ($user.length) {
@@ -134,7 +129,7 @@ define([
 
             var $usersList = self.select('usersListSelector');
             var $user = $('.user-' + user.rowKey, $usersList);
-            if ($user.length == 0) {
+            if ($user.length === 0) {
                 self.trigger(document, 'newUserOnline', user);
             } else if (!$user.hasClass(user.status)) {
                 self.trigger(document, 'userOnlineStatusChanged', user);
@@ -163,14 +158,6 @@ define([
                     }
 
                     self.updateUsers(data.users);
-
-                    self.usersService.subscribe(self.currentUserRowKey, function (err, message) {
-                        if (err) {
-                            console.error('Error', err);
-                            return self.trigger(document, 'error', { message: err.toString() });
-                        }
-                        self.trigger(document, 'socketMessage', message);
-                    });
                 });
         };
     }

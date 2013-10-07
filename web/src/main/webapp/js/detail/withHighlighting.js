@@ -73,10 +73,27 @@ define([
                 resolvableSelector: this.onResolvableClicked,
                 highlightTypeSelector: this.onHighlightTypeClicked
             });
+            this.on('mousedown mouseup click dblclick', this.trackMouse.bind(this));
             this.on(document, 'termCreated', this.updateEntityAndArtifactDraggables);
 
             this.applyHighlightStyle();
         });
+
+        this.trackMouse = function(event) {
+            if (event.type === 'mouseup' || event.type === 'click' || event.type === 'dblclick') {
+                this.mouseDown = false;
+            } else {
+                this.mouseDown = true;
+            }
+
+            if (event.type === 'mouseup' || event.type === 'dblclick') {
+                this.handleSelectionChange();
+            } else if (event.type == 'click' && 
+                    $(event.target).closest('.opens-dropdown').length === 0 &&
+                    $(event.target).closest('.underneath').length === 0) {
+                this.tearDownDropdowns();
+            }
+        };
 
         this.onHighlightTypeClicked = function(evt) {
             var target = $(evt.target),
@@ -214,6 +231,11 @@ define([
                 return;
             }
 
+            // Ignore if mouse cursor still down
+            if (this.mouseDown) {
+                return;
+            }
+
             // Ignore if selection hasn't change
             if (text.length && text === this.previousSelection) {
                 return;
@@ -337,9 +359,14 @@ define([
                         return isEntity;
                     },
                     drop: function(event, ui) {
-                        var destTerm = $(this),
-                            form = $('<div class="underneath"/>').insertAfter(destTerm);
+                        var destTerm = $(this);
+                        var form;
 
+                        if (destTerm.hasClass('opens-dropdown')) {
+                            form = $('<div class="underneath"/>').insertAfter (destTerm.closest('.detected-object-labels'));
+                        } else {
+                            form = $('<div class="underneath"/>').insertAfter(destTerm);
+                        }
                         self.tearDownDropdowns();
 
                         StatementForm.attachTo(form, {

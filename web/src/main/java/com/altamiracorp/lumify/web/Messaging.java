@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.model.user.UserRepository;
 import com.altamiracorp.lumify.model.user.UserStatus;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import org.apache.commons.lang.StringUtils;
 import org.atmosphere.cache.UUIDBroadcasterCache;
 import org.atmosphere.client.TrackMessageSizeInterceptor;
 import org.atmosphere.config.service.AtmosphereHandlerService;
@@ -43,6 +44,15 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     public void onRequest(AtmosphereResource resource) throws IOException {
         ensureInitialized(resource);
         broadcaster = resource.getBroadcaster();
+
+        String requestData = org.apache.commons.io.IOUtils.toString(resource.getRequest().getInputStream());
+        try {
+            if (!StringUtils.isBlank(requestData)) {
+                processRequestData(resource, requestData);
+            }
+        } catch (Exception ex) {
+            LOGGER.error("Could not handle async message: " + requestData, ex);
+        }
 
         AtmosphereRequest req = resource.getRequest();
         if (req.getMethod().equalsIgnoreCase("GET")) {
@@ -103,7 +113,50 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
     }
 
     public void onMessage(AtmosphereResourceEvent event, AtmosphereResponse response, String message) throws IOException {
+        try {
+            if (!StringUtils.isBlank(message)) {
+                processRequestData(event.getResource(), message);
+            }
+        } catch (Exception ex) {
+            LOGGER.error("Could not handle async message: " + message, ex);
+        }
         response.write(message);
+    }
+
+    private void processRequestData(AtmosphereResource resource, String message) {
+        JSONObject messageJson = new JSONObject(message);
+
+        String type = messageJson.optString("type");
+        if (type == null) {
+            return;
+        }
+
+        JSONObject dataJson = messageJson.optJSONObject("data");
+        if (dataJson == null) {
+            return;
+        }
+
+        if ("changedWorkspace".equals(type)) {
+            com.altamiracorp.lumify.core.user.User user = AuthenticationProvider.getUser(resource.session());
+            String workspaceRowKey = dataJson.getString("workspaceRowKey");
+            String userRowKey = dataJson.getString("userRowKey");
+            if (userRowKey.equals(user.getRowKey())) {
+                switchWorkspace(user, workspaceRowKey);
+            }
+        }
+    }
+
+    private void switchWorkspace(com.altamiracorp.lumify.core.user.User authUser, String workspaceRowKey) {
+        if (!workspaceRowKey.equals(authUser.getCurrentWorkspace())) {
+            authUser.setCurrentWorkspace(workspaceRowKey);
+
+            User user = userRepository.findByRowKey(authUser.getRowKey(), authUser);
+            user.getMetadata().setCurrentWorkspace(workspaceRowKey);
+            authUser.setCurrentWorkspace(workspaceRowKey);
+            userRepository.save(user, authUser);
+
+            LOGGER.debug("User " + user.getRowKey() + " switched current workspace to " + workspaceRowKey);
+        }
     }
 
     private void setStatus(AtmosphereResource resource, UserStatus status) {

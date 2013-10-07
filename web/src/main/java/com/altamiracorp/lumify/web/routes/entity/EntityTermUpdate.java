@@ -54,8 +54,15 @@ public class EntityTermUpdate extends BaseRequestHandler {
         GraphVertex resolvedVertex = graphRepository.findVertex(resolvedGraphVertexId, user);
         entityHelper.updateGraphVertex(resolvedVertex, conceptId, sign, user);
 
+        if (graphRepository.findEdge(artifactId, resolvedGraphVertexId, LabelName.HAS_ENTITY.toString(), user) == null ){
+            graphRepository.saveRelationship(artifactId, resolvedVertex.getId(), LabelName.HAS_ENTITY, user);
+        }
+
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactKey, mentionStart, mentionEnd);
         TermMention termMention = termMentionRepository.findByRowKey(termMentionRowKey.toString(), user);
+        if (termMention == null) {
+            termMention = new TermMention(termMentionRowKey);
+        }
         entityHelper.updateTermMention(termMention, sign, conceptVertex, resolvedVertex, user);
 
         entityHelper.executeService(new EntityHighlightWorker(artifactRepository, highlighter, artifactKey, user));

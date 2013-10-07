@@ -37,28 +37,31 @@ define(['atmosphere'],
             return document.$subSocket.push(JSON.stringify(data));
         };
 
-        ServiceBase.prototype.subscribe = function (userId, onmessage) {
+        ServiceBase.prototype.subscribe = function (config) {
             var req = {
                 url: "/messaging/",
                 transport: 'websocket',
                 fallbackTransport: 'long-polling',
                 contentType: "application/json",
                 trackMessageSize: true,
-                shared: true,
+                shared: false,
                 logLevel: 'debug',
+                onOpen: function(response) {
+                    if (config.onOpen) config.onOpen.apply(null, arguments);
+                },
                 onMessage: function (response) {
                     var data = JSON.parse(response.responseBody);
                     if(data && data.sourceId == document.subSocketId) {
                         return;
                     }
-                    onmessage(null, data);
+
+                    if (config.onMessage) config.onMessage(null, data);
                 },
                 onError: function (response) {
                     console.error('subscribe error:', response);
-                    onmessage(response.error, null);
+                    if (config.onMessage) config.onMessage(response.error, null);
                 }
             };
-            console.log('subscribe subscribe:', req);
             document.$subSocket = this.getSocket().subscribe(req);
             document.subSocketId = Date.now();
         };

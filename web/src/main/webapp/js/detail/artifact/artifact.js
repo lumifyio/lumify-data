@@ -5,7 +5,7 @@ define([
     './image/image',
     '../withTypeContent',
     '../withHighlighting',
-    'detail/dropdowns/objectDetectionForm/objectDetectionForm',
+    'detail/dropdowns/termForm/termForm',
     'detail/properties',
     'tpl!./artifact',
     'tpl!./transcriptEntry',
@@ -14,9 +14,10 @@ define([
     'data'
 ], function(
     defineComponent,
-    VideoScrubber, Image,
+    VideoScrubber,
+    Image,
     withTypeContent, withHighlighting,
-    ObjectDetectionForm,
+    TermForm,
     Properties,
     template,
     transcriptEntryTemplate,
@@ -37,11 +38,10 @@ define([
             currentTranscriptSelector: '.currentTranscript',
             imagePreviewSelector: '.image-preview',
             detectedObjectSelector: '.detected-object',
-            artifactSelector: '.artifact',
+            artifactSelector: '.artifact-image',
             propertiesSelector: '.properties',
             titleSelector: '.artifact-title',
-            deleteTagSelector: '.detected-object-tag .delete-tag',
-            detectedObjectTagSelector: '.detected-object-labels'
+            deleteTagSelector: '.detected-object-tag .delete-tag'
         });
 
         this.after('initialize', function() {
@@ -52,11 +52,13 @@ define([
                 deleteTagSelector: this.onDeleteTagClicked
             });
 
-            this.on(document, 'scrubberFrameChange', this.onScrubberFrameChange);
-            this.on(document, 'videoTimeUpdate', this.onVideoTimeUpdate);
+            this.on('scrubberFrameChange', this.onScrubberFrameChange);
+            this.on('videoTimeUpdate', this.onVideoTimeUpdate);
+            this.on('DetectedObjectCoordsChange', this.onCoordsChanged);
+            this.on('termCreated', this.onTeardownDropdowns);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
+            this.after('tearDownDropdowns', this.onTeardownDropdowns);
 
-            this.$node.on('mouseenter', '.image-preview', this.onImageEnter.bind(this));
             this.$node.on('mouseenter mouseleave', '.detected-object-tag', this.onDetectedObjectHover.bind(this));
 
             this.loadArtifact();
@@ -140,32 +142,36 @@ define([
         };
 
         this.onDetectedObjectClicked = function(event) {
-            var self = this;
-            var tagInfo = $(event.target).data('info');
-            $(event.target).parent().addClass('focused');
-            if ($(event.target).hasClass('resolved')){
-                var imageInfo = $('.artifact .image');
-                var aspectHeight = imageInfo.height()/imageInfo[0].naturalHeight;
-                var aspectWidth = imageInfo.width()/imageInfo[0].naturalWidth;
-                var coords = {
-                    x: (tagInfo.info.coords.x1 * aspectWidth),
-                    y: (tagInfo.info.coords.y1 * aspectHeight),
-                    x2: (tagInfo.info.coords.x2 * aspectWidth),
-                    y2: (tagInfo.info.coords.y2 * aspectHeight)
-                };
+            event.preventDefault();
+            var self = this,
+                $target = $(event.target),
+                info = $target.closest('.label-info').data('info');
 
-                $('.image-preview').unbind("mouseenter");
+            $target.closest('.label-info').parent().addClass('focused');
+            this.trigger('DetectedObjectEdit', info);
+            this.showForm(info, this.attr.data, $target);
+        };
 
-                $(this.select('artifactSelector')).Jcrop({
-                    setSelect: [coords.x, coords.y, coords.x2, coords.y2],
-                    onSelect: function (x) {self.onSelectImage(x, self.attr.data, tagInfo); },
-                    onRelease: function () {
-                       self.onSelectImageRelease();
-                    }
-                });
-            } else {
-                this.showForm(tagInfo, this.attr.data);
-            };
+        this.onCoordsChanged = function(event, data) {
+            var self = this,
+                vertex = appData.vertex(this.attr.data.id),
+                detectedObject = $.extend(true, {}, _.find(vertex.artifact.detectedObjects, function(obj) {
+                    return (obj.info && obj.info._rowKey) === data.id;
+                })),
+                width = parseFloat(data.coords.x2)-parseFloat(data.coords.x1),
+                height = parseFloat(data.coords.y2)-parseFloat(data.coords.y1);
+
+            if (width < 5 || height < 5) {
+                return TermForm.teardownAll();
+            }
+
+            detectedObject.info = detectedObject.info || {};
+            detectedObject.info.coords = data.coords;
+            this.showForm(detectedObject, this.attr.data, this.$node);
+        };
+
+        this.onTeardownDropdowns = function() {
+            this.trigger('DetectedObjectDoneEditing');
         };
 
         this.onDeleteTagClicked = function (event) {
@@ -176,34 +182,39 @@ define([
                 .addClass("badge")
                 .addClass("loading");
 
-            $(event.target).addClass('focused').replaceWith($loading).removeClass('focused');
-            $detectedObjectTag.bind('click', false);
+            $detectedObjectTag.closest('.detected-object-tag').addClass('loading');
+            $(event.target).replaceWith($loading);
 
-            $.when(this.entityService.deleteDetectedObject(info)).then(function(data) {
-                var resolvedVertex = {
-                    id: data.id,
-                    _subType: data.properties._subType,
-                    _type: data.properties._type
-                };
+            this.entityService.deleteDetectedObject(info)
+                .done(function(data) {
+                    var resolvedVertex = {
+                        id: data.id,
+                        _subType: data.properties._subType,
+                        _type: data.properties._type
+                    };
 
-                $detectedObjectTag.parent().remove();
-                self.trigger(document, 'DetectedObjectLeave', $detectedObjectTag.data('info'));
+                    $detectedObjectTag.parent().remove();
+                    self.trigger('DetectedObjectLeave', $detectedObjectTag.data('info'));
 
-                if (data.remove){
-                    self.trigger(document, 'deleteVertices', { vertices: [resolvedVertex] });
-                } else {
-                    self.trigger(document, 'updateVertices', { vertices: [resolvedVertex] });
-                    self.trigger(document, 'deleteEdge', { edgeId: data.edgeId });
-                }
-            });
+                    if (data.remove){
+                        self.trigger(document, 'deleteVertices', { vertices: [resolvedVertex] });
+                    } else {
+                        self.trigger(document, 'updateVertices', { vertices: [resolvedVertex] });
+                        self.trigger(document, 'deleteEdge', { edgeId: data.edgeId });
+                    }
+                });
         };
 
         this.onDetectedObjectHover = function(event) {
-            if (event.type == 'mouseenter') {
-                this.trigger(document, 'DetectedObjectEnter', $(event.currentTarget).find('.label-info').data('info'));
-            } else {
-                this.trigger(document, 'DetectedObjectLeave', $(event.currentTarget).find('.label-info').data('info'));
-            }
+            var $target = $(event.target),
+                tag = $target.closest('.detected-object-tag'),
+                badge = tag.find('.label-info'),
+                info = badge.data('info');
+
+            this.trigger(
+                event.type === 'mouseenter' ? 'DetectedObjectEnter' : 'DetectedObjectLeave',
+                info
+            );
         };
 
         this.videoSetup = function(vertex) {
@@ -216,54 +227,22 @@ define([
         };
 
         this.imageSetup = function(vertex) {
+            var self = this;
             var data = {
                 src: vertex.artifact.rawUrl,
                 id: vertex.id
             };
             Image.attachTo(this.select('imagePreviewSelector'), { data: data });
-        };
-
-        this.onImageEnter = function(event){
-            var self = this;
-            var dataInfo = $('.focused .label-info').data('info');
-
-            $(self.select('artifactSelector')).Jcrop({
-                onSelect: function (x) {
-                    $('.detected-object-tag').unbind ('mouseenter mouseleave');
-                    self.onSelectImage(x, self.attr.data, dataInfo);
-                },
-                onRelease: function () {
-                    self.onSelectImageRelease();
-                }
+            this.before('teardown', function (){
+                self.select('imagePreviewSelector').teardownComponent(Image);
             });
         };
 
-        this.onSelectImage = function (coords, artifactInfo, dataInfo){
-            var imageInfo = $('.artifact .image');
-            var aspectHeight = imageInfo.height()/imageInfo[0].naturalHeight;
-            var aspectWidth = imageInfo.width()/imageInfo[0].naturalWidth;
-
-            if (!dataInfo || $('.focused').length == 0) {
-                dataInfo = {
-                    info: {}
-                };
-            }
-
-            dataInfo.info.coords = {
-                    x1: (coords.x / aspectWidth),
-                    x2: (coords.x2 / aspectWidth),
-                    y1: (coords.y / aspectHeight),
-                    y2: (coords.y2 / aspectHeight)
-            };
-
-            this.showForm(dataInfo, artifactInfo);
-        };
-
-        this.showForm = function (dataInfo, artifactInfo){
+        this.showForm = function (dataInfo, artifactInfo, $target){
             if ($('.detected-object-labels .underneath').length === 0) {
-                ObjectDetectionForm.teardownAll ();
+                TermForm.teardownAll ();
             }
-            var root = $('<div class="underneath">').insertAfter('.detected-object-labels');
+            var root = $('<div class="underneath">').insertAfter($target.closest('.type-content').find('.detected-object-labels'));
             var resolvedVertex = {
                 graphVertexId: dataInfo.graphVertexId,
                 _rowKey: dataInfo._rowKey,
@@ -276,24 +255,16 @@ define([
                 existing = true;
             }
 
-            ObjectDetectionForm.attachTo (root, {
+            TermForm.attachTo (root, {
                 artifactData: artifactInfo,
                 coords: dataInfo.info.coords,
                 detectedObjectRowKey: dataInfo.info._rowKey,
                 graphVertexId: dataInfo.graphVertexId,
                 resolvedVertex: resolvedVertex,
                 model: dataInfo.info.model,
-                existing: existing
+                existing: existing,
+                detectedObject: true
             });
-        };
-
-        this.onSelectImageRelease = function (){
-            if ($('.detected-object-labels .underneath').length === 0) {
-                ObjectDetectionForm.teardownAll ();
-                $('.focused').removeClass('focused');
-                $('.detected-object-tag').bind('mouseenter mouseleave');
-                $('.image-preview').bind("mouseenter");
-            }
         };
      }
 });

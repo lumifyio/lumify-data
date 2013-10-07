@@ -72,9 +72,10 @@ define([
         };
 
         this.addVertices = function(vertices, opts) {
-            var options = $.extend({ fit:false }, opts);
-            var addedVertices = [];
-            var self = this;
+            var options = $.extend({ fit:false }, opts),
+                addedVertices = [],
+                updatedVertices = [],
+                self = this;
 
             if ($(".instructions").length > 0) {
                 $(".instructions").text ('Related Entities Added');
@@ -89,7 +90,6 @@ define([
                     .insertAfter(dragging);
             }
 
-
             this.cy(function(cy) {
                 var currentNodes = cy.nodes(),
                     boundingBox = currentNodes.boundingBox(),
@@ -101,8 +101,6 @@ define([
                     }),
                     maxWidth = validBox ? retina.pixelsToPoints({ x:boundingBox.w, y:boundingBox.h}).x : 0,
                     startX = nextAvailablePosition.x;
-
-                cy.filter(":selected").unselect();
 
                 maxWidth = Math.max(maxWidth, inc * 10);
 
@@ -122,7 +120,9 @@ define([
                     };
                     self.updateCyNodeData(cyNodeData.data, vertex);
 
-                    var needsUpdate = false;
+                    var needsAdding = false,
+                        needsUpdating = false;
+
                     if (vertex.workspace.graphPosition) {
                         cyNodeData.position = retina.pointsToPixels(vertex.workspace.graphPosition);
                     } else if (vertex.workspace.dropPosition) {
@@ -131,7 +131,7 @@ define([
                             x: vertex.workspace.dropPosition.x - offset.left,
                             y: vertex.workspace.dropPosition.y - offset.top
                         });
-                        needsUpdate = true;
+                        needsAdding = true;
                     } else {
 
                         cyNodeData.position = retina.pointsToPixels(nextAvailablePosition);
@@ -141,13 +141,18 @@ define([
                             nextAvailablePosition.y += inc;
                             nextAvailablePosition.x = startX;
                         }
-                        needsUpdate = true;
+
+                        if (dragging.length === 0) {
+                            needsUpdating = true;
+                        } else {
+                            needsAdding = true;
+                        }
                     }
 
                     var cyNode = cy.add(cyNodeData);
 
-                    if (needsUpdate) {
-                        addedVertices.push({
+                    if (needsAdding || needsUpdating) {
+                        (needsAdding ? addedVertices : updatedVertices).push({
                             id: vertex.id,
                             workspace: {
                                 graphPosition: retina.pixelsToPoints(cyNode.position())
@@ -167,7 +172,7 @@ define([
                 });
 
                 if (options.fit && cy.nodes().length) {
-                    this.fit();
+                    _.defer(this.fit.bind(this));
                 }
 
                 if (existingNodes.length && cloned && cloned.length) {
@@ -175,8 +180,9 @@ define([
                     this.animateToExistingNode(existingNodes[0], cloned);
                 } else if (cloned) cloned.remove();
 
-
-                if (addedVertices.length) {
+                if (updatedVertices.length) {
+                    this.trigger(document, 'updateVertices', { vertices:updatedVertices });
+                } else if (addedVertices.length) {
                     this.trigger(document, 'addVertices', { vertices:addedVertices });
                 }
 
@@ -235,12 +241,14 @@ define([
         this.onVerticesDeleted = function(event, data) {
             this.cy(function(cy) {
 
-                cy.$( 
-                    data.vertices.map(function(v) { return '#' + v.id; }).join(',')
-                ).remove();
+                if (data.vertices.length) {
+                    cy.$( 
+                        data.vertices.map(function(v) { return '#' + v.id; }).join(',')
+                    ).remove();
 
-                this.setWorkspaceDirty();
-                this.updateVertexSelections(cy);
+                    this.setWorkspaceDirty();
+                    this.updateVertexSelections(cy);
+                }
             });
         };
 
@@ -401,6 +409,13 @@ define([
             cy.renderer().hideEdgesOnViewport = cy.edges().length > SHOW_EDGES_ON_ZOOM_THRESHOLD;
         };
 
+        this.onDevicePixelRatioChanged = function() {
+            this.cy(function(cy) {
+                cy.renderer().updatePixelRatio();
+                this.fit();
+            });
+        };
+
         this.fit = function() {
             this.cy(function(cy) {
                 if( cy.elements().size() === 0 ){
@@ -410,6 +425,7 @@ define([
                     // prevents extreme closeup when one vertex
                     var maxZoom = cy._private.maxZoom;
                     cy._private.maxZoom *= 0.5;
+                    cy.panningEnabled(true).zoomingEnabled(true).boxSelectionEnabled(true);
                     cy.fit(undefined, $.extend({}, this.graphPadding));
                     cy._private.maxZoom = maxZoom;
                 }
@@ -479,7 +495,7 @@ define([
 
             var padding = $.extend({}, data.padding);
 
-            padding.r += this.select('graphToolsSelector').outerWidth(true);
+            padding.r += this.select('graphToolsSelector').outerWidth(true) || 65;
             padding.l += border;
             padding.t += border;
             padding.b += border;
@@ -644,7 +660,7 @@ define([
             }
             if (info.length > 0){
                 this.trigger('verticesSelected', [info]);
-            }
+            } else this.trigger('verticesSelected', []);
         };
 
         this.onKeyHandler = function(event) {
@@ -766,6 +782,7 @@ define([
                     .zoomingEnabled(!noVertices)
                     .boxSelectionEnabled(!noVertices);
 
+                this.select('graphToolsSelector').toggle(!noVertices);
                 if (noVertices) {
                     cy.reset();
                 }
@@ -785,10 +802,10 @@ define([
             this.resetGraph();
             this.isWorkspaceEditable = workspace.isEditable;
             if (workspace.data.vertices.length) {
-                this.addVertices(workspace.data.vertices, { fit:true });
-            }
+                this.addVertices(workspace.data.vertices, { fit:(this.previousWorkspace && this.previousWorkspace != workspace.id) });
+            } else this.checkEmptyGraph();
 
-            this.checkEmptyGraph();
+            this.previousWorkspace = workspace.id;
         };
 
         this.onRelationshipsLoaded = function(evt, relationshipData) {
@@ -832,13 +849,17 @@ define([
                 .done(function(data) {
                     var added = data.vertices;
                     
-                    added.forEach(function(vertex, index) {
-                        vertex.workspace = {
-                            selected: true
-                        };
-                    });
+                    self.cy(function(cy) {
+                        cy.filter(':selected').unselect();
+                        cy.container().focus();
+                        added.forEach(function(vertex, index) {
+                            vertex.workspace = {
+                                selected: true
+                            };
+                        });
 
-                    self.trigger(document, 'addVertices', { vertices: added });
+                        self.trigger(document, 'addVertices', { vertices: added });
+                    });
                 });
         };
 
@@ -862,9 +883,9 @@ define([
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesSelected', this.onVerticesSelected);
-            //this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
             this.on(document, 'graphPaddingUpdated', this.onGraphPaddingUpdated);
+            this.on(document, 'devicePixelRatioChanged', this.onDevicePixelRatioChanged);
             this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);
             this.on(document, 'focusVertices', this.onFocusVertices);
             this.on(document, 'defocusVertices', this.onDefocusVertices);

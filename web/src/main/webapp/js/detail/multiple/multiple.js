@@ -2,14 +2,13 @@ define([
     'flight/lib/component',
     'flight/lib/registry',
     '../withTypeContent',
-    '../withHighlighting',
     'service/vertex',
     'service/ontology',
     'sf',
     'tpl!./multiple',
     'tpl!./histogram',
     'util/vertexList/list'
-], function (defineComponent, registry, withTypeContent, withHighlighting, VertexService, OntologyService, sf, template, histogramTemplate, VertexList) {
+], function (defineComponent, registry, withTypeContent, VertexService, OntologyService, sf, template, histogramTemplate, VertexList) {
     'use strict';
 
     var NO_HISTOGRAM_PROPERTIES = [
@@ -24,7 +23,7 @@ define([
         'publishedDate'
     ];
 
-    return defineComponent(Multiple, withTypeContent, withHighlighting);
+    return defineComponent(Multiple, withTypeContent);
 
     function Multiple() {
         this.vertexService = new VertexService();

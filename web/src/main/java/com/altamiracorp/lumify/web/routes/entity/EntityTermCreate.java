@@ -1,10 +1,5 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,7 +19,6 @@ import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.inject.Inject;
 
 public class EntityTermCreate extends BaseRequestHandler {
@@ -32,10 +26,6 @@ public class EntityTermCreate extends BaseRequestHandler {
     private final GraphRepository graphRepository;
     private final ArtifactRepository artifactRepository;
     private final EntityHighlighter highlighter;
-
-    private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
-            new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()),
-            0L, TimeUnit.MILLISECONDS);
 
     @Inject
     public EntityTermCreate(
@@ -65,23 +55,19 @@ public class EntityTermCreate extends BaseRequestHandler {
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactKey, mentionStart, mentionEnd);
 
         GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
-        GraphVertex resolvedVertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, user);
-        if (resolvedVertex == null) {
-            resolvedVertex = new InMemoryGraphVertex();
-            resolvedVertex.setType(VertexType.ENTITY);
-        }
-        resolvedVertex.setProperty(PropertyName.ROW_KEY, termMentionRowKey.toString());
-        entityHelper.updateGraphVertex(resolvedVertex, conceptId, sign, user);
-        graphRepository.saveRelationship(artifactId, resolvedVertex.getId(), LabelName.HAS_ENTITY, user);
+
+        final GraphVertex createdVertex = new InMemoryGraphVertex();
+        createdVertex.setType(VertexType.ENTITY);
+        createdVertex.setProperty(PropertyName.ROW_KEY, termMentionRowKey.toString());
+        entityHelper.updateGraphVertex(createdVertex, conceptId, sign, user);
+        graphRepository.saveRelationship(artifactId, createdVertex.getId(), LabelName.HAS_ENTITY, user);
 
         TermMention termMention = new TermMention(termMentionRowKey);
-
-        entityHelper.updateTermMention(termMention, sign, conceptVertex, resolvedVertex, user);
+        entityHelper.updateTermMention(termMention, sign, conceptVertex, createdVertex, user);
+        TermMentionOffsetItem offsetItem = new TermMentionOffsetItem(termMention, createdVertex);
 
         // Modify the highlighted artifact text in a background thread
         entityHelper.executeService(new EntityHighlightWorker(artifactRepository, highlighter, artifactKey, user));
-
-        TermMentionOffsetItem offsetItem = new TermMentionOffsetItem(termMention, resolvedVertex);
 
         respondWithJson(response, offsetItem.toJson());
     }

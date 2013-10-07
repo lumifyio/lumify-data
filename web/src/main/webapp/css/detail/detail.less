@@ -26,6 +26,25 @@
       }
   }
 
+  .detected-object-labels {
+    padding-top: 1em;
+    .label.detected-object-tag.loading {
+        background: #efefef;
+        a {
+            background: inherit;
+            color: black;
+        }
+        .badge.loading {
+            height: 1.6ex;
+            margin-left: 1ex;
+        }
+        .label-info {
+            color: #999;
+            text-shadow: 0 1px 0 white;
+        }
+    }
+  }
+
   .detected-object-tag {
       background-color: #2d6987;
 
@@ -34,10 +53,13 @@
       }
 
       .delete-tag {
-        padding-left: 5px;
-        color: #B1B1B1;
+        padding: 1ex 0.9ex 1ex 1.3ex;
+        color: #eaeaea;
         text-decoration: none;
         cursor: pointer;
+        &:hover {
+          color: white;
+        }
       }
   }
 
@@ -203,14 +225,71 @@
     display: inline-block;
     max-width: 100%;
     position: relative;
+    cursor: crosshair;
 
     .facebox {
+      cursor: move;
       position: absolute;
       .box-shadow(~"#2D6987 0px 0px 0px 1px, rgba(255,255,255,0.4) 0 0 0 2px, #2D6987 0px 0px 8px 5px");
+
+      .ui-resizable-handle {
+        background: none;
+        border: none;
+        &:before, &:after {
+          background: none;
+          border: none;
+        }
+
+        &.ui-resizable-se {
+          width: 9px;
+          height: 9px;
+          right: -5px;
+          bottom: -5px;
+        }
+
+        &.ui-resizable-se,
+        &.ui-resizable-ne,
+        &.ui-resizable-sw,
+        &.ui-resizable-nw {
+          &:before {
+            //box-shadow: 0 0 9px white;
+            width: 5px;
+            height: 5px;
+            background: rgba(255,255,255,0.9);
+          }
+        }
+
+        &.ui-resizable-ne:before {
+          left: -1px;
+          top: 5px;
+          border-radius: 0 0 0 5px;
+        }
+        &.ui-resizable-nw:before {
+          left: 5px;
+          top: 5px;
+          border-radius: 0 0 5px 0;
+        }
+        &.ui-resizable-se:before {
+          left: -1px;
+          top: -1px;
+          border-radius: 5px 0 0 0;
+        }
+        &.ui-resizable-sw:before {
+          left: 5px;
+          top: -1px;
+          border-radius: 0 5px 0 0;
+        }
+      }
     }
   }
   .detected-object {
     margin-top: 1em;
+  }
+
+  .artifact {
+    .image {
+        width:100% !important;
+    }
   }
 
   .badge {
@@ -290,10 +369,15 @@
     z-index: 1;
     .box-sizing(border-box);
 
-    .btn-toolbar {
-      z-index: 4;
+    .btn {
+      position: relative;
+      z-index: 5;
       .opacity(40);
       &:hover {
+        .opacity(100);
+      }
+
+      &.open {
         .opacity(100);
       }
     }
@@ -304,7 +388,11 @@
       bottom: 0;
       text-shadow: 0 0px 20px rgba(0,0,0,0.2), 0 0px 2px rgba(0,0,0,1);
       font-size: 200%;
-      z-index: 10000;
+      z-index: 4;
+    }
+
+    .entity-background .dropdown-menu {
+      margin-top: 0px;
     }
   }
 

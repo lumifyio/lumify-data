@@ -2,11 +2,12 @@ define([
     'flight/lib/component',
     'data',
     'service/sync',
-    './syncCursor'
-], function (defineComponent, appData, SyncService, SyncCursor) {
+    './syncCursor',
+    'util/withAsyncQueue'
+], function (defineComponent, appData, SyncService, SyncCursor, withAsyncQueue) {
     'use strict';
 
-    return defineComponent(Sync);
+    return defineComponent(Sync, withAsyncQueue);
 
     function Sync() {
         this.syncCursors = false; // TODO should we sync cursors? Maybe allow enabling/disabling.
@@ -16,7 +17,8 @@ define([
         this.events = [
             'addVertices',
             'updateVertices',
-            'deleteVertices'
+            'deleteVertices',
+            'workspaceRemoteSave'
         ];
 
         if (this.syncCursors) {
@@ -26,7 +28,6 @@ define([
         }
 
         this.after('initialize', function () {
-            this.on(document, 'workspaceSwitched', this.onWorkspaceSwitched);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
             this.on(document, 'socketMessage', this.onSocketMessage);
 
@@ -39,15 +40,27 @@ define([
             if (this.syncCursors) {
                 SyncCursor.attachTo(window);
             }
+
+            this.setupAsyncQueue('users');
         });
 
         this.onWorkspaceLoaded = function(evt, workspace) {
             this.workspaceEditable = workspace.isEditable;
             this.currentWorkspaceRowKey = workspace.id;
-        };
 
-        this.onWorkspaceSwitched = function (evt, data) {
-            this.currentWorkspaceRowKey = data.workspace._rowKey;
+            this.usersReady(function(usersData) {
+                var user = usersData.user,
+                    data = {
+                        type: 'changedWorkspace',
+                        permissions: {
+                        },
+                        data: {
+                            userRowKey: user.rowKey,
+                            workspaceRowKey: this.currentWorkspaceRowKey
+                        }
+                    };
+                this.syncService.socketPush(data);
+            });
         };
 
         this.onSocketMessage = function (evt, message) {
@@ -87,6 +100,7 @@ define([
         };
 
         this.onOnlineStatusChanged = function (evt, data) {
+            this.usersMarkReady(data);
             this.currentUser = data.user;
         };
 
@@ -95,10 +109,13 @@ define([
             if (!this.currentUser) {
                 return;
             }
-            data = data || {};
-            if (data.remoteEvent) {
+            if (data && data.remoteEvent) {
                 return;
             }
+            if (_.isObject(data)) {
+                data = [data];
+            }
+            data = (data || []).map(function(v) { return { id: v.id }; });
             this.syncService.publishUserSyncEvent(evt.type, [this.currentUser.rowKey], data);
         };
     }

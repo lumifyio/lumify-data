@@ -40,7 +40,7 @@
     </action>
     <action name="artifact-face-detection-node">
 		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/face-detection</app-path>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/object-detection</app-path>
 			<propagate-configuration/>
 			<configuration>
 				<property>
@@ -55,6 +55,18 @@
 					<name>objectDetectionTableName</name>
 					<value>${tableArtifact}</value>
 				</property>
+				<property>
+			        <name>objectDetectorClass</name>
+			        <value>${basePackage}.objectDetection.OpenCVObjectDetector</value>
+			    </property>
+				<property>
+			        <name>classifierFile</name>
+			        <value>haarcascade_frontalface_alt.xml</value>
+			    </property>
+				<property>
+			        <name>classifierConcept</name>
+			        <value>face</value>
+			    </property>
 			</configuration>
         </sub-workflow>
         <ok to="video-frame-face-detection-node"/>
@@ -62,7 +74,7 @@
     </action>
     <action name="video-frame-face-detection-node">
 		<sub-workflow>
-            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/face-detection</app-path>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/object-detection</app-path>
 			<propagate-configuration/>
 			<configuration>
 				<property>
@@ -77,6 +89,18 @@
 					<name>objectDetectionTableName</name>
 					<value>${tableVideoFrame}</value>
 				</property>
+				<property>
+			        <name>objectDetectorClass</name>
+			        <value>${basePackage}.objectDetection.OpenCVObjectDetector</value>
+			    </property>
+				<property>
+			        <name>classifierFile</name>
+			        <value>haarcascade_frontalface_alt.xml</value>
+			    </property>
+				<property>
+			        <name>classifierConcept</name>
+			        <value>face</value>
+			    </property>
 			</configuration>
         </sub-workflow>
         <ok to="text-ocr-node"/>

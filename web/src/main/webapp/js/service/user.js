@@ -2,7 +2,7 @@ define(
     [
         'service/serviceBase'
     ],
-    function (ServiceBase, atmosphere) {
+    function (ServiceBase) {
         'use strict';
 
         function UserService() {

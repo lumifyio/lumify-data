@@ -19,6 +19,7 @@ import com.altamiracorp.lumify.web.routes.workspace.WorkspaceDelete;
 import com.altamiracorp.lumify.web.routes.workspace.WorkspaceList;
 import com.altamiracorp.lumify.web.routes.workspace.WorkspaceSave;
 import com.altamiracorp.web.Handler;
+import com.altamiracorp.web.StaticFileHandler;
 import com.google.inject.Injector;
 import org.eclipse.jetty.server.Request;
 
@@ -42,7 +43,10 @@ public class Router extends HttpServlet {
 
         app = new WebApp(config, injector);
 
-        Class<? extends Handler> authenticator = injector.getInstance(AuthenticationProvider.class).getClass();
+        AuthenticationProvider authenticatorInstance = injector.getInstance(AuthenticationProvider.class);
+        Class<? extends Handler> authenticator = authenticatorInstance.getClass();
+
+        app.get("/index.html", authenticatorInstance, new StaticFileHandler(config));
 
         app.get("/ontology/concept/{conceptId}/properties", authenticator, PropertyListByConceptId.class);
         app.get("/ontology/{relationshipLabel}/properties", authenticator, PropertyListByRelationshipLabel.class);

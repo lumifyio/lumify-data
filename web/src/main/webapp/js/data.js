@@ -82,6 +82,24 @@ define([
             this.on('workspaceDeleting', this.onWorkspaceDeleting);
 
             this.on(document, 'socketMessage', this.onSocketMessage);
+
+            var self = this;
+            this.setupAsyncQueue('socketSubscribe');
+            this.workspaceService.subscribe({
+                onMessage: function (err, message) {
+                    if (err) {
+                        console.error('Error', err);
+                        return self.trigger(document, 'error', { message: err.toString() });
+                    }
+                    if (message) {
+                        self.trigger(document, 'socketMessage', message);
+                    }
+                },
+                onOpen: function(response) {
+                    self.trigger(document, 'subscribeSocketOpened');
+                    self.socketSubscribeMarkReady(response);
+                }
+            });
         });
 
         this.onSocketMessage = function (evt, message) {
@@ -183,8 +201,14 @@ define([
                     if (existing.length) self.trigger('existingVerticesAdded', { vertices:freeze(existing) });
 
                     if (added.length === 0) {
+                        var message = "No New Vertices Added";
+                        if ($(".map-pane").is(":visible")) {
+                           var instructions = $('<div>').text(message).addClass('instructions');
+                           $(instructions).appendTo($(".map-pane")).show();
+                        }
+                        
                         // TODO: make mixin
-                        $(".graph-pane .instructions").text("No New Vertices Added");
+                        $(".graph-pane .instructions").text(message);
                         return;
                     }
 
@@ -203,10 +227,12 @@ define([
 
                     self.trigger('refreshRelationships');
                     if (!data.remoteEvent) self.trigger('saveWorkspace');
-                    self.trigger('verticesAdded', { 
-                        vertices:freeze(added),
-                        remoteEvent: data.remoteEvent
-                    });
+                    if (added.length) {
+                        self.trigger('verticesAdded', { 
+                            vertices:freeze(added),
+                            remoteEvent: data.remoteEvent
+                        });
+                    }
                 });
             });
         };
@@ -250,10 +276,12 @@ define([
                 if (shouldSave && !data.remoteEvent) {
                     this.trigger('saveWorkspace');
                 }
-                this.trigger('verticesUpdated', { 
-                    vertices:freeze(updated),
-                    remoteEvent: data.remoteEvent
-                });
+                if (updated.length) {
+                    this.trigger('verticesUpdated', { 
+                        vertices:freeze(updated),
+                        remoteEvent: data.remoteEvent
+                    });
+                }
             });
         };
 
@@ -291,16 +319,18 @@ define([
                 if (!data.remoteEvent) {
                     this.trigger('saveWorkspace');
                 }
-                this.trigger('verticesDeleted', { 
-                    vertices:freeze(toDelete),
-                    remoteEvent: data.remoteEvent
-                });
+                if (toDelete.length) {
+                    this.trigger('verticesDeleted', { 
+                        vertices:freeze(toDelete),
+                        remoteEvent: data.remoteEvent
+                    });
+                }
             });
         };
 
         this.loadActiveWorkspace = function() {
             var self = this;
-            self.workspaceService.list()
+            return self.workspaceService.list()
                 .done(function(data) {
                     var workspaces = data.workspaces || [],
                         myWorkspaces = _.filter(workspaces, function(w) { 
@@ -353,17 +383,19 @@ define([
             // Queue up any requests to modify workspace
             self.workspaceUnload();
 
-            self.getWorkspace(workspaceRowKey).done(function(workspace) {
-                self.loadWorkspaceVertices(workspace).done(function(vertices) {
-                    if (workspaceData && workspaceData.title) {
-                        workspace.title = workspaceData.title;
-                    }
-                    workspace.data.vertices = freeze(vertices.sort(function(a,b) { 
-                        if (a.workspace.graphPosition && b.workspace.graphPosition) return 0;
-                        return a.workspace.graphPosition ? -1 : b.workspace.graphPosition ? 1 : 0;
-                    }));
-                    self.workspaceMarkReady(workspace);
-                    self.trigger('workspaceLoaded', workspace);
+            self.socketSubscribeReady(function() {
+                self.getWorkspace(workspaceRowKey).done(function(workspace) {
+                    self.loadWorkspaceVertices(workspace).done(function(vertices) {
+                        if (workspaceData && workspaceData.title) {
+                            workspace.title = workspaceData.title;
+                        }
+                        workspace.data.vertices = freeze(vertices.sort(function(a,b) { 
+                            if (a.workspace.graphPosition && b.workspace.graphPosition) return 0;
+                            return a.workspace.graphPosition ? -1 : b.workspace.graphPosition ? 1 : 0;
+                        }));
+                        self.trigger('workspaceLoaded', workspace);
+                        self.workspaceMarkReady(workspace);                        
+                    });
                 });
             });
         };
@@ -374,6 +406,13 @@ define([
 
             if (id) {
                 self.workspaceService.getByRowKey(id)
+                    .fail(function(xhr) {
+                        if (xhr.status === 404) {
+                            self.trigger('workspaceNotAvailable');
+                            self.loadActiveWorkspace();
+                        }
+                        deferred.reject();
+                    })
                     .done(function(workspace) { 
                         deferred.resolve(workspace); 
                     });
@@ -400,6 +439,9 @@ define([
                 deferred = $.Deferred(),
                 ids = Object.keys(workspace.data.vertices);
 
+            _.each(_.values(self.cachedVertices), function(v) {
+                v.workspace = {};
+            });
             self.workspaceVertices = {};
             if (ids.length) {
                 self.vertexService.getMultiple(ids).done(function(serverVertices) {

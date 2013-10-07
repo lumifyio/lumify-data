@@ -24,6 +24,8 @@ define([
             this.on(document, 'verticesSelected', this.onVerticesSelected);
             this.on('verticesSelected', this.onVerticesSelectedWithinContents);
             this.preventDropEventsFromPropagating();
+
+            this.before('teardown',this.teardownComponents);
             
             this.$node.html(template({}));
 
@@ -66,14 +68,9 @@ define([
                 data = data[0];
             }
 
-            var typeContentNode = this.select('detailTypeContentSelector'),
-                instanceInfos = registry.findInstanceInfoByNode(typeContentNode[0]);
-            if (instanceInfos.length) {
-                instanceInfos.forEach(function(info) {
-                    info.instance.teardown();
-                });
-            }
+            this.teardownComponents();
 
+            var typeContentNode = this.select('detailTypeContentSelector');
             if ( !data || data.length === 0 ) {
                 return;
             }
@@ -94,5 +91,15 @@ define([
                 });
             });
         };
+
+        this.teardownComponents = function () {
+            var typeContentNode = this.select('detailTypeContentSelector'),
+                instanceInfos = registry.findInstanceInfoByNode(typeContentNode[0]);
+            if (instanceInfos.length) {
+                instanceInfos.forEach(function(info) {
+                    info.instance.teardown();
+                });
+            }
+        }
     }
 });
