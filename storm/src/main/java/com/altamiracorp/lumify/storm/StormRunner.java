@@ -137,16 +137,16 @@ public class StormRunner extends CommandLineBase {
 
     private void createDocumentTopology(TopologyBuilder builder, TopologyConfig topologyConfig) {
         String queueName = "document";
-        builder.setSpout(queueName + "-spout", topologyConfig.getDocumentSpout(), 1);
+        builder.setSpout(queueName, topologyConfig.getDocumentSpout(), 1);
         builder.setBolt(queueName + "-bolt", new DocumentBolt(), 1)
-                .shuffleGrouping(queueName + "-spout");
+                .shuffleGrouping(queueName);
     }
 
     private void createTextTopology(TopologyBuilder builder) {
         SpoutConfig spoutConfig = createSpoutConfig("text");
-        builder.setSpout("textSpout", new KafkaSpout(spoutConfig), 1);
-        builder.setBolt("textExtractionBolt", new TermExtractionBolt(), 1)
-                .shuffleGrouping("textSpout");
+        builder.setSpout("text", new KafkaSpout(spoutConfig), 1);
+        builder.setBolt("textTermExtractionBolt", new TermExtractionBolt(), 1)
+                .shuffleGrouping("text");
         builder.setBolt("textHighlightingBolt", new TextHighlightingBolt(), 1)
                 .shuffleGrouping("textExtractionBolt");
     }

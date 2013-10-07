@@ -23,6 +23,11 @@ class env::dev {
     mode => 'u=rwx,g=,o=',
   }
 
+  file { '/opt/status.sh' :
+    source => 'puppet:///modules/env/dev/status.sh',
+    mode => 'u=rwx,g=,o=',
+  }
+
   file { '/opt/stop.sh' :
     source => 'puppet:///modules/env/dev/stop.sh',
     mode => 'u=rwx,g=,o=',
@@ -50,6 +55,16 @@ class env::dev {
 
   file { '/opt/run_oozie_coordinator.sh' :
     source => 'puppet:///modules/env/dev/run_oozie_coordinator.sh',
+    mode => 'u=rwx,g=,o=',
+  }
+
+  file { '/opt/storm-kill.sh' :
+    source => 'puppet:///modules/env/dev/storm-kill.sh',
+    mode => 'u=rwx,g=,o=',
+  }
+
+  file { '/opt/storm-run.sh' :
+    source => 'puppet:///modules/env/dev/storm-run.sh',
     mode => 'u=rwx,g=,o=',
   }
 }
