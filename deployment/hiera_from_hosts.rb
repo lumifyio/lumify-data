@@ -4,11 +4,8 @@ require 'yaml'
 
 cluster = Hash.new
 File.read(ARGV[0]).each_line do |line|
-  break if line.match(/^\s*#STOP\s*$/)
-  next if line.match(/^\s*#|^\s*$/)
-
-  _, _, ip, name, aliases, _ = line.split(/\s+/)
-  aliases = aliases.split(/,/)
+  ip, name, *aliases_and_comment = line.split(/\s+/)
+  aliases = aliases_and_comment.reject {|a| a.match(/#|i-[0-9a-f]{8}/)}
 
   aliases.each do |a|
     cluster[a] = Hash.new
