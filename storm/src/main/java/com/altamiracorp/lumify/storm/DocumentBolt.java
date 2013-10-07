@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.storm;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
+import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.model.RowKeyHelper;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.textExtraction.ArtifactExtractedInfo;
@@ -31,6 +32,7 @@ public class DocumentBolt extends BaseLumifyBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentBolt.class.getName());
     private TikaTextExtractor tikaTextExtractor;
     private ThreadedInputStreamProcess<ArtifactExtractedInfo, AdditionalWorkData> threadedInputStreamProcess;
+    private ContentTypeExtractor contentTypeExtractor;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -107,13 +109,9 @@ public class DocumentBolt extends BaseLumifyBolt {
         getCollector().ack(input);
     }
 
-    // TODO: need a better check for mime type
-    private String getMimeType(String fileName) {
-        String ext = FilenameUtils.getExtension(fileName).toLowerCase();
-        if (ext.equals("html") || ext.equals("htm")) {
-            return "text/html";
-        }
-        return "binary";
+    private String getMimeType(String fileName) throws Exception {
+        InputStream in = getInputStream(fileName, null);
+        return this.contentTypeExtractor.extract(in, FilenameUtils.getExtension(fileName));
     }
 
     private void mergeResults(ArtifactExtractedInfo artifactExtractedInfo, List<ThreadedTeeInputStreamWorker.WorkResult<ArtifactExtractedInfo>> results) throws Exception {
@@ -132,7 +130,9 @@ public class DocumentBolt extends BaseLumifyBolt {
             byte[] data;
             try {
                 data = IOUtils.toByteArray(rawIn);
-                artifactExtractedInfo.setRaw(data);
+                if (artifactExtractedInfo != null) {
+                    artifactExtractedInfo.setRaw(data);
+                }
             } finally {
                 rawIn.close();
             }
@@ -172,6 +172,11 @@ public class DocumentBolt extends BaseLumifyBolt {
         public void setHdfsFileSystem(FileSystem hdfsFileSystem) {
             this.hdfsFileSystem = hdfsFileSystem;
         }
+    }
+
+    @Inject
+    public void setContentTypeExtractor(ContentTypeExtractor contentTypeExtractor) {
+        this.contentTypeExtractor = contentTypeExtractor;
     }
 
     @Inject
