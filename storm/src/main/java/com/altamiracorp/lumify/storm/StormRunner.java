@@ -141,7 +141,7 @@ public class StormRunner extends CommandLineBase {
     private void createTextTopology(TopologyBuilder builder) {
         SpoutConfig spoutConfig = createSpoutConfig("text");
         builder.setSpout("textSpout", new KafkaSpout(spoutConfig), 1);
-        builder.setBolt("textExtractionBolt", new TextExtractionBolt(), 1)
+        builder.setBolt("termExtractionBolt", new TermExtractionBolt(), 1)
                 .shuffleGrouping("textSpout");
         builder.setBolt("textHighlightingBolt", new TextHighlightingBolt(), 1)
                 .shuffleGrouping("textExtractionBolt");

@@ -33,7 +33,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class TextExtractionBolt extends BaseTextProcessingBolt {
+public class TermExtractionBolt extends BaseTextProcessingBolt {
     private ThreadedInputStreamProcess<TextExtractedInfo, TextExtractedAdditionalWorkData> textExtractionStreamProcess;
     private SearchProvider searchProvider;
     private TermMentionRepository termMentionRepository;
@@ -119,6 +119,10 @@ public class TextExtractionBolt extends BaseTextProcessingBolt {
 
                 termMentionModel.getMetadata().setGraphVertexId(resolvedEntityGraphVertexId);
             }
+
+            JSONObject termJson = new JSONObject();
+            termJson.put("rowKey", termMentionModel.getRowKey().toString());
+            pushOnQueue("term", termJson);
 
             termMentionRepository.save(termMentionModel, getUser());
         }
