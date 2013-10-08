@@ -57,14 +57,12 @@ public class TikaTextExtractor {
         Properties tikaProperties = new Properties();
         try {
             // don't require the properties file
-            InputStream propsIn = Thread.currentThread()
-                    .getContextClassLoader().getResourceAsStream(PROPS_FILE);
+            InputStream propsIn = Thread.currentThread().getContextClassLoader().getResourceAsStream(PROPS_FILE);
             if (propsIn != null) {
                 tikaProperties.load(propsIn);
             }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error("Could not load config: " + PROPS_FILE);
         }
 
         dateKeys = Arrays.asList(tikaProperties.getProperty(DATE_KEYS_PROPERTY, "date,published,pubdate,publish_date,last-modified, atc:last-modified").split(","));

@@ -196,10 +196,12 @@ public class DocumentBolt extends BaseLumifyBolt {
             }
             if (textOut.hasExceededSizeLimit()) {
                 String newPath = "/lumify/artifacts/text/" + textOut.getRowKey();
+                LOGGER.info("text exceed size limit. Storing in: " + newPath);
                 getHdfsFileSystem().delete(new Path(newPath), false);
                 getHdfsFileSystem().rename(new Path(textOut.getHdfsPath().toString()), new Path(newPath));
                 info.setTextHdfsPath(newPath);
             } else {
+                LOGGER.info("extract text size: " + textOut.getSmall().length);
                 info.setText(new String(textOut.getSmall()));
             }
             return info;
@@ -216,6 +218,7 @@ public class DocumentBolt extends BaseLumifyBolt {
         protected ArtifactExtractedInfo doWork(InputStream work, AdditionalWorkData additionalWorkData) throws Exception {
             ArtifactExtractedInfo info = new ArtifactExtractedInfo();
             info.setRowKey(RowKeyHelper.buildSHA256KeyString(work));
+            LOGGER.info("Calculated hash: " + info.getRowKey());
             return info;
         }
 
