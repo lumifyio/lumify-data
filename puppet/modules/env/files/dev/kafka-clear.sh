@@ -18,6 +18,8 @@ sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics"
 
 /opt/start.sh kafka
 
+echo When it appears stuck, hit enter followed by Ctrl-C
+read -p "Press [Enter] key to continue"
 /opt/kafka/bin/kafka-console-producer.sh --zookeeper localhost:2181/kafka --topic image
 /opt/kafka/bin/kafka-console-producer.sh --zookeeper localhost:2181/kafka --topic text
 /opt/kafka/bin/kafka-console-producer.sh --zookeeper localhost:2181/kafka --topic document
