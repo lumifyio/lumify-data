@@ -86,6 +86,11 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         return injector;
     }
 
+    protected <T> T inject(T obj) {
+        getInjector().injectMembers(obj);
+        return obj;
+    }
+
     protected FileSystem getHdfsFileSystem() {
         return hdfsFileSystem;
     }

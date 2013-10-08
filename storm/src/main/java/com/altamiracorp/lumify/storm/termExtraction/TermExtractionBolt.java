@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.storm;
+package com.altamiracorp.lumify.storm.termExtraction;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -7,25 +7,20 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.altamiracorp.lumify.config.ConfigurationHelper;
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.entityExtraction.KnownEntityExtractor;
-import com.altamiracorp.lumify.entityExtraction.OpenNlpDictionaryEntityExtractor;
-import com.altamiracorp.lumify.entityExtraction.OpenNlpMaximumEntropyEntityExtractor;
 import com.altamiracorp.lumify.entityExtraction.TextExtractedInfo;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.model.ontology.*;
-import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
+import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
 import com.altamiracorp.lumify.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
 import org.apache.hadoop.conf.Configuration;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +30,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {
     private ThreadedInputStreamProcess<TextExtractedInfo, TextExtractedAdditionalWorkData> textExtractionStreamProcess;
-    private SearchProvider searchProvider;
     private TermMentionRepository termMentionRepository;
     private OntologyRepository ontologyRepository;
 
@@ -47,10 +41,10 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             Configuration configuration = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
 
             List<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>> workers = new ArrayList<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>>();
-            workers.add(new SearchWorker());
-            workers.add(new OpenNlpMaximumEntropyEntityExtractorWorker(configuration, getUser()));
-            workers.add(new OpenNlpDictionaryEntityExtractorWorker(configuration, getUser()));
-            workers.add(new KnownEntityExtractorWorker(configuration, getUser()));
+            workers.add(inject(new SearchWorker()));
+            workers.add(inject(new OpenNlpMaximumEntropyEntityExtractorWorker(configuration, getInjector(), getUser())));
+            workers.add(inject(new OpenNlpDictionaryEntityExtractorWorker(configuration, getInjector(), getUser())));
+            workers.add(inject(new KnownEntityExtractorWorker(configuration, getInjector(), getUser())));
             textExtractionStreamProcess = new ThreadedInputStreamProcess<TextExtractedInfo, TextExtractedAdditionalWorkData>("textBoltWorkers", workers);
         } catch (Exception ex) {
             collector.reportError(ex);
@@ -143,11 +137,6 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
     }
 
     @Inject
-    public void setSearchProvider(SearchProvider searchProvider) {
-        this.searchProvider = searchProvider;
-    }
-
-    @Inject
     public void setTermMentionRepository(TermMentionRepository termMentionRepository) {
         this.termMentionRepository = termMentionRepository;
     }
@@ -157,70 +146,4 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         this.ontologyRepository = ontologyRepository;
     }
 
-    private class TextExtractedAdditionalWorkData {
-
-        private GraphVertex graphVertex;
-
-        public void setGraphVertex(GraphVertex graphVertex) {
-            this.graphVertex = graphVertex;
-        }
-
-        public GraphVertex getGraphVertex() {
-            return graphVertex;
-        }
-    }
-
-    private class SearchWorker extends ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData> {
-        @Override
-        protected TextExtractedInfo doWork(InputStream work, TextExtractedAdditionalWorkData textExtractedAdditionalWorkData) throws Exception {
-            TextExtractedInfo textExtractedInfo = new TextExtractedInfo();
-            searchProvider.add(textExtractedAdditionalWorkData.getGraphVertex(), work);
-            return textExtractedInfo;
-        }
-    }
-
-    private class OpenNlpMaximumEntropyEntityExtractorWorker extends ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData> {
-        private OpenNlpMaximumEntropyEntityExtractor openNlpMaximumEntropyEntityExtractor;
-
-        public OpenNlpMaximumEntropyEntityExtractorWorker(Configuration configuration, User user) throws Exception {
-            openNlpMaximumEntropyEntityExtractor = new OpenNlpMaximumEntropyEntityExtractor(configuration, user);
-            getInjector().injectMembers(openNlpMaximumEntropyEntityExtractor);
-            openNlpMaximumEntropyEntityExtractor.init();
-        }
-
-        @Override
-        protected TextExtractedInfo doWork(InputStream work, TextExtractedAdditionalWorkData textExtractedAdditionalWorkData) throws Exception {
-            return openNlpMaximumEntropyEntityExtractor.extract(work);
-        }
-    }
-
-    private class OpenNlpDictionaryEntityExtractorWorker extends ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData> {
-        private OpenNlpDictionaryEntityExtractor openNlpDictionaryEntityExtractor;
-
-        public OpenNlpDictionaryEntityExtractorWorker(Configuration configuration, User user) throws Exception {
-            openNlpDictionaryEntityExtractor = new OpenNlpDictionaryEntityExtractor(configuration, user);
-            getInjector().injectMembers(openNlpDictionaryEntityExtractor);
-            openNlpDictionaryEntityExtractor.init();
-        }
-
-        @Override
-        protected TextExtractedInfo doWork(InputStream work, TextExtractedAdditionalWorkData textExtractedAdditionalWorkData) throws Exception {
-            return openNlpDictionaryEntityExtractor.extract(work);
-        }
-    }
-
-    private class KnownEntityExtractorWorker extends ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData> {
-        private KnownEntityExtractor knownEntityExtractor;
-
-        public KnownEntityExtractorWorker(Configuration configuration, User user) throws IOException {
-            knownEntityExtractor = new KnownEntityExtractor(configuration, user);
-            getInjector().injectMembers(knownEntityExtractor);
-            knownEntityExtractor.init();
-        }
-
-        @Override
-        protected TextExtractedInfo doWork(InputStream work, TextExtractedAdditionalWorkData textExtractedAdditionalWorkData) throws Exception {
-            return knownEntityExtractor.extract(work);
-        }
-    }
 }

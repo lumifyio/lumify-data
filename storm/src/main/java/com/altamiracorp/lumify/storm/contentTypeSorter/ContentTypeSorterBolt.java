@@ -1,9 +1,13 @@
-package com.altamiracorp.lumify.storm;
+package com.altamiracorp.lumify.storm.contentTypeSorter;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
+import com.altamiracorp.lumify.storm.BaseFileSystemSpout;
+import com.altamiracorp.lumify.storm.BaseLumifyBolt;
+import com.altamiracorp.lumify.storm.FieldNames;
+import com.altamiracorp.lumify.storm.StormRunner;
 import com.google.inject.Inject;
 import org.apache.commons.io.FilenameUtils;
 import org.json.JSONObject;

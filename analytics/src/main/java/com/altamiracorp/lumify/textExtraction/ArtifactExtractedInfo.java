@@ -16,6 +16,7 @@ public class ArtifactExtractedInfo {
     private static final String RAW_HDFS_PATH = "rawHdfsPath";
     private static final String RAW = "raw";
     private HashMap<String, Object> properties = new HashMap<String, Object>();
+    private String textRowKey;
 
     public void mergeFrom(ArtifactExtractedInfo artifactExtractedInfo) {
         for (Map.Entry<String, Object> prop : artifactExtractedInfo.properties.entrySet()) {
@@ -96,5 +97,13 @@ public class ArtifactExtractedInfo {
 
     public byte[] getRaw() {
         return (byte[]) properties.get(RAW);
+    }
+
+    public void setTextRowKey(String textRowKey) {
+        this.textRowKey = textRowKey;
+    }
+
+    public String getTextRowKey() {
+        return textRowKey;
     }
 }
