@@ -195,3 +195,13 @@ html.fullscreenDetails {
 a {
   cursor: pointer;
 }
+
+.ui-draggable-dragging {
+  .opacity(100);
+  .scale(1.0);
+  .transition(~"opacity ease-in-out 0.3s, -webkit-transform ease-in-out 0.3s");
+}
+.draggable-invisible {
+  .opacity(0);
+  .scale(0.1);
+}

@@ -63,6 +63,7 @@ define([
         }
 
 		context.save();
+        context.globalAlpha = node._private.style.opacity.value;
 
         // Draw outline and clip to it based on node shape css
         if ( node._private.style.shape.value !== 'none' ) {
