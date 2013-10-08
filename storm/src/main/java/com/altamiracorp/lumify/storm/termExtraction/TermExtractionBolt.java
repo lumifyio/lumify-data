@@ -2,8 +2,6 @@ package com.altamiracorp.lumify.storm.termExtraction;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.altamiracorp.lumify.config.ConfigurationHelper;
@@ -62,13 +60,9 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         GraphVertex artifactGraphVertex = graphRepository.findVertex(graphVertexId, getUser());
         runTextExtractions(artifactGraphVertex);
 
+        LOGGER.info("emitting value (" + getClass().getName() + "): " + json.toString());
         getCollector().emit(new Values(json.toString()));
         getCollector().ack(input);
-    }
-
-    @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("json"));
     }
 
     private void runTextExtractions(GraphVertex artifactGraphVertex) throws Exception {
@@ -121,7 +115,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
             JSONObject termJson = new JSONObject();
             termJson.put("rowKey", termMentionModel.getRowKey().toString());
-            pushOnQueue("term", termJson);
+            pushOnQueue("term", termJson, artifactGraphVertexId);
 
             termMentionRepository.save(termMentionModel, getUser());
         }

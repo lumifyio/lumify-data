@@ -7,12 +7,15 @@ import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import com.altamiracorp.lumify.FileImporter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class BaseFileSystemSpout extends BaseRichSpout {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseFileSystemSpout.class);
     public static final String DATADIR_CONFIG_NAME = "datadir";
     private SpoutOutputCollector collector;
     private HashMap<String, String> workingFiles;
@@ -55,6 +58,7 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout {
 
     protected void emit(String path) {
         this.workingFiles.put(path, path);
+        LOGGER.info("emitting value (" + getClass().getName() + "): " + path);
         getCollector().emit(new Values(path), path);
     }
 

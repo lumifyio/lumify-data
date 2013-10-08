@@ -4,12 +4,14 @@ import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.generated.StormTopology;
+import backtype.storm.spout.Scheme;
 import backtype.storm.topology.IRichSpout;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
+import com.altamiracorp.lumify.storm.term.TermKafkaJsonEncoder;
 import com.altamiracorp.lumify.storm.termExtraction.TermExtractionBolt;
 import com.altamiracorp.lumify.storm.textHighlighting.TextHighlightingBolt;
 import org.apache.accumulo.core.util.CachedConfiguration;
@@ -82,9 +84,9 @@ public class StormRunner extends CommandLineBase {
         if (isLocal) {
             TopologyConfig topologyConfig = new TopologyConfig()
                     .setUnknownSpout(new DevFileSystemSpout())
-                    .setDocumentSpout(new KafkaSpout(createSpoutConfig("document")))
-                    .setImageSpout(new KafkaSpout(createSpoutConfig("image")))
-                    .setVideoSpout(new KafkaSpout(createSpoutConfig("video")));
+                    .setDocumentSpout(new KafkaSpout(createSpoutConfig("document", null)))
+                    .setImageSpout(new KafkaSpout(createSpoutConfig("image", null)))
+                    .setVideoSpout(new KafkaSpout(createSpoutConfig("video", null)));
             StormTopology topology = createTopology(topologyConfig);
             LocalCluster cluster = new LocalCluster();
             LOGGER.info("Submitting topology '" + TOPOLOGY_NAME + "'");
@@ -117,6 +119,7 @@ public class StormRunner extends CommandLineBase {
         createImageTopology(builder, topologyConfig);
         createDocumentTopology(builder, topologyConfig);
         createTextTopology(builder);
+        createTermTopology(builder);
 
         return builder.createTopology();
     }
@@ -150,7 +153,7 @@ public class StormRunner extends CommandLineBase {
     }
 
     private void createTextTopology(TopologyBuilder builder) {
-        SpoutConfig spoutConfig = createSpoutConfig("text");
+        SpoutConfig spoutConfig = createSpoutConfig("text", null);
         builder.setSpout("text", new KafkaSpout(spoutConfig), 1);
         builder.setBolt("textTermExtractionBolt", new TermExtractionBolt(), 1)
                 .shuffleGrouping("text");
@@ -158,13 +161,24 @@ public class StormRunner extends CommandLineBase {
                 .shuffleGrouping("textTermExtractionBolt");
     }
 
-    private SpoutConfig createSpoutConfig(String queueName) {
+    private void createTermTopology(TopologyBuilder builder) {
+        String queueName = "term";
+        SpoutConfig spoutConfig = createSpoutConfig("term", new TermKafkaJsonEncoder());
+        builder.setSpout(queueName, new KafkaSpout(spoutConfig), 1);
+        builder.setBolt(queueName + "-bolt", new DebugBolt("term"), 1)
+                .shuffleGrouping(queueName);
+    }
+
+    private SpoutConfig createSpoutConfig(String queueName, Scheme scheme) {
+        if (scheme == null) {
+            scheme = new KafkaJsonEncoder();
+        }
         SpoutConfig spoutConfig = new SpoutConfig(
                 new KafkaConfig.ZkHosts(getConfiguration().getZookeeperServerNames(), "/kafka/brokers"),
                 queueName,
                 "/kafka/consumers",
                 queueName);
-        spoutConfig.scheme = new KafkaJsonEncoder();
+        spoutConfig.scheme = scheme;
         return spoutConfig;
     }
 

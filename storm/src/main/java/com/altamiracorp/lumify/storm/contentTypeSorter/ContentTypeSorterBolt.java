@@ -43,6 +43,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
                 JSONObject json = new JSONObject();
                 json.put("fileName", fileName);
                 json.put("mimeType", mimeType);
+                json.put("sourceBolt", getClass().getName());
                 pushOnQueue(queueName, json);
             } else {
                 moveFile(fileName, this.dataDir + "/" + queueName + "/" + FilenameUtils.getName(fileName));

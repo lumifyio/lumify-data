@@ -4,6 +4,7 @@ import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.user.SystemUser;
@@ -27,6 +28,7 @@ import kafka.producer.ProducerConfig;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,6 +99,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declare(new Fields("json"));
     }
 
     @Override
@@ -111,7 +114,17 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
 
     protected abstract void safeExecute(Tuple input) throws Exception;
 
-    protected void pushOnQueue(String queueName, JSONObject json) {
+    protected void pushOnQueue(String queueName, JSONObject json, String... extra) {
+        if (extra != null && extra.length > 0) {
+            JSONArray extraArray = new JSONArray();
+            for (String e : extra) {
+                extraArray.put(e);
+            }
+            json.put(KafkaJsonEncoder.EXTRA, extraArray);
+        }
+
+        json.put("sourceBolt", getClass().getName());
+
         ProducerData<String, JSONObject> data = new ProducerData<String, JSONObject>(queueName, json);
         kafkaProducer.send(data);
     }
