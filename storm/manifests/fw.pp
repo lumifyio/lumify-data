@@ -17,7 +17,7 @@ class storm::fw::ui {
 }
 
 class storm::fw::supervisor {
-  $storm_supervisor_slots_ports = hiera('storm_supervisor_slots_ports')
+  $storm_supervisor_slots_ports = hiera_array('storm_supervisor_slots_ports')
   firewall { '193 allow storm supervisor' :
     port   => $storm_supervisor_slots_ports,
     proto  => tcp,
