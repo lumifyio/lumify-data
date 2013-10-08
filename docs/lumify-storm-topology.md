@@ -1,14 +1,9 @@
-#Setup from develop
-1. pull storm branch
-2. ```vagrant up```
-3. ```/opt/format.sh```
-4. ```/opt/start.sh```
-
-
-
 # Lumify Storm Topology
 
 ## Vagrant Configuration
+1. ```vagrant up```
+2. ```/opt/format.sh``` (format every time you come from develop)
+3. ```/opt/start.sh```
 
 ### HDFS
 1. Create the data directory used to store imported files for processing:
@@ -32,8 +27,8 @@ The required topics are: text, video, and image
 ### Create Topology Jar
 ```bin/storm-local.sh```
 
-```vi /opt/lumify/config/configuration.properties```
-add "nlpConfPathPrefix=/lumify/config/opennlp"
+
+add "nlpConfPathPrefix=/lumify/config/opennlp" to ```/opt/lumify/config/configuration.properties```
 
 1. Generate the topology jar with:
 ```storm/clusterbuild.sh```
