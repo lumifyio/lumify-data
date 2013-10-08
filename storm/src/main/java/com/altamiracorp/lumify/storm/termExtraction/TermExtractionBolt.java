@@ -20,6 +20,8 @@ import com.altamiracorp.lumify.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
 import org.apache.hadoop.conf.Configuration;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ import java.util.Map;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TermExtractionBolt.class);
     private ThreadedInputStreamProcess<TextExtractedInfo, TextExtractedAdditionalWorkData> textExtractionStreamProcess;
     private TermMentionRepository termMentionRepository;
     private OntologyRepository ontologyRepository;
@@ -86,6 +89,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
     private void saveTermMentions(String artifactGraphVertexId, List<TextExtractedInfo.TermMention> termMentions) {
         for (TextExtractedInfo.TermMention termMention : termMentions) {
+            LOGGER.info("saving term mention \"" + termMention.getSign() + "\" (" + termMention.getStart() + ":" + termMention.getEnd() + ") " + termMention.getOntologyClassUri());
             TermMention termMentionModel = new TermMention(new TermMentionRowKey(artifactGraphVertexId, termMention.getStart(), termMention.getEnd()));
             termMentionModel.getMetadata().setSign(termMention.getSign());
             termMentionModel.getMetadata().setOntologyClassUri(termMention.getOntologyClassUri());
@@ -93,6 +97,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             Concept concept = ontologyRepository.getConceptByName(termMention.getOntologyClassUri(), getUser());
             if (concept != null) {
                 termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId());
+            } else {
+                LOGGER.error("Could not find ontology graph vertex \"" + termMention.getOntologyClassUri() + "\"");
             }
 
             if (termMention.isResolved()) {
