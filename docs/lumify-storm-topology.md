@@ -1,3 +1,11 @@
+#Setup from develop
+1. pull storm branch
+2. ```vagrant up```
+3. ```/opt/format.sh```
+4. ```/opt/start.sh```
+
+
+
 # Lumify Storm Topology
 
 ## Vagrant Configuration
@@ -15,13 +23,18 @@
 ### Kafka Queue
 
 1. Create and publish data to required queue topics:
-```/opt/kafka/bin/kafka-console-producer.sh --topic <topic> --zookeeper localhost:2181/kafka```
+```/opt/kafka-clear.sh```
 
 The required topics are: text, video, and image
 
 ## Running the Topology
 
 ### Create Topology Jar
+```bin/storm-local.sh```
+
+```vi /opt/lumify/config/configuration.properties```
+add "nlpConfPathPrefix=/lumify/config/opennlp"
+
 1. Generate the topology jar with:
 ```storm/clusterbuild.sh```
 
