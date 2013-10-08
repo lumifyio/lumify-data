@@ -29,7 +29,7 @@ class accumulo(
     require => Package["hadoop-0.20"],
   }
 
-  macro::download { "http://www.us.apache.org/dist/accumulo/${version}/accumulo-${version}-dist.tar.gz":
+  macro::download { "https://s3.amazonaws.com/RedDawn/accumulo-${version}-dist.tar.gz":
     path    => $downloadpath,
     require => User[$user],
   } -> macro::extract { $downloadpath:
