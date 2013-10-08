@@ -2,6 +2,8 @@
 
 latest_modules=$(ls ~/modules-*.tgz | tail -1)
 latest_puppet_modules=$(ls ~/puppet-modules-*.tgz | tail -1)
+latest_site=$(ls ~/site-*.pp | tail -1)
+latest_hiera=$(ls ~/hiera-*.yaml | tail -1)
 
 ( cd /etc/puppet
   tar xzf ${latest_modules}
@@ -18,9 +20,14 @@ latest_puppet_modules=$(ls ~/puppet-modules-*.tgz | tail -1)
   unlink puppet-modules || true
   ln -s $(basename ${latest_puppet_modules} .tgz) puppet-modules
 )
+( cd /etc/puppet/hiera
+  cp ${latest_hiera} ..
+  ln -s ../$(basename ${latest_hiera}) cluster.yaml
+)
 ( cd /etc/puppet/manifests
   unlink site.pp || true
-  ln -s ../$(basename ${latest_modules} .tgz)/puppet/manifests/lumify_demo.pp site.pp
+  cp ${latest_site} .
+  ln -s $(basename ${latest_site}) site.pp
 )
 
 # (re)start the puppetmaster service

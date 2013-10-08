@@ -3,7 +3,7 @@
 SSH_OPTS='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=QUIET'
 
 elastic_ip=$1
-hosts_file=$2
+HOSTS_FILE=$2
 
 DATETIME=$(date +"%Y%m%dT%H%M")
 MAVEN_STATUS=unknown
@@ -60,8 +60,10 @@ function bundle_init {
 function bundle_puppet {
   local modules_tgz=$(git_archive modules .. puppet)
   local puppet_modules_tgz=$(git_archive puppet-modules ../puppet/puppet-modules)
+  ./site_from_hosts.rb ${HOSTS_FILE} > /tmp/site-${DATETIME}.pp
+  ./hiera_from_hosts.rb ${HOSTS_FILE} > /tmp/hiera-${DATETIME}.yaml
 
-  FILE_LIST="${FILE_LIST} ${modules_tgz} ${puppet_modules_tgz}"
+  FILE_LIST="${FILE_LIST} ${modules_tgz} ${puppet_modules_tgz} /tmp/site-${DATETIME}.pp /tmp/hiera-${DATETIME}.yaml"
 }
 
 function bundle_conf {
@@ -88,7 +90,7 @@ function bundle_war {
 }
 
 
-FILE_LIST=${hosts_file}
+FILE_LIST=${HOSTS_FILE}
 
 set +u
 [ "$3" ] && component=$3 || component=everything
