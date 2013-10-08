@@ -156,6 +156,11 @@ define([
             this.trigger(document, 'workspaceRemoteSave', data);
         };
 
+        this.onWorkspaceCopied = function ( event, data ) {
+            this.collapseEditForm();
+            this.loadWorkspaceList();
+        };
+
         this.onWorkspaceRemoteSave = function ( event, data) {
             if (!data || !data.remoteEvent) return;
 
@@ -250,6 +255,7 @@ define([
             this.on( document, 'workspaceSaving', this.onWorkspaceSaving );
             this.on( document, 'workspaceSaved', this.onWorkspaceSaved );
             this.on( document, 'workspaceDeleted', this.onWorkspaceDeleted );
+            this.on( document, 'workspaceCopied', this.onWorkspaceCopied );
             this.on( document, 'workspaceRemoteSave', this.onWorkspaceRemoteSave );
             this.on( document, 'workspaceNotAvailable', this.onWorkspaceNotAvailable );
 

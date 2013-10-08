@@ -14,10 +14,7 @@ import com.altamiracorp.lumify.web.routes.resource.ResourceGet;
 import com.altamiracorp.lumify.web.routes.user.MeGet;
 import com.altamiracorp.lumify.web.routes.user.UserList;
 import com.altamiracorp.lumify.web.routes.vertex.*;
-import com.altamiracorp.lumify.web.routes.workspace.WorkspaceByRowKey;
-import com.altamiracorp.lumify.web.routes.workspace.WorkspaceDelete;
-import com.altamiracorp.lumify.web.routes.workspace.WorkspaceList;
-import com.altamiracorp.lumify.web.routes.workspace.WorkspaceSave;
+import com.altamiracorp.lumify.web.routes.workspace.*;
 import com.altamiracorp.web.Handler;
 import com.altamiracorp.web.StaticFileHandler;
 import com.google.inject.Injector;
@@ -89,6 +86,7 @@ public class Router extends HttpServlet {
 
         app.get("/workspace/", authenticator, WorkspaceList.class);
         app.post("/workspace/save", authenticator, WorkspaceSave.class);
+        app.post("/workspace/{workspaceRowKey}/copy", authenticator, WorkspaceCopy.class);
         app.post("/workspace/{workspaceRowKey}/save", authenticator, WorkspaceSave.class);
         app.get("/workspace/{workspaceRowKey}", authenticator, WorkspaceByRowKey.class);
         app.delete("/workspace/{workspaceRowKey}", authenticator, WorkspaceDelete.class);

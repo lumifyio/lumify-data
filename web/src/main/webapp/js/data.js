@@ -80,6 +80,7 @@ define([
             this.on('switchWorkspace', this.onSwitchWorkspace);
             this.on('workspaceDeleted', this.onWorkspaceDeleted);
             this.on('workspaceDeleting', this.onWorkspaceDeleting);
+            this.on('workspaceCopied', this.onWorkspaceCopied);
 
             this.on(document, 'socketMessage', this.onSocketMessage);
 
@@ -366,6 +367,11 @@ define([
                 this.loadActiveWorkspace();
             }
         };
+
+        this.onWorkspaceCopied = function (evt, data) {
+            this.id = data._rowKey;
+            this.loadActiveWorkspace();
+        }
 
 
         this.onWorkspaceDeleting = function (evt, data) {
