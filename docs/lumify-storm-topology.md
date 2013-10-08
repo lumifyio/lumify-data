@@ -4,6 +4,8 @@
 1. ```vagrant up```
 2. ```/opt/format.sh``` (format every time you come from develop)
 3. ```/opt/start.sh```
+4. ```cp /opt/lumify/config/configuration.properties .```
+5. ```sudo mv /vagrant/config/configuration.properties /opt/lumify/config/```
 
 ### HDFS
 1. Create the data directory used to store imported files for processing:
@@ -24,16 +26,11 @@ The required topics are: text, video, and image
 
 ## Running the Topology
 
-### Create Topology Jar
-```bin/storm-local.sh```
+### Create Topology Jar ###
+1. add "nlpConfPathPrefix=/lumify/config/opennlp" to ```/opt/lumify/config/configuration.properties```
+2. Run ```bin/storm-local.sh```
+3. Generate the topology jar with: ```storm/clusterbuild.sh```
 
-
-add "nlpConfPathPrefix=/lumify/config/opennlp" to ```/opt/lumify/config/configuration.properties```
-
-1. Generate the topology jar with:
-```storm/clusterbuild.sh```
-
-### Topology Execution
-
-1. On the storm cluster, execute:
-```/opt/storm/bin/storm jar <jar> com.altamiracorp.lumify.storm.StormRunner --datadir=/lumify/data```
+### Topology Execution ###
+1. On the storm cluster, execute:```/opt/storm-run.sh```
+2. hadoop fs -put /vagrant/data/import/* /lumify/data/unknown
