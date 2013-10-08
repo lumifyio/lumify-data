@@ -33,4 +33,11 @@ class env::cluster::webserver {
     source => 'puppet:///modules/env/cluster/credentials.properties-EXAMPLE',
     require => File['/opt/lumify/config'],
   }
+
+  exec { 'create default java keystore' :
+    command => '/usr/java/default/bin/keytool -genkeypair -keysize 2048 -keyalg RSA -keystore /opt/lumify/config/jetty.jks -keypass password -storepass password -dname CN=demo.lumify.io',
+    creates => '/opt/lumify/config/jetty.jks',
+    require => File['/opt/lumify/config'],
+    logoutput => true,
+  }
 }
