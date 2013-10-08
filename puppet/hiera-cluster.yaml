@@ -4,5 +4,5 @@
 :yaml:
   :datadir: /etc/puppet/hiera
 :hierarchy:
-  - smmc
+  - cluster
   - common

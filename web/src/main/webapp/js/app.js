@@ -4,6 +4,7 @@ define([
     'tpl!app',
     'data',
     'menubar/menubar',
+    'dashboard/dashboard',
     'search/search',
     'workspaces/workspaces',
     'workspaces/overlay',
@@ -13,7 +14,7 @@ define([
     'detail/detail',
     'map/map',
     'util/keyboard'
-], function(defineComponent, appTemplate, data, Menubar, Search, Workspaces, WorkspaceOverlay, Sync, Users, Graph, Detail, Map, Keyboard) {
+], function(defineComponent, appTemplate, data, Menubar, Dashboard, Search, Workspaces, WorkspaceOverlay, Sync, Users, Graph, Detail, Map, Keyboard) {
     'use strict';
 
     return defineComponent(App);
@@ -29,6 +30,7 @@ define([
 
         this.defaultAttrs({
             menubarSelector: '.menubar-pane',
+            dashboardSelector: '.dashboard-pane',
             searchSelector: '.search-pane',
             workspacesSelector: '.workspaces-pane',
             workspaceOverlaySelector: '.workspace-overlay',
@@ -58,6 +60,7 @@ define([
 
             var content = $(appTemplate({})),
                 menubarPane = content.filter('.menubar-pane'),
+                dashboardPane = content.filter('.dashboard-pane').data(DATA_MENUBAR_NAME, 'dashboard'),
                 searchPane = content.filter('.search-pane').data(DATA_MENUBAR_NAME, 'search'),
                 workspacesPane = content.filter('.workspaces-pane').data(DATA_MENUBAR_NAME, 'workspaces'),
                 usersPane = content.filter('.users-pane').data(DATA_MENUBAR_NAME, 'users'),
@@ -68,6 +71,7 @@ define([
 
             Sync.attachTo(window);
             Menubar.attachTo(menubarPane.find('.content'));
+            Dashboard.attachTo(dashboardPane);
             Search.attachTo(searchPane.find('.content'));
             Workspaces.attachTo(workspacesPane.find('.content'));
             Users.attachTo(usersPane.find('.content'));

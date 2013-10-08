@@ -22,8 +22,8 @@ hiera['accumulo_example_config'] = '3GB/native-standalone'
 hiera['accumulo_masters'] = cluster['accumulomaster'][:name].to_a
 hiera['accumulo_slaves'] = cluster.select{|k,v| k.match(/node\d{2}/)}.collect{|k,v| v[:name]}.flatten
 zk_nodes = Hash.new
-cluster.select{|k,v| k.match(/node\d/)}.each do |k,v|
-  n = k.match(/node(\d{2})/).captures[0].to_i
+cluster.select{|k,v| k.match(/zk\d/)}.each do |k,v|
+  n = k.match(/zk(\d{2})/).captures[0].to_i
   zk_nodes[n] = "#{v[:ip]}:2181"
 end
 hiera['zookeeper_nodes'] = zk_nodes

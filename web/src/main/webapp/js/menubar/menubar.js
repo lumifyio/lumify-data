@@ -12,8 +12,9 @@ define([
     function Menubar() {
 
         // Add class name of <li> buttons here
-        var BUTTONS = 'graph map search workspaces activity users metrics prefs';
+        var BUTTONS = 'dashboard graph map search workspaces activity users metrics prefs';
         var TOOLTIPS = {
+            dashboard: 'Dashboard',
             graph: 'Graph',
             map: 'Map',
             search: 'Search',
@@ -23,7 +24,7 @@ define([
 
         // Which cannot both be active
         var MUTALLY_EXCLUSIVE_SWITCHES = [ 
-            { names:['graph','map'], options: { allowCollapse:false } },
+            { names:['dashboard', 'graph','map'], options: { allowCollapse:false } },
             { names:['workspaces', 'search'], options: { } }
         ];
 
