@@ -170,6 +170,7 @@ public class ArtifactRepository extends Repository<Artifact> {
     private List<String> getGraphVertexIds(Collection<ArtifactSearchResult> artifactSearchResults) {
         ArrayList<String> results = new ArrayList<String>();
         for (ArtifactSearchResult artifactSearchResult : artifactSearchResults) {
+            checkNotNull(artifactSearchResult.getGraphVertexId(), "graph vertex cannot be null for artifact " + artifactSearchResult.getRowKey());
             results.add(artifactSearchResult.getGraphVertexId());
         }
         return results;

@@ -114,7 +114,9 @@ define([
 
     function load(styleReady) {
         ontologyService.concepts(function(err, concepts) {
-            concepts.entityConcept.children.forEach(apply);
+            if(concepts.entityConcept.children) {
+                concepts.entityConcept.children.forEach(apply);
+            }
 
             defaultStyle();
 

@@ -75,7 +75,7 @@ define([
         this.getConceptChildrenHtml = function(concept, indent) {
             var self = this,
                 html = "";
-            concept.children.forEach(function(concept) {
+            (concept.children || []).forEach(function(concept) {
                 html += conceptItemTemplate({
                     concept: concept,
                     indent: indent
