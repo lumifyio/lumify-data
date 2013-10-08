@@ -67,4 +67,9 @@ class env::dev {
     source => 'puppet:///modules/env/dev/storm-run.sh',
     mode => 'u=rwx,g=,o=',
   }
+
+  file { '/opt/kafka-clear.sh' :
+    source => 'puppet:///modules/env/dev/kafka-clear.sh',
+    mode => 'u=rwx,g=,o=',
+  }
 }

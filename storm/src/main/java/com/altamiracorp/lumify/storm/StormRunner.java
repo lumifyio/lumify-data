@@ -11,7 +11,6 @@ import backtype.storm.utils.Utils;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
-import com.altamiracorp.lumify.storm.term.TermKafkaJsonEncoder;
 import com.altamiracorp.lumify.storm.termExtraction.TermExtractionBolt;
 import com.altamiracorp.lumify.storm.textHighlighting.TextHighlightingBolt;
 import org.apache.accumulo.core.util.CachedConfiguration;
@@ -163,7 +162,7 @@ public class StormRunner extends CommandLineBase {
 
     private void createTermTopology(TopologyBuilder builder) {
         String queueName = "term";
-        SpoutConfig spoutConfig = createSpoutConfig("term", new TermKafkaJsonEncoder());
+        SpoutConfig spoutConfig = createSpoutConfig("term", null);
         builder.setSpout(queueName, new KafkaSpout(spoutConfig), 1);
         builder.setBolt(queueName + "-bolt", new DebugBolt("term"), 1)
                 .shuffleGrouping(queueName);

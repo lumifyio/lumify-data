@@ -115,7 +115,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
             JSONObject termJson = new JSONObject();
             termJson.put("rowKey", termMentionModel.getRowKey().toString());
-            pushOnQueue("term", termJson, artifactGraphVertexId);
+            pushOnQueue("term", termJson);
 
             termMentionRepository.save(termMentionModel, getUser());
         }
