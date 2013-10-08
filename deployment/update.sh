@@ -14,7 +14,7 @@ latest_hiera=$(ls ~/hiera-*.yaml | tail -1)
   ln -s $(basename ${latest_modules} .tgz)/puppet/hiera hiera
 
   unlink hiera.yaml || true
-  ln -s $(basename ${latest_modules} .tgz)/puppet/hiera-lumify_demo.yaml hiera.yaml
+  ln -s $(basename ${latest_modules} .tgz)/puppet/hiera-cluster.yaml hiera.yaml
 
   tar xzf ${latest_puppet_modules}
   unlink puppet-modules || true
@@ -22,11 +22,12 @@ latest_hiera=$(ls ~/hiera-*.yaml | tail -1)
 )
 ( cd /etc/puppet/hiera
   cp ${latest_hiera} ..
+  unlink cluster.yaml || true
   ln -s ../$(basename ${latest_hiera}) cluster.yaml
 )
 ( cd /etc/puppet/manifests
-  unlink site.pp || true
   cp ${latest_site} .
+  unlink site.pp || true
   ln -s $(basename ${latest_site}) site.pp
 )
 
