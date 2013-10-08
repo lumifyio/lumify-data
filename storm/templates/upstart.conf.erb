@@ -1,8 +1,8 @@
-# storm-nimbus - control of the storm nimbus process
+# storm-<%= @process_type %> - control of the storm <%= @process_type %> process
 #
-# Start and stop a storm nimbus server
+# Start and stop a storm <%= @process_type %>
 author "Altamira Technologies"
-description "Controls a Storm Nimbus Server"
+description "Controls a Storm <%= @process_type %>"
 
 # This "start on" is not a mistake...
 # CentOS does not emit all of the standard events properly.
