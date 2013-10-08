@@ -28,6 +28,7 @@ import java.util.Map;
 public class StormRunner extends CommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(StormRunner.class);
     public static final String LOCAL_CONFIG_KEY = "local";
+    public static final String TOPOLOGY_NAME = "lumify";
     private boolean isDone;
 
     public static void main(String[] args) throws Exception {
@@ -86,7 +87,8 @@ public class StormRunner extends CommandLineBase {
                     .setVideoSpout(new KafkaSpout(createSpoutConfig("video")));
             StormTopology topology = createTopology(topologyConfig);
             LocalCluster cluster = new LocalCluster();
-            cluster.submitTopology("local", conf, topology);
+            LOGGER.info("Submitting topology '" + TOPOLOGY_NAME + "'");
+            cluster.submitTopology(TOPOLOGY_NAME, conf, topology);
 
             // TODO: how do we know when we are done?
             while (!isDone) {
@@ -101,7 +103,8 @@ public class StormRunner extends CommandLineBase {
                     .setImageSpout(new HdfsFileSystemSpout("/image"))
                     .setVideoSpout(new HdfsFileSystemSpout("/video"));
             StormTopology topology = createTopology(topologyConfig);
-            StormSubmitter.submitTopology("lumify", conf, topology);
+            LOGGER.info("Submitting topology '" + TOPOLOGY_NAME + "'");
+            StormSubmitter.submitTopology(TOPOLOGY_NAME, conf, topology);
         }
 
         return 0;

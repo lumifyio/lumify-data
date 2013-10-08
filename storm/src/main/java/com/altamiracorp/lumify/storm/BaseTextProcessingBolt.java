@@ -8,8 +8,12 @@ import org.apache.commons.io.IOUtils;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public abstract class BaseTextProcessingBolt extends BaseLumifyBolt {
     protected InputStream getInputStream(GraphVertex graphVertex) throws Exception {
+        checkNotNull(graphVertex, "graphVertex cannot be null");
+
         InputStream textIn;
         String textHdfsPath = (String) graphVertex.getProperty(PropertyName.TEXT_HDFS_PATH);
         if (textHdfsPath != null) {

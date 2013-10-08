@@ -142,6 +142,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
     }
 
     protected void moveFile(String sourceFileName, String destFileName) throws IOException {
+        LOGGER.info("moving file " + sourceFileName + " -> " + destFileName);
         Path sourcePath = new Path(sourceFileName);
         Path destPath = new Path(destFileName);
         if (this.isLocal) {

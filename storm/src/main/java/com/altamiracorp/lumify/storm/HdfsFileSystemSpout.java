@@ -9,7 +9,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,10 +21,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class HdfsFileSystemSpout extends BaseFileSystemSpout {
     private static final Logger LOGGER = LoggerFactory.getLogger(HdfsFileSystemSpout.class.getName());
     private final String subDir;
-
     private FileSystem hdfsFileSystem;
-    private String rootDataPath;
-    private String importPath;
+    private String readPath;
 
     public HdfsFileSystemSpout(String subDir) {
         this.subDir = subDir;
@@ -33,31 +30,30 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
 
     @Override
     public void open(Map stormConf, TopologyContext context, SpoutOutputCollector collector) {
+        LOGGER.info("HdfsFileSystemSpout.open");
         super.open(stormConf, context, collector);
 
-        this.rootDataPath = (String) stormConf.get(BaseFileSystemSpout.DATADIR_CONFIG_NAME);
-        checkNotNull(this.rootDataPath, BaseFileSystemSpout.DATADIR_CONFIG_NAME + " is a required configuration parameter");
-        this.importPath = rootDataPath + this.subDir;
+        String rootDataPath = (String) stormConf.get(BaseFileSystemSpout.DATADIR_CONFIG_NAME);
+        checkNotNull(rootDataPath, BaseFileSystemSpout.DATADIR_CONFIG_NAME + " is a required configuration parameter");
+        this.readPath = rootDataPath + this.subDir;
         Configuration conf = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
         try {
             String hdfsRootDir = (String) stormConf.get(AccumuloSession.HADOOP_URL);
+            LOGGER.info("opening hdfs file system " + hdfsRootDir);
             hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), conf, "hadoop");
-            mkdirs(new Path(this.importPath));
+            if (!hdfsFileSystem.exists(new Path(this.readPath))) {
+                LOGGER.info("making hdfs directory " + this.readPath + " on " + hdfsRootDir);
+                hdfsFileSystem.mkdirs(new Path(this.readPath));
+            }
         } catch (Exception e) {
             collector.reportError(e);
-        }
-    }
-
-    private void mkdirs(Path path) throws IOException {
-        if (!hdfsFileSystem.exists(path)) {
-            hdfsFileSystem.mkdirs(path);
         }
     }
 
     @Override
     public void nextTuple() {
         try {
-            Path path = new Path(importPath);
+            Path path = new Path(readPath);
             if (!processPath(path)) {
                 Utils.sleep(10 * 1000);
             }
