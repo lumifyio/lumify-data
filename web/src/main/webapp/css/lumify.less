@@ -94,7 +94,7 @@ html.fullscreenDetails {
   }
 }
 
-.graph-pane, .map-pane {
+.graph-pane, .map-pane, .dashboard-pane {
   display: none;
   
   &.visible {
@@ -153,6 +153,13 @@ html.fullscreenDetails {
   left: @menubar-width;
 
   @import "map/map";
+}
+
+.dashboard-pane {
+  .fullscreen;
+  left: @menubar-width;
+
+  @import "dashboard/dashboard";
 }
 
 .fullscreenApp .detail-pane {
