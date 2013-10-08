@@ -42,9 +42,9 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
             List<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>> workers = new ArrayList<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>>();
             workers.add(inject(new SearchWorker()));
-            workers.add(inject(new OpenNlpMaximumEntropyEntityExtractorWorker(configuration, getInjector(), getUser())));
-            workers.add(inject(new OpenNlpDictionaryEntityExtractorWorker(configuration, getInjector(), getUser())));
-            workers.add(inject(new KnownEntityExtractorWorker(configuration, getInjector(), getUser())));
+            workers.add(inject(new OpenNlpMaximumEntropyEntityExtractorWorker()).prepare(configuration, getUser()));
+            workers.add(inject(new OpenNlpDictionaryEntityExtractorWorker()).prepare(configuration, getUser()));
+            workers.add(inject(new KnownEntityExtractorWorker()).prepare(configuration, getUser()));
             textExtractionStreamProcess = new ThreadedInputStreamProcess<TextExtractedInfo, TextExtractedAdditionalWorkData>("textBoltWorkers", workers);
         } catch (Exception ex) {
             collector.reportError(ex);

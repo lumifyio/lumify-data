@@ -1,6 +1,5 @@
 package com.altamiracorp.lumify.entityExtraction;
 
-import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.dictionary.DictionaryEntry;
 import com.altamiracorp.lumify.model.dictionary.DictionaryEntryRepository;
 import com.google.inject.Inject;
@@ -8,7 +7,6 @@ import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.namefind.DictionaryNameFinder;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.util.StringList;
-import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,10 +18,6 @@ import java.util.Map.Entry;
 public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
 
     private DictionaryEntryRepository dictionaryEntryRepository;
-
-    public OpenNlpDictionaryEntityExtractor(Configuration configuration, User user) throws Exception {
-        super(configuration, user);
-    }
 
     @Override
     protected List<TokenNameFinder> loadFinders() throws IOException {

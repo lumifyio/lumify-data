@@ -35,14 +35,12 @@ public abstract class OpenNlpEntityExtractor {
     private List<TokenNameFinder> finders;
     private User user;
 
-    public OpenNlpEntityExtractor(Configuration configuration, User user) throws IOException, URISyntaxException, InterruptedException {
+    public void prepare(Configuration configuration, User user) throws URISyntaxException, IOException, InterruptedException {
         setPathPrefix(configuration.get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX));
         String hdfsRootDir = configuration.get(AccumuloSession.HADOOP_URL);
         this.fs = FileSystem.get(new URI(hdfsRootDir), configuration, "hadoop");
         this.user = user;
-    }
 
-    public void init() throws IOException {
         setTokenizer(loadTokenizer());
         setFinders(loadFinders());
     }

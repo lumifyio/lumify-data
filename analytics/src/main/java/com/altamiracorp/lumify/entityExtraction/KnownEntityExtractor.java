@@ -25,12 +25,9 @@ public class KnownEntityExtractor {
     private static final String DEFAULT_PATH_PREFIX = "hdfs://";
     private AhoCorasick tree = new AhoCorasick();
 
-    public KnownEntityExtractor(Configuration configuration, User user) throws IOException {
+    public void prepare(Configuration configuration, User user) throws IOException {
         pathPrefix = configuration.get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX);
         fs = FileSystem.get(configuration);
-    }
-
-    public void init() throws IOException {
         loadDictionaries();
     }
 
