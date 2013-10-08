@@ -30,8 +30,8 @@ hiera['zookeeper_nodes'] = zk_nodes
 hiera['namenode_ipaddress'] = cluster['namenode'][:ip].first
 hiera['elasticsearch_locations'] = cluster.select{|k,v| k.match(/node\d{2}/)}.collect{|k,v| v[:ip]}.flatten.collect{|ip| "#{ip}:9300"}
 hiera['jetty_confidential_port'] = 443
-hiera['jetty_key_store_path'] = '/opt/lumify/config/lumify_demo.jks'
-hiera['jetty_key_store_password'] = 'OBF:1wfw1xtz1uo71tok1s3q20zj1s3c1toa1unr1xtj1wg2'
+hiera['jetty_key_store_path'] = '/opt/lumify/config/jetty.jks'
+hiera['jetty_key_store_password'] = 'OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v'
 hiera['authentication_provider'] = 'com.altamiracorp.lumify.web.DevBasicAuthenticationProvider'
 
 puts YAML.dump(hiera)
