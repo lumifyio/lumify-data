@@ -65,7 +65,6 @@ public class Router extends HttpServlet {
         app.post("/artifact/import", authenticator, ArtifactImport.class);
 
         app.post("/entity/relationships", authenticator, EntityRelationships.class);
-        app.get("/entity/search", authenticator, EntitySearch.class);
         app.post("/entity/createTerm", authenticator, EntityTermCreate.class);
         app.post("/entity/updateTerm", authenticator, EntityTermUpdate.class);
         app.post("/entity/createResolvedDetectedObject", authenticator, EntityObjectDetectionCreate.class);

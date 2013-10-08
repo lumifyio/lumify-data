@@ -87,10 +87,6 @@ function(ServiceBase) {
         });
     };
 
-    Ucd.prototype.entitySearch = function (query) {
-        return this._search('entity', query);
-    };
-
     Ucd.prototype.graphVertexSearch = function (query, filters) {
         if (typeof filters === 'function') {
             callback = filters;
