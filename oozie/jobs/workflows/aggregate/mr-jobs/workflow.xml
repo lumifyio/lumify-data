@@ -253,6 +253,20 @@
 				</property>
 			</configuration>
         </sub-workflow>
+        <ok to="known-entity-node"/>
+        <error to="known-entity-node"/>
+    </action>
+    <action name="known-entity-node">
+		<sub-workflow>
+            <app-path>${nameNode}/user/${wf:user()}/${workflowRoot}/map-reduce/entity-extraction</app-path>
+			<propagate-configuration/>
+			<configuration>
+				<property>
+					<name>entityExtractor</name>
+				    <value>${basePackage}.entityExtraction.KnownEntityExtractor</value>
+				</property>
+			</configuration>
+        </sub-workflow>
         <ok to="video-preview-node"/>
         <error to="video-preview-node"/>
     </action>
