@@ -5,13 +5,13 @@ import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
-import com.altamiracorp.lumify.storm.file.AdditionalWorkData;
-import com.altamiracorp.lumify.storm.file.FileMetadata;
-import com.altamiracorp.lumify.textExtraction.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
+import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.storm.file.FileMetadata;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.google.inject.Inject;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -26,10 +26,10 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-public abstract class BaseFileProcessingBolt extends BaseLumifyBolt{
+public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseFileProcessingBolt.class);
-    private ThreadedInputStreamProcess<ArtifactExtractedInfo, AdditionalWorkData> threadedInputStreamProcess;
+    private ThreadedInputStreamProcess<ArtifactExtractedInfo, AdditionalArtifactWorkData> threadedInputStreamProcess;
     private ContentTypeExtractor contentTypeExtractor;
 
     @Override
@@ -75,14 +75,14 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt{
         return graphVertex;
     }
 
-    protected void runWorkers (FileMetadata fileMetadata, ArtifactExtractedInfo artifactExtractedInfo) throws Exception {
+    protected void runWorkers(FileMetadata fileMetadata, ArtifactExtractedInfo artifactExtractedInfo) throws Exception {
         InputStream in = getInputStream(fileMetadata.getFileName(), artifactExtractedInfo);
-        AdditionalWorkData additionalWorkData = new AdditionalWorkData();
-        additionalWorkData.setFileName(fileMetadata.getFileName());
-        additionalWorkData.setMimeType(fileMetadata.getMimeType());
-        additionalWorkData.setHdfsFileSystem(getHdfsFileSystem());
+        AdditionalArtifactWorkData additionalDocumentWorkData = new AdditionalArtifactWorkData();
+        additionalDocumentWorkData.setFileName(fileMetadata.getFileName());
+        additionalDocumentWorkData.setMimeType(fileMetadata.getMimeType());
+        additionalDocumentWorkData.setHdfsFileSystem(getHdfsFileSystem());
         try {
-            List<ThreadedTeeInputStreamWorker.WorkResult<ArtifactExtractedInfo>> results = threadedInputStreamProcess.doWork(in, additionalWorkData);
+            List<ThreadedTeeInputStreamWorker.WorkResult<ArtifactExtractedInfo>> results = threadedInputStreamProcess.doWork(in, additionalDocumentWorkData);
             mergeResults(artifactExtractedInfo, results);
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Extracted document info:\n" + artifactExtractedInfo.toJson().toString(2));
@@ -103,13 +103,16 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt{
 
     protected FileMetadata getFileMetadata(Tuple input) throws Exception {
         String fileName = input.getString(0);
+        if (fileName == null || fileName.length() == 0) {
+            throw new RuntimeException("Invalid item on the queue.");
+        }
         String mimeType = null;
 
         if (fileName.startsWith("{")) {
             JSONObject json = getJsonFromTuple(input);
             fileName = json.optString("fileName");
             mimeType = json.optString("mimeType");
-            if (fileName == null) {
+            if (fileName == null || fileName.length() == 0) {
                 throw new RuntimeException("Expected 'fileName' in JSON document but got.\n" + json.toString());
             }
         }
@@ -161,8 +164,21 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt{
         return newPath;
     }
 
-    protected void setThreadedInputStreamProcess(ThreadedInputStreamProcess<ArtifactExtractedInfo, AdditionalWorkData> threadedInputStreamProcess) {
+    protected void setThreadedInputStreamProcess(ThreadedInputStreamProcess<ArtifactExtractedInfo, AdditionalArtifactWorkData> threadedInputStreamProcess) {
         this.threadedInputStreamProcess = threadedInputStreamProcess;
+    }
+
+    @Override
+    public void safeExecute(Tuple input) throws Exception {
+        GraphVertex graphVertex = processFile(input);
+        pushOnTextQueue(graphVertex);
+        getCollector().ack(input);
+    }
+
+    protected void pushOnTextQueue(GraphVertex graphVertex) {
+        JSONObject textQueueDataJson = new JSONObject();
+        textQueueDataJson.put("graphVertexId", graphVertex.getId());
+        pushOnQueue("text", textQueueDataJson);
     }
 
     @Inject

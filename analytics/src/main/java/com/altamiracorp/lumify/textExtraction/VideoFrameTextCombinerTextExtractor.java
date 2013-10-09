@@ -1,16 +1,13 @@
 package com.altamiracorp.lumify.textExtraction;
 
+import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
-import com.altamiracorp.lumify.ucd.artifact.VideoTranscript;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import org.apache.hadoop.mapreduce.Mapper;
-
-import java.util.List;
 
 public class VideoFrameTextCombinerTextExtractor implements TextExtractor {
     private static final String NAME = "videoFrameTextCombinerExtractor";

@@ -1,8 +1,8 @@
-package com.altamiracorp.lumify.storm.file;
+package com.altamiracorp.lumify.core.ingest;
 
 import org.apache.hadoop.fs.FileSystem;
 
-public class AdditionalWorkData {
+public class AdditionalArtifactWorkData {
 
     private String mimeType;
     private String fileName;

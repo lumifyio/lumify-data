@@ -1,11 +1,11 @@
 package com.altamiracorp.lumify.storm.image;
 
-import com.altamiracorp.lumify.storm.file.AdditionalWorkData;
-import com.altamiracorp.lumify.textExtraction.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
+import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.image.ImageTextExtractionWorker;
+import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.textExtraction.ImageOcrTextExtractor;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
-import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
 
 import javax.imageio.ImageIO;
@@ -13,17 +13,22 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class TextExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalWorkData> {
+public class ImageTextExtractorWorker extends ImageTextExtractionWorker {
 
     private ImageOcrTextExtractor imageOcrTextExtractor;
 
     @Override
-    protected ArtifactExtractedInfo doWork(InputStream work, AdditionalWorkData data) throws Exception {
+    protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
         ArtifactExtractedInfo info = imageOcrTextExtractor.extractFromImage(getImage(work));
+        if (info == null) {
+            return null;
+        }
         HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(data.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
 
-        try{
-            textOut.write(info.getText().getBytes());
+        try {
+            if (info.getText() != null) {
+                textOut.write(info.getText().getBytes());
+            }
         } finally {
             textOut.close();
         }
@@ -41,7 +46,7 @@ public class TextExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactEx
     }
 
     @Inject
-    public void setImageOcrTextExtractor (ImageOcrTextExtractor imageOcrTextExtractor) {
+    public void setImageOcrTextExtractor(ImageOcrTextExtractor imageOcrTextExtractor) {
         this.imageOcrTextExtractor = imageOcrTextExtractor;
     }
 }

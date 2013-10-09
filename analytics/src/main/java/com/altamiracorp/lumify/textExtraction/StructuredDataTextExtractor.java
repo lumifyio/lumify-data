@@ -1,13 +1,12 @@
 package com.altamiracorp.lumify.textExtraction;
 
+import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
-import com.altamiracorp.lumify.structuredDataExtraction.StructuredDataExtractorBase;
 import com.altamiracorp.lumify.structuredDataExtraction.StructuredDataFactory;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.google.inject.Injector;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.json.JSONObject;
 
 public class StructuredDataTextExtractor implements TextExtractor {
     public static final String NAME = "structuredData";

@@ -1,23 +1,23 @@
 package com.altamiracorp.lumify.storm.document;
 
-import com.altamiracorp.lumify.storm.file.AdditionalWorkData;
-import com.altamiracorp.lumify.textExtraction.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
+import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.document.DocumentTextExtractionWorker;
+import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.textExtraction.TikaTextExtractor;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
-import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
-class TextExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalWorkData> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TextExtractorWorker.class.getName());
+class DocumentTextExtractorWorker extends DocumentTextExtractionWorker {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentTextExtractorWorker.class.getName());
     private TikaTextExtractor tikaTextExtractor;
 
     @Override
-    protected ArtifactExtractedInfo doWork(InputStream work, AdditionalWorkData data) throws Exception {
+    protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
         HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(data.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
         ArtifactExtractedInfo info;
         try {

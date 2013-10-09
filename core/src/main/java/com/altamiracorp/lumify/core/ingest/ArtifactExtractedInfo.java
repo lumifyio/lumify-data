@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.textExtraction;
+package com.altamiracorp.lumify.core.ingest;
 
 import org.json.JSONObject;
 
@@ -19,6 +19,9 @@ public class ArtifactExtractedInfo {
     private String textRowKey;
 
     public void mergeFrom(ArtifactExtractedInfo artifactExtractedInfo) {
+        if (artifactExtractedInfo == null) {
+            return;
+        }
         for (Map.Entry<String, Object> prop : artifactExtractedInfo.properties.entrySet()) {
             this.properties.put(prop.getKey(), prop.getValue());
         }

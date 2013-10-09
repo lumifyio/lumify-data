@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.textExtraction;
 
+import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;

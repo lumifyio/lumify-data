@@ -21,7 +21,11 @@ public abstract class BaseTextProcessingBolt extends BaseLumifyBolt {
         } else {
             String artifactRowKey = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
             Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, getUser());
-            textIn = new ByteArrayInputStream(artifact.getMetadata().getText().getBytes());
+            String text = artifact.getMetadata().getText();
+            if (text == null) {
+                text = "";
+            }
+            textIn = new ByteArrayInputStream(text.getBytes());
         }
         return textIn;
     }

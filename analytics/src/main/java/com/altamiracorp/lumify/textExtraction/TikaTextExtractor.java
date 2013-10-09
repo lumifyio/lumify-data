@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.textExtraction;
 
+import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.textExtraction.util.GenericDateExtractor;
 import com.altamiracorp.lumify.textExtraction.util.TikaMetadataUtils;
 import com.google.inject.Inject;
