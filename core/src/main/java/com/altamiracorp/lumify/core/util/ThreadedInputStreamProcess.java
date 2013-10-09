@@ -3,7 +3,6 @@ package com.altamiracorp.lumify.core.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +31,7 @@ public class ThreadedInputStreamProcess<T, TData> {
         }
     }
 
-    public List<ThreadedTeeInputStreamWorker.WorkResult<T>> doWork(InputStream source, TData data) throws IOException {
+    public List<ThreadedTeeInputStreamWorker.WorkResult<T>> doWork(InputStream source, TData data) throws Exception {
         TeeInputStream teeInputStream = new TeeInputStream(source, this.workers.length);
         try {
             for (int i = 0; i < this.workers.length; i++) {

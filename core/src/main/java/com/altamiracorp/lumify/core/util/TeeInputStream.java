@@ -44,7 +44,7 @@ public class TeeInputStream {
         this.tempFile.delete();
     }
 
-    public void loopUntilTeesAreClosed() {
+    public void loopUntilTeesAreClosed() throws Exception {
         boolean allClosed = false;
         while (!allClosed) {
             allClosed = true;
@@ -58,11 +58,7 @@ public class TeeInputStream {
         }
     }
 
-    protected void loop() {
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+    protected void loop() throws Exception {
+        Thread.sleep(100);
     }
 }

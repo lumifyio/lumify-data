@@ -38,6 +38,44 @@ public class TeeInputStreamTest {
         in.close();
     }
 
+    @Test
+    public void testLoopUntilTeesAreClosed() throws Exception {
+        final byte[] data = createMockData(10);
+        InputStream source = new ByteArrayInputStream(data);
+        TeeInputStream in = new TeeInputStream(source, 2) {
+            int loopCount = 0;
+
+            @Override
+            protected void loop() throws Exception {
+                byte[] temp = new byte[10];
+                int read;
+
+                super.loop();
+                switch (loopCount) {
+                    case 0:
+                        read = getTees()[0].read(temp);
+                        assertEquals(10, read);
+                        assertArrayEquals(data, temp);
+                        break;
+                    case 1:
+                        read = getTees()[1].read(temp);
+                        assertEquals(10, read);
+                        assertArrayEquals(data, temp);
+                        break;
+                    case 2:
+                        getTees()[0].close();
+                        break;
+                    case 3:
+                        getTees()[1].close();
+                        break;
+                }
+                loopCount++;
+            }
+        };
+
+        in.loopUntilTeesAreClosed();
+    }
+
     private byte[] createMockData(int len) {
         byte[] data = new byte[len];
         for (int i = 0; i < len; i++) {
