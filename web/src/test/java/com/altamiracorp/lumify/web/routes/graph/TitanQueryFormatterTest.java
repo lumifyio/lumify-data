@@ -1,10 +1,10 @@
 package com.altamiracorp.lumify.web.routes.graph;
 
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.TitanGraphVertex;
 import com.altamiracorp.lumify.model.TitanQueryFormatter;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.Property;
-import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.web.routes.RouteTestBase;
 import com.google.common.collect.Lists;
 import com.tinkerpop.blueprints.Graph;
@@ -81,6 +81,7 @@ public class TitanQueryFormatterTest extends RouteTestBase {
         List<GraphVertex> filteredVertices = runFilter(filterJson);
         assertFilteredCorrectly(filteredVertices, "person1");
     }
+
     @Test
     public void testFilter_date_isAfterEqual() throws Exception {
         JSONArray filterJson =
