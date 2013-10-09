@@ -5,10 +5,10 @@ import org.apache.commons.io.input.ProxyInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class IsCloseInputStream extends ProxyInputStream {
+public class IsClosedInputStream extends ProxyInputStream {
     private boolean closed;
 
-    public IsCloseInputStream(InputStream source) {
+    public IsClosedInputStream(InputStream source) {
         super(source);
         closed = false;
     }

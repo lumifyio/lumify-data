@@ -36,7 +36,7 @@ public class ThreadedInputStreamProcess<T, TData> {
         TeeInputStream teeInputStream = new TeeInputStream(source, this.workers.length);
         try {
             for (int i = 0; i < this.workers.length; i++) {
-                this.workers[i].enqueueWork(teeInputStream.getTee(i), data);
+                this.workers[i].enqueueWork(teeInputStream.getTees()[i], data);
             }
             teeInputStream.loopUntilTeesAreClosed();
         } finally {

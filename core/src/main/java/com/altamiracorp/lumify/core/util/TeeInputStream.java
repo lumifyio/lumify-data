@@ -5,16 +5,16 @@ import org.apache.commons.io.IOUtils;
 import java.io.*;
 
 public class TeeInputStream {
-    private IsCloseInputStream[] tees;
+    private IsClosedInputStream[] tees;
     private File tempFile;
 
     // TODO: this can be made faster by not writing to a file first and caching the data in memory.
     public TeeInputStream(InputStream source, int splits) throws IOException {
-        this.tees = new IsCloseInputStream[splits];
+        this.tees = new IsClosedInputStream[splits];
 
         copySourceToFile(source);
         for (int i = 0; i < this.tees.length; i++) {
-            this.tees[i] = new IsCloseInputStream(new FileInputStream(this.tempFile));
+            this.tees[i] = new IsClosedInputStream(new FileInputStream(this.tempFile));
         }
     }
 
@@ -28,8 +28,8 @@ public class TeeInputStream {
         }
     }
 
-    public InputStream getTee(int idx) {
-        return this.tees[idx];
+    public InputStream[] getTees() {
+        return this.tees;
     }
 
     private boolean isClosed(int idx) {
@@ -58,7 +58,11 @@ public class TeeInputStream {
         }
     }
 
-    public void loop() {
-
+    protected void loop() {
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
