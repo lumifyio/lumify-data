@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.storm.document;
+package com.altamiracorp.lumify.storm.file;
 
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.altamiracorp.lumify.textExtraction.ArtifactExtractedInfo;
@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
-class HashCalculationWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalWorkData> {
+public class HashCalculationWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalWorkData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(HashCalculationWorker.class.getName());
 
     @Override

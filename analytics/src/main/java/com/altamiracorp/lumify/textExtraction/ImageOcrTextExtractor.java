@@ -16,7 +16,7 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 
-public class ImageOcrTextExtractor implements TextExtractor {
+public class ImageOcrTextExtractor {
     private static final String NAME = "imageOCRExtractor";
     private static final List<String> ICON_MIME_TYPES = Arrays.asList(new String[]{"image/x-icon", "image/vnd.microsoft.icon"});
     private ArtifactRepository artifactRepository;
@@ -27,50 +27,33 @@ public class ImageOcrTextExtractor implements TextExtractor {
     public ImageOcrTextExtractor(ArtifactRepository artifactRepository, VideoFrameRepository videoFrameRepository) {
         this.artifactRepository = artifactRepository;
         this.videoFrameRepository = videoFrameRepository;
-    }
-
-    @Override
-    public void setup(Mapper.Context context, Injector injector) {
         tesseract = Tesseract.getInstance();
     }
 
-    @Override
-    public ArtifactExtractedInfo extract(Artifact artifact, User user) throws Exception {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        if (artifact.getType() != ArtifactType.IMAGE) {
-//            return null;
-//        }
-//
+    public ArtifactExtractedInfo extractFromImage(BufferedImage image) throws Exception {
+//        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
 //        if (isIcon(artifact)) {
 //            return null;
-//        }
-//
-//        BufferedImage image = artifactRepository.getRawAsImage(artifact, user);
-//        if (image == null) {
-//            return null;
-//        }
-//        String ocrResults = extractTextFromImage(image);
-//        if (ocrResults == null) {
-//            return null;
-//        }
-//        ArtifactExtractedInfo extractedInfo = new ArtifactExtractedInfo();
-//        extractedInfo.setText(ocrResults);
-//        return extractedInfo;
-    }
-
-    @Override
-    public VideoFrameExtractedInfo extract(VideoFrame videoFrame, User user) throws Exception {
-        BufferedImage image = videoFrameRepository.loadImage(videoFrame, user);
+//       }
         String ocrResults = extractTextFromImage(image);
         if (ocrResults == null) {
             return null;
         }
-        VideoFrameExtractedInfo extractedInfo = new VideoFrameExtractedInfo();
+        ArtifactExtractedInfo extractedInfo = new ArtifactExtractedInfo();
         extractedInfo.setText(ocrResults);
         return extractedInfo;
     }
 
-    @Override
+    public VideoFrameExtractedInfo extractFromVideoFrame(BufferedImage videoFrame) throws Exception {
+        ArtifactExtractedInfo info = extractFromImage(videoFrame);
+        if (info == null) {
+            return null;
+        }
+        VideoFrameExtractedInfo extractedInfo = new VideoFrameExtractedInfo();
+        extractedInfo.setText(info.getText());
+        return extractedInfo;
+    }
+
     public String getName() {
         return NAME;
     }

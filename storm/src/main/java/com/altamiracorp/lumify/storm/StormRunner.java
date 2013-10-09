@@ -11,6 +11,7 @@ import backtype.storm.utils.Utils;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
+import com.altamiracorp.lumify.storm.image.ImageBolt;
 import com.altamiracorp.lumify.storm.termExtraction.TermExtractionBolt;
 import com.altamiracorp.lumify.storm.textHighlighting.TextHighlightingBolt;
 import org.apache.accumulo.core.util.CachedConfiguration;
@@ -133,7 +134,7 @@ public class StormRunner extends CommandLineBase {
     private void createImageTopology(TopologyBuilder builder, TopologyConfig topologyConfig) {
         String queueName = "image";
         builder.setSpout(queueName, topologyConfig.getImageSpout(), 1);
-        builder.setBolt("debug-" + queueName, new DebugBolt(queueName), 1)
+        builder.setBolt(queueName + "-bolt", new ImageBolt(), 1)
                 .shuffleGrouping(queueName);
     }
 

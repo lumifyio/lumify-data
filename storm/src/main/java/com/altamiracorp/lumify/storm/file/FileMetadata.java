@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.storm.document;
+package com.altamiracorp.lumify.storm.file;
 
 public class FileMetadata {
     private String fileName;

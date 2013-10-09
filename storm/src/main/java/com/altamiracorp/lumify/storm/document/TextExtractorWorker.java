@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.storm.document;
 
+import com.altamiracorp.lumify.storm.file.AdditionalWorkData;
 import com.altamiracorp.lumify.textExtraction.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.textExtraction.TikaTextExtractor;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;

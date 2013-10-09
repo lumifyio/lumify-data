@@ -1,8 +1,8 @@
-package com.altamiracorp.lumify.storm.document;
+package com.altamiracorp.lumify.storm.file;
 
 import org.apache.hadoop.fs.FileSystem;
 
-class AdditionalWorkData {
+public class AdditionalWorkData {
 
     private String mimeType;
     private String fileName;
