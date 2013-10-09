@@ -3,9 +3,9 @@ class macro {
     $hiera_proxy_url = hiera('proxy_url', nil)
 
     if ($hiera_proxy_url != nil) {
-      $curl_options = "'${url}' -s -L -o ${path} --proxy ${hiera_proxy_url}"
+      $curl_options = "'${url}' -s -L --fail -o ${path} --proxy ${hiera_proxy_url}"
     } else {
-      $curl_options = "'${url}' -s -L -o ${path}"
+      $curl_options = "'${url}' -s -L --fail -o ${path}"
     }
 
     exec { "download-${url}" :
