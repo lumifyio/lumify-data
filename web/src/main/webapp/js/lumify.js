@@ -36,8 +36,12 @@ function(compose, registry, advice, withLogging, debug, _, Visibility) {
     $.fn.datepicker.defaults.format = "yyyy-mm-dd";
 
     debug.enable(true);
+
+    // Uncomment to enable logging of on, off, trigger events
     //DEBUG.events.logAll();
-    DEBUG.events.logByAction('trigger');
+
+    // Uncomment to enable logging of trigger events
+    //DEBUG.events.logByAction('trigger');
 
     Visibility.attachTo(document);
 
