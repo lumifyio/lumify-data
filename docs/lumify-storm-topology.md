@@ -28,7 +28,7 @@ The required topics are: text, video, and image
 ## Running the Topology
 
 ### Create Topology Jar ###
-1. Run ```bin/storm-local.sh```
+1. Run ```bin/stormLocal.sh```
 2. Generate the topology jar with: ```storm/clusterbuild.sh```
 
 ### Topology Execution ###
