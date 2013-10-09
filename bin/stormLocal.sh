@@ -21,6 +21,7 @@ else
 fi
 
 java \
+-Xmx512m \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 com.altamiracorp.lumify.storm.StormRunner \
