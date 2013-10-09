@@ -3411,8 +3411,8 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
 		// init zoom bounds
 		if( $$.is.number(options.minZoom) && $$.is.number(options.maxZoom) && options.minZoom < options.maxZoom ){
-			this._private.minZoom = options.minZoom;
-			this._private.maxZoom = options.maxZoom;
+            this._private.originalMinZoom = this._private.minZoom = options.minZoom;
+			this._private.originalMaxZoom = this._private.maxZoom = options.maxZoom;
 		} else if( $$.is.number(options.minZoom) && options.maxZoom === undefined ){
 			this._private.minZoom = options.minZoom;
 		} else if( $$.is.number(options.maxZoom) && options.minZoom === undefined ){
@@ -4436,9 +4436,15 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 			if( !isNaN(w) && !isNaN(h) ){
 				zoom = Math.min( (w - (padding.l+padding.r))/bb.w, (h - (padding.t+padding.b))/bb.h );
 
-				// crop zoom
-				zoom = zoom > this._private.maxZoom ? this._private.maxZoom : zoom;
-				zoom = zoom < this._private.minZoom ? this._private.minZoom : zoom;
+                // Set min and max zoom to fit all items
+                if (zoom < this._private.minZoom) {
+                    this._private.minZoom = zoom;
+                    this._private.maxZoom = 1 / zoom;
+                } else {
+                    this._private.minZoom = this._private.originalMinZoom;
+                    this._private.maxZoom = this._private.originalMaxZoom;
+                }
+
 
                 this._private.zoom = zoom;
 
