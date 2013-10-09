@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.core.util;
 
+import com.altamiracorp.lumify.core.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 
 public abstract class ThreadedTeeInputStreamWorker<TResult, TData> implements Runnable {

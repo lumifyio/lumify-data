@@ -3,13 +3,19 @@ package com.altamiracorp.lumify.storm.file;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.document.DocumentTextExtractionWorker;
+import com.altamiracorp.lumify.core.ingest.image.ImageTextExtractionWorker;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
+import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+import java.util.Map;
 
-public class HashCalculationWorker extends DocumentTextExtractionWorker {
+public class HashCalculationWorker
+        extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>
+        implements DocumentTextExtractionWorker, ImageTextExtractionWorker {
     private static final Logger LOGGER = LoggerFactory.getLogger(HashCalculationWorker.class.getName());
 
     @Override
@@ -23,5 +29,9 @@ public class HashCalculationWorker extends DocumentTextExtractionWorker {
     @Override
     public String getName() {
         return "hashCalculator";
+    }
+
+    @Override
+    public void prepare(Map stormConf, User user) {
     }
 }

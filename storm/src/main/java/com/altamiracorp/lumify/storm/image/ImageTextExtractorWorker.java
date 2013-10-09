@@ -3,7 +3,9 @@ package com.altamiracorp.lumify.storm.image;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.image.ImageTextExtractionWorker;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
+import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.textExtraction.ImageOcrTextExtractor;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.google.inject.Inject;
@@ -12,8 +14,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
-public class ImageTextExtractorWorker extends ImageTextExtractionWorker {
+public class ImageTextExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData> implements ImageTextExtractionWorker {
 
     private ImageOcrTextExtractor imageOcrTextExtractor;
 
@@ -48,5 +51,9 @@ public class ImageTextExtractorWorker extends ImageTextExtractionWorker {
     @Inject
     public void setImageOcrTextExtractor(ImageOcrTextExtractor imageOcrTextExtractor) {
         this.imageOcrTextExtractor = imageOcrTextExtractor;
+    }
+
+    @Override
+    public void prepare(Map stormConf, User user) {
     }
 }

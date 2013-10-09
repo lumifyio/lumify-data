@@ -1,8 +1,6 @@
 package com.altamiracorp.lumify.core.ingest.image;
 
-import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
-import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import com.altamiracorp.lumify.core.ingest.TextExtractionWorker;
 
-public abstract class ImageTextExtractionWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData> {
+public interface ImageTextExtractionWorker extends TextExtractionWorker {
 }

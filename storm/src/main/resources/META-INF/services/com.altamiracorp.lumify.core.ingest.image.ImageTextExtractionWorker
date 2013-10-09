@@ -1,0 +1,2 @@
+com.altamiracorp.lumify.storm.image.ImageTextExtractorWorker
+com.altamiracorp.lumify.storm.file.HashCalculationWorker
