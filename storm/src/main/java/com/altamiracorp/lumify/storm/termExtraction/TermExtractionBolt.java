@@ -1,9 +1,22 @@
 package com.altamiracorp.lumify.storm.termExtraction;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+
 import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionAdditionalWorkData;
 import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionWorker;
@@ -21,17 +34,6 @@ import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
 import com.google.inject.Inject;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(TermExtractionBolt.class);
@@ -76,7 +78,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         GraphVertex artifactGraphVertex = graphRepository.findVertex(graphVertexId, getUser());
         runTextExtractions(artifactGraphVertex);
 
-        LOGGER.info("emitting value (" + getClass().getName() + "): " + json.toString());
+        LOGGER.info(String.format("Emitting value (%s): %s", getClass().getSimpleName(), json));
         getCollector().emit(new Values(json.toString()));
         getCollector().ack(input);
     }
@@ -153,7 +155,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
     @Override
     public void cleanup() {
-        this.termExtractionStreamProcess.stop();
+        termExtractionStreamProcess.stop();
         super.cleanup();
     }
 
