@@ -4,6 +4,7 @@ class kafka(
   $group = "kafka",
   $installdir = "/opt",
   $home = "/opt/kafka",
+  $bindir = "/opt/kafka/bin",
   $logdir = "/opt/kafka/logs",
   $tmpdir = '/tmp'
 ) {
@@ -121,5 +122,18 @@ class kafka(
     environment => "JAVA_HOME=${java_home}",
     #    unless  => "/usr/bin/test -f ${home}/lib_managed",
     require => Exec["sbt update"],
+  }
+
+  package { "expect" :
+    ensure => present,
+    require => Exec["epel"],
+  }
+
+  file { "$bindir/kafka-create-topic.sh":
+    ensure   => file,
+    source   => "puppet:///modules/kafka/kafka-create-topic.sh",
+    owner    => "root",
+    group    => "root",
+    force    => true,
   }
 }
