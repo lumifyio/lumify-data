@@ -7,6 +7,7 @@ import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.TextExtractionWorker;
 import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
@@ -23,8 +24,10 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
 
@@ -44,7 +47,27 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
         } catch (IOException e) {
             collector.reportError(e);
         }
+
+        List<ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>> workers = new ArrayList<ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>>();
+
+        ServiceLoader services = getServiceLoader();
+        for (Object service : services) {
+            LOGGER.info("adding class " + service.getClass().getName() + " to " + getClass().getName());
+            inject(service);
+        }
+        for (Object service : services) {
+            ((TextExtractionWorker) service).prepare(stormConf, getUser());
+        }
+        for (Object service : services) {
+            workers.add((ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>) service);
+        }
+
+        setThreadedInputStreamProcess(new ThreadedInputStreamProcess<ArtifactExtractedInfo, AdditionalArtifactWorkData>(getThreadPrefix(), workers));
     }
+
+    protected abstract String getThreadPrefix();
+
+    protected abstract ServiceLoader getServiceLoader();
 
     @Override
     public void cleanup() {
