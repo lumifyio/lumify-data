@@ -13,7 +13,7 @@ import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.image.ImageBolt;
 import com.altamiracorp.lumify.storm.termExtraction.TermExtractionBolt;
-import com.altamiracorp.lumify.storm.textHighlighting.TextHighlightingBolt;
+import com.altamiracorp.lumify.storm.textHighlighting.ArtifactHighlightingBolt;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -119,7 +119,7 @@ public class StormRunner extends CommandLineBase {
         createImageTopology(builder, topologyConfig);
         createDocumentTopology(builder, topologyConfig);
         createTextTopology(builder);
-        createTermTopology(builder);
+        createArtifactHighlightingTopology(builder);
 
         return builder.createTopology();
     }
@@ -157,16 +157,13 @@ public class StormRunner extends CommandLineBase {
         builder.setSpout("text", new KafkaSpout(spoutConfig), 1);
         builder.setBolt("textTermExtractionBolt", new TermExtractionBolt(), 1)
                 .shuffleGrouping("text");
-        builder.setBolt("textHighlightingBolt", new TextHighlightingBolt(), 1)
-                .shuffleGrouping("textTermExtractionBolt");
     }
 
-    private void createTermTopology(TopologyBuilder builder) {
-        String queueName = "term";
-        SpoutConfig spoutConfig = createSpoutConfig("term", null);
-        builder.setSpout(queueName, new KafkaSpout(spoutConfig), 1);
-        builder.setBolt(queueName + "-bolt", new DebugBolt("term"), 1)
-                .shuffleGrouping(queueName);
+    private void createArtifactHighlightingTopology(TopologyBuilder builder) {
+        SpoutConfig spoutConfig = createSpoutConfig("artifactHighlight", null);
+        builder.setSpout("artifactHighlightSpout", new KafkaSpout(spoutConfig), 1);
+        builder.setBolt("artifactHighlightBolt", new ArtifactHighlightingBolt(), 1)
+                .shuffleGrouping("artifactHighlightSpout");
     }
 
     private SpoutConfig createSpoutConfig(String queueName, Scheme scheme) {

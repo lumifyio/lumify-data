@@ -1,9 +1,9 @@
 package com.altamiracorp.lumify.storm.termExtraction;
 
 import com.altamiracorp.lumify.config.ConfigurationHelper;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionAdditionalWorkData;
 import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionWorker;
-import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedAdditionalWorkData;
-import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.entityExtraction.OpenNlpMaximumEntropyEntityExtractor;
 import com.google.inject.Inject;
@@ -18,7 +18,7 @@ public class OpenNlpMaximumEntropyEntityExtractorWorker extends TermExtractionWo
     private OpenNlpMaximumEntropyEntityExtractor openNlpMaximumEntropyEntityExtractor;
 
     @Override
-    protected TextExtractedInfo doWork(InputStream work, TextExtractedAdditionalWorkData textExtractedAdditionalWorkData) throws Exception {
+    protected TermExtractionResult doWork(InputStream work, TermExtractionAdditionalWorkData termExtractionAdditionalWorkData) throws Exception {
         return openNlpMaximumEntropyEntityExtractor.extract(work);
     }
 

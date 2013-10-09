@@ -14,6 +14,8 @@ sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/term"
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/video/0"
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/video"
+sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/artifactHighlight/0"
+sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/artifactHighlight"
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics"
 
 /opt/start.sh kafka
@@ -23,4 +25,5 @@ sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics"
 /opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka document
 /opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka term
 /opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka video
+/opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka artifactHighlight
 

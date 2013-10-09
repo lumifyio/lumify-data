@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.storm.termExtraction;
 
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionAdditionalWorkData;
 import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionWorker;
-import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedAdditionalWorkData;
-import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.google.inject.Inject;
@@ -14,10 +14,10 @@ public class SearchWorker extends TermExtractionWorker {
     private SearchProvider searchProvider;
 
     @Override
-    protected TextExtractedInfo doWork(InputStream work, TextExtractedAdditionalWorkData textExtractedAdditionalWorkData) throws Exception {
-        TextExtractedInfo textExtractedInfo = new TextExtractedInfo();
-        searchProvider.add(textExtractedAdditionalWorkData.getGraphVertex(), work);
-        return textExtractedInfo;
+    protected TermExtractionResult doWork(InputStream work, TermExtractionAdditionalWorkData termExtractionAdditionalWorkData) throws Exception {
+        TermExtractionResult termExtractionResult = new TermExtractionResult();
+        searchProvider.add(termExtractionAdditionalWorkData.getGraphVertex(), work);
+        return termExtractionResult;
     }
 
     @Inject

@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class TextHighlightingBolt extends BaseTextProcessingBolt {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TextHighlightingBolt.class.getName());
+public class ArtifactHighlightingBolt extends BaseTextProcessingBolt {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactHighlightingBolt.class.getName());
     private TermMentionRepository termMentionRepository;
     private EntityHighlighter entityHighlighter;
 

@@ -2,7 +2,7 @@ package com.altamiracorp.lumify.core.ingest.termExtraction;
 
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 
-public class TextExtractedAdditionalWorkData {
+public class TermExtractionAdditionalWorkData {
 
     private GraphVertex graphVertex;
 

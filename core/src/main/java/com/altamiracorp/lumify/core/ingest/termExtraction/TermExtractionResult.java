@@ -3,7 +3,7 @@ package com.altamiracorp.lumify.core.ingest.termExtraction;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TextExtractedInfo {
+public class TermExtractionResult {
     private List<TermMention> termMentions = new ArrayList<TermMention>();
 
     public void add(TermMention termMention) {
@@ -14,7 +14,7 @@ public class TextExtractedInfo {
         this.termMentions.addAll(termMentions);
     }
 
-    public void mergeFrom(TextExtractedInfo result) {
+    public void mergeFrom(TermExtractionResult result) {
         this.termMentions.addAll(result.termMentions);
     }
 

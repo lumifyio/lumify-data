@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.entityExtraction;
 
-import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -32,21 +32,21 @@ public class KnownEntityExtractor {
         loadDictionaries();
     }
 
-    public TextExtractedInfo extract(InputStream textInputStream) throws IOException {
-        TextExtractedInfo textExtractedInfo = new TextExtractedInfo();
+    public TermExtractionResult extract(InputStream textInputStream) throws IOException {
+        TermExtractionResult termExtractionResult = new TermExtractionResult();
         String text = IOUtils.toString(textInputStream); // TODO convert AhoCorasick to use InputStream
         List<OutputResult> searchResults = tree.completeSearch(text, false, true);
         for (OutputResult searchResult : searchResults) {
-            textExtractedInfo.add(outputResultToTermMention(searchResult));
+            termExtractionResult.add(outputResultToTermMention(searchResult));
         }
-        return textExtractedInfo;
+        return termExtractionResult;
     }
 
-    private TextExtractedInfo.TermMention outputResultToTermMention(OutputResult searchResult) {
+    private TermExtractionResult.TermMention outputResultToTermMention(OutputResult searchResult) {
         Match match = (Match) searchResult.getOutput();
         int start = searchResult.getStartIndex();
         int end = searchResult.getLastIndex();
-        return new TextExtractedInfo.TermMention(start, end, match.getEntityTitle(), match.getConceptTitle(), true);
+        return new TermExtractionResult.TermMention(start, end, match.getEntityTitle(), match.getConceptTitle(), true);
     }
 
     private void loadDictionaries() throws IOException {

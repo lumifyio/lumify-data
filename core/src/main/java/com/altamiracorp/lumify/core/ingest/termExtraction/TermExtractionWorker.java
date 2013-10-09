@@ -5,6 +5,6 @@ import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 
 import java.util.Map;
 
-public abstract class TermExtractionWorker extends ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData> {
+public abstract class TermExtractionWorker extends ThreadedTeeInputStreamWorker<TermExtractionResult, TermExtractionAdditionalWorkData> {
     public abstract void prepare(Map conf, User user) throws Exception;
 }

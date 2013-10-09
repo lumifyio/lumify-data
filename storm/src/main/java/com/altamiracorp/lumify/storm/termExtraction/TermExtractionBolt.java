@@ -4,9 +4,9 @@ import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionAdditionalWorkData;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionWorker;
-import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedAdditionalWorkData;
-import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedInfo;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
@@ -35,7 +35,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(TermExtractionBolt.class);
-    private ThreadedInputStreamProcess<TextExtractedInfo, TextExtractedAdditionalWorkData> textExtractionStreamProcess;
+    private ThreadedInputStreamProcess<TermExtractionResult, TermExtractionAdditionalWorkData> termExtractionStreamProcess;
     private TermMentionRepository termMentionRepository;
     private OntologyRepository ontologyRepository;
 
@@ -44,15 +44,15 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         super.prepare(stormConf, context, collector);
 
         try {
-            List<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>> workers = loadWorkers(stormConf);
-            textExtractionStreamProcess = new ThreadedInputStreamProcess<TextExtractedInfo, TextExtractedAdditionalWorkData>("termExtractionBoltWorker", workers);
+            List<ThreadedTeeInputStreamWorker<TermExtractionResult, TermExtractionAdditionalWorkData>> workers = loadWorkers(stormConf);
+            termExtractionStreamProcess = new ThreadedInputStreamProcess<TermExtractionResult, TermExtractionAdditionalWorkData>("termExtractionBoltWorker", workers);
         } catch (Exception ex) {
             collector.reportError(ex);
         }
     }
 
-    private List<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>> loadWorkers(Map stormConf) throws Exception {
-        List<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>> workers = new ArrayList<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>>();
+    private List<ThreadedTeeInputStreamWorker<TermExtractionResult, TermExtractionAdditionalWorkData>> loadWorkers(Map stormConf) throws Exception {
+        List<ThreadedTeeInputStreamWorker<TermExtractionResult, TermExtractionAdditionalWorkData>> workers = new ArrayList<ThreadedTeeInputStreamWorker<TermExtractionResult, TermExtractionAdditionalWorkData>>();
 
         ServiceLoader<TermExtractionWorker> services = ServiceLoader.load(TermExtractionWorker.class);
         for (TermExtractionWorker service : services) {
@@ -82,24 +82,31 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
     }
 
     private void runTextExtractions(GraphVertex artifactGraphVertex) throws Exception {
-        checkNotNull(textExtractionStreamProcess, "textExtractionStreamProcess was not initialized");
+        checkNotNull(termExtractionStreamProcess, "termExtractionStreamProcess was not initialized");
 
         InputStream textIn = getInputStream(artifactGraphVertex);
-        TextExtractedAdditionalWorkData textExtractedAdditionalWorkData = new TextExtractedAdditionalWorkData();
-        textExtractedAdditionalWorkData.setGraphVertex(artifactGraphVertex);
-        List<ThreadedTeeInputStreamWorker.WorkResult<TextExtractedInfo>> results = textExtractionStreamProcess.doWork(textIn, textExtractedAdditionalWorkData);
-        TextExtractedInfo textExtractedInfo = new TextExtractedInfo();
-        mergeTextExtractedInfos(textExtractedInfo, results);
-        saveTextExtractedInfos(artifactGraphVertex.getId(), textExtractedInfo);
+        TermExtractionAdditionalWorkData termExtractionAdditionalWorkData = new TermExtractionAdditionalWorkData();
+        termExtractionAdditionalWorkData.setGraphVertex(artifactGraphVertex);
+        List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> termExtractionResults = termExtractionStreamProcess.doWork(textIn, termExtractionAdditionalWorkData);
+        TermExtractionResult termExtractionResult = new TermExtractionResult();
+        mergeTextExtractedInfos(termExtractionResult, termExtractionResults);
+        List<TermMentionWithGraphVertex> termMentions = saveTermExtractions(artifactGraphVertex.getId(), termExtractionResult.getTermMentions());
+        processTermMentions(termMentions);
+
+        JSONObject artifactHighlightJson = new JSONObject();
+        artifactHighlightJson.put("graphVertexId", artifactGraphVertex.getId());
+        pushOnQueue("artifactHighlight", artifactHighlightJson);
     }
 
-    private void saveTextExtractedInfos(String artifactGraphVertexId, TextExtractedInfo textExtractedInfo) {
-        saveTermMentions(artifactGraphVertexId, textExtractedInfo.getTermMentions());
+    private void processTermMentions(List<TermMentionWithGraphVertex> termMentions) {
+        // TODO: process term mentions. Location extraction, etc
     }
 
-    private void saveTermMentions(String artifactGraphVertexId, List<TextExtractedInfo.TermMention> termMentions) {
-        for (TextExtractedInfo.TermMention termMention : termMentions) {
+    private List<TermMentionWithGraphVertex> saveTermExtractions(String artifactGraphVertexId, List<TermExtractionResult.TermMention> termMentions) {
+        List<TermMentionWithGraphVertex> results = new ArrayList<TermMentionWithGraphVertex>();
+        for (TermExtractionResult.TermMention termMention : termMentions) {
             LOGGER.info("saving term mention \"" + termMention.getSign() + "\" (" + termMention.getStart() + ":" + termMention.getEnd() + ") " + termMention.getOntologyClassUri());
+            GraphVertex vertex = null;
             TermMention termMentionModel = new TermMention(new TermMentionRowKey(artifactGraphVertexId, termMention.getStart(), termMention.getEnd()));
             termMentionModel.getMetadata().setSign(termMention.getSign());
             termMentionModel.getMetadata().setOntologyClassUri(termMention.getOntologyClassUri());
@@ -112,7 +119,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             }
 
             if (termMention.isResolved()) {
-                GraphVertex vertex = graphRepository.findVertexByTitleAndType(termMention.getSign(), VertexType.ENTITY, getUser());
+                vertex = graphRepository.findVertexByTitleAndType(termMention.getSign(), VertexType.ENTITY, getUser());
                 if (vertex == null) {
                     vertex = new InMemoryGraphVertex();
                     vertex.setProperty(PropertyName.TITLE, termMention.getSign());
@@ -129,26 +136,24 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 termMentionModel.getMetadata().setGraphVertexId(resolvedEntityGraphVertexId);
             }
 
-            JSONObject termJson = new JSONObject();
-            termJson.put("rowKey", termMentionModel.getRowKey().toString());
-            pushOnQueue("term", termJson);
-
             termMentionRepository.save(termMentionModel, getUser());
+            results.add(new TermMentionWithGraphVertex(termMentionModel, vertex));
         }
+        return results;
     }
 
-    private void mergeTextExtractedInfos(TextExtractedInfo textExtractedInfo, List<ThreadedTeeInputStreamWorker.WorkResult<TextExtractedInfo>> results) throws Exception {
-        for (ThreadedTeeInputStreamWorker.WorkResult<TextExtractedInfo> result : results) {
+    private void mergeTextExtractedInfos(TermExtractionResult termExtractionResult, List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> results) throws Exception {
+        for (ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult> result : results) {
             if (result.getError() != null) {
                 throw result.getError();
             }
-            textExtractedInfo.mergeFrom(result.getResult());
+            termExtractionResult.mergeFrom(result.getResult());
         }
     }
 
     @Override
     public void cleanup() {
-        this.textExtractionStreamProcess.stop();
+        this.termExtractionStreamProcess.stop();
         super.cleanup();
     }
 
