@@ -43,7 +43,7 @@ public class HdfsLimitOutputStream extends OutputStream {
     @Override
     public void write(int b) throws IOException {
         this.digest.update((byte) b);
-        if (this.smallOutputStream.size() < maxSizeToStore - 1) {
+        if (this.smallOutputStream.size() <= maxSizeToStore - 1) {
             this.smallOutputStream.write(b);
         } else {
             getLargeOutputStream().write(b);
@@ -53,7 +53,7 @@ public class HdfsLimitOutputStream extends OutputStream {
     @Override
     public void write(byte[] b) throws IOException {
         this.digest.update(b);
-        if (this.smallOutputStream.size() < maxSizeToStore - b.length) {
+        if (this.smallOutputStream.size() <= maxSizeToStore - b.length) {
             this.smallOutputStream.write(b);
         } else {
             getLargeOutputStream().write(b);
@@ -63,7 +63,7 @@ public class HdfsLimitOutputStream extends OutputStream {
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
         this.digest.update(b, off, len);
-        if (this.smallOutputStream.size() < maxSizeToStore - len) {
+        if (this.smallOutputStream.size() <= maxSizeToStore - len) {
             this.smallOutputStream.write(b, off, len);
         } else {
             getLargeOutputStream().write(b, off, len);
@@ -79,6 +79,9 @@ public class HdfsLimitOutputStream extends OutputStream {
     }
 
     public byte[] getSmall() {
+        if (hasExceededSizeLimit()) {
+            return null;
+        }
         return this.smallOutputStream.toByteArray();
     }
 
