@@ -1,6 +1,5 @@
 package com.altamiracorp.lumify.core.util;
 
-import com.altamiracorp.lumify.core.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 
 public abstract class ThreadedTeeInputStreamWorker<TResult, TData> implements Runnable {
@@ -22,11 +20,14 @@ public abstract class ThreadedTeeInputStreamWorker<TResult, TData> implements Ru
         stopped = false;
         try {
             while (!stopped) {
-                if (workItems.size() == 0) {
-                    Thread.sleep(100);
-                    continue;
+                Work work;
+                synchronized (workItems) {
+                    if (workItems.size() == 0) {
+                        workItems.wait(1000);
+                        continue;
+                    }
+                    work = workItems.remove();
                 }
-                Work work = workItems.remove();
                 InputStream in = work.getIn();
                 try {
                     TResult result = doWork(in, work.getData());
@@ -49,7 +50,10 @@ public abstract class ThreadedTeeInputStreamWorker<TResult, TData> implements Ru
     protected abstract TResult doWork(InputStream work, TData data) throws Exception;
 
     public void enqueueWork(InputStream in, TData data) {
-        workItems.add(new Work(in, data));
+        synchronized (workItems) {
+            workItems.add(new Work(in, data));
+            workItems.notifyAll();
+        }
     }
 
     public WorkResult<TResult> dequeueResult() {
