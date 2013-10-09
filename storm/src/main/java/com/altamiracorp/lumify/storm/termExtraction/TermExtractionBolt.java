@@ -44,24 +44,28 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         super.prepare(stormConf, context, collector);
 
         try {
-            List<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>> workers = new ArrayList<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>>();
-
-            ServiceLoader<TermExtractionWorker> services = ServiceLoader.load(TermExtractionWorker.class);
-            for (TermExtractionWorker service : services) {
-                LOGGER.info("adding class " + service.getClass().getName() + " to " + getClass().getName());
-                inject(service);
-            }
-            for (TermExtractionWorker service : services) {
-                service.prepare(stormConf, getUser());
-            }
-            for (TermExtractionWorker service : services) {
-                workers.add(service);
-            }
-
-            textExtractionStreamProcess = new ThreadedInputStreamProcess<TextExtractedInfo, TextExtractedAdditionalWorkData>("textBoltWorkers", workers);
+            List<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>> workers = loadWorkers(stormConf);
+            textExtractionStreamProcess = new ThreadedInputStreamProcess<TextExtractedInfo, TextExtractedAdditionalWorkData>("termExtractionBoltWorker", workers);
         } catch (Exception ex) {
             collector.reportError(ex);
         }
+    }
+
+    private List<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>> loadWorkers(Map stormConf) throws Exception {
+        List<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>> workers = new ArrayList<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>>();
+
+        ServiceLoader<TermExtractionWorker> services = ServiceLoader.load(TermExtractionWorker.class);
+        for (TermExtractionWorker service : services) {
+            LOGGER.info("adding class " + service.getClass().getName() + " to " + getClass().getName());
+            inject(service);
+        }
+        for (TermExtractionWorker service : services) {
+            service.prepare(stormConf, getUser());
+        }
+        for (TermExtractionWorker service : services) {
+            workers.add(service);
+        }
+        return workers;
     }
 
     @Override
