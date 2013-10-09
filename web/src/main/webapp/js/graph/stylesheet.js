@@ -71,6 +71,11 @@ define([
                 'background-image': 'data(_glyphIcon)'
             })
 
+            .selector('node.hover')
+            .css({
+                'opacity': 0.6
+            })
+
             .selector(':selected')
             .css({
                 'background-color': '#0088cc',

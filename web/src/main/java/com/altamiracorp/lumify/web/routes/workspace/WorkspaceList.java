@@ -28,11 +28,15 @@ public class WorkspaceList extends BaseRequestHandler {
         User user = getUser(request);
 
         Collection<Workspace> workspaces = workspaceRepository.findAll(user);
-
+        String activeWorkspaceRowKey = (String)request.getSession().getAttribute("activeWorkspace");
+        activeWorkspaceRowKey = activeWorkspaceRowKey != null ? activeWorkspaceRowKey : "";
         JSONArray workspacesJson = new JSONArray();
         for (Workspace workspace : workspaces) {
             JSONObject workspaceJson = workspace.toJson(user);
             if (workspaceJson != null) {
+                if (activeWorkspaceRowKey.equals(workspace.getRowKey().toString())) { //if its the active one
+                    workspaceJson.put("active", true);
+                }
                 workspacesJson.put(workspaceJson);
             }
         }

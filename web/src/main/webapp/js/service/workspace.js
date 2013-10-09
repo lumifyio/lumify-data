@@ -50,6 +50,14 @@ function(ServiceBase) {
         return this._ajaxPost(options);
     };
 
+    WorkspaceService.prototype.copy = function (_rowKey) {
+        var options = {
+            url: 'workspace/' + _rowKey + '/copy'
+        }
+
+        return this._ajaxPost(options);
+    }
+
     WorkspaceService.prototype['delete'] = function(_rowKey) {
         return this._ajaxDelete({
             url: 'workspace/' + encodeURIComponent(_rowKey),

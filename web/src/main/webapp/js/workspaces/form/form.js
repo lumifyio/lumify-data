@@ -31,6 +31,7 @@ define([
             permissionsSelector: '.permissions',
             permissionsRadioSelector: '.popover input',
             deleteSelector: '.delete',
+            copySelector: '.copy',
             removeAccessSelector: '.remove-access'
         });
 
@@ -48,6 +49,9 @@ define([
                 editable: this.editable
             }));
             this.userService.getCurrentUsers().done(this.loadUserPermissionsList.bind(this));
+            this.on('click', {
+                copySelector: this.onCopy
+            });
 
             if (this.editable) {
                 this.setupTypeahead();
@@ -201,6 +205,29 @@ define([
                     self.trigger('workspaceDeleted', { _rowKey:_rowKey });
                 });
         };
+
+        this.onCopy = function (event) {
+            var self = this,
+                _rowKey = this.attr.data._rowKey,
+                $target = $(event.target),
+                previousText = $target.text();
+
+            $target.text('Copying...').attr('disabled', true);
+
+            this.workspaceService['copy'](_rowKey)
+                .fail(function(xhr) {
+                    if (xhr.status === 403) {
+                        // TODO: alert user with error:
+                        // can't delete other users workspaces
+                    }
+                })
+                .always(function () {
+                    $target.text(previousText).removeAttr('disabled');
+                })
+                .done(function(workspace) {
+                    self.trigger(document, 'workspaceCopied', { _rowKey:workspace._rowKey });
+                });
+        }
 
         this.onRevokeAccess = function(event) {
             var list = $(event.target).closest('.permissions-list'),

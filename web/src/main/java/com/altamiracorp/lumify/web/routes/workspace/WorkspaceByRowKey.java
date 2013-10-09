@@ -36,6 +36,7 @@ public class WorkspaceByRowKey extends BaseRequestHandler {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             LOGGER.debug("Successfully found workspace");
+            request.getSession().setAttribute("activeWorkspace", workspaceRowKey);
             final JSONObject resultJSON = workspace.toJson(authUser);
             if (resultJSON == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);

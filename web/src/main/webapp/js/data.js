@@ -80,6 +80,7 @@ define([
             this.on('switchWorkspace', this.onSwitchWorkspace);
             this.on('workspaceDeleted', this.onWorkspaceDeleted);
             this.on('workspaceDeleting', this.onWorkspaceDeleting);
+            this.on('workspaceCopied', this.onWorkspaceCopied);
 
             this.on(document, 'socketMessage', this.onSocketMessage);
 
@@ -367,6 +368,11 @@ define([
             }
         };
 
+        this.onWorkspaceCopied = function (evt, data) {
+            this.id = data._rowKey;
+            this.loadActiveWorkspace();
+        }
+
 
         this.onWorkspaceDeleting = function (evt, data) {
             if (this.id == data._rowKey) {
@@ -506,71 +512,88 @@ define([
                 accept: function(item) {
                     return true;
                 },
+                over: function( event, ui ) {
+                    var draggable = ui.draggable,
+                        start = true,
+                        vertices;
+
+                    draggable.off('drag.droppable-tracking');
+                    draggable.on('drag.droppable-tracking', function(event, draggableUI) {
+                        if (!vertices) {
+                            vertices = verticesFromDraggable(draggable);
+                        }
+                        
+                        ui.helper.toggleClass('draggable-invisible', enabled);
+                        if (enabled) {
+                            self.trigger('verticesHovering', {
+                                vertices: vertices,
+                                start: start,
+                                position: { x: event.pageX, y: event.pageY }
+                            });
+                            start = false;
+                        } else {
+                            self.trigger('verticesHoveringEnded');
+                        }
+                    });
+                },
                 drop: function( event, ui ) {
                     
                     // Early exit if should leave to a different droppable
                     if (!enabled) return;
 
-                    var draggable = ui.draggable,
-                        droppable = $(event.target),
-                        graphVisible = $('.graph-pane').is('.visible'),
-                        alsoDragging = draggable.data('ui-draggable').alsoDragging,
-                        anchors = draggable,
-                        refresh = [];
+                    var vertices = verticesFromDraggable(ui.draggable),
+                        graphVisible = $('.graph-pane').is('.visible');
 
-                    if (alsoDragging && alsoDragging.length) {
-                        anchors = draggable.add(alsoDragging.map(function(i, a) {
-                            return a.data('original');
-                        }));
+                    if (graphVisible && vertices.length) {
+                        vertices[0].workspace.dropPosition = { x: event.clientX, y: event.clientY };
                     }
-                    var vertices = anchors.map(function(i, a) {
-                        a = $(a);
-                        var id = a.data('vertexId') || a.closest('li').data('vertexId');
-                        if (!id) {
-
-                            // Highlighted entities (legacy info)
-                            var info = a.data('info') || a.closest('li').data('info');
-                            if (info && info.graphVertexId) {
-
-                                // TODO: fix on server
-                                if (info.type) {
-                                    info._type = info.type;
-                                    delete info.type;
-                                }
-
-                                self.updateCacheWithVertex({
-                                    id: info.graphVertexId,
-                                    properties: _.omit(info, 'start', 'end', 'graphVertexId')
-                                });
-                                id = info.graphVertexId;
-                            } 
-                            
-                            if (!id) return console.error('No data-vertex-id attribute for draggable element found', a[0]);
-                        }
-
-                        var vertex = self.vertex(id);
-                        if (vertex) {
-                            if (graphVisible && i === 0) {
-                                vertex.workspace.dropPosition = { x: event.clientX, y: event.clientY };
-                            }
-                            return vertex;
-                        } else refresh.push(id);
-                    }).toArray();
 
                     self.workspaceReady(function(ws) {
                         if (ws.isEditable) {
-                            if (refresh.length) {
-                                this.vertexService.getMultiple(refresh).done(function() {
-                                    self.trigger('verticesDropped', { vertices:vertices });
-                                });
-                            } else {
-                                self.trigger('verticesDropped', { vertices:vertices });
-                            }
+                            self.trigger('verticesDropped', { vertices:vertices });
                         }
                     });
-
                 }.bind(this)
             });
+
+            function verticesFromDraggable(draggable) {
+                var alsoDragging = draggable.data('ui-draggable').alsoDragging,
+                    anchors = draggable;
+
+                if (alsoDragging && alsoDragging.length) {
+                    anchors = draggable.add(alsoDragging.map(function(i, a) {
+                        return a.data('original');
+                    }));
+                }
+
+                return anchors.map(function(i, a) {
+                    a = $(a);
+                    var id = a.data('vertexId') || a.closest('li').data('vertexId');
+                    if (!id) {
+
+                        // Highlighted entities (legacy info)
+                        var info = a.data('info') || a.closest('li').data('info');
+                        if (info && info.graphVertexId) {
+
+                            // TODO: fix on server
+                            if (info.type) {
+                                info._type = info.type;
+                                delete info.type;
+                            }
+
+                            self.updateCacheWithVertex({
+                                id: info.graphVertexId,
+                                properties: _.omit(info, 'start', 'end', 'graphVertexId')
+                            });
+                            id = info.graphVertexId;
+                        } 
+                        
+                        if (!id) return console.error('No data-vertex-id attribute for draggable element found', a[0]);
+                    }
+
+                    return self.vertex(id);
+                }).toArray();
+            }
         };
     }
 });

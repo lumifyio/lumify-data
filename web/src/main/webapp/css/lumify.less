@@ -94,7 +94,7 @@ html.fullscreenDetails {
   }
 }
 
-.graph-pane, .map-pane {
+.graph-pane, .map-pane, .dashboard-pane {
   display: none;
   
   &.visible {
@@ -155,6 +155,13 @@ html.fullscreenDetails {
   @import "map/map";
 }
 
+.dashboard-pane {
+  .fullscreen;
+  left: @menubar-width;
+
+  @import "dashboard/dashboard";
+}
+
 .fullscreenApp .detail-pane {
   .right-pane;
   visibility: visible;
@@ -187,4 +194,14 @@ html.fullscreenDetails {
 
 a {
   cursor: pointer;
+}
+
+.ui-draggable-dragging {
+  .opacity(100);
+  .scale(1.0);
+  .transition(~"opacity ease-in-out 0.3s, -webkit-transform ease-in-out 0.3s");
+}
+.draggable-invisible {
+  .opacity(0);
+  .scale(0.1);
 }

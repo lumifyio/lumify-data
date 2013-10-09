@@ -67,6 +67,111 @@ define([
             }
         };
 
+        this.onVerticesHoveringEnded = function(evt, data) {
+            this.cy(function(cy) {
+                cy.$('.hover').remove();
+            });
+        };
+
+        var vertices, idToCyNode;
+        this.onVerticesHovering = function(evt, data) {
+            if (!this.isWorkspaceEditable) return;
+            this.cy(function(cy) {
+                var self = this,
+                    offset = this.$node.offset(),
+                    renderedPosition = retina.pointsToPixels({
+                        x: data.position.x - offset.left,
+                        y: data.position.y - offset.top
+                    }),
+                    start = {
+                        x:renderedPosition.x,
+                        y:renderedPosition.y
+                    },
+                    inc = 350 * cy.zoom(), 
+                    yinc = 200 * cy.zoom(),
+                    width = inc * 4;
+
+                if (data.start) {
+                    idToCyNode = {};
+                    data.vertices.forEach(function(v) {
+                        idToCyNode[v.id] = cy.getElementById(v.id);
+                    });
+
+                    // Sort existing nodes to end, except leave the first
+                    // dragging vertex
+                    vertices = data.vertices.sort(function(a,b) {
+                        var cyA = idToCyNode[a.id], cyB = idToCyNode[b.id];
+                        if (data.vertices[0].id === a.id) return -1;
+                        if (data.vertices[0].id === b.id) return 1;
+                        if (cyA.length && !cyB.length) return 1;
+                        if (cyB.length && !cyA.length) return -1;
+
+                        var titleA = a.properties.title.toLowerCase(),
+                            titleB = b.properties.title.toLowerCase();
+
+                        return titleA < titleB ? -1 : titleB < titleA ? 1 : 0;
+                    });
+                }
+
+                vertices.forEach(function(vertex, i) {
+                    var tempId = 'NEW-' + vertex.id,
+                        node = cy.getElementById(tempId);
+
+                    if (node.length) {
+                        node.renderedPosition(renderedPosition);
+                    } else {
+                        var classes = self.classesForVertex(vertex) + ' hover',
+                            cyNode = idToCyNode[vertex.id];
+
+                        if (cyNode.length) {
+                            classes += ' existing';
+                        }
+
+                        var cyNodeData = {
+                            group: 'nodes',
+                            classes: classes,
+                            data: {
+                                id: tempId,
+                            },
+                            renderedPosition: renderedPosition,
+                            selected: false
+                        };
+                        self.updateCyNodeData(cyNodeData.data, vertex);
+                        cy.add(cyNodeData);
+                    }
+
+                    renderedPosition.x += inc;
+                    if (renderedPosition.x > (start.x + width) || i === 0) {
+                        renderedPosition.x = start.x;
+                        renderedPosition.y += yinc;
+                    }
+                });
+            });
+        };
+
+        this.onVerticesDropped = function(evt, data) {
+            if (!this.isWorkspaceEditable) return;
+            this.cy(function(cy) {
+                var self = this,
+                    vertices = data.vertices, toAdd = [];
+
+                vertices.forEach(function(vertex) {
+                    var node = cy.getElementById('NEW-' + vertex.id);
+                    if (node.hasClass('existing')) {
+                        self.animateToExistingNode(node);
+                    } else {
+                        vertex.workspace.graphPosition = retina.pixelsToPoints(node.position());
+                        toAdd.push(vertex);
+                        node.remove();
+                    }
+                });
+
+                // TODO: center on dropped and existing
+
+                this.trigger('addVertices', { vertices:toAdd });
+            });
+        };
+
         this.onVerticesAdded = function(evt, data) {
             this.addVertices(data.vertices);
         };
@@ -177,12 +282,13 @@ define([
 
                 if (existingNodes.length && cloned && cloned.length) {
                     // Animate to something
-                    this.animateToExistingNode(existingNodes[0], cloned);
+                    //this.animateToExistingNode(existingNodes[0], cloned);
                 } else if (cloned) cloned.remove();
 
                 if (updatedVertices.length) {
                     this.trigger(document, 'updateVertices', { vertices:updatedVertices });
                 } else if (addedVertices.length) {
+                    cy.container().focus();
                     this.trigger(document, 'addVertices', { vertices:addedVertices });
                 }
 
@@ -303,43 +409,29 @@ define([
             this.setWorkspaceDirty();
         };
 
-        this.animateToExistingNode = function(el, cloned) {
+        this.animateToExistingNode = function(cyNode) {
             var self = this,
-                cy = el.cy;
+                cy = cyNode.cy(),
+                toNode = cy.getElementById(cyNode.id().replace(/^NEW-/, ''));
             
-            // FIXME: support multiple dragging
-            var p = retina.pixelsToPoints(el.renderedPosition()),
-                position = cloned.position(),
-                offset = cloned.offset(),
-                graphOffset = this.$node.offset();
-
-            if (cloned.length != 1) return;
-
-            // Is existing element visible (not covered by search/detail panes)
-            this.focusGraphToVertex(el, function() {
-                var p = retina.pixelsToPoints(el.renderedPosition());
-
-                // Adjust rendered position to page coordinate system
-                p.x += graphOffset.left;
-                p.y += graphOffset.top;
-
-                // Move draggable coordinates from top/left to center
-                offset.left += cloned.outerWidth(true) / 2;
-                offset.top += cloned.outerHeight(true) / 2;
-
-                cloned
-                    .animate({
-                        left: (position.left + (p.x-offset.left))  + 'px',
-                        top: (position.top +  (p.y-offset.top)) + 'px'
-                    }, {
-                        complete: function() {
-                            cloned.addClass('shrink');
-                            _.delay(function() { 
-                                cloned.remove(); 
-                            }, 1000); 
+            if (toNode.length) {
+                cyNode
+                    .css('opacity', 1.0)
+                    .stop(true)
+                    .animate(
+                        { 
+                            position: toNode.position() 
+                        }, 
+                        { 
+                            duration: 'slow',
+                            complete: function() {
+                                cyNode.remove(); 
+                            }
                         }
-                    });
-            });
+                    );
+            } else {
+                cyNode.remove();
+            }
         };
 
 
@@ -878,8 +970,10 @@ define([
         this.after('initialize', function() {
             var self = this;
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
+            this.on(document, 'verticesHovering', this.onVerticesHovering);
+            this.on(document, 'verticesHoveringEnded', this.onVerticesHoveringEnded);
             this.on(document, 'verticesAdded', this.onVerticesAdded);
-            this.on(document, 'verticesDropped', this.onVerticesAdded);
+            this.on(document, 'verticesDropped', this.onVerticesDropped);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesSelected', this.onVerticesSelected);

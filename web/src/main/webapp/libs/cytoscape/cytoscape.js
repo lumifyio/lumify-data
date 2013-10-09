@@ -3924,7 +3924,9 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 				}
 
 				if( $$.is.number(start) && $$.is.number(end) ){
-					return start + (end - start) * percent;
+                    var t = percent - 1;
+					           //return start + (end - start) * percent;
+                    return (end - start)*(t*t*t + 1) + start;
 
 				} else if( $$.is.number(start[0]) && $$.is.number(end[0]) ){ // then assume a colour
 					var c1 = start;
@@ -5638,6 +5640,11 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
 				if( dim === undefined ){ // then return the whole rendered position
 					return rpos;
+                } else if ( dim.x && dim.y ) {
+                    return ele.position({
+                        x: (dim.x - pan.x)/zoom,
+                        y: (dim.y - pan.y)/zoom
+                    });
 				} else { // then return the specified dimension
 					return rpos[ dim ];
 				}
