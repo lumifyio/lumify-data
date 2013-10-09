@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -78,6 +79,7 @@ public class ThreadedInputStreamProcessTest {
 
         @Override
         protected byte[] doWork(InputStream work, String s) throws Exception {
+            Thread.sleep(new Random().nextInt(100));
             ByteArrayOutputStream temp = new ByteArrayOutputStream();
             temp.write(prefix.getBytes());
             temp.write(s.getBytes());
