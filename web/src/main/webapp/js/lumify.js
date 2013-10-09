@@ -25,6 +25,7 @@ require([
     // Make jQuery plugins available
     'withinScrollable',
     'flightJquery',
+    'easing',
     'scrollStop',
     'bootstrap-datepicker',
     'removePrefixedClasses'

@@ -3,6 +3,7 @@ var jQueryPlugins = {
   atmosphere: '../libs/jquery.atmosphere/jquery.atmosphere',
   withinScrollable: 'util/jquery.withinScrollable',
   flightJquery: 'util/jquery.flight',
+  easing: '../libs/jquery.easing/js/jquery.easing',
   'bootstrap-datepicker': '../libs/bootstrap-datepicker/js/bootstrap-datepicker',
   removePrefixedClasses: 'util/jquery.removePrefixedClasses',
   scrollStop: '../libs/jquery-scrollstop/jquery.scrollstop',

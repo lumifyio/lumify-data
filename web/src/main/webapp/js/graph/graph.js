@@ -424,6 +424,7 @@ define([
                         }, 
                         { 
                             duration: 'slow',
+                            easing: 'easeOutBack',
                             complete: function() {
                                 cyNode.remove(); 
                             }
@@ -560,7 +561,8 @@ define([
                                     opacity: 1 - ((borderWidth - start) / (end - start) * 0.25)
                                 }
                             }, { 
-                                duration: 1500,
+                                duration: 1200,
+                                easing: 'easeInOutCirc',
                                 complete: function() {
                                     animate(borderWidth === start ? end : start);
                                 } 

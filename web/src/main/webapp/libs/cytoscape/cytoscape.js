@@ -3864,14 +3864,15 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 				if( properties.delay == null ){ // then update the position
 					var startPos = animation.startPosition;
 					var endPos = properties.position;
+                    var easing = params && params.easing;
 					var pos = self._private.position;
 					if( endPos ){
 						if( valid( startPos.x, endPos.x ) ){
-							pos.x = ease( startPos.x, endPos.x, percent );
+							pos.x = ease( startPos.x, endPos.x, percent, easing );
 						}
 
 						if( valid( startPos.y, endPos.y ) ){
-							pos.y = ease( startPos.y, endPos.y, percent );
+							pos.y = ease( startPos.y, endPos.y, percent, easing );
 						}
 					}
 
@@ -3883,7 +3884,7 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
 							if( end !== undefined ){
 								var start = animation.startStyle[ name ];
-								var easedVal = ease( start, end, percent );
+								var easedVal = ease( start, end, percent, easing );
 								
 								style.applyBypass( self, name, easedVal );
 							}
@@ -3916,7 +3917,7 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 				return false;
 			}
 			
-			function ease(start, end, percent){
+			function ease(start, end, percent, easing){
 				if( percent < 0 ){
 					percent = 0;
 				} else if( percent > 1 ){
@@ -3924,9 +3925,22 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 				}
 
 				if( $$.is.number(start) && $$.is.number(end) ){
-                    var t = percent - 1;
-					           //return start + (end - start) * percent;
-                    return (end - start)*(t*t*t + 1) + start;
+
+                    var easingPercent = percent;
+
+                    if (easing && $.easing && $.easing[easing]) {
+                        return $.easing[easing](
+                                percent,     // percent
+                                percent,     // current time
+                                start,       // beginning value
+                                end - start, // change in value
+                                1);          // duration
+                    }
+                    
+                    return start + (end - start) * easingPercent;
+
+                    //var t = percent - 1;
+                    //return (end - start)*(t*t*t + 1) + start;
 
 				} else if( $$.is.number(start[0]) && $$.is.number(end[0]) ){ // then assume a colour
 					var c1 = start;
