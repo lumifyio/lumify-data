@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.model.ontology;
 
-import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.tinkerpop.blueprints.Vertex;
 
 import java.util.Set;

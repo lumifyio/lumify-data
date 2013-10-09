@@ -2,7 +2,7 @@ package com.altamiracorp.lumify.web.routes.graph;
 
 import com.altamiracorp.lumify.model.TitanGraphVertex;
 import com.altamiracorp.lumify.model.TitanQueryFormatter;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.Property;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.web.routes.RouteTestBase;

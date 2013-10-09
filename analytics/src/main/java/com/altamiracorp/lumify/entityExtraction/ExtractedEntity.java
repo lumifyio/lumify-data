@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.entityExtraction;
 
-import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 
 public class ExtractedEntity {

@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.entityExtraction;
 
+import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedInfo;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.AccumuloSession;
 import opennlp.tools.namefind.TokenNameFinder;

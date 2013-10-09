@@ -1,6 +1,6 @@
-package com.altamiracorp.lumify.storm.termExtraction;
+package com.altamiracorp.lumify.core.ingest.termExtraction;
 
-import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 
 public class TextExtractedAdditionalWorkData {
 

@@ -1,10 +1,11 @@
 package com.altamiracorp.lumify.model.graph;
 
-import com.altamiracorp.lumify.model.ontology.PropertyName;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class GraphRelationship {
     private final String id;

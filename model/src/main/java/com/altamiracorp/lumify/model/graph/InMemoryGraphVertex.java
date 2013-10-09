@@ -1,5 +1,7 @@
 package com.altamiracorp.lumify.model.graph;
 
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+
 import java.util.HashMap;
 import java.util.Set;
 

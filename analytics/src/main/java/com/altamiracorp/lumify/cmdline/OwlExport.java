@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.cmdline;
 
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.ontology.*;
 import com.google.inject.Inject;

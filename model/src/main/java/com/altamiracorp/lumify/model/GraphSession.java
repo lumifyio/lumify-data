@@ -2,11 +2,11 @@ package com.altamiracorp.lumify.model;
 
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphRelationship;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.Concept;
 import com.altamiracorp.lumify.model.ontology.Property;
 import com.altamiracorp.lumify.model.ontology.PropertyType;
-import com.altamiracorp.lumify.model.ontology.VertexType;
+import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;

@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.model.search;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import org.apache.hadoop.mapreduce.Mapper;
 

@@ -1,13 +1,16 @@
 package com.altamiracorp.lumify.storm.termExtraction;
 
-import com.altamiracorp.lumify.entityExtraction.TextExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionWorker;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedAdditionalWorkData;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedInfo;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.search.SearchProvider;
-import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
 
 import java.io.InputStream;
+import java.util.Map;
 
-class SearchWorker extends ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData> {
+public class SearchWorker extends TermExtractionWorker {
     private SearchProvider searchProvider;
 
     @Override
@@ -20,5 +23,9 @@ class SearchWorker extends ThreadedTeeInputStreamWorker<TextExtractedInfo, TextE
     @Inject
     public void setSearchProvider(SearchProvider searchProvider) {
         this.searchProvider = searchProvider;
+    }
+
+    @Override
+    public void prepare(Map conf, User user) throws Exception {
     }
 }

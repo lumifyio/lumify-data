@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.model.ontology;
 
-import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.tinkerpop.blueprints.Vertex;
 import org.json.JSONException;
 import org.json.JSONObject;

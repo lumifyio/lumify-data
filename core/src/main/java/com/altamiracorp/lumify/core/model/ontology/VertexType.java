@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.model.ontology;
+package com.altamiracorp.lumify.core.model.ontology;
 
 public enum VertexType {
     CONCEPT("concept"),

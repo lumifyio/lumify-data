@@ -1,16 +1,19 @@
 package com.altamiracorp.lumify.storm.termExtraction;
 
+import com.altamiracorp.lumify.config.ConfigurationHelper;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionWorker;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedAdditionalWorkData;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedInfo;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.entityExtraction.KnownEntityExtractor;
-import com.altamiracorp.lumify.entityExtraction.TextExtractedInfo;
-import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 
-class KnownEntityExtractorWorker extends ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData> {
+public class KnownEntityExtractorWorker extends TermExtractionWorker {
     private KnownEntityExtractor knownEntityExtractor;
 
     @Override
@@ -18,9 +21,9 @@ class KnownEntityExtractorWorker extends ThreadedTeeInputStreamWorker<TextExtrac
         return knownEntityExtractor.extract(work);
     }
 
-    public KnownEntityExtractorWorker prepare(Configuration configuration, User user) throws IOException {
+    public void prepare(Map conf, User user) throws IOException {
+        Configuration configuration = ConfigurationHelper.createHadoopConfigurationFromMap(conf);
         knownEntityExtractor.prepare(configuration, user);
-        return this;
     }
 
     @Inject

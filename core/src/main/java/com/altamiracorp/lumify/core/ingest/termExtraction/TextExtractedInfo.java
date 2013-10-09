@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.entityExtraction;
+package com.altamiracorp.lumify.core.ingest.termExtraction;
 
 import java.util.ArrayList;
 import java.util.List;

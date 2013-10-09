@@ -5,7 +5,7 @@ import com.altamiracorp.lumify.entityHighlight.EntityHighlightWorker;
 import com.altamiracorp.lumify.entityHighlight.EntityHighlighter;
 import com.altamiracorp.lumify.entityHighlight.TermMentionOffsetItem;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.ontology.LabelName;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;

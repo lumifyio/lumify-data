@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.model.ontology;
 
-import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.json.JSONArray;
 import org.json.JSONException;

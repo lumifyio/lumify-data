@@ -1,49 +1,17 @@
 package com.altamiracorp.lumify.model;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeMap;
-
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.json.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.graph.GraphGeoLocation;
 import com.altamiracorp.lumify.model.graph.GraphRelationship;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.model.ontology.Concept;
-import com.altamiracorp.lumify.model.ontology.LabelName;
-import com.altamiracorp.lumify.model.ontology.Property;
-import com.altamiracorp.lumify.model.ontology.PropertyName;
-import com.altamiracorp.lumify.model.ontology.PropertyType;
-import com.altamiracorp.lumify.model.ontology.VertexProperty;
-import com.altamiracorp.lumify.model.ontology.VertexType;
+import com.altamiracorp.lumify.model.ontology.*;
 import com.altamiracorp.lumify.model.query.utils.LuceneTokenizer;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.google.common.base.Preconditions;
-import com.thinkaurelius.titan.core.TitanFactory;
-import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.TitanGraphQuery;
-import com.thinkaurelius.titan.core.TitanKey;
-import com.thinkaurelius.titan.core.TitanType;
-import com.thinkaurelius.titan.core.TypeMaker;
+import com.thinkaurelius.titan.core.*;
 import com.thinkaurelius.titan.core.attribute.Geo;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.thinkaurelius.titan.core.attribute.Text;
@@ -54,6 +22,19 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import com.tinkerpop.pipes.PipeFunction;
 import com.tinkerpop.pipes.branch.LoopPipe;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.json.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TitanGraphSession extends GraphSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(TitanGraphSession.class);
@@ -109,7 +90,7 @@ public class TitanGraphSession extends GraphSession {
     public String save(GraphVertex vertex, User user) {
         Vertex v = null;
         if (vertex instanceof TitanGraphVertex) {
-            commit ();
+            commit();
             return vertex.getId(); // properties are already set
         }
 
@@ -340,7 +321,7 @@ public class TitanGraphSession extends GraphSession {
         final List<GraphVertex> relatedVertices = Lists.newArrayList();
         final Vertex vertex = graph.getVertex(graphVertexId);
 
-        if( vertex != null ) {
+        if (vertex != null) {
             final GremlinPipeline<Vertex, Vertex> adjVerticesPipeline = new GremlinPipeline<Vertex, Vertex>(vertex);
             adjVerticesPipeline.both();
 
@@ -409,7 +390,7 @@ public class TitanGraphSession extends GraphSession {
         List<GraphVertex> vertices = Lists.newArrayList();
         final List<String> tokens = LuceneTokenizer.standardTokenize(title);
 
-        if( !tokens.isEmpty() ) {
+        if (!tokens.isEmpty()) {
             final TitanGraphQuery query = generateTitleQuery(tokens);
 
             final GremlinPipeline<Vertex, Vertex> queryPipeline = queryFormatter.createQueryPipeline(query.vertices(), filterJson);
@@ -442,7 +423,7 @@ public class TitanGraphSession extends GraphSession {
         List<GraphVertex> vertices = Lists.newArrayList();
         final List<String> tokens = LuceneTokenizer.standardTokenize(title);
 
-        if( !tokens.isEmpty() ) {
+        if (!tokens.isEmpty()) {
             final TitanGraphQuery query = generateTitleQuery(tokens);
             query.has(PropertyName.TYPE.toString(), type.toString());
 
@@ -666,8 +647,8 @@ public class TitanGraphSession extends GraphSession {
     private class GraphRelationshipDateComparator implements Comparator<GraphRelationship> {
         @Override
         public int compare(GraphRelationship rel1, GraphRelationship rel2) {
-            Long e1Date = (Long)rel1.getProperty(PropertyName.TIME_STAMP.toString());
-            Long e2Date = (Long)rel2.getProperty(PropertyName.TIME_STAMP.toString());
+            Long e1Date = (Long) rel1.getProperty(PropertyName.TIME_STAMP.toString());
+            Long e2Date = (Long) rel2.getProperty(PropertyName.TIME_STAMP.toString());
             if (e1Date == null || e2Date == null) {
                 return 1;
             }

@@ -1,17 +1,20 @@
 package com.altamiracorp.lumify.storm.termExtraction;
 
+import com.altamiracorp.lumify.config.ConfigurationHelper;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionWorker;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedAdditionalWorkData;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedInfo;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.entityExtraction.OpenNlpDictionaryEntityExtractor;
-import com.altamiracorp.lumify.entityExtraction.TextExtractedInfo;
-import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
 import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.Map;
 
-class OpenNlpDictionaryEntityExtractorWorker extends ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData> {
+public class OpenNlpDictionaryEntityExtractorWorker extends TermExtractionWorker {
     private OpenNlpDictionaryEntityExtractor openNlpDictionaryEntityExtractor;
 
     public OpenNlpDictionaryEntityExtractorWorker() throws Exception {
@@ -22,9 +25,9 @@ class OpenNlpDictionaryEntityExtractorWorker extends ThreadedTeeInputStreamWorke
         return openNlpDictionaryEntityExtractor.extract(work);
     }
 
-    public OpenNlpDictionaryEntityExtractorWorker prepare(Configuration configuration, User user) throws InterruptedException, IOException, URISyntaxException {
+    public void prepare(Map conf, User user) throws InterruptedException, IOException, URISyntaxException {
+        Configuration configuration = ConfigurationHelper.createHadoopConfigurationFromMap(conf);
         openNlpDictionaryEntityExtractor.prepare(configuration, user);
-        return this;
     }
 
     @Inject

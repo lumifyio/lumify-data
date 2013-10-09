@@ -1,7 +1,7 @@
-package com.altamiracorp.lumify.model.graph;
+package com.altamiracorp.lumify.core.model.graph;
 
-import com.altamiracorp.lumify.model.ontology.PropertyName;
-import com.altamiracorp.lumify.model.ontology.VertexType;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.tinkerpop.blueprints.Vertex;
 import org.json.JSONArray;

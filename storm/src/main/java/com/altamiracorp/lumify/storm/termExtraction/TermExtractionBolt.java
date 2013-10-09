@@ -4,19 +4,23 @@ import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import com.altamiracorp.lumify.config.ConfigurationHelper;
-import com.altamiracorp.lumify.entityExtraction.TextExtractedInfo;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionWorker;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedAdditionalWorkData;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TextExtractedInfo;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.VertexType;
+import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
+import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.model.ontology.*;
+import com.altamiracorp.lumify.model.ontology.Concept;
+import com.altamiracorp.lumify.model.ontology.LabelName;
+import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
-import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
-import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
-import org.apache.hadoop.conf.Configuration;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +29,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -39,13 +44,20 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         super.prepare(stormConf, context, collector);
 
         try {
-            Configuration configuration = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
-
             List<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>> workers = new ArrayList<ThreadedTeeInputStreamWorker<TextExtractedInfo, TextExtractedAdditionalWorkData>>();
-            workers.add(inject(new SearchWorker()));
-            workers.add(inject(new OpenNlpMaximumEntropyEntityExtractorWorker()).prepare(configuration, getUser()));
-            workers.add(inject(new OpenNlpDictionaryEntityExtractorWorker()).prepare(configuration, getUser()));
-            workers.add(inject(new KnownEntityExtractorWorker()).prepare(configuration, getUser()));
+
+            ServiceLoader<TermExtractionWorker> services = ServiceLoader.load(TermExtractionWorker.class);
+            for (TermExtractionWorker service : services) {
+                LOGGER.info("adding class " + service.getClass().getName() + " to " + getClass().getName());
+                inject(service);
+            }
+            for (TermExtractionWorker service : services) {
+                service.prepare(stormConf, getUser());
+            }
+            for (TermExtractionWorker service : services) {
+                workers.add(service);
+            }
+
             textExtractionStreamProcess = new ThreadedInputStreamProcess<TextExtractedInfo, TextExtractedAdditionalWorkData>("textBoltWorkers", workers);
         } catch (Exception ex) {
             collector.reportError(ex);

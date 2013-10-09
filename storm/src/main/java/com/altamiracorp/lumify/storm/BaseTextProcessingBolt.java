@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.storm;
 
-import com.altamiracorp.lumify.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import org.apache.commons.io.IOUtils;
 
