@@ -3,7 +3,7 @@ package com.altamiracorp.lumify.storm.termExtraction;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.entityExtraction.OpenNlpMaximumEntropyEntityExtractor;
 import com.altamiracorp.lumify.entityExtraction.TextExtractedInfo;
-import com.altamiracorp.lumify.util.ThreadedTeeInputStreamWorker;
+import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
 import org.apache.hadoop.conf.Configuration;
 

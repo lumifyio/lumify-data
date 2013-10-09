@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.model;
 
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.RowKeyHelper;
 
 import java.io.*;
 import java.util.*;

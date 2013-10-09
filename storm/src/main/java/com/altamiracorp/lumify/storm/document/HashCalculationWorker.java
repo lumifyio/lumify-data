@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.storm.document;
 
-import com.altamiracorp.lumify.model.RowKeyHelper;
+import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.altamiracorp.lumify.textExtraction.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.util.ThreadedTeeInputStreamWorker;
+import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

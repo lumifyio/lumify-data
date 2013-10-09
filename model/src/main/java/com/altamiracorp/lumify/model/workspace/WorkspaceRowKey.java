@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.model.workspace;
 
 import com.altamiracorp.lumify.model.RowKey;
-import com.altamiracorp.lumify.model.RowKeyHelper;
+import com.altamiracorp.lumify.core.util.RowKeyHelper;
 
 public class WorkspaceRowKey extends RowKey {
     public WorkspaceRowKey(String rowKey) {

@@ -16,7 +16,7 @@ import com.altamiracorp.lumify.model.ColumnFamily;
 import com.altamiracorp.lumify.model.MockSession;
 import com.altamiracorp.lumify.model.Row;
 import com.altamiracorp.lumify.model.RowKey;
-import com.altamiracorp.lumify.model.RowKeyHelper;
+import com.altamiracorp.lumify.core.util.RowKeyHelper;
 
 @RunWith(JUnit4.class)
 public class GeoNameRepositoryTest {

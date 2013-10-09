@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.entityHighlight;
 
-import com.altamiracorp.lumify.model.RowKeyHelper;
+import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

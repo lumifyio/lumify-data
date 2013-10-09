@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.util;
+package com.altamiracorp.lumify.core.util;
 
 import org.apache.commons.io.IOUtils;
 

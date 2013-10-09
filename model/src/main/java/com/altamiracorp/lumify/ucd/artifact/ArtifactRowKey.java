@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.ucd.artifact;
 
 import com.altamiracorp.lumify.model.RowKey;
-import com.altamiracorp.lumify.model.RowKeyHelper;
+import com.altamiracorp.lumify.core.util.RowKeyHelper;
 
 public class ArtifactRowKey extends RowKey {
     public ArtifactRowKey(String rowKey) {

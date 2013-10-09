@@ -10,7 +10,7 @@ import com.altamiracorp.lumify.model.ColumnFamily;
 import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.Row;
-import com.altamiracorp.lumify.model.RowKeyHelper;
+import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.google.inject.Inject;
 
 public class GeoNameRepository extends Repository<GeoName> {

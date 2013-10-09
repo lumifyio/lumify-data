@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.model.dictionary;
 
 import com.altamiracorp.lumify.model.RowKey;
-import com.altamiracorp.lumify.model.RowKeyHelper;
+import com.altamiracorp.lumify.core.util.RowKeyHelper;
 
 public class DictionaryEntryRowKey extends RowKey {
 

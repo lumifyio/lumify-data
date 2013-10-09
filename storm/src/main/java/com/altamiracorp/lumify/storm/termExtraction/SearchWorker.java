@@ -2,7 +2,7 @@ package com.altamiracorp.lumify.storm.termExtraction;
 
 import com.altamiracorp.lumify.entityExtraction.TextExtractedInfo;
 import com.altamiracorp.lumify.model.search.SearchProvider;
-import com.altamiracorp.lumify.util.ThreadedTeeInputStreamWorker;
+import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.google.inject.Inject;
 
 import java.io.InputStream;

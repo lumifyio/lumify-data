@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.model.termMention;
 
 import com.altamiracorp.lumify.model.RowKey;
-import com.altamiracorp.lumify.model.RowKeyHelper;
+import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import org.apache.commons.lang.StringUtils;
 
 public class TermMentionRowKey extends RowKey {

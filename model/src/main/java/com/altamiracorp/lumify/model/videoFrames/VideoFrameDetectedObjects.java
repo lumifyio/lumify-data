@@ -2,7 +2,7 @@ package com.altamiracorp.lumify.model.videoFrames;
 
 import com.altamiracorp.lumify.model.Column;
 import com.altamiracorp.lumify.model.ColumnFamily;
-import com.altamiracorp.lumify.model.RowKeyHelper;
+import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -1,6 +1,5 @@
-package com.altamiracorp.lumify.util;
+package com.altamiracorp.lumify.core.util;
 
-import com.altamiracorp.lumify.model.RowKeyHelper;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
