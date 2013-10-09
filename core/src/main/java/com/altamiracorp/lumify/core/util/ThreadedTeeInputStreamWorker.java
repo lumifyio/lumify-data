@@ -9,11 +9,11 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public abstract class ThreadedTeeInputStreamWorker<T, TData> implements Runnable {
+public abstract class ThreadedTeeInputStreamWorker<TResult, TData> implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreadedTeeInputStreamWorker.class.getName());
     private boolean stopped;
     private Queue<Work> workItems = new LinkedList<Work>();
-    private Queue<WorkResult<T>> workResults = new LinkedList<WorkResult<T>>();
+    private Queue<WorkResult<TResult>> workResults = new LinkedList<WorkResult<TResult>>();
 
     @Override
     public final void run() {
@@ -27,15 +27,15 @@ public abstract class ThreadedTeeInputStreamWorker<T, TData> implements Runnable
                 Work work = workItems.remove();
                 InputStream in = work.getIn();
                 try {
-                    T result = doWork(in, work.getData());
-                    workResults.add(new WorkResult<T>(result, null));
+                    TResult result = doWork(in, work.getData());
+                    workResults.add(new WorkResult<TResult>(result, null));
                 } catch (Exception ex) {
-                    workResults.add(new WorkResult<T>(null, ex));
+                    workResults.add(new WorkResult<TResult>(null, ex));
                 } finally {
                     try {
                         in.close();
                     } catch (IOException ex) {
-                        workResults.add(new WorkResult<T>(null, ex));
+                        workResults.add(new WorkResult<TResult>(null, ex));
                     }
                 }
             }
@@ -44,13 +44,13 @@ public abstract class ThreadedTeeInputStreamWorker<T, TData> implements Runnable
         }
     }
 
-    protected abstract T doWork(InputStream work, TData data) throws Exception;
+    protected abstract TResult doWork(InputStream work, TData data) throws Exception;
 
     public void enqueueWork(InputStream in, TData data) {
         workItems.add(new Work(in, data));
     }
 
-    public WorkResult<T> dequeueResult() {
+    public WorkResult<TResult> dequeueResult() {
         if (workResults.size() == 0) {
             long startTime = new Date().getTime();
             while (workResults.size() == 0 && (new Date().getTime() - startTime < 10 * 1000)) {
@@ -90,11 +90,11 @@ public abstract class ThreadedTeeInputStreamWorker<T, TData> implements Runnable
         }
     }
 
-    public static class WorkResult<T> {
-        private final T result;
+    public static class WorkResult<TResult> {
+        private final TResult result;
         private final Exception error;
 
-        public WorkResult(T result, Exception error) {
+        public WorkResult(TResult result, Exception error) {
             this.result = result;
             this.error = error;
         }
@@ -103,7 +103,7 @@ public abstract class ThreadedTeeInputStreamWorker<T, TData> implements Runnable
             return error;
         }
 
-        public T getResult() {
+        public TResult getResult() {
             return result;
         }
     }

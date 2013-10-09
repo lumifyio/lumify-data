@@ -8,17 +8,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class ThreadedInputStreamProcess<T, TData> {
+public class ThreadedInputStreamProcess<TResult, TData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreadedInputStreamProcess.class.getName());
 
     private final Thread[] workerThreads;
-    private final ThreadedTeeInputStreamWorker<T, TData>[] workers;
+    private final ThreadedTeeInputStreamWorker<TResult, TData>[] workers;
 
-    public ThreadedInputStreamProcess(String threadNamePrefix, Collection<ThreadedTeeInputStreamWorker<T, TData>> workersCollection) {
+    public ThreadedInputStreamProcess(String threadNamePrefix, Collection<ThreadedTeeInputStreamWorker<TResult, TData>> workersCollection) {
         this.workers = new ThreadedTeeInputStreamWorker[workersCollection.size()];
         this.workerThreads = new Thread[workersCollection.size()];
         int i = 0;
-        for (ThreadedTeeInputStreamWorker<T, TData> worker : workersCollection) {
+        for (ThreadedTeeInputStreamWorker<TResult, TData> worker : workersCollection) {
             this.workers[i] = worker;
             this.workerThreads[i] = new Thread(worker);
             String workerName = worker.getName();
@@ -31,7 +31,7 @@ public class ThreadedInputStreamProcess<T, TData> {
         }
     }
 
-    public List<ThreadedTeeInputStreamWorker.WorkResult<T>> doWork(InputStream source, TData data) throws Exception {
+    public List<ThreadedTeeInputStreamWorker.WorkResult<TResult>> doWork(InputStream source, TData data) throws Exception {
         TeeInputStream teeInputStream = new TeeInputStream(source, this.workers.length);
         try {
             for (int i = 0; i < this.workers.length; i++) {
@@ -42,8 +42,8 @@ public class ThreadedInputStreamProcess<T, TData> {
             teeInputStream.close();
         }
 
-        ArrayList<ThreadedTeeInputStreamWorker.WorkResult<T>> results = new ArrayList<ThreadedTeeInputStreamWorker.WorkResult<T>>();
-        for (ThreadedTeeInputStreamWorker<T, TData> worker : this.workers) {
+        ArrayList<ThreadedTeeInputStreamWorker.WorkResult<TResult>> results = new ArrayList<ThreadedTeeInputStreamWorker.WorkResult<TResult>>();
+        for (ThreadedTeeInputStreamWorker<TResult, TData> worker : this.workers) {
             results.add(worker.dequeueResult());
         }
         return results;
@@ -51,7 +51,7 @@ public class ThreadedInputStreamProcess<T, TData> {
 
     public void stop() {
         LOGGER.debug("stopping all workers");
-        for (ThreadedTeeInputStreamWorker<T, TData> worker : this.workers) {
+        for (ThreadedTeeInputStreamWorker<TResult, TData> worker : this.workers) {
             worker.stop();
         }
         for (Thread t : this.workerThreads) {
