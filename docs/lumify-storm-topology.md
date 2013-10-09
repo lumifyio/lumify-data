@@ -6,7 +6,7 @@
 3. ```/opt/start.sh```
 4. add ```nlpConfPathPrefix=/lumify/config/opennlp``` to ```/opt/lumify/config/configuration.properties```
 5. ```cp /opt/lumify/config/configuration.properties .```
-6. ```sudo mv /vagrant/config/configuration.properties /opt/lumify/config/```
+6. ```sudo mv /vagrant/configuration.properties /opt/lumify/config/```
 
 ### HDFS
 1. Create the data directory used to store imported files for processing:
