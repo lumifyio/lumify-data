@@ -1,51 +1,60 @@
 package com.altamiracorp.lumify.entityExtraction;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
-import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.thirdparty.guava.common.collect.Iterables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.google.common.base.Charsets;
+import com.google.common.io.CharStreams;
 import com.google.i18n.phonenumbers.PhoneNumberMatch;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 
-public class PhoneNumberExtractor extends EntityExtractor {
+public class PhoneNumberExtractor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PhoneNumberExtractor.class);
+
     private static final String ENTITY_TYPE = "phoneNumber";
     private static final String DEFAULT_REGION_CODE = "defaultRegionCode";
     private static final String DEFAULT_DEFAULT_REGION_CODE = "US";
 
-    private PhoneNumberUtil phoneNumberUtil;
+    private final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
     private String defaultRegionCode;
 
-    @Override
-    public void setup(Context context, User user) throws IOException {
-        phoneNumberUtil = PhoneNumberUtil.getInstance();
-        defaultRegionCode = context.getConfiguration().get(DEFAULT_REGION_CODE, DEFAULT_DEFAULT_REGION_CODE);
+    public void prepare(final Configuration configuration, final User user) {
+        defaultRegionCode = configuration.get(DEFAULT_REGION_CODE, DEFAULT_DEFAULT_REGION_CODE);
     }
 
-    @Override
-    public List<ExtractedEntity> extract(Artifact artifact, String text) throws Exception {
-        Iterable<PhoneNumberMatch> phoneNumbers = phoneNumberUtil.findNumbers(text, defaultRegionCode);
+    public TermExtractionResult extract(final InputStream textInputStream) throws IOException {
+        checkNotNull(textInputStream);
 
-        ArrayList<ExtractedEntity> termMentions = new ArrayList<ExtractedEntity>();
-        for (PhoneNumberMatch phoneNumber : phoneNumbers) {
-            termMentions.add(createTerm(artifact, phoneNumber));
+        LOGGER.info("Extracting phone numbers from provided text");
+
+        final TermExtractionResult termExtractionResult = new TermExtractionResult();
+        final String text = CharStreams.toString(new InputStreamReader(textInputStream, Charsets.UTF_8));
+
+        final Iterable<PhoneNumberMatch> phoneNumbers = phoneNumberUtil.findNumbers(text, defaultRegionCode);
+        for (final PhoneNumberMatch phoneNumber : phoneNumbers) {
+            termExtractionResult.add(createTerm(phoneNumber));
         }
 
-        return termMentions;
+        LOGGER.info("Number of phone numbers extracted: " + Iterables.size(phoneNumbers));
+
+        return termExtractionResult;
     }
 
-    private ExtractedEntity createTerm(Artifact artifact, PhoneNumberMatch phoneNumber) {
-        String name = phoneNumberUtil.format(phoneNumber.number(), PhoneNumberUtil.PhoneNumberFormat.E164);
+    private TermExtractionResult.TermMention createTerm(final PhoneNumberMatch phoneNumber) {
+        final String formattedNumber = phoneNumberUtil.format(phoneNumber.number(), PhoneNumberUtil.PhoneNumberFormat.E164);
         int start = phoneNumber.start();
         int end = phoneNumber.end();
-        TermMention termMention = new TermMention(new TermMentionRowKey(artifact.getRowKey().toString(), start, end));
-        termMention.getMetadata().setSign(name);
-        termMention.getMetadata().setOntologyClassUri(ENTITY_TYPE);
-        return new ExtractedEntity(termMention, null);
+
+        return new TermExtractionResult.TermMention(start, end, formattedNumber, ENTITY_TYPE, false);
     }
 }

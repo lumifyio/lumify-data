@@ -2,3 +2,4 @@ com.altamiracorp.lumify.storm.termExtraction.SearchWorker
 com.altamiracorp.lumify.storm.termExtraction.OpenNlpMaximumEntropyEntityExtractorWorker
 com.altamiracorp.lumify.storm.termExtraction.OpenNlpDictionaryEntityExtractorWorker
 com.altamiracorp.lumify.storm.termExtraction.KnownEntityExtractorWorker
+com.altamiracorp.lumify.storm.termExtraction.PhoneNumberExtractorWorker

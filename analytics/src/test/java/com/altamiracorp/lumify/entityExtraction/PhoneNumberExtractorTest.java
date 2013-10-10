@@ -3,32 +3,32 @@ package com.altamiracorp.lumify.entityExtraction;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult.TermMention;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.termMention.TermMention;
+import com.google.common.base.Charsets;
 
-@RunWith(JUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class PhoneNumberExtractorTest extends BaseExtractorTest {
     @Mock
-    private Context context;
+    private Configuration config;
 
     @Mock
     private User user;
 
-    private EntityExtractor extractor;
+    private PhoneNumberExtractor extractor;
 
     private String textWith = "This terrorist's phone number is 410-678-2230, and his best buddy's phone number is +44 (0)207 437 0478";
     private String textWithNewLines = "This terrorist's phone\n number is 410-678-2230, and his best buddy's phone number\n is +44 (0)207 437 0478";
@@ -37,51 +37,57 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        doReturn(new Configuration()).when(context).getConfiguration();
         extractor = new PhoneNumberExtractor();
+        extractor.prepare(config, user);
     }
 
     @Test
     public void testPhoneNumberExtraction() throws Exception {
-        extractor.setup(context,user);
-        ArrayList<ExtractedEntity> termList = new ArrayList<ExtractedEntity>(extractor.extract(createArtifact(textWith), textWith));
+        final TermExtractionResult result = extractor.extract(asStream(textWith));
+        assertNotNull(result);
 
-        assertTrue("Incorrect number of phone numbers extracted", termList.size() == 2);
-        TermMention firstTerm = termList.get(0).getTermMention();
-        assertEquals("First phone number not correctly extracted", "+14106782230", firstTerm.getMetadata().getSign());
-        assertEquals(33, firstTerm.getRowKey().getStartOffset());
-        assertEquals(45, firstTerm.getRowKey().getEndOffset());
+        final List<TermMention> termMentions = result.getTermMentions();
 
-        TermMention secondTerm = termList.get(1).getTermMention();
-        assertEquals("Second phone number not correctly extracted", "+442074370478", secondTerm.getMetadata().getSign());
-        assertEquals(84, secondTerm.getRowKey().getStartOffset());
-        assertEquals(103, secondTerm.getRowKey().getEndOffset());
+        assertEquals("Incorrect number of phone numbers extracted", 2, termMentions.size());
+        TermMention firstTerm = termMentions.get(0);
+        assertEquals("First phone number not correctly extracted", "+14106782230", firstTerm.getSign());
+        assertEquals(33, firstTerm.getStart());
+        assertEquals(45, firstTerm.getEnd());
+
+        TermMention secondTerm = termMentions.get(1);
+        assertEquals("Second phone number not correctly extracted", "+442074370478", secondTerm.getSign());
+        assertEquals(84, secondTerm.getStart());
+        assertEquals(103, secondTerm.getEnd());
     }
 
     @Test
     public void testPhoneNumberExtractionWithNewlines() throws Exception {
-        extractor.setup(context,user);
-        ArrayList<ExtractedEntity> termList = new ArrayList<ExtractedEntity>(extractor.extract(createArtifact(textWithNewLines), textWithNewLines));
+        final TermExtractionResult result = extractor.extract(asStream(textWithNewLines));
+        assertNotNull(result);
 
-        assertTrue("Incorrect number of phone numbers extracted", termList.size() == 2);
-        TermMention firstTerm = termList.get(0).getTermMention();
-        assertEquals("First phone number not correctly extracted", "+14106782230", firstTerm.getMetadata().getSign());
-        assertEquals(34, firstTerm.getRowKey().getStartOffset());
-        assertEquals(46, firstTerm.getRowKey().getEndOffset());
+        final List<TermMention> termMentions = result.getTermMentions();
 
-        TermMention secondTerm = termList.get(1).getTermMention();
-        assertEquals("Second phone number not correctly extracted", "+442074370478", secondTerm.getMetadata().getSign());
-        assertEquals(86, secondTerm.getRowKey().getStartOffset());
-        assertEquals(105, secondTerm.getRowKey().getEndOffset());
+        assertEquals("Incorrect number of phone numbers extracted", 2, termMentions.size());
+        TermMention firstTerm = termMentions.get(0);
+        assertEquals("First phone number not correctly extracted", "+14106782230", firstTerm.getSign());
+        assertEquals(34, firstTerm.getStart());
+        assertEquals(46, firstTerm.getEnd());
+
+        TermMention secondTerm = termMentions.get(1);
+        assertEquals("Second phone number not correctly extracted", "+442074370478", secondTerm.getSign());
+        assertEquals(86, secondTerm.getStart());
+        assertEquals(105, secondTerm.getEnd());
     }
 
     @Test
     public void testNegativePhoneNumberExtraction() throws Exception {
-        extractor.setup(context,user);
-        Collection<ExtractedEntity> terms = extractor.extract(createArtifact(textWithout), textWithout);
+        final TermExtractionResult result = extractor.extract(asStream(textWithout));
+        assertNotNull(result);
 
-        assertNotNull(terms);
-        assertTrue("Phone number extracted when there were no phone numbers", terms.isEmpty());
+        assertTrue("Phone number extracted when there were no phone numbers", result.getTermMentions().isEmpty());
+    }
+
+    private InputStream asStream(final String text) {
+        return new ByteArrayInputStream(text.getBytes(Charsets.UTF_8));
     }
 }
