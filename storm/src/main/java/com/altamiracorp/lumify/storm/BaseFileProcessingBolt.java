@@ -1,33 +1,35 @@
 package com.altamiracorp.lumify.storm;
 
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
-import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
-import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.ingest.TextExtractionWorker;
-import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
-import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.storm.file.FileMetadata;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.google.inject.Inject;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.tuple.Tuple;
+
+import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
+import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
+import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.TextExtractionWorker;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
+import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import com.altamiracorp.lumify.storm.file.FileMetadata;
+import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.google.inject.Inject;
 
 public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
 
@@ -48,17 +50,13 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
             collector.reportError(e);
         }
 
-        List<ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>> workers = new ArrayList<ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>>();
+        List<ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>> workers = Lists.newArrayList();
 
         ServiceLoader services = getServiceLoader();
         for (Object service : services) {
-            LOGGER.info("adding class " + service.getClass().getName() + " to " + getClass().getName());
+            LOGGER.info(String.format("Adding service %s to %s", service.getClass().getName(), getClass().getName()));
             inject(service);
-        }
-        for (Object service : services) {
             ((TextExtractionWorker) service).prepare(stormConf, getUser());
-        }
-        for (Object service : services) {
             workers.add((ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>) service);
         }
 
@@ -71,7 +69,7 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
 
     @Override
     public void cleanup() {
-        this.threadedInputStreamProcess.stop();
+        threadedInputStreamProcess.stop();
         super.cleanup();
     }
 
@@ -168,7 +166,7 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
 
     private String getMimeType(String fileName) throws Exception {
         InputStream in = getInputStream(fileName, null);
-        return this.contentTypeExtractor.extract(in, FilenameUtils.getExtension(fileName));
+        return contentTypeExtractor.extract(in, FilenameUtils.getExtension(fileName));
     }
 
 

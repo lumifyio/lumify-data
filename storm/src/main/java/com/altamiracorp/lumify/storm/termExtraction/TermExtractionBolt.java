@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,19 +55,16 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
     }
 
     private List<ThreadedTeeInputStreamWorker<TermExtractionResult, TermExtractionAdditionalWorkData>> loadWorkers(Map stormConf) throws Exception {
-        List<ThreadedTeeInputStreamWorker<TermExtractionResult, TermExtractionAdditionalWorkData>> workers = new ArrayList<ThreadedTeeInputStreamWorker<TermExtractionResult, TermExtractionAdditionalWorkData>>();
+        List<ThreadedTeeInputStreamWorker<TermExtractionResult, TermExtractionAdditionalWorkData>> workers = Lists.newArrayList();
 
         ServiceLoader<TermExtractionWorker> services = ServiceLoader.load(TermExtractionWorker.class);
         for (TermExtractionWorker service : services) {
-            LOGGER.info("adding class " + service.getClass().getName() + " to " + getClass().getName());
+            LOGGER.info(String.format("Adding service %s to %s", service.getClass().getName(), getClass().getName()));
             inject(service);
-        }
-        for (TermExtractionWorker service : services) {
             service.prepare(stormConf, getUser());
-        }
-        for (TermExtractionWorker service : services) {
             workers.add(service);
         }
+
         return workers;
     }
 
@@ -89,8 +87,10 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         InputStream textIn = getInputStream(artifactGraphVertex);
         TermExtractionAdditionalWorkData termExtractionAdditionalWorkData = new TermExtractionAdditionalWorkData();
         termExtractionAdditionalWorkData.setGraphVertex(artifactGraphVertex);
+
         List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> termExtractionResults = termExtractionStreamProcess.doWork(textIn, termExtractionAdditionalWorkData);
         TermExtractionResult termExtractionResult = new TermExtractionResult();
+
         mergeTextExtractedInfos(termExtractionResult, termExtractionResults);
         List<TermMentionWithGraphVertex> termMentions = saveTermExtractions(artifactGraphVertex.getId(), termExtractionResult.getTermMentions());
         processTermMentions(termMentions);
