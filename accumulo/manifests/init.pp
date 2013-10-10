@@ -20,6 +20,12 @@ class accumulo(
   $configlink = "/etc/accumulo"
   $downloadpath = "${tmpdir}/accumulo-${version}-dist.tar.gz"
 
+  if $interfaces =~ /eth1/ {
+    $accumulo_host_address = $ipaddress_eth1
+  } else {
+    $accumulo_host_address = $ipaddress_eth0
+  }
+
   notify { "Installing Accumulo ${version}. Please run `sudo -u ${user} ${homedir}/bin/accumulo init` to initialize after installation completes.":}
 
   user { $user :
