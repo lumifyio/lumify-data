@@ -1,21 +1,31 @@
 package com.altamiracorp.lumify.core.ingest.termExtraction;
 
-import java.util.ArrayList;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.List;
 
+import com.google.common.collect.Lists;
+
 public class TermExtractionResult {
-    private List<TermMention> termMentions = new ArrayList<TermMention>();
+    private final List<TermMention> termMentions = Lists.newArrayList();
 
     public void add(TermMention termMention) {
-        this.termMentions.add(termMention);
+        checkNotNull(termMention);
+
+        termMentions.add(termMention);
     }
 
-    public void addAll(List<TermMention> termMentions) {
-        this.termMentions.addAll(termMentions);
+    public void addAll(List<TermMention> mentions) {
+        checkNotNull(mentions);
+
+        termMentions.addAll(mentions);
     }
 
     public void mergeFrom(TermExtractionResult result) {
-        this.termMentions.addAll(result.termMentions);
+        checkNotNull(result);
+        checkNotNull(result.termMentions);
+
+        termMentions.addAll(result.termMentions);
     }
 
     public List<TermMention> getTermMentions() {
