@@ -12,6 +12,7 @@ import com.altamiracorp.lumify.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.image.ImageBolt;
+import com.altamiracorp.lumify.storm.structuredDataExtraction.StructuredDataBolt;
 import com.altamiracorp.lumify.storm.termExtraction.TermExtractionBolt;
 import com.altamiracorp.lumify.storm.textHighlighting.ArtifactHighlightingBolt;
 import com.altamiracorp.lumify.storm.video.VideoBolt;
@@ -87,7 +88,8 @@ public class StormRunner extends CommandLineBase {
                     .setUnknownSpout(new DevFileSystemSpout())
                     .setDocumentSpout(new KafkaSpout(createSpoutConfig("document", null)))
                     .setImageSpout(new KafkaSpout(createSpoutConfig("image", null)))
-                    .setVideoSpout(new KafkaSpout(createSpoutConfig("video", null)));
+                    .setVideoSpout(new KafkaSpout(createSpoutConfig("video", null)))
+                    .setStructuredDataSpout(new KafkaSpout(createSpoutConfig("structuredData", null)));
             StormTopology topology = createTopology(topologyConfig);
             LocalCluster cluster = new LocalCluster();
             LOGGER.info("Submitting topology '" + TOPOLOGY_NAME + "'");
@@ -104,7 +106,8 @@ public class StormRunner extends CommandLineBase {
                     .setUnknownSpout(new HdfsFileSystemSpout("/unknown"))
                     .setDocumentSpout(new HdfsFileSystemSpout("/document"))
                     .setImageSpout(new HdfsFileSystemSpout("/image"))
-                    .setVideoSpout(new HdfsFileSystemSpout("/video"));
+                    .setVideoSpout(new HdfsFileSystemSpout("/video"))
+                    .setStructuredDataSpout(new HdfsFileSystemSpout("/structuredData"));
             StormTopology topology = createTopology(topologyConfig);
             LOGGER.info("Submitting topology '" + TOPOLOGY_NAME + "'");
             StormSubmitter.submitTopology(TOPOLOGY_NAME, conf, topology);
@@ -119,6 +122,7 @@ public class StormRunner extends CommandLineBase {
         createVideoTopology(builder, topologyConfig);
         createImageTopology(builder, topologyConfig);
         createDocumentTopology(builder, topologyConfig);
+        createStructuredDataTopology(builder, topologyConfig);
         createTextTopology(builder);
         createArtifactHighlightingTopology(builder);
 
@@ -150,6 +154,13 @@ public class StormRunner extends CommandLineBase {
         String queueName = "document";
         builder.setSpout(queueName, topologyConfig.getDocumentSpout(), 1);
         builder.setBolt(queueName + "-bolt", new DocumentBolt(), 1)
+                .shuffleGrouping(queueName);
+    }
+
+    private void createStructuredDataTopology(TopologyBuilder builder, TopologyConfig topologyConfig) {
+        String queueName = "structuredData";
+        builder.setSpout(queueName, topologyConfig.getStructuredDataSpout(), 1);
+        builder.setBolt(queueName + "-bolt", new StructuredDataBolt(), 1)
                 .shuffleGrouping(queueName);
     }
 
@@ -185,6 +196,17 @@ public class StormRunner extends CommandLineBase {
         private IRichSpout imageSpout;
         private IRichSpout videoSpout;
         private IRichSpout documentSpout;
+        private IRichSpout structuredDataSpout;
+
+
+        private IRichSpout getStructuredDataSpout() {
+            return structuredDataSpout;
+        }
+
+        private TopologyConfig setStructuredDataSpout(IRichSpout structuredDataSpout) {
+            this.structuredDataSpout = structuredDataSpout;
+            return this;
+        }
 
         private IRichSpout getUnknownSpout() {
             return unknownSpout;
