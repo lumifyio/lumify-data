@@ -29,6 +29,9 @@ public class PhoneNumberExtractor {
     private String defaultRegionCode;
 
     public void prepare(final Configuration configuration, final User user) {
+        checkNotNull(configuration);
+        checkNotNull(user);
+
         defaultRegionCode = configuration.get(DEFAULT_REGION_CODE, DEFAULT_DEFAULT_REGION_CODE);
     }
 
