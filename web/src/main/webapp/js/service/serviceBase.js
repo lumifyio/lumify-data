@@ -50,7 +50,8 @@ define(['atmosphere'],
                     if (config.onOpen) config.onOpen.apply(null, arguments);
                 },
                 onMessage: function (response) {
-                    var data = JSON.parse(response.responseBody);
+                    var body = response.responseBody.replace(/^\d+\|/, ''); // TODO: determine why Atmosphere prepends message size when run in AWS
+                    var data = JSON.parse(body);
                     if(data && data.sourceId == document.subSocketId) {
                         return;
                     }
