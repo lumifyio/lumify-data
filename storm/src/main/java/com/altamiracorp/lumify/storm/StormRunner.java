@@ -14,6 +14,7 @@ import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.image.ImageBolt;
 import com.altamiracorp.lumify.storm.termExtraction.TermExtractionBolt;
 import com.altamiracorp.lumify.storm.textHighlighting.ArtifactHighlightingBolt;
+import com.altamiracorp.lumify.storm.video.VideoBolt;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -141,7 +142,7 @@ public class StormRunner extends CommandLineBase {
     private void createVideoTopology(TopologyBuilder builder, TopologyConfig topologyConfig) {
         String queueName = "video";
         builder.setSpout(queueName, topologyConfig.getVideoSpout(), 1);
-        builder.setBolt("debug-" + queueName, new DebugBolt(queueName), 1)
+        builder.setBolt(queueName + "-bolt", new VideoBolt(), 1)
                 .shuffleGrouping(queueName);
     }
 

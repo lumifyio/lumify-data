@@ -1,25 +1,9 @@
 package com.altamiracorp.lumify.storm;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
-
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
-
 import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
@@ -30,6 +14,20 @@ import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.storm.file.FileMetadata;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.google.inject.Inject;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
 
 public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
 
@@ -46,6 +44,9 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
             mkdir("/lumify/artifacts");
             mkdir("/lumify/artifacts/text");
             mkdir("/lumify/artifacts/raw");
+            mkdir("/lumify/artifacts/video");
+            mkdir("/lumify/artifacts/video/mp4");
+            mkdir("/lumify/artifacts/video/webm");
         } catch (IOException e) {
             collector.reportError(e);
         }
@@ -89,6 +90,14 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
         if (artifactExtractedInfo.getTextRowKey() != null && artifactExtractedInfo.getTextHdfsPath() != null) {
             String newTextPath = moveTempTextFile(artifactExtractedInfo.getTextHdfsPath(), artifactExtractedInfo.getRowKey());
             artifactExtractedInfo.setTextHdfsPath(newTextPath);
+        }
+        if (artifactExtractedInfo.getMp4HdfsFilePath() != null) {
+            String newTextPath = moveTempMp4File(artifactExtractedInfo.getMp4HdfsFilePath(), artifactExtractedInfo.getRowKey());
+            artifactExtractedInfo.setMp4HdfsFilePath(newTextPath);
+        }
+        if (artifactExtractedInfo.getWebMHdfsFilePath() != null) {
+            String newTextPath = moveTempWebMFile(artifactExtractedInfo.getWebMHdfsFilePath(), artifactExtractedInfo.getRowKey());
+            artifactExtractedInfo.setWebMHdfsFilePath(newTextPath);
         }
 
         GraphVertex graphVertex = addArtifact(artifactExtractedInfo);
@@ -178,7 +187,19 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
 
 
     protected String moveTempTextFile(String fileName, String rowKey) throws IOException {
-        String newPath = "/lumify/artifacts/text/" + rowKey;
+        return moveTempFile("/lumify/artifacts/text/", fileName, rowKey);
+    }
+
+    protected String moveTempWebMFile(String fileName, String rowKey) throws IOException {
+        return moveTempFile("/lumify/artifacts/video/webm/", fileName, rowKey);
+    }
+
+    protected String moveTempMp4File(String fileName, String rowKey) throws IOException {
+        return moveTempFile("/lumify/artifacts/video/mp4/", fileName, rowKey);
+    }
+
+    private String moveTempFile(String path, String fileName, String rowKey) throws IOException {
+        String newPath = path + rowKey;
         LOGGER.info("Moving file " + fileName + " -> " + newPath);
         getHdfsFileSystem().delete(new Path(newPath), false);
         getHdfsFileSystem().rename(new Path(fileName), new Path(newPath));

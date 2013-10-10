@@ -15,8 +15,10 @@ public class ArtifactExtractedInfo {
     private static final String ONTOLOGY_CLASS_URI = "ontologyClassUri";
     private static final String RAW_HDFS_PATH = "rawHdfsPath";
     private static final String RAW = "raw";
+    private static final String TEXT_ROW_KEY = "textRowKey";
+    private static final String MP4_HDFS_PATH = "mp4HdfsPath";
+    private static final String WEBM_HDFS_PATH = "webmHdfsPath";
     private HashMap<String, Object> properties = new HashMap<String, Object>();
-    private String textRowKey;
 
     public void mergeFrom(ArtifactExtractedInfo artifactExtractedInfo) {
         if (artifactExtractedInfo == null) {
@@ -103,10 +105,26 @@ public class ArtifactExtractedInfo {
     }
 
     public void setTextRowKey(String textRowKey) {
-        this.textRowKey = textRowKey;
+        properties.put(TEXT_ROW_KEY, textRowKey);
     }
 
     public String getTextRowKey() {
-        return textRowKey;
+        return (String) properties.get(TEXT_ROW_KEY);
+    }
+
+    public void setMp4HdfsFilePath(String mp4HdfsFilePath) {
+        properties.put(MP4_HDFS_PATH, mp4HdfsFilePath);
+    }
+
+    public String getMp4HdfsFilePath() {
+        return (String) properties.get(MP4_HDFS_PATH);
+    }
+
+    public void setWebMHdfsFilePath(String webMHdfsFilePath) {
+        properties.put(WEBM_HDFS_PATH, webMHdfsFilePath);
+    }
+
+    public String getWebMHdfsFilePath() {
+        return (String) properties.get(WEBM_HDFS_PATH);
     }
 }

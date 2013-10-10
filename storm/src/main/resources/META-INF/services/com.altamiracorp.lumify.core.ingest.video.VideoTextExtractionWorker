@@ -1,0 +1,2 @@
+com.altamiracorp.lumify.storm.file.HashCalculationWorker
+com.altamiracorp.lumify.storm.video.VideoWebMEncodingWorker
