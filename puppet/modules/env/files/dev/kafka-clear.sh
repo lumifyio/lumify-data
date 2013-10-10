@@ -17,6 +17,10 @@ sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/artifactHighlight/0"
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/artifactHighlight"
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics"
+sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/text/192.168.33.10:9092:0"
+sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/text"
+sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/artifactHighlight/192.168.33.10:9092:0"
+sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/artifactHighlight"
 
 /opt/start.sh kafka
 
