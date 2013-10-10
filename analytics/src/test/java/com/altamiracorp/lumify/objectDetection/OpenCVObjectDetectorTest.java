@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.objectDetection;
 
+import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
 import org.junit.Before;
@@ -40,10 +41,10 @@ public class OpenCVObjectDetectorTest {
         BufferedImage bImage = ImageIO.read(cl.getResourceAsStream(TEST_IMAGE));
 
         objectDetector.setup(cl.getResource(CLASSIFIER).getPath());
-        List<DetectedObject> detectedObjectList = objectDetector.detectObjects(bImage);
+        List<ArtifactDetectedObject> detectedObjectList = objectDetector.detectObjects(bImage);
         assertTrue("Incorrect number of objects found", detectedObjectList.size() == 1);
 
-        DetectedObject detectedObject = detectedObjectList.get(0);
+        ArtifactDetectedObject detectedObject = detectedObjectList.get(0);
         assertEquals("X1 incorrect", "434", detectedObject.getX1());
         assertEquals("Y1 incorrect", "117", detectedObject.getY1());
         assertEquals("X2 incorrect", "637", detectedObject.getX2());

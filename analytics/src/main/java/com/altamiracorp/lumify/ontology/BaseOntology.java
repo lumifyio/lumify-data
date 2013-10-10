@@ -98,6 +98,11 @@ public class BaseOntology {
             graph.makeType().name(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH.toString()).dataType(String.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).makePropertyKey();
         }
 
+        TitanKey detectedObjects = (TitanKey) graph.getType(PropertyName.DETECTED_OBJECTS.toString());
+        if (detectedObjects == null) {
+            graph.makeType().name(PropertyName.DETECTED_OBJECTS.toString()).dataType(String.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).makePropertyKey();
+        }
+
         TitanKey subTypeProperty = (TitanKey) graph.getType(PropertyName.SUBTYPE.toString());
         if (subTypeProperty == null) {
             subTypeProperty = graph.makeType().name(PropertyName.SUBTYPE.toString()).dataType(String.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).indexed(Vertex.class).makePropertyKey();

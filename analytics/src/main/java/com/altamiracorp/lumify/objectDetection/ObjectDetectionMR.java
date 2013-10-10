@@ -2,13 +2,13 @@ package com.altamiracorp.lumify.objectDetection;
 
 import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
+import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.model.AccumuloVideoFrameInputFormat;
 import com.altamiracorp.lumify.model.Row;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.fs.FileSystem;
@@ -157,9 +157,9 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
 
         public void safeMap(Text rowKey, VideoFrame videoFrame, Context context) throws Exception {
             LOGGER.info("Detecting objects of concept " + classifierConcept + " for video frame " + rowKey.toString());
-            List<DetectedObject> detectedObjects = objectDetector.detectObjects(videoFrame, getUser());
+            List<ArtifactDetectedObject> detectedObjects = objectDetector.detectObjects(videoFrame, getUser());
             if (!detectedObjects.isEmpty()) {
-                for (DetectedObject detectedObject : detectedObjects) {
+                for (ArtifactDetectedObject detectedObject : detectedObjects) {
                     videoFrame.getDetectedObjects().addDetectedObject(classifierConcept, objectDetector.getModelName(), detectedObject.getX1(), detectedObject.getY1(), detectedObject.getX2(), detectedObject.getY2());
                 }
                 context.write(new Text(VideoFrame.TABLE_NAME), videoFrame);

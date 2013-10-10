@@ -16,13 +16,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-public class ImageTextExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData> implements ImageTextExtractionWorker {
+public class ImageTextExtractorWorker extends BaseImageWorker {
 
     private ImageOcrTextExtractor imageOcrTextExtractor;
 
     @Override
-    protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
-        ArtifactExtractedInfo info = imageOcrTextExtractor.extractFromImage(getImage(work));
+    protected ArtifactExtractedInfo doWork(BufferedImage image, AdditionalArtifactWorkData data) throws Exception {
+        ArtifactExtractedInfo info = imageOcrTextExtractor.extractFromImage(image);
         if (info == null) {
             return null;
         }
@@ -44,16 +44,10 @@ public class ImageTextExtractorWorker extends ThreadedTeeInputStreamWorker<Artif
         return info;
     }
 
-    private BufferedImage getImage(InputStream in) throws IOException {
-        return ImageIO.read(in);
-    }
-
     @Inject
     public void setImageOcrTextExtractor(ImageOcrTextExtractor imageOcrTextExtractor) {
         this.imageOcrTextExtractor = imageOcrTextExtractor;
     }
 
-    @Override
-    public void prepare(Map stormConf, User user) {
-    }
+
 }

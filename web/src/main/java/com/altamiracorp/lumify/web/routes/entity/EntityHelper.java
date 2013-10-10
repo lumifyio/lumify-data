@@ -1,12 +1,12 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
+import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.objectDetection.DetectedObject;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.concurrent.ExecutorService;
@@ -44,8 +44,8 @@ public class EntityHelper {
         graphRepository.saveVertex(vertex, user);
     }
 
-    public DetectedObject createObjectTag(String x1, String x2, String y1, String y2, GraphVertex resolvedVertex, GraphVertex conceptVertex) {
-        DetectedObject detectedObject = new DetectedObject(x1, y1, x2, y2);
+    public ArtifactDetectedObject createObjectTag(String x1, String x2, String y1, String y2, GraphVertex resolvedVertex, GraphVertex conceptVertex) {
+        ArtifactDetectedObject detectedObject = new ArtifactDetectedObject(x1, y1, x2, y2);
         detectedObject.setGraphVertexId(resolvedVertex.getId().toString());
 
         if (conceptVertex.getProperty("ontologyTitle").toString().equals("person")) {

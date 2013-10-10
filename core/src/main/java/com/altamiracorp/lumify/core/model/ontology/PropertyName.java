@@ -22,6 +22,7 @@ public enum PropertyName {
     TIME_STAMP("_timeStamp"),
     RAW_HDFS_PATH("rawHdfsPath"),
     TEXT_HDFS_PATH("textHdfsPath"),
+    DETECTED_OBJECTS("detectedObjects"),
     HIGHLIGHTED_TEXT_HDFS_PATH("highlightedTextHdfsPath");
 
     private final String text;

@@ -1,10 +1,10 @@
-package com.altamiracorp.lumify.objectDetection;
+package com.altamiracorp.lumify.core.ingest;
 
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class DetectedObject {
+public class ArtifactDetectedObject {
 
     private String model;
     private String concept;
@@ -16,7 +16,7 @@ public class DetectedObject {
     private String x2;
     private String y2;
 
-    public DetectedObject(String x1, String y1, String x2, String y2) {
+    public ArtifactDetectedObject(String x1, String y1, String x2, String y2) {
         setX1(x1);
         setY1(y1);
         setX2(x2);
@@ -116,7 +116,7 @@ public class DetectedObject {
     public JSONObject getJson() {
         try {
             JSONObject json = new JSONObject();
-            if (resolvedVertex.getId() != null) {
+            if (resolvedVertex != null && resolvedVertex.getId() != null) {
                 GraphVertex vertex = getResolvedVertex();
                 json.put("graphVertexId", resolvedVertex.getId());
                 for (String property : vertex.getPropertyKeys()) {

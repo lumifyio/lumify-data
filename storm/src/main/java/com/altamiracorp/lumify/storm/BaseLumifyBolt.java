@@ -207,6 +207,9 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
             artifactVertex.setProperty(PropertyName.TEXT_HDFS_PATH, artifactExtractedInfo.getTextHdfsPath());
             artifactVertex.setProperty(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH, artifactExtractedInfo.getTextHdfsPath());
         }
+        if (artifactExtractedInfo.getDetectedObjects() != null) {
+            artifactVertex.setProperty(PropertyName.DETECTED_OBJECTS,artifactExtractedInfo.getDetectedObjects());
+        }
         String vertexId = this.graphRepository.save(artifactVertex, getUser());
         this.graphRepository.commit();
 

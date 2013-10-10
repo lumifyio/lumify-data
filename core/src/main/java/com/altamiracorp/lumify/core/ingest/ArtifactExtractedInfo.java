@@ -18,6 +18,7 @@ public class ArtifactExtractedInfo {
     private static final String TEXT_ROW_KEY = "textRowKey";
     private static final String MP4_HDFS_PATH = "mp4HdfsPath";
     private static final String WEBM_HDFS_PATH = "webmHdfsPath";
+    private static final String DETECTED_OBJECTS = "detectedObjects";
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 
     public void mergeFrom(ArtifactExtractedInfo artifactExtractedInfo) {
@@ -126,5 +127,13 @@ public class ArtifactExtractedInfo {
 
     public String getWebMHdfsFilePath() {
         return (String) properties.get(WEBM_HDFS_PATH);
+    }
+
+    public void setDetectedObjects (String detectedObjectsJsonString) {
+        set(DETECTED_OBJECTS,detectedObjectsJsonString);
+    }
+
+    public String getDetectedObjects () {
+        return (String) properties.get(DETECTED_OBJECTS);
     }
 }
