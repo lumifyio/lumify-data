@@ -23,6 +23,11 @@ import com.google.common.base.Charsets;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PhoneNumberExtractorTest extends BaseExtractorTest {
+    private static final String PHONE_TEXT = "This terrorist's phone number is 410-678-2230, and his best buddy's phone number is +44 (0)207 437 0478";
+    private static final String PHONE_NEW_LINES = "This terrorist's phone\n number is 410-678-2230, and his best buddy's phone number\n is +44 (0)207 437 0478";
+    private static final String PHONE_MISSING = "This is a sentence without any phone numbers in it.";
+
+
     @Mock
     private Configuration config;
 
@@ -30,10 +35,6 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest {
     private User user;
 
     private PhoneNumberExtractor extractor;
-
-    private String textWith = "This terrorist's phone number is 410-678-2230, and his best buddy's phone number is +44 (0)207 437 0478";
-    private String textWithNewLines = "This terrorist's phone\n number is 410-678-2230, and his best buddy's phone number\n is +44 (0)207 437 0478";
-    private String textWithout = "This is a sentence without any phone numbers in it.";
 
 
     @Before
@@ -45,7 +46,7 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest {
 
     @Test
     public void testPhoneNumberExtraction() throws Exception {
-        final TermExtractionResult result = extractor.extract(asStream(textWith));
+        final TermExtractionResult result = extractor.extract(asStream(PHONE_TEXT));
         assertNotNull(result);
 
         final List<TermMention> termMentions = result.getTermMentions();
@@ -64,7 +65,7 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest {
 
     @Test
     public void testPhoneNumberExtractionWithNewlines() throws Exception {
-        final TermExtractionResult result = extractor.extract(asStream(textWithNewLines));
+        final TermExtractionResult result = extractor.extract(asStream(PHONE_NEW_LINES));
         assertNotNull(result);
 
         final List<TermMention> termMentions = result.getTermMentions();
@@ -83,7 +84,7 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest {
 
     @Test
     public void testNegativePhoneNumberExtraction() throws Exception {
-        final TermExtractionResult result = extractor.extract(asStream(textWithout));
+        final TermExtractionResult result = extractor.extract(asStream(PHONE_MISSING));
         assertNotNull(result);
 
         assertTrue("Phone number extracted when there were no phone numbers", result.getTermMentions().isEmpty());
