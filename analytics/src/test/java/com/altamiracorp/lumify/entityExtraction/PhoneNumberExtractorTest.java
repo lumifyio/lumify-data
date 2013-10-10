@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.entityExtraction;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -37,6 +38,7 @@ public class PhoneNumberExtractorTest extends BaseExtractorTest {
 
     @Before
     public void setUp() {
+        when(config.get(PhoneNumberExtractor.DEFAULT_REGION_CODE, PhoneNumberExtractor.DEFAULT_DEFAULT_REGION_CODE)).thenReturn(PhoneNumberExtractor.DEFAULT_DEFAULT_REGION_CODE);
         extractor = new PhoneNumberExtractor();
         extractor.prepare(config, user);
     }

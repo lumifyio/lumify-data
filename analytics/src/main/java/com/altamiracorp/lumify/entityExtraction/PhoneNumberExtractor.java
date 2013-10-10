@@ -22,8 +22,8 @@ public class PhoneNumberExtractor {
     private static final Logger LOGGER = LoggerFactory.getLogger(PhoneNumberExtractor.class);
 
     private static final String ENTITY_TYPE = "phoneNumber";
-    private static final String DEFAULT_REGION_CODE = "defaultRegionCode";
-    private static final String DEFAULT_DEFAULT_REGION_CODE = "US";
+    static final String DEFAULT_REGION_CODE = "defaultRegionCode";
+    static final String DEFAULT_DEFAULT_REGION_CODE = "US";
 
     private final PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
     private String defaultRegionCode;
