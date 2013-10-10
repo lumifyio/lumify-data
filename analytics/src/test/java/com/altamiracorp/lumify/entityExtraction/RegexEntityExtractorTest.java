@@ -1,31 +1,38 @@
 package com.altamiracorp.lumify.entityExtraction;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult.TermMention;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.termMention.TermMention;
+import com.google.common.base.Charsets;
 
-@RunWith(JUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class RegexEntityExtractorTest extends BaseExtractorTest {
 
-    private EntityExtractor extractor;
+    private static final String EMAIL_REG_EX = "(?i)\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
+
+    private static final String EMAIL_TYPE = "emailAddress";
+
+    private RegexEntityExtractor extractor;
 
     @Mock
-    private Context context;
+    private Configuration config;
 
     @Mock
     private User user;
@@ -35,55 +42,65 @@ public class RegexEntityExtractorTest extends BaseExtractorTest {
     private String textWithout = "This is some text that contains no e-mail address";
 
     @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        Configuration config = new Configuration();
-        config.set("regularExpression", "(?i)\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b");
-        config.set("entityType", "emailAddress");
-        doReturn(config).when(context).getConfiguration();
+    public void setUp() throws IOException {
+        when(config.get(RegexEntityExtractor.REGULAR_EXPRESSION)).thenReturn(EMAIL_REG_EX);
+        when(config.get(RegexEntityExtractor.ENTITY_TYPE)).thenReturn(EMAIL_TYPE);
 
         extractor = new RegexEntityExtractor();
+        extractor.prepare(config,user);
     }
 
     @Test
     public void testRegularExpressionExtraction() throws Exception {
-        extractor.setup(context,user);
-        ArrayList<ExtractedEntity> extractedEntities = new ArrayList<ExtractedEntity>(extractor.extract(createArtifact(textWith), textWith));
-        assertEquals("Not enough extractedEntities extracted", 2, extractedEntities.size());
-        boolean found = false;
-        for (ExtractedEntity extractedEntity : extractedEntities) {
-            TermMention term = extractedEntity.getTermMention();
-            if (term.getMetadata().getOntologyClassUri().equals("emailAddress") && term.getMetadata().getSign().equals("bob@gmail.com")) {
-                found = true;
-                assertEquals(59L, term.getRowKey().getStartOffset());
-                assertEquals(72L, term.getRowKey().getEndOffset());
-            }
-        }
-        assertTrue("Expected entity not found", found);
+        final TermExtractionResult result = extractor.extract(asStream(textWith));
+        assertNotNull(result);
+
+        final List<TermMention> termMentions = result.getTermMentions();
+        assertEquals("Incorrect number of email addresses extracted", 2, termMentions.size());
+
+        TermMention firstTerm = termMentions.get(0);
+        assertEquals(EMAIL_TYPE, firstTerm.getOntologyClassUri());
+        assertEquals("bob@gmail.com", firstTerm.getSign());
+        assertEquals(59, firstTerm.getStart());
+        assertEquals(72, firstTerm.getEnd());
+
+        TermMention secondTerm = termMentions.get(1);
+        assertEquals(EMAIL_TYPE, firstTerm.getOntologyClassUri());
+        assertEquals("bill@outlook.com", secondTerm.getSign());
+        assertEquals(118, secondTerm.getStart());
+        assertEquals(134, secondTerm.getEnd());
     }
 
     @Test
     public void testRegularExpressionExtractionWithNewlines() throws Exception {
-        extractor.setup(context,user);
-        ArrayList<ExtractedEntity> extractedEntities = new ArrayList<ExtractedEntity>(extractor.extract(createArtifact(textWithNewlines), textWithNewlines));
-        assertEquals("Not enough extractedEntities extracted", 2, extractedEntities.size());
-        boolean found = false;
-        for (ExtractedEntity extractedEntity : extractedEntities) {
-            TermMention term = extractedEntity.getTermMention();
-            if (term.getMetadata().getSign().equals("bob@gmail.com") && term.getMetadata().getOntologyClassUri().equals("emailAddress")) {
-                found = true;
-                assertEquals(60L, term.getRowKey().getStartOffset());
-                assertEquals(73L, term.getRowKey().getEndOffset());
-            }
-        }
-        assertTrue("Expected entity not found", found);
+        final TermExtractionResult result = extractor.extract(asStream(textWithNewlines));
+        assertNotNull(result);
+
+        final List<TermMention> termMentions = result.getTermMentions();
+        assertEquals("Incorrect number of email addresses extracted", 2, termMentions.size());
+
+        TermMention firstTerm = termMentions.get(0);
+        assertEquals(EMAIL_TYPE, firstTerm.getOntologyClassUri());
+        assertEquals("bob@gmail.com", firstTerm.getSign());
+        assertEquals(60, firstTerm.getStart());
+        assertEquals(73, firstTerm.getEnd());
+
+        TermMention secondTerm = termMentions.get(1);
+        assertEquals(EMAIL_TYPE, firstTerm.getOntologyClassUri());
+        assertEquals("bill@outlook.com", secondTerm.getSign());
+        assertEquals(120, secondTerm.getStart());
+        assertEquals(136, secondTerm.getEnd());
     }
 
     @Test
     public void testNegativeRegularExpressionExtraction() throws Exception {
-        extractor.setup(context,user);
-        Collection<ExtractedEntity> terms = extractor.extract(createArtifact(textWithout), textWithout);
-        assertTrue(terms.isEmpty());
+        final TermExtractionResult result = extractor.extract(asStream(textWithout));
+        assertNotNull(result);
+        assertTrue(result.getTermMentions().isEmpty());
+    }
+
+    private InputStream asStream(final String text) {
+        return new ByteArrayInputStream(text.getBytes(Charsets.UTF_8));
     }
 }
 

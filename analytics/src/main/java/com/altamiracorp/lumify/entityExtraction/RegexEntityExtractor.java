@@ -1,54 +1,74 @@
 package com.altamiracorp.lumify.entityExtraction;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.google.common.base.Charsets;
+import com.google.common.io.CharStreams;
 
-public class RegexEntityExtractor extends EntityExtractor {
-    private static final String REGULAR_EXPRESSION = "regularExpression";
-    private static final String ENTITY_TYPE = "entityType";
+public class RegexEntityExtractor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RegexEntityExtractor.class);
+
+    public static final String REGULAR_EXPRESSION = "regularExpression";
+    public static final String ENTITY_TYPE = "entityType";
 
     private Pattern pattern;
     private String entityType;
 
-    @Override
-    public void setup(Context context, User user) throws IOException {
-        String regularExpression = context.getConfiguration().get(REGULAR_EXPRESSION);
+    public void prepare(final Configuration configuration, final User user) throws IOException {
+        checkNotNull(configuration);
+        checkNotNull(user);
+
+        final String regularExpression = configuration.get(REGULAR_EXPRESSION);
         if (regularExpression == null) {
             throw new IOException("No regular expression was provided!");
         }
 
-        pattern = Pattern.compile(regularExpression, Pattern.MULTILINE);
-
-        entityType = context.getConfiguration().get(ENTITY_TYPE);
+        entityType = configuration.get(ENTITY_TYPE);
         if (entityType == null) {
             throw new IOException("No entity type for this regular expression was provided!");
         }
+
+        pattern = Pattern.compile(regularExpression, Pattern.MULTILINE);
+
+        LOGGER.debug(String.format("Extractor prepared for entity type [%s] with regular expression: %s", entityType, regularExpression));
     }
 
-    @Override
-    List<ExtractedEntity> extract(Artifact artifact, String text) throws Exception {
-        ArrayList<ExtractedEntity> extractedEntities = new ArrayList<ExtractedEntity>();
-        Matcher matcher = pattern.matcher(text);
+    public TermExtractionResult extract(final InputStream textInputStream) throws IOException {
+        checkNotNull(textInputStream);
+
+        LOGGER.info(String.format("Extracting pattern [%s] from provided text", pattern));
+
+        final TermExtractionResult termExtractionResult = new TermExtractionResult();
+        final String text = CharStreams.toString(new InputStreamReader(textInputStream, Charsets.UTF_8));
+
+        final Matcher matcher = pattern.matcher(text);
 
         while (matcher.find()) {
-            String name = matcher.group();
-            int start = matcher.start();
-            int end = matcher.end();
-            TermMention termMention = new TermMention(new TermMentionRowKey(artifact.getRowKey().toString(), start, end));
-            termMention.getMetadata().setOntologyClassUri(entityType);
-            termMention.getMetadata().setSign(name);
-            extractedEntities.add(new ExtractedEntity(termMention, null));
+            termExtractionResult.add(createTerm(matcher));
         }
-        return extractedEntities;
+
+        LOGGER.info("Number of patterns extracted: " + termExtractionResult.getTermMentions().size());
+
+        return termExtractionResult;
+    }
+
+    private TermExtractionResult.TermMention createTerm(final Matcher matched) {
+        final String patternGroup = matched.group();
+        int start = matched.start();
+        int end = matched.end();
+
+        return new TermExtractionResult.TermMention(start, end, patternGroup, entityType, false);
     }
 }
