@@ -120,6 +120,50 @@ public class TeeInputStreamTest {
         in.close();
     }
 
+    @Test
+    public void testAsyncLoops() throws Exception {
+        byte[] temp = new byte[100];
+        int readLen;
+        byte[] data = createMockData(10);
+        InputStream source = new ByteArrayInputStream(data);
+        final TeeInputStream in = new TeeInputStream(source, 2);
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    in.loopUntilTeesAreClosed();
+                } catch (Exception e) {
+                    System.out.println("Fail");
+                }
+            }
+        });
+        t.start();
+        InputStream[] tees = in.getTees();
+
+        assertEquals(0, tees[0].read());
+        Thread.sleep(1);
+        assertEquals(0, tees[1].read());
+        Thread.sleep(1);
+
+        readLen = tees[0].read(temp, 0, 5);
+        Thread.sleep(1);
+        assertEquals(5, readLen);
+        assertArrayEquals(Arrays.copyOfRange(data, 1, 6), Arrays.copyOfRange(temp, 0, 5));
+
+        readLen = tees[0].read(temp);
+        Thread.sleep(1);
+        assertEquals(4, readLen);
+        assertArrayEquals(Arrays.copyOfRange(data, 6, 10), Arrays.copyOfRange(temp, 0, 4));
+
+        readLen = tees[1].read(temp);
+        Thread.sleep(1);
+        assertEquals(9, readLen);
+        assertArrayEquals(Arrays.copyOfRange(data, 1, 10), Arrays.copyOfRange(temp, 0, 9));
+
+        Thread.sleep(1);
+        in.close();
+    }
+
     private byte[] createMockData(int len) {
         byte[] data = new byte[len];
         for (int i = 0; i < len; i++) {
