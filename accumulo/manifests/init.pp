@@ -3,6 +3,7 @@ class accumulo(
   $user = "accumulo",
   $group = "hadoop",
   $installdir = "/usr/lib",
+  $bindir = "/usr/lib/accumulo/bin",
   $logdir = "/var/log/accumulo",
   $tmpdir = '/tmp'
 ) {
@@ -149,5 +150,13 @@ class accumulo(
   macro::setup-passwordless-ssh { $user :
     sshdir  => "${configdir}/.ssh",
     require => File["${configdir}/.ssh"],
+  }
+
+  file { "$bindir/accumulo-init.sh":
+    ensure   => file,
+    source   => "puppet:///modules/accumulo/accumulo-init.sh",
+    owner    => "root",
+    group    => "root",
+    force    => true,
   }
 }
