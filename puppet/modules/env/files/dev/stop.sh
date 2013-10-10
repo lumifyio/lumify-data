@@ -29,7 +29,7 @@ function oozie {
 }
 
 function elasticsearch {
-    sudo /usr/lib/elasticsearch/bin/service/elasticsearch stop
+    sudo initctl stop elasticsearch
 }
 
 function kafka {
