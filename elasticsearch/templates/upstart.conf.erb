@@ -15,4 +15,10 @@ umask 0007
 respawn
 respawn limit 5 10
 
-exec su -s /bin/sh -c 'exec "$0" "$@"' root -- <%= @homelink %>/bin/service/elasticsearch start
+script
+# UNCOMMENT THE FOLLOWING TO HELP DEBUG
+#  exec >>/var/log/elasticsearch-upstart.log 2>&1
+#  set -x
+
+  exec /usr/lib/elasticsearch/bin/elasticsearch -f
+end script
