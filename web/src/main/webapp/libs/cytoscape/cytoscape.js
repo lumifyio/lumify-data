@@ -4413,6 +4413,109 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
 			return this; // chaining
 		},
+
+        zoomOutToFit: function( elements, padding, zoomPosition, callback){
+            if( $$.is.number(elements) && padding === undefined ){ // elements is optional
+				padding = elements;
+				elements = undefined;
+			}
+
+			if( !this._private.panEnabled || !this._private.zoomEnabled ){
+				return this;
+			}
+
+			if( $$.is.string(elements) ){
+				var sel = elements;
+				elements = this.$( sel );
+			} else if( !$$.is.elementOrCollection(elements) ){
+				elements = this.elements();
+			}
+
+			var bb = elements.boundingBox();
+			var style = this.style();
+
+			var w = parseFloat( style.containerCss("width") ) * pixelScale;
+			var h = parseFloat( style.containerCss("height") ) * pixelScale;
+			var zoom;
+
+            if (!$$.is.plainObject(padding)) {
+                if (!$$.is.number(padding)) padding = 0;
+                padding = {t:padding,r:padding,b:padding,l:padding};                
+            }
+            padding.t = (padding.t || 0) * pixelScale;
+            padding.r = (padding.r || 0) * pixelScale;
+            padding.b = (padding.b || 0) * pixelScale;
+            padding.l = (padding.l || 0) * pixelScale;
+            
+			if( !isNaN(w) && !isNaN(h) ){
+                
+                zoom = this._private.zoom;
+                var originalZoom = zoom;
+                var position = zoomPosition;
+                var pan = this._private.pan;
+                var unpos = {x:position.x * zoom + pan.x,
+                             y:position.y * zoom + pan.y};
+
+                var viewportTopLeft = this.renderer().projectIntoViewport(padding.l/pixelScale,padding.t/pixelScale);
+                var viewportBottomRight = this.renderer().projectIntoViewport(w/pixelScale-padding.r/pixelScale,h/pixelScale-padding.b/pixelScale);
+                var zooms = [];
+                if (bb.x1 < viewportTopLeft[0])     zooms.push(  ((position.x - viewportTopLeft[0]) / (position.x - bb.x1)));
+                if (bb.x2 > viewportBottomRight[0]) zooms.push(  ((viewportBottomRight[0] - position.x) / (bb.x2 - position.x)));
+                if (bb.y1 < viewportTopLeft[1])     zooms.push(  ((position.y - viewportTopLeft[1]) / (position.y - bb.y1)));
+                if (bb.y2 > viewportBottomRight[1]) zooms.push(  ((viewportBottomRight[1] - position.y) / (bb.y2 - position.y)));
+                if (zooms.length) {
+                    zoom *= Math.abs(Math.min.apply(Math, zooms));
+                }
+
+                if (zoom > originalZoom) zoom = originalZoom;
+                zoom = Math.max(0.05, zoom);
+
+                // Set min and max zoom to fit all items
+                if (zoom < this._private.minZoom) {
+                    this._private.minZoom = zoom;
+                    this._private.maxZoom = 1 / zoom;
+                } else {
+                    this._private.minZoom = this._private.originalMinZoom;
+                    this._private.maxZoom = this._private.originalMaxZoom;
+                }
+
+                if (Math.abs(zoom - this._private.zoom) < 0.05) {
+                    this.zoom({level: zoom, position:unpos});
+                    callback();
+                } else {
+                    this.currentZoomTarget = zoom;
+                    requestAnimationFrame(animateZoom);
+
+
+                    var self = this,
+                        zoomBegin = this._private.zoom,
+                        zoomEnd = zoom,
+                        zoomCurrent = zoomBegin,
+                        startTime = Date.now(),
+                        duration = 800;
+
+                    function animateZoom(now) {
+                        if (self.currentZoomTarget !== zoomEnd) return;
+
+                        var now = Date.now();
+                        var percent = Math.max(0, Math.min(1.0, (now - startTime) / duration));
+                        var zoom = $.easing.easeOutBack(percent, percent, zoomBegin, zoomEnd - zoomBegin, 1);
+                        self.zoom({level: zoom, position:unpos});
+                        if ((now - startTime) < duration) requestAnimationFrame(animateZoom);
+                        else callback();
+                    };
+                }
+            }
+
+			this.trigger("zoom");
+
+			this.notify({ // notify the renderer that the viewport changed
+				type: "viewport"
+			});
+
+			return this; // chaining
+
+        },
 		
 		fit: function( elements, padding ){
 			if( $$.is.number(elements) && padding === undefined ){ // elements is optional
@@ -4459,6 +4562,7 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
                     this._private.maxZoom = this._private.originalMaxZoom;
                 }
 
+                if (zoom > this._private.maxZoom) zoom = this._private.maxZoom;
 
                 this._private.zoom = zoom;
 

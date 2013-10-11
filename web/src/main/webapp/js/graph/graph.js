@@ -153,22 +153,47 @@ define([
             if (!this.isWorkspaceEditable) return;
             this.cy(function(cy) {
                 var self = this,
-                    vertices = data.vertices, toAdd = [];
+                    vertices = data.vertices, 
+                    toFitTo = [],
+                    toAnimateTo = [],
+                    toRemove = [],
+                    toAdd = [],
+                    position;
 
-                vertices.forEach(function(vertex) {
+                vertices.forEach(function(vertex, i) {
                     var node = cy.getElementById('NEW-' + vertex.id);
+                    if (i === 0) position = node.position();
                     if (node.hasClass('existing')) {
-                        self.animateToExistingNode(node);
+                        var existingNode = cy.getElementById(node.id().replace(/^NEW-/, ''));
+                        if (existingNode.length) toFitTo.push(existingNode);
+                        toAnimateTo.push([node, existingNode]);
+                        toFitTo.push(existingNode);
                     } else {
                         vertex.workspace.graphPosition = retina.pixelsToPoints(node.position());
                         toAdd.push(vertex);
-                        node.remove();
+                        toRemove.push(node);
                     }
                 });
 
-                // TODO: center on dropped and existing
+                if (toFitTo.length) {
+                    cy.zoomOutToFit(cytoscape.Collection(cy, toFitTo), $.extend({}, this.graphPadding), position, finished);
+                    animateToExisting(200);
+                } else {
+                    animateToExisting(0);
+                    finished();
+                }
 
-                this.trigger('addVertices', { vertices:toAdd });
+                function animateToExisting(delay) {
+                    toAnimateTo.forEach(function(args) {
+                        self.animateFromToNode.apply(self, args.concat([delay]));
+                    });
+                }
+
+                function finished() {
+                    cytoscape.Collection(cy, toRemove).remove();
+                    self.trigger('addVertices', { vertices:toAdd });
+                    cy.container().focus();
+                }
             });
         };
 
@@ -282,7 +307,6 @@ define([
 
                 if (existingNodes.length && cloned && cloned.length) {
                     // Animate to something
-                    //this.animateToExistingNode(existingNodes[0], cloned);
                 } else if (cloned) cloned.remove();
 
                 if (updatedVertices.length) {
@@ -409,29 +433,29 @@ define([
             this.setWorkspaceDirty();
         };
 
-        this.animateToExistingNode = function(cyNode) {
+        this.animateFromToNode = function(cyFromNode, cyToNode, delay) {
             var self = this,
-                cy = cyNode.cy(),
-                toNode = cy.getElementById(cyNode.id().replace(/^NEW-/, ''));
+                cy = cyFromNode.cy();
             
-            if (toNode.length) {
-                cyNode
+            if (cyToNode && cyToNode.length) {
+                cyFromNode
                     .css('opacity', 1.0)
                     .stop(true)
+                    .delay(delay)
                     .animate(
                         { 
-                            position: toNode.position() 
+                            position: cyToNode.position() 
                         }, 
                         { 
-                            duration: 'slow',
+                            duration: 700,
                             easing: 'easeOutBack',
                             complete: function() {
-                                cyNode.remove(); 
+                                cyFromNode.remove(); 
                             }
                         }
                     );
             } else {
-                cyNode.remove();
+                cyFromNode.remove();
             }
         };
 
@@ -505,24 +529,32 @@ define([
         this.onDevicePixelRatioChanged = function() {
             this.cy(function(cy) {
                 cy.renderer().updatePixelRatio();
-                this.fit();
+                this.fit(cy);
             });
         };
 
-        this.fit = function() {
-            this.cy(function(cy) {
+        this.fit = function(cy, nodes) {
+            var self = this;
+
+            if (cy) {
+                _fit(cy);
+            } else {
+                this.cy(_fit);
+            }
+
+            function _fit(cy) {
                 if( cy.elements().size() === 0 ){
                     cy.reset();
-                } else if (this.graphPadding) {
+                } else if (self.graphPadding) {
                     // Temporarily adjust max zoom 
                     // prevents extreme closeup when one vertex
                     var maxZoom = cy._private.maxZoom;
                     cy._private.maxZoom *= 0.5;
                     cy.panningEnabled(true).zoomingEnabled(true).boxSelectionEnabled(true);
-                    cy.fit(undefined, $.extend({}, this.graphPadding));
+                    cy.fit(nodes, $.extend({}, self.graphPadding));
                     cy._private.maxZoom = maxZoom;
                 }
-            });
+            }
         };
 
         this.verticesForGraphIds = function(cy, vertexIds) {
@@ -633,37 +665,6 @@ define([
                 }, LAYOUT_OPTIONS[layout] || {});
 
                 cy.layout(opts);
-            });
-        };
-
-
-        this.focusGraphToVertex = function(el, callback) {
-            var position = retina.pixelsToPoints(el.renderedPosition()),
-                padding = $.extend({}, this.graphPadding),
-                extraHPadding = el.width() / 2 + 5,
-                extraVPadding = el.height() / 2 + 5,
-                width = this.$node.width(),
-                height = this.$node.height(),
-                panToView = { x:0, y:0 };
-
-            padding.l += extraHPadding; padding.r += extraHPadding; 
-            padding.t += extraVPadding; padding.b += extraVPadding;
-
-            if (position.x < padding.l) {
-                panToView.x = padding.l - position.x;
-            } else if (position.x > width - padding.r) {
-                panToView.x = (width - padding.r) - position.x;
-            }
-
-            if (position.y < padding.t) {
-                panToView.y = padding.t - position.y;
-            } else if (position.y > height - padding.b) {
-                panToView.y = (height - padding.b) - position.y;
-            }
-
-            this.cy(function(cy) {
-                cy.panBy(retina.pointsToPixels(panToView));
-                callback();
             });
         };
 
@@ -1059,7 +1060,7 @@ define([
                     $('.ui-cytoscape-panzoom-reset').on('mousedown', function(e) {
 						if (e.button !== 0) return;
                         e.stopPropagation();
-                        self.fit();
+                        self.fit(cy);
                     });
 
                     self.panZoom = self.select('graphToolsSelector');
