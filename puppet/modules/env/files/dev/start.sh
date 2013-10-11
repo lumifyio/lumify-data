@@ -30,9 +30,9 @@ function accumulo {
 
 function elasticsearch {
     echo "Starting elasticsearch..."
-    sudo /usr/lib/elasticsearch/bin/service/elasticsearch status | grep -q "is running"
+    sudo initctl status elasticsearch | grep -q running
     if [ $? -eq 1 ]; then
-        sudo /usr/lib/elasticsearch/bin/service/elasticsearch start
+        sudo initctl start elasticsearch
     else
         echo "elasticsearch already running"
     fi

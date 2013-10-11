@@ -24,7 +24,7 @@ function zk {
 function elasticsearch {
     echo ""
     echo "Elastic Search"
-    sudo /usr/lib/elasticsearch/bin/service/elasticsearch status
+    sudo initctl status elasticsearch
 }
 
 function kafka {
