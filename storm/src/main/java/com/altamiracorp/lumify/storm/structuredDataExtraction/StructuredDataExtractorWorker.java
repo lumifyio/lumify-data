@@ -11,8 +11,14 @@ import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.io.CsvListWriter;
+import org.supercsv.prefs.CsvPreference;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+import java.util.List;
 import java.util.Map;
 
 public class StructuredDataExtractorWorker
@@ -23,20 +29,21 @@ public class StructuredDataExtractorWorker
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
-        HdfsLimitOutputStream textOut = new HdfsLimitOutputStream(data.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
-        ArtifactExtractedInfo info;
-        try {
-            info = tikaTextExtractor.extract(work, data.getMimeType(), textOut);
-        } finally {
-            textOut.close();
+        //todo add mapping reference and related work
+        ArtifactExtractedInfo info = new ArtifactExtractedInfo();
+
+        StringWriter writer = new StringWriter();
+        CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
+        CsvListReader csvReader = new CsvListReader(new InputStreamReader(work), csvPrefs);
+        CsvListWriter csvWriter = new CsvListWriter(writer, csvPrefs);
+        List<String> line;
+        while ((line = csvReader.read()) != null) {
+            csvWriter.write(line);
         }
-        info.setTextRowKey(textOut.getRowKey());
-        if (textOut.hasExceededSizeLimit()) {
-            info.setTextHdfsPath(textOut.getHdfsPath().toString());
-        } else {
-            LOGGER.info("extract text size: " + textOut.getSmall().length);
-            info.setText(new String(textOut.getSmall()));
-        }
+        csvWriter.close();
+
+        info.setText(writer.toString());
+
         return info;
     }
 

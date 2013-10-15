@@ -2,8 +2,6 @@ package com.altamiracorp.lumify.storm.structuredDataExtraction;
 
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactMetadata;
 import org.junit.Test;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -27,7 +25,7 @@ public class StructuredDataWorkerTest {
         worker = new StructuredDataExtractorWorker();
         stream = getClass().getResourceAsStream("personLocations.csv");
         data = new AdditionalArtifactWorkData();
-        data.setMimeType("text/csv");
+        data.setMimeType("text/plain");
 
     }
 
@@ -40,9 +38,10 @@ public class StructuredDataWorkerTest {
     public void testDoWork() {
         try {
         ArtifactExtractedInfo result = worker.doWork(stream, data);
-
+        assertEquals("Name,Zip Code\nJoe Ferner,20147,10/30/1977,blah\n", result.getText() );
 
         }  catch (Exception e) {
+           System.out.println(e.toString());
            fail();
         }
     }
