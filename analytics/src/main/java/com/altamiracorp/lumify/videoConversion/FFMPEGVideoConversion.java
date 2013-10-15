@@ -38,31 +38,10 @@ public class FFMPEGVideoConversion {
     private void encodeMp4(File file, Artifact artifact, User user) throws IOException, InterruptedException {
         throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
 //        // encode mp4 file
-//        File mp4File = File.createTempFile("encode_mp4_", ".mp4");
 //        LOGGER.info("Encoding (mp4) " + file.getAbsolutePath() + " to " + mp4File.getAbsolutePath());
-//        ffmpeg(new String[]{
-//                "-y", // overwrite output files
-//                "-i", file.getAbsolutePath(),
-//                "-vcodec", "libx264",
-//                "-vprofile", "high",
-//                "-preset", "slow",
-//                "-b:v", "500k",
-//                "-maxrate", "500k",
-//                "-bufsize", "1000k",
-//                "-vf", "scale=720:480",
-//                "-threads", "0",
-//                "-acodec", "libfdk_aac",
-//                "-b:a", "128k",
-//                "-f", "mp4",
-//                mp4File.getAbsolutePath()
-//        });
 //
 //        // relocate metadata
 //        File mp4ReloactedFile = File.createTempFile("encode_mp4_relocate_", ".mp4");
-//        qtFaststart(new String[]{
-//                mp4File.getAbsolutePath(),
-//                mp4ReloactedFile.getAbsolutePath()
-//        });
 //        mp4File.delete();
 //
 //        // save file
