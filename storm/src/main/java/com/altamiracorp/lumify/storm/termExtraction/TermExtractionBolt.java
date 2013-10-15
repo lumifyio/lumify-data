@@ -150,7 +150,11 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
     }
 
     private void processTermMentions(List<TermMentionWithGraphVertex> termMentions) {
-        // TODO: process term mentions. Location extraction, etc
+        final LocationTermAnalyzer locationAnalyzer = getInjector().getInstance(LocationTermAnalyzer.class);
+
+        for(final TermMentionWithGraphVertex mention : termMentions) {
+            locationAnalyzer.analyzeTermData(mention, getUser());
+        }
     }
 
     @Override
