@@ -1,7 +1,9 @@
 package com.altamiracorp.lumify.model;
 
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

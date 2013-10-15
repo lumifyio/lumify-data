@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
-public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
+public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BaseFileProcessingBolt.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseArtifactProcessingBolt.class);
     private ThreadedInputStreamProcess<ArtifactExtractedInfo, AdditionalArtifactWorkData> threadedInputStreamProcess;
     private ContentTypeExtractor contentTypeExtractor;
     private VideoFrameRepository videoFrameRepository;
@@ -45,11 +45,6 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
             mkdir("/lumify/artifacts");
             mkdir("/lumify/artifacts/text");
             mkdir("/lumify/artifacts/raw");
-            mkdir("/lumify/artifacts/video");
-            mkdir("/lumify/artifacts/video/mp4");
-            mkdir("/lumify/artifacts/video/audio");
-            mkdir("/lumify/artifacts/video/webm");
-            mkdir("/lumify/artifacts/video/posterFrame");
         } catch (IOException e) {
             collector.reportError(e);
         }
@@ -114,7 +109,7 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
             saveVideoFrames(new ArtifactRowKey(artifactExtractedInfo.getRowKey()), artifactExtractedInfo.getVideoFrames());
         }
 
-        GraphVertex graphVertex = addArtifact(artifactExtractedInfo);
+        GraphVertex graphVertex = saveArtifact(artifactExtractedInfo);
 
         return graphVertex;
     }
@@ -277,8 +272,12 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
     @Override
     public void safeExecute(Tuple input) throws Exception {
         GraphVertex graphVertex = processFile(input);
-        pushOnTextQueue(graphVertex);
+        onAfterGraphVertexCreated(graphVertex);
         getCollector().ack(input);
+    }
+
+    protected void onAfterGraphVertexCreated(GraphVertex graphVertex) {
+        pushOnTextQueue(graphVertex);
     }
 
     protected void pushOnTextQueue(GraphVertex graphVertex) {

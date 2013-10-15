@@ -25,6 +25,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 @Singleton
 public class ArtifactRepository extends Repository<Artifact> {
+    public static final String LUMIFY_VIDEO_PREVIEW_HDFS_PATH = "/lumify/artifacts/video/preview/";
+    public static final int FRAMES_PER_PREVIEW = 20;
+    public static final int PREVIEW_FRAME_WIDTH = 360;
+    public static final int PREVIEW_FRAME_HEIGHT = 240;
     private final ArtifactBuilder artifactBuilder = new ArtifactBuilder();
     private final GraphSession graphSession;
     private final SearchProvider searchProvider;
@@ -187,5 +191,13 @@ public class ArtifactRepository extends Repository<Artifact> {
             InputStream in = getModelSession().loadFile(hdfsPath, user);
             IOUtils.copy(in, out);
         }
+    }
+
+    public InputStream getVideoPreviewImage(ArtifactRowKey artifactRowKey, User user) {
+        return getModelSession().loadFile(getVideoPreviewPath(artifactRowKey.toString()), user);
+    }
+
+    public static String getVideoPreviewPath(String artifactRowKey) {
+        return LUMIFY_VIDEO_PREVIEW_HDFS_PATH + artifactRowKey;
     }
 }

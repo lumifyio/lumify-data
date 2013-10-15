@@ -16,6 +16,7 @@ import com.altamiracorp.lumify.storm.structuredDataExtraction.StructuredDataBolt
 import com.altamiracorp.lumify.storm.termExtraction.TermExtractionBolt;
 import com.altamiracorp.lumify.storm.textHighlighting.ArtifactHighlightingBolt;
 import com.altamiracorp.lumify.storm.video.VideoBolt;
+import com.altamiracorp.lumify.storm.video.VideoPreviewBolt;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -125,6 +126,7 @@ public class StormRunner extends CommandLineBase {
         createStructuredDataTopology(builder, topologyConfig);
         createTextTopology(builder);
         createArtifactHighlightingTopology(builder);
+        createProcessedVideoTopology(builder);
 
         return builder.createTopology();
     }
@@ -176,6 +178,13 @@ public class StormRunner extends CommandLineBase {
         builder.setSpout("artifactHighlightSpout", new KafkaSpout(spoutConfig), 1);
         builder.setBolt("artifactHighlightBolt", new ArtifactHighlightingBolt(), 1)
                 .shuffleGrouping("artifactHighlightSpout");
+    }
+
+    private void createProcessedVideoTopology(TopologyBuilder builder) {
+        SpoutConfig spoutConfig = createSpoutConfig("processedVideo", null);
+        builder.setSpout("processedVideoSpout", new KafkaSpout(spoutConfig), 1);
+        builder.setBolt("processedVideoBolt", new VideoPreviewBolt(), 1)
+                .shuffleGrouping("processedVideoSpout");
     }
 
     private SpoutConfig createSpoutConfig(String queueName, Scheme scheme) {

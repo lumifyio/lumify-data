@@ -169,33 +169,13 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         return collector;
     }
 
-    protected GraphVertex addArtifact(ArtifactExtractedInfo artifactExtractedInfo) throws IOException {
-        Artifact artifact = artifactRepository.findByRowKey(artifactExtractedInfo.getRowKey(), getUser());
-        if (artifact == null) {
-            artifact = new Artifact(artifactExtractedInfo.getRowKey());
-            artifact.getMetadata().setCreateDate(new Date());
-        }
-        if (artifactExtractedInfo.getRaw() != null) {
-            artifact.getMetadata().setRaw(artifactExtractedInfo.getRaw());
-        }
-        if (artifactExtractedInfo.getVideoTranscript() != null) {
-            artifact.getMetadata().setVideoTranscript(artifactExtractedInfo.getVideoTranscript());
-            // TODO should we combine text like this? If the text ends up on HDFS the text here is technically invalid
-            if (artifactExtractedInfo.getText() == null) {
-                artifactExtractedInfo.setText(artifactExtractedInfo.getVideoTranscript().toString());
-            } else {
-                artifactExtractedInfo.setText(artifactExtractedInfo.getText() + "\n\n" + artifactExtractedInfo.getVideoTranscript().toString());
-            }
-        }
-        if (artifactExtractedInfo.getText() != null) {
-            artifact.getMetadata().setText(artifactExtractedInfo.getText());
-            if (artifact.getMetadata().getHighlightedText() == null) {
-                artifact.getMetadata().setHighlightedText(artifactExtractedInfo.getText());
-            }
-        }
+    protected GraphVertex saveArtifact(ArtifactExtractedInfo artifactExtractedInfo) throws IOException {
+        Artifact artifact = saveArtifactModel(artifactExtractedInfo);
+        GraphVertex artifactVertex = saveArtifactGraphVertex(artifactExtractedInfo, artifact);
+        return artifactVertex;
+    }
 
-        artifactRepository.save(artifact, getUser());
-
+    private GraphVertex saveArtifactGraphVertex(ArtifactExtractedInfo artifactExtractedInfo, Artifact artifact) {
         GraphVertex artifactVertex = null;
         String oldGraphVertexId = artifact.getMetadata().getGraphVertexId();
         if (oldGraphVertexId != null) {
@@ -226,8 +206,36 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
             artifact.getMetadata().setGraphVertexId(vertexId);
             artifactRepository.save(artifact, getUser());
         }
-
         return artifactVertex;
+    }
+
+    private Artifact saveArtifactModel(ArtifactExtractedInfo artifactExtractedInfo) {
+        Artifact artifact = artifactRepository.findByRowKey(artifactExtractedInfo.getRowKey(), getUser());
+        if (artifact == null) {
+            artifact = new Artifact(artifactExtractedInfo.getRowKey());
+            artifact.getMetadata().setCreateDate(new Date());
+        }
+        if (artifactExtractedInfo.getRaw() != null) {
+            artifact.getMetadata().setRaw(artifactExtractedInfo.getRaw());
+        }
+        if (artifactExtractedInfo.getVideoTranscript() != null) {
+            artifact.getMetadata().setVideoTranscript(artifactExtractedInfo.getVideoTranscript());
+            // TODO should we combine text like this? If the text ends up on HDFS the text here is technically invalid
+            if (artifactExtractedInfo.getText() == null) {
+                artifactExtractedInfo.setText(artifactExtractedInfo.getVideoTranscript().toString());
+            } else {
+                artifactExtractedInfo.setText(artifactExtractedInfo.getText() + "\n\n" + artifactExtractedInfo.getVideoTranscript().toString());
+            }
+        }
+        if (artifactExtractedInfo.getText() != null) {
+            artifact.getMetadata().setText(artifactExtractedInfo.getText());
+            if (artifact.getMetadata().getHighlightedText() == null) {
+                artifact.getMetadata().setHighlightedText(artifactExtractedInfo.getText());
+            }
+        }
+
+        artifactRepository.save(artifact, getUser());
+        return artifact;
     }
 
     protected User getUser() {
