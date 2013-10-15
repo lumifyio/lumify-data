@@ -11,7 +11,7 @@ import org.apache.hadoop.thirdparty.guava.common.collect.Iterables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;

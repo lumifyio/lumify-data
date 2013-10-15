@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.core.ingest.termExtraction;
+package com.altamiracorp.lumify.core.ingest.term.extraction;
 
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;

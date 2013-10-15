@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.core.ingest.termExtraction;
+package com.altamiracorp.lumify.core.ingest.term.extraction;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

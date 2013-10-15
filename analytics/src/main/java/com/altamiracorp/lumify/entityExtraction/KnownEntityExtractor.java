@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.entityExtraction;
 
-import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;

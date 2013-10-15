@@ -18,9 +18,9 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
-import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionAdditionalWorkData;
-import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult;
-import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionWorker;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditionalWorkData;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
