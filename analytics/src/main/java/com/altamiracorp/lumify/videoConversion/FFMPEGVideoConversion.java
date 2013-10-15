@@ -31,35 +31,10 @@ public class FFMPEGVideoConversion {
 
     public void convert(Artifact artifact, User user) throws IOException, InterruptedException {
         File videoFile = writeFileToTemp(artifact, user);
-        extractAudio(videoFile, artifact, user);
         encodeMp4(videoFile, artifact, user);
         extractPosterFrame(videoFile, artifact, user);
         extractFramesForAnalysis(videoFile, artifact, user);
         videoFile.delete();
-    }
-
-    private void extractAudio(File file, Artifact artifact, User user) throws IOException, InterruptedException {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        File audioFile = File.createTempFile("audio_", ".mp3");
-//
-//        // pass 1
-//        LOGGER.info("Extracting audio from video " + file.getAbsolutePath() + " to " + audioFile.getAbsolutePath());
-//        ffmpeg(new String[]{
-//                "-i", file.getAbsolutePath(),
-//                "-vn",
-//                "-ar", "44100",
-//                "-ab", "320k",
-//                "-f", "mp3",
-//                "-y",
-//                audioFile.getAbsolutePath()
-//        });
-//
-//        // save file
-//        InputStream audioFileIn = new FileInputStream(audioFile);
-//        SaveFileResults audioFileSaveResults = artifactRepository.saveFile(audioFileIn, user);
-//        artifact.getGenericMetadata().setAudioHdfsFilePath(audioFileSaveResults.getFullPath());
-//        audioFileIn.close();
-//        audioFile.delete();
     }
 
     private void extractFramesForAnalysis(File videoFile, Artifact artifact, User user) throws IOException, InterruptedException {

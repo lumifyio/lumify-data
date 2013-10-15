@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.videoConversion;
+package com.altamiracorp.lumify.storm.video;
 
 import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 

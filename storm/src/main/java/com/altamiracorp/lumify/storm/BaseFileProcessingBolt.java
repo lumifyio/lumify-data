@@ -44,6 +44,7 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
             mkdir("/lumify/artifacts/raw");
             mkdir("/lumify/artifacts/video");
             mkdir("/lumify/artifacts/video/mp4");
+            mkdir("/lumify/artifacts/video/audio");
             mkdir("/lumify/artifacts/video/webm");
         } catch (IOException e) {
             collector.reportError(e);
@@ -96,6 +97,10 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
         if (artifactExtractedInfo.getWebMHdfsFilePath() != null) {
             String newTextPath = moveTempWebMFile(artifactExtractedInfo.getWebMHdfsFilePath(), artifactExtractedInfo.getRowKey());
             artifactExtractedInfo.setWebMHdfsFilePath(newTextPath);
+        }
+        if (artifactExtractedInfo.getAudioHdfsPath() != null) {
+            String newTextPath = moveTempAudioFile(artifactExtractedInfo.getAudioHdfsPath(), artifactExtractedInfo.getRowKey());
+            artifactExtractedInfo.setAudioHdfsPath(newTextPath);
         }
 
         GraphVertex graphVertex = addArtifact(artifactExtractedInfo);
@@ -216,6 +221,10 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
 
     protected String moveTempWebMFile(String fileName, String rowKey) throws IOException {
         return moveTempFile("/lumify/artifacts/video/webm/", fileName, rowKey);
+    }
+
+    protected String moveTempAudioFile(String fileName, String rowKey) throws IOException {
+        return moveTempFile("/lumify/artifacts/video/audio/", fileName, rowKey);
     }
 
     protected String moveTempMp4File(String fileName, String rowKey) throws IOException {

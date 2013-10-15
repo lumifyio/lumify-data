@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.videoConversion;
 
 import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
+import com.altamiracorp.lumify.storm.video.YoutubeccReader;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;

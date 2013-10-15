@@ -7,7 +7,6 @@ import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ProcessRunner;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
-import com.altamiracorp.lumify.videoConversion.SubRip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
