@@ -50,7 +50,7 @@ public class KnownEntityExtractor {
     }
 
     private void loadDictionaries() throws IOException {
-        Path hdfsDirectory = new Path(getPathPrefix() + "/conf/knowEntities/dictionaries");
+        Path hdfsDirectory = new Path(getPathPrefix() + "/conf/knownEntities/dictionaries");
         for (FileStatus dictionaryFileStatus : getFS().listStatus(hdfsDirectory)) {
             Path hdfsPath = dictionaryFileStatus.getPath();
             if (hdfsPath.getName().startsWith(".") || !hdfsPath.getName().endsWith(".dict")) {

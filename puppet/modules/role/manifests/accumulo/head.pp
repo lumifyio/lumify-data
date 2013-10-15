@@ -1,3 +1,6 @@
 class role::accumulo::head {
-  include ::accumulo
+  include ::accumulo::master
+  include ::accumulo::gc
+  include ::accumulo::monitor
+  include ::accumulo::tracer
 }

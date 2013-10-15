@@ -3411,8 +3411,8 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
 		// init zoom bounds
 		if( $$.is.number(options.minZoom) && $$.is.number(options.maxZoom) && options.minZoom < options.maxZoom ){
-			this._private.minZoom = options.minZoom;
-			this._private.maxZoom = options.maxZoom;
+            this._private.originalMinZoom = this._private.minZoom = options.minZoom;
+			this._private.originalMaxZoom = this._private.maxZoom = options.maxZoom;
 		} else if( $$.is.number(options.minZoom) && options.maxZoom === undefined ){
 			this._private.minZoom = options.minZoom;
 		} else if( $$.is.number(options.maxZoom) && options.minZoom === undefined ){
@@ -3864,14 +3864,15 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 				if( properties.delay == null ){ // then update the position
 					var startPos = animation.startPosition;
 					var endPos = properties.position;
+                    var easing = params && params.easing;
 					var pos = self._private.position;
 					if( endPos ){
 						if( valid( startPos.x, endPos.x ) ){
-							pos.x = ease( startPos.x, endPos.x, percent );
+							pos.x = ease( startPos.x, endPos.x, percent, easing );
 						}
 
 						if( valid( startPos.y, endPos.y ) ){
-							pos.y = ease( startPos.y, endPos.y, percent );
+							pos.y = ease( startPos.y, endPos.y, percent, easing );
 						}
 					}
 
@@ -3883,7 +3884,7 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
 							if( end !== undefined ){
 								var start = animation.startStyle[ name ];
-								var easedVal = ease( start, end, percent );
+								var easedVal = ease( start, end, percent, easing );
 								
 								style.applyBypass( self, name, easedVal );
 							}
@@ -3916,7 +3917,7 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 				return false;
 			}
 			
-			function ease(start, end, percent){
+			function ease(start, end, percent, easing){
 				if( percent < 0 ){
 					percent = 0;
 				} else if( percent > 1 ){
@@ -3924,9 +3925,22 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 				}
 
 				if( $$.is.number(start) && $$.is.number(end) ){
-                    var t = percent - 1;
-					           //return start + (end - start) * percent;
-                    return (end - start)*(t*t*t + 1) + start;
+
+                    var easingPercent = percent;
+
+                    if (easing && $.easing && $.easing[easing]) {
+                        return $.easing[easing](
+                                percent,     // percent
+                                percent,     // current time
+                                start,       // beginning value
+                                end - start, // change in value
+                                1);          // duration
+                    }
+                    
+                    return start + (end - start) * easingPercent;
+
+                    //var t = percent - 1;
+                    //return (end - start)*(t*t*t + 1) + start;
 
 				} else if( $$.is.number(start[0]) && $$.is.number(end[0]) ){ // then assume a colour
 					var c1 = start;
@@ -4399,6 +4413,109 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 
 			return this; // chaining
 		},
+
+        zoomOutToFit: function( elements, padding, zoomPosition, callback){
+            if( $$.is.number(elements) && padding === undefined ){ // elements is optional
+				padding = elements;
+				elements = undefined;
+			}
+
+			if( !this._private.panEnabled || !this._private.zoomEnabled ){
+				return this;
+			}
+
+			if( $$.is.string(elements) ){
+				var sel = elements;
+				elements = this.$( sel );
+			} else if( !$$.is.elementOrCollection(elements) ){
+				elements = this.elements();
+			}
+
+			var bb = elements.boundingBox();
+			var style = this.style();
+
+			var w = parseFloat( style.containerCss("width") ) * pixelScale;
+			var h = parseFloat( style.containerCss("height") ) * pixelScale;
+			var zoom;
+
+            if (!$$.is.plainObject(padding)) {
+                if (!$$.is.number(padding)) padding = 0;
+                padding = {t:padding,r:padding,b:padding,l:padding};                
+            }
+            padding.t = (padding.t || 0) * pixelScale;
+            padding.r = (padding.r || 0) * pixelScale;
+            padding.b = (padding.b || 0) * pixelScale;
+            padding.l = (padding.l || 0) * pixelScale;
+            
+			if( !isNaN(w) && !isNaN(h) ){
+                
+                zoom = this._private.zoom;
+                var originalZoom = zoom;
+                var position = zoomPosition;
+                var pan = this._private.pan;
+                var unpos = {x:position.x * zoom + pan.x,
+                             y:position.y * zoom + pan.y};
+
+                var viewportTopLeft = this.renderer().projectIntoViewport(padding.l/pixelScale,padding.t/pixelScale);
+                var viewportBottomRight = this.renderer().projectIntoViewport(w/pixelScale-padding.r/pixelScale,h/pixelScale-padding.b/pixelScale);
+                var zooms = [];
+                if (bb.x1 < viewportTopLeft[0])     zooms.push(  ((position.x - viewportTopLeft[0]) / (position.x - bb.x1)));
+                if (bb.x2 > viewportBottomRight[0]) zooms.push(  ((viewportBottomRight[0] - position.x) / (bb.x2 - position.x)));
+                if (bb.y1 < viewportTopLeft[1])     zooms.push(  ((position.y - viewportTopLeft[1]) / (position.y - bb.y1)));
+                if (bb.y2 > viewportBottomRight[1]) zooms.push(  ((viewportBottomRight[1] - position.y) / (bb.y2 - position.y)));
+                if (zooms.length) {
+                    zoom *= Math.abs(Math.min.apply(Math, zooms));
+                }
+
+                if (zoom > originalZoom) zoom = originalZoom;
+                zoom = Math.max(0.05, zoom);
+
+                // Set min and max zoom to fit all items
+                if (zoom < this._private.minZoom) {
+                    this._private.minZoom = zoom;
+                    this._private.maxZoom = 1 / zoom;
+                } else {
+                    this._private.minZoom = this._private.originalMinZoom;
+                    this._private.maxZoom = this._private.originalMaxZoom;
+                }
+
+                if (Math.abs(zoom - this._private.zoom) < 0.05) {
+                    this.zoom({level: zoom, position:unpos});
+                    callback();
+                } else {
+                    this.currentZoomTarget = zoom;
+                    requestAnimationFrame(animateZoom);
+
+
+                    var self = this,
+                        zoomBegin = this._private.zoom,
+                        zoomEnd = zoom,
+                        zoomCurrent = zoomBegin,
+                        startTime = Date.now(),
+                        duration = 800;
+
+                    function animateZoom(now) {
+                        if (self.currentZoomTarget !== zoomEnd) return;
+
+                        var now = Date.now();
+                        var percent = Math.max(0, Math.min(1.0, (now - startTime) / duration));
+                        var zoom = $.easing.easeOutBack(percent, percent, zoomBegin, zoomEnd - zoomBegin, 1);
+                        self.zoom({level: zoom, position:unpos});
+                        if ((now - startTime) < duration) requestAnimationFrame(animateZoom);
+                        else callback();
+                    };
+                }
+            }
+
+			this.trigger("zoom");
+
+			this.notify({ // notify the renderer that the viewport changed
+				type: "viewport"
+			});
+
+			return this; // chaining
+
+        },
 		
 		fit: function( elements, padding ){
 			if( $$.is.number(elements) && padding === undefined ){ // elements is optional
@@ -4436,9 +4553,16 @@ var pixelScale = 'devicePixelRatio' in window ? devicePixelRatio : 1;
 			if( !isNaN(w) && !isNaN(h) ){
 				zoom = Math.min( (w - (padding.l+padding.r))/bb.w, (h - (padding.t+padding.b))/bb.h );
 
-				// crop zoom
-				zoom = zoom > this._private.maxZoom ? this._private.maxZoom : zoom;
-				zoom = zoom < this._private.minZoom ? this._private.minZoom : zoom;
+                // Set min and max zoom to fit all items
+                if (zoom < this._private.minZoom) {
+                    this._private.minZoom = zoom;
+                    this._private.maxZoom = 1 / zoom;
+                } else {
+                    this._private.minZoom = this._private.originalMinZoom;
+                    this._private.maxZoom = this._private.originalMaxZoom;
+                }
+
+                if (zoom > this._private.maxZoom) zoom = this._private.maxZoom;
 
                 this._private.zoom = zoom;
 

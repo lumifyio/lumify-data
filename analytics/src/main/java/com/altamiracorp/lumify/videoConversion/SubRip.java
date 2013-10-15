@@ -24,7 +24,7 @@ public class SubRip {
         }
     }
 
-    private static VideoTranscript read(InputStream in) throws IOException {
+    public static VideoTranscript read(InputStream in) throws IOException {
         VideoTranscript result = new VideoTranscript();
         BufferedReader reader = new BufferedReader(new InputStreamReader(in));
         ReadState readState = ReadState.Frame;

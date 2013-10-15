@@ -25,7 +25,12 @@ function zk {
 
 function accumulo {
     echo "Starting accumulo..."
-    sudo -u accumulo /usr/lib/accumulo/bin/start-all.sh
+    sudo initctl start accumulo-master
+    sudo initctl start accumulo-gc
+    sudo initctl start accumulo-logger
+    sudo initctl start accumulo-monitor
+    sudo initctl start accumulo-tracer
+    sudo initctl start accumulo-tserver
 }
 
 function elasticsearch {

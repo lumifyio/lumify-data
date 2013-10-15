@@ -12,7 +12,12 @@ function zk {
 }
 
 function accumulo {
-    sudo -u accumulo /usr/lib/accumulo/bin/stop-all.sh
+    sudo initctl stop accumulo-tserver
+    sudo initctl stop accumulo-gc
+    sudo initctl stop accumulo-logger
+    sudo initctl stop accumulo-monitor
+    sudo initctl stop accumulo-tracer
+    sudo initctl stop accumulo-master
 }
 
 function elasticsearch {

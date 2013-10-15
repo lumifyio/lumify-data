@@ -515,7 +515,9 @@ define([
                 over: function( event, ui ) {
                     var draggable = ui.draggable,
                         start = true,
+                        graphVisible = $('.graph-pane').is('.visible'),
                         vertices;
+
 
                     draggable.off('drag.droppable-tracking');
                     draggable.on('drag.droppable-tracking', function(event, draggableUI) {
@@ -523,7 +525,9 @@ define([
                             vertices = verticesFromDraggable(draggable);
                         }
                         
-                        ui.helper.toggleClass('draggable-invisible', enabled);
+                        if (graphVisible) {
+                            ui.helper.toggleClass('draggable-invisible', enabled);
+                        }
                         if (enabled) {
                             self.trigger('verticesHovering', {
                                 vertices: vertices,
