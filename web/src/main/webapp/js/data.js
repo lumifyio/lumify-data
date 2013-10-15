@@ -292,6 +292,10 @@ define([
                 vertices = _.isArray(data) ? data : data ? [data] : [],
                 selectedIds = _.pluck(vertices, 'id');
 
+            if (data && data.remoteEvent) {
+                return;
+            }
+
             _.keys(this.workspaceVertices).forEach(function(id) {
                 var info = self.workspaceVertices[id];
                 info.selected = selectedIds.indexOf(id) >= 0;

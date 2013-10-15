@@ -395,9 +395,11 @@ define([
                 this.ignoreCySelectionEvents = true;
 
                 cy.$(':selected').unselect();
-                if (data.length) {
+
+                var vertices = _.isArray(data) ? data : [data];
+                if (vertices.length) {
                     cy.$( 
-                        data.map(function(v) {
+                        vertices.map(function(v) {
                             return '#' + v.id;
                         }).join(',')
                     ).select();
