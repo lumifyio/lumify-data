@@ -20,15 +20,19 @@ public class ArtifactExtractedInfo {
     private static final String MP4_HDFS_PATH = "mp4HdfsPath";
     private static final String WEBM_HDFS_PATH = "webmHdfsPath";
     private static final String DETECTED_OBJECTS = "detectedObjects";
+    private static final String VIDEO_TRANSCRIPT = "videoTranscript";
     private HashMap<String, Object> properties = new HashMap<String, Object>();
-    private VideoTranscript videoTranscript;
 
     public void mergeFrom(ArtifactExtractedInfo artifactExtractedInfo) {
         if (artifactExtractedInfo == null) {
             return;
         }
         for (Map.Entry<String, Object> prop : artifactExtractedInfo.properties.entrySet()) {
-            this.properties.put(prop.getKey(), prop.getValue());
+            if (prop.getKey().equals(VIDEO_TRANSCRIPT)) {
+                this.properties.put(prop.getKey(), VideoTranscript.merge(getVideoTranscript(), (VideoTranscript) prop.getValue()));
+            } else {
+                this.properties.put(prop.getKey(), prop.getValue());
+            }
         }
     }
 
@@ -140,10 +144,10 @@ public class ArtifactExtractedInfo {
     }
 
     public void setVideoTranscript(VideoTranscript videoTranscript) {
-        this.videoTranscript = videoTranscript;
+        set(VIDEO_TRANSCRIPT, videoTranscript);
     }
 
     public VideoTranscript getVideoTranscript() {
-        return videoTranscript;
+        return (VideoTranscript) properties.get(VIDEO_TRANSCRIPT);
     }
 }

@@ -13,10 +13,12 @@ public class ThreadedInputStreamProcess<TResult, TData> {
 
     private final Thread[] workerThreads;
     private final ThreadedTeeInputStreamWorker<TResult, TData>[] workers;
+    private final String[] workerNames;
 
     public ThreadedInputStreamProcess(String threadNamePrefix, Collection<ThreadedTeeInputStreamWorker<TResult, TData>> workersCollection) {
         this.workers = new ThreadedTeeInputStreamWorker[workersCollection.size()];
         this.workerThreads = new Thread[workersCollection.size()];
+        this.workerNames = new String[workersCollection.size()];
         int i = 0;
         for (ThreadedTeeInputStreamWorker<TResult, TData> worker : workersCollection) {
             this.workers[i] = worker;
@@ -25,6 +27,7 @@ public class ThreadedInputStreamProcess<TResult, TData> {
             if (workerName == null) {
                 workerName = "" + i;
             }
+            this.workerNames[i] = workerName;
             this.workerThreads[i].setName(threadNamePrefix + "-" + workerName);
             this.workerThreads[i].start();
             i++;
@@ -32,7 +35,7 @@ public class ThreadedInputStreamProcess<TResult, TData> {
     }
 
     public List<ThreadedTeeInputStreamWorker.WorkResult<TResult>> doWork(InputStream source, TData data) throws Exception {
-        TeeInputStream teeInputStream = new TeeInputStream(source, this.workers.length);
+        TeeInputStream teeInputStream = new TeeInputStream(source, this.workerNames);
         try {
             for (int i = 0; i < this.workers.length; i++) {
                 this.workers[i].enqueueWork(teeInputStream.getTees()[i], data);

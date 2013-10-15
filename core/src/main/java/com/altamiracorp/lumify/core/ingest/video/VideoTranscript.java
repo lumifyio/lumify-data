@@ -43,6 +43,17 @@ public class VideoTranscript {
         return this;
     }
 
+    public static VideoTranscript merge(VideoTranscript a, VideoTranscript b) {
+        VideoTranscript result = new VideoTranscript();
+        if (a != null) {
+            result.merge(a);
+        }
+        if (b != null) {
+            result.merge(b);
+        }
+        return result;
+    }
+
     public JSONObject toJson() {
         try {
             JSONObject result = new JSONObject();

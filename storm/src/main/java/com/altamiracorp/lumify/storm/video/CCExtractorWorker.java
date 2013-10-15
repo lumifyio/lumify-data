@@ -24,25 +24,35 @@ public class CCExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtr
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData additionalArtifactWorkData) throws Exception {
-        File ccFile = File.createTempFile("ccextract", "txt");
         try {
-            LOGGER.info("Extracting close captioning from: " + additionalArtifactWorkData.getLocalFileName());
-            ProcessRunner.execute(
-                    "ccextractor",
-                    new String[]{
-                            "-o", ccFile.getAbsolutePath(),
-                            "-in=mp4",
-                            additionalArtifactWorkData.getLocalFileName()
-                    },
-                    null
-            );
-
-            VideoTranscript videoTranscript = SubRip.read(ccFile);
-            ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
-            artifactExtractedInfo.setVideoTranscript(videoTranscript);
-            return artifactExtractedInfo;
-        } finally {
+            File ccFile = File.createTempFile("ccextract", "txt");
             ccFile.delete();
+            try {
+                LOGGER.info("Extracting close captioning from: " + additionalArtifactWorkData.getLocalFileName());
+                ProcessRunner.execute(
+                        "ccextractor",
+                        new String[]{
+                                "-o", ccFile.getAbsolutePath(),
+                                "-in=mp4",
+                                additionalArtifactWorkData.getLocalFileName()
+                        },
+                        null
+                );
+
+                VideoTranscript videoTranscript = SubRip.read(ccFile);
+                ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
+                artifactExtractedInfo.setVideoTranscript(videoTranscript);
+                return artifactExtractedInfo;
+            } finally {
+                ccFile.delete();
+            }
+        } finally {
+            work.close();
         }
+    }
+
+    @Override
+    public String getName() {
+        return "ccextractor";
     }
 }

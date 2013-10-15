@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.ucd.artifact;
 
+import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import com.altamiracorp.lumify.model.ColumnFamily;
 import com.altamiracorp.lumify.model.Value;
 
@@ -12,6 +13,7 @@ public class ArtifactMetadata extends ColumnFamily {
     public static final String HIGHLIGHTED_TEXT = "highlightedText";
     private static final String GRAPH_VERTEX_ID = "graphVertexId";
     private static final String CREATE_DATE = "createDate";
+    private static final String VIDEO_TRANSCRIPT = "videoTranscript";
 
     public ArtifactMetadata() {
         super(NAME);
@@ -55,6 +57,11 @@ public class ArtifactMetadata extends ColumnFamily {
 
     public ArtifactMetadata setCreateDate(Date createDate) {
         set(CREATE_DATE, createDate.getTime());
+        return this;
+    }
+
+    public ArtifactMetadata setVideoTranscript(VideoTranscript videoTranscript) {
+        set(VIDEO_TRANSCRIPT, videoTranscript.toJson().toString());
         return this;
     }
 }

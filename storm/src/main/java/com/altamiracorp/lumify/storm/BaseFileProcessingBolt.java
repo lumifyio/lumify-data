@@ -113,7 +113,7 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
             if (isLocalFileRequired()) {
                 File localFile = copyFileToLocalFile(in);
                 in = new FileInputStream(localFile);
-                additionalDocumentWorkData.setLocalFileName(localFile.getName());
+                additionalDocumentWorkData.setLocalFileName(localFile.getAbsolutePath());
             }
             List<ThreadedTeeInputStreamWorker.WorkResult<ArtifactExtractedInfo>> results = threadedInputStreamProcess.doWork(in, additionalDocumentWorkData);
             mergeResults(artifactExtractedInfo, results);

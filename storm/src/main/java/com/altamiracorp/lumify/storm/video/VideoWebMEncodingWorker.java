@@ -23,35 +23,45 @@ public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<Artifa
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
         LOGGER.info("Encoding (webm) " + data.getFileName());
-
-        HdfsLimitOutputStream out = new HdfsLimitOutputStream(data.getHdfsFileSystem(), 0);
         try {
-            ProcessRunner.execute(
-                    "ffmpeg",
-                    new String[]{
-                            "-y", // overwrite output files
-                            "-i", data.getLocalFileName(),
-                            "-vcodec", "libvpx",
-                            "-b:v", "600k",
-                            "-qmin", "10",
-                            "-qmax", "42",
-                            "-maxrate", "500k",
-                            "-bufsize", "1000k",
-                            "-threads", "2",
-                            "-vf", "scale=720:480",
-                            "-acodec", "libvorbis",
-                            "-f", "webm",
-                            "-"
-                    },
-                    out
-            );
+            HdfsLimitOutputStream out = new HdfsLimitOutputStream(data.getHdfsFileSystem(), 0);
+            try {
+                ProcessRunner.execute(
+                        "ffmpeg",
+                        new String[]{
+                                "-y", // overwrite output files
+                                "-i", data.getLocalFileName(),
+                                "-vcodec", "libvpx",
+                                "-b:v", "600k",
+                                "-qmin", "10",
+                                "-qmax", "42",
+                                "-maxrate", "500k",
+                                "-bufsize", "1000k",
+                                "-threads", "2",
+                                "-vf", "scale=720:480",
+                                "-acodec", "libvorbis",
+                                "-map", "0", // process all streams
+                                "-map", "-0:s", // ignore subtitles
+                                "-f", "webm",
+                                "-"
+                        },
+                        out
+                );
+            } finally {
+                out.close();
+            }
+
+            ArtifactExtractedInfo info = new ArtifactExtractedInfo();
+            info.setWebMHdfsFilePath(out.getHdfsPath().toString());
+
+            return info;
         } finally {
-            out.close();
+            work.close();
         }
+    }
 
-        ArtifactExtractedInfo info = new ArtifactExtractedInfo();
-        info.setWebMHdfsFilePath(out.getHdfsPath().toString());
-
-        return info;
+    @Override
+    public String getName() {
+        return "webm";
     }
 }

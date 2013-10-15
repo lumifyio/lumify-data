@@ -178,6 +178,15 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         if (artifactExtractedInfo.getRaw() != null) {
             artifact.getMetadata().setRaw(artifactExtractedInfo.getRaw());
         }
+        if (artifactExtractedInfo.getVideoTranscript() != null) {
+            artifact.getMetadata().setVideoTranscript(artifactExtractedInfo.getVideoTranscript());
+            // TODO should we combine text like this? If the text ends up on HDFS the text here is technically invalid
+            if (artifactExtractedInfo.getText() == null) {
+                artifactExtractedInfo.setText(artifactExtractedInfo.getVideoTranscript().toString());
+            } else {
+                artifactExtractedInfo.setText(artifactExtractedInfo.getText() + "\n\n" + artifactExtractedInfo.getVideoTranscript().toString());
+            }
+        }
         if (artifactExtractedInfo.getText() != null) {
             artifact.getMetadata().setText(artifactExtractedInfo.getText());
             if (artifact.getMetadata().getHighlightedText() == null) {
@@ -208,7 +217,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
             artifactVertex.setProperty(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH, artifactExtractedInfo.getTextHdfsPath());
         }
         if (artifactExtractedInfo.getDetectedObjects() != null) {
-            artifactVertex.setProperty(PropertyName.DETECTED_OBJECTS,artifactExtractedInfo.getDetectedObjects());
+            artifactVertex.setProperty(PropertyName.DETECTED_OBJECTS, artifactExtractedInfo.getDetectedObjects());
         }
         String vertexId = this.graphRepository.save(artifactVertex, getUser());
         this.graphRepository.commit();

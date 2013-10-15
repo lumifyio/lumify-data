@@ -14,20 +14,28 @@ public class TeeInputStream {
     private final Object cyclicBufferLock = new Object();
     private boolean sourceComplete;
 
+    public TeeInputStream(InputStream source, String[] splitNames) throws IOException {
+        this(source, splitNames, DEFAULT_BUFFER_SIZE);
+    }
+
     public TeeInputStream(InputStream source, int splits) throws IOException {
-        this(source, splits, DEFAULT_BUFFER_SIZE);
+        this(source, new String[splits], DEFAULT_BUFFER_SIZE);
     }
 
     public TeeInputStream(InputStream source, int splits, int bufferSize) throws IOException {
+        this(source, new String[splits], bufferSize);
+    }
+
+    public TeeInputStream(InputStream source, String[] splitNames, int bufferSize) throws IOException {
         this.source = source;
         this.cyclicBuffer = new byte[bufferSize];
         this.cyclicBufferOffsetIndex = 0;
         this.cyclicBufferOffset = 0;
         this.cyclicBufferValidSize = 0;
         this.sourceComplete = false;
-        this.tees = new MyInputStream[splits];
+        this.tees = new MyInputStream[splitNames.length];
         for (int i = 0; i < this.tees.length; i++) {
-            this.tees[i] = new MyInputStream();
+            this.tees[i] = new MyInputStream(splitNames[i]);
         }
     }
 
@@ -130,12 +138,14 @@ public class TeeInputStream {
     }
 
     private class MyInputStream extends InputStream {
+        private final String splitName;
         private boolean closed;
         private long offset;
 
-        public MyInputStream() {
+        public MyInputStream(String splitName) {
             this.closed = false;
             this.offset = 0;
+            this.splitName = splitName;
         }
 
         @Override
@@ -240,6 +250,7 @@ public class TeeInputStream {
             } finally {
                 synchronized (TeeInputStream.this.cyclicBufferLock) {
                     this.closed = true;
+                    this.offset = Long.MAX_VALUE;
                     TeeInputStream.this.cyclicBufferLock.notifyAll();
                 }
             }
