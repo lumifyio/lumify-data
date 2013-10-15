@@ -22,6 +22,7 @@ public class ArtifactExtractedInfo {
     private static final String DETECTED_OBJECTS = "detectedObjects";
     private static final String VIDEO_TRANSCRIPT = "videoTranscript";
     private static final String AUDIO_HDFS_PATH = "audioHdfsPath";
+    private static final String POSTER_FRAME_HDFS_PATH = "posterFrameHdfsPath";
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 
     public void mergeFrom(ArtifactExtractedInfo artifactExtractedInfo) {
@@ -158,5 +159,13 @@ public class ArtifactExtractedInfo {
 
     public VideoTranscript getVideoTranscript() {
         return (VideoTranscript) properties.get(VIDEO_TRANSCRIPT);
+    }
+
+    public void setPosterFrameHdfsPath(String posterFrameHdfsPath) {
+        set(POSTER_FRAME_HDFS_PATH, posterFrameHdfsPath);
+    }
+
+    public String getPosterFrameHdfsPath() {
+        return (String) properties.get(POSTER_FRAME_HDFS_PATH);
     }
 }

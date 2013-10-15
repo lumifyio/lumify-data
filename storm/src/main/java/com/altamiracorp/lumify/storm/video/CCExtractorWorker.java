@@ -23,30 +23,26 @@ public class CCExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtr
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData additionalArtifactWorkData) throws Exception {
+        File ccFile = File.createTempFile("ccextract", "txt");
+        ccFile.delete();
         try {
-            File ccFile = File.createTempFile("ccextract", "txt");
-            ccFile.delete();
-            try {
-                LOGGER.info("Extracting close captioning from: " + additionalArtifactWorkData.getLocalFileName());
-                ProcessRunner.execute(
-                        "ccextractor",
-                        new String[]{
-                                "-o", ccFile.getAbsolutePath(),
-                                "-in=mp4",
-                                additionalArtifactWorkData.getLocalFileName()
-                        },
-                        null
-                );
+            LOGGER.info("Extracting close captioning from: " + additionalArtifactWorkData.getLocalFileName());
+            ProcessRunner.execute(
+                    "ccextractor",
+                    new String[]{
+                            "-o", ccFile.getAbsolutePath(),
+                            "-in=mp4",
+                            additionalArtifactWorkData.getLocalFileName()
+                    },
+                    null
+            );
 
-                VideoTranscript videoTranscript = SubRip.read(ccFile);
-                ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
-                artifactExtractedInfo.setVideoTranscript(videoTranscript);
-                return artifactExtractedInfo;
-            } finally {
-                ccFile.delete();
-            }
+            VideoTranscript videoTranscript = SubRip.read(ccFile);
+            ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
+            artifactExtractedInfo.setVideoTranscript(videoTranscript);
+            return artifactExtractedInfo;
         } finally {
-            work.close();
+            ccFile.delete();
         }
     }
 

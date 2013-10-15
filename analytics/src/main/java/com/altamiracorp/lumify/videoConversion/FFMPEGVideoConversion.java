@@ -32,7 +32,6 @@ public class FFMPEGVideoConversion {
     public void convert(Artifact artifact, User user) throws IOException, InterruptedException {
         File videoFile = writeFileToTemp(artifact, user);
         encodeMp4(videoFile, artifact, user);
-        extractPosterFrame(videoFile, artifact, user);
         extractFramesForAnalysis(videoFile, artifact, user);
         videoFile.delete();
     }
@@ -70,32 +69,6 @@ public class FFMPEGVideoConversion {
 //        }
 //        artifact.getContent().setVideoDuration(videoDuration);
 //        FileUtils.deleteDirectory(tempDir);
-    }
-
-    private void extractPosterFrame(File file, Artifact artifact, User user) throws IOException, InterruptedException {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        File posterFrameFile = File.createTempFile("posterframe_", ".png");
-//
-//        // pass 1
-//        LOGGER.info("Encoding (posterframe) " + file.getAbsolutePath() + " to " + posterFrameFile.getAbsolutePath());
-//        ffmpeg(new String[]{
-//                "-itsoffset", "-4",
-//                "-i", file.getAbsolutePath(),
-//                "-vcodec", "png",
-//                "-vframes", "1",
-//                "-an",
-//                "-f", "rawvideo",
-//                "-s", "720x480",
-//                "-y",
-//                posterFrameFile.getAbsolutePath()
-//        });
-//
-//        // save file
-//        InputStream posterFrameFileIn = new FileInputStream(posterFrameFile);
-//        SaveFileResults posterFrameFileSaveResults = artifactRepository.saveFile(posterFrameFileIn, user);
-//        artifact.getGenericMetadata().setPosterFrameHdfsFilePath(posterFrameFileSaveResults.getFullPath());
-//        posterFrameFileIn.close();
-//        posterFrameFile.delete();
     }
 
     private void encodeMp4(File file, Artifact artifact, User user) throws IOException, InterruptedException {
