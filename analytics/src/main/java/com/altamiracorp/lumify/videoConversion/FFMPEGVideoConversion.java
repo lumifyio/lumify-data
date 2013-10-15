@@ -32,43 +32,7 @@ public class FFMPEGVideoConversion {
     public void convert(Artifact artifact, User user) throws IOException, InterruptedException {
         File videoFile = writeFileToTemp(artifact, user);
         encodeMp4(videoFile, artifact, user);
-        extractFramesForAnalysis(videoFile, artifact, user);
         videoFile.delete();
-    }
-
-    private void extractFramesForAnalysis(File videoFile, Artifact artifact, User user) throws IOException, InterruptedException {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        Pattern fileNamePattern = Pattern.compile("image-([0-9]+)\\.png");
-//        File tempDir = createTempDir("video-frames");
-//
-//        int framesPerSecondToExtract = 1;
-//
-//        LOGGER.info("Extracting video frames from: " + videoFile.getAbsolutePath());
-//        ffmpeg(new String[]{
-//                "-i", videoFile.getAbsolutePath(),
-//                "-r", "" + framesPerSecondToExtract,
-//                new File(tempDir, "image-%8d.png").getAbsolutePath()
-//        });
-//
-//        long videoDuration = 0;
-//        for (File frameFile : tempDir.listFiles()) {
-//            Matcher m = fileNamePattern.matcher(frameFile.getName());
-//            if (!m.matches()) {
-//                continue;
-//            }
-//            long frameStartTime = (Long.parseLong(m.group(1)) / framesPerSecondToExtract) * 1000;
-//            if (frameStartTime > videoDuration) {
-//                videoDuration = frameStartTime;
-//            }
-//            FileInputStream frameIn = new FileInputStream(frameFile);
-//            try {
-//                videoFrameRepository.saveVideoFrame(artifact.getRowKey(), frameIn, frameStartTime, user);
-//            } finally {
-//                frameIn.close();
-//            }
-//        }
-//        artifact.getContent().setVideoDuration(videoDuration);
-//        FileUtils.deleteDirectory(tempDir);
     }
 
     private void encodeMp4(File file, Artifact artifact, User user) throws IOException, InterruptedException {
@@ -189,22 +153,6 @@ public class FFMPEGVideoConversion {
 //            in.close();
 //        }
 //        return tempFile;
-    }
-
-    private File createTempDir(String prefix) {
-        int tempDirAttempts = 10000;
-        File baseDir = new File(System.getProperty("java.io.tmpdir"));
-        String baseName = prefix + "-" + System.currentTimeMillis() + "-";
-
-        for (int counter = 0; counter < tempDirAttempts; counter++) {
-            File tempDir = new File(baseDir, baseName + counter);
-            if (tempDir.mkdir()) {
-                return tempDir;
-            }
-        }
-        throw new IllegalStateException("Failed to create directory within "
-                + tempDirAttempts + " attempts (tried "
-                + baseName + "0 to " + baseName + (tempDirAttempts - 1) + ')');
     }
 
     public ArtifactRepository getArtifactRepository() {

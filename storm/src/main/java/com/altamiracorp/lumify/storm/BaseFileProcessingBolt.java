@@ -11,8 +11,10 @@ import com.altamiracorp.lumify.core.ingest.TextExtractionWorker;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.storm.file.FileMetadata;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
 import com.google.inject.Inject;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -32,6 +34,7 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseFileProcessingBolt.class);
     private ThreadedInputStreamProcess<ArtifactExtractedInfo, AdditionalArtifactWorkData> threadedInputStreamProcess;
     private ContentTypeExtractor contentTypeExtractor;
+    private VideoFrameRepository videoFrameRepository;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -107,10 +110,29 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
             String newTextPath = moveTempPosterFrameFile(artifactExtractedInfo.getPosterFrameHdfsPath(), artifactExtractedInfo.getRowKey());
             artifactExtractedInfo.setPosterFrameHdfsPath(newTextPath);
         }
+        if (artifactExtractedInfo.getVideoFrames() != null) {
+            saveVideoFrames(new ArtifactRowKey(artifactExtractedInfo.getRowKey()), artifactExtractedInfo.getVideoFrames());
+        }
 
         GraphVertex graphVertex = addArtifact(artifactExtractedInfo);
 
         return graphVertex;
+    }
+
+    private void saveVideoFrames(ArtifactRowKey artifactRowKey, List<ArtifactExtractedInfo.VideoFrame> videoFrames) throws IOException {
+        for (ArtifactExtractedInfo.VideoFrame videoFrame : videoFrames) {
+            saveVideoFrame(artifactRowKey, videoFrame);
+        }
+    }
+
+    private void saveVideoFrame(ArtifactRowKey artifactRowKey, ArtifactExtractedInfo.VideoFrame videoFrame) throws IOException {
+        InputStream in = getHdfsFileSystem().open(new Path(videoFrame.getHdfsPath()));
+        try {
+            videoFrameRepository.saveVideoFrame(artifactRowKey, in, videoFrame.getFrameStartTime(), getUser());
+        } finally {
+            in.close();
+        }
+        getHdfsFileSystem().delete(new Path(videoFrame.getHdfsPath()), false);
     }
 
     protected void runWorkers(FileMetadata fileMetadata, ArtifactExtractedInfo artifactExtractedInfo) throws Exception {
@@ -268,5 +290,10 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
     @Inject
     public void setContentTypeExtractor(ContentTypeExtractor contentTypeExtractor) {
         this.contentTypeExtractor = contentTypeExtractor;
+    }
+
+    @Inject
+    public void setVideoFrameRepository(VideoFrameRepository videoFrameRepository) {
+        this.videoFrameRepository = videoFrameRepository;
     }
 }

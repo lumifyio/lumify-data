@@ -4,12 +4,13 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.ModelSession;
 import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.Row;
-import com.altamiracorp.lumify.model.SaveFileResults;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
 import com.google.inject.Inject;
+import org.apache.commons.io.IOUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -37,12 +38,11 @@ public class VideoFrameRepository extends Repository<VideoFrame> {
         return videoFrameBuilder.getTableName();
     }
 
-    public void saveVideoFrame(ArtifactRowKey artifactRowKey, InputStream in, long frameStartTime, User user) {
-        SaveFileResults saveFileResults = getModelSession().saveFile(in, user);
+    public void saveVideoFrame(ArtifactRowKey artifactRowKey, InputStream in, long frameStartTime, User user) throws IOException {
+        byte[] data = IOUtils.toByteArray(in);
         VideoFrameRowKey videoFrameRowKey = new VideoFrameRowKey(artifactRowKey.toString(), frameStartTime);
         VideoFrame videoFrame = new VideoFrame(videoFrameRowKey);
-        videoFrame.getMetadata()
-                .setHdfsPath(saveFileResults.getFullPath());
+        videoFrame.getMetadata().setData(data);
         save(videoFrame, user);
     }
 
@@ -51,7 +51,7 @@ public class VideoFrameRepository extends Repository<VideoFrame> {
     }
 
     public BufferedImage loadImage(VideoFrame videoFrame, User user) {
-        InputStream in = getModelSession().loadFile(videoFrame.getMetadata().getHdfsPath(), user);
+        InputStream in = new ByteArrayInputStream(videoFrame.getMetadata().getData());
         try {
             return ImageIO.read(in);
         } catch (IOException e) {

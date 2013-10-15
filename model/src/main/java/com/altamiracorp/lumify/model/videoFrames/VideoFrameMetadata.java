@@ -5,7 +5,7 @@ import com.altamiracorp.lumify.model.Value;
 
 public class VideoFrameMetadata extends ColumnFamily {
     public static final String NAME = "metadata";
-    private static final String HDFS_PATH = "hdfs_path";
+    private static final String DATA = "data";
     private static final String TEXT = "text";
     private static final String START_TIME = "start_time";
     private static final String END_TIME = "end_time";
@@ -14,12 +14,12 @@ public class VideoFrameMetadata extends ColumnFamily {
         super(NAME);
     }
 
-    public String getHdfsPath() {
-        return Value.toString(get(HDFS_PATH));
+    public byte[] getData() {
+        return Value.toBytes(get(DATA));
     }
 
-    public VideoFrameMetadata setHdfsPath(String hdfsPath) {
-        set(HDFS_PATH, hdfsPath);
+    public VideoFrameMetadata setData(byte[] data) {
+        set(DATA, data);
         return this;
     }
 

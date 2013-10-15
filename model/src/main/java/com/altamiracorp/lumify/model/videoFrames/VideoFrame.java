@@ -4,7 +4,7 @@ import com.altamiracorp.lumify.model.Row;
 import com.altamiracorp.lumify.model.RowKey;
 
 public class VideoFrame extends Row<VideoFrameRowKey> {
-    public static final String TABLE_NAME = "atc_VideoFrame";
+    public static final String TABLE_NAME = "atc_videoFrame";
 
     public VideoFrame(VideoFrameRowKey rowKey) {
         super(TABLE_NAME, rowKey);

@@ -3,3 +3,4 @@ com.altamiracorp.lumify.storm.video.VideoWebMEncodingWorker
 com.altamiracorp.lumify.storm.video.CCExtractorWorker
 com.altamiracorp.lumify.storm.video.VideoAudioExtractWorker
 com.altamiracorp.lumify.storm.video.VideoPosterFrameWorker
+com.altamiracorp.lumify.storm.video.VideoExtractFramesWorker

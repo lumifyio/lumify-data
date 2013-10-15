@@ -5,6 +5,7 @@ import org.json.JSONObject;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ArtifactExtractedInfo {
@@ -23,6 +24,8 @@ public class ArtifactExtractedInfo {
     private static final String VIDEO_TRANSCRIPT = "videoTranscript";
     private static final String AUDIO_HDFS_PATH = "audioHdfsPath";
     private static final String POSTER_FRAME_HDFS_PATH = "posterFrameHdfsPath";
+    private static final String VIDEO_DURATION = "videoDuration";
+    private static final String VIDEO_FRAMES = "videoFrames";
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 
     public void mergeFrom(ArtifactExtractedInfo artifactExtractedInfo) {
@@ -167,5 +170,39 @@ public class ArtifactExtractedInfo {
 
     public String getPosterFrameHdfsPath() {
         return (String) properties.get(POSTER_FRAME_HDFS_PATH);
+    }
+
+    public void setVideoDuration(long videoDuration) {
+        set(VIDEO_DURATION, videoDuration);
+    }
+
+    public long getVideoDuration() {
+        return (Long) properties.get(VIDEO_DURATION);
+    }
+
+    public void setVideoFrames(List<VideoFrame> videoFrames) {
+        set(VIDEO_FRAMES, videoFrames);
+    }
+
+    public List<VideoFrame> getVideoFrames() {
+        return (List<VideoFrame>) properties.get(VIDEO_FRAMES);
+    }
+
+    public static class VideoFrame {
+        private final String hdfsPath;
+        private final long frameStartTime;
+
+        public VideoFrame(String hdfsPath, long frameStartTime) {
+            this.hdfsPath = hdfsPath;
+            this.frameStartTime = frameStartTime;
+        }
+
+        public String getHdfsPath() {
+            return hdfsPath;
+        }
+
+        public long getFrameStartTime() {
+            return frameStartTime;
+        }
     }
 }
