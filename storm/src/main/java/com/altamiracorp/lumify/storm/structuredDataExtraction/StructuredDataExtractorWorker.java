@@ -47,7 +47,6 @@ public class StructuredDataExtractorWorker
 
     @Override
     public void prepare(Map stormConf, User user) {
-        System.out.println();
         //To change body of implemented methods use File | Settings | File Templates.
     }
 }
