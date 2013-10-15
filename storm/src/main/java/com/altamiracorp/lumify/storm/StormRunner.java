@@ -5,10 +5,11 @@ import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.spout.Scheme;
-import backtype.storm.topology.IRichSpout;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.config.ConfigurationHelper;
+import com.altamiracorp.lumify.model.AccumuloSession;
 import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.image.ImageBolt;
@@ -21,6 +22,9 @@ import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +32,10 @@ import storm.kafka.KafkaConfig;
 import storm.kafka.KafkaSpout;
 import storm.kafka.SpoutConfig;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 public class StormRunner extends CommandLineBase {
@@ -76,24 +84,21 @@ public class StormRunner extends CommandLineBase {
 
         Config conf = new Config();
         conf.put("topology.kryo.factory", "com.altamiracorp.lumify.storm.DefaultKryoFactory");
-        conf.put(LOCAL_CONFIG_KEY, isLocal);
         for (Map.Entry<Object, Object> configEntry : getConfiguration().getProperties().entrySet()) {
             conf.put(configEntry.getKey().toString(), configEntry.getValue());
         }
-        conf.put(BaseFileSystemSpout.DATADIR_CONFIG_NAME, dataDir);
+        conf.put(BaseFileSystemSpout.DATADIR_CONFIG_NAME, "/lumify/data");
         conf.setDebug(false);
         conf.setNumWorkers(2);
 
         if (isLocal) {
-            TopologyConfig topologyConfig = new TopologyConfig()
-                    .setUnknownSpout(new DevFileSystemSpout())
-                    .setDocumentSpout(new KafkaSpout(createSpoutConfig("document", null)))
-                    .setImageSpout(new KafkaSpout(createSpoutConfig("image", null)))
-                    .setVideoSpout(new KafkaSpout(createSpoutConfig("video", null)))
-                    .setStructuredDataSpout(new KafkaSpout(createSpoutConfig("structuredData", null)));
-            StormTopology topology = createTopology(topologyConfig);
+            copyDataFilesToHdfs(conf, dataDir);
+        }
+
+        StormTopology topology = createTopology();
+        LOGGER.info("Submitting topology '" + TOPOLOGY_NAME + "'");
+        if (isLocal) {
             LocalCluster cluster = new LocalCluster();
-            LOGGER.info("Submitting topology '" + TOPOLOGY_NAME + "'");
             cluster.submitTopology(TOPOLOGY_NAME, conf, topology);
 
             // TODO: how do we know when we are done?
@@ -103,27 +108,36 @@ public class StormRunner extends CommandLineBase {
             cluster.killTopology("local");
             cluster.shutdown();
         } else {
-            TopologyConfig topologyConfig = new TopologyConfig()
-                    .setUnknownSpout(new HdfsFileSystemSpout("/unknown"))
-                    .setDocumentSpout(new HdfsFileSystemSpout("/document"))
-                    .setImageSpout(new HdfsFileSystemSpout("/image"))
-                    .setVideoSpout(new HdfsFileSystemSpout("/video"))
-                    .setStructuredDataSpout(new HdfsFileSystemSpout("/structuredData"));
-            StormTopology topology = createTopology(topologyConfig);
-            LOGGER.info("Submitting topology '" + TOPOLOGY_NAME + "'");
             StormSubmitter.submitTopology(TOPOLOGY_NAME, conf, topology);
         }
 
         return 0;
     }
 
-    public StormTopology createTopology(TopologyConfig topologyConfig) {
+    private void copyDataFilesToHdfs(Config stormConf, String dataDir) throws URISyntaxException, IOException, InterruptedException {
+        File dataDirFile = new File(dataDir);
+        String hdfsRootDir = (String) stormConf.get(AccumuloSession.HADOOP_URL);
+        Configuration conf = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
+
+        FileSystem hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), conf, "hadoop");
+
+        for (File f : dataDirFile.listFiles()) {
+            Path srcPath = new Path(f.getAbsolutePath());
+            if (srcPath.getName().startsWith(".")) {
+                continue;
+            }
+            Path dstPath = new Path("/lumify/data/unknown/" + srcPath.getName());
+            hdfsFileSystem.copyFromLocalFile(false, true, srcPath, dstPath);
+        }
+    }
+
+    public StormTopology createTopology() {
         TopologyBuilder builder = new TopologyBuilder();
-        createContentTypeSorterTopology(builder, topologyConfig);
-        createVideoTopology(builder, topologyConfig);
-        createImageTopology(builder, topologyConfig);
-        createDocumentTopology(builder, topologyConfig);
-        createStructuredDataTopology(builder, topologyConfig);
+        createContentTypeSorterTopology(builder);
+        createVideoTopology(builder);
+        createImageTopology(builder);
+        createDocumentTopology(builder);
+        createStructuredDataTopology(builder);
         createTextTopology(builder);
         createArtifactHighlightingTopology(builder);
         createProcessedVideoTopology(builder);
@@ -131,37 +145,37 @@ public class StormRunner extends CommandLineBase {
         return builder.createTopology();
     }
 
-    private TopologyBuilder createContentTypeSorterTopology(TopologyBuilder builder, TopologyConfig topologyConfig) {
-        builder.setSpout("fileSorter", topologyConfig.getUnknownSpout(), 1);
+    private TopologyBuilder createContentTypeSorterTopology(TopologyBuilder builder) {
+        builder.setSpout("fileSorter", new HdfsFileSystemSpout("/unknown"), 1);
         builder.setBolt("contentTypeSorterBolt", new ContentTypeSorterBolt(), 1)
                 .shuffleGrouping("fileSorter");
         return builder;
     }
 
-    private void createImageTopology(TopologyBuilder builder, TopologyConfig topologyConfig) {
+    private void createImageTopology(TopologyBuilder builder) {
         String queueName = "image";
-        builder.setSpout(queueName, topologyConfig.getImageSpout(), 1);
+        builder.setSpout(queueName, new HdfsFileSystemSpout("/image"), 1);
         builder.setBolt(queueName + "-bolt", new ImageBolt(), 1)
                 .shuffleGrouping(queueName);
     }
 
-    private void createVideoTopology(TopologyBuilder builder, TopologyConfig topologyConfig) {
+    private void createVideoTopology(TopologyBuilder builder) {
         String queueName = "video";
-        builder.setSpout(queueName, topologyConfig.getVideoSpout(), 1);
+        builder.setSpout(queueName, new HdfsFileSystemSpout("/video"), 1);
         builder.setBolt(queueName + "-bolt", new VideoBolt(), 1)
                 .shuffleGrouping(queueName);
     }
 
-    private void createDocumentTopology(TopologyBuilder builder, TopologyConfig topologyConfig) {
+    private void createDocumentTopology(TopologyBuilder builder) {
         String queueName = "document";
-        builder.setSpout(queueName, topologyConfig.getDocumentSpout(), 1);
+        builder.setSpout(queueName, new HdfsFileSystemSpout("/document"), 1);
         builder.setBolt(queueName + "-bolt", new DocumentBolt(), 1)
                 .shuffleGrouping(queueName);
     }
 
-    private void createStructuredDataTopology(TopologyBuilder builder, TopologyConfig topologyConfig) {
+    private void createStructuredDataTopology(TopologyBuilder builder) {
         String queueName = "structuredData";
-        builder.setSpout(queueName, topologyConfig.getStructuredDataSpout(), 1);
+        builder.setSpout(queueName, new HdfsFileSystemSpout("/structuredData"), 1);
         builder.setBolt(queueName + "-bolt", new StructuredDataBolt(), 1)
                 .shuffleGrouping(queueName);
     }
@@ -198,59 +212,5 @@ public class StormRunner extends CommandLineBase {
                 queueName);
         spoutConfig.scheme = scheme;
         return spoutConfig;
-    }
-
-    private class TopologyConfig {
-        private IRichSpout unknownSpout;
-        private IRichSpout imageSpout;
-        private IRichSpout videoSpout;
-        private IRichSpout documentSpout;
-        private IRichSpout structuredDataSpout;
-
-
-        private IRichSpout getStructuredDataSpout() {
-            return structuredDataSpout;
-        }
-
-        private TopologyConfig setStructuredDataSpout(IRichSpout structuredDataSpout) {
-            this.structuredDataSpout = structuredDataSpout;
-            return this;
-        }
-
-        private IRichSpout getUnknownSpout() {
-            return unknownSpout;
-        }
-
-        private TopologyConfig setUnknownSpout(IRichSpout unknownSpout) {
-            this.unknownSpout = unknownSpout;
-            return this;
-        }
-
-        private IRichSpout getImageSpout() {
-            return imageSpout;
-        }
-
-        private TopologyConfig setImageSpout(IRichSpout imageSpout) {
-            this.imageSpout = imageSpout;
-            return this;
-        }
-
-        private IRichSpout getVideoSpout() {
-            return videoSpout;
-        }
-
-        private TopologyConfig setVideoSpout(IRichSpout videoSpout) {
-            this.videoSpout = videoSpout;
-            return this;
-        }
-
-        private IRichSpout getDocumentSpout() {
-            return documentSpout;
-        }
-
-        private TopologyConfig setDocumentSpout(IRichSpout documentSpout) {
-            this.documentSpout = documentSpout;
-            return this;
-        }
     }
 }

@@ -55,7 +55,7 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
         try {
             Path path = new Path(readPath);
             if (!processPath(path)) {
-                Utils.sleep(10 * 1000);
+                Utils.sleep(1000);
             }
         } catch (IOException e) {
             getCollector().reportError(e);
