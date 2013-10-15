@@ -53,6 +53,7 @@ define([
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'verticesDropped', this.onVerticesDropped);
+            this.on(document, 'verticesSelected', this.onVerticesSelected);
             this.on(document, 'syncEnded', this.onSyncEnded);
             this.on(document, 'existingVerticesAdded', this.onExistingVerticesAdded);
 
@@ -234,6 +235,39 @@ define([
             this.updateOrAddVertices(data.vertices, { adding:true });
         };
 
+        this.onVerticesSelected = function(evt, data) {
+            var self = this,
+                vertices = _.isArray(data) ? data : data ? [data] : [];
+            
+            this.map(function(map) {
+
+                var idsToSelect = [];
+
+                // Select vertices
+                vertices.forEach(function(vertex) {
+                    var marker = self.markerForId(map, vertex.id);
+                    if (marker.length && marker[0].iconUrl.indexOf('&selected') === -1) {
+                        map.removeMarker(marker[0]);
+                        self.updateMarkerIcon(marker[0], true, vertex.properties.heading);
+                        map.addMarker(marker[0]);
+                    }
+
+                    idsToSelect.push(vertex.id);
+                });
+
+                // Unselect all others
+                map.markers.forEach(function(marker) {
+                    var id = marker.attributes.graphVertexId;
+                    if (idsToSelect.indexOf(id) === -1 && marker.iconUrl.indexOf('&selected') >= 0) {
+                        var vertex = appData.vertex(id);
+                        map.removeMarker(marker);
+                        self.updateMarkerIcon(marker, false, vertex.properties.heading);
+                        map.addMarker(marker);
+                    }
+                });
+            });
+        };
+
         this.updateOrAddVertices = function(vertices, options) {
             var self = this,
                 adding = options && options.adding;
@@ -258,7 +292,7 @@ define([
                         marker.setAttribute('graphVertexId', vertex.id);
                         marker.setAttribute('subType', vertex.properties._subType);
 
-                        self.updateMarkerIcon(marker, vertex.properties.heading);
+                        self.updateMarkerIcon(marker, vertex.workspace.selected, vertex.properties.heading);
 
                         marker.click.addHandler(function(eventType, marker) {
                             self.trigger('verticesSelected', [ vertex ]);
@@ -286,11 +320,14 @@ define([
             });
         };
 
-        this.updateMarkerIcon = function(marker, heading) {
+        this.updateMarkerIcon = function(marker, selected, heading) {
             var subType = marker.getAttribute('subType');
             var additionalParameters = '';
             if(heading) {
                 additionalParameters += '&heading=' + heading;
+            }
+            if(selected) {
+                additionalParameters += '&selected';
             }
             var iconUrl = '/map/marker/' + subType + '/image';
             if (retina.devicePixelRatio > 1) {

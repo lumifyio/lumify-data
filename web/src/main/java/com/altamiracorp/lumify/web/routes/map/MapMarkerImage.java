@@ -47,8 +47,9 @@ public class MapMarkerImage extends BaseRequestHandler {
         String typeStr = getAttributeString(request, "type");
         long scale = getOptionalParameterLong(request, "scale", 1L);
         int heading = roundHeadingAngle(getOptionalParameterDouble(request, "heading", 0.0));
+        boolean selected = getOptionalParameter(request, "selected") != null;
 
-        String cacheKey = typeStr + scale + heading;
+        String cacheKey = typeStr + scale + heading + (selected ? "selected" : "unselected");
         byte[] imageData = imageCache.getIfPresent(cacheKey);
         if (imageData == null) {
             LOGGER.info("map marker cache miss " + typeStr + " (scale: " + scale + ", heading: " + heading + ")");
@@ -76,7 +77,7 @@ public class MapMarkerImage extends BaseRequestHandler {
                 return;
             }
 
-            imageData = getMarkerImage(resource, scale, heading, isMapGlyphIcon);
+            imageData = getMarkerImage(resource, scale, selected, heading, isMapGlyphIcon);
             imageCache.put(cacheKey, imageData);
         }
 
@@ -95,7 +96,7 @@ public class MapMarkerImage extends BaseRequestHandler {
         return (int) (Math.round(heading / 10.0) * 10.0);
     }
 
-    private byte[] getMarkerImage(Resource resource, long scale, int heading, boolean isMapGlyphIcon) throws IOException {
+    private byte[] getMarkerImage(Resource resource, long scale, boolean selected, int heading, boolean isMapGlyphIcon) throws IOException {
         BufferedImage resourceImage = resource.getContent().getDataImage();
         if (resourceImage == null) {
             return null;
@@ -105,7 +106,7 @@ public class MapMarkerImage extends BaseRequestHandler {
             resourceImage = rotateImage(resourceImage, heading);
         }
 
-        BufferedImage backgroundImage = getBackgroundImage(scale);
+        BufferedImage backgroundImage = getBackgroundImage(scale, selected);
         if (backgroundImage == null) {
             return null;
         }
@@ -139,12 +140,12 @@ public class MapMarkerImage extends BaseRequestHandler {
         return rotatedImage;
     }
 
-    private BufferedImage getBackgroundImage(long scale) throws IOException {
+    private BufferedImage getBackgroundImage(long scale, boolean selected) throws IOException {
         InputStream res;
         if (scale == 1) {
-            res = this.getClass().getResourceAsStream("marker-background.png");
+            res = this.getClass().getResourceAsStream(selected ? "marker-background-selected.png" : "marker-background.png");
         } else if (scale == 2) {
-            res = this.getClass().getResourceAsStream("marker-background-2x.png");
+            res = this.getClass().getResourceAsStream(selected ? "marker-background-selected-2x.png" : "marker-background-2x.png");
         } else {
             return null;
         }
