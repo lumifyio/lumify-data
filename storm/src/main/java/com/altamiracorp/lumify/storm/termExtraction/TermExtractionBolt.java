@@ -100,8 +100,13 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         pushOnQueue("artifactHighlight", artifactHighlightJson);
     }
 
-    private void processTermMentions(List<TermMentionWithGraphVertex> termMentions) {
-        // TODO: process term mentions. Location extraction, etc
+    private void mergeTextExtractedInfos(TermExtractionResult termExtractionResult, List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> results) throws Exception {
+        for (ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult> result : results) {
+            if (result.getError() != null) {
+                throw result.getError();
+            }
+            termExtractionResult.mergeFrom(result.getResult());
+        }
     }
 
     private List<TermMentionWithGraphVertex> saveTermExtractions(String artifactGraphVertexId, List<TermExtractionResult.TermMention> termMentions) {
@@ -144,13 +149,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         return results;
     }
 
-    private void mergeTextExtractedInfos(TermExtractionResult termExtractionResult, List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> results) throws Exception {
-        for (ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult> result : results) {
-            if (result.getError() != null) {
-                throw result.getError();
-            }
-            termExtractionResult.mergeFrom(result.getResult());
-        }
+    private void processTermMentions(List<TermMentionWithGraphVertex> termMentions) {
+        // TODO: process term mentions. Location extraction, etc
     }
 
     @Override
