@@ -70,11 +70,11 @@ public class ImageObjectDetectionWorker extends BaseImageWorker {
 
     @Override
     public void prepare(Map stormConf, User user) {
-//        classifierFilePaths = new HashMap<String, String>();
-//        String[] classifierConcepts = ((String)stormConf.get(OPENCV_CLASSIFIER_CONCEPT_LIST)).split(",");
-//        for (String classifierConcept : classifierConcepts) {
-//            classifierFilePaths.put(classifierConcept,(String)stormConf.get(OPENCV_CLASSIFIER_PATH_PREFIX + classifierConcept + OPENCV_CLASSIFIER_PATH_SUFFIX));
-//        }
+        classifierFilePaths = new HashMap<String, String>();
+        String[] classifierConcepts = ((String)stormConf.get(OPENCV_CLASSIFIER_CONCEPT_LIST)).split(",");
+        for (String classifierConcept : classifierConcepts) {
+            classifierFilePaths.put(classifierConcept,(String)stormConf.get(OPENCV_CLASSIFIER_PATH_PREFIX + classifierConcept + OPENCV_CLASSIFIER_PATH_SUFFIX));
+        }
     }
 
     @Inject
