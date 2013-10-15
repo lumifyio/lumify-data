@@ -15,4 +15,9 @@ public class VideoBolt extends BaseFileProcessingBolt {
     protected ServiceLoader getServiceLoader() {
         return ServiceLoader.load(VideoTextExtractionWorker.class);
     }
+
+    @Override
+    protected boolean isLocalFileRequired() {
+        return true;
+    }
 }

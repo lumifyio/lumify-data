@@ -4,7 +4,7 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.util.StreamHelper;
+import com.altamiracorp.lumify.core.util.StreamHelper;
 import com.google.inject.Inject;
 import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
 import org.slf4j.Logger;
@@ -31,7 +31,6 @@ public class FFMPEGVideoConversion {
 
     public void convert(Artifact artifact, User user) throws IOException, InterruptedException {
         File videoFile = writeFileToTemp(artifact, user);
-        extractCloseCaptioning(videoFile, artifact, user);
         extractAudio(videoFile, artifact, user);
         encodeMp4(videoFile, artifact, user);
         extractPosterFrame(videoFile, artifact, user);
@@ -61,23 +60,6 @@ public class FFMPEGVideoConversion {
 //        artifact.getGenericMetadata().setAudioHdfsFilePath(audioFileSaveResults.getFullPath());
 //        audioFileIn.close();
 //        audioFile.delete();
-    }
-
-    private void extractCloseCaptioning(File videoFile, Artifact artifact, User user) throws IOException, InterruptedException {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        File ccFile = File.createTempFile("ccextract", "txt");
-//
-//        LOGGER.info("Extracting close captioning from: " + videoFile.getAbsolutePath());
-//        ccextractor(new String[]{
-//                "-o", ccFile.getAbsolutePath(),
-//                "-in=mp4",
-//                videoFile.getAbsolutePath()
-//        });
-//
-//        VideoTranscript videoTranscript = SubRip.read(ccFile);
-//        artifact.getContent().mergeVideoTranscript(videoTranscript);
-//
-//        ccFile.delete();
     }
 
     private void extractFramesForAnalysis(File videoFile, Artifact artifact, User user) throws IOException, InterruptedException {
@@ -185,10 +167,6 @@ public class FFMPEGVideoConversion {
 
     private void ffmpeg(String[] args) throws IOException, InterruptedException {
         executeProgram("ffmpeg", args);
-    }
-
-    private void ccextractor(String[] args) throws IOException, InterruptedException {
-        executeProgram("ccextractor", args);
     }
 
     private void executeProgram(final String programName, final String[] programArgs) throws IOException, InterruptedException {

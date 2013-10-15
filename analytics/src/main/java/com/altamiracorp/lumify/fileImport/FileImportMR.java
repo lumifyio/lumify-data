@@ -5,7 +5,7 @@ import com.altamiracorp.lumify.LumifyMapper;
 import com.altamiracorp.lumify.FileImporter;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.ucd.artifact.VideoTranscript;
+import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import com.altamiracorp.lumify.videoConversion.SubRip;
 import com.altamiracorp.lumify.videoConversion.YoutubeccReader;
 import com.google.inject.Inject;

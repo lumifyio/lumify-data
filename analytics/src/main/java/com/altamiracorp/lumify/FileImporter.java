@@ -4,7 +4,7 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.ucd.artifact.VideoTranscript;
+import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import com.altamiracorp.lumify.videoConversion.SubRip;
 import com.altamiracorp.lumify.videoConversion.YoutubeccReader;
 import com.google.common.io.Files;

@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.ucd.artifact;
+package com.altamiracorp.lumify.core.ingest.video;
 
 import org.json.JSONArray;
 import org.json.JSONException;

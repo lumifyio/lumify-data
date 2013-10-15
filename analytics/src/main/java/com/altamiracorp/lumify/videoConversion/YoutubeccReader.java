@@ -1,8 +1,6 @@
 package com.altamiracorp.lumify.videoConversion;
 
-import com.altamiracorp.lumify.ucd.artifact.VideoTranscript;
-import org.apache.commons.io.IOUtils;
-import org.hsqldb.lib.StringInputStream;
+import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

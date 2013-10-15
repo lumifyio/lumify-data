@@ -22,9 +22,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -106,12 +104,17 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
     }
 
     protected void runWorkers(FileMetadata fileMetadata, ArtifactExtractedInfo artifactExtractedInfo) throws Exception {
-        InputStream in = getInputStream(fileMetadata.getFileName(), artifactExtractedInfo);
         AdditionalArtifactWorkData additionalDocumentWorkData = new AdditionalArtifactWorkData();
-        additionalDocumentWorkData.setFileName(fileMetadata.getFileName());
-        additionalDocumentWorkData.setMimeType(fileMetadata.getMimeType());
-        additionalDocumentWorkData.setHdfsFileSystem(getHdfsFileSystem());
+        InputStream in = getInputStream(fileMetadata.getFileName(), artifactExtractedInfo);
         try {
+            additionalDocumentWorkData.setFileName(fileMetadata.getFileName());
+            additionalDocumentWorkData.setMimeType(fileMetadata.getMimeType());
+            additionalDocumentWorkData.setHdfsFileSystem(getHdfsFileSystem());
+            if (isLocalFileRequired()) {
+                File localFile = copyFileToLocalFile(in);
+                in = new FileInputStream(localFile);
+                additionalDocumentWorkData.setLocalFileName(localFile.getName());
+            }
             List<ThreadedTeeInputStreamWorker.WorkResult<ArtifactExtractedInfo>> results = threadedInputStreamProcess.doWork(in, additionalDocumentWorkData);
             mergeResults(artifactExtractedInfo, results);
             if (LOGGER.isInfoEnabled()) {
@@ -119,7 +122,28 @@ public abstract class BaseFileProcessingBolt extends BaseLumifyBolt {
             }
         } finally {
             in.close();
+            if (additionalDocumentWorkData.getLocalFileName() != null) {
+                //noinspection ResultOfMethodCallIgnored
+                new File(additionalDocumentWorkData.getLocalFileName()).delete();
+            }
         }
+    }
+
+    private File copyFileToLocalFile(InputStream in) throws IOException {
+        File localFile = File.createTempFile("fileProcessing", "");
+        LOGGER.info("Copying file locally for processing: " + localFile);
+        OutputStream localFileOut = new FileOutputStream(localFile);
+        try {
+            IOUtils.copy(in, localFileOut);
+        } finally {
+            localFileOut.close();
+        }
+        in.close();
+        return localFile;
+    }
+
+    protected boolean isLocalFileRequired() {
+        return false;
     }
 
     protected void mergeResults(ArtifactExtractedInfo artifactExtractedInfo, List<ThreadedTeeInputStreamWorker.WorkResult<ArtifactExtractedInfo>> results) throws Exception {

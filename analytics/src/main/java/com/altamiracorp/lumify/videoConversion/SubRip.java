@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.videoConversion;
 
-import com.altamiracorp.lumify.ucd.artifact.VideoTranscript;
+import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 
 import java.io.*;
 import java.util.regex.Matcher;

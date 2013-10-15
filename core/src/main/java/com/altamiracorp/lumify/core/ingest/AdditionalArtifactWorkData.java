@@ -7,6 +7,7 @@ public class AdditionalArtifactWorkData {
     private String mimeType;
     private String fileName;
     private FileSystem hdfsFileSystem;
+    private String localFileName;
 
     public void setMimeType(String mimeType) {
         this.mimeType = mimeType;
@@ -30,5 +31,13 @@ public class AdditionalArtifactWorkData {
 
     public void setHdfsFileSystem(FileSystem hdfsFileSystem) {
         this.hdfsFileSystem = hdfsFileSystem;
+    }
+
+    public void setLocalFileName(String localFileName) {
+        this.localFileName = localFileName;
+    }
+
+    public String getLocalFileName() {
+        return localFileName;
     }
 }

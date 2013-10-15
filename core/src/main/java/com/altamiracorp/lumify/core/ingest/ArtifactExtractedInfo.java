@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.core.ingest;
 
+import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import org.json.JSONObject;
 
 import java.util.Date;
@@ -20,6 +21,7 @@ public class ArtifactExtractedInfo {
     private static final String WEBM_HDFS_PATH = "webmHdfsPath";
     private static final String DETECTED_OBJECTS = "detectedObjects";
     private HashMap<String, Object> properties = new HashMap<String, Object>();
+    private VideoTranscript videoTranscript;
 
     public void mergeFrom(ArtifactExtractedInfo artifactExtractedInfo) {
         if (artifactExtractedInfo == null) {
@@ -129,11 +131,19 @@ public class ArtifactExtractedInfo {
         return (String) properties.get(WEBM_HDFS_PATH);
     }
 
-    public void setDetectedObjects (String detectedObjectsJsonString) {
-        set(DETECTED_OBJECTS,detectedObjectsJsonString);
+    public void setDetectedObjects(String detectedObjectsJsonString) {
+        set(DETECTED_OBJECTS, detectedObjectsJsonString);
     }
 
-    public String getDetectedObjects () {
+    public String getDetectedObjects() {
         return (String) properties.get(DETECTED_OBJECTS);
+    }
+
+    public void setVideoTranscript(VideoTranscript videoTranscript) {
+        this.videoTranscript = videoTranscript;
+    }
+
+    public VideoTranscript getVideoTranscript() {
+        return videoTranscript;
     }
 }
