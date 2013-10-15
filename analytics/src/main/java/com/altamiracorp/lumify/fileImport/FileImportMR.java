@@ -69,13 +69,6 @@ public class FileImportMR extends ConfigurableMapJobBase {
             JSONObject mappingJson = readMappingJsonFile(p);
             VideoTranscript videoTranscript = readVideoTranscript(p);
 
-            if (mappingJson != null) {
-                artifact.getGenericMetadata().setMappingJson(mappingJson);
-            }
-            if (videoTranscript != null) {
-                artifact.getContent().mergeVideoTranscript(videoTranscript);
-            }
-
             artifactRepository.saveToGraph(artifact, getUser());
             context.write(new Text(Artifact.TABLE_NAME), artifact);
         }
