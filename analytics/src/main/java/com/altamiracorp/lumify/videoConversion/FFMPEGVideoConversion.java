@@ -34,7 +34,6 @@ public class FFMPEGVideoConversion {
         extractCloseCaptioning(videoFile, artifact, user);
         extractAudio(videoFile, artifact, user);
         encodeMp4(videoFile, artifact, user);
-        encodeWebM(videoFile, artifact, user);
         extractPosterFrame(videoFile, artifact, user);
         extractFramesForAnalysis(videoFile, artifact, user);
         videoFile.delete();
@@ -140,36 +139,6 @@ public class FFMPEGVideoConversion {
 //        artifact.getGenericMetadata().setPosterFrameHdfsFilePath(posterFrameFileSaveResults.getFullPath());
 //        posterFrameFileIn.close();
 //        posterFrameFile.delete();
-    }
-
-    private void encodeWebM(File file, Artifact artifact, User user) throws IOException, InterruptedException {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        File webmFile = File.createTempFile("encode_webm_", ".webm");
-//
-//        // pass 1
-//        LOGGER.info("Encoding (webm) " + file.getAbsolutePath() + " to " + webmFile.getAbsolutePath());
-//        ffmpeg(new String[]{
-//                "-y", // overwrite output files
-//                "-i", file.getAbsolutePath(),
-//                "-vcodec", "libvpx",
-//                "-b:v", "600k",
-//                "-qmin", "10",
-//                "-qmax", "42",
-//                "-maxrate", "500k",
-//                "-bufsize", "1000k",
-//                "-threads", "2",
-//                "-vf", "scale=720:480",
-//                "-acodec", "libvorbis",
-//                "-f", "webm",
-//                webmFile.getAbsolutePath()
-//        });
-//
-//        // save file
-//        InputStream webmFileIn = new FileInputStream(webmFile);
-//        SaveFileResults webmFileSaveResults = artifactRepository.saveFile(webmFileIn, user);
-//        artifact.getGenericMetadata().setWebmHdfsFilePath(webmFileSaveResults.getFullPath());
-//        webmFileIn.close();
-//        webmFile.delete();
     }
 
     private void encodeMp4(File file, Artifact artifact, User user) throws IOException, InterruptedException {
