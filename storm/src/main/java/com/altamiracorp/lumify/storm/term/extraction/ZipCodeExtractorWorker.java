@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.storm.termExtraction;
+package com.altamiracorp.lumify.storm.term.extraction;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -10,26 +10,30 @@ import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionAddition
 import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionWorker;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.entityExtraction.PhoneNumberExtractor;
+import com.altamiracorp.lumify.entityExtraction.RegexEntityExtractor;
 import com.google.inject.Inject;
 
-public class PhoneNumberExtractorWorker extends TermExtractionWorker {
-    private PhoneNumberExtractor phoneNumberExtractor;
-
+public class ZipCodeExtractorWorker extends TermExtractionWorker {
+    private RegexEntityExtractor regExExtractor;
+    private static final String ZIPCODE_REG_EX = "\\b\\d{5}-\\d{4}\\b|\\b\\d{5}\\b";
+    private static final String LOCATION_TYPE = "location";
 
     @Override
     public void prepare(Map conf, User user) throws Exception {
         Configuration configuration = ConfigurationHelper.createHadoopConfigurationFromMap(conf);
-        phoneNumberExtractor.prepare(configuration, user);
+        configuration.set(RegexEntityExtractor.REGULAR_EXPRESSION, ZIPCODE_REG_EX);
+        configuration.set(RegexEntityExtractor.ENTITY_TYPE, LOCATION_TYPE);
+
+        regExExtractor.prepare(configuration, user);
     }
 
     @Override
     protected TermExtractionResult doWork(InputStream work, TermExtractionAdditionalWorkData data) throws Exception {
-        return phoneNumberExtractor.extract(work);
+        return regExExtractor.extract(work);
     }
 
     @Inject
-    void setPhoneNumberExtractor(PhoneNumberExtractor extractor) {
-        phoneNumberExtractor = extractor;
+    void setRegexEntityExtractor(RegexEntityExtractor extractor) {
+        regExExtractor = extractor;
     }
 }

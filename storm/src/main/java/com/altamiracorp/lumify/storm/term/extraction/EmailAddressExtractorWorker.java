@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.storm.termExtraction;
+package com.altamiracorp.lumify.storm.term.extraction;
 
 import java.io.InputStream;
 import java.util.Map;

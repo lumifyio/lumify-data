@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.storm.termExtraction;
+package com.altamiracorp.lumify.storm.term.extraction;
 
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.termMention.TermMention;

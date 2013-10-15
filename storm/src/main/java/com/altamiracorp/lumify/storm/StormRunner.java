@@ -14,7 +14,7 @@ import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.image.ImageBolt;
 import com.altamiracorp.lumify.storm.structuredDataExtraction.StructuredDataBolt;
-import com.altamiracorp.lumify.storm.termExtraction.TermExtractionBolt;
+import com.altamiracorp.lumify.storm.term.extraction.TermExtractionBolt;
 import com.altamiracorp.lumify.storm.textHighlighting.ArtifactHighlightingBolt;
 import com.altamiracorp.lumify.storm.video.VideoBolt;
 import com.altamiracorp.lumify.storm.video.VideoPreviewBolt;

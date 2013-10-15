@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.storm.termExtraction;
+package com.altamiracorp.lumify.storm.term.extraction;
 
 import com.altamiracorp.lumify.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.ingest.termExtraction.TermExtractionAdditionalWorkData;
