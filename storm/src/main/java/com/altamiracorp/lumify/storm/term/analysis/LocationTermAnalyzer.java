@@ -14,6 +14,7 @@ import com.altamiracorp.lumify.model.geoNames.GeoNameRepository;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionMetadata;
+import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.storm.term.extraction.TermMentionWithGraphVertex;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -27,14 +28,17 @@ public class LocationTermAnalyzer {
     private final GeoNamePostalCodeRepository geoNamePostalCodeRepository;
     private final GeoNameRepository geoNameRepository;
     private final GraphRepository graphRepository;
+    private final TermMentionRepository termRepository;
+
 
     @Inject
     public LocationTermAnalyzer(final SimpleTermLocationExtractor extractor, final GeoNamePostalCodeRepository postalCodeRepo,
-            final GeoNameRepository geoNameRepo, final GraphRepository graphRepo) {
+            final GeoNameRepository geoNameRepo, final GraphRepository graphRepo, final TermMentionRepository termRepo) {
         simpleTermLocationExtractor = extractor;
         geoNamePostalCodeRepository = postalCodeRepo;
         geoNameRepository = geoNameRepo;
         graphRepository = graphRepo;
+        termRepository = termRepo;
     }
 
     public void analyzeTermData(final TermMentionWithGraphVertex data, final User user) {
@@ -57,6 +61,7 @@ public class LocationTermAnalyzer {
         if (updatedTerm != null) {
             LOGGER.info("Updating associated graph vertex");
             updateGraphVertex(updatedTerm, data.getGraphVertex(), user);
+            termRepository.save(updatedTerm, user);
         }
     }
 
