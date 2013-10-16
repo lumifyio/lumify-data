@@ -250,7 +250,8 @@ Mocha.interfaces['flight-mocha'] = (function() {
 
         options = typeof options === 'undefined' ? {} : options;
 
-        ctx.component = new ctx.Component(ctx.$node, options);
+        ctx.component = (new ctx.Component());
+        ctx.component.initialize(ctx.$node, options);
       };
     });
   };

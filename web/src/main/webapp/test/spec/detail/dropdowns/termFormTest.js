@@ -9,10 +9,14 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
         var self = this;
 
         this.componentConfiguration = function() {
-            self.component.ontologyService._ajaxGet = function(prop, callback) {
+            self.component.ontologyService._ajaxGet = function(prop) {
+                var d = $.Deferred();
                 if (prop.url == 'ontology/concept') {
-                    callback(undefined, {children:[{id:1, title:'First'}, {id:2, title:'Second'}]});
+                    d.resolve({children:[{id:1, title:'entity'}, {id:2, title:'artifact'}]});
+                } else if (prop.url === 'ontology/property') {
+                    d.resolve({properties:[]});
                 }
+                return d;
             };
             self.parentNode.normalize();
             self.component.trigger('opened');
@@ -21,13 +25,16 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
         this.setupParentForExisting = function(sentenceText) {
             self.$parentNode = $('<span/>')
                 .addClass('sentence')
-                .html(sentenceText)
-                .appendTo('body');
+                .html(sentenceText);
+
+            $('<div class="detail-pane"><div class="text"></div></div>')
+                .appendTo('body').append(self.$parentNode);
 
             self.$node = $('<div class="dropdown"/>').appendTo(this.$parentNode);
             self.parentNode = this.$parentNode.get(0);
 
-            self.component = new self.Component(self.$node, {
+            self.component = new self.Component();
+            self.component.initialize(self.$node, {
                 mentionNode: self.$parentNode.find('.entity')
                                  .data('info', {
                                      "title":"Web",
@@ -88,7 +95,8 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
             range.setStart(start.node, start.offset);
             range.setEnd(end.node, end.offset);
 
-            self.component = new self.Component(self.$node, {
+            self.component = new self.Component();
+            self.component.initialize(self.$node, {
                 selection: {
                     range: range
                 },
@@ -196,33 +204,14 @@ describeComponent('detail/dropdowns/termForm/termForm', function(TermForm) {
             // Don't preselect value based on inner span
             expect(this.$node.find('select').val()).to.equal("");
 
-            expect(this.$node.find('.sign').text()).to.equal('Amazon Web');
+            expect(this.$node.find('.object-sign').val()).to.equal('Amazon Web');
         });
 
-        it("should apply subType class on select change", function() {
-
-            this.setupParentForSelection('offered by [Amazon]');
-
-            var span = this.$parentNode.find('span.entity');
-
-            this.component.select('conceptSelector').val('1').change();
-            expect(span.attr('class')).to
-                .contain('entity')
-                .contain('focused')
-                .contain('subType-1');
-
-            this.component.select('conceptSelector').val('2').change();
-            expect(span.attr('class')).to
-                .contain('subType-2')
-                .not.contain('subType-1');
-
-            this.Component.teardownAll();
-        });
     });
 
     describe('#highlightTerm', function() {
 
-        xit("should change highlighted term to loaded concept", function() {
+        it("should change highlighted term to loaded concept", function() {
 
             this.setupParentForSelection('offered by [Amazon <span class="entity subType-2">W]eb</span>');
 

@@ -4,71 +4,42 @@ describeComponent('search/search', function(Search) {
     beforeEach(function() {
         setupComponent();
         this.component.ontologyService.clearCaches();
+
+        this.overrideTrigger = function(expectedQuery, callback) {
+            this.component.trigger = function(event, options) {
+                expect(event).to.equal('search');
+                expect(options.query).to.equal(expectedQuery);
+                callback();
+            };
+        }.bind(this);
     });
+
 
     describe('#onFormSearch', function() {
 
         it("should trigger 'search'", function(done) {
-
             var query = 'query';
 
-            this.component.trigger = function(event, options) {
-                expect(event).to.equal('search');
-                expect(options.query).to.equal(query);
-
-                done();
-            };
+            this.overrideTrigger(query, done);
 
             var evt = new sinon.Event();
-
-            this.component.select('searchQuerySelector').val(query);
+            this.component.select('querySelector').val(query);
             this.component.onFormSearch(evt);
 
             expect(evt.defaultPrevented).to.equal(true);
         });
 
-    });
+        it("search query must not be blank", function() {
+            var query = ' ';
 
-    describe('#doSearch', function() {
-
-        it("should call 'ucd.artifactSearch' and 'ucd.entitySearch'", function(done) {
-            var query = { query: 'query' };
             var evt = new sinon.Event();
-            var artifactSearchQuery = null;
-            var entitySearchQuery = null;
+            this.component.select('querySelector').val(query);
+            this.component.onFormSearch(evt);
 
-            this.component.ucd.artifactSearch = function(query) {
-                artifactSearchQuery = query;
-            };
-            this.component.ucd.graphVertexSearch = function(query) {
-                entitySearchQuery = query;
-            };
-
-            this.component.ontologyService._ajaxGet = function(prop, callback) {
-                if (prop.url == 'ontology/concept') {
-                    callback(undefined, {
-                        children:[
-                            {
-                                id:100,
-                                title:'Entity',
-                                color:'rgb(255,0,0)',
-                                glyphIconHref:'first-icon',
-                                children:[]
-                            }
-                        ]
-                    });
-
-                    expect(artifactSearchQuery).not.to.be.null;
-                    expect(artifactSearchQuery.query).to.equal(query.query);
-                    expect(entitySearchQuery).not.to.be.null;
-                    expect(entitySearchQuery.query).to.equal(query.query);
-                    done();
-                }
-            };
-
-            this.component.doSearch(evt, query);
-
+            expect(this.component.select('resultsSummarySelector').html()).to.equal('');
+            expect(evt.defaultPrevented).to.equal(true);
         });
 
     });
+
 });

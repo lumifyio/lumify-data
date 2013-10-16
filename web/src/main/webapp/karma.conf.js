@@ -59,6 +59,9 @@ module.exports = function(config) {
       // Test Files
       {pattern: 'test/spec/**/*.js', included: false},
 
+      // Test Mocks
+      {pattern: 'test/mocks/**/*.js', included: false},
+
       // Test runner
       'test/runner/main.js'
     ],
