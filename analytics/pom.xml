@@ -41,6 +41,11 @@
             <artifactId>lumify-model-kafka</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-model-elasticSearch</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.accumulo</groupId>
@@ -228,11 +233,6 @@
             <groupId>net.lingala.zip4j</groupId>
             <artifactId>zip4j</artifactId>
             <version>1.3.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch</artifactId>
         </dependency>
 
         <dependency>

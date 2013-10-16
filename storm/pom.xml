@@ -67,6 +67,16 @@
         </dependency>
         <dependency>
             <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-model-kafka</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
+            <artifactId>lumify-model-elasticSearch</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.altamiracorp.lumify</groupId>
             <artifactId>lumify-core</artifactId>
             <version>1.0-SNAPSHOT</version>
             <exclusions>
