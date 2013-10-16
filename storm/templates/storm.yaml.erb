@@ -11,6 +11,7 @@ storm.local.dir: <%= @storm_local_dir %>
 supervisor.slots.ports: <%= @storm_supervisor_slots_ports.inspect %>
 ui.port: <%= @storm_ui_port %>
 nimbus.thrift.port: <%= @storm_nimbus_thrift_port %>
+java.library.path: "/usr/lib:/usr/local/lib:/usr/local/share/OpenCV/java"
 
 ## List of custom serializations
 # topology.kryo.register:
