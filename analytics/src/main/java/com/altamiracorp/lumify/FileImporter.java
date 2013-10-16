@@ -1,12 +1,10 @@
 package com.altamiracorp.lumify;
 
-import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
-import com.altamiracorp.lumify.storm.video.SubRip;
-import com.altamiracorp.lumify.storm.video.YoutubeccReader;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
 import net.lingala.zip4j.core.ZipFile;
@@ -35,7 +33,8 @@ public class FileImporter {
     public static final String YOUTUBE_CC_FILE_NAME_SUFFIX = ".youtubecc";
     public static final String SRT_CC_FILE_NAME_SUFFIX = ".srt";
     private final ArtifactRepository artifactRepository;
-    private final YoutubeccReader youtubeccReader = new YoutubeccReader();
+    // TODO storm refactor
+    //private final YoutubeccReader youtubeccReader = new YoutubeccReader();
 
     @Inject
     public FileImporter(ArtifactRepository artifactRepository) {
@@ -141,21 +140,22 @@ public class FileImporter {
     }
 
     private VideoTranscript readVideoTranscript(File f) throws Exception {
-        VideoTranscript videoTranscript = null;
-        File youtubeccFile = new File(f.getAbsolutePath() + FileImporter.YOUTUBE_CC_FILE_NAME_SUFFIX);
-        if (youtubeccFile.exists()) {
-            videoTranscript = new VideoTranscript();
-            VideoTranscript youtubeccTranscript = youtubeccReader.read(youtubeccFile);
-            videoTranscript.merge(youtubeccTranscript);
-        }
-
-        File srtccFile = new File(f.getAbsolutePath() + FileImporter.SRT_CC_FILE_NAME_SUFFIX);
-        if ( srtccFile.exists() ) {
-            videoTranscript = videoTranscript == null ? new VideoTranscript() : videoTranscript;
-            VideoTranscript youtubeccTranscript = SubRip.read(srtccFile);
-            videoTranscript.merge(youtubeccTranscript);
-        }
-        return videoTranscript;
+        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+//        VideoTranscript videoTranscript = null;
+//        File youtubeccFile = new File(f.getAbsolutePath() + FileImporter.YOUTUBE_CC_FILE_NAME_SUFFIX);
+//        if (youtubeccFile.exists()) {
+//            videoTranscript = new VideoTranscript();
+//            VideoTranscript youtubeccTranscript = youtubeccReader.read(youtubeccFile);
+//            videoTranscript.merge(youtubeccTranscript);
+//        }
+//
+//        File srtccFile = new File(f.getAbsolutePath() + FileImporter.SRT_CC_FILE_NAME_SUFFIX);
+//        if ( srtccFile.exists() ) {
+//            videoTranscript = videoTranscript == null ? new VideoTranscript() : videoTranscript;
+//            VideoTranscript youtubeccTranscript = SubRip.read(srtccFile);
+//            videoTranscript.merge(youtubeccTranscript);
+//        }
+//        return videoTranscript;
     }
 
     public static class Result {
