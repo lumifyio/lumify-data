@@ -31,21 +31,25 @@ public class ArtifactHighlightingBolt extends BaseTextProcessingBolt {
             String artifactRowKey = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
             LOGGER.info(String.format("Processing graph vertex [%s] for artifact: %s", graphVertex.getId(), artifactRowKey));
 
-            String text = getText(graphVertex);
             List<TermMention> termMentions = termMentionRepository.findByGraphVertexId(graphVertex.getId(), getUser());
-            String highlightedText = entityHighlighter.getHighlightedText(text, termMentions, getUser());
-
-            Artifact artifact = new Artifact(artifactRowKey);
-            artifact.getMetadata().setHighlightedText(highlightedText);
-            artifactRepository.save(artifact, getUser());
-
-            graphVertex.removeProperty(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH.toString());
-            graphRepository.save(graphVertex, getUser());
+            performHighlighting(artifactRowKey, graphVertex, termMentions);
         } else {
             LOGGER.warn("Could not find vertex with id: " + graphVertexId);
         }
 
         getCollector().ack(input);
+    }
+
+    private void performHighlighting(final String rowKey, final GraphVertex vertex, final List<TermMention> termMentions) throws Exception {
+        String text = getText(vertex);
+        String highlightedText = entityHighlighter.getHighlightedText(text, termMentions, getUser());
+
+        Artifact artifact = new Artifact(rowKey);
+        artifact.getMetadata().setHighlightedText(highlightedText);
+        artifactRepository.save(artifact, getUser());
+
+        vertex.removeProperty(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH.toString());
+        graphRepository.save(vertex, getUser());
     }
 
     @Inject
