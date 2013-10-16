@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.storm.image;
 
-import com.altamiracorp.lumify.config.ConfigurationHelper;
+import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;

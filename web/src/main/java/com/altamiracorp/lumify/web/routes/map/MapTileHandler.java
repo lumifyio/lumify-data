@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.web.routes.map;
 
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.lumify.config.MapConfig;
+import com.altamiracorp.lumify.core.config.MapConfig;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
 import org.apache.poi.util.IOUtils;

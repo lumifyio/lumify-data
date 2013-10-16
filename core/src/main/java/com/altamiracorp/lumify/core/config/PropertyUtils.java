@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.config;
+package com.altamiracorp.lumify.core.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

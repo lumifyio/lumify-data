@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.config;
+package com.altamiracorp.lumify.core.config;
 
 import java.util.Map;
 

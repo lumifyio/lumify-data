@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.web.routes.map;
 
-import com.altamiracorp.lumify.config.MapConfig;
+import com.altamiracorp.lumify.core.config.MapConfig;
 import com.altamiracorp.web.MustacheTemplateHandler;
 import com.google.inject.Inject;
 import org.apache.commons.io.IOUtils;

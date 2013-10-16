@@ -1,10 +1,10 @@
 package com.altamiracorp.lumify.web.guice.modules;
 
 import com.altamiracorp.lumify.BootstrapBase;
-import com.altamiracorp.lumify.config.ApplicationConfig;
-import com.altamiracorp.lumify.config.ConfigConstants;
-import com.altamiracorp.lumify.config.Configuration;
-import com.altamiracorp.lumify.config.MapConfig;
+import com.altamiracorp.lumify.core.config.ApplicationConfig;
+import com.altamiracorp.lumify.core.config.ConfigConstants;
+import com.altamiracorp.lumify.core.config.Configuration;
+import com.altamiracorp.lumify.core.config.MapConfig;
 import com.altamiracorp.lumify.web.AuthenticationProvider;
 
 import static com.google.common.base.Preconditions.checkNotNull;

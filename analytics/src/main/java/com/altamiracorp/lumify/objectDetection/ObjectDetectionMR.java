@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.objectDetection;
 
 import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.model.AccumuloVideoFrameInputFormat;
@@ -39,11 +40,11 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         String type = job.getConfiguration().get(JOB_TYPE, DEFAULT_JOB_TYPE);
 
         if (type.equals("videoFrame")) {
-            com.altamiracorp.lumify.config.Configuration c = getConfiguration();
+            Configuration c = getConfiguration();
             AccumuloVideoFrameInputFormat.init(job, c.getDataStoreUserName(), c.getDataStorePassword(), getAuthorizations(), c.getZookeeperInstanceName(), c.getZookeeperServerNames());
             inputFormatClass = AccumuloVideoFrameInputFormat.class;
         } else {
-            com.altamiracorp.lumify.config.Configuration c = getConfiguration();
+            Configuration c = getConfiguration();
             AccumuloArtifactInputFormat.init(job, c.getDataStoreUserName(), c.getDataStorePassword(), getAuthorizations(), c.getZookeeperInstanceName(), c.getZookeeperServerNames());
             inputFormatClass = AccumuloArtifactInputFormat.class;
         }

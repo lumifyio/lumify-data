@@ -8,9 +8,10 @@ import backtype.storm.spout.Scheme;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.config.ConfigurationHelper;
+import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.model.AccumuloSession;
 import com.altamiracorp.lumify.model.KafkaJsonEncoder;
+import com.altamiracorp.lumify.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.image.ImageBolt;
@@ -180,21 +181,21 @@ public class StormRunner extends CommandLineBase {
     }
 
     private void createTextTopology(TopologyBuilder builder) {
-        SpoutConfig spoutConfig = createSpoutConfig("text", null);
+        SpoutConfig spoutConfig = createSpoutConfig(WorkQueueRepository.TEXT_QUEUE_NAME, null);
         builder.setSpout("text", new KafkaSpout(spoutConfig), 1);
         builder.setBolt("textTermExtractionBolt", new TermExtractionBolt(), 1)
                 .shuffleGrouping("text");
     }
 
     private void createArtifactHighlightingTopology(TopologyBuilder builder) {
-        SpoutConfig spoutConfig = createSpoutConfig("artifactHighlight", null);
+        SpoutConfig spoutConfig = createSpoutConfig(WorkQueueRepository.ARTIFACT_HIGHLIGHT_QUEUE_NAME, null);
         builder.setSpout("artifactHighlightSpout", new KafkaSpout(spoutConfig), 1);
         builder.setBolt("artifactHighlightBolt", new ArtifactHighlightingBolt(), 1)
                 .shuffleGrouping("artifactHighlightSpout");
     }
 
     private void createProcessedVideoTopology(TopologyBuilder builder) {
-        SpoutConfig spoutConfig = createSpoutConfig("processedVideo", null);
+        SpoutConfig spoutConfig = createSpoutConfig(WorkQueueRepository.PROCESSED_VIDEO_QUEUE_NAME, null);
         builder.setSpout("processedVideoSpout", new KafkaSpout(spoutConfig), 1);
         builder.setBolt("processedVideoBolt", new VideoPreviewBolt(), 1)
                 .shuffleGrouping("processedVideoSpout");
