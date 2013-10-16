@@ -362,6 +362,7 @@
         <module>model-titan</module>
         <module>model-kafka</module>
         <module>model-elasticSearch</module>
+        <module>model-blur</module>
         <module>analytics</module>
         <module>dictionary-seed</module>
         <module>oozie</module>

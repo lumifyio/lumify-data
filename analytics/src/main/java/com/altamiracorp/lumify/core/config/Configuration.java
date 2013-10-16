@@ -3,7 +3,6 @@ package com.altamiracorp.lumify.core.config;
 import com.altamiracorp.lumify.model.AccumuloSession;
 import com.altamiracorp.lumify.model.TitanGraphSession;
 import com.altamiracorp.lumify.model.search.SearchProvider;
-import com.altamiracorp.lumify.search.BlurSearchProvider;
 import com.altamiracorp.lumify.search.ElasticSearchProvider;
 import com.google.common.base.Objects;
 import org.slf4j.Logger;
@@ -181,8 +180,8 @@ public final class Configuration implements MapConfig, ApplicationConfig {
         PropertyUtils.setPropertyValue(properties, AccumuloSession.ZOOKEEPER_SERVER_NAMES, getZookeeperServerNames());
         PropertyUtils.setPropertyValue(properties, AccumuloSession.USERNAME, getDataStoreUserName());
         PropertyUtils.setPropertyValue(properties, AccumuloSession.PASSWORD, getDataStorePassword());
-        PropertyUtils.setPropertyValue(properties, BlurSearchProvider.BLUR_CONTROLLER_LOCATION, getSearchIndexController());
-        PropertyUtils.setPropertyValue(properties, BlurSearchProvider.BLUR_PATH, getSearchIndexStoragePath());
+        PropertyUtils.setPropertyValue(properties, "blurControllerLocation", getSearchIndexController());
+        PropertyUtils.setPropertyValue(properties, "blurPath", getSearchIndexStoragePath());
         PropertyUtils.setPropertyValue(properties, TitanGraphSession.STORAGE_INDEX_SEARCH_HOSTNAME, getGraphSearchIndexHostname());
         PropertyUtils.setPropertyValue(properties, SearchProvider.SEARCH_PROVIDER_PROP_KEY, getSearchProvider());
         PropertyUtils.setPropertyValue(properties, ElasticSearchProvider.ES_LOCATIONS_PROP_KEY, getElasticSearchLocations());
