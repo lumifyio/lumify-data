@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.core.ingest;
 
 import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 
 import java.util.Date;
@@ -35,10 +36,30 @@ public class ArtifactExtractedInfo {
         for (Map.Entry<String, Object> prop : artifactExtractedInfo.properties.entrySet()) {
             if (prop.getKey().equals(VIDEO_TRANSCRIPT)) {
                 this.properties.put(prop.getKey(), VideoTranscript.merge(getVideoTranscript(), (VideoTranscript) prop.getValue()));
+            } else if (prop.getKey().equals(TEXT)) {
+                mergeExtractedText(artifactExtractedInfo);
             } else {
                 this.properties.put(prop.getKey(), prop.getValue());
             }
         }
+    }
+
+    public void mergeExtractedText(ArtifactExtractedInfo artifactExtractedInfo) {
+        if (StringUtils.isBlank(artifactExtractedInfo.getText())) {
+            return;
+        }
+
+        String mergedText;
+        if (this.getText() == null) {
+            mergedText = artifactExtractedInfo.getText();
+        } else {
+            StringBuilder sb = new StringBuilder(this.getText())
+                    .append("\n\n")
+                    .append(artifactExtractedInfo.getText());
+            mergedText = sb.toString();
+        }
+
+        this.setText(mergedText);
     }
 
     public void setRowKey(String rowKey) {
