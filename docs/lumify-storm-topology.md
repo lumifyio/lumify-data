@@ -40,11 +40,9 @@ The required topics are: text, video, and image
 ## Running the Topology
 
 ### Create Topology Jar
-from outside of Vagrant 
 1. Run `$ bin/stormLocal.sh`
 2. Generate the topology jar with: `$ storm/clusterbuild.sh`
 
 ### Topology Execution 
-from within Vagrant
 1. On the storm cluster, execute:`$ /opt/storm-run.sh`
 2. `$ hadoop fs -put /vagrant/data/import/* /lumify/data/unknown`
