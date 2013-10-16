@@ -15,19 +15,6 @@
 
     <name>Storm</name>
 
-    <properties>
-        <cluster.dependency.scope>compile</cluster.dependency.scope>
-    </properties>
-
-    <profiles>
-        <profile>
-            <id>cluster</id>
-            <properties>
-                <cluster.dependency.scope>provided</cluster.dependency.scope>
-            </properties>
-        </profile>
-    </profiles>
-
     <dependencies>
         <!-- Storm dependencies -->
         <dependency>

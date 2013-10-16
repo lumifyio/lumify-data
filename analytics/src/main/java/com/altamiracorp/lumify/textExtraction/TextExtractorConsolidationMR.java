@@ -2,7 +2,7 @@ package com.altamiracorp.lumify.textExtraction;
 
 import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
-import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.model.Column;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;

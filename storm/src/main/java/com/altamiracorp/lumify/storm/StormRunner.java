@@ -8,7 +8,7 @@ import backtype.storm.spout.Scheme;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.config.ConfigurationHelper;
+import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.model.AccumuloSession;
 import com.altamiracorp.lumify.model.KafkaJsonEncoder;
 import com.altamiracorp.lumify.model.workQueue.WorkQueueRepository;

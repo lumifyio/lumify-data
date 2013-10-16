@@ -2,7 +2,7 @@ package com.altamiracorp.lumify.location;
 
 import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
-import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.model.Row;
 import com.altamiracorp.lumify.model.graph.GraphRepository;

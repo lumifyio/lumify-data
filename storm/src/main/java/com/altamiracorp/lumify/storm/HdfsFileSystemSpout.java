@@ -3,7 +3,7 @@ package com.altamiracorp.lumify.storm;
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.utils.Utils;
-import com.altamiracorp.lumify.config.ConfigurationHelper;
+import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.model.AccumuloSession;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;

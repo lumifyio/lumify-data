@@ -11,7 +11,7 @@ import org.apache.hadoop.util.Tool;
 
 import com.altamiracorp.lumify.CommandLineBootstrap;
 import com.altamiracorp.lumify.FrameworkUtils;
-import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.user.ModelAuthorizations;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
