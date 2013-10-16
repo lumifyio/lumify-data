@@ -34,6 +34,7 @@ import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
+import com.altamiracorp.lumify.storm.term.analysis.LocationTermAnalyzer;
 import com.google.inject.Inject;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {

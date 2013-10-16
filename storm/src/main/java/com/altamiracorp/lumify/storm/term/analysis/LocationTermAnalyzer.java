@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.storm.term.extraction;
+package com.altamiracorp.lumify.storm.term.analysis;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -14,6 +14,7 @@ import com.altamiracorp.lumify.model.geoNames.GeoNameRepository;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionMetadata;
+import com.altamiracorp.lumify.storm.term.extraction.TermMentionWithGraphVertex;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
