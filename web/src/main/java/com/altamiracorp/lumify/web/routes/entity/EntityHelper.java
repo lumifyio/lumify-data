@@ -4,28 +4,23 @@ import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.Repository;
 import com.altamiracorp.lumify.model.graph.GraphRepository;
 import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.google.common.util.concurrent.MoreExecutors;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
+import com.altamiracorp.lumify.model.workQueue.WorkQueueRepository;
+import com.google.inject.Inject;
 
 public class EntityHelper {
     private final GraphRepository graphRepository;
-    private final Repository<TermMention> termMentionRepository;
+    private final TermMentionRepository termMentionRepository;
+    private final WorkQueueRepository workQueueRepository;
 
-    private final ExecutorService executorService = MoreExecutors.getExitingExecutorService(
-            new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>()),
-            0L, TimeUnit.MILLISECONDS);
-
-    public EntityHelper(final Repository<TermMention> termMentionRepo,
-                        final GraphRepository graphRepo) {
-        termMentionRepository = termMentionRepo;
-        graphRepository = graphRepo;
+    @Inject
+    public EntityHelper(final TermMentionRepository termMentionRepository,
+                        final GraphRepository graphRepository, WorkQueueRepository workQueueRepository) {
+        this.termMentionRepository = termMentionRepository;
+        this.graphRepository = graphRepository;
+        this.workQueueRepository = workQueueRepository;
     }
 
     public void updateTermMention(TermMention termMention, String sign, GraphVertex conceptVertex, GraphVertex resolvedVertex, User user) {
@@ -58,8 +53,7 @@ public class EntityHelper {
         return detectedObject;
     }
 
-    public void executeService(Runnable helperClass) {
-        executorService.execute(helperClass);
+    public void scheduleHighlight(String artifactGraphVertexId, User user) {
+        this.workQueueRepository.pushArtifactHighlight(artifactGraphVertexId);
     }
-
 }

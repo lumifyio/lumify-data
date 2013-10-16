@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import com.altamiracorp.lumify.model.workQueue.WorkQueueRepository;
 import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
     private ThreadedInputStreamProcess<TermExtractionResult, TermExtractionAdditionalWorkData> termExtractionStreamProcess;
     private TermMentionRepository termMentionRepository;
     private OntologyRepository ontologyRepository;
+    private WorkQueueRepository workQueueRepository;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -96,9 +98,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         List<TermMentionWithGraphVertex> termMentions = saveTermExtractions(artifactGraphVertex.getId(), termExtractionResult.getTermMentions());
         processTermMentions(termMentions);
 
-        JSONObject artifactHighlightJson = new JSONObject();
-        artifactHighlightJson.put("graphVertexId", artifactGraphVertex.getId());
-        pushOnQueue("artifactHighlight", artifactHighlightJson);
+        workQueueRepository.pushArtifactHighlight(artifactGraphVertex.getId());
     }
 
     private void mergeTextExtractedInfos(TermExtractionResult termExtractionResult, List<ThreadedTeeInputStreamWorker.WorkResult<TermExtractionResult>> results) throws Exception {
@@ -174,4 +174,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         this.ontologyRepository = ontologyRepository;
     }
 
+    @Inject
+    public void setWorkQueueRepository(WorkQueueRepository workQueueRepository) {
+        this.workQueueRepository = workQueueRepository;
+    }
 }

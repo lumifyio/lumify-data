@@ -12,6 +12,7 @@ import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
+import com.altamiracorp.lumify.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.storm.file.FileMetadata;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
@@ -35,6 +36,11 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
     private ThreadedInputStreamProcess<ArtifactExtractedInfo, AdditionalArtifactWorkData> threadedInputStreamProcess;
     private ContentTypeExtractor contentTypeExtractor;
     private VideoFrameRepository videoFrameRepository;
+    protected WorkQueueRepository workQueueRepository;
+
+    public BaseArtifactProcessingBolt() {
+        LOGGER.toString();
+    }
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -277,13 +283,7 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
     }
 
     protected void onAfterGraphVertexCreated(GraphVertex graphVertex) {
-        pushOnTextQueue(graphVertex);
-    }
-
-    protected void pushOnTextQueue(GraphVertex graphVertex) {
-        JSONObject textQueueDataJson = new JSONObject();
-        textQueueDataJson.put("graphVertexId", graphVertex.getId());
-        pushOnQueue("text", textQueueDataJson);
+        this.workQueueRepository.pushText(graphVertex.getId());
     }
 
     @Inject
@@ -294,5 +294,10 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
     @Inject
     public void setVideoFrameRepository(VideoFrameRepository videoFrameRepository) {
         this.videoFrameRepository = videoFrameRepository;
+    }
+
+    @Inject
+    public void setWorkQueueRepository(WorkQueueRepository workQueueRepository) {
+        this.workQueueRepository = workQueueRepository;
     }
 }

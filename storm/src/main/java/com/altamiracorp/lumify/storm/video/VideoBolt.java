@@ -6,7 +6,6 @@ import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.storm.BaseArtifactProcessingBolt;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Map;
@@ -36,9 +35,7 @@ public class VideoBolt extends BaseArtifactProcessingBolt {
     protected void onAfterGraphVertexCreated(GraphVertex graphVertex) {
         super.onAfterGraphVertexCreated(graphVertex);
 
-        JSONObject json = new JSONObject();
-        json.put("artifactRowKey", graphVertex.getProperty(PropertyName.ROW_KEY));
-        pushOnQueue("processedVideo", json);
+        workQueueRepository.pushProcessedVideo((String) graphVertex.getProperty(PropertyName.ROW_KEY));
     }
 
     @Override

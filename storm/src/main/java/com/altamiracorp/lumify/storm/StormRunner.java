@@ -10,6 +10,7 @@ import backtype.storm.utils.Utils;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.config.ConfigurationHelper;
 import com.altamiracorp.lumify.model.AccumuloSession;
+import com.altamiracorp.lumify.model.KafkaJsonEncoder;
 import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.image.ImageBolt;
@@ -40,9 +41,7 @@ import java.util.Map;
 
 public class StormRunner extends CommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(StormRunner.class);
-    public static final String LOCAL_CONFIG_KEY = "local";
     public static final String TOPOLOGY_NAME = "lumify";
-    private boolean isDone;
 
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new StormRunner(), args);
@@ -102,11 +101,11 @@ public class StormRunner extends CommandLineBase {
             cluster.submitTopology(TOPOLOGY_NAME, conf, topology);
 
             // TODO: how do we know when we are done?
-            while (!isDone) {
+            while (true) {
                 Utils.sleep(100);
             }
-            cluster.killTopology("local");
-            cluster.shutdown();
+//            cluster.killTopology("local");
+//            cluster.shutdown();
         } else {
             StormSubmitter.submitTopology(TOPOLOGY_NAME, conf, topology);
         }

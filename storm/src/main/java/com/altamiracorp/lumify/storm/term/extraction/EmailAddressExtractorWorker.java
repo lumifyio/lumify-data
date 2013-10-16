@@ -10,7 +10,7 @@ import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditio
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.entityExtraction.RegexEntityExtractor;
+import com.altamiracorp.lumify.storm.term.extraction.RegexEntityExtractor;
 import com.google.inject.Inject;
 
 public class EmailAddressExtractorWorker extends TermExtractionWorker {

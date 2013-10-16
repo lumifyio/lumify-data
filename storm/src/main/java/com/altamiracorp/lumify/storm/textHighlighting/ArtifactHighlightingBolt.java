@@ -10,7 +10,6 @@ import backtype.storm.tuple.Tuple;
 
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.entityHighlight.EntityHighlighter;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;

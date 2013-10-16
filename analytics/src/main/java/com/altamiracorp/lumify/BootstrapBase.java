@@ -6,6 +6,7 @@ import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.*;
 import com.altamiracorp.lumify.model.search.SearchProvider;
+import com.altamiracorp.lumify.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.search.ElasticSearchProvider;
 import com.google.inject.AbstractModule;
 import org.apache.accumulo.core.client.Connector;
@@ -34,7 +35,13 @@ public abstract class BootstrapBase extends AbstractModule {
         bind(ModelSession.class).toInstance(createModelSession());
         bind(GraphSession.class).toInstance(createGraphSession());
         bind(SearchProvider.class).toInstance(createSearchProvider(user));
+        bind(WorkQueueRepository.class).toInstance(createWorkQueueRepository());
         bind(ContentTypeExtractor.class).toInstance(new TikaContentTypeExtractor());
+    }
+
+    private WorkQueueRepository createWorkQueueRepository() {
+        String zookeeperServerNames = properties.getProperty(AccumuloSession.ZOOKEEPER_SERVER_NAMES);
+        return new KafkaWorkQueueRepository(zookeeperServerNames);
     }
 
 

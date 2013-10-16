@@ -336,6 +336,7 @@
         <module>model</module>
         <module>model-accumulo</module>
         <module>model-titan</module>
+        <module>model-kafka</module>
         <module>analytics</module>
         <module>dictionary-seed</module>
         <module>oozie</module>

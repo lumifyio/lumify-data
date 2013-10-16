@@ -22,13 +22,9 @@ import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import kafka.javaapi.producer.Producer;
-import kafka.javaapi.producer.ProducerData;
-import kafka.producer.ProducerConfig;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,13 +36,11 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Date;
 import java.util.Map;
-import java.util.Properties;
 
 public abstract class BaseLumifyBolt extends BaseRichBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseLumifyBolt.class.getName());
 
     private OutputCollector collector;
-    private Producer<String, JSONObject> kafkaProducer;
     protected ArtifactRepository artifactRepository;
     private FileSystem hdfsFileSystem;
     protected GraphRepository graphRepository;
@@ -65,12 +59,6 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         } catch (Exception e) {
             collector.reportError(e);
         }
-
-        Properties props = new Properties();
-        props.put("zk.connect", stormConf.get("zookeeperServerNames") + "/kafka"); // TODO what happens if zookeeperServerNames has multiple names
-        props.put("serializer.class", KafkaJsonEncoder.class.getName());
-        ProducerConfig config = new ProducerConfig(props);
-        kafkaProducer = new Producer<String, JSONObject>(config);
     }
 
     protected JSONObject getJsonFromTuple(Tuple input) throws Exception {
@@ -111,21 +99,6 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
     }
 
     protected abstract void safeExecute(Tuple input) throws Exception;
-
-    protected void pushOnQueue(String queueName, JSONObject json, String... extra) {
-        if (extra != null && extra.length > 0) {
-            JSONArray extraArray = new JSONArray();
-            for (String e : extra) {
-                extraArray.put(e);
-            }
-            json.put(KafkaJsonEncoder.EXTRA, extraArray);
-        }
-
-        json.put("sourceBolt", getClass().getName());
-
-        ProducerData<String, JSONObject> data = new ProducerData<String, JSONObject>(queueName, json);
-        kafkaProducer.send(data);
-    }
 
     protected InputStream openFile(String fileName) throws Exception {
         // TODO probably a better way to handle this
