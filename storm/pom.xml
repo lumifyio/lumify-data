@@ -20,7 +20,6 @@
         <dependency>
             <groupId>storm</groupId>
             <artifactId>storm</artifactId>
-            <version>${storm-version}</version>
             <scope>${cluster.dependency.scope}</scope>
         </dependency>
         <dependency>
