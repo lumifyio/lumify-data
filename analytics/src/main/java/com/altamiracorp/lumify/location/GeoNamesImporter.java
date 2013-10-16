@@ -11,6 +11,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,10 +28,10 @@ public class GeoNamesImporter extends CommandLineBase {
     private GeoNameCountryInfoRepository geoNameCountryInfoRepository;
     private GeoNamePostalCodeRepository geoNamePostalCodeRepository;
     private ModelSession modelSession;
-    private String fileName;
-    private String admin1CodeFileName;
-    private String countryInfoFileName;
-    private String postalCodeFileName;
+    private String placeNamesPath;
+    private String admin1CodesPath;
+    private String countryInfoPath;
+    private String postalCodesPath;
 
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new GeoNamesImporter(), args);
@@ -42,10 +43,10 @@ public class GeoNamesImporter extends CommandLineBase {
     @Override
     protected void processOptions(CommandLine cmd) throws Exception {
         super.processOptions(cmd);
-        this.fileName = cmd.getOptionValue("filename");
-        this.admin1CodeFileName = cmd.getOptionValue("admin1code");
-        this.countryInfoFileName = cmd.getOptionValue("countryinfo");
-        this.postalCodeFileName = cmd.getOptionValue("postalcode");
+        this.placeNamesPath = cmd.getOptionValue("placenames");
+        this.admin1CodesPath = cmd.getOptionValue("admin1codes");
+        this.countryInfoPath = cmd.getOptionValue("countryinfo");
+        this.postalCodesPath = cmd.getOptionValue("postalcodes");
     }
 
     @Override
@@ -54,21 +55,21 @@ public class GeoNamesImporter extends CommandLineBase {
 
         options.addOption(
                 OptionBuilder
-                        .withLongOpt("filename")
+                        .withLongOpt("placenames")
                         .withDescription("The GeoNames file to import")
                         .isRequired()
                         .hasArg(true)
-                        .withArgName("filename")
+                        .withArgName("placenames")
                         .create()
         );
 
         options.addOption(
                 OptionBuilder
-                        .withLongOpt("admin1code")
+                        .withLongOpt("admin1codes")
                         .withDescription("The GeoNames admin1 code file to import")
                         .isRequired()
                         .hasArg(true)
-                        .withArgName("filename")
+                        .withArgName("admin1codes")
                         .create()
         );
 
@@ -78,17 +79,17 @@ public class GeoNamesImporter extends CommandLineBase {
                         .withDescription("The GeoNames Country Info file to import")
                         .isRequired()
                         .hasArg(true)
-                        .withArgName("filename")
+                        .withArgName("countryinfo")
                         .create()
         );
 
         options.addOption(
                 OptionBuilder
-                        .withLongOpt("postalcode")
+                        .withLongOpt("postalcodes")
                         .withDescription("The GeoNames Postal Codes file to import")
                         .isRequired()
                         .hasArg(true)
-                        .withArgName("filename")
+                        .withArgName("postalcodes")
                         .create()
         );
 
@@ -99,25 +100,18 @@ public class GeoNamesImporter extends CommandLineBase {
     protected int run(CommandLine cmd) throws Exception {
         User user = getUser();
 
-        modelSession.initializeTables(user);
+        FileSystem fs = FileSystem.get(getConf());
 
-        File f = new File(this.fileName);
-        writeFile(new FileInputStream(f), user);
-
-        File admin1CodeFile = new File(this.admin1CodeFileName);
-        writeAdmin1CodeFile(new FileInputStream(admin1CodeFile), user);
-
-        File countryInfoFile = new File(this.countryInfoFileName);
-        writeCountryInfoFile(new FileInputStream(countryInfoFile), user);
-
-        File postalCodeFile = new File(this.postalCodeFileName);
-        writePostalCodeFile(new FileInputStream(postalCodeFile), user);
+        writePlaceNamesFile(fs.open(new Path(placeNamesPath)), user);
+        writeAdmin1CodeFile(fs.open(new Path(admin1CodesPath)), user);
+        writeCountryInfoFile(fs.open(new Path(countryInfoPath)), user);
+        writePostalCodeFile(fs.open(new Path(postalCodesPath)), user);
 
         modelSession.close();
         return 0;
     }
 
-    private void writeFile(InputStream in, User user) throws IOException, MutationsRejectedException {
+    private void writePlaceNamesFile(InputStream in, User user) throws IOException, MutationsRejectedException {
         LOGGER.info("Importing GeoNames.");
 
         BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
@@ -300,7 +294,7 @@ public class GeoNamesImporter extends CommandLineBase {
         return result;
     }
 
-    private void writePostalCodeFile(FileInputStream in, User user) throws IOException, MutationsRejectedException {
+    private void writePostalCodeFile(InputStream in, User user) throws IOException, MutationsRejectedException {
         LOGGER.info("Importing GeoNames Postal Code Info.");
 
         BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));

@@ -18,7 +18,8 @@ fi
 java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
-com.altamiracorp.lumify.entityExtraction.DictionaryImportMR \
---failOnFirstError \
--Dmapred.input.dir="${DIR}/../conf/opennlp/dictionaries/"
+com.altamiracorp.lumify.entityExtraction.DictionaryImporter \
+--configLocation file:///opt/lumify/config/configuration.properties \
+--extension=dict \
+--directory=${DIR}/../conf/opennlp/dictionaries \
 
