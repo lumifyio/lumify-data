@@ -19,6 +19,9 @@ case "$1" in
   tasktracker | tt)
     open http://192.168.33.10:50060
     ;;
+  storm | s)
+    open http://192.168.33.10:8080
+    ;;
   *)
     echo 'you must specify a supported console, one of:'
     awk '/[a-z]+\)/ {print $1}' $0 | sed -e 's/)//' -e 's/^/  /'
