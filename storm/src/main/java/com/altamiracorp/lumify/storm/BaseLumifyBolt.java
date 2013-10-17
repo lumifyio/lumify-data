@@ -1,11 +1,27 @@
 package com.altamiracorp.lumify.storm;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.Date;
+import java.util.Map;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
+
 import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
@@ -22,20 +38,6 @@ import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.Date;
-import java.util.Map;
 
 public abstract class BaseLumifyBolt extends BaseRichBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseLumifyBolt.class.getName());
@@ -93,6 +95,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         try {
             safeExecute(input);
         } catch (Exception e) {
+            LOGGER.error("Error occurred during execution", e);
             getCollector().reportError(e);
             getCollector().fail(input);
         }
@@ -146,7 +149,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         GraphVertex artifactVertex = null;
         String oldGraphVertexId = artifact.getMetadata().getGraphVertexId();
         if (oldGraphVertexId != null) {
-            artifactVertex = this.graphRepository.findVertex(oldGraphVertexId, getUser());
+            artifactVertex = graphRepository.findVertex(oldGraphVertexId, getUser());
         }
         if (artifactVertex == null) {
             artifactVertex = new InMemoryGraphVertex();
@@ -166,8 +169,8 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         if (artifactExtractedInfo.getDetectedObjects() != null) {
             artifactVertex.setProperty(PropertyName.DETECTED_OBJECTS, artifactExtractedInfo.getDetectedObjects());
         }
-        String vertexId = this.graphRepository.save(artifactVertex, getUser());
-        this.graphRepository.commit();
+        String vertexId = graphRepository.save(artifactVertex, getUser());
+        graphRepository.commit();
 
         if (!vertexId.equals(oldGraphVertexId)) {
             artifact.getMetadata().setGraphVertexId(vertexId);
