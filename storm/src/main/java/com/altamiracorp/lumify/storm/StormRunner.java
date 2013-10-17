@@ -205,9 +205,9 @@ public class StormRunner extends CommandLineBase {
 
     private void createStructuredDataEntityTopology (TopologyBuilder builder) {
         SpoutConfig spoutConfig = createSpoutConfig(WorkQueueRepository.STRUCTURED_DATA_ENTITY_QUEUE_NAME, null);
-        builder.setSpout("structuredData", new KafkaSpout(spoutConfig), 1);
+        builder.setSpout("structuredDataEntitySpout", new KafkaSpout(spoutConfig), 1);
         builder.setBolt("structuredDataEntityBolt", new StructuredDataEntityExtractorBolt(), 1)
-                .shuffleGrouping("structuredData");
+                .shuffleGrouping("structuredDataEntitySpout");
     }
 
     private SpoutConfig createSpoutConfig(String queueName, Scheme scheme) {

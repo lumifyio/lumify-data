@@ -14,6 +14,7 @@ public class ArtifactMetadata extends ColumnFamily {
     private static final String GRAPH_VERTEX_ID = "graphVertexId";
     private static final String CREATE_DATE = "createDate";
     private static final String VIDEO_TRANSCRIPT = "videoTranscript";
+    private static final String MAPPING_JSON = "mappingJson";
 
     public ArtifactMetadata() {
         super(NAME);
@@ -62,6 +63,11 @@ public class ArtifactMetadata extends ColumnFamily {
 
     public ArtifactMetadata setVideoTranscript(VideoTranscript videoTranscript) {
         set(VIDEO_TRANSCRIPT, videoTranscript.toJson().toString());
+        return this;
+    }
+
+    public ArtifactMetadata setMappingJson (String mappingJson) {
+        set(MAPPING_JSON, mappingJson);
         return this;
     }
 }

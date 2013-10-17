@@ -27,6 +27,7 @@ public class ArtifactExtractedInfo {
     private static final String POSTER_FRAME_HDFS_PATH = "posterFrameHdfsPath";
     private static final String VIDEO_DURATION = "videoDuration";
     private static final String VIDEO_FRAMES = "videoFrames";
+    private static final String MAPPING_JSON = "mappingJson";
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 
     public void mergeFrom(ArtifactExtractedInfo artifactExtractedInfo) {
@@ -207,6 +208,14 @@ public class ArtifactExtractedInfo {
 
     public List<VideoFrame> getVideoFrames() {
         return (List<VideoFrame>) properties.get(VIDEO_FRAMES);
+    }
+
+    public void setMappingJson(JSONObject mappingJson) {
+        set(MAPPING_JSON, mappingJson);
+    }
+
+    public String getMappingJson() {
+        return properties.get(MAPPING_JSON).toString();
     }
 
     public static class VideoFrame {
