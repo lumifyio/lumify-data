@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.model.user.User;
-import com.altamiracorp.lumify.model.user.UserRepository;
-import com.altamiracorp.lumify.model.user.UserStatus;
+import com.altamiracorp.lumify.core.model.user.User;
+import com.altamiracorp.lumify.core.model.user.UserRepository;
+import com.altamiracorp.lumify.core.model.user.UserStatus;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import org.apache.commons.lang.StringUtils;

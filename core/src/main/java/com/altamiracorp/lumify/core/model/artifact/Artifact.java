@@ -1,0 +1,29 @@
+package com.altamiracorp.lumify.core.model.artifact;
+
+import com.altamiracorp.lumify.core.model.Row;
+import com.altamiracorp.lumify.core.model.RowKey;
+
+public class Artifact extends Row<ArtifactRowKey> {
+    public static final long MAX_SIZE_OF_INLINE_FILE = 500; // TODO: 512 * 1024; // 512kiB
+    public static final String TABLE_NAME = "atc_artifact";
+
+    public Artifact(RowKey rowKey) {
+        super(TABLE_NAME, new ArtifactRowKey(rowKey.toString()));
+    }
+
+    public Artifact(String rowKey) {
+        super(TABLE_NAME, new ArtifactRowKey(rowKey));
+    }
+
+    public Artifact() {
+        super(TABLE_NAME);
+    }
+
+    public ArtifactMetadata getMetadata() {
+        ArtifactMetadata artifactMetadata = get(ArtifactMetadata.NAME);
+        if (artifactMetadata == null) {
+            addColumnFamily(new ArtifactMetadata());
+        }
+        return get(ArtifactMetadata.NAME);
+    }
+}

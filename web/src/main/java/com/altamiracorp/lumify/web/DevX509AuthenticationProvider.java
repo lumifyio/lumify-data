@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.model.user.UserRepository;
+import com.altamiracorp.lumify.core.model.user.UserRepository;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

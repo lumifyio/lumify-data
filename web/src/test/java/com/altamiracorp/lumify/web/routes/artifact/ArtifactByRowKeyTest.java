@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.graph.GraphRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.web.routes.RouteTestBase;
 import org.junit.Before;
 import org.junit.Test;

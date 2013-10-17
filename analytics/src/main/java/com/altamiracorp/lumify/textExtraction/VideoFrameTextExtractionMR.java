@@ -5,7 +5,7 @@ import com.altamiracorp.lumify.LumifyMapper;
 import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.model.AccumuloVideoFrameInputFormat;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
 import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;

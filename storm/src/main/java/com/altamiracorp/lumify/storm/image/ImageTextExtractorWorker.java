@@ -7,7 +7,7 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.textExtraction.ImageOcrTextExtractor;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.google.inject.Inject;
 
 import javax.imageio.ImageIO;

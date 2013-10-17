@@ -4,10 +4,10 @@ import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.graph.GraphRepository;
-import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
-import com.altamiracorp.lumify.model.workQueue.WorkQueueRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphRepository;
+import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
+import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.google.inject.Inject;
 
 public class EntityHelper {

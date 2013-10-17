@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;

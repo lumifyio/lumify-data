@@ -2,10 +2,10 @@ package com.altamiracorp.lumify.search;
 
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.search.ArtifactSearchResult;
-import com.altamiracorp.lumify.model.search.SearchProvider;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.model.search.ArtifactSearchResult;
+import com.altamiracorp.lumify.core.model.search.SearchProvider;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import org.apache.blur.thirdparty.thrift_0_9_0.TException;
 import org.apache.blur.thrift.BlurClient;
 import org.apache.blur.thrift.generated.*;

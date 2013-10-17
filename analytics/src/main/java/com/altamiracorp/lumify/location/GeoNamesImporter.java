@@ -3,7 +3,7 @@ package com.altamiracorp.lumify.location;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.geoNames.*;
+import com.altamiracorp.lumify.core.model.geoNames.*;
 import com.google.inject.Inject;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.util.CachedConfiguration;

@@ -10,12 +10,12 @@ import backtype.storm.tuple.Tuple;
 
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
+import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
 import com.altamiracorp.lumify.storm.term.analysis.LocationTermAnalyzer;
 import com.altamiracorp.lumify.storm.term.extraction.TermMentionWithGraphVertex;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.google.inject.Inject;
 
 public class ArtifactHighlightingBolt extends BaseTextProcessingBolt {

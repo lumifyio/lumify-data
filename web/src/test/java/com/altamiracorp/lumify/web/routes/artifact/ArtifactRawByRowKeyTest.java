@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.web.AuthenticationProvider;
 import com.altamiracorp.lumify.web.routes.RouteTestBase;
 import org.junit.Before;

@@ -1,9 +1,9 @@
 package com.altamiracorp.lumify.textExtraction;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.google.inject.Inject;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;

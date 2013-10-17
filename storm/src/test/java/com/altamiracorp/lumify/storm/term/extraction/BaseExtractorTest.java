@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
 
 public class BaseExtractorTest {
 

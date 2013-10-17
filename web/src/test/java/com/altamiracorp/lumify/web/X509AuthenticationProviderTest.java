@@ -1,10 +1,10 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.user.User;
-import com.altamiracorp.lumify.model.user.UserMetadata;
-import com.altamiracorp.lumify.model.user.UserRepository;
-import com.altamiracorp.lumify.model.user.UserRowKey;
+import com.altamiracorp.lumify.core.model.ModelSession;
+import com.altamiracorp.lumify.core.model.user.User;
+import com.altamiracorp.lumify.core.model.user.UserMetadata;
+import com.altamiracorp.lumify.core.model.user.UserRepository;
+import com.altamiracorp.lumify.core.model.user.UserRowKey;
 import com.altamiracorp.web.HandlerChain;
 import org.junit.Before;
 import org.junit.Test;

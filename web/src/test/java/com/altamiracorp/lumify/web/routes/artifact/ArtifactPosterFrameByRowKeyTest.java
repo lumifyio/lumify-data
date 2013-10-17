@@ -1,27 +1,19 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnailRepository;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.web.AuthenticationProvider;
+import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
 import com.altamiracorp.lumify.web.routes.RouteTestBase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import javax.servlet.http.HttpSession;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ArtifactPosterFrameByRowKeyTest extends RouteTestBase {

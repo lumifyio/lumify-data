@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.model;
 
-import com.altamiracorp.lumify.model.graph.GraphRelationship;
+import com.altamiracorp.lumify.core.model.graph.GraphRelationship;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 

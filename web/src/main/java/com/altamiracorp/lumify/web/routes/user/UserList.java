@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.web.routes.user;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.user.UserRepository;
+import com.altamiracorp.lumify.core.model.user.UserRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
@@ -25,7 +25,7 @@ public class UserList extends BaseRequestHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         User authUser = getUser(request);
 
-        List<com.altamiracorp.lumify.model.user.User> users = userRepository.findAll(authUser);
+        List<com.altamiracorp.lumify.core.model.user.User> users = userRepository.findAll(authUser);
 
         JSONObject resultJson = new JSONObject();
         JSONArray usersJson = getJson(users);
@@ -34,9 +34,9 @@ public class UserList extends BaseRequestHandler {
         respondWithJson(response, resultJson);
     }
 
-    private JSONArray getJson(List<com.altamiracorp.lumify.model.user.User> users) throws JSONException {
+    private JSONArray getJson(List<com.altamiracorp.lumify.core.model.user.User> users) throws JSONException {
         JSONArray usersJson = new JSONArray();
-        for (com.altamiracorp.lumify.model.user.User user : users) {
+        for (com.altamiracorp.lumify.core.model.user.User user : users) {
             usersJson.put(user.toJson());
         }
         return usersJson;

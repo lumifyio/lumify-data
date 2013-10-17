@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.GraphSession;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.search.SearchProvider;
+import com.altamiracorp.lumify.core.model.GraphSession;
+import com.altamiracorp.lumify.core.model.ModelSession;
+import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;

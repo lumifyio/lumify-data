@@ -8,8 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.workspace.Workspace;
-import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
+import com.altamiracorp.lumify.core.model.workspace.Workspace;
+import com.altamiracorp.lumify.core.model.workspace.WorkspaceRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;

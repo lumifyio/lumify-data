@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.structuredDataExtraction;
 
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.termMention.TermMention;
 
 public class TermAndGraphVertex {
     private final boolean useExisting;

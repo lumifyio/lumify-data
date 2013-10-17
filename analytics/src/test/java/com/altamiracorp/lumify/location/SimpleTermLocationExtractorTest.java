@@ -1,13 +1,13 @@
 package com.altamiracorp.lumify.location;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.MockSession;
-import com.altamiracorp.lumify.model.geoNames.GeoName;
-import com.altamiracorp.lumify.model.geoNames.GeoNameAdmin1CodeRepository;
-import com.altamiracorp.lumify.model.geoNames.GeoNameCountryInfoRepository;
-import com.altamiracorp.lumify.model.geoNames.GeoNameRepository;
-import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
+import com.altamiracorp.lumify.core.model.MockSession;
+import com.altamiracorp.lumify.core.model.geoNames.GeoName;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNameAdmin1CodeRepository;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNameCountryInfoRepository;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNameRepository;
+import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.workspace.WorkspaceRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

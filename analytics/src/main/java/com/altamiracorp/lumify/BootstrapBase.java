@@ -2,11 +2,13 @@ package com.altamiracorp.lumify;
 
 import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor;
+import com.altamiracorp.lumify.core.model.GraphSession;
+import com.altamiracorp.lumify.core.model.ModelSession;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.*;
-import com.altamiracorp.lumify.model.search.SearchProvider;
-import com.altamiracorp.lumify.model.workQueue.WorkQueueRepository;
+import com.altamiracorp.lumify.core.model.search.SearchProvider;
+import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.search.ElasticSearchProvider;
 import com.google.inject.AbstractModule;
 import org.apache.accumulo.core.client.Connector;

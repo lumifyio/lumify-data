@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.web.routes.graph;
 
-import com.altamiracorp.lumify.model.graph.GraphRepository;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphRepository;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;

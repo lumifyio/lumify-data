@@ -2,11 +2,11 @@ package com.altamiracorp.lumify.web.routes.map;
 
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnailRepository;
-import com.altamiracorp.lumify.model.ontology.Concept;
-import com.altamiracorp.lumify.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.model.resources.Resource;
-import com.altamiracorp.lumify.model.resources.ResourceRepository;
+import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
+import com.altamiracorp.lumify.core.model.ontology.Concept;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.resources.Resource;
+import com.altamiracorp.lumify.core.model.resources.ResourceRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.common.cache.Cache;

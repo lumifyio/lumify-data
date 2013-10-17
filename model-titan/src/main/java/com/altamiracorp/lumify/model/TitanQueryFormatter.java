@@ -10,8 +10,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.altamiracorp.lumify.model.ontology.Property;
-import com.altamiracorp.lumify.model.ontology.PropertyType;
+import com.altamiracorp.lumify.core.model.ontology.Property;
+import com.altamiracorp.lumify.core.model.ontology.PropertyType;
 import com.google.common.collect.Maps;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.tinkerpop.blueprints.Vertex;

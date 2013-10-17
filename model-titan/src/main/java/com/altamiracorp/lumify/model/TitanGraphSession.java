@@ -1,13 +1,13 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.core.model.GraphSession;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.graph.GraphGeoLocation;
-import com.altamiracorp.lumify.model.graph.GraphRelationship;
-import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.model.ontology.*;
+import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
+import com.altamiracorp.lumify.core.model.graph.GraphRelationship;
+import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.model.query.utils.LuceneTokenizer;
 import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.google.common.base.Preconditions;

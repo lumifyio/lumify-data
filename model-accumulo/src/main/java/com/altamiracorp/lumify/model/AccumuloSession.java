@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.core.model.*;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import org.apache.accumulo.core.client.*;

@@ -2,10 +2,10 @@ package com.altamiracorp.lumify.objectDetection;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;

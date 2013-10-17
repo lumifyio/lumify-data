@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.web.routes.ontology;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.model.ontology.Relationship;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.ontology.Relationship;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;

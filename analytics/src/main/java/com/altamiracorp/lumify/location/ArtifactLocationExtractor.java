@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.location;
 
-import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;

@@ -1,10 +1,10 @@
 package com.altamiracorp.lumify.vaast.model.averageFrames;
 
 import com.altamiracorp.lumify.model.*;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrameDetectedObjects;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrameMetadata;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrameRowKey;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameDetectedObjects;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameMetadata;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRowKey;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
 
 import java.io.InputStream;

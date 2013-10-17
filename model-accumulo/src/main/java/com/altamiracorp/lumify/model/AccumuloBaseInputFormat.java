@@ -1,5 +1,7 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.core.model.BaseBuilder;
+import com.altamiracorp.lumify.core.model.Row;
 import org.apache.accumulo.core.client.RowIterator;
 import org.apache.accumulo.core.client.mapreduce.InputFormatBase;
 import org.apache.accumulo.core.data.Key;

@@ -4,7 +4,7 @@ import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditio
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.search.SearchProvider;
+import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.google.inject.Inject;
 
 import java.io.InputStream;

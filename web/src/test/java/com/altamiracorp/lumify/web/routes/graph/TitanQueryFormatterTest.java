@@ -4,7 +4,7 @@ import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.TitanGraphVertex;
 import com.altamiracorp.lumify.model.TitanQueryFormatter;
-import com.altamiracorp.lumify.model.ontology.Property;
+import com.altamiracorp.lumify.core.model.ontology.Property;
 import com.altamiracorp.lumify.web.routes.RouteTestBase;
 import com.google.common.collect.Lists;
 import com.tinkerpop.blueprints.Graph;

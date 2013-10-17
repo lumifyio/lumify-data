@@ -2,9 +2,9 @@ package com.altamiracorp.lumify.textExtraction;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.structuredDataExtraction.StructuredDataFactory;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.google.inject.Injector;
 import org.apache.hadoop.mapreduce.Mapper;
 

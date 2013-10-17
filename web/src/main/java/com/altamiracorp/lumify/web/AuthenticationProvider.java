@@ -24,7 +24,7 @@ public abstract class AuthenticationProvider implements Handler {
         return AuthenticationProvider.getUser(request.getSession());
     }
 
-    protected User createFromModelUser(com.altamiracorp.lumify.model.user.User user) {
+    protected User createFromModelUser(com.altamiracorp.lumify.core.model.user.User user) {
         // TODO change to user specific authorization
         ModelAuthorizations modelAuthorizations = SystemUser.getSystemModelAuthorizations();
 

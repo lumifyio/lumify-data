@@ -8,6 +8,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.altamiracorp.lumify.core.model.ColumnFamily;
+import com.altamiracorp.lumify.core.model.Row;
+import com.altamiracorp.lumify.core.model.RowKey;
+import com.altamiracorp.lumify.core.model.Value;
 import org.apache.accumulo.core.client.AccumuloException;
 import org.apache.accumulo.core.client.AccumuloSecurityException;
 import org.apache.accumulo.core.client.BatchWriter;
@@ -107,7 +111,7 @@ public class AccumuloSessionTest {
                     } else if ("1testColumn2".equals(columnNameString)) {
                         Assert.assertEquals("1testColumn2Value", accumuloColumn.getValue().toString());
                     } else if ("1testColumn3".equals(columnNameString)) {
-                        Assert.assertEquals(111L, new com.altamiracorp.lumify.model.Value(accumuloColumn.getValue().get()).toLong().longValue());
+                        Assert.assertEquals(111L, new Value(accumuloColumn.getValue().get()).toLong().longValue());
                     } else if ("1testColumn4".equals(columnNameString)) {
                         Assert.assertEquals("test", accumuloColumn.getValue().toString());
                     } else {
@@ -119,7 +123,7 @@ public class AccumuloSessionTest {
                     } else if ("2testColumn2".equals(columnNameString)) {
                         Assert.assertEquals("2testColumn2Value", accumuloColumn.getValue().toString());
                     } else if ("2testColumn3".equals(columnNameString)) {
-                        Assert.assertEquals(222L, new com.altamiracorp.lumify.model.Value(accumuloColumn.getValue().get()).toLong().longValue());
+                        Assert.assertEquals(222L, new Value(accumuloColumn.getValue().get()).toLong().longValue());
                     } else {
                         fail("invalid column name: " + columnFamilyString + " - " + columnNameString);
                     }

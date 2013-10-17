@@ -2,7 +2,7 @@ package com.altamiracorp.lumify.web;
 
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.user.UserRepository;
+import com.altamiracorp.lumify.core.model.user.UserRepository;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
 import org.apache.commons.codec.binary.Base64;
@@ -30,7 +30,7 @@ public class DevBasicAuthenticationProvider extends AuthenticationProvider {
             if (username == null) {
                 requestAuthorization(response);
             } else {
-                com.altamiracorp.lumify.model.user.User user = userRepository.findOrAddUser(username, new SystemUser());
+                com.altamiracorp.lumify.core.model.user.User user = userRepository.findOrAddUser(username, new SystemUser());
                 User authUser = createFromModelUser(user);
                 setUser(request, authUser);
                 chain.next(request, response);

@@ -2,7 +2,7 @@ package com.altamiracorp.lumify.core.config;
 
 import com.altamiracorp.lumify.model.AccumuloSession;
 import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.model.search.SearchProvider;
+import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.search.ElasticSearchProvider;
 import com.google.common.base.Objects;
 import org.slf4j.Logger;

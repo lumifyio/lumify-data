@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
-import com.altamiracorp.lumify.model.workspace.WorkspaceRowKey;
+import com.altamiracorp.lumify.core.model.workspace.WorkspaceRepository;
+import com.altamiracorp.lumify.core.model.workspace.WorkspaceRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;

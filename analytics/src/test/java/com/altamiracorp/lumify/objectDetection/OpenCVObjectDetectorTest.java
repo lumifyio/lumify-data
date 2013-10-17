@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.objectDetection;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

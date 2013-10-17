@@ -1,9 +1,9 @@
 package com.altamiracorp.lumify.objectDetection;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.search.SearchProvider;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.search.SearchProvider;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

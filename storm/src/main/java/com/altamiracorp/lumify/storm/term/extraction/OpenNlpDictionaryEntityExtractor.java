@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import com.altamiracorp.lumify.model.dictionary.DictionaryEntry;
-import com.altamiracorp.lumify.model.dictionary.DictionaryEntryRepository;
+import com.altamiracorp.lumify.core.model.dictionary.DictionaryEntry;
+import com.altamiracorp.lumify.core.model.dictionary.DictionaryEntryRepository;
 import com.google.inject.Inject;
 import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.namefind.DictionaryNameFinder;

@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.model;
 
-import com.altamiracorp.lumify.model.workQueue.WorkQueueRepository;
+import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import kafka.javaapi.producer.Producer;
 import kafka.javaapi.producer.ProducerData;
 import kafka.producer.ProducerConfig;

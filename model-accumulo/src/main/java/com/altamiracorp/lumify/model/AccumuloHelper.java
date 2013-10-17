@@ -1,5 +1,9 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.core.model.Column;
+import com.altamiracorp.lumify.core.model.ColumnFamily;
+import com.altamiracorp.lumify.core.model.Row;
+import com.altamiracorp.lumify.core.model.RowKey;
 import org.apache.accumulo.core.client.*;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.data.Key;
@@ -40,7 +44,7 @@ public class AccumuloHelper {
     }
 
     private static void addColumnToMutation(Mutation mutation, Column column, String columnFamilyName) {
-        com.altamiracorp.lumify.model.Value v = column.getValue();
+        com.altamiracorp.lumify.core.model.Value v = column.getValue();
         Value value = null;
         if (v != null) {
             value = new Value(v.toBytes());

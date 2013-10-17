@@ -1,10 +1,12 @@
 package com.altamiracorp.lumify.storm.textHighlighting;
 
+import com.altamiracorp.lumify.core.model.artifactHighlighting.OffsetItem;
+import com.altamiracorp.lumify.core.model.artifactHighlighting.TermMentionOffsetItem;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.graph.GraphRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
+import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.google.inject.Inject;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;

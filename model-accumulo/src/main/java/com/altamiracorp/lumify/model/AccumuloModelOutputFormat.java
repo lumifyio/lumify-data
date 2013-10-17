@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.core.model.Row;
 import org.apache.accumulo.core.client.mapreduce.AccumuloOutputFormat;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.hadoop.io.Text;

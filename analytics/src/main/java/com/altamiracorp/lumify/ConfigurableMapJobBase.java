@@ -16,7 +16,7 @@ import org.apache.hadoop.util.Tool;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
 
 public abstract class ConfigurableMapJobBase extends CommandLineBase implements Tool {
     public static final String FAIL_FIRST_ERROR = "failOnFirstError";

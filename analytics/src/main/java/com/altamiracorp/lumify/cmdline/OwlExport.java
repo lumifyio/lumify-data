@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.cmdline;
 
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.ontology.*;
+import com.altamiracorp.lumify.core.model.ModelSession;
+import com.altamiracorp.lumify.core.model.ontology.*;
 import com.google.inject.Inject;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
