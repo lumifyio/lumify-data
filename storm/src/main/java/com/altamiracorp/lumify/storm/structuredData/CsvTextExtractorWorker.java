@@ -47,17 +47,17 @@ public class CsvTextExtractorWorker
             String filepath = "/lumify/data/tmp/" + entry.getName();
             if (FilenameUtils.getExtension(entry.getName()).equals("csv")) {
                 csvFileName = "/lumify/data/tmp/" + entry.getName();
-                writeToHdfs (data.getHdfsFileSystem(), csvFileName, fileStream);
-            } else if (FilenameUtils.getName(entry.getName()).contains(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)){
+                writeToHdfs(data.getHdfsFileSystem(), csvFileName, fileStream);
+            } else if (FilenameUtils.getName(entry.getName()).contains(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
                 csvMapping = filepath;
-                writeToHdfs (data.getHdfsFileSystem(), csvMapping, fileStream);
+                writeToHdfs(data.getHdfsFileSystem(), csvMapping, fileStream);
             }
             entry = fileStream.getNextTarEntry();
         }
 
         // Extract mapping json
         JSONObject mappingJson = new JSONObject();
-        InputStream mappingJsonStream = data.getHdfsFileSystem().open(new Path (csvMapping));
+        InputStream mappingJsonStream = data.getHdfsFileSystem().open(new Path(csvMapping));
         try {
             mappingJson = new JSONObject(IOUtils.toString(mappingJsonStream));
         } finally {
@@ -78,7 +78,7 @@ public class CsvTextExtractorWorker
         csvListWriter.close();
 
         info.setText(writer.toString());
-        if ( mappingJson.has("subject")){
+        if (mappingJson.has("subject")) {
             info.setTitle(mappingJson.get("subject").toString());
         } else {
             info.setTitle(FilenameUtils.getName(csvFileName));
@@ -99,9 +99,9 @@ public class CsvTextExtractorWorker
     public void prepare(Map stormConf, User user) {
     }
 
-    private void writeToHdfs (FileSystem fileSystem, String filePath, TarArchiveInputStream fileStream) throws IOException {
+    private void writeToHdfs(FileSystem fileSystem, String filePath, TarArchiveInputStream fileStream) throws IOException {
         FSDataOutputStream dataOutputStream = fileSystem.create(new Path(filePath), false);
-        
+
         byte[] btoRead = new byte[1024];
         int length = 0;
 

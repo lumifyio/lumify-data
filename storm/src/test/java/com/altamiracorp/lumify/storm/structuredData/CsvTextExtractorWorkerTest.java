@@ -19,7 +19,6 @@ import java.io.InputStream;
 import java.net.URL;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.when;
@@ -62,9 +61,8 @@ public class CsvTextExtractorWorkerTest {
         //Title should be the "subject" field within the mapping
         assertEquals("People Zip Codes", result.getTitle());
         //Check that we put the right thing into the mapping field
-        assertEquals( new JSONObject(IOUtils.toString(getClass().getResourceAsStream("personLocations.csv.mapping.json"))).toString()
+        assertEquals(new JSONObject(IOUtils.toString(getClass().getResourceAsStream("personLocations.csv.mapping.json"))).toString()
                 , new JSONObject(result.getMappingJson()).toString());
-        System.out.println();
     }
 
 
