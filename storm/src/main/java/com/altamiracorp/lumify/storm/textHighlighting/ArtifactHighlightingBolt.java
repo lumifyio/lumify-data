@@ -1,21 +1,24 @@
 package com.altamiracorp.lumify.storm.textHighlighting;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import backtype.storm.tuple.Tuple;
+
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
+import com.altamiracorp.lumify.storm.term.analysis.ArtifactLocationAnalyzer;
 import com.altamiracorp.lumify.storm.term.analysis.LocationTermAnalyzer;
 import com.altamiracorp.lumify.storm.term.extraction.TermMentionWithGraphVertex;
 import com.google.inject.Inject;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ArtifactHighlightingBolt extends BaseTextProcessingBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactHighlightingBolt.class);
@@ -56,6 +59,7 @@ public class ArtifactHighlightingBolt extends BaseTextProcessingBolt {
 
     private void performLocationAnalysis(final GraphVertex vertex, final List<TermMention> termMentions) {
         final LocationTermAnalyzer locationAnalyzer = getInjector().getInstance(LocationTermAnalyzer.class);
+        final ArtifactLocationAnalyzer artifactLocationAnalyzer = getInjector().getInstance(ArtifactLocationAnalyzer.class);
 
         List<TermMention> locationTerms = new ArrayList<TermMention>();
         for (final TermMention mention : termMentions) {
@@ -65,6 +69,7 @@ public class ArtifactHighlightingBolt extends BaseTextProcessingBolt {
             }
         }
 
+        artifactLocationAnalyzer.analyzeLocation(vertex, locationTerms, getUser());
     }
 
     @Inject
