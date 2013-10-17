@@ -46,7 +46,7 @@ public class KnownEntityExtractor {
         Match match = (Match) searchResult.getOutput();
         int start = searchResult.getStartIndex();
         int end = searchResult.getLastIndex();
-        return new TermExtractionResult.TermMention(start, end, match.getEntityTitle(), match.getConceptTitle(), true);
+        return new TermExtractionResult.TermMention(start, end, match.getEntityTitle(), match.getConceptTitle(), true, null, null, true);
     }
 
     private void loadDictionaries() throws IOException {

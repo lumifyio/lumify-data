@@ -1,23 +1,9 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
-
-import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditionalWorkData;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
@@ -36,6 +22,18 @@ import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
 import com.google.inject.Inject;
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(TermExtractionBolt.class);
@@ -126,11 +124,20 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
             if (termMention.isResolved()) {
                 vertex = graphRepository.findVertexByTitleAndType(termMention.getSign(), VertexType.ENTITY, getUser());
-                if (vertex == null) {
+                if (!termMention.getUseExisting() || vertex == null) {
                     vertex = new InMemoryGraphVertex();
                     vertex.setProperty(PropertyName.TITLE, termMention.getSign());
-                    vertex.setProperty(PropertyName.SUBTYPE.toString(), concept.getId());
+                    if (concept != null) {
+                        vertex.setProperty(PropertyName.SUBTYPE.toString(), concept.getId());
+                    }
                     vertex.setType(VertexType.ENTITY);
+                }
+
+                if (termMention.getPropertyValue() != null) {
+                    Map<String,Object> properties = termMention.getPropertyValue();
+                    for (String key : properties.keySet()) {
+                        vertex.setProperty(key, properties.get(key));
+                    }
                 }
 
                 String resolvedEntityGraphVertexId = graphRepository.saveVertex(vertex, getUser());

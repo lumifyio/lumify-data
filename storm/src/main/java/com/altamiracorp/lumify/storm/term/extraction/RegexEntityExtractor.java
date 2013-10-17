@@ -69,6 +69,6 @@ public class RegexEntityExtractor {
         int start = matched.start();
         int end = matched.end();
 
-        return new TermExtractionResult.TermMention(start, end, patternGroup, entityType, false);
+        return new TermExtractionResult.TermMention(start, end, patternGroup, entityType, false, null, null, true);
     }
 }

@@ -70,4 +70,11 @@ public class ArtifactMetadata extends ColumnFamily {
         set(MAPPING_JSON, mappingJson);
         return this;
     }
+
+    public String getMappingJson () {
+        if (get(MAPPING_JSON)!= null){
+            return Value.toString(get(MAPPING_JSON));
+        }
+        return null;
+    }
 }

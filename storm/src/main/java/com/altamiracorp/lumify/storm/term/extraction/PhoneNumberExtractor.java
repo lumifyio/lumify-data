@@ -58,6 +58,6 @@ public class PhoneNumberExtractor {
         int start = phoneNumber.start();
         int end = phoneNumber.end();
 
-        return new TermExtractionResult.TermMention(start, end, formattedNumber, ENTITY_TYPE, false);
+        return new TermExtractionResult.TermMention(start, end, formattedNumber, ENTITY_TYPE, false, null, null, true);
     }
 }

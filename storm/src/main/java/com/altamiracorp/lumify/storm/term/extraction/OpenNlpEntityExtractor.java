@@ -86,7 +86,7 @@ public abstract class OpenNlpEntityExtractor {
         String name = Span.spansToStrings(new Span[]{foundName}, tokens)[0];
         int start = charOffset + tokenListPositions[foundName.getStart()].getStart();
         int end = charOffset + tokenListPositions[foundName.getEnd() - 1].getEnd();
-        return new TermExtractionResult.TermMention(start, end, name, foundName.getType(), false);
+        return new TermExtractionResult.TermMention(start, end, name, foundName.getType(), false, null, null, true);
     }
 
     protected abstract List<TokenNameFinder> loadFinders(String pathPrefix, FileSystem fs) throws IOException;

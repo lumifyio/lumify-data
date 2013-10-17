@@ -3,7 +3,6 @@ package com.altamiracorp.lumify.storm.structuredData;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import com.altamiracorp.lumify.core.ingest.structuredData.StructuredDataExtractionWorker;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.storm.BaseArtifactProcessingBolt;
 
 import java.io.IOException;
@@ -30,10 +29,5 @@ public class StructuredDataTextExtractorBolt extends BaseArtifactProcessingBolt 
     @Override
     protected ServiceLoader getServiceLoader() {
         return ServiceLoader.load(StructuredDataExtractionWorker.class);
-    }
-
-    @Override
-    protected void onAfterGraphVertexCreated(GraphVertex graphVertex) {
-        workQueueRepository.pushArtifactHighlight(graphVertex.getId());
     }
 }
