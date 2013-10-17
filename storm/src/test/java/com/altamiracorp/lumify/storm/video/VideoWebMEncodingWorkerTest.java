@@ -28,9 +28,9 @@ public class VideoWebMEncodingWorkerTest {
     @Test
     public void testDoWork() throws Exception {
         VideoWebMEncodingWorker worker = new VideoWebMEncodingWorker();
-        InputStream work = getClass().getResourceAsStream("test.mp4");
+        InputStream work = null;
         AdditionalArtifactWorkData data = new AdditionalArtifactWorkData();
-        data.setFileName("test.mp4");
+        data.setLocalFileName(getClass().getResource("test.mp4").getFile());
         data.setHdfsFileSystem(hdfsFileSystem);
 
         ArgumentCaptor<Path> argument = ArgumentCaptor.forClass(Path.class);
@@ -38,6 +38,6 @@ public class VideoWebMEncodingWorkerTest {
 
         ArtifactExtractedInfo result = worker.doWork(work, data);
         assertNotNull(result);
-        assertTrue("Mp4HdfsFilePath did not contain with hdfsLimitOutputStream: " + result.getMp4HdfsFilePath(), result.getMp4HdfsFilePath().contains("hdfsLimitOutputStream"));
+        assertTrue("WebMHdfsFilePath did not contain with hdfsLimitOutputStream: " + result.getWebMHdfsFilePath(), result.getWebMHdfsFilePath().contains("hdfsLimitOutputStream"));
     }
 }

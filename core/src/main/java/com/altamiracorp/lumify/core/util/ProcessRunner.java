@@ -1,12 +1,12 @@
 package com.altamiracorp.lumify.core.util;
 
+import com.google.common.base.Joiner;
 import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -16,7 +16,12 @@ public class ProcessRunner {
 
     public static void execute(final String programName, final String[] programArgs, OutputStream out) throws IOException, InterruptedException {
         final List<String> arguments = Lists.newArrayList(programName);
-        arguments.addAll(Arrays.asList(programArgs));
+        for (String programArg : programArgs) {
+            if (programArg == null) {
+                throw new NullPointerException("Argument was null in argument list [ " + Joiner.on(", ").useForNull("null").join(programArgs) + " ]");
+            }
+            arguments.add(programArg);
+        }
 
         final ProcessBuilder procBuilder = new ProcessBuilder(arguments);
         final Map<String, String> sortedEnv = new TreeMap<String, String>(procBuilder.environment());
