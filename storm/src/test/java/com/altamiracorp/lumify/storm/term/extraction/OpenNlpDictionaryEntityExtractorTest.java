@@ -43,7 +43,7 @@ public class OpenNlpDictionaryEntityExtractorTest extends BaseExtractorTest {
         final List<TokenNameFinder> finders = loadFinders();
         MockitoAnnotations.initMocks(this);
         configuration = new Configuration();
-        configuration.set(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, "file:///" + System.getProperty("user.dir") + "/conf/opennlp/");
+        configuration.set(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, "file:///" + System.getProperty("user.dir") + "/storm/src/test/resources/fs/conf/opennlp/");
         configuration.set(AccumuloSession.HADOOP_URL, "");
         extractor = new OpenNlpDictionaryEntityExtractor() {
             @Override

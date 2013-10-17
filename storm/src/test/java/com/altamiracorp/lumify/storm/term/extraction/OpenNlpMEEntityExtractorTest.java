@@ -1,14 +1,26 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.AccumuloSession;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(JUnit4.class)
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+@RunWith(MockitoJUnitRunner.class)
 public class OpenNlpMEEntityExtractorTest extends BaseExtractorTest {
     private OpenNlpMaximumEntropyEntityExtractor extractor;
 
@@ -22,39 +34,36 @@ public class OpenNlpMEEntityExtractorTest extends BaseExtractorTest {
             + "what the latest is on the Benghazi nonsense. I'm 47% sure that this test will pass, but will it?";
 
     @Before
-    public void setUp() {
-        throw new RuntimeException("storm refactor"); // TODO storm refactor
-//        MockitoAnnotations.initMocks(this);
-//        Configuration config = new Configuration();
-//        config.set("nlpConfPathPrefix", Thread.currentThread().getContextClassLoader().getResource("fs/").toString());
-//        doReturn(config).when(context).getConfiguration();
-//        extractor = new OpenNlpMaximumEntropyEntityExtractor();
+    public void setUp() throws InterruptedException, IOException, URISyntaxException {
+        MockitoAnnotations.initMocks(this);
+        Configuration configuration = new Configuration();
+        configuration.set(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, "file:///" + System.getProperty("user.dir") + "/storm/src/test/resources/fs/conf/opennlp/");
+        configuration.set(AccumuloSession.HADOOP_URL, "");
+        extractor = new OpenNlpMaximumEntropyEntityExtractor();
+        extractor.prepare(configuration, user);
     }
 
     @Test
     public void testEntityExtraction() throws Exception {
-        throw new RuntimeException("storm refactor"); // TODO storm refactor
+        TermExtractionResult results = extractor.extract(new ByteArrayInputStream(text.getBytes()));
+        HashMap<String, TermExtractionResult.TermMention> extractedTerms = new HashMap<String, TermExtractionResult.TermMention>();
+        for (TermExtractionResult.TermMention term : results.getTermMentions()) {
+            extractedTerms.put(term.getSign() + "-" + term.getOntologyClassUri(), term);
+        }
+        assertTrue("A person wasn't found", extractedTerms.containsKey("Bob Robertson-person"));
+        TermExtractionResult.TermMention bobRobertsonMentions = extractedTerms.get("Bob Robertson-person");
+        assertEquals(31, bobRobertsonMentions.getStart());
+        assertEquals(44, bobRobertsonMentions.getEnd());
 
-//        extractor.setup(context,user);
-//        Collection<ExtractedEntity> terms = extractor.extract(createArtifact(text), text);
-//        HashMap<String, TermMention> extractedTerms = new HashMap<String, TermMention>();
-//        for (ExtractedEntity term : terms) {
-//            extractedTerms.put(term.getTermMention().getMetadata().getSign() + "-" + term.getTermMention().getMetadata().getOntologyClassUri(), term.getTermMention());
-//        }
-//        assertTrue("A person wasn't found", extractedTerms.containsKey("Bob Robertson-person"));
-//        TermMention bobRobertsonMentions = extractedTerms.get("Bob Robertson-person");
-//        assertEquals(31, bobRobertsonMentions.getRowKey().getStartOffset());
-//        assertEquals(44, bobRobertsonMentions.getRowKey().getEndOffset());
-//
-//
-//        assertTrue("A location wasn't found", extractedTerms.containsKey("Benghazi-location"));
-//        TermMention benghaziMentions = extractedTerms.get("Benghazi-location");
-//        assertEquals(189, benghaziMentions.getRowKey().getStartOffset());
-//        assertEquals(197, benghaziMentions.getRowKey().getEndOffset());
-//
-//        assertTrue("An organization wasn't found", extractedTerms.containsKey("CNN-organization"));
-//        TermMention cnnMentions = extractedTerms.get("CNN-organization");
-//        assertEquals(151, cnnMentions.getRowKey().getStartOffset());
-//        assertEquals(154, cnnMentions.getRowKey().getEndOffset());
+
+        assertTrue("A location wasn't found", extractedTerms.containsKey("Benghazi-location"));
+        TermExtractionResult.TermMention benghaziMentions = extractedTerms.get("Benghazi-location");
+        assertEquals(189, benghaziMentions.getStart());
+        assertEquals(197, benghaziMentions.getEnd());
+
+        assertTrue("An organization wasn't found", extractedTerms.containsKey("CNN-organization"));
+        TermExtractionResult.TermMention cnnMentions = extractedTerms.get("CNN-organization");
+        assertEquals(151, cnnMentions.getStart());
+        assertEquals(154, cnnMentions.getEnd());
     }
 }
