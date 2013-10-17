@@ -1,15 +1,15 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.ontology.VertexType;
-import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.model.artifactHighlighting.TermMentionOffsetItem;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
-import com.altamiracorp.lumify.storm.textHighlighting.TermMentionOffsetItem;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
@@ -52,11 +52,11 @@ public class EntityTermCreate extends BaseRequestHandler {
 
         TermMention termMention = new TermMention(termMentionRowKey);
         entityHelper.updateTermMention(termMention, sign, conceptVertex, createdVertex, user);
-        TermMentionOffsetItem offsetItem = new TermMentionOffsetItem(termMention, createdVertex);
 
         // Modify the highlighted artifact text in a background thread
         entityHelper.scheduleHighlight(artifactId, user);
 
+        TermMentionOffsetItem offsetItem = new TermMentionOffsetItem(termMention, createdVertex);
         respondWithJson(response, offsetItem.toJson());
     }
 }

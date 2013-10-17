@@ -2,8 +2,7 @@ package com.altamiracorp.lumify.model;
 
 import com.altamiracorp.lumify.core.model.GraphSession;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.ontology.VertexType;
+import com.altamiracorp.lumify.core.model.ontology.*;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
 import com.altamiracorp.lumify.core.model.graph.GraphRelationship;

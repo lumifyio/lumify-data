@@ -48,7 +48,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    void save(Row row, User user) {
+    public void save(Row row, User user) {
         try {
             if (context != null) {
                 context.write(new Text(row.getTableName()), row);
@@ -70,7 +70,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    void saveMany(String tableName, Collection<Row> rows, User user) {
+    public void saveMany(String tableName, Collection<Row> rows, User user) {
         if (rows.size() == 0) {
             return;
         }
@@ -113,7 +113,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, User user) {
+    public List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, User user) {
         return findByRowKeyRange(tableName, rowKeyPrefix, rowKeyPrefix + "ZZZZ", user); // TODO is this the best way?
     }
 
@@ -134,7 +134,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    Row findByRowKey(String tableName, String rowKey, User user) {
+    public Row findByRowKey(String tableName, String rowKey, User user) {
         try {
             Scanner scanner = this.connector.createScanner(tableName, ((AccumuloModelAuthorizations) user.getModelAuthorizations()).getAuthorizations());
             scanner.setRange(new Range(rowKey));
@@ -152,7 +152,7 @@ public class AccumuloSession extends ModelSession {
     }
 
     @Override
-    Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, User user) {
+    public Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, User user) {
         try {
             Scanner scanner = this.connector.createScanner(tableName, ((AccumuloModelAuthorizations) user.getModelAuthorizations()).getAuthorizations());
             scanner.setRange(new Range(rowKey));

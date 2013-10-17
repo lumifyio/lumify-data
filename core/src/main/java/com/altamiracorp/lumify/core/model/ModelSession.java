@@ -44,19 +44,19 @@ public abstract class ModelSession {
     public ModelSession() {
     }
 
-    abstract void save(Row row, User user);
+    public abstract void save(Row row, User user);
 
-    abstract void saveMany(String tableName, Collection<Row> rows, User user);
+    public abstract void saveMany(String tableName, Collection<Row> rows, User user);
 
     public abstract List<Row> findByRowKeyRange(String tableName, String keyStart, String keyEnd, User user);
 
-    abstract List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, User user);
+    public abstract List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, User user);
 
     public abstract List<Row> findByRowKeyRegex(String tableName, String rowKeyRegex, User user);
 
-    abstract Row findByRowKey(String tableName, String rowKey, User user);
+    public abstract Row findByRowKey(String tableName, String rowKey, User user);
 
-    abstract Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, User user);
+    public abstract Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, User user);
 
     public abstract void initializeTable(String tableName, User user);
 

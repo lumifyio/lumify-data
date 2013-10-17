@@ -1,9 +1,9 @@
 package com.altamiracorp.lumify.location;
 
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.lumify.core.model.ModelSession;
 import com.altamiracorp.lumify.core.model.geoNames.*;
+import com.altamiracorp.lumify.core.user.User;
 import com.google.inject.Inject;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.util.CachedConfiguration;
@@ -11,12 +11,16 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;

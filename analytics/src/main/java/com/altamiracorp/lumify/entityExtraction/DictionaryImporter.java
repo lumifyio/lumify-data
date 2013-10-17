@@ -1,9 +1,9 @@
 package com.altamiracorp.lumify.entityExtraction;
 
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.core.model.ModelSession;
+import com.altamiracorp.lumify.core.model.dictionary.DictionaryEntryRepository;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.dictionary.DictionaryEntryRepository;
 import com.google.inject.Inject;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
@@ -76,7 +76,7 @@ public class DictionaryImporter extends CommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         User user = getUser();
-        Configuration conf =  getConf();
+        Configuration conf = getConf();
         FileSystem fs = FileSystem.get(conf);
 
         Path dictionaryPath = new Path(directory);
@@ -91,11 +91,11 @@ public class DictionaryImporter extends CommandLineBase {
         return 0;
     }
 
-    protected void writeFile (InputStream in, String concept, User user) throws IOException {
+    protected void writeFile(InputStream in, String concept, User user) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
         String line;
         while ((line = br.readLine()) != null) {
-            dictionaryEntryRepository.saveNew(line,concept,user);
+            dictionaryEntryRepository.saveNew(line, concept, user);
         }
 
         in.close();
@@ -107,7 +107,7 @@ public class DictionaryImporter extends CommandLineBase {
     }
 
     @Inject
-    public void setDictionaryEntryRepository (DictionaryEntryRepository dictionaryEntryRepository) {
+    public void setDictionaryEntryRepository(DictionaryEntryRepository dictionaryEntryRepository) {
         this.dictionaryEntryRepository = dictionaryEntryRepository;
     }
 
@@ -115,7 +115,7 @@ public class DictionaryImporter extends CommandLineBase {
 
         private String extension;
 
-        public DictionaryPathFilter (String extension) {
+        public DictionaryPathFilter(String extension) {
             this.extension = extension;
         }
 

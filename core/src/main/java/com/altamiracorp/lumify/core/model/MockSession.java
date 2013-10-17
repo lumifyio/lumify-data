@@ -11,7 +11,7 @@ public class MockSession extends ModelSession {
     public HashMap<String, List<Row>> tables = new HashMap<String, List<Row>>();
 
     @Override
-    void save(Row row, User user) {
+    public void save(Row row, User user) {
         List<Row> table = tables.get(row.getTableName());
         if (table == null) {
             throw new NullPointerException("Could not find table with name: " + row.getTableName());
@@ -20,7 +20,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    void saveMany(String tableName, Collection<Row> rows, User user) {
+    public void saveMany(String tableName, Collection<Row> rows, User user) {
         for (Row r : rows) {
             save(r, user);
         }
@@ -41,7 +41,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, User user) {
+    public List<Row> findByRowStartsWith(String tableName, String rowKeyPrefix, User user) {
         List<Row> rows = this.tables.get(tableName);
         ArrayList<Row> results = new ArrayList<Row>();
         for (Row row : rows) {
@@ -71,7 +71,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    Row findByRowKey(String tableName, String rowKey, User user) {
+    public Row findByRowKey(String tableName, String rowKey, User user) {
         List<Row> rows = this.tables.get(tableName);
         if (rows == null) {
             throw new RuntimeException("Unable to find table " + tableName + ". Did you remember to call initializeTable() in Session.initialieTables()?");
@@ -85,7 +85,7 @@ public class MockSession extends ModelSession {
     }
 
     @Override
-    Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, User user) {
+    public Row findByRowKey(String tableName, String rowKey, Map<String, String> columnsToReturn, User user) {
         return findByRowKey(tableName, rowKey, user);
     }
 

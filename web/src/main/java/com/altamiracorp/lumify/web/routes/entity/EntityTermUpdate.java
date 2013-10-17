@@ -1,13 +1,13 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.model.artifactHighlighting.TermMentionOffsetItem;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
-import com.altamiracorp.lumify.storm.textHighlighting.TermMentionOffsetItem;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
