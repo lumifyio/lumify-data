@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
+import com.altamiracorp.lumify.core.model.user.UserRow;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.Column;
 import com.altamiracorp.lumify.core.model.user.UserRepository;
@@ -41,7 +42,7 @@ public class WorkspaceSave extends BaseRequestHandler {
         final String workspaceRowKeyString = getAttributeString(request, "workspaceRowKey");
 
         User authUser = getUser(request);
-        com.altamiracorp.lumify.core.model.user.User user = userRepository.findOrAddUser(authUser.getUsername(), authUser);
+        UserRow user = userRepository.findOrAddUser(authUser.getUsername(), authUser);
         Workspace workspace;
         if (workspaceRowKeyString == null) {
             workspace = handleNew(request, user);
@@ -83,7 +84,7 @@ public class WorkspaceSave extends BaseRequestHandler {
         respondWithJson(response, workspace.toJson(authUser));
     }
 
-    public Workspace handleNew(HttpServletRequest request, com.altamiracorp.lumify.core.model.user.User user) {
+    public Workspace handleNew(HttpServletRequest request, UserRow user) {
         WorkspaceRowKey workspaceRowKey = new WorkspaceRowKey(
                 user.getRowKey().toString(), String.valueOf(System.currentTimeMillis()));
         Workspace workspace = new Workspace(workspaceRowKey);

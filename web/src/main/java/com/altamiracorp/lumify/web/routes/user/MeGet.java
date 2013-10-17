@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.web.routes.user;
 
+import com.altamiracorp.lumify.core.model.user.UserRow;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.user.UserRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
@@ -21,7 +22,7 @@ public class MeGet extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         User authUser = getUser(request);
-        com.altamiracorp.lumify.core.model.user.User user = userRepository.findOrAddUser(authUser.getUsername(), authUser);
+        UserRow user = userRepository.findOrAddUser(authUser.getUsername(), authUser);
         respondWithJson(response, user.toJson());
     }
 }

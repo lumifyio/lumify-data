@@ -10,6 +10,7 @@ import com.altamiracorp.lumify.core.model.geoNames.GeoNameCountryInfo;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNamePostalCode;
 import com.altamiracorp.lumify.core.model.resources.Resource;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.user.UserRow;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.core.model.workspace.Workspace;
 import com.altamiracorp.lumify.core.user.User;
@@ -32,7 +33,7 @@ public abstract class ModelSession {
             VideoFrame.TABLE_NAME,
             DBPedia.TABLE_NAME,
             Resource.TABLE_NAME,
-            com.altamiracorp.lumify.core.model.user.User.TABLE_NAME,
+            UserRow.TABLE_NAME,
             GeoName.TABLE_NAME,
             GeoNameAdmin1Code.TABLE_NAME,
             GeoNameCountryInfo.TABLE_NAME,

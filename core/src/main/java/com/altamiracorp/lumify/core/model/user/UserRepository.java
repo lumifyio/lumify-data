@@ -12,15 +12,15 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Singleton
-public class UserRepository extends Repository<User> {
+public class UserRepository extends Repository<UserRow> {
     @Inject
     public UserRepository(final ModelSession modelSession) {
         super(modelSession);
     }
 
     @Override
-    public User fromRow(Row row) {
-        User user = new User(row.getRowKey());
+    public UserRow fromRow(Row row) {
+        UserRow user = new UserRow(row.getRowKey());
         Collection<ColumnFamily> families = row.getColumnFamilies();
         for (ColumnFamily columnFamily : families) {
             String columnFamilyName = columnFamily.getColumnFamilyName();
@@ -35,30 +35,30 @@ public class UserRepository extends Repository<User> {
     }
 
     @Override
-    public Row toRow(User workspace) {
+    public Row toRow(UserRow workspace) {
         return workspace;
     }
 
     @Override
     public String getTableName() {
-        return User.TABLE_NAME;
+        return UserRow.TABLE_NAME;
     }
 
-    public User findOrAddUser(String userName, com.altamiracorp.lumify.core.user.User authUser) {
-        User user = findByUserName(userName, authUser);
+    public UserRow findOrAddUser(String userName, com.altamiracorp.lumify.core.user.User authUser) {
+        UserRow user = findByUserName(userName, authUser);
         if (user != null) {
             return user;
         }
 
-        user = new User();
+        user = new UserRow();
         user.getMetadata().setUserName(userName);
         save(user, authUser);
         return user;
     }
 
-    private User findByUserName(String userName, com.altamiracorp.lumify.core.user.User authUser) {
-        List<User> users = findAll(authUser);
-        for (User user : users) {
+    private UserRow findByUserName(String userName, com.altamiracorp.lumify.core.user.User authUser) {
+        List<UserRow> users = findAll(authUser);
+        for (UserRow user : users) {
             if (userName.equals(user.getMetadata().getUserName())) {
                 return user;
             }

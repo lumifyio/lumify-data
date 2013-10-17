@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
+import com.altamiracorp.lumify.core.model.user.UserRow;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.user.UserRepository;
 import com.altamiracorp.lumify.core.model.workspace.Workspace;
@@ -31,7 +32,7 @@ public class WorkspaceCopy extends BaseRequestHandler {
         final String originalRowKey = getAttributeString(request, "workspaceRowKey");
 
         User authUser = getUser(request);
-        com.altamiracorp.lumify.core.model.user.User user = userRepository.findOrAddUser(authUser.getUsername(), authUser);
+        UserRow user = userRepository.findOrAddUser(authUser.getUsername(), authUser);
         Workspace originalWorkspace = workspaceRepository.findByRowKey(originalRowKey,authUser);
         Workspace workspace = createNewWorkspace(originalWorkspace.getMetadata().getTitle(),user);
 
@@ -48,7 +49,7 @@ public class WorkspaceCopy extends BaseRequestHandler {
         respondWithJson(response, resultJson);
     }
 
-    public Workspace createNewWorkspace(String title, com.altamiracorp.lumify.core.model.user.User user) {
+    public Workspace createNewWorkspace(String title, UserRow user) {
         WorkspaceRowKey workspaceRowKey = new WorkspaceRowKey(
                 user.getRowKey().toString(), String.valueOf(System.currentTimeMillis()));
         Workspace workspace = new Workspace(workspaceRowKey);

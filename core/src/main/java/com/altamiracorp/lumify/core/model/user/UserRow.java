@@ -5,18 +5,18 @@ import com.altamiracorp.lumify.core.model.RowKey;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class User extends Row<UserRowKey> {
+public class UserRow extends Row<UserRowKey> {
     public static final String TABLE_NAME = "atc_user";
 
-    public User(UserRowKey rowKey) {
+    public UserRow(UserRowKey rowKey) {
         super(TABLE_NAME, rowKey);
     }
 
-    public User(RowKey rowKey) {
+    public UserRow(RowKey rowKey) {
         super(TABLE_NAME, new UserRowKey(rowKey.toString()));
     }
 
-    public User() {
+    public UserRow() {
         super(TABLE_NAME);
     }
 

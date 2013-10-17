@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.core.model.user.User;
+import com.altamiracorp.lumify.core.model.user.UserRow;
 import com.altamiracorp.lumify.core.model.user.UserRepository;
 import com.altamiracorp.lumify.core.model.user.UserStatus;
 import com.google.inject.Inject;
@@ -153,7 +153,7 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
         if (!workspaceRowKey.equals(authUser.getCurrentWorkspace())) {
             authUser.setCurrentWorkspace(workspaceRowKey);
 
-            User user = userRepository.findByRowKey(authUser.getRowKey(), authUser);
+            UserRow user = userRepository.findByRowKey(authUser.getRowKey(), authUser);
             user.getMetadata().setCurrentWorkspace(workspaceRowKey);
             authUser.setCurrentWorkspace(workspaceRowKey);
             userRepository.save(user, authUser);
@@ -169,7 +169,7 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
             if (authUser == null) {
                 throw new RuntimeException("Could not find user in session");
             }
-            User user = userRepository.findByRowKey(authUser.getRowKey(), authUser);
+            UserRow user = userRepository.findByRowKey(authUser.getRowKey(), authUser);
             user.getMetadata().setStatus(status);
             userRepository.save(user, authUser);
 
