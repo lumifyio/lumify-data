@@ -37,12 +37,13 @@
 
 The required topics are: text, video, and image
 
-## Running the Topology
+## Create the Ontology
+`$ bin/080_Ontology.sh`
 
-### Create Topology Jar
+### Local Topology Execution
 1. Run `$ bin/stormLocal.sh`
-2. Generate the topology jar with: `$ storm/clusterbuild.sh`
 
-### Topology Execution 
-1. On the storm cluster, execute:`$ /opt/storm-run.sh`
-2. `$ hadoop fs -put /vagrant/data/import/* /lumify/data/unknown`
+### Cluster Topology Execution
+1. Generate the topology jar with: `$ storm/clusterbuild.sh`  (run on local machine)
+2. On the storm cluster, execute:`$ /opt/storm-run.sh`
+3. `$ hadoop fs -put /vagrant/data/import/* /lumify/data/unknown`
