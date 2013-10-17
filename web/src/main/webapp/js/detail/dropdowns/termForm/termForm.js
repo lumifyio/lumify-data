@@ -157,7 +157,6 @@ define([
             var parameters = {
                     sign: newObjectSign,
                     conceptId: this.select('conceptSelector').val(),
-                    artifactKey: this.attr.artifactKey,
                     mentionStart: mentionStart,
                     mentionEnd: mentionEnd,
                     artifactId: this.attr.artifactId
@@ -213,7 +212,6 @@ define([
                     conceptId: this.select('conceptSelector').val(),
                     model: this.attr.model,
                     graphVertexId: this.attr.graphVertexId,
-                    artifactKey: this.attr.artifactData.properties._rowKey,
                     artifactId: this.attr.artifactData.id,
                     coords: JSON.stringify({
                         x1: parseFloat(this.attr.coords.x1),

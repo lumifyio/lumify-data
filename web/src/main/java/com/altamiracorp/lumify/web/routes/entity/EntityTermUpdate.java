@@ -33,7 +33,6 @@ public class EntityTermUpdate extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         // required parameters
-        final String artifactKey = getRequiredParameter(request, "artifactKey");
         final String artifactId = getRequiredParameter(request, "artifactId");
         final long mentionStart = getRequiredParameterAsLong(request, "mentionStart");
         final long mentionEnd = getRequiredParameterAsLong(request, "mentionEnd");
@@ -50,7 +49,7 @@ public class EntityTermUpdate extends BaseRequestHandler {
             graphRepository.saveRelationship(artifactId, resolvedVertex.getId(), LabelName.HAS_ENTITY, user);
         }
 
-        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactKey, mentionStart, mentionEnd);
+        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactId, mentionStart, mentionEnd);
         TermMention termMention = termMentionRepository.findByRowKey(termMentionRowKey.toString(), user);
         if (termMention == null) {
             termMention = new TermMention(termMentionRowKey);

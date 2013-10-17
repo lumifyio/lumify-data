@@ -32,7 +32,6 @@ public class EntityTermCreate extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         // required parameters
-        final String artifactKey = getRequiredParameter(request, "artifactKey");
         final String artifactId = getRequiredParameter(request, "artifactId");
         final long mentionStart = getRequiredParameterAsLong(request, "mentionStart");
         final long mentionEnd = getRequiredParameterAsLong(request, "mentionEnd");
@@ -40,7 +39,7 @@ public class EntityTermCreate extends BaseRequestHandler {
         final String conceptId = getRequiredParameter(request, "conceptId");
 
         User user = getUser(request);
-        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactKey, mentionStart, mentionEnd);
+        TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactId, mentionStart, mentionEnd);
 
         GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
 
