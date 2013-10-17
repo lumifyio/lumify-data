@@ -30,10 +30,11 @@ public abstract class CommandLineBase extends Configured implements Tool {
     public int run(String[] args) throws Exception {
         final Thread mainThread = Thread.currentThread();
         Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
             public void run() {
                 willExit = true;
                 try {
-                    mainThread.join();
+                    mainThread.join(1000);
                 } catch (InterruptedException e) {
                     // nothing useful to do here
                 }
