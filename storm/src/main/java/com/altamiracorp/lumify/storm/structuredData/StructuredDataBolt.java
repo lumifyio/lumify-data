@@ -6,6 +6,7 @@ import com.altamiracorp.lumify.core.ingest.structuredData.StructuredDataExtracti
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.storm.BaseArtifactProcessingBolt;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.ServiceLoader;
 
@@ -14,6 +15,11 @@ public class StructuredDataBolt extends BaseArtifactProcessingBolt {
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
         super.prepare(stormConf, context, collector);
+        try {
+            mkdir("/lumify/data/tmp");
+        } catch (IOException e) {
+            collector.reportError(e);
+        }
     }
 
     @Override

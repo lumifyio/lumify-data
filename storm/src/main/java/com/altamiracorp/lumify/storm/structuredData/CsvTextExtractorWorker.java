@@ -5,8 +5,6 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.structuredData.StructuredDataExtractionWorker;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
-import com.altamiracorp.lumify.textExtraction.TikaTextExtractor;
-import com.google.inject.Inject;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.FilenameUtils;
@@ -16,15 +14,15 @@ import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
-import java.io.*;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
 public class CsvTextExtractorWorker
         extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>
         implements StructuredDataExtractionWorker {
-
-    private TikaTextExtractor tikaTextExtractor;
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
@@ -36,8 +34,12 @@ public class CsvTextExtractorWorker
         String csvFileName = "";
         while (entry != null) {
             // Writing the csv to hdfs & getting a stream of the csv file
-            if (!entry.getName().startsWith(".") && FilenameUtils.getExtension(entry.getName()).equals("csv")) {
-                csvFileName = FilenameUtils.getFullPath(data.getFileName()) + entry.getName();
+            if (entry.getName().startsWith(".")) {
+                entry = fileStream.getNextTarEntry();
+                continue;
+            }
+            if (FilenameUtils.getExtension(entry.getName()).equals("csv")) {
+                csvFileName = "/lumify/data/tmp/" + entry.getName();
                 FSDataOutputStream dataOutputStream = data.getHdfsFileSystem().create(new Path(csvFileName), false);
 
                 byte[] btoRead = new byte[1024];
@@ -45,11 +47,10 @@ public class CsvTextExtractorWorker
 
                 // TODO: write csv data into raw column in accumulo
                 while ((length = fileStream.read(btoRead)) != -1) {
-                    dataOutputStream.write(btoRead,0,length);
+                    dataOutputStream.write(btoRead, 0, length);
                 }
                 dataOutputStream.close();
             }
-            // TODO: write mapping json file to hdfs?
             entry = fileStream.getNextTarEntry();
         }
 
@@ -67,7 +68,8 @@ public class CsvTextExtractorWorker
         csvListWriter.close();
 
         info.setText(writer.toString());
-        data.getHdfsFileSystem().delete(new Path(csvFileName), false);
+        info.setTitle(FilenameUtils.getName(csvFileName));
+        data.getHdfsFileSystem().delete(new Path(csvFileName), true);
 
         return info;
     }
@@ -75,11 +77,6 @@ public class CsvTextExtractorWorker
     @Override
     public String getName() {
         return "csvTextExtractor";
-    }
-
-    @Inject
-    public void setTikaTextExtractor(TikaTextExtractor tikaTextExtractor) {
-        this.tikaTextExtractor = tikaTextExtractor;
     }
 
     @Override
