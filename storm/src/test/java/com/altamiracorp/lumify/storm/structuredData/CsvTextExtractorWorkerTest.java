@@ -2,12 +2,13 @@ package com.altamiracorp.lumify.storm.structuredData;
 
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -16,9 +17,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.when;
@@ -51,13 +52,20 @@ public class CsvTextExtractorWorkerTest {
 
         when(hdfsFileSystem.create(any(Path.class), anyBoolean())).thenReturn(mockOutputStream);
         ArgumentCaptor<Path> argument = ArgumentCaptor.forClass(Path.class);
-        when( data.getHdfsFileSystem().open( argument.capture()) )
+        when(data.getHdfsFileSystem().open(argument.capture()))
                 .thenReturn(fs.open(new Path(mockMappingUrl.toString())))
                 .thenReturn(fs.open(new Path(mockCSVUrl.toString())));
         ArtifactExtractedInfo result = worker.doWork(stream, data);
-        assertEquals("Name,Zip Code\nJoe Ferner,20147,10/30/1977,blah\n", result.getText());
-    }
 
+        //Test that the text was imported correctly
+        assertEquals("Name,Zip Code\nJoe Ferner,20147,10/30/1977,blah\n", result.getText());
+        //Title should be the "subject" field within the mapping
+        assertEquals("People Zip Codes", result.getTitle());
+        //Check that we put the right thing into the mapping field
+        assertEquals( new JSONObject(IOUtils.toString(getClass().getResourceAsStream("personLocations.csv.mapping.json"))).toString()
+                , new JSONObject(result.getMappingJson()).toString());
+        System.out.println();
+    }
 
 
 }

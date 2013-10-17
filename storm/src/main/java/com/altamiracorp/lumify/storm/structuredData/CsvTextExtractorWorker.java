@@ -78,7 +78,11 @@ public class CsvTextExtractorWorker
         csvListWriter.close();
 
         info.setText(writer.toString());
-        info.setTitle(FilenameUtils.getName(csvFileName));
+        if ( mappingJson.has("subject")){
+            info.setTitle(mappingJson.get("subject").toString());
+        } else {
+            info.setTitle(FilenameUtils.getName(csvFileName));
+        }
         info.setMappingJson(mappingJson);
         data.getHdfsFileSystem().delete(new Path(csvFileName), true);
         data.getHdfsFileSystem().delete(new Path(csvMapping), true);
@@ -97,7 +101,7 @@ public class CsvTextExtractorWorker
 
     private void writeToHdfs (FileSystem fileSystem, String filePath, TarArchiveInputStream fileStream) throws IOException {
         FSDataOutputStream dataOutputStream = fileSystem.create(new Path(filePath), false);
-
+        
         byte[] btoRead = new byte[1024];
         int length = 0;
 
