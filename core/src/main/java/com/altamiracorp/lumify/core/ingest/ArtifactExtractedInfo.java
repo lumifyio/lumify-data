@@ -215,7 +215,10 @@ public class ArtifactExtractedInfo {
     }
 
     public String getMappingJson() {
-        return properties.get(MAPPING_JSON).toString();
+        if (properties.get(MAPPING_JSON) != null) {
+            return properties.get(MAPPING_JSON).toString();
+        }
+        return null;
     }
 
     public static class VideoFrame {
