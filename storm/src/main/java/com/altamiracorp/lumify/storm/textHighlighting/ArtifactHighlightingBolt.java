@@ -13,6 +13,8 @@ import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
+import com.altamiracorp.lumify.storm.term.analysis.LocationTermAnalyzer;
+import com.altamiracorp.lumify.storm.term.extraction.TermMentionWithGraphVertex;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.google.inject.Inject;
 
@@ -33,6 +35,7 @@ public class ArtifactHighlightingBolt extends BaseTextProcessingBolt {
 
             List<TermMention> termMentions = termMentionRepository.findByGraphVertexId(graphVertex.getId(), getUser());
             performHighlighting(artifactRowKey, graphVertex, termMentions);
+            performLocationAnalysis(graphVertex, termMentions);
         } else {
             LOGGER.warn("Could not find vertex with id: " + graphVertexId);
         }
@@ -50,6 +53,14 @@ public class ArtifactHighlightingBolt extends BaseTextProcessingBolt {
 
         vertex.removeProperty(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH.toString());
         graphRepository.save(vertex, getUser());
+    }
+
+    private void performLocationAnalysis(final GraphVertex vertex, final List<TermMention> termMentions) {
+        final LocationTermAnalyzer locationAnalyzer = getInjector().getInstance(LocationTermAnalyzer.class);
+
+        for(final TermMention mention : termMentions) {
+            locationAnalyzer.analyzeTermData(new TermMentionWithGraphVertex(mention, vertex), getUser());
+        }
     }
 
     @Inject

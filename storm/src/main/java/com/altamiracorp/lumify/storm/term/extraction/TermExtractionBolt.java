@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
-import com.altamiracorp.lumify.model.workQueue.WorkQueueRepository;
 import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -34,8 +33,8 @@ import com.altamiracorp.lumify.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.model.termMention.TermMention;
 import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
+import com.altamiracorp.lumify.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
-import com.altamiracorp.lumify.storm.term.analysis.LocationTermAnalyzer;
 import com.google.inject.Inject;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {
@@ -95,8 +94,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         TermExtractionResult termExtractionResult = new TermExtractionResult();
 
         mergeTextExtractedInfos(termExtractionResult, termExtractionResults);
-        List<TermMentionWithGraphVertex> termMentions = saveTermExtractions(artifactGraphVertex.getId(), termExtractionResult.getTermMentions());
-        processTermMentions(termMentions);
+        saveTermExtractions(artifactGraphVertex.getId(), termExtractionResult.getTermMentions());
 
         workQueueRepository.pushArtifactHighlight(artifactGraphVertex.getId());
     }
@@ -148,14 +146,6 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             results.add(new TermMentionWithGraphVertex(termMentionModel, vertex));
         }
         return results;
-    }
-
-    private void processTermMentions(List<TermMentionWithGraphVertex> termMentions) {
-        final LocationTermAnalyzer locationAnalyzer = getInjector().getInstance(LocationTermAnalyzer.class);
-
-        for(final TermMentionWithGraphVertex mention : termMentions) {
-            locationAnalyzer.analyzeTermData(mention, getUser());
-        }
     }
 
     @Override
