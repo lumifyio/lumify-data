@@ -23,10 +23,23 @@ public abstract class CommandLineBase extends Configured implements Tool {
     private String credentialsLocation = "file:///opt/lumify/config/credentials.properties";
     private Configuration configuration;
     private User user = new SystemUser();
+    private boolean willExit = false;
     protected boolean initFramework = true;
 
     @Override
     public int run(String[] args) throws Exception {
+        final Thread mainThread = Thread.currentThread();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                willExit = true;
+                try {
+                    mainThread.join();
+                } catch (InterruptedException e) {
+                    // nothing useful to do here
+                }
+            }
+        });
+
         Options options = getOptions();
         CommandLine cmd;
         try {
@@ -120,5 +133,9 @@ public abstract class CommandLineBase extends Configured implements Tool {
 
     protected User getUser() {
         return user;
+    }
+
+    protected boolean willExit() {
+        return willExit;
     }
 }

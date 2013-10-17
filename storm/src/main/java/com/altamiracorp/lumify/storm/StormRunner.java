@@ -45,6 +45,8 @@ public class StormRunner extends CommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(StormRunner.class);
     public static final String TOPOLOGY_NAME = "lumify";
 
+    private boolean keepRunning = true;
+
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new StormRunner(), args);
         if (res != 0) {
@@ -102,12 +104,12 @@ public class StormRunner extends CommandLineBase {
             LocalCluster cluster = new LocalCluster();
             cluster.submitTopology(TOPOLOGY_NAME, conf, topology);
 
-            // TODO: how do we know when we are done?
-            while (true) {
+            while (!willExit()) {
                 Utils.sleep(100);
             }
-//            cluster.killTopology("local");
-//            cluster.shutdown();
+
+            cluster.killTopology(TOPOLOGY_NAME);
+            cluster.shutdown();
         } else {
             StormSubmitter.submitTopology(TOPOLOGY_NAME, conf, topology);
         }
