@@ -14,8 +14,6 @@ sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/processedVideo"
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/structuredData/0"
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/structuredData"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/structuredDataEntity/0"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/structuredDataEntity"
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics"
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/text/192.168.33.10:9092:0"
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/text"
@@ -29,4 +27,3 @@ sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/artif
 /opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka artifactHighlight
 /opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka processedVideo
 /opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka structuredData
-/opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka structuredDataEntity
