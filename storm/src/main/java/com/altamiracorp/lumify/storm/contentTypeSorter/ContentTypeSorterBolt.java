@@ -3,12 +3,16 @@ package com.altamiracorp.lumify.storm.contentTypeSorter;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
+import com.altamiracorp.lumify.FileImporter;
 import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.storm.BaseFileSystemSpout;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.altamiracorp.lumify.storm.FieldNames;
 import com.google.inject.Inject;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.hadoop.fs.Path;
+import org.apache.tools.tar.TarEntry;
+import org.apache.tools.tar.TarInputStream;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -35,6 +39,21 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
         try {
             String mimeType = this.contentTypeExtractor.extract(in, FilenameUtils.getExtension(fileName));
             String queueName = calculateQueueNameFromMimeType(mimeType);
+
+            if (FilenameUtils.getName(fileName).contains(".lumify") && mimeType.contains("x-tar")) {
+
+                // Look inside tar to see if a mapping json file exists
+                TarInputStream is = new TarInputStream(getHdfsFileSystem().open(new Path(fileName)));
+                TarEntry entry = is.getNextEntry();
+                while (entry != null) {
+                    if (entry.getName().endsWith(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
+                        queueName = "structuredData";
+                        break;
+                    }
+                    entry = is.getNextEntry();
+                }
+            }
+
             moveFile(fileName, this.dataDir + "/" + queueName + "/" + FilenameUtils.getName(fileName));
 
             getCollector().ack(input);
@@ -52,14 +71,15 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
         if (mimeType == null) {
             return "document";
         }
+
         mimeType = mimeType.toLowerCase();
         if (mimeType.contains("video")
-                || mimeType.contains("mp4"))
+                || mimeType.contains("mp4")) {
             return "video";
-        else if (mimeType.contains("image"))
+        } else if (mimeType.contains("image")) {
             return "image";
-        else
+        } else {
             return "document";
-
+        }
     }
 }
