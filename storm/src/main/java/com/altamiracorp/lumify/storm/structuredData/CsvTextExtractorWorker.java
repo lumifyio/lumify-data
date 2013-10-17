@@ -4,7 +4,9 @@ import com.altamiracorp.lumify.FileImporter;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.structuredData.StructuredDataExtractionWorker;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -18,10 +20,7 @@ import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 
@@ -66,9 +65,13 @@ public class CsvTextExtractorWorker
 
         // Extract the csv text
         StringWriter writer = new StringWriter();
+        HdfsLimitOutputStream outputStream = new HdfsLimitOutputStream(data.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
         CsvPreference csvPreference = CsvPreference.EXCEL_PREFERENCE;
         InputStream csvFileStream = data.getHdfsFileSystem().open(new Path(csvFileName));
-        CsvListReader csvListReader = new CsvListReader(new InputStreamReader(csvFileStream), csvPreference);
+        IOUtils.copy(csvFileStream, outputStream);
+        info.setRaw(outputStream.getSmall());
+        CsvListReader csvListReader = new CsvListReader(new InputStreamReader(
+                new ByteArrayInputStream(outputStream.getSmall())), csvPreference);
         CsvListWriter csvListWriter = new CsvListWriter(writer, csvPreference);
         List<String> line;
 
