@@ -3,7 +3,6 @@ package com.altamiracorp.lumify.storm.contentTypeSorter;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.FileImporter;
 import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.storm.BaseFileSystemSpout;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
@@ -11,7 +10,6 @@ import com.altamiracorp.lumify.storm.FieldNames;
 import com.google.inject.Inject;
 import org.apache.commons.io.FilenameUtils;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -37,15 +35,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
         try {
             String mimeType = this.contentTypeExtractor.extract(in, FilenameUtils.getExtension(fileName));
             String queueName = calculateQueueNameFromMimeType(mimeType);
-
-            if (new File(fileName + FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX).exists()) {
-                moveFile(fileName, this.dataDir + "/structuredData/" + FilenameUtils.getName(fileName));
-                String mappingFileName = fileName + FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX;
-                moveFile(mappingFileName, this.dataDir + "/structuredData/" + FilenameUtils.getName(mappingFileName));
-
-            } else {
-                moveFile(fileName, this.dataDir + "/" + queueName + "/" + FilenameUtils.getName(fileName));
-            }
+            moveFile(fileName, this.dataDir + "/" + queueName + "/" + FilenameUtils.getName(fileName));
 
             getCollector().ack(input);
         } finally {

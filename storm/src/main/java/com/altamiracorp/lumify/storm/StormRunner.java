@@ -15,7 +15,7 @@ import com.altamiracorp.lumify.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.image.ImageBolt;
-import com.altamiracorp.lumify.storm.structuredDataExtraction.StructuredDataBolt;
+import com.altamiracorp.lumify.storm.structuredData.StructuredDataBolt;
 import com.altamiracorp.lumify.storm.term.extraction.TermExtractionBolt;
 import com.altamiracorp.lumify.storm.textHighlighting.ArtifactHighlightingBolt;
 import com.altamiracorp.lumify.storm.video.VideoBolt;
@@ -137,10 +137,10 @@ public class StormRunner extends CommandLineBase {
         createVideoTopology(builder);
         createImageTopology(builder);
         createDocumentTopology(builder);
-        createStructuredDataTopology(builder);
         createTextTopology(builder);
         createArtifactHighlightingTopology(builder);
         createProcessedVideoTopology(builder);
+        createCsvTopology(builder);
 
         return builder.createTopology();
     }
@@ -173,7 +173,7 @@ public class StormRunner extends CommandLineBase {
                 .shuffleGrouping(queueName);
     }
 
-    private void createStructuredDataTopology(TopologyBuilder builder) {
+    private void createCsvTopology(TopologyBuilder builder) {
         String queueName = "structuredData";
         builder.setSpout(queueName, new HdfsFileSystemSpout("/structuredData"), 1);
         builder.setBolt(queueName + "-bolt", new StructuredDataBolt(), 1)
