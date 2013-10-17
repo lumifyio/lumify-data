@@ -50,6 +50,11 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
                         queueName = "structuredData";
                         break;
                     }
+                    else if (entry.getName().endsWith(FileImporter.SRT_CC_FILE_NAME_SUFFIX)
+                            || entry.getName().endsWith(FileImporter.YOUTUBE_CC_FILE_NAME_SUFFIX) ) {
+                        queueName = "video";
+                        break;
+                    }
                     entry = is.getNextEntry();
                 }
             }
