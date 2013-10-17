@@ -1,24 +1,23 @@
 package com.altamiracorp.lumify.storm.term.analysis;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.location.SimpleTermLocationExtractor;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNamePostalCodeRepository;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionMetadata;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.location.SimpleTermLocationExtractor;
 import com.altamiracorp.lumify.storm.term.extraction.TermMentionWithGraphVertex;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Singleton
 public class LocationTermAnalyzer {
@@ -33,7 +32,7 @@ public class LocationTermAnalyzer {
 
     @Inject
     public LocationTermAnalyzer(final SimpleTermLocationExtractor extractor, final GeoNamePostalCodeRepository postalCodeRepo,
-            final GeoNameRepository geoNameRepo, final GraphRepository graphRepo, final TermMentionRepository termRepo) {
+                                final GeoNameRepository geoNameRepo, final GraphRepository graphRepo, final TermMentionRepository termRepo) {
         simpleTermLocationExtractor = extractor;
         geoNamePostalCodeRepository = postalCodeRepo;
         geoNameRepository = geoNameRepo;
@@ -41,7 +40,7 @@ public class LocationTermAnalyzer {
         termRepository = termRepo;
     }
 
-    public void analyzeTermData(final TermMentionWithGraphVertex data, final User user) {
+    public TermMention analyzeTermData(final TermMentionWithGraphVertex data, final User user) {
         checkNotNull(data);
         checkNotNull(data.getTermMention());
         checkNotNull(user);
@@ -62,17 +61,19 @@ public class LocationTermAnalyzer {
             LOGGER.info("Updating associated graph vertex");
             updateGraphVertex(updatedTerm, data.getGraphVertex(), user);
             termRepository.save(updatedTerm, user);
+            return updatedTerm;
         }
+        return null;
     }
 
     private void updateGraphVertex(final TermMention termMention, final GraphVertex vertex, final User user) {
         final TermMentionMetadata termMetadata = termMention.getMetadata();
 
-        if( vertex != null && termMetadata != null ) {
+        if (vertex != null && termMetadata != null) {
             final Double latitude = termMetadata.getLatitude();
             final Double longitude = termMetadata.getLongitude();
 
-            if( latitude != null && longitude != null ) {
+            if (latitude != null && longitude != null) {
                 vertex.setProperty(PropertyName.GEO_LOCATION, Geoshape.point(latitude, longitude));
                 graphRepository.saveVertex(vertex, user);
 
