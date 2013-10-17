@@ -40,7 +40,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
             String mimeType = this.contentTypeExtractor.extract(in, FilenameUtils.getExtension(fileName));
             String queueName = calculateQueueNameFromMimeType(mimeType);
 
-            if (FilenameUtils.getName(fileName).contains(".lumify") && mimeType.contains("x-tar")) {
+            if (FilenameUtils.getName(fileName).contains(".lumify") && (mimeType.contains("x-tar"))) {
 
                 // Look inside tar to see if a mapping json file exists
                 TarInputStream is = new TarInputStream(getHdfsFileSystem().open(new Path(fileName)));
