@@ -357,7 +357,6 @@
 
     <modules>
         <module>core</module>
-        <module>model</module>
         <module>model-accumulo</module>
         <module>model-titan</module>
         <module>model-kafka</module>
