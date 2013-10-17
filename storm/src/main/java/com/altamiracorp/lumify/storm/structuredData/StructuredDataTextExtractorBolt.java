@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.ServiceLoader;
 
-public class StructuredDataBolt extends BaseArtifactProcessingBolt {
+public class StructuredDataTextExtractorBolt extends BaseArtifactProcessingBolt {
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {

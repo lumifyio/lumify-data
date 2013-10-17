@@ -15,7 +15,8 @@ import com.altamiracorp.lumify.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.image.ImageBolt;
-import com.altamiracorp.lumify.storm.structuredData.StructuredDataBolt;
+import com.altamiracorp.lumify.storm.structuredData.StructuredDataEntityExtractorBolt;
+import com.altamiracorp.lumify.storm.structuredData.StructuredDataTextExtractorBolt;
 import com.altamiracorp.lumify.storm.term.extraction.TermExtractionBolt;
 import com.altamiracorp.lumify.storm.textHighlighting.ArtifactHighlightingBolt;
 import com.altamiracorp.lumify.storm.video.VideoBolt;
@@ -140,7 +141,8 @@ public class StormRunner extends CommandLineBase {
         createTextTopology(builder);
         createArtifactHighlightingTopology(builder);
         createProcessedVideoTopology(builder);
-        createCsvTopology(builder);
+        createStructuredDataTextTopology(builder);
+        createStructuredDataEntityTopology(builder);
 
         return builder.createTopology();
     }
@@ -173,10 +175,10 @@ public class StormRunner extends CommandLineBase {
                 .shuffleGrouping(queueName);
     }
 
-    private void createCsvTopology(TopologyBuilder builder) {
+    private void createStructuredDataTextTopology(TopologyBuilder builder) {
         String queueName = "structuredData";
         builder.setSpout(queueName, new HdfsFileSystemSpout("/structuredData"), 1);
-        builder.setBolt(queueName + "-bolt", new StructuredDataBolt(), 1)
+        builder.setBolt(queueName + "-bolt", new StructuredDataTextExtractorBolt(), 1)
                 .shuffleGrouping(queueName);
     }
 
@@ -199,6 +201,13 @@ public class StormRunner extends CommandLineBase {
         builder.setSpout("processedVideoSpout", new KafkaSpout(spoutConfig), 1);
         builder.setBolt("processedVideoBolt", new VideoPreviewBolt(), 1)
                 .shuffleGrouping("processedVideoSpout");
+    }
+
+    private void createStructuredDataEntityTopology (TopologyBuilder builder) {
+        SpoutConfig spoutConfig = createSpoutConfig(WorkQueueRepository.STRUCTURED_DATA_ENTITY_QUEUE_NAME, null);
+        builder.setSpout("structuredData", new KafkaSpout(spoutConfig), 1);
+        builder.setBolt("structuredDataEntityBolt", new StructuredDataEntityExtractorBolt(), 1)
+                .shuffleGrouping("structuredData");
     }
 
     private SpoutConfig createSpoutConfig(String queueName, Scheme scheme) {
