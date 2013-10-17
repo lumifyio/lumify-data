@@ -7,6 +7,7 @@ import opennlp.tools.dictionary.Dictionary;
 import opennlp.tools.namefind.DictionaryNameFinder;
 import opennlp.tools.namefind.TokenNameFinder;
 import opennlp.tools.util.StringList;
+import org.apache.hadoop.fs.FileSystem;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public class OpenNlpDictionaryEntityExtractor extends OpenNlpEntityExtractor {
     private DictionaryEntryRepository dictionaryEntryRepository;
 
     @Override
-    protected List<TokenNameFinder> loadFinders() throws IOException {
+    protected List<TokenNameFinder> loadFinders(String pathPrefix, FileSystem fs) throws IOException {
         List<TokenNameFinder> finders = new ArrayList<TokenNameFinder>();
         for (Entry<String, Dictionary> dictionaryEntry : getDictionaries().entrySet()) {
             finders.add(new DictionaryNameFinder(dictionaryEntry.getValue(), dictionaryEntry.getKey()));

@@ -24,26 +24,26 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public abstract class OpenNlpEntityExtractor {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenNlpEntityExtractor.class);
     public static final String PATH_PREFIX_CONFIG = "nlpConfPathPrefix";
     private static final String DEFAULT_PATH_PREFIX = "hdfs://";
     private static final int NEW_LINE_CHARACTER_LENGTH = 1;
 
-    private FileSystem fs;
-    private String pathPrefix;
     private Tokenizer tokenizer;
     private List<TokenNameFinder> finders;
     private User user;
 
     public void prepare(Configuration configuration, User user) throws URISyntaxException, IOException, InterruptedException {
-        setPathPrefix(configuration.get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX));
+        String pathPrefix = configuration.get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX);
         String hdfsRootDir = configuration.get(AccumuloSession.HADOOP_URL);
-        this.fs = FileSystem.get(new URI(hdfsRootDir), configuration, "hadoop");
+        checkNotNull(hdfsRootDir, AccumuloSession.HADOOP_URL + " is a required configuration parameter");
+        FileSystem fs = FileSystem.get(new URI(hdfsRootDir), configuration, "hadoop");
         this.user = user;
-
-        setTokenizer(loadTokenizer());
-        setFinders(loadFinders());
+        this.tokenizer = loadTokenizer(pathPrefix, fs);
+        this.finders = loadFinders(pathPrefix, fs);
     }
 
     public TermExtractionResult extract(InputStream textInputStream)
@@ -89,17 +89,9 @@ public abstract class OpenNlpEntityExtractor {
         return new TermExtractionResult.TermMention(start, end, name, foundName.getType(), false);
     }
 
-    protected abstract List<TokenNameFinder> loadFinders() throws IOException;
+    protected abstract List<TokenNameFinder> loadFinders(String pathPrefix, FileSystem fs) throws IOException;
 
-    protected String getPathPrefix() {
-        return pathPrefix;
-    }
-
-    protected FileSystem getFS() {
-        return fs;
-    }
-
-    protected Tokenizer loadTokenizer() throws IOException {
+    protected Tokenizer loadTokenizer(String pathPrefix, FileSystem fs) throws IOException {
         Path tokenizerHdfsPath = new Path(pathPrefix + "/en-token.bin");
 
         TokenizerModel tokenizerModel = null;
@@ -111,19 +103,6 @@ public abstract class OpenNlpEntityExtractor {
         }
 
         return new TokenizerME(tokenizerModel);
-    }
-
-    protected void setFinders(List<TokenNameFinder> finders) {
-        this.finders = finders;
-
-    }
-
-    protected void setTokenizer(Tokenizer tokenizer) {
-        this.tokenizer = tokenizer;
-    }
-
-    protected void setPathPrefix(String pathPrefix) {
-        this.pathPrefix = pathPrefix;
     }
 
     public User getUser() {
