@@ -68,6 +68,7 @@ public class EntityHighlightTest {
         OffsetItem mockEntity1 = mock(TermMentionOffsetItem.class);
         when(mockEntity1.getStart()).thenReturn(0l);
         when(mockEntity1.getEnd()).thenReturn(4l);
+        when(mockEntity1.getGraphVertexId()).thenReturn("0");
         when(mockEntity1.getCssClasses()).thenReturn(new ArrayList<String>(Arrays.asList(new String[]{"first"})));
         when(mockEntity1.shouldHighlight()).thenReturn(true);
         when(mockEntity1.getInfoJson()).thenReturn(new JSONObject("{\"data\":\"attribute\"}"));
@@ -76,6 +77,7 @@ public class EntityHighlightTest {
         OffsetItem mockEntity2 = mock(TermMentionOffsetItem.class);
         when(mockEntity2.getStart()).thenReturn(0l);
         when(mockEntity2.getEnd()).thenReturn(4l);
+        when(mockEntity2.getGraphVertexId()).thenReturn("1");
         when(mockEntity2.getCssClasses()).thenReturn(new ArrayList<String>(Arrays.asList(new String[]{"second"})));
         when(mockEntity2.shouldHighlight()).thenReturn(true);
         when(mockEntity2.getInfoJson()).thenReturn(new JSONObject("{\"data\":\"attribute\"}"));
@@ -105,9 +107,10 @@ public class EntityHighlightTest {
         when(mockEntity5.getInfoJson()).thenReturn(new JSONObject("{\"data\":\"attribute\"}"));
         offsetItems.add(mockEntity5);
 
+        String highlightedText = EntityHighlighter.getHighlightedText(text, 0, offsetItems);
         Assert.assertEquals("<span class=\"first\" data-info=\"{&quot;data&quot;:&quot;attribute&quot;}\">This</span> " +
                 "<span class=\"fourth\" data-info=\"{&quot;data&quot;:&quot;attribute&quot;}\">is a</span> test <span " +
                 "class=\"fifth\" data-info=\"{&quot;data&quot;:&quot;attribute&quot;}\">sentence</span>",
-                EntityHighlighter.getHighlightedText(text, 0, offsetItems));
+                highlightedText);
     }
 }

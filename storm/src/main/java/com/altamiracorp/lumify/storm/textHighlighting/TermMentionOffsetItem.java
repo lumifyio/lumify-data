@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TermMentionOffsetItem extends OffsetItem implements Comparable<TermMentionOffsetItem> {
+public class TermMentionOffsetItem extends OffsetItem {
 
     private final TermMention termMention;
     private final GraphVertex graphVertex;
@@ -115,23 +115,5 @@ public class TermMentionOffsetItem extends OffsetItem implements Comparable<Term
             classes.add("subType-" + getConceptGraphVertexId());
         }
         return classes;
-    }
-
-    @Override
-    public int compareTo(TermMentionOffsetItem other) {
-        if (this.getStart() == other.getStart()) {
-            if (this.getEnd() == other.getEnd()) {
-                if (getGraphVertexId() != null && other.getGraphVertexId() == null) {
-                    return -1;
-                } else if (getGraphVertexId() == null && other.getGraphVertexId() != null) {
-                    return 1;
-                }
-                return 0;
-            } else {
-                return this.getEnd() < other.getEnd() ? -1 : 1;
-            }
-        } else {
-            return this.getStart() < other.getStart() ? -1 : 1;
-        }
     }
 }

@@ -8,7 +8,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class OffsetItem {
+public abstract class OffsetItem implements Comparable {
     public abstract long getStart();
 
     public abstract long getEnd();
@@ -78,5 +78,32 @@ public abstract class OffsetItem {
     @Override
     public String toString() {
         return "rowKey: " + getRowKey() + ", start: " + getStart() + ", end: " + getEnd() + ", title: " + getTitle();
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if (!(o instanceof OffsetItem)) {
+            return -1;
+        }
+
+        OffsetItem other = (OffsetItem) o;
+
+        if (getStart() != other.getStart()) {
+            return getStart() < other.getStart() ? -1 : 1;
+        }
+
+        if (getEnd() != other.getEnd()) {
+            return getEnd() < other.getEnd() ? -1 : 1;
+        }
+
+        if (getGraphVertexId() != null && other.getGraphVertexId() == null) {
+            return -1;
+        }
+
+        if (getGraphVertexId() == null && other.getGraphVertexId() != null) {
+            return 1;
+        }
+
+        return getGraphVertexId().compareTo(other.getGraphVertexId());
     }
 }

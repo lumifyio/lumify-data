@@ -30,7 +30,7 @@ public class EntityHighlighter {
 
     // TODO: change to use an InputStream?
     public static String getHighlightedText(String text, int textStartOffset, List<OffsetItem> offsetItems) throws JSONException {
-        Collections.sort(offsetItems, new OffsetItemComparator());
+        Collections.sort(offsetItems);
         StringBuilder result = new StringBuilder();
         PriorityQueue<Integer> endOffsets = new PriorityQueue<Integer>();
         int lastStart = textStartOffset;
