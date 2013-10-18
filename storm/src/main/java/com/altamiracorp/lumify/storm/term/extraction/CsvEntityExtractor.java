@@ -45,7 +45,6 @@ public class CsvEntityExtractor {
                 CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
                 LineReader reader = new LineReader(new StringReader(artifact.getMetadata().getText()));
                 String line;
-                Map<String, GraphVertex> allGraphVertex = new HashMap<String, GraphVertex>();
                 int lastOffset = 0;
                 while ((line = reader.readLine()) != null) {
                     if (line.length() == 0) {
@@ -58,7 +57,7 @@ public class CsvEntityExtractor {
                     }
 
                     if (row >= skipRows) {
-                        termExtractionResult.addAll(processLine(artifact, lastOffset, columns, allGraphVertex, mappingJson));
+                        processLine(termExtractionResult, lastOffset, columns, mappingJson);
                     }
                     row++;
                     lastOffset = reader.getOffset();
@@ -71,12 +70,33 @@ public class CsvEntityExtractor {
         return termExtractionResult;
     }
 
-    private List<TermExtractionResult.TermMention> processLine(Artifact artifact, int offset, List<String> columns, Map<String, GraphVertex> allGraphVertex, JSONObject mappingJson) throws JSONException, ParseException {
-        List<TermExtractionResult.TermMention> termMentions = getTermsWithGraphVertices(artifact, offset, columns, allGraphVertex, mappingJson);
-        return termMentions;
+    private void processLine(TermExtractionResult termExtractionResult, int offset, List<String> columns, JSONObject mappingJson) throws JSONException, ParseException {
+        List<TermExtractionResult.TermMention> termMentions = getTermsWithGraphVertices(offset, columns, mappingJson);
+        termExtractionResult.addAllTermMentions(termMentions);
+        termExtractionResult.addAllRelationships(getRelationships(termMentions, mappingJson));
     }
 
-    private List<TermExtractionResult.TermMention> getTermsWithGraphVertices(Artifact artifact, int offset, List<String> columns, Map<String, GraphVertex> allGraphVertex, JSONObject mappingJson) throws JSONException, ParseException {
+    private List<TermExtractionResult.Relationship> getRelationships(List<TermExtractionResult.TermMention> termMentions, JSONObject mappingJson) {
+        List<TermExtractionResult.Relationship> relationships = new ArrayList<TermExtractionResult.Relationship>();
+        JSONArray mappingColumnsJson = (JSONArray) mappingJson.get("columns");
+        for (int columnIndex = 0; columnIndex < mappingColumnsJson.length(); columnIndex++) {
+            JSONObject columnMappingJson = mappingColumnsJson.getJSONObject(columnIndex);
+            JSONArray relationshipsJson = columnMappingJson.optJSONArray("relationships");
+            if (relationshipsJson != null) {
+                for (int relationshipIndex = 0; relationshipIndex < relationshipsJson.length(); relationshipIndex++) {
+                    JSONObject relationshipJson = relationshipsJson.getJSONObject(relationshipIndex);
+                    int targetIndex = relationshipJson.getInt("target");
+                    String label = relationshipJson.getString("label");
+                    TermExtractionResult.TermMention sourceTermMention = termMentions.get(columnIndex);
+                    TermExtractionResult.TermMention destTermMention = termMentions.get(targetIndex);
+                    relationships.add(new TermExtractionResult.Relationship(sourceTermMention, destTermMention, label));
+                }
+            }
+        }
+        return relationships;
+    }
+
+    private List<TermExtractionResult.TermMention> getTermsWithGraphVertices(int offset, List<String> columns, JSONObject mappingJson) throws JSONException, ParseException {
         List<TermExtractionResult.TermMention> termMentions = new ArrayList<TermExtractionResult.TermMention>();
         JSONArray mappingColumnsJson = (JSONArray) mappingJson.get("columns");
         for (int i = 0; i < columns.size(); i++) {
@@ -106,6 +126,8 @@ public class CsvEntityExtractor {
                 }
 
                 termMentions.add(new TermExtractionResult.TermMention(offset, offset + sign.length(), sign, ontologyClassUri, true, properties, null, useExisting));
+            } else {
+                termMentions.add(null);
             }
         }
         return termMentions;

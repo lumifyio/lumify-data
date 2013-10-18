@@ -8,18 +8,14 @@ import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditio
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.ontology.VertexType;
-import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
-import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.Concept;
-import com.altamiracorp.lumify.core.model.ontology.LabelName;
-import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.ontology.*;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
+import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
+import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
 import com.google.inject.Inject;
 import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
@@ -92,7 +88,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         TermExtractionResult termExtractionResult = new TermExtractionResult();
 
         mergeTextExtractedInfos(termExtractionResult, termExtractionResults);
-        saveTermExtractions(artifactGraphVertex.getId(), termExtractionResult.getTermMentions());
+        List<TermMentionWithGraphVertex> termMentionsWithGraphVertices = saveTermExtractions(artifactGraphVertex.getId(), termExtractionResult.getTermMentions());
+        saveRelationships(termExtractionResult.getRelationships(), termMentionsWithGraphVertices);
 
         workQueueRepository.pushArtifactHighlight(artifactGraphVertex.getId());
     }
@@ -134,7 +131,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 }
 
                 if (termMention.getPropertyValue() != null) {
-                    Map<String,Object> properties = termMention.getPropertyValue();
+                    Map<String, Object> properties = termMention.getPropertyValue();
                     for (String key : properties.keySet()) {
                         vertex.setProperty(key, properties.get(key));
                     }
@@ -153,6 +150,32 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             results.add(new TermMentionWithGraphVertex(termMentionModel, vertex));
         }
         return results;
+    }
+
+    private void saveRelationships(List<TermExtractionResult.Relationship> relationships, List<TermMentionWithGraphVertex> termMentionsWithGraphVertices) {
+        for (TermExtractionResult.Relationship relationship : relationships) {
+            TermMentionWithGraphVertex sourceTermMentionsWithGraphVertex = findTermMentionWithGraphVertex(termMentionsWithGraphVertices, relationship.getSourceTermMention());
+            checkNotNull(sourceTermMentionsWithGraphVertex, "source vertex was not found");
+            TermMentionWithGraphVertex destTermMentionsWithGraphVertex = findTermMentionWithGraphVertex(termMentionsWithGraphVertices, relationship.getDestTermMention());
+            checkNotNull(destTermMentionsWithGraphVertex, "dest vertex was not found");
+            String label = relationship.getLabel();
+            graphRepository.saveRelationship(
+                    sourceTermMentionsWithGraphVertex.getGraphVertex().getId(),
+                    destTermMentionsWithGraphVertex.getGraphVertex().getId(),
+                    label,
+                    getUser()
+            );
+        }
+    }
+
+    private TermMentionWithGraphVertex findTermMentionWithGraphVertex(List<TermMentionWithGraphVertex> termMentionsWithGraphVertices, TermExtractionResult.TermMention termMention) {
+        for (TermMentionWithGraphVertex termMentionsWithGraphVertex : termMentionsWithGraphVertices) {
+            if (termMentionsWithGraphVertex.getTermMention().getRowKey().getStartOffset() == termMention.getStart()
+                    && termMentionsWithGraphVertex.getTermMention().getRowKey().getEndOffset() == termMention.getEnd()) {
+                return termMentionsWithGraphVertex;
+            }
+        }
+        return null;
     }
 
     @Override

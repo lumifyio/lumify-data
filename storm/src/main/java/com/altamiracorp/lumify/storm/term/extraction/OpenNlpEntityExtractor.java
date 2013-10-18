@@ -57,7 +57,7 @@ public abstract class OpenNlpEntityExtractor {
         LOGGER.debug("Processing artifact content stream");
         while ((line = untokenizedLineStream.read()) != null) {
             ArrayList<TermExtractionResult.TermMention> newTermMenitons = processLine(line, charOffset);
-            termExtractionResult.addAll(newTermMenitons);
+            termExtractionResult.addAllTermMentions(newTermMenitons);
             charOffset += line.length() + NEW_LINE_CHARACTER_LENGTH;
         }
 
