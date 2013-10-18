@@ -2,7 +2,7 @@
 define(['app'], function(app) {
 
     // Disable debug mode
-    require(['flight/tools/debug/debug'], function(d) { d.enable(false); });
+    require(['flight/lib/debug'], function(d) { d.enable(false); });
 
     describe('app', function() {
 

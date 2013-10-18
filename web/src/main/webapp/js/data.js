@@ -74,6 +74,7 @@ define([
             this.on('updateVertices', this.onUpdateVertices);
             this.on('deleteVertices', this.onDeleteVertices);
             this.on('refreshRelationships', this.refreshRelationships);
+            this.on('verticesSelected', this.onVerticesSelected);
 
             // Workspaces
             this.on('saveWorkspace', this.onSaveWorkspace);
@@ -283,6 +284,21 @@ define([
                         remoteEvent: data.remoteEvent
                     });
                 }
+            });
+        };
+
+        this.onVerticesSelected = function(evt, data) {
+            var self = this,
+                vertices = _.isArray(data) ? data : data ? [data] : [],
+                selectedIds = _.pluck(vertices, 'id');
+
+            if (data && data.remoteEvent) {
+                return;
+            }
+
+            _.keys(this.workspaceVertices).forEach(function(id) {
+                var info = self.workspaceVertices[id];
+                info.selected = selectedIds.indexOf(id) >= 0;
             });
         };
 

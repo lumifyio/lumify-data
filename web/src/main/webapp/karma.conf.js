@@ -3,38 +3,13 @@
 
 module.exports = function(config) {
 
-  // TODO: fix coverage
   // karma start --coverage [coverageType]
-  //var coverageType = 'html';
-  //var coverage = process.argv.filter(function(a, index) { 
-  //  if (a == '--coverage') {
-  //    if ((index + 1) < process.argv.length) {
-  //      coverageType = process.argv[index+1];
-  //    }
-  //    return true;
-  //  }
-  //  return false;
-  //}).length;
-  //if (coverage) {
-  //  preprocessors['js/**/*.js'] = 'coverage';
-  //
-  //  // The above doesn't include the top level src items
-  //  preprocessors['js/*.js'] = 'coverage';
-  //
-  //  reporters.push('coverage');
-  //
-  //  coverageReporter = {
-  //    type: coverageType,
-  //    dir: 'build/coverage/'
-  //  };
-  //}
-
-
-  config.set({
+  // http://karma-runner.github.io/0.8/config/coverage.html
+  
+  var karmaConfig = {
 
     // base path, that will be used to resolve files and exclude
     basePath: '',
-
 
     // frameworks to use
     frameworks: ['mocha', 'requirejs'],
@@ -59,16 +34,16 @@ module.exports = function(config) {
       // Test Files
       {pattern: 'test/spec/**/*.js', included: false},
 
+      // Test Mocks
+      {pattern: 'test/mocks/**/*.js', included: false},
+
       // Test runner
       'test/runner/main.js'
     ],
 
 
     // list of files to exclude
-    exclude: [
-      
-    ],
-
+    exclude: [ ],
 
     // test results reporter to use
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
@@ -85,7 +60,7 @@ module.exports = function(config) {
 
     // level of logging
     // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-    logLevel: config.LOG_INFO,
+    logLevel: config.LOG_WARN,
 
 
     // enable / disable watching file and executing tests whenever any file changes
@@ -120,5 +95,29 @@ module.exports = function(config) {
       'karma-firefox-launcher',
       'karma-phantomjs-launcher'
     ]
-  });
+  };
+
+  var coverageType = 'html';
+  var coverage = process.argv.filter(function(a, index) { 
+    if (a == '--coverage') {
+      if ((index + 1) < process.argv.length) {
+        coverageType = process.argv[index+1];
+      }
+      return true;
+    }
+    return false;
+  }).length;
+  if (coverage) {
+    karmaConfig.preprocessors = {
+        'js/*.js': 'coverage',
+        'js/**/*.js': 'coverage'
+    };
+    karmaConfig.reporters.push('coverage');
+    karmaConfig.coverageReporter = {
+      type: coverageType,
+      dir: 'build/coverage/'
+    };
+  }
+
+  config.set(karmaConfig);
 };

@@ -465,7 +465,10 @@ Marker: {
 				this.iconUrl,
 				new google.maps.Size(this.iconSize[0], this.iconSize[1]),
 				new google.maps.Point(0, 0),
-				gAnchorPoint
+				gAnchorPoint,
+				new google.maps.Size(
+                    this.iconSize[0]/window.devicePixelRatio,
+                    this.iconSize[1]/window.devicePixelRatio)
 			);
 
 			// do we have a Shadow?

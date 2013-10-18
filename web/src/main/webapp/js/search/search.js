@@ -38,6 +38,7 @@ define([
             querySelector: '.navbar-search .search-query',
             queryValidationSelector: '.search-query-validation',
             resultsSummarySelector: '.search-results-summary',
+            entitiesHeaderBadgeSelector: '.search-results-summary li.entities .badge',
             summaryResultItemSelector: '.search-results-summary li',
             resultsSelector: '.search-results',
             filtersSelector: '.search-filters'
@@ -45,12 +46,31 @@ define([
 
         this.searchResults = null;
 
-        this.onEntitySearchResultsForConcept = function($searchResultsSummary, concept, entities) {
-            var self = this;
-            $searchResultsSummary.find('.concept-' + concept.id + ' .badge').removeClass('loading').text((entities[concept.id] || []).length);
+        this.onEntitySearchResultsForConcept = function($searchResultsSummary, concept, entities, parentPropertyListElements) {
+            var self = this,
+                resultsCount = (entities[concept.id] || []).length,
+                li = $searchResultsSummary.find('.concept-' + concept.id + ' .badge')
+                    .removeClass('loading')
+                    .text(resultsCount)
+                    .closest('li').toggle(resultsCount > 0);
+
+            parentPropertyListElements = parentPropertyListElements || $();
+
+            this.select('entitiesHeaderBadgeSelector').removeClass('loading');
+
+            if (resultsCount) {
+                parentPropertyListElements.show();
+            }
+
             if(concept.children && concept.children.length > 0) {
+                var parentLis = parentPropertyListElements.add(li);
                 concept.children.forEach(function(childConcept) {
-                    self.onEntitySearchResultsForConcept($searchResultsSummary, childConcept, entities);
+                    self.onEntitySearchResultsForConcept(
+                        $searchResultsSummary,
+                        childConcept,
+                        entities,
+                        parentLis
+                    );
                 });
             }
         };
@@ -142,9 +162,17 @@ define([
                         }
                     });
 
-                    concepts.byTitle.forEach(function(concept) {
-                        self.onEntitySearchResultsForConcept(self.select('resultsSummarySelector'), concept, results.entity);
-                    });
+                    if (Object.keys(results.entity).length === 0) {
+                        var headerTextNode = self.$node.find('.search-results-summary li.entities');
+                        if (headerTextNode.length) {
+                            headerTextNode[0].normalize();
+                            headerTextNode[0].textContent = 'No Entities';
+                        }
+                    } else {
+                        concepts.byTitle.forEach(function(concept) {
+                            self.onEntitySearchResultsForConcept(self.select('resultsSummarySelector'), concept, results.entity);
+                        });
+                    }
 
                 }).fail(function() {
                     var $searchQueryValidation = self.select('queryValidationSelector');
