@@ -63,7 +63,7 @@ public class CsvTextExtractorWorkerTest {
         //Check that we put the right thing into the mapping field
         assertEquals(new JSONObject(IOUtils.toString(getClass().getResourceAsStream("personLocations.csv.mapping.json"))).toString()
                 , new JSONObject(result.getMappingJson()).toString());
-        assertEquals( Arrays.toString(IOUtils.toByteArray(getClass().getResourceAsStream("personLocations.csv")))
+        assertEquals(Arrays.toString(IOUtils.toByteArray(getClass().getResourceAsStream("personLocations.csv")))
                 , Arrays.toString(result.getRaw()));
     }
 
@@ -92,7 +92,7 @@ public class CsvTextExtractorWorkerTest {
         //Check that we put the right thing into the mapping field
         assertEquals(new JSONObject(IOUtils.toString(getClass().getResourceAsStream("personLocationsWithoutSubject.csv.mapping.json"))).toString()
                 , new JSONObject(result.getMappingJson()).toString());
-        assertEquals( Arrays.toString(IOUtils.toByteArray(getClass().getResourceAsStream("personLocationsWithoutSubject.csv")))
+        assertEquals(Arrays.toString(IOUtils.toByteArray(getClass().getResourceAsStream("personLocationsWithoutSubject.csv")))
                 , Arrays.toString(result.getRaw()));
     }
 

@@ -28,8 +28,9 @@ public class CsvTextExtractorWorker
         extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>
         implements StructuredDataExtractionWorker {
 
-private static final String TEMP_DIRECTORY_PATH = "/lumify/data/tmp/";
-private static final String SUBJECT = "subject";
+    private static final String TEMP_DIRECTORY_PATH = "/lumify/data/tmp/";
+    private static final String SUBJECT = "subject";
+
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
@@ -38,7 +39,7 @@ private static final String SUBJECT = "subject";
         TarArchiveInputStream fileStream = new TarArchiveInputStream(work);
         String csvFileName = "";
         String csvMapping = "";
-        for (TarArchiveEntry entry = fileStream.getNextTarEntry(); entry!= null; entry = fileStream.getNextTarEntry()) {
+        for (TarArchiveEntry entry = fileStream.getNextTarEntry(); entry != null; entry = fileStream.getNextTarEntry()) {
             if (entry.getName().startsWith(".")) {
                 continue;
             }
