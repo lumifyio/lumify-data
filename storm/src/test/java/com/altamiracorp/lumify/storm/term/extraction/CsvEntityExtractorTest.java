@@ -67,6 +67,12 @@ public class CsvEntityExtractorTest {
         assertEquals("location", mention2.getOntologyClassUri());
         assertEquals("20147", mention2.getSign());
 
+        assertEquals(result.getRelationships().size(), 1);
+        TermExtractionResult.Relationship relationship = result.getRelationships().get(0);
+        assertEquals(relationship.getSourceTermMention(), mention1);
+        assertEquals(relationship.getDestTermMention(), mention2);
+        assertEquals("personLivesAtLocation", relationship.getLabel());
+
         verify(artifactRepository, times(1)).findByRowKey(anyString(), any(User.class));
         verify(artifact, times(3)).getMetadata();
         verify(metadata, times(1)).getText();
