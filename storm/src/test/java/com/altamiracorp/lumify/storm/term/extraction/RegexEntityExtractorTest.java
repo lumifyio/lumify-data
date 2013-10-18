@@ -23,7 +23,7 @@ import com.altamiracorp.lumify.core.user.User;
 import com.google.common.base.Charsets;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RegexEntityExtractorTest extends BaseExtractorTest {
+public class RegexEntityExtractorTest {
 
     private static final String EMAIL_REG_EX = "(?i)\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b";
     private static final String EMAIL_TYPE = "emailAddress";

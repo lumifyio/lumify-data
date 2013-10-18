@@ -22,7 +22,7 @@ import com.altamiracorp.lumify.core.user.User;
 import com.google.common.base.Charsets;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PhoneNumberExtractorTest extends BaseExtractorTest {
+public class PhoneNumberExtractorTest {
     private static final String PHONE_TEXT = "This terrorist's phone number is 410-678-2230, and his best buddy's phone number is +44 (0)207 437 0478";
     private static final String PHONE_NEW_LINES = "This terrorist's phone\n number is 410-678-2230, and his best buddy's phone number\n is +44 (0)207 437 0478";
     private static final String PHONE_MISSING = "This is a sentence without any phone numbers in it.";

@@ -1,27 +1,27 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.AccumuloSession;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapreduce.Mapper.Context;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.runners.MockitoJUnitRunner;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.Mapper.Context;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.AccumuloSession;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OpenNlpMEEntityExtractorTest extends BaseExtractorTest {
+public class OpenNlpMEEntityExtractorTest {
     private OpenNlpMaximumEntropyEntityExtractor extractor;
 
     @Mock
@@ -35,7 +35,6 @@ public class OpenNlpMEEntityExtractorTest extends BaseExtractorTest {
 
     @Before
     public void setUp() throws InterruptedException, IOException, URISyntaxException {
-        MockitoAnnotations.initMocks(this);
         Configuration configuration = new Configuration();
         configuration.set(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, "file:///" + System.getProperty("user.dir") + "/storm/src/test/resources/fs/conf/opennlp/");
         configuration.set(AccumuloSession.HADOOP_URL, "");

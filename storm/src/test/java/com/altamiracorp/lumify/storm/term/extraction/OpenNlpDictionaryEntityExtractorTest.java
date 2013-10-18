@@ -1,20 +1,7 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
-import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.AccumuloSession;
-import opennlp.tools.dictionary.Dictionary;
-import opennlp.tools.namefind.DictionaryNameFinder;
-import opennlp.tools.namefind.TokenNameFinder;
-import opennlp.tools.util.StringList;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,11 +9,25 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import opennlp.tools.dictionary.Dictionary;
+import opennlp.tools.namefind.DictionaryNameFinder;
+import opennlp.tools.namefind.TokenNameFinder;
+import opennlp.tools.util.StringList;
 
-@RunWith(JUnit4.class)
-public class OpenNlpDictionaryEntityExtractorTest extends BaseExtractorTest {
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.AccumuloSession;
+
+@RunWith(MockitoJUnitRunner.class)
+public class OpenNlpDictionaryEntityExtractorTest {
 
     private OpenNlpDictionaryEntityExtractor extractor;
 
@@ -41,10 +42,10 @@ public class OpenNlpDictionaryEntityExtractorTest extends BaseExtractorTest {
     @Before
     public void setUp() throws IOException, URISyntaxException, InterruptedException {
         final List<TokenNameFinder> finders = loadFinders();
-        MockitoAnnotations.initMocks(this);
         configuration = new Configuration();
         configuration.set(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, "file:///" + System.getProperty("user.dir") + "/storm/src/test/resources/fs/conf/opennlp/");
         configuration.set(AccumuloSession.HADOOP_URL, "");
+
         extractor = new OpenNlpDictionaryEntityExtractor() {
             @Override
             protected List<TokenNameFinder> loadFinders(String pathPrefix, FileSystem fs) throws IOException {
