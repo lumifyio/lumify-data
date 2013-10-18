@@ -6,6 +6,7 @@ import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.storm.structuredData.MappingProperties;
 import com.altamiracorp.lumify.util.LineReader;
 import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
@@ -23,6 +24,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class CsvEntityExtractor {
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvEntityExtractor.class);
     private Map<String, SimpleDateFormat> dateFormatCache = new HashMap<String, SimpleDateFormat>();
@@ -30,45 +33,43 @@ public class CsvEntityExtractor {
 
 
     public TermExtractionResult extract(GraphVertex graphVertex, User user) throws IOException, JSONException, ParseException {
+        checkNotNull(graphVertex);
+        checkNotNull(user);
         TermExtractionResult termExtractionResult = new TermExtractionResult();
+        String artifactRowKey = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
+        LOGGER.info(String.format("Processing graph vertex [%s] for artifact: %s", graphVertex.getId(), artifactRowKey));
 
-        if (graphVertex != null) {
-            String artifactRowKey = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
-            LOGGER.info(String.format("Processing graph vertex [%s] for artifact: %s", graphVertex.getId(), artifactRowKey));
+        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user);
+        if (artifact.getMetadata().getMappingJson() != null) {
+            JSONObject mappingJson = new JSONObject(artifact.getMetadata().getMappingJson());
+            int row = 0;
+            int skipRows = mappingJson.getInt("skipRows");
 
-            Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user);
-            if (artifact.getMetadata().getMappingJson() != null) {
-                JSONObject mappingJson = new JSONObject(artifact.getMetadata().getMappingJson());
-                int row = 0;
-                int skipRows = mappingJson.getInt("skipRows");
-
-                CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
-                LineReader reader = new LineReader(new StringReader(artifact.getMetadata().getText()));
-                String line;
-                int lastOffset = 0;
-                while ((line = reader.readLine()) != null) {
-                    if (line.length() == 0) {
-                        break;
-                    }
-                    CsvListReader csvReader = new CsvListReader(new StringReader(line), csvPrefs);
-                    List<String> columns = csvReader.read();
-                    if (columns == null) {
-                        break;
-                    }
-
-                    if (row >= skipRows) {
-                        processLine(termExtractionResult, lastOffset, columns, mappingJson);
-                    }
-                    row++;
-                    lastOffset = reader.getOffset();
+            CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
+            LineReader reader = new LineReader(new StringReader(artifact.getMetadata().getText()));
+            String line;
+            int lastOffset = 0;
+            while ((line = reader.readLine()) != null) {
+                if (line.length() == 0) {
+                    break;
                 }
-            }
-        } else {
-            LOGGER.warn("Could not find vertex with id: " + graphVertex.getId());
-        }
+                CsvListReader csvReader = new CsvListReader(new StringReader(line), csvPrefs);
+                List<String> columns = csvReader.read();
+                if (columns == null) {
+                    break;
+                }
 
+                if (row >= skipRows) {
+                    processLine(termExtractionResult, lastOffset, columns, mappingJson);
+                }
+                row++;
+                lastOffset = reader.getOffset();
+
+            }
+        }
         return termExtractionResult;
     }
+
 
     private void processLine(TermExtractionResult termExtractionResult, int offset, List<String> columns, JSONObject mappingJson) throws JSONException, ParseException {
         List<TermExtractionResult.TermMention> termMentions = getTermsWithGraphVertices(offset, columns, mappingJson);
@@ -98,25 +99,25 @@ public class CsvEntityExtractor {
 
     private List<TermExtractionResult.TermMention> getTermsWithGraphVertices(int offset, List<String> columns, JSONObject mappingJson) throws JSONException, ParseException {
         List<TermExtractionResult.TermMention> termMentions = new ArrayList<TermExtractionResult.TermMention>();
-        JSONArray mappingColumnsJson = (JSONArray) mappingJson.get("columns");
+        JSONArray mappingColumnsJson = (JSONArray) mappingJson.get(MappingProperties.COLUMNS);
         for (int i = 0; i < columns.size(); i++) {
             JSONObject columnMappingJson = mappingColumnsJson.getJSONObject(i);
             String sign = columns.get(i);
             sign = sign == null ? "" : sign;
-            String type = columnMappingJson.getString("type");
-            if (type.equals("term")) {
-                String ontologyClassUri = columnMappingJson.getString("conceptLabel");
-                boolean useExisting = columnMappingJson.optBoolean("useExisting", false);
+            String type = columnMappingJson.getString(MappingProperties.TYPE);
+            if (type.equals(MappingProperties.TERM)) {
+                String ontologyClassUri = columnMappingJson.getString(MappingProperties.CONCEPT_LABEL);
+                boolean useExisting = columnMappingJson.optBoolean(MappingProperties.USE_EXISTING, false);
 
                 // Checking to see if any properties were specified
                 Map<String, Object> properties = null;
-                if (columnMappingJson.has("properties")) {
+                if (columnMappingJson.has(MappingProperties.PROPERTIES)) {
                     properties = new HashMap<String, Object>();
-                    JSONArray propertiesMappingJson = columnMappingJson.getJSONArray("properties");
+                    JSONArray propertiesMappingJson = columnMappingJson.getJSONArray(MappingProperties.PROPERTIES);
                     for (int propIndex = 0; propIndex < propertiesMappingJson.length(); propIndex++) {
                         JSONObject propertyMappingJson = propertiesMappingJson.getJSONObject(propIndex);
-                        int target = propertyMappingJson.getInt("target");
-                        String name = propertyMappingJson.getString("name");
+                        int target = propertyMappingJson.getInt(MappingProperties.TARGET);
+                        String name = propertyMappingJson.getString(MappingProperties.NAME);
 
                         JSONObject targetPropertyMappingJson = mappingColumnsJson.getJSONObject(target);
                         String columnData = columns.get(target);
@@ -134,13 +135,13 @@ public class CsvEntityExtractor {
     }
 
     private Object getPropertyValue(JSONObject propertyMappingJson, String columnData) throws JSONException, ParseException {
-        String dataType = propertyMappingJson.getString("dataType");
+        String dataType = propertyMappingJson.getString(MappingProperties.DATA_TYPE);
         if (columnData == null) {
-            return dataType.equals("date") ? new Date() : "";
+            return dataType.equals(MappingProperties.DATE) ? new Date() : "";
         }
-        if (dataType.equals("date")) {
+        if (dataType.equals(MappingProperties.DATE)) {
             return getPropertyValueDate(propertyMappingJson, columnData);
-        } else if (dataType.equals("geoLocation")) {
+        } else if (dataType.equals(MappingProperties.GEO_LOCATION)) {
             String[] latlong = columnData.split(",");
             return Geoshape.point(Float.valueOf(latlong[0]), Float.valueOf(latlong[1]));
         } else {
@@ -149,7 +150,7 @@ public class CsvEntityExtractor {
     }
 
     private Object getPropertyValueDate(JSONObject propertyMappingJson, String columnData) throws JSONException, ParseException {
-        String format = propertyMappingJson.getString("format");
+        String format = propertyMappingJson.getString(MappingProperties.FORMAT);
         SimpleDateFormat sdf;
         if (format != null) {
             sdf = dateFormatCache.get(format);

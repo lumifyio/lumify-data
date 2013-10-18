@@ -29,7 +29,6 @@ public class CsvTextExtractorWorker
         implements StructuredDataExtractionWorker {
 
     private static final String TEMP_DIRECTORY_PATH = "/lumify/data/tmp/";
-    private static final String SUBJECT = "subject";
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
@@ -81,8 +80,8 @@ public class CsvTextExtractorWorker
         csvListWriter.close();
 
         info.setText(writer.toString());
-        if (mappingJson.has(SUBJECT)) {
-            info.setTitle(mappingJson.get(SUBJECT).toString());
+        if (mappingJson.has(MappingProperties.SUBJECT)) {
+            info.setTitle(mappingJson.get(MappingProperties.SUBJECT).toString());
         } else {
             info.setTitle(FilenameUtils.getName(csvFileName));
         }
