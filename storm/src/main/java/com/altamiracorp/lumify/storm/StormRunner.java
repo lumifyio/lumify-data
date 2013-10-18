@@ -95,7 +95,7 @@ public class StormRunner extends CommandLineBase {
         Config conf = new Config();
         conf.put("topology.kryo.factory", "com.altamiracorp.lumify.storm.DefaultKryoFactory");
         for (String key : getConfiguration().getKeys()) {
-            conf.put(key, conf.get(key));
+            conf.put(key, getConfiguration().get(key));
         }
         conf.put(BaseFileSystemSpout.DATADIR_CONFIG_NAME, ROOT_DATA_DIR);
         conf.setDebug(false);

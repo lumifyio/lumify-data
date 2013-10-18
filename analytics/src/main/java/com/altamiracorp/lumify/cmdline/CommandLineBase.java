@@ -20,7 +20,7 @@ import com.google.inject.Injector;
 
 public abstract class CommandLineBase extends Configured implements Tool {
     private String configLocation = "file:///opt/lumify/config/configuration.properties";
-    private String credentialsLocation = "file:///opt/lumify/config/credentials.properties";
+    private String credentialsLocation;
     private Configuration configuration;
     private User user = new SystemUser();
     private boolean willExit = false;

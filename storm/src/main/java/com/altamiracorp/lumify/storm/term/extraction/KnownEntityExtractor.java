@@ -22,7 +22,7 @@ public class KnownEntityExtractor {
     private FileSystem fs;
     private String pathPrefix;
 
-    private static final String PATH_PREFIX_CONFIG = "nlpConfPathPrefix";
+    private static final String PATH_PREFIX_CONFIG = "termextraction.knownEntities.pathPrefix";
     private static final String DEFAULT_PATH_PREFIX = "hdfs://";
     private AhoCorasick tree = new AhoCorasick();
 
@@ -50,7 +50,7 @@ public class KnownEntityExtractor {
     }
 
     private void loadDictionaries() throws IOException {
-        Path hdfsDirectory = new Path(getPathPrefix() + "/conf/knownEntities/dictionaries");
+        Path hdfsDirectory = new Path(getPathPrefix() + "dictionaries");
         for (FileStatus dictionaryFileStatus : getFS().listStatus(hdfsDirectory)) {
             Path hdfsPath = dictionaryFileStatus.getPath();
             if (hdfsPath.getName().startsWith(".") || !hdfsPath.getName().endsWith(".dict")) {
