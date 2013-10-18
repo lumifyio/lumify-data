@@ -28,30 +28,29 @@ public class CsvTextExtractorWorker
         extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>
         implements StructuredDataExtractionWorker {
 
+private static final String TEMP_DIRECTORY_PATH = "/lumify/data/tmp/";
+private static final String SUBJECT = "subject";
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
 
         // Untar the file
         TarArchiveInputStream fileStream = new TarArchiveInputStream(work);
-        TarArchiveEntry entry = fileStream.getNextTarEntry();
         String csvFileName = "";
         String csvMapping = "";
-        while (entry != null) {
-            // Writing the csv to hdfs & getting a stream of the csv file
+        for (TarArchiveEntry entry = fileStream.getNextTarEntry(); entry!= null; entry = fileStream.getNextTarEntry()) {
             if (entry.getName().startsWith(".")) {
-                entry = fileStream.getNextTarEntry();
                 continue;
             }
-            String filepath = "/lumify/data/tmp/" + entry.getName();
+            String filepath = TEMP_DIRECTORY_PATH + entry.getName();
             if (FilenameUtils.getExtension(entry.getName()).equals("csv")) {
-                csvFileName = "/lumify/data/tmp/" + entry.getName();
+                csvFileName = TEMP_DIRECTORY_PATH + entry.getName();
                 writeToHdfs(data.getHdfsFileSystem(), csvFileName, fileStream);
-            } else if (FilenameUtils.getName(entry.getName()).contains(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
+            }
+            if (FilenameUtils.getName(entry.getName()).contains(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
                 csvMapping = filepath;
                 writeToHdfs(data.getHdfsFileSystem(), csvMapping, fileStream);
             }
-            entry = fileStream.getNextTarEntry();
         }
 
         // Extract mapping json
@@ -81,8 +80,8 @@ public class CsvTextExtractorWorker
         csvListWriter.close();
 
         info.setText(writer.toString());
-        if (mappingJson.has("subject")) {
-            info.setTitle(mappingJson.get("subject").toString());
+        if (mappingJson.has(SUBJECT)) {
+            info.setTitle(mappingJson.get(SUBJECT).toString());
         } else {
             info.setTitle(FilenameUtils.getName(csvFileName));
         }
@@ -108,7 +107,6 @@ public class CsvTextExtractorWorker
         byte[] btoRead = new byte[1024];
         int length = 0;
 
-        // TODO: write csv data into raw column in accumulo
         while ((length = fileStream.read(btoRead)) != -1) {
             dataOutputStream.write(btoRead, 0, length);
         }

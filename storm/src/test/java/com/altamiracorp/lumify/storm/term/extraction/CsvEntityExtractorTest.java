@@ -20,6 +20,8 @@ import java.text.ParseException;
 import static junit.framework.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -67,6 +69,10 @@ public class CsvEntityExtractorTest {
         assertEquals("location", mention2.getOntologyClassUri());
         assertEquals("20147", mention2.getSign());
 
+        verify(artifactRepository, times(1)).findByRowKey(anyString(), any(User.class));
+        verify(artifact, times(3)).getMetadata();
+        verify(metadata, times(1)).getText();
+        verify(metadata, times(2)).getMappingJson();
 
     }
 

@@ -40,7 +40,6 @@ public class CsvTextExtractorWorkerTest {
 
     @Test
     public void testDoWork() throws Exception {
-
         worker = new CsvTextExtractorWorker();
         stream = getClass().getResourceAsStream("personLocations.tar");
         data = new AdditionalArtifactWorkData();
@@ -65,6 +64,35 @@ public class CsvTextExtractorWorkerTest {
         assertEquals(new JSONObject(IOUtils.toString(getClass().getResourceAsStream("personLocations.csv.mapping.json"))).toString()
                 , new JSONObject(result.getMappingJson()).toString());
         assertEquals( Arrays.toString(IOUtils.toByteArray(getClass().getResourceAsStream("personLocations.csv")))
+                , Arrays.toString(result.getRaw()));
+    }
+
+    @Test
+    public void testCsvWithoutSubject() throws Exception {
+        worker = new CsvTextExtractorWorker();
+        stream = getClass().getResourceAsStream("personLocationsWithoutSubject.tar");
+        data = new AdditionalArtifactWorkData();
+        data.setMimeType("application/x-tar");
+        data.setHdfsFileSystem(hdfsFileSystem);
+        FileSystem fs = FileSystem.get(new Configuration());
+        URL mockMappingUrl = getClass().getResource("personLocationsWithoutSubject.csv.mapping.json");
+        URL mockCSVUrl = getClass().getResource("personLocationsWithoutSubject.csv");
+
+        when(hdfsFileSystem.create(any(Path.class), anyBoolean())).thenReturn(mockOutputStream);
+        ArgumentCaptor<Path> argument = ArgumentCaptor.forClass(Path.class);
+        when(data.getHdfsFileSystem().open(argument.capture()))
+                .thenReturn(fs.open(new Path(mockMappingUrl.toString())))
+                .thenReturn(fs.open(new Path(mockCSVUrl.toString())));
+        ArtifactExtractedInfo result = worker.doWork(stream, data);
+
+        //Test that the text was imported correctly
+        assertEquals("Name,Zip Code\nJoe Ferner,20147,10/30/1977,blah\n", result.getText());
+        //Title should be the "subject" field within the mapping
+        assertEquals("personLocationsWithoutSubject.csv", result.getTitle());
+        //Check that we put the right thing into the mapping field
+        assertEquals(new JSONObject(IOUtils.toString(getClass().getResourceAsStream("personLocationsWithoutSubject.csv.mapping.json"))).toString()
+                , new JSONObject(result.getMappingJson()).toString());
+        assertEquals( Arrays.toString(IOUtils.toByteArray(getClass().getResourceAsStream("personLocationsWithoutSubject.csv")))
                 , Arrays.toString(result.getRaw()));
     }
 
