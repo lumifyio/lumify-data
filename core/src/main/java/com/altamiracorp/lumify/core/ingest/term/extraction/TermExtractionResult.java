@@ -36,6 +36,7 @@ public class TermExtractionResult {
         checkNotNull(result.termMentions);
 
         termMentions.addAll(result.termMentions);
+        relationships.addAll(result.relationships);
     }
 
     public List<TermMention> getTermMentions() {
@@ -99,6 +100,10 @@ public class TermExtractionResult {
 
         public boolean getUseExisting() {
             return useExisting;
+        }
+
+        public String toString () {
+            return getSign() + ": " + getStart() + ": " + getEnd();
         }
     }
 

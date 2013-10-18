@@ -155,9 +155,11 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
     private void saveRelationships(List<TermExtractionResult.Relationship> relationships, List<TermMentionWithGraphVertex> termMentionsWithGraphVertices) {
         for (TermExtractionResult.Relationship relationship : relationships) {
             TermMentionWithGraphVertex sourceTermMentionsWithGraphVertex = findTermMentionWithGraphVertex(termMentionsWithGraphVertices, relationship.getSourceTermMention());
-            checkNotNull(sourceTermMentionsWithGraphVertex, "source vertex was not found");
+            checkNotNull(sourceTermMentionsWithGraphVertex, "source was not found for " + relationship.getSourceTermMention());
+            checkNotNull(sourceTermMentionsWithGraphVertex.getGraphVertex(), "source vertex was not found for " + relationship.getSourceTermMention());
             TermMentionWithGraphVertex destTermMentionsWithGraphVertex = findTermMentionWithGraphVertex(termMentionsWithGraphVertices, relationship.getDestTermMention());
-            checkNotNull(destTermMentionsWithGraphVertex, "dest vertex was not found");
+            checkNotNull(destTermMentionsWithGraphVertex, "dest was not found for " + relationship.getDestTermMention());
+            checkNotNull(destTermMentionsWithGraphVertex.getGraphVertex(), "dest vertex was not found for " + relationship.getDestTermMention());
             String label = relationship.getLabel();
             graphRepository.saveRelationship(
                     sourceTermMentionsWithGraphVertex.getGraphVertex().getId(),
@@ -171,7 +173,8 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
     private TermMentionWithGraphVertex findTermMentionWithGraphVertex(List<TermMentionWithGraphVertex> termMentionsWithGraphVertices, TermExtractionResult.TermMention termMention) {
         for (TermMentionWithGraphVertex termMentionsWithGraphVertex : termMentionsWithGraphVertices) {
             if (termMentionsWithGraphVertex.getTermMention().getRowKey().getStartOffset() == termMention.getStart()
-                    && termMentionsWithGraphVertex.getTermMention().getRowKey().getEndOffset() == termMention.getEnd()) {
+                    && termMentionsWithGraphVertex.getTermMention().getRowKey().getEndOffset() == termMention.getEnd()
+                    && termMentionsWithGraphVertex.getGraphVertex() != null) {
                 return termMentionsWithGraphVertex;
             }
         }
