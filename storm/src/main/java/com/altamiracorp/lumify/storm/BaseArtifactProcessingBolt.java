@@ -91,7 +91,7 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
 
         ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
         artifactExtractedInfo.setOntologyClassUri("http://altamiracorp.com/lumify#document");
-        if (isArchive(fileMetadata)) {
+        if (isArchive(fileMetadata.getFileName())) {
             archiveTempDir = extractArchive(fileMetadata);
             File primaryFile = getPrimaryFileFromArchive(archiveTempDir);
             in = getInputStream(primaryFile.getAbsolutePath(), artifactExtractedInfo);
@@ -146,25 +146,25 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
     protected File extractArchive(FileMetadata fileMetadata) throws Exception {
         File tempDir = Files.createTempDir();
         InputStream in = getInputStream(fileMetadata.getFileName(), null);
-        ArchiveInputStream input = new ArchiveStreamFactory().createArchiveInputStream(in);
-        ArchiveEntry entry;
-        while ((entry = input.getNextEntry()) != null) {
-            OutputStream out = new FileOutputStream(new File(tempDir, entry.getName()));
+        try {
+            ArchiveInputStream input = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(in));
             try {
-                IOUtils.copy(input, out);
+                ArchiveEntry entry;
+                while ((entry = input.getNextEntry()) != null) {
+                    OutputStream out = new FileOutputStream(new File(tempDir, entry.getName()));
+                    try {
+                        IOUtils.copy(input, out);
+                    } finally {
+                        out.close();
+                    }
+                }
             } finally {
-                out.close();
+                input.close();
             }
+        } finally {
+            in.close();
         }
         return tempDir;
-    }
-
-    private boolean isArchive(FileMetadata fileMetadata) {
-        String fileName = fileMetadata.getFileName().toLowerCase();
-        if (fileName.endsWith(".tar") || fileName.endsWith(".zip") || fileName.endsWith(".gz")) {
-            return true;
-        }
-        return false;
     }
 
     private void saveVideoFrames(ArtifactRowKey artifactRowKey, List<ArtifactExtractedInfo.VideoFrame> videoFrames) throws IOException {
@@ -190,6 +190,7 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
             additionalDocumentWorkData.setMimeType(fileMetadata.getMimeType());
             additionalDocumentWorkData.setHdfsFileSystem(getHdfsFileSystem());
             additionalDocumentWorkData.setArchiveTempDir(archiveTempDir);
+            // TODO if this is an archive the file is already local no need to copy it there
             if (isLocalFileRequired()) {
                 File localFile = copyFileToLocalFile(in);
                 in = new FileInputStream(localFile);

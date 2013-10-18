@@ -9,11 +9,13 @@ import com.altamiracorp.lumify.storm.BaseFileSystemSpout;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.altamiracorp.lumify.storm.FieldNames;
 import com.google.inject.Inject;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.Path;
-import org.apache.tools.tar.TarEntry;
-import org.apache.tools.tar.TarInputStream;
 
+import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -40,22 +42,27 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
             String mimeType = this.contentTypeExtractor.extract(in, FilenameUtils.getExtension(fileName));
             String queueName = calculateQueueNameFromMimeType(mimeType);
 
-            if (FilenameUtils.getName(fileName).contains(".lumify") && (mimeType.contains("x-tar"))) {
-
-                // Look inside tar to see if a mapping json file exists
-                TarInputStream is = new TarInputStream(getHdfsFileSystem().open(new Path(fileName)));
-                TarEntry entry = is.getNextEntry();
-                while (entry != null) {
-                    if (entry.getName().endsWith(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
-                        queueName = "structuredData";
-                        break;
+            if (isArchive(fileName)) {
+                InputStream hdfsInputStream = new BufferedInputStream(getHdfsFileSystem().open(new Path(fileName)));
+                try {
+                    ArchiveInputStream is = new ArchiveStreamFactory().createArchiveInputStream(hdfsInputStream);
+                    try {
+                        ArchiveEntry entry;
+                        while ((entry = is.getNextEntry()) != null) {
+                            if (entry.getName().endsWith(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
+                                queueName = "structuredData";
+                                break;
+                            } else if (entry.getName().endsWith(FileImporter.SRT_CC_FILE_NAME_SUFFIX)
+                                    || entry.getName().endsWith(FileImporter.YOUTUBE_CC_FILE_NAME_SUFFIX)) {
+                                queueName = "video";
+                                break;
+                            }
+                        }
+                    } finally {
+                        is.close();
                     }
-                    else if (entry.getName().endsWith(FileImporter.SRT_CC_FILE_NAME_SUFFIX)
-                            || entry.getName().endsWith(FileImporter.YOUTUBE_CC_FILE_NAME_SUFFIX) ) {
-                        queueName = "video";
-                        break;
-                    }
-                    entry = is.getNextEntry();
+                } finally {
+                    hdfsInputStream.close();
                 }
             }
 

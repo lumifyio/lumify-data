@@ -224,4 +224,12 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
     public void setGraphRepository(GraphRepository graphRepository) {
         this.graphRepository = graphRepository;
     }
+
+    protected boolean isArchive(String fileName) {
+        fileName = fileName.toLowerCase();
+        if (fileName.endsWith(".tar") || fileName.endsWith(".zip") || fileName.endsWith(".gz")) {
+            return true;
+        }
+        return false;
+    }
 }
