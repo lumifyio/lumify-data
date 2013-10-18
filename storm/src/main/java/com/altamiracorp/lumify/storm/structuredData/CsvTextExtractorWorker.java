@@ -8,13 +8,8 @@ import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.json.JSONObject;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
@@ -28,46 +23,18 @@ public class CsvTextExtractorWorker
         extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>
         implements StructuredDataExtractionWorker {
 
-    private static final String TEMP_DIRECTORY_PATH = "/lumify/data/tmp/";
-
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
 
-        // Untar the file
-        TarArchiveInputStream fileStream = new TarArchiveInputStream(work);
-        String csvFileName = "";
-        String csvMapping = "";
-        for (TarArchiveEntry entry = fileStream.getNextTarEntry(); entry != null; entry = fileStream.getNextTarEntry()) {
-            if (entry.getName().startsWith(".")) {
-                continue;
-            }
-            String filepath = TEMP_DIRECTORY_PATH + entry.getName();
-            if (FilenameUtils.getExtension(entry.getName()).equals("csv")) {
-                csvFileName = TEMP_DIRECTORY_PATH + entry.getName();
-                writeToHdfs(data.getHdfsFileSystem(), csvFileName, fileStream);
-            }
-            if (FilenameUtils.getName(entry.getName()).contains(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
-                csvMapping = filepath;
-                writeToHdfs(data.getHdfsFileSystem(), csvMapping, fileStream);
-            }
-        }
-
         // Extract mapping json
-        JSONObject mappingJson = new JSONObject();
-        InputStream mappingJsonStream = data.getHdfsFileSystem().open(new Path(csvMapping));
-        try {
-            mappingJson = new JSONObject(IOUtils.toString(mappingJsonStream));
-        } finally {
-            mappingJsonStream.close();
-        }
+        JSONObject mappingJson = readMappingJson(data);
 
         // Extract the csv text
         StringWriter writer = new StringWriter();
         HdfsLimitOutputStream outputStream = new HdfsLimitOutputStream(data.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
         CsvPreference csvPreference = CsvPreference.EXCEL_PREFERENCE;
-        InputStream csvFileStream = data.getHdfsFileSystem().open(new Path(csvFileName));
-        IOUtils.copy(csvFileStream, outputStream);
+        IOUtils.copy(work, outputStream);
         info.setRaw(outputStream.getSmall());
         CsvListReader csvListReader = new CsvListReader(new InputStreamReader(
                 new ByteArrayInputStream(outputStream.getSmall())), csvPreference);
@@ -82,14 +49,20 @@ public class CsvTextExtractorWorker
         info.setText(writer.toString());
         if (mappingJson.has(MappingProperties.SUBJECT)) {
             info.setTitle(mappingJson.get(MappingProperties.SUBJECT).toString());
-        } else {
-            info.setTitle(FilenameUtils.getName(csvFileName));
         }
         info.setMappingJson(mappingJson);
-        data.getHdfsFileSystem().delete(new Path(csvFileName), true);
-        data.getHdfsFileSystem().delete(new Path(csvMapping), true);
 
         return info;
+    }
+
+    private JSONObject readMappingJson(AdditionalArtifactWorkData data) throws IOException {
+        File tempDir = data.getArchiveTempDir();
+        for (File f : tempDir.listFiles()) {
+            if (f.getName().endsWith(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
+                return new JSONObject(FileUtils.readFileToString(f));
+            }
+        }
+        throw new RuntimeException("Could not find mapping.json file in directory: " + tempDir);
     }
 
     @Override
@@ -99,17 +72,5 @@ public class CsvTextExtractorWorker
 
     @Override
     public void prepare(Map stormConf, User user) {
-    }
-
-    private void writeToHdfs(FileSystem fileSystem, String filePath, TarArchiveInputStream fileStream) throws IOException {
-        FSDataOutputStream dataOutputStream = fileSystem.create(new Path(filePath), false);
-
-        byte[] btoRead = new byte[1024];
-        int length = 0;
-
-        while ((length = fileStream.read(btoRead)) != -1) {
-            dataOutputStream.write(btoRead, 0, length);
-        }
-        dataOutputStream.close();
     }
 }

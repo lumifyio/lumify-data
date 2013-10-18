@@ -31,7 +31,6 @@ public class CsvEntityExtractor {
     private Map<String, SimpleDateFormat> dateFormatCache = new HashMap<String, SimpleDateFormat>();
     private ArtifactRepository artifactRepository;
 
-
     public TermExtractionResult extract(GraphVertex graphVertex, User user) throws IOException, JSONException, ParseException {
         checkNotNull(graphVertex);
         checkNotNull(user);

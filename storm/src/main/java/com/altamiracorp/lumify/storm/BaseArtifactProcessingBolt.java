@@ -8,15 +8,20 @@ import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.TextExtractionWorker;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
-import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
-import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
-import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
-import com.altamiracorp.lumify.storm.file.FileMetadata;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
+import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
+import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
+import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import com.altamiracorp.lumify.storm.file.FileMetadata;
+import com.google.common.io.Files;
 import com.google.inject.Inject;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.Path;
@@ -80,13 +85,23 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
 
     protected GraphVertex processFile(Tuple input) throws Exception {
         FileMetadata fileMetadata = getFileMetadata(input);
+        File archiveTempDir = null;
+        InputStream in;
         LOGGER.info("processing: " + fileMetadata.getFileName() + " (mimeType: " + fileMetadata.getMimeType() + ")");
 
         ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
         artifactExtractedInfo.setOntologyClassUri("http://altamiracorp.com/lumify#document");
-        artifactExtractedInfo.setTitle(FilenameUtils.getName(fileMetadata.getFileName()));
+        if (isArchive(fileMetadata)) {
+            archiveTempDir = extractArchive(fileMetadata);
+            File primaryFile = getPrimaryFileFromArchive(archiveTempDir);
+            in = getInputStream(primaryFile.getAbsolutePath(), artifactExtractedInfo);
+            artifactExtractedInfo.setTitle(FilenameUtils.getName(fileMetadata.getFileName()));
+        } else {
+            in = getInputStream(fileMetadata.getFileName(), artifactExtractedInfo);
+            artifactExtractedInfo.setTitle(FilenameUtils.getName(fileMetadata.getFileName()));
+        }
 
-        runWorkers(fileMetadata, artifactExtractedInfo);
+        runWorkers(in, fileMetadata, artifactExtractedInfo, archiveTempDir);
 
         String newRawArtifactHdfsPath = moveRawFile(fileMetadata.getFileName(), artifactExtractedInfo.getRowKey());
         artifactExtractedInfo.setRawHdfsPath(newRawArtifactHdfsPath);
@@ -117,7 +132,39 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
 
         GraphVertex graphVertex = saveArtifact(artifactExtractedInfo);
 
+        if (archiveTempDir != null) {
+            FileUtils.deleteDirectory(archiveTempDir);
+        }
+
         return graphVertex;
+    }
+
+    protected File getPrimaryFileFromArchive(File archiveTempDir) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    protected File extractArchive(FileMetadata fileMetadata) throws Exception {
+        File tempDir = Files.createTempDir();
+        InputStream in = getInputStream(fileMetadata.getFileName(), null);
+        ArchiveInputStream input = new ArchiveStreamFactory().createArchiveInputStream(in);
+        ArchiveEntry entry;
+        while ((entry = input.getNextEntry()) != null) {
+            OutputStream out = new FileOutputStream(new File(tempDir, entry.getName()));
+            try {
+                IOUtils.copy(in, out);
+            } finally {
+                out.close();
+            }
+        }
+        return tempDir;
+    }
+
+    private boolean isArchive(FileMetadata fileMetadata) {
+        String fileName = fileMetadata.getFileName().toLowerCase();
+        if (fileName.endsWith(".tar") || fileName.endsWith(".zip") || fileName.endsWith(".gz")) {
+            return true;
+        }
+        return false;
     }
 
     private void saveVideoFrames(ArtifactRowKey artifactRowKey, List<ArtifactExtractedInfo.VideoFrame> videoFrames) throws IOException {
@@ -136,13 +183,13 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
         getHdfsFileSystem().delete(new Path(videoFrame.getHdfsPath()), false);
     }
 
-    protected void runWorkers(FileMetadata fileMetadata, ArtifactExtractedInfo artifactExtractedInfo) throws Exception {
+    protected void runWorkers(InputStream in, FileMetadata fileMetadata, ArtifactExtractedInfo artifactExtractedInfo, File archiveTempDir) throws Exception {
         AdditionalArtifactWorkData additionalDocumentWorkData = new AdditionalArtifactWorkData();
-        InputStream in = getInputStream(fileMetadata.getFileName(), artifactExtractedInfo);
         try {
             additionalDocumentWorkData.setFileName(fileMetadata.getFileName());
             additionalDocumentWorkData.setMimeType(fileMetadata.getMimeType());
             additionalDocumentWorkData.setHdfsFileSystem(getHdfsFileSystem());
+            additionalDocumentWorkData.setArchiveTempDir(archiveTempDir);
             if (isLocalFileRequired()) {
                 File localFile = copyFileToLocalFile(in);
                 in = new FileInputStream(localFile);
