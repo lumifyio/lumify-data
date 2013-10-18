@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.model.GraphSession;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.*;
@@ -7,8 +8,8 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
 import com.altamiracorp.lumify.core.model.graph.GraphRelationship;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
+import com.altamiracorp.lumify.model.index.utils.TitanGraphSearchIndexProviderUtil;
 import com.altamiracorp.lumify.model.query.utils.LuceneTokenizer;
-import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.google.common.base.Preconditions;
 import com.thinkaurelius.titan.core.*;
 import com.thinkaurelius.titan.core.attribute.Geo;
@@ -21,16 +22,13 @@ import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import com.tinkerpop.pipes.PipeFunction;
 import com.tinkerpop.pipes.branch.LoopPipe;
-import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.json.JSONArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Constructor;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -38,41 +36,42 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class TitanGraphSession extends GraphSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(TitanGraphSession.class);
 
-    public static final String STORAGE_BACKEND_KEY = "graph.storage.backend";
-    public static final String STORAGE_TABLE_NAME_KEY = "graph.storage.tablename";
-    public static final String STORAGE_INDEX_SEARCH_HOSTNAME = "graph.storage.index.search.hostname";
-    public static final String DEFAULT_STORAGE_TABLE_NAME = "atc_titan";
-    public static final String DEFAULT_BACKEND_NAME = AccumuloStorageManager.class.getName();
-    public static final String DEFAULT_SEARCH_NAME = "elasticsearch";
-    private static final String DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME = "titan";
-    private static final Integer DEFAULT_STORAGE_INDEX_SEARCH_PORT = 9300;
+    private static final String TITAN_PROP_KEY_PREFIX = "graph.titan";
+    private static final String SEARCH_INDEX_PROVIDER_UTIL_CLASS = "storage.index.search.providerUtilClass";
+
     private final TitanGraph graph;
     private final TitanQueryFormatter queryFormatter;
-    private Properties localConf;
+    private TitanGraphSearchIndexProviderUtil searchIndexProviderUtil;
 
-    public TitanGraphSession(Properties props, TitanQueryFormatter queryFormatter) {
-        checkNotNull(queryFormatter, "Query formatter cannot be null");
-        localConf = props;
-        this.queryFormatter = queryFormatter;
+    public TitanGraphSession(Configuration config) {
+        Configuration titanConfig = config.getSubset(TITAN_PROP_KEY_PREFIX);
         PropertiesConfiguration conf = new PropertiesConfiguration();
-        conf.setProperty("storage.backend", props.getProperty(STORAGE_BACKEND_KEY, DEFAULT_BACKEND_NAME));
-        conf.setProperty("storage.tablename", props.getProperty(STORAGE_TABLE_NAME_KEY, DEFAULT_STORAGE_TABLE_NAME));
-        conf.setProperty("storage.zookeeperInstanceName", props.getProperty(AccumuloSession.ZOOKEEPER_INSTANCE_NAME));
-        conf.setProperty("storage.zookeeperServerName", props.getProperty(AccumuloSession.ZOOKEEPER_SERVER_NAMES));
-        conf.setProperty("storage.username", props.getProperty(AccumuloSession.USERNAME));
-        conf.setProperty("storage.password", props.getProperty(AccumuloSession.PASSWORD));
 
-        conf.setProperty("storage.index.search.backend", DEFAULT_SEARCH_NAME);
-        conf.setProperty("storage.index.search.hostname", props.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME, "localhost"));
-        conf.setProperty("storage.index.search.client-only", "true");
+        //load the storage specific configuration parameters
 
+        for (String key : titanConfig.getKeys()) {
+            conf.setProperty(key,titanConfig.get(key));
+        }
         conf.setProperty("autotype", "none");
+
+        Class searchIndexProviderUtilClass = null;
+        try {
+            searchIndexProviderUtilClass = titanConfig.getClass(SEARCH_INDEX_PROVIDER_UTIL_CLASS);
+            Constructor<TitanGraphSearchIndexProviderUtil> searchIndexProviderUtilConstructor = searchIndexProviderUtilClass.getConstructor(Configuration.class);
+            searchIndexProviderUtil = searchIndexProviderUtilConstructor.newInstance(titanConfig);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("The provided search index utility " + searchIndexProviderUtilClass.getName() + " does not have the required constructor");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        queryFormatter = new TitanQueryFormatter();
 
         LOGGER.info("opening titan:\n" + confToString(conf));
         graph = TitanFactory.open(conf);
     }
 
-    private String confToString(Configuration conf) {
+    private String confToString(PropertiesConfiguration conf) {
         StringBuilder result = new StringBuilder();
         Iterator keys = conf.getKeys();
         while (keys.hasNext()) {
@@ -520,10 +519,7 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public void deleteSearchIndex(User user) {
-        LOGGER.info("delete search index: " + DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME);
-        //TODO: should port be configurable? How about cluster name?
-        TransportClient client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(localConf.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME, "localhost"), DEFAULT_STORAGE_INDEX_SEARCH_PORT));
-        client.admin().indices().delete(new DeleteIndexRequest(DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME)).actionGet();
+        searchIndexProviderUtil.deleteIndex();
     }
 
     @Override

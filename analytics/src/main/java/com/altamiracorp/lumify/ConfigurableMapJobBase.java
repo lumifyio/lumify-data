@@ -88,7 +88,7 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
     protected int run(CommandLine cmd) throws Exception {
         Job job = new Job(getConf(), this.getClass().getSimpleName());
         Configuration configuration = getConfiguration();
-        configureJob(job, configuration.getProperties());
+        configureJob(job, configuration);
 
         job.setJarByClass(this.getClass());
 
@@ -113,10 +113,7 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
         }
         AccumuloModelOutputFormat.init(
                 job,
-                configuration.getDataStoreUserName(),
-                configuration.getDataStorePassword(),
-                configuration.getZookeeperInstanceName(),
-                configuration.getZookeeperServerNames(),
+                configuration,
                 Artifact.TABLE_NAME);
 
         job.waitForCompletion(true);
@@ -135,9 +132,9 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
         return config;
     }
 
-    private void configureJob(final Job job, final Properties properties) {
-        for (final Object key : properties.keySet()) {
-            job.getConfiguration().set((String) key, properties.getProperty((String) key));
+    private void configureJob(final Job job, final Configuration config) {
+        for (final String key : config.getKeys()) {
+            job.getConfiguration().set(key, config.get(key));
         }
 
         job.getConfiguration().setBoolean(FAIL_FIRST_ERROR, failOnFirstError);

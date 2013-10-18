@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor;
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.model.GraphSession;
 import com.altamiracorp.lumify.core.model.ModelSession;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
@@ -25,22 +26,21 @@ import com.altamiracorp.lumify.model.TitanQueryFormatter;
 import com.altamiracorp.lumify.search.ElasticSearchProvider;
 import com.google.inject.AbstractModule;
 
+import java.lang.reflect.Constructor;
+
 public abstract class BootstrapBase extends AbstractModule {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BootstrapBase.class);
 
-    private final TaskInputOutputContext attemptContext;
-
-    private final Properties properties;
+    private final Configuration config;
+    private static final String DEFAULT_MODEL_PROVIDER = AccumuloSession.class.getName();
+    private static final String DEFAULT_GRAPH_PROVIDER = TitanGraphSession.class.getName();
     private static final String DEFAULT_SEARCH_PROVIDER = ElasticSearchProvider.class.getName();
 
-    protected BootstrapBase(Properties properties, TaskInputOutputContext attemptContext) {
-        this.properties = properties;
-        this.attemptContext = attemptContext;
+    protected BootstrapBase(Configuration config) {
+        this.config = config;
     }
 
     @Override
     protected void configure() {
-        LOGGER.info("Creating common bindings");
         User user = new SystemUser();
 
         bind(ModelSession.class).toInstance(createModelSession());
@@ -51,43 +51,47 @@ public abstract class BootstrapBase extends AbstractModule {
     }
 
     private WorkQueueRepository createWorkQueueRepository() {
-        String zookeeperServerNames = properties.getProperty(AccumuloSession.ZOOKEEPER_SERVER_NAMES);
+        String zookeeperServerNames = config.get(Configuration.ZK_SERVERS);
         return new KafkaWorkQueueRepository(zookeeperServerNames);
     }
 
 
     private ModelSession createModelSession() {
-        final String hdfsRootDir = properties.getProperty(AccumuloSession.HADOOP_URL);
-        final ZooKeeperInstance zooKeeperInstance = new ZooKeeperInstance(properties.getProperty(AccumuloSession.ZOOKEEPER_INSTANCE_NAME), properties.getProperty(AccumuloSession.ZOOKEEPER_SERVER_NAMES));
-        final org.apache.hadoop.conf.Configuration hadoopConfiguration = new org.apache.hadoop.conf.Configuration();
-
+        Class modelProviderClass = null;
         try {
-            final Connector connector = zooKeeperInstance.getConnector(properties.getProperty(AccumuloSession.USERNAME), properties.getProperty(AccumuloSession.PASSWORD));
-            final FileSystem hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), hadoopConfiguration, "hadoop");
-            return new AccumuloSession(connector, hdfsFileSystem, hdfsRootDir, attemptContext);
+            modelProviderClass = config.getClass(Configuration.MODEL_PROVIDER, DEFAULT_MODEL_PROVIDER);
+            Constructor<ModelSession> modelSessionConstructor = modelProviderClass.getConstructor(Configuration.class);
+            return modelSessionConstructor.newInstance(config);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("The provided model provider " + modelProviderClass.getName() + " does not have the required constructor");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     private GraphSession createGraphSession() {
-        return new TitanGraphSession(properties, new TitanQueryFormatter());
+        Class graphSessionClass = null;
+        try {
+            graphSessionClass = config.getClass(Configuration.GRAPH_PROVIDER, DEFAULT_GRAPH_PROVIDER);
+            Constructor<GraphSession> graphSessionConstructor = graphSessionClass.getConstructor(Configuration.class);
+            return graphSessionConstructor.newInstance(config);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("The provided graph provider " + graphSessionClass.getName() + " does not have the required constructor");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    private SearchProvider createSearchProvider(com.altamiracorp.lumify.core.user.User user) {
-        String providerClass = DEFAULT_SEARCH_PROVIDER;
-        final String searchProviderName = properties.getProperty(SearchProvider.SEARCH_PROVIDER_PROP_KEY);
-
-        if (searchProviderName != null && !searchProviderName.isEmpty()) {
-            providerClass = searchProviderName;
-        }
-
+    private SearchProvider createSearchProvider(User user) {
+        Class searchProviderClass = null;
         try {
-            SearchProvider provider = (SearchProvider) Class.forName(providerClass).newInstance();
-            provider.setup(properties, user);
-            return provider;
+            searchProviderClass = config.getClass(Configuration.SEARCH_PROVIDER,DEFAULT_SEARCH_PROVIDER);
+            Constructor<SearchProvider> searchProviderConstructor = searchProviderClass.getConstructor(Configuration.class, User.class);
+            return searchProviderConstructor.newInstance(config,user);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("The provided search provider " + searchProviderClass.getName() + " does not have the required constructor");
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create search provider instance of class " + providerClass, e);
+            throw new RuntimeException(e);
         }
     }
 }

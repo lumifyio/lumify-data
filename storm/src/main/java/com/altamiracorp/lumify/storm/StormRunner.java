@@ -94,8 +94,8 @@ public class StormRunner extends CommandLineBase {
 
         Config conf = new Config();
         conf.put("topology.kryo.factory", "com.altamiracorp.lumify.storm.DefaultKryoFactory");
-        for (Map.Entry<Object, Object> configEntry : getConfiguration().getProperties().entrySet()) {
-            conf.put(configEntry.getKey().toString(), configEntry.getValue());
+        for (String key : getConfiguration().getKeys()) {
+            conf.put(key, conf.get(key));
         }
         conf.put(BaseFileSystemSpout.DATADIR_CONFIG_NAME, ROOT_DATA_DIR);
         conf.setDebug(false);
@@ -128,7 +128,7 @@ public class StormRunner extends CommandLineBase {
 
     private void copyDataFilesToHdfs(Config stormConf, String dataDir) throws URISyntaxException, IOException, InterruptedException {
         File dataDirFile = new File(dataDir);
-        String hdfsRootDir = (String) stormConf.get(AccumuloSession.HADOOP_URL);
+        String hdfsRootDir = (String) stormConf.get(com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL);
         Configuration conf = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
 
         FileSystem hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), conf, "hadoop");
@@ -224,7 +224,7 @@ public class StormRunner extends CommandLineBase {
             scheme = new KafkaJsonEncoder();
         }
         SpoutConfig spoutConfig = new SpoutConfig(
-                new KafkaConfig.ZkHosts(getConfiguration().getZookeeperServerNames(), "/kafka/brokers"),
+                new KafkaConfig.ZkHosts(getConfiguration().get(com.altamiracorp.lumify.core.config.Configuration.ZK_SERVERS), "/kafka/brokers"),
                 queueName,
                 "/kafka/consumers",
                 queueName);

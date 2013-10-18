@@ -43,7 +43,7 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
         Configuration conf = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
 
         try {
-            String hdfsRootDir = (String) stormConf.get(AccumuloSession.HADOOP_URL);
+            String hdfsRootDir = (String) stormConf.get(com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL);
             LOGGER.info("opening hdfs file system " + hdfsRootDir);
             hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), conf, "hadoop");
             if (!hdfsFileSystem.exists(new Path(readPath))) {

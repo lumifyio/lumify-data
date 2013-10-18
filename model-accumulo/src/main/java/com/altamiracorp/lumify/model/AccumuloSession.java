@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.model.*;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
@@ -15,56 +16,56 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.*;
 
 public class AccumuloSession extends ModelSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(AccumuloSession.class.getName());
 
-    public static final String ZOOKEEPER_INSTANCE_NAME = "zookeeperInstanceName";
-    public static final String ZOOKEEPER_SERVER_NAMES = "zookeeperServerNames";
-    public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
-    public static final String HADOOP_URL = "hadoopUrl";
+
+    public static final String INSTANCE_NAME = "model.accumulo.instanceName";
 
     private final Connector connector;
     private final FileSystem hdfsFileSystem;
     private final String hdfsRootDir;
-    private final TaskInputOutputContext context;
     private long maxMemory = 1000000L;
     private long maxLatency = 1000L;
     private int maxWriteThreads = 10;
 
-    public AccumuloSession(Connector connector, FileSystem hdfsFileSystem, String hdfsRootDir, TaskInputOutputContext context) {
-        this.hdfsFileSystem = hdfsFileSystem;
+    public AccumuloSession(Configuration config) {
+        try {
+            final ZooKeeperInstance zooKeeperInstance = new ZooKeeperInstance(config.get(INSTANCE_NAME), config.get(Configuration.ZK_SERVERS));
+            hdfsRootDir = config.get(Configuration.HADOOP_URL);
+            org.apache.hadoop.conf.Configuration hadoopConfiguration = new org.apache.hadoop.conf.Configuration();
+            connector = zooKeeperInstance.getConnector(config.get(Configuration.MODEL_USER), config.get(Configuration.MODEL_PASSWORD));
+            hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), hadoopConfiguration, "hadoop");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    AccumuloSession (String hdfsRootDir, Connector connector, FileSystem hdfsFileSystem) {
         this.hdfsRootDir = hdfsRootDir;
         this.connector = connector;
-        this.context = context;
+        this.hdfsFileSystem = hdfsFileSystem;
     }
+
 
     @Override
     public void save(Row row, User user) {
         try {
-            if (context != null) {
-                context.write(new Text(row.getTableName()), row);
-            } else {
-                BatchWriter writer = connector.createBatchWriter(row.getTableName(), getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
-                AccumuloHelper.addRowToWriter(writer, row);
-                writer.flush();
-                writer.close();
-            }
+            BatchWriter writer = connector.createBatchWriter(row.getTableName(), getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
+            AccumuloHelper.addRowToWriter(writer, row);
+            writer.flush();
+            writer.close();
         } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
         } catch (MutationsRejectedException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -75,26 +76,16 @@ public class AccumuloSession extends ModelSession {
             return;
         }
         try {
-            if (context != null) {
-                Text tableNameText = new Text(tableName);
-                for (Row row : rows) {
-                    context.write(tableNameText, row);
-                }
-            } else {
-                BatchWriter writer = connector.createBatchWriter(tableName, getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
-                for (Row row : rows) {
-                    AccumuloHelper.addRowToWriter(writer, row);
-                }
-                writer.flush();
-                writer.close();
+            BatchWriter writer = connector.createBatchWriter(tableName, getMaxMemory(), getMaxLatency(), getMaxWriteThreads());
+            for (Row row : rows) {
+                AccumuloHelper.addRowToWriter(writer, row);
             }
+            writer.flush();
+            writer.close();
+
         } catch (TableNotFoundException e) {
             throw new RuntimeException(e);
         } catch (MutationsRejectedException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }

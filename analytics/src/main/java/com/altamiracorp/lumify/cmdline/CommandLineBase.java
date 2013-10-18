@@ -57,7 +57,7 @@ public abstract class CommandLineBase extends Configured implements Tool {
         }
 
         if( initFramework ) {
-            final Injector injector = Guice.createInjector(CommandLineBootstrap.create(getConfiguration().getProperties()));
+            final Injector injector = Guice.createInjector(CommandLineBootstrap.create(getConfiguration()));
             injector.injectMembers(this);
 
             final User user = new SystemUser();

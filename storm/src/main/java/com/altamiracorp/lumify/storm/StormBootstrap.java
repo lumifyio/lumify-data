@@ -1,24 +1,24 @@
 package com.altamiracorp.lumify.storm;
 
 import com.altamiracorp.lumify.BootstrapBase;
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.google.inject.Module;
 
 import java.util.Map;
-import java.util.Properties;
 
 public class StormBootstrap extends BootstrapBase {
-    protected StormBootstrap(Properties properties) {
-        super(properties, null);
+    protected StormBootstrap(Configuration config) {
+        super(config);
     }
 
     public static Module create(Map stormConf) {
-        Properties props = new Properties();
+        Configuration config = new Configuration();
         for (Object entryObj : stormConf.entrySet()) {
             Map.Entry entry = (Map.Entry) entryObj;
             if (entry.getValue() != null) {
-                props.put(entry.getKey(), entry.getValue());
+                config.set((String) entry.getKey(), entry.getValue());
             }
         }
-        return new StormBootstrap(props);
+        return new StormBootstrap(config);
     }
 }

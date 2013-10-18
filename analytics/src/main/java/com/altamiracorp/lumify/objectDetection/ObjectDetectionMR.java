@@ -36,8 +36,12 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
+        //TODO: Storm refactor
+        throw new RuntimeException("No longer valid in the Storm refactor!");
+        /*
         Class<? extends InputFormat> inputFormatClass;
         String type = job.getConfiguration().get(JOB_TYPE, DEFAULT_JOB_TYPE);
+
 
         if (type.equals("videoFrame")) {
             Configuration c = getConfiguration();
@@ -50,6 +54,7 @@ public class ObjectDetectionMR extends ConfigurableMapJobBase {
         }
 
         return inputFormatClass;
+        */
     }
 
     @Override

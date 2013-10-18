@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.search;
 
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
@@ -34,7 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class ElasticSearchProvider extends SearchProvider {
-    public static final String ES_LOCATIONS_PROP_KEY = "elasticsearch.locations";
+    public static final String ES_LOCATIONS_PROP_KEY = "search.elasticsearch.locations";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchProvider.class.getName());
     private static final String ES_INDEX = "atc";
@@ -52,14 +53,9 @@ public class ElasticSearchProvider extends SearchProvider {
 
     private static TransportClient client;
 
-    @Override
-    public void setup(Properties props, User user) {
-        setup(props.getProperty(ES_LOCATIONS_PROP_KEY).split(","), user);
-    }
-
-    @Override
-    public void setup(Mapper.Context context, User user) throws Exception {
-        setup(context.getConfiguration().getStrings(ES_LOCATIONS_PROP_KEY), user);
+    public ElasticSearchProvider (Configuration config, User user) {
+        String[] esLocations = config.get(ES_LOCATIONS_PROP_KEY).split(",");
+        setup(esLocations,user);
     }
 
     private void setup(String[] esLocations, User user) {

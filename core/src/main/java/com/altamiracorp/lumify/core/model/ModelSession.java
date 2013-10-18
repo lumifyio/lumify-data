@@ -41,9 +41,6 @@ public abstract class ModelSession {
             DictionaryEntry.TABLE_NAME,
             "atc_titan");// TODO refactor see com.altamiracorp.lumify.model.TitanGraphSession
 
-    public ModelSession() {
-    }
-
     public abstract void save(Row row, User user);
 
     public abstract void saveMany(String tableName, Collection<Row> rows, User user);

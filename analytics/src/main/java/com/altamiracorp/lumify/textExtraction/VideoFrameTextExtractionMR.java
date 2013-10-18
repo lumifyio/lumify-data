@@ -27,9 +27,13 @@ public class VideoFrameTextExtractionMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
+        //TODO: Storm refactor
+        throw new RuntimeException("No longer valid in the Storm refactor!");
+        /*
         Configuration c = getConfiguration();
         AccumuloVideoFrameInputFormat.init(job, c.getDataStoreUserName(), c.getDataStorePassword(), getAuthorizations(), c.getZookeeperInstanceName(), c.getZookeeperServerNames());
         return AccumuloVideoFrameInputFormat.class;
+        */
     }
 
     @Override

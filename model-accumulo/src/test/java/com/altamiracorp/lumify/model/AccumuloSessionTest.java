@@ -65,7 +65,7 @@ public class AccumuloSessionTest {
 
         authorizations = new Authorizations("ALL");
 
-        accumuloSession = new AccumuloSession(connector, null, null, null);
+        accumuloSession = new AccumuloSession(null, connector, null);
         accumuloSession.initializeTable(TEST_TABLE_NAME, queryUser);
     }
 

@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.web.routes.map;
 
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.lumify.core.config.MapConfig;
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.web.HandlerChain;
 import com.google.inject.Inject;
 import org.apache.poi.util.IOUtils;
@@ -13,18 +13,18 @@ import java.io.OutputStream;
 import java.net.URL;
 
 public class MapTileHandler extends BaseRequestHandler {
-    private final MapConfig config;
+    private final Configuration config;
 
 
     @Inject
-    public MapTileHandler(final MapConfig config) {
+    public MapTileHandler(final Configuration config) {
         this.config = config;
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        String hostName = config.getMapTileServerHostname();
-        int port = config.getMapTileServerPort();
+        String hostName = config.get(Configuration.MAP_TILE_SERVER_HOST);
+        int port = config.getInt(Configuration.MAP_TILE_SERVER_PORT);
 
         final String x = getAttributeString(request, "x");
         final String y = getAttributeString(request, "y");

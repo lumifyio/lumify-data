@@ -10,11 +10,7 @@ import java.util.Collection;
 import java.util.Properties;
 
 public abstract class SearchProvider {
-    public static final String SEARCH_PROVIDER_PROP_KEY = "search.provider";
-
-    public abstract void setup(Properties props, User user);
-
-    public abstract void setup(Mapper.Context context, User user) throws Exception;
+    //public static final String SEARCH_PROVIDER_PROP_KEY = "search.provider";
 
     public abstract void add(Artifact artifact, User user) throws Exception;
 

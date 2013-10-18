@@ -41,9 +41,13 @@ public class StructuredDataExtractionMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
+        //TODO: Storm refactor
+        throw new RuntimeException("No longer valid in the Storm refactor!");
+        /*
         Configuration c = getConfiguration();
         AccumuloArtifactInputFormat.init(job, c.getDataStoreUserName(), c.getDataStorePassword(), getAuthorizations(), c.getZookeeperInstanceName(), c.getZookeeperServerNames());
         return AccumuloArtifactInputFormat.class;
+        */
     }
 
     @Override

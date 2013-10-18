@@ -56,7 +56,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
 
         Configuration conf = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
         try {
-            String hdfsRootDir = (String) stormConf.get(AccumuloSession.HADOOP_URL);
+            String hdfsRootDir = (String) stormConf.get(com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL);
             hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), conf, "hadoop");
         } catch (Exception e) {
             collector.reportError(e);

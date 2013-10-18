@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.search;
 
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.search.ArtifactSearchResult;
@@ -21,8 +22,8 @@ public class BlurSearchProvider extends SearchProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(BlurSearchProvider.class.getName());
 
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
-    public static final String BLUR_CONTROLLER_LOCATION = "blurControllerLocation";
-    public static final String BLUR_PATH = "blurPath";
+    public static final String BLUR_CONTROLLER_LOCATION = "search.blur.controllerLocation";
+    public static final String BLUR_PATH = "search.blur.path";
     private static final String ARTIFACT_BLUR_TABLE_NAME = "artifact";
     private static final String GENERIC_COLUMN_FAMILY_NAME = "generic";
     private static final String TEXT_COLUMN_NAME = "text";
@@ -36,20 +37,9 @@ public class BlurSearchProvider extends SearchProvider {
     private Blur.Iface client;
     private String blurPath;
 
-    @Override
-    public void setup(Mapper.Context context, User user) throws Exception {
-        String blurControllerLocation = context.getConfiguration().get(BLUR_CONTROLLER_LOCATION);
-        String blurPath = context.getConfiguration().get(BLUR_PATH);
-        init(blurControllerLocation, blurPath, user);
-    }
-
-    @Override
-    public void setup(Properties props, User user) {
-        String blurControllerLocation = props.getProperty(BLUR_CONTROLLER_LOCATION);
-        String blurPath = props.getProperty(BLUR_PATH);
-
+    public BlurSearchProvider (Configuration config, User user) {
         try {
-            init(blurControllerLocation, blurPath, user);
+            init(config.get(BLUR_CONTROLLER_LOCATION),config.get(BLUR_PATH),user);
         } catch (TException e) {
             throw new RuntimeException(e);
         }

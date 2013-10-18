@@ -38,8 +38,8 @@ public abstract class OpenNlpEntityExtractor {
 
     public void prepare(Configuration configuration, User user) throws URISyntaxException, IOException, InterruptedException {
         String pathPrefix = configuration.get(PATH_PREFIX_CONFIG, DEFAULT_PATH_PREFIX);
-        String hdfsRootDir = configuration.get(AccumuloSession.HADOOP_URL);
-        checkNotNull(hdfsRootDir, AccumuloSession.HADOOP_URL + " is a required configuration parameter");
+        String hdfsRootDir = configuration.get(com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL);
+        checkNotNull(hdfsRootDir, com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL + " is a required configuration parameter");
         FileSystem fs = FileSystem.get(new URI(hdfsRootDir), configuration, "hadoop");
         this.user = user;
         this.tokenizer = loadTokenizer(pathPrefix, fs);

@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.model;
 
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.model.Row;
 import org.apache.accumulo.core.client.mapreduce.AccumuloOutputFormat;
 import org.apache.accumulo.core.data.Mutation;
@@ -11,9 +12,9 @@ import java.io.IOException;
 public class AccumuloModelOutputFormat extends OutputFormat<Text, Row> {
     private AccumuloOutputFormat accumuloOutputFormat = new AccumuloOutputFormat();
 
-    public static void init(Job job, String username, String password, String zookeeperInstanceName, String zookeeperServerNames, String tableName) {
-        AccumuloOutputFormat.setZooKeeperInstance(job.getConfiguration(), zookeeperInstanceName, zookeeperServerNames);
-        AccumuloOutputFormat.setOutputInfo(job.getConfiguration(), username, password.getBytes(), false, tableName);
+    public static void init(Job job, Configuration configuration, String tableName) {
+        AccumuloOutputFormat.setZooKeeperInstance(job.getConfiguration(), configuration.get(AccumuloSession.INSTANCE_NAME), configuration.get(Configuration.ZK_SERVERS));
+        AccumuloOutputFormat.setOutputInfo(job.getConfiguration(), configuration.get(Configuration.MODEL_USER), configuration.get(Configuration.MODEL_PASSWORD).getBytes(), false, tableName);
     }
 
     @Override
