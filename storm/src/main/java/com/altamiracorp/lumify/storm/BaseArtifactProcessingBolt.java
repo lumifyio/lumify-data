@@ -140,7 +140,7 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
     }
 
     protected File getPrimaryFileFromArchive(File archiveTempDir) {
-        throw new RuntimeException("Not implemented");
+        throw new RuntimeException("Not implemented for class " + getClass());
     }
 
     protected File extractArchive(FileMetadata fileMetadata) throws Exception {
@@ -151,7 +151,7 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
         while ((entry = input.getNextEntry()) != null) {
             OutputStream out = new FileOutputStream(new File(tempDir, entry.getName()));
             try {
-                IOUtils.copy(in, out);
+                IOUtils.copy(input, out);
             } finally {
                 out.close();
             }
