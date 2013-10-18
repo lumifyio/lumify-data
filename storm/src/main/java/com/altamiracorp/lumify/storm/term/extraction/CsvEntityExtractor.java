@@ -43,7 +43,7 @@ public class CsvEntityExtractor {
         if (artifact.getMetadata().getMappingJson() != null) {
             JSONObject mappingJson = new JSONObject(artifact.getMetadata().getMappingJson());
             int row = 0;
-            int skipRows = mappingJson.getInt("skipRows");
+            int skipRows = mappingJson.getInt(MappingProperties.SKIP_ROWS);
 
             CsvPreference csvPrefs = CsvPreference.EXCEL_PREFERENCE;
             LineReader reader = new LineReader(new StringReader(artifact.getMetadata().getText()));
