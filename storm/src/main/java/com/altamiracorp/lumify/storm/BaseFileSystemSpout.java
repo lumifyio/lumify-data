@@ -6,11 +6,9 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import com.altamiracorp.lumify.FileImporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,19 +31,6 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout {
 
     protected SpoutOutputCollector getCollector() {
         return collector;
-    }
-
-    protected boolean isSupportingFile(File f) {
-        if (f.getName().endsWith(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
-            return true;
-        }
-        if (f.getName().endsWith(FileImporter.YOUTUBE_CC_FILE_NAME_SUFFIX)) {
-            return true;
-        }
-        if (f.getName().endsWith((FileImporter.SRT_CC_FILE_NAME_SUFFIX))) {
-            return true;
-        }
-        return false;
     }
 
     protected boolean isInWorkingSet(String fileName) {

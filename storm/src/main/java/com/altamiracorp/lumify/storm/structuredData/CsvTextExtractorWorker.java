@@ -1,15 +1,11 @@
 package com.altamiracorp.lumify.storm.structuredData;
 
-import com.altamiracorp.lumify.FileImporter;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.structuredData.StructuredDataExtractionWorker;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
@@ -18,6 +14,9 @@ import org.supercsv.prefs.CsvPreference;
 import java.io.*;
 import java.util.List;
 import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 public class CsvTextExtractorWorker
         extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>
@@ -32,12 +31,8 @@ public class CsvTextExtractorWorker
 
         // Extract the csv text
         StringWriter writer = new StringWriter();
-        HdfsLimitOutputStream outputStream = new HdfsLimitOutputStream(data.getHdfsFileSystem(), Artifact.MAX_SIZE_OF_INLINE_FILE);
         CsvPreference csvPreference = CsvPreference.EXCEL_PREFERENCE;
-        IOUtils.copy(work, outputStream);
-        info.setRaw(outputStream.getSmall());
-        CsvListReader csvListReader = new CsvListReader(new InputStreamReader(
-                new ByteArrayInputStream(outputStream.getSmall())), csvPreference);
+        CsvListReader csvListReader = new CsvListReader(new InputStreamReader(work), csvPreference);
         CsvListWriter csvListWriter = new CsvListWriter(writer, csvPreference);
         List<String> line;
 
@@ -57,8 +52,10 @@ public class CsvTextExtractorWorker
 
     private JSONObject readMappingJson(AdditionalArtifactWorkData data) throws IOException {
         File tempDir = data.getArchiveTempDir();
+        checkNotNull(tempDir, "Structured data must be an archive file");
+        checkState(tempDir.isDirectory(), "Archive temp directory not a directory");
         for (File f : tempDir.listFiles()) {
-            if (f.getName().endsWith(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
+            if (f.getName().endsWith(StructuredDataContentTypeSorter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
                 return new JSONObject(FileUtils.readFileToString(f));
             }
         }

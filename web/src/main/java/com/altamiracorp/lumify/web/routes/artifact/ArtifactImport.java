@@ -1,6 +1,5 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import com.altamiracorp.lumify.FileImporter;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.web.HandlerChain;

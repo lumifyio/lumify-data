@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify;
+package com.altamiracorp.lumify.web.routes.artifact;
 
 import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
@@ -29,9 +29,6 @@ import java.util.Iterator;
 
 public class FileImporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileImporter.class.getName());
-    public static final String MAPPING_JSON_FILE_NAME_SUFFIX = ".mapping.json";
-    public static final String YOUTUBE_CC_FILE_NAME_SUFFIX = ".youtubecc";
-    public static final String SRT_CC_FILE_NAME_SUFFIX = ".srt";
     private final ArtifactRepository artifactRepository;
     // TODO storm refactor
     //private final YoutubeccReader youtubeccReader = new YoutubeccReader();
@@ -93,51 +90,52 @@ public class FileImporter {
     }
 
     public ArrayList<Result> writeDirectory(File directory, String pattern, String source, User user) throws Exception {
-        ArrayList<Result> results = new ArrayList<Result>();
-        IOFileFilter fileFilter = new WildcardFileFilter(pattern);
-        IOFileFilter directoryFilter = TrueFileFilter.INSTANCE;
-        Iterator<File> fileIterator = FileUtils.iterateFiles(directory, fileFilter, directoryFilter);
-
-        while (fileIterator.hasNext()) {
-            File f = fileIterator.next();
-            if (f.isFile() && !isSupportingFile(f)) {
-                JSONObject mappingJson = readMappingJsonFile(f);
-                VideoTranscript videoTranscript = readVideoTranscript(f);
-                Result r = writeFile(f, source, mappingJson, videoTranscript, user);
-                if (r != null) {
-                    results.add(r);
-                }
-            }
-        }
-        return results;
+        throw new RuntimeException("TODO storm refactor"); // TODO storm refactor
+//        ArrayList<Result> results = new ArrayList<Result>();
+//        IOFileFilter fileFilter = new WildcardFileFilter(pattern);
+//        IOFileFilter directoryFilter = TrueFileFilter.INSTANCE;
+//        Iterator<File> fileIterator = FileUtils.iterateFiles(directory, fileFilter, directoryFilter);
+//
+//        while (fileIterator.hasNext()) {
+//            File f = fileIterator.next();
+//            if (f.isFile() && !isSupportingFile(f)) {
+//                JSONObject mappingJson = readMappingJsonFile(f);
+//                VideoTranscript videoTranscript = readVideoTranscript(f);
+//                Result r = writeFile(f, source, mappingJson, videoTranscript, user);
+//                if (r != null) {
+//                    results.add(r);
+//                }
+//            }
+//        }
+//        return results;
     }
 
-    private boolean isSupportingFile(File f) {
-        if (f.getName().endsWith(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
-            return true;
-        }
-        if (f.getName().endsWith(FileImporter.YOUTUBE_CC_FILE_NAME_SUFFIX)) {
-            return true;
-        }
-        if (f.getName().endsWith((FileImporter.SRT_CC_FILE_NAME_SUFFIX))) {
-            return true;
-        }
-        return false;
-    }
+//    private boolean isSupportingFile(File f) {
+//        if (f.getName().endsWith(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
+//            return true;
+//        }
+//        if (f.getName().endsWith(FileImporter.YOUTUBE_CC_FILE_NAME_SUFFIX)) {
+//            return true;
+//        }
+//        if (f.getName().endsWith((FileImporter.SRT_CC_FILE_NAME_SUFFIX))) {
+//            return true;
+//        }
+//        return false;
+//    }
 
-    private JSONObject readMappingJsonFile(File f) throws JSONException, IOException {
-        File mappingJsonFile = new File(f.getAbsolutePath() + FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX);
-        JSONObject mappingJson = null;
-        if (mappingJsonFile.exists()) {
-            FileInputStream mappingJsonFileIn = new FileInputStream(mappingJsonFile);
-            try {
-                mappingJson = new JSONObject(IOUtils.toString(mappingJsonFileIn));
-            } finally {
-                mappingJsonFileIn.close();
-            }
-        }
-        return mappingJson;
-    }
+//    private JSONObject readMappingJsonFile(File f) throws JSONException, IOException {
+//        File mappingJsonFile = new File(f.getAbsolutePath() + FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX);
+//        JSONObject mappingJson = null;
+//        if (mappingJsonFile.exists()) {
+//            FileInputStream mappingJsonFileIn = new FileInputStream(mappingJsonFile);
+//            try {
+//                mappingJson = new JSONObject(IOUtils.toString(mappingJsonFileIn));
+//            } finally {
+//                mappingJsonFileIn.close();
+//            }
+//        }
+//        return mappingJson;
+//    }
 
     private VideoTranscript readVideoTranscript(File f) throws Exception {
         throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor

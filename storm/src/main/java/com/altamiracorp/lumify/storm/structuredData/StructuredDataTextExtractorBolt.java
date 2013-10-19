@@ -2,7 +2,6 @@ package com.altamiracorp.lumify.storm.structuredData;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
-import com.altamiracorp.lumify.FileImporter;
 import com.altamiracorp.lumify.core.ingest.structuredData.StructuredDataExtractionWorker;
 import com.altamiracorp.lumify.storm.BaseArtifactProcessingBolt;
 
@@ -36,7 +35,7 @@ public class StructuredDataTextExtractorBolt extends BaseArtifactProcessingBolt 
     @Override
     protected File getPrimaryFileFromArchive(File archiveTempDir) {
         for (File f : archiveTempDir.listFiles()) {
-            if (f.getName().endsWith(FileImporter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
+            if (f.getName().endsWith(StructuredDataContentTypeSorter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
                 continue;
             }
             return f;
