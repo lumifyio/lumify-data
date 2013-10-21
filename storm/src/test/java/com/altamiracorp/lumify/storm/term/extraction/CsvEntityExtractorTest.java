@@ -59,11 +59,15 @@ public class CsvEntityExtractorTest {
         TermMention mention2 = result.getTermMentions().remove(0);
 
         assertTrue(mention1.isResolved());
+        assertEquals(14, mention1.getStart());
+        assertEquals(24, mention1.getEnd());
         assertEquals("person", mention1.getOntologyClassUri());
         assertEquals("Joe Ferner", mention1.getSign());
         assertTrue(mention1.getPropertyValue().containsKey("birthDate"));
 
         assertTrue(mention2.isResolved());
+        assertEquals(25, mention2.getStart());
+        assertEquals(30, mention2.getEnd());
         assertEquals("location", mention2.getOntologyClassUri());
         assertEquals("20147", mention2.getSign());
 
