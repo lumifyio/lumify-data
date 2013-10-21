@@ -82,21 +82,23 @@ public class TikaTextExtractor {
         Parser parser = new AutoDetectParser(); // TODO: the content type should already be detected. To speed this up we should be able to grab the parser from content type.
         Metadata metadata = new Metadata();
         ParseContext ctx = new ParseContext();
+        String text;
 
         // since we are using the AutoDetectParser, it is safe to assume that
         //the Content-Type metadata key will always return a value
+        ContentHandler handler = new BodyContentHandler();
+        parser.parse(in, handler, metadata, ctx);
+
         if (isHtml(mimeType)) {
-            String text = extractTextFromHtml(IOUtils.toString(in));
+            in.reset();
+            text = extractTextFromHtml(IOUtils.toString(in));
             if (text == null || text.length() == 0) {
-                ContentHandler handler = new BodyContentHandler(textOut);
-                parser.parse(in, handler, metadata, ctx);
-            } else {
-                textOut.write(text.getBytes());
+                text = handler.toString();
             }
         } else {
-            ContentHandler handler = new BodyContentHandler(textOut);
-            parser.parse(in, handler, metadata, ctx);
+            text = handler.toString();
         }
+        textOut.write(text.getBytes());
 
         result.setDate(extractDate(metadata));
         String title = extractTextField(metadata, subjectKeys);
