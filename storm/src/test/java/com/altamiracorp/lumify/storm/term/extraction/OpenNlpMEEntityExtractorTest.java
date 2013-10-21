@@ -22,6 +22,8 @@ import com.altamiracorp.lumify.model.AccumuloSession;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OpenNlpMEEntityExtractorTest {
+    private static final String RESOURCE_CONFIG_DIR = "/fs/conf/opennlp";
+
     private OpenNlpMaximumEntropyEntityExtractor extractor;
 
     @Mock
@@ -36,8 +38,9 @@ public class OpenNlpMEEntityExtractorTest {
     @Before
     public void setUp() throws InterruptedException, IOException, URISyntaxException {
         Configuration configuration = new Configuration();
-        configuration.set(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, "file:///" + System.getProperty("user.dir") + "/storm/src/test/resources/fs/conf/opennlp/");
+        configuration.set(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, "file:///" + getClass().getResource(RESOURCE_CONFIG_DIR).getFile());
         configuration.set(AccumuloSession.HADOOP_URL, "");
+
         extractor = new OpenNlpMaximumEntropyEntityExtractor();
         extractor.prepare(configuration, user);
     }

@@ -28,6 +28,7 @@ import com.altamiracorp.lumify.model.AccumuloSession;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OpenNlpDictionaryEntityExtractorTest {
+    private static final String RESOURCE_CONFIG_DIR = "/fs/conf/opennlp";
 
     private OpenNlpDictionaryEntityExtractor extractor;
 
@@ -43,7 +44,7 @@ public class OpenNlpDictionaryEntityExtractorTest {
     public void setUp() throws IOException, URISyntaxException, InterruptedException {
         final List<TokenNameFinder> finders = loadFinders();
         configuration = new Configuration();
-        configuration.set(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, "file:///" + System.getProperty("user.dir") + "/storm/src/test/resources/fs/conf/opennlp/");
+        configuration.set(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, "file:///" + getClass().getResource(RESOURCE_CONFIG_DIR).getFile());
         configuration.set(AccumuloSession.HADOOP_URL, "");
 
         extractor = new OpenNlpDictionaryEntityExtractor() {
