@@ -1,5 +1,5 @@
-INCLUSIVE TESTING DATASET
-=========================
+ALL INCLUSIVE TESTING DATASET
+=============================
 
 Contents
 --------
@@ -51,8 +51,11 @@ Contents
 	* EXPECTED OUTCOME: The video should play as normal with only ocr-ed text
 	
 [Everything](https://s3.amazonaws.com/RedDawn/DataSets/testing-ontology.zip)
+
 [The dataset](https://s3.amazonaws.com/RedDawn/DataSets/testing-data.zip)
+
 [The dictionaries](https://s3.amazonaws.com/RedDawn/DataSets/testing-dictionaries.zip)
+
 [The ontology](https://s3.amazonaws.com/RedDawn/DataSets/testing-ontology.zip)
 
 
