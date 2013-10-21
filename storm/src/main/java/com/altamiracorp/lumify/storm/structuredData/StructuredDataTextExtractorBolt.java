@@ -38,7 +38,11 @@ public class StructuredDataTextExtractorBolt extends BaseArtifactProcessingBolt 
             if (f.getName().endsWith(StructuredDataContentTypeSorter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
                 continue;
             }
-            return f;
+            if (! f.getName().startsWith(".")) {
+                return f;
+            } else {
+                continue;
+            }
         }
         throw new RuntimeException("Could not find primary file");
     }
