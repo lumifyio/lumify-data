@@ -1,25 +1,11 @@
 package com.altamiracorp.lumify.storm;
 
-import backtype.storm.Config;
-import backtype.storm.LocalCluster;
-import backtype.storm.StormSubmitter;
-import backtype.storm.generated.StormTopology;
-import backtype.storm.spout.Scheme;
-import backtype.storm.topology.TopologyBuilder;
-import backtype.storm.utils.Utils;
-import com.altamiracorp.lumify.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.core.config.ConfigurationHelper;
-import com.altamiracorp.lumify.model.AccumuloSession;
-import com.altamiracorp.lumify.model.KafkaJsonEncoder;
-import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
-import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
-import com.altamiracorp.lumify.storm.document.DocumentBolt;
-import com.altamiracorp.lumify.storm.image.ImageBolt;
-import com.altamiracorp.lumify.storm.structuredData.StructuredDataTextExtractorBolt;
-import com.altamiracorp.lumify.storm.term.extraction.TermExtractionBolt;
-import com.altamiracorp.lumify.storm.textHighlighting.ArtifactHighlightingBolt;
-import com.altamiracorp.lumify.storm.video.VideoBolt;
-import com.altamiracorp.lumify.storm.video.VideoPreviewBolt;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -28,23 +14,45 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.ToolRunner;
+import org.jvnet.inflector.Noun;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import storm.kafka.KafkaConfig;
 import storm.kafka.KafkaSpout;
 import storm.kafka.SpoutConfig;
+import backtype.storm.Config;
+import backtype.storm.LocalCluster;
+import backtype.storm.StormSubmitter;
+import backtype.storm.generated.StormTopology;
+import backtype.storm.spout.Scheme;
+import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.utils.Utils;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
+import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.core.config.ConfigurationHelper;
+import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
+import com.altamiracorp.lumify.model.AccumuloSession;
+import com.altamiracorp.lumify.model.KafkaJsonEncoder;
+import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
+import com.altamiracorp.lumify.storm.document.DocumentBolt;
+import com.altamiracorp.lumify.storm.image.ImageBolt;
+import com.altamiracorp.lumify.storm.structuredData.StructuredDataTextExtractorBolt;
+import com.altamiracorp.lumify.storm.term.extraction.TermExtractionBolt;
+import com.altamiracorp.lumify.storm.textHighlighting.ArtifactHighlightingBolt;
+import com.altamiracorp.lumify.storm.video.VideoBolt;
+import com.altamiracorp.lumify.storm.video.VideoPreviewBolt;
 
 public class StormRunner extends CommandLineBase {
-    private static final Logger LOGGER = LoggerFactory.getLogger(StormRunner.class);
-    public static final String TOPOLOGY_NAME = "lumify";
 
-    private boolean keepRunning = true;
+    private static final Logger LOGGER = LoggerFactory.getLogger(StormRunner.class);
+
+    private static final String ROOT_DATA_DIR = "/lumify/data";
+    private static final String UNKNOWN_DATA_DIR = "unknown";
+
+    private static final String CMD_OPT_LOCAL = "local";
+    private static final String CMD_OPT_DATADIR = "datadir";
+    private static final String TOPOLOGY_NAME = "lumify";
 
     public static void main(String[] args) throws Exception {
         int res = ToolRunner.run(CachedConfiguration.getInstance(), new StormRunner(), args);
@@ -63,7 +71,7 @@ public class StormRunner extends CommandLineBase {
 
         opts.addOption(
                 OptionBuilder
-                        .withLongOpt("datadir")
+                        .withLongOpt(CMD_OPT_DATADIR)
                         .withDescription("Location of the data directory")
                         .hasArg()
                         .create()
@@ -71,7 +79,7 @@ public class StormRunner extends CommandLineBase {
 
         opts.addOption(
                 OptionBuilder
-                        .withLongOpt("local")
+                        .withLongOpt(CMD_OPT_LOCAL)
                         .withDescription("Run local")
                         .create()
         );
@@ -81,15 +89,15 @@ public class StormRunner extends CommandLineBase {
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
-        String dataDir = cmd.getOptionValue("datadir");
-        boolean isLocal = cmd.hasOption("local");
+        String dataDir = cmd.getOptionValue(CMD_OPT_DATADIR);
+        boolean isLocal = cmd.hasOption(CMD_OPT_LOCAL);
 
         Config conf = new Config();
         conf.put("topology.kryo.factory", "com.altamiracorp.lumify.storm.DefaultKryoFactory");
         for (Map.Entry<Object, Object> configEntry : getConfiguration().getProperties().entrySet()) {
             conf.put(configEntry.getKey().toString(), configEntry.getValue());
         }
-        conf.put(BaseFileSystemSpout.DATADIR_CONFIG_NAME, "/lumify/data");
+        conf.put(BaseFileSystemSpout.DATADIR_CONFIG_NAME, ROOT_DATA_DIR);
         conf.setDebug(false);
         conf.setNumWorkers(2);
 
@@ -98,7 +106,9 @@ public class StormRunner extends CommandLineBase {
         }
 
         StormTopology topology = createTopology();
-        LOGGER.info("Submitting topology '" + TOPOLOGY_NAME + "'");
+        LOGGER.info("Created topology layout: " + topology);
+        LOGGER.info(String.format("Submitting topology '%s'", TOPOLOGY_NAME));
+
         if (isLocal) {
             LocalCluster cluster = new LocalCluster();
             cluster.submitTopology(TOPOLOGY_NAME, conf, topology);
@@ -122,15 +132,21 @@ public class StormRunner extends CommandLineBase {
         Configuration conf = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
 
         FileSystem hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), conf, "hadoop");
+        Path unknownDataDir = new Path(ROOT_DATA_DIR, UNKNOWN_DATA_DIR);
 
+        int fileCount = 0;
         for (File f : dataDirFile.listFiles()) {
             Path srcPath = new Path(f.getAbsolutePath());
             if (srcPath.getName().startsWith(".")) {
                 continue;
             }
-            Path dstPath = new Path("/lumify/data/unknown/" + srcPath.getName());
+
+            Path dstPath = new Path(unknownDataDir, srcPath.getName());
             hdfsFileSystem.copyFromLocalFile(false, true, srcPath, dstPath);
+            ++fileCount;
         }
+
+        LOGGER.debug(String.format("Copied %d %s from %s to HDFS: %s", fileCount, Noun.pluralOf("file", fileCount), dataDirFile, unknownDataDir));
     }
 
     public StormTopology createTopology() {
