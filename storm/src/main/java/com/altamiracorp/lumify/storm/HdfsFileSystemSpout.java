@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.storm;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import java.io.IOException;
 import java.net.URI;
@@ -70,16 +71,24 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
     @Override
     public void safeAck(Object msgId) throws Exception {
         String path = getPathFromMessageId(msgId);
-        checkNotNull(path, "path was null");
-        if (hdfsFileSystem.exists(new Path(path))) {
-            hdfsFileSystem.delete(new Path(path), false);
+        checkNotNull(path);
+
+        Path ackedMessagePath = new Path(path);
+        if (hdfsFileSystem.exists(ackedMessagePath)) {
+            if( hdfsFileSystem.delete(ackedMessagePath, false) ) {
+                LOGGER.debug("Deleted message path: " + ackedMessagePath);
+            } else {
+                LOGGER.debug("Could not delete message path: " + ackedMessagePath);
+            }
         }
+
         super.safeAck(msgId);
     }
 
     // TODO: we could speed this up by caching the list of files to work on instead of reading all of them each time
     private boolean processPath(Path path) throws IOException {
-        checkNotNull(hdfsFileSystem, "hdfsFileSystem is not initialized");
+        checkState(hdfsFileSystem != null, "hdfsFileSystem is not initialized");
+
         FileStatus[] files = hdfsFileSystem.listStatus(path);
         for (FileStatus file : files) {
             Path filePath = file.getPath();

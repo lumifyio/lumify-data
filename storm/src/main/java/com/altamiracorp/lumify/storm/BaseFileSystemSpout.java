@@ -45,8 +45,9 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout {
 
     protected void emit(String path) {
         workingFiles.put(path, path);
-        LOGGER.info("emitting value (" + getClass().getName() + "): " + path);
-        getCollector().emit(new Values(path), path);
+
+        LOGGER.info("Emitting value: " + path);
+        collector.emit(new Values(path), path);
     }
 
     @Override
@@ -54,7 +55,7 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout {
         try {
             safeAck(msgId);
         } catch (Exception ex) {
-            getCollector().reportError(ex);
+            collector.reportError(ex);
         }
     }
 
@@ -66,6 +67,7 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout {
     @Override
     public void fail(Object msgId) {
         String path = workingFiles.remove(msgId);
+
         super.fail(msgId);
         emit(path); // TODO: should we retry or move the file in a failed directory.
     }
