@@ -1,10 +1,11 @@
 package com.altamiracorp.lumify.storm;
 
-import backtype.storm.spout.SpoutOutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.utils.Utils;
-import com.altamiracorp.lumify.core.config.ConfigurationHelper;
-import com.altamiracorp.lumify.model.AccumuloSession;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.Map;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -12,14 +13,16 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Map;
+import backtype.storm.spout.SpoutOutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.utils.Utils;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.altamiracorp.lumify.core.config.ConfigurationHelper;
+import com.altamiracorp.lumify.model.AccumuloSession;
 
 public class HdfsFileSystemSpout extends BaseFileSystemSpout {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HdfsFileSystemSpout.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(HdfsFileSystemSpout.class);
+
     private final String subDir;
     private FileSystem hdfsFileSystem;
     private String readPath;
@@ -30,20 +33,22 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
 
     @Override
     public void open(Map stormConf, TopologyContext context, SpoutOutputCollector collector) {
-        LOGGER.info("HdfsFileSystemSpout.open");
         super.open(stormConf, context, collector);
+        LOGGER.info("Configuring environment for spout: " + context.getThisComponentId());
 
         String rootDataPath = (String) stormConf.get(BaseFileSystemSpout.DATADIR_CONFIG_NAME);
         checkNotNull(rootDataPath, BaseFileSystemSpout.DATADIR_CONFIG_NAME + " is a required configuration parameter");
-        this.readPath = rootDataPath + this.subDir;
+
+        readPath = rootDataPath + subDir;
         Configuration conf = ConfigurationHelper.createHadoopConfigurationFromMap(stormConf);
+
         try {
             String hdfsRootDir = (String) stormConf.get(AccumuloSession.HADOOP_URL);
             LOGGER.info("opening hdfs file system " + hdfsRootDir);
             hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), conf, "hadoop");
-            if (!hdfsFileSystem.exists(new Path(this.readPath))) {
-                LOGGER.info("making hdfs directory " + this.readPath + " on " + hdfsRootDir);
-                hdfsFileSystem.mkdirs(new Path(this.readPath));
+            if (!hdfsFileSystem.exists(new Path(readPath))) {
+                LOGGER.info("making hdfs directory " + readPath + " on " + hdfsRootDir);
+                hdfsFileSystem.mkdirs(new Path(readPath));
             }
         } catch (Exception e) {
             collector.reportError(e);

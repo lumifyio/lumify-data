@@ -1,22 +1,24 @@
 package com.altamiracorp.lumify.storm;
 
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.collect.Maps;
 
 public abstract class BaseFileSystemSpout extends BaseRichSpout {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseFileSystemSpout.class);
     public static final String DATADIR_CONFIG_NAME = "datadir";
     private SpoutOutputCollector collector;
-    private HashMap<String, String> workingFiles;
+    private Map<String, String> workingFiles;
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -26,7 +28,7 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout {
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
         this.collector = collector;
-        this.workingFiles = new HashMap<String, String>();
+        workingFiles = Maps.newHashMap();
     }
 
     protected SpoutOutputCollector getCollector() {
@@ -34,15 +36,15 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout {
     }
 
     protected boolean isInWorkingSet(String fileName) {
-        return this.workingFiles.containsKey(fileName);
+        return workingFiles.containsKey(fileName);
     }
 
     protected String getPathFromMessageId(Object msgId) {
-        return this.workingFiles.get(msgId);
+        return workingFiles.get(msgId);
     }
 
     protected void emit(String path) {
-        this.workingFiles.put(path, path);
+        workingFiles.put(path, path);
         LOGGER.info("emitting value (" + getClass().getName() + "): " + path);
         getCollector().emit(new Values(path), path);
     }
@@ -57,13 +59,13 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout {
     }
 
     protected void safeAck(Object msgId) throws Exception {
-        this.workingFiles.remove(msgId);
+        workingFiles.remove(msgId);
         super.ack(msgId);
     }
 
     @Override
     public void fail(Object msgId) {
-        String path = this.workingFiles.remove(msgId);
+        String path = workingFiles.remove(msgId);
         super.fail(msgId);
         emit(path); // TODO: should we retry or move the file in a failed directory.
     }
