@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnail;
 import com.altamiracorp.lumify.model.artifactThumbnails.ArtifactThumbnailRepository;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
 import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
@@ -45,16 +46,21 @@ public class ArtifactThumbnailByRowKey extends BaseRequestHandler {
             boundaryDims[0] = boundaryDims[1] = Integer.parseInt(widthStr);
         }
 
-        response.setContentType("image/jpeg");
-        response.addHeader("Content-Disposition", "inline; filename=thumnail" + boundaryDims[0] + ".jpg");
+        byte[] thumbnailData;
+        ArtifactThumbnail thumbnail = artifactThumbnailRepository.getThumbnail(artifactRowKey, "raw", boundaryDims[0], boundaryDims[1], user);
+        if (thumbnail != null) {
+            String format = thumbnail.getMetadata().getFormat();
+            response.setContentType("image/" + format);
+            response.addHeader("Content-Disposition", "inline; filename=thumbnail" + boundaryDims[0] + "." + format);
 
-        byte[] thumbnailData = artifactThumbnailRepository.getThumbnailData(artifactRowKey, "raw", boundaryDims[0], boundaryDims[1], user);
-        if (thumbnailData != null) {
-            LOGGER.debug("Cache hit for: " + artifactRowKey.toString() + " (raw) " + boundaryDims[0] + "x" + boundaryDims[1]);
-            ServletOutputStream out = response.getOutputStream();
-            out.write(thumbnailData);
-            out.close();
-            return;
+            thumbnailData = thumbnail.getMetadata().getData();
+            if (thumbnailData != null) {
+                LOGGER.debug("Cache hit for: " + artifactRowKey.toString() + " (raw) " + boundaryDims[0] + "x" + boundaryDims[1]);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(thumbnailData);
+                out.close();
+                return;
+            }
         }
 
         Artifact artifact = artifactRepository.findByRowKey(artifactRowKey.toString(), user);
@@ -68,7 +74,13 @@ public class ArtifactThumbnailByRowKey extends BaseRequestHandler {
         LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " (raw) " + boundaryDims[0] + "x" + boundaryDims[1]);
         InputStream in = artifactRepository.getRaw(artifact, user);
         try {
-            thumbnailData = artifactThumbnailRepository.createThumbnail(artifact.getRowKey(), "raw", in, boundaryDims, user);
+            thumbnail = artifactThumbnailRepository.createThumbnail(artifact.getRowKey(), "raw", in, boundaryDims, user);
+
+            String format = thumbnail.getMetadata().getFormat();
+            response.setContentType("image/" + format);
+            response.addHeader("Content-Disposition", "inline; filename=thumbnail" + boundaryDims[0] + "." + format);
+
+            thumbnailData = thumbnail.getMetadata().getData();
         } finally {
             in.close();
         }

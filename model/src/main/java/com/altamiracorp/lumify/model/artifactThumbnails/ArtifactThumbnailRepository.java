@@ -56,16 +56,20 @@ public class ArtifactThumbnailRepository extends Repository<ArtifactThumbnail> {
         return ArtifactThumbnail.TABLE_NAME;
     }
 
-    public byte[] getThumbnailData(ArtifactRowKey artifactRowKey, String thumbnailType, int width, int height, User user) {
+    public ArtifactThumbnail getThumbnail(ArtifactRowKey artifactRowKey, String thumbnailType, int width, int height, User user) {
         ArtifactThumbnailRowKey rowKey = new ArtifactThumbnailRowKey(artifactRowKey.toString(), thumbnailType, width, height);
-        ArtifactThumbnail artifactThumbnail = findByRowKey(rowKey.toString(), user);
+        return findByRowKey(rowKey.toString(), user);
+    }
+
+    public byte[] getThumbnailData(ArtifactRowKey artifactRowKey, String thumbnailType, int width, int height, User user) {
+        ArtifactThumbnail artifactThumbnail = getThumbnail(artifactRowKey, thumbnailType, width, height, user);
         if (artifactThumbnail == null) {
             return null;
         }
         return artifactThumbnail.getMetadata().getData();
     }
 
-    public byte[] createThumbnail(ArtifactRowKey artifactRowKey, String thumbnailType, InputStream in, int[] boundaryDims, User user) throws IOException {
+    public ArtifactThumbnail createThumbnail(ArtifactRowKey artifactRowKey, String thumbnailType, InputStream in, int[] boundaryDims, User user) throws IOException {
         BufferedImage originalImage = ImageIO.read(in);
         int[] originalImageDims = new int[]{originalImage.getWidth(), originalImage.getHeight()};
         int[] newImageDims = getScaledDimension(originalImageDims, boundaryDims);
@@ -76,24 +80,45 @@ public class ArtifactThumbnailRepository extends Repository<ArtifactThumbnail> {
                     + " returning original.");
         }
 
-        BufferedImage resizedImage = new BufferedImage(newImageDims[0], newImageDims[1], BufferedImage.TYPE_INT_RGB);
+        int type = thumnbailType(originalImage);
+        String format = thumbnailFormat(originalImage);
+
+        BufferedImage resizedImage = new BufferedImage(newImageDims[0], newImageDims[1], type);
         Graphics2D g = resizedImage.createGraphics();
-        g.drawImage(originalImage, 0, 0, resizedImage.getWidth(), resizedImage.getHeight(), Color.BLACK, null);
+        if (originalImage.getColorModel().getNumComponents() > 3) {
+            g.drawImage(originalImage, 0, 0, resizedImage.getWidth(), resizedImage.getHeight(), null);
+        } else {
+            g.drawImage(originalImage, 0, 0, resizedImage.getWidth(), resizedImage.getHeight(), Color.BLACK, null);
+        }
         g.dispose();
-
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ImageIO.write(resizedImage, "jpg", out);
+        ImageIO.write(resizedImage, format, out);
 
-        saveThumbnail(artifactRowKey, thumbnailType, boundaryDims, out.toByteArray(), user);
-
-        return out.toByteArray();
+        return saveThumbnail(artifactRowKey, thumbnailType, boundaryDims, out.toByteArray(), type, format, user);
     }
 
-    private void saveThumbnail(ArtifactRowKey artifactRowKey, String thumbnailType, int[] boundaryDims, byte[] bytes, User user) {
+    public int thumnbailType(BufferedImage image) {
+        if (image.getColorModel().getNumComponents() > 3) {
+            return BufferedImage.TYPE_4BYTE_ABGR;
+        }
+        return BufferedImage.TYPE_INT_RGB;
+    }
+
+    public String thumbnailFormat(BufferedImage image) {
+        if (image.getColorModel().getNumComponents() > 3) {
+            return "png";
+        }
+        return "jpg";
+    }
+
+    private ArtifactThumbnail saveThumbnail(ArtifactRowKey artifactRowKey, String thumbnailType, int[] boundaryDims, byte[] bytes, int type, String format, User user) {
         ArtifactThumbnailRowKey artifactThumbnailRowKey = new ArtifactThumbnailRowKey(artifactRowKey.toString(), thumbnailType, boundaryDims[0], boundaryDims[1]);
         ArtifactThumbnail artifactThumbnail = new ArtifactThumbnail(artifactThumbnailRowKey);
         artifactThumbnail.getMetadata().setData(bytes);
+        artifactThumbnail.getMetadata().setType(type);
+        artifactThumbnail.getMetadata().setFormat(format);
         save(artifactThumbnail, user);
+        return artifactThumbnail;
     }
 
     public static int[] getScaledDimension(int[] imgSize, int[] boundary) {
