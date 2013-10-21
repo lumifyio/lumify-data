@@ -86,10 +86,6 @@ public abstract class ThreadedTeeInputStreamWorker<TResult, TData> implements Ru
         stopped = true;
     }
 
-    public String getName() {
-        return null;
-    }
-
     private class Work {
         private final InputStream in;
         private final TData data;

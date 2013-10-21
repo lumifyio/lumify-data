@@ -70,9 +70,4 @@ public class VideoMp4EncodingWorker extends ThreadedTeeInputStreamWorker<Artifac
             mp4ReloactedFile.delete();
         }
     }
-
-    @Override
-    public String getName() {
-        return "mp4";
-    }
 }

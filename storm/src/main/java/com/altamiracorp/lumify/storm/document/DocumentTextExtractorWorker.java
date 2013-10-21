@@ -38,11 +38,6 @@ public class DocumentTextExtractorWorker extends ThreadedTeeInputStreamWorker<Ar
         return info;
     }
 
-    @Override
-    public String getName() {
-        return "textExtractor";
-    }
-
     @Inject
     public void setTikaTextExtractor(TikaTextExtractor tikaTextExtractor) {
         this.tikaTextExtractor = tikaTextExtractor;

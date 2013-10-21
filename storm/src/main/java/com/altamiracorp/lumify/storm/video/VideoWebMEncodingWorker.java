@@ -55,9 +55,4 @@ public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<Artifa
 
         return info;
     }
-
-    @Override
-    public String getName() {
-        return "webm";
-    }
 }

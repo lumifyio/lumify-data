@@ -29,11 +29,6 @@ public class HashCalculationWorker
     }
 
     @Override
-    public String getName() {
-        return "hashCalculator";
-    }
-
-    @Override
     public void prepare(Map stormConf, User user) {
     }
 }

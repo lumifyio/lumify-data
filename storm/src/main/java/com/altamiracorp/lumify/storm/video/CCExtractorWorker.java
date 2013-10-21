@@ -45,9 +45,4 @@ public class CCExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtr
             ccFile.delete();
         }
     }
-
-    @Override
-    public String getName() {
-        return "ccextractor";
-    }
 }

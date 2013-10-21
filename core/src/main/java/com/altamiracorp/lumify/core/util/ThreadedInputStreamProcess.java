@@ -23,10 +23,7 @@ public class ThreadedInputStreamProcess<TResult, TData> {
         for (ThreadedTeeInputStreamWorker<TResult, TData> worker : workersCollection) {
             this.workers[i] = worker;
             this.workerThreads[i] = new Thread(worker);
-            String workerName = worker.getName();
-            if (workerName == null) {
-                workerName = "" + i;
-            }
+            String workerName = worker.getClass().getName();
             this.workerNames[i] = workerName;
             this.workerThreads[i].setName(threadNamePrefix + "-" + workerName);
             this.workerThreads[i].start();

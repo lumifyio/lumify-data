@@ -72,7 +72,7 @@ public class TeeInputStream {
                         if (teeWithLowestOffset == null) {
                             LOGGER.debug("All tees are complete");
                         } else {
-                            LOGGER.debug("Waiting for tee: " + teeWithLowestOffset.getSplitName());
+                            LOGGER.debug("Waiting for tee: " + teeWithLowestOffset.splitName + " (offset: " + teeWithLowestOffset.offset + ")");
                         }
                         lastReport = new Date().getTime();
                     }
@@ -273,7 +273,7 @@ public class TeeInputStream {
 
         @Override
         public void close() throws IOException {
-            LOGGER.debug("Closing tee: " + getSplitName());
+            LOGGER.debug("Closing tee: " + splitName);
             try {
                 super.close();
             } finally {
@@ -293,10 +293,6 @@ public class TeeInputStream {
             synchronized (TeeInputStream.this.cyclicBufferLock) {
                 return (int) (cyclicBufferValidSize - (offset - cyclicBufferOffset));
             }
-        }
-
-        private String getSplitName() {
-            return splitName;
         }
     }
 }

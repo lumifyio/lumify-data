@@ -63,11 +63,6 @@ public class CsvTextExtractorWorker
     }
 
     @Override
-    public String getName() {
-        return "csvTextExtractor";
-    }
-
-    @Override
     public void prepare(Map stormConf, User user) {
     }
 }
