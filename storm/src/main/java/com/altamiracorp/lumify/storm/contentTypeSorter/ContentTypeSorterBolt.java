@@ -1,32 +1,41 @@
 package com.altamiracorp.lumify.storm.contentTypeSorter;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.tuple.Tuple;
-import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
-import com.altamiracorp.lumify.core.ingest.ContentTypeSorter;
-import com.altamiracorp.lumify.storm.BaseFileSystemSpout;
-import com.altamiracorp.lumify.storm.BaseLumifyBolt;
-import com.altamiracorp.lumify.storm.FieldNames;
-import com.google.inject.Inject;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.tuple.Tuple;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
+import com.altamiracorp.lumify.core.ingest.ContentTypeSorter;
+import com.altamiracorp.lumify.storm.BaseFileSystemSpout;
+import com.altamiracorp.lumify.storm.BaseLumifyBolt;
+import com.altamiracorp.lumify.storm.FieldNames;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.google.inject.Inject;
 
 public class ContentTypeSorterBolt extends BaseLumifyBolt {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ContentTypeSorterBolt.class);
+
+    private static final Joiner FILEPATH_JOINER = Joiner.on('/');
+
     private ContentTypeExtractor contentTypeExtractor;
     private String dataDir;
     private List<ContentTypeSorter> contentTypeSorters;
@@ -35,12 +44,13 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
         super.prepare(stormConf, context, collector);
 
-        this.dataDir = (String) stormConf.get(BaseFileSystemSpout.DATADIR_CONFIG_NAME);
-        checkNotNull(this.dataDir, BaseFileSystemSpout.DATADIR_CONFIG_NAME + " is a required configuration parameter");
+        dataDir = (String) stormConf.get(BaseFileSystemSpout.DATADIR_CONFIG_NAME);
+        checkNotNull(dataDir, BaseFileSystemSpout.DATADIR_CONFIG_NAME + " is a required configuration parameter");
 
-        this.contentTypeSorters = new ArrayList<ContentTypeSorter>();
-        for (ContentTypeSorter contentTypeSorter : ServiceLoader.load(ContentTypeSorter.class)) {
-            this.contentTypeSorters.add(contentTypeSorter);
+        contentTypeSorters = Lists.newArrayList();
+        for (ContentTypeSorter sorter : ServiceLoader.load(ContentTypeSorter.class)) {
+            LOGGER.info(String.format("Adding content type sorter: %s", sorter.getClass().getName()));
+            contentTypeSorters.add(sorter);
         }
     }
 
@@ -48,12 +58,15 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
     public void safeExecute(Tuple input) throws Exception {
         String fileName = input.getStringByField(FieldNames.FILE_NAME);
         checkNotNull(fileName, "this bolt requires a field with name " + FieldNames.FILE_NAME);
+
+        LOGGER.debug("Processing tuple value: " + fileName);
         InputStream in = openFile(fileName);
         try {
             String queueName = calculateQueueName(fileName, in);
 
-            moveFile(fileName, this.dataDir + "/" + queueName + "/" + FilenameUtils.getName(fileName));
+            moveFile(fileName, FILEPATH_JOINER.join(dataDir, queueName, FilenameUtils.getName(fileName)));
 
+            LOGGER.debug("Content sorted to: " + queueName);
             getCollector().ack(input);
         } finally {
             in.close();
@@ -61,7 +74,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
     }
 
     private String calculateQueueName(String fileName, InputStream in) throws Exception {
-        String mimeType = this.contentTypeExtractor.extract(in, FilenameUtils.getExtension(fileName));
+        String mimeType = contentTypeExtractor.extract(in, FilenameUtils.getExtension(fileName));
         String queueName = calculateQueueNameFromMimeType(mimeType);
         if (queueName != null) {
             return queueName;
@@ -84,7 +97,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
             try {
                 ArchiveEntry entry;
                 while ((entry = is.getNextEntry()) != null) {
-                    for (ContentTypeSorter contentTypeSorter : this.contentTypeSorters) {
+                    for (ContentTypeSorter contentTypeSorter : contentTypeSorters) {
                         String queueName = contentTypeSorter.getQueueNameFromArchiveEntry(entry, is);
                         if (queueName != null) {
                             return queueName;
@@ -110,7 +123,7 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
             return null;
         }
 
-        for (ContentTypeSorter contentTypeSorter : this.contentTypeSorters) {
+        for (ContentTypeSorter contentTypeSorter : contentTypeSorters) {
             String queueName = contentTypeSorter.getQueueNameFromMimeType(mimeType);
             if (queueName != null) {
                 return queueName;
