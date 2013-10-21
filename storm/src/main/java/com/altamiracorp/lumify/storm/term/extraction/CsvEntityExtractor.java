@@ -63,7 +63,6 @@ public class CsvEntityExtractor {
                 }
                 row++;
                 lastOffset = reader.getOffset();
-
             }
         }
         return termExtractionResult;
@@ -129,6 +128,7 @@ public class CsvEntityExtractor {
             } else {
                 termMentions.add(null);
             }
+            offset = offset + sign.length() + 1;
         }
         return termMentions;
     }
