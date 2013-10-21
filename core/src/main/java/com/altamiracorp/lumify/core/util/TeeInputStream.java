@@ -1,10 +1,16 @@
 package com.altamiracorp.lumify.core.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 public class TeeInputStream {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TeeInputStream.class.getName());
     private static final int DEFAULT_BUFFER_SIZE = 1 * 1024 * 1024;
+    public static final int LOOP_REPORT_INTERVAL = 10 * 1000; // report to the user every 10 seconds that a queue is waiting
     private final InputStream source;
     private final MyInputStream[] tees;
     private final byte[] cyclicBuffer;
@@ -55,11 +61,21 @@ public class TeeInputStream {
 
     public void loopUntilTeesAreClosed() throws Exception {
         boolean allClosed = false;
+        long lastReport = new Date().getTime();
         while (!allClosed) {
             allClosed = true;
             for (int i = 0; i < this.tees.length; i++) {
                 if (!isClosed(i)) {
                     allClosed = false;
+                    if (LOGGER.isDebugEnabled() && new Date().getTime() > lastReport + LOOP_REPORT_INTERVAL) {
+                        MyInputStream teeWithLowestOffset = findTeeWithLowestTeeOffset();
+                        if (teeWithLowestOffset == null) {
+                            LOGGER.debug("All tees are complete");
+                        } else {
+                            LOGGER.debug("Waiting for tee: " + teeWithLowestOffset.getSplitName());
+                        }
+                        lastReport = new Date().getTime();
+                    }
                     break;
                 }
             }
@@ -125,11 +141,23 @@ public class TeeInputStream {
         synchronized (cyclicBufferLock) {
             long lowestOffset = Long.MAX_VALUE;
             for (MyInputStream tee : tees) {
-                if (tee.offset < lowestOffset) {
+                if (!tee.isClosed() && tee.offset < lowestOffset) {
                     lowestOffset = tee.offset;
                 }
             }
             return lowestOffset;
+        }
+    }
+
+    private MyInputStream findTeeWithLowestTeeOffset() {
+        synchronized (cyclicBufferLock) {
+            MyInputStream teeWithLowestOffset = null;
+            for (MyInputStream tee : tees) {
+                if (!tee.isClosed() && teeWithLowestOffset == null || tee.offset < teeWithLowestOffset.offset) {
+                    teeWithLowestOffset = tee;
+                }
+            }
+            return teeWithLowestOffset;
         }
     }
 
@@ -245,6 +273,7 @@ public class TeeInputStream {
 
         @Override
         public void close() throws IOException {
+            LOGGER.debug("Closing tee: " + getSplitName());
             try {
                 super.close();
             } finally {
@@ -264,6 +293,10 @@ public class TeeInputStream {
             synchronized (TeeInputStream.this.cyclicBufferLock) {
                 return (int) (cyclicBufferValidSize - (offset - cyclicBufferOffset));
             }
+        }
+
+        private String getSplitName() {
+            return splitName;
         }
     }
 }

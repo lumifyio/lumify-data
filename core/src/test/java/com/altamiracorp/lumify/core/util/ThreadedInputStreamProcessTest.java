@@ -10,8 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class ThreadedInputStreamProcessTest {
     @Test
@@ -62,6 +61,31 @@ public class ThreadedInputStreamProcessTest {
         assertArrayEquals(expected.toByteArray(), results.get(1).getResult());
     }
 
+    @Test
+    public void testDoWorkWithException() throws Exception {
+        ArrayList<ThreadedTeeInputStreamWorker<byte[], String>> workers = new ArrayList<ThreadedTeeInputStreamWorker<byte[], String>>();
+        workers.add(new TestThreadedTeeInputStreamWorker("1"));
+        workers.add(new TestThreadedTeeInputStreamWorkerWithException("2"));
+        ThreadedInputStreamProcess process = new ThreadedInputStreamProcess<byte[], String>("test", workers);
+
+        byte[] data = createMockData(10);
+
+        // first run
+        ByteArrayInputStream in = new ByteArrayInputStream(data);
+        List<ThreadedTeeInputStreamWorker.WorkResult<byte[]>> results = process.doWork(in, "test1", 5);
+        assertEquals(2, results.size());
+
+        assertEquals(null, results.get(0).getError());
+        assertNotEquals(null, results.get(1).getError());
+        assertEquals("2 throwing exception", results.get(1).getError().getMessage());
+
+        ByteArrayOutputStream expected = new ByteArrayOutputStream();
+        expected.write("1".getBytes());
+        expected.write("test1".getBytes());
+        expected.write(data);
+        assertArrayEquals(expected.toByteArray(), results.get(0).getResult());
+    }
+
     private byte[] createMockData(int len) {
         byte[] data = new byte[len];
         for (int i = 0; i < len; i++) {
@@ -85,6 +109,19 @@ public class ThreadedInputStreamProcessTest {
             temp.write(s.getBytes());
             IOUtils.copy(work, temp);
             return temp.toByteArray();
+        }
+    }
+
+    private static class TestThreadedTeeInputStreamWorkerWithException extends ThreadedTeeInputStreamWorker<byte[], String> {
+        private final String prefix;
+
+        public TestThreadedTeeInputStreamWorkerWithException(String prefix) {
+            this.prefix = prefix;
+        }
+
+        @Override
+        protected byte[] doWork(InputStream work, String s) throws Exception {
+            throw new RuntimeException(prefix + " throwing exception");
         }
     }
 }

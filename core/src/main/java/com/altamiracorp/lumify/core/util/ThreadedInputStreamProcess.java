@@ -36,6 +36,15 @@ public class ThreadedInputStreamProcess<TResult, TData> {
 
     public List<ThreadedTeeInputStreamWorker.WorkResult<TResult>> doWork(InputStream source, TData data) throws Exception {
         TeeInputStream teeInputStream = new TeeInputStream(source, this.workerNames);
+        return doWork(data, teeInputStream);
+    }
+
+    public List<ThreadedTeeInputStreamWorker.WorkResult<TResult>> doWork(InputStream source, TData data, int bufferSize) throws Exception {
+        TeeInputStream teeInputStream = new TeeInputStream(source, this.workerNames, bufferSize);
+        return doWork(data, teeInputStream);
+    }
+
+    private List<ThreadedTeeInputStreamWorker.WorkResult<TResult>> doWork(TData data, TeeInputStream teeInputStream) throws Exception {
         try {
             for (int i = 0; i < this.workers.length; i++) {
                 this.workers[i].enqueueWork(teeInputStream.getTees()[i], data);
