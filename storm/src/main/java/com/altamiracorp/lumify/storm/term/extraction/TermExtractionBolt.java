@@ -1,15 +1,34 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditionalWorkData;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionWorker;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.*;
+import com.altamiracorp.lumify.core.model.ontology.Concept;
+import com.altamiracorp.lumify.core.model.ontology.LabelName;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
@@ -18,18 +37,6 @@ import com.altamiracorp.lumify.core.util.ThreadedInputStreamProcess;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.storm.BaseTextProcessingBolt;
 import com.google.inject.Inject;
-import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TermExtractionBolt extends BaseTextProcessingBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(TermExtractionBolt.class);
@@ -72,13 +79,13 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         GraphVertex artifactGraphVertex = graphRepository.findVertex(graphVertexId, getUser());
         runTextExtractions(artifactGraphVertex);
 
-        LOGGER.info(String.format("Emitting value (%s): %s", getClass().getSimpleName(), json));
+        LOGGER.info(String.format("Emitting value: %s", getClass().getSimpleName(), json));
         getCollector().emit(new Values(json.toString()));
         getCollector().ack(input);
     }
 
     private void runTextExtractions(GraphVertex artifactGraphVertex) throws Exception {
-        checkNotNull(termExtractionStreamProcess, "termExtractionStreamProcess was not initialized");
+        checkState(termExtractionStreamProcess != null, "termExtractionStreamProcess was not initialized");
 
         InputStream textIn = getInputStream(artifactGraphVertex);
         TermExtractionAdditionalWorkData termExtractionAdditionalWorkData = new TermExtractionAdditionalWorkData();
