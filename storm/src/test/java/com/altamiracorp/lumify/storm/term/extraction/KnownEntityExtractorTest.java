@@ -3,7 +3,6 @@ package com.altamiracorp.lumify.storm.term.extraction;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
-import junit.framework.Assert;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,8 +12,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.InputStream;
 
-import static groovy.util.GroovyTestCase.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class KnownEntityExtractorTest {

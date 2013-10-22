@@ -17,7 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.IOException;
 import java.text.ParseException;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
