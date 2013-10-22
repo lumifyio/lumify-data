@@ -25,8 +25,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ImageObjectDetectionWorker extends BaseImageWorker {
 
-    private static final String OPENCV_CLASSIFIER_CONCEPT_LIST = "classifier.concepts";
-    private static final String OPENCV_CLASSIFIER_PATH_PREFIX = "classifier.";
+    private static final String OPENCV_CLASSIFIER_CONCEPT_LIST = "objectdetection.classifierConcepts";
+    private static final String OPENCV_CLASSIFIER_PATH_PREFIX = "objectdetection.classifier.";
     private static final String OPENCV_CLASSIFIER_PATH_SUFFIX = ".path";
 
     private OpenCVObjectDetector objectDetector;
