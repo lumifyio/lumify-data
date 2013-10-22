@@ -32,6 +32,7 @@ class jetty(
     ensure  => directory,
     owner   => 'jetty',
     group   => 'jetty',
+	recurse => true,
     require => [ User['jetty'], Macro::Extract['jetty-extract'] ],
   }
 
