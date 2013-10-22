@@ -6,6 +6,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -132,11 +133,13 @@ public final class Configuration  {
         } catch (MalformedURLException e) {
             LOGGER.error("Could not create URL object for malformed URL: " + fileUrl, e);
             throw new RuntimeException(e);
-        } catch (ConfigurationException e) {
+        } catch (FileNotFoundException e) {
             LOGGER.info("Could not find file to load: " + fileUrl);
         } catch (IOException e) {
             LOGGER.error("Error occurred while loading file: " + fileUrl, e);
             throw new RuntimeException(e);
+        } catch (ConfigurationException e) {
+            LOGGER.info("Could not find file to load: " + fileUrl);
         }
     }
 
