@@ -7,6 +7,7 @@ import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.storm.BaseArtifactProcessingBolt;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -47,4 +48,21 @@ public class VideoBolt extends BaseArtifactProcessingBolt {
     protected boolean isLocalFileRequired() {
         return true;
     }
+
+    @Override
+    protected File getPrimaryFileFromArchive(File archiveTempDir) {
+        for (File f : archiveTempDir.listFiles()) {
+            if (f.getName().endsWith(VideoContentTypeSorter.SRT_CC_FILE_NAME_SUFFIX) ||
+                    f.getName().endsWith(VideoContentTypeSorter.YOUTUBE_CC_FILE_NAME_SUFFIX)) {
+                continue;
+            }
+            if (! f.getName().startsWith(".")) {
+                return f;
+            } else {
+                continue;
+            }
+        }
+        throw new RuntimeException("Could not find primary file");
+    }
+
 }

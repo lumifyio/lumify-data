@@ -32,6 +32,7 @@ public class SubRip {
         String line;
         StringBuilder text = new StringBuilder();
         int frame;
+        reader.read();
         while ((line = reader.readLine()) != null) {
             switch (readState) {
                 case Frame:
