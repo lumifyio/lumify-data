@@ -182,7 +182,7 @@ define([
                 this.trigger(document, 'graphHide');
                 var mapPane = this.$node.find('.map-pane');
                 Map.attachTo(mapPane);
-                this.trigger(document, 'mapShow', { data:(data && data.data) });
+                this.trigger(document, 'mapShow', (data && data.data) || {});
             }
 
             if (SLIDE_OUT.indexOf(data.name) >= 0) {

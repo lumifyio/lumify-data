@@ -245,24 +245,41 @@ define([
 
                 // Select vertices
                 vertices.forEach(function(vertex) {
-                    var marker = self.markerForId(map, vertex.id);
-                    if (marker.length && marker[0].iconUrl.indexOf('&selected') === -1) {
-                        map.removeMarker(marker[0]);
-                        self.updateMarkerIcon(marker[0], true, vertex.properties.heading);
-                        map.addMarker(marker[0]);
-                    }
+                    if (vertex.properties && vertex.properties.geoLocation) {
+                        var marker = self.markerForId(map, vertex.id + '-selected');
+                        if (marker.length) {
+                            marker[0].show();
+                        } else {
+                            var geoLocation = vertex.properties.geoLocation;
+                            var pt = new mxn.LatLonPoint(geoLocation.latitude, geoLocation.longitude);
+                            marker = new mxn.Marker(pt);
+                            marker.setAttribute('graphVertexId', vertex.id + '-selected');
+                            marker.setAttribute('subType', vertex.properties._subType);
+                            self.updateMarkerIcon(marker, true, vertex.properties.heading);
+                            marker.click.addHandler(function(eventType, marker) {
+                                self.trigger('verticesSelected', [ vertex ]);
+                            });
+                            map.addMarker(marker);
+                        }
 
-                    idsToSelect.push(vertex.id);
+                        idsToSelect.push(vertex.id);
+                    }
                 });
 
                 // Unselect all others
                 map.markers.forEach(function(marker) {
-                    var id = marker.attributes.graphVertexId;
-                    if (idsToSelect.indexOf(id) === -1 && marker.iconUrl.indexOf('&selected') >= 0) {
-                        var vertex = appData.vertex(id);
-                        map.removeMarker(marker);
-                        self.updateMarkerIcon(marker, false, vertex.properties.heading);
-                        map.addMarker(marker);
+                    var id = marker.attributes.graphVertexId,
+                        selectedRegex = /-selected$/,
+                        selectedId = id + '-selected',
+                        isSelectionMarker = selectedRegex.test(id),
+                        isSelected = idsToSelect.indexOf(id.replace(selectedRegex, '' )) >= 0;
+                    
+                    if (isSelectionMarker && !isSelected) {
+                        marker.hide();
+                    } else if (!isSelectionMarker && !isSelected) {
+                        marker.show();
+                    } else if (!isSelectionMarker && isSelected) {
+                        marker.hide();
                     }
                 });
             });
@@ -432,6 +449,7 @@ define([
                 this.map(function(map) {
                     var latlon = new mxn.LatLonPoint(data.latitude, data.longitude);
                     map.setCenterAndZoom(latlon, 7);
+                    self.onVerticesSelected(evt, appData.vertices(appData.selectedVertices));
                 });
             }
 

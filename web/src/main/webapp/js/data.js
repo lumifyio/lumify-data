@@ -296,6 +296,8 @@ define([
                 return;
             }
 
+            this.selectedVertices = selectedIds;
+
             _.keys(this.workspaceVertices).forEach(function(id) {
                 var info = self.workspaceVertices[id];
                 info.selected = selectedIds.indexOf(id) >= 0;
