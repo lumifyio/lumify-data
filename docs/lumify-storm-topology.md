@@ -5,13 +5,7 @@
 2. ```$ vagrant ssh```
 3. ```$ /opt/format.sh``` (format every time you come from develop)
 4. ```$ /opt/start.sh```
-5. add the following to ```/opt/lumify/config/configuration.properties``` on your local machine and Vagrant VM:
-	```
-	nlpConfPathPrefix=/lumify/config/opennlp
-	
-	classifier.concepts=face
-	classifier.face.path=/lumify/config/opencv/haarcascade_frontalface_alt.xml
-	```
+5. make sure to update your ```/opt/lumify/config/configuration.properties``` on your local machine and Vagrant VM to contain the configurations under the Application Configuration Wiki Page
 
 ### HDFS
 
