@@ -1,12 +1,7 @@
 package com.altamiracorp.lumify;
 
-import java.net.URI;
-import java.util.Properties;
+import java.lang.reflect.Constructor;
 
-import org.apache.accumulo.core.client.Connector;
-import org.apache.accumulo.core.client.ZooKeeperInstance;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,13 +17,11 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.AccumuloSession;
 import com.altamiracorp.lumify.model.KafkaWorkQueueRepository;
 import com.altamiracorp.lumify.model.TitanGraphSession;
-import com.altamiracorp.lumify.model.TitanQueryFormatter;
 import com.altamiracorp.lumify.search.ElasticSearchProvider;
 import com.google.inject.AbstractModule;
 
-import java.lang.reflect.Constructor;
-
 public abstract class BootstrapBase extends AbstractModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BootstrapBase.class);
 
     private final Configuration config;
     private static final String DEFAULT_MODEL_PROVIDER = AccumuloSession.class.getName();
@@ -41,6 +34,7 @@ public abstract class BootstrapBase extends AbstractModule {
 
     @Override
     protected void configure() {
+        LOGGER.info("Creating common bindings");
         User user = new SystemUser();
 
         bind(ModelSession.class).toInstance(createModelSession());

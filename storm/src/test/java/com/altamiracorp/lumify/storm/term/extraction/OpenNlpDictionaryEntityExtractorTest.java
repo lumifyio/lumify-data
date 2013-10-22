@@ -24,7 +24,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.AccumuloSession;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OpenNlpDictionaryEntityExtractorTest {
@@ -44,7 +43,7 @@ public class OpenNlpDictionaryEntityExtractorTest {
     public void setUp() throws IOException, URISyntaxException, InterruptedException {
         final List<TokenNameFinder> finders = loadFinders();
         configuration = new Configuration();
-        configuration.set(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, "file:///" + System.getProperty("user.dir") + "/storm/src/test/resources/fs/conf/opennlp/");
+        configuration.set(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, "file:///" + getClass().getResource(RESOURCE_CONFIG_DIR).getFile());
         configuration.set(com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL, "");
 
         extractor = new OpenNlpDictionaryEntityExtractor() {
