@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -83,15 +84,15 @@ public class TikaTextExtractor {
         Metadata metadata = new Metadata();
         ParseContext ctx = new ParseContext();
         String text;
-
+        //todo use a stream that supports reset rather than copying data to memory
+        byte[] input = IOUtils.toByteArray(in);
         // since we are using the AutoDetectParser, it is safe to assume that
         //the Content-Type metadata key will always return a value
         ContentHandler handler = new BodyContentHandler();
-        parser.parse(in, handler, metadata, ctx);
+        parser.parse(new ByteArrayInputStream(input), handler, metadata, ctx);
 
         if (isHtml(mimeType)) {
-            in.reset();
-            text = extractTextFromHtml(IOUtils.toString(in));
+            text = extractTextFromHtml(IOUtils.toString(new ByteArrayInputStream(input)));
             if (text == null || text.length() == 0) {
                 text = handler.toString();
             }
