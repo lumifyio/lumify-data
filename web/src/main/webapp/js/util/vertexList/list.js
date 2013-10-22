@@ -240,7 +240,7 @@ define([
             this.$node.find('.active').removeClass('active');
 
             var ids = _.chain(data || [])
-                .filter(function(v) { return v.properties._type !== 'relationship'; })
+                .filter(function(v) { return v.properties && v.properties._type !== 'relationship'; })
                 .map(function(v) { return '.gId' + v.id; })
                 .value().join(',');
 
