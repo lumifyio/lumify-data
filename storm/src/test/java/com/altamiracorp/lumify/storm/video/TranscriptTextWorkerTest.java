@@ -20,15 +20,16 @@ public class TranscriptTextWorkerTest {
 
     @Before
     public void setup() {
-        in = getClass().getResourceAsStream("ytcc.lumify");
         data = new AdditionalArtifactWorkData();
-        File dir = new File(getClass().getResource("ytcc.lumify").getPath());
-        data.setArchiveTempDir(dir);
         worker = new TranscriptTextWorker();
     }
 
     @Test
     public void testYoutubeCC() throws Exception {
+        in = getClass().getResourceAsStream("ytcc.lumify");
+        File dir = new File(getClass().getResource("ytcc.lumify").getPath());
+        data.setArchiveTempDir(dir);
+
         ArtifactExtractedInfo result = worker.doWork(in, data);
         checkNotNull(result.getVideoTranscript());
         List<VideoTranscript.TimedText> entries = result.getVideoTranscript().getEntries();
@@ -37,5 +38,30 @@ public class TranscriptTextWorkerTest {
         assertEquals("Then I thought somebody was barbecuing", entries.get(1).getText());
         assertEquals("I said O' lord Jesus It's a fire", entries.get(2).getText());
         assertEquals("Then I ran out, I didn't grab no shoes or nothing Jesus", entries.get(3).getText());
+    }
+
+    @Test
+    public void testSrtCC() throws Exception {
+        in = getClass().getResourceAsStream("test-video-with-transcript.lumify");
+        File dir = new File(getClass().getResource("test-video-with-transcript.lumify").getPath());
+        data.setArchiveTempDir(dir);
+
+        ArtifactExtractedInfo result = worker.doWork(in, data);
+        checkNotNull(result.getVideoTranscript());
+        List<VideoTranscript.TimedText> entries = result.getVideoTranscript().getEntries();
+        assertEquals(3, entries.size());
+        assertEquals("Salam will", entries.get(0).getText());
+        assertEquals("is an absolutely sickening and despicable attack", entries.get(1).getText());
+        assertEquals("appalling brutality what we know is that three British nationals", entries.get(2).getText());
+    }
+
+    @Test
+    public void testNoCC() throws Exception {
+        in = getClass().getResourceAsStream("test.mp4");
+
+        ArtifactExtractedInfo result = worker.doWork(in, data);
+        checkNotNull(result.getVideoTranscript());
+        List<VideoTranscript.TimedText> entries = result.getVideoTranscript().getEntries();
+        assertEquals(0, entries.size());
     }
 }
