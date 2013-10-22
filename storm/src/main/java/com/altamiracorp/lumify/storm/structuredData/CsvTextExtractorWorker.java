@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.storm.structuredData;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.structuredData.StructuredDataExtractionWorker;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import org.apache.commons.io.FileUtils;
@@ -46,6 +47,7 @@ public class CsvTextExtractorWorker
             info.setTitle(mappingJson.get(MappingProperties.SUBJECT).toString());
         }
         info.setMappingJson(mappingJson);
+        info.setArtifactType(ArtifactType.DOCUMENT.toString());
 
         return info;
     }

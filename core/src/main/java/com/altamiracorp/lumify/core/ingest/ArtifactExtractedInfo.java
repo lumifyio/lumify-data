@@ -28,6 +28,7 @@ public class ArtifactExtractedInfo {
     private static final String VIDEO_DURATION = "videoDuration";
     private static final String VIDEO_FRAMES = "videoFrames";
     private static final String MAPPING_JSON = "mappingJson";
+    private static final String ARTIFACT_TYPE = "artifactType";
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 
     public void mergeFrom(ArtifactExtractedInfo artifactExtractedInfo) {
@@ -219,6 +220,14 @@ public class ArtifactExtractedInfo {
             return properties.get(MAPPING_JSON).toString();
         }
         return null;
+    }
+
+    public String getArtifactType () {
+        return (String) properties.get(ARTIFACT_TYPE);
+    }
+
+    public void setArtifactType (String artifactType) {
+        set (ARTIFACT_TYPE, artifactType);
     }
 
     public static class VideoFrame {

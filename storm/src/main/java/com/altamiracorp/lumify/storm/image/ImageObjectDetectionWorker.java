@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.storm.image;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.objectDetection.OpenCVObjectDetector;
 import com.google.inject.Inject;
@@ -48,6 +49,7 @@ public class ImageObjectDetectionWorker extends BaseImageWorker {
             localFile.delete();
         }
         info.setDetectedObjects(detectedObjectsJson.toString());
+        info.setArtifactType(ArtifactType.IMAGE.toString());
         return info;
     }
 

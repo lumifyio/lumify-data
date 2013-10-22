@@ -157,7 +157,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
 
         artifactVertex.setProperty(PropertyName.ROW_KEY.toString(), artifact.getRowKey().toString());
         artifactVertex.setProperty(PropertyName.TYPE, VertexType.ARTIFACT.toString());
-        artifactVertex.setProperty(PropertyName.SUBTYPE, ArtifactType.DOCUMENT.toString());
+        artifactVertex.setProperty(PropertyName.SUBTYPE, artifactExtractedInfo.getArtifactType());
         artifactVertex.setProperty(PropertyName.TITLE, artifactExtractedInfo.getTitle());
         if (artifactExtractedInfo.getRawHdfsPath() != null) {
             artifactVertex.setProperty(PropertyName.RAW_HDFS_PATH, artifactExtractedInfo.getRawHdfsPath());

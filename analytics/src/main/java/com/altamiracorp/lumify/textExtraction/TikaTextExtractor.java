@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.textExtraction;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.textExtraction.util.GenericDateExtractor;
 import com.altamiracorp.lumify.textExtraction.util.TikaMetadataUtils;
 import com.google.inject.Inject;
@@ -126,7 +127,7 @@ public class TikaTextExtractor {
                 LOGGER.warn("Image returned invalid custom metadata");
             }
         }
-
+        result.setArtifactType(ArtifactType.DOCUMENT.toString());
         return result;
     }
 

@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.storm.video;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.ProcessRunner;
@@ -52,6 +53,7 @@ public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<Artifa
 
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         info.setWebMHdfsFilePath(out.getHdfsPath().toString());
+        info.setArtifactType(ArtifactType.VIDEO.toString());
 
         return info;
     }
