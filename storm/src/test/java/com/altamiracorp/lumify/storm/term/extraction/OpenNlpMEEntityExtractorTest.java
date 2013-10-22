@@ -38,14 +38,8 @@ public class OpenNlpMEEntityExtractorTest {
     @Before
     public void setUp() throws InterruptedException, IOException, URISyntaxException {
         Configuration configuration = new Configuration();
-<<<<<<< HEAD
-        configuration.set(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, "file:///" + getClass().getResource(RESOURCE_CONFIG_DIR).getFile());
-        configuration.set(AccumuloSession.HADOOP_URL, "");
 
-=======
         configuration.set(OpenNlpEntityExtractor.PATH_PREFIX_CONFIG, "file:///" + System.getProperty("user.dir") + "/storm/src/test/resources/fs/conf/opennlp/");
-        configuration.set(com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL, "");
->>>>>>> Initial configuration refactor
         extractor = new OpenNlpMaximumEntropyEntityExtractor();
         extractor.prepare(configuration, user);
     }
