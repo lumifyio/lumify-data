@@ -1,25 +1,33 @@
 package com.altamiracorp.lumify;
 
-import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
-import com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor;
-import com.altamiracorp.lumify.core.model.GraphSession;
-import com.altamiracorp.lumify.core.model.ModelSession;
-import com.altamiracorp.lumify.core.user.SystemUser;
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.*;
-import com.altamiracorp.lumify.core.model.search.SearchProvider;
-import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
-import com.altamiracorp.lumify.search.ElasticSearchProvider;
-import com.google.inject.AbstractModule;
+import java.net.URI;
+import java.util.Properties;
+
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapreduce.TaskInputOutputContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.util.Properties;
+import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
+import com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor;
+import com.altamiracorp.lumify.core.model.GraphSession;
+import com.altamiracorp.lumify.core.model.ModelSession;
+import com.altamiracorp.lumify.core.model.search.SearchProvider;
+import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
+import com.altamiracorp.lumify.core.user.SystemUser;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.AccumuloSession;
+import com.altamiracorp.lumify.model.KafkaWorkQueueRepository;
+import com.altamiracorp.lumify.model.TitanGraphSession;
+import com.altamiracorp.lumify.model.TitanQueryFormatter;
+import com.altamiracorp.lumify.search.ElasticSearchProvider;
+import com.google.inject.AbstractModule;
 
 public abstract class BootstrapBase extends AbstractModule {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BootstrapBase.class);
+
     private final TaskInputOutputContext attemptContext;
 
     private final Properties properties;
@@ -32,6 +40,7 @@ public abstract class BootstrapBase extends AbstractModule {
 
     @Override
     protected void configure() {
+        LOGGER.info("Creating common bindings");
         User user = new SystemUser();
 
         bind(ModelSession.class).toInstance(createModelSession());
