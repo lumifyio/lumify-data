@@ -38,11 +38,11 @@ public class KnownEntityExtractorTest {
         extractor.prepare(config, user);
         InputStream in = getClass().getResourceAsStream("bffls.txt");
         TermExtractionResult result = extractor.extract(in);
-        assertEquals(result.getTermMentions().size(), 3);
+        assertEquals(3, result.getTermMentions().size());
         for (TermExtractionResult.TermMention termMention : result.getTermMentions()) {
             assertTrue(termMention.isResolved());
-            assertEquals(termMention.getOntologyClassUri(), "person");
-            assertEquals(termMention.getSign(), "Joe Ferner");
+            assertEquals("person", termMention.getOntologyClassUri());
+            assertEquals("Joe Ferner", termMention.getSign());
         }
 
 
