@@ -30,7 +30,7 @@ public class KnownEntityExtractorTest {
         dictionaryPath = getClass().getResource(".").getPath();
         extractor = new KnownEntityExtractor();
         config = new Configuration();
-        config.set("nlpConfPathPrefix", "file://" + dictionaryPath);
+        config.set("termextraction.knownEntities.pathPrefix", "file://" + dictionaryPath);
     }
 
     @Test
