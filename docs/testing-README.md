@@ -21,13 +21,13 @@ Contents
 	* EXPECTED OUTCOME: The document should be displayed as is
 6. good.foo:
 	* DESCRIPTION: A good file with a bad extension
-	* EXPECTED OUTCOME: The file should be displayed
+	* EXPECTED OUTCOME: The file should be displayed as a normal document
 7. headline-la-times-boston-marathon-bombing-500x438.jpg:
 	* DESCRIPTION: A picture of a news paper about the Boston bombing
 	* EXPECTED OUTCOME: The picture should have "TERROR IN BOSTON" and a face extracted from it (the location of the face is not an actual face)
 8. i-heart-chicago-police.png:
 	* DESCRIPTION: A picture of a couple holding a sign for the CPD
-	* EXPECTED OUTCOME: The image should be displayed as normal
+	* EXPECTED OUTCOME: The image should be displayed as normal for images
 9. map.csv:
 	* DESCRIPTION: A csv of office locations and their employee head-count
 	* EXPECTED OUTCOME: The document should be displayed as plain text because there is no mapping
@@ -49,6 +49,9 @@ Contents
 15. tiny.flv:
 	* DESCRIPTION: A video about Obama going to Chicago
 	* EXPECTED OUTCOME: The video should play as normal with only ocr-ed text
+16. ytcc.lumify.tar:
+	* DESCRIPTION: A video and youtubecc file of a woman giving an explination of a fire
+	* EXPECTED OUTCOME: The video should play as normal with the scrolling transcript from the file and any ocr-ed text
 	
 [Everything](https://s3.amazonaws.com/RedDawn/DataSets/testing.zip)
 
