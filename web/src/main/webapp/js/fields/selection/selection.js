@@ -40,7 +40,6 @@ define([
                     })
                     .on('change blur', function(e) {
                         var target = $(e.target);
-                        console.log('changing', self.currentProperty);
                         if (self.currentProperty) {
                             target.val(self.currentProperty.displayName || self.currentProperty.title);
                         } else {
