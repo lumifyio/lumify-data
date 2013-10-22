@@ -26,13 +26,12 @@ public class SubRip {
 
     public static VideoTranscript read(InputStream in) throws IOException {
         VideoTranscript result = new VideoTranscript();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
         ReadState readState = ReadState.Frame;
         VideoTranscript.Time time = null;
         String line;
         StringBuilder text = new StringBuilder();
         int frame;
-        reader.read();
         while ((line = reader.readLine()) != null) {
             switch (readState) {
                 case Frame:

@@ -38,7 +38,7 @@ public class TranscriptTextWorker
         for (File f : tempDir.listFiles()) {
             if (!f.getName().startsWith(".")) {
                 if (f.getName().endsWith(VideoContentTypeSorter.YOUTUBE_CC_FILE_NAME_SUFFIX)) {
-                    return new YoutubeccReader().read(f);
+                    return YoutubeccReader.read(f);
                 } else if (f.getName().endsWith(VideoContentTypeSorter.SRT_CC_FILE_NAME_SUFFIX)) {
                     return SubRip.read(f);
                 }

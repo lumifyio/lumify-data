@@ -12,7 +12,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 public class YoutubeccReader {
-    public VideoTranscript read(File file) throws Exception {
+    public static VideoTranscript read(File file) throws Exception {
         FileInputStream in = new FileInputStream(file);
         try {
             return read(in);
@@ -21,7 +21,7 @@ public class YoutubeccReader {
         }
     }
 
-    public VideoTranscript read(InputStream in) throws Exception {
+    public static VideoTranscript read(InputStream in) throws Exception {
         VideoTranscript videoTranscript = new VideoTranscript();
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
