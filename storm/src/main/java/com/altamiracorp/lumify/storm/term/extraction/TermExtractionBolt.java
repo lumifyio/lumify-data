@@ -110,7 +110,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
     private List<TermMentionWithGraphVertex> saveTermExtractions(String artifactGraphVertexId, List<TermExtractionResult.TermMention> termMentions) {
         List<TermMentionWithGraphVertex> results = new ArrayList<TermMentionWithGraphVertex>();
         for (TermExtractionResult.TermMention termMention : termMentions) {
-            LOGGER.info("saving term mention \"" + termMention.getSign() + "\" (" + termMention.getStart() + ":" + termMention.getEnd() + ") " + termMention.getOntologyClassUri());
+            LOGGER.info(String.format("Saving term mention '%s':%s (%d:%d)", termMention.getSign(),  termMention.getOntologyClassUri(), termMention.getStart(), termMention.getEnd()));
             GraphVertex vertex = null;
             TermMention termMentionModel = new TermMention(new TermMentionRowKey(artifactGraphVertexId, termMention.getStart(), termMention.getEnd()));
             termMentionModel.getMetadata().setSign(termMention.getSign());
@@ -120,7 +120,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
             if (concept != null) {
                 termMentionModel.getMetadata().setConceptGraphVertexId(concept.getId());
             } else {
-                LOGGER.error("Could not find ontology graph vertex \"" + termMention.getOntologyClassUri() + "\"");
+                LOGGER.error(String.format("Could not find ontology graph vertex '%s'", termMention.getOntologyClassUri()));
             }
 
             if (termMention.isResolved()) {
