@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
 
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionAdditionalWorkData;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
@@ -79,8 +78,6 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
         GraphVertex artifactGraphVertex = graphRepository.findVertex(graphVertexId, getUser());
         runTextExtractions(artifactGraphVertex);
 
-        LOGGER.info(String.format("Emitting value: %s", getClass().getSimpleName(), json));
-        getCollector().emit(new Values(json.toString()));
         getCollector().ack(input);
     }
 
