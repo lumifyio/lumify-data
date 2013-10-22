@@ -12,6 +12,8 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class TranscriptTextWorkerTest {
     TranscriptTextWorker worker;
@@ -53,6 +55,15 @@ public class TranscriptTextWorkerTest {
         assertEquals("Salam will", entries.get(0).getText());
         assertEquals("is an absolutely sickening and despicable attack", entries.get(1).getText());
         assertEquals("appalling brutality what we know is that three British nationals", entries.get(2).getText());
+    }
+
+    @Test(expected = Exception.class)
+    public void testTarWithoutCC() throws Exception {
+        in = getClass().getResourceAsStream("test-video-without-transcript.lumify");
+        File dir = new File(getClass().getResource("test-video-without-transcript.lumify").getPath());
+        data.setArchiveTempDir(dir);
+
+        ArtifactExtractedInfo result = worker.doWork(in, data);
     }
 
     @Test
