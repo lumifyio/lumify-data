@@ -50,7 +50,7 @@ Contents
 	* DESCRIPTION: A video about Obama going to Chicago
 	* EXPECTED OUTCOME: The video should play as normal with only ocr-ed text
 	
-[Everything](https://s3.amazonaws.com/RedDawn/DataSets/testing-ontology.zip)
+[Everything](https://s3.amazonaws.com/RedDawn/DataSets/testing.zip)
 
 [The dataset](https://s3.amazonaws.com/RedDawn/DataSets/testing-data.zip)
 
