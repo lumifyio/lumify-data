@@ -27,6 +27,7 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout {
 
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
+        LOGGER.info(String.format("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId()));
         this.collector = collector;
         workingFiles = Maps.newHashMap();
     }

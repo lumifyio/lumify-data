@@ -24,23 +24,22 @@ import backtype.storm.tuple.Tuple;
 
 import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.AccumuloSession;
-import com.altamiracorp.lumify.core.model.graph.GraphRepository;
-import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 public abstract class BaseLumifyBolt extends BaseRichBolt {
-    private static final Logger LOGGER = LoggerFactory.getLogger(BaseLumifyBolt.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseLumifyBolt.class);
 
     private OutputCollector collector;
     protected ArtifactRepository artifactRepository;
@@ -50,6 +49,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
+        LOGGER.info(String.format("Configuring environment for bolt: %s-%d", context.getThisComponentId(), context.getThisTaskId()));
         this.collector = collector;
         injector = Guice.createInjector(StormBootstrap.create(stormConf));
         injector.injectMembers(this);
