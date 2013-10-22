@@ -35,7 +35,7 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
     @Override
     public void open(Map stormConf, TopologyContext context, SpoutOutputCollector collector) {
         super.open(stormConf, context, collector);
-        LOGGER.info("Configuring environment for spout: " + context.getThisComponentId());
+        LOGGER.info(String.format("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId()));
 
         String rootDataPath = (String) stormConf.get(BaseFileSystemSpout.DATADIR_CONFIG_NAME);
         checkNotNull(rootDataPath, BaseFileSystemSpout.DATADIR_CONFIG_NAME + " is a required configuration parameter");
