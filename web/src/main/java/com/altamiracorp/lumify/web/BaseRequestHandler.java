@@ -1,9 +1,9 @@
 package com.altamiracorp.lumify.web;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.web.Handler;
-import com.altamiracorp.web.HandlerChain;
-import com.altamiracorp.web.utils.UrlUtils;
+import com.altamiracorp.miniweb.Handler;
+import com.altamiracorp.miniweb.HandlerChain;
+import com.altamiracorp.miniweb.utils.UrlUtils;
 import com.google.common.base.Preconditions;
 import org.json.JSONArray;
 import org.json.JSONObject;

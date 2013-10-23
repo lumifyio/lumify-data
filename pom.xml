@@ -365,7 +365,6 @@
         <module>analytics</module>
         <module>dictionary-seed</module>
         <module>oozie</module>
-        <module>web-framework</module>
         <module>web</module>
         <module>storm</module>
     </modules>

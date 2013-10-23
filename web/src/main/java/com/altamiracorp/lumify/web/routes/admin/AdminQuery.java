@@ -4,7 +4,7 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.ModelSession;
 import com.altamiracorp.lumify.core.model.Row;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.json.JSONArray;

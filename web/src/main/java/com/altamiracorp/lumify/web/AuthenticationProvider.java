@@ -4,7 +4,7 @@ import com.altamiracorp.lumify.core.model.user.UserRow;
 import com.altamiracorp.lumify.core.user.ModelAuthorizations;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.web.Handler;
+import com.altamiracorp.miniweb.Handler;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;

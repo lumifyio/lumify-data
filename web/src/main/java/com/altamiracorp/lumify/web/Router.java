@@ -15,8 +15,8 @@ import com.altamiracorp.lumify.web.routes.user.MeGet;
 import com.altamiracorp.lumify.web.routes.user.UserList;
 import com.altamiracorp.lumify.web.routes.vertex.*;
 import com.altamiracorp.lumify.web.routes.workspace.*;
-import com.altamiracorp.web.Handler;
-import com.altamiracorp.web.StaticFileHandler;
+import com.altamiracorp.miniweb.Handler;
+import com.altamiracorp.miniweb.StaticFileHandler;
 import com.google.inject.Injector;
 import org.eclipse.jetty.server.Request;
 

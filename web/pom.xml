@@ -92,8 +92,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.altamiracorp.lumify</groupId>
-            <artifactId>lumify-web-framework</artifactId>
+            <groupId>com.altamiracorp.miniweb</groupId>
+            <artifactId>miniweb</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
