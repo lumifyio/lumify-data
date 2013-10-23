@@ -33,15 +33,11 @@ public final class Configuration  {
     public static final String MODEL_PASSWORD = "model.password";
     public static final String GRAPH_PROVIDER = "graph.provider";
     public static final String SEARCH_PROVIDER = "search.provider";
-    public static final String SEARCH_HOSTNAMES = "search.hostnames";
     public static final String AUTHENTICATION_PROVIDER = "authentication.provider";
     public static final String MAP_PROVIDER = "map.provider";
     public static final String MAP_ACCESS_KEY = "map.apiKey";
     public static final String MAP_TILE_SERVER_HOST = "map.tileServer.hostName";
     public static final String MAP_TILE_SERVER_PORT = "map.tileServer.port";
-
-    public static final String ELASTIC_SEARCH_LOCATIONS = "elasticsearch.locations";
-    public static final String GRAPH_SEARCH_HOSTNAME = "graph.search.hostname";
 
     private org.apache.commons.configuration.Configuration config;
 
@@ -156,14 +152,5 @@ public final class Configuration  {
         return sb.toString();
     }
 
-    /*
-    public Properties getCommonProperties() {
-        PropertyUtils.setPropertyValue(properties, HADOOP_URL, getNamenodeUrl());
-        PropertyUtils.setPropertyValue(properties, ZK_SERVERS, getZookeeperServerNames());
-        PropertyUtils.setPropertyValue(properties, MODEL_USER, getDataStoreUserName());
-        //PropertyUtils.setPropertyValue(properties, STORAGE_PASSWORD, getDataStorePassword());
-        return properties;
-    }
-    */
 }
 
