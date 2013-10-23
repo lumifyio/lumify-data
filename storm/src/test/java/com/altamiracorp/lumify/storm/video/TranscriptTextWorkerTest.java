@@ -12,8 +12,6 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 public class TranscriptTextWorkerTest {
     TranscriptTextWorker worker;
