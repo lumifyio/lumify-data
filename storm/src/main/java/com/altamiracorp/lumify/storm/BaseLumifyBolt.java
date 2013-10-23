@@ -33,7 +33,6 @@ import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.AccumuloSession;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -139,7 +138,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         return collector;
     }
 
-    protected GraphVertex saveArtifact(ArtifactExtractedInfo artifactExtractedInfo) throws IOException {
+    protected GraphVertex saveArtifact(ArtifactExtractedInfo artifactExtractedInfo) {
         Artifact artifact = saveArtifactModel(artifactExtractedInfo);
         GraphVertex artifactVertex = saveArtifactGraphVertex(artifactExtractedInfo, artifact);
         return artifactVertex;

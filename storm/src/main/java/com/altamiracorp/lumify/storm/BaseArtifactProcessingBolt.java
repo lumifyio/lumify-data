@@ -96,18 +96,17 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
         FileMetadata fileMetadata = getFileMetadata(input);
         File archiveTempDir = null;
         InputStream in;
-        LOGGER.info("processing: " + fileMetadata.getFileName() + " (mimeType: " + fileMetadata.getMimeType() + ")");
+        LOGGER.info(String.format("Processing file: %s (mimeType: %s)", fileMetadata.getFileName(), fileMetadata.getMimeType()));
 
         ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
         if (isArchive(fileMetadata.getFileName())) {
             archiveTempDir = extractArchive(fileMetadata);
             File primaryFile = getPrimaryFileFromArchive(archiveTempDir);
             in = getInputStream(primaryFile.getAbsolutePath(), artifactExtractedInfo);
-            artifactExtractedInfo.setTitle(FilenameUtils.getName(fileMetadata.getFileName()));
         } else {
             in = getInputStream(fileMetadata.getFileName(), artifactExtractedInfo);
-            artifactExtractedInfo.setTitle(FilenameUtils.getName(fileMetadata.getFileName()));
         }
+        artifactExtractedInfo.setTitle(FilenameUtils.getName(fileMetadata.getFileName()));
 
         runWorkers(in, fileMetadata, artifactExtractedInfo, archiveTempDir);
 
@@ -142,6 +141,7 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
 
         if (archiveTempDir != null) {
             FileUtils.deleteDirectory(archiveTempDir);
+            LOGGER.debug("Deleted temporary directory holding archive content");
         }
 
         return graphVertex;
