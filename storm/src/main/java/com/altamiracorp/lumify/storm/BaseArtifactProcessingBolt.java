@@ -1,9 +1,34 @@
 package com.altamiracorp.lumify.storm;
 
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
+
 import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
@@ -18,22 +43,6 @@ import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.storm.file.FileMetadata;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
 
 public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
 
@@ -90,7 +99,6 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
         LOGGER.info("processing: " + fileMetadata.getFileName() + " (mimeType: " + fileMetadata.getMimeType() + ")");
 
         ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
-        artifactExtractedInfo.setOntologyClassUri("http://altamiracorp.com/lumify#document");
         if (isArchive(fileMetadata.getFileName())) {
             archiveTempDir = extractArchive(fileMetadata);
             File primaryFile = getPrimaryFileFromArchive(archiveTempDir);
@@ -331,7 +339,7 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
     }
 
     protected void onAfterGraphVertexCreated(GraphVertex graphVertex) {
-        this.workQueueRepository.pushText(graphVertex.getId());
+        workQueueRepository.pushText(graphVertex.getId());
     }
 
     @Inject
