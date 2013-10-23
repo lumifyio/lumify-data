@@ -1,15 +1,15 @@
 package com.altamiracorp.lumify.search;
 
-import com.altamiracorp.lumify.core.config.Configuration;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.model.search.ArtifactSearchResult;
-import com.altamiracorp.lumify.core.model.search.SearchProvider;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
+
 import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.mapreduce.Mapper;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
@@ -30,14 +30,18 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.altamiracorp.lumify.core.config.Configuration;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.search.ArtifactSearchResult;
+import com.altamiracorp.lumify.core.model.search.SearchProvider;
+import com.altamiracorp.lumify.core.user.User;
 
 public class ElasticSearchProvider extends SearchProvider {
     public static final String ES_LOCATIONS_PROP_KEY = "search.elasticsearch.locations";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchProvider.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchProvider.class);
     private static final String ES_INDEX = "atc";
     private static final String ES_INDEX_TYPE = "artifact";
     private static final String FIELD_TEXT = "text";
@@ -81,63 +85,11 @@ public class ElasticSearchProvider extends SearchProvider {
     }
 
     @Override
-    public void add(Artifact artifact, User user) throws Exception {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        if (artifact.getContent() == null) {
-//            return;
-//        }
-//
-//        LOGGER.info("Adding artifact \"" + artifact.getRowKey().toString() + "\" to elastic search index.");
-//
-//        List<String> detectedObjects = new ArrayList<String>();
-//        if (artifact.getArtifactDetectedObjects() != null) {
-//            detectedObjects = artifact.getArtifactDetectedObjects().getResolvedDetectedObjects();
-//        }
-//
-//        String id = artifact.getRowKey().toString();
-//        String graphVertexId = artifact.getGenericMetadata().getGraphVertexId();
-//        String source = artifact.getGenericMetadata().getSource();
-//        String geoLocationDescription = artifact.getDynamicMetadata().getGeoLocationTitle();
-//        String text = artifact.getContent().getDocExtractedTextString();
-//        text = text == null ? "" : text;
-//        String subject = artifact.getGenericMetadata().getSubject();
-//        subject = subject == null ? "" : subject;
-//
-//        XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()
-//                .startObject()
-//                .field(FIELD_TEXT, text)
-//                .field(FIELD_SUBJECT, subject)
-//                .field(FIELD_PUBLISHED_DATE, artifact.getPublishedDate())
-//                .field(FIELD_ARTIFACT_TYPE, artifact.getType().toString());
-//
-//        if (graphVertexId != null) {
-//            jsonBuilder = jsonBuilder.field(FIELD_GRAPH_VERTEX_ID, graphVertexId);
-//        }
-//
-//        if (source != null) {
-//            jsonBuilder = jsonBuilder.field(FIELD_SOURCE, source);
-//        }
-//
-//        if (geoLocationDescription != null) {
-//            jsonBuilder = jsonBuilder.field(FIELD_GEO_LOCATION_DESCRIPTION, geoLocationDescription);
-//        }
-//
-//        if (!detectedObjects.isEmpty()) {
-//            jsonBuilder = jsonBuilder.array(FIELD_DETECTED_OBJECTS, detectedObjects.toArray());
-//        }
-//
-//        IndexResponse response = client.prepareIndex(ES_INDEX, ES_INDEX_TYPE, id)
-//                .setSource(jsonBuilder.endObject())
-//                .execute().actionGet();
-//
-//        if (response.getId() == null) {
-//            LOGGER.error("Failed to index artifact " + id + " with elastic search");
-//        }
-    }
-
-    @Override
     public void add(GraphVertex graphVertex, InputStream textIn) throws Exception {
-        LOGGER.info("Adding artifact \"" + graphVertex.getProperty(PropertyName.ROW_KEY) + "\" to elastic search index.");
+        checkNotNull(graphVertex);
+        checkNotNull(textIn);
+
+        LOGGER.info(String.format("Adding data from graph vertex (id: %s) to elastic search index", graphVertex.getId()));
 
         // TODO storm refactor
 //        List<String> detectedObjects = new ArrayList<String>();
@@ -147,12 +99,13 @@ public class ElasticSearchProvider extends SearchProvider {
 
         String id = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
         String graphVertexId = graphVertex.getId();
-//        String source = artifact.getGenericMetadata().getSource(); TODO storm refactor
-//        String geoLocationDescription = artifact.getDynamicMetadata().getGeoLocationTitle(); TODO storm refactor
+        String source = (String) graphVertex.getProperty(PropertyName.SOURCE);
+        String geoLocationDescription = (String) graphVertex.getProperty(PropertyName.GEO_LOCATION_DESCRIPTION);
         String text = IOUtils.toString(textIn); // TODO if the text is really large this is going to eat all the memory
         text = text == null ? "" : text;
         String subject = (String) graphVertex.getProperty(PropertyName.TITLE);
         subject = subject == null ? "" : subject;
+        String publishedDate = (String) graphVertex.getProperty(PropertyName.PUBLISHED_DATE);
 
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()
                 .startObject()
@@ -161,18 +114,17 @@ public class ElasticSearchProvider extends SearchProvider {
                 .field(FIELD_ARTIFACT_TYPE, graphVertex.getProperty(PropertyName.SUBTYPE))
                 .field(FIELD_GRAPH_VERTEX_ID, graphVertexId);
 
-        // TODO storm refactor
-//                .field(FIELD_PUBLISHED_DATE, artifact.getPublishedDate())
-//                ;
+        if( publishedDate != null ) {
+            jsonBuilder = jsonBuilder.field(FIELD_PUBLISHED_DATE, publishedDate);
+        }
 
-        // TODO storm refactor
-//        if (source != null) {
-//            jsonBuilder = jsonBuilder.field(FIELD_SOURCE, source);
-//        }
-//
-//        if (geoLocationDescription != null) {
-//            jsonBuilder = jsonBuilder.field(FIELD_GEO_LOCATION_DESCRIPTION, geoLocationDescription);
-//        }
+        if (source != null) {
+            jsonBuilder = jsonBuilder.field(FIELD_SOURCE, source);
+        }
+
+        if (geoLocationDescription != null) {
+            jsonBuilder = jsonBuilder.field(FIELD_GEO_LOCATION_DESCRIPTION, geoLocationDescription);
+        }
 //
 //        if (!detectedObjects.isEmpty()) {
 //            jsonBuilder = jsonBuilder.array(FIELD_DETECTED_OBJECTS, detectedObjects.toArray());
@@ -209,9 +161,13 @@ public class ElasticSearchProvider extends SearchProvider {
             String source = getString(fields, FIELD_SOURCE);
             String graphVertexId = getString(fields, FIELD_GRAPH_VERTEX_ID);
             ArtifactType type = ArtifactType.convert(getString(fields, FIELD_ARTIFACT_TYPE));
-            // TODO storm refactor
-            //Date publishedDate = dateFormat.parse(fields.get(FIELD_PUBLISHED_DATE).getValue().toString());
+
             Date publishedDate = new Date();
+            String publishedDateString = getString(fields, FIELD_PUBLISHED_DATE);
+            if( publishedDateString != null ) {
+                publishedDate = dateFormat.parse(publishedDateString);
+            }
+
             ArtifactSearchResult result = new ArtifactSearchResult(id, subject, publishedDate, source, type, graphVertexId);
             results.add(result);
         }
