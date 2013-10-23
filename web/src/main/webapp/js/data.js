@@ -534,6 +534,7 @@ define([
                     var draggable = ui.draggable,
                         start = true,
                         graphVisible = $('.graph-pane').is('.visible'),
+                        dashboardVisible = $('.dashboard-pane').is('.visible'),
                         vertices;
 
 
@@ -545,6 +546,10 @@ define([
                         
                         if (graphVisible) {
                             ui.helper.toggleClass('draggable-invisible', enabled);
+                        } else if (dashboardVisible) {
+                            self.trigger('menubarToggleDisplay', { name:'graph' });
+                            dashboardVisible = false;
+                            graphVisible = true;
                         }
                         if (enabled) {
                             self.trigger('verticesHovering', {
