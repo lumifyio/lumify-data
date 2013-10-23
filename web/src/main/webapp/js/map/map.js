@@ -305,18 +305,15 @@ define([
                             map.removeMarker(marker);
                         }
 
-                        marker = new mxn.Marker(pt);
-                        marker.setAttribute('graphVertexId', vertex.id);
-                        marker.setAttribute('subType', vertex.properties._subType);
-
-                        self.updateMarkerIcon(marker, vertex.workspace.selected, vertex.properties.heading);
-
-                        marker.click.addHandler(function(eventType, marker) {
-                            self.trigger('verticesSelected', [ vertex ]);
-                        });
-                        map.addMarker(marker);
+                        var unselected = createMarker(map, pt, vertex, false);
+                        var selected = createMarker(map, pt, vertex, true);
+                        if (vertex.workspace.selected) {
+                            unselected.hide();
+                        } else {
+                            selected.hide();
+                        }
                     } else {
-                        marker.forEach(function(m) {
+                        marker.concat(self.markerForId(map, vertex.id + '-selected')).forEach(function(m) {
                             if (map.api == 'googlev3') {
                                 var p = pt.toProprietary('googlev3');
                                 if(m.proprietary_marker) {
@@ -335,6 +332,20 @@ define([
                     this.fit();
                 }
             });
+
+            function createMarker(map, pt, vertex, selected) {
+                var marker = new mxn.Marker(pt);
+                marker.setAttribute('graphVertexId', vertex.id + (selected ? '-selected' : ''));
+                marker.setAttribute('subType', vertex.properties._subType);
+
+                self.updateMarkerIcon(marker, selected, vertex.properties.heading);
+
+                marker.click.addHandler(function(eventType, marker) {
+                    self.trigger('verticesSelected', [ vertex ]);
+                });
+                map.addMarker(marker);
+                return marker;
+            }
         };
 
         this.updateMarkerIcon = function(marker, selected, heading) {
