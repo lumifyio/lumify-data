@@ -107,10 +107,11 @@ define([
 
                 map.markersLayer.features.forEach(function(marker) {
                     if (! ~selectedIds.indexOf(marker.id)) {
+                        // TODO: support clusters
                         if (marker.data.inWorkspace) {
                             marker.style.externalGraphic = marker.style.externalGraphic.replace(/&selected/, '');
                         } else {
-                            marker.style.display = 'none';
+                            if (!marker.cluster) marker.style.display = 'none';
                         }
                     }
                 });
@@ -164,7 +165,7 @@ define([
                 // TODO: update heading
             }
 
-            feature.style.display = '';
+            if (!feature.cluster) feature.style.display = '';
 
             return feature;
         };
