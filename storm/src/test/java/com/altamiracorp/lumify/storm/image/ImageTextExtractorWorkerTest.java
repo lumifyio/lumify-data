@@ -15,7 +15,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
