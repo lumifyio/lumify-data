@@ -43,6 +43,7 @@ public class LocationTermAnalyzer {
     public TermMention analyzeTermData(final TermMentionWithGraphVertex data, final User user) {
         checkNotNull(data);
         checkNotNull(data.getTermMention());
+        checkNotNull(data.getTermMention().getMetadata());
         checkNotNull(user);
 
         final TermMention termMention = data.getTermMention();
@@ -69,7 +70,7 @@ public class LocationTermAnalyzer {
     private void updateGraphVertex(final TermMention termMention, final GraphVertex vertex, final User user) {
         final TermMentionMetadata termMetadata = termMention.getMetadata();
 
-        if (vertex != null && termMetadata != null) {
+        if (vertex != null) {
             final Double latitude = termMetadata.getLatitude();
             final Double longitude = termMetadata.getLongitude();
 
