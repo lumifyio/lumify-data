@@ -32,47 +32,46 @@ public class ArtifactLocationAnalyzerTest {
     @Mock
     GraphVertex graphVertex;
     @Mock
-    TermMention mention1, mention2, mention3, mention4, mention5;
-    TermMentionMetadata metadata1, metadata2, metadata3, metadata4, metadata5;
+    TermMentionMetadata mockMetadata;
+    @Mock
+    TermMention mention;
+
     List<TermMention> mentions;
 
     @Before
     public void setup() {
-        metadata1 = new TermMentionMetadata();
-        metadata1.setGeoLocation(9.0, 77.0);
-        metadata1.setGeoLocationPopulation(90L);
-        when(mention1.getMetadata()).thenReturn(metadata1);
-
-        metadata2 = new TermMentionMetadata();
-        metadata2.setGeoLocation(33.0, 77.0);
-        metadata2.setGeoLocationPopulation(100L);
-        metadata2.setGeoLocationTitle("Test");
-        when(mention2.getMetadata()).thenReturn(metadata2);
-
-        metadata3 = new TermMentionMetadata();
-        metadata3.setGeoLocation(22.0, 32.0);
-        metadata3.setGeoLocationPopulation(80L);
-        when(mention3.getMetadata()).thenReturn(metadata3);
-
-        metadata4 = new TermMentionMetadata();
-        when(mention4.getMetadata()).thenReturn(metadata4);
-
-        metadata5 = mock(TermMentionMetadata.class);
-        when(metadata5.getGeoLocation()).thenReturn("33,77");
-        when(metadata5.getLongitude()).thenReturn(null);
-        when(metadata5.getLatitude()).thenReturn(null);
-        when(mention5.getMetadata()).thenReturn(metadata5);
-
         mentions = new ArrayList<TermMention>();
         analyzer = new ArtifactLocationAnalyzer(repository);
     }
 
     @Test
     public void testAnalyzeLocation() {
-        mentions.add(mention1);
-        mentions.add(mention2);
-        mentions.add(mention3);
-        mentions.add(mention4);
+        TermMentionMetadata metadata = new TermMentionMetadata();
+        metadata.setGeoLocation(9.0, 77.0);
+        metadata.setGeoLocationPopulation(90L);
+        when(mention.getMetadata()).thenReturn(metadata);
+
+        TermMentionMetadata metadataWithTitle = new TermMentionMetadata();
+        metadataWithTitle.setGeoLocation(33.0, 77.0);
+        metadataWithTitle.setGeoLocationPopulation(100L);
+        metadataWithTitle.setGeoLocationTitle("Test");
+        TermMention mentionWithTitle = mock(TermMention.class);
+        when(mentionWithTitle.getMetadata()).thenReturn(metadataWithTitle);
+
+        TermMentionMetadata metadataWithLowPop = new TermMentionMetadata();
+        metadataWithLowPop.setGeoLocation(22.0, 32.0);
+        metadataWithLowPop.setGeoLocationPopulation(80L);
+        TermMention mentionWithLowPop = mock(TermMention.class);
+        when(mentionWithLowPop.getMetadata()).thenReturn(metadataWithLowPop);
+
+        TermMentionMetadata emptyMetadata = new TermMentionMetadata();
+        TermMention emptyMention = mock(TermMention.class);
+        when(emptyMention.getMetadata()).thenReturn(emptyMetadata);
+
+        mentions.add(mention);
+        mentions.add(mentionWithTitle);
+        mentions.add(mentionWithLowPop);
+        mentions.add(emptyMention);
 
         ArgumentCaptor<Geoshape> arg = ArgumentCaptor.forClass(Geoshape.class);
         analyzer.analyzeLocation(graphVertex, mentions, user);
@@ -84,7 +83,10 @@ public class ArtifactLocationAnalyzerTest {
 
     @Test
     public void testAnalyzeWithNoGeoLocations() {
-        mentions.add(mention4);
+        TermMentionMetadata metadata = new TermMentionMetadata();
+        when(mention.getMetadata()).thenReturn(metadata);
+
+        mentions.add(mention);
         analyzer.analyzeLocation(graphVertex, mentions, user);
         verify(graphVertex, times(0)).setProperty(any(PropertyName.class), anyString());
         verify(repository, times(0)).saveVertex(graphVertex, user);
@@ -92,27 +94,52 @@ public class ArtifactLocationAnalyzerTest {
 
     @Test
     public void testAnalyzeWithNoTitle() {
-        mentions.add(mention1);
+        TermMentionMetadata metadata = new TermMentionMetadata();
+        metadata.setGeoLocation(9.0, 77.0);
+        metadata.setGeoLocationPopulation(90L);
+        when(mention.getMetadata()).thenReturn(metadata);
+
+        mentions.add(mention);
         analyzer.analyzeLocation(graphVertex, mentions, user);
         verify(repository, times(1)).saveVertex(graphVertex, user);
         verify(graphVertex, times(1)).setProperty(any(PropertyName.class), anyString());
     }
 
     @Test
-    public void testAnalyzeWithInvalidGeoPoint() {
-        mentions.add(mention5);
+    public void testAnalyzeWithNullLong() {
+        when(mockMetadata.getGeoLocation()).thenReturn("33,77");
+        when(mockMetadata.getLongitude()).thenReturn(null);
+        when(mockMetadata.getLatitude()).thenReturn(33.0);
+        when(mention.getMetadata()).thenReturn(mockMetadata);
+
+        mentions.add(mention);
         analyzer.analyzeLocation(graphVertex, mentions, user);
         verify(repository, times(0)).saveVertex(graphVertex, user);
         verify(graphVertex, times(0)).setProperty(any(PropertyName.class), anyString());
     }
 
     @Test
-    public void testWithNullVertex() {
-        mentions.add(mention1);
-        analyzer.analyzeLocation(null, mentions, user);
+    public void testAnalyzeWithNullLat() {
+        when(mockMetadata.getGeoLocation()).thenReturn("33,77");
+        when(mockMetadata.getLongitude()).thenReturn(77.0);
+        when(mockMetadata.getLatitude()).thenReturn(null);
+        when(mention.getMetadata()).thenReturn(mockMetadata);
+
+        mentions.add(mention);
+        analyzer.analyzeLocation(graphVertex, mentions, user);
         verify(repository, times(0)).saveVertex(graphVertex, user);
         verify(graphVertex, times(0)).setProperty(any(PropertyName.class), anyString());
     }
+
+    @Test
+    public void testAnalyzeWithNullTermMentionMetadata() {
+        when(mention.getMetadata()).thenReturn(null);
+        mentions.add(mention);
+        analyzer.analyzeLocation(graphVertex, mentions, user);
+        verify(repository, times(0)).saveVertex(graphVertex, user);
+        verify(graphVertex, times(0)).setProperty(any(PropertyName.class), anyString());
+    }
+
 
     //todo can termMetaData ever be null in updateGraphVertex? - either add test for this or remove case
 }
