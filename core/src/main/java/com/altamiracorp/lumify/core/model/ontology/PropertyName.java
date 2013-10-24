@@ -20,9 +20,9 @@ public enum PropertyName {
     BOUNDING_BOX("boundingBox"),
     PUBLISHED_DATE("publishedDate"),
     TIME_STAMP("_timeStamp"),
-    RAW_HDFS_PATH("rawHdfsPath"),
-    TEXT_HDFS_PATH("textHdfsPath"),
-    DETECTED_OBJECTS("detectedObjects"),
+    RAW_HDFS_PATH("_rawHdfsPath"),
+    TEXT_HDFS_PATH("_textHdfsPath"),
+    DETECTED_OBJECTS("_detectedObjects"),
     HIGHLIGHTED_TEXT_HDFS_PATH("highlightedTextHdfsPath");
 
     private final String text;
