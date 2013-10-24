@@ -75,8 +75,8 @@ define([
             var self = this;
             this.isWorkspaceEditable = workspaceData.isEditable;
             this.mapReady(function(map) {
-                map.removeLayer(map.markersLayer);
-                map.addLayer(map.markersLayer = new ol.Layer.Markers('Markers'));
+                map.markersLayer.removeAllFeatures();
+                this.markers = {};
                 this.updateOrAddVertices(workspaceData.data.vertices, { adding:true });
             });
         };
@@ -105,21 +105,23 @@ define([
                     self.findOrCreateMarker(map, vertex);
                 });
 
-                map.markersLayer.markers.forEach(function(marker) {
+                map.markersLayer.features.forEach(function(marker) {
                     if (! ~selectedIds.indexOf(marker.id)) {
-                        if (marker.inWorkspace) {
-                            marker.setUrl(marker.icon.url.replace(/&selected/, ''));
+                        if (marker.data.inWorkspace) {
+                            marker.style.externalGraphic = marker.style.externalGraphic.replace(/&selected/, '');
                         } else {
-                            marker.display(false);
+                            marker.style.display = 'none';
                         }
                     }
                 });
+
+                map.markersLayer.redraw();
             });
         };
 
         this.findOrCreateMarker = function(map, vertex) {
             var self = this,
-                marker = this.markers[vertex.id],
+                feature = this.markers[vertex.id],
                 geoLocation = vertex.properties.geoLocation,
                 subType = vertex.properties._subType,
                 heading = vertex.properties.heading,
@@ -131,28 +133,40 @@ define([
             if (heading) iconUrl += '&heading=' + heading;
             if (selected) iconUrl += '&selected';
 
-            if (!marker) {
-                var size = new ol.Size(22,40),
-                    offset = new ol.Pixel(-(size.w/2), -size.h),
-                           icon = new ol.Icon(iconUrl, size, offset),
-                           pt = latLon(geoLocation.latitude, geoLocation.longitude);
-
-                marker = this.markers[vertex.id] = new ol.Marker(pt, icon);
-                marker.id = vertex.id;
-                marker.vertex = vertex;
-                marker.events.register("click", marker, function(event) {
-                    self.trigger('verticesSelected', [this.vertex]);
-                });
-                map.markersLayer.addMarker(marker);
+            if (!feature) {
+                feature = this.markers[vertex.id] = new ol.Feature.Vector(
+                    point(geoLocation.latitude, geoLocation.longitude),
+                    { vertex: vertex },
+                    {
+                        graphic: true,
+                        externalGraphic: iconUrl,
+                        graphicWidth: 22,
+                        graphicHeight: 40,
+                        graphicXOffset: -11,
+                        graphicYOffset: -40,
+                        cursor: 'pointer',
+                       /*
+                        label: vertex.properties.title.length > 15 ? vertex.properties.title.substring(0,15) + '...' : vertex.properties.title,
+                        fontColor: '#000',
+                        labelOutlineColor: '#fff',
+                        labelOutlineWidth: '2px',
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        labelYOffset: -10
+                        */
+                    }
+                );
+                feature.id = vertex.id;
+                map.markersLayer.addFeatures([feature]);
             } else {
-                marker.setUrl(iconUrl);
+                feature.style.externalGraphic = iconUrl;
                 // TODO: update position
                 // TODO: update heading
             }
 
-            marker.display(true);
+            feature.style.display = '';
 
-            return marker;
+            return feature;
         };
 
         this.updateOrAddVertices = function(vertices, options) {
@@ -166,10 +180,12 @@ define([
                     if (inWorkspace || self.markers[vertex.id]) {
                         var marker = self.findOrCreateMarker(map, vertex);
                         if (marker) {
-                            marker.inWorkspace = inWorkspace;
+                            marker.data.inWorkspace = inWorkspace;
                         }
                     }
                 });
+
+                map.markersLayer.redraw();
 
                 // TODO: implement fit
             });
@@ -200,10 +216,18 @@ define([
                     self.trigger('verticesSelected', []);
                 });
 
-                map.markersLayer = new ol.Layer.Markers('Markers');
+                map.markersLayer = new ol.Layer.Vector('Markers');
+                var selectFeature = new ol.Control.SelectFeature(map.markersLayer);
+                map.addControl(selectFeature);
+                selectFeature.activate();
+                map.markersLayer.events.register('featureselected', map.markersLayer, function(featureEvents) {
+                    self.trigger('verticesSelected', [featureEvents.feature.data.vertex]);
+                });
+
                 map.addLayers([base, map.markersLayer]);
 
                 latLon = latLon.bind(null, map.displayProjection, map.getProjectionObject());
+                point = point.bind(null, map.displayProjection, map.getProjectionObject());
 
                 map.setCenter(latLon(START_COORDINATES), 7);
                 this.mapMarkReady(map);
@@ -225,6 +249,14 @@ define([
             });
         };
 
+        function point(sourceProjection, destProjection, x, y) {
+            if (arguments.length === 3 && _.isArray(x) && x.length === 2) {
+                y = x[1];
+                x = x[0];
+            }
+
+            return new ol.Geometry.Point(y, x).transform(sourceProjection, destProjection);
+        }
 
         function latLon(sourceProjection, destProjection, lat, lon) {
             if (arguments.length === 3 && _.isArray(lat) && lat.length === 2) {
