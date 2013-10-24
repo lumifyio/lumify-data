@@ -65,9 +65,8 @@ define([
                 workspacesPane = content.filter('.workspaces-pane').data(DATA_MENUBAR_NAME, 'workspaces'),
                 usersPane = content.filter('.users-pane').data(DATA_MENUBAR_NAME, 'users'),
                 graphPane = content.filter('.graph-pane').data(DATA_MENUBAR_NAME, 'graph'),
-                detailPane = content.filter('.detail-pane');
-                
-            content.filter('.map-pane').data(DATA_MENUBAR_NAME, 'map');
+                detailPane = content.filter('.detail-pane'),
+                mapPane = content.filter('.map-pane').data(DATA_MENUBAR_NAME, 'map');
 
             Sync.attachTo(window);
             Menubar.attachTo(menubarPane.find('.content'));

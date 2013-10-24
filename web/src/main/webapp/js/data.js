@@ -55,6 +55,7 @@ define([
         this.workspaceService = new WorkspaceService();
         this.ucdService = new UcdService();
         this.vertexService = new VertexService();
+        this.selectedVertices = [];
         this.id = null;
 
         this.defaultAttrs({
