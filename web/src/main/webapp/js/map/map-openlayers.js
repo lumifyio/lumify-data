@@ -157,7 +157,7 @@ define([
                     }
                 );
                 feature.id = vertex.id;
-                map.markersLayer.addFeatures([feature]);
+                map.markersLayer.addFeatures(feature);
             } else {
                 feature.style.externalGraphic = iconUrl;
                 // TODO: update position
@@ -216,12 +216,63 @@ define([
                     self.trigger('verticesSelected', []);
                 });
 
-                map.markersLayer = new ol.Layer.Vector('Markers');
+                var cluster = new ol.Strategy.Cluster({ 
+                                //new ol.Strategy.AnimatedCluster({
+                    distance: 45,
+                    threshold: 2,
+                    animationMethod: ol.Easing.Expo.easeOut,
+                    animationDuration: 100
+                });
+                
+
+                var baseStyle = {
+                        pointRadius: "${radius}",
+                        label: "${label}",
+                        labelOutlineColor: '#AD2E2E',
+                        labelOutlineWidth: '2',
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        fontColor: '#ffffff',
+                        fillColor: "#F13B3C",
+                        fillOpacity: 0.8,
+                        strokeColor: "#AD2E2E",
+                        strokeWidth: 3,
+                        cursor: 'pointer'
+                    },
+                    baseContext = {
+                        context: {
+                            label: function(feature) {
+                                return feature.attributes.count + '';
+                            },
+                            radius: function(feature) {
+                                var count = Math.min(feature.attributes.count || 0, 10);
+                                return count + 10;
+                            }
+                        }
+                    };
+                map.markersLayer = new ol.Layer.Vector('Markers', {
+                    strategies: [ cluster ],
+                    styleMap: new ol.StyleMap({
+                        'default': new ol.Style(baseStyle, baseContext),
+                        'select': new ol.Style($.extend({}, baseStyle, { fillColor:'#0070C3', labelOutlineColor:'#08538B', strokeColor:'#08538B' }), baseContext)
+                    })
+                });
+
+                // Feature Clustering
+                cluster.activate();
+
+                // Feature Selection
                 var selectFeature = new ol.Control.SelectFeature(map.markersLayer);
                 map.addControl(selectFeature);
                 selectFeature.activate();
                 map.markersLayer.events.register('featureselected', map.markersLayer, function(featureEvents) {
-                    self.trigger('verticesSelected', [featureEvents.feature.data.vertex]);
+                    var vertices;
+                    if (featureEvents.feature.cluster) {
+                        vertices = [_.map(featureEvents.feature.cluster, function(feature) {
+                            return feature.data.vertex; 
+                        })];
+                    } else vertices = [featureEvents.feature.data.vertex];
+                    self.trigger('verticesSelected', vertices);
                 });
 
                 map.addLayers([base, map.markersLayer]);

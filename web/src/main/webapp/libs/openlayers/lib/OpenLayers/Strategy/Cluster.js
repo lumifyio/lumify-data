@@ -123,8 +123,9 @@ OpenLayers.Strategy.Cluster = OpenLayers.Class(OpenLayers.Strategy, {
     cacheFeatures: function(event) {
         var propagate = true;
         if(!this.clustering) {
-            this.clearCache();
-            this.features = event.features;
+            //this.clearCache();
+            this.features = this.features || [];
+            this.features = this.features.concat(event.features);
             this.cluster();
             propagate = false;
         }
@@ -152,7 +153,8 @@ OpenLayers.Strategy.Cluster = OpenLayers.Class(OpenLayers.Strategy, {
     cluster: function(event) {
         if((!event || event.zoomChanged) && this.features) {
             var resolution = this.layer.map.getResolution();
-            if(resolution != this.resolution || !this.clustersExist()) {
+            if(resolution != this.resolution || !this.clustersExist() || this.previousCount != this.features.length) {
+                this.previousCount = this.features.length;
                 this.resolution = resolution;
                 var clusters = [];
                 var feature, clustered, cluster;
