@@ -62,6 +62,8 @@ define([
             this.loadVisibleResultPreviews();
 
             this.setupDraggables();
+
+            this.onVerticesSelected(null, appData.vertices(appData.selectedVertices));
         });
 
         this.after('teardown', function() {
@@ -239,7 +241,8 @@ define([
             }
             this.$node.find('.active').removeClass('active');
 
-            var ids = _.chain(data || [])
+            var vertices = _.isArray(data) ? data : data ? [data] : [],
+                ids = _.chain(vertices || [])
                 .filter(function(v) { return v.properties && v.properties._type !== 'relationship'; })
                 .map(function(v) { return '.gId' + v.id; })
                 .value().join(',');
