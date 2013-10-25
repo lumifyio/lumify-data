@@ -1,9 +1,12 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.core.model.graph.GraphRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.miniweb.utils.UrlUtils;
@@ -17,7 +20,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ArtifactRawByRowKey extends BaseRequestHandler {
@@ -25,9 +27,11 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
     private static final Pattern RANGE_PATTERN = Pattern.compile("bytes=([0-9]*)-([0-9]*)");
 
     private final ArtifactRepository artifactRepository;
+    private final GraphRepository graphRepository;
 
     @Inject
-    public ArtifactRawByRowKey(final ArtifactRepository repo) {
+    public ArtifactRawByRowKey(final ArtifactRepository repo, final GraphRepository graphRepository) {
+        this.graphRepository = graphRepository;
         artifactRepository = repo;
     }
 
@@ -41,27 +45,29 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
         boolean videoPlayback = getOptionalParameter(request, "playback") != null;
 
         User user = getUser(request);
-        ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
-        Artifact artifact = artifactRepository.findByRowKey(artifactKey.toString(), user);
+        String graphVertexId = UrlUtils.urlDecode(getAttributeString(request, "_rowKey"));
+        GraphVertex vertex = graphRepository.findVertex(graphVertexId, user);
+        String artifactKey = vertex.getProperty(PropertyName.ROW_KEY).toString();
+        String type = graphRepository.findVertex(graphVertexId, user).getProperty("_subType").toString();
+        Artifact artifact = artifactRepository.findByRowKey(artifactKey, user);
 
         if (artifact == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             chain.next(request, response);
             return;
         }
-
         String fileName = getFileName(artifact);
         if (videoPlayback) {
             handlePartialPlayback(request, response, artifact, fileName, user);
         } else {
             String mimeType = getMimeType(artifact);
-            response.setContentType(mimeType);
+            response.setContentType(type);
             if (download) {
                 response.addHeader("Content-Disposition", "attachment; filename=" + fileName);
             } else {
                 response.addHeader("Content-Disposition", "inline; filename=" + fileName);
             }
-            InputStream in = artifactRepository.getRaw(artifact, user);
+            InputStream in = artifactRepository.getRaw(artifact, vertex, user);
             try {
                 IOUtils.copy(in, response.getOutputStream());
             } finally {

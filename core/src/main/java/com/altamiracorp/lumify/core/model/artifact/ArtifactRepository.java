@@ -1,27 +1,7 @@
 package com.altamiracorp.lumify.core.model.artifact;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.imageio.ImageIO;
-
-import org.apache.commons.io.IOUtils;
-import org.json.JSONArray;
-
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.GraphSession;
-import com.altamiracorp.lumify.core.model.ModelSession;
-import com.altamiracorp.lumify.core.model.Repository;
-import com.altamiracorp.lumify.core.model.Row;
-import com.altamiracorp.lumify.core.model.SaveFileResults;
+import com.altamiracorp.lumify.core.model.*;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
@@ -32,10 +12,23 @@ import com.altamiracorp.lumify.core.user.User;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Singleton
 public class ArtifactRepository extends Repository<Artifact> {
     public static final String LUMIFY_VIDEO_PREVIEW_HDFS_PATH = "/lumify/artifacts/video/preview/";
+    public static final String LUMIFY_VIDEO_POSTER_FRAME_HDFS_PATH = "/lumify/artifacts/video/posterFrame/";
     public static final int FRAMES_PER_PREVIEW = 20;
     public static final int PREVIEW_FRAME_WIDTH = 360;
     public static final int PREVIEW_FRAME_HEIGHT = 240;
@@ -72,32 +65,18 @@ public class ArtifactRepository extends Repository<Artifact> {
         return getModelSession().saveFile(in, user);
     }
 
-    public InputStream getRaw(Artifact artifact, User user) {
+    public InputStream getRaw(Artifact artifact, GraphVertex vertex, User user) {
         byte[] bytes = artifact.getMetadata().getRaw();
         if (bytes != null) {
             return new ByteArrayInputStream(bytes);
         }
 
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        String hdfsPath = artifact.getMetadata().get();
-//        if (hdfsPath != null) {
-//            return getModelSession().loadFile(hdfsPath, user);
-//        }
-//
-//        return null;
-    }
-
-    public BufferedImage getRawAsImage(Artifact artifact, User user) {
-        InputStream in = getRaw(artifact, user);
-        try {
-            try {
-                return ImageIO.read(in);
-            } finally {
-                in.close();
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Could not read image", e);
+        String hdfsPath = vertex.getProperty(PropertyName.RAW_HDFS_PATH).toString();
+        if (hdfsPath != null) {
+            return getModelSession().loadFile(hdfsPath, user);
         }
+
+        return null;
     }
 
     public GraphVertex saveToGraph(Artifact artifact, ArtifactExtractedInfo artifactExtractedInfo, User user) {
@@ -235,11 +214,16 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
     }
 
-    public InputStream getVideoPreviewImage(ArtifactRowKey artifactRowKey, User user) {
-        return getModelSession().loadFile(getVideoPreviewPath(artifactRowKey.toString()), user);
+    public InputStream getVideoPreviewImage(String artifactRowKey, User user) {
+        return getModelSession().loadFile(getVideoPreviewPath(artifactRowKey), user);
     }
 
     public static String getVideoPreviewPath(String artifactRowKey) {
         return LUMIFY_VIDEO_PREVIEW_HDFS_PATH + artifactRowKey;
     }
+
+    public InputStream getRawPosterFrame(String artifactRowKey, User user) {
+        return getModelSession().loadFile(LUMIFY_VIDEO_POSTER_FRAME_HDFS_PATH + artifactRowKey, user);
+    }
+
 }

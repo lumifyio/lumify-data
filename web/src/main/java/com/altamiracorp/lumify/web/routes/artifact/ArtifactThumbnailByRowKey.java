@@ -1,10 +1,13 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.miniweb.utils.UrlUtils;
@@ -22,12 +25,15 @@ public class ArtifactThumbnailByRowKey extends BaseRequestHandler {
 
     private final ArtifactRepository artifactRepository;
     private final ArtifactThumbnailRepository artifactThumbnailRepository;
+    private final GraphRepository graphRepository;
 
     @Inject
     public ArtifactThumbnailByRowKey(final ArtifactRepository artifactRepo,
-                                     final ArtifactThumbnailRepository thumbnailRepo) {
+                                     final ArtifactThumbnailRepository thumbnailRepo,
+                                     final GraphRepository graphRepository) {
         artifactRepository = artifactRepo;
         artifactThumbnailRepository = thumbnailRepo;
+        this.graphRepository = graphRepository;
     }
 
     public static String getUrl(ArtifactRowKey artifactKey) {
@@ -37,7 +43,9 @@ public class ArtifactThumbnailByRowKey extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         User user = getUser(request);
-        ArtifactRowKey artifactRowKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
+        String graphVertexId = UrlUtils.urlDecode(getAttributeString(request, "_rowKey"));
+        GraphVertex vertex = graphRepository.findVertex(graphVertexId, user);
+        ArtifactRowKey artifactRowKey = new ArtifactRowKey(vertex.getProperty(PropertyName.ROW_KEY).toString());
 
         String widthStr = getOptionalParameter(request, "width");
         int[] boundaryDims = new int[]{200, 200};
@@ -66,7 +74,7 @@ public class ArtifactThumbnailByRowKey extends BaseRequestHandler {
         }
 
         LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " (raw) " + boundaryDims[0] + "x" + boundaryDims[1]);
-        InputStream in = artifactRepository.getRaw(artifact, user);
+        InputStream in = artifactRepository.getRaw(artifact, vertex, user);
         try {
             thumbnailData = artifactThumbnailRepository.createThumbnail(artifact.getRowKey(), "raw", in, boundaryDims, user);
         } finally {
