@@ -122,6 +122,20 @@ define([
                     self.findOrCreateMarker(map, vertex);
                 });
 
+                // Select clustered items that contain selected features
+                featuresLayer.features.forEach(function(feature) {
+                    if (feature.cluster) {
+                        var someSelected = _.some(feature.cluster, function(f) {
+                            return ~selectedIds.indexOf(f.id);
+                        });
+                        if (someSelected) {
+                            self.featuresLayerSelection.highlight(feature);
+                        } else {
+                            self.featuresLayerSelection.unhighlight(feature);
+                        }
+                    }
+                });
+
                 featuresLayer.redraw();
             });
         };
@@ -272,7 +286,7 @@ define([
             cluster.activate();
 
             // Feature Selection
-            var selectFeature = new ol.Control.SelectFeature(map.featuresLayer);
+            var selectFeature = this.featuresLayerSelection = new ol.Control.SelectFeature(map.featuresLayer);
             map.addControl(selectFeature);
             selectFeature.activate();
             map.featuresLayer.events.on({
