@@ -5,7 +5,6 @@ import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.miniweb.HandlerChain;
@@ -45,17 +44,19 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
         boolean videoPlayback = getOptionalParameter(request, "playback") != null;
 
         User user = getUser(request);
-        String graphVertexId = UrlUtils.urlDecode(getAttributeString(request, "_rowKey"));
-        GraphVertex vertex = graphRepository.findVertex(graphVertexId, user);
-        String artifactKey = vertex.getProperty(PropertyName.ROW_KEY).toString();
-        String type = graphRepository.findVertex(graphVertexId, user).getProperty("_subType").toString();
-        Artifact artifact = artifactRepository.findByRowKey(artifactKey, user);
-
+        ArtifactRowKey artifactRowKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
+        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey.toString(), user);
         if (artifact == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             chain.next(request, response);
             return;
         }
+
+        String graphVertexId = artifact.getMetadata().getGraphVertexId();
+        GraphVertex vertex = graphRepository.findVertex(graphVertexId, user);
+        String type = graphRepository.findVertex(graphVertexId, user).getProperty("_subType").toString();
+
+
         String fileName = getFileName(artifact);
         if (videoPlayback) {
             handlePartialPlayback(request, response, artifact, fileName, user);

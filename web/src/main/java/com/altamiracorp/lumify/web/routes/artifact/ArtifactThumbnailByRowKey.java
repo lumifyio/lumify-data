@@ -43,9 +43,7 @@ public class ArtifactThumbnailByRowKey extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         User user = getUser(request);
-        String graphVertexId = UrlUtils.urlDecode(getAttributeString(request, "_rowKey"));
-        GraphVertex vertex = graphRepository.findVertex(graphVertexId, user);
-        ArtifactRowKey artifactRowKey = new ArtifactRowKey(vertex.getProperty(PropertyName.ROW_KEY).toString());
+        ArtifactRowKey artifactRowKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
 
         String widthStr = getOptionalParameter(request, "width");
         int[] boundaryDims = new int[]{200, 200};
@@ -66,6 +64,7 @@ public class ArtifactThumbnailByRowKey extends BaseRequestHandler {
         }
 
         Artifact artifact = artifactRepository.findByRowKey(artifactRowKey.toString(), user);
+        GraphVertex vertex = graphRepository.findVertex(artifact.getMetadata().getGraphVertexId(), user);
         if (artifact == null) {
             LOGGER.warn("Cannot find artifact with row key: " + artifactRowKey.toString());
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
