@@ -202,12 +202,23 @@ public class ArtifactRepository extends Repository<Artifact> {
     }
 
     public void writeHighlightedTextTo(GraphVertex artifactVertex, OutputStream out, User user) throws IOException {
-        checkNotNull(artifactVertex, "artifactVertex cannot be null");
+        checkNotNull(artifactVertex);
+        checkNotNull(out);
+        checkNotNull(user);
+
         String hdfsPath = (String) artifactVertex.getProperty(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH);
         if (hdfsPath == null) {
             String artifactRowKey = (String) artifactVertex.getProperty(PropertyName.ROW_KEY);
             Artifact artifact = findByRowKey(artifactRowKey, user);
-            out.write(artifact.getMetadata().getHighlightedText().getBytes());
+            if( artifact != null ) {
+                ArtifactMetadata metadata = artifact.getMetadata();
+                if( metadata != null ) {
+                    String highlightedText = metadata.getHighlightedText();
+                    if( highlightedText != null ) {
+                        out.write(highlightedText.getBytes());
+                    }
+                }
+            }
         } else {
             InputStream in = getModelSession().loadFile(hdfsPath, user);
             IOUtils.copy(in, out);
