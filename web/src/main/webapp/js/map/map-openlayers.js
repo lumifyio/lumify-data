@@ -68,7 +68,12 @@ define([
             if (!this.mapIsReady()) this.initializeMap();
         };
 
-        this.onMapCenter = function() { };
+        this.onMapCenter = function(evt, data) {
+            this.mapReady(function(map) {
+                map.setCenter(latLon(data.latitude, data.longitude), 7);
+                map.featuresLayer.redraw();
+            });
+        };
 
         this.onWorkspaceLoaded = function(evt, workspaceData) {
             var self = this;
@@ -88,7 +93,19 @@ define([
         };
 
         this.onVerticesDeleted = function(evt, data) { 
-            // TODO: implement
+            this.mapReady(function(map) {
+                var featuresLayer = map.featuresLayer,
+                    toRemove = [];
+
+                data.vertices.forEach(function(vertex) {
+                    var feature = featuresLayer.getFeatureById(vertex.id);
+                    if (feature) {
+                        toRemove.push(feature);
+                    }
+                });
+
+                featuresLayer.removeFeatures(toRemove);
+            });
         };
 
         this.onVerticesSelected = function(evt, data) {
@@ -101,6 +118,7 @@ define([
                     selectedIds = _.pluck(vertices, 'id'),
                     toRemove = [];
 
+                // Remove features not selected and not in workspace
                 featuresLayer.features.forEach(function unselectFeature(feature) {
                     if (feature.cluster) {
                         feature.cluster.forEach(unselectFeature);
@@ -116,8 +134,11 @@ define([
                     }
                 });
 
-                featuresLayer.removeFeatures(toRemove);
+                if (toRemove.length) {
+                    featuresLayer.removeFeatures(toRemove);
+                }
 
+                // Create new features for new selections
                 vertices.forEach(function(vertex) {
                     self.findOrCreateMarker(map, vertex);
                 });
@@ -140,13 +161,9 @@ define([
             });
         };
 
-        this.featureForId = function(map, id) {
-            return _.findWhere(map.featuresLayer.features, { id: id });
-        };
-
         this.findOrCreateMarker = function(map, vertex) {
             var self = this,
-                feature = this.featureForId(vertex.id),
+                feature = map.featuresLayer.getFeatureById(vertex.id),
                 geoLocation = vertex.properties.geoLocation,
                 subType = vertex.properties._subType,
                 heading = vertex.properties.heading,
@@ -201,7 +218,7 @@ define([
             this.mapReady(function(map) {
                 vertices.forEach(function(vertex) {
                     var inWorkspace = appData.inWorkspace(vertex),
-                        feature = self.featureForId(vertex.id);
+                        feature = map.featuresLayer.getFeatureById(vertex.id);
 
                     if (inWorkspace || feature) {
                         var marker = self.findOrCreateMarker(map, vertex);
@@ -311,7 +328,6 @@ define([
 
             map.setCenter(latLon(START_COORDINATES), 7);
 
-            this.featureForId = this.featureForId.bind(this, map);
             this.mapMarkReady(map);
         };
 
