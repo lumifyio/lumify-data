@@ -21,11 +21,6 @@ public abstract class ObjectDetector {
         this.videoFrameRepository = videoFrameRepository;
     }
 
-    public List<ArtifactDetectedObject> detectObjects(Artifact artifact, User user) throws IOException {
-        BufferedImage bImage = artifactRepository.getRawAsImage(artifact, user);
-        return detectObjects(bImage);
-    }
-
     public List<ArtifactDetectedObject> detectObjects(VideoFrame videoFrame, User user) throws IOException {
         BufferedImage bImage = videoFrameRepository.loadImage(videoFrame, user);
         return detectObjects(bImage);

@@ -214,8 +214,8 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
     }
 
-    public InputStream getVideoPreviewImage(String artifactRowKey, User user) {
-        return getModelSession().loadFile(getVideoPreviewPath(artifactRowKey), user);
+    public InputStream getVideoPreviewImage(ArtifactRowKey artifactRowKey, User user) {
+        return getModelSession().loadFile(getVideoPreviewPath(artifactRowKey.toString()), user);
     }
 
     public static String getVideoPreviewPath(String artifactRowKey) {
