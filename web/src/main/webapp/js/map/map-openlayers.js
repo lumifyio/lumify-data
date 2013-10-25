@@ -243,6 +243,142 @@ define([
 
         };
 
+        this.invalidMap = function() {
+            var map = this.select('mapSelector'),
+                cls = 'invalid',
+                animate = function() {
+                    map.removeClass(cls);
+                    _.defer(function() {
+                        map.on('animationend MSAnimationEnd webkitAnimationEnd oAnimationEnd oanimationend', function() {
+                            map.removeClass(cls);
+                        });
+                        map.addClass(cls);
+                    });
+                };
+
+            if (this.$node.closest('.visible').length === 0) {
+                return;
+            } else {
+                animate();
+            }
+        };
+
+        this.handleContextMenu = function(event) {
+            event.originalEvent = event.originalEvent || event;
+            this.toggleMenu({ positionUsingEvent:event });
+        };
+
+        this.onContextMenuLoadResultsWithinRadius = function() {
+            var self = this;
+
+            this.mode = MODE_REGION_SELECTION_MODE_POINT;
+            this.$node.find('.instructions').remove();
+            this.$node.append(centerTemplate({}));
+            $(document).on('keydown.regionselection', function(e) {
+                if (e.which === $.ui.keyCode.ESCAPE) {
+                    self.endRegionSelection();
+                }
+            });
+        };
+
+        this.endRegionSelection = function() {
+            this.mode = MODE_NORMAL;
+
+            this.off('mousemove');
+            $('#map_mouse_position_hack').remove();
+            this.$node.find('.instructions').remove();
+
+            if (this.regionLayer) {
+                this.mapReady(function(map) {
+                    map.removeLayer(this.regionLayer);
+                });
+            }
+
+            $(document).off('keydown.regionselection');
+        };
+
+        this.onMapClicked = function(evt, map) {
+            var self = this;
+            this.$node.find('.instructions').remove();
+
+            switch (self.mode) {
+                case MODE_NORMAL:
+                    self.trigger('verticesSelected', []);
+                    break;
+
+                case MODE_REGION_SELECTION_MODE_POINT:
+
+                    self.mode = MODE_REGION_SELECTION_MODE_RADIUS;
+
+                    this.$node.append(radiusTemplate({}));
+
+                    var offset = self.$node.offset();
+                    self.regionCenterPoint = map.getLonLatFromViewPortPx({x:evt.pageX-offset.left,y:evt.pageY-offset.top});
+                    var centerPoint = new ol.Geometry.Point(self.regionCenterPoint.lon, self.regionCenterPoint.lat);
+
+                    var circleFeature = new ol.Feature.Vector(
+                            OpenLayers.Geometry.Polygon.createRegularPolygon(
+                                centerPoint,
+                                // Default diameter is 10% of viewport
+                                map.getExtent().getWidth() * 0.1 / 2,
+                                30,
+                                0
+                            ),
+                            {},
+                            { fillOpacity: 0.8, fillColor:'#0070C3', strokeColor:'#08538B' }
+                        ),
+                        layer = new ol.Layer.Vector('SelectionLayer', {
+                            /*
+                             * TODO: change resize handle colors
+                            styleMap: new ol.StyleMap({
+                                'default': new ol.Style({ fillColor: '#ff0000'}),
+                                'select': new ol.Style({ fillColor: '#ff0000'})
+                            })
+                            */
+                        });
+
+                    self.regionLayer = layer;
+                    self.regionFeature = circleFeature;
+
+                    layer.addFeatures(circleFeature);
+                    map.addLayer(layer);
+
+                    var modify = new ol.Control.ModifyFeature(layer);
+                    modify.mode = ol.Control.ModifyFeature.RESIZE | 
+                                  ol.Control.ModifyFeature.DRAG;
+                    map.addControl(modify);
+                    modify.activate();
+                    modify.selectFeature(circleFeature);
+
+                    break;
+
+                case MODE_REGION_SELECTION_MODE_RADIUS:
+
+                    self.mode = MODE_REGION_SELECTION_MODE_LOADING;
+
+                    var area = self.regionFeature.geometry.getArea();
+                    var radius = 0.565352 * Math.sqrt(area);
+                    var lonlat = self.regionCenterPoint.transform(map.getProjectionObject(), new ol.Projection("EPSG:4326"));
+
+                    self.$node.find('.instructions').remove();
+                    self.$node.append(loadingTemplate({}));
+
+                    self.ucdService.locationSearch(
+                        lonlat.lat,
+                        lonlat.lon,
+                        radius).done(
+                        function(data) {
+                            self.endRegionSelection();
+                            self.trigger(document, 'addVertices', data);
+                        }
+                    );
+
+                    break;
+
+            }
+        };
+
+
         this.initializeMap = function() {
             var self = this;
 
@@ -270,17 +406,17 @@ define([
 
         this.createMap = function(ol, ClusterStrategy) {
             var self = this,
+                controls = new ol.Control.Navigation({
+                    handleRightClicks: true,
+                    dragPanOptions: {
+                        enableKinetic: true
+                    }
+                }),
                 map = new ol.Map('map', { 
                     zoomDuration: 0,
                     numZoomLevels: 18,
                     displayProjection: new ol.Projection("EPSG:4326"),
-                    controls: [
-                        new ol.Control.Navigation({
-                            dragPanOptions: {
-                                enableKinetic: true
-                            }
-                        })
-                    ]
+                    controls: [ controls ]
                 }),
                 base = new ol.Layer.Google("Google Streets", {
                     numZoomLevels: 20
@@ -323,8 +459,16 @@ define([
                     self.trigger('verticesSelected', vertices);
                 }
             });
-            map.events.register("click", map, function(event) {
-                self.trigger('verticesSelected', []);
+            map.events.on({
+                mouseup: function(event) {
+                    if (event.button === 2 || event.ctrlKey) {
+                        self.handleContextMenu(event);
+                    }
+                },
+                click: function(event) {
+                    self.closeMenu();
+                    self.onMapClicked(event, map);
+                }
             });
 
             map.addLayers([base, map.featuresLayer]);
