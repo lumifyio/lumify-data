@@ -41,7 +41,6 @@ define([
         this.ucdService = new UcdService();
         this.vertexService = new VertexService();
         this.mode = MODE_NORMAL;
-        this.markers = {};
 
         this.defaultAttrs({
             mapSelector: '#map'
@@ -75,8 +74,7 @@ define([
             var self = this;
             this.isWorkspaceEditable = workspaceData.isEditable;
             this.mapReady(function(map) {
-                map.markersLayer.removeAllFeatures();
-                this.markers = {};
+                map.featuresLayer.removeAllFeatures();
                 this.updateOrAddVertices(workspaceData.data.vertices, { adding:true });
             });
         };
@@ -99,30 +97,42 @@ define([
             
             this.mapReady(function(map) {
                 var self = this,
-                    selectedIds = _.pluck(vertices, 'id');
+                    featuresLayer = map.featuresLayer,
+                    selectedIds = _.pluck(vertices, 'id'),
+                    toRemove = [];
+
+                featuresLayer.features.forEach(function unselectFeature(feature) {
+                    if (feature.cluster) {
+                        feature.cluster.forEach(unselectFeature);
+                        return;
+                    }
+
+                    if (!~selectedIds.indexOf(feature.id)) {
+                        if (feature.data.inWorkspace) {
+                            feature.style.externalGraphic = feature.style.externalGraphic.replace(/&selected/, '');
+                        } else {
+                            toRemove.push(feature);
+                        }
+                    }
+                });
+
+                featuresLayer.removeFeatures(toRemove);
 
                 vertices.forEach(function(vertex) {
                     self.findOrCreateMarker(map, vertex);
                 });
 
-                map.markersLayer.features.forEach(function(marker) {
-                    if (! ~selectedIds.indexOf(marker.id)) {
-                        // TODO: support clusters
-                        if (marker.data.inWorkspace) {
-                            marker.style.externalGraphic = marker.style.externalGraphic.replace(/&selected/, '');
-                        } else {
-                            if (!marker.cluster) marker.style.display = 'none';
-                        }
-                    }
-                });
-
-                map.markersLayer.redraw();
+                featuresLayer.redraw();
             });
+        };
+
+        this.featureForId = function(map, id) {
+            return _.findWhere(map.featuresLayer.features, { id: id });
         };
 
         this.findOrCreateMarker = function(map, vertex) {
             var self = this,
-                feature = this.markers[vertex.id],
+                feature = this.featureForId(vertex.id),
                 geoLocation = vertex.properties.geoLocation,
                 subType = vertex.properties._subType,
                 heading = vertex.properties.heading,
@@ -135,7 +145,7 @@ define([
             if (selected) iconUrl += '&selected';
 
             if (!feature) {
-                feature = this.markers[vertex.id] = new ol.Feature.Vector(
+                feature = new ol.Feature.Vector(
                     point(geoLocation.latitude, geoLocation.longitude),
                     { vertex: vertex },
                     {
@@ -158,7 +168,7 @@ define([
                     }
                 );
                 feature.id = vertex.id;
-                map.markersLayer.addFeatures(feature);
+                map.featuresLayer.addFeatures(feature);
             } else {
                 feature.style.externalGraphic = iconUrl;
                 // TODO: update position
@@ -176,9 +186,10 @@ define([
 
             this.mapReady(function(map) {
                 vertices.forEach(function(vertex) {
-                    var inWorkspace = appData.inWorkspace(vertex);
+                    var inWorkspace = appData.inWorkspace(vertex),
+                        feature = self.featureForId(vertex.id);
 
-                    if (inWorkspace || self.markers[vertex.id]) {
+                    if (inWorkspace || feature) {
                         var marker = self.findOrCreateMarker(map, vertex);
                         if (marker) {
                             marker.data.inWorkspace = inWorkspace;
@@ -186,9 +197,11 @@ define([
                     }
                 });
 
-                map.markersLayer.redraw();
+                map.featuresLayer.redraw();
 
-                // TODO: implement fit
+                if (adding) {
+                    map.zoomToExtent(map.featuresLayer.getDataExtent()); 
+                }
             });
 
         };
@@ -197,92 +210,9 @@ define([
             var self = this;
 
             this.openlayersReady(function(ol) {
-                var map = new ol.Map('map', { 
-                        zoomDuration: 0,
-                        numZoomLevels: 18,
-                        displayProjection: new ol.Projection("EPSG:4326"),
-                        controls: [
-                            new ol.Control.Navigation({
-                                dragPanOptions: {
-                                    enableKinetic: true
-                                }
-                            })
-                        ]
-                    }),
-                    base = new ol.Layer.Google("Google Streets", {
-                        numZoomLevels: 20
-                    });
-
-                map.events.register("click", map, function(event) {
-                    self.trigger('verticesSelected', []);
+                require(['map/clusterStrategy'], function(cluster) {
+                    self.createMap(ol, cluster);
                 });
-
-                var cluster = new ol.Strategy.Cluster({ 
-                                //new ol.Strategy.AnimatedCluster({
-                    distance: 45,
-                    threshold: 2,
-                    animationMethod: ol.Easing.Expo.easeOut,
-                    animationDuration: 100
-                });
-                
-
-                var baseStyle = {
-                        pointRadius: "${radius}",
-                        label: "${label}",
-                        labelOutlineColor: '#AD2E2E',
-                        labelOutlineWidth: '2',
-                        fontWeight: 'bold',
-                        fontSize: '16px',
-                        fontColor: '#ffffff',
-                        fillColor: "#F13B3C",
-                        fillOpacity: 0.8,
-                        strokeColor: "#AD2E2E",
-                        strokeWidth: 3,
-                        cursor: 'pointer'
-                    },
-                    baseContext = {
-                        context: {
-                            label: function(feature) {
-                                return feature.attributes.count + '';
-                            },
-                            radius: function(feature) {
-                                var count = Math.min(feature.attributes.count || 0, 10);
-                                return count + 10;
-                            }
-                        }
-                    };
-                map.markersLayer = new ol.Layer.Vector('Markers', {
-                    strategies: [ cluster ],
-                    styleMap: new ol.StyleMap({
-                        'default': new ol.Style(baseStyle, baseContext),
-                        'select': new ol.Style($.extend({}, baseStyle, { fillColor:'#0070C3', labelOutlineColor:'#08538B', strokeColor:'#08538B' }), baseContext)
-                    })
-                });
-
-                // Feature Clustering
-                cluster.activate();
-
-                // Feature Selection
-                var selectFeature = new ol.Control.SelectFeature(map.markersLayer);
-                map.addControl(selectFeature);
-                selectFeature.activate();
-                map.markersLayer.events.register('featureselected', map.markersLayer, function(featureEvents) {
-                    var vertices;
-                    if (featureEvents.feature.cluster) {
-                        vertices = [_.map(featureEvents.feature.cluster, function(feature) {
-                            return feature.data.vertex; 
-                        })];
-                    } else vertices = [featureEvents.feature.data.vertex];
-                    self.trigger('verticesSelected', vertices);
-                });
-
-                map.addLayers([base, map.markersLayer]);
-
-                latLon = latLon.bind(null, map.displayProjection, map.getProjectionObject());
-                point = point.bind(null, map.displayProjection, map.getProjectionObject());
-
-                map.setCenter(latLon(START_COORDINATES), 7);
-                this.mapMarkReady(map);
             });
 
             window.googleV3Initialized = function() {
@@ -299,6 +229,106 @@ define([
                     self.openlayersMarkReady(ol);
                 }
             });
+        };
+
+        this.createMap = function(ol, ClusterStrategy) {
+            var self = this,
+                map = new ol.Map('map', { 
+                    zoomDuration: 0,
+                    numZoomLevels: 18,
+                    displayProjection: new ol.Projection("EPSG:4326"),
+                    controls: [
+                        new ol.Control.Navigation({
+                            dragPanOptions: {
+                                enableKinetic: true
+                            }
+                        })
+                    ]
+                }),
+                base = new ol.Layer.Google("Google Streets", {
+                    numZoomLevels: 20
+                });
+
+            var cluster = new ClusterStrategy({ 
+                    distance: 45,
+                    threshold: 2,
+                    animationMethod: ol.Easing.Expo.easeOut,
+                    animationDuration: 100
+                }),
+                style = self.featureStyle(),
+                selectedStyle = {
+                    fillColor:'#0070C3', labelOutlineColor:'#08538B', strokeColor:'#08538B' 
+                };
+
+            map.featuresLayer = new ol.Layer.Vector('Markers', {
+                strategies: [ cluster ],
+                styleMap: new ol.StyleMap({
+                    'default': new ol.Style(style.baseStyle, style.baseContext),
+                    'select': new ol.Style($.extend({}, style.baseStyle, selectedStyle), style.baseContext)
+                })
+            });
+
+            // Feature Clustering
+            cluster.activate();
+
+            // Feature Selection
+            var selectFeature = new ol.Control.SelectFeature(map.featuresLayer);
+            map.addControl(selectFeature);
+            selectFeature.activate();
+            map.featuresLayer.events.on({
+                featureselected: function(featureEvents) {
+                    var vertices;
+                    if (featureEvents.feature.cluster) {
+                        vertices = [_.map(featureEvents.feature.cluster, function(feature) {
+                            return feature.data.vertex; 
+                        })];
+                    } else vertices = [featureEvents.feature.data.vertex];
+                    self.trigger('verticesSelected', vertices);
+                }
+            });
+            map.events.register("click", map, function(event) {
+                self.trigger('verticesSelected', []);
+            });
+
+            map.addLayers([base, map.featuresLayer]);
+
+            latLon = latLon.bind(null, map.displayProjection, map.getProjectionObject());
+            point = point.bind(null, map.displayProjection, map.getProjectionObject());
+
+            map.setCenter(latLon(START_COORDINATES), 7);
+
+            this.featureForId = this.featureForId.bind(this, map);
+            this.mapMarkReady(map);
+        };
+
+        this.featureStyle = function() {
+            return {
+                baseStyle: {
+                    pointRadius: "${radius}",
+                    label: "${label}",
+                    labelOutlineColor: '#AD2E2E',
+                    labelOutlineWidth: '2',
+                    fontWeight: 'bold',
+                    fontSize: '16px',
+                    fontColor: '#ffffff',
+                    fillColor: "#F13B3C",
+                    fillOpacity: 0.8,
+                    strokeColor: "#AD2E2E",
+                    strokeWidth: 3,
+                    cursor: 'pointer'
+                },
+                baseContext: {
+                    context: {
+                        label: function(feature) {
+                            return feature.attributes.count + '';
+                        },
+                        radius: function(feature) {
+                            var count = Math.min(feature.attributes.count || 0, 10);
+                            return count + 10;
+                        }
+                    }
+                }
+            };
         };
 
         function point(sourceProjection, destProjection, x, y) {
