@@ -192,23 +192,14 @@ define([
                         graphicHeight: 40,
                         graphicXOffset: -11,
                         graphicYOffset: -40,
-                        cursor: 'pointer',
-                       /*
-                        label: vertex.properties.title.length > 15 ? vertex.properties.title.substring(0,15) + '...' : vertex.properties.title,
-                        fontColor: '#000',
-                        labelOutlineColor: '#fff',
-                        labelOutlineWidth: '2px',
-                        fontSize: '16px',
-                        fontWeight: 'bold',
-                        labelYOffset: -10
-                        */
+                        cursor: 'pointer'
                     }
                 );
                 feature.id = vertex.id;
                 map.featuresLayer.addFeatures(feature);
             } else {
                 feature.style.externalGraphic = iconUrl;
-                // TODO: update position
+                feature.move(latLon(geoLocation.latitude, geoLocation.longitude));
                 // TODO: update heading
             }
 
