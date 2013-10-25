@@ -1,18 +1,7 @@
 package com.altamiracorp.lumify.core.model.artifact;
 
-import com.altamiracorp.lumify.core.model.*;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.search.ArtifactSearchResult;
-import com.altamiracorp.lumify.core.model.search.SearchProvider;
-import com.altamiracorp.lumify.core.user.User;
-import com.google.common.base.Preconditions;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import org.apache.commons.io.IOUtils;
-import org.json.JSONArray;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,7 +11,27 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import javax.imageio.ImageIO;
+
+import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
+
+import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.model.GraphSession;
+import com.altamiracorp.lumify.core.model.ModelSession;
+import com.altamiracorp.lumify.core.model.Repository;
+import com.altamiracorp.lumify.core.model.Row;
+import com.altamiracorp.lumify.core.model.SaveFileResults;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.VertexType;
+import com.altamiracorp.lumify.core.model.search.ArtifactSearchResult;
+import com.altamiracorp.lumify.core.model.search.SearchProvider;
+import com.altamiracorp.lumify.core.user.User;
+import com.google.common.base.Preconditions;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 @Singleton
 public class ArtifactRepository extends Repository<Artifact> {
@@ -91,8 +100,8 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
     }
 
-    public GraphVertex saveToGraph(Artifact artifact, User user) {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+    public GraphVertex saveToGraph(Artifact artifact, ArtifactExtractedInfo artifactExtractedInfo, User user) {
+//        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
 //        GraphVertex vertex = null;
 //        String oldGraphVertexId = artifact.getGenericMetadata().getGraphVertexId();
 //        if (oldGraphVertexId != null) {
@@ -133,6 +142,38 @@ public class ArtifactRepository extends Repository<Artifact> {
 //        }
 //
 //        return vertex;
+
+        GraphVertex artifactVertex = null;
+        String oldGraphVertexId = artifact.getMetadata().getGraphVertexId();
+        if (oldGraphVertexId != null) {
+            artifactVertex = graphSession.findGraphVertex(oldGraphVertexId, user);
+        }
+        if (artifactVertex == null) {
+            artifactVertex = new InMemoryGraphVertex();
+        }
+
+        artifactVertex.setProperty(PropertyName.ROW_KEY.toString(), artifact.getRowKey().toString());
+        artifactVertex.setProperty(PropertyName.TYPE, VertexType.ARTIFACT.toString());
+        artifactVertex.setProperty(PropertyName.SUBTYPE, artifactExtractedInfo.getArtifactType());
+        artifactVertex.setProperty(PropertyName.TITLE, artifactExtractedInfo.getTitle());
+        if (artifactExtractedInfo.getRawHdfsPath() != null) {
+            artifactVertex.setProperty(PropertyName.RAW_HDFS_PATH, artifactExtractedInfo.getRawHdfsPath());
+        }
+        if (artifactExtractedInfo.getTextHdfsPath() != null) {
+            artifactVertex.setProperty(PropertyName.TEXT_HDFS_PATH, artifactExtractedInfo.getTextHdfsPath());
+            artifactVertex.setProperty(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH, artifactExtractedInfo.getTextHdfsPath());
+        }
+        if (artifactExtractedInfo.getDetectedObjects() != null) {
+            artifactVertex.setProperty(PropertyName.DETECTED_OBJECTS, artifactExtractedInfo.getDetectedObjects());
+        }
+        String vertexId = graphSession.save(artifactVertex, user);
+        graphSession.commit();
+
+        if (!vertexId.equals(oldGraphVertexId)) {
+            artifact.getMetadata().setGraphVertexId(vertexId);
+            save(artifact, user);
+        }
+        return artifactVertex;
     }
 
     public Artifact createArtifactFromInputStream(long size, InputStream in, String fileName, long fileTimestamp, User user) throws IOException {

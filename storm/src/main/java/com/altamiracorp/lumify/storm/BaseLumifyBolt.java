@@ -28,9 +28,6 @@ import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
 import com.google.inject.Guice;
@@ -145,37 +142,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
     }
 
     private GraphVertex saveArtifactGraphVertex(ArtifactExtractedInfo artifactExtractedInfo, Artifact artifact) {
-        GraphVertex artifactVertex = null;
-        String oldGraphVertexId = artifact.getMetadata().getGraphVertexId();
-        if (oldGraphVertexId != null) {
-            artifactVertex = graphRepository.findVertex(oldGraphVertexId, getUser());
-        }
-        if (artifactVertex == null) {
-            artifactVertex = new InMemoryGraphVertex();
-        }
-
-        artifactVertex.setProperty(PropertyName.ROW_KEY.toString(), artifact.getRowKey().toString());
-        artifactVertex.setProperty(PropertyName.TYPE, VertexType.ARTIFACT.toString());
-        artifactVertex.setProperty(PropertyName.SUBTYPE, artifactExtractedInfo.getArtifactType());
-        artifactVertex.setProperty(PropertyName.TITLE, artifactExtractedInfo.getTitle());
-        if (artifactExtractedInfo.getRawHdfsPath() != null) {
-            artifactVertex.setProperty(PropertyName.RAW_HDFS_PATH, artifactExtractedInfo.getRawHdfsPath());
-        }
-        if (artifactExtractedInfo.getTextHdfsPath() != null) {
-            artifactVertex.setProperty(PropertyName.TEXT_HDFS_PATH, artifactExtractedInfo.getTextHdfsPath());
-            artifactVertex.setProperty(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH, artifactExtractedInfo.getTextHdfsPath());
-        }
-        if (artifactExtractedInfo.getDetectedObjects() != null) {
-            artifactVertex.setProperty(PropertyName.DETECTED_OBJECTS, artifactExtractedInfo.getDetectedObjects());
-        }
-        String vertexId = graphRepository.save(artifactVertex, getUser());
-        graphRepository.commit();
-
-        if (!vertexId.equals(oldGraphVertexId)) {
-            artifact.getMetadata().setGraphVertexId(vertexId);
-            artifactRepository.save(artifact, getUser());
-        }
-        return artifactVertex;
+        return artifactRepository.saveToGraph(artifact, artifactExtractedInfo, getUser());
     }
 
     private Artifact saveArtifactModel(ArtifactExtractedInfo artifactExtractedInfo) {
