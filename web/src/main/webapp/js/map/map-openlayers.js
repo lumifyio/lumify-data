@@ -65,7 +65,13 @@ define([
         });
 
         this.onMapShow = function() {
-            if (!this.mapIsReady()) this.initializeMap();
+            if (this.mapIsReady()) {
+                this.mapReady(function(map) {
+                    _.defer(function() {
+                        map.updateSize();
+                    });
+                });
+            } else this.initializeMap();
         };
 
         this.onMapCenter = function(evt, data) {
