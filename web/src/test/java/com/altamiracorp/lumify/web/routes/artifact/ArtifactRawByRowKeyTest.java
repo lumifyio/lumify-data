@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
+import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
@@ -30,12 +31,15 @@ public class ArtifactRawByRowKeyTest extends RouteTestBase {
     @Mock
     private HttpSession mockSession;
 
+    @Mock
+    private GraphRepository mockGraphRepository;
+
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
 
-        artifactRawByRowKey = new ArtifactRawByRowKey(mockArtifactRepository);
+        artifactRawByRowKey = new ArtifactRawByRowKey(mockArtifactRepository, mockGraphRepository);
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.MockSession;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.user.User;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,8 @@ public class TikaTextExtractorTest {
 
     @Mock
     private User user;
+
+    @Mock GraphVertex vertex;
 
     @Mock
     private ArtifactRepository artifactRepository;
@@ -95,7 +98,7 @@ public class TikaTextExtractorTest {
 
         TikaTextExtractor textExtractor = new TikaTextExtractor();
         Artifact artifact = new Artifact();
-        when(artifactRepository.getRaw(eq(artifact), eq(user))).thenReturn(new ByteArrayInputStream(data.getBytes()));
+        when(artifactRepository.getRaw(eq(artifact), eq(vertex), eq(user))).thenReturn(new ByteArrayInputStream(data.getBytes()));
         ArtifactExtractedInfo info = textExtractor.extract(new ByteArrayInputStream(data.getBytes()), "text/plain", textOut);
         info.setText(textOut.toString());
         assertEquals("Test Title", info.getTitle());
