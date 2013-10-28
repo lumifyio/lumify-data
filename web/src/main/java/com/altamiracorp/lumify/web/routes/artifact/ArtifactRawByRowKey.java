@@ -146,11 +146,10 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
     }
 
     private String getMimeType(Artifact artifact) {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        String mimeType = artifact.getGenericMetadata().getMimeType();
-//        if (mimeType == null || mimeType.isEmpty()) {
-//            mimeType = "application/octet-stream";
-//        }
-//        return mimeType;
+        String mimeType = artifact.getMetadata().getMimeType();
+        if (mimeType == null || mimeType.isEmpty()) {
+            mimeType = "application/octet-stream";
+        }
+        return mimeType;
     }
 }

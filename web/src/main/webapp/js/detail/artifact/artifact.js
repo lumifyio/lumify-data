@@ -233,7 +233,7 @@ define([
         this.imageSetup = function(vertex) {
             var self = this;
             var data = {
-                src: vertex.artifact.rawUrl,
+                src: '/artifact/' + vertex.properties._rowKey + '/raw',
                 id: vertex.id
             };
             Image.attachTo(this.select('imagePreviewSelector'), { data: data });
