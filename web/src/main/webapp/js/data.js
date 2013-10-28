@@ -536,8 +536,14 @@ define([
                         start = true,
                         graphVisible = $('.graph-pane').is('.visible'),
                         dashboardVisible = $('.dashboard-pane').is('.visible'),
-                        vertices;
+                        vertices,
+                        wrapper = $('.draggable-wrapper');
 
+                    // Prevent map from swallowing mousemove events by adding
+                    // this transparent full screen div
+                    if (wrapper.length === 0) {
+                        wrapper = $('<div class="draggable-wrapper"/>').appendTo(document.body);
+                    }
 
                     draggable.off('drag.droppable-tracking');
                     draggable.on('drag.droppable-tracking', function(event, draggableUI) {
@@ -565,6 +571,7 @@ define([
                     });
                 },
                 drop: function( event, ui ) {
+                    $('.draggable-wrapper').remove();
                     
                     // Early exit if should leave to a different droppable
                     if (!enabled) return;
