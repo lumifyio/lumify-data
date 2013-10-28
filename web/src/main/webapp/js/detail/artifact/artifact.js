@@ -159,7 +159,7 @@ define([
         this.onCoordsChanged = function(event, data) {
             var self = this,
                 vertex = appData.vertex(this.attr.data.id),
-                detectedObject = $.extend(true, {}, _.find(vertex.artifact.detectedObjects, function(obj) {
+                detectedObject = $.extend(true, {}, _.find(vertex.properties._detectedObjects, function(obj) {
                     return (obj.info && obj.info._rowKey) === data.id;
                 })),
                 width = parseFloat(data.coords.x2)-parseFloat(data.coords.x1),
@@ -223,9 +223,9 @@ define([
 
         this.videoSetup = function(vertex) {
             VideoScrubber.attachTo(this.select('previewSelector'), {
-                rawUrl: vertex.artifact.rawUrl,
-                posterFrameUrl: vertex.artifact.posterFrameUrl,
-                videoPreviewImageUrl: vertex.artifact.videoPreviewImageUrl,
+                rawUrl: '/artifact/' + vertex.properties._rowKey + '/raw',
+                posterFrameUrl: '/artifact/' + vertex.properties._rowKey + '/poster-frame',
+                videoPreviewImageUrl: '/artifact/' + vertex.properties._rowKey + '/video-preview',
                 allowPlayback: true
             });
         };

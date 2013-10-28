@@ -141,8 +141,7 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
     }
 
     private String getFileName(Artifact artifact) {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        return artifact.getGenericMetadata().getFileName() + "." + artifact.getGenericMetadata().getFileExtension();
+        return artifact.getMetadata().getFileName() + "." + artifact.getMetadata().getFileExtension();
     }
 
     private String getMimeType(Artifact artifact) {
