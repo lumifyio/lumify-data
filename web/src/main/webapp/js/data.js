@@ -84,7 +84,8 @@ define([
             this.on('workspaceDeleting', this.onWorkspaceDeleting);
             this.on('workspaceCopied', this.onWorkspaceCopied);
 
-            this.on(document, 'socketMessage', this.onSocketMessage);
+            this.on('socketMessage', this.onSocketMessage);
+            this.on('keydown', this.onKeydown);
 
             var self = this;
             this.setupAsyncQueue('socketSubscribe');
@@ -110,6 +111,21 @@ define([
             switch (message.type) {
                 case 'propertiesChange':
                     self.trigger('updateVertices', { vertices:[message.data.vertex]});
+                    break;
+            }
+        };
+
+        this.onKeydown = function(event) {
+            var $target = $(event.target);
+            if ($target.is('input,select')) return;
+
+            switch (event.which) {
+
+                // Prevent browser back button
+                // TODO: move vertex deletion from graph to here
+                case $.ui.keyCode.BACKSPACE:
+                case $.ui.keyCode.DELETE:
+                    event.preventDefault();
                     break;
             }
         };

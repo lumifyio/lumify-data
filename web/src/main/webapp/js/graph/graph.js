@@ -391,7 +391,11 @@ define([
                 return;
             }
 
+
             this.cy(function(cy) {
+                if (this.$node.closest('.visible')) {
+                    cy.container().focus();
+                }
                 this.ignoreCySelectionEvents = true;
 
                 cy.$(':selected').unselect();
