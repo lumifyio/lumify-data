@@ -43,7 +43,9 @@ define([
         this.mode = MODE_NORMAL;
 
         this.defaultAttrs({
-            mapSelector: '#map'
+            mapSelector: '#map',
+            contextMenuSelector: '.contextmenu',
+            contextMenuVertexSelector: '.contextmenuvertex'
         });
 
         this.after('initialize', function() {
@@ -101,16 +103,19 @@ define([
         this.onVerticesDeleted = function(evt, data) { 
             this.mapReady(function(map) {
                 var featuresLayer = map.featuresLayer,
-                    toRemove = [];
+                    toRemove = [],
+                    ids = _.pluck(data.vertices, 'id');
 
-                data.vertices.forEach(function(vertex) {
-                    var feature = featuresLayer.getFeatureById(vertex.id);
-                    if (feature) {
+                featuresLayer.features.forEach(function removeIfDeleted(feature) {
+                    if (~ids.indexOf(feature.id)) {
                         toRemove.push(feature);
+                    } else if (feature.cluster) {
+                        feature.cluster.forEach(removeIfDeleted);
                     }
                 });
 
                 featuresLayer.removeFeatures(toRemove);
+                this.clusterStrategy.cluster();
             });
         };
 
@@ -267,7 +272,26 @@ define([
 
         this.handleContextMenu = function(event) {
             event.originalEvent = event.originalEvent || event;
-            this.toggleMenu({ positionUsingEvent:event });
+            
+
+            this.mapReady(function(map) {
+                var feature = map.featuresLayer.getFeatureFromEvent(event);
+                if (feature) {
+                    var menu = this.select('contextMenuVertexSelector');
+                    menu.data('feature', feature);
+                    this.toggleMenu({ positionUsingEvent:event }, menu);
+                } else this.toggleMenu({ positionUsingEvent:event }, this.select('contextMenuSelector'));
+            });
+        };
+
+        this.onContextMenuRemoveItem = function() {
+            var menu = this.select('contextMenuVertexSelector'),
+                feature = menu.data('feature'),
+                vertices = (feature.cluster || [feature]).map(function(f) {
+                    return f.data.vertex;
+                });
+
+            this.trigger('deleteVertices', { vertices:vertices });
         };
 
         this.onContextMenuLoadResultsWithinRadius = function() {
