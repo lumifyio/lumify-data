@@ -156,12 +156,15 @@ define([
                             return ~selectedIds.indexOf(f.id);
                         });
                         if (someSelected) {
-                            self.featuresLayerSelection.highlight(feature);
+                            feature.renderIntent = 'select';
                         } else {
-                            self.featuresLayerSelection.unhighlight(feature);
+                            feature.renderIntent = 'default';
                         }
                     }
                 });
+
+                var sf = this.clusterStrategy.selectedFeatures = {};
+                selectedIds.forEach(function(sId) { sf[sId] = true; });
 
                 featuresLayer.redraw();
             });
@@ -180,6 +183,14 @@ define([
 
             if (heading) iconUrl += '&heading=' + heading;
             if (selected) iconUrl += '&selected';
+
+            if (!feature) {
+                map.featuresLayer.features.forEach(function(f) {
+                    if (f.cluster) {
+                        feature = _.findWhere(f.cluster, { id:vertex.id });
+                    }
+                });
+            }
 
             if (!feature) {
                 feature = new ol.Feature.Vector(
@@ -295,6 +306,7 @@ define([
             switch (self.mode) {
                 case MODE_NORMAL:
                     self.trigger('verticesSelected', []);
+                    map.featuresLayer.events.triggerEvent('featureunselected');
                     break;
 
                 case MODE_REGION_SELECTION_MODE_POINT:
@@ -434,9 +446,12 @@ define([
 
             // Feature Clustering
             cluster.activate();
+            this.clusterStrategy = cluster;
 
             // Feature Selection
-            var selectFeature = this.featuresLayerSelection = new ol.Control.SelectFeature(map.featuresLayer);
+            var selectFeature = this.featuresLayerSelection = new ol.Control.SelectFeature(map.featuresLayer, {
+                clickout: true
+            });
             map.addControl(selectFeature);
             selectFeature.activate();
             map.featuresLayer.events.on({
