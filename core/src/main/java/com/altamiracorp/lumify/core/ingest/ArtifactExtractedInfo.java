@@ -31,6 +31,7 @@ public class ArtifactExtractedInfo {
     private static final String MAPPING_JSON = "mappingJson";
     private static final String ARTIFACT_TYPE = "artifactType";
     private static final String MIME_TYPE = "mimeType";
+    private static final String FILE_EXTENSION = "fileExtension";
 
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 
@@ -239,6 +240,14 @@ public class ArtifactExtractedInfo {
 
     public void setMimeType(String mimeType) {
         set (MIME_TYPE, mimeType);
+    }
+
+    public String getFileExtension() {
+        return (String) properties.get(FILE_EXTENSION);
+    }
+
+    public void setFileExtension(String extension) {
+        set (FILE_EXTENSION, extension);
     }
 
     public static class VideoFrame {

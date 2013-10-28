@@ -2,9 +2,9 @@ package com.altamiracorp.lumify.core.model.artifact;
 
 import java.util.Date;
 
-import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import com.altamiracorp.bigtable.model.ColumnFamily;
 import com.altamiracorp.bigtable.model.Value;
+import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 
 public class ArtifactMetadata extends ColumnFamily {
     public static final String NAME = "Generic_Metadata";
@@ -16,6 +16,8 @@ public class ArtifactMetadata extends ColumnFamily {
     private static final String VIDEO_TRANSCRIPT = "videoTranscript";
     private static final String MAPPING_JSON = "mappingJson";
     private static final String MIME_TYPE = "mimeType";
+    private static final String FILE_EXTENSION = "fileExtension";
+    private static final String FILE_NAME = "fileName";
 
     public ArtifactMetadata() {
         super(NAME);
@@ -85,6 +87,24 @@ public class ArtifactMetadata extends ColumnFamily {
 
     public ArtifactMetadata setMimeType(String mimeType) {
         set(MIME_TYPE, mimeType);
+        return this;
+    }
+
+    public String getFileExtension() {
+        return Value.toString(get(FILE_EXTENSION));
+    }
+
+    public ArtifactMetadata setFileExtension(String fileExtension) {
+        set(FILE_EXTENSION, fileExtension);
+        return this;
+    }
+
+    public String getFileName() {
+        return Value.toString(get(FILE_NAME));
+    }
+
+    public ArtifactMetadata setFileName(String fileName) {
+        set(FILE_NAME, fileName);
         return this;
     }
 }

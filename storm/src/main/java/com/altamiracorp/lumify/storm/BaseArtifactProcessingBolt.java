@@ -107,6 +107,7 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
             in = getInputStream(fileMetadata.getFileName(), artifactExtractedInfo);
         }
         artifactExtractedInfo.setTitle(FilenameUtils.getName(fileMetadata.getFileName()));
+        artifactExtractedInfo.setFileExtension(FilenameUtils.getExtension(fileMetadata.getFileName()));
         artifactExtractedInfo.setMimeType(fileMetadata.getMimeType());
 
         runWorkers(in, fileMetadata, artifactExtractedInfo, archiveTempDir);
