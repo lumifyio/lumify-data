@@ -1,10 +1,10 @@
 package com.altamiracorp.lumify.core.model.artifact;
 
+import java.util.Date;
+
 import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import com.altamiracorp.bigtable.model.ColumnFamily;
 import com.altamiracorp.bigtable.model.Value;
-
-import java.util.Date;
 
 public class ArtifactMetadata extends ColumnFamily {
     public static final String NAME = "Generic_Metadata";
@@ -15,6 +15,7 @@ public class ArtifactMetadata extends ColumnFamily {
     private static final String CREATE_DATE = "createDate";
     private static final String VIDEO_TRANSCRIPT = "videoTranscript";
     private static final String MAPPING_JSON = "mappingJson";
+    private static final String MIME_TYPE = "mimeType";
 
     public ArtifactMetadata() {
         super(NAME);
@@ -76,5 +77,14 @@ public class ArtifactMetadata extends ColumnFamily {
             return Value.toString(get(MAPPING_JSON));
         }
         return null;
+    }
+
+    public String getMimeType() {
+        return Value.toString(get(MIME_TYPE));
+    }
+
+    public ArtifactMetadata setMimeType(String mimeType) {
+        set(MIME_TYPE, mimeType);
+        return this;
     }
 }

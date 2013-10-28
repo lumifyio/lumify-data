@@ -1,13 +1,14 @@
 package com.altamiracorp.lumify.core.ingest;
 
-import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
-import org.apache.commons.lang.StringUtils;
-import org.json.JSONObject;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.json.JSONObject;
+
+import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 
 public class ArtifactExtractedInfo {
     private static final String ROW_KEY = "rowKey";
@@ -29,6 +30,8 @@ public class ArtifactExtractedInfo {
     private static final String VIDEO_FRAMES = "videoFrames";
     private static final String MAPPING_JSON = "mappingJson";
     private static final String ARTIFACT_TYPE = "artifactType";
+    private static final String MIME_TYPE = "mimeType";
+
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 
     public void mergeFrom(ArtifactExtractedInfo artifactExtractedInfo) {
@@ -37,11 +40,11 @@ public class ArtifactExtractedInfo {
         }
         for (Map.Entry<String, Object> prop : artifactExtractedInfo.properties.entrySet()) {
             if (prop.getKey().equals(VIDEO_TRANSCRIPT)) {
-                this.properties.put(prop.getKey(), VideoTranscript.merge(getVideoTranscript(), (VideoTranscript) prop.getValue()));
+                properties.put(prop.getKey(), VideoTranscript.merge(getVideoTranscript(), (VideoTranscript) prop.getValue()));
             } else if (prop.getKey().equals(TEXT)) {
                 mergeExtractedText(artifactExtractedInfo);
             } else {
-                this.properties.put(prop.getKey(), prop.getValue());
+                properties.put(prop.getKey(), prop.getValue());
             }
         }
     }
@@ -52,16 +55,16 @@ public class ArtifactExtractedInfo {
         }
 
         String mergedText;
-        if (this.getText() == null) {
+        if (getText() == null) {
             mergedText = artifactExtractedInfo.getText();
         } else {
-            StringBuilder sb = new StringBuilder(this.getText())
+            StringBuilder sb = new StringBuilder(getText())
                     .append("\n\n")
                     .append(artifactExtractedInfo.getText());
             mergedText = sb.toString();
         }
 
-        this.setText(mergedText);
+        setText(mergedText);
     }
 
     public void setRowKey(String rowKey) {
@@ -228,6 +231,14 @@ public class ArtifactExtractedInfo {
 
     public void setArtifactType (String artifactType) {
         set (ARTIFACT_TYPE, artifactType);
+    }
+
+    public String getMimeType() {
+        return (String) properties.get(MIME_TYPE);
+    }
+
+    public void setMimeType(String mimeType) {
+        set (MIME_TYPE, mimeType);
     }
 
     public static class VideoFrame {

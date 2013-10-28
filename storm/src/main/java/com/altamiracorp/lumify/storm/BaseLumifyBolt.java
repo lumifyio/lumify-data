@@ -172,6 +172,9 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         if (artifactExtractedInfo.getMappingJson() != null){
             artifact.getMetadata().setMappingJson(artifactExtractedInfo.getMappingJson());
         }
+        if (artifactExtractedInfo.getMimeType() != null){
+            artifact.getMetadata().setMimeType(artifactExtractedInfo.getMimeType());
+        }
 
         artifactRepository.save(artifact, getUser().getModelUserContext());
         return artifact;

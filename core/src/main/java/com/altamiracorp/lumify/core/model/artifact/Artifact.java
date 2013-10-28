@@ -1,5 +1,8 @@
 package com.altamiracorp.lumify.core.model.artifact;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.altamiracorp.bigtable.model.Row;
 import com.altamiracorp.bigtable.model.RowKey;
 
@@ -25,5 +28,33 @@ public class Artifact extends Row<ArtifactRowKey> {
             addColumnFamily(new ArtifactMetadata());
         }
         return get(ArtifactMetadata.NAME);
+    }
+
+    @Override
+    public JSONObject toJson() {
+        JSONObject json = super.toJson();
+        try {
+            json.put("type", getType().toString().toLowerCase());
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        return json;
+    }
+
+    public ArtifactType getType() {
+        ArtifactMetadata metadata = getMetadata();
+        String mimeType = metadata.getMimeType();
+        String mimeTypeLowercase = metadata.getMimeType().toLowerCase();
+
+        if (mimeType == null) {
+            return null;
+        }
+        if (mimeTypeLowercase.contains("video") || mimeTypeLowercase.contains("mp4")) {
+            return ArtifactType.VIDEO;
+        } else if (mimeTypeLowercase.contains("image")) {
+            return ArtifactType.IMAGE;
+        } else {
+            return ArtifactType.DOCUMENT;
+        }
     }
 }
