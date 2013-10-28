@@ -1,8 +1,9 @@
 package com.altamiracorp.lumify.cmdline;
 
+import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.model.GraphSession;
-import com.altamiracorp.lumify.core.model.ModelSession;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
+import com.altamiracorp.lumify.core.util.ModelUtil;
 import com.google.inject.Inject;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
@@ -22,7 +23,7 @@ public class FormatUcd extends CommandLineBase {
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
-        modelSession.deleteTables(getUser());
+        ModelUtil.deleteTables(modelSession,getUser());
         searchProvider.deleteIndex(getUser());
         graphSession.deleteSearchIndex(getUser());
         return 0;

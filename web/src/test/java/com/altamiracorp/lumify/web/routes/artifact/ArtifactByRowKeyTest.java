@@ -55,7 +55,7 @@ public class ArtifactByRowKeyTest extends RouteTestBase {
         Artifact artifact = new Artifact(artifactRowKey);
         when(mockVertex.getProperty(PropertyName.SUBTYPE)).thenReturn("document");
         when(mockGraphRepository.findVertexByRowKey(artifactRowKey.toString(), user)).thenReturn(mockVertex);
-        when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user)).thenReturn(artifact);
+        when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user.getModelUserContext())).thenReturn(artifact);
 
         artifactByRowKey.handle(mockRequest, mockResponse, mockHandlerChain);
 

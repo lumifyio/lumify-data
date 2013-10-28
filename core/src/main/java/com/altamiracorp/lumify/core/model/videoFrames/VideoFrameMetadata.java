@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.core.model.videoFrames;
 
-import com.altamiracorp.lumify.core.model.ColumnFamily;
-import com.altamiracorp.lumify.core.model.Value;
+import com.altamiracorp.bigtable.model.ColumnFamily;
+import com.altamiracorp.bigtable.model.Value;
 
 public class VideoFrameMetadata extends ColumnFamily {
     public static final String NAME = "metadata";

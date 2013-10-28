@@ -24,7 +24,7 @@ public class ResourceGet extends BaseRequestHandler {
         final String rowKey = getAttributeString(request, "_rowKey");
         User user = getUser(request);
 
-        Resource resource = resourceRepository.findByRowKey(rowKey, user);
+        Resource resource = resourceRepository.findByRowKey(rowKey, user.getModelUserContext());
         if (resource == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;

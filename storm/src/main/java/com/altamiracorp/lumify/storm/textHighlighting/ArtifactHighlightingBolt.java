@@ -51,7 +51,7 @@ public class ArtifactHighlightingBolt extends BaseTextProcessingBolt {
 
         Artifact artifact = new Artifact(rowKey);
         artifact.getMetadata().setHighlightedText(highlightedText);
-        artifactRepository.save(artifact, getUser());
+        artifactRepository.save(artifact, getUser().getModelUserContext());
 
         vertex.removeProperty(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH.toString());
         graphRepository.save(vertex, getUser());

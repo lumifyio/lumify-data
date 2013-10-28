@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.core.model.ModelSession;
+import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.model.user.UserRow;
 import com.altamiracorp.lumify.core.model.user.UserMetadata;
 import com.altamiracorp.lumify.core.model.user.UserRepository;

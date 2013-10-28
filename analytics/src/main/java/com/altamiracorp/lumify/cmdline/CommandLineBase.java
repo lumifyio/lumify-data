@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.cmdline;
 
+import com.altamiracorp.bigtable.model.user.ModelUserContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -120,8 +121,8 @@ public abstract class CommandLineBase extends Configured implements Tool {
         return configuration;
     }
 
-    public ModelAuthorizations getAuthorizations() {
-        return getUser().getModelAuthorizations();
+    public ModelUserContext getModelUserContext() {
+        return getUser().getModelUserContext();
     }
 
     protected Class loadClass(String className) {

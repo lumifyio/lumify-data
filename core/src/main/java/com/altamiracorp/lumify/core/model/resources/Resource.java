@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.core.model.resources;
 
-import com.altamiracorp.lumify.core.model.Row;
-import com.altamiracorp.lumify.core.model.RowKey;
+import com.altamiracorp.bigtable.model.Row;
+import com.altamiracorp.bigtable.model.RowKey;
 
 public class Resource extends Row<ResourceRowKey> {
     public static final String TABLE_NAME = "atc_Resource";

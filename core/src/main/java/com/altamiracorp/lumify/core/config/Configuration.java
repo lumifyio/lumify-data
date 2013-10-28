@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -29,6 +30,7 @@ public final class Configuration  {
     public static final String HADOOP_URL = "hadoop.url";
     public static final String ZK_SERVERS = "zookeeper.serverNames";
     public static final String MODEL_PROVIDER = "model.provider";
+    public static final String FILESYSTEM_PROVIDER = "fs.provider";
     public static final String MODEL_USER = "model.username";
     public static final String MODEL_PASSWORD = "model.password";
     public static final String GRAPH_PROVIDER = "graph.provider";
@@ -87,6 +89,10 @@ public final class Configuration  {
     public Configuration getSubset (String keyPrefix) {
         org.apache.commons.configuration.Configuration subset = config.subset(keyPrefix);
         return new Configuration(subset);
+    }
+
+    public Map toMap () {
+        return new ConfigurationMap(config);
     }
 
     public Iterable<String> getKeys () {

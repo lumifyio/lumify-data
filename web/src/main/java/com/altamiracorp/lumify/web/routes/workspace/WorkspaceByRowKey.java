@@ -29,7 +29,7 @@ public class WorkspaceByRowKey extends BaseRequestHandler {
         final User authUser = getUser(request);
 
         LOGGER.info("Attempting to retrieve workspace: " + workspaceRowKey);
-        final Workspace workspace = workspaceRepository.findByRowKey(workspaceRowKey.toString(), authUser);
+        final Workspace workspace = workspaceRepository.findByRowKey(workspaceRowKey.toString(), authUser.getModelUserContext());
 
         if (workspace == null) {
             LOGGER.warn("Could not find workspace: " + workspaceRowKey);

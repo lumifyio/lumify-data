@@ -29,7 +29,7 @@ public class EntityHelper {
                 .setOntologyClassUri((String) conceptVertex.getProperty(PropertyName.DISPLAY_NAME))
                 .setConceptGraphVertexId(conceptVertex.getId())
                 .setGraphVertexId(resolvedVertex.getId());
-        termMentionRepository.save(termMention, user);
+        termMentionRepository.save(termMention, user.getModelUserContext());
     }
 
     public void updateGraphVertex(GraphVertex vertex, String subType, String title, User user) {

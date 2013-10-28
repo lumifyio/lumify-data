@@ -36,7 +36,7 @@ public class ArtifactByRowKey extends BaseRequestHandler {
         User user = getUser(request);
         ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
         GraphVertex artifactVertex = this.graphRepository.findVertexByRowKey(artifactKey.toString(), user);
-        Artifact artifact = artifactRepository.findByRowKey(artifactKey.toString(), user);
+        Artifact artifact = artifactRepository.findByRowKey(artifactKey.toString(), user.getModelUserContext());
 
         if (artifactVertex == null || artifact == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);

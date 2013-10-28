@@ -32,7 +32,6 @@ import backtype.storm.utils.Utils;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
-import com.altamiracorp.lumify.model.AccumuloSession;
 import com.altamiracorp.lumify.model.KafkaJsonEncoder;
 import com.altamiracorp.lumify.storm.contentTypeSorter.ContentTypeSorterBolt;
 import com.altamiracorp.lumify.storm.document.DocumentBolt;

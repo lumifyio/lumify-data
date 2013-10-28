@@ -1,9 +1,9 @@
 package com.altamiracorp.lumify.core.model.videoFrames;
 
-import com.altamiracorp.lumify.core.model.BaseBuilder;
-import com.altamiracorp.lumify.core.model.Column;
-import com.altamiracorp.lumify.core.model.ColumnFamily;
-import com.altamiracorp.lumify.core.model.Row;
+import com.altamiracorp.bigtable.model.BaseBuilder;
+import com.altamiracorp.bigtable.model.Column;
+import com.altamiracorp.bigtable.model.ColumnFamily;
+import com.altamiracorp.bigtable.model.Row;
 
 import java.util.Collection;
 

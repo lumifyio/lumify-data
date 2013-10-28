@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.entityExtraction;
 
+import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.core.model.ModelSession;
 import com.altamiracorp.lumify.core.model.dictionary.DictionaryEntryRepository;
 import com.altamiracorp.lumify.core.user.User;
 import com.google.inject.Inject;

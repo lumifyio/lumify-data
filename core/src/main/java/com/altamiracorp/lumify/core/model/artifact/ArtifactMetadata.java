@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.core.model.artifact;
 
 import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
-import com.altamiracorp.lumify.core.model.ColumnFamily;
-import com.altamiracorp.lumify.core.model.Value;
+import com.altamiracorp.bigtable.model.ColumnFamily;
+import com.altamiracorp.bigtable.model.Value;
 
 import java.util.Date;
 

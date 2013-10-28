@@ -1,11 +1,12 @@
 package com.altamiracorp.lumify.textExtraction;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.MockSession;
+import com.altamiracorp.bigtable.model.MockSession;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.ModelUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +40,7 @@ public class TikaTextExtractorTest {
     public void before() {
         MockitoAnnotations.initMocks(this);
         session = new MockSession();
-        session.initializeTables(user);
+        ModelUtil.initializeTables(session,user);
         textOut = new ByteArrayOutputStream();
     }
 

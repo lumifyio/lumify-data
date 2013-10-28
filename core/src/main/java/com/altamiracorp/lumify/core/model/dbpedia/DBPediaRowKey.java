@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.core.model.dbpedia;
 
-import com.altamiracorp.lumify.core.model.RowKey;
+import com.altamiracorp.bigtable.model.RowKey;
 
 public class DBPediaRowKey extends RowKey {
     public DBPediaRowKey(String rowKey) {

@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.web;
 
+import com.altamiracorp.bigtable.model.user.ModelUserContext;
 import com.altamiracorp.lumify.core.model.user.UserRow;
 import com.altamiracorp.lumify.core.user.ModelAuthorizations;
 import com.altamiracorp.lumify.core.user.SystemUser;
@@ -27,12 +28,12 @@ public abstract class AuthenticationProvider implements Handler {
 
     protected User createFromModelUser(UserRow user) {
         // TODO change to user specific authorization
-        ModelAuthorizations modelAuthorizations = SystemUser.getSystemModelAuthorizations();
+        ModelUserContext modelUserContext = SystemUser.getSystemUserContext();
 
         return new User(
                 user.getRowKey().toString(),
                 user.getMetadata().getUserName(),
                 user.getMetadata().getCurrentWorkspace(),
-                modelAuthorizations);
+                modelUserContext);
     }
 }

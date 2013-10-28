@@ -146,7 +146,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
     }
 
     private Artifact saveArtifactModel(ArtifactExtractedInfo artifactExtractedInfo) {
-        Artifact artifact = artifactRepository.findByRowKey(artifactExtractedInfo.getRowKey(), getUser());
+        Artifact artifact = artifactRepository.findByRowKey(artifactExtractedInfo.getRowKey(), getUser().getModelUserContext());
         if (artifact == null) {
             artifact = new Artifact(artifactExtractedInfo.getRowKey());
             artifact.getMetadata().setCreateDate(new Date());
@@ -173,7 +173,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
             artifact.getMetadata().setMappingJson(artifactExtractedInfo.getMappingJson());
         }
 
-        artifactRepository.save(artifact, getUser());
+        artifactRepository.save(artifact, getUser().getModelUserContext());
         return artifact;
     }
 

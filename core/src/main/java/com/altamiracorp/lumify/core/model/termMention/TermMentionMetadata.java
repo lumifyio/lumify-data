@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.core.model.termMention;
 
-import com.altamiracorp.lumify.core.model.ColumnFamily;
+import com.altamiracorp.bigtable.model.ColumnFamily;
 import com.altamiracorp.lumify.core.model.GeoLocation;
-import com.altamiracorp.lumify.core.model.Value;
+import com.altamiracorp.bigtable.model.Value;
 
 public class TermMentionMetadata extends ColumnFamily {
     public static final String NAME = "Metadata";

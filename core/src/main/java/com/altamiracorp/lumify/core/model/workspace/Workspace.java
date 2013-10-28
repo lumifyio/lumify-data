@@ -1,10 +1,10 @@
 package com.altamiracorp.lumify.core.model.workspace;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.model.Column;
-import com.altamiracorp.lumify.core.model.Row;
-import com.altamiracorp.lumify.core.model.RowKey;
-import com.altamiracorp.lumify.core.model.Value;
+import com.altamiracorp.bigtable.model.Column;
+import com.altamiracorp.bigtable.model.Row;
+import com.altamiracorp.bigtable.model.RowKey;
+import com.altamiracorp.bigtable.model.Value;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

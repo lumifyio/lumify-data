@@ -38,7 +38,7 @@ public class CsvEntityExtractor {
         String artifactRowKey = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
         LOGGER.info(String.format("Processing graph vertex [%s] for artifact: %s", graphVertex.getId(), artifactRowKey));
 
-        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user);
+        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, user.getModelUserContext());
         if (artifact.getMetadata().getMappingJson() != null) {
             JSONObject mappingJson = new JSONObject(artifact.getMetadata().getMappingJson());
             int row = 0;

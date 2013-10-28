@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.core.model.termMention;
 
-import com.altamiracorp.lumify.core.model.ModelSession;
-import com.altamiracorp.lumify.core.model.Repository;
-import com.altamiracorp.lumify.core.model.Row;
+import com.altamiracorp.bigtable.model.ModelSession;
+import com.altamiracorp.bigtable.model.Repository;
+import com.altamiracorp.bigtable.model.Row;
 import com.altamiracorp.lumify.core.user.User;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -34,6 +34,6 @@ public class TermMentionRepository extends Repository<TermMention> {
     }
 
     public List<TermMention> findByGraphVertexId(String graphVertexId, User user) {
-        return findByRowStartsWith(graphVertexId + ":", user);
+        return findByRowStartsWith(graphVertexId + ":", user.getModelUserContext());
     }
 }

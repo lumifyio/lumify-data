@@ -19,7 +19,6 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.utils.Utils;
 
 import com.altamiracorp.lumify.core.config.ConfigurationHelper;
-import com.altamiracorp.lumify.model.AccumuloSession;
 
 public class HdfsFileSystemSpout extends BaseFileSystemSpout {
     private static final Logger LOGGER = LoggerFactory.getLogger(HdfsFileSystemSpout.class);

@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.core.model.resources;
 
-import com.altamiracorp.lumify.core.model.*;
+import com.altamiracorp.bigtable.model.*;
 import com.altamiracorp.lumify.core.user.User;
 import com.google.inject.Inject;
 import org.apache.commons.io.IOUtils;
@@ -45,7 +45,7 @@ public class ResourceRepository extends Repository<Resource> {
         try {
             byte[] data = IOUtils.toByteArray(in);
             Resource res = new Resource(data, contentType);
-            save(res, user);
+            save(res, user.getModelUserContext());
             return res.getRowKey().toString();
         } catch (IOException e) {
             throw new RuntimeException("Could not import file", e);

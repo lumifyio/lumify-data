@@ -31,7 +31,7 @@ public class WorkspaceDelete extends BaseRequestHandler {
             WorkspaceRowKey rowKey = new WorkspaceRowKey(strRowKey);
 
             LOGGER.info("Deleting workspace with id: " + strRowKey);
-            workspaceRepository.delete(rowKey, user);
+            workspaceRepository.delete(rowKey, user.getModelUserContext());
 
             JSONObject resultJson = new JSONObject();
             resultJson.put("success", true);

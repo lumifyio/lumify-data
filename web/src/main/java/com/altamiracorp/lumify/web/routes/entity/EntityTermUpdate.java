@@ -50,7 +50,7 @@ public class EntityTermUpdate extends BaseRequestHandler {
         }
 
         TermMentionRowKey termMentionRowKey = new TermMentionRowKey(artifactId, mentionStart, mentionEnd);
-        TermMention termMention = termMentionRepository.findByRowKey(termMentionRowKey.toString(), user);
+        TermMention termMention = termMentionRepository.findByRowKey(termMentionRowKey.toString(), user.getModelUserContext());
         if (termMention == null) {
             termMention = new TermMention(termMentionRowKey);
         }

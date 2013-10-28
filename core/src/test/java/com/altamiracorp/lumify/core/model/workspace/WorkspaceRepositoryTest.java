@@ -1,10 +1,11 @@
 package com.altamiracorp.lumify.core.model.workspace;
 
-import com.altamiracorp.lumify.core.model.ColumnFamily;
-import com.altamiracorp.lumify.core.model.MockSession;
-import com.altamiracorp.lumify.core.model.Row;
-import com.altamiracorp.lumify.core.model.RowKey;
+import com.altamiracorp.bigtable.model.ColumnFamily;
+import com.altamiracorp.bigtable.model.MockSession;
+import com.altamiracorp.bigtable.model.Row;
+import com.altamiracorp.bigtable.model.RowKey;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.util.ModelUtil;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class WorkspaceRepositoryTest {
         MockitoAnnotations.initMocks(this);
 
         session = new MockSession();
-        session.initializeTables(user);
+        ModelUtil.initializeTables(session,user);
         workspaceRepository = new WorkspaceRepository(session);
     }
 
@@ -51,7 +52,7 @@ public class WorkspaceRepositoryTest {
 
         session.tables.get(Workspace.TABLE_NAME).add(row);
 
-        Workspace workspace = workspaceRepository.findByRowKey(rowKeyString, user);
+        Workspace workspace = workspaceRepository.findByRowKey(rowKeyString, user.getModelUserContext());
         assertEquals(rowKeyString, workspace.getRowKey().toString());
         assertEquals(2, workspace.getColumnFamilies().size());
 
@@ -77,7 +78,7 @@ public class WorkspaceRepositoryTest {
                 new ColumnFamily("testExtraColumnFamily")
                         .set("testExtraColumn", "testExtraValue"));
 
-        workspaceRepository.save(workspace, user);
+        workspaceRepository.save(workspace, user.getModelUserContext());
 
         assertEquals(1, session.tables.get(Workspace.TABLE_NAME).size());
         Row row = session.tables.get(Workspace.TABLE_NAME).get(0);

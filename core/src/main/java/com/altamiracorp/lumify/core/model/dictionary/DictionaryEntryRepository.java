@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.core.model.dictionary;
 
-import com.altamiracorp.lumify.core.model.*;
+import com.altamiracorp.bigtable.model.*;
 import com.altamiracorp.lumify.core.user.User;
 import com.google.inject.Inject;
 
@@ -40,7 +40,7 @@ public class DictionaryEntryRepository extends Repository<DictionaryEntry> {
     }
 
     public List<DictionaryEntry> findByConcept (String concept, User user) {
-        List<Row> rows = getModelSession().findByRowKeyRegex(DictionaryEntry.TABLE_NAME,".*\\c_" + concept, user);
+        List<Row> rows = getModelSession().findByRowKeyRegex(DictionaryEntry.TABLE_NAME,".*\\c_" + concept, user.getModelUserContext());
         return fromRows(rows);
     }
 
@@ -64,13 +64,13 @@ public class DictionaryEntryRepository extends Repository<DictionaryEntry> {
 
     public DictionaryEntry saveNew (String tokens, String concept, String resolvedName, User user) {
         DictionaryEntry entry = createNew(tokens, concept, resolvedName);
-        this.save(entry, user);
+        this.save(entry, user.getModelUserContext());
         return entry;
     }
 
     public DictionaryEntry saveNew (String tokens, String concept, User user) {
         DictionaryEntry entry = createNew(tokens,concept);
-        this.save(entry, user);
+        this.save(entry, user.getModelUserContext());
         return entry;
     }
 }

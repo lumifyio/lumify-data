@@ -1,9 +1,9 @@
 package com.altamiracorp.lumify.core.model.videoFrames;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.model.ModelSession;
-import com.altamiracorp.lumify.core.model.Repository;
-import com.altamiracorp.lumify.core.model.Row;
+import com.altamiracorp.bigtable.model.ModelSession;
+import com.altamiracorp.bigtable.model.Repository;
+import com.altamiracorp.bigtable.model.Row;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.google.inject.Inject;
 import org.apache.commons.io.IOUtils;
@@ -43,11 +43,11 @@ public class VideoFrameRepository extends Repository<VideoFrame> {
         VideoFrameRowKey videoFrameRowKey = new VideoFrameRowKey(artifactRowKey.toString(), frameStartTime);
         VideoFrame videoFrame = new VideoFrame(videoFrameRowKey);
         videoFrame.getMetadata().setData(data);
-        save(videoFrame, user);
+        save(videoFrame, user.getModelUserContext());
     }
 
     public List<VideoFrame> findAllByArtifactRowKey(String rowKey, User user) {
-        return findByRowStartsWith(rowKey, user);
+        return findByRowStartsWith(rowKey, user.getModelUserContext());
     }
 
     public BufferedImage loadImage(VideoFrame videoFrame, User user) {

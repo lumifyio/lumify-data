@@ -33,14 +33,14 @@ public class WorkspaceCopy extends BaseRequestHandler {
 
         User authUser = getUser(request);
         UserRow user = userRepository.findOrAddUser(authUser.getUsername(), authUser);
-        Workspace originalWorkspace = workspaceRepository.findByRowKey(originalRowKey,authUser);
+        Workspace originalWorkspace = workspaceRepository.findByRowKey(originalRowKey,authUser.getModelUserContext());
         Workspace workspace = createNewWorkspace(originalWorkspace.getMetadata().getTitle(),user);
 
         if (originalWorkspace.getContent().getData() != null) {
             workspace.getContent().setData(originalWorkspace.getContent().getData());
         }
 
-        workspaceRepository.save(workspace,authUser);
+        workspaceRepository.save(workspace,authUser.getModelUserContext());
         request.getSession().setAttribute("activeWorkspace", workspace.getRowKey().toString());
 
 

@@ -20,7 +20,7 @@ public abstract class BaseTextProcessingBolt extends BaseLumifyBolt {
             textIn = openFile(textHdfsPath);
         } else {
             String artifactRowKey = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
-            Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, getUser());
+            Artifact artifact = artifactRepository.findByRowKey(artifactRowKey, getUser().getModelUserContext());
             String text = artifact.getMetadata().getText();
             if (text == null) {
                 text = "";

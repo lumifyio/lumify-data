@@ -1,12 +1,12 @@
 package com.altamiracorp.lumify.objectDetection;
 
+import com.altamiracorp.bigtable.model.Row;
+import com.altamiracorp.bigtable.model.accumulo.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
 import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
-import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.model.AccumuloVideoFrameInputFormat;
-import com.altamiracorp.lumify.core.model.Row;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;

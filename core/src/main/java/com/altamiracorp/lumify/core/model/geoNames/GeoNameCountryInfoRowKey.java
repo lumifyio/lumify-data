@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.core.model.geoNames;
 
-import com.altamiracorp.lumify.core.model.RowKey;
+import com.altamiracorp.bigtable.model.RowKey;
 
 public class GeoNameCountryInfoRowKey extends RowKey {
     public GeoNameCountryInfoRowKey(String rowKey) {

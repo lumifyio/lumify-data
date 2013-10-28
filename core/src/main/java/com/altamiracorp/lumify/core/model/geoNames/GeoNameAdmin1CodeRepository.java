@@ -3,11 +3,11 @@ package com.altamiracorp.lumify.core.model.geoNames;
 import java.util.Collection;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.model.Column;
-import com.altamiracorp.lumify.core.model.ColumnFamily;
-import com.altamiracorp.lumify.core.model.ModelSession;
-import com.altamiracorp.lumify.core.model.Repository;
-import com.altamiracorp.lumify.core.model.Row;
+import com.altamiracorp.bigtable.model.Column;
+import com.altamiracorp.bigtable.model.ColumnFamily;
+import com.altamiracorp.bigtable.model.ModelSession;
+import com.altamiracorp.bigtable.model.Repository;
+import com.altamiracorp.bigtable.model.Row;
 import com.google.inject.Inject;
 
 public class GeoNameAdmin1CodeRepository extends Repository<GeoNameAdmin1Code> {
@@ -42,6 +42,6 @@ public class GeoNameAdmin1CodeRepository extends Repository<GeoNameAdmin1Code> {
     }
 
     public GeoNameAdmin1Code findByCountryAndAdmin1Code(String countryCode, String admin1Code, User user) {
-        return findByRowKey(new GeoNameAdmin1CodeRowKey(countryCode, admin1Code).toString(), user);
+        return findByRowKey(new GeoNameAdmin1CodeRowKey(countryCode, admin1Code).toString(), user.getModelUserContext());
     }
 }

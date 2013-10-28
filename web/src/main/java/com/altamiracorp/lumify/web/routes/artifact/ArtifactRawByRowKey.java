@@ -44,8 +44,9 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
         boolean videoPlayback = getOptionalParameter(request, "playback") != null;
 
         User user = getUser(request);
-        ArtifactRowKey artifactRowKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
-        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey.toString(), user);
+        ArtifactRowKey artifactKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
+        Artifact artifact = artifactRepository.findByRowKey(artifactKey.toString(), user.getModelUserContext());
+
         if (artifact == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             chain.next(request, response);

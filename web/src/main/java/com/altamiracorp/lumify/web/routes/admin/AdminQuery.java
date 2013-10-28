@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.web.routes.admin;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.model.ModelSession;
-import com.altamiracorp.lumify.core.model.Row;
+import com.altamiracorp.bigtable.model.ModelSession;
+import com.altamiracorp.bigtable.model.Row;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
@@ -31,7 +31,7 @@ public class AdminQuery extends BaseRequestHandler {
 
         User user = getUser(request);
 
-        List<Row> rows = modelSession.findByRowKeyRange(tableName, beginKey, endEnd, user);
+        List<Row> rows = modelSession.findByRowKeyRange(tableName, beginKey, endEnd, user.getModelUserContext());
 
         JSONObject results = new JSONObject();
         JSONArray rowsJson = new JSONArray();

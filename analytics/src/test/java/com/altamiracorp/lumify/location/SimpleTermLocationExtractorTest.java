@@ -1,13 +1,14 @@
 package com.altamiracorp.lumify.location;
 
+import com.altamiracorp.bigtable.model.MockSession;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.model.MockSession;
 import com.altamiracorp.lumify.core.model.geoNames.GeoName;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameAdmin1CodeRepository;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameCountryInfoRepository;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.workspace.WorkspaceRepository;
+import com.altamiracorp.lumify.core.util.ModelUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +41,7 @@ public class SimpleTermLocationExtractorTest {
     @Before
     public void before() {
         session = new MockSession();
-        session.initializeTables(user);
+        ModelUtil.initializeTables(session, user);
     }
 
     @Test

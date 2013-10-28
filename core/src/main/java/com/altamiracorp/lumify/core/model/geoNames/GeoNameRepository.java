@@ -5,11 +5,11 @@ import java.util.Collections;
 import java.util.List;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.model.Column;
-import com.altamiracorp.lumify.core.model.ColumnFamily;
-import com.altamiracorp.lumify.core.model.ModelSession;
-import com.altamiracorp.lumify.core.model.Repository;
-import com.altamiracorp.lumify.core.model.Row;
+import com.altamiracorp.bigtable.model.Column;
+import com.altamiracorp.bigtable.model.ColumnFamily;
+import com.altamiracorp.bigtable.model.ModelSession;
+import com.altamiracorp.bigtable.model.Repository;
+import com.altamiracorp.bigtable.model.Row;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import com.google.inject.Inject;
 
@@ -45,7 +45,7 @@ public class GeoNameRepository extends Repository<GeoName> {
     }
 
     public GeoName findBestMatch(String name, User user) {
-        List<GeoName> matches = findByRowStartsWith(name.toLowerCase() + RowKeyHelper.MINOR_FIELD_SEPARATOR, user);
+        List<GeoName> matches = findByRowStartsWith(name.toLowerCase() + RowKeyHelper.MINOR_FIELD_SEPARATOR, user.getModelUserContext());
         if (matches.size() == 0) {
             return null;
         }

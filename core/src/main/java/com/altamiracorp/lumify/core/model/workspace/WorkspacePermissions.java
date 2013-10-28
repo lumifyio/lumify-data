@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.core.model.workspace;
 
-import com.altamiracorp.lumify.core.model.ColumnFamily;
-import com.altamiracorp.lumify.core.model.Value;
+import com.altamiracorp.bigtable.model.ColumnFamily;
+import com.altamiracorp.bigtable.model.Value;
 
 /**
  * This column family stores the user's rowkey as the column name and their permissions

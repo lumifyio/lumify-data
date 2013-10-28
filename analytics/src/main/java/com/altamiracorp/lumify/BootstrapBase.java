@@ -1,7 +1,12 @@
 package com.altamiracorp.lumify;
 
 import java.lang.reflect.Constructor;
+import java.util.Map;
 
+import com.altamiracorp.bigtable.model.ModelSession;
+import com.altamiracorp.bigtable.model.accumulo.AccumuloSession;
+import com.altamiracorp.lumify.core.fs.FileSystemSession;
+import com.altamiracorp.lumify.fs.hdfs.HdfsSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,12 +14,10 @@ import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor;
 import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.model.GraphSession;
-import com.altamiracorp.lumify.core.model.ModelSession;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.AccumuloSession;
 import com.altamiracorp.lumify.model.KafkaWorkQueueRepository;
 import com.altamiracorp.lumify.model.TitanGraphSession;
 import com.altamiracorp.lumify.search.ElasticSearchProvider;
@@ -27,6 +30,7 @@ public abstract class BootstrapBase extends AbstractModule {
     private static final String DEFAULT_MODEL_PROVIDER = AccumuloSession.class.getName();
     private static final String DEFAULT_GRAPH_PROVIDER = TitanGraphSession.class.getName();
     private static final String DEFAULT_SEARCH_PROVIDER = ElasticSearchProvider.class.getName();
+    private static final String DEFAULT_FILESYSTEM_PROVIDER = HdfsSession.class.getName();
 
     protected BootstrapBase(Configuration config) {
         this.config = config;
@@ -38,6 +42,7 @@ public abstract class BootstrapBase extends AbstractModule {
         User user = new SystemUser();
 
         bind(ModelSession.class).toInstance(createModelSession());
+        bind(FileSystemSession.class).toInstance(createFileSystemSession());
         bind(GraphSession.class).toInstance(createGraphSession());
         bind(SearchProvider.class).toInstance(createSearchProvider(user));
         bind(WorkQueueRepository.class).toInstance(createWorkQueueRepository());
@@ -54,10 +59,23 @@ public abstract class BootstrapBase extends AbstractModule {
         Class modelProviderClass = null;
         try {
             modelProviderClass = config.getClass(Configuration.MODEL_PROVIDER, DEFAULT_MODEL_PROVIDER);
-            Constructor<ModelSession> modelSessionConstructor = modelProviderClass.getConstructor(Configuration.class);
-            return modelSessionConstructor.newInstance(config);
+            Constructor<ModelSession> modelSessionConstructor = modelProviderClass.getConstructor(Map.class);
+            return modelSessionConstructor.newInstance(config.toMap());
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("The provided model provider " + modelProviderClass.getName() + " does not have the required constructor");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private FileSystemSession createFileSystemSession() {
+        Class fileSystemProviderClass = null;
+        try {
+            fileSystemProviderClass = config.getClass(Configuration.FILESYSTEM_PROVIDER, DEFAULT_FILESYSTEM_PROVIDER);
+            Constructor<FileSystemSession> modelSessionConstructor = fileSystemProviderClass.getConstructor(Configuration.class);
+            return modelSessionConstructor.newInstance(config);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("The provided filesystem provider " + fileSystemProviderClass.getName() + " does not have the required constructor");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

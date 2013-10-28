@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.core.model.dictionary;
 
-import com.altamiracorp.lumify.core.model.Row;
-import com.altamiracorp.lumify.core.model.RowKey;
+import com.altamiracorp.bigtable.model.Row;
+import com.altamiracorp.bigtable.model.RowKey;
 import org.json.JSONObject;
 
 public class DictionaryEntry extends Row<DictionaryEntryRowKey> {

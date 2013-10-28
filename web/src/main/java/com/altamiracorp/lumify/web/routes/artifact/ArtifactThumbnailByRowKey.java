@@ -63,7 +63,7 @@ public class ArtifactThumbnailByRowKey extends BaseRequestHandler {
             return;
         }
 
-        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey.toString(), user);
+        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey.toString(), user.getModelUserContext());
         GraphVertex vertex = graphRepository.findVertex(artifact.getMetadata().getGraphVertexId(), user);
         if (artifact == null) {
             LOGGER.warn("Cannot find artifact with row key: " + artifactRowKey.toString());

@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.core.model.termMention;
 
-import com.altamiracorp.lumify.core.model.RowKey;
+import com.altamiracorp.bigtable.model.RowKey;
 import com.altamiracorp.lumify.core.util.RowKeyHelper;
 import org.apache.commons.lang.StringUtils;
 

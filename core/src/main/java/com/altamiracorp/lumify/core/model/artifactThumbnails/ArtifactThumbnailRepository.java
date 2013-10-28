@@ -14,11 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.model.Column;
-import com.altamiracorp.lumify.core.model.ColumnFamily;
-import com.altamiracorp.lumify.core.model.ModelSession;
-import com.altamiracorp.lumify.core.model.Repository;
-import com.altamiracorp.lumify.core.model.Row;
+import com.altamiracorp.bigtable.model.Column;
+import com.altamiracorp.bigtable.model.ColumnFamily;
+import com.altamiracorp.bigtable.model.ModelSession;
+import com.altamiracorp.bigtable.model.Repository;
+import com.altamiracorp.bigtable.model.Row;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.google.inject.Inject;
 
@@ -58,7 +58,7 @@ public class ArtifactThumbnailRepository extends Repository<ArtifactThumbnail> {
 
     public byte[] getThumbnailData(ArtifactRowKey artifactRowKey, String thumbnailType, int width, int height, User user) {
         ArtifactThumbnailRowKey rowKey = new ArtifactThumbnailRowKey(artifactRowKey.toString(), thumbnailType, width, height);
-        ArtifactThumbnail artifactThumbnail = findByRowKey(rowKey.toString(), user);
+        ArtifactThumbnail artifactThumbnail = findByRowKey(rowKey.toString(), user.getModelUserContext());
         if (artifactThumbnail == null) {
             return null;
         }
@@ -93,7 +93,7 @@ public class ArtifactThumbnailRepository extends Repository<ArtifactThumbnail> {
         ArtifactThumbnailRowKey artifactThumbnailRowKey = new ArtifactThumbnailRowKey(artifactRowKey.toString(), thumbnailType, boundaryDims[0], boundaryDims[1]);
         ArtifactThumbnail artifactThumbnail = new ArtifactThumbnail(artifactThumbnailRowKey);
         artifactThumbnail.getMetadata().setData(bytes);
-        save(artifactThumbnail, user);
+        save(artifactThumbnail, user.getModelUserContext());
     }
 
     public static int[] getScaledDimension(int[] imgSize, int[] boundary) {

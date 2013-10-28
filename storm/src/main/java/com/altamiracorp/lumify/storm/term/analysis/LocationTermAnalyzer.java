@@ -61,7 +61,7 @@ public class LocationTermAnalyzer {
         if (updatedTerm != null) {
             LOGGER.info("Updating associated graph vertex");
             updateGraphVertex(updatedTerm, data.getGraphVertex(), user);
-            termRepository.save(updatedTerm, user);
+            termRepository.save(updatedTerm, user.getModelUserContext());
             return updatedTerm;
         }
         return null;

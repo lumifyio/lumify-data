@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.core.model.workspace;
 
-import com.altamiracorp.lumify.core.model.*;
+import com.altamiracorp.bigtable.model.*;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 

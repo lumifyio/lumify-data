@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.core.model.videoFrames;
 
-import com.altamiracorp.lumify.core.model.Row;
-import com.altamiracorp.lumify.core.model.RowKey;
+import com.altamiracorp.bigtable.model.Row;
+import com.altamiracorp.bigtable.model.RowKey;
 
 public class VideoFrame extends Row<VideoFrameRowKey> {
     public static final String TABLE_NAME = "atc_videoFrame";

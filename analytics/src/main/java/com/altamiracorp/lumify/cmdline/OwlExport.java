@@ -1,8 +1,9 @@
 package com.altamiracorp.lumify.cmdline;
 
+import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.model.ModelSession;
 import com.altamiracorp.lumify.core.model.ontology.*;
+import com.altamiracorp.lumify.core.util.ModelUtil;
 import com.google.inject.Inject;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
@@ -70,7 +71,7 @@ public class OwlExport extends CommandLineBase {
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
-        modelSession.initializeTables(getUser());
+        ModelUtil.initializeTables(modelSession, getUser());
 
         OutputStream out;
         if (outFileName != null) {

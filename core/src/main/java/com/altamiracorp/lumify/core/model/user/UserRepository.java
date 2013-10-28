@@ -3,11 +3,11 @@ package com.altamiracorp.lumify.core.model.user;
 import java.util.Collection;
 import java.util.List;
 
-import com.altamiracorp.lumify.core.model.Column;
-import com.altamiracorp.lumify.core.model.ColumnFamily;
-import com.altamiracorp.lumify.core.model.ModelSession;
-import com.altamiracorp.lumify.core.model.Repository;
-import com.altamiracorp.lumify.core.model.Row;
+import com.altamiracorp.bigtable.model.Column;
+import com.altamiracorp.bigtable.model.ColumnFamily;
+import com.altamiracorp.bigtable.model.ModelSession;
+import com.altamiracorp.bigtable.model.Repository;
+import com.altamiracorp.bigtable.model.Row;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
@@ -52,12 +52,12 @@ public class UserRepository extends Repository<UserRow> {
 
         user = new UserRow();
         user.getMetadata().setUserName(userName);
-        save(user, authUser);
+        save(user, authUser.getModelUserContext());
         return user;
     }
 
     private UserRow findByUserName(String userName, com.altamiracorp.lumify.core.user.User authUser) {
-        List<UserRow> users = findAll(authUser);
+        List<UserRow> users = findAll(authUser.getModelUserContext());
         for (UserRow user : users) {
             if (userName.equals(user.getMetadata().getUserName())) {
                 return user;

@@ -1,7 +1,12 @@
 package com.altamiracorp.lumify.core.model.artifact;
 
+import com.altamiracorp.bigtable.model.ModelSession;
+import com.altamiracorp.bigtable.model.Repository;
+import com.altamiracorp.bigtable.model.Row;
+import com.altamiracorp.lumify.core.fs.FileSystemSession;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.*;
+import com.altamiracorp.lumify.core.model.GraphSession;
+import com.altamiracorp.lumify.core.model.SaveFileResults;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
@@ -33,15 +38,18 @@ public class ArtifactRepository extends Repository<Artifact> {
     public static final int PREVIEW_FRAME_WIDTH = 360;
     public static final int PREVIEW_FRAME_HEIGHT = 240;
     private final ArtifactBuilder artifactBuilder = new ArtifactBuilder();
+    private final FileSystemSession fsSession;
     private final GraphSession graphSession;
     private final SearchProvider searchProvider;
 
     @Inject
     public ArtifactRepository(
             final ModelSession modelSession,
+            final FileSystemSession fsSession,
             final GraphSession graphSession,
             final SearchProvider searchProvider) {
         super(modelSession);
+        this.fsSession = fsSession;
         this.graphSession = graphSession;
         this.searchProvider = searchProvider;
     }
@@ -62,7 +70,7 @@ public class ArtifactRepository extends Repository<Artifact> {
     }
 
     public SaveFileResults saveFile(InputStream in, User user) {
-        return getModelSession().saveFile(in, user);
+        return fsSession.saveFile(in);
     }
 
     public InputStream getRaw(Artifact artifact, GraphVertex vertex, User user) {
@@ -73,7 +81,7 @@ public class ArtifactRepository extends Repository<Artifact> {
 
         String hdfsPath = vertex.getProperty(PropertyName.RAW_HDFS_PATH).toString();
         if (hdfsPath != null) {
-            return getModelSession().loadFile(hdfsPath, user);
+            return fsSession.loadFile(hdfsPath);
         }
 
         return null;
@@ -150,7 +158,7 @@ public class ArtifactRepository extends Repository<Artifact> {
 
         if (!vertexId.equals(oldGraphVertexId)) {
             artifact.getMetadata().setGraphVertexId(vertexId);
-            save(artifact, user);
+            save(artifact, user.getModelUserContext());
         }
         return artifactVertex;
     }
@@ -209,7 +217,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         String hdfsPath = (String) artifactVertex.getProperty(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH);
         if (hdfsPath == null) {
             String artifactRowKey = (String) artifactVertex.getProperty(PropertyName.ROW_KEY);
-            Artifact artifact = findByRowKey(artifactRowKey, user);
+            Artifact artifact = findByRowKey(artifactRowKey, user.getModelUserContext());
             if( artifact != null ) {
                 ArtifactMetadata metadata = artifact.getMetadata();
                 if( metadata != null ) {
@@ -220,13 +228,13 @@ public class ArtifactRepository extends Repository<Artifact> {
                 }
             }
         } else {
-            InputStream in = getModelSession().loadFile(hdfsPath, user);
+            InputStream in = fsSession.loadFile(hdfsPath);
             IOUtils.copy(in, out);
         }
     }
 
     public InputStream getVideoPreviewImage(ArtifactRowKey artifactRowKey, User user) {
-        return getModelSession().loadFile(getVideoPreviewPath(artifactRowKey.toString()), user);
+        return fsSession.loadFile(getVideoPreviewPath(artifactRowKey.toString()));
     }
 
     public static String getVideoPreviewPath(String artifactRowKey) {
@@ -234,7 +242,7 @@ public class ArtifactRepository extends Repository<Artifact> {
     }
 
     public InputStream getRawPosterFrame(String artifactRowKey, User user) {
-        return getModelSession().loadFile(LUMIFY_VIDEO_POSTER_FRAME_HDFS_PATH + artifactRowKey, user);
+        return fsSession.loadFile(LUMIFY_VIDEO_POSTER_FRAME_HDFS_PATH + artifactRowKey);
     }
 
 }

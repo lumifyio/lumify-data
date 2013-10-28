@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.core.model;
 
-import com.altamiracorp.lumify.core.model.Value;
+import com.altamiracorp.bigtable.model.Value;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

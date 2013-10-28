@@ -12,7 +12,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Responsible for modifying the html tag of an {@link com.altamiracorp.lumify.ucd.artifact.ArtifactDetectedObjects}
+ * Responsible for modifying the html tag of an
  * in a background thread.
  */
 
@@ -46,7 +46,7 @@ public class ObjectDetectionWorker implements Runnable {
         LOGGER.info("Modifying object detection html tag for artifact with key: " + artifactKey);
 
         final long startTime = System.currentTimeMillis();
-        final Artifact artifact = artifactRepository.findByRowKey(artifactKey, user);
+        final Artifact artifact = artifactRepository.findByRowKey(artifactKey, user.getModelUserContext());
 
         if (artifact != null) {
             try {

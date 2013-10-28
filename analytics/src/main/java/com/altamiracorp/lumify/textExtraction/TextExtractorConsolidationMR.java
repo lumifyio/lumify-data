@@ -3,7 +3,6 @@ package com.altamiracorp.lumify.textExtraction;
 import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
 import com.altamiracorp.lumify.core.config.Configuration;
-import com.altamiracorp.lumify.core.model.Column;
 import com.altamiracorp.lumify.ucd.AccumuloArtifactInputFormat;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.google.inject.Injector;

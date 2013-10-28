@@ -71,7 +71,7 @@ public class MapMarkerImage extends BaseRequestHandler {
                 }
             }
 
-            Resource resource = resourceRepository.findByRowKey(glyphIconRowKey, user);
+            Resource resource = resourceRepository.findByRowKey(glyphIconRowKey, user.getModelUserContext());
             if (resource == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);
                 return;

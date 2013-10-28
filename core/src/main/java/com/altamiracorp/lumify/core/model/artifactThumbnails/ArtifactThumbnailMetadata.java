@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.core.model.artifactThumbnails;
 
-import com.altamiracorp.lumify.core.model.ColumnFamily;
-import com.altamiracorp.lumify.core.model.Value;
+import com.altamiracorp.bigtable.model.ColumnFamily;
+import com.altamiracorp.bigtable.model.Value;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

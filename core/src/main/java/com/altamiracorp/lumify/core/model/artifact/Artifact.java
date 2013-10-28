@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.core.model.artifact;
 
-import com.altamiracorp.lumify.core.model.Row;
-import com.altamiracorp.lumify.core.model.RowKey;
+import com.altamiracorp.bigtable.model.Row;
+import com.altamiracorp.bigtable.model.RowKey;
 
 public class Artifact extends Row<ArtifactRowKey> {
     public static final long MAX_SIZE_OF_INLINE_FILE = 512 * 1024; // 512kiB

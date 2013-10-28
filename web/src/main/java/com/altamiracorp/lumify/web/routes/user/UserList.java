@@ -26,7 +26,7 @@ public class UserList extends BaseRequestHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         User authUser = getUser(request);
 
-        List<UserRow> users = userRepository.findAll(authUser);
+        List<UserRow> users = userRepository.findAll(authUser.getModelUserContext());
 
         JSONObject resultJson = new JSONObject();
         JSONArray usersJson = getJson(users);

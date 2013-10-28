@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.location;
 
+import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.core.model.ModelSession;
 import com.altamiracorp.lumify.core.model.geoNames.*;
 import com.altamiracorp.lumify.core.user.User;
 import com.google.inject.Inject;
@@ -126,12 +126,12 @@ public class GeoNamesImporter extends CommandLineBase {
             geoNames.add(lineToGeoName(line));
             count++;
             if ((count % 1000) == 0) {
-                geoNameRepository.saveMany(geoNames, user);
+                geoNameRepository.saveMany(geoNames, user.getModelUserContext());
                 geoNames.clear();
                 LOGGER.info("Imported " + count + " of ~8500000  items.");
             }
         }
-        geoNameRepository.saveMany(geoNames, user);
+        geoNameRepository.saveMany(geoNames, user.getModelUserContext());
         geoNames.clear();
         LOGGER.info("Imported " + count + " of ~8500000  items.");
 
@@ -230,12 +230,12 @@ public class GeoNamesImporter extends CommandLineBase {
             admin1Codes.add(lineToAdmin1Code(line));
             count++;
             if ((count % 1000) == 0) {
-                geoNameAdmin1CodeRepository.saveMany(admin1Codes, user);
+                geoNameAdmin1CodeRepository.saveMany(admin1Codes, user.getModelUserContext());
                 admin1Codes.clear();
                 LOGGER.info("Imported " + count + " of ~4000  items.");
             }
         }
-        geoNameAdmin1CodeRepository.saveMany(admin1Codes, user);
+        geoNameAdmin1CodeRepository.saveMany(admin1Codes, user.getModelUserContext());
         admin1Codes.clear();
         LOGGER.info("Imported " + count + " of ~4000  items.");
 
@@ -272,12 +272,12 @@ public class GeoNamesImporter extends CommandLineBase {
             countryInfos.add(countryInfo);
             count++;
             if ((count % 100) == 0) {
-                geoNameCountryInfoRepository.saveMany(countryInfos, user);
+                geoNameCountryInfoRepository.saveMany(countryInfos, user.getModelUserContext());
                 countryInfos.clear();
                 LOGGER.info("Imported " + count + " of ~400  items.");
             }
         }
-        geoNameCountryInfoRepository.saveMany(countryInfos, user);
+        geoNameCountryInfoRepository.saveMany(countryInfos, user.getModelUserContext());
         countryInfos.clear();
         LOGGER.info("Imported " + count + " of ~400  items.");
 
@@ -313,12 +313,12 @@ public class GeoNamesImporter extends CommandLineBase {
             postalCodes.add(postalCode);
             count++;
             if ((count % 100) == 0) {
-                geoNamePostalCodeRepository.saveMany(postalCodes, user);
+                geoNamePostalCodeRepository.saveMany(postalCodes, user.getModelUserContext());
                 postalCodes.clear();
                 LOGGER.info("Imported " + count + " of ~43630  items.");
             }
         }
-        geoNamePostalCodeRepository.saveMany(postalCodes, user);
+        geoNamePostalCodeRepository.saveMany(postalCodes, user.getModelUserContext());
         postalCodes.clear();
         LOGGER.info("Imported " + count + " of ~43630  items.");
 

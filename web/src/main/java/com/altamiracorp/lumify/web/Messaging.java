@@ -153,10 +153,10 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
         if (!workspaceRowKey.equals(authUser.getCurrentWorkspace())) {
             authUser.setCurrentWorkspace(workspaceRowKey);
 
-            UserRow user = userRepository.findByRowKey(authUser.getRowKey(), authUser);
+            UserRow user = userRepository.findByRowKey(authUser.getRowKey(), authUser.getModelUserContext());
             user.getMetadata().setCurrentWorkspace(workspaceRowKey);
             authUser.setCurrentWorkspace(workspaceRowKey);
-            userRepository.save(user, authUser);
+            userRepository.save(user, authUser.getModelUserContext());
 
             LOGGER.debug("User " + user.getRowKey() + " switched current workspace to " + workspaceRowKey);
         }
@@ -169,9 +169,9 @@ public class Messaging implements AtmosphereHandler { //extends AbstractReflecto
             if (authUser == null) {
                 throw new RuntimeException("Could not find user in session");
             }
-            UserRow user = userRepository.findByRowKey(authUser.getRowKey(), authUser);
+            UserRow user = userRepository.findByRowKey(authUser.getRowKey(), authUser.getModelUserContext());
             user.getMetadata().setStatus(status);
-            userRepository.save(user, authUser);
+            userRepository.save(user, authUser.getModelUserContext());
 
             JSONObject json = new JSONObject();
             json.put("type", "userStatusChange");

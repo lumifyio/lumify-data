@@ -150,7 +150,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 termMentionModel.getMetadata().setGraphVertexId(resolvedEntityGraphVertexId);
             }
 
-            termMentionRepository.save(termMentionModel, getUser());
+            termMentionRepository.save(termMentionModel, getUser().getModelUserContext());
             results.add(new TermMentionWithGraphVertex(termMentionModel, vertex));
         }
         return results;

@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.model;
 import com.altamiracorp.lumify.core.user.ModelAuthorizations;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionBuilder;
+import com.altamiracorp.bigtable.model.accumulo.AccumuloBaseInputFormat;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.mapreduce.Job;

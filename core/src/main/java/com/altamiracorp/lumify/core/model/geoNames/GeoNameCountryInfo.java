@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.core.model.geoNames;
 
-import com.altamiracorp.lumify.core.model.Row;
-import com.altamiracorp.lumify.core.model.RowKey;
+import com.altamiracorp.bigtable.model.Row;
+import com.altamiracorp.bigtable.model.RowKey;
 
 public class GeoNameCountryInfo extends Row<GeoNameCountryInfoRowKey> {
     public static final String TABLE_NAME = "atc_GeoNameCountryInfo";

@@ -1,6 +1,6 @@
 package com.altamiracorp.lumify.core.model.artifactThumbnails;
 
-import com.altamiracorp.lumify.core.model.RowKey;
+import com.altamiracorp.bigtable.model.RowKey;
 import org.apache.commons.lang.StringUtils;
 
 public class ArtifactThumbnailRowKey extends RowKey {

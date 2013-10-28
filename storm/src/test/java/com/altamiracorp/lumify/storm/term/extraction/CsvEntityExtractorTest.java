@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
+import com.altamiracorp.bigtable.model.user.ModelUserContext;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult.TermMention;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
@@ -41,7 +42,7 @@ public class CsvEntityExtractorTest {
         extractor = new CsvEntityExtractor();
         extractor.setArtifactRepository(artifactRepository);
         when(artifactRepository
-                .findByRowKey(anyString(), any(User.class)))
+                .findByRowKey(anyString(), any(ModelUserContext.class)))
                 .thenReturn(artifact);
 
         when(artifact.getMetadata())
@@ -77,7 +78,7 @@ public class CsvEntityExtractorTest {
         assertEquals(relationship.getDestTermMention(), mention2);
         assertEquals("personLivesAtLocation", relationship.getLabel());
 
-        verify(artifactRepository, times(1)).findByRowKey(anyString(), any(User.class));
+        verify(artifactRepository, times(1)).findByRowKey(anyString(), any(ModelUserContext.class));
         verify(artifact, times(3)).getMetadata();
         verify(metadata, times(1)).getText();
         verify(metadata, times(2)).getMappingJson();

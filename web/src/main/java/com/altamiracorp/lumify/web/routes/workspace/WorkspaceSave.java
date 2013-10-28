@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
+import com.altamiracorp.bigtable.model.Column;
 import com.altamiracorp.lumify.core.model.user.UserRow;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.model.Column;
 import com.altamiracorp.lumify.core.model.user.UserRepository;
 import com.altamiracorp.lumify.core.model.workspace.Workspace;
 import com.altamiracorp.lumify.core.model.workspace.WorkspacePermissions;
@@ -47,7 +47,7 @@ public class WorkspaceSave extends BaseRequestHandler {
         if (workspaceRowKeyString == null) {
             workspace = handleNew(request, user);
         } else {
-            workspace = workspaceRepository.findByRowKey(workspaceRowKeyString, authUser);
+            workspace = workspaceRepository.findByRowKey(workspaceRowKeyString, authUser.getModelUserContext());
         }
 
         LOGGER.info("Saving workspace: " + workspace.getRowKey() + "\ntitle: " + workspace.getMetadata().getTitle() + "\ndata: " + data);
@@ -78,7 +78,7 @@ public class WorkspaceSave extends BaseRequestHandler {
         }
 
         if (shouldSave) {
-            workspaceRepository.save(workspace, authUser);
+            workspaceRepository.save(workspace, authUser.getModelUserContext());
         }
 
         respondWithJson(response, workspace.toJson(authUser));

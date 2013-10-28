@@ -15,7 +15,7 @@ import org.apache.hadoop.util.Tool;
 
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.config.Configuration;
-import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
+import com.altamiracorp.bigtable.model.accumulo.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 
 public abstract class ConfigurableMapJobBase extends CommandLineBase implements Tool {
@@ -113,7 +113,10 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
         }
         AccumuloModelOutputFormat.init(
                 job,
-                configuration,
+                configuration.get("model.accumulo.instanceName"),
+                configuration.get("model.accumulo.zookeeperServerNames"),
+                configuration.get("model.accumulo.user"),
+                configuration.get("model.accumulo.password"),
                 Artifact.TABLE_NAME);
 
         job.waitForCompletion(true);

@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.core.model.artifactThumbnails;
 
-import com.altamiracorp.lumify.core.model.Row;
-import com.altamiracorp.lumify.core.model.RowKey;
+import com.altamiracorp.bigtable.model.Row;
+import com.altamiracorp.bigtable.model.RowKey;
 
 public class ArtifactThumbnail extends Row<ArtifactThumbnailRowKey> {
     public static final String TABLE_NAME = "atc_artifactThumbnail";
