@@ -1,17 +1,24 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
+import java.io.InputStream;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.miniweb.utils.UrlUtils;
 import com.google.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 public class ArtifactPosterFrameByRowKey extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactPosterFrameByRowKey.class);
@@ -31,50 +38,49 @@ public class ArtifactPosterFrameByRowKey extends BaseRequestHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        User user = getUser(request);
-//        ArtifactRowKey artifactRowKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
-//
-//        String widthStr = getOptionalParameter(request, "width");
-//        int[] boundaryDims = new int[]{200, 200};
-//
-//        if (widthStr != null) {
-//            boundaryDims[0] = boundaryDims[1] = Integer.parseInt(widthStr);
-//
-//            response.setContentType("image/jpeg");
-//            response.addHeader("Content-Disposition", "inline; filename=thumnail" + boundaryDims[0] + ".jpg");
-//
-//            byte[] thumbnailData = artifactThumbnailRepository.getThumbnailData(artifactRowKey, "poster-frame", boundaryDims[0], boundaryDims[1], user);
-//            if (thumbnailData != null) {
-//                LOGGER.debug("Cache hit for: " + artifactRowKey.toString() + " (poster-frame) " + boundaryDims[0] + "x" + boundaryDims[1]);
-//                ServletOutputStream out = response.getOutputStream();
-//                out.write(thumbnailData);
-//                out.close();
-//                return;
-//            }
-//        }
-//
-//        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey.toString(), user);
-//        if (artifact == null) {
-//            response.sendError(HttpServletResponse.SC_NOT_FOUND);
-//            chain.next(request, response);
-//            return;
-//        }
-//
-//        InputStream in = artifactRepository.getRawPosterFrame(artifact, user);
-//        try {
-//            if (widthStr != null) {
-//                LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " (poster-frame) " + boundaryDims[0] + "x" + boundaryDims[1]);
-//                byte[] thumbnailData = artifactThumbnailRepository.createThumbnail(artifact.getRowKey(), "poster-frame", in, boundaryDims, user);
-//                ServletOutputStream out = response.getOutputStream();
-//                out.write(thumbnailData);
-//                out.close();
-//            } else {
-//                response.setContentType("image/png");
-//                IOUtils.copy(in, response.getOutputStream());
-//            }
-//        } finally {
-//            in.close();
-//        }
+        User user = getUser(request);
+        ArtifactRowKey artifactRowKey = new ArtifactRowKey(UrlUtils.urlDecode(getAttributeString(request, "_rowKey")));
+
+        String widthStr = getOptionalParameter(request, "width");
+        int[] boundaryDims = new int[]{200, 200};
+
+        if (widthStr != null) {
+            boundaryDims[0] = boundaryDims[1] = Integer.parseInt(widthStr);
+
+            response.setContentType("image/jpeg");
+            response.addHeader("Content-Disposition", "inline; filename=thumnail" + boundaryDims[0] + ".jpg");
+
+            byte[] thumbnailData = artifactThumbnailRepository.getThumbnailData(artifactRowKey, "poster-frame", boundaryDims[0], boundaryDims[1], user);
+            if (thumbnailData != null) {
+                LOGGER.debug("Cache hit for: " + artifactRowKey.toString() + " (poster-frame) " + boundaryDims[0] + "x" + boundaryDims[1]);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(thumbnailData);
+                out.close();
+                return;
+            }
+        }
+
+        Artifact artifact = artifactRepository.findByRowKey(artifactRowKey.toString(), user.getModelUserContext());
+        if (artifact == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            chain.next(request, response);
+            return;
+        }
+
+        InputStream in = artifactRepository.getRawPosterFrame(artifactRowKey.toString(), user);
+        try {
+            if (widthStr != null) {
+                LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " (poster-frame) " + boundaryDims[0] + "x" + boundaryDims[1]);
+                byte[] thumbnailData = artifactThumbnailRepository.createThumbnail(artifact.getRowKey(), "poster-frame", in, boundaryDims, user);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(thumbnailData);
+                out.close();
+            } else {
+                response.setContentType("image/png");
+                IOUtils.copy(in, response.getOutputStream());
+            }
+        } finally {
+            in.close();
+        }
     }
 }
