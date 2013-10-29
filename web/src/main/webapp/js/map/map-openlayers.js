@@ -121,7 +121,7 @@ define([
 
         this.onVerticesSelected = function(evt, data) {
             var self = this,
-                vertices = _.isArray(data) ? data : data ? [data] : [];
+                vertices = data.vertices;
             
             this.mapReady(function(map) {
                 var self = this,
@@ -329,7 +329,7 @@ define([
 
             switch (self.mode) {
                 case MODE_NORMAL:
-                    self.trigger('verticesSelected', []);
+                    self.trigger('selectVertices');
                     map.featuresLayer.events.triggerEvent('featureunselected');
                     break;
 
@@ -482,11 +482,11 @@ define([
                 featureselected: function(featureEvents) {
                     var vertices;
                     if (featureEvents.feature.cluster) {
-                        vertices = [_.map(featureEvents.feature.cluster, function(feature) {
+                        vertices = _.map(featureEvents.feature.cluster, function(feature) {
                             return feature.data.vertex; 
-                        })];
+                        });
                     } else vertices = [featureEvents.feature.data.vertex];
-                    self.trigger('verticesSelected', vertices);
+                    self.trigger('selectVertices', {vertices:vertices});
                 }
             });
             map.events.on({

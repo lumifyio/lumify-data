@@ -63,7 +63,7 @@ define([
 
             this.setupDraggables();
 
-            this.onVerticesSelected(null, appData.vertices(appData.selectedVertices));
+            this.onVerticesSelected(null, { vertices:appData.vertices(appData.selectedVertices)});
         });
 
         this.after('teardown', function() {
@@ -194,10 +194,10 @@ define([
                             vertex.workspace = {
                                 selected: true
                             };
-                        })
+                        });
                     }
                     self.trigger(document, 'defocusVertices');
-                    self.trigger('verticesSelected', [vertices]);
+                    self.trigger('selectVertices', { vertices:vertices });
                 }
             });
         };
@@ -236,12 +236,9 @@ define([
         };
 
         this.onVerticesSelected = function(event, data) {
-            if (data && data.remoteEvent) {
-                return;
-            }
             this.$node.find('.active').removeClass('active');
 
-            var vertices = _.isArray(data) ? data : data ? [data] : [],
+            var vertices = data.vertices,
                 ids = _.chain(vertices || [])
                 .filter(function(v) { return v.properties && v.properties._type !== 'relationship'; })
                 .map(function(v) { return '.gId' + v.id; })

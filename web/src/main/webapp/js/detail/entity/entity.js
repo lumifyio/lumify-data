@@ -210,11 +210,11 @@ define([
 
             if ($target.is('.entity, .artifact')) {
                 var id = $target.data('vertexId');
-                this.trigger('verticesSelected', [appData.vertex(id)]);
+                this.trigger('selectVertices', { vertices:[appData.vertex(id)] });
                 evt.stopPropagation();
             } else if ($target.is('.relationship')) {
                 var info = $target.data('info');
-                this.trigger('verticesSelected', [info]);
+                this.trigger('selectVertices', { vertices:[info] });
                 evt.stopPropagation();
             }
         };

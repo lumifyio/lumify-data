@@ -22,7 +22,7 @@ define([
             });
 
             this.on(document, 'verticesSelected', this.onVerticesSelected);
-            this.on('verticesSelected', this.onVerticesSelectedWithinContents);
+            this.on('selectVertices', this.onSelectVerticesWithinContents);
             this.preventDropEventsFromPropagating();
 
             this.before('teardown',this.teardownComponents);
@@ -30,7 +30,7 @@ define([
             this.$node.html(template({}));
 
             if (this.attr.loadGraphVertexData) {
-                this.onVerticesSelected(null, [this.attr.loadGraphVertexData]);
+                this.onVerticesSelected(null, { vertices:[this.attr.loadGraphVertexData] });
             }
         });
 
@@ -51,42 +51,35 @@ define([
             this.trigger('mapCenter', data);
         };
 
-        this.onVerticesSelectedWithinContents = function(evt, data) {
-            if (data.remoteEvent) {
-                return;
-            }
+        this.onSelectVerticesWithinContents = function(evt, data) {
             evt.stopPropagation();
-            this.onVerticesSelected(evt, data);
+            var vertices = data && data.vertices || { vertices:[] };
+            this.onVerticesSelected(evt, { vertices:vertices });
         };
 
         this.onVerticesSelected = function(evt, data) {
-            if (data && data.remoteEvent) {
-                return;
-            }
-
-            if ($.isArray(data) && data.length === 1) {
-                data = data[0];
-            }
+            var vertices = data.vertices;
 
             this.teardownComponents();
 
             var typeContentNode = this.select('detailTypeContentSelector');
-            if ( !data || data.length === 0 ) {
+            if ( vertices.length === 0 ) {
                 return;
             }
 
             var self = this,
+                moduleData = vertices.length > 1 ? vertices : vertices[0],
                 moduleName = (
-                    ($.isArray(data) ? 'multiple' :
-                        (data.properties._type != 'artifact' && data.properties._type != 'relationship') ? 'entity' : 
-                        data.properties._type) || 'entity'
+                    (vertices.length > 1 ? 'multiple' :
+                        (moduleData.properties._type != 'artifact' && moduleData.properties._type != 'relationship') ? 'entity' :
+                        moduleData.properties._type) || 'entity'
                 ).toLowerCase();
 
             require([
                 'detail/' + moduleName + '/' + moduleName,
             ], function(Module) {
                 Module.attachTo(typeContentNode, { 
-                    data: data,
+                    data: moduleData,
                     highlightStyle: self.attr.highlightStyle
                 });
             });

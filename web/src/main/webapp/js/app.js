@@ -165,7 +165,7 @@ define([
                     self.triggerPaneResized();
                 }
 
-                self.trigger('verticesSelected', []);
+                self.trigger('selectVertices', []);
                 self.trigger('refreshRelationships');
             });
         };
@@ -204,14 +204,12 @@ define([
         };
 
         this.onVerticesSelected = function(e, data) {
-            if (data && data.remoteEvent) {
-                return;
-            }
-            var detailPane = this.select('detailPaneSelector');
-            var minWidth = 100;
-            var width = 0;
+            var detailPane = this.select('detailPaneSelector'),
+                minWidth = 100,
+                width = 0,
+                vertices = data.vertices;
 
-            if (data && data.length !== 0) {
+            if (vertices.length) {
                 if (detailPane.width() < minWidth) {
                     detailPane[0].style.width = null;
                 }

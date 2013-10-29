@@ -49,7 +49,7 @@ define([
                 fullscreenButton: self.fullscreenButton(ids)
             }));
 
-            this.on('verticesSelected', this.onVertexSelection);
+            this.on('selectVertices', this.onSelectVertices);
 
             var d3_deferred = $.Deferred();
             require(['d3'], d3_deferred.resolve);
@@ -71,10 +71,7 @@ define([
 
         });
 
-        this.onVertexSelection = function(event, data) {
-            if (data.remoteEvent) {
-                return;
-            }
+        this.onSelectVertices = function(event, data) {
             event.stopPropagation();
             this.$node.find('.vertices-list').hide();
             this.$node.find('.multiple').addClass('viewing-vertex');
@@ -88,9 +85,10 @@ define([
                 });
             }
 
-            data = data[0];
+            var vertices = data.vertices,
+                first = vertices[0];
 
-            if (this._selectedGraphId === data.id) {
+            if (this._selectedGraphId === first.id) {
                 this.$node.find('.multiple').removeClass('viewing-vertex');
                 this.$node.find('.vertices-list').show().find('.active').removeClass('active');
                 this._selectedGraphId = null;
@@ -98,16 +96,17 @@ define([
             }
 
             var self = this,
-                moduleName = (($.isArray(data) ? 'multiple' :
-                    (data.properties._type != 'artifact' && data.properties._type != 'relationship') ? 'entity' : data.properties._type ) || 'entity')
-                    .toLowerCase();
+                moduleName = (
+                    (first.properties._type != 'artifact' && first.properties._type != 'relationship') ? 'entity' : 
+                    (first.properties._type || 'entity')
+                ).toLowerCase();
 
-            this._selectedGraphId = data.id;
+            this._selectedGraphId = first.id;
             require([
                 'detail/' + moduleName + '/' + moduleName,
             ], function(Module) {
                 Module.attachTo(detailsContent, { 
-                    data: data
+                    data: first
                 });
                 self.$node.find('.vertices-list').show();
             });
@@ -274,7 +273,7 @@ define([
         this.histogramClick = function(event, object) {
             var data = $(event.target).closest('g').data('info');
 
-            this.trigger(document, 'verticesSelected', [appData.vertices(data.vertexIds)]);
+            this.trigger(document, 'selectVertices', { vertices:appData.vertices(data.vertexIds) });
             this.trigger(document, 'defocusVertices', { vertexIds:data.vertexIds });
         };
     }

@@ -382,25 +382,26 @@ define([
             });
         };
 
-        this.onVerticesSelected = function(evt, data) {
-            if (!data) return;
-            if (data && data.remoteEvent) {
-                return;
-            }
+        this.onEdgeSelected = function(evt, data) {
             if ($(evt.target).is('.graph-pane')) {
                 return;
             }
 
+            
+
+        };
+
+        this.onVerticesSelected = function(evt, data) {
+            if ($(evt.target).is('.graph-pane')) {
+                return;
+            }
 
             this.cy(function(cy) {
-                if (this.$node.closest('.visible')) {
-                    cy.container().focus();
-                }
                 this.ignoreCySelectionEvents = true;
 
                 cy.$(':selected').unselect();
 
-                var vertices = _.isArray(data) ? data : [data];
+                var vertices = data.vertices;
                 if (vertices.length) {
                     cy.$( 
                         vertices.map(function(v) {
@@ -676,7 +677,7 @@ define([
 
         this.graphTap = throttle('selection', SELECTION_THROTTLE, function(event) {
             if (event.cyTarget === event.cy) {
-                this.trigger('verticesSelected');
+                this.trigger('selectVertices');
             }
         });
 
@@ -738,30 +739,32 @@ define([
                 selection = event.cy.nodes().filter(':selected');
 
             if (!selection.length) {
-                self.trigger('verticesSelected');
+                self.trigger('selectVertices');
             }
         });
 
         this.updateVertexSelections = function(cy) {
             var nodes = cy.nodes().filter(':selected'),
                 edges = cy.edges().filter(':selected'),
-                info = [];
+                vertices = [];
 
             nodes.each(function(index, cyNode) {
-                info.push(appData.vertex(cyNode.id()));
+                vertices.push(appData.vertex(cyNode.id()));
             });
 
             edges.each(function(index, cyEdge) {
-                info.push({ id: cyEdge.id(), properties:cyEdge.data() });
+                vertices.push({ id: cyEdge.id(), properties:cyEdge.data() });
             });
 
             // Only allow one edge selected
             if (nodes.length === 0 && edges.length > 1) {
-                info = [info[0]];
+                vertices = [vertices[0]];
             }
-            if (info.length > 0){
-                this.trigger('verticesSelected', [info]);
-            } else this.trigger('verticesSelected', []);
+            if (vertices.length > 0){
+                this.trigger('selectVertices', { vertices:vertices });
+            } else {
+                this.trigger('selectVertices');
+            }
         };
 
         this.onKeyHandler = function(event) {
@@ -922,7 +925,7 @@ define([
                                 source: relationship.from,
                                 target: relationship.to,
                                 _type: 'relationship',
-                                id: (relationship.from + '>' + relationship.to + '|' + relationship.relationshipType)
+                                id: (relationship.from + '-' + relationship.to + '-' + relationship.relationshipType)
                             },
                         });
                     });

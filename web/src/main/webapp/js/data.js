@@ -75,7 +75,7 @@ define([
             this.on('updateVertices', this.onUpdateVertices);
             this.on('deleteVertices', this.onDeleteVertices);
             this.on('refreshRelationships', this.refreshRelationships);
-            this.on('verticesSelected', this.onVerticesSelected);
+            this.on('selectVertices', this.onSelectVertices);
 
             // Workspaces
             this.on('saveWorkspace', this.onSaveWorkspace);
@@ -125,6 +125,12 @@ define([
                 // TODO: move vertex deletion from graph to here
                 case $.ui.keyCode.BACKSPACE:
                 case $.ui.keyCode.DELETE:
+                    if (this.selectedVertices.length) {
+                        // TODO: delete edge
+                        this.trigger('deleteVertices', { 
+                            vertices: this.vertices(this.selectedVertices)
+                        });
+                    }
                     event.preventDefault();
                     break;
             }
@@ -304,10 +310,13 @@ define([
             });
         };
 
-        this.onVerticesSelected = function(evt, data) {
+        this.onSelectVertices = function(evt, data) {
+            if (data && data.remoteEvent) return;
+
             var self = this,
-                vertices = _.isArray(data) ? data : data ? [data] : [],
-                selectedIds = _.pluck(vertices, 'id');
+                vertices = data && data.vertices || [],
+                selectedIds = _.pluck(vertices, 'id'),
+                onlyVertices = _.filter(vertices, function(v) { return v.properties._type !== 'relationship'; });
 
             if (data && data.remoteEvent) {
                 return;
@@ -319,6 +328,8 @@ define([
                 var info = self.workspaceVertices[id];
                 info.selected = selectedIds.indexOf(id) >= 0;
             });
+
+            this.trigger('verticesSelected', { vertices:vertices });
         };
 
         this.onDeleteVertices = function(evt, data) {
