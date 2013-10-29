@@ -382,15 +382,6 @@ define([
             });
         };
 
-        this.onEdgeSelected = function(evt, data) {
-            if ($(evt.target).is('.graph-pane')) {
-                return;
-            }
-
-            
-
-        };
-
         this.onVerticesSelected = function(evt, data) {
             if ($(evt.target).is('.graph-pane')) {
                 return;
@@ -1058,11 +1049,8 @@ define([
                         maxZoom: options.maxZoom
                     }).focus().on({
                         click: function() {
-                                    this.focus();
-                                    $(".instructions").remove();
-                                },
-                        keydown: self.onKeyHandler.bind(self),
-                        keyup: self.onKeyHandler.bind(self)
+                            $(".instructions").remove();
+                        }
                     });
 
                     // Override "Fit to Window" button and call our own

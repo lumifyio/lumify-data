@@ -10,13 +10,14 @@ define([
     'service/ucd',
     'service/vertex',
     'util/undoManager',
+    'util/clipboardManager'
 ], function(
     // Flight
     defineComponent, registry,
     // Mixins
     withVertexCache, withAjaxFilters, withAsyncQueue,
     // Service
-    WorkspaceService, UcdService, VertexService, undoManager) {
+    WorkspaceService, UcdService, VertexService, undoManager, ClipboardManager) {
     'use strict';
 
     var WORKSPACE_SAVE_DELAY = 1000,
@@ -70,12 +71,15 @@ define([
             this.onSaveWorkspace = _.debounce(this.onSaveWorkspace.bind(this), WORKSPACE_SAVE_DELAY);
             this.refreshRelationships = _.debounce(this.refreshRelationships.bind(this), RELOAD_RELATIONSHIPS_DELAY);
 
+            ClipboardManager.attachTo(this.node);
+
             // Vertices
             this.on('addVertices', this.onAddVertices);
             this.on('updateVertices', this.onUpdateVertices);
             this.on('deleteVertices', this.onDeleteVertices);
             this.on('refreshRelationships', this.refreshRelationships);
             this.on('selectVertices', this.onSelectVertices);
+            this.on('clipboardPaste', this.onClipboardPaste);
 
             // Workspaces
             this.on('saveWorkspace', this.onSaveWorkspace);
@@ -119,6 +123,9 @@ define([
             var $target = $(event.target);
             if ($target.is('input,select')) return;
 
+            var KEYS = { A:65 },
+                meta = event.metaKey || event.ctrlKey;
+
             switch (event.which) {
 
                 // Prevent browser back button
@@ -132,6 +139,13 @@ define([
                         });
                     }
                     event.preventDefault();
+                    break;
+
+                case KEYS.A:
+                    if (meta) {
+                        this.trigger('selectVertices', { vertices:this.verticesInWorkspace() });
+                        event.preventDefault();
+                    }
                     break;
             }
         };
@@ -310,6 +324,27 @@ define([
             });
         };
 
+        this.onClipboardPaste = function(evt, data) {
+            if (!data || !data.data) return;
+
+            var vertexUrlMatch = data.data.match(/#v=([0-9,]+)$/);
+            if (vertexUrlMatch) {
+                var self = this,
+                    vertexIds = vertexUrlMatch[1].split(',').filter(function(vId) {
+                        return !self.workspaceVertices[vId];
+                    }),
+                    len = vertexIds.length,
+                    plural = len === 1 ? 'vertex' : 'vertices';
+
+                if (len) {
+                    this.trigger('displayInformation', { message:'Pasting ' + vertexIds.length + ' ' + plural});
+                    this.vertexService.getMultiple(vertexIds).done(function(serverVertices) {
+                        self.trigger('addVertices', { vertices:serverVertices });
+                    });
+                }
+            }
+        };
+
         this.onSelectVertices = function(evt, data) {
             if (data && data.remoteEvent) return;
 
@@ -318,12 +353,15 @@ define([
                 selectedIds = _.pluck(vertices, 'id'),
                 onlyVertices = _.filter(vertices, function(v) { return v.properties._type !== 'relationship'; });
 
-            if (data && data.remoteEvent) {
-                return;
+            if (onlyVertices.length) {
+                this.trigger('clipboardSet', {
+                    text: window.location.href.replace(/#.*$/,'') + '#v=' + _.pluck(onlyVertices, 'id').join(',')
+                });
+            } else {
+                this.trigger('clipboardClear');
             }
 
             this.selectedVertices = selectedIds;
-
             _.keys(this.workspaceVertices).forEach(function(id) {
                 var info = self.workspaceVertices[id];
                 info.selected = selectedIds.indexOf(id) >= 0;
