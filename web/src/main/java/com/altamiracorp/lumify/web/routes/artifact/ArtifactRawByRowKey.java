@@ -1,5 +1,17 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.util.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
@@ -10,16 +22,6 @@ import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.miniweb.utils.UrlUtils;
 import com.google.inject.Inject;
-import org.apache.poi.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.regex.Pattern;
 
 public class ArtifactRawByRowKey extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactRawByRowKey.class);
@@ -55,7 +57,6 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
 
         String graphVertexId = artifact.getMetadata().getGraphVertexId();
         GraphVertex vertex = graphRepository.findVertex(graphVertexId, user);
-        String type = graphRepository.findVertex(graphVertexId, user).getProperty("_subType").toString();
 
 
         String fileName = getFileName(artifact);
@@ -63,7 +64,7 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
             handlePartialPlayback(request, response, artifact, fileName, user);
         } else {
             String mimeType = getMimeType(artifact);
-            response.setContentType(type);
+            response.setContentType(mimeType);
             if (download) {
                 response.addHeader("Content-Disposition", "attachment; filename=" + fileName);
             } else {
