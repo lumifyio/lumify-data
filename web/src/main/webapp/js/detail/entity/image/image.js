@@ -201,7 +201,7 @@ define([
 
             this.updateImageBackground(this.srcForGlyphIconUrl(data.vertex.properties._glyphIcon));
             
-            this.trigger(document, 'updateVertices', { vertices:[vertex] });
+            this.trigger(document, 'updateVertices', { vertices:[data.vertex] });
         };
 
         this.onUpdateProgress = function(event, data) {
