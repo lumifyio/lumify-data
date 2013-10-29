@@ -13,8 +13,9 @@ define([
     'graph/graph',
     'detail/detail',
     'map/map',
-    'util/keyboard'
-], function(defineComponent, appTemplate, data, Menubar, Dashboard, Search, Workspaces, WorkspaceOverlay, Sync, Users, Graph, Detail, Map, Keyboard) {
+    'util/keyboard',
+    'util/mouseOverlay'
+], function(defineComponent, appTemplate, data, Menubar, Dashboard, Search, Workspaces, WorkspaceOverlay, Sync, Users, Graph, Detail, Map, Keyboard, MouseOverlay) {
     'use strict';
 
     return defineComponent(App);
@@ -78,6 +79,7 @@ define([
             Detail.attachTo(detailPane.find('.content'));
             Keyboard.attachTo(document);
             WorkspaceOverlay.attachTo(content.filter('.workspace-overlay'));
+            MouseOverlay.attachTo(document);
 
             // Configure splitpane resizing
             resizable(searchPane, 'e', 160, 200, this.onPaneResize.bind(this));
