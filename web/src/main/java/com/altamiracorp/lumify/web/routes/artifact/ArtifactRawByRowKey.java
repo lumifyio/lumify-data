@@ -3,15 +3,18 @@ package com.altamiracorp.lumify.web.routes.artifact;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.altamiracorp.lumify.core.ingest.video.VideoPlaybackDetails;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
@@ -61,7 +64,7 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
 
         String fileName = getFileName(artifact);
         if (videoPlayback) {
-            handlePartialPlayback(request, response, artifact, fileName, user);
+            handlePartialPlayback(request, response, artifact, fileName);
         } else {
             String mimeType = getMimeType(artifact);
             response.setContentType(mimeType);
@@ -81,55 +84,54 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
         chain.next(request, response);
     }
 
-    private void handlePartialPlayback(HttpServletRequest request, HttpServletResponse response, Artifact artifact, String fileName, User user) throws IOException {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        String videoType = getRequiredParameter(request, "type");
-//        InputStream in;
-//        long totalLength;
-//        long partialStart = 0;
-//        Long partialEnd = null;
-//        String range = request.getHeader("Range");
-//        if (range != null) {
-//            Matcher m = RANGE_PATTERN.matcher(range);
-//            if (m.matches()) {
-//                partialStart = Long.parseLong(m.group(1));
-//                if (m.group(2).length() > 0) {
-//                    partialEnd = Long.parseLong(m.group(2));
-//                }
-//                if (partialEnd == null) {
-//                    partialEnd = partialStart + 100000 - 1;
-//                }
-//                response.setStatus(206);
-//            }
-//        }
-//
-//        if (videoType.equals("video/mp4")) {
-//            response.setContentType("video/mp4");
-//            response.addHeader("Content-Disposition", "attachment; filename=" + fileName + ".mp4");
-//            in = artifactRepository.getRawMp4(artifact, user);
-//            totalLength = artifactRepository.getRawMp4Length(artifact, user);
-//        } else if (videoType.equals("video/webm")) {
-//            response.setContentType("video/webm");
-//            response.addHeader("Content-Disposition", "attachment; filename=" + fileName + ".webm");
-//            in = artifactRepository.getRawWebm(artifact, user);
-//            totalLength = artifactRepository.getRawWebmLength(artifact, user);
-//        } else {
-//            throw new RuntimeException("Invalid video type: " + videoType);
-//        }
-//
-//        if (partialEnd == null) {
-//            partialEnd = totalLength;
-//        }
-//
-//        long partialLength = partialEnd - partialStart + 1;
-//        response.addHeader("Content-Length", "" + partialLength);
-//        response.addHeader("Content-Range", "bytes " + partialStart + "-" + partialEnd + "/" + totalLength);
-//        if (partialStart > 0) {
-//            in.skip(partialStart);
-//        }
-//
-//        OutputStream out = response.getOutputStream();
-//        copy(in, out, partialLength);
+    private void handlePartialPlayback(HttpServletRequest request, HttpServletResponse response, Artifact artifact, String fileName) throws IOException {
+        String videoType = getRequiredParameter(request, "type");
+
+        InputStream in = null;
+        long totalLength = 0;
+        long partialStart = 0;
+        Long partialEnd = null;
+        String range = request.getHeader("Range");
+
+        if (range != null) {
+            Matcher m = RANGE_PATTERN.matcher(range);
+            if (m.matches()) {
+                partialStart = Long.parseLong(m.group(1));
+                if (m.group(2).length() > 0) {
+                    partialEnd = Long.parseLong(m.group(2));
+                }
+                if (partialEnd == null) {
+                    partialEnd = partialStart + 100000 - 1;
+                }
+                response.setStatus(206);
+            }
+        }
+
+        if (videoType.equals("video/mp4") || videoType.equals("video/webm")) {
+            final String videoFormat = FilenameUtils.getBaseName(videoType);
+            response.setContentType(videoType);
+            response.addHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+            VideoPlaybackDetails videoDetails = artifactRepository.getVideoPlaybackDetails(artifact.getRowKey().toString(), videoFormat);
+            in = videoDetails.getVideoStream();
+            totalLength = videoDetails.getVideoFileSize();
+        } else {
+            throw new RuntimeException("Invalid video type: " + videoType);
+        }
+
+        if (partialEnd == null) {
+            partialEnd = totalLength;
+        }
+
+        long partialLength = partialEnd - partialStart + 1;
+        response.addHeader("Content-Length", "" + partialLength);
+        response.addHeader("Content-Range", "bytes " + partialStart + "-" + partialEnd + "/" + totalLength);
+        if (partialStart > 0) {
+            in.skip(partialStart);
+        }
+
+        OutputStream out = response.getOutputStream();
+        copy(in, out, partialLength);
     }
 
     private void copy(InputStream in, OutputStream out, Long length) throws IOException {

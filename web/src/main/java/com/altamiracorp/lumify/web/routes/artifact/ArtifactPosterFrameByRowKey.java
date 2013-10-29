@@ -67,7 +67,7 @@ public class ArtifactPosterFrameByRowKey extends BaseRequestHandler {
             return;
         }
 
-        InputStream in = artifactRepository.getRawPosterFrame(artifactRowKey.toString(), user);
+        InputStream in = artifactRepository.getRawPosterFrame(artifactRowKey.toString());
         try {
             if (widthStr != null) {
                 LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " (poster-frame) " + boundaryDims[0] + "x" + boundaryDims[1]);

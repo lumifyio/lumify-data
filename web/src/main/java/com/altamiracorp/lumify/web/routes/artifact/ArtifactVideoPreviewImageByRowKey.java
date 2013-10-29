@@ -1,21 +1,23 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.miniweb.HandlerChain;
-import com.altamiracorp.miniweb.utils.UrlUtils;
-import com.google.inject.Inject;
-import org.apache.poi.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.InputStream;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
+
+import org.apache.poi.util.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.web.BaseRequestHandler;
+import com.altamiracorp.miniweb.HandlerChain;
+import com.altamiracorp.miniweb.utils.UrlUtils;
+import com.google.inject.Inject;
 
 public class ArtifactVideoPreviewImageByRowKey extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactVideoPreviewImageByRowKey.class);
@@ -58,7 +60,7 @@ public class ArtifactVideoPreviewImageByRowKey extends BaseRequestHandler {
             }
         }
 
-        InputStream in = artifactRepository.getVideoPreviewImage(artifactRowKey, user);
+        InputStream in = artifactRepository.getVideoPreviewImage(artifactRowKey);
         try {
             if (widthStr != null) {
                 LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " (video-preview) " + boundaryDims[0] + "x" + boundaryDims[1]);

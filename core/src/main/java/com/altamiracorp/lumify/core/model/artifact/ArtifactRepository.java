@@ -1,10 +1,24 @@
 package com.altamiracorp.lumify.core.model.artifact;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
+
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.bigtable.model.Repository;
 import com.altamiracorp.bigtable.model.Row;
 import com.altamiracorp.lumify.core.fs.FileSystemSession;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.video.VideoPlaybackDetails;
 import com.altamiracorp.lumify.core.model.GraphSession;
 import com.altamiracorp.lumify.core.model.SaveFileResults;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
@@ -17,23 +31,12 @@ import com.altamiracorp.lumify.core.user.User;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.apache.commons.io.IOUtils;
-import org.json.JSONArray;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 @Singleton
 public class ArtifactRepository extends Repository<Artifact> {
-    public static final String LUMIFY_VIDEO_PREVIEW_HDFS_PATH = "/lumify/artifacts/video/preview/";
-    public static final String LUMIFY_VIDEO_POSTER_FRAME_HDFS_PATH = "/lumify/artifacts/video/posterFrame/";
+    public static final String VIDEO_STORAGE_HDFS_PATH = "/lumify/artifacts/video";
+    public static final String LUMIFY_VIDEO_PREVIEW_HDFS_PATH = VIDEO_STORAGE_HDFS_PATH + "/preview/";
+    public static final String LUMIFY_VIDEO_POSTER_FRAME_HDFS_PATH = VIDEO_STORAGE_HDFS_PATH + "/posterFrame/";
     public static final int FRAMES_PER_PREVIEW = 20;
     public static final int PREVIEW_FRAME_WIDTH = 360;
     public static final int PREVIEW_FRAME_HEIGHT = 240;
@@ -233,7 +236,7 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
     }
 
-    public InputStream getVideoPreviewImage(ArtifactRowKey artifactRowKey, User user) {
+    public InputStream getVideoPreviewImage(ArtifactRowKey artifactRowKey) {
         return fsSession.loadFile(getVideoPreviewPath(artifactRowKey.toString()));
     }
 
@@ -241,8 +244,15 @@ public class ArtifactRepository extends Repository<Artifact> {
         return LUMIFY_VIDEO_PREVIEW_HDFS_PATH + artifactRowKey;
     }
 
-    public InputStream getRawPosterFrame(String artifactRowKey, User user) {
+    public InputStream getRawPosterFrame(String artifactRowKey) {
         return fsSession.loadFile(LUMIFY_VIDEO_POSTER_FRAME_HDFS_PATH + artifactRowKey);
     }
 
+    public VideoPlaybackDetails getVideoPlaybackDetails(String artifactRowKey, String videoType) {
+        checkNotNull(artifactRowKey);
+        checkNotNull(videoType);
+
+        String path = String.format("%s/%s/%s", VIDEO_STORAGE_HDFS_PATH, videoType, artifactRowKey);
+        return new VideoPlaybackDetails(fsSession.loadFile(path), fsSession.getFileLength(path));
+    }
 }
