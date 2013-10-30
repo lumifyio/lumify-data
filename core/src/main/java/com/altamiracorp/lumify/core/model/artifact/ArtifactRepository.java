@@ -166,37 +166,6 @@ public class ArtifactRepository extends Repository<Artifact> {
         return artifactVertex;
     }
 
-    public Artifact createArtifactFromInputStream(long size, InputStream in, String fileName, long fileTimestamp, User user) throws IOException {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        Artifact artifact;
-//
-//        if (size > Artifact.MAX_SIZE_OF_INLINE_FILE) {
-//            try {
-//                SaveFileResults saveResults = saveFile(in, user);
-//                artifact = new Artifact(saveResults.getRowKey());
-//                artifact.getGenericMetadata()
-//                        .setHdfsFilePath(saveResults.getFullPath())
-//                        .setFileSize(size);
-//            } finally {
-//                in.close();
-//            }
-//        } else {
-//            artifact = new Artifact();
-//            byte[] data = IOUtils.toByteArray(in);
-//            artifact.getContent().setDocArtifactBytes(data);
-//            artifact.getGenericMetadata().setFileSize((long) data.length);
-//        }
-//
-//        artifact.getContent()
-//                .setSecurity("U"); // TODO configurable?
-//        artifact.getGenericMetadata()
-//                .setFileName(FilenameUtils.getBaseName(fileName))
-//                .setFileExtension(FilenameUtils.getExtension(fileName))
-//                .setFileTimestamp(fileTimestamp);
-//
-//        return artifact;
-    }
-
     public List<GraphVertex> search(String query, JSONArray filter, User user) throws Exception {
         Collection<ArtifactSearchResult> artifactSearchResults = searchProvider.searchArtifacts(query, user);
         List<String> artifactGraphVertexIds = getGraphVertexIds(artifactSearchResults);
