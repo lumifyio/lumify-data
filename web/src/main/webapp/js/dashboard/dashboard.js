@@ -19,7 +19,7 @@ define([
         });
 
         this.onDashboardClicked = function(event) {
-            this.trigger('selectVertices', []);
-        }
+            this.trigger('selectObjects');
+        };
     }
 });

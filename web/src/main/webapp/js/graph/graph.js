@@ -344,30 +344,6 @@ define([
             return merged;
         };
 
-        this.removeSelected = function() {
-            this.cy(function(cy) {
-                
-                var self = this,
-                    edges = cy.edges().filter(':selected'),
-                    nodes = cy.nodes().filter(':selected');
-
-                if (edges.length && nodes.length === 0) {
-                    $.when(
-                        $.map(edges, function(edge) {
-                            return self.ucd.deleteEdge(edge.data('source'), edge.data('target'), edge.data('relationshipType'));
-                        })
-                    ).done(function() {
-                        edges.remove();
-                        self.updateEdgeOptions(cy);
-                    });
-                } else if (nodes.length) {
-                    this.trigger(document, 'deleteVertices', { vertices:$.map(nodes, function(node) {
-                        return { id:node.id() };
-                    })});
-                }
-            });
-        };
-
         this.onVerticesDeleted = function(event, data) {
             this.cy(function(cy) {
 
@@ -382,7 +358,7 @@ define([
             });
         };
 
-        this.onVerticesSelected = function(evt, data) {
+        this.onObjectsSelected = function(evt, data) {
             if ($(evt.target).is('.graph-pane')) {
                 return;
             }
@@ -392,10 +368,11 @@ define([
 
                 cy.$(':selected').unselect();
 
-                var vertices = data.vertices;
-                if (vertices.length) {
+                var vertices = data.vertices,
+                    edges = data.edges;
+                if (vertices.length || edges.length) {
                     cy.$( 
-                        vertices.map(function(v) {
+                        vertices.concat(edges).map(function(v) {
                             return '#' + v.id;
                         }).join(',')
                     ).select();
@@ -492,18 +469,18 @@ define([
         };
 
         this.onContextMenuDeleteEdge = function () {
-            var self = this;
-            var menu = this.select('edgeContextMenuSelector');
-            var edgeId = menu.data('edgeId');
-            this.ucd.deleteEdge(menu.data('sourceId'), menu.data('targetId'), menu.data('relationshipType'))
-                .done(function() {
-                    self.onDeleteEdge('', {edgeId: edgeId});
-                });
+            var menu = this.select('edgeContextMenuSelector'),
+                edge = {
+                    id: menu.data('edge').id,
+                    properties: menu.data('edge')
+                };
+
+            this.trigger('deleteEdges', { edges:[edge] });
         };
 
-        this.onDeleteEdge = function (event, data) {
+        this.onEdgesDeleted = function (event, data) {
             this.cy(function (cy) {
-                cy.remove(cy.getElementById(data.edgeId));
+                cy.remove('#' + data.edgeId);
                 this.updateEdgeOptions(cy);
             });
         };
@@ -668,7 +645,7 @@ define([
 
         this.graphTap = throttle('selection', SELECTION_THROTTLE, function(event) {
             if (event.cyTarget === event.cy) {
-                this.trigger('selectVertices');
+                this.trigger('selectObjects');
             }
         });
 
@@ -681,10 +658,7 @@ define([
                 this.select('edgeContextMenuSelector').blur().parent().removeClass('open');
             } else if (event.cyTarget.group ('edges') == 'edges') {
                 menu = this.select ('edgeContextMenuSelector');
-                menu.data("edgeId", event.cyTarget.data('id'));
-                menu.data("sourceId",event.cyTarget.data('source'));
-                menu.data("targetId",event.cyTarget.data('target'));
-                menu.data("relationshipType", event.cyTarget.data('relationshipType'));
+                menu.data("edge", event.cyTarget.data());
                 if (event.cy.nodes().filter(':selected').length > 1) {
                     return false;
                 }
@@ -730,7 +704,7 @@ define([
                 selection = event.cy.nodes().filter(':selected');
 
             if (!selection.length) {
-                self.trigger('selectVertices');
+                self.trigger('selectObjects');
             }
         });
 
@@ -752,42 +726,9 @@ define([
                 vertices = [vertices[0]];
             }
             if (vertices.length > 0){
-                this.trigger('selectVertices', { vertices:vertices });
+                this.trigger('selectObjects', { vertices:vertices });
             } else {
-                this.trigger('selectVertices');
-            }
-        };
-
-        this.onKeyHandler = function(event) {
-            var down = event.type === 'keydown',
-                up = !down,
-                handled = true;
-
-            switch (event.which) {
-
-                case $.ui.keyCode.BACKSPACE:
-                case $.ui.keyCode.DELETE:
-                    if ( down ) {
-                        this.removeSelected();
-                    }
-                    break;
-                case 65:
-                    if (down && (event.metaKey || event.ctrlKey)) {
-                        this.cy(function(cy) {
-                            cy.nodes().select();
-                        });
-                    } else {
-                        handled = false;
-                    }
-                    break;
-
-                default:
-                    handled = false;
-            }
-
-            if (handled) {
-                event.preventDefault();
-                event.stopPropagation();
+                this.trigger('selectObjects');
             }
         };
 
@@ -979,14 +920,14 @@ define([
             this.on(document, 'verticesDropped', this.onVerticesDropped);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
-            this.on(document, 'verticesSelected', this.onVerticesSelected);
+            this.on(document, 'objectsSelected', this.onObjectsSelected);
             this.on(document, 'relationshipsLoaded', this.onRelationshipsLoaded);
             this.on(document, 'graphPaddingUpdated', this.onGraphPaddingUpdated);
             this.on(document, 'devicePixelRatioChanged', this.onDevicePixelRatioChanged);
             this.on(document, 'menubarToggleDisplay', this.onMenubarToggleDisplay);
             this.on(document, 'focusVertices', this.onFocusVertices);
             this.on(document, 'defocusVertices', this.onDefocusVertices);
-            this.on(document, 'deleteEdge', this.onDeleteEdge);
+            this.on(document, 'edgesDeleted', this.onEdgesDeleted);
 
             if (self.attr.vertices && self.attr.vertices.length) {
                 this.select('emptyGraphSelector').hide();

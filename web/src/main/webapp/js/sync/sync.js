@@ -32,7 +32,7 @@ define([
             this.on(document, 'socketMessage', this.onSocketMessage);
 
             this.on(document, 'onlineStatusChanged', this.onOnlineStatusChanged);
-            this.on(document, 'verticesSelected', this.onVerticesSelected);
+            this.on(document, 'objectsSelected', this.onObjectsSelected);
 
             for (var i in this.events) {
                 this.on(document, this.events[i], this.onSyncedEvent);
@@ -104,7 +104,7 @@ define([
         };
 
         // This function is to support sync'ing between multiple devices with the same user
-        this.onVerticesSelected = function (evt, data) {
+        this.onObjectsSelected = function (evt, data) {
             if (!this.currentUser) {
                 return;
             }

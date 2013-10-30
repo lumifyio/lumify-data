@@ -63,7 +63,7 @@ define([
 
             this.setupDraggables();
 
-            this.onVerticesSelected(null, { vertices:appData.vertices(appData.selectedVertices)});
+            this.onObjectsSelected(null, { edges:[], vertices:appData.selectedVertices});
         });
 
         this.after('teardown', function() {
@@ -84,7 +84,7 @@ define([
             this.on(document, 'verticesAdded', this.onVerticesUpdated);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
-            this.on(document, 'verticesSelected', this.onVerticesSelected);
+            this.on(document, 'objectsSelected', this.onObjectsSelected);
             this.on(document, 'switchWorkspace', this.onWorkspaceClear);
             this.on(document, 'workspaceDeleted', this.onWorkspaceClear);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
@@ -197,7 +197,7 @@ define([
                         });
                     }
                     self.trigger(document, 'defocusVertices');
-                    self.trigger('selectVertices', { vertices:vertices });
+                    self.trigger('selectObjects', { vertices:vertices });
                 }
             });
         };
@@ -235,12 +235,10 @@ define([
             });
         };
 
-        this.onVerticesSelected = function(event, data) {
+        this.onObjectsSelected = function(event, data) {
             this.$node.find('.active').removeClass('active');
 
-            var vertices = data.vertices,
-                ids = _.chain(vertices || [])
-                .filter(function(v) { return v.properties && v.properties._type !== 'relationship'; })
+            var ids = _.chain(data.vertices)
                 .map(function(v) { return '.gId' + v.id; })
                 .value().join(',');
 
