@@ -57,7 +57,6 @@ define([
         };
 
         this.updateImageBackground = function(src) {
-            console.log("this.attr", this.attr);
             this.$node.css({
                 backgroundImage: 'url("' + (src || this.srcForGlyphIconUrl(this.attr.data.properties._glyphIcon) || this.attr.defaultIconSrc) + '")'
             });

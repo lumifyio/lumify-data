@@ -2,14 +2,14 @@ define([
     'flight/lib/component',
     '../withDropdown',
     'tpl!./propForm',
-    'tpl!./options',
-    'service/ontology'
+    'service/ontology',
+    'fields/selection/selection'
 ], function (
     defineComponent,
     withDropdown,
     template,
-    options,
-    OntologyService) {
+    OntologyService,
+    FieldSelection) {
     'use strict';
 
     return defineComponent(PropertyForm, withDropdown);
@@ -19,7 +19,7 @@ define([
         this.ontologyService = new OntologyService();
 
         this.defaultAttrs({
-            propertySelector: 'select',
+            propertyListSelector: '.property-list',
             addPropertySelector: '.add-property',
             buttonDivSelector: '.buttons',
             configurationSelector: '.configuration'
@@ -35,10 +35,7 @@ define([
 
             this.on('addPropertyError', this.onAddPropertyError);
             this.on('propertychange', this.onPropertyChange);
-
-            this.on('change', {
-                propertySelector: this.onConceptChanged
-            });
+            this.on('propertyselected', this.onPropertySelected);
 
             this.$node.html(template({}));
 
@@ -68,53 +65,44 @@ define([
                     return a < b ? -1 : 1;
                 });
 
-                self.select('propertySelector').html(options({
-                    properties: propertiesList || ''
-                }));
+                FieldSelection.attachTo(self.select('propertyListSelector'), {
+                    properties: propertiesList,
+                    placeholder: 'Select Property'
+                });
             });
         });
 
-        this.onInputKeyUp = function (event) {
-            if (!this.select('addPropertySelector').is(":disabled")) {
-                switch (event.which) {
-                    case $.ui.keyCode.ENTER:
-                        this.onAddPropertyClicked(event);
-                }
-            }
-        };
-
-        this.onConceptChanged = function (event) {
+        this.onPropertySelected = function(event, data) {
             var self = this,
-                propertyName = this.select('propertySelector').val(),
+                property = data.property,
+                propertyName = property.title,
                 config = self.select('configurationSelector');
+
+            this.currentProperty = property;
 
             config.teardownAllComponents();
 
-            if (propertyName) {
-                var previousValue = this.attr.data.properties[propertyName];
-                this.currentValue = previousValue;
-                if (this.currentValue && this.currentValue.latitude) {
-                    this.currentValue = 'point(' + this.currentValue.latitude + ',' + this.currentValue.longitude + ')';
-                }
-
-                this.select('addPropertySelector').html((previousValue ? 'Update' : 'Add') + ' Property')
-                                                  .removeAttr('disabled');
-
-                this.ontologyService.properties().done(function(properties) {
-                    var propertyDetails = properties.byTitle[propertyName];
-                    if (propertyDetails) {
-                        require(['fields/' + propertyDetails.dataType], function(PropertyField) {
-                            PropertyField.attachTo(config, {
-                                property: propertyDetails,
-                                value: previousValue,
-                                predicates: false
-                            });
-                        });
-                    } else console.warn('Property ' + propertyName + ' not found in ontology');
-                });
-            } else {
-                this.select('addPropertySelector').attr('disabled', true);
+            var previousValue = this.attr.data.properties[propertyName];
+            this.currentValue = previousValue;
+            if (this.currentValue && this.currentValue.latitude) {
+                this.currentValue = 'point(' + this.currentValue.latitude + ',' + this.currentValue.longitude + ')';
             }
+
+            this.select('addPropertySelector').html((previousValue ? 'Update' : 'Add') + ' Property')
+                .removeAttr('disabled');
+
+            this.ontologyService.properties().done(function(properties) {
+                var propertyDetails = properties.byTitle[propertyName];
+                if (propertyDetails) {
+                    require(['fields/' + propertyDetails.dataType], function(PropertyField) {
+                        PropertyField.attachTo(config, {
+                            property: propertyDetails,
+                            value: previousValue,
+                            predicates: false
+                        });
+                    });
+                } else console.warn('Property ' + propertyName + ' not found in ontology');
+            });
         };
 
         this.onPropertyChange = function (event, data) {
@@ -135,7 +123,7 @@ define([
 
         this.onAddPropertyClicked = function (evt) {
             var vertexId = this.attr.data.id,
-                propertyName = this.select('propertySelector').val(),
+                propertyName = this.currentProperty.title,
                 value = this.currentValue;
 
             _.defer(this.buttonLoading.bind(this));

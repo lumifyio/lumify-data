@@ -41,6 +41,10 @@ define([], function() {
             }.bind(this), 0);
         };
 
+        this.closeMenu = function() {
+            this.$node.find('.dropdown-menu').blur().parent().removeClass('open');
+        };
+
         this.toggleMenu = function(position, menuElement) {
 
             var offset = this.$node.offset(),

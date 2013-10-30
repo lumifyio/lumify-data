@@ -1,6 +1,7 @@
 define([
     'flight/lib/component',
     'flight/lib/registry',
+    'data',
     '../withTypeContent',
     'service/vertex',
     'service/ontology',
@@ -8,7 +9,7 @@ define([
     'tpl!./multiple',
     'tpl!./histogram',
     'util/vertexList/list'
-], function (defineComponent, registry, withTypeContent, VertexService, OntologyService, sf, template, histogramTemplate, VertexList) {
+], function (defineComponent, registry, appData, withTypeContent, VertexService, OntologyService, sf, template, histogramTemplate, VertexList) {
     'use strict';
 
     var NO_HISTOGRAM_PROPERTIES = [
@@ -48,7 +49,7 @@ define([
                 fullscreenButton: self.fullscreenButton(ids)
             }));
 
-            this.on('verticesSelected', this.onVertexSelection);
+            this.on('selectVertices', this.onSelectVertices);
 
             var d3_deferred = $.Deferred();
             require(['d3'], d3_deferred.resolve);
@@ -70,10 +71,7 @@ define([
 
         });
 
-        this.onVertexSelection = function(event, data) {
-            if (data.remoteEvent) {
-                return;
-            }
+        this.onSelectVertices = function(event, data) {
             event.stopPropagation();
             this.$node.find('.vertices-list').hide();
             this.$node.find('.multiple').addClass('viewing-vertex');
@@ -87,9 +85,10 @@ define([
                 });
             }
 
-            data = data[0];
+            var vertices = data.vertices,
+                first = vertices[0];
 
-            if (this._selectedGraphId === data.id) {
+            if (this._selectedGraphId === first.id) {
                 this.$node.find('.multiple').removeClass('viewing-vertex');
                 this.$node.find('.vertices-list').show().find('.active').removeClass('active');
                 this._selectedGraphId = null;
@@ -97,16 +96,17 @@ define([
             }
 
             var self = this,
-                moduleName = (($.isArray(data) ? 'multiple' :
-                    (data.properties._type != 'artifact' && data.properties._type != 'relationship') ? 'entity' : data.properties._type ) || 'entity')
-                    .toLowerCase();
+                moduleName = (
+                    (first.properties._type != 'artifact' && first.properties._type != 'relationship') ? 'entity' : 
+                    (first.properties._type || 'entity')
+                ).toLowerCase();
 
-            this._selectedGraphId = data.id;
+            this._selectedGraphId = first.id;
             require([
                 'detail/' + moduleName + '/' + moduleName,
             ], function(Module) {
                 Module.attachTo(detailsContent, { 
-                    data: data
+                    data: first
                 });
                 self.$node.find('.vertices-list').show();
             });
@@ -125,75 +125,76 @@ define([
             Object.keys(byProperty).filter(shouldDisplay).forEach(function(name) {
 
                 var template = histogramTemplate({
-                    displayName: fn.getPropertyDisplayName(name)
-                }),
+                        displayName: fn.getPropertyDisplayName(name)
+                    }),
                     container = self.select('histogramListSelector')
-                .append(template)
-                .find('.svg-container')
-                .last()
-                .on('mouseenter mouseleave', 'g', self.histogramHover.bind(self)),
-                data = Object.keys(byProperty[name])
-                .map(function(key) { 
-                    return { 
-                        key:key, 
-                number:byProperty[name][key].length,
-                vertexIds: _.pluck(byProperty[name][key], 'id')
-                    };
-                }),
-                width = container.width(),
-                height = data.length * 30,
-                x = d3.scale.linear()
-                    .domain([0, d3.sum(data, function(d) { return d.number; })])
-                    .range([0, 100]),
-                y = d3.scale.ordinal()
-                    .domain(data.map(function(v) { return v.key; }))
-                    .rangeRoundBands([0, height], 0.1),
-                svg = d3.select(container[0]).append('svg')
-                    .attr("width", '100%')
-                    .attr("height", height)
-                    .selectAll(".bar")
-                    .data(data)
-                    .enter()
-                    .append("g")
-                    .attr('data-info', function(d) { return JSON.stringify($.extend({ property:name }, d)); });
+                        .append(template)
+                        .find('.svg-container')
+                        .last()
+                        .on('mouseenter mouseleave', 'g', self.histogramHover.bind(self))
+                        .on('click', 'g', self.histogramClick.bind(self)),
+                    data = Object.keys(byProperty[name])
+                        .map(function(key) { 
+                            return { 
+                                key:key, 
+                                number:byProperty[name][key].length,
+                                vertexIds: _.pluck(byProperty[name][key], 'id')
+                            };
+                        }),
+                    width = container.width(),
+                    height = data.length * 30,
+                    x = d3.scale.linear()
+                        .domain([0, d3.sum(data, function(d) { return d.number; })])
+                        .range([0, 100]),
+                    y = d3.scale.ordinal()
+                        .domain(data.map(function(v) { return v.key; }))
+                        .rangeRoundBands([0, height], 0.1),
+                    svg = d3.select(container[0]).append('svg')
+                        .attr("width", '100%')
+                        .attr("height", height)
+                        .selectAll(".bar")
+                        .data(data)
+                        .enter()
+                        .append("g")
+                        .attr('data-info', function(d) { return JSON.stringify($.extend({ property:name }, d)); });
 
-            svg.append("rect")
-                .attr("class", "bar")
+                svg.append("rect")
+                    .attr("class", "bar")
+                    .attr("x", 0)
+                    .attr("y", function(d, i) { return y(d.key); })
+                    .attr("width", function(d) {return x(d.number) + '%'; })
+                    .attr("height", function(d) { return y.rangeBand(); });
+
+                svg.append("text")
+                    .attr("class", "text")
+                    .text(function(d) { return fn.getPropertyValueDisplay(name, d.key); })
+                    .each(function() {
+                        var height = this.getBBox().height;
+                        this.setAttribute("dy", y.rangeBand() / 2 + height / 4 + 'px');
+                    })
                 .attr("x", 0)
-                .attr("y", function(d, i) { return y(d.key); })
-                .attr("width", function(d) {return x(d.number) + '%'; })
-                .attr("height", function(d) { return y.rangeBand(); });
+                    .attr("y", function(d, i) { return y(d.key); })
+                    .attr("dx", "10px")
+                    .attr("fill", "#fff")
+                    .attr("text-anchor", "start");
 
-            svg.append("text")
-                .attr("class", "text")
-                .text(function(d) { return fn.getPropertyValueDisplay(name, d.key); })
-                .each(function() {
-                    var height = this.getBBox().height;
-                    this.setAttribute("dy", y.rangeBand() / 2 + height / 4 + 'px');
-                })
-            .attr("x", 0)
-                .attr("y", function(d, i) { return y(d.key); })
-                .attr("dx", "10px")
-                .attr("fill", "#fff")
-                .attr("text-anchor", "start");
+                svg.append("text")
+                    .attr("class", "text-number")
+                    .attr("text-anchor", "end")
+                    .attr("x", function(d) { return x(d.number) + '%'; })
+                    .attr("y", function(d, i) { return y(d.key); })
+                    .text(function(d) { return d.number; })
+                    .each(function() {
+                        var height = this.getBBox().height;
+                        this.setAttribute("dy", y.rangeBand() / 2 + height / 4 + 'px');
 
-            svg.append("text")
-                .attr("class", "text-number")
-                .attr("text-anchor", "end")
-                .attr("x", function(d) { return x(d.number) + '%'; })
-                .attr("y", function(d, i) { return y(d.key); })
-                .text(function(d) { return d.number; })
-                .each(function() {
-                    var height = this.getBBox().height;
-                    this.setAttribute("dy", y.rangeBand() / 2 + height / 4 + 'px');
-
-                    var text = this.previousSibling.getBBox();
-                    var minX = text.width + text.x + 10;
-                    var x = this.getBBox().x;
-                    if (x < minX) {
-                        this.setAttribute("dx", minX - x);
-                    } else this.setAttribute("dx", "-10px");
-                });
+                        var text = this.previousSibling.getBBox();
+                        var minX = text.width + text.x + 10;
+                        var x = this.getBBox().x;
+                        if (x < minX) {
+                            this.setAttribute("dx", minX - x);
+                        } else this.setAttribute("dx", "-10px");
+                    });
             });
 
             function shouldDisplay(propertyName) {
@@ -267,6 +268,13 @@ define([
                 eventName = event.type === 'mouseenter' ? 'focus' : 'defocus';
 
             this.trigger(document, eventName + 'Vertices', { vertexIds:data.vertexIds });
+        };
+
+        this.histogramClick = function(event, object) {
+            var data = $(event.target).closest('g').data('info');
+
+            this.trigger(document, 'selectVertices', { vertices:appData.vertices(data.vertexIds) });
+            this.trigger(document, 'defocusVertices', { vertexIds:data.vertexIds });
         };
     }
 });

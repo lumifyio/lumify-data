@@ -71,7 +71,7 @@ public class ArtifactPosterFrameByRowKey extends BaseRequestHandler {
         try {
             if (widthStr != null) {
                 LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " (poster-frame) " + boundaryDims[0] + "x" + boundaryDims[1]);
-                byte[] thumbnailData = artifactThumbnailRepository.createThumbnail(artifact.getRowKey(), "poster-frame", in, boundaryDims, user);
+                byte[] thumbnailData = artifactThumbnailRepository.createThumbnail(artifact.getRowKey(), "poster-frame", in, boundaryDims, user).getMetadata().getData();
                 ServletOutputStream out = response.getOutputStream();
                 out.write(thumbnailData);
                 out.close();

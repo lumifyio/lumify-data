@@ -64,7 +64,7 @@ public class ArtifactVideoPreviewImageByRowKey extends BaseRequestHandler {
         try {
             if (widthStr != null) {
                 LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " (video-preview) " + boundaryDims[0] + "x" + boundaryDims[1]);
-                byte[] thumbnailData = artifactThumbnailRepository.createThumbnail(artifactRowKey, "video-preview", in, boundaryDims, user);
+                byte[] thumbnailData = artifactThumbnailRepository.createThumbnail(artifactRowKey, "video-preview", in, boundaryDims, user).getMetadata().getData();
                 ServletOutputStream out = response.getOutputStream();
                 out.write(thumbnailData);
                 out.close();

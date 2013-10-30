@@ -13,8 +13,9 @@ define([
     'graph/graph',
     'detail/detail',
     'map/map',
-    'util/keyboard'
-], function(defineComponent, appTemplate, data, Menubar, Dashboard, Search, Workspaces, WorkspaceOverlay, Sync, Users, Graph, Detail, Map, Keyboard) {
+    'util/keyboard',
+    'util/mouseOverlay'
+], function(defineComponent, appTemplate, data, Menubar, Dashboard, Search, Workspaces, WorkspaceOverlay, Sync, Users, Graph, Detail, Map, Keyboard, MouseOverlay) {
     'use strict';
 
     return defineComponent(App);
@@ -65,9 +66,8 @@ define([
                 workspacesPane = content.filter('.workspaces-pane').data(DATA_MENUBAR_NAME, 'workspaces'),
                 usersPane = content.filter('.users-pane').data(DATA_MENUBAR_NAME, 'users'),
                 graphPane = content.filter('.graph-pane').data(DATA_MENUBAR_NAME, 'graph'),
-                detailPane = content.filter('.detail-pane');
-                
-            content.filter('.map-pane').data(DATA_MENUBAR_NAME, 'map');
+                detailPane = content.filter('.detail-pane'),
+                mapPane = content.filter('.map-pane').data(DATA_MENUBAR_NAME, 'map');
 
             Sync.attachTo(window);
             Menubar.attachTo(menubarPane.find('.content'));
@@ -79,6 +79,7 @@ define([
             Detail.attachTo(detailPane.find('.content'));
             Keyboard.attachTo(document);
             WorkspaceOverlay.attachTo(content.filter('.workspace-overlay'));
+            MouseOverlay.attachTo(document);
 
             // Configure splitpane resizing
             resizable(searchPane, 'e', 160, 200, this.onPaneResize.bind(this));
@@ -166,7 +167,7 @@ define([
                     self.triggerPaneResized();
                 }
 
-                self.trigger('verticesSelected', []);
+                self.trigger('selectVertices', []);
                 self.trigger('refreshRelationships');
             });
         };
@@ -182,7 +183,7 @@ define([
                 this.trigger(document, 'graphHide');
                 var mapPane = this.$node.find('.map-pane');
                 Map.attachTo(mapPane);
-                this.trigger(document, 'mapShow', { data:(data && data.data) });
+                this.trigger(document, 'mapShow', (data && data.data) || {});
             }
 
             if (SLIDE_OUT.indexOf(data.name) >= 0) {
@@ -205,14 +206,12 @@ define([
         };
 
         this.onVerticesSelected = function(e, data) {
-            if (data && data.remoteEvent) {
-                return;
-            }
-            var detailPane = this.select('detailPaneSelector');
-            var minWidth = 100;
-            var width = 0;
+            var detailPane = this.select('detailPaneSelector'),
+                minWidth = 100,
+                width = 0,
+                vertices = data.vertices;
 
-            if (data && data.length !== 0) {
+            if (vertices.length) {
                 if (detailPane.width() < minWidth) {
                     detailPane[0].style.width = null;
                 }

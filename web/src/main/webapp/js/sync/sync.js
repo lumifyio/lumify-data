@@ -68,7 +68,7 @@ define([
             message.data.eventData = message.data.eventData || {};
             switch (message.type) {
                 case 'sync':
-                    console.log('sync onSocketMessage (remote: ' + (message.data.eventData.remoteEvent ? 'true' : 'false') + ')', message);
+                    console.debug('sync onSocketMessage (remote: ' + (message.data.eventData.remoteEvent ? 'true' : 'false') + ')', message);
                     message.data.eventData.remoteEvent = true;
                     this.trigger(document, message.data.eventName, message.data.eventData);
                     break;
@@ -86,7 +86,6 @@ define([
                 return;
             }
 
-            console.log('onSyncedEvent', this.currentWorkspaceRowKey, evt.type, data);
             if (data && data.vertices) {
                 data.vertices = data.vertices.map(function(vertex) {
                     return {
@@ -109,14 +108,9 @@ define([
             if (!this.currentUser) {
                 return;
             }
-            if (data && data.remoteEvent) {
-                return;
-            }
-            if (_.isObject(data)) {
-                data = [data];
-            }
-            data = (data || []).map(function(v) { return { id: v.id }; });
-            this.syncService.publishUserSyncEvent(evt.type, [this.currentUser.rowKey], data);
+
+            var vertexIds = _.pluck(data.vertices, 'id');
+            this.syncService.publishUserSyncEvent(evt.type, [this.currentUser.rowKey], vertexIds);
         };
     }
 

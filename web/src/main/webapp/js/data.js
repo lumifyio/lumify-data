@@ -10,13 +10,14 @@ define([
     'service/ucd',
     'service/vertex',
     'util/undoManager',
+    'util/clipboardManager'
 ], function(
     // Flight
     defineComponent, registry,
     // Mixins
     withVertexCache, withAjaxFilters, withAsyncQueue,
     // Service
-    WorkspaceService, UcdService, VertexService, undoManager) {
+    WorkspaceService, UcdService, VertexService, undoManager, ClipboardManager) {
     'use strict';
 
     var WORKSPACE_SAVE_DELAY = 1000,
@@ -55,6 +56,7 @@ define([
         this.workspaceService = new WorkspaceService();
         this.ucdService = new UcdService();
         this.vertexService = new VertexService();
+        this.selectedVertices = [];
         this.id = null;
 
         this.defaultAttrs({
@@ -69,12 +71,15 @@ define([
             this.onSaveWorkspace = _.debounce(this.onSaveWorkspace.bind(this), WORKSPACE_SAVE_DELAY);
             this.refreshRelationships = _.debounce(this.refreshRelationships.bind(this), RELOAD_RELATIONSHIPS_DELAY);
 
+            ClipboardManager.attachTo(this.node);
+
             // Vertices
             this.on('addVertices', this.onAddVertices);
             this.on('updateVertices', this.onUpdateVertices);
             this.on('deleteVertices', this.onDeleteVertices);
             this.on('refreshRelationships', this.refreshRelationships);
-            this.on('verticesSelected', this.onVerticesSelected);
+            this.on('selectVertices', this.onSelectVertices);
+            this.on('clipboardPaste', this.onClipboardPaste);
 
             // Workspaces
             this.on('saveWorkspace', this.onSaveWorkspace);
@@ -83,7 +88,8 @@ define([
             this.on('workspaceDeleting', this.onWorkspaceDeleting);
             this.on('workspaceCopied', this.onWorkspaceCopied);
 
-            this.on(document, 'socketMessage', this.onSocketMessage);
+            this.on('socketMessage', this.onSocketMessage);
+            this.on('keydown', this.onKeydown);
 
             var self = this;
             this.setupAsyncQueue('socketSubscribe');
@@ -109,6 +115,37 @@ define([
             switch (message.type) {
                 case 'propertiesChange':
                     self.trigger('updateVertices', { vertices:[message.data.vertex]});
+                    break;
+            }
+        };
+
+        this.onKeydown = function(event) {
+            var $target = $(event.target);
+            if ($target.is('input,select')) return;
+
+            var KEYS = { A:65 },
+                meta = event.metaKey || event.ctrlKey;
+
+            switch (event.which) {
+
+                // Prevent browser back button
+                // TODO: move vertex deletion from graph to here
+                case $.ui.keyCode.BACKSPACE:
+                case $.ui.keyCode.DELETE:
+                    if (this.selectedVertices.length) {
+                        // TODO: delete edge
+                        this.trigger('deleteVertices', { 
+                            vertices: this.vertices(this.selectedVertices)
+                        });
+                    }
+                    event.preventDefault();
+                    break;
+
+                case KEYS.A:
+                    if (meta) {
+                        this.trigger('selectVertices', { vertices:this.verticesInWorkspace() });
+                        event.preventDefault();
+                    }
                     break;
             }
         };
@@ -287,19 +324,50 @@ define([
             });
         };
 
-        this.onVerticesSelected = function(evt, data) {
-            var self = this,
-                vertices = _.isArray(data) ? data : data ? [data] : [],
-                selectedIds = _.pluck(vertices, 'id');
+        this.onClipboardPaste = function(evt, data) {
+            if (!data || !data.data) return;
 
-            if (data && data.remoteEvent) {
-                return;
+            var vertexUrlMatch = data.data.match(/#v=([0-9,]+)$/);
+            if (vertexUrlMatch) {
+                var self = this,
+                    vertexIds = vertexUrlMatch[1].split(',').filter(function(vId) {
+                        return !self.workspaceVertices[vId];
+                    }),
+                    len = vertexIds.length,
+                    plural = len === 1 ? 'vertex' : 'vertices';
+
+                if (len) {
+                    this.trigger('displayInformation', { message:'Pasting ' + vertexIds.length + ' ' + plural});
+                    this.vertexService.getMultiple(vertexIds).done(function(serverVertices) {
+                        self.trigger('addVertices', { vertices:serverVertices });
+                    });
+                }
+            }
+        };
+
+        this.onSelectVertices = function(evt, data) {
+            if (data && data.remoteEvent) return;
+
+            var self = this,
+                vertices = data && data.vertices || [],
+                selectedIds = _.pluck(vertices, 'id'),
+                onlyVertices = _.filter(vertices, function(v) { return v.properties._type !== 'relationship'; });
+
+            if (onlyVertices.length) {
+                this.trigger('clipboardSet', {
+                    text: window.location.href.replace(/#.*$/,'') + '#v=' + _.pluck(onlyVertices, 'id').join(',')
+                });
+            } else {
+                this.trigger('clipboardClear');
             }
 
+            this.selectedVertices = selectedIds;
             _.keys(this.workspaceVertices).forEach(function(id) {
                 var info = self.workspaceVertices[id];
                 info.selected = selectedIds.indexOf(id) >= 0;
             });
+
+            this.trigger('verticesSelected', { vertices:vertices });
         };
 
         this.onDeleteVertices = function(evt, data) {
@@ -532,8 +600,15 @@ define([
                     var draggable = ui.draggable,
                         start = true,
                         graphVisible = $('.graph-pane').is('.visible'),
-                        vertices;
+                        dashboardVisible = $('.dashboard-pane').is('.visible'),
+                        vertices,
+                        wrapper = $('.draggable-wrapper');
 
+                    // Prevent map from swallowing mousemove events by adding
+                    // this transparent full screen div
+                    if (wrapper.length === 0) {
+                        wrapper = $('<div class="draggable-wrapper"/>').appendTo(document.body);
+                    }
 
                     draggable.off('drag.droppable-tracking');
                     draggable.on('drag.droppable-tracking', function(event, draggableUI) {
@@ -543,6 +618,10 @@ define([
                         
                         if (graphVisible) {
                             ui.helper.toggleClass('draggable-invisible', enabled);
+                        } else if (dashboardVisible) {
+                            self.trigger('menubarToggleDisplay', { name:'graph' });
+                            dashboardVisible = false;
+                            graphVisible = true;
                         }
                         if (enabled) {
                             self.trigger('verticesHovering', {
@@ -557,6 +636,7 @@ define([
                     });
                 },
                 drop: function( event, ui ) {
+                    $('.draggable-wrapper').remove();
                     
                     // Early exit if should leave to a different droppable
                     if (!enabled) return;

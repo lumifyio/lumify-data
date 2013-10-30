@@ -1,15 +1,5 @@
 <li class="newrow">
-  <select class="property-filters">
-    <option value="">Add filter</option>
-    <optgroup label="Choose a property">
-    <% properties.forEach(function(property) { %>
-      <% if (/^[^_]/.test(property.title)) { %>
-    <option data-info="<%= JSON.stringify(property)%>" 
-            value="<%= property.id %>"><%= property.displayName || property.title %></option>
-      <% } %>
-    <% }); %>
-    </optgroup>
-  </select>
-  <div class="configuration">
-  </div>
+  <div class="add-property"/>
+  <button class="remove">Remove</button>
+  <div class="configuration"></div>
 </li>

@@ -1,24 +1,26 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
+import java.io.InputStream;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnail;
 import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnailRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.altamiracorp.miniweb.utils.UrlUtils;
 import com.google.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.InputStream;
 
 public class ArtifactThumbnailByRowKey extends BaseRequestHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactThumbnailByRowKey.class);
@@ -51,16 +53,21 @@ public class ArtifactThumbnailByRowKey extends BaseRequestHandler {
             boundaryDims[0] = boundaryDims[1] = Integer.parseInt(widthStr);
         }
 
-        response.setContentType("image/jpeg");
-        response.addHeader("Content-Disposition", "inline; filename=thumnail" + boundaryDims[0] + ".jpg");
+        byte[] thumbnailData;
+        ArtifactThumbnail thumbnail = artifactThumbnailRepository.getThumbnail(artifactRowKey, "raw", boundaryDims[0], boundaryDims[1], user);
+        if (thumbnail != null) {
+            String format = thumbnail.getMetadata().getFormat();
+            response.setContentType("image/" + format);
+            response.addHeader("Content-Disposition", "inline; filename=thumbnail" + boundaryDims[0] + "." + format);
 
-        byte[] thumbnailData = artifactThumbnailRepository.getThumbnailData(artifactRowKey, "raw", boundaryDims[0], boundaryDims[1], user);
-        if (thumbnailData != null) {
-            LOGGER.debug("Cache hit for: " + artifactRowKey.toString() + " (raw) " + boundaryDims[0] + "x" + boundaryDims[1]);
-            ServletOutputStream out = response.getOutputStream();
-            out.write(thumbnailData);
-            out.close();
-            return;
+            thumbnailData = thumbnail.getMetadata().getData();
+            if (thumbnailData != null) {
+                LOGGER.debug("Cache hit for: " + artifactRowKey.toString() + " (raw) " + boundaryDims[0] + "x" + boundaryDims[1]);
+                ServletOutputStream out = response.getOutputStream();
+                out.write(thumbnailData);
+                out.close();
+                return;
+            }
         }
 
         Artifact artifact = artifactRepository.findByRowKey(artifactRowKey.toString(), user.getModelUserContext());
@@ -75,7 +82,13 @@ public class ArtifactThumbnailByRowKey extends BaseRequestHandler {
         LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " (raw) " + boundaryDims[0] + "x" + boundaryDims[1]);
         InputStream in = artifactRepository.getRaw(artifact, vertex, user);
         try {
-            thumbnailData = artifactThumbnailRepository.createThumbnail(artifact.getRowKey(), "raw", in, boundaryDims, user);
+            thumbnail = artifactThumbnailRepository.createThumbnail(artifact.getRowKey(), "raw", in, boundaryDims, user);
+
+            String format = thumbnail.getMetadata().getFormat();
+            response.setContentType("image/" + format);
+            response.addHeader("Content-Disposition", "inline; filename=thumbnail" + boundaryDims[0] + "." + format);
+
+            thumbnailData = thumbnail.getMetadata().getData();
         } finally {
             in.close();
         }
