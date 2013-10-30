@@ -61,7 +61,7 @@ define([
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
             this.on(document, 'verticesDropped', this.onVerticesDropped);
-            this.on(document, 'verticesSelected', this.onVerticesSelected);
+            this.on(document, 'objectsSelected', this.onObjectsSelected);
 
             this.updateOrAddVertices(appData.verticesInWorkspace(), { adding:true });
         });
@@ -119,10 +119,10 @@ define([
             });
         };
 
-        this.onVerticesSelected = function(evt, data) {
+        this.onObjectsSelected = function(evt, data) {
             var self = this,
                 vertices = data.vertices;
-            
+
             this.mapReady(function(map) {
                 var self = this,
                     featuresLayer = map.featuresLayer,
@@ -181,7 +181,7 @@ define([
                 geoLocation = vertex.properties.geoLocation,
                 subType = vertex.properties._subType,
                 heading = vertex.properties.heading,
-                selected = ~appData.selectedVertices.indexOf(vertex.id),
+                selected = ~appData.selectedVertexIds.indexOf(vertex.id),
                 iconUrl =  '/map/marker/' + subType + '/image?scale=' + (retina.devicePixelRatio > 1 ? '2' : '1');
 
             if (!geoLocation || !geoLocation.latitude || !geoLocation.longitude) return;
@@ -214,12 +214,12 @@ define([
                 feature.id = vertex.id;
                 map.featuresLayer.addFeatures(feature);
             } else {
-                feature.style.externalGraphic = iconUrl;
+                if (feature.style.externalGraphic !== iconUrl) {
+                    feature.style.externalGraphic = iconUrl;
+                }
                 feature.move(latLon(geoLocation.latitude, geoLocation.longitude));
                 // TODO: update heading
             }
-
-            if (!feature.cluster) feature.style.display = '';
 
             return feature;
         };
@@ -329,7 +329,7 @@ define([
 
             switch (self.mode) {
                 case MODE_NORMAL:
-                    self.trigger('selectVertices');
+                    self.trigger('selectObjects');
                     map.featuresLayer.events.triggerEvent('featureunselected');
                     break;
 
@@ -486,7 +486,7 @@ define([
                             return feature.data.vertex; 
                         });
                     } else vertices = [featureEvents.feature.data.vertex];
-                    self.trigger('selectVertices', {vertices:vertices});
+                    self.trigger('selectObjects', {vertices:vertices});
                 }
             });
             map.events.on({

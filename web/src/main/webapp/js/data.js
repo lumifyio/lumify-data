@@ -57,6 +57,7 @@ define([
         this.ucdService = new UcdService();
         this.vertexService = new VertexService();
         this.selectedVertices = [];
+        this.selectedVertexIds = [];
         this.id = null;
 
         this.defaultAttrs({
@@ -78,8 +79,9 @@ define([
             this.on('updateVertices', this.onUpdateVertices);
             this.on('deleteVertices', this.onDeleteVertices);
             this.on('refreshRelationships', this.refreshRelationships);
-            this.on('selectVertices', this.onSelectVertices);
+            this.on('selectObjects', this.onSelectObjects);
             this.on('clipboardPaste', this.onClipboardPaste);
+            this.on('deleteEdges', this.onDeleteEdges);
 
             // Workspaces
             this.on('saveWorkspace', this.onSaveWorkspace);
@@ -132,18 +134,17 @@ define([
                 // TODO: move vertex deletion from graph to here
                 case $.ui.keyCode.BACKSPACE:
                 case $.ui.keyCode.DELETE:
-                    if (this.selectedVertices.length) {
-                        // TODO: delete edge
-                        this.trigger('deleteVertices', { 
-                            vertices: this.vertices(this.selectedVertices)
-                        });
+                    if (this.selectedEdges.length) {
+                        this.trigger('deleteEdges', { edges:this.selectedEdges });
+                    } else if (this.selectedVertices.length) {
+                        this.trigger('deleteVertices', { vertices: this.vertices(this.selectedVertices) });
                     }
                     event.preventDefault();
                     break;
 
                 case KEYS.A:
                     if (meta) {
-                        this.trigger('selectVertices', { vertices:this.verticesInWorkspace() });
+                        this.trigger('selectObjects', { vertices:this.verticesInWorkspace() });
                         event.preventDefault();
                     }
                     break;
@@ -179,6 +180,26 @@ define([
             this.ucdService.getRelationships(ids)
                 .done(function(relationships) {
                     self.trigger('relationshipsLoaded', { relationships: relationships });
+                });
+        };
+
+        this.onDeleteEdges = function(evt, data) {
+            if (!data.edges || !data.edges.length) {
+                return console.error('Invalid event data to delete edge', data);
+            }
+
+            var self = this,
+                edge = data.edges[0];
+
+            debugger;
+            this.ucdService.deleteEdge(
+                edge.properties.source,
+                edge.properties.target,
+                edge.properties.relationshipType).done(function() {
+                    if (_.findWhere(self.selectedEdges, { id:edge.id })) {
+                        self.trigger('selectObjects');
+                    }
+                    self.trigger('edgesDeleted', { edgeId:edge.id });
                 });
         };
 
@@ -345,29 +366,35 @@ define([
             }
         };
 
-        this.onSelectVertices = function(evt, data) {
+        this.onSelectObjects = function(evt, data) {
             if (data && data.remoteEvent) return;
 
             var self = this,
                 vertices = data && data.vertices || [],
                 selectedIds = _.pluck(vertices, 'id'),
-                onlyVertices = _.filter(vertices, function(v) { return v.properties._type !== 'relationship'; });
+                selected = _.groupBy(vertices, function(v) { return v.properties._type === 'relationship' ? 'edges' : 'vertices'; });
 
-            if (onlyVertices.length) {
+            selected.vertices = selected.vertices || [];
+            selected.edges = selected.edges || [];
+
+            if (selected.vertices.length) {
                 this.trigger('clipboardSet', {
-                    text: window.location.href.replace(/#.*$/,'') + '#v=' + _.pluck(onlyVertices, 'id').join(',')
+                    text: window.location.href.replace(/#.*$/,'') + '#v=' + _.pluck(selected.vertices, 'id').join(',')
                 });
             } else {
                 this.trigger('clipboardClear');
             }
 
-            this.selectedVertices = selectedIds;
+            this.selectedVertices = selected.vertices;
+            this.selectedVertexIds = _.pluck(selected.vertices, 'id');
+            this.selectedEdges = selected.edges;
+
             _.keys(this.workspaceVertices).forEach(function(id) {
                 var info = self.workspaceVertices[id];
                 info.selected = selectedIds.indexOf(id) >= 0;
             });
 
-            this.trigger('verticesSelected', { vertices:vertices });
+            this.trigger('objectsSelected', selected);
         };
 
         this.onDeleteVertices = function(evt, data) {

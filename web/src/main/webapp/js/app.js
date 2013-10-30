@@ -50,7 +50,7 @@ define([
             this.on(document, 'error', this.onError);
             this.on(document, 'menubarToggleDisplay', this.toggleDisplay);
             this.on(document, 'chatMessage', this.onChatMessage);
-            this.on(document, 'verticesSelected', this.onVerticesSelected);
+            this.on(document, 'objectsSelected', this.onObjectsSelected);
             this.on(document, 'syncStarted', this.onSyncStarted);
             this.on(document, 'paneResized', this.onInternalPaneResize);
             this.on(document, 'toggleGraphDimensions', this.onToggleGraphDimensions);
@@ -167,7 +167,7 @@ define([
                     self.triggerPaneResized();
                 }
 
-                self.trigger('selectVertices', []);
+                self.trigger('selectObjects');
                 self.trigger('refreshRelationships');
             });
         };
@@ -205,13 +205,14 @@ define([
             }
         };
 
-        this.onVerticesSelected = function(e, data) {
+        this.onObjectsSelected = function(e, data) {
             var detailPane = this.select('detailPaneSelector'),
                 minWidth = 100,
                 width = 0,
-                vertices = data.vertices;
+                vertices = data.vertices,
+                edges = data.edges;
 
-            if (vertices.length) {
+            if (vertices.length || edges.length) {
                 if (detailPane.width() < minWidth) {
                     detailPane[0].style.width = null;
                 }

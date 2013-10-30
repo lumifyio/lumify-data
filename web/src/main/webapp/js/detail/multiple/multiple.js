@@ -49,7 +49,7 @@ define([
                 fullscreenButton: self.fullscreenButton(ids)
             }));
 
-            this.on('selectVertices', this.onSelectVertices);
+            this.on('selectObjects', this.onSelectObjects);
 
             var d3_deferred = $.Deferred();
             require(['d3'], d3_deferred.resolve);
@@ -71,7 +71,7 @@ define([
 
         });
 
-        this.onSelectVertices = function(event, data) {
+        this.onSelectObjects = function(event, data) {
             event.stopPropagation();
             this.$node.find('.vertices-list').hide();
             this.$node.find('.multiple').addClass('viewing-vertex');
@@ -273,7 +273,7 @@ define([
         this.histogramClick = function(event, object) {
             var data = $(event.target).closest('g').data('info');
 
-            this.trigger(document, 'selectVertices', { vertices:appData.vertices(data.vertexIds) });
+            this.trigger(document, 'selectObjects', { vertices:appData.vertices(data.vertexIds) });
             this.trigger(document, 'defocusVertices', { vertexIds:data.vertexIds });
         };
     }

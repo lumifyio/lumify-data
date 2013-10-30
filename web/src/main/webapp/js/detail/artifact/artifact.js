@@ -214,7 +214,6 @@ define([
                         self.trigger(document, 'deleteVertices', { vertices: [resolvedVertex] });
                     } else {
                         self.trigger(document, 'updateVertices', { vertices: [resolvedVertex] });
-                        self.trigger(document, 'deleteEdge', { edgeId: data.edgeId });
                     }
                 });
         };
