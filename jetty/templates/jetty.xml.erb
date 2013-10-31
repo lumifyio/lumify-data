@@ -57,6 +57,7 @@
                     <Set name="keyStorePassword"><%= @jetty_key_store_password %></Set>
                     <Set name="trustStore"><%= @jetty_trust_store_path %></Set>
                     <Set name="trustStorePassword"><%= @jetty_trust_store_password %></Set>
+					<Set name="needClientAuth"><%= @jetty_client_auth %></Set>
                 </New>
             </Arg>
             <Set name="host"><Property name="jetty.host" /></Set>

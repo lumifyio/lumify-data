@@ -9,6 +9,7 @@ class jetty(
   $jetty_key_store_password = hiera('jetty_key_store_password')
   $jetty_trust_store_path = hiera('jetty_trust_store_path')
   $jetty_trust_store_password = hiera('jetty_trust_store_password')
+  $jetty_client_auth = hiera('jetty_client_auth')
 
   group { 'jetty' :
     ensure => present,
