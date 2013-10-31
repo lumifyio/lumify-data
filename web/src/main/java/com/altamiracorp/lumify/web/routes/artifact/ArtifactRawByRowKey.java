@@ -103,7 +103,7 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
                 if (partialEnd == null) {
                     partialEnd = partialStart + 100000 - 1;
                 }
-                response.setStatus(206);
+                response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
             }
         }
 
