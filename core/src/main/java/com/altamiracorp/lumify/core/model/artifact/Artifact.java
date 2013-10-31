@@ -44,11 +44,12 @@ public class Artifact extends Row<ArtifactRowKey> {
     public ArtifactType getType() {
         ArtifactMetadata metadata = getMetadata();
         String mimeType = metadata.getMimeType();
-        String mimeTypeLowercase = metadata.getMimeType().toLowerCase();
 
         if (mimeType == null) {
             return null;
         }
+
+        String mimeTypeLowercase = mimeType.toLowerCase();
         if (mimeTypeLowercase.contains("video") || mimeTypeLowercase.contains("mp4")) {
             return ArtifactType.VIDEO;
         } else if (mimeTypeLowercase.contains("image")) {

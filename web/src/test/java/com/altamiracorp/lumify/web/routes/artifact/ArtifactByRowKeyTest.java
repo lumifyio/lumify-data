@@ -20,6 +20,7 @@ import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.web.AuthenticationProvider;
 import com.altamiracorp.lumify.web.routes.RouteTestBase;
+import com.google.common.net.MediaType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ArtifactByRowKeyTest extends RouteTestBase {
@@ -53,7 +54,8 @@ public class ArtifactByRowKeyTest extends RouteTestBase {
         when(mockSession.getAttribute(AuthenticationProvider.CURRENT_USER_REQ_ATTR_NAME)).thenReturn(user);
 
         Artifact artifact = new Artifact(artifactRowKey);
-        artifact.getMetadata().setMimeType("document");
+        artifact.getMetadata().setMimeType(MediaType.PDF.toString());
+
         when(mockVertex.getProperty(PropertyName.SUBTYPE)).thenReturn("document");
         when(mockGraphRepository.findVertexByRowKey(artifactRowKey.toString(), user)).thenReturn(mockVertex);
         when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user.getModelUserContext())).thenReturn(artifact);
