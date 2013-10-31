@@ -55,8 +55,8 @@
                 <New class="org.eclipse.jetty.http.ssl.SslContextFactory">
                     <Set name="keyStore"><%= @jetty_key_store_path %></Set>
                     <Set name="keyStorePassword"><%= @jetty_key_store_password %></Set>
-                    <Set name="trustStore"><%= @jetty_key_store_path %></Set>
-                    <Set name="trustStorePassword"><%= @jetty_key_store_password %></Set>
+                    <Set name="trustStore"><%= @jetty_trust_store_path %></Set>
+                    <Set name="trustStorePassword"><%= @jetty_trust_store_password %></Set>
                 </New>
             </Arg>
             <Set name="host"><Property name="jetty.host" /></Set>
