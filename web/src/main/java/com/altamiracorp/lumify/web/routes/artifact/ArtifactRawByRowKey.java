@@ -123,6 +123,9 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
             partialEnd = totalLength;
         }
 
+        // Ensure that the last byte position is less than the instance-length
+        partialEnd = Math.min(partialEnd, totalLength - 1);
+
         long partialLength = partialEnd - partialStart + 1;
         response.addHeader("Content-Length", "" + partialLength);
         response.addHeader("Content-Range", "bytes " + partialStart + "-" + partialEnd + "/" + totalLength);
@@ -132,11 +135,13 @@ public class ArtifactRawByRowKey extends BaseRequestHandler {
 
         OutputStream out = response.getOutputStream();
         copy(in, out, partialLength);
+
+        response.flushBuffer();
     }
 
     private void copy(InputStream in, OutputStream out, Long length) throws IOException {
         byte[] buffer = new byte[1024];
-        int read;
+        int read = 0;
         while (length > 0 && (read = in.read(buffer, 0, (int) Math.min(length, buffer.length))) > 0) {
             out.write(buffer, 0, read);
             length -= read;
