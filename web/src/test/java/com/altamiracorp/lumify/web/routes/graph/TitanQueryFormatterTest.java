@@ -1,16 +1,9 @@
 package com.altamiracorp.lumify.web.routes.graph;
 
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.model.TitanGraphVertex;
-import com.altamiracorp.lumify.model.TitanQueryFormatter;
-import com.altamiracorp.lumify.core.model.ontology.Property;
-import com.altamiracorp.lumify.web.routes.RouteTestBase;
-import com.google.common.collect.Lists;
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
-import com.tinkerpop.gremlin.java.GremlinPipeline;
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,15 +12,23 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.text.ParseException;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.Property;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.model.TitanGraphVertex;
+import com.altamiracorp.lumify.model.TitanQueryFormatter;
+import com.altamiracorp.lumify.web.routes.RouteTestBase;
+import com.google.common.collect.Lists;
+import com.tinkerpop.blueprints.Graph;
+import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
+import com.tinkerpop.gremlin.java.GremlinPipeline;
 
 @RunWith(JUnit4.class)
 public class TitanQueryFormatterTest extends RouteTestBase {
     private Graph graph;
 
+    @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
@@ -182,7 +183,7 @@ public class TitanQueryFormatterTest extends RouteTestBase {
         assertEquals(expectedName, filteredVertices.get(0).getProperty(PropertyName.TITLE));
     }
 
-    private List<GraphVertex> runFilter(JSONArray filterJson) throws JSONException, ParseException {
+    private List<GraphVertex> runFilter(JSONArray filterJson) throws JSONException {
         TitanQueryFormatter formatter = new TitanQueryFormatter();
         GremlinPipeline<Vertex, Vertex> queryPipeline = formatter.createQueryPipeline(graph.getVertices(), filterJson);
         List<GraphVertex> vertices = Lists.newArrayList();

@@ -1,11 +1,13 @@
 package com.altamiracorp.lumify.location;
 
-import com.altamiracorp.bigtable.model.ModelSession;
-import com.altamiracorp.lumify.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.core.model.geoNames.*;
-import com.altamiracorp.lumify.core.user.User;
-import com.google.inject.Inject;
-import org.apache.accumulo.core.client.MutationsRejectedException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -17,13 +19,23 @@ import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+import com.altamiracorp.bigtable.model.ModelSession;
+import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.core.model.geoNames.GeoName;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNameAdmin1Code;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNameAdmin1CodeRepository;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNameAdmin1CodeRowKey;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNameCountryInfo;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNameCountryInfoRepository;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNameCountryInfoRowKey;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNameMetadata;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNamePostalCode;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNamePostalCodeRepository;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNamePostalCodeRowKey;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNameRepository;
+import com.altamiracorp.lumify.core.model.geoNames.GeoNameRowKey;
+import com.altamiracorp.lumify.core.user.User;
+import com.google.inject.Inject;
 
 public class GeoNamesImporter extends CommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeoNamesImporter.class.getName());
@@ -47,10 +59,10 @@ public class GeoNamesImporter extends CommandLineBase {
     @Override
     protected void processOptions(CommandLine cmd) throws Exception {
         super.processOptions(cmd);
-        this.placeNamesPath = cmd.getOptionValue("placenames");
-        this.admin1CodesPath = cmd.getOptionValue("admin1codes");
-        this.countryInfoPath = cmd.getOptionValue("countryinfo");
-        this.postalCodesPath = cmd.getOptionValue("postalcodes");
+        placeNamesPath = cmd.getOptionValue("placenames");
+        admin1CodesPath = cmd.getOptionValue("admin1codes");
+        countryInfoPath = cmd.getOptionValue("countryinfo");
+        postalCodesPath = cmd.getOptionValue("postalcodes");
     }
 
     @Override
@@ -115,7 +127,7 @@ public class GeoNamesImporter extends CommandLineBase {
         return 0;
     }
 
-    private void writePlaceNamesFile(InputStream in, User user) throws IOException, MutationsRejectedException {
+    private void writePlaceNamesFile(InputStream in, User user) throws IOException {
         LOGGER.info("Importing GeoNames.");
 
         BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
@@ -219,7 +231,7 @@ public class GeoNamesImporter extends CommandLineBase {
     }
 
 
-    private void writeAdmin1CodeFile(InputStream in, User user) throws IOException, MutationsRejectedException {
+    private void writeAdmin1CodeFile(InputStream in, User user) throws IOException {
         LOGGER.info("Importing GeoNames Admin1 Codes.");
 
         BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
@@ -257,7 +269,7 @@ public class GeoNamesImporter extends CommandLineBase {
         return result;
     }
 
-    private void writeCountryInfoFile(InputStream in, User user) throws IOException, MutationsRejectedException {
+    private void writeCountryInfoFile(InputStream in, User user) throws IOException {
         LOGGER.info("Importing GeoNames Country Info.");
 
         BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));
@@ -298,7 +310,7 @@ public class GeoNamesImporter extends CommandLineBase {
         return result;
     }
 
-    private void writePostalCodeFile(InputStream in, User user) throws IOException, MutationsRejectedException {
+    private void writePostalCodeFile(InputStream in, User user) throws IOException {
         LOGGER.info("Importing GeoNames Postal Code Info.");
 
         BufferedReader br = new BufferedReader(new InputStreamReader(in, Charset.forName("UTF-8")));

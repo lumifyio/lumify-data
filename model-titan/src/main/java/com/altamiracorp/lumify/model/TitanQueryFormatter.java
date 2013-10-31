@@ -69,7 +69,7 @@ public class TitanQueryFormatter {
         }
     }
 
-    private static GremlinPipeline filterNumber(GremlinPipeline pipeline, JSONObject filterJson, String propertyName) throws JSONException, ParseException {
+    private static GremlinPipeline filterNumber(GremlinPipeline pipeline, JSONObject filterJson, String propertyName) throws JSONException {
         String predicate = filterJson.optString(PREDICATE, null);
         if (predicate == null) {
             throw new RuntimeException("'predicate' is required for data type 'number'");

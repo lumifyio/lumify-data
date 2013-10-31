@@ -1,5 +1,24 @@
 package com.altamiracorp.lumify.storm.term.extraction;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.supercsv.io.CsvListReader;
+import org.supercsv.prefs.CsvPreference;
+
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
@@ -10,28 +29,13 @@ import com.altamiracorp.lumify.storm.structuredData.MappingProperties;
 import com.altamiracorp.lumify.util.LineReader;
 import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
-import org.codehaus.jettison.json.JSONException;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.prefs.CsvPreference;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class CsvEntityExtractor {
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvEntityExtractor.class);
     private Map<String, SimpleDateFormat> dateFormatCache = new HashMap<String, SimpleDateFormat>();
     private ArtifactRepository artifactRepository;
 
-    public TermExtractionResult extract(GraphVertex graphVertex, User user) throws IOException, JSONException, ParseException {
+    public TermExtractionResult extract(GraphVertex graphVertex, User user) throws IOException, ParseException {
         checkNotNull(graphVertex);
         checkNotNull(user);
         TermExtractionResult termExtractionResult = new TermExtractionResult();
@@ -69,7 +73,7 @@ public class CsvEntityExtractor {
     }
 
 
-    private void processLine(TermExtractionResult termExtractionResult, int offset, List<String> columns, JSONObject mappingJson) throws JSONException, ParseException {
+    private void processLine(TermExtractionResult termExtractionResult, int offset, List<String> columns, JSONObject mappingJson) throws ParseException {
         List<TermExtractionResult.TermMention> termMentions = getTermsWithGraphVertices(offset, columns, mappingJson);
         termExtractionResult.addAllTermMentions(termMentions);
         termExtractionResult.addAllRelationships(getRelationships(termMentions, mappingJson));
@@ -95,7 +99,7 @@ public class CsvEntityExtractor {
         return relationships;
     }
 
-    private List<TermExtractionResult.TermMention> getTermsWithGraphVertices(int offset, List<String> columns, JSONObject mappingJson) throws JSONException, ParseException {
+    private List<TermExtractionResult.TermMention> getTermsWithGraphVertices(int offset, List<String> columns, JSONObject mappingJson) throws ParseException {
         List<TermExtractionResult.TermMention> termMentions = new ArrayList<TermExtractionResult.TermMention>();
         JSONArray mappingColumnsJson = (JSONArray) mappingJson.get(MappingProperties.COLUMNS);
         for (int i = 0; i < columns.size(); i++) {
@@ -133,7 +137,7 @@ public class CsvEntityExtractor {
         return termMentions;
     }
 
-    private Object getPropertyValue(JSONObject propertyMappingJson, String columnData) throws JSONException, ParseException {
+    private Object getPropertyValue(JSONObject propertyMappingJson, String columnData) throws ParseException {
         String dataType = propertyMappingJson.getString(MappingProperties.DATA_TYPE);
         if (columnData == null) {
             return dataType.equals(MappingProperties.DATE) ? new Date() : "";
@@ -148,7 +152,7 @@ public class CsvEntityExtractor {
         }
     }
 
-    private Object getPropertyValueDate(JSONObject propertyMappingJson, String columnData) throws JSONException, ParseException {
+    private Object getPropertyValueDate(JSONObject propertyMappingJson, String columnData) throws ParseException {
         String format = propertyMappingJson.getString(MappingProperties.FORMAT);
         SimpleDateFormat sdf;
         if (format != null) {

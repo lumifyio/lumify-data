@@ -1,11 +1,11 @@
 package com.altamiracorp.lumify.core.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TeeInputStream {
     private static final Logger LOGGER = LoggerFactory.getLogger(TeeInputStream.class.getName());
@@ -20,41 +20,41 @@ public class TeeInputStream {
     private final Object cyclicBufferLock = new Object();
     private boolean sourceComplete;
 
-    public TeeInputStream(InputStream source, String[] splitNames) throws IOException {
+    public TeeInputStream(InputStream source, String[] splitNames) {
         this(source, splitNames, DEFAULT_BUFFER_SIZE);
     }
 
-    public TeeInputStream(InputStream source, int splits) throws IOException {
+    public TeeInputStream(InputStream source, int splits) {
         this(source, new String[splits], DEFAULT_BUFFER_SIZE);
     }
 
-    public TeeInputStream(InputStream source, int splits, int bufferSize) throws IOException {
+    public TeeInputStream(InputStream source, int splits, int bufferSize) {
         this(source, new String[splits], bufferSize);
     }
 
-    public TeeInputStream(InputStream source, String[] splitNames, int bufferSize) throws IOException {
+    public TeeInputStream(InputStream source, String[] splitNames, int bufferSize) {
         this.source = source;
-        this.cyclicBuffer = new byte[bufferSize];
-        this.cyclicBufferOffsetIndex = 0;
-        this.cyclicBufferOffset = 0;
-        this.cyclicBufferValidSize = 0;
-        this.sourceComplete = false;
-        this.tees = new MyInputStream[splitNames.length];
-        for (int i = 0; i < this.tees.length; i++) {
-            this.tees[i] = new MyInputStream(splitNames[i]);
+        cyclicBuffer = new byte[bufferSize];
+        cyclicBufferOffsetIndex = 0;
+        cyclicBufferOffset = 0;
+        cyclicBufferValidSize = 0;
+        sourceComplete = false;
+        tees = new MyInputStream[splitNames.length];
+        for (int i = 0; i < tees.length; i++) {
+            tees[i] = new MyInputStream(splitNames[i]);
         }
     }
 
     public InputStream[] getTees() {
-        return this.tees;
+        return tees;
     }
 
     private boolean isClosed(int idx) {
-        return this.tees[idx].isClosed();
+        return tees[idx].isClosed();
     }
 
     public void close() throws IOException {
-        for (InputStream tee : this.tees) {
+        for (InputStream tee : tees) {
             tee.close();
         }
     }
@@ -64,7 +64,7 @@ public class TeeInputStream {
         long lastReport = new Date().getTime();
         while (!allClosed) {
             allClosed = true;
-            for (int i = 0; i < this.tees.length; i++) {
+            for (int i = 0; i < tees.length; i++) {
                 if (!isClosed(i)) {
                     allClosed = false;
                     if (LOGGER.isDebugEnabled() && new Date().getTime() > lastReport + LOOP_REPORT_INTERVAL) {
@@ -171,30 +171,30 @@ public class TeeInputStream {
         private long offset;
 
         public MyInputStream(String splitName) {
-            this.closed = false;
-            this.offset = 0;
+            closed = false;
+            offset = 0;
             this.splitName = splitName;
         }
 
         @Override
         public int read() throws IOException {
-            synchronized (TeeInputStream.this.cyclicBufferLock) {
+            synchronized (cyclicBufferLock) {
                 if (closed) {
                     return -1;
                 }
 
                 int result = readInternal();
                 if (result != -1) {
-                    this.offset++;
+                    offset++;
                 }
-                TeeInputStream.this.cyclicBufferLock.notifyAll();
+                cyclicBufferLock.notifyAll();
                 return result;
             }
         }
 
         @Override
         public int read(byte[] b, int off, int len) throws IOException {
-            synchronized (TeeInputStream.this.cyclicBufferLock) {
+            synchronized (cyclicBufferLock) {
                 if (closed) {
                     return -1;
                 }
@@ -204,9 +204,9 @@ public class TeeInputStream {
 
                 int readLength = readInternal(b, off, len);
                 if (readLength != -1) {
-                    this.offset += readLength;
+                    offset += readLength;
                 }
-                TeeInputStream.this.cyclicBufferLock.notifyAll();
+                cyclicBufferLock.notifyAll();
                 return readLength;
             }
         }
@@ -277,20 +277,20 @@ public class TeeInputStream {
             try {
                 super.close();
             } finally {
-                synchronized (TeeInputStream.this.cyclicBufferLock) {
-                    this.closed = true;
-                    this.offset = Long.MAX_VALUE;
-                    TeeInputStream.this.cyclicBufferLock.notifyAll();
+                synchronized (cyclicBufferLock) {
+                    closed = true;
+                    offset = Long.MAX_VALUE;
+                    cyclicBufferLock.notifyAll();
                 }
             }
         }
 
         public boolean isClosed() {
-            return this.closed;
+            return closed;
         }
 
         public int getMaxNonblockingReadLength() {
-            synchronized (TeeInputStream.this.cyclicBufferLock) {
+            synchronized (cyclicBufferLock) {
                 return (int) (cyclicBufferValidSize - (offset - cyclicBufferOffset));
             }
         }
