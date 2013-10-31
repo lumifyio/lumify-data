@@ -71,13 +71,14 @@ public class ArtifactThumbnailByRowKey extends BaseRequestHandler {
         }
 
         Artifact artifact = artifactRepository.findByRowKey(artifactRowKey.toString(), user.getModelUserContext());
-        GraphVertex vertex = graphRepository.findVertex(artifact.getMetadata().getGraphVertexId(), user);
         if (artifact == null) {
             LOGGER.warn("Cannot find artifact with row key: " + artifactRowKey.toString());
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             chain.next(request, response);
             return;
         }
+
+        GraphVertex vertex = graphRepository.findVertex(artifact.getMetadata().getGraphVertexId(), user);
 
         LOGGER.info("Cache miss for: " + artifactRowKey.toString() + " (raw) " + boundaryDims[0] + "x" + boundaryDims[1]);
         InputStream in = artifactRepository.getRaw(artifact, vertex, user);
