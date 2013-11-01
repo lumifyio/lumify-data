@@ -268,6 +268,8 @@ public class ArtifactExtractedInfo {
         set (SOURCE, source);
     }
 
+
+
     public static class VideoFrame {
         private final String hdfsPath;
         private final long frameStartTime;

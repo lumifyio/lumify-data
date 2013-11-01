@@ -83,8 +83,8 @@ define([
 
         this.handleVertexLoaded = function(vertex) {
             var self = this;
-            this.videoTranscript = vertex.videoTranscript;
-            this.videoDuration = vertex.videoDuration;
+            this.videoTranscript = vertex.artifact.videoTranscript;
+            this.videoDuration = vertex.artifact.videoDuration;
 
             this.$node.html(template({
                 vertex: vertex,

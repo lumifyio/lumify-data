@@ -18,6 +18,7 @@ public class ArtifactMetadata extends ColumnFamily {
     private static final String MIME_TYPE = "mimeType";
     private static final String FILE_EXTENSION = "fileExtension";
     private static final String FILE_NAME = "fileName";
+    private static final String VIDEO_DURATION = "videoDuration";
 
     public ArtifactMetadata() {
         super(NAME);
@@ -101,6 +102,11 @@ public class ArtifactMetadata extends ColumnFamily {
 
     public String getFileName() {
         return Value.toString(get(FILE_NAME));
+    }
+
+    public ArtifactMetadata setVideoDuration (String videoDuration) {
+        set (VIDEO_DURATION, videoDuration);
+        return this;
     }
 
     public ArtifactMetadata setFileName(String fileName) {

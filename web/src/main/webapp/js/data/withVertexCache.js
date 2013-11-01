@@ -90,16 +90,13 @@ define([
             if (rowKey) {
                 artifact._rowKey = encodeURIComponent((rowKey || '').replace(/\\[x](1f)/ig, '\u001f'));
             }
-
             if (content) {
                 // Format Html
                 artifact.contentHtml = (content.highlighted_text || content.doc_extracted_text || '').replace(/[\n]+/g, "<br><br>\n");
-
-                // Video transcripts
-                if(content.video_transcript) {
-                    artifact.videoTranscript = JSON.parse(artifact.Content.video_transcript);
-                    artifact.videoDuration = artifact.Content['atc:video_duration'];
-                }
+            }
+            if (artifact.Generic_Metadata.videoTranscript){ 
+                artifact.videoTranscript = JSON.parse(artifact.Generic_Metadata.videoTranscript);
+                artifact.videoDuration = artifact.Generic_Metadata.videoDuration;
             }
 
             if (artifact['atc:Artifact_Detected_Objects']) {

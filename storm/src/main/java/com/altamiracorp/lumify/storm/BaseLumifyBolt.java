@@ -160,6 +160,8 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         }
         if (artifactExtractedInfo.getVideoTranscript() != null) {
             artifact.getMetadata().setVideoTranscript(artifactExtractedInfo.getVideoTranscript());
+            artifact.getMetadata().setVideoDuration(Long.toString(artifactExtractedInfo.getVideoDuration()));
+
             // TODO should we combine text like this? If the text ends up on HDFS the text here is technically invalid
             if (artifactExtractedInfo.getText() == null) {
                 artifactExtractedInfo.setText(artifactExtractedInfo.getVideoTranscript().toString());
