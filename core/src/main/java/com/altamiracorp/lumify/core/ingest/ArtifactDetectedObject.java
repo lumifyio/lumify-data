@@ -123,7 +123,13 @@ public class ArtifactDetectedObject {
                     json.put(property, vertex.getProperty(property));
                 }
             }
-            json.put("info", getInfoJson());
+            json.put("concept", getConcept());
+            json.put("model", getModel());
+            json.put("_rowKey", getRowKey());
+            json.put("x1", getX1());
+            json.put("y1", getY1());
+            json.put("x2", getX2());
+            json.put("y2", getY2());
             return json;
         } catch (JSONException e) {
             throw new RuntimeException(e);

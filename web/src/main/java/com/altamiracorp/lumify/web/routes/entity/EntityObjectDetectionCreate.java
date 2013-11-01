@@ -52,7 +52,6 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
         GraphVertex resolvedVertex = createGraphVertex(conceptVertex, sign, existing, boundingBox, artifactId, user);
 
         ArtifactDetectedObject newDetectedObject = entityHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);
-        newDetectedObject.setResolvedVertex(resolvedVertex);
 
         // adding to detected object property if one exists, if not add detected object property to the artifact vertex
         JSONArray detectedObjectList = new JSONArray();
@@ -66,7 +65,8 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
         newDetectedObject.setModel(model);
 
         JSONObject result = newDetectedObject.getJson();
-        detectedObjectList.put(newDetectedObject.getJson());
+        result.put("artifactId", artifactId);
+        detectedObjectList.put(result);
         artifactVertex.setProperty(PropertyName.DETECTED_OBJECTS, detectedObjectList.toString());
         graphRepository.saveVertex(resolvedVertex, user);
 

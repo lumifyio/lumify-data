@@ -196,7 +196,7 @@ define([
                         _subType: data.properties._subType,
                         _type: data.properties._type
                     };
-
+debugger;
                     $detectedObjectTag.parent().remove();
                     self.trigger('DetectedObjectLeave', $detectedObjectTag.data('info'));
 

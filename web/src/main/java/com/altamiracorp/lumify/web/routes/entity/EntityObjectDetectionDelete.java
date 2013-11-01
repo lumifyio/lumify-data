@@ -34,7 +34,7 @@ public class EntityObjectDetectionDelete extends BaseRequestHandler {
         String graphVertexId = jsonObject.getString("graphVertexId");
         JSONObject obj = graphRepository.findVertex(graphVertexId, user).toJson();
         Map<GraphRelationship, GraphVertex> relationships = graphRepository.getRelationships(graphVertexId, user);
-        GraphVertex artifactVertex = graphRepository.findVertexByRowKey(jsonObject.getString("artifactRowKey"), user);
+        GraphVertex artifactVertex = graphRepository.findVertex(jsonObject.getString("artifactId"), user);
         if (relationships.size() > 1) {
             String edgeId = artifactVertex.getId() + ">" + graphVertexId + "|" + LabelName.CONTAINS_IMAGE_OF.toString();
             obj.put("edgeId", edgeId);
@@ -49,7 +49,7 @@ public class EntityObjectDetectionDelete extends BaseRequestHandler {
         boolean deleted = false;
         for (int i = 0; i < detectedObjects.length(); i++) {
             JSONObject detectedObject = detectedObjects.getJSONObject(i);
-            if (detectedObject.get("graphVertexId").equals(jsonObject.get("graphVertexId"))) {
+            if (detectedObject.has("graphVertexId") && detectedObject.get("graphVertexId").equals(jsonObject.get("graphVertexId"))) {
                 detectedObjects.remove(i);
                 deleted = true;
             }

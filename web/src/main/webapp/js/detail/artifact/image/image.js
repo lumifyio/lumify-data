@@ -160,7 +160,7 @@ define([
                 height = image.height(),
                 aspectWidth = width / image[0].naturalWidth,
                 aspectHeight = height / image[0].naturalHeight,
-                c = data.info.coords,
+                c = data.coords,
                 w = (c.x2 - c.x1) * aspectWidth / width * 100,
                 h = (c.y2 - c.y1) * aspectHeight / height * 100,
                 x = c.x1 * aspectWidth / width * 100,
