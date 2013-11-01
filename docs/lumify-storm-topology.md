@@ -5,7 +5,7 @@
 2. ```$ vagrant ssh```
 3. ```$ /opt/format.sh``` (format every time you come from develop)
 4. ```$ /opt/start.sh```
-5. make sure to update your ```/opt/lumify/config/configuration.properties``` on your local machine and Vagrant VM to contain the configurations under the Application Configuration Wiki Page
+5. make sure to update your ```/opt/lumify/config/configuration.properties``` on your local machine and Vagrant VM to contain the configurations under the [Application Configuration Wiki Page](https://github.com/nearinfinity/lumify/wiki/Application-Configuration)
 
 ### HDFS
 
