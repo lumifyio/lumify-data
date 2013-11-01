@@ -146,6 +146,9 @@ public class ArtifactRepository extends Repository<Artifact> {
         artifactVertex.setProperty(PropertyName.TYPE, VertexType.ARTIFACT.toString());
         artifactVertex.setProperty(PropertyName.SUBTYPE, artifactExtractedInfo.getArtifactType());
         artifactVertex.setProperty(PropertyName.TITLE, artifactExtractedInfo.getTitle());
+        if (artifactExtractedInfo.getSource() != null) {
+            artifactVertex.setProperty(PropertyName.SOURCE, artifactExtractedInfo.getSource());
+        }
         if (artifactExtractedInfo.getRawHdfsPath() != null) {
             artifactVertex.setProperty(PropertyName.RAW_HDFS_PATH, artifactExtractedInfo.getRawHdfsPath());
         }

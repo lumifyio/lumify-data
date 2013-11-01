@@ -32,6 +32,8 @@ public class ArtifactExtractedInfo {
     private static final String ARTIFACT_TYPE = "artifactType";
     private static final String MIME_TYPE = "mimeType";
     private static final String FILE_EXTENSION = "fileExtension";
+    private static final String URL = "url";
+    private static final String SOURCE = "source";
 
     private HashMap<String, Object> properties = new HashMap<String, Object>();
 
@@ -248,6 +250,22 @@ public class ArtifactExtractedInfo {
 
     public void setFileExtension(String extension) {
         set (FILE_EXTENSION, extension);
+    }
+
+    public String getUrl() {
+        return (String) properties.get(URL);
+    }
+
+    public void setUrl(String url) {
+        set (URL, url);
+    }
+
+    public String getSource() {
+        return (String) properties.get(SOURCE);
+    }
+
+    public void setSource(String source) {
+        set (SOURCE, source);
     }
 
     public static class VideoFrame {
