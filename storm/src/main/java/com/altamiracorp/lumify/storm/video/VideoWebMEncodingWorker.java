@@ -54,6 +54,7 @@ public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<Artifa
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         info.setWebMHdfsFilePath(out.getHdfsPath().toString());
         info.setArtifactType(ArtifactType.VIDEO.toString());
+        info.setMimeType("video");
 
         return info;
     }

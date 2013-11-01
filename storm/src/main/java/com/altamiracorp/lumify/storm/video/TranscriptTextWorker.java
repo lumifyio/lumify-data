@@ -28,6 +28,8 @@ public class TranscriptTextWorker
         }
         info.setVideoTranscript(videoTranscript);
 
+        //TODO set title for tar to not have tar in filename :3
+
         return info;
     }
 
