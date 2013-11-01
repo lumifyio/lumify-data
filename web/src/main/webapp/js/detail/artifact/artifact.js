@@ -223,9 +223,9 @@ define([
 
         this.videoSetup = function(vertex) {
             VideoScrubber.attachTo(this.select('previewSelector'), {
-                rawUrl: '/artifact/' + vertex.properties._rowKey + '/raw',
-                posterFrameUrl: '/artifact/' + vertex.properties._rowKey + '/poster-frame',
-                videoPreviewImageUrl: '/artifact/' + vertex.properties._rowKey + '/video-preview',
+                rawUrl: vertex.artifact.rawUrl,
+                posterFrameUrl: vertex.artifact.posterFrameUrl,
+                videoPreviewImageUrl: vertex.artifact.videoPreviewImageUrl,
                 allowPlayback: true
             });
         };
@@ -233,7 +233,7 @@ define([
         this.imageSetup = function(vertex) {
             var self = this;
             var data = {
-                src: '/artifact/' + vertex.properties._rowKey + '/raw',
+                src: vertex.artifact.rawUrl,
                 id: vertex.id
             };
             Image.attachTo(this.select('imagePreviewSelector'), { data: data });

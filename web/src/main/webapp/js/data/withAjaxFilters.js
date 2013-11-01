@@ -28,7 +28,7 @@ define([], function() {
             },
 
             function artifactGetByRow(json, updated) {
-                if (json.tableName === 'Artifact') {
+                if (json.tableName === 'atc_artifact') {
                     var cache = this.updateCacheWithArtifact(json);
                     $.extend(true, json, cache.artifact);
                     updated.push(cache);
