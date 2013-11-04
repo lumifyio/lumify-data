@@ -97,6 +97,9 @@ public class ArtifactExtractedInfo {
     public void setDate(Date date) {
         properties.put(DATE, date);
     }
+    public Date getDate() {
+        return (Date) properties.get(DATE);
+    }
 
     public void set(String key, Object val) {
         properties.put(key, val);

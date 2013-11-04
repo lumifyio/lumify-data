@@ -105,7 +105,7 @@ public class ElasticSearchProvider extends SearchProvider {
         text = text == null ? "" : text;
         String subject = (String) graphVertex.getProperty(PropertyName.TITLE);
         subject = subject == null ? "" : subject;
-        String publishedDate = (String) graphVertex.getProperty(PropertyName.PUBLISHED_DATE);
+        String publishedDate = graphVertex.getProperty(PropertyName.PUBLISHED_DATE) == null ? null : Long.toString((Long)graphVertex.getProperty(PropertyName.PUBLISHED_DATE));
 
         XContentBuilder jsonBuilder = XContentFactory.jsonBuilder()
                 .startObject()

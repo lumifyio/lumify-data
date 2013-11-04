@@ -17,6 +17,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
@@ -68,6 +69,7 @@ public class TikaTextExtractorTest {
                 "Five reasons why Windows 8 has failed\n" +
                         "The numbers speak for themselves. Vista, universally acknowledged as a failure, actually had significantly better adoption numbers than Windows 8. At similar points in their roll-outs, Vista had a desktop market share of 4.52% compared to Windows 8's share of 2.67%. Underlining just how poorly Windows 8's adoption has gone, Vista didn't even have the advantage of holiday season sales to boost its numbers. Tablets--and not Surface RT tablets--were what people bought last December, not Windows 8 PCs.\n",
                 info.getText());
+        assertEquals(new Date(1357063760000L), info.getDate());
     }
 
     @Test
@@ -86,6 +88,7 @@ public class TikaTextExtractorTest {
         info.setText(textOut.toString());
         assertEquals("Test Title", info.getTitle());
         assertEquals("", info.getText());
+        assertEquals(new Date(1357063760000L), info.getDate());
     }
 
     @Test
@@ -107,6 +110,7 @@ public class TikaTextExtractorTest {
                 "Five reasons why Windows 8 has failed\n" +
                         "The numbers speak for themselves. Vista, universally acknowledged as a failure, actually had significantly better adoption numbers than Windows 8. At similar points in their roll-outs, Vista had a desktop market share of 4.52% compared to Windows 8's share of 2.67%. Underlining just how poorly Windows 8's adoption has gone, Vista didn't even have the advantage of holiday season sales to boost its numbers. Tablets--and not Surface RT tablets--were what people bought last December, not Windows 8 PCs.\n",
                 info.getText());
+        assertEquals(new Date(1357063760000L), info.getDate());
     }
 
     //todo : add test with image metadata

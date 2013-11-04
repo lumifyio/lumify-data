@@ -1,18 +1,5 @@
 package com.altamiracorp.lumify.core.model.artifact;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import org.apache.commons.io.IOUtils;
-import org.json.JSONArray;
-
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.bigtable.model.Repository;
 import com.altamiracorp.bigtable.model.Row;
@@ -31,6 +18,18 @@ import com.altamiracorp.lumify.core.user.User;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONArray;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 @Singleton
 public class ArtifactRepository extends Repository<Artifact> {
@@ -91,48 +90,6 @@ public class ArtifactRepository extends Repository<Artifact> {
     }
 
     public GraphVertex saveToGraph(Artifact artifact, ArtifactExtractedInfo artifactExtractedInfo, User user) {
-//        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        GraphVertex vertex = null;
-//        String oldGraphVertexId = artifact.getGenericMetadata().getGraphVertexId();
-//        if (oldGraphVertexId != null) {
-//            vertex = graphSession.findGraphVertex(oldGraphVertexId, user);
-//        }
-//
-//        if (vertex == null) {
-//            vertex = new InMemoryGraphVertex();
-//        }
-//
-//        vertex.setProperty(PropertyName.TYPE.toString(), VertexType.ARTIFACT.toString());
-//        if (artifact.getType() != null) {
-//            vertex.setProperty(PropertyName.SUBTYPE.toString(), artifact.getType().toString().toLowerCase());
-//        }
-//        vertex.setProperty(PropertyName.ROW_KEY.toString(), artifact.getRowKey().toString());
-//        if (artifact.getDynamicMetadata().getLatitude() != null) {
-//            double latitude = artifact.getDynamicMetadata().getLatitude();
-//            double longitude = artifact.getDynamicMetadata().getLongitude();
-//            vertex.setProperty(PropertyName.GEO_LOCATION.toString(), new GraphGeoLocation(latitude, longitude));
-//        }
-//        if (artifact.getGenericMetadata().getSubject() != null) {
-//            vertex.setProperty(PropertyName.TITLE.toString(), artifact.getGenericMetadata().getSubject());
-//        }
-//
-//        if (artifact.getGenericMetadata().getSource() != null) {
-//            vertex.setProperty(PropertyName.SOURCE.toString(), artifact.getGenericMetadata().getSource());
-//        }
-//
-//        if (artifact.getPublishedDate() != null) {
-//            vertex.setProperty(PropertyName.PUBLISHED_DATE.toString(), artifact.getPublishedDate().getTime());
-//        }
-//
-//        String vertexId = graphSession.save(vertex, user);
-//        graphSession.commit();
-//        if (!vertexId.equals(oldGraphVertexId)) {
-//            artifact.getGenericMetadata().setGraphVertexId(vertexId);
-//            save(artifact, user);
-//        }
-//
-//        return vertex;
-
         GraphVertex artifactVertex = null;
         String oldGraphVertexId = artifact.getMetadata().getGraphVertexId();
         if (oldGraphVertexId != null) {
@@ -158,6 +115,9 @@ public class ArtifactRepository extends Repository<Artifact> {
         }
         if (artifactExtractedInfo.getDetectedObjects() != null) {
             artifactVertex.setProperty(PropertyName.DETECTED_OBJECTS, artifactExtractedInfo.getDetectedObjects());
+        }
+        if (artifactExtractedInfo.getDate() != null) {
+            artifactVertex.setProperty(PropertyName.PUBLISHED_DATE, artifactExtractedInfo.getDate().getTime());
         }
         String vertexId = graphSession.save(artifactVertex, user);
         graphSession.commit();
@@ -193,11 +153,11 @@ public class ArtifactRepository extends Repository<Artifact> {
         if (hdfsPath == null) {
             String artifactRowKey = (String) artifactVertex.getProperty(PropertyName.ROW_KEY);
             Artifact artifact = findByRowKey(artifactRowKey, user.getModelUserContext());
-            if( artifact != null ) {
+            if (artifact != null) {
                 ArtifactMetadata metadata = artifact.getMetadata();
-                if( metadata != null ) {
+                if (metadata != null) {
                     String highlightedText = metadata.getHighlightedText();
-                    if( highlightedText != null ) {
+                    if (highlightedText != null) {
                         out.write(highlightedText.getBytes());
                     }
                 }
