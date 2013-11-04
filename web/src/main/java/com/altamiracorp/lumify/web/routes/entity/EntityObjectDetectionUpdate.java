@@ -1,77 +1,65 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
+import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
-import com.altamiracorp.lumify.core.model.search.SearchProvider;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.LabelName;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class EntityObjectDetectionUpdate extends BaseRequestHandler {
     private final GraphRepository graphRepository;
-    private final ArtifactRepository artifactRepository;
-    private final SearchProvider searchProvider;
+    private final EntityHelper entityHelper;
 
     @Inject
     public EntityObjectDetectionUpdate(
-            final ArtifactRepository artifactRepository,
             final GraphRepository graphRepository,
-            final SearchProvider searchProvider) {
-        this.artifactRepository = artifactRepository;
+            final EntityHelper entityHelper) {
         this.graphRepository = graphRepository;
-        this.searchProvider = searchProvider;
+        this.entityHelper = entityHelper;
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
+        User user = getUser(request);
+        final String artifactId = getRequiredParameter(request, "artifactId");
+        final String sign = getRequiredParameter(request, "sign");
+        final String conceptId = getRequiredParameter(request, "conceptId");
+        final String resolvedGraphVertexId = getRequiredParameter(request, "graphVertexId");
+        String x1 = getRequiredParameter(request, "x1"), x2 = getRequiredParameter(request, "x2"),
+                y1 = getRequiredParameter(request, "y1"), y2 = getRequiredParameter(request, "y2");
+        final String boundingBox = "[x1: " + x1 + ", y1: " + y1 + ", x2: " + x2 + ", y2: " + y2 + "]";
 
-//        EntityHelper objectDetectionHelper = new EntityHelper(null, graphRepository);
-//
-//        User user = getUser(request);
-//        final String artifactRowKey = getRequiredParameter(request, "artifactKey");
-//        final String sign = getRequiredParameter(request, "sign");
-//        final String conceptId = getRequiredParameter(request, "conceptId");
-//        final String resolvedGraphVertexId = getRequiredParameter(request, "graphVertexId");
-//        final JSONObject coords = new JSONObject(getRequiredParameter(request, "coords"));
-//        String x1 = Double.toString(coords.getDouble("x1")), x2 = Double.toString(coords.getDouble("x2")),
-//                y1 = Double.toString(coords.getDouble("y1")), y2 = Double.toString(coords.getDouble("y2"));
-//        String detectedObjectRowKey = getOptionalParameter(request, "detectedObjectRowKey");
-//        final String boundingBox = "[x1: " + x1 + ", y1: " + y1 +", x2: " + x2 + ", y2: " + y2 + "]";
-//
-//        GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
-//        GraphVertex resolvedVertex = graphRepository.findVertex(resolvedGraphVertexId, user);
-//        GraphVertex artifactVertex = graphRepository.findVertexByRowKey(artifactRowKey, user);
-//
-//        // update graph vertex
-//        objectDetectionHelper.updateGraphVertex(resolvedVertex, conceptId, sign, user);
-//
-//        ArtifactDetectedObjects artifactDetectedObjects = artifactRepository.findByRowKey(artifactRowKey, user).getArtifactDetectedObjects();
-//        if (detectedObjectRowKey == null) {
-//            DetectedObject detectedObject = objectDetectionHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);
-//            detectedObject.setModel("manual");
-//            detectedObjectRowKey = artifactDetectedObjects.addDetectedObject
-//                    (detectedObject.getConcept(), "manual", x1, y1, x2, y2);
-//            graphRepository.saveRelationship(artifactVertex.getId(), resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF, user);
-//        } else {
-//            graphRepository.setPropertyEdge(artifactVertex.getId(), resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF.toString()
-//                    , PropertyName.BOUNDING_BOX.toString(), boundingBox, user);
-//        }
-//        JSONObject value = Value.toJson(artifactDetectedObjects.get(detectedObjectRowKey));
-//        JSONObject info = value.getJSONObject("info");
-//
-//        // update the detected object column
-//        DetectedObject detectedObject = objectDetectionHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);
-//        detectedObject.setRowKey(detectedObjectRowKey);
-//
-//        detectedObject.setModel(info.get("model").toString());
-//
-//        JSONObject obj = detectedObject.getJson();
-//        objectDetectionHelper.executeService(new ObjectDetectionWorker(artifactRepository, searchProvider, artifactRowKey, detectedObjectRowKey, obj, user));
-//
-//        respondWithJson(response, obj);
+        GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
+        GraphVertex resolvedVertex = graphRepository.findVertex(resolvedGraphVertexId, user);
+        GraphVertex artifactVertex = graphRepository.findVertex(artifactId, user);
+
+        // update graph vertex
+        entityHelper.updateGraphVertex(resolvedVertex, conceptId, sign, user);
+        graphRepository.setPropertyEdge(artifactVertex.getId(), resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF.toString()
+                , PropertyName.BOUNDING_BOX.toString(), boundingBox, user);
+
+
+        // update the detected object property on the artifact
+        JSONArray detectedObjects = new JSONArray(artifactVertex.getProperty(PropertyName.DETECTED_OBJECTS).toString());
+        for (int i = 0; i < detectedObjects.length(); i++) {
+            JSONObject detectedObject = detectedObjects.getJSONObject(i);
+            if (detectedObject.has("graphVertexId") && detectedObject.get("graphVertexId").equals(resolvedGraphVertexId)) {
+                ArtifactDetectedObject tag = entityHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);
+                detectedObjects.put(i, tag.getJson());
+                artifactVertex.setProperty(PropertyName.DETECTED_OBJECTS, detectedObjects.toString());
+                graphRepository.save(artifactVertex, user);
+                respondWithJson(response, tag.getJson());
+                break;
+            }
+        }
     }
 }

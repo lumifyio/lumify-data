@@ -142,12 +142,10 @@ define([
 
                 self.trigger('DetectedObjectCoordsChange', {
                     id: self.currentlyEditing,
-                    coords: {
-                        x1: (l * naturalWidth).toFixed(2) + '',
-                        x2: ((l + w) * naturalWidth).toFixed(2) + '',
-                        y1: (t * naturalHeight).toFixed(2) + '',
-                        y2: ((t + h) * naturalHeight).toFixed(2) + ''
-                    }
+                    x1: (l * naturalWidth).toFixed(2) + '',
+                    x2: ((l + w) * naturalWidth).toFixed(2) + '',
+                    y1: (t * naturalHeight).toFixed(2) + '',
+                    y2: ((t + h) * naturalHeight).toFixed(2) + ''
                 });
             }
         };
@@ -192,8 +190,8 @@ define([
         };
 
         this.onEdit = function(event, data) {
-            if (data.info._rowKey === this.currentlyEditing) return;
-            this.currentlyEditing = data.info._rowKey;
+            if (data.graphVertexId === this.currentlyEditing) return;
+            this.currentlyEditing = data.graphVertexId;
 
             this.showFaceboxForEdit(data);
         };

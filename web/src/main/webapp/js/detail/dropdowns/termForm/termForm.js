@@ -212,13 +212,10 @@ define([
                     conceptId: this.select('conceptSelector').val(),
                     graphVertexId: this.attr.graphVertexId,
                     artifactId: this.attr.artifactData.id,
-                    coords: JSON.stringify({
-                        x1: parseFloat(this.attr.coords.x1),
-                        y1: parseFloat(this.attr.coords.y1),
-                        x2: parseFloat(this.attr.coords.x2),
-                        y2: parseFloat(this.attr.coords.y2)
-                    }),
-                    detectedObjectRowKey: this.attr.detectedObjectRowKey,
+                    x1: parseFloat(this.attr.x1),
+                    y1: parseFloat(this.attr.y1),
+                    x2: parseFloat(this.attr.x2),
+                    y2: parseFloat(this.attr.y2),
                     existing: this.currentGraphVertexId
                 };
 

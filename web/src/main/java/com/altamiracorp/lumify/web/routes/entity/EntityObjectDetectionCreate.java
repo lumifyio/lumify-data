@@ -36,9 +36,8 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
         final String artifactId = getRequiredParameter(request, "artifactId");
         final String sign = getRequiredParameter(request, "sign");
         final String conceptId = getRequiredParameter(request, "conceptId");
-        final JSONObject coords = new JSONObject(getRequiredParameter(request, "coords"));
-        String x1 = Double.toString(coords.getDouble("x1")), x2 = Double.toString(coords.getDouble("x2")),
-                y1 = Double.toString(coords.getDouble("y1")), y2 = Double.toString(coords.getDouble("y2"));
+        String x1 = getRequiredParameter(request, "x1"), x2 = getRequiredParameter(request, "x2"),
+                y1 = getRequiredParameter(request, "y1"), y2 = getRequiredParameter(request, "y2");
         String existing = getOptionalParameter(request, "existing");
         final String boundingBox = "[x1: " + x1 + ", y1: " + y1 + ", x2: " + x2 + ", y2: " + y2 + "]";
 

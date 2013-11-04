@@ -158,19 +158,22 @@ define([
 
         this.onCoordsChanged = function(event, data) {
             var self = this,
-                vertex = appData.vertex(this.attr.data.id),
-                detectedObject = $.extend(true, {}, _.find(vertex.properties._detectedObjects, function(obj) {
-                    return (obj.info && obj.info._rowKey) === data.id;
+                vertex = appData.vertex(this.attr.data.id);
+            var detectedObject = $.extend(true, {}, _.find(JSON.parse(vertex.properties._detectedObjects), function(obj) {
+                    return (obj && obj.graphVertexId) === data.id;
                 })),
-                width = parseFloat(data.coords.x2)-parseFloat(data.coords.x1),
-                height = parseFloat(data.coords.y2)-parseFloat(data.coords.y1);
+                width = parseFloat(data.x2)-parseFloat(data.x1),
+                height = parseFloat(data.y2)-parseFloat(data.y1);
 
             if (width < 5 || height < 5) {
                 return TermForm.teardownAll();
             }
 
-            detectedObject.info = detectedObject.info || {};
-            detectedObject.info.coords = data.coords;
+            detectedObject = detectedObject || {};
+            detectedObject.x1 = data.x1;
+            detectedObject.y1 = data.y1;
+            detectedObject.x2 = data.x2;
+            detectedObject.y2 = data.y2;
             this.showForm(detectedObject, this.attr.data, this.$node);
         };
 
@@ -260,8 +263,10 @@ define([
 
             TermForm.attachTo (root, {
                 artifactData: artifactInfo,
-                coords: dataInfo.info.coords,
-                detectedObjectRowKey: dataInfo.info._rowKey,
+                x1: dataInfo.x1,
+                y1: dataInfo.y1,
+                x2: dataInfo.x2,
+                y2: dataInfo.y2,
                 graphVertexId: dataInfo.graphVertexId,
                 resolvedVertex: resolvedVertex,
                 existing: existing,
