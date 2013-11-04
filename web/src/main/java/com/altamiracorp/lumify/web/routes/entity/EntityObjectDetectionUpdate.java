@@ -33,13 +33,21 @@ public class EntityObjectDetectionUpdate extends BaseRequestHandler {
         final String artifactId = getRequiredParameter(request, "artifactId");
         final String sign = getRequiredParameter(request, "sign");
         final String conceptId = getRequiredParameter(request, "conceptId");
-        final String resolvedGraphVertexId = getRequiredParameter(request, "graphVertexId");
+        String resolvedGraphVertexId = getOptionalParameter(request, "graphVertexId");
+        String existing = getOptionalParameter(request, "existing");
         String x1 = getRequiredParameter(request, "x1"), x2 = getRequiredParameter(request, "x2"),
                 y1 = getRequiredParameter(request, "y1"), y2 = getRequiredParameter(request, "y2");
         final String boundingBox = "[x1: " + x1 + ", y1: " + y1 + ", x2: " + x2 + ", y2: " + y2 + "]";
 
         GraphVertex conceptVertex = graphRepository.findVertex(conceptId, user);
-        GraphVertex resolvedVertex = graphRepository.findVertex(resolvedGraphVertexId, user);
+        GraphVertex resolvedVertex;
+        if (resolvedGraphVertexId != null) {
+            resolvedVertex = graphRepository.findVertex(resolvedGraphVertexId, user);
+        } else {
+            resolvedVertex = entityHelper.createGraphVertex(conceptVertex, sign, existing, boundingBox,
+                    artifactId, user);
+            resolvedGraphVertexId = resolvedVertex.getId();
+        }
         GraphVertex artifactVertex = graphRepository.findVertex(artifactId, user);
 
         // update graph vertex
@@ -47,12 +55,13 @@ public class EntityObjectDetectionUpdate extends BaseRequestHandler {
         graphRepository.setPropertyEdge(artifactVertex.getId(), resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF.toString()
                 , PropertyName.BOUNDING_BOX.toString(), boundingBox, user);
 
-
         // update the detected object property on the artifact
         JSONArray detectedObjects = new JSONArray(artifactVertex.getProperty(PropertyName.DETECTED_OBJECTS).toString());
         for (int i = 0; i < detectedObjects.length(); i++) {
             JSONObject detectedObject = detectedObjects.getJSONObject(i);
-            if (detectedObject.has("graphVertexId") && detectedObject.get("graphVertexId").equals(resolvedGraphVertexId)) {
+            if (detectedObject.has("graphVertexId") && detectedObject.get("graphVertexId").equals(resolvedGraphVertexId) ||
+                    (detectedObject.get("x1").equals(x1) && detectedObject.get("y1").equals(y1) && detectedObject.get("x2").equals(x2)
+                            && detectedObject.get("y2").equals(y2))) {
                 ArtifactDetectedObject tag = entityHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);
                 detectedObjects.put(i, tag.getJson());
                 artifactVertex.setProperty(PropertyName.DETECTED_OBJECTS, detectedObjects.toString());

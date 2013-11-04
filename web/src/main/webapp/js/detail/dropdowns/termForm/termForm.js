@@ -261,16 +261,12 @@ define([
                     $parentSpan.append($deleteButton);
                     $parentSpan.after(' ');
 
-                    if ($allDetectedObjects.children().hasClass('focused')) {
-                        self.updateEntityTag (data, parameters.conceptId);
-                        return;
-                    } else {
-                        $allDetectedObjectLabels.each(function(){
-                            if(parseFloat($(this).data("info").x1) > data.x1){
-                                $tag.removePrefixedClasses('subType-').addClass('subType-' + parameters.conceptId).parent().insertBefore($(this).parent()).after(' ');
-                                added = true;
-                                return false;
-                            }
+                    $allDetectedObjectLabels.each(function(){
+                        if(parseFloat($(this).data("info").x1) > data.x1){
+                            $tag.removePrefixedClasses('subType-').addClass('subType-' + parameters.conceptId).parent().insertBefore($(this).parent()).after(' ');
+                            added = true;
+                            return false;
+                        }
                     });
 
                     if (!added){
@@ -288,8 +284,7 @@ define([
                     self.trigger(document, 'refreshRelationships');
 
                     _.defer(self.teardown.bind(self));
-                }
-            });
+              });
         };
 
         this.updateEntity = function (parameters) {

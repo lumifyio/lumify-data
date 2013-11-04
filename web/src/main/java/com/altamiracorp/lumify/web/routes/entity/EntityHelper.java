@@ -2,7 +2,10 @@ package com.altamiracorp.lumify.web.routes.entity;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
@@ -55,5 +58,27 @@ public class EntityHelper {
 
     public void scheduleHighlight(String artifactGraphVertexId, User user) {
         this.workQueueRepository.pushArtifactHighlight(artifactGraphVertexId);
+    }
+
+    public GraphVertex createGraphVertex(GraphVertex conceptVertex, String sign, String existing, String boundingBox,
+                                          String artifactId, User user) {
+        GraphVertex resolvedVertex;
+        // If the user chose to use an existing resolved entity
+        if (existing != "" && existing != null) {
+            resolvedVertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, user);
+        } else {
+            resolvedVertex = new InMemoryGraphVertex();
+            resolvedVertex.setType(VertexType.ENTITY);
+        }
+
+        resolvedVertex.setProperty(PropertyName.SUBTYPE, conceptVertex.getId());
+        resolvedVertex.setProperty(PropertyName.TITLE, sign);
+
+        graphRepository.saveVertex(resolvedVertex, user);
+
+        graphRepository.saveRelationship(artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF, user);
+        graphRepository.setPropertyEdge(artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF.toString()
+                , PropertyName.BOUNDING_BOX.toString(), boundingBox, user);
+        return resolvedVertex;
     }
 }

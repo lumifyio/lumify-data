@@ -263,7 +263,6 @@ define([
                 _subType: dataInfo._subType,
                 title: dataInfo.title
             };
-debugger;
 
             TermForm.attachTo (root, {
                 artifactData: artifactInfo,
