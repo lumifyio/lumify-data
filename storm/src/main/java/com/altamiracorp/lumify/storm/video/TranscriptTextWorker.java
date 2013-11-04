@@ -6,6 +6,7 @@ import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
 import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -27,8 +28,7 @@ public class TranscriptTextWorker
             videoTranscript = readingTranscript(data);
         }
         info.setVideoTranscript(videoTranscript);
-
-        //TODO set title for tar to not have tar in filename :3
+        info.setTitle(FilenameUtils.getName(data.getFileName()).split(".lumify")[0]);
 
         return info;
     }

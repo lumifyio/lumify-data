@@ -29,6 +29,7 @@ public class TranscriptTextWorkerTest {
         in = getClass().getResourceAsStream("ytcc.lumify");
         File dir = new File(getClass().getResource("ytcc.lumify").getPath());
         data.setArchiveTempDir(dir);
+        data.setFileName("ytcc.lumify");
 
         ArtifactExtractedInfo result = worker.doWork(in, data);
         checkNotNull(result.getVideoTranscript());
@@ -38,6 +39,7 @@ public class TranscriptTextWorkerTest {
         assertEquals("Then I thought somebody was barbecuing", entries.get(1).getText());
         assertEquals("I said O' lord Jesus It's a fire", entries.get(2).getText());
         assertEquals("Then I ran out, I didn't grab no shoes or nothing Jesus", entries.get(3).getText());
+        assertEquals("ytcc", result.getTitle());
     }
 
     @Test
@@ -45,6 +47,7 @@ public class TranscriptTextWorkerTest {
         in = getClass().getResourceAsStream("test-video-with-transcript.lumify");
         File dir = new File(getClass().getResource("test-video-with-transcript.lumify").getPath());
         data.setArchiveTempDir(dir);
+        data.setFileName("test-video-with-transcript.lumify");
 
         ArtifactExtractedInfo result = worker.doWork(in, data);
         checkNotNull(result.getVideoTranscript());
@@ -53,6 +56,7 @@ public class TranscriptTextWorkerTest {
         assertEquals("Salam will", entries.get(0).getText());
         assertEquals("is an absolutely sickening and despicable attack", entries.get(1).getText());
         assertEquals("appalling brutality what we know is that three British nationals", entries.get(2).getText());
+        assertEquals("test-video-with-transcript", result.getTitle());
     }
 
     @Test(expected = Exception.class)
@@ -61,12 +65,13 @@ public class TranscriptTextWorkerTest {
         File dir = new File(getClass().getResource("test-video-without-transcript.lumify").getPath());
         data.setArchiveTempDir(dir);
 
-        ArtifactExtractedInfo result = worker.doWork(in, data);
+        worker.doWork(in, data);
     }
 
     @Test
     public void testNoCC() throws Exception {
         in = getClass().getResourceAsStream("test.mp4");
+        data.setFileName("test.mp4");
 
         ArtifactExtractedInfo result = worker.doWork(in, data);
         checkNotNull(result.getVideoTranscript());
