@@ -409,6 +409,10 @@ public class TitanGraphSession extends GraphSession {
         List<GraphVertex> vertices = Lists.newArrayList();
         final List<String> tokens = LuceneTokenizer.standardTokenize(title);
 
+        if (title.equals("*")) {
+            tokens.add("*");
+        }
+
         if( !tokens.isEmpty() ) {
             final TitanGraphQuery query = generateTitleQuery(tokens);
 
@@ -456,7 +460,11 @@ public class TitanGraphSession extends GraphSession {
         final TitanGraphQuery query = graph.query();
 
         for (String token : titleTokens) {
-            query.has(PropertyName.TITLE.toString(), Text.PREFIX, token);
+            if (token.equals("*")) {
+                query.has(PropertyName.TITLE.toString(), Text.REGEXP, ".*");
+            } else {
+                query.has(PropertyName.TITLE.toString(), Text.PREFIX, token);
+            }
         }
 
         return query;
