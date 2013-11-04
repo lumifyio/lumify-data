@@ -77,5 +77,6 @@ public class TranscriptTextWorkerTest {
         checkNotNull(result.getVideoTranscript());
         List<VideoTranscript.TimedText> entries = result.getVideoTranscript().getEntries();
         assertEquals(0, entries.size());
+        assertEquals("test.mp4", result.getTitle());
     }
 }
