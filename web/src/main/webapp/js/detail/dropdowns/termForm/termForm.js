@@ -210,7 +210,6 @@ define([
                 parameters = {
                     sign: newSign,
                     conceptId: this.select('conceptSelector').val(),
-                    model: this.attr.model,
                     graphVertexId: this.attr.graphVertexId,
                     artifactId: this.attr.artifactData.id,
                     coords: JSON.stringify({
@@ -270,7 +269,7 @@ define([
                         return;
                     } else {
                         $allDetectedObjectLabels.each(function(){
-                            if(parseFloat($(this).data("info").info.coords.x1) > data.info.coords.x1){
+                            if(parseFloat($(this).data("info").x1) > data.x1){
                                 $tag.removePrefixedClasses('subType-').addClass('subType-' + parameters.conceptId).parent().insertBefore($(this).parent()).after(' ');
                                 added = true;
                                 return false;

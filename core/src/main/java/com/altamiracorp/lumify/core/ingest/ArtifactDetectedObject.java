@@ -5,8 +5,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ArtifactDetectedObject {
-
-    private String model;
     private String concept;
     private String graphVertexId;
     private String rowKey;
@@ -55,14 +53,6 @@ public class ArtifactDetectedObject {
         this.y2 = y2;
     }
 
-    public String getModel() {
-        return model;
-    }
-
-    public void setModel(String model) {
-        this.model = model;
-    }
-
     public String getConcept() {
         return concept;
     }
@@ -95,24 +85,6 @@ public class ArtifactDetectedObject {
         this.resolvedVertex = resolvedVertex;
     }
 
-    public JSONObject getInfoJson() {
-        try {
-            JSONObject infoJson = new JSONObject();
-            infoJson.put("concept", getConcept());
-            infoJson.put("model", getModel());
-            infoJson.put("_rowKey", getRowKey());
-            JSONObject coordsJson = new JSONObject();
-            coordsJson.put("x1", getX1());
-            coordsJson.put("y1", getY1());
-            coordsJson.put("x2", getX2());
-            coordsJson.put("y2", getY2());
-            infoJson.put("coords", coordsJson);
-            return infoJson;
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public JSONObject getJson() {
         try {
             JSONObject json = new JSONObject();
@@ -124,7 +96,6 @@ public class ArtifactDetectedObject {
                 }
             }
             json.put("concept", getConcept());
-            json.put("model", getModel());
             json.put("_rowKey", getRowKey());
             json.put("x1", getX1());
             json.put("y1", getY1());

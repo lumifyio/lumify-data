@@ -39,7 +39,6 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
         final JSONObject coords = new JSONObject(getRequiredParameter(request, "coords"));
         String x1 = Double.toString(coords.getDouble("x1")), x2 = Double.toString(coords.getDouble("x2")),
                 y1 = Double.toString(coords.getDouble("y1")), y2 = Double.toString(coords.getDouble("y2"));
-        String model = getOptionalParameter(request, "model");
         String existing = getOptionalParameter(request, "existing");
         final String boundingBox = "[x1: " + x1 + ", y1: " + y1 + ", x2: " + x2 + ", y2: " + y2 + "]";
 
@@ -58,11 +57,6 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
         if (artifactVertex.getPropertyKeys().contains(PropertyName.DETECTED_OBJECTS.toString())) {
             detectedObjectList = new JSONArray(artifactVertex.getProperty(PropertyName.DETECTED_OBJECTS).toString());
         }
-
-        if (model == null) {
-            model = "manual";
-        }
-        newDetectedObject.setModel(model);
 
         JSONObject result = newDetectedObject.getJson();
         result.put("artifactId", artifactId);

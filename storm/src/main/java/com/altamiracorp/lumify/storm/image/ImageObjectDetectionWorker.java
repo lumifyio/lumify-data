@@ -42,7 +42,6 @@ public class ImageObjectDetectionWorker extends BaseImageWorker {
             objectDetector.setup(localFile.getPath());
             List<ArtifactDetectedObject> detectedObjects = objectDetector.detectObjects(image);
             for (ArtifactDetectedObject detectedObject : detectedObjects) {
-                detectedObject.setModel(objectDetector.getModelName());
                 detectedObject.setConcept(classifierFilePath.getKey());
                 detectedObjectsJson.put(detectedObject.getJson());
             }

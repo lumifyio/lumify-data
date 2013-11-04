@@ -196,7 +196,6 @@ define([
                         _subType: data.properties._subType,
                         _type: data.properties._type
                     };
-debugger;
                     $detectedObjectTag.parent().remove();
                     self.trigger('DetectedObjectLeave', $detectedObjectTag.data('info'));
 
@@ -265,7 +264,6 @@ debugger;
                 detectedObjectRowKey: dataInfo.info._rowKey,
                 graphVertexId: dataInfo.graphVertexId,
                 resolvedVertex: resolvedVertex,
-                model: dataInfo.info.model,
                 existing: existing,
                 detectedObject: true
             });
