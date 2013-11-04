@@ -86,6 +86,13 @@ define([
             this.videoTranscript = vertex.artifact.videoTranscript;
             this.videoDuration = vertex.artifact.videoDuration;
 
+            if (vertex.properties._detectedObjects) {
+                vertex.properties._detectedObjects = JSON.parse(vertex.properties._detectedObjects).sort(function(a, b){
+                    var aX = a.x1, bX = b.x1;
+                    return aX - bX;
+                });
+            }
+
             this.$node.html(template({
                 vertex: vertex,
                 highlightButton: this.highlightButton(),
@@ -152,6 +159,7 @@ define([
                 info = $target.closest('.label-info').data('info');
 
             $target.closest('.label-info').parent().addClass('focused');
+            info.existing = true;
             this.trigger('DetectedObjectEdit', info);
             this.showForm(info, this.attr.data, $target);
         };
@@ -159,7 +167,7 @@ define([
         this.onCoordsChanged = function(event, data) {
             var self = this,
                 vertex = appData.vertex(this.attr.data.id);
-            var detectedObject = $.extend(true, {}, _.find(JSON.parse(vertex.properties._detectedObjects), function(obj) {
+            var detectedObject = $.extend(true, {}, _.find(vertex.properties._detectedObjects, function(obj) {
                     return (obj && obj.graphVertexId) === data.id;
                 })),
                 width = parseFloat(data.x2)-parseFloat(data.x1),
@@ -255,11 +263,7 @@ define([
                 _subType: dataInfo._subType,
                 title: dataInfo.title
             };
-
-            var existing = false;
-            if (dataInfo.graphVertexId){
-                existing = true;
-            }
+debugger;
 
             TermForm.attachTo (root, {
                 artifactData: artifactInfo,
@@ -269,7 +273,7 @@ define([
                 y2: dataInfo.y2,
                 graphVertexId: dataInfo.graphVertexId,
                 resolvedVertex: resolvedVertex,
-                existing: existing,
+                existing: dataInfo.existing,
                 detectedObject: true
             });
         };

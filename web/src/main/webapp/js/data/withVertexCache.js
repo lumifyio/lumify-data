@@ -99,14 +99,6 @@ define([
                 artifact.videoDuration = artifact.Generic_Metadata.videoDuration;
             }
 
-            if (artifact['atc:Artifact_Detected_Objects']) {
-                // TODO: reference cached vertices
-                artifact.detectedObjects = artifact['atc:Artifact_Detected_Objects'].detectedObjects.sort(function(a, b){
-                    var aX = a.info.coords.x1, bX = b.info.coords.x1;
-                    return aX - bX;
-                });
-            } else artifact.detectedObjects = [];
-
             var cache = this.updateCacheWithVertex({
                 id: id,
                 properties: {
@@ -136,10 +128,6 @@ define([
             }
 
             $.extend(true, cache.artifact || (cache.artifact = {}), artifact);
-            if (cache.artifact.detectedObjects != artifact.detectedObjects) {
-                cache.artifact['atc:Artifact_Detected_Objects'] = artifact['atc:Artifact_Detected_Objects'];
-                cache.artifact.detectedObjects = artifact.detectedObjects;
-            }
             return cache;
         };
 
