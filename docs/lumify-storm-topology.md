@@ -35,7 +35,7 @@
 1. Create and publish data to required queue topics:
 `$ /opt/kafka-clear.sh`
 
-The required topics are: text, video, and image
+The required topics are: term, video, artifactHighlight, processedVideo, and structuredData
 
 ## Create the Ontology
 `$ bin/080_Ontology.sh`
