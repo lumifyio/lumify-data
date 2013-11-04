@@ -30,6 +30,7 @@ public class ImageTextExtractorWorkerTest {
         worker = new ImageTextExtractorWorker();
         worker.setImageOcrTextExtractor(extractor);
         data = new AdditionalArtifactWorkData();
+        data.setMimeType("image/png");
         data.setHdfsFileSystem(FileSystem.get(new Configuration()));
     }
 
@@ -44,7 +45,7 @@ public class ImageTextExtractorWorkerTest {
     public void testImageWithNoText() throws Exception {
         BufferedImage image = ImageIO.read(getClass().getResourceAsStream("test.png"));
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
-        when(extractor.extractFromImage(image)).thenReturn(info);
+        when(extractor.extractFromImage(image, "image/png")).thenReturn(info);
         ArtifactExtractedInfo result = worker.doWork(image, data);
         assertNull(result.getText());
     }
@@ -54,7 +55,7 @@ public class ImageTextExtractorWorkerTest {
         BufferedImage image = ImageIO.read(getClass().getResourceAsStream("test.png"));
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         info.setText("Test");
-        when(extractor.extractFromImage(image)).thenReturn(info);
+        when(extractor.extractFromImage(image, "image/png")).thenReturn(info);
         ArtifactExtractedInfo result = worker.doWork(image, data);
         assertEquals(info.getText(), result.getText());
         assertNull(result.getTextHdfsPath());
@@ -66,7 +67,7 @@ public class ImageTextExtractorWorkerTest {
         String hugeText = IOUtils.toString(getClass().getResourceAsStream("hugeString.txt"));
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         info.setText(hugeText);
-        when(extractor.extractFromImage(image)).thenReturn(info);
+        when(extractor.extractFromImage(image, "image/png")).thenReturn(info);
         ArtifactExtractedInfo result = worker.doWork(image, data);
         assertNull(info.getText());
         assertNotNull(result.getRawHdfsPath());

@@ -22,7 +22,7 @@ public class ImageTextExtractorWorker extends BaseImageWorker {
 
     @Override
     protected ArtifactExtractedInfo doWork(BufferedImage image, AdditionalArtifactWorkData data) throws Exception {
-        ArtifactExtractedInfo info = imageOcrTextExtractor.extractFromImage(image);
+        ArtifactExtractedInfo info = imageOcrTextExtractor.extractFromImage(image, data.getMimeType());
         if (info == null) {
             return null;
         }

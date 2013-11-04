@@ -15,7 +15,7 @@ import java.util.List;
 
 public class ImageOcrTextExtractor {
     private static final String NAME = "imageOCRExtractor";
-    private static final List<String> ICON_MIME_TYPES = Arrays.asList(new String[]{"image/x-icon", "image/vnd.microsoft.icon"});
+    private static final List<String> ICON_MIME_TYPES = Arrays.asList("image/x-icon", "image/vnd.microsoft.icon");
     private ArtifactRepository artifactRepository;
     private VideoFrameRepository videoFrameRepository;
     private Tesseract tesseract;
@@ -27,11 +27,10 @@ public class ImageOcrTextExtractor {
         tesseract = Tesseract.getInstance();
     }
 
-    public ArtifactExtractedInfo extractFromImage(BufferedImage image) throws Exception {
-//        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        if (isIcon(artifact)) {
-//            return null;
-//       }
+    public ArtifactExtractedInfo extractFromImage(BufferedImage image, String mimeType) throws Exception {
+       if (isIcon(mimeType)) {
+            return null;
+       }
         String ocrResults = extractTextFromImage(image);
         if (ocrResults == null) {
             return null;
@@ -41,8 +40,8 @@ public class ImageOcrTextExtractor {
         return extractedInfo;
     }
 
-    public VideoFrameExtractedInfo extractFromVideoFrame(BufferedImage videoFrame) throws Exception {
-        ArtifactExtractedInfo info = extractFromImage(videoFrame);
+    public VideoFrameExtractedInfo extractFromVideoFrame(BufferedImage videoFrame, String mimeType) throws Exception {
+        ArtifactExtractedInfo info = extractFromImage(videoFrame, mimeType);
         if (info == null) {
             return null;
         }
@@ -66,8 +65,7 @@ public class ImageOcrTextExtractor {
         return ocrResults;
     }
 
-    private boolean isIcon(Artifact artifact) {
-        throw new RuntimeException("storm refactor - not implemented"); // TODO storm refactor
-//        return ICON_MIME_TYPES.contains(artifact.getGenericMetadata().getMimeType());
+    private boolean isIcon(String mimeType) {
+        return ICON_MIME_TYPES.contains(mimeType);
     }
 }
