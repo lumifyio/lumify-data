@@ -317,6 +317,7 @@ define([
             if (this.regionLayer) {
                 this.mapReady(function(map) {
                     map.removeLayer(this.regionLayer);
+                    map.removeControl(this.modifyRegionControl);
                 });
             }
 
@@ -376,6 +377,7 @@ define([
                     map.addControl(modify);
                     modify.activate();
                     modify.selectFeature(circleFeature);
+                    self.modifyRegionControl = modify;
 
                     break;
 
@@ -384,7 +386,7 @@ define([
                     self.mode = MODE_REGION_SELECTION_MODE_LOADING;
 
                     var area = self.regionFeature.geometry.getArea();
-                    var radius = 0.565352 * Math.sqrt(area);
+                    var radius = 0.565352 * Math.sqrt(area) / 1000;
                     var lonlat = self.regionCenterPoint.transform(map.getProjectionObject(), new ol.Projection("EPSG:4326"));
 
                     self.$node.find('.instructions').remove();
