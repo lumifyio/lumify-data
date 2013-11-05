@@ -58,10 +58,12 @@ define([
             this.on(document, 'verticesAdded', this.onVerticesAdded);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
-            this.on(document, 'verticesDropped', this.onVerticesDropped);
             this.on(document, 'objectsSelected', this.onObjectsSelected);
 
-            this.updateOrAddVertices(appData.verticesInWorkspace(), { adding:true });
+            var verticesInWorkspace = appData.verticesInWorkspace();
+            if (verticesInWorkspace.length) {
+                this.updateOrAddVertices(verticesInWorkspace, { adding:true, preventShake:true });
+            }
         });
 
         this.onMapShow = function() {
@@ -90,7 +92,7 @@ define([
             });
         };
 
-        this.onVerticesAdded = this.onVerticesDropped = function(evt, data) {
+        this.onVerticesAdded = function(evt, data) {
             this.updateOrAddVertices(data.vertices, { adding:true });
         };
 
@@ -224,7 +226,9 @@ define([
 
         this.updateOrAddVertices = function(vertices, options) {
             var self = this,
-                adding = options && options.adding;
+                adding = options && options.adding,
+                preventShake = options && options.preventShake,
+                validAddition = false;
 
             this.mapReady(function(map) {
                 vertices.forEach(function(vertex) {
@@ -234,6 +238,7 @@ define([
                     if (inWorkspace || feature) {
                         var marker = self.findOrCreateMarker(map, vertex);
                         if (marker) {
+                            validAddition = true;
                             marker.data.inWorkspace = inWorkspace;
                         }
                     }
@@ -241,8 +246,12 @@ define([
 
                 map.featuresLayer.redraw();
 
-                if (adding && vertices.length) {
+                if (adding && vertices.length && validAddition) {
                     map.zoomToExtent(map.featuresLayer.getDataExtent()); 
+                }
+
+                if (adding && !validAddition && !preventShake) {
+                    this.invalidMap();
                 }
             });
 
