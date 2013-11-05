@@ -91,12 +91,14 @@ public class ElasticSearchProvider extends SearchProvider {
 
         // Only indexes resolved detected objects
         List<String> detectedObjectTitles = new ArrayList<String>();
-        JSONArray detectedObjects = new JSONArray (graphVertex.getProperty(PropertyName.DETECTED_OBJECTS));
-        for (int i = 0; i < detectedObjects.length(); i++ ){
-            JSONObject detectedObject = new JSONObject();
-            String title = detectedObject.has("title") ? (String) detectedObject.get("title") : null;
-            if (title != null) {
-                detectedObjectTitles.add("title");
+        if (graphVertex.getPropertyKeys().contains(PropertyName.DETECTED_OBJECTS)) {
+            JSONArray detectedObjects = new JSONArray (graphVertex.getProperty(PropertyName.DETECTED_OBJECTS));
+            for (int i = 0; i < detectedObjects.length(); i++ ){
+                JSONObject detectedObject = new JSONObject();
+                String title = detectedObject.has("title") ? (String) detectedObject.get("title") : null;
+                if (title != null) {
+                    detectedObjectTitles.add("title");
+                }
             }
         }
 
