@@ -55,7 +55,7 @@ public class ImageObjectDetectionWorkerTest {
         BufferedImage image = ImageIO.read(getClass().getResourceAsStream("test.png"));
         when(detector.detectObjects(image)).thenReturn(detectedObjects);
         ArtifactExtractedInfo result = worker.doWork(image, data);
-        assertEquals("[{\"info\":{\"concept\":\"face\",\"coords\":{\"y1\":\"\",\"y2\":\"\",\"x2\":\"\",\"x1\":\"\"}}}]",
+        assertEquals("[{\"concept\":\"face\",\"y1\":\"\",\"y2\":\"\",\"x2\":\"\",\"x1\":\"\"}]",
                 result.getDetectedObjects());
 
     }
