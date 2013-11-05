@@ -1,16 +1,16 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
+import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.LabelName;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
+import com.altamiracorp.lumify.core.user.User;
 import com.google.inject.Inject;
 
 public class EntityHelper {
@@ -57,14 +57,14 @@ public class EntityHelper {
     }
 
     public void scheduleHighlight(String artifactGraphVertexId, User user) {
-        this.workQueueRepository.pushArtifactHighlight(artifactGraphVertexId);
+        workQueueRepository.pushArtifactHighlight(artifactGraphVertexId);
     }
 
     public GraphVertex createGraphVertex(GraphVertex conceptVertex, String sign, String existing, String boundingBox,
                                           String artifactId, User user) {
         GraphVertex resolvedVertex;
         // If the user chose to use an existing resolved entity
-        if (existing != "" && existing != null) {
+        if( existing != null && !existing.isEmpty() ) {
             resolvedVertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, user);
         } else {
             resolvedVertex = new InMemoryGraphVertex();
