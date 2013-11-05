@@ -191,7 +191,7 @@ define([
 
             if (!feature) {
                 map.featuresLayer.features.forEach(function(f) {
-                    if (f.cluster) {
+                    if (!feature && f.cluster) {
                         feature = _.findWhere(f.cluster, { id:vertex.id });
                     }
                 });
@@ -447,9 +447,8 @@ define([
                 }),
                 base = new ol.Layer.Google("Google Streets", {
                     numZoomLevels: 20
-                });
-
-            var cluster = new ClusterStrategy({ 
+                }),
+                cluster = new ClusterStrategy({ 
                     distance: 45,
                     threshold: 2,
                     animationMethod: ol.Easing.Expo.easeOut,
@@ -480,12 +479,9 @@ define([
             selectFeature.activate();
             map.featuresLayer.events.on({
                 featureselected: function(featureEvents) {
-                    var vertices;
-                    if (featureEvents.feature.cluster) {
-                        vertices = _.map(featureEvents.feature.cluster, function(feature) {
+                    var vertices = _.map(featureEvents.feature.cluster || [featureEvents.feature], function(feature) {
                             return feature.data.vertex; 
                         });
-                    } else vertices = [featureEvents.feature.data.vertex];
                     self.trigger('selectObjects', {vertices:vertices});
                 }
             });
