@@ -134,14 +134,13 @@ define([
                 // TODO: move vertex deletion from graph to here
                 case $.ui.keyCode.BACKSPACE:
                 case $.ui.keyCode.DELETE:
-                    if (this.selectedEdges.length) {
-                        this.trigger('deleteEdges', { edges:this.selectedEdges });
-                    } else if (this.selectedVertices.length) {
-                        this.trigger('deleteVertices', { vertices: this.vertices(this.selectedVertices) });
+                    if (this.selectedVertices.length) {
+                        this.trigger('deleteVertices', { vertices: this.vertices(this.selectedVertices)})
+                    } else if (this.selectedEdges.length) {
+                        this.trigger('deleteEdges', { edges: this.selectedEdges});
                     }
                     event.preventDefault();
                     break;
-
                 case KEYS.A:
                     if (meta) {
                         this.trigger('selectObjects', { vertices:this.verticesInWorkspace() });
@@ -398,7 +397,6 @@ define([
 
         this.onDeleteVertices = function(evt, data) {
             var self = this;
-
             this.workspaceReady(function(ws) {
                 if (!ws.isEditable && !data.remoteEvent) return;
 
