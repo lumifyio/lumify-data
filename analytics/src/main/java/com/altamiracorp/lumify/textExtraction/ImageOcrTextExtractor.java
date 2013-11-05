@@ -1,9 +1,8 @@
 package com.altamiracorp.lumify.textExtraction;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
 import com.google.inject.Inject;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
@@ -16,21 +15,17 @@ import java.util.List;
 public class ImageOcrTextExtractor {
     private static final String NAME = "imageOCRExtractor";
     private static final List<String> ICON_MIME_TYPES = Arrays.asList("image/x-icon", "image/vnd.microsoft.icon");
-    private ArtifactRepository artifactRepository;
-    private VideoFrameRepository videoFrameRepository;
     private Tesseract tesseract;
 
     @Inject
-    public ImageOcrTextExtractor(ArtifactRepository artifactRepository, VideoFrameRepository videoFrameRepository) {
-        this.artifactRepository = artifactRepository;
-        this.videoFrameRepository = videoFrameRepository;
+    public ImageOcrTextExtractor() {
         tesseract = Tesseract.getInstance();
     }
 
     public ArtifactExtractedInfo extractFromImage(BufferedImage image, String mimeType) throws Exception {
-       if (isIcon(mimeType)) {
+        if (isIcon(mimeType)) {
             return null;
-       }
+        }
         String ocrResults = extractTextFromImage(image);
         if (ocrResults == null) {
             return null;

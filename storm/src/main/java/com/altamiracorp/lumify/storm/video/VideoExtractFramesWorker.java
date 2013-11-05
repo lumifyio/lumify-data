@@ -6,7 +6,6 @@ import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ProcessRunner;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
-import com.altamiracorp.lumify.textExtraction.ImageOcrTextExtractor;
 import com.google.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.Path;
