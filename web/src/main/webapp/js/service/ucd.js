@@ -59,18 +59,29 @@ function(ServiceBase) {
         return this._get("statement", statementRowKey);
     };
 
-    Ucd.prototype.artifactSearch = function(query, filters) {
+    Ucd.prototype.artifactSearch = function(query, filters, subType, paging) {
         if (typeof filters === 'function') {
             callback = filters;
             filters = [];
         }
 
+        var parameters = {
+            q: query.query || query,
+            filter: JSON.stringify(filters || [])
+        };
+
+        if (subType) {
+            parameters.subType = subType;
+        }
+
+        if (paging) {
+            if (paging.offset) parameters.offset = paging.offset;
+            if (paging.size) parameters.size = paging.size;
+        }
+
         return this._ajaxGet({
             url: 'artifact/search',
-            data: {
-                q: query.query || query,
-                filter: JSON.stringify(filters || [])
-            }
+            data: parameters
         });
     };
 

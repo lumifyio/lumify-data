@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.search;
 
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.search.ArtifactSearchPagedResults;
 import com.altamiracorp.lumify.model.search.ArtifactSearchResult;
 import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
@@ -167,6 +168,11 @@ public class BlurSearchProvider extends SearchProvider {
         mutation.setRecordMutations(recordMutations);
 
         client.mutate(mutation);
+    }
+
+    @Override
+    public ArtifactSearchPagedResults searchArtifacts(String query, User user, int from, int size, String subType) throws Exception {
+        return null;
     }
 
     @Override

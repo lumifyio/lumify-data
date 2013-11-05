@@ -1,6 +1,7 @@
 package com.altamiracorp.lumify.search;
 
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.model.search.ArtifactSearchPagedResults;
 import com.altamiracorp.lumify.model.search.ArtifactSearchResult;
 import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.altamiracorp.lumify.ucd.artifact.Artifact;
@@ -13,19 +14,27 @@ import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.index.query.FilterBuilder;
+import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
+import org.elasticsearch.search.facet.FacetBuilder;
+import org.elasticsearch.search.facet.FacetBuilders;
+import org.elasticsearch.search.facet.terms.TermsFacet;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -136,18 +145,48 @@ public class ElasticSearchProvider extends SearchProvider {
 
     @Override
     public Collection<ArtifactSearchResult> searchArtifacts(String query, User user) throws Exception {
-        SearchResponse response = client.prepareSearch(ES_INDEX)
+        Map<String, Collection<ArtifactSearchResult>> results = searchArtifacts(query, user, 0, ES_QUERY_MAX_SIZE, null).getResults();
+
+        List<ArtifactSearchResult> searchResults = new ArrayList<ArtifactSearchResult>();
+        for (Map.Entry<String, Collection<ArtifactSearchResult>> entry : results.entrySet()) {
+           searchResults.addAll(entry.getValue());
+        }
+
+        return searchResults;
+    }
+
+    @Override
+    public ArtifactSearchPagedResults searchArtifacts(String query, User user, int offset, int size, String subType) throws Exception {
+
+        SearchRequestBuilder requestBuilder = client.prepareSearch(ES_INDEX)
                 .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
                 .setTypes(ES_INDEX_TYPE)
                 .setQuery(new QueryStringQueryBuilder(query).defaultField("_all"))
-                .setFrom(0)
-                .setSize(ES_QUERY_MAX_SIZE)
-                .addFields(FIELD_SUBJECT, FIELD_GRAPH_VERTEX_ID, FIELD_SOURCE, FIELD_PUBLISHED_DATE, FIELD_ARTIFACT_TYPE, FIELD_DETECTED_OBJECTS)
-                .execute().actionGet();
+                .setFrom(offset)
+                .setSize(size)
+                .addFacet(FacetBuilders.termsFacet(FIELD_ARTIFACT_TYPE).field(FIELD_ARTIFACT_TYPE))
+                .addFields(FIELD_SUBJECT, FIELD_GRAPH_VERTEX_ID, FIELD_SOURCE, FIELD_PUBLISHED_DATE, FIELD_ARTIFACT_TYPE, FIELD_DETECTED_OBJECTS);
 
+        if (subType != null) {
+            requestBuilder.setFilter(FilterBuilders.inFilter(FIELD_ARTIFACT_TYPE, subType));
+        }
+
+        SearchResponse response = requestBuilder.execute().actionGet();
         SearchHit[] hits = response.getHits().getHits();
-        Collection<ArtifactSearchResult> results = new ArrayList<ArtifactSearchResult>(hits.length);
+
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        ArtifactSearchPagedResults pagedResults = new ArtifactSearchPagedResults();
+
+        TermsFacet facet = response.getFacets().facet(FIELD_ARTIFACT_TYPE);
+        for (TermsFacet.Entry entry : facet) {
+            String term = entry.getTerm().toString();
+
+            if (!pagedResults.getResults().containsKey(term)) {
+                pagedResults.getResults().put(term, new ArrayList<ArtifactSearchResult>(entry.getCount()));
+            }
+
+            pagedResults.getCount().put(term, entry.getCount());
+        }
 
         for (SearchHit hit : hits) {
             Map<String, SearchHitField> fields = hit.getFields();
@@ -158,10 +197,12 @@ public class ElasticSearchProvider extends SearchProvider {
             ArtifactType type = ArtifactType.valueOf(getString(fields, FIELD_ARTIFACT_TYPE).toUpperCase());
             Date publishedDate = dateFormat.parse(fields.get(FIELD_PUBLISHED_DATE).getValue().toString());
             ArtifactSearchResult result = new ArtifactSearchResult(id, subject, publishedDate, source, type, graphVertexId);
-            results.add(result);
+
+            pagedResults.getResults().get(getString(fields, FIELD_ARTIFACT_TYPE)).add(result);
         }
 
-        return results;
+
+        return pagedResults;
     }
 
     @Override

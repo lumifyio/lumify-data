@@ -12,6 +12,7 @@ define([
     'tpl!./conceptSections',
     'tpl!util/alert',
     'util/jquery.ui.draggable.multiselect',
+    'sf'
 ], function(
     defineComponent,
     registry,
@@ -23,10 +24,18 @@ define([
     template,
     conceptItemTemplate,
     conceptSectionsTemplate,
-    alertTemplate) {
+    alertTemplate,
+    multiselect,
+    sf) {
     'use strict';
 
     return defineComponent(Search);
+
+    function formatNumber(number) {
+        if (number >= 10000) {
+            return (number / 10000).toFixed(1).replace(/.0$/,'') + 'K';
+        } else return sf('{0:#,###}', number);
+    }
 
     function Search() {
         this.ucd = new UCD();
@@ -121,26 +130,31 @@ define([
                 this.updateConceptSections(concepts);
 
                 $.when(
-                    this.ucd.artifactSearch(query || this.select('querySelector').val(), this.filters),
+                    this.ucd.artifactSearch(query || this.select('querySelector').val(), this.filters, null, {offset:0,size:100}),
                     this.ucd.graphVertexSearch(query || this.select('querySelector').val(), this.filters)
                 ).done(function(artifactSearch, vertexSearch) {
                     var results = {
-                        artifact:{
-                            document: [],
-                            image: [],
-                            video: []
-                        },
+                        artifact: artifactSearch[0],
                         entity:{}
                     };
+
+                    'document video image'.split(' ').forEach(function(type) {
+                        if (!results.artifact[type]) results.artifact[type] = [];
+                        if (!results.artifact.counts[type]) results.artifact.counts[type] = 0;
+                    });
+
+                    var artifactCounts = artifactSearch[0].counts;
+                    delete results.artifact.counts;
 
                     var sortVerticesIntoResults = function(v) {
                         var props = v.properties,
                             type = props._type,
                             subType = props._subType;
 
+                        if (type === 'artifact') return;
+
                         if (!results[type]) results[type] = {};
                         if (!results[type][subType]) results[type][subType] = [];
-
 
                         // Check for an existing result with the same id
                         var resultFound = results[type][subType].some(function(result) { return result.id === v.id; });
@@ -152,13 +166,12 @@ define([
                     };
 
                     vertexSearch[0].vertices.forEach(sortVerticesIntoResults);
-                    artifactSearch[0].vertices.forEach(sortVerticesIntoResults);
                     self.searchResults = results;
 
                     Object.keys(results).forEach(function(type) {
                         if (type === 'artifact') {
                             Object.keys(results[type]).forEach(function(subType) {
-                                self.$node.find('.' + subType + ' .badge').removeClass('loading').text(results[type][subType].length);
+                                self.$node.find('.' + subType + ' .badge').removeClass('loading').text(formatNumber(artifactCounts[subType]));
                             });
                         }
                     });
@@ -199,7 +212,8 @@ define([
                 return this.close(evt);
             }
 
-            if (+$target.find('.badge').text() === 0) {
+            var count = +$target.find('.badge').text();
+            if (count === 0) {
                 return this.close(evt);
             }
 
@@ -211,7 +225,8 @@ define([
             var _subType = itemPath[1];
             this.trigger('showSearchResults', {
                 _type: _type,
-                _subType: _subType
+                _subType: _subType,
+                count: count
             });
         };
 
@@ -228,7 +243,11 @@ define([
 
             if (vertices.length) {
                 VertexList.attachTo($searchResults.find('.content'), {
-                    vertices: vertices
+                    vertices: vertices,
+                    infiniteScrolling: data._type === 'artifact',
+                    verticesType: data._type,
+                    verticesSubType: data._subType,
+                    total: data.count
                 });
                 this.makeResizable($searchResults);
                 $searchResults.show();
@@ -299,6 +318,7 @@ define([
             this.hideSearchResults();
 
             this.on('filterschange', this.onFiltersChange);
+            this.on('infiniteScrollRequest', this.onInfiniteScrollRequest);
 
             this.on(document,'search', this.doSearch);
             this.on(document,'showSearchResults', this.onShowSearchResults);
@@ -326,6 +346,31 @@ define([
                     this.select('filtersSelector').hide();
                     this.hideSearchResults();
                 }
+            }
+        };
+
+        this.onInfiniteScrollRequest = function(evt, data) {
+            var self = this;
+
+            if (data.verticesType === 'artifact') {
+                this.ucd.artifactSearch(
+                        this.select('querySelector').val(),
+                        this.filters,
+                        data.verticesSubType,
+                        data.paging
+                ).done(function(results) {
+
+                    var newVertices = results[data.verticesSubType];
+
+                    self.trigger(
+                        self.select('resultsSelector').find('.content'),
+                        'addInfiniteVertices', 
+                        { 
+                            vertices:newVertices,
+                            total:results.counts[data.verticesSubType]
+                        }
+                    );
+                });
             }
         };
 

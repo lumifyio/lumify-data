@@ -3,10 +3,12 @@ package com.altamiracorp.lumify.ucd.artifact;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.*;
 import com.altamiracorp.lumify.model.graph.GraphGeoLocation;
+import com.altamiracorp.lumify.model.graph.GraphPagedResults;
 import com.altamiracorp.lumify.model.graph.GraphVertex;
 import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.model.ontology.PropertyName;
 import com.altamiracorp.lumify.model.ontology.VertexType;
+import com.altamiracorp.lumify.model.search.ArtifactSearchPagedResults;
 import com.altamiracorp.lumify.model.search.ArtifactSearchResult;
 import com.altamiracorp.lumify.model.search.SearchProvider;
 import com.google.inject.Inject;
@@ -23,6 +25,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @Singleton
 public class ArtifactRepository extends Repository<Artifact> {
@@ -207,10 +210,26 @@ public class ArtifactRepository extends Repository<Artifact> {
         return artifact;
     }
 
-    public List<GraphVertex> search(String query, JSONArray filter, User user) throws Exception {
-        Collection<ArtifactSearchResult> artifactSearchResults = searchProvider.searchArtifacts(query, user);
-        List<String> artifactGraphVertexIds = getGraphVertexIds(artifactSearchResults);
-        return graphSession.searchVerticesWithinGraphVertexIds(artifactGraphVertexIds, filter, user);
+    public GraphPagedResults search(String query, JSONArray filter, User user, int page, int pageSize, String subType) throws Exception {
+        ArtifactSearchPagedResults artifactSearchResults;
+        GraphPagedResults pagedResults = new GraphPagedResults();
+
+        // Disable paging if filtering since we filter after results are retrieved
+        if (filter.length() > 0) {
+            page = 0;
+            pageSize = 100;
+        }
+
+        artifactSearchResults = searchProvider.searchArtifacts(query, user, page, pageSize, subType);
+
+        for (Map.Entry<String, Collection<ArtifactSearchResult>> entry : artifactSearchResults.getResults().entrySet()) {
+            List<String> artifactGraphVertexIds = getGraphVertexIds(entry.getValue());
+            List<GraphVertex> vertices = graphSession.searchVerticesWithinGraphVertexIds(artifactGraphVertexIds, filter, user);
+            pagedResults.getResults().put(entry.getKey(), vertices);
+            pagedResults.getCount().put(entry.getKey(), artifactSearchResults.getCount().get(entry.getKey()));
+        }
+
+        return pagedResults;
     }
 
     private List<String> getGraphVertexIds(Collection<ArtifactSearchResult> artifactSearchResults) {

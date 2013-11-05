@@ -2,4 +2,9 @@
   <% vertices.forEach(function(vertex) { %>
     <% include util/vertexList/item %>
   <% }); %>
+  <% if (infiniteScrolling) { %>
+    <li class="infinite-loading">
+      Loading...
+    </li>
+  <% } %>
 </ul>
