@@ -6,6 +6,8 @@ import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ProcessRunner;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import com.altamiracorp.lumify.textExtraction.ImageOcrTextExtractor;
+import com.google.inject.Inject;
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
@@ -23,6 +25,8 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoExtractFramesWorker.class);
 
     private static final Random random = new Random();
+
+    private VideoFrameTextExtractor videoFrameTextExtractor;
 
     @Override
     public void prepare(Map stormConf, User user) {
@@ -68,6 +72,7 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         info.setVideoDuration(videoDuration);
         info.setVideoFrames(videoFrames);
+        info.setText(videoFrameTextExtractor.extract(videoFrames, additionalArtifactWorkData).getText());
         return info;
     }
 
@@ -86,5 +91,10 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
         throw new IllegalStateException("Failed to create directory within "
                 + tempDirAttempts + " attempts (tried "
                 + baseName + "0 to " + baseName + (tempDirAttempts - 1) + ')');
+    }
+
+    @Inject
+    public void setVideoFrameTextExtractor(VideoFrameTextExtractor videoFrameTextExtractor) {
+        this.videoFrameTextExtractor = videoFrameTextExtractor;
     }
 }
