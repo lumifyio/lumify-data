@@ -4,10 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
@@ -26,6 +23,7 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +57,7 @@ public class ElasticSearchProvider extends SearchProvider {
 
     public ElasticSearchProvider (Configuration config, User user) {
         String[] esLocations = config.get(ES_LOCATIONS_PROP_KEY).split(",");
-        setup(esLocations,user);
+        setup(esLocations, user);
     }
 
     private void setup(String[] esLocations, User user) {
@@ -91,11 +89,16 @@ public class ElasticSearchProvider extends SearchProvider {
 
         LOGGER.info(String.format("Adding data from graph vertex (id: %s) to elastic search index", graphVertex.getId()));
 
-        // TODO storm refactor
-//        List<String> detectedObjects = new ArrayList<String>();
-//        if (artifact.getArtifactDetectedObjects() != null) {
-//            detectedObjects = artifact.getArtifactDetectedObjects().getResolvedDetectedObjects();
-//        }
+        // Only indexes resolved detected objects
+        List<String> detectedObjectTitles = new ArrayList<String>();
+        JSONArray detectedObjects = new JSONArray (graphVertex.getProperty(PropertyName.DETECTED_OBJECTS));
+        for (int i = 0; i < detectedObjects.length(); i++ ){
+            JSONObject detectedObject = new JSONObject();
+            String title = detectedObject.has("title") ? (String) detectedObject.get("title") : null;
+            if (title != null) {
+                detectedObjectTitles.add("title");
+            }
+        }
 
         String id = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
         String graphVertexId = graphVertex.getId();
@@ -125,10 +128,10 @@ public class ElasticSearchProvider extends SearchProvider {
         if (geoLocationDescription != null) {
             jsonBuilder = jsonBuilder.field(FIELD_GEO_LOCATION_DESCRIPTION, geoLocationDescription);
         }
-//
-//        if (!detectedObjects.isEmpty()) {
-//            jsonBuilder = jsonBuilder.array(FIELD_DETECTED_OBJECTS, detectedObjects.toArray());
-//        }
+
+        if (!detectedObjectTitles.isEmpty()) {
+            jsonBuilder = jsonBuilder.array(FIELD_DETECTED_OBJECTS, detectedObjectTitles.toArray());
+        }
 
         IndexResponse response = client.prepareIndex(ES_INDEX, ES_INDEX_TYPE, id)
                 .setSource(jsonBuilder.endObject())
