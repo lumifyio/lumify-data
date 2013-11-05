@@ -191,7 +191,6 @@ define([
             var self = this,
                 edge = data.edges[0];
 
-            debugger;
             this.ucdService.deleteEdge(
                 edge.properties.source,
                 edge.properties.target,
