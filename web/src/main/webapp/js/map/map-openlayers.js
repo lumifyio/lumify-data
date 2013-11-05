@@ -25,9 +25,7 @@ define([
     withContextMenu) {
     'use strict';
 
-    // TODO: persist location and zoom in workspace
-    var START_COORDINATES = [42.472, -71.147],
-        MODE_NORMAL = 0,
+    var MODE_NORMAL = 0,
         MODE_REGION_SELECTION_MODE_POINT = 1,
         MODE_REGION_SELECTION_MODE_RADIUS = 2,
         MODE_REGION_SELECTION_MODE_LOADING = 3;
@@ -243,7 +241,7 @@ define([
 
                 map.featuresLayer.redraw();
 
-                if (adding) {
+                if (adding && vertices.length) {
                     map.zoomToExtent(map.featuresLayer.getDataExtent()); 
                 }
             });
@@ -504,7 +502,7 @@ define([
             latLon = latLon.bind(null, map.displayProjection, map.getProjectionObject());
             point = point.bind(null, map.displayProjection, map.getProjectionObject());
 
-            map.setCenter(latLon(START_COORDINATES), 7);
+            map.zoomToMaxExtent();
 
             this.mapMarkReady(map);
         };
