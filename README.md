@@ -3,17 +3,6 @@ LUMIFY
 
 Lumify allows the analyst to create a graph structure of information from both structured, semi-structured, and unstructured data.  It is an open source big data analysis and knowledge discovery platform with a web-based UI for exploring.  Lumify has the ability to customize the ontology for your data and visualize the information via geo-location and both 2D and 3D graph visualizations. 
 
-
-Initial Setup
--------------
-This project contains git submodules. Please run the following commands after cloning the repository.
-
-```
-$ git submodule init
-$ git submodule update
-```
-
-
 Development Instructions
 ------------------------
 1. [Installation](https://github.com/nearinfinity/lumify/wiki/Development-Setup)
