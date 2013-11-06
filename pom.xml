@@ -12,7 +12,6 @@
     <name>Lumify</name>
 
     <properties>
-        <blur-version>0.2.0-incubating-SNAPSHOT</blur-version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <accumulo-version>1.4.3</accumulo-version>
@@ -348,10 +347,8 @@
         <module>model-titan</module>
         <module>model-kafka</module>
         <module>model-elasticSearch</module>
-        <module>model-blur</module>
         <module>analytics</module>
         <module>dictionary-seed</module>
-        <module>oozie</module>
         <module>web</module>
         <module>storm</module>
     </modules>
