@@ -1,0 +1,4 @@
+[subtree "puppet/puppet-modules"]
+	url = git@github.com:nearinfinity/puppet-modules.git
+	path = puppet/puppet-modules
+	branch = master
