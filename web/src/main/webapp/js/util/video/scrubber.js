@@ -24,6 +24,8 @@ define([
 
         this.defaultAttrs({
             allowPlayback: false,
+            backgroundPosterSelector: '.background-poster',
+            backgroundScrubberSelector: '.background-scrubber',
             scrubbingLineSelector: '.scrubbing-line',
             videoSelector: 'video'
         });
@@ -41,15 +43,11 @@ define([
 
             var css = {
                 backgroundSize: (width * NUMBER_FRAMES) + 'px auto',
-                backgroundRepeat: 'no-repeat',
                 backgroundPosition: (width * (index||0) * -1) + 'px center'
             };
 
-            if (this.showing !== FRAMES) {
-                css.backgroundImage = 'url(' + this.attr.videoPreviewImageUrl + ')';
-            }
-
-            this.$node.css(css);
+            this.select('backgroundScrubberSelector').css(css).show();
+            this.select('backgroundPosterSelector').hide();
             this.showing = FRAMES;
             this.currentFrame = index;
 
@@ -61,18 +59,9 @@ define([
 
         this.showPoster = function() {
             this.select('scrubbingLineSelector').hide();
+            this.select('backgroundScrubberSelector').hide();
+            this.select('backgroundPosterSelector').show();
 
-            var css = {
-                backgroundSize: '100%',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'left center'
-            };
-            
-            if ( this.showing !== POSTER ) {
-                css.backgroundImage = 'url(' + this.attr.posterFrameUrl + ')';
-            }
-
-            this.$node.css(css);
             this.showing = POSTER;
             this.currentFrame = -1;
 
@@ -135,10 +124,25 @@ define([
             this.$node.toggleClass('allowPlayback', this.attr.allowPlayback)
                       .html(template({}));
 
-            this.showPoster();
+            this.select('backgroundScrubberSelector').css({
+                width: '100%',
+                height: '100%',
+                position:'absolute',
+                backgroundRepeat: 'no-repeat',
+                backgroundImage: 'url(' + this.attr.videoPreviewImageUrl + ')'
+            });
 
-            var image = new Image();
-            image.src = this.attr.videoPreviewImageUrl;
+            this.select('backgroundPosterSelector').css({
+                width: '100%',
+                height: '100%',
+                position:'absolute',
+                backgroundSize: '100%',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'left center',
+                backgroundImage: 'url(' + this.attr.posterFrameUrl + ')'
+            });
+
+            this.showPoster();
 
             this.on('videoPlayerInitialized', function (e) {
                 self.off('mousemove');
@@ -150,16 +154,16 @@ define([
                 scrubbingLineSelector: function(e) { e.stopPropagation(); }
             });
             this.$node
-                .on('mousemove', function(e) {
-                    var target = $(e.target);
-                    if (target.is('.preview')) {
+                .on('mouseenter mousemove', function(e) {
+                    if ($(e.target).is('.scrubbing-play-button')) {
+                        e.stopPropagation();
+                        self.showPoster();
+                    } else {
                         var percent = e.offsetX / this.offsetWidth,
                             index = Math.round(percent * NUMBER_FRAMES);
 
                         self.scrubPercent = index / NUMBER_FRAMES;
                         self.showFrames(index);
-                    } else if (target.is('.scrubbing-play-button')) {
-                        self.showPoster();
                     }
                 })
                 .on('mouseleave', function(e) {
