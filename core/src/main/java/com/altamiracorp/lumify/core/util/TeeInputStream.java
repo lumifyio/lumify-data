@@ -153,7 +153,7 @@ public class TeeInputStream {
         synchronized (cyclicBufferLock) {
             MyInputStream teeWithLowestOffset = null;
             for (MyInputStream tee : tees) {
-                if (!tee.isClosed() && teeWithLowestOffset == null || tee.offset < teeWithLowestOffset.offset) {
+                if (!tee.isClosed() && (teeWithLowestOffset == null || tee.offset < teeWithLowestOffset.offset)) {
                     teeWithLowestOffset = tee;
                 }
             }
