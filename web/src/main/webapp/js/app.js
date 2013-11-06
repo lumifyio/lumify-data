@@ -54,6 +54,8 @@ define([
             this.on(document, 'syncStarted', this.onSyncStarted);
             this.on(document, 'paneResized', this.onInternalPaneResize);
             this.on(document, 'toggleGraphDimensions', this.onToggleGraphDimensions);
+            this.on(document, 'resizestart', this.onResizeStart);
+            this.on(document, 'resizestop', this.onResizeStop);
 
             // Prevent the fragment identifier from changing after an anchor
             // with href="#" not stopPropagation'ed
@@ -320,6 +322,20 @@ define([
                 }
             });
             this.triggerPaneResized();
+        };
+
+        this.onResizeStart = function() {
+            var wrapper = $('.draggable-wrapper');
+
+            // Prevent map from swallowing mousemove events by adding
+            // this transparent full screen div
+            if (wrapper.length === 0) {
+                wrapper = $('<div class="draggable-wrapper"/>').appendTo(document.body);
+            }
+        };
+
+        this.onResizeStop = function() {
+            $('.draggable-wrapper').remove();
         };
     }
 

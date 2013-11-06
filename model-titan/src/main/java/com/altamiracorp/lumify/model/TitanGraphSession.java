@@ -2,12 +2,12 @@ package com.altamiracorp.lumify.model;
 
 import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.model.GraphSession;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.*;
-import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
 import com.altamiracorp.lumify.core.model.graph.GraphRelationship;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.*;
+import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.index.utils.TitanGraphSearchIndexProviderUtil;
 import com.altamiracorp.lumify.model.query.utils.LuceneTokenizer;
 import com.google.common.base.Preconditions;
@@ -50,7 +50,7 @@ public class TitanGraphSession extends GraphSession {
         //load the storage specific configuration parameters
 
         for (String key : titanConfig.getKeys()) {
-            conf.setProperty(key,titanConfig.get(key));
+            conf.setProperty(key, titanConfig.get(key));
         }
         conf.setProperty("autotype", "none");
 
@@ -388,6 +388,10 @@ public class TitanGraphSession extends GraphSession {
         List<GraphVertex> vertices = Lists.newArrayList();
         final List<String> tokens = LuceneTokenizer.standardTokenize(title);
 
+        if (title.equals("*")) {
+            tokens.add("*");
+        }
+
         if (!tokens.isEmpty()) {
             final TitanGraphQuery query = generateTitleQuery(tokens);
 
@@ -435,7 +439,11 @@ public class TitanGraphSession extends GraphSession {
         final TitanGraphQuery query = graph.query();
 
         for (String token : titleTokens) {
-            query.has(PropertyName.TITLE.toString(), Text.PREFIX, token);
+            if (token.equals("*")) {
+                query.has(PropertyName.TITLE.toString(), Text.REGEXP, ".*");
+            } else {
+                query.has(PropertyName.TITLE.toString(), Text.PREFIX, token);
+            }
         }
 
         return query;

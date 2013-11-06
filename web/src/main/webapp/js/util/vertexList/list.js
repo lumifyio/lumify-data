@@ -4,10 +4,11 @@ define([
     'flight/lib/registry',
     'data',
     'tpl!./list',
+    'tpl!./item',
     'util/previews',
     'util/video/scrubber',
     'util/jquery.ui.draggable.multiselect'
-], function(defineComponent, registry, appData, template, previews, VideoScrubber) {
+], function(defineComponent, registry, appData, template, vertexTemplate, previews, VideoScrubber) {
     'use strict';
 
     return defineComponent(List);
@@ -15,7 +16,8 @@ define([
     function List() {
 
         this.defaultAttrs({
-            itemSelector: '.vertex-item'
+            itemSelector: '.vertex-item',
+            infiniteScrolling: false
         });
 
         this.stateForVertex = function(vertex) {
@@ -30,11 +32,11 @@ define([
             };
         };
 
-        this.after('initialize', function() {
+        this.classNameMapForVertices = function(vertices) {
             var self = this,
                 classNamesForVertex = {};
 
-            this.attr.vertices.forEach(function(v) {
+            vertices.forEach(function(v) {
 
                 // Check if this vertex is in the graph/map
                 var classes = ['gId' + encodeURIComponent(v.id)];
@@ -49,17 +51,28 @@ define([
                 classNamesForVertex[v.id] = classes.join(' ');
             });
 
+            return classNamesForVertex;
+        };
+
+        this.after('initialize', function() {
+            var self = this;
+
             this.$node
                 .addClass('vertex-list')
                 .html(template({ 
                     vertices:this.attr.vertices,
-                    classNamesForVertex: classNamesForVertex
+                    infiniteScrolling: this.attr.infiniteScrolling && this.attr.total !== this.attr.vertices.length,
+                    classNamesForVertex: this.classNameMapForVertices(this.attr.vertices)
                 }));
 
             this.attachEvents();
 
+
             this.loadVisibleResultPreviews = _.debounce(this.loadVisibleResultPreviews.bind(this), 1000);
             this.loadVisibleResultPreviews();
+
+            this.triggerInfiniteScrollRequest = _.debounce(this.triggerInfiniteScrollRequest.bind(this), 1000);
+            this.triggerInfiniteScrollRequest();
 
             this.setupDraggables();
 
@@ -88,6 +101,7 @@ define([
             this.on(document, 'switchWorkspace', this.onWorkspaceClear);
             this.on(document, 'workspaceDeleted', this.onWorkspaceClear);
             this.on(document, 'workspaceLoaded', this.onWorkspaceLoaded);
+            this.on('addInfiniteVertices', this.onAddInfiniteVertices);
         };
 
         this.setupDraggables = function() {
@@ -117,6 +131,61 @@ define([
             }
 
             this.loadVisibleResultPreviews();
+
+            if (this.attr.infiniteScrolling) {
+                this.triggerInfiniteScrollRequest();
+            }
+        };
+
+        this.triggerInfiniteScrollRequest = function() {
+            if (!this.attr.infiniteScrolling) return;
+
+            var node = this.$node,
+                scrollHeight = this.node.scrollHeight,
+                height = node.outerHeight(true),
+                noScrolling = height === scrollHeight,
+                infiniteScroll = noScrolling || 
+                    (node.scrollTop() + height) >= scrollHeight;
+
+            if (infiniteScroll) {
+                var data = _.pick(this.attr, 'verticesType', 'verticesSubType');
+                if (!this.offset) this.offset = this.attr.vertices.length;
+                data.paging = {
+                    offset: this.offset
+                };
+                this.trigger('infiniteScrollRequest', data);
+            }
+        };
+
+        this.onAddInfiniteVertices = function(evt, data) {
+            var loading = this.$node.find('.infinite-loading');
+
+            if (data.vertices.length === 0) {
+                loading.remove();
+                this.attr.infiniteScrolling = false;
+            } else {
+                this.offset += data.vertices.length;
+                var clsMap = this.classNameMapForVertices(data.vertices),
+                    added = data.vertices.map(function(vertex) {
+                        return vertexTemplate({
+                            vertex:vertex,
+                            classNamesForVertex: clsMap
+                        });
+                    });
+
+                var lastItem = loading.prev();
+
+                loading.before(added);
+
+                if (data.total === this.$node.find('.vertex-item').length) {
+                    loading.remove();
+                    this.attr.infiniteScrolling = false;
+                }
+
+                this.loadVisibleResultPreviews();
+
+                this.applyDraggable(this.$node.find('a'));
+            }
         };
 
         this.loadVisibleResultPreviews = function() {
@@ -135,6 +204,8 @@ define([
             lisVisible.each(function() {
                 var li = $(this),
                     vertex = appData.vertex(li.data('vertexId'));
+                
+                if (!vertex) return;
 
                 if ((vertex.properties._subType === 'video' || 
                      vertex.properties._subType === 'image' || 

@@ -25,9 +25,7 @@ define([
     withContextMenu) {
     'use strict';
 
-    // TODO: persist location and zoom in workspace
-    var START_COORDINATES = [42.472, -71.147],
-        MODE_NORMAL = 0,
+    var MODE_NORMAL = 0,
         MODE_REGION_SELECTION_MODE_POINT = 1,
         MODE_REGION_SELECTION_MODE_RADIUS = 2,
         MODE_REGION_SELECTION_MODE_LOADING = 3;
@@ -60,10 +58,12 @@ define([
             this.on(document, 'verticesAdded', this.onVerticesAdded);
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
             this.on(document, 'verticesDeleted', this.onVerticesDeleted);
-            this.on(document, 'verticesDropped', this.onVerticesDropped);
             this.on(document, 'objectsSelected', this.onObjectsSelected);
 
-            this.updateOrAddVertices(appData.verticesInWorkspace(), { adding:true });
+            var verticesInWorkspace = appData.verticesInWorkspace();
+            if (verticesInWorkspace.length) {
+                this.updateOrAddVertices(verticesInWorkspace, { adding:true, preventShake:true });
+            }
         });
 
         this.onMapShow = function() {
@@ -92,7 +92,7 @@ define([
             });
         };
 
-        this.onVerticesAdded = this.onVerticesDropped = function(evt, data) {
+        this.onVerticesAdded = function(evt, data) {
             this.updateOrAddVertices(data.vertices, { adding:true });
         };
 
@@ -191,7 +191,7 @@ define([
 
             if (!feature) {
                 map.featuresLayer.features.forEach(function(f) {
-                    if (f.cluster) {
+                    if (!feature && f.cluster) {
                         feature = _.findWhere(f.cluster, { id:vertex.id });
                     }
                 });
@@ -226,7 +226,9 @@ define([
 
         this.updateOrAddVertices = function(vertices, options) {
             var self = this,
-                adding = options && options.adding;
+                adding = options && options.adding,
+                preventShake = options && options.preventShake,
+                validAddition = false;
 
             this.mapReady(function(map) {
                 vertices.forEach(function(vertex) {
@@ -236,6 +238,7 @@ define([
                     if (inWorkspace || feature) {
                         var marker = self.findOrCreateMarker(map, vertex);
                         if (marker) {
+                            validAddition = true;
                             marker.data.inWorkspace = inWorkspace;
                         }
                     }
@@ -243,8 +246,12 @@ define([
 
                 map.featuresLayer.redraw();
 
-                if (adding) {
+                if (adding && vertices.length && validAddition) {
                     map.zoomToExtent(map.featuresLayer.getDataExtent()); 
+                }
+
+                if (adding && !validAddition && !preventShake) {
+                    this.invalidMap();
                 }
             });
 
@@ -317,6 +324,7 @@ define([
             if (this.regionLayer) {
                 this.mapReady(function(map) {
                     map.removeLayer(this.regionLayer);
+                    map.removeControl(this.modifyRegionControl);
                 });
             }
 
@@ -376,6 +384,7 @@ define([
                     map.addControl(modify);
                     modify.activate();
                     modify.selectFeature(circleFeature);
+                    self.modifyRegionControl = modify;
 
                     break;
 
@@ -384,7 +393,7 @@ define([
                     self.mode = MODE_REGION_SELECTION_MODE_LOADING;
 
                     var area = self.regionFeature.geometry.getArea();
-                    var radius = 0.565352 * Math.sqrt(area);
+                    var radius = 0.565352 * Math.sqrt(area) / 1000;
                     var lonlat = self.regionCenterPoint.transform(map.getProjectionObject(), new ol.Projection("EPSG:4326"));
 
                     self.$node.find('.instructions').remove();
@@ -447,9 +456,8 @@ define([
                 }),
                 base = new ol.Layer.Google("Google Streets", {
                     numZoomLevels: 20
-                });
-
-            var cluster = new ClusterStrategy({ 
+                }),
+                cluster = new ClusterStrategy({ 
                     distance: 45,
                     threshold: 2,
                     animationMethod: ol.Easing.Expo.easeOut,
@@ -480,12 +488,9 @@ define([
             selectFeature.activate();
             map.featuresLayer.events.on({
                 featureselected: function(featureEvents) {
-                    var vertices;
-                    if (featureEvents.feature.cluster) {
-                        vertices = _.map(featureEvents.feature.cluster, function(feature) {
+                    var vertices = _.map(featureEvents.feature.cluster || [featureEvents.feature], function(feature) {
                             return feature.data.vertex; 
                         });
-                    } else vertices = [featureEvents.feature.data.vertex];
                     self.trigger('selectObjects', {vertices:vertices});
                 }
             });
@@ -506,7 +511,7 @@ define([
             latLon = latLon.bind(null, map.displayProjection, map.getProjectionObject());
             point = point.bind(null, map.displayProjection, map.getProjectionObject());
 
-            map.setCenter(latLon(START_COORDINATES), 7);
+            map.zoomToMaxExtent();
 
             this.mapMarkReady(map);
         };

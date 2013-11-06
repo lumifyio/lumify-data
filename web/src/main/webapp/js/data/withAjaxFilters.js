@@ -16,11 +16,13 @@ define([], function() {
 
                 if (json.document && json.image && json.video) {
                     Object.keys(json).forEach(function(type) {
-                        json[type].forEach(function(artifact) {
-                            var cache = self.updateCacheWithArtifact(artifact, type);
-                            $.extend(true, json[type], cache);
-                            updated.push(cache);
-                        });
+                        if (type !== 'counts') {
+                            json[type].forEach(function(artifact) {
+                                var cache = self.updateCacheWithVertex(artifact);
+                                $.extend(true, json[type], cache);
+                                updated.push(cache);
+                            });
+                        }
                     });
 
                     return true;
@@ -150,7 +152,7 @@ define([], function() {
                             });
                         }
                     } catch(e) {
-                        console.error('Request failed in prefilter cache phase', e);
+                        console.error('Request failed in prefilter cache phase', e && e.message || e);
                     }
                     return json;
                 };

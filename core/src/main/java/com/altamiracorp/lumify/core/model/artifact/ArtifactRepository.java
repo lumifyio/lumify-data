@@ -8,16 +8,19 @@ import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.ingest.video.VideoPlaybackDetails;
 import com.altamiracorp.lumify.core.model.GraphSession;
 import com.altamiracorp.lumify.core.model.SaveFileResults;
+import com.altamiracorp.lumify.core.model.graph.GraphPagedResults;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
+import com.altamiracorp.lumify.core.model.search.ArtifactSearchPagedResults;
 import com.altamiracorp.lumify.core.model.search.ArtifactSearchResult;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.user.User;
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 
@@ -28,6 +31,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -129,11 +133,58 @@ public class ArtifactRepository extends Repository<Artifact> {
         return artifactVertex;
     }
 
-    public List<GraphVertex> search(String query, JSONArray filter, User user) throws Exception {
-        Collection<ArtifactSearchResult> artifactSearchResults = searchProvider.searchArtifacts(query, user);
-        List<String> artifactGraphVertexIds = getGraphVertexIds(artifactSearchResults);
-        return graphSession.searchVerticesWithinGraphVertexIds(artifactGraphVertexIds, filter, user);
+    public Artifact createArtifactFromInputStream(long size, InputStream in, String fileName, long fileTimestamp, User user) throws IOException {
+        Artifact artifact;
+
+        if (size > Artifact.MAX_SIZE_OF_INLINE_FILE) {
+            try {
+                SaveFileResults saveResults = saveFile(in, user);
+                artifact = new Artifact(saveResults.getRowKey());
+                artifact.getMetadata()
+                        .set(saveResults.getFullPath())
+                        .setFileSize(size);
+            } finally {
+                in.close();
+            }
+        } else {
+            artifact = new Artifact();
+            byte[] data = IOUtils.toByteArray(in);
+            artifact.getContent().setDocArtifactBytes(data);
+            artifact.getGenericMetadata().setFileSize((long) data.length);
+        }
+
+        artifact.getContent()
+                .setSecurity("U"); // TODO configurable?
+        artifact.getMetadata()
+                .setFileName(FilenameUtils.getBaseName(fileName))
+                .setFileExtension(FilenameUtils.getExtension(fileName))
+                .setFileTimestamp(fileTimestamp);
+
+        return artifact;
     }
+
+    public GraphPagedResults search(String query, JSONArray filter, User user, int page, int pageSize, String subType) throws Exception {
+        ArtifactSearchPagedResults artifactSearchResults;
+        GraphPagedResults pagedResults = new GraphPagedResults();
+
+        // Disable paging if filtering since we filter after results are retrieved
+        if (filter.length() > 0) {
+            page = 0;
+            pageSize = 100;
+        }
+
+        artifactSearchResults = searchProvider.searchArtifacts(query, user, page, pageSize, subType);
+
+        for (Map.Entry<String, Collection<ArtifactSearchResult>> entry : artifactSearchResults.getResults().entrySet()) {
+            List<String> artifactGraphVertexIds = getGraphVertexIds(entry.getValue());
+            List<GraphVertex> vertices = graphSession.searchVerticesWithinGraphVertexIds(artifactGraphVertexIds, filter, user);
+            pagedResults.getResults().put(entry.getKey(), vertices);
+            pagedResults.getCount().put(entry.getKey(), artifactSearchResults.getCount().get(entry.getKey()));
+        }
+
+        return pagedResults;
+    }
+
 
     private List<String> getGraphVertexIds(Collection<ArtifactSearchResult> artifactSearchResults) {
         ArrayList<String> results = new ArrayList<String>();
