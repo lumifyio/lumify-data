@@ -1,27 +1,25 @@
 package com.altamiracorp.lumify;
 
-import java.lang.reflect.Constructor;
-import java.util.Map;
-
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.bigtable.model.accumulo.AccumuloSession;
-import com.altamiracorp.lumify.core.fs.FileSystemSession;
-import com.altamiracorp.lumify.fs.hdfs.HdfsSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.contentTypeExtraction.TikaContentTypeExtractor;
 import com.altamiracorp.lumify.core.config.Configuration;
+import com.altamiracorp.lumify.core.fs.FileSystemSession;
 import com.altamiracorp.lumify.core.model.GraphSession;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.fs.hdfs.HdfsSession;
 import com.altamiracorp.lumify.model.KafkaWorkQueueRepository;
 import com.altamiracorp.lumify.model.TitanGraphSession;
 import com.altamiracorp.lumify.search.ElasticSearchProvider;
 import com.google.inject.AbstractModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
 
 public abstract class BootstrapBase extends AbstractModule {
     private static final Logger LOGGER = LoggerFactory.getLogger(BootstrapBase.class);
@@ -59,8 +57,10 @@ public abstract class BootstrapBase extends AbstractModule {
         Class modelProviderClass = null;
         try {
             modelProviderClass = config.getClass(Configuration.MODEL_PROVIDER, DEFAULT_MODEL_PROVIDER);
-            Constructor<ModelSession> modelSessionConstructor = modelProviderClass.getConstructor(Map.class);
-            return modelSessionConstructor.newInstance(config.toMap());
+            Constructor<ModelSession> modelSessionConstructor = modelProviderClass.getConstructor();
+            ModelSession modelSession = modelSessionConstructor.newInstance();
+            modelSession.init(config.toMap());
+            return modelSession;
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("The provided model provider " + modelProviderClass.getName() + " does not have the required constructor");
         } catch (Exception e) {
@@ -97,9 +97,9 @@ public abstract class BootstrapBase extends AbstractModule {
     private SearchProvider createSearchProvider(User user) {
         Class searchProviderClass = null;
         try {
-            searchProviderClass = config.getClass(Configuration.SEARCH_PROVIDER,DEFAULT_SEARCH_PROVIDER);
+            searchProviderClass = config.getClass(Configuration.SEARCH_PROVIDER, DEFAULT_SEARCH_PROVIDER);
             Constructor<SearchProvider> searchProviderConstructor = searchProviderClass.getConstructor(Configuration.class, User.class);
-            return searchProviderConstructor.newInstance(config,user);
+            return searchProviderConstructor.newInstance(config, user);
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException("The provided search provider " + searchProviderClass.getName() + " does not have the required constructor");
         } catch (Exception e) {
