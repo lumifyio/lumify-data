@@ -112,8 +112,8 @@ define([
         this.onCreateStatement = function (event) {
             var self = this,
                 parameters = {
-                    sourceGraphVertexId: this.attr.sourceTerm.data('info').graphVertexId,
-                    destGraphVertexId: this.attr.destTerm.data('info').graphVertexId,
+                    sourceGraphVertexId: this.attr.sourceTerm.data('info').graphVertexId || this.attr.sourceTerm.data('vertex-id'),
+                    destGraphVertexId: this.attr.destTerm.data('info').graphVertexId || this.attr.destTerm.data('vertex-id'),
                     predicateLabel: this.select('relationshipSelector').val()
                 };
 
