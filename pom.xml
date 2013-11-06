@@ -26,7 +26,8 @@
         <javadoc.stylesheetfile>conf/maven/javadoc/stylesheet.css</javadoc.stylesheetfile>
         <maven.build.timestamp.format>EEE MMM dd HH:mm z yyyy</maven.build.timestamp.format>
         <classpath-filename>${project.build.directory}/.classpath.${user.name}</classpath-filename>
-        <internal.project.repo>http://nic-mvnproxy.nearinfinity.com:8080/artifactory</internal.project.repo>
+        <!--<internal.project.repo>http://nic-mvnproxy.nearinfinity.com:8080/artifactory</internal.project.repo>-->
+        <internal.project.repo>http://74.91.19.143:8881/maven</internal.project.repo>
         <cluster.dependency.scope>compile</cluster.dependency.scope>
     </properties>
 
@@ -41,25 +42,24 @@
 
     <repositories>
         <repository>
-            <id>com.cloudera</id>
-            <url>https://repository.cloudera.com/content/repositories/releases/</url>
-        </repository>
-        <repository>
             <id>lumify-releases</id>
-            <url>${internal.project.repo}/libs-release/</url>
-        </repository>
-        <repository>
-            <id>clojars.org</id>
-            <url>http://clojars.org/repo</url>
+            <url>${internal.project.repo}</url>
         </repository>
         <repository>
             <snapshots>
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>
-                <checksumPolicy>fail</checksumPolicy>
             </snapshots>
             <id>lumify-snapshots</id>
-            <url>${internal.project.repo}/libs-snapshot/</url>
+            <url>${internal.project.repo}</url>
+        </repository>
+        <repository>
+            <id>com.cloudera</id>
+            <url>https://repository.cloudera.com/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>clojars.org</id>
+            <url>http://clojars.org/repo</url>
         </repository>
         <repository>
             <id>info-bliki-repository</id>
