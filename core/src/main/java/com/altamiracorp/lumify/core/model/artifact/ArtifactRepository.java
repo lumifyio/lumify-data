@@ -133,36 +133,6 @@ public class ArtifactRepository extends Repository<Artifact> {
         return artifactVertex;
     }
 
-    public Artifact createArtifactFromInputStream(long size, InputStream in, String fileName, long fileTimestamp, User user) throws IOException {
-        Artifact artifact;
-
-        if (size > Artifact.MAX_SIZE_OF_INLINE_FILE) {
-            try {
-                SaveFileResults saveResults = saveFile(in, user);
-                artifact = new Artifact(saveResults.getRowKey());
-                artifact.getMetadata()
-                        .set(saveResults.getFullPath())
-                        .setFileSize(size);
-            } finally {
-                in.close();
-            }
-        } else {
-            artifact = new Artifact();
-            byte[] data = IOUtils.toByteArray(in);
-            artifact.getContent().setDocArtifactBytes(data);
-            artifact.getGenericMetadata().setFileSize((long) data.length);
-        }
-
-        artifact.getContent()
-                .setSecurity("U"); // TODO configurable?
-        artifact.getMetadata()
-                .setFileName(FilenameUtils.getBaseName(fileName))
-                .setFileExtension(FilenameUtils.getExtension(fileName))
-                .setFileTimestamp(fileTimestamp);
-
-        return artifact;
-    }
-
     public GraphPagedResults search(String query, JSONArray filter, User user, int page, int pageSize, String subType) throws Exception {
         ArtifactSearchPagedResults artifactSearchResults;
         GraphPagedResults pagedResults = new GraphPagedResults();
