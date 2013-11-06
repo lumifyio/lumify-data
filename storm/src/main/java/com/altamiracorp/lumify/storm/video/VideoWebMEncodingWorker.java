@@ -55,6 +55,8 @@ public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<Artifa
         info.setWebMHdfsFilePath(out.getHdfsPath().toString());
         info.setArtifactType(ArtifactType.VIDEO.toString());
         info.setMimeType("video");
+        //todo previews:52 uses the mimetype to show the thumbnail - recogfigure this so that tarballs are properly shown here
+        //what we have here is hacky - pull from artifact type and remove line 57
 
         return info;
     }
