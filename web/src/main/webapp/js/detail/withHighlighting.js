@@ -86,12 +86,12 @@ define([
                 this.mouseDown = true;
             }
 
-            if (event.type === 'mouseup' || event.type === 'dblclick') {
-                this.handleSelectionChange();
-            } else if (event.type == 'click' && 
-                    $(event.target).closest('.opens-dropdown').length === 0 &&
-                    $(event.target).closest('.underneath').length === 0) {
-                this.tearDownDropdowns();
+            if ($(event.target).closest('.opens-dropdown').length === 0 && $(event.target).closest('.underneath').length === 0) {
+                if (event.type === 'mouseup' || event.type === 'dblclick') {
+                    this.handleSelectionChange();
+                } else if (event.type == 'click') {
+                    this.tearDownDropdowns();
+                }
             }
         };
 
