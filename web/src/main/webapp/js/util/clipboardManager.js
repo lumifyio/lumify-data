@@ -66,16 +66,18 @@ define([
                 var vertices = this._verticesInData(val);
 
                 if (vertices && vertices.length === 1)
-                    this.trigger('displayInformation', { message: '1 vertex copied' });
+                    this.trigger('displayInformation', { message: 'Copy vertex' });
                 if (vertices && vertices.length > 1)
-                    this.trigger('displayInformation', { message: vertices.length + ' vertices copied' });
+                    this.trigger('displayInformation', { message: 'Copy ' + vertices.length + ' vertices' });
                 else if (!vertices)
-                    this.trigger('displayInformation', { message: 'Data copied' });
+                    this.trigger('displayInformation', { message: 'Copy data' });
             }
         };
 
         this.onCut = function() {
-            console.debug('Clipboard: Cut', this.textarea.val());
+            var val = this.textarea.val();
+            console.debug('Clipboard: Cut', val);
+            this.trigger('clipboardCut', { data:val });
         };
 
         this._onClick = function(event) {
