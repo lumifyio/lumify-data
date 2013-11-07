@@ -4,7 +4,7 @@ import com.altamiracorp.bigtable.model.Row;
 import com.altamiracorp.bigtable.model.RowKey;
 
 public class Resource extends Row<ResourceRowKey> {
-    public static final String TABLE_NAME = "atc_Resource";
+    public static final String TABLE_NAME = "atc_resource";
 
     public Resource(ResourceRowKey rowKey) {
         super(TABLE_NAME, rowKey);

@@ -5,7 +5,7 @@ import com.altamiracorp.bigtable.model.RowKey;
 
 public class GeoNamePostalCode extends Row<GeoNamePostalCodeRowKey> {
 
-    public static final String TABLE_NAME = "atc_GeoNamePostalCode";
+    public static final String TABLE_NAME = "atc_geoNamePostalCode";
 
     public GeoNamePostalCode(GeoNamePostalCodeRowKey rowKey) {
         super(TABLE_NAME, rowKey);

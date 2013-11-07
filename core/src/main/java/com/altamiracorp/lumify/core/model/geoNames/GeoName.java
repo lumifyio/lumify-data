@@ -4,7 +4,7 @@ import com.altamiracorp.bigtable.model.Row;
 import com.altamiracorp.bigtable.model.RowKey;
 
 public class GeoName extends Row<GeoNameRowKey> {
-    public static final String TABLE_NAME = "atc_GeoName";
+    public static final String TABLE_NAME = "atc_geoName";
 
     public GeoName(GeoNameRowKey rowKey) {
         super(TABLE_NAME, rowKey);
