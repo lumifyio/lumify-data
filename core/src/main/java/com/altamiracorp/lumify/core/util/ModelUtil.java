@@ -3,7 +3,6 @@ package com.altamiracorp.lumify.core.util;
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnail;
-import com.altamiracorp.lumify.core.model.dbpedia.DBPedia;
 import com.altamiracorp.lumify.core.model.dictionary.DictionaryEntry;
 import com.altamiracorp.lumify.core.model.geoNames.GeoName;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameAdmin1Code;
@@ -19,13 +18,6 @@ import com.altamiracorp.lumify.core.user.User;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: rlanman
- * Date: 10/24/13
- * Time: 5:04 PM
- * To change this template use File | Settings | File Templates.
- */
 public class ModelUtil {
 
     private static final List<String> tables = Arrays.asList(
@@ -34,7 +26,6 @@ public class ModelUtil {
             Workspace.TABLE_NAME,
             TermMention.TABLE_NAME,
             VideoFrame.TABLE_NAME,
-            DBPedia.TABLE_NAME,
             Resource.TABLE_NAME,
             UserRow.TABLE_NAME,
             GeoName.TABLE_NAME,

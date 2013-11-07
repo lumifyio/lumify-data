@@ -4,7 +4,7 @@ import com.altamiracorp.bigtable.model.Row;
 import com.altamiracorp.bigtable.model.RowKey;
 
 public class GeoNameAdmin1Code extends Row<GeoNameAdmin1CodeRowKey> {
-    public static final String TABLE_NAME = "atc_GeoNameAdmin1Code";
+    public static final String TABLE_NAME = "atc_geoNameAdmin1Code";
 
     public GeoNameAdmin1Code(GeoNameAdmin1CodeRowKey rowKey) {
         super(TABLE_NAME, rowKey);

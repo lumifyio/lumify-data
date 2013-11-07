@@ -10,7 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Workspace extends Row<WorkspaceRowKey> {
-    public static final String TABLE_NAME = "atc_Workspace";
+    public static final String TABLE_NAME = "atc_workspace";
 
     public Workspace(WorkspaceRowKey rowKey) {
         super(TABLE_NAME, rowKey);
