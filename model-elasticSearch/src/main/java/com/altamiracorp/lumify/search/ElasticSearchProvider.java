@@ -51,7 +51,6 @@ public class ElasticSearchProvider extends SearchProvider {
     private static final String FIELD_PUBLISHED_DATE = "publishedDate";
     private static final String FIELD_GRAPH_VERTEX_ID = "graphVertexId";
     private static final String FIELD_SOURCE = "source";
-    private static final String FIELD_DETECTED_OBJECTS = "detectedObjects";
     private static final String FIELD_ARTIFACT_TYPE = "type";
     private static final String FIELD_GEO_LOCATION_DESCRIPTION = "geoLocationDescription";
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
@@ -93,19 +92,6 @@ public class ElasticSearchProvider extends SearchProvider {
 
         LOGGER.info(String.format("Adding data from graph vertex (id: %s) to elastic search index", graphVertex.getId()));
 
-        // Only indexes resolved detected objects
-        List<String> detectedObjectTitles = new ArrayList<String>();
-        if (graphVertex.getPropertyKeys().contains(PropertyName.DETECTED_OBJECTS)) {
-            JSONArray detectedObjects = new JSONArray(graphVertex.getProperty(PropertyName.DETECTED_OBJECTS));
-            for (int i = 0; i < detectedObjects.length(); i++) {
-                JSONObject detectedObject = new JSONObject();
-                String title = detectedObject.has("title") ? (String) detectedObject.get("title") : null;
-                if (title != null) {
-                    detectedObjectTitles.add("title");
-                }
-            }
-        }
-
         String id = (String) graphVertex.getProperty(PropertyName.ROW_KEY);
         String graphVertexId = graphVertex.getId();
         String source = (String) graphVertex.getProperty(PropertyName.SOURCE);
@@ -133,10 +119,6 @@ public class ElasticSearchProvider extends SearchProvider {
 
         if (geoLocationDescription != null) {
             jsonBuilder = jsonBuilder.field(FIELD_GEO_LOCATION_DESCRIPTION, geoLocationDescription);
-        }
-
-        if (!detectedObjectTitles.isEmpty()) {
-            jsonBuilder = jsonBuilder.array(FIELD_DETECTED_OBJECTS, detectedObjectTitles.toArray());
         }
 
         IndexResponse response = client.prepareIndex(ES_INDEX, ES_INDEX_TYPE, id)
@@ -170,7 +152,7 @@ public class ElasticSearchProvider extends SearchProvider {
                 .setFrom(offset)
                 .setSize(size)
                 .addFacet(FacetBuilders.termsFacet(FIELD_ARTIFACT_TYPE).field(FIELD_ARTIFACT_TYPE))
-                .addFields(FIELD_SUBJECT, FIELD_GRAPH_VERTEX_ID, FIELD_SOURCE, FIELD_PUBLISHED_DATE, FIELD_ARTIFACT_TYPE, FIELD_DETECTED_OBJECTS);
+                .addFields(FIELD_SUBJECT, FIELD_GRAPH_VERTEX_ID, FIELD_SOURCE, FIELD_PUBLISHED_DATE, FIELD_ARTIFACT_TYPE);
 
         if (subType != null) {
             requestBuilder.setFilter(FilterBuilders.inFilter(FIELD_ARTIFACT_TYPE, subType));
@@ -240,7 +222,6 @@ public class ElasticSearchProvider extends SearchProvider {
             properties.put(FIELD_SUBJECT, new JSONObject().put("type", "string").put("store", "yes"));
             properties.put(FIELD_GRAPH_VERTEX_ID, new JSONObject().put("type", "string").put("store", "yes"));
             properties.put(FIELD_SOURCE, new JSONObject().put("type", "string").put("store", "yes"));
-            properties.put(FIELD_DETECTED_OBJECTS, new JSONObject().put("type", "string").put("store", "yes"));
             properties.put(FIELD_ARTIFACT_TYPE, new JSONObject().put("type", "string").put("store", "yes"));
             properties.put(FIELD_PUBLISHED_DATE, new JSONObject().put("type", "date").put("store", "yes"));
             properties.put(FIELD_GEO_LOCATION_DESCRIPTION, new JSONObject().put("type", "string").put("store", "no"));
