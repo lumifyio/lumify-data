@@ -40,13 +40,22 @@ define([], function() {
             },
 
             function vertexProperties(json, updated) {
+                var updated;
                 if (_.isString(json.id) && _.isObject(json.properties)) {
                     var cache = this.updateCacheWithVertex(json);
                     $.extend(true, json, cache);
                     updated.push(cache);
 
-                    return true;
+                    updated = true;
                 }
+                if (_.isObject (json.updatedArtifactVertex)) {
+                    cache = this.updateCacheWithVertex(json.updatedArtifactVertex);
+                    $.extend(true, json.updatedArtifactVertex, cache);
+                    updated.push(cache);
+
+                    updated = true;
+                }
+                return updated;
             },
 
             function vertexRelationships(json, updated) {
