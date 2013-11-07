@@ -271,7 +271,7 @@ define([
                 y2: dataInfo.y2,
                 graphVertexId: dataInfo.graphVertexId,
                 resolvedVertex: resolvedVertex,
-                existing: dataInfo.existing,
+                existing: dataInfo.existing || dataInfo.graphVertexId ? true : false,
                 detectedObject: true
             });
         };
