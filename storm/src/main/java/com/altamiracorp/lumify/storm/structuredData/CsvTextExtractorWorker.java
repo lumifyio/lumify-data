@@ -57,7 +57,7 @@ public class CsvTextExtractorWorker
         checkNotNull(tempDir, "Structured data must be an archive file");
         checkState(tempDir.isDirectory(), "Archive temp directory not a directory");
         for (File f : tempDir.listFiles()) {
-            if (f.getName().endsWith(StructuredDataContentTypeSorter.MAPPING_JSON_FILE_NAME_SUFFIX)) {
+            if (f.getName().endsWith(StructuredDataContentTypeSorter.MAPPING_JSON_FILE_NAME_SUFFIX) && !f.getName().startsWith(".")) {
                 return new JSONObject(FileUtils.readFileToString(f));
             }
         }
