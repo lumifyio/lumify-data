@@ -22,7 +22,8 @@ define([
             propertyListSelector: '.property-list',
             addPropertySelector: '.add-property',
             buttonDivSelector: '.buttons',
-            configurationSelector: '.configuration'
+            configurationSelector: '.configuration',
+            propertyInputSelector: '.input-row input'
         });
 
         this.after('initialize', function () {
@@ -32,9 +33,13 @@ define([
             this.on('click', {
                 addPropertySelector: this.onAddPropertyClicked
             });
+            this.on('keyup', {
+                propertyInputSelector: this.onKeyup
+            });
 
             this.on('addPropertyError', this.onAddPropertyError);
             this.on('propertychange', this.onPropertyChange);
+            this.on('propertyinvalid', this.onPropertyInvalid);
             this.on('propertyselected', this.onPropertySelected);
 
             this.$node.html(template({}));
@@ -88,8 +93,11 @@ define([
                 this.currentValue = 'point(' + this.currentValue.latitude + ',' + this.currentValue.longitude + ')';
             }
 
-            this.select('addPropertySelector').html((previousValue ? 'Update' : 'Add') + ' Property')
-                .removeAttr('disabled');
+            var button = this.select('addPropertySelector');
+            button.html((previousValue ? 'Update' : 'Add') + ' Property');
+            if (previousValue) {
+                button.removeAttr('disabled');
+            }
 
             this.ontologyService.properties().done(function(properties) {
                 var propertyDetails = properties.byTitle[propertyName];
@@ -105,7 +113,17 @@ define([
             });
         };
 
+        this.onPropertyInvalid = function (event, data) {
+            event.stopPropagation();
+
+            this.invalid = true;
+            this.select('addPropertySelector').attr('disabled', true);
+        };
+
         this.onPropertyChange = function (event, data) {
+            this.invalid = false;
+            this.select('addPropertySelector').removeAttr('disabled');
+
             event.stopPropagation();
 
             if (data.values.length === 1) {
@@ -121,7 +139,15 @@ define([
             _.defer(this.clearLoading.bind(this));
         };
 
+        this.onKeyup = function(evt) {
+            if (evt.which === $.ui.keyCode.ENTER) {
+                this.onAddPropertyClicked();
+            }
+        };
+
         this.onAddPropertyClicked = function (evt) {
+            if (this.invalid) return;
+
             var vertexId = this.attr.data.id,
                 propertyName = this.currentProperty.title,
                 value = this.currentValue;

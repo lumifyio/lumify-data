@@ -24,14 +24,12 @@ define([
 
                     this.updateRangeVisibility();
 
-                    if (this.isValid()) {
-                        this.filterUpdated(
-                            this.getValues().map(function(v) {
-                                return makeNumber(v); 
-                            }),
-                            this.select('predicateSelector').val()
-                        );
-                    }
+                    this.filterUpdated(
+                        this.getValues().map(function(v) {
+                            return makeNumber(v); 
+                        }),
+                        this.select('predicateSelector').val()
+                    );
                 }
             });
         });
