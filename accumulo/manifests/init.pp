@@ -1,5 +1,5 @@
 class accumulo(
-  $version = "1.4.3",
+  $version = "1.5.0",
   $user = "accumulo",
   $group = "hadoop",
   $installdir = "/usr/lib",
@@ -19,7 +19,8 @@ class accumulo(
   $homelink = "${installdir}/accumulo"
   $configdir = "/etc/accumulo-${version}"
   $configlink = "/etc/accumulo"
-  $downloadpath = "${tmpdir}/accumulo-${version}-dist.tar.gz"
+  $downloadfile = "accumulo-${version}-bin.tar.gz"
+  $downloadpath = "${tmpdir}/${downloadfile}"
 
   if $interfaces =~ /eth1/ {
     $accumulo_host_address = $ipaddress_eth1
@@ -33,10 +34,10 @@ class accumulo(
     ensure  => "present",
     gid     => $group,
     home    => $configlink,
-    require => Package["hadoop-0.20"],
+    require => Package["hadoop.x86_64"],
   }
 
-  macro::download { "https://s3.amazonaws.com/RedDawn/accumulo-${version}-dist.tar.gz":
+  macro::download { "http://apache.mirrors.tds.net/accumulo/${version}/${downloadfile}":
     path    => $downloadpath,
     require => User[$user],
   } -> macro::extract { $downloadpath:

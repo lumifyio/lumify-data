@@ -1,6 +1,6 @@
 class hadoop::tasktracker inherits hadoop {
-  package { 'hadoop-0.20-tasktracker':
+  package { 'hadoop-0.20-mapreduce-tasktracker':
     ensure  => installed,
-    require => Package['hadoop-0.20'],
+    require => Package['hadoop.x86_64'],
   }
 }

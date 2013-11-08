@@ -1,6 +1,6 @@
 class hadoop::namenode inherits hadoop {
-  package { 'hadoop-0.20-namenode':
+  package { 'hadoop-hdfs-namenode':
     ensure  => installed,
-    require => Package['hadoop-0.20'],
+    require => Package['hadoop.x86_64'],
   }
 }
