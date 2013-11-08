@@ -34,6 +34,7 @@ function(compose, registry, advice, withLogging, debug, _, Visibility) {
     'use strict';
 
     $.fn.datepicker.defaults.format = "yyyy-mm-dd";
+    $.fn.datepicker.defaults.autoclose = true;
 
     debug.enable(true);
     DEBUG.events.logNone();
