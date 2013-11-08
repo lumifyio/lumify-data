@@ -16,12 +16,10 @@ import org.json.JSONObject;
 import java.util.*;
 
 public class EntityHighlighter {
-    private TermMentionRepository termRepository;
     private GraphRepository graphRepository;
 
     @Inject
-    public EntityHighlighter(TermMentionRepository termRepository, GraphRepository graphRepository) {
-        this.termRepository = termRepository;
+    public EntityHighlighter(GraphRepository graphRepository) {
         this.graphRepository = graphRepository;
     }
 
@@ -96,7 +94,7 @@ public class EntityHighlighter {
         }
         result.append(text.substring(lastStart - textStartOffset));
 
-        return result.toString();
+        return result.toString().replaceAll("\n", "<p>");
     }
 
     public List<OffsetItem> convertTermMentionsToOffsetItems(Collection<TermMention> termMentions, User user) {
