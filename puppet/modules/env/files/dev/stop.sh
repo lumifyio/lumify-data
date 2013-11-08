@@ -1,14 +1,14 @@
 #!/bin/bash 
 
 function hadoop {
-    for service in /etc/init.d/hadoop-0.20-*
+    for service in /etc/init.d/hadoop-*
     do
         sudo $service stop
     done
 }
 
 function zk {
-    sudo /sbin/service hadoop-zookeeper-server stop
+    sudo /sbin/service zookeeper-server stop
 }
 
 function accumulo {

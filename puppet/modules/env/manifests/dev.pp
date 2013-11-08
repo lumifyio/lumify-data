@@ -1,13 +1,16 @@
 class env::dev {
+  require buildtools
   include role::hadoop::pseudo
   include ::zookeeper
   include role::accumulo::pseudo
+
   include role::elasticsearch::pseudo
+
   include ::ffmpeg
   include ::ccextractor
   include ::tesseract
   include ::opencv
-  include role::oozie::pseudo
+  
   include ::kafka
   include role::storm::master
   include role::storm::supervisor
@@ -48,23 +51,6 @@ class env::dev {
     mode => 'u=rwx,g=,o=',
   }
 
-  file { '/opt/setup_oozie.sh' :
-    source => 'puppet:///modules/env/dev/setup_oozie.sh',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
-  }
-
-  file { '/opt/run_oozie_workflow.sh' :
-    source => 'puppet:///modules/env/dev/run_oozie_workflow.sh',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
-  }
-
-  file { '/opt/run_oozie_coordinator.sh' :
-    source => 'puppet:///modules/env/dev/run_oozie_coordinator.sh',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
-  }
 
   file { '/opt/storm-kill.sh' :
     source => 'puppet:///modules/env/dev/storm-kill.sh',

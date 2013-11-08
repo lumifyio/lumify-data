@@ -1,7 +1,7 @@
 class zookeeper {
-  package { 'hadoop-zookeeper-server':
+  package { 'zookeeper-server':
     ensure  => installed,
-    require => Package['hadoop-0.20'],
+    require => Package['hadoop.x86_64'],
   }
 
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')
@@ -13,16 +13,20 @@ class zookeeper {
   }
 
   file { 'hadoop-zookeeper-config':
-    path    => '/etc/zookeeper/zoo.cfg',
+    path    => '/etc/zookeeper/conf/zoo.cfg',
     ensure  => file,
     content => template('zookeeper/zoo.cfg.erb'),
-    require => Package['hadoop-zookeeper-server'],
+    require => Package['zookeeper-server'],
+  }
+
+  file { "/var/zookeeper":
+    ensure => "directory",
   }
 
   file { 'hadoop-zookeeper-myid':
     path    => '/var/zookeeper/myid',
     ensure  => file,
     content => template('zookeeper/myid.erb'),
-    require => Package['hadoop-zookeeper-server'],
+    require => Package['zookeeper-server'],
   }
 }
