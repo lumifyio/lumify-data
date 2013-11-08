@@ -476,6 +476,26 @@ define([
                 })
             });
 
+            map.featuresLayer.getDataExtent = function () {
+                var maxExtent = null;
+                var features = this.features;
+                if(features && (features.length > 0)) {
+                    var geometry = null;
+                    features.forEach(function(feature) {
+                        (feature.cluster || [feature]).forEach(function(f) {
+                            geometry = f.geometry;
+                            if (geometry) {
+                                if (maxExtent === null) {
+                                    maxExtent = new OpenLayers.Bounds();
+                                }
+                                maxExtent.extend(geometry.getBounds());
+                            }
+                        });
+                    });
+                }
+                return maxExtent;
+            };
+
             // Feature Clustering
             cluster.activate();
             this.clusterStrategy = cluster;
