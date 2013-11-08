@@ -129,8 +129,11 @@ function(ServiceBase) {
         });
     };
 
-    Ucd.prototype.getVertexRelationships = function(graphVertexId) {
-        return this._ajaxGet({ url: 'vertex/' + graphVertexId + '/relationships'});
+    Ucd.prototype.getVertexRelationships = function(graphVertexId, paging) {
+        return this._ajaxGet({
+            url: 'vertex/' + graphVertexId + '/relationships',
+            data: paging || {}
+        });
     };
 
     Ucd.prototype.getVertexProperties = function(graphVertexId) {

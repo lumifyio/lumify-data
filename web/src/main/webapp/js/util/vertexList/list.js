@@ -140,14 +140,13 @@ define([
         this.triggerInfiniteScrollRequest = function() {
             if (!this.attr.infiniteScrolling) return;
 
-            var node = this.$node,
-                scrollHeight = this.node.scrollHeight,
-                height = node.outerHeight(true),
-                noScrolling = height === scrollHeight,
-                infiniteScroll = noScrolling || 
-                    (node.scrollTop() + height) >= scrollHeight;
+            var loadingListElement = this.$node.find('.infinite-loading');
 
-            if (infiniteScroll) {
+            if (this.scrollNode.length) {
+                loadingListElement = loadingListElement.withinScrollable(this.scrollNode);
+            }
+
+            if (loadingListElement.length) {
                 var data = _.pick(this.attr, 'verticesType', 'verticesSubType');
                 if (!this.offset) this.offset = this.attr.vertices.length;
                 data.paging = {
@@ -180,6 +179,8 @@ define([
                 if (data.total === this.$node.find('.vertex-item').length) {
                     loading.remove();
                     this.attr.infiniteScrolling = false;
+                } else {
+                    this.triggerInfiniteScrollRequest();
                 }
 
                 this.loadVisibleResultPreviews();
