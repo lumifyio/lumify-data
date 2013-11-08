@@ -69,4 +69,10 @@ class env::dev {
     owner => 'vagrant',
     mode => 'u=rwx,g=,o=',
   }
+
+  file { '/etc/sysctl.conf' :
+    source => 'puppet:///modules/env/dev/sysctl.conf',
+    owner => 'root',
+    mode => 'u=rw,g=r,o=r',
+  }
 }

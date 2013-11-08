@@ -5,14 +5,14 @@ sudo rm -rf /var/zookeeper/version-2
 sudo rm -rf /data0/hdfs/name
 sudo rm -rf /data0/hdfs/data
 
-sudo -u hdfs /usr/lib/hadoop/bin/hadoop namenode -format
+sudo -u hdfs hdfs namenode -format
 
 for service in /etc/init.d/hadoop-*
 do
     sudo $service start || echo "Already started, maybe"
 done
 
-sudo -u hdfs /usr/lib/hadoop/bin/hadoop dfsadmin -safemode wait
+sudo -u hdfs hdfs dfsadmin -safemode wait
 
 sudo /sbin/service zookeeper-server start || echo "Already started, maybe"
 sudo -u accumulo /usr/lib/accumulo/bin/accumulo init

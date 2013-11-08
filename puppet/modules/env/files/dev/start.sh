@@ -4,9 +4,9 @@ function hadoop {
     echo "Starting hadoop..."
     for service in /etc/init.d/hadoop-*
     do
-        sudo ${service} status | grep -q running
+        sudo ${service} status | grep -q "is running"
         if [ $? -eq 1 ]; then
-            sudo ${service} start
+            sudo service `basename ${service}` start
         else
             echo "${service} already running"
 	fi
