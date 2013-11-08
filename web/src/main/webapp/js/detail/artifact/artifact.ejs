@@ -8,8 +8,8 @@
       <span class="caret"></span>
     </a>
     <ul class="dropdown-menu">
-      <li><a class="" href="/artifact/<%= vertex.properties._rowKey %>/raw" target="_blank">Open <%= vertex.properties._fileExtension %> <%= vertex.properties._subType %></a></li>
-      <li><a class="" href="/artifact/<%= vertex.properties._rowKey %>/raw?download=true" target="_blank">Download <%= vertex.properties._fileExtension %> <%= vertex.properties._subType %></a></li>
+      <li><a class="" href="/artifact/<%= vertex.properties._rowKey %>/raw" target="_blank">Open <%= vertex.artifact.Generic_Metadata.fileExtension %> <%= vertex.properties._subType %></a></li>
+      <li><a class="" href="/artifact/<%= vertex.properties._rowKey %>/raw?download=true" target="_blank">Download <%= vertex.artifact.Generic_Metadata.fileExtension %> <%= vertex.properties._subType %></a></li>
     </ul>
   </div>
 

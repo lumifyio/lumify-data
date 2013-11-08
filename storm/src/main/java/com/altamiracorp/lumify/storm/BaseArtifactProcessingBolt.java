@@ -103,6 +103,7 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
             archiveTempDir = extractArchive(fileMetadata);
             File primaryFile = getPrimaryFileFromArchive(archiveTempDir);
             in = getInputStream(primaryFile.getAbsolutePath(), artifactExtractedInfo);
+            fileMetadata.setMimeType(contentTypeExtractor.extract(new FileInputStream(primaryFile), FilenameUtils.getExtension(primaryFile.getAbsoluteFile().toString())));
         } else {
             in = getInputStream(fileMetadata.getFileName(), artifactExtractedInfo);
         }

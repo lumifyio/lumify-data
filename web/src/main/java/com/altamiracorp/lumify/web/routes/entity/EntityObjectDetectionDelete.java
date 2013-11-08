@@ -18,11 +18,14 @@ import java.util.Map;
 
 public class EntityObjectDetectionDelete extends BaseRequestHandler {
     private final GraphRepository graphRepository;
+    private final EntityHelper entityHelper;
 
     @Inject
     public EntityObjectDetectionDelete(
-            final GraphRepository graphRepository) {
+            final GraphRepository graphRepository,
+            final EntityHelper entityHelper) {
         this.graphRepository = graphRepository;
+        this.entityHelper = entityHelper;
     }
 
     @Override
@@ -32,7 +35,8 @@ public class EntityObjectDetectionDelete extends BaseRequestHandler {
 
         // Delete just the relationship if vertex has more than one relationship otherwise delete vertex
         String graphVertexId = jsonObject.getString("graphVertexId");
-        JSONObject obj = graphRepository.findVertex(graphVertexId, user).toJson();
+        JSONObject obj =  new JSONObject();
+        obj.put("entityVertex",graphRepository.findVertex(graphVertexId, user).toJson());
         Map<GraphRelationship, GraphVertex> relationships = graphRepository.getRelationships(graphVertexId, user);
         GraphVertex artifactVertex = graphRepository.findVertex(jsonObject.getString("artifactId"), user);
         if (relationships.size() > 1) {
@@ -59,6 +63,9 @@ public class EntityObjectDetectionDelete extends BaseRequestHandler {
         }
         artifactVertex.setProperty(PropertyName.DETECTED_OBJECTS, detectedObjects.toString());
         graphRepository.save(artifactVertex, user);
+
+        JSONObject updatedArtifactVertex = entityHelper.formatUpdatedArtifactVertexProperty(artifactVertex.getId(), PropertyName.DETECTED_OBJECTS.toString(), artifactVertex.getProperty(PropertyName.DETECTED_OBJECTS));
+        obj.put("updatedArtifactVertex", updatedArtifactVertex);
 
         //TODO: Overwrite old ElasticSearch index with new info
 

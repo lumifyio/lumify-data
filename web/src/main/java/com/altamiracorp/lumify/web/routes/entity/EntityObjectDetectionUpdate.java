@@ -63,10 +63,20 @@ public class EntityObjectDetectionUpdate extends BaseRequestHandler {
                     (detectedObject.get("x1").equals(x1) && detectedObject.get("y1").equals(y1) && detectedObject.get("x2").equals(x2)
                             && detectedObject.get("y2").equals(y2))) {
                 ArtifactDetectedObject tag = entityHelper.createObjectTag(x1, x2, y1, y2, resolvedVertex, conceptVertex);
-                detectedObjects.put(i, tag.getJson());
+
+                JSONObject result = new JSONObject();
+
+                JSONObject entityTag = tag.getJson();
+                entityTag.put("artifactId", artifactId);
+                detectedObjects.put(i, entityTag);
                 artifactVertex.setProperty(PropertyName.DETECTED_OBJECTS, detectedObjects.toString());
+                result.put("entityVertex", entityTag);
                 graphRepository.save(artifactVertex, user);
-                respondWithJson(response, tag.getJson());
+
+                JSONObject updatedArtifactVertex = entityHelper.formatUpdatedArtifactVertexProperty(artifactId, PropertyName.DETECTED_OBJECTS.toString(), artifactVertex.getProperty(PropertyName.DETECTED_OBJECTS));
+                result.put("updatedArtifactVertex", updatedArtifactVertex);
+
+                respondWithJson(response, result);
                 break;
             }
         }

@@ -20,9 +20,9 @@ define([
         DEFAULT = 2,
         useDefaultStyle = true;
 
-    return withHighlighting;
+    return WithHighlighting;
 
-    function withHighlighting() {
+    function WithHighlighting() {
         this.entityService = new EntityService();
         this.ontologyService = new OntologyService();
 
@@ -86,12 +86,12 @@ define([
                 this.mouseDown = true;
             }
 
-            if (event.type === 'mouseup' || event.type === 'dblclick') {
-                this.handleSelectionChange();
-            } else if (event.type == 'click' && 
-                    $(event.target).closest('.opens-dropdown').length === 0 &&
-                    $(event.target).closest('.underneath').length === 0) {
-                this.tearDownDropdowns();
+            if ($(event.target).closest('.opens-dropdown').length === 0 && $(event.target).closest('.underneath').length === 0) {
+                if (event.type === 'mouseup' || event.type === 'dblclick') {
+                    this.handleSelectionChange();
+                } else if (event.type == 'click') {
+                    this.tearDownDropdowns();
+                }
             }
         };
 
@@ -230,6 +230,8 @@ define([
                  $(selection.focusNode).parents('.underneath').length) {
                 return;
             }
+            
+            if ( $(selection.anchorNode).closest('.text').length === 0 ) return;
 
             // Ignore if mouse cursor still down
             if (this.mouseDown) {

@@ -81,6 +81,7 @@ define([
             this.on('refreshRelationships', this.refreshRelationships);
             this.on('selectObjects', this.onSelectObjects);
             this.on('clipboardPaste', this.onClipboardPaste);
+            this.on('clipboardCut', this.onClipboardCut);
             this.on('deleteEdges', this.onDeleteEdges);
 
             // Workspaces
@@ -343,24 +344,51 @@ define([
             });
         };
 
-        this.onClipboardPaste = function(evt, data) {
-            if (!data || !data.data) return;
-
-            var vertexUrlMatch = data.data.match(/#v=([0-9,]+)$/);
-            if (vertexUrlMatch) {
-                var self = this,
-                    vertexIds = vertexUrlMatch[1].split(',').filter(function(vId) {
-                        return !self.workspaceVertices[vId];
-                    }),
-                    len = vertexIds.length,
-                    plural = len === 1 ? 'vertex' : 'vertices';
-
-                if (len) {
-                    this.trigger('displayInformation', { message:'Pasting ' + vertexIds.length + ' ' + plural});
-                    this.vertexService.getMultiple(vertexIds).done(function(serverVertices) {
-                        self.trigger('addVertices', { vertices:serverVertices });
-                    });
+        this.getVerticesFromClipboardData = function(data) {
+            if (data) {
+                var vertexUrlMatch = data.match(/#v=([0-9,]+)$/);
+                if (vertexUrlMatch) {
+                    return vertexUrlMatch[1].split(',');
                 }
+            }
+
+            return [];
+        };
+
+        this.formatVertexAction = function(action, vertices) {
+            var len = vertices.length,
+                plural = len === 1 ? 'vertex' : 'vertices';
+            return (action + ' ' + len + ' ' + plural);
+        };
+
+        this.onClipboardCut = function(evt, data) {
+            var self = this,
+                vertexIds = this.getVerticesFromClipboardData(data.data).filter(function(vId) {
+                    // Only cut from those in workspace
+                    return self.workspaceVertices[vId];
+                }),
+                len = vertexIds.length;
+
+            if (len) {
+                this.trigger('deleteVertices', { vertices: this.vertices(vertexIds) });
+                this.trigger('displayInformation', { message:this.formatVertexAction('Cut', vertexIds)});
+            }
+        };
+
+        this.onClipboardPaste = function(evt, data) {
+            var self = this,
+                vertexIds = this.getVerticesFromClipboardData(data.data).filter(function(vId) {
+                    // Only allow paste from vertices not in workspace
+                    return !self.workspaceVertices[vId];
+                }),
+                len = vertexIds.length,
+                plural = len === 1 ? 'vertex' : 'vertices';
+
+            if (len) {
+                this.trigger('displayInformation', { message:this.formatVertexAction('Paste', vertexIds)});
+                this.vertexService.getMultiple(vertexIds).done(function(serverVertices) {
+                    self.trigger('addVertices', { vertices:serverVertices });
+                });
             }
         };
 

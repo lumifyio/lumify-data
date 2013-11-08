@@ -167,7 +167,8 @@ define([
         this.onCoordsChanged = function(event, data) {
             var self = this,
                 vertex = appData.vertex(this.attr.data.id);
-            var detectedObject = $.extend(true, {}, _.find(vertex.properties._detectedObjects, function(obj) {
+            var detectedObject = $.extend(true, {}, _.find( typeof vertex.properties._detectedObjects == 'string' ? JSON.parse(vertex.properties._detectedObjects)
+                : vertex.properties._detectedObjects, function(obj) {
                     return (obj && obj.graphVertexId) === data.id;
                 })),
                 width = parseFloat(data.x2)-parseFloat(data.x1),
@@ -203,9 +204,9 @@ define([
             this.entityService.deleteDetectedObject(info)
                 .done(function(data) {
                     var resolvedVertex = {
-                        id: data.id,
-                        _subType: data.properties._subType,
-                        _type: data.properties._type
+                        id: data.entityVertex.id,
+                        _subType: data.entityVertex.properties._subType,
+                        _type: data.entityVertex.properties._type
                     };
                     $detectedObjectTag.parent().remove();
                     self.trigger('DetectedObjectLeave', $detectedObjectTag.data('info'));
@@ -271,7 +272,7 @@ define([
                 y2: dataInfo.y2,
                 graphVertexId: dataInfo.graphVertexId,
                 resolvedVertex: resolvedVertex,
-                existing: dataInfo.existing,
+                existing: dataInfo.existing || dataInfo.graphVertexId ? true : false,
                 detectedObject: true
             });
         };
