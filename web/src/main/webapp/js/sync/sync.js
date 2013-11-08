@@ -95,7 +95,9 @@ define([
                 });
             }
 
-            this.syncService.publishWorkspaceSyncEvent(evt.type, this.currentWorkspaceRowKey, data);
+            if (evt.type === 'workspaceRemoteSave') {
+                this.syncService.publishWorkspaceMetadataSyncEvent(evt.type, this.currentWorkspaceRowKey, data);
+            } else this.syncService.publishWorkspaceSyncEvent(evt.type, this.currentWorkspaceRowKey, data);
         };
 
         this.onOnlineStatusChanged = function (evt, data) {

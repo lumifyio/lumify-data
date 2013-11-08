@@ -153,6 +153,7 @@ define([
                     }
 
                     if (self.currentUserRowKey != data.user.rowKey) {
+                        window.currentUser = data.user;
                         self.currentUserRowKey = data.user.rowKey;
                         self.trigger(document, 'onlineStatusChanged', data);
                     }
