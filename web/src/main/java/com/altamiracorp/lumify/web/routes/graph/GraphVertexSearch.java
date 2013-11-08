@@ -34,6 +34,9 @@ public class GraphVertexSearch extends BaseRequestHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         final String query = getRequiredParameter(request, "q");
         final String filter = getRequiredParameter(request, "filter");
+        final long offset = getOptionalParameterLong(request, "offset", 0);
+        final long size = getOptionalParameterLong(request, "size", 100);
+        final String subType = getOptionalParameter(request, "subType");
 
         User user = getUser(request);
         JSONArray filterJson = new JSONArray(filter);
@@ -41,11 +44,15 @@ public class GraphVertexSearch extends BaseRequestHandler {
         ontologyRepository.resolvePropertyIds(filterJson, user);
 
         graphRepository.commit();
+        // FIXME: pass offset/size/subType to vertex search
         List<GraphVertex> vertices = graphRepository.searchVerticesByTitle(query, filterJson, user);
         LOGGER.info("Number of vertices returned for query: " + vertices.size());
 
         JSONObject results = new JSONObject();
         results.put("vertices", GraphVertex.toJson(vertices));
+
+        // TODO: add verticesCount with count of all results (for pagination)
+        results.put("verticesCount", 0);
 
         respondWithJson(response, results);
     }

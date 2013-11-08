@@ -105,18 +105,26 @@ function(ServiceBase) {
         });
     };
 
-    Ucd.prototype.graphVertexSearch = function (query, filters) {
+    Ucd.prototype.graphVertexSearch = function (query, filters, subType, paging) {
         if (typeof filters === 'function') {
             callback = filters;
             filters = [];
         }
 
+        var data = {};
+
+        if (subType) data.subType = subType;
+        if (paging) {
+            if (paging.offset) data.offset = paging.offset;
+            if (paging.size) data.size = paging.size;
+        }
+
+        data.q = query.query || query;
+        data.filter = JSON.stringify(filters || []);
+
         return this._ajaxGet({ 
             url: 'graph/vertex/search',
-            data: {
-                q: query.query || query,
-                filter: JSON.stringify(filters || [])
-            }
+            data: data
         });
     };
 

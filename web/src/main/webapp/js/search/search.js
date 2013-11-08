@@ -129,9 +129,10 @@ define([
             this.ontologyService.concepts(function(err, concepts) {
                 this.updateConceptSections(concepts);
 
+                var paging = { offset:0, size:100 };
                 $.when(
-                    this.ucd.artifactSearch(query || this.select('querySelector').val(), this.filters, null, {offset:0,size:100}),
-                    this.ucd.graphVertexSearch(query || this.select('querySelector').val(), this.filters)
+                    this.ucd.artifactSearch(query || this.select('querySelector').val(), this.filters, null, paging),
+                    this.ucd.graphVertexSearch(query || this.select('querySelector').val(), this.filters, null, paging)
                 ).done(function(artifactSearch, vertexSearch) {
                     var results = {
                         artifact: artifactSearch[0],
@@ -349,11 +350,12 @@ define([
         };
 
         this.onInfiniteScrollRequest = function(evt, data) {
-            var self = this;
+            var self = this,
+                query = this.select('querySelector').val();
 
             if (data.verticesType === 'artifact') {
                 this.ucd.artifactSearch(
-                        this.select('querySelector').val(),
+                        query,
                         this.filters,
                         data.verticesSubType,
                         data.paging
@@ -367,6 +369,23 @@ define([
                         { 
                             vertices:newVertices,
                             total:results.counts[data.verticesSubType]
+                        }
+                    );
+                });
+            } else {
+                this.ucd.graphVertexSearch(
+                        query,
+                        this.filters,
+                        data.verticesSubType,
+                        data.paging
+                ).done(function(results) {
+
+                    self.trigger(
+                        self.select('resultsSelector').find('.content'),
+                        'addInfiniteVertices', 
+                        { 
+                            vertices: results.vertices,
+                            total: results.verticesCount
                         }
                     );
                 });
