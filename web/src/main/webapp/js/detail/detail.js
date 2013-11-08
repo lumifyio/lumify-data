@@ -22,7 +22,6 @@ define([
             });
 
             this.on(document, 'objectsSelected', this.onObjectsSelected);
-            this.on('selectObjects', this.onSelectObjectsWithinContents);
             this.preventDropEventsFromPropagating();
 
             this.before('teardown',this.teardownComponents);
@@ -47,12 +46,6 @@ define([
                 longitude: $target.data('longitude')
             };
             this.trigger('mapCenter', data);
-        };
-
-        this.onSelectObjectsWithinContents = function(evt, data) {
-            evt.stopPropagation();
-            var vertices = data && data.vertices || { vertices:[] };
-            this.onObjectsSelected(evt, { vertices:vertices, edges:[] });
         };
 
         this.onObjectsSelected = function(evt, data) {
