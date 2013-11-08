@@ -25,17 +25,33 @@ public class VertexRelationships extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         User user = getUser(request);
+        String graphVertexId = (String) request.getAttribute("graphVertexId");
+        long offset = getOptionalParameterLong(request, "offset", 0);
+        long size = getOptionalParameterLong(request, "size", 25);
 
-        Map<GraphRelationship, GraphVertex> relationships = graphRepository.getRelationships((String) request.getAttribute("graphVertexId"), user);
+        Map<GraphRelationship, GraphVertex> relationships = graphRepository.getRelationships(graphVertexId, user);
 
         JSONObject json = new JSONObject();
         JSONArray relationshipsJson = new JSONArray();
+        long referencesAdded = 0, skipped = 0, totalReferences = 0;
         for (Map.Entry<GraphRelationship, GraphVertex> relationship : relationships.entrySet()) {
+            if (relationship.getKey().getLabel().equals("hasEntity")) {
+                totalReferences++;
+                if (referencesAdded >= size) continue;
+                if (skipped < offset) {
+                    skipped++;
+                    continue;
+                }
+
+                referencesAdded++;
+            }
+
             JSONObject relationshipJson = new JSONObject();
             relationshipJson.put("relationship", relationship.getKey().toJson());
             relationshipJson.put("vertex", relationship.getValue().toJson());
             relationshipsJson.put(relationshipJson);
         }
+        json.put("totalReferences", totalReferences);
         json.put("relationships", relationshipsJson);
 
         respondWithJson(response, json);
