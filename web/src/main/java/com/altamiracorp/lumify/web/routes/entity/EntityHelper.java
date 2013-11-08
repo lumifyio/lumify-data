@@ -12,6 +12,7 @@ import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.core.user.User;
 import com.google.inject.Inject;
+import org.json.JSONObject;
 
 public class EntityHelper {
     private final GraphRepository graphRepository;
@@ -80,5 +81,18 @@ public class EntityHelper {
         graphRepository.setPropertyEdge(artifactId, resolvedVertex.getId(), LabelName.CONTAINS_IMAGE_OF.toString()
                 , PropertyName.BOUNDING_BOX.toString(), boundingBox, user);
         return resolvedVertex;
+    }
+
+    public JSONObject formatUpdatedArtifactVertexProperty (String id, String propertyKey, Object propertyValue) {
+        // puts the updated artifact vertex property in the correct JSON format
+
+        JSONObject artifactVertexProperty = new JSONObject();
+        artifactVertexProperty.put("id", id);
+
+        JSONObject properties = new JSONObject();
+        properties.put(propertyKey, propertyValue);
+
+        artifactVertexProperty.put("properties", properties);
+        return artifactVertexProperty;
     }
 }

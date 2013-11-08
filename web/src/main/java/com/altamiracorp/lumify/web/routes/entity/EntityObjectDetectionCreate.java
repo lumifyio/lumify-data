@@ -54,11 +54,19 @@ public class EntityObjectDetectionCreate extends BaseRequestHandler {
             detectedObjectList = new JSONArray(artifactVertex.getProperty(PropertyName.DETECTED_OBJECTS).toString());
         }
 
-        JSONObject result = newDetectedObject.getJson();
-        result.put("artifactId", artifactId);
-        detectedObjectList.put(result);
+        JSONObject result = new JSONObject();
+
+        JSONObject entityVertex = newDetectedObject.getJson();
+        entityVertex.put("artifactId", artifactId);
+        detectedObjectList.put(entityVertex);
         artifactVertex.setProperty(PropertyName.DETECTED_OBJECTS, detectedObjectList.toString());
         graphRepository.saveVertex(resolvedVertex, user);
+        result.put("entityVertex", entityVertex);
+
+        JSONObject updatedArtifactVertex =
+                entityHelper.formatUpdatedArtifactVertexProperty(artifactId, PropertyName.DETECTED_OBJECTS.toString(), artifactVertex.getProperty(PropertyName.DETECTED_OBJECTS));
+
+        result.put("updatedArtifactVertex", updatedArtifactVertex);
 
         // TODO: index the new vertex
 
