@@ -19,24 +19,34 @@ define([], function() {
         this.filterUpdated = function(values, predicate) {
             values = $.isArray(values) ? values : [values];
 
-            if (
-                (!this._previousValues || 
-                    (this._previousValues && !_.isEqual(this._previousValues, values))) ||
+            if (!_.isFunction(this.isValid) || this.isValid()) {
 
-                (!this._previousPredicate || 
-                     (this._previousPredicate && !_.isEqual(this._previousPredicate, predicate)))
-            ) {
+                if (
+                    (!this._previousValues || 
+                        (this._previousValues && !_.isEqual(this._previousValues, values))) ||
 
-                this.trigger('propertychange', {
+                    (!this._previousPredicate || 
+                         (this._previousPredicate && !_.isEqual(this._previousPredicate, predicate)))
+                ) {
+
+                    this.trigger('propertychange', {
+                        id: this.attr.id,
+                        propertyId: this.attr.property.id,
+                        values: values,
+                        predicate: predicate
+                    });
+                }
+
+                this._previousValues = values;
+                this._previousPredicate = predicate;
+                this._markedInvalid = false;
+            } else if (!this._markedInvalid) {
+                this._markedInvalid = true;
+                this.trigger('propertyinvalid', {
                     id: this.attr.id,
-                    propertyId: this.attr.property.id,
-                    values: values,
-                    predicate: predicate
+                    propertyId: this.attr.property.id
                 });
             }
-
-            this._previousValues = values;
-            this._previousPredicate = predicate;
         };
 
         this.getValues = function() {

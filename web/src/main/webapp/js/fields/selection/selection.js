@@ -83,7 +83,6 @@ define([
                            _.findWhere(this.attr.properties, { title:name });
 
             if (property) {
-                console.log('setting current property');
                 this.currentProperty = property;
                 this.trigger('propertyselected', { property:property });
                 _.defer(function() {
