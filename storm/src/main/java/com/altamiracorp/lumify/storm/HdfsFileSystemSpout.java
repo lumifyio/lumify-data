@@ -90,7 +90,7 @@ public class HdfsFileSystemSpout extends BaseFileSystemSpout {
         FileStatus[] files = hdfsFileSystem.listStatus(path);
         for (FileStatus file : files) {
             Path filePath = file.getPath();
-            if (file.isDir()) {
+            if (file.isDirectory()) {
                 if (processPath(filePath)) {
                     return true;
                 }
