@@ -15,11 +15,12 @@ sudo rm -rf /data0/hdfs/data
 
 sudo -u hdfs hdfs namenode -format
 
-for service in /etc/init.d/hadoop-*; do
-    if sudo ${service} status | grep -q "is running"; then
+for service in /etc/init.d/hadoop-*
+do
+    if sudo service `basename ${service}` status | grep -q "is not running"; then
         sudo service `basename ${service}` start
     else
-        echo "${service} already running"
+        echo "`basename ${service}` already running"
     fi
 done
 
