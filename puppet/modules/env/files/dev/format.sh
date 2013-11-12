@@ -9,20 +9,15 @@ sudo mkdir -p /var/lib/zookeeper
 sudo chown zookeeper:zookeeper /var/lib/zookeeper
 sudo service zookeeper-server init --myid=${ZOOKEEPER_ID} --force
 
+/opt/stop.sh hadoop
+
 sudo rm -rf /var/lib/hadoop-hdfs/cache/*
 sudo rm -rf /data0/hdfs/name
 sudo rm -rf /data0/hdfs/data
 
 sudo -u hdfs hdfs namenode -format
 
-for service in /etc/init.d/hadoop-*
-do
-    if sudo service `basename ${service}` status | grep -q "is not running"; then
-        sudo service `basename ${service}` start
-    else
-        echo "`basename ${service}` already running"
-    fi
-done
+/opt/start.sh hadoop
 
 sudo -u hdfs hdfs dfsadmin -safemode wait
 
@@ -34,9 +29,9 @@ for service in /etc/init.d/hadoop-*; do
     sudo $service stop
 done
 
-sudo initctl start elasticsearch
+/opt/start.sh elasticsearch
 until curl -XDELETE "http://localhost:9200/_all"; do
 	echo "Cannot connect to Elasticsearch, waiting 2 seconds before trying again"
 	sleep 2
 done
-sudo initctl stop elasticsearch
+/opt/stop.sh elasticsearch

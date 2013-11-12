@@ -4,7 +4,7 @@ function hadoop {
     echo "Starting hadoop..."
     for service in /etc/init.d/hadoop-*
     do
-        if sudo service `basename ${service}` status | grep -q "is not running"; then
+        if sudo service `basename ${service}` status | grep -q -v "is running"; then
             sudo service `basename ${service}` start
         else
             echo "`basename ${service}` already running"
@@ -14,7 +14,7 @@ function hadoop {
 
 function zk {
     echo "Starting zookeeper..."
-    if sudo service zookeeper-server status | grep -q "is not running"; then
+    if sudo service zookeeper-server status | grep -q -v "is running"; then
         sudo service zookeeper-server start
     else
         echo "zookeeper already running"
