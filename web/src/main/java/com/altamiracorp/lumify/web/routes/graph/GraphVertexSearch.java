@@ -51,11 +51,14 @@ public class GraphVertexSearch extends BaseRequestHandler {
 
         JSONArray vertices = new JSONArray();
         JSONObject counts = new JSONObject();
+        int verticesCount = 0;
         for (Map.Entry<String, List<GraphVertex>> entry : pagedResults.getResults().entrySet()) {
             vertices.put(GraphVertex.toJson(entry.getValue()));
-            counts.put(entry.getKey(), pagedResults.getCount().get(entry.getKey()));
+            Integer count = pagedResults.getCount().get(entry.getKey());
+            verticesCount += count.intValue();
+            counts.put(entry.getKey(), count);
         }
-        LOGGER.info("Number of vertices returned for query: " + pagedResults.getResults().size());
+        LOGGER.info("Number of vertices returned for query: " + verticesCount);
 
         JSONObject results = new JSONObject();
         results.put("vertices", vertices);
