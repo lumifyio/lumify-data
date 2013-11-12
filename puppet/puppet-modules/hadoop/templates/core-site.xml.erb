@@ -5,7 +5,10 @@
   <property>
     <name>fs.defaultFS</name>
     <value>hdfs://<%= @namenode_hostname %>:8020</value>
-    <final>true</final>
+  </property>
+  <property>
+    <name>fs.default.name</name>
+    <value>hdfs://<%= @namenode_hostname %>:8020/</value>
   </property>
 
   <property>

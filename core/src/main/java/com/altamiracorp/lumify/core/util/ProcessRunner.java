@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.core.util;
 
 import com.google.common.base.Joiner;
-import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -21,8 +21,13 @@ sudo -u hdfs hdfs namenode -format
 
 sudo -u hdfs hdfs dfsadmin -safemode wait
 
-sudo service zookeeper-server start
-sudo -u accumulo /usr/lib/accumulo/bin/accumulo init
+sudo -u hdfs hadoop fs -rm -r /accumulo || echo "No /accumulo"
+sudo -u hdfs hadoop fs -mkdir /accumulo
+sudo -u hdfs hadoop fs -chown accumulo:accumulo /accumulo
+
+/opt/start.sh zk
+
+sudo -u accumulo /usr/lib/accumulo/bin/accumulo init --instance-name lumify --password password --clear-instance-name
 sudo /sbin/service zookeeper-server stop
 
 for service in /etc/init.d/hadoop-*; do

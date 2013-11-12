@@ -14,9 +14,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <accumulo-version>1.4.3</accumulo-version>
-        <hadoop-version>0.20.2-cdh3u6</hadoop-version>
-        <zookeeper-version>3.3.5</zookeeper-version>
+        <accumulo-version>1.5.0</accumulo-version>
+        <hadoop-version>2.0.0-mr1-cdh4.4.0</hadoop-version>
+        <zookeeper-version>3.4.5</zookeeper-version>
         <jetty-version>8.1.11.v20130520</jetty-version>
         <elasticsearch-version>0.90.0</elasticsearch-version>
         <titan-version>0.3.2.atc-SNAPSHOT</titan-version>
