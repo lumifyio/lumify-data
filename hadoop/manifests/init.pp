@@ -3,6 +3,7 @@ class hadoop {
   require java
 
   $namenode_ipaddress = hiera("namenode_ipaddress")
+  $namenode_hostname = hiera("namenode_hostname")
   $hadoop_masters = hiera_array('hadoop_masters')
   $hadoop_slaves = hiera_array('hadoop_slaves')
 
