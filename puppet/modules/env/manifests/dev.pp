@@ -1,7 +1,11 @@
 class env::dev {
   require buildtools
-  include role::hadoop::pseudo
+  require java  
+  
+  include repo::cloudera::cdh4
+  
   include ::zookeeper
+  include role::hadoop::pseudo
   include role::accumulo::pseudo
 
   include role::elasticsearch::pseudo
