@@ -103,8 +103,12 @@ public class GraphRepository {
         return graphSession.findByGeoLocation(latitude, longitude, radius, user);
     }
 
-    public List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson, User user) {
-        return graphSession.searchVerticesByTitle(title, filterJson, user);
+    public List<GraphVertex> searchVerticesByTitle (String title, JSONArray filterJson) {
+        return graphSession.searchVerticesByTitle(title, filterJson);
+    }
+
+    public GraphPagedResults searchVerticesByTitle(String title, JSONArray filterJson, User user, long offset, long size, String subType) {
+        return graphSession.searchVerticesByTitle(title, filterJson, user, offset, size, subType);
     }
 
     public List<GraphVertex> searchVerticesByTitleAndType(String query, VertexType type, User user) {
