@@ -2,10 +2,7 @@ package com.altamiracorp.lumify.model;
 
 import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.model.GraphSession;
-import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
-import com.altamiracorp.lumify.core.model.graph.GraphRelationship;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
+import com.altamiracorp.lumify.core.model.graph.*;
 import com.altamiracorp.lumify.core.model.ontology.*;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.model.index.utils.TitanGraphSearchIndexProviderUtil;
@@ -25,6 +22,8 @@ import com.tinkerpop.pipes.PipeFunction;
 import com.tinkerpop.pipes.branch.LoopPipe;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -384,7 +383,7 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson, User user) {
+    public List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson) {
         List<GraphVertex> vertices = Lists.newArrayList();
         final List<String> tokens = LuceneTokenizer.standardTokenize(title);
 
@@ -401,6 +400,47 @@ public class TitanGraphSession extends GraphSession {
         }
 
         return vertices;
+    }
+
+    @Override
+    public GraphPagedResults searchVerticesByTitle(String title, JSONArray filterJson, User user, long offset, long size, String subType) {
+        GraphPagedResults results = new GraphPagedResults();
+        final List<String> tokens = LuceneTokenizer.standardTokenize(title);
+
+        if (title.equals("*")) {
+            tokens.add("*");
+        }
+
+        if (!tokens.isEmpty()) {
+            final TitanGraphQuery query = generateTitleQuery(tokens);
+            GremlinPipeline<Vertex, Vertex> pipeline;
+            if (subType != null) {
+                query.has(PropertyName.SUBTYPE.toString(), subType);
+            }
+            if (filterJson.length() > 0) {
+                pipeline = queryFormatter.createQueryPipeline(query.vertices(), filterJson);
+            } else {
+                pipeline = new GremlinPipeline (query.vertices());
+            }
+
+            HashMap<Object, Number> map = new HashMap<Object, Number>();
+            Collection <Vertex> vertexList = new ArrayList<Vertex>();
+            pipeline.range((int) offset, (int) size).aggregate(vertexList).property(PropertyName.SUBTYPE.toString()).groupCount(map).iterate();
+
+            for (Object key : map.keySet()) {
+                int countValue = map.get(key).intValue();
+                if (!results.getResults().containsKey(key)) {
+                    results.getResults().put((String) key, new ArrayList<GraphVertex>(countValue));
+                }
+                results.getCount().put((String)key, countValue);
+            }
+
+            for (Vertex v : vertexList) {
+                results.getResults().get(v.getProperty(PropertyName.SUBTYPE.toString())).add(new TitanGraphVertex(v));
+            }
+        }
+
+        return results;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.core.model;
 
+import com.altamiracorp.lumify.core.model.graph.GraphPagedResults;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.graph.GraphRelationship;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
@@ -40,7 +41,9 @@ public abstract class GraphSession {
 
     public abstract List<GraphVertex> findByGeoLocation(double latitude, double longitude, double radius, User user);
 
-    public abstract List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson, User user);
+    public abstract List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson);
+
+    public abstract GraphPagedResults searchVerticesByTitle(String title, JSONArray filterJson, User user, long offset, long size, String subType);
 
     public abstract List<GraphVertex> searchVerticesWithinGraphVertexIds(List<String> artifactGraphVertexIds, JSONArray filterJson, User user);
 
