@@ -9,9 +9,14 @@
   </property>
 
   <property>
-     <name>mapred.local.dir</name>
-     <value><%= (@data_directories || '').split(',').map{|d| d + '/mapred/local'}.join(',') %></value>
-     <final>true</final>
+    <name>mapred.system.dir</name>
+    <value>/mapred/system</value>
+  </property>
+
+  <property>
+    <name>mapred.local.dir</name>
+    <value><%= (@data_directories || '').split(',').map{|d| d + '/mapred/local'}.join(',') %></value>
+    <final>true</final>
   </property>
 
   <property>

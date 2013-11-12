@@ -1,11 +1,15 @@
 #!/bin/bash -eu
 
 sudo rm -rf /var/lib/hadoop-hdfs/cache/*
-sudo rm -rf /var/zookeeper/version-2
+sudo rm -rf /var/zookeeper
 sudo rm -rf /data0/hdfs/name
 sudo rm -rf /data0/hdfs/data
 
+sudo mkdir -p /var/zookeeper
+sudo chown zookeeper:zookeeper /var/zookeeper/
+
 sudo -u hdfs hdfs namenode -format
+sudo -u zookeeper zookeeper-server-initialize --myid=1 --force
 
 for service in /etc/init.d/hadoop-*
 do
