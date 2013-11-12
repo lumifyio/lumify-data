@@ -29,6 +29,11 @@
     -->
 
     <property>
+        <name>instance.dfs.uri</name>
+        <value>hdfs://<%= @namenode_hostname %>:8020</value>
+    </property>
+
+    <property>
         <name>instance.zookeeper.host</name>
         <value><%= @zookeeper_nodes.values.join(',') %></value>
         <description>comma separated list of zookeeper servers</description>
