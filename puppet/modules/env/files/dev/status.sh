@@ -12,7 +12,12 @@ function hadoop {
 function accumulo {
     echo ""
     echo "Accumulo"
-    echo "Cannot get accumulo status"
+    sudo initctl status accumulo-master
+    sudo initctl status accumulo-gc
+    sudo initctl status accumulo-logger
+    sudo initctl status accumulo-monitor
+    sudo initctl status accumulo-tracer
+    sudo initctl status accumulo-tserver
 }
 
 function zk {

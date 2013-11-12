@@ -14,6 +14,8 @@ class accumulo(
   $accumulo_slaves = hiera_array('accumulo_slaves')
   $accumulo_example_config = hiera('accumulo_example_config')
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')
+  $namenode_ipaddress = hiera("namenode_ipaddress")
+  $namenode_hostname = hiera("namenode_hostname")
 
   $homedir = "${installdir}/accumulo-${version}"
   $homelink = "${installdir}/accumulo"
