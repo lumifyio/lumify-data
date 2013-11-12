@@ -1,22 +1,20 @@
-#!/bin/bash 
+#!/bin/bash -e
 
 function hadoop {
     echo "Starting hadoop..."
     for service in /etc/init.d/hadoop-*
     do
-        sudo ${service} status | grep -q "is running"
-        if [ $? -eq 1 ]; then
+        if sudo ${service} status | grep -q "is running"; then
             sudo service `basename ${service}` start
         else
             echo "${service} already running"
-	fi
+    	fi
     done
 }
 
 function zk {
     echo "Starting zookeeper..."
-    sudo service zookeeper-server status | grep -q "is running"
-    if [ $? -eq 1 ]; then
+    if sudo service zookeeper-server status | grep -q "is running"; then
         sudo service zookeeper-server start
     else
         echo "zookeeper already running"
@@ -35,8 +33,7 @@ function accumulo {
 
 function elasticsearch {
     echo "Starting elasticsearch..."
-    sudo initctl status elasticsearch | grep -q running
-    if [ $? -eq 1 ]; then
+    if sudo initctl status elasticsearch | grep -q running; then
         sudo initctl start elasticsearch
     else
         echo "elasticsearch already running"
@@ -45,8 +42,7 @@ function elasticsearch {
 
 function kafka {
     echo "Starting kafka..."
-    sudo initctl status kafka | grep -q running
-    if [ $? -eq 1 ]; then
+    if sudo initctl status kafka | grep -q running; then
         sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh create /kafka null
         sudo initctl start kafka
     else
@@ -56,8 +52,7 @@ function kafka {
 
 function storm {
     echo "Starting storm..."
-    sudo initctl status storm-$1 | grep -q running
-    if [ $? -eq 1 ]; then
+    if sudo initctl status storm-$1 | grep -q running; then
         sudo initctl start storm-$1
     else
         echo "storm-$1 already running"

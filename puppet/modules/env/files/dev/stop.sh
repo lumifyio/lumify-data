@@ -1,35 +1,48 @@
-#!/bin/bash 
+#!/bin/bash -e
 
 function hadoop {
     for service in /etc/init.d/hadoop-*
     do
-        sudo $service stop
+        echo "Stopping `basename ${service}`..."
+        if sudo service `basename ${service}` status | grep -q "is running"; then
+            sudo service `basename ${service}` stop
+        fi
     done
 }
 
 function zk {
-    sudo /sbin/service zookeeper-server stop
+    echo "Stopping zookeeper..."
+    if sudo service zookeeper-server status | grep -q "is running"; then
+        sudo zookeeper-server stop
+    fi
 }
 
 function accumulo {
-    sudo initctl stop accumulo-tserver
-    sudo initctl stop accumulo-gc
-    sudo initctl stop accumulo-logger
-    sudo initctl stop accumulo-monitor
-    sudo initctl stop accumulo-tracer
-    sudo initctl stop accumulo-master
+    echo "Stopping accumulo-$1..."
+    if sudo initctl status accumulo-$1 | grep -q running; then
+        sudo initctl stop accumulo-$1
+    fi
 }
 
 function elasticsearch {
-    sudo initctl stop elasticsearch
+    echo "Stopping elasticsearch..."
+    if sudo initctl status elasticsearch | grep -q running; then
+        sudo initctl stop elasticsearch
+    fi
 }
 
 function kafka {
-    sudo initctl stop kafka
+    echo "Stopping kafka..."
+    if sudo initctl status kafka | grep -q running; then
+        sudo initctl stop kafka
+    fi
 }
 
 function storm {
-    sudo initctl stop storm-$1
+    echo "Stopping storm-$1..."
+    if sudo initctl status storm-$1 | grep -q running; then
+        sudo initctl stop storm-$1
+    fi
 }
 
 case "$1" in
@@ -40,7 +53,12 @@ case "$1" in
     zk
     ;;
   accumulo)
-    accumulo
+    accumulo tserver
+    accumulo gc
+    accumulo logger
+    accumulo monitor
+    accumulo tracer
+    accumulo master
     ;;
   elasticsearch)
     elasticsearch
@@ -68,7 +86,12 @@ case "$1" in
     storm nimbus
     kafka
     elasticsearch
-    accumulo
+    accumulo tserver
+    accumulo gc
+    accumulo logger
+    accumulo monitor
+    accumulo tracer
+    accumulo master
     zk
     hadoop
     ;;
