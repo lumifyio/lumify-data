@@ -30,6 +30,13 @@ sudo -u hdfs hadoop fs -chown accumulo:accumulo /accumulo
 sudo -u accumulo /usr/lib/accumulo/bin/accumulo init --instance-name lumify --password password --clear-instance-name
 sudo /sbin/service zookeeper-server stop
 
+sudo -u hdfs hadoop fs -mkdir /lumify/config/opennlp
+sudo -u hdfs hadoop fs -put /vagrant/conf/opennlp/* /lumify/config/opennlp
+sudo -u hdfs hadoop fs -mkdir /lumify/config/knownEntities
+sudo -u hdfs hadoop fs -put /vagrant/conf/knownEntities/* /lumify/config/knownEntities
+sudo -u hdfs hadoop fs -mkdir /lumify/config/opencv
+sudo -u hdfs hadoop fs -put /vagrant/conf/opencv/* /lumify/config/opencv
+
 for service in /etc/init.d/hadoop-*; do
     sudo $service stop
 done

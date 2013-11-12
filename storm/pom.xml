@@ -21,6 +21,12 @@
             <groupId>storm</groupId>
             <artifactId>storm</artifactId>
             <scope>${cluster.dependency.scope}</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-io</groupId>
+                    <artifactId>commons-io</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
