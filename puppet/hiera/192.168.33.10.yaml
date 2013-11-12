@@ -13,6 +13,7 @@ zookeeper_port: 2181
 zookeeper_nodes:
   1: %{ipaddress_eth1}:2181
 namenode_ipaddress: %{ipaddress_eth1}
+namenode_hostname: lumify
 elasticsearch_locations:
   - %{ipaddress_eth1}:9300
 authenication_provider: com.altamiracorp.lumify.web.DevBasicAuthenticationProvider
