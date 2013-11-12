@@ -1,7 +1,7 @@
 class zookeeper {
   package { 'zookeeper-server':
     ensure  => installed,
-    require => Package['hadoop.x86_64'],
+    require => Class['java', 'repo::cloudera::cdh4'],    
   }
 
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')
@@ -19,14 +19,20 @@ class zookeeper {
     require => Package['zookeeper-server'],
   }
 
-  file { "/var/zookeeper":
-    ensure => "directory",
+  exec { 'initialize-zookeeper' :
+    path => "/sbin",
+    command => 'service zookeeper-server init --force',
+    creates => '/var/lib/zookeeper/version-2',
+    require => Package['zookeeper-server'],
   }
-
+  
   file { 'hadoop-zookeeper-myid':
-    path    => '/var/zookeeper/myid',
+    path    => '/var/lib/zookeeper/myid',
     ensure  => file,
     content => template('zookeeper/myid.erb'),
-    require => Package['zookeeper-server'],
+    require => [
+      Exec['initialize-zookeeper'],
+      Package['zookeeper-server'],
+    ],
   }
 }
