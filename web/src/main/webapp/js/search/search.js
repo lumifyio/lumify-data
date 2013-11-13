@@ -147,23 +147,25 @@ define([
                     var artifactCounts = artifactSearch[0].counts;
                     delete results.artifact.counts;
 
-                    var sortVerticesIntoResults = function(v) {
-                        var props = v.properties,
-                            type = props._type,
-                            subType = props._subType;
+                    var sortVerticesIntoResults = function(vertices) {
+                        vertices.forEach(function(v) {
+                            var props = v.properties,
+                                type = props._type,
+                                subType = props._subType;
 
-                        if (type === 'artifact') return;
+                            if (type === 'artifact') return;
 
-                        if (!results[type]) results[type] = {};
-                        if (!results[type][subType]) results[type][subType] = [];
+                            if (!results[type]) results[type] = {};
+                            if (!results[type][subType]) results[type][subType] = [];
 
-                        // Check for an existing result with the same id
-                        var resultFound = results[type][subType].some(function(result) { return result.id === v.id; });
+                            // Check for an existing result with the same id
+                            var resultFound = results[type][subType].some(function(result) { return result.id === v.id; });
 
-                        // Only store unique results
-                        if (resultFound === false) {
-                            results[type][subType].push(v);
-                        }
+                            // Only store unique results
+                            if (resultFound === false) {
+                                results[type][subType].push(v);
+                            }
+                        })
                     };
                     vertexSearch[0].vertices.forEach(sortVerticesIntoResults);
                     self.searchResults = results;

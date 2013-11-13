@@ -14,7 +14,7 @@ define([], function() {
             function artifactSearches(json, updated) {
                 var self = this;
 
-                if (json.document && json.image && json.video) {
+                if (json.document || json.image || json.video) {
                     Object.keys(json).forEach(function(type) {
                         if (type !== 'counts') {
                             json[type].forEach(function(artifact) {
