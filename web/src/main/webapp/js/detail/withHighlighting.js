@@ -86,7 +86,7 @@ define([
                 this.mouseDown = true;
             }
 
-            if ($(event.target).closest('.opens-dropdown').length === 0 && $(event.target).closest('.underneath').length === 0) {
+            if ($(event.target).closest('.opens-dropdown').length === 0 && $(event.target).closest('.underneath').length === 0 && !($(event.target).parent().hasClass('currentTranscript'))) {
                 if (event.type === 'mouseup' || event.type === 'dblclick') {
                     this.handleSelectionChange();
                 } else if (event.type == 'click') {

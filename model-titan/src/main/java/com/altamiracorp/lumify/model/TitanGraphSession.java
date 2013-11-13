@@ -428,15 +428,20 @@ public class TitanGraphSession extends GraphSession {
             pipeline.range((int) offset, (int) size).aggregate(vertexList).property(PropertyName.SUBTYPE.toString()).groupCount(map).iterate();
 
             for (Object key : map.keySet()) {
-                int countValue = map.get(key).intValue();
-                if (!results.getResults().containsKey(key)) {
-                    results.getResults().put((String) key, new ArrayList<GraphVertex>(countValue));
+                if (key != null) {
+                    int countValue = map.get(key).intValue();
+                    if (!results.getResults().containsKey(key)) {
+                        results.getResults().put((String) key, new ArrayList<GraphVertex>(countValue));
+                    }
+                    results.getCount().put((String)key, countValue);
                 }
-                results.getCount().put((String)key, countValue);
             }
 
             for (Vertex v : vertexList) {
-                results.getResults().get(v.getProperty(PropertyName.SUBTYPE.toString())).add(new TitanGraphVertex(v));
+                String key = v.getProperty(PropertyName.SUBTYPE.toString());
+                if (key != null) {
+                    results.getResults().get(key).add(new TitanGraphVertex(v));
+                }
             }
         }
 
