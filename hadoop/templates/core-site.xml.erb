@@ -12,14 +12,4 @@
      <value><%= (@data_directories || '').split(',').map{|d| d + '/hadoop/tmp'}.join(',') %></value>
      <final>true</final>
   </property>
-
-  <!-- OOZIE proxy user setting -->
-  <property>
-    <name>hadoop.proxyuser.oozie.hosts</name>
-    <value>*</value>
-  </property>
-  <property>
-    <name>hadoop.proxyuser.oozie.groups</name>
-    <value>*</value>
-  </property>
 </configuration>
