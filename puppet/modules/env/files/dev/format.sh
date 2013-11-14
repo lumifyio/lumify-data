@@ -25,10 +25,6 @@ sudo service zookeeper-server init --myid=${ZOOKEEPER_ID} --force
 
 sudo -u hdfs hdfs dfsadmin -safemode wait
 
-sudo -u hdfs hadoop fs -rm -r /accumulo || echo "No /accumulo"
-sudo -u hdfs hadoop fs -mkdir /accumulo
-sudo -u hdfs hadoop fs -chown accumulo:accumulo /accumulo
-
 sudo -u accumulo /usr/lib/accumulo/bin/accumulo init --instance-name lumify --password password --clear-instance-name
 
 sudo -u hdfs hadoop fs -mkdir /lumify/config/opennlp
