@@ -13,7 +13,7 @@ function hadoop {
 function zk {
     echo "Stopping zookeeper..."
     if sudo service zookeeper-server status | grep -q "is running"; then
-        sudo zookeeper-server stop
+        sudo service zookeeper-server stop
     fi
 }
 

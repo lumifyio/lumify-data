@@ -1,13 +1,7 @@
 #!/bin/bash -eu
 
 ZOOKEEPER_ID=`cat /var/lib/zookeeper/myid`
-
-sudo service zookeeper-server stop
-
-sudo rm -rf /var/lib/zookeeper
-sudo mkdir -p /var/lib/zookeeper
-sudo chown zookeeper:zookeeper /var/lib/zookeeper
-sudo service zookeeper-server init --myid=${ZOOKEEPER_ID} --force
+ZOOKEEPER_DIR="/var/lib/zookeeper"
 
 /opt/stop.sh hadoop
 
@@ -17,6 +11,16 @@ sudo rm -rf /data0/hdfs/data
 
 sudo -u hdfs hdfs namenode -format
 
+
+/opt/stop.sh zk
+
+sudo rm -rf $ZOOKEEPER_DIR
+sudo mkdir -p $ZOOKEEPER_DIR
+sudo chown zookeeper:zookeeper $ZOOKEEPER_DIR
+sudo service zookeeper-server init --myid=${ZOOKEEPER_ID} --force
+
+
+/opt/start.sh zk
 /opt/start.sh hadoop
 
 sudo -u hdfs hdfs dfsadmin -safemode wait
@@ -25,10 +29,7 @@ sudo -u hdfs hadoop fs -rm -r /accumulo || echo "No /accumulo"
 sudo -u hdfs hadoop fs -mkdir /accumulo
 sudo -u hdfs hadoop fs -chown accumulo:accumulo /accumulo
 
-/opt/start.sh zk
-
 sudo -u accumulo /usr/lib/accumulo/bin/accumulo init --instance-name lumify --password password --clear-instance-name
-sudo /sbin/service zookeeper-server stop
 
 sudo -u hdfs hadoop fs -mkdir /lumify/config/opennlp
 sudo -u hdfs hadoop fs -put /vagrant/conf/opennlp/* /lumify/config/opennlp
@@ -37,9 +38,9 @@ sudo -u hdfs hadoop fs -put /vagrant/conf/knownEntities/* /lumify/config/knownEn
 sudo -u hdfs hadoop fs -mkdir /lumify/config/opencv
 sudo -u hdfs hadoop fs -put /vagrant/conf/opencv/* /lumify/config/opencv
 
-for service in /etc/init.d/hadoop-*; do
-    sudo $service stop
-done
+/opt/stop.sh hadoop
+/opt/stop.sh zk
+
 
 /opt/start.sh elasticsearch
 until curl -XDELETE "http://localhost:9200/_all"; do
