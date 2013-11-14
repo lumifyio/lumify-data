@@ -12,6 +12,12 @@ class zookeeper {
     $zookeeper_node_ip = $ipaddress_eth0
   }
 
+  file { "/var/log/zookeeper":
+    ensure => "directory",
+    owner  => "zookeeper",
+    require => Package['zookeeper-server'],
+  }
+
   file { 'hadoop-zookeeper-config':
     path    => '/etc/zookeeper/conf/zoo.cfg',
     ensure  => file,
