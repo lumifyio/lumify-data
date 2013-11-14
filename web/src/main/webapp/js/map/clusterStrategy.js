@@ -51,6 +51,60 @@ define(['openlayers'], function(OpenLayers) {
             }
         },
 
+        cluster: function(event) {
+            OpenLayers.Strategy.Cluster.prototype.cluster.apply(this, arguments);
+
+            var needsRedraw = false;
+            if (this.clusters) {
+                var selectedIds = _.keys(this.selectedFeatures);
+                this.clusters.forEach(function(feature) {
+                    if (feature.cluster) {
+                        var some = false, all = true;
+                        feature.cluster.forEach(function(f) {
+                            var selected = ~selectedIds.indexOf(f.id);
+                            some = some || selected;
+                            all = all && selected;
+                        });
+
+                        if (all) {
+                            if (feature.renderIntent !== 'select') {
+                                feature.renderIntent = 'select';
+                                needsRedraw = true;
+                            }
+                        } else if (some) {
+                            if (feature.renderIntent !== 'temporary') {
+                                feature.renderIntent = 'temporary';
+                                needsRedraw = true;
+                            }
+                        } else {
+                            if (feature.renderIntent && feature.renderIntent !== 'default') {
+                                feature.renderIntent = 'default';
+                                needsRedraw = true;
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (event && event.object) {
+                var zoom = event.object.map.zoom;
+                if (!this._lastZoom || zoom !== this._lastZoom) {
+                    needsRedraw = true;
+                    this._lastZoom = zoom;
+                }
+            }
+
+            if (!this._throttledRedraw) {
+                this._throttledRedraw = _.debounce(function() {
+                    this.layer.redraw();
+                }.bind(this), 250);
+            }
+
+            if (needsRedraw) {
+                this._throttledRedraw();
+            }
+        },
+
         createCluster: function(feature) {
             var cluster = OpenLayers.Strategy.Cluster.prototype.createCluster.apply(this, arguments);
             if (this.selectedFeatures[feature.id]) {
