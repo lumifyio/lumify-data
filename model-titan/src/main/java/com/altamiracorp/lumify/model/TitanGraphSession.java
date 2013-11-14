@@ -17,6 +17,7 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
+import com.tinkerpop.gremlin.pipes.transform.PropertyPipe;
 import com.tinkerpop.pipes.PipeFunction;
 import com.tinkerpop.pipes.branch.LoopPipe;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -414,18 +415,21 @@ public class TitanGraphSession extends GraphSession {
         if (!tokens.isEmpty()) {
             final TitanGraphQuery query = generateTitleQuery(tokens);
             GremlinPipeline<Vertex, Vertex> pipeline;
+            GremlinPipeline<Vertex, Vertex> pipeline1;
             if (subType != null) {
                 query.has(PropertyName.SUBTYPE.toString(), subType);
             }
             if (filterJson.length() > 0) {
                 pipeline = queryFormatter.createQueryPipeline(query.vertices(), filterJson);
+                pipeline1 = queryFormatter.createQueryPipeline(query.vertices(), filterJson);
             } else {
-                pipeline = new GremlinPipeline (query.vertices());
+                pipeline = new GremlinPipeline <Vertex, Vertex>(query.vertices());
+                pipeline1 = new GremlinPipeline<Vertex, Vertex>(query.vertices());
             }
 
             HashMap<Object, Number> map = new HashMap<Object, Number>();
-            Collection <Vertex> vertexList = new ArrayList<Vertex>();
-            pipeline.range((int) offset, (int) size).aggregate(vertexList).property(PropertyName.SUBTYPE.toString()).groupCount(map).iterate();
+            Collection <Vertex> vertexList = pipeline.range((int) offset, (int) size).toList();
+            pipeline1.property(PropertyName.SUBTYPE.toString()).groupCount(map).iterate();
 
             for (Object key : map.keySet()) {
                 if (key != null) {
