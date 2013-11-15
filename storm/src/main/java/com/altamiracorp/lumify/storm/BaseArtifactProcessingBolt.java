@@ -1,34 +1,9 @@
 package com.altamiracorp.lumify.storm;
 
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
-
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
-
 import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
@@ -43,6 +18,22 @@ import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.storm.file.FileMetadata;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
+import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
 
 public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
 
@@ -156,15 +147,18 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
 
     protected File extractArchive(FileMetadata fileMetadata) throws Exception {
         File tempDir = Files.createTempDir();
+        LOGGER.debug("Extracting " + fileMetadata.getFileName() + " to " + tempDir);
         InputStream in = getInputStream(fileMetadata.getFileName(), null);
         try {
             ArchiveInputStream input = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(in));
             try {
                 ArchiveEntry entry;
                 while ((entry = input.getNextEntry()) != null) {
-                    OutputStream out = new FileOutputStream(new File(tempDir, entry.getName()));
+                    File outputFile = new File(tempDir, entry.getName());
+                    OutputStream out = new FileOutputStream(outputFile);
                     try {
-                        IOUtils.copy(input, out);
+                        long numberOfBytesExtracted = IOUtils.copyLarge(input, out);
+                        LOGGER.debug("Extracted (" + numberOfBytesExtracted + " bytes) to " + outputFile.getAbsolutePath());
                     } finally {
                         out.close();
                     }
@@ -223,10 +217,11 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
 
     private File copyFileToLocalFile(InputStream in) throws IOException {
         File localFile = File.createTempFile("fileProcessing", "");
-        LOGGER.info("Copying file locally for processing: " + localFile);
+        LOGGER.debug("Copying file locally for processing: " + localFile);
         OutputStream localFileOut = new FileOutputStream(localFile);
         try {
-            IOUtils.copy(in, localFileOut);
+            long numberOfBytesCopied = IOUtils.copyLarge(in, localFileOut);
+            LOGGER.debug("Copied " + numberOfBytesCopied + " to file " + localFile);
         } finally {
             localFileOut.close();
         }
