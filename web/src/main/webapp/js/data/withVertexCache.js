@@ -84,7 +84,7 @@ define([
             // Determine differences between artifact search and artifact get requests
             var id = artifact.graphVertexId || artifact.Generic_Metadata['graphVertexId'],
                 rowKey = artifact._rowKey || artifact.key.value,
-                content = artifact.Content;
+                content = artifact.Generic_Metadata;
 
             // Fix characters
             if (rowKey) {
@@ -92,7 +92,7 @@ define([
             }
             if (content) {
                 // Format Html
-                artifact.contentHtml = (content.highlighted_text || content.doc_extracted_text || '').replace(/[\n]+/g, "<br><br>\n");
+                artifact.contentHtml = (content.highlightedText || content.text || '').replace(/[\n]+/g, "<br><br>\n");
             }
             if (artifact.Generic_Metadata.videoTranscript){ 
                 artifact.videoTranscript = JSON.parse(artifact.Generic_Metadata.videoTranscript);
