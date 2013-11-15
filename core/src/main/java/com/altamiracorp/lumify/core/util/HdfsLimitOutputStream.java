@@ -19,12 +19,14 @@ public class HdfsLimitOutputStream extends OutputStream {
     private final MessageDigest digest;
     private OutputStream largeOutputStream;
     private Path hdfsPath;
+    private long length;
 
     public HdfsLimitOutputStream(FileSystem fs, long maxSizeToStore) throws NoSuchAlgorithmException {
         this.digest = MessageDigest.getInstance("SHA-256");
         this.fs = fs;
         this.maxSizeToStore = (int) maxSizeToStore;
         this.smallOutputStream = new ByteArrayOutputStream((int) maxSizeToStore);
+        this.length = 0;
     }
 
     private OutputStream getLargeOutputStream() throws IOException {
@@ -48,6 +50,7 @@ public class HdfsLimitOutputStream extends OutputStream {
         } else {
             getLargeOutputStream().write(b);
         }
+        length++;
     }
 
     @Override
@@ -58,6 +61,7 @@ public class HdfsLimitOutputStream extends OutputStream {
         } else {
             getLargeOutputStream().write(b);
         }
+        length += b.length;
     }
 
     @Override
@@ -68,6 +72,7 @@ public class HdfsLimitOutputStream extends OutputStream {
         } else {
             getLargeOutputStream().write(b, off, len);
         }
+        length += len;
     }
 
     public boolean hasExceededSizeLimit() {
@@ -107,5 +112,9 @@ public class HdfsLimitOutputStream extends OutputStream {
             this.smallOutputStream.close();
         }
         super.close();
+    }
+
+    public long getLength() {
+        return this.length;
     }
 }

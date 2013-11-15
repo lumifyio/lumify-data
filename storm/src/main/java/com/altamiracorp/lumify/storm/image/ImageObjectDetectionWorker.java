@@ -66,11 +66,15 @@ public class ImageObjectDetectionWorker extends BaseImageWorker {
             in = fs.open(new Path(classifierFilePath));
             fos = new FileOutputStream(tempFile);
             IOUtils.copy(in, fos);
-        }catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            LOGGER.error("Could not create local file", e);
         } finally {
-            in.close();
-            fos.close();
+            if (in != null) {
+                in.close();
+            }
+            if (fos != null) {
+                fos.close();
+            }
         }
         return tempFile;
     }

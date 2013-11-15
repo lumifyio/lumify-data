@@ -1,5 +1,30 @@
 package com.altamiracorp.lumify.storm;
 
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
+import backtype.storm.topology.OutputFieldsDeclarer;
+import backtype.storm.topology.base.BaseRichBolt;
+import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Tuple;
+import com.altamiracorp.lumify.core.config.ConfigurationHelper;
+import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.audit.AuditRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.user.SystemUser;
+import com.altamiracorp.lumify.core.user.User;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -8,32 +33,6 @@ import java.net.URI;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import backtype.storm.task.OutputCollector;
-import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
-import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Tuple;
-
-import com.altamiracorp.lumify.core.config.ConfigurationHelper;
-import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.model.artifact.Artifact;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.core.model.graph.GraphRepository;
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.user.SystemUser;
-import com.altamiracorp.lumify.core.user.User;
-import com.google.inject.Guice;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-
 public abstract class BaseLumifyBolt extends BaseRichBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseLumifyBolt.class);
 
@@ -41,6 +40,7 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
     protected ArtifactRepository artifactRepository;
     private FileSystem hdfsFileSystem;
     protected GraphRepository graphRepository;
+    protected AuditRepository auditRepository;
     private Injector injector;
 
     @Override
@@ -68,6 +68,14 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         }
     }
 
+    protected JSONObject tryGetJsonFromTuple(Tuple input) {
+        try {
+            return getJsonFromTuple(input);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
     public Injector getInjector() {
         return injector;
     }
@@ -88,12 +96,32 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
 
     @Override
     public final void execute(Tuple input) {
+        String auditMessage;
+        String graphVertexId = null;
+        auditMessage = "BEGIN " + this.getClass().getName() + ": " + input;
+        LOGGER.info(auditMessage);
+        JSONObject json = tryGetJsonFromTuple(input);
+        if (json != null) {
+            graphVertexId = json.optString("graphVertexId");
+            if (graphVertexId.length() == 0) {
+                graphVertexId = null;
+            }
+            if (graphVertexId != null) {
+                auditRepository.audit(graphVertexId, auditMessage, getUser());
+            }
+        }
         try {
             safeExecute(input);
         } catch (Exception e) {
-            LOGGER.error("Error occurred during execution", e);
+            LOGGER.error("Error occurred during execution: " + input, e);
             getCollector().reportError(e);
             getCollector().fail(input);
+        }
+
+        auditMessage = "END " + this.getClass().getName() + ": " + input;
+        LOGGER.info(auditMessage);
+        if (graphVertexId != null) {
+            auditRepository.audit(graphVertexId, auditMessage, getUser());
         }
     }
 
@@ -142,11 +170,13 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
     }
 
     private GraphVertex saveArtifactGraphVertex(ArtifactExtractedInfo artifactExtractedInfo, Artifact artifact) {
-        if( artifactExtractedInfo.getUrl() != null && !artifactExtractedInfo.getUrl().isEmpty() ) {
+        if (artifactExtractedInfo.getUrl() != null && !artifactExtractedInfo.getUrl().isEmpty()) {
             artifactExtractedInfo.setSource(artifactExtractedInfo.getUrl());
         }
 
-        return artifactRepository.saveToGraph(artifact, artifactExtractedInfo, getUser());
+        GraphVertex vertex = artifactRepository.saveToGraph(artifact, artifactExtractedInfo, getUser());
+        auditRepository.audit(vertex.getId(), "Entity created: " + vertex.getId(), getUser());
+        return vertex;
     }
 
     private Artifact saveArtifactModel(ArtifactExtractedInfo artifactExtractedInfo) {
@@ -175,16 +205,16 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
                 artifact.getMetadata().setHighlightedText(artifactExtractedInfo.getText());
             }
         }
-        if (artifactExtractedInfo.getMappingJson() != null){
+        if (artifactExtractedInfo.getMappingJson() != null) {
             artifact.getMetadata().setMappingJson(artifactExtractedInfo.getMappingJson());
         }
-        if (artifactExtractedInfo.getTitle() != null){
+        if (artifactExtractedInfo.getTitle() != null) {
             artifact.getMetadata().setFileName(artifactExtractedInfo.getTitle());
         }
-        if (artifactExtractedInfo.getFileExtension() != null){
+        if (artifactExtractedInfo.getFileExtension() != null) {
             artifact.getMetadata().setFileExtension(artifactExtractedInfo.getFileExtension());
         }
-        if (artifactExtractedInfo.getMimeType() != null){
+        if (artifactExtractedInfo.getMimeType() != null) {
             artifact.getMetadata().setMimeType(artifactExtractedInfo.getMimeType());
         }
 
@@ -204,6 +234,11 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
     @Inject
     public void setGraphRepository(GraphRepository graphRepository) {
         this.graphRepository = graphRepository;
+    }
+
+    @Inject
+    public void setAuditRepository(AuditRepository auditRepository) {
+        this.auditRepository = auditRepository;
     }
 
     protected boolean isArchive(String fileName) {

@@ -86,4 +86,12 @@ public class RowKeyHelper {
     public static String jsonEncode(String rowKey) {
         return rowKey.replaceAll("\\x1f", "\\\\x1F");
     }
+
+    public static String padLong(long l) {
+        return padLong(l, 16);
+    }
+
+    public static String padLong(long l, int width) {
+        return StringUtils.leftPad(Long.toString(l), width, '0');
+    }
 }

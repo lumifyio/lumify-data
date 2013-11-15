@@ -43,6 +43,10 @@ public class VideoPosterFrameWorker extends ThreadedTeeInputStreamWorker<Artifac
             out.close();
         }
 
+        if (out.getLength() == 0) {
+            throw new RuntimeException("Poster frame not created. Zero length file detected.");
+        }
+
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         info.setPosterFrameHdfsPath(out.getHdfsPath().toString());
         LOGGER.debug("Finished [VideoPosterFrameWorker]: " + additionalArtifactWorkData.getFileName());
