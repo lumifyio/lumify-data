@@ -16,6 +16,7 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.gremlin.Tokens;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import com.tinkerpop.gremlin.pipes.transform.PropertyPipe;
 import com.tinkerpop.pipes.PipeFunction;
@@ -414,22 +415,25 @@ public class TitanGraphSession extends GraphSession {
 
         if (!tokens.isEmpty()) {
             final TitanGraphQuery query = generateTitleQuery(tokens);
-            GremlinPipeline<Vertex, Vertex> pipeline;
-            GremlinPipeline<Vertex, Vertex> pipeline1;
-            if (subType != null) {
-                query.has(PropertyName.SUBTYPE.toString(), subType);
-            }
+            GremlinPipeline<Vertex, Vertex> vertexPipeline;
+            GremlinPipeline<Vertex, Vertex> countPipeline;
             if (filterJson.length() > 0) {
-                pipeline = queryFormatter.createQueryPipeline(query.vertices(), filterJson);
-                pipeline1 = queryFormatter.createQueryPipeline(query.vertices(), filterJson);
+                vertexPipeline = queryFormatter.createQueryPipeline(query.vertices(), filterJson);
+                countPipeline = queryFormatter.createQueryPipeline(query.vertices(), filterJson);
             } else {
-                pipeline = new GremlinPipeline <Vertex, Vertex>(query.vertices());
-                pipeline1 = new GremlinPipeline<Vertex, Vertex>(query.vertices());
+                vertexPipeline = new GremlinPipeline <Vertex, Vertex>(query.vertices());
+                countPipeline = new GremlinPipeline<Vertex, Vertex>(query.vertices());
             }
 
             HashMap<Object, Number> map = new HashMap<Object, Number>();
-            Collection <Vertex> vertexList = pipeline.range((int) offset, (int) size).toList();
-            pipeline1.property(PropertyName.SUBTYPE.toString()).groupCount(map).iterate();
+            Collection <Vertex> vertexList;
+            if (subType != null) {
+                vertexList = (Collection<Vertex>) vertexPipeline.range((int) offset, (int) size).has(PropertyName.SUBTYPE.toString(), Tokens.T.eq, subType).toList();
+                map.put(subType, vertexList.size());
+            } else {
+                vertexList = vertexPipeline.range((int) offset, (int) size).toList();
+                countPipeline.property(PropertyName.SUBTYPE.toString()).groupCount(map).iterate();
+            }
 
             for (Object key : map.keySet()) {
                 if (key != null) {
