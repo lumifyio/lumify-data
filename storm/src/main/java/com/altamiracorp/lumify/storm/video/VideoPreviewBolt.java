@@ -42,7 +42,7 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
     protected void safeExecute(Tuple input) throws Exception {
         JSONObject json = getJsonFromTuple(input);
         String artifactRowKey = json.getString("artifactRowKey");
-        LOGGER.info("Generating video preview for " + artifactRowKey);
+        LOGGER.info("[VideoPreviewBolt] Generating video preview for " + artifactRowKey);
 
         try {
             List<VideoFrame> videoFrames = videoFrameRepository.findAllByArtifactRowKey(artifactRowKey, getUser());
@@ -55,7 +55,7 @@ public class VideoPreviewBolt extends BaseLumifyBolt {
         } catch (IOException e) {
             throw new RuntimeException("Could not create preview image for artifact: " + artifactRowKey, e);
         }
-
+        LOGGER.debug("Finished [VideoPreviewBolt]: " + artifactRowKey);
         getCollector().ack(input);
     }
 

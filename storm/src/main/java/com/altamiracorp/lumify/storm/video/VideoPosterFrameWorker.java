@@ -22,7 +22,7 @@ public class VideoPosterFrameWorker extends ThreadedTeeInputStreamWorker<Artifac
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData additionalArtifactWorkData) throws Exception {
-        LOGGER.info("Encoding (posterframe) " + additionalArtifactWorkData.getLocalFileName());
+        LOGGER.info("Encoding (posterframe) [VideoPosterFrameWorker] " + additionalArtifactWorkData.getLocalFileName());
         HdfsLimitOutputStream out = new HdfsLimitOutputStream(additionalArtifactWorkData.getHdfsFileSystem(), 0);
         try {
             ProcessRunner.execute(
@@ -45,6 +45,7 @@ public class VideoPosterFrameWorker extends ThreadedTeeInputStreamWorker<Artifac
 
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         info.setPosterFrameHdfsPath(out.getHdfsPath().toString());
+        LOGGER.debug("Finished [VideoPosterFrameWorker]: " + additionalArtifactWorkData.getFileName());
         return info;
     }
 }

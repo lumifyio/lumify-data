@@ -7,14 +7,18 @@ import com.altamiracorp.lumify.textExtraction.VideoFrameExtractedInfo;
 import com.google.inject.Inject;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.util.List;
 
 public class VideoFrameTextExtractor {
     private ImageOcrTextExtractor imageOcrTextExtractor;
+    private static final Logger LOGGER = LoggerFactory.getLogger(CCExtractorWorker.class);
 
     public ArtifactExtractedInfo extract(List<ArtifactExtractedInfo.VideoFrame> videoFrames, AdditionalArtifactWorkData data) throws Exception {
+        LOGGER.debug("Extracting Frame Text [VideoFrameTextExtractor]: " + data.getFileName());
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         StringBuilder builder = new StringBuilder();
         FileSystem fs = data.getHdfsFileSystem();
@@ -28,6 +32,7 @@ public class VideoFrameTextExtractor {
             builder.append("\n");
         }
         info.setText(builder.toString());
+        LOGGER.debug("Finished [VideoFrameTextExtractor]: " + data.getFileName());
         return info;
     }
 

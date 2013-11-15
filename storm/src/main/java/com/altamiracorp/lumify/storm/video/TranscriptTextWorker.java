@@ -7,6 +7,8 @@ import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
@@ -18,10 +20,11 @@ import static com.google.common.base.Preconditions.checkState;
 public class TranscriptTextWorker
         extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>
         implements VideoTextExtractionWorker {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CCExtractorWorker.class);
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
-
+        LOGGER.debug("Extracting transcripts [TranscriptTextWorker]: " + data.getFileName());
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         VideoTranscript videoTranscript = new VideoTranscript();
         if (data.getArchiveTempDir() != null) {
@@ -29,7 +32,7 @@ public class TranscriptTextWorker
         }
         info.setVideoTranscript(videoTranscript);
         info.setTitle(FilenameUtils.getName(data.getFileName()).split(".lumify")[0]);
-
+        LOGGER.debug("Finished [TranscriptTextWorker]: " + data.getFileName());
         return info;
     }
 

@@ -9,6 +9,8 @@ import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.textExtraction.ImageOcrTextExtractor;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.google.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -19,9 +21,11 @@ import java.util.Map;
 public class ImageTextExtractorWorker extends BaseImageWorker {
 
     private ImageOcrTextExtractor imageOcrTextExtractor;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageTextExtractorWorker.class.getName());
 
     @Override
     protected ArtifactExtractedInfo doWork(BufferedImage image, AdditionalArtifactWorkData data) throws Exception {
+        LOGGER.debug("Extracting Image Text [ImageTextExtractorWorker]: " + data.getFileName());
         ArtifactExtractedInfo info = imageOcrTextExtractor.extractFromImage(image, data.getMimeType());
         if (info == null) {
             return null;
@@ -40,7 +44,7 @@ public class ImageTextExtractorWorker extends BaseImageWorker {
             info.setRawHdfsPath(textOut.getHdfsPath().toString());
             info.setText(null);
         }
-
+        LOGGER.debug("Finished [ImageTextExtractorWorker]: " + data.getFileName());
         return info;
     }
 

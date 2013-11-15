@@ -23,6 +23,7 @@ public class CCExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtr
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData additionalArtifactWorkData) throws Exception {
+        LOGGER.debug("CCExtractor: " + additionalArtifactWorkData.getFileName());
         File ccFile = File.createTempFile("ccextract", "txt");
         ccFile.delete();
         try {
@@ -40,6 +41,7 @@ public class CCExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtr
             VideoTranscript videoTranscript = SubRip.read(ccFile);
             ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
             artifactExtractedInfo.setVideoTranscript(videoTranscript);
+            LOGGER.debug("Finished [CCExtractorWorker]: " + additionalArtifactWorkData.getFileName());
             return artifactExtractedInfo;
         } finally {
             ccFile.delete();

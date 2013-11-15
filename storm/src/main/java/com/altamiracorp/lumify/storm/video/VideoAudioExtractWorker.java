@@ -22,6 +22,7 @@ public class VideoAudioExtractWorker extends ThreadedTeeInputStreamWorker<Artifa
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData additionalArtifactWorkData) throws Exception {
+        LOGGER.debug("Extracting Video Audio [VideoAudioExtractWorker]: " + additionalArtifactWorkData.getFileName());
         LOGGER.info("Extracting audio from video " + additionalArtifactWorkData.getLocalFileName());
         HdfsLimitOutputStream out = new HdfsLimitOutputStream(additionalArtifactWorkData.getHdfsFileSystem(), 0);
         try {
@@ -43,6 +44,7 @@ public class VideoAudioExtractWorker extends ThreadedTeeInputStreamWorker<Artifa
 
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         info.setAudioHdfsPath(out.getHdfsPath().toString());
+        LOGGER.debug("Finished [VideoAudioExtractWorker]: " + additionalArtifactWorkData.getFileName());
         return info;
     }
 }

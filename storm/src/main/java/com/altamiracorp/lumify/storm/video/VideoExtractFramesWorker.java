@@ -33,6 +33,7 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData additionalArtifactWorkData) throws Exception {
+        LOGGER.debug("Extracting Frames [VideoExtractFramesWorker]: " + additionalArtifactWorkData.getFileName());
         Pattern fileNamePattern = Pattern.compile("image-([0-9]+)\\.png");
         File tempDir = createTempDir("video-frames");
 
@@ -72,6 +73,7 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
         info.setVideoDuration(videoDuration);
         info.setVideoFrames(videoFrames);
         info.setText(videoFrameTextExtractor.extract(videoFrames, additionalArtifactWorkData).getText());
+        LOGGER.debug("Finished [VideoExtractFramesWorker]: " + additionalArtifactWorkData.getFileName());
         return info;
     }
 
