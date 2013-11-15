@@ -94,7 +94,7 @@ public class EntityHighlighter {
         }
         result.append(text.substring(lastStart - textStartOffset));
 
-        return result.toString().replaceAll("\n", "<p>");
+        return result.toString();
     }
 
     public List<OffsetItem> convertTermMentionsToOffsetItems(Collection<TermMention> termMentions, User user) {

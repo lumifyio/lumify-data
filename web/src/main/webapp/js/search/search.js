@@ -55,9 +55,9 @@ define([
 
         this.searchResults = null;
 
-        this.onEntitySearchResultsForConcept = function($searchResultsSummary, concept, entities, parentPropertyListElements) {
+        this.onEntitySearchResultsForConcept = function($searchResultsSummary, concept, entities, count, parentPropertyListElements) {
             var self = this,
-                resultsCount = (entities[concept.id] || []).length,
+                resultsCount = count,
                 li = $searchResultsSummary.find('.concept-' + concept.id + ' .badge')
                     .removeClass('loading')
                     .text(resultsCount)
@@ -78,6 +78,7 @@ define([
                         $searchResultsSummary,
                         childConcept,
                         entities,
+                        count,
                         parentLis
                     );
                 });
@@ -176,7 +177,8 @@ define([
                         }
                     });
 
-                    if (Object.keys(results.entity).length === 0) {
+                    var counts = _.values(vertexSearch[0].verticesCount);
+                    if (counts.length === 0 || Math.max.apply([], counts) === 0) {
                         var headerTextNode = self.$node.find('.search-results-summary li.entities');
                         if (headerTextNode.length) {
                             headerTextNode[0].normalize();
@@ -184,7 +186,8 @@ define([
                         }
                     } else {
                         concepts.byTitle.forEach(function(concept) {
-                            self.onEntitySearchResultsForConcept(self.select('resultsSummarySelector'), concept, results.entity);
+                            var count = vertexSearch[0].verticesCount[concept.id] || 0;
+                            self.onEntitySearchResultsForConcept(self.select('resultsSummarySelector'), concept, results.entity, count);
                         });
                     }
 
@@ -241,10 +244,10 @@ define([
             this.hideSearchResults();
             this.select('filtersSelector').hide();
 
-            if (vertices.length) {
+            if (data.count) {
                 VertexList.attachTo($searchResults.find('.content'), {
                     vertices: vertices,
-                    infiniteScrolling: data._type === 'artifact',
+                    infiniteScrolling: true,
                     verticesType: data._type,
                     verticesSubType: data._subType,
                     total: data.count
@@ -385,7 +388,7 @@ define([
                         'addInfiniteVertices', 
                         { 
                             vertices: results.vertices,
-                            total: results.verticesCount
+                            total: results.verticesCount[data.verticesSubType]
                         }
                     );
                 });

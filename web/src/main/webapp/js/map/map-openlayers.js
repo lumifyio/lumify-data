@@ -79,7 +79,6 @@ define([
         this.onMapCenter = function(evt, data) {
             this.mapReady(function(map) {
                 map.setCenter(latLon(data.latitude, data.longitude), 7);
-                map.featuresLayer.redraw();
             });
         };
 
@@ -152,20 +151,6 @@ define([
                 // Create new features for new selections
                 vertices.forEach(function(vertex) {
                     self.findOrCreateMarker(map, vertex);
-                });
-
-                // Select clustered items that contain selected features
-                featuresLayer.features.forEach(function(feature) {
-                    if (feature.cluster) {
-                        var someSelected = _.some(feature.cluster, function(f) {
-                            return ~selectedIds.indexOf(f.id);
-                        });
-                        if (someSelected) {
-                            feature.renderIntent = 'select';
-                        } else {
-                            feature.renderIntent = 'default';
-                        }
-                    }
                 });
 
                 var sf = this.clusterStrategy.selectedFeatures = {};
@@ -465,13 +450,17 @@ define([
                 }),
                 style = self.featureStyle(),
                 selectedStyle = {
-                    fillColor:'#0070C3', labelOutlineColor:'#08538B', strokeColor:'#08538B' 
+                    fillColor:'#0070C3', labelOutlineColor:'#08538B', strokeColor:'#08538B',
+                },
+                partialSelectionStyle = {
+                    strokeColor:'#08538B'
                 };
 
             map.featuresLayer = new ol.Layer.Vector('Markers', {
                 strategies: [ cluster ],
                 styleMap: new ol.StyleMap({
                     'default': new ol.Style(style.baseStyle, style.baseContext),
+                    'temporary': new ol.Style($.extend({}, style.baseStyle, partialSelectionStyle), style.baseContext),
                     'select': new ol.Style($.extend({}, style.baseStyle, selectedStyle), style.baseContext)
                 })
             });
