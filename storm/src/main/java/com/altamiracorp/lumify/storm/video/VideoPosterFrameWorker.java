@@ -10,6 +10,7 @@ import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -22,7 +23,8 @@ public class VideoPosterFrameWorker extends ThreadedTeeInputStreamWorker<Artifac
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData additionalArtifactWorkData) throws Exception {
-        LOGGER.info("Encoding (posterframe) [VideoPosterFrameWorker] " + additionalArtifactWorkData.getLocalFileName());
+        File inputFile = new File(additionalArtifactWorkData.getLocalFileName());
+        LOGGER.info("Encoding (posterframe) [VideoPosterFrameWorker] " + inputFile.getAbsolutePath() + ", length: " + inputFile.length());
         HdfsLimitOutputStream out = new HdfsLimitOutputStream(additionalArtifactWorkData.getHdfsFileSystem(), 0);
         try {
             ProcessRunner.execute(
@@ -44,7 +46,7 @@ public class VideoPosterFrameWorker extends ThreadedTeeInputStreamWorker<Artifac
         }
 
         if (out.getLength() == 0) {
-            throw new RuntimeException("Poster frame not created. Zero length file detected.");
+            throw new RuntimeException("Poster frame not created. Zero length file detected. (from: " + inputFile.getAbsolutePath() + ", length: " + inputFile.length() + ")");
         }
 
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();

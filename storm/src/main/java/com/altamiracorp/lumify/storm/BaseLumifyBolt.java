@@ -174,8 +174,15 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
             artifactExtractedInfo.setSource(artifactExtractedInfo.getUrl());
         }
 
+        String oldGraphVertexId = artifact.getMetadata().getGraphVertexId();
+        boolean existingGraphVertex = oldGraphVertexId != null && oldGraphVertexId.length() > 0;
+
         GraphVertex vertex = artifactRepository.saveToGraph(artifact, artifactExtractedInfo, getUser());
-        auditRepository.audit(vertex.getId(), "Entity created: " + vertex.getId(), getUser());
+        if (existingGraphVertex) {
+            auditRepository.audit(vertex.getId(), "Updating Entity: " + vertex.getId(), getUser());
+        } else {
+            auditRepository.audit(vertex.getId(), "Entity created: " + vertex.getId(), getUser());
+        }
         return vertex;
     }
 

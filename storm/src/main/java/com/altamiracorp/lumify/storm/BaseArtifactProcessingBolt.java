@@ -94,6 +94,7 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
             archiveTempDir = extractArchive(fileMetadata);
             File primaryFile = getPrimaryFileFromArchive(archiveTempDir);
             in = getInputStream(primaryFile.getAbsolutePath(), artifactExtractedInfo);
+            fileMetadata.setPrimaryFileFromArchive(primaryFile);
             fileMetadata.setMimeType(contentTypeExtractor.extract(new FileInputStream(primaryFile), FilenameUtils.getExtension(primaryFile.getAbsoluteFile().toString())));
         } else {
             in = getInputStream(fileMetadata.getFileName(), artifactExtractedInfo);
@@ -195,11 +196,14 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
             additionalDocumentWorkData.setMimeType(fileMetadata.getMimeType());
             additionalDocumentWorkData.setHdfsFileSystem(getHdfsFileSystem());
             additionalDocumentWorkData.setArchiveTempDir(archiveTempDir);
-            // TODO if this is an archive the file is already local no need to copy it there
             if (isLocalFileRequired()) {
-                File localFile = copyFileToLocalFile(in);
-                in = new FileInputStream(localFile);
-                additionalDocumentWorkData.setLocalFileName(localFile.getAbsolutePath());
+                if (fileMetadata.getPrimaryFileFromArchive() != null) {
+                    additionalDocumentWorkData.setLocalFileName(fileMetadata.getPrimaryFileFromArchive().getAbsolutePath());
+                } else {
+                    File localFile = copyFileToLocalFile(in);
+                    in = new FileInputStream(localFile);
+                    additionalDocumentWorkData.setLocalFileName(localFile.getAbsolutePath());
+                }
             }
             List<ThreadedTeeInputStreamWorker.WorkResult<ArtifactExtractedInfo>> results = threadedInputStreamProcess.doWork(in, additionalDocumentWorkData);
             mergeResults(artifactExtractedInfo, results);

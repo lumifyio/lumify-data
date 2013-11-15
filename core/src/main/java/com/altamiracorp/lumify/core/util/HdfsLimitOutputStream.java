@@ -29,7 +29,7 @@ public class HdfsLimitOutputStream extends OutputStream {
         this.length = 0;
     }
 
-    private OutputStream getLargeOutputStream() throws IOException {
+    private synchronized OutputStream getLargeOutputStream() throws IOException {
         if (largeOutputStream == null) {
             hdfsPath = createTempPath();
             largeOutputStream = fs.create(hdfsPath);
@@ -43,7 +43,7 @@ public class HdfsLimitOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(int b) throws IOException {
+    public synchronized void write(int b) throws IOException {
         this.digest.update((byte) b);
         if (this.smallOutputStream.size() <= maxSizeToStore - 1) {
             this.smallOutputStream.write(b);
@@ -54,7 +54,7 @@ public class HdfsLimitOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(byte[] b) throws IOException {
+    public synchronized void write(byte[] b) throws IOException {
         this.digest.update(b);
         if (this.smallOutputStream.size() <= maxSizeToStore - b.length) {
             this.smallOutputStream.write(b);
@@ -65,7 +65,7 @@ public class HdfsLimitOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(byte[] b, int off, int len) throws IOException {
+    public synchronized void write(byte[] b, int off, int len) throws IOException {
         this.digest.update(b, off, len);
         if (this.smallOutputStream.size() <= maxSizeToStore - len) {
             this.smallOutputStream.write(b, off, len);
@@ -75,7 +75,7 @@ public class HdfsLimitOutputStream extends OutputStream {
         length += len;
     }
 
-    public boolean hasExceededSizeLimit() {
+    public synchronized boolean hasExceededSizeLimit() {
         return this.largeOutputStream != null;
     }
 
@@ -96,7 +96,7 @@ public class HdfsLimitOutputStream extends OutputStream {
     }
 
     @Override
-    public void flush() throws IOException {
+    public synchronized void flush() throws IOException {
         if (this.largeOutputStream != null) {
             this.largeOutputStream.flush();
         }
@@ -104,7 +104,7 @@ public class HdfsLimitOutputStream extends OutputStream {
     }
 
     @Override
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         if (this.largeOutputStream != null) {
             this.largeOutputStream.close();
         }
