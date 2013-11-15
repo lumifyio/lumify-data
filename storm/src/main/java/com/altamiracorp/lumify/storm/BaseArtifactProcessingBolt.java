@@ -137,7 +137,7 @@ public abstract class BaseArtifactProcessingBolt extends BaseLumifyBolt {
             FileUtils.deleteDirectory(archiveTempDir);
             LOGGER.debug("Deleted temporary directory holding archive content");
         }
-
+        LOGGER.debug("Created graph vertex [" + graphVertex.getId() + "] for " + artifactExtractedInfo.getTitle());
         return graphVertex;
     }
 
