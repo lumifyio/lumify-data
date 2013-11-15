@@ -428,7 +428,7 @@ public class TitanGraphSession extends GraphSession {
             HashMap<Object, Number> map = new HashMap<Object, Number>();
             Collection <Vertex> vertexList;
             if (subType != null) {
-                vertexList = (Collection<Vertex>) vertexPipeline.range((int) offset, (int) size).has(PropertyName.SUBTYPE.toString(), Tokens.T.eq, subType).toList();
+                vertexList = (Collection<Vertex>) vertexPipeline.has(PropertyName.SUBTYPE.toString(), Tokens.T.eq, subType).range((int) offset, (int) size).toList();
                 map.put(subType, vertexList.size());
             } else {
                 vertexList = vertexPipeline.range((int) offset, (int) size).toList();
