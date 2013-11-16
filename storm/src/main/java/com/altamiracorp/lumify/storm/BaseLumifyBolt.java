@@ -25,15 +25,18 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
-public abstract class BaseLumifyBolt extends BaseRichBolt {
+public abstract class BaseLumifyBolt extends BaseRichBolt implements BaseLumifyBoltMXBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseLumifyBolt.class);
 
     private OutputCollector collector;
@@ -42,6 +45,10 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
     protected GraphRepository graphRepository;
     protected AuditRepository auditRepository;
     private Injector injector;
+    private AtomicLong totalProcessedCount = new AtomicLong();
+    private AtomicLong processingCount = new AtomicLong();
+    private AtomicLong totalErrorCount = new AtomicLong();
+    private long averageProcessingTime;
 
     @Override
     public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
@@ -54,9 +61,17 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
         try {
             String hdfsRootDir = (String) stormConf.get(com.altamiracorp.lumify.core.config.Configuration.HADOOP_URL);
             hdfsFileSystem = FileSystem.get(new URI(hdfsRootDir), conf, "hadoop");
+
+            registerJmxBean();
         } catch (Exception e) {
             collector.reportError(e);
         }
+    }
+
+    protected void registerJmxBean() throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
+        MBeanServer beanServer = ManagementFactory.getPlatformMBeanServer();
+        ObjectName beanName = new ObjectName("com.altamiracorp.lumify.storm.bolt:type=" + getClass().getName());
+        beanServer.registerMBean(this, beanName);
     }
 
     protected JSONObject getJsonFromTuple(Tuple input) throws Exception {
@@ -96,32 +111,43 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
 
     @Override
     public final void execute(Tuple input) {
-        String auditMessage;
-        String graphVertexId = null;
-        auditMessage = "BEGIN " + this.getClass().getName() + ": " + input;
-        LOGGER.info(auditMessage);
-        JSONObject json = tryGetJsonFromTuple(input);
-        if (json != null) {
-            graphVertexId = json.optString("graphVertexId");
-            if (graphVertexId.length() == 0) {
-                graphVertexId = null;
+        long startTime = System.currentTimeMillis();
+        processingCount.getAndIncrement();
+        try {
+            String auditMessage;
+            String graphVertexId = null;
+            auditMessage = "BEGIN " + this.getClass().getName() + ": " + input;
+            LOGGER.info(auditMessage);
+            JSONObject json = tryGetJsonFromTuple(input);
+            if (json != null) {
+                graphVertexId = json.optString("graphVertexId");
+                if (graphVertexId.length() == 0) {
+                    graphVertexId = null;
+                }
+                if (graphVertexId != null) {
+                    auditRepository.audit(graphVertexId, auditMessage, getUser());
+                }
             }
+            try {
+                safeExecute(input);
+            } catch (Exception e) {
+                totalErrorCount.getAndIncrement();
+                LOGGER.error("Error occurred during execution: " + input, e);
+                getCollector().reportError(e);
+                getCollector().fail(input);
+            }
+
+            auditMessage = "END " + this.getClass().getName() + ": " + input;
+            LOGGER.info(auditMessage);
             if (graphVertexId != null) {
                 auditRepository.audit(graphVertexId, auditMessage, getUser());
             }
-        }
-        try {
-            safeExecute(input);
-        } catch (Exception e) {
-            LOGGER.error("Error occurred during execution: " + input, e);
-            getCollector().reportError(e);
-            getCollector().fail(input);
-        }
-
-        auditMessage = "END " + this.getClass().getName() + ": " + input;
-        LOGGER.info(auditMessage);
-        if (graphVertexId != null) {
-            auditRepository.audit(graphVertexId, auditMessage, getUser());
+        } finally {
+            processingCount.getAndDecrement();
+            totalProcessedCount.getAndIncrement();
+            long endTime = System.currentTimeMillis();
+            long processingTime = endTime - startTime;
+            this.averageProcessingTime = (((totalProcessedCount.get() - 1) * this.averageProcessingTime) + processingTime) / totalProcessedCount.get();
         }
     }
 
@@ -254,5 +280,25 @@ public abstract class BaseLumifyBolt extends BaseRichBolt {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public long getProcessingCount() {
+        return this.processingCount.get();
+    }
+
+    @Override
+    public long getTotalProcessedCount() {
+        return this.totalProcessedCount.get();
+    }
+
+    @Override
+    public long getAverageProcessingTime() {
+        return this.averageProcessingTime;
+    }
+
+    @Override
+    public long getTotalErrorCount() {
+        return this.totalErrorCount.get();
     }
 }
