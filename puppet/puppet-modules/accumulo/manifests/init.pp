@@ -154,12 +154,4 @@ class accumulo(
     sshdir  => "${configdir}/.ssh",
     require => File["${configdir}/.ssh"],
   }
-
-  file { "$bindir/accumulo-init.sh":
-    ensure   => file,
-    source   => "puppet:///modules/accumulo/accumulo-init.sh",
-    owner    => "root",
-    group    => "root",
-    force    => true,
-  }
 }
