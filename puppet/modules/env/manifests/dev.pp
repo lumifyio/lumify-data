@@ -79,4 +79,10 @@ class env::dev {
     owner => 'root',
     mode => 'u=rw,g=r,o=r',
   }
+
+  file { '/etc/hosts' :
+    source => 'puppet:///modules/env/dev/hosts',
+    owner => 'vagrant',
+    mode => 'u=rwx,g=,o=',
+  }
 }

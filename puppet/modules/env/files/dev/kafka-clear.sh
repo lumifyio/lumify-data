@@ -1,6 +1,7 @@
 #!/bin/bash
 
 /opt/stop.sh kafka
+/opt/start.sh zk
 
 sudo rm -rf /opt/kafka/logs/*
 
