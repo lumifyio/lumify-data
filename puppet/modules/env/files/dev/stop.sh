@@ -17,6 +17,13 @@ function zk {
     fi
 }
 
+function hue {
+    echo "Stopping Hue..."
+    if sudo service hue status | grep -q "is running"; then
+        sudo service hue stop
+    fi
+}
+
 function accumulo {
     echo "Stopping accumulo-$1..."
     if sudo initctl status accumulo-$1 | grep -q running; then
@@ -52,6 +59,9 @@ case "$1" in
   zk)
     zk
     ;;
+  hue)
+    hue
+    ;;    
   accumulo)
     accumulo tserver
     accumulo gc
@@ -86,6 +96,7 @@ case "$1" in
     storm nimbus
     kafka
     elasticsearch
+    hue
     accumulo tserver
     accumulo gc
     accumulo logger

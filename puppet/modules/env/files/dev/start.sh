@@ -21,6 +21,15 @@ function zk {
     fi
 }
 
+function hue {
+    echo "Starting Hue..."
+    if sudo service hue status | grep -q -v "is running"; then
+        sudo service hue start
+    else
+        echo "Hue already running"
+    fi
+}
+
 function accumulo {
     echo "Starting accumulo..."
     if sudo initctl status accumulo-master | grep -q stop; then
@@ -83,6 +92,9 @@ case "$1" in
   zk)
     zk
     ;;
+  hue)
+    hue
+    ;;    
   accumulo)
     accumulo
     ;;
@@ -110,6 +122,7 @@ case "$1" in
     hadoop
     zk
     accumulo
+    hue
     elasticsearch
     kafka
     storm nimbus

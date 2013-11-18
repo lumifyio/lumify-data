@@ -7,6 +7,7 @@ class env::dev {
   include ::zookeeper
   include role::hadoop::pseudo
   include role::accumulo::pseudo
+  include ::hue
 
   include role::elasticsearch::pseudo
 
