@@ -5,12 +5,14 @@ define([
     'flight/lib/registry',
     'tpl!./filters',
     'tpl!./item',
+    'fields/selection/selection',
     'service/ontology'
 ], function(
     defineComponent,
     registry,
     template,
     itemTemplate,
+    FieldSelection,
     OntologyService) {
     'use strict';
 
@@ -25,7 +27,8 @@ define([
         this.ontologyService = new OntologyService();
 
         this.defaultAttrs({
-            propertySelector: 'select.property-filters'
+            fieldSelectionSelector: '.newrow .add-property',
+            removeRowSelector: 'button.remove'
         });
 
         this.after('initialize', function() {
@@ -33,8 +36,11 @@ define([
 
             this.$node.html(template({}));
 
-            this.on('change', { propertySelector: this.onPropertyChanged });
             this.on('propertychange', this.onPropertyFieldItemChanged);
+            this.on('propertyselected', this.onPropertySelected);
+            this.on('click', {
+                removeRowSelector: this.onRemoveRow
+            });
 
             this.loadPropertyFilters();
         });
@@ -51,29 +57,21 @@ define([
             });
         };
 
-        this.onPropertyFieldItemChanged = function(event, data) {
-            this.currentFilters[data.id] = data;
-            this.notifyOfFilters();
-            event.stopPropagation();
+        this.onRemoveRow = function(event, data) {
+            var target = $(event.target);
+            this.teardownField(target.next('.configuration'));
+            target.closest('li').remove();
+            this.createNewRowIfNeeded();
         };
 
-        this.onPropertyChanged = function(event, data) {
+        this.onPropertySelected = function(event, data) {
             var self = this,
                 target = $(event.target),
-                property = target.find(':selected').data('info'),
                 li = target.closest('li'),
-                addRemoveOption = target.find('option').eq(0);
-
-            if (!property || !property.dataType) {
-                this.teardownField(target.next('.configuration'));
-                li.remove();
-                return;
-            }
-
-            addRemoveOption.text('Remove filter');
+                property = data.property;
 
             require(['fields/' + property.dataType], function(PropertyFieldItem) {
-                var node = target.next('.configuration');
+                var node = li.find('.configuration');
 
                 self.teardownField(node);
 
@@ -85,10 +83,24 @@ define([
 
                 li.removeClass('newrow');
 
-                if (self.$node.find('.newrow').length === 0) {
-                    li.closest('ul').append(itemTemplate({properties:self.properties}));
-                }
+                self.createNewRowIfNeeded();
             });
+        };
+
+        this.createNewRowIfNeeded = function() {
+            if (this.$node.find('.newrow').length === 0) {
+                this.$node.find('ul.nav').append(itemTemplate({properties:this.properties}));
+                FieldSelection.attachTo(this.select('fieldSelectionSelector'), {
+                    properties: this.properties,
+                    placeholder: 'Add Filter'
+                });
+            }
+        };
+
+        this.onPropertyFieldItemChanged = function(event, data) {
+            this.currentFilters[data.id] = data;
+            this.notifyOfFilters();
+            event.stopPropagation();
         };
 
         this.teardownField = function(node) {
@@ -121,7 +133,11 @@ define([
                     if (/^_/.test(p.title)) return false;
                     return true; 
                 });
-                self.$node.find('.nav-header').after(itemTemplate({properties:self.properties}));
+                self.$node.find('.nav-header').after(itemTemplate({}));
+                FieldSelection.attachTo(self.select('fieldSelectionSelector'), {
+                    properties: self.properties,
+                    placeholder: 'Add Filter'
+                });
             });
         };
     }

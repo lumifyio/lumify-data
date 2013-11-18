@@ -1,0 +1,28 @@
+########### These MUST be filled in for a storm configuration
+storm.zookeeper.servers: <%= @zookeeper_nodes.values.map { |zk| zk.split(':')}.map(&:first).inspect %>
+storm.zookeeper.port: <%= @zookeeper_port %>
+ 
+nimbus.host: <%= @storm_nimbus_host %>
+
+ 
+# ##### These may optionally be filled in:
+#
+storm.local.dir: <%= @storm_local_dir %>
+supervisor.slots.ports: <%= @storm_supervisor_slots_ports.inspect %>
+ui.port: <%= @storm_ui_port %>
+nimbus.thrift.port: <%= @storm_nimbus_thrift_port %>
+java.library.path: "/usr/lib:/usr/local/lib:/usr/local/share/OpenCV/java"
+
+## List of custom serializations
+# topology.kryo.register:
+#     - org.mycompany.MyType
+#     - org.mycompany.MyType2: org.mycompany.MyType2Serializer
+#
+## List of custom kryo decorators
+# topology.kryo.decorators:
+#     - org.mycompany.MyDecorator
+#
+## Locations of the drpc servers
+# drpc.servers:
+#     - "server1"
+#     - "server2"

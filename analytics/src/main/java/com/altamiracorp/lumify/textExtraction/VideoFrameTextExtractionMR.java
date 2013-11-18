@@ -1,11 +1,11 @@
 package com.altamiracorp.lumify.textExtraction;
 
+import com.altamiracorp.bigtable.model.accumulo.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
-import com.altamiracorp.lumify.config.Configuration;
-import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.model.AccumuloVideoFrameInputFormat;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
 import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.hadoop.io.Text;
@@ -27,9 +27,13 @@ public class VideoFrameTextExtractionMR extends ConfigurableMapJobBase {
 
     @Override
     protected Class<? extends InputFormat> getInputFormatClassAndInit(Job job) {
+        //TODO: Storm refactor
+        throw new RuntimeException("No longer valid in the Storm refactor!");
+        /*
         Configuration c = getConfiguration();
         AccumuloVideoFrameInputFormat.init(job, c.getDataStoreUserName(), c.getDataStorePassword(), getAuthorizations(), c.getZookeeperInstanceName(), c.getZookeeperServerNames());
         return AccumuloVideoFrameInputFormat.class;
+        */
     }
 
     @Override

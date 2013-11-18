@@ -1,10 +1,11 @@
 package com.altamiracorp.lumify.objectDetection;
 
+import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -20,12 +21,7 @@ public abstract class ObjectDetector {
         this.videoFrameRepository = videoFrameRepository;
     }
 
-    public List<DetectedObject> detectObjects(Artifact artifact, User user) throws IOException {
-        BufferedImage bImage = artifactRepository.getRawAsImage(artifact, user);
-        return detectObjects(bImage);
-    }
-
-    public List<DetectedObject> detectObjects(VideoFrame videoFrame, User user) throws IOException {
+    public List<ArtifactDetectedObject> detectObjects(VideoFrame videoFrame, User user) throws IOException {
         BufferedImage bImage = videoFrameRepository.loadImage(videoFrame, user);
         return detectObjects(bImage);
     }
@@ -34,7 +30,7 @@ public abstract class ObjectDetector {
 
     public abstract void setup(String classifierPath) throws IOException;
 
-    protected abstract List<DetectedObject> detectObjects(BufferedImage bImage) throws IOException;
+    public abstract List<ArtifactDetectedObject> detectObjects(BufferedImage bImage) throws IOException;
 
     public abstract String getModelName();
 

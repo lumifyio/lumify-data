@@ -1,20 +1,22 @@
 package com.altamiracorp.lumify.core.user;
 
+import com.altamiracorp.bigtable.model.user.ModelUserContext;
+
 public class User {
     private String username;
     private String rowKey;
     private String currentWorkspace;
-    private ModelAuthorizations modelAuthorizations;
+    private ModelUserContext modelUserContext;
 
-    public User(String rowKey, String username, String currentWorkspace, ModelAuthorizations modelAuthorizations) {
+    public User(String rowKey, String username, String currentWorkspace, ModelUserContext modelUserContext) {
         this.rowKey = rowKey;
         this.username = username;
         this.currentWorkspace = currentWorkspace;
-        this.modelAuthorizations = modelAuthorizations;
+        this.modelUserContext = modelUserContext;
     }
 
-    public ModelAuthorizations getModelAuthorizations() {
-        return modelAuthorizations;
+    public ModelUserContext getModelUserContext() {
+        return modelUserContext;
     }
 
     public String getUsername() {

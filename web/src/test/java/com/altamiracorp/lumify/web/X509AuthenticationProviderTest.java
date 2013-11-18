@@ -1,11 +1,11 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.user.User;
-import com.altamiracorp.lumify.model.user.UserMetadata;
-import com.altamiracorp.lumify.model.user.UserRepository;
-import com.altamiracorp.lumify.model.user.UserRowKey;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.bigtable.model.ModelSession;
+import com.altamiracorp.lumify.core.model.user.UserRow;
+import com.altamiracorp.lumify.core.model.user.UserMetadata;
+import com.altamiracorp.lumify.core.model.user.UserRepository;
+import com.altamiracorp.lumify.core.model.user.UserRowKey;
+import com.altamiracorp.miniweb.HandlerChain;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -40,7 +40,7 @@ public class X509AuthenticationProviderTest {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private User user;
+    private UserRow user;
     @Mock
     private UserMetadata userMetadata;
 

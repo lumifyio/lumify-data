@@ -2,8 +2,9 @@
 
 define([
     'flight/lib/component',
+    'sinon',
     'detail/withHighlighting'
-], function(defineComponent, withHighlighting) {
+], function(defineComponent, sinon, withHighlighting) {
 
     var EXPECTED_DROPDOWN_SPEED = 1500;
 
@@ -32,15 +33,17 @@ define([
 
 
         beforeEach(function() {
+            
 
             clearSelection();
 
             this.Component = defineComponent(WithHighlightingTest, withHighlighting);
             this.$node = $('<div class="detail-pane"><div class="content"></div></div>').appendTo('body').find('.content');
             this.$parentNode = this.$node.closest('.detail-pane');
-            this.component = new this.Component(this.$node, { 
+            this.component = new this.Component();
+            this.component.initialize(this.$node, { 
                 data: { 
-                    _rowKey:'tmp-rowkey',
+                    properties: {_rowKey:'tmp-rowkey'},
                     selectionDebounce: 10
                 }
             });
@@ -49,13 +52,14 @@ define([
 
                 this.after('initialize', function() {
                     this.ontologyService.clearCaches();
-                    this.ontologyService._ajaxGet = function(prop, callback) {
+                    this.ontologyService._ajaxGet = function(prop) {
                         if (prop.url == 'ontology/concept') {
-                            callback(undefined, {
+                            var d = $.Deferred();
+                            d.resolve({
                                 children:[
                                     {
                                         id:100,
-                                        title:'Entity',
+                                        title:'entity',
                                         color:'rgb(255,0,0)',
                                         glyphIconHref:'first-icon',
                                         children:[
@@ -65,12 +69,13 @@ define([
                                     },
                                     {
                                         id:101,
-                                        title:'Artifact',
+                                        title:'artifact',
                                         color:'rgb(255,0,0)',
                                         glyphIconHref:'first-icon'
                                     }
                                 ]
                             });
+                            return d;
                         }
                     };
                     this.entityService.createTerm = function(p, callback) {

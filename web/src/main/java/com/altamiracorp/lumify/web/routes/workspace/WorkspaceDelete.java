@@ -1,10 +1,10 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
-import com.altamiracorp.lumify.model.workspace.WorkspaceRowKey;
+import com.altamiracorp.lumify.core.model.workspace.WorkspaceRepository;
+import com.altamiracorp.lumify.core.model.workspace.WorkspaceRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ public class WorkspaceDelete extends BaseRequestHandler {
             WorkspaceRowKey rowKey = new WorkspaceRowKey(strRowKey);
 
             LOGGER.info("Deleting workspace with id: " + strRowKey);
-            workspaceRepository.delete(rowKey, user);
+            workspaceRepository.delete(rowKey, user.getModelUserContext());
 
             JSONObject resultJson = new JSONObject();
             resultJson.put("success", true);

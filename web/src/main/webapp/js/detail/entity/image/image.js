@@ -57,7 +57,6 @@ define([
         };
 
         this.updateImageBackground = function(src) {
-            console.log("this.attr", this.attr);
             this.$node.css({
                 backgroundImage: 'url("' + (src || this.srcForGlyphIconUrl(this.attr.data.properties._glyphIcon) || this.attr.defaultIconSrc) + '")'
             });
@@ -201,7 +200,7 @@ define([
 
             this.updateImageBackground(this.srcForGlyphIconUrl(data.vertex.properties._glyphIcon));
             
-            this.trigger(document, 'updateVertices', { vertices:[vertex] });
+            this.trigger(document, 'updateVertices', { vertices:[data.vertex] });
         };
 
         this.onUpdateProgress = function(event, data) {

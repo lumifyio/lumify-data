@@ -1,10 +1,17 @@
 package com.altamiracorp.lumify.web.routes.artifact;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
-import com.altamiracorp.lumify.web.AuthenticationProvider;
-import com.altamiracorp.lumify.web.routes.RouteTestBase;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
+import javax.servlet.http.HttpSession;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,13 +20,14 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import javax.servlet.http.HttpSession;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import com.altamiracorp.lumify.core.ingest.video.VideoPlaybackDetails;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.core.model.graph.GraphRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.web.AuthenticationProvider;
+import com.altamiracorp.lumify.web.routes.RouteTestBase;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ArtifactRawByRowKeyTest extends RouteTestBase {
@@ -29,14 +37,23 @@ public class ArtifactRawByRowKeyTest extends RouteTestBase {
     private User user;
 
     @Mock
+    private GraphVertex vertex;
+
+    @Mock
+    private VideoPlaybackDetails mockVideoDetails;
+
+    @Mock
     private HttpSession mockSession;
+
+    @Mock
+    private GraphRepository mockGraphRepository;
 
     @Override
     @Before
     public void setUp() throws Exception {
         super.setUp();
 
-        artifactRawByRowKey = new ArtifactRawByRowKey(mockArtifactRepository);
+        artifactRawByRowKey = new ArtifactRawByRowKey(mockArtifactRepository, mockGraphRepository);
     }
 
     @Test
@@ -49,14 +66,16 @@ public class ArtifactRawByRowKeyTest extends RouteTestBase {
         when(mockSession.getAttribute(AuthenticationProvider.CURRENT_USER_REQ_ATTR_NAME)).thenReturn(user);
 
         Artifact artifact = new Artifact(artifactRowKey);
-        artifact.getGenericMetadata()
+        artifact.getMetadata()
+                .setGraphVertexId("123")
                 .setFileName("testFile")
                 .setFileExtension("testExt")
                 .setMimeType("text/plain");
-        when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user)).thenReturn(artifact);
+        when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user.getModelUserContext())).thenReturn(artifact);
+        when(mockGraphRepository.findVertex(artifact.getMetadata().getGraphVertexId(), user)).thenReturn(vertex);
 
         InputStream testInputStream = new ByteArrayInputStream("test data".getBytes());
-        when(mockArtifactRepository.getRaw(artifact, user)).thenReturn(testInputStream);
+        when(mockArtifactRepository.getRaw(artifact, vertex, user)).thenReturn(testInputStream);
 
         doAnswer(new Answer<Void>() {
             @Override
@@ -90,15 +109,19 @@ public class ArtifactRawByRowKeyTest extends RouteTestBase {
         when(mockSession.getAttribute(AuthenticationProvider.CURRENT_USER_REQ_ATTR_NAME)).thenReturn(user);
 
         Artifact artifact = new Artifact(artifactRowKey);
-        artifact.getGenericMetadata()
+        artifact.getMetadata()
+                .setGraphVertexId("123")
                 .setFileName("testFile")
                 .setFileExtension("testExt")
-                .setMimeType("text/plain");
-        when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user)).thenReturn(artifact);
+                .setMimeType("video/mp4");
+        when(mockArtifactRepository.findByRowKey(artifactRowKey.toString(), user.getModelUserContext())).thenReturn(artifact);
+        when(mockGraphRepository.findVertex(artifact.getMetadata().getGraphVertexId(), user)).thenReturn(vertex);
 
         InputStream testInputStream = new ByteArrayInputStream("test data".getBytes());
-        when(mockArtifactRepository.getRawMp4(artifact, user)).thenReturn(testInputStream);
-        when(mockArtifactRepository.getRawMp4Length(artifact, user)).thenReturn((long) "test data".length());
+        when(mockVideoDetails.getVideoStream()).thenReturn(testInputStream);
+        when(mockVideoDetails.getVideoFileSize()).thenReturn((long) "test data".length());
+
+        when(mockArtifactRepository.getVideoPlaybackDetails(anyString(), anyString())).thenReturn(mockVideoDetails);
 
         doAnswer(new Answer<Void>() {
             @Override
@@ -117,7 +140,7 @@ public class ArtifactRawByRowKeyTest extends RouteTestBase {
         artifactRawByRowKey.handle(mockRequest, mockResponse, mockHandlerChain);
 
         verify(mockResponse).setContentType("video/mp4");
-        verify(mockResponse).addHeader("Content-Disposition", "attachment; filename=testFile.testExt.mp4");
+        verify(mockResponse).addHeader("Content-Disposition", "attachment; filename=testFile.testExt");
         verify(mockResponse).addHeader("Content-Length", "4");
         verify(mockResponse).addHeader("Content-Range", "bytes 1-4/9");
     }

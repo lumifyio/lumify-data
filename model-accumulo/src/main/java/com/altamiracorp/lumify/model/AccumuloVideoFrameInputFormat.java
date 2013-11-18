@@ -1,8 +1,9 @@
 package com.altamiracorp.lumify.model;
 
 import com.altamiracorp.lumify.core.user.ModelAuthorizations;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrameBuilder;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameBuilder;
+import com.altamiracorp.bigtable.model.accumulo.AccumuloBaseInputFormat;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.mapreduce.Job;

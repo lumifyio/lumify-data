@@ -1,10 +1,10 @@
 package com.altamiracorp.lumify.web.routes.resource;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.resources.Resource;
-import com.altamiracorp.lumify.model.resources.ResourceRepository;
+import com.altamiracorp.lumify.core.model.resources.Resource;
+import com.altamiracorp.lumify.core.model.resources.ResourceRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 
 import javax.servlet.ServletOutputStream;
@@ -24,7 +24,7 @@ public class ResourceGet extends BaseRequestHandler {
         final String rowKey = getAttributeString(request, "_rowKey");
         User user = getUser(request);
 
-        Resource resource = resourceRepository.findByRowKey(rowKey, user);
+        Resource resource = resourceRepository.findByRowKey(rowKey, user.getModelUserContext());
         if (resource == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;

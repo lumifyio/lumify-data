@@ -1,21 +1,23 @@
 package com.altamiracorp.lumify.web.routes.graph;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.altamiracorp.lumify.core.model.graph.GraphPagedResults;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.graph.GraphRepository;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 
 public class GraphVertexSearch extends BaseRequestHandler {
@@ -34,6 +36,9 @@ public class GraphVertexSearch extends BaseRequestHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         final String query = getRequiredParameter(request, "q");
         final String filter = getRequiredParameter(request, "filter");
+        final long offset = getOptionalParameterLong(request, "offset", 0);
+        final long size = getOptionalParameterLong(request, "size", 100);
+        final String subType = getOptionalParameter(request, "subType");
 
         User user = getUser(request);
         JSONArray filterJson = new JSONArray(filter);
@@ -41,11 +46,26 @@ public class GraphVertexSearch extends BaseRequestHandler {
         ontologyRepository.resolvePropertyIds(filterJson, user);
 
         graphRepository.commit();
-        List<GraphVertex> vertices = graphRepository.searchVerticesByTitle(query, filterJson, user);
-        LOGGER.info("Number of vertices returned for query: " + vertices.size());
+
+        GraphPagedResults pagedResults = graphRepository.searchVerticesByTitle(query, filterJson, user, offset, size != 0 && size != offset ? size - 1 : size, subType);
+
+        JSONArray vertices = new JSONArray();
+        JSONObject counts = new JSONObject();
+        int verticesCount = 0;
+        for (Map.Entry<String, List<GraphVertex>> entry : pagedResults.getResults().entrySet()) {
+            JSONArray temp = GraphVertex.toJson(entry.getValue());
+            for (int i = 0; i < temp.length(); i ++ ) {
+                vertices.put(temp.getJSONObject(i));
+            }
+            Integer count = pagedResults.getCount().get(entry.getKey());
+            verticesCount += count.intValue();
+            counts.put(entry.getKey(), count);
+        }
+        LOGGER.info("Number of vertices returned for query: " + verticesCount);
 
         JSONObject results = new JSONObject();
-        results.put("vertices", GraphVertex.toJson(vertices));
+        results.put("vertices", vertices);
+        results.put("verticesCount", counts);
 
         respondWithJson(response, results);
     }

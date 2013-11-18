@@ -1,10 +1,10 @@
 package com.altamiracorp.lumify.ucd;
 
 import com.altamiracorp.lumify.core.user.ModelAuthorizations;
-import com.altamiracorp.lumify.model.AccumuloBaseInputFormat;
+import com.altamiracorp.bigtable.model.accumulo.AccumuloBaseInputFormat;
 import com.altamiracorp.lumify.model.AccumuloModelAuthorizations;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactBuilder;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactBuilder;
 import org.apache.accumulo.core.client.mapreduce.AccumuloInputFormat;
 import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.mapreduce.Job;

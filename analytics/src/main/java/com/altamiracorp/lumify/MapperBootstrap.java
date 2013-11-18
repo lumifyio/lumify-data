@@ -9,11 +9,14 @@ import java.util.Properties;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MapperBootstrap extends BootstrapBase {
-    public MapperBootstrap(Properties properties, TaskInputOutputContext attemptContext) {
-        super(properties, attemptContext);
+    public MapperBootstrap(com.altamiracorp.lumify.core.config.Configuration config) {
+        super(config);
     }
 
     public static MapperBootstrap create(final TaskInputOutputContext context) {
+        //TODO: Do we need this anymore really?
+        throw new RuntimeException("No!");
+        /*
         checkNotNull(context);
 
         Configuration configuration = context.getConfiguration();
@@ -24,6 +27,7 @@ public class MapperBootstrap extends BootstrapBase {
             properties.setProperty(entry.getKey(), entry.getValue());
         }
 
-        return new MapperBootstrap(properties, attemptContext);
+        return new MapperBootstrap(config);
+        */
     }
 }

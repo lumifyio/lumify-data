@@ -19,18 +19,16 @@ define([
 
             this.on('change keyup', {
                 inputSelector: function(event) {
-                    if (this.isValid()) {
-                        this.filterUpdated(this.getValues().map(function(v) {
-                            return makeNumber(v);
-                        }));
-                    }
+                    this.filterUpdated(this.getValues().map(function(v) {
+                        return makeNumber(v);
+                    }));
                 }
             });
         });
 
         this.isValid = function() {
             return _.every(this.getValues(), function(v) {
-                return v.length && _.isNumber(makeNumber(v));
+                return v.length && _.isNumber(makeNumber(v)) && !isNaN(v);
             });
         };
     }

@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.location;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.geoNames.*;
-import com.altamiracorp.lumify.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.geoNames.*;
+import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.google.inject.Inject;
 
 import java.util.regex.Pattern;

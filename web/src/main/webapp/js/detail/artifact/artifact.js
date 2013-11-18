@@ -41,7 +41,8 @@ define([
             artifactSelector: '.artifact-image',
             propertiesSelector: '.properties',
             titleSelector: '.artifact-title',
-            deleteTagSelector: '.detected-object-tag .delete-tag'
+            deleteTagSelector: '.detected-object-tag .delete-tag',
+            textSelector: '.text'
         });
 
         this.after('initialize', function() {
@@ -81,23 +82,33 @@ define([
         };
 
         this.handleVertexLoaded = function(vertex) {
+            var self = this;
             this.videoTranscript = vertex.artifact.videoTranscript;
             this.videoDuration = vertex.artifact.videoDuration;
 
+            if (vertex.properties._detectedObjects) {
+                vertex.properties._detectedObjects = JSON.parse(vertex.properties._detectedObjects).sort(function(a, b){
+                    var aX = a.x1, bX = b.x1;
+                    return aX - bX;
+                });
+            }
+
             this.$node.html(template({
-                artifact: vertex.artifact,
                 vertex: vertex,
                 highlightButton: this.highlightButton(),
                 fullscreenButton: this.fullscreenButton([vertex.id])
             }));
 
-            this.updateEntityAndArtifactDraggables();
-
             Properties.attachTo(this.select('propertiesSelector'), { data: vertex });
 
-            if (this[vertex.artifact.type + 'Setup']) {
-                this[vertex.artifact.type + 'Setup'](vertex);
-            }
+            this.ucdService.getArtifactHighlightedTextById(vertex.id).done(function(artifactText) {
+                self.select('textSelector').html(artifactText.replace(/[\n]+/g, "<br><br>\n"));
+                self.updateEntityAndArtifactDraggables();
+
+                if (self[vertex.properties._subType + 'Setup']) {
+                    self[vertex.properties._subType + 'Setup'](vertex);
+                }
+            });
         };
 
         this.onVideoTimeUpdate = function(evt, data) {
@@ -148,25 +159,30 @@ define([
                 info = $target.closest('.label-info').data('info');
 
             $target.closest('.label-info').parent().addClass('focused');
+            info.existing = true;
             this.trigger('DetectedObjectEdit', info);
             this.showForm(info, this.attr.data, $target);
         };
 
         this.onCoordsChanged = function(event, data) {
             var self = this,
-                vertex = appData.vertex(this.attr.data.id),
-                detectedObject = $.extend(true, {}, _.find(vertex.artifact.detectedObjects, function(obj) {
-                    return (obj.info && obj.info._rowKey) === data.id;
+                vertex = appData.vertex(this.attr.data.id);
+            var detectedObject = $.extend(true, {}, _.find( typeof vertex.properties._detectedObjects == 'string' ? JSON.parse(vertex.properties._detectedObjects)
+                : vertex.properties._detectedObjects, function(obj) {
+                    return (obj && obj.graphVertexId) === data.id;
                 })),
-                width = parseFloat(data.coords.x2)-parseFloat(data.coords.x1),
-                height = parseFloat(data.coords.y2)-parseFloat(data.coords.y1);
+                width = parseFloat(data.x2)-parseFloat(data.x1),
+                height = parseFloat(data.y2)-parseFloat(data.y1);
 
             if (width < 5 || height < 5) {
                 return TermForm.teardownAll();
             }
 
-            detectedObject.info = detectedObject.info || {};
-            detectedObject.info.coords = data.coords;
+            detectedObject = detectedObject || {};
+            detectedObject.x1 = data.x1;
+            detectedObject.y1 = data.y1;
+            detectedObject.x2 = data.x2;
+            detectedObject.y2 = data.y2;
             this.showForm(detectedObject, this.attr.data, this.$node);
         };
 
@@ -188,11 +204,10 @@ define([
             this.entityService.deleteDetectedObject(info)
                 .done(function(data) {
                     var resolvedVertex = {
-                        id: data.id,
-                        _subType: data.properties._subType,
-                        _type: data.properties._type
+                        id: data.entityVertex.id,
+                        _subType: data.entityVertex.properties._subType,
+                        _type: data.entityVertex.properties._type
                     };
-
                     $detectedObjectTag.parent().remove();
                     self.trigger('DetectedObjectLeave', $detectedObjectTag.data('info'));
 
@@ -200,7 +215,6 @@ define([
                         self.trigger(document, 'deleteVertices', { vertices: [resolvedVertex] });
                     } else {
                         self.trigger(document, 'updateVertices', { vertices: [resolvedVertex] });
-                        self.trigger(document, 'deleteEdge', { edgeId: data.edgeId });
                     }
                 });
         };
@@ -250,19 +264,15 @@ define([
                 title: dataInfo.title
             };
 
-            var existing = false;
-            if (dataInfo.graphVertexId){
-                existing = true;
-            }
-
             TermForm.attachTo (root, {
                 artifactData: artifactInfo,
-                coords: dataInfo.info.coords,
-                detectedObjectRowKey: dataInfo.info._rowKey,
+                x1: dataInfo.x1,
+                y1: dataInfo.y1,
+                x2: dataInfo.x2,
+                y2: dataInfo.y2,
                 graphVertexId: dataInfo.graphVertexId,
                 resolvedVertex: resolvedVertex,
-                model: dataInfo.info.model,
-                existing: existing,
+                existing: dataInfo.existing || dataInfo.graphVertexId ? true : false,
                 detectedObject: true
             });
         };

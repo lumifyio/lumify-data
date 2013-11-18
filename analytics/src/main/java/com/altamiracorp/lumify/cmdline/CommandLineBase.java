@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.cmdline;
 
+import com.altamiracorp.bigtable.model.user.ModelUserContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
@@ -11,7 +12,7 @@ import org.apache.hadoop.util.Tool;
 
 import com.altamiracorp.lumify.CommandLineBootstrap;
 import com.altamiracorp.lumify.FrameworkUtils;
-import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.user.ModelAuthorizations;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
@@ -20,13 +21,27 @@ import com.google.inject.Injector;
 
 public abstract class CommandLineBase extends Configured implements Tool {
     private String configLocation = "file:///opt/lumify/config/configuration.properties";
-    private String credentialsLocation = "file:///opt/lumify/config/credentials.properties";
+    private String credentialsLocation;
     private Configuration configuration;
     private User user = new SystemUser();
+    private boolean willExit = false;
     protected boolean initFramework = true;
 
     @Override
     public int run(String[] args) throws Exception {
+        final Thread mainThread = Thread.currentThread();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                willExit = true;
+                try {
+                    mainThread.join(1000);
+                } catch (InterruptedException e) {
+                    // nothing useful to do here
+                }
+            }
+        });
+
         Options options = getOptions();
         CommandLine cmd;
         try {
@@ -43,7 +58,7 @@ public abstract class CommandLineBase extends Configured implements Tool {
         }
 
         if( initFramework ) {
-            final Injector injector = Guice.createInjector(CommandLineBootstrap.create(getConfiguration().getProperties()));
+            final Injector injector = Guice.createInjector(CommandLineBootstrap.create(getConfiguration()));
             injector.injectMembers(this);
 
             final User user = new SystemUser();
@@ -106,8 +121,8 @@ public abstract class CommandLineBase extends Configured implements Tool {
         return configuration;
     }
 
-    public ModelAuthorizations getAuthorizations() {
-        return getUser().getModelAuthorizations();
+    public ModelUserContext getModelUserContext() {
+        return getUser().getModelUserContext();
     }
 
     protected Class loadClass(String className) {
@@ -120,5 +135,9 @@ public abstract class CommandLineBase extends Configured implements Tool {
 
     protected User getUser() {
         return user;
+    }
+
+    protected boolean willExit() {
+        return willExit;
     }
 }

@@ -25,6 +25,7 @@ require([
     // Make jQuery plugins available
     'withinScrollable',
     'flightJquery',
+    'easing',
     'scrollStop',
     'bootstrap-datepicker',
     'removePrefixedClasses'
@@ -33,10 +34,17 @@ function(compose, registry, advice, withLogging, debug, _, Visibility) {
     'use strict';
 
     $.fn.datepicker.defaults.format = "yyyy-mm-dd";
+    $.fn.datepicker.defaults.autoclose = true;
 
     debug.enable(true);
+    DEBUG.events.logNone();
+
+
+    // Uncomment to enable logging of on, off, trigger events
     //DEBUG.events.logAll();
-    DEBUG.events.logByAction('trigger');
+
+    // Uncomment to enable logging of trigger events
+    //DEBUG.events.logByAction('trigger');
 
     Visibility.attachTo(document);
 

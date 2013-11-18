@@ -1,52 +1,29 @@
 package com.altamiracorp.lumify.textExtraction;
 
-import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrame;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.vietocr.ImageHelper;
-import org.apache.hadoop.mapreduce.Mapper;
 
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
 
-public class ImageOcrTextExtractor implements TextExtractor {
+public class ImageOcrTextExtractor {
     private static final String NAME = "imageOCRExtractor";
-    private static final List<String> ICON_MIME_TYPES = Arrays.asList(new String[]{"image/x-icon", "image/vnd.microsoft.icon"});
-    private ArtifactRepository artifactRepository;
-    private VideoFrameRepository videoFrameRepository;
+    private static final List<String> ICON_MIME_TYPES = Arrays.asList("image/x-icon", "image/vnd.microsoft.icon");
     private Tesseract tesseract;
 
     @Inject
-    public ImageOcrTextExtractor(ArtifactRepository artifactRepository, VideoFrameRepository videoFrameRepository) {
-        this.artifactRepository = artifactRepository;
-        this.videoFrameRepository = videoFrameRepository;
-    }
-
-    @Override
-    public void setup(Mapper.Context context, Injector injector) {
+    public ImageOcrTextExtractor() {
         tesseract = Tesseract.getInstance();
     }
 
-    @Override
-    public ArtifactExtractedInfo extract(Artifact artifact, User user) throws Exception {
-        if (artifact.getType() != ArtifactType.IMAGE) {
-            return null;
-        }
-
-        if (isIcon(artifact)) {
-            return null;
-        }
-
-        BufferedImage image = artifactRepository.getRawAsImage(artifact, user);
-        if (image == null) {
+    public ArtifactExtractedInfo extractFromImage(BufferedImage image, String mimeType) throws Exception {
+        if (isIcon(mimeType)) {
             return null;
         }
         String ocrResults = extractTextFromImage(image);
@@ -58,19 +35,16 @@ public class ImageOcrTextExtractor implements TextExtractor {
         return extractedInfo;
     }
 
-    @Override
-    public VideoFrameExtractedInfo extract(VideoFrame videoFrame, User user) throws Exception {
-        BufferedImage image = videoFrameRepository.loadImage(videoFrame, user);
-        String ocrResults = extractTextFromImage(image);
-        if (ocrResults == null) {
+    public VideoFrameExtractedInfo extractFromVideoFrame(BufferedImage videoFrame, String mimeType) throws Exception {
+        ArtifactExtractedInfo info = extractFromImage(videoFrame, mimeType);
+        if (info == null) {
             return null;
         }
         VideoFrameExtractedInfo extractedInfo = new VideoFrameExtractedInfo();
-        extractedInfo.setText(ocrResults);
+        extractedInfo.setText(info.getText());
         return extractedInfo;
     }
 
-    @Override
     public String getName() {
         return NAME;
     }
@@ -86,7 +60,7 @@ public class ImageOcrTextExtractor implements TextExtractor {
         return ocrResults;
     }
 
-    private boolean isIcon(Artifact artifact) {
-        return ICON_MIME_TYPES.contains(artifact.getGenericMetadata().getMimeType());
+    private boolean isIcon(String mimeType) {
+        return ICON_MIME_TYPES.contains(mimeType);
     }
 }

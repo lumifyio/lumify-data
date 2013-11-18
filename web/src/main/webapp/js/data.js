@@ -10,13 +10,14 @@ define([
     'service/ucd',
     'service/vertex',
     'util/undoManager',
+    'util/clipboardManager'
 ], function(
     // Flight
     defineComponent, registry,
     // Mixins
     withVertexCache, withAjaxFilters, withAsyncQueue,
     // Service
-    WorkspaceService, UcdService, VertexService, undoManager) {
+    WorkspaceService, UcdService, VertexService, undoManager, ClipboardManager) {
     'use strict';
 
     var WORKSPACE_SAVE_DELAY = 1000,
@@ -55,6 +56,8 @@ define([
         this.workspaceService = new WorkspaceService();
         this.ucdService = new UcdService();
         this.vertexService = new VertexService();
+        this.selectedVertices = [];
+        this.selectedVertexIds = [];
         this.id = null;
 
         this.defaultAttrs({
@@ -69,19 +72,27 @@ define([
             this.onSaveWorkspace = _.debounce(this.onSaveWorkspace.bind(this), WORKSPACE_SAVE_DELAY);
             this.refreshRelationships = _.debounce(this.refreshRelationships.bind(this), RELOAD_RELATIONSHIPS_DELAY);
 
+            ClipboardManager.attachTo(this.node);
+
             // Vertices
             this.on('addVertices', this.onAddVertices);
             this.on('updateVertices', this.onUpdateVertices);
             this.on('deleteVertices', this.onDeleteVertices);
             this.on('refreshRelationships', this.refreshRelationships);
+            this.on('selectObjects', this.onSelectObjects);
+            this.on('clipboardPaste', this.onClipboardPaste);
+            this.on('clipboardCut', this.onClipboardCut);
+            this.on('deleteEdges', this.onDeleteEdges);
 
             // Workspaces
             this.on('saveWorkspace', this.onSaveWorkspace);
             this.on('switchWorkspace', this.onSwitchWorkspace);
             this.on('workspaceDeleted', this.onWorkspaceDeleted);
             this.on('workspaceDeleting', this.onWorkspaceDeleting);
+            this.on('workspaceCopied', this.onWorkspaceCopied);
 
-            this.on(document, 'socketMessage', this.onSocketMessage);
+            this.on('socketMessage', this.onSocketMessage);
+            this.on('keydown', this.onKeydown);
 
             var self = this;
             this.setupAsyncQueue('socketSubscribe');
@@ -107,6 +118,35 @@ define([
             switch (message.type) {
                 case 'propertiesChange':
                     self.trigger('updateVertices', { vertices:[message.data.vertex]});
+                    break;
+            }
+        };
+
+        this.onKeydown = function(event) {
+            var $target = $(event.target);
+            if ($target.is('input,select')) return;
+
+            var KEYS = { A:65 },
+                meta = event.metaKey || event.ctrlKey;
+
+            switch (event.which) {
+
+                // Prevent browser back button
+                // TODO: move vertex deletion from graph to here
+                case $.ui.keyCode.BACKSPACE:
+                case $.ui.keyCode.DELETE:
+                    if (this.selectedVertices.length) {
+                        this.trigger('deleteVertices', { vertices: this.vertices(this.selectedVertices)})
+                    } else if (this.selectedEdges.length) {
+                        this.trigger('deleteEdges', { edges: this.selectedEdges});
+                    }
+                    event.preventDefault();
+                    break;
+                case KEYS.A:
+                    if (meta) {
+                        this.trigger('selectObjects', { vertices:this.verticesInWorkspace() });
+                        event.preventDefault();
+                    }
                     break;
             }
         };
@@ -140,6 +180,25 @@ define([
             this.ucdService.getRelationships(ids)
                 .done(function(relationships) {
                     self.trigger('relationshipsLoaded', { relationships: relationships });
+                });
+        };
+
+        this.onDeleteEdges = function(evt, data) {
+            if (!data.edges || !data.edges.length) {
+                return console.error('Invalid event data to delete edge', data);
+            }
+
+            var self = this,
+                edge = data.edges[0];
+
+            this.ucdService.deleteEdge(
+                edge.properties.source,
+                edge.properties.target,
+                edge.properties.relationshipType).done(function() {
+                    if (_.findWhere(self.selectedEdges, { id:edge.id })) {
+                        self.trigger('selectObjects');
+                    }
+                    self.trigger('edgesDeleted', { edgeId:edge.id });
                 });
         };
 
@@ -285,9 +344,87 @@ define([
             });
         };
 
+        this.getVerticesFromClipboardData = function(data) {
+            if (data) {
+                var vertexUrlMatch = data.match(/#v=([0-9,]+)$/);
+                if (vertexUrlMatch) {
+                    return vertexUrlMatch[1].split(',');
+                }
+            }
+
+            return [];
+        };
+
+        this.formatVertexAction = function(action, vertices) {
+            var len = vertices.length,
+                plural = len === 1 ? 'vertex' : 'vertices';
+            return (action + ' ' + len + ' ' + plural);
+        };
+
+        this.onClipboardCut = function(evt, data) {
+            var self = this,
+                vertexIds = this.getVerticesFromClipboardData(data.data).filter(function(vId) {
+                    // Only cut from those in workspace
+                    return self.workspaceVertices[vId];
+                }),
+                len = vertexIds.length;
+
+            if (len) {
+                this.trigger('deleteVertices', { vertices: this.vertices(vertexIds) });
+                this.trigger('displayInformation', { message:this.formatVertexAction('Cut', vertexIds)});
+            }
+        };
+
+        this.onClipboardPaste = function(evt, data) {
+            var self = this,
+                vertexIds = this.getVerticesFromClipboardData(data.data).filter(function(vId) {
+                    // Only allow paste from vertices not in workspace
+                    return !self.workspaceVertices[vId];
+                }),
+                len = vertexIds.length,
+                plural = len === 1 ? 'vertex' : 'vertices';
+
+            if (len) {
+                this.trigger('displayInformation', { message:this.formatVertexAction('Paste', vertexIds)});
+                this.vertexService.getMultiple(vertexIds).done(function(serverVertices) {
+                    self.trigger('addVertices', { vertices:serverVertices });
+                });
+            }
+        };
+
+        this.onSelectObjects = function(evt, data) {
+            if (data && data.remoteEvent) return;
+
+            var self = this,
+                vertices = data && data.vertices || [],
+                selectedIds = _.pluck(vertices, 'id'),
+                selected = _.groupBy(vertices, function(v) { return v.properties._type === 'relationship' ? 'edges' : 'vertices'; });
+
+            selected.vertices = selected.vertices || [];
+            selected.edges = selected.edges || [];
+
+            if (selected.vertices.length) {
+                this.trigger('clipboardSet', {
+                    text: window.location.href.replace(/#.*$/,'') + '#v=' + _.pluck(selected.vertices, 'id').join(',')
+                });
+            } else {
+                this.trigger('clipboardClear');
+            }
+
+            this.selectedVertices = selected.vertices;
+            this.selectedVertexIds = _.pluck(selected.vertices, 'id');
+            this.selectedEdges = selected.edges;
+
+            _.keys(this.workspaceVertices).forEach(function(id) {
+                var info = self.workspaceVertices[id];
+                info.selected = selectedIds.indexOf(id) >= 0;
+            });
+
+            this.trigger('objectsSelected', selected);
+        };
+
         this.onDeleteVertices = function(evt, data) {
             var self = this;
-
             this.workspaceReady(function(ws) {
                 if (!ws.isEditable && !data.remoteEvent) return;
 
@@ -366,6 +503,11 @@ define([
                 this.loadActiveWorkspace();
             }
         };
+
+        this.onWorkspaceCopied = function (evt, data) {
+            this.id = data._rowKey;
+            this.loadActiveWorkspace();
+        }
 
 
         this.onWorkspaceDeleting = function (evt, data) {
@@ -506,71 +648,104 @@ define([
                 accept: function(item) {
                     return true;
                 },
+                over: function( event, ui ) {
+                    var draggable = ui.draggable,
+                        start = true,
+                        graphVisible = $('.graph-pane').is('.visible'),
+                        dashboardVisible = $('.dashboard-pane').is('.visible'),
+                        vertices,
+                        wrapper = $('.draggable-wrapper');
+
+                    // Prevent map from swallowing mousemove events by adding
+                    // this transparent full screen div
+                    if (wrapper.length === 0) {
+                        wrapper = $('<div class="draggable-wrapper"/>').appendTo(document.body);
+                    }
+
+                    draggable.off('drag.droppable-tracking');
+                    draggable.on('drag.droppable-tracking', function(event, draggableUI) {
+                        if (!vertices) {
+                            vertices = verticesFromDraggable(draggable);
+                        }
+                        
+                        if (graphVisible) {
+                            ui.helper.toggleClass('draggable-invisible', enabled);
+                        } else if (dashboardVisible) {
+                            self.trigger('menubarToggleDisplay', { name:'graph' });
+                            dashboardVisible = false;
+                            graphVisible = true;
+                        }
+                        if (enabled) {
+                            self.trigger('verticesHovering', {
+                                vertices: vertices,
+                                start: start,
+                                position: { x: event.pageX, y: event.pageY }
+                            });
+                            start = false;
+                        } else {
+                            self.trigger('verticesHoveringEnded');
+                        }
+                    });
+                },
                 drop: function( event, ui ) {
+                    $('.draggable-wrapper').remove();
                     
                     // Early exit if should leave to a different droppable
                     if (!enabled) return;
 
-                    var draggable = ui.draggable,
-                        droppable = $(event.target),
-                        graphVisible = $('.graph-pane').is('.visible'),
-                        alsoDragging = draggable.data('ui-draggable').alsoDragging,
-                        anchors = draggable,
-                        refresh = [];
+                    var vertices = verticesFromDraggable(ui.draggable),
+                        graphVisible = $('.graph-pane').is('.visible');
 
-                    if (alsoDragging && alsoDragging.length) {
-                        anchors = draggable.add(alsoDragging.map(function(i, a) {
-                            return a.data('original');
-                        }));
+                    if (graphVisible && vertices.length) {
+                        vertices[0].workspace.dropPosition = { x: event.clientX, y: event.clientY };
                     }
-                    var vertices = anchors.map(function(i, a) {
-                        a = $(a);
-                        var id = a.data('vertexId') || a.closest('li').data('vertexId');
-                        if (!id) {
-
-                            // Highlighted entities (legacy info)
-                            var info = a.data('info') || a.closest('li').data('info');
-                            if (info && info.graphVertexId) {
-
-                                // TODO: fix on server
-                                if (info.type) {
-                                    info._type = info.type;
-                                    delete info.type;
-                                }
-
-                                self.updateCacheWithVertex({
-                                    id: info.graphVertexId,
-                                    properties: _.omit(info, 'start', 'end', 'graphVertexId')
-                                });
-                                id = info.graphVertexId;
-                            } 
-                            
-                            if (!id) return console.error('No data-vertex-id attribute for draggable element found', a[0]);
-                        }
-
-                        var vertex = self.vertex(id);
-                        if (vertex) {
-                            if (graphVisible && i === 0) {
-                                vertex.workspace.dropPosition = { x: event.clientX, y: event.clientY };
-                            }
-                            return vertex;
-                        } else refresh.push(id);
-                    }).toArray();
 
                     self.workspaceReady(function(ws) {
                         if (ws.isEditable) {
-                            if (refresh.length) {
-                                this.vertexService.getMultiple(refresh).done(function() {
-                                    self.trigger('verticesDropped', { vertices:vertices });
-                                });
-                            } else {
-                                self.trigger('verticesDropped', { vertices:vertices });
-                            }
+                            self.trigger('verticesDropped', { vertices:vertices });
                         }
                     });
-
                 }.bind(this)
             });
+
+            function verticesFromDraggable(draggable) {
+                var alsoDragging = draggable.data('ui-draggable').alsoDragging,
+                    anchors = draggable;
+
+                if (alsoDragging && alsoDragging.length) {
+                    anchors = draggable.add(alsoDragging.map(function(i, a) {
+                        return a.data('original');
+                    }));
+                }
+
+                return anchors.map(function(i, a) {
+                    a = $(a);
+                    var id = a.data('vertexId') || a.closest('li').data('vertexId');
+                    if (!id) {
+
+                        // Highlighted entities (legacy info)
+                        var info = a.data('info') || a.closest('li').data('info');
+                        if (info && info.graphVertexId) {
+
+                            // TODO: fix on server
+                            if (info.type) {
+                                info._type = info.type;
+                                delete info.type;
+                            }
+
+                            self.updateCacheWithVertex({
+                                id: info.graphVertexId,
+                                properties: _.omit(info, 'start', 'end', 'graphVertexId')
+                            });
+                            id = info.graphVertexId;
+                        } 
+                        
+                        if (!id) return console.error('No data-vertex-id attribute for draggable element found', a[0]);
+                    }
+
+                    return self.vertex(id);
+                }).toArray();
+            }
         };
     }
 });

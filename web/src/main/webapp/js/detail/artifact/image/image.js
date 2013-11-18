@@ -142,12 +142,10 @@ define([
 
                 self.trigger('DetectedObjectCoordsChange', {
                     id: self.currentlyEditing,
-                    coords: {
-                        x1: (l * naturalWidth).toFixed(2) + '',
-                        x2: ((l + w) * naturalWidth).toFixed(2) + '',
-                        y1: (t * naturalHeight).toFixed(2) + '',
-                        y2: ((t + h) * naturalHeight).toFixed(2) + ''
-                    }
+                    x1: (l * naturalWidth).toFixed(2) + '',
+                    x2: ((l + w) * naturalWidth).toFixed(2) + '',
+                    y1: (t * naturalHeight).toFixed(2) + '',
+                    y2: ((t + h) * naturalHeight).toFixed(2) + ''
                 });
             }
         };
@@ -160,11 +158,10 @@ define([
                 height = image.height(),
                 aspectWidth = width / image[0].naturalWidth,
                 aspectHeight = height / image[0].naturalHeight,
-                c = data.info.coords,
-                w = (c.x2 - c.x1) * aspectWidth / width * 100,
-                h = (c.y2 - c.y1) * aspectHeight / height * 100,
-                x = c.x1 * aspectWidth / width * 100,
-                y = c.y1 * aspectHeight / height * 100;
+                w = (data.x2 - data.x1) * aspectWidth / width * 100,
+                h = (data.y2 - data.y1) * aspectHeight / height * 100,
+                x = data.x1 * aspectWidth / width * 100,
+                y = data.y1 * aspectHeight / height * 100;
             box.css({
                     width: w + '%',
                     height: h + '%',
@@ -193,8 +190,8 @@ define([
         };
 
         this.onEdit = function(event, data) {
-            if (data.info._rowKey === this.currentlyEditing) return;
-            this.currentlyEditing = data.info._rowKey;
+            if (data.graphVertexId === this.currentlyEditing) return;
+            this.currentlyEditing = data.graphVertexId;
 
             this.showFaceboxForEdit(data);
         };

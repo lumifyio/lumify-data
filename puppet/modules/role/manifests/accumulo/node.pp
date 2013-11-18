@@ -1,3 +1,4 @@
 class role::accumulo::node {
-  include ::accumulo
+  include ::accumulo::tablet
+  include ::accumulo::logger
 }

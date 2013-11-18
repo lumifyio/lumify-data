@@ -14,12 +14,9 @@ import com.altamiracorp.lumify.web.routes.resource.ResourceGet;
 import com.altamiracorp.lumify.web.routes.user.MeGet;
 import com.altamiracorp.lumify.web.routes.user.UserList;
 import com.altamiracorp.lumify.web.routes.vertex.*;
-import com.altamiracorp.lumify.web.routes.workspace.WorkspaceByRowKey;
-import com.altamiracorp.lumify.web.routes.workspace.WorkspaceDelete;
-import com.altamiracorp.lumify.web.routes.workspace.WorkspaceList;
-import com.altamiracorp.lumify.web.routes.workspace.WorkspaceSave;
-import com.altamiracorp.web.Handler;
-import com.altamiracorp.web.StaticFileHandler;
+import com.altamiracorp.lumify.web.routes.workspace.*;
+import com.altamiracorp.miniweb.Handler;
+import com.altamiracorp.miniweb.StaticFileHandler;
 import com.google.inject.Injector;
 import org.eclipse.jetty.server.Request;
 
@@ -57,6 +54,7 @@ public class Router extends HttpServlet {
         app.get("/resource/{_rowKey}", authenticator, ResourceGet.class);
 
         app.get("/artifact/search", authenticator, ArtifactSearch.class);
+        app.get("/artifact/{graphVertexId}/highlightedText", authenticator, ArtifactHighlightedText.class);
         app.get("/artifact/{_rowKey}/raw", authenticator, ArtifactRawByRowKey.class);
         app.get("/artifact/{_rowKey}/thumbnail", authenticator, ArtifactThumbnailByRowKey.class);
         app.get("/artifact/{_rowKey}/poster-frame", authenticator, ArtifactPosterFrameByRowKey.class);
@@ -65,7 +63,6 @@ public class Router extends HttpServlet {
         app.post("/artifact/import", authenticator, ArtifactImport.class);
 
         app.post("/entity/relationships", authenticator, EntityRelationships.class);
-        app.get("/entity/search", authenticator, EntitySearch.class);
         app.post("/entity/createTerm", authenticator, EntityTermCreate.class);
         app.post("/entity/updateTerm", authenticator, EntityTermUpdate.class);
         app.post("/entity/createResolvedDetectedObject", authenticator, EntityObjectDetectionCreate.class);
@@ -90,6 +87,7 @@ public class Router extends HttpServlet {
 
         app.get("/workspace/", authenticator, WorkspaceList.class);
         app.post("/workspace/save", authenticator, WorkspaceSave.class);
+        app.post("/workspace/{workspaceRowKey}/copy", authenticator, WorkspaceCopy.class);
         app.post("/workspace/{workspaceRowKey}/save", authenticator, WorkspaceSave.class);
         app.get("/workspace/{workspaceRowKey}", authenticator, WorkspaceByRowKey.class);
         app.delete("/workspace/{workspaceRowKey}", authenticator, WorkspaceDelete.class);
@@ -105,10 +103,10 @@ public class Router extends HttpServlet {
         app.get("/admin/query", authenticator, AdminQuery.class);
         app.get("/admin/tables", authenticator, AdminTables.class);
         app.post("/admin/uploadOntology", authenticator, AdminUploadOntology.class);
-        app.get("/admin/dictionary",authenticator, AdminDictionary.class);
-        app.get("/admin/dictionary/{concept}",authenticator,AdminDictionaryByConcept.class);
-        app.post("/admin/dictionary",authenticator,AdminDictionaryEntryAdd.class);
-        app.delete("/admin/dictionary/{entryRowKey}",authenticator, AdminDictionaryEntryDelete.class);
+        app.get("/admin/dictionary", authenticator, AdminDictionary.class);
+        app.get("/admin/dictionary/{concept}", authenticator, AdminDictionaryByConcept.class);
+        app.post("/admin/dictionary", authenticator, AdminDictionaryEntryAdd.class);
+        app.delete("/admin/dictionary/{entryRowKey}", authenticator, AdminDictionaryEntryDelete.class);
 
         LessRestlet.init(rootDir);
         app.get("/css/{file}.css", LessRestlet.class);

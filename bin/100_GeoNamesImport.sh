@@ -30,7 +30,7 @@ java \
 -Dfile.encoding=UTF-8 \
 -classpath ${classpath} \
 com.altamiracorp.lumify.location.GeoNamesImporter \
---filename=${filename} \
---admin1code=${admin1codeFilename} \
+--placenames=${filename} \
+--admin1codes=${admin1codeFilename} \
 --countryinfo=${countryInfoFilename} \
---postalcode=${postalCodeFilename}
+--postalcodes=${postalCodeFilename}

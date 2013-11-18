@@ -1,9 +1,9 @@
 package com.altamiracorp.lumify.web.routes.admin;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.ModelSession;
+import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,7 +24,7 @@ public class AdminTables extends BaseRequestHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         User user = getUser(request);
-        List<String> tables = this.modelSession.getTableList(user);
+        List<String> tables = this.modelSession.getTableList(user.getModelUserContext());
 
         JSONObject results = new JSONObject();
         JSONArray tablesJson = new JSONArray();

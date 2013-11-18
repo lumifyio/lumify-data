@@ -12,6 +12,7 @@ define([
     'tpl!./conceptSections',
     'tpl!util/alert',
     'util/jquery.ui.draggable.multiselect',
+    'sf'
 ], function(
     defineComponent,
     registry,
@@ -23,10 +24,18 @@ define([
     template,
     conceptItemTemplate,
     conceptSectionsTemplate,
-    alertTemplate) {
+    alertTemplate,
+    multiselect,
+    sf) {
     'use strict';
 
     return defineComponent(Search);
+
+    function formatNumber(number) {
+        if (number >= 10000) {
+            return (number / 10000).toFixed(1).replace(/.0$/,'') + 'K';
+        } else return sf('{0:#,###}', number);
+    }
 
     function Search() {
         this.ucd = new UCD();
@@ -38,6 +47,7 @@ define([
             querySelector: '.navbar-search .search-query',
             queryValidationSelector: '.search-query-validation',
             resultsSummarySelector: '.search-results-summary',
+            entitiesHeaderBadgeSelector: '.search-results-summary li.entities .badge',
             summaryResultItemSelector: '.search-results-summary li',
             resultsSelector: '.search-results',
             filtersSelector: '.search-filters'
@@ -45,12 +55,32 @@ define([
 
         this.searchResults = null;
 
-        this.onEntitySearchResultsForConcept = function($searchResultsSummary, concept, entities) {
-            var self = this;
-            $searchResultsSummary.find('.concept-' + concept.id + ' .badge').removeClass('loading').text((entities[concept.id] || []).length);
+        this.onEntitySearchResultsForConcept = function($searchResultsSummary, concept, entities, count, parentPropertyListElements) {
+            var self = this,
+                resultsCount = count,
+                li = $searchResultsSummary.find('.concept-' + concept.id + ' .badge')
+                    .removeClass('loading')
+                    .text(resultsCount)
+                    .closest('li').toggle(resultsCount > 0);
+
+            parentPropertyListElements = parentPropertyListElements || $();
+
+            this.select('entitiesHeaderBadgeSelector').removeClass('loading');
+
+            if (resultsCount) {
+                parentPropertyListElements.show();
+            }
+
             if(concept.children && concept.children.length > 0) {
+                var parentLis = parentPropertyListElements.add(li);
                 concept.children.forEach(function(childConcept) {
-                    self.onEntitySearchResultsForConcept($searchResultsSummary, childConcept, entities);
+                    self.onEntitySearchResultsForConcept(
+                        $searchResultsSummary,
+                        childConcept,
+                        entities,
+                        count,
+                        parentLis
+                    );
                 });
             }
         };
@@ -75,7 +105,7 @@ define([
         this.getConceptChildrenHtml = function(concept, indent) {
             var self = this,
                 html = "";
-            concept.children.forEach(function(concept) {
+            (concept.children || []).forEach(function(concept) {
                 html += conceptItemTemplate({
                     concept: concept,
                     indent: indent
@@ -100,27 +130,33 @@ define([
             this.ontologyService.concepts(function(err, concepts) {
                 this.updateConceptSections(concepts);
 
+                var paging = { offset:0, size:100 };
                 $.when(
-                    this.ucd.artifactSearch(query || this.select('querySelector').val(), this.filters),
-                    this.ucd.graphVertexSearch(query || this.select('querySelector').val(), this.filters)
+                    this.ucd.artifactSearch(query || this.select('querySelector').val(), this.filters, null, paging),
+                    this.ucd.graphVertexSearch(query || this.select('querySelector').val(), this.filters, null, paging)
                 ).done(function(artifactSearch, vertexSearch) {
                     var results = {
-                        artifact:{
-                            document: [],
-                            image: [],
-                            video: []
-                        },
+                        artifact: artifactSearch[0],
                         entity:{}
                     };
+
+                    'document video image'.split(' ').forEach(function(type) {
+                        if (!results.artifact[type]) results.artifact[type] = [];
+                        if (!results.artifact.counts[type]) results.artifact.counts[type] = 0;
+                    });
+
+                    var artifactCounts = artifactSearch[0].counts;
+                    delete results.artifact.counts;
 
                     var sortVerticesIntoResults = function(v) {
                         var props = v.properties,
                             type = props._type,
                             subType = props._subType;
 
+                        if (type === 'artifact') return;
+
                         if (!results[type]) results[type] = {};
                         if (!results[type][subType]) results[type][subType] = [];
-
 
                         // Check for an existing result with the same id
                         var resultFound = results[type][subType].some(function(result) { return result.id === v.id; });
@@ -130,22 +166,30 @@ define([
                             results[type][subType].push(v);
                         }
                     };
-
                     vertexSearch[0].vertices.forEach(sortVerticesIntoResults);
-                    artifactSearch[0].vertices.forEach(sortVerticesIntoResults);
                     self.searchResults = results;
 
                     Object.keys(results).forEach(function(type) {
                         if (type === 'artifact') {
                             Object.keys(results[type]).forEach(function(subType) {
-                                self.$node.find('.' + subType + ' .badge').removeClass('loading').text(results[type][subType].length);
+                                self.$node.find('.' + subType + ' .badge').removeClass('loading').text(formatNumber(artifactCounts[subType]));
                             });
                         }
                     });
 
-                    concepts.byTitle.forEach(function(concept) {
-                        self.onEntitySearchResultsForConcept(self.select('resultsSummarySelector'), concept, results.entity);
-                    });
+                    var counts = _.values(vertexSearch[0].verticesCount);
+                    if (counts.length === 0 || Math.max.apply([], counts) === 0) {
+                        var headerTextNode = self.$node.find('.search-results-summary li.entities');
+                        if (headerTextNode.length) {
+                            headerTextNode[0].normalize();
+                            headerTextNode[0].textContent = 'No Entities';
+                        }
+                    } else {
+                        concepts.byTitle.forEach(function(concept) {
+                            var count = vertexSearch[0].verticesCount[concept.id] || 0;
+                            self.onEntitySearchResultsForConcept(self.select('resultsSummarySelector'), concept, results.entity, count);
+                        });
+                    }
 
                 }).fail(function() {
                     var $searchQueryValidation = self.select('queryValidationSelector');
@@ -171,7 +215,8 @@ define([
                 return this.close(evt);
             }
 
-            if (+$target.find('.badge').text() === 0) {
+            var count = +$target.find('.badge').text();
+            if (count === 0) {
                 return this.close(evt);
             }
 
@@ -183,7 +228,8 @@ define([
             var _subType = itemPath[1];
             this.trigger('showSearchResults', {
                 _type: _type,
-                _subType: _subType
+                _subType: _subType,
+                count: count
             });
         };
 
@@ -198,9 +244,13 @@ define([
             this.hideSearchResults();
             this.select('filtersSelector').hide();
 
-            if (vertices.length) {
+            if (data.count) {
                 VertexList.attachTo($searchResults.find('.content'), {
-                    vertices: vertices
+                    vertices: vertices,
+                    infiniteScrolling: true,
+                    verticesType: data._type,
+                    verticesSubType: data._subType,
+                    total: data.count
                 });
                 this.makeResizable($searchResults);
                 $searchResults.show();
@@ -271,6 +321,7 @@ define([
             this.hideSearchResults();
 
             this.on('filterschange', this.onFiltersChange);
+            this.on('infiniteScrollRequest', this.onInfiniteScrollRequest);
 
             this.on(document,'search', this.doSearch);
             this.on(document,'showSearchResults', this.onShowSearchResults);
@@ -298,6 +349,48 @@ define([
                     this.select('filtersSelector').hide();
                     this.hideSearchResults();
                 }
+            }
+        };
+
+        this.onInfiniteScrollRequest = function(evt, data) {
+            var self = this,
+                query = this.select('querySelector').val();
+
+            if (data.verticesType === 'artifact') {
+                this.ucd.artifactSearch(
+                        query,
+                        this.filters,
+                        data.verticesSubType,
+                        data.paging
+                ).done(function(results) {
+
+                    var newVertices = results[data.verticesSubType];
+
+                    self.trigger(
+                        self.select('resultsSelector').find('.content'),
+                        'addInfiniteVertices', 
+                        { 
+                            vertices:newVertices,
+                            total:results.counts[data.verticesSubType]
+                        }
+                    );
+                });
+            } else {
+                this.ucd.graphVertexSearch(
+                        query,
+                        this.filters,
+                        data.verticesSubType,
+                        data.paging
+                ).done(function(results) {
+
+                    self.trigger(
+                        self.select('resultsSelector').find('.content'),
+                        'addInfiniteVertices', 
+                        { 
+                            vertices: results.vertices
+                        }
+                    );
+                });
             }
         };
 

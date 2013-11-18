@@ -66,7 +66,7 @@ define([
 
             if (_.isString(vertex)) {
                 deferred = this.ucdService.getVertexProperties(vertex);
-            } else if (vertex.properties._type === 'artifact' && vertex.properties._rowKey) {
+            } else if (vertex.properties._type === 'artifact' && vertex.properties._rowKey) { 
                 deferred = $.when(
                     this.ucdService.getArtifactById(vertex.properties._rowKey),
                     this.ucdService.getVertexProperties(vertex.id)
@@ -82,33 +82,22 @@ define([
 
         this.updateCacheWithArtifact = function(artifact, subType) {
             // Determine differences between artifact search and artifact get requests
-            var id = artifact.graphVertexId || artifact.Generic_Metadata['atc:graph_vertex_id'],
+            var id = artifact.graphVertexId || artifact.Generic_Metadata['graphVertexId'],
                 rowKey = artifact._rowKey || artifact.key.value,
-                content = artifact.Content;
+                content = artifact.Generic_Metadata;
 
             // Fix characters
             if (rowKey) {
                 artifact._rowKey = encodeURIComponent((rowKey || '').replace(/\\[x](1f)/ig, '\u001f'));
             }
-
             if (content) {
                 // Format Html
-                artifact.contentHtml = (content.highlighted_text || content.doc_extracted_text || '').replace(/[\n]+/g, "<br><br>\n");
-
-                // Video transcripts
-                if(content.video_transcript) {
-                    artifact.videoTranscript = JSON.parse(artifact.Content.video_transcript);
-                    artifact.videoDuration = artifact.Content['atc:video_duration'];
-                }
+                artifact.contentHtml = (content.highlightedText || content.text || '').replace(/[\n]+/g, "<br><br>\n");
             }
-
-            if (artifact['atc:Artifact_Detected_Objects']) {
-                // TODO: reference cached vertices
-                artifact.detectedObjects = artifact['atc:Artifact_Detected_Objects'].detectedObjects.sort(function(a, b){
-                    var aX = a.info.coords.x1, bX = b.info.coords.x1;
-                    return aX - bX;
-                });
-            } else artifact.detectedObjects = [];
+            if (artifact.Generic_Metadata.videoTranscript){ 
+                artifact.videoTranscript = JSON.parse(artifact.Generic_Metadata.videoTranscript);
+                artifact.videoDuration = artifact.Generic_Metadata.videoDuration;
+            }
 
             var cache = this.updateCacheWithVertex({
                 id: id,
@@ -139,10 +128,6 @@ define([
             }
 
             $.extend(true, cache.artifact || (cache.artifact = {}), artifact);
-            if (cache.artifact.detectedObjects != artifact.detectedObjects) {
-                cache.artifact['atc:Artifact_Detected_Objects'] = artifact['atc:Artifact_Detected_Objects'];
-                cache.artifact.detectedObjects = artifact.detectedObjects;
-            }
             return cache;
         };
 

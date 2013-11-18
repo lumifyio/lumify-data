@@ -59,23 +59,41 @@ function(ServiceBase) {
         return this._get("statement", statementRowKey);
     };
 
-    Ucd.prototype.artifactSearch = function(query, filters) {
+    Ucd.prototype.artifactSearch = function(query, filters, subType, paging) {
         if (typeof filters === 'function') {
             callback = filters;
             filters = [];
         }
 
+        var parameters = {
+            q: query.query || query,
+            filter: JSON.stringify(filters || [])
+        };
+
+        if (subType) {
+            parameters.subType = subType;
+        }
+
+        if (paging) {
+            if (paging.offset) parameters.offset = paging.offset;
+            if (paging.size) parameters.size = paging.size;
+        }
+
         return this._ajaxGet({
             url: 'artifact/search',
-            data: {
-                q: query.query || query,
-                filter: JSON.stringify(filters || [])
-            }
+            data: parameters
         });
     };
 
     Ucd.prototype.getArtifactById = function (id) {
         return this._get("artifact", id);
+    };
+
+    Ucd.prototype.getArtifactHighlightedTextById = function(graphVertexId) {
+        return this._ajaxGet({
+            dataType: 'html',
+            url: "artifact/" + graphVertexId + "/highlightedText"
+        });
     };
 
     Ucd.prototype.getRawArtifactById = function (id) {
@@ -87,22 +105,26 @@ function(ServiceBase) {
         });
     };
 
-    Ucd.prototype.entitySearch = function (query) {
-        return this._search('entity', query);
-    };
-
-    Ucd.prototype.graphVertexSearch = function (query, filters) {
+    Ucd.prototype.graphVertexSearch = function (query, filters, subType, paging) {
         if (typeof filters === 'function') {
             callback = filters;
             filters = [];
         }
 
+        var data = {};
+
+        if (subType) data.subType = subType;
+        if (paging) {
+            if (paging.offset) data.offset = paging.offset;
+            if (paging.size) data.size = paging.size;
+        }
+
+        data.q = query.query || query;
+        data.filter = JSON.stringify(filters || []);
+
         return this._ajaxGet({ 
             url: 'graph/vertex/search',
-            data: {
-                q: query.query || query,
-                filter: JSON.stringify(filters || [])
-            }
+            data: data
         });
     };
 
@@ -115,8 +137,11 @@ function(ServiceBase) {
         });
     };
 
-    Ucd.prototype.getVertexRelationships = function(graphVertexId) {
-        return this._ajaxGet({ url: 'vertex/' + graphVertexId + '/relationships'});
+    Ucd.prototype.getVertexRelationships = function(graphVertexId, paging) {
+        return this._ajaxGet({
+            url: 'vertex/' + graphVertexId + '/relationships',
+            data: paging || {}
+        });
     };
 
     Ucd.prototype.getVertexProperties = function(graphVertexId) {

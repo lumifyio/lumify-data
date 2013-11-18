@@ -77,7 +77,7 @@ define([
         this.onVertexToVertexRelationshipClicked = function(evt) {
             var $target = $(evt.target);
             var id = $target.data('vertexId');
-            this.trigger('verticesSelected', [appData.vertex(id)]);
+            this.trigger(document, 'selectObjects', { vertices:[appData.vertex(id)] });
         };
 
         this.onPaneClicked = function(evt) {
@@ -85,7 +85,7 @@ define([
 
             if ($target.is('.entity, .artifact, span.relationship')) {
                 var id = $target.data('vertexId');
-                this.trigger('verticesSelected', [appData.vertex(id)]);
+                this.trigger(document, 'selectObjects', { vertices:[appData.vertex(id)] });
                 evt.stopPropagation();
             }
         };

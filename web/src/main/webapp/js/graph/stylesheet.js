@@ -71,6 +71,11 @@ define([
                 'background-image': 'data(_glyphIcon)'
             })
 
+            .selector('node.hover')
+            .css({
+                'opacity': 0.6
+            })
+
             .selector(':selected')
             .css({
                 'background-color': '#0088cc',
@@ -114,7 +119,9 @@ define([
 
     function load(styleReady) {
         ontologyService.concepts(function(err, concepts) {
-            concepts.entityConcept.children.forEach(apply);
+            if(concepts.entityConcept.children) {
+                concepts.entityConcept.children.forEach(apply);
+            }
 
             defaultStyle();
 

@@ -2,7 +2,7 @@ package com.altamiracorp.lumify.vaast.model.averageFrames;
 
 import com.altamiracorp.lumify.model.Row;
 import com.altamiracorp.lumify.model.RowKey;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrameMetadata;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameMetadata;
 
 public class AverageFrame extends Row<AverageFrameRowKey> {
 

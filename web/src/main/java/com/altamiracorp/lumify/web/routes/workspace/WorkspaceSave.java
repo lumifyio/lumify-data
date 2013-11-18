@@ -1,14 +1,15 @@
 package com.altamiracorp.lumify.web.routes.workspace;
 
+import com.altamiracorp.bigtable.model.Column;
+import com.altamiracorp.lumify.core.model.user.UserRow;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.Column;
-import com.altamiracorp.lumify.model.user.UserRepository;
-import com.altamiracorp.lumify.model.workspace.Workspace;
-import com.altamiracorp.lumify.model.workspace.WorkspacePermissions;
-import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
-import com.altamiracorp.lumify.model.workspace.WorkspaceRowKey;
+import com.altamiracorp.lumify.core.model.user.UserRepository;
+import com.altamiracorp.lumify.core.model.workspace.Workspace;
+import com.altamiracorp.lumify.core.model.workspace.WorkspacePermissions;
+import com.altamiracorp.lumify.core.model.workspace.WorkspaceRepository;
+import com.altamiracorp.lumify.core.model.workspace.WorkspaceRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -41,12 +42,12 @@ public class WorkspaceSave extends BaseRequestHandler {
         final String workspaceRowKeyString = getAttributeString(request, "workspaceRowKey");
 
         User authUser = getUser(request);
-        com.altamiracorp.lumify.model.user.User user = userRepository.findOrAddUser(authUser.getUsername(), authUser);
+        UserRow user = userRepository.findOrAddUser(authUser.getUsername(), authUser);
         Workspace workspace;
         if (workspaceRowKeyString == null) {
             workspace = handleNew(request, user);
         } else {
-            workspace = workspaceRepository.findByRowKey(workspaceRowKeyString, authUser);
+            workspace = workspaceRepository.findByRowKey(workspaceRowKeyString, authUser.getModelUserContext());
         }
 
         LOGGER.info("Saving workspace: " + workspace.getRowKey() + "\ntitle: " + workspace.getMetadata().getTitle() + "\ndata: " + data);
@@ -77,13 +78,13 @@ public class WorkspaceSave extends BaseRequestHandler {
         }
 
         if (shouldSave) {
-            workspaceRepository.save(workspace, authUser);
+            workspaceRepository.save(workspace, authUser.getModelUserContext());
         }
 
         respondWithJson(response, workspace.toJson(authUser));
     }
 
-    public Workspace handleNew(HttpServletRequest request, com.altamiracorp.lumify.model.user.User user) {
+    public Workspace handleNew(HttpServletRequest request, UserRow user) {
         WorkspaceRowKey workspaceRowKey = new WorkspaceRowKey(
                 user.getRowKey().toString(), String.valueOf(System.currentTimeMillis()));
         Workspace workspace = new Workspace(workspaceRowKey);

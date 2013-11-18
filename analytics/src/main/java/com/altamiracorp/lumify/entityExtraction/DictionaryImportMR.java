@@ -2,8 +2,8 @@ package com.altamiracorp.lumify.entityExtraction;
 
 import com.altamiracorp.lumify.ConfigurableMapJobBase;
 import com.altamiracorp.lumify.LumifyMapper;
-import com.altamiracorp.lumify.model.dictionary.DictionaryEntry;
-import com.altamiracorp.lumify.model.dictionary.DictionaryEntryRepository;
+import com.altamiracorp.lumify.core.model.dictionary.DictionaryEntry;
+import com.altamiracorp.lumify.core.model.dictionary.DictionaryEntryRepository;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import org.apache.accumulo.core.util.CachedConfiguration;

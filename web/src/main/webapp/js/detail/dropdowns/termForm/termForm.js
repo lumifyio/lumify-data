@@ -157,7 +157,6 @@ define([
             var parameters = {
                     sign: newObjectSign,
                     conceptId: this.select('conceptSelector').val(),
-                    artifactKey: this.attr.artifactKey,
                     mentionStart: mentionStart,
                     mentionEnd: mentionEnd,
                     artifactId: this.attr.artifactId
@@ -211,17 +210,12 @@ define([
                 parameters = {
                     sign: newSign,
                     conceptId: this.select('conceptSelector').val(),
-                    model: this.attr.model,
                     graphVertexId: this.attr.graphVertexId,
-                    artifactKey: this.attr.artifactData.properties._rowKey,
                     artifactId: this.attr.artifactData.id,
-                    coords: JSON.stringify({
-                        x1: parseFloat(this.attr.coords.x1),
-                        y1: parseFloat(this.attr.coords.y1),
-                        x2: parseFloat(this.attr.coords.x2),
-                        y2: parseFloat(this.attr.coords.y2)
-                    }),
-                    detectedObjectRowKey: this.attr.detectedObjectRowKey,
+                    x1: parseFloat(this.attr.x1),
+                    y1: parseFloat(this.attr.y1),
+                    x2: parseFloat(this.attr.x2),
+                    y2: parseFloat(this.attr.y2),
                     existing: this.currentGraphVertexId
                 };
 
@@ -241,12 +235,12 @@ define([
             this.entityService.resolveDetectedObject(parameters)
                 .done(function(data) {
                     var resolvedVertex ={
-                        graphVertexId: data.graphVertexId,
-                        _rowKey: data._rowKey,
-                        _subType: data._subType,
-                        _type: data._type,
-                        title: data.title,
-                        info: data.info
+                        graphVertexId: data.entityVertex.graphVertexId,
+                        _rowKey: data.entityVertex._rowKey,
+                        _subType: data.entityVertex._subType,
+                        _type: data.entityVertex._type,
+                        title: data.entityVertex.title,
+                        info: data.entityVertex.info
                     };
 
                     // Temporarily creating a new tag to show on ui prior to backend update
@@ -259,7 +253,7 @@ define([
                     if (!classes){
                         classes = 'label-info detected-object'
                     }
-                    var $tag = $("<a>").addClass(classes + ' resolved entity').attr("href", "#").text(data.title);
+                    var $tag = $("<a>").addClass(classes + ' resolved entity').attr("href", "#").text(data.entityVertex.title);
 
                     var added = false;
 
@@ -267,35 +261,27 @@ define([
                     $parentSpan.append($deleteButton);
                     $parentSpan.after(' ');
 
-                    if ($allDetectedObjects.children().hasClass('focused')) {
-                        self.updateEntityTag (data, parameters.conceptId);
-                        return;
-                    } else {
-                        $allDetectedObjectLabels.each(function(){
-                            if(parseFloat($(this).data("info").info.coords.x1) > data.info.coords.x1){
-                                $tag.removePrefixedClasses('subType-').addClass('subType-' + parameters.conceptId).parent().insertBefore($(this).parent()).after(' ');
-                                added = true;
-                                return false;
-                            }
+                    $allDetectedObjectLabels.each(function(){
+                        if(parseFloat($(this).data("info").x1) > data.entityVertex.x1){
+                            $tag.removePrefixedClasses('subType-').addClass('subType-' + parameters.conceptId).parent().insertBefore($(this).parent()).after(' ');
+                            added = true;
+                            return false;
+                        }
                     });
 
                     if (!added){
                         $tag.addClass('subType-' + parameters.conceptId);
                         $allDetectedObjects.append($parentSpan);
                     }
-
-                    $tag.attr('data-info', JSON.stringify(data));
+                    $tag.attr('data-info', JSON.stringify(data.entityVertex));
                     $parentSpan.removeClass('focused');
-                    self.trigger('termCreated', data);
+                    self.trigger('termCreated', data.entityVertex);
 
-                    var vertices = [];
-                    vertices.push(resolvedVertex);
-                    self.trigger(document, 'updateVertices', { vertices: vertices });
+                    self.trigger(document, 'updateVertices', { vertices: [resolvedVertex] });
                     self.trigger(document, 'refreshRelationships');
 
                     _.defer(self.teardown.bind(self));
-                }
-            });
+              });
         };
 
         this.updateEntity = function (parameters) {
@@ -308,17 +294,17 @@ define([
         this.updateEntityTag = function (data, conceptId) {
             var self = this;
             var resolvedVertex = {
-                graphVertexId: data.graphVertexId,
-                _rowKey: data._rowKey,
-                _subType: data._subType,
-                _type: data._type,
-                title: data.title,
-                info: data.info
+                graphVertexId: data.entityVertex.graphVertexId,
+                _rowKey: data.entityVertex._rowKey,
+                _subType: data.entityVertex._subType,
+                _type: data.entityVertex._type,
+                title: data.entityVertex.title,
+                info: data.entityVertex.info
             };
             var $focused = $('.focused');
             var $tag = $focused.find('.label-info');
 
-            $tag.text(data.title).removeAttr('data-info').data('info', data).removePrefixedClasses('subType-');
+            $tag.text(data.entityVertex.title).removeAttr('data-info').data('info', data.entityVertex).removePrefixedClasses('subType-');
             $tag.addClass('resolved entity subType-' + conceptId);
 
             if (!$focused.children().hasClass('delete-tag')){
@@ -328,16 +314,12 @@ define([
 
             $focused.removeClass('focused');
 
-            var vertices = [];
-            vertices.push(resolvedVertex);
-
-            self.trigger('termCreated', data);
-            self.trigger(document, 'updateVertices', { vertices: vertices });
+            self.trigger('termCreated', data.entityVertex);
+            self.trigger(document, 'updateVertices', { vertices: [resolvedVertex] });
             self.trigger(document, 'refreshRelationships');
 
             _.defer(self.teardown.bind(self));
         }
-
 
         this.onConceptChanged = function(event) {
             var select = $(event.target);

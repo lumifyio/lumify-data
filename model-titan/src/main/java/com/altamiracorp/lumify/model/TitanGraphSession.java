@@ -1,49 +1,14 @@
 package com.altamiracorp.lumify.model;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeMap;
-
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
-import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.json.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.altamiracorp.lumify.core.config.Configuration;
+import com.altamiracorp.lumify.core.model.GraphSession;
+import com.altamiracorp.lumify.core.model.graph.*;
+import com.altamiracorp.lumify.core.model.ontology.*;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.graph.GraphGeoLocation;
-import com.altamiracorp.lumify.model.graph.GraphRelationship;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.graph.InMemoryGraphVertex;
-import com.altamiracorp.lumify.model.ontology.Concept;
-import com.altamiracorp.lumify.model.ontology.LabelName;
-import com.altamiracorp.lumify.model.ontology.Property;
-import com.altamiracorp.lumify.model.ontology.PropertyName;
-import com.altamiracorp.lumify.model.ontology.PropertyType;
-import com.altamiracorp.lumify.model.ontology.VertexProperty;
-import com.altamiracorp.lumify.model.ontology.VertexType;
+import com.altamiracorp.lumify.model.index.utils.TitanGraphSearchIndexProviderUtil;
 import com.altamiracorp.lumify.model.query.utils.LuceneTokenizer;
-import com.altamiracorp.titan.accumulo.AccumuloStorageManager;
 import com.google.common.base.Preconditions;
-import com.thinkaurelius.titan.core.TitanFactory;
-import com.thinkaurelius.titan.core.TitanGraph;
-import com.thinkaurelius.titan.core.TitanGraphQuery;
-import com.thinkaurelius.titan.core.TitanKey;
-import com.thinkaurelius.titan.core.TitanType;
-import com.thinkaurelius.titan.core.TypeMaker;
+import com.thinkaurelius.titan.core.*;
 import com.thinkaurelius.titan.core.attribute.Geo;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.thinkaurelius.titan.core.attribute.Text;
@@ -51,48 +16,63 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.gremlin.Tokens;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
+import com.tinkerpop.gremlin.pipes.transform.PropertyPipe;
 import com.tinkerpop.pipes.PipeFunction;
 import com.tinkerpop.pipes.branch.LoopPipe;
+import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.hadoop.thirdparty.guava.common.collect.Lists;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
+import java.util.*;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class TitanGraphSession extends GraphSession {
     private static final Logger LOGGER = LoggerFactory.getLogger(TitanGraphSession.class);
 
-    public static final String STORAGE_BACKEND_KEY = "graph.storage.backend";
-    public static final String STORAGE_TABLE_NAME_KEY = "graph.storage.tablename";
-    public static final String STORAGE_INDEX_SEARCH_HOSTNAME = "graph.storage.index.search.hostname";
-    public static final String DEFAULT_STORAGE_TABLE_NAME = "atc_titan";
-    public static final String DEFAULT_BACKEND_NAME = AccumuloStorageManager.class.getName();
-    public static final String DEFAULT_SEARCH_NAME = "elasticsearch";
-    private static final String DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME = "titan";
-    private static final Integer DEFAULT_STORAGE_INDEX_SEARCH_PORT = 9300;
+    private static final String TITAN_PROP_KEY_PREFIX = "graph.titan";
+    private static final String SEARCH_INDEX_PROVIDER_UTIL_CLASS = "storage.index.search.providerUtilClass";
+
     private final TitanGraph graph;
     private final TitanQueryFormatter queryFormatter;
-    private Properties localConf;
+    private TitanGraphSearchIndexProviderUtil searchIndexProviderUtil;
 
-    public TitanGraphSession(Properties props, TitanQueryFormatter queryFormatter) {
-        checkNotNull(queryFormatter, "Query formatter cannot be null");
-        localConf = props;
-        this.queryFormatter = queryFormatter;
+    public TitanGraphSession(Configuration config) {
+        Configuration titanConfig = config.getSubset(TITAN_PROP_KEY_PREFIX);
         PropertiesConfiguration conf = new PropertiesConfiguration();
-        conf.setProperty("storage.backend", props.getProperty(STORAGE_BACKEND_KEY, DEFAULT_BACKEND_NAME));
-        conf.setProperty("storage.tablename", props.getProperty(STORAGE_TABLE_NAME_KEY, DEFAULT_STORAGE_TABLE_NAME));
-        conf.setProperty("storage.zookeeperInstanceName", props.getProperty(AccumuloSession.ZOOKEEPER_INSTANCE_NAME));
-        conf.setProperty("storage.zookeeperServerName", props.getProperty(AccumuloSession.ZOOKEEPER_SERVER_NAMES));
-        conf.setProperty("storage.username", props.getProperty(AccumuloSession.USERNAME));
-        conf.setProperty("storage.password", props.getProperty(AccumuloSession.PASSWORD));
 
-        conf.setProperty("storage.index.search.backend", DEFAULT_SEARCH_NAME);
-        conf.setProperty("storage.index.search.hostname", props.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME, "localhost"));
-        conf.setProperty("storage.index.search.client-only", "true");
+        //load the storage specific configuration parameters
 
+        for (String key : titanConfig.getKeys()) {
+            conf.setProperty(key, titanConfig.get(key));
+        }
         conf.setProperty("autotype", "none");
+
+        Class searchIndexProviderUtilClass = null;
+        try {
+            searchIndexProviderUtilClass = titanConfig.getClass(SEARCH_INDEX_PROVIDER_UTIL_CLASS);
+            Constructor<TitanGraphSearchIndexProviderUtil> searchIndexProviderUtilConstructor = searchIndexProviderUtilClass.getConstructor(Configuration.class);
+            searchIndexProviderUtil = searchIndexProviderUtilConstructor.newInstance(titanConfig);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException("The provided search index utility " + searchIndexProviderUtilClass.getName() + " does not have the required constructor");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        queryFormatter = new TitanQueryFormatter();
 
         LOGGER.info("opening titan:\n" + confToString(conf));
         graph = TitanFactory.open(conf);
     }
 
-    private String confToString(Configuration conf) {
+    private String confToString(PropertiesConfiguration conf) {
         StringBuilder result = new StringBuilder();
         Iterator keys = conf.getKeys();
         while (keys.hasNext()) {
@@ -109,7 +89,7 @@ public class TitanGraphSession extends GraphSession {
     public String save(GraphVertex vertex, User user) {
         Vertex v = null;
         if (vertex instanceof TitanGraphVertex) {
-            commit ();
+            commit();
             return vertex.getId(); // properties are already set
         }
 
@@ -340,7 +320,7 @@ public class TitanGraphSession extends GraphSession {
         final List<GraphVertex> relatedVertices = Lists.newArrayList();
         final Vertex vertex = graph.getVertex(graphVertexId);
 
-        if( vertex != null ) {
+        if (vertex != null) {
             final GremlinPipeline<Vertex, Vertex> adjVerticesPipeline = new GremlinPipeline<Vertex, Vertex>(vertex);
             adjVerticesPipeline.both();
 
@@ -405,11 +385,15 @@ public class TitanGraphSession extends GraphSession {
     }
 
     @Override
-    public List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson, User user) {
+    public List<GraphVertex> searchVerticesByTitle(String title, JSONArray filterJson) {
         List<GraphVertex> vertices = Lists.newArrayList();
         final List<String> tokens = LuceneTokenizer.standardTokenize(title);
 
-        if( !tokens.isEmpty() ) {
+        if (title.equals("*")) {
+            tokens.add("*");
+        }
+
+        if (!tokens.isEmpty()) {
             final TitanGraphQuery query = generateTitleQuery(tokens);
 
             final GremlinPipeline<Vertex, Vertex> queryPipeline = queryFormatter.createQueryPipeline(query.vertices(), filterJson);
@@ -418,6 +402,58 @@ public class TitanGraphSession extends GraphSession {
         }
 
         return vertices;
+    }
+
+    @Override
+    public GraphPagedResults searchVerticesByTitle(String title, JSONArray filterJson, User user, long offset, long size, String subType) {
+        GraphPagedResults results = new GraphPagedResults();
+        final List<String> tokens = LuceneTokenizer.standardTokenize(title);
+
+        if (title.equals("*")) {
+            tokens.add("*");
+        }
+
+        if (!tokens.isEmpty()) {
+            final TitanGraphQuery query = generateTitleQuery(tokens);
+            GremlinPipeline<Vertex, Vertex> vertexPipeline;
+            GremlinPipeline<Vertex, Vertex> countPipeline;
+            if (filterJson.length() > 0) {
+                vertexPipeline = queryFormatter.createQueryPipeline(query.vertices(), filterJson);
+                countPipeline = queryFormatter.createQueryPipeline(query.vertices(), filterJson);
+            } else {
+                vertexPipeline = new GremlinPipeline <Vertex, Vertex>(query.vertices());
+                countPipeline = new GremlinPipeline<Vertex, Vertex>(query.vertices());
+            }
+
+            HashMap<Object, Number> map = new HashMap<Object, Number>();
+            Collection <Vertex> vertexList;
+            if (subType != null) {
+                vertexList = (Collection<Vertex>) vertexPipeline.has(PropertyName.SUBTYPE.toString(), Tokens.T.eq, subType).range((int) offset, (int) size).toList();
+                map.put(subType, vertexList.size());
+            } else {
+                vertexList = vertexPipeline.range((int) offset, (int) size).toList();
+                countPipeline.property(PropertyName.SUBTYPE.toString()).groupCount(map).iterate();
+            }
+
+            for (Object key : map.keySet()) {
+                if (key != null) {
+                    int countValue = map.get(key).intValue();
+                    if (!results.getResults().containsKey(key)) {
+                        results.getResults().put((String) key, new ArrayList<GraphVertex>(countValue));
+                    }
+                    results.getCount().put((String)key, countValue);
+                }
+            }
+
+            for (Vertex v : vertexList) {
+                String key = v.getProperty(PropertyName.SUBTYPE.toString());
+                if (key != null) {
+                    results.getResults().get(key).add(new TitanGraphVertex(v));
+                }
+            }
+        }
+
+        return results;
     }
 
     @Override
@@ -442,7 +478,7 @@ public class TitanGraphSession extends GraphSession {
         List<GraphVertex> vertices = Lists.newArrayList();
         final List<String> tokens = LuceneTokenizer.standardTokenize(title);
 
-        if( !tokens.isEmpty() ) {
+        if (!tokens.isEmpty()) {
             final TitanGraphQuery query = generateTitleQuery(tokens);
             query.has(PropertyName.TYPE.toString(), type.toString());
 
@@ -456,7 +492,11 @@ public class TitanGraphSession extends GraphSession {
         final TitanGraphQuery query = graph.query();
 
         for (String token : titleTokens) {
-            query.has(PropertyName.TITLE.toString(), Text.PREFIX, token);
+            if (token.equals("*")) {
+                query.has(PropertyName.TITLE.toString(), Text.REGEXP, ".*");
+            } else {
+                query.has(PropertyName.TITLE.toString(), Text.PREFIX, token);
+            }
         }
 
         return query;
@@ -540,10 +580,7 @@ public class TitanGraphSession extends GraphSession {
 
     @Override
     public void deleteSearchIndex(User user) {
-        LOGGER.info("delete search index: " + DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME);
-        //TODO: should port be configurable? How about cluster name?
-        TransportClient client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(localConf.getProperty(STORAGE_INDEX_SEARCH_HOSTNAME, "localhost"), DEFAULT_STORAGE_INDEX_SEARCH_PORT));
-        client.admin().indices().delete(new DeleteIndexRequest(DEFAULT_STORAGE_INDEX_SEARCH_INDEX_NAME)).actionGet();
+        searchIndexProviderUtil.deleteIndex();
     }
 
     @Override
@@ -666,8 +703,8 @@ public class TitanGraphSession extends GraphSession {
     private class GraphRelationshipDateComparator implements Comparator<GraphRelationship> {
         @Override
         public int compare(GraphRelationship rel1, GraphRelationship rel2) {
-            Long e1Date = (Long)rel1.getProperty(PropertyName.TIME_STAMP.toString());
-            Long e2Date = (Long)rel2.getProperty(PropertyName.TIME_STAMP.toString());
+            Long e1Date = (Long) rel1.getProperty(PropertyName.TIME_STAMP.toString());
+            Long e2Date = (Long) rel2.getProperty(PropertyName.TIME_STAMP.toString());
             if (e1Date == null || e2Date == null) {
                 return 1;
             }

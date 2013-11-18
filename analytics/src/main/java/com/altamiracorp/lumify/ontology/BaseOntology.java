@@ -1,11 +1,16 @@
 package com.altamiracorp.lumify.ontology;
 
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.GraphSession;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.ontology.*;
-import com.altamiracorp.lumify.model.resources.ResourceRepository;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactType;
+import com.altamiracorp.lumify.core.model.GraphSession;
+import com.altamiracorp.lumify.core.model.ontology.Concept;
+import com.altamiracorp.lumify.core.model.ontology.LabelName;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.ontology.PropertyType;
+import com.altamiracorp.lumify.core.model.resources.ResourceRepository;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.google.inject.Inject;
 import com.thinkaurelius.titan.core.TitanGraph;
 import com.thinkaurelius.titan.core.TitanKey;
@@ -18,7 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
-import java.util.Date;
 
 public class BaseOntology {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseOntology.class);
@@ -77,6 +81,26 @@ public class BaseOntology {
         TitanKey timeStampProperty = (TitanKey) graph.getType(PropertyName.TIME_STAMP.toString());
         if (timeStampProperty == null) {
             graph.makeType().name(PropertyName.TIME_STAMP.toString()).dataType(Long.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).makePropertyKey();
+        }
+
+        TitanKey rawHdfsPath = (TitanKey) graph.getType(PropertyName.RAW_HDFS_PATH.toString());
+        if (rawHdfsPath == null) {
+            graph.makeType().name(PropertyName.RAW_HDFS_PATH.toString()).dataType(String.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).makePropertyKey();
+        }
+
+        TitanKey textHdfsPath = (TitanKey) graph.getType(PropertyName.TEXT_HDFS_PATH.toString());
+        if (textHdfsPath == null) {
+            graph.makeType().name(PropertyName.TEXT_HDFS_PATH.toString()).dataType(String.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).makePropertyKey();
+        }
+
+        TitanKey highlightedTextHdfsPath = (TitanKey) graph.getType(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH.toString());
+        if (highlightedTextHdfsPath == null) {
+            graph.makeType().name(PropertyName.HIGHLIGHTED_TEXT_HDFS_PATH.toString()).dataType(String.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).makePropertyKey();
+        }
+
+        TitanKey detectedObjects = (TitanKey) graph.getType(PropertyName.DETECTED_OBJECTS.toString());
+        if (detectedObjects == null) {
+            graph.makeType().name(PropertyName.DETECTED_OBJECTS.toString()).dataType(String.class).unique(Direction.OUT, TypeMaker.UniquenessConsistency.NO_LOCK).makePropertyKey();
         }
 
         TitanKey subTypeProperty = (TitanKey) graph.getType(PropertyName.SUBTYPE.toString());

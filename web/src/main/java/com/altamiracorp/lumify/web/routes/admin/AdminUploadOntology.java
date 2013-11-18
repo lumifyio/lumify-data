@@ -3,7 +3,7 @@ package com.altamiracorp.lumify.web.routes.admin;
 import com.altamiracorp.lumify.cmdline.OwlImport;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.miniweb.HandlerChain;
 import com.google.common.io.Files;
 import com.google.inject.Inject;
 import net.lingala.zip4j.core.ZipFile;

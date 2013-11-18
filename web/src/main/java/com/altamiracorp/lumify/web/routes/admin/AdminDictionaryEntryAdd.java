@@ -1,10 +1,10 @@
 package com.altamiracorp.lumify.web.routes.admin;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.dictionary.DictionaryEntry;
-import com.altamiracorp.lumify.model.dictionary.DictionaryEntryRepository;
+import com.altamiracorp.lumify.core.model.dictionary.DictionaryEntry;
+import com.altamiracorp.lumify.core.model.dictionary.DictionaryEntryRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 import org.json.JSONObject;
 

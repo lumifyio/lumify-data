@@ -1,17 +1,15 @@
 package com.altamiracorp.lumify.web.routes.vertex;
 
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.graph.GraphRepository;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.ontology.OntologyRepository;
-import com.altamiracorp.lumify.model.ontology.Property;
-import com.altamiracorp.lumify.model.ontology.PropertyName;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
+import com.altamiracorp.lumify.core.model.graph.GraphRepository;
+import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.ontology.Property;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.lumify.web.Messaging;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,9 +60,7 @@ public class VertexSetProperty extends BaseRequestHandler {
         if (propertyName.equals(PropertyName.GEO_LOCATION.toString())) {
             graphVertex.setProperty(PropertyName.GEO_LOCATION_DESCRIPTION, "");
         } else if (propertyName.equals(PropertyName.SOURCE.toString())) {
-            Artifact artifact = artifactRepository.findByRowKey((String)graphVertex.getProperty("_rowKey"), user);
-            artifact.getGenericMetadata().setSource((String)value);
-            artifactRepository.save(artifact,user);
+            graphVertex.setProperty(PropertyName.SOURCE, value);
         }
         graphRepository.commit();
 

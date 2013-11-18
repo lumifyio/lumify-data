@@ -10,8 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.altamiracorp.lumify.FrameworkUtils;
-import com.altamiracorp.lumify.config.ConfigConstants;
-import com.altamiracorp.lumify.config.Configuration;
+import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.web.config.ParameterExtractor;
@@ -57,14 +56,14 @@ public final class ApplicationBootstrap implements ServletContextListener {
     private Configuration fetchApplicationConfiguration(final ServletContext context) {
         // Extract the required context parameters from the deployment descriptor
         final ParameterExtractor extractor = new ParameterExtractor(context);
-        extractor.extractParamAsProperty(ConfigConstants.APP_CONFIG_LOCATION, ConfigConstants.APP_CONFIG_LOCATION);
-        extractor.extractParamAsProperty(ConfigConstants.APP_CREDENTIALS_LOCATION, ConfigConstants.APP_CREDENTIALS_LOCATION);
+        extractor.extractParamAsProperty(Configuration.APP_CONFIG_LOCATION, Configuration.APP_CONFIG_LOCATION);
+        extractor.extractParamAsProperty(Configuration.APP_CREDENTIALS_LOCATION, Configuration.APP_CREDENTIALS_LOCATION);
 
         final Properties appConfigProps = extractor.getApplicationProperties();
 
         // Find the location of the application configuration and credential files and process them
-        final String configLocation = appConfigProps.getProperty(ConfigConstants.APP_CONFIG_LOCATION);
-        final String credentialsLocation = appConfigProps.getProperty(ConfigConstants.APP_CREDENTIALS_LOCATION);
+        final String configLocation = appConfigProps.getProperty(Configuration.APP_CONFIG_LOCATION);
+        final String credentialsLocation = appConfigProps.getProperty(Configuration.APP_CREDENTIALS_LOCATION);
 
         return Configuration.loadConfigurationFile(configLocation, credentialsLocation);
     }

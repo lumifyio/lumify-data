@@ -13,7 +13,10 @@ requirejs(['/base/js/require.config.js'], function(cfg) {
             chai: '../libs/chai/chai',
             sinon: '../libs/sinon/lib/sinon',
             'sinon-chai': '../libs/sinon-chai/lib/sinon-chai',
-            'flight-mocha': '../libs/flight-mocha/lib/flight-mocha'
+            'flight-mocha': '../libs/flight-mocha/lib/flight-mocha',
+
+            // MOCKS
+            'service/serviceBase': '../test/mocks/serviceBase'
         },
 
         shim: {
@@ -33,6 +36,7 @@ requirejs(['/base/js/require.config.js'], function(cfg) {
             require([
                     'sinon-chai', 
                     'sinon/util/event',
+                    'sinon/util/fake_xml_http_request',
                     'sinon/call',
                     'sinon/stub',
                     'sinon/spy',

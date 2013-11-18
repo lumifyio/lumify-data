@@ -140,14 +140,18 @@ define([
         this.updateListItemWithData = function(data) {
             if (!this.usersByRowKey) return;
             var li = this.findWorkspaceRow(data._rowKey);
-            li.find('.badge').removeClass('loading').hide().next().show();
-            data = this.workspaceDataForItemRow(data);
-            var content = $(itemTemplate({ workspace: data, selected: this.workspaceRowKey }));
-            if (li.length === 0) {
-                this.$node.find('li.nav-header').eq(+data.isSharedToUser).after(content);
-            } else {
-                li.replaceWith(content);
-            }
+            if (data.createdBy === window.currentUser.userName ||
+                _.contains(_.pluck(data.users, '_rowKey'), window.currentUser._rowKey)
+            ) {
+                li.find('.badge').removeClass('loading').hide().next().show();
+                data = this.workspaceDataForItemRow(data);
+                var content = $(itemTemplate({ workspace: data, selected: this.workspaceRowKey }));
+                if (li.length === 0) {
+                    this.$node.find('li.nav-header').eq(+data.isSharedToUser).after(content);
+                } else {
+                    li.replaceWith(content);
+                }
+            } else li.remove();
         };
 
         this.onWorkspaceSaved = function ( event, data ) {
@@ -156,8 +160,15 @@ define([
             this.trigger(document, 'workspaceRemoteSave', data);
         };
 
+        this.onWorkspaceCopied = function ( event, data ) {
+            this.collapseEditForm();
+            this.loadWorkspaceList();
+        };
+
         this.onWorkspaceRemoteSave = function ( event, data) {
             if (!data || !data.remoteEvent) return;
+
+            data.isSharedToUser = data.createdBy !== window.currentUser.userName;
 
             if (this.workspaceRowKey === data._rowKey) {
                 appData.loadWorkspace(data);
@@ -250,6 +261,7 @@ define([
             this.on( document, 'workspaceSaving', this.onWorkspaceSaving );
             this.on( document, 'workspaceSaved', this.onWorkspaceSaved );
             this.on( document, 'workspaceDeleted', this.onWorkspaceDeleted );
+            this.on( document, 'workspaceCopied', this.onWorkspaceCopied );
             this.on( document, 'workspaceRemoteSave', this.onWorkspaceRemoteSave );
             this.on( document, 'workspaceNotAvailable', this.onWorkspaceNotAvailable );
 

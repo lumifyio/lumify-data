@@ -1,22 +1,15 @@
 package com.altamiracorp.lumify.web.routes.entity;
 
+import com.altamiracorp.lumify.core.model.graph.GraphRelationship;
+import com.altamiracorp.lumify.core.model.graph.GraphRepository;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.LabelName;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.Column;
-import com.altamiracorp.lumify.model.ModelSession;
-import com.altamiracorp.lumify.model.Row;
-import com.altamiracorp.lumify.model.graph.GraphRelationship;
-import com.altamiracorp.lumify.model.graph.GraphRepository;
-import com.altamiracorp.lumify.model.graph.GraphVertex;
-import com.altamiracorp.lumify.model.ontology.LabelName;
-import com.altamiracorp.lumify.model.termMention.TermMention;
-import com.altamiracorp.lumify.model.termMention.TermMentionRowKey;
-import com.altamiracorp.lumify.model.search.SearchProvider;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
@@ -25,34 +18,28 @@ import java.util.Map;
 
 public class EntityObjectDetectionDelete extends BaseRequestHandler {
     private final GraphRepository graphRepository;
-    private final ArtifactRepository artifactRepository;
-    private final SearchProvider searchProvider;
-    private final ModelSession modelSession;
+    private final EntityHelper entityHelper;
 
     @Inject
     public EntityObjectDetectionDelete(
-            final ArtifactRepository artifactRepository,
             final GraphRepository graphRepository,
-            final SearchProvider searchProvider,
-            final ModelSession modelSession) {
-        this.artifactRepository = artifactRepository;
+            final EntityHelper entityHelper) {
         this.graphRepository = graphRepository;
-        this.searchProvider = searchProvider;
-        this.modelSession = modelSession;
+        this.entityHelper = entityHelper;
     }
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, HandlerChain chain) throws Exception {
         JSONObject jsonObject = new JSONObject(getRequiredParameter(request, "objectInfo"));
-        JSONObject infoJson = jsonObject.getJSONObject("info");
         User user = getUser(request);
 
         // Delete just the relationship if vertex has more than one relationship otherwise delete vertex
         String graphVertexId = jsonObject.getString("graphVertexId");
-        JSONObject obj = graphRepository.findVertex(graphVertexId, user).toJson();
+        JSONObject obj =  new JSONObject();
+        obj.put("entityVertex",graphRepository.findVertex(graphVertexId, user).toJson());
         Map<GraphRelationship, GraphVertex> relationships = graphRepository.getRelationships(graphVertexId, user);
+        GraphVertex artifactVertex = graphRepository.findVertex(jsonObject.getString("artifactId"), user);
         if (relationships.size() > 1) {
-            GraphVertex artifactVertex = graphRepository.findVertexByRowKey(jsonObject.getString("artifactRowKey"), user);
             String edgeId = artifactVertex.getId() + ">" + graphVertexId + "|" + LabelName.CONTAINS_IMAGE_OF.toString();
             obj.put("edgeId", edgeId);
             graphRepository.removeRelationship(artifactVertex.getId(), graphVertexId, LabelName.CONTAINS_IMAGE_OF.toString(), user);
@@ -61,21 +48,26 @@ public class EntityObjectDetectionDelete extends BaseRequestHandler {
             obj.put("remove", true);
         }
 
-        // Delete column from Artifact
-        Artifact artifact = artifactRepository.findByRowKey(jsonObject.getString("artifactRowKey"), user);
-        Row<ArtifactRowKey> rowKey = artifactRepository.toRow(artifact);
-        String columnFamily = artifact.getArtifactDetectedObjects().getColumnFamilyName();
-        String columnQualifier = infoJson.getString("_rowKey");
-        for (Column column : rowKey.get(columnFamily).getColumns()) {
-            if (column.getName().equals(columnQualifier)) {
-                column.setDirty(true);
+        // Delete the appropriate detected object json object from the array and reset the property
+        JSONArray detectedObjects = new JSONArray(artifactVertex.getProperty(PropertyName.DETECTED_OBJECTS).toString());
+        boolean deleted = false;
+        for (int i = 0; i < detectedObjects.length(); i++) {
+            JSONObject detectedObject = detectedObjects.getJSONObject(i);
+            if (detectedObject.has("graphVertexId") && detectedObject.get("graphVertexId").equals(jsonObject.get("graphVertexId"))) {
+                detectedObjects.remove(i);
+                deleted = true;
             }
         }
-        modelSession.deleteColumn(rowKey, Artifact.TABLE_NAME, columnFamily, columnQualifier, user);
+        if (!deleted) {
+            throw new RuntimeException("Tag was not found in the list of detected objects");
+        }
+        artifactVertex.setProperty(PropertyName.DETECTED_OBJECTS, detectedObjects.toString());
+        graphRepository.save(artifactVertex, user);
 
-        // Overwrite old ElasticSearch index
-        Artifact newArtifact = artifactRepository.findByRowKey(jsonObject.getString("artifactRowKey"), user);
-        searchProvider.add(newArtifact, user);
+        JSONObject updatedArtifactVertex = entityHelper.formatUpdatedArtifactVertexProperty(artifactVertex.getId(), PropertyName.DETECTED_OBJECTS.toString(), artifactVertex.getProperty(PropertyName.DETECTED_OBJECTS));
+        obj.put("updatedArtifactVertex", updatedArtifactVertex);
+
+        //TODO: Overwrite old ElasticSearch index with new info
 
         respondWithJson(response, obj);
     }

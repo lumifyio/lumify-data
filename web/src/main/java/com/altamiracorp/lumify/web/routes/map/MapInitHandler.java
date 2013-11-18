@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.web.routes.map;
 
-import com.altamiracorp.lumify.config.MapConfig;
-import com.altamiracorp.web.MustacheTemplateHandler;
+import com.altamiracorp.lumify.core.config.Configuration;
+import com.altamiracorp.miniweb.MustacheTemplateHandler;
 import com.google.inject.Inject;
 import org.apache.commons.io.IOUtils;
 
@@ -10,11 +10,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class MapInitHandler extends MustacheTemplateHandler {
-    private final MapConfig config;
+    private final Configuration config;
 
 
     @Inject
-    public MapInitHandler(final MapConfig config) throws IOException {
+    public MapInitHandler(final Configuration config) throws IOException {
         super();
         this.config = config;
     }
@@ -32,11 +32,11 @@ public class MapInitHandler extends MustacheTemplateHandler {
     protected Object getModel(HttpServletRequest request) {
         MapInitModel model = new MapInitModel();
 
-        model.mapProvider = config.getMapProvider();
+        model.mapProvider = config.get(Configuration.MAP_PROVIDER);
         if (model.mapProvider == null) {
             model.mapProvider = "leaflet";
         }
-        model.apiKey = config.getMapAccessKey();
+        model.apiKey = config.get(Configuration.MAP_ACCESS_KEY);
         return model;
     }
 

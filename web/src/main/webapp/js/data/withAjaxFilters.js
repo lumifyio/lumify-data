@@ -14,13 +14,15 @@ define([], function() {
             function artifactSearches(json, updated) {
                 var self = this;
 
-                if (json.document && json.image && json.video) {
+                if (json.document || json.image || json.video) {
                     Object.keys(json).forEach(function(type) {
-                        json[type].forEach(function(artifact) {
-                            var cache = self.updateCacheWithArtifact(artifact, type);
-                            $.extend(true, json[type], cache);
-                            updated.push(cache);
-                        });
+                        if (type !== 'counts') {
+                            json[type].forEach(function(artifact) {
+                                var cache = self.updateCacheWithVertex(artifact);
+                                $.extend(true, json[type], cache);
+                                updated.push(cache);
+                            });
+                        }
                     });
 
                     return true;
@@ -28,7 +30,7 @@ define([], function() {
             },
 
             function artifactGetByRow(json, updated) {
-                if (json.tableName === 'Artifact') {
+                if (json.tableName === 'atc_artifact') {
                     var cache = this.updateCacheWithArtifact(json);
                     $.extend(true, json, cache.artifact);
                     updated.push(cache);
@@ -38,13 +40,22 @@ define([], function() {
             },
 
             function vertexProperties(json, updated) {
+                var updated;
                 if (_.isString(json.id) && _.isObject(json.properties)) {
                     var cache = this.updateCacheWithVertex(json);
                     $.extend(true, json, cache);
                     updated.push(cache);
 
-                    return true;
+                    updated = true;
                 }
+                if (_.isObject (json.updatedArtifactVertex)) {
+                    cache = this.updateCacheWithVertex(json.updatedArtifactVertex);
+                    $.extend(true, json.updatedArtifactVertex, cache);
+                    updated.push(cache);
+
+                    updated = true;
+                }
+                return updated;
             },
 
             function vertexRelationships(json, updated) {
@@ -150,7 +161,7 @@ define([], function() {
                             });
                         }
                     } catch(e) {
-                        console.error('Request failed in prefilter cache phase', e);
+                        console.error('Request failed in prefilter cache phase', e && e.message || e);
                     }
                     return json;
                 };

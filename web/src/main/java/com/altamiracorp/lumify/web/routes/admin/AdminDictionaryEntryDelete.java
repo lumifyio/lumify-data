@@ -1,10 +1,10 @@
 package com.altamiracorp.lumify.web.routes.admin;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.dictionary.DictionaryEntryRepository;
-import com.altamiracorp.lumify.model.dictionary.DictionaryEntryRowKey;
+import com.altamiracorp.lumify.core.model.dictionary.DictionaryEntryRepository;
+import com.altamiracorp.lumify.core.model.dictionary.DictionaryEntryRowKey;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 import org.json.JSONObject;
 
@@ -25,7 +25,7 @@ public class AdminDictionaryEntryDelete extends BaseRequestHandler{
         final String strRowKey = getAttributeString(request, "entryRowKey");
         User user = getUser(request);
 
-        dictionaryEntryRepository.delete(new DictionaryEntryRowKey(strRowKey),user);
+        dictionaryEntryRepository.delete(new DictionaryEntryRowKey(strRowKey),user.getModelUserContext());
 
         JSONObject resultJson = new JSONObject();
         resultJson.put("success", true);

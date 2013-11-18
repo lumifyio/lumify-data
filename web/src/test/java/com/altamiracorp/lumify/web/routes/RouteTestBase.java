@@ -1,9 +1,9 @@
 package com.altamiracorp.lumify.web.routes;
 
-import com.altamiracorp.lumify.model.termMention.TermMentionRepository;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.web.WebApp;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.miniweb.HandlerChain;
 import org.mockito.Mockito;
 
 import javax.servlet.ServletOutputStream;

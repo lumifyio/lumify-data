@@ -10,8 +10,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.altamiracorp.lumify.model.ontology.Property;
-import com.altamiracorp.lumify.model.ontology.PropertyType;
+import com.altamiracorp.lumify.core.model.ontology.Property;
+import com.altamiracorp.lumify.core.model.ontology.PropertyType;
 import com.google.common.collect.Maps;
 import com.thinkaurelius.titan.core.attribute.Geoshape;
 import com.tinkerpop.blueprints.Vertex;
@@ -69,7 +69,7 @@ public class TitanQueryFormatter {
         }
     }
 
-    private static GremlinPipeline filterNumber(GremlinPipeline pipeline, JSONObject filterJson, String propertyName) throws JSONException, ParseException {
+    private static GremlinPipeline filterNumber(GremlinPipeline pipeline, JSONObject filterJson, String propertyName) throws JSONException {
         String predicate = filterJson.optString(PREDICATE, null);
         if (predicate == null) {
             throw new RuntimeException("'predicate' is required for data type 'number'");

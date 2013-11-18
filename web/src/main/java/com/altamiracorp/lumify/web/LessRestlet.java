@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.web;
 
-import com.altamiracorp.web.HandlerChain;
-import com.altamiracorp.web.utils.UrlUtils;
+import com.altamiracorp.miniweb.HandlerChain;
+import com.altamiracorp.miniweb.utils.UrlUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.lesscss.LessCompiler;
 

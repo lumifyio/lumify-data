@@ -32,7 +32,7 @@ define([
             this.on(document, 'socketMessage', this.onSocketMessage);
 
             this.on(document, 'onlineStatusChanged', this.onOnlineStatusChanged);
-            this.on(document, 'verticesSelected', this.onVerticesSelected);
+            this.on(document, 'objectsSelected', this.onObjectsSelected);
 
             for (var i in this.events) {
                 this.on(document, this.events[i], this.onSyncedEvent);
@@ -68,7 +68,7 @@ define([
             message.data.eventData = message.data.eventData || {};
             switch (message.type) {
                 case 'sync':
-                    console.log('sync onSocketMessage (remote: ' + (message.data.eventData.remoteEvent ? 'true' : 'false') + ')', message);
+                    console.debug('sync onSocketMessage (remote: ' + (message.data.eventData.remoteEvent ? 'true' : 'false') + ')', message);
                     message.data.eventData.remoteEvent = true;
                     this.trigger(document, message.data.eventName, message.data.eventData);
                     break;
@@ -86,7 +86,6 @@ define([
                 return;
             }
 
-            console.log('onSyncedEvent', this.currentWorkspaceRowKey, evt.type, data);
             if (data && data.vertices) {
                 data.vertices = data.vertices.map(function(vertex) {
                     return {
@@ -96,7 +95,9 @@ define([
                 });
             }
 
-            this.syncService.publishWorkspaceSyncEvent(evt.type, this.currentWorkspaceRowKey, data);
+            if (evt.type === 'workspaceRemoteSave') {
+                this.syncService.publishWorkspaceMetadataSyncEvent(evt.type, this.currentWorkspaceRowKey, data);
+            } else this.syncService.publishWorkspaceSyncEvent(evt.type, this.currentWorkspaceRowKey, data);
         };
 
         this.onOnlineStatusChanged = function (evt, data) {
@@ -105,18 +106,13 @@ define([
         };
 
         // This function is to support sync'ing between multiple devices with the same user
-        this.onVerticesSelected = function (evt, data) {
+        this.onObjectsSelected = function (evt, data) {
             if (!this.currentUser) {
                 return;
             }
-            if (data && data.remoteEvent) {
-                return;
-            }
-            if (_.isObject(data)) {
-                data = [data];
-            }
-            data = (data || []).map(function(v) { return { id: v.id }; });
-            this.syncService.publishUserSyncEvent(evt.type, [this.currentUser.rowKey], data);
+
+            var vertexIds = _.pluck(data.vertices, 'id');
+            this.syncService.publishUserSyncEvent(evt.type, [this.currentUser.rowKey], vertexIds);
         };
     }
 

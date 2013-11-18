@@ -21,8 +21,7 @@ define([
                 mapCoordinatesSelector: this.onMapCoordinatesClicked
             });
 
-            this.on(document, 'verticesSelected', this.onVerticesSelected);
-            this.on('verticesSelected', this.onVerticesSelectedWithinContents);
+            this.on(document, 'objectsSelected', this.onObjectsSelected);
             this.preventDropEventsFromPropagating();
 
             this.before('teardown',this.teardownComponents);
@@ -30,16 +29,14 @@ define([
             this.$node.html(template({}));
 
             if (this.attr.loadGraphVertexData) {
-                this.onVerticesSelected(null, [this.attr.loadGraphVertexData]);
+                this.onObjectsSelected(null, { vertices:[this.attr.loadGraphVertexData] });
             }
         });
-
 
         // Ignore drop events so they don't propagate to the graph/map
         this.preventDropEventsFromPropagating = function() {
             this.$node.droppable({ tolerance: 'pointer', accept: '*' });
         };
-
 
         this.onMapCoordinatesClicked = function(evt, data) {
             evt.preventDefault();
@@ -51,42 +48,39 @@ define([
             this.trigger('mapCenter', data);
         };
 
-        this.onVerticesSelectedWithinContents = function(evt, data) {
-            if (data.remoteEvent) {
-                return;
-            }
-            evt.stopPropagation();
-            this.onVerticesSelected(evt, data);
-        };
-
-        this.onVerticesSelected = function(evt, data) {
-            if (data && data.remoteEvent) {
-                return;
-            }
-
-            if ($.isArray(data) && data.length === 1) {
-                data = data[0];
-            }
+        this.onObjectsSelected = function(evt, data) {
+            var self = this,
+                vertices = data.vertices,
+                edges = data.edges,
+                moduleName, moduleData;
 
             this.teardownComponents();
 
-            var typeContentNode = this.select('detailTypeContentSelector');
-            if ( !data || data.length === 0 ) {
+            if ( !vertices.length && !edges.length ) {
                 return;
             }
+            
+            if (vertices.length > 1) {
+                moduleName = 'multiple';
+                moduleData = vertices;
+            } else if (vertices.length === 1) {
+                var vertex = vertices[0],
+                    type = vertices[0].properties._type;
 
-            var self = this,
-                moduleName = (
-                    ($.isArray(data) ? 'multiple' :
-                        (data.properties._type != 'artifact' && data.properties._type != 'relationship') ? 'entity' : 
-                        data.properties._type) || 'entity'
-                ).toLowerCase();
+                moduleName = (((type != 'artifact' && type != 'relationship') ? 'entity' : type) || 'entity').toLowerCase();
+                moduleData = vertex;
+            } else {
+                moduleName = edges[0].properties._type;
+                moduleData = edges[0];
+            }
+
+            moduleName = moduleName.toLowerCase();
 
             require([
                 'detail/' + moduleName + '/' + moduleName,
             ], function(Module) {
-                Module.attachTo(typeContentNode, { 
-                    data: data,
+                Module.attachTo(self.select('detailTypeContentSelector'), { 
+                    data: moduleData,
                     highlightStyle: self.attr.highlightStyle
                 });
             });

@@ -1,7 +1,7 @@
 package com.altamiracorp.lumify.vaast.model.subFrames;
 
 import com.altamiracorp.lumify.model.Value;
-import com.altamiracorp.lumify.model.videoFrames.VideoFrameMetadata;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameMetadata;
 
 public class SubFrameMetadata extends VideoFrameMetadata{
 

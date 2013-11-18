@@ -51,6 +51,7 @@ define([
             this.$node.on('click.paneClick', this.onPaneClicked.bind(this));
 
             this.on(document, 'verticesUpdated', this.onVerticesUpdated);
+            this.on('infiniteScrollRequest', this.handleReferenceLoadingRequest);
 
             self.loadEntity();
         });
@@ -101,6 +102,7 @@ define([
 
         this.loadRelationships = function(vertex, ontologyRelationships, vertexRelationships) {
             var self = this,
+                totalReferences = vertexRelationships[0].totalReferences,
                 relationships = vertexRelationships[0].relationships;
 
             // Create source/dest/other properties
@@ -197,8 +199,30 @@ define([
             VertexList.attachTo($rels.find('.references'), {
                 vertices: _.map(groupedByType.references, function(r) {
                     return r.vertices.other;
-                })
+                }),
+                infiniteScrolling: groupedByType.references.length > 0,
+                total: totalReferences
             });
+        };
+
+        this.handleReferenceLoadingRequest = function(evt, data) {
+            var self = this;
+
+            this.handleCancelling(this.ucdService.getVertexRelationships(this.attr.data.id, data.paging))
+                .done(function(response) {
+                    var relationships = response.relationships,
+                        total = response.totalReferences;
+
+                    self.trigger(
+                        self.select('relationshipsSelector').find('.references'),
+                        'addInfiniteVertices', 
+                        { 
+                            vertices: _.pluck(relationships, 'vertex'),
+                            total: total
+                        }
+                    );
+                    
+                });
         };
 
         this.onPaneClicked = function(evt) {
@@ -210,11 +234,11 @@ define([
 
             if ($target.is('.entity, .artifact')) {
                 var id = $target.data('vertexId');
-                this.trigger('verticesSelected', [appData.vertex(id)]);
+                this.trigger('selectObjects', { vertices:[appData.vertex(id)] });
                 evt.stopPropagation();
             } else if ($target.is('.relationship')) {
                 var info = $target.data('info');
-                this.trigger('verticesSelected', [info]);
+                this.trigger('selectObjects', { vertices:[info] });
                 evt.stopPropagation();
             }
         };

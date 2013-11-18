@@ -45,12 +45,10 @@ define([
 
                     this.updateRangeVisibility();
 
-                    if (this.isValid()) {
-                        this.filterUpdated(
-                            this.getValues(),
-                            this.select('predicateSelector').val()
-                        );
-                    }
+                    this.filterUpdated(
+                        this.getValues(),
+                        this.select('predicateSelector').val()
+                    );
                 }
             });
         });

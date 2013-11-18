@@ -1,7 +1,8 @@
 package com.altamiracorp.lumify.objectDetection;
 
-import com.altamiracorp.lumify.model.videoFrames.VideoFrameRepository;
-import com.altamiracorp.lumify.ucd.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.util.OpenCVUtils;
 import com.google.inject.Inject;
 import org.opencv.core.Core;
@@ -23,6 +24,10 @@ public class OpenCVObjectDetector extends ObjectDetector {
 
     private static final String MODEL = "opencv";
 
+    static {
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+    }
+
     private CascadeClassifier objectClassifier;
 
     @Inject
@@ -38,20 +43,19 @@ public class OpenCVObjectDetector extends ObjectDetector {
 
     @Override
     public void setup(String classifierPath) {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         objectClassifier = new CascadeClassifier(classifierPath);
     }
 
     @Override
-    protected List<DetectedObject> detectObjects(BufferedImage bImage) {
-        ArrayList<DetectedObject> detectedObjectList = new ArrayList<DetectedObject>();
+    public List<ArtifactDetectedObject> detectObjects(BufferedImage bImage) {
+        ArrayList<ArtifactDetectedObject> detectedObjectList = new ArrayList<ArtifactDetectedObject>();
         Mat image = OpenCVUtils.bufferedImageToMat(bImage);
         if (image != null) {
             MatOfRect faceDetections = new MatOfRect();
             objectClassifier.detectMultiScale(image, faceDetections);
 
             for (Rect rect : faceDetections.toArray()) {
-                DetectedObject detectedObject = new DetectedObject(Integer.toString(rect.x), Integer.toString(rect.y),
+                ArtifactDetectedObject detectedObject = new ArtifactDetectedObject(Integer.toString(rect.x), Integer.toString(rect.y),
                         Integer.toString(rect.x + rect.width), Integer.toString(rect.y + rect.height));
                 detectedObjectList.add(detectedObject);
             }

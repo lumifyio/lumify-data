@@ -8,10 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.altamiracorp.lumify.core.user.User;
-import com.altamiracorp.lumify.model.workspace.Workspace;
-import com.altamiracorp.lumify.model.workspace.WorkspaceRepository;
+import com.altamiracorp.lumify.core.model.workspace.Workspace;
+import com.altamiracorp.lumify.core.model.workspace.WorkspaceRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
-import com.altamiracorp.web.HandlerChain;
+import com.altamiracorp.miniweb.HandlerChain;
 import com.google.inject.Inject;
 
 public class WorkspaceByRowKey extends BaseRequestHandler {
@@ -29,13 +29,14 @@ public class WorkspaceByRowKey extends BaseRequestHandler {
         final User authUser = getUser(request);
 
         LOGGER.info("Attempting to retrieve workspace: " + workspaceRowKey);
-        final Workspace workspace = workspaceRepository.findByRowKey(workspaceRowKey.toString(), authUser);
+        final Workspace workspace = workspaceRepository.findByRowKey(workspaceRowKey.toString(), authUser.getModelUserContext());
 
         if (workspace == null) {
             LOGGER.warn("Could not find workspace: " + workspaceRowKey);
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
         } else {
             LOGGER.debug("Successfully found workspace");
+            request.getSession().setAttribute("activeWorkspace", workspaceRowKey);
             final JSONObject resultJSON = workspace.toJson(authUser);
             if (resultJSON == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND);

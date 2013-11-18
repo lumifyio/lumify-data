@@ -23,6 +23,10 @@ define([], function() {
                     }
                 };
 
+                self[name + 'IsReady'] = function() {
+                    return objectData !== undefined;
+                };
+
                 self[name + 'MarkReady'] = function(data) {
                     if (!data) throw "No object passed to " + name + "MarkReady";
 

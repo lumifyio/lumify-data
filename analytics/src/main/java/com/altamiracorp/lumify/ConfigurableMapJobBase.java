@@ -14,9 +14,9 @@ import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.Tool;
 
 import com.altamiracorp.lumify.cmdline.CommandLineBase;
-import com.altamiracorp.lumify.config.Configuration;
-import com.altamiracorp.lumify.model.AccumuloModelOutputFormat;
-import com.altamiracorp.lumify.ucd.artifact.Artifact;
+import com.altamiracorp.lumify.core.config.Configuration;
+import com.altamiracorp.bigtable.model.accumulo.AccumuloModelOutputFormat;
+import com.altamiracorp.lumify.core.model.artifact.Artifact;
 
 public abstract class ConfigurableMapJobBase extends CommandLineBase implements Tool {
     public static final String FAIL_FIRST_ERROR = "failOnFirstError";
@@ -88,7 +88,7 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
     protected int run(CommandLine cmd) throws Exception {
         Job job = new Job(getConf(), this.getClass().getSimpleName());
         Configuration configuration = getConfiguration();
-        configureJob(job, configuration.getProperties());
+        configureJob(job, configuration);
 
         job.setJarByClass(this.getClass());
 
@@ -113,10 +113,10 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
         }
         AccumuloModelOutputFormat.init(
                 job,
-                configuration.getDataStoreUserName(),
-                configuration.getDataStorePassword(),
-                configuration.getZookeeperInstanceName(),
-                configuration.getZookeeperServerNames(),
+                configuration.get("model.accumulo.instanceName"),
+                configuration.get("model.accumulo.zookeeperServerNames"),
+                configuration.get("model.accumulo.user"),
+                configuration.get("model.accumulo.password"),
                 Artifact.TABLE_NAME);
 
         job.waitForCompletion(true);
@@ -135,9 +135,9 @@ public abstract class ConfigurableMapJobBase extends CommandLineBase implements 
         return config;
     }
 
-    private void configureJob(final Job job, final Properties properties) {
-        for (final Object key : properties.keySet()) {
-            job.getConfiguration().set((String) key, properties.getProperty((String) key));
+    private void configureJob(final Job job, final Configuration config) {
+        for (final String key : config.getKeys()) {
+            job.getConfiguration().set(key, config.get(key));
         }
 
         job.getConfiguration().setBoolean(FAIL_FIRST_ERROR, failOnFirstError);
