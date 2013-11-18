@@ -5,5 +5,7 @@ public interface BaseFileSystemSpoutMXBean {
 
     public int getToBeProcessedCount();
 
+    public int getTotalProcessedCount();
+
     public String getPath();
 }
