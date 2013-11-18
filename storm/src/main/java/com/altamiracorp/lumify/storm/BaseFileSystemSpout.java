@@ -19,6 +19,7 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout implements BaseF
     public static final String DATADIR_CONFIG_NAME = "datadir";
     private SpoutOutputCollector collector;
     private Map<String, String> workingFiles;
+    private int totalProcessed;
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -73,6 +74,7 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout implements BaseF
     public final void ack(Object msgId) {
         try {
             safeAck(msgId);
+            totalProcessed++;
         } catch (Exception ex) {
             collector.reportError(ex);
         }
@@ -94,5 +96,10 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout implements BaseF
     @Override
     public int getWorkingCount() {
         return workingFiles.size();
+    }
+
+    @Override
+    public int getTotalProcessedCount() {
+        return totalProcessed;
     }
 }
