@@ -1,20 +1,20 @@
 package com.altamiracorp.lumify.storm;
 
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public abstract class BaseFileSystemSpout extends BaseRichSpout {
+import javax.management.*;
+import java.lang.management.ManagementFactory;
+import java.util.Map;
+
+public abstract class BaseFileSystemSpout extends BaseRichSpout implements BaseFileSystemSpoutMXBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseFileSystemSpout.class);
     public static final String DATADIR_CONFIG_NAME = "datadir";
     private SpoutOutputCollector collector;
@@ -30,6 +30,24 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout {
         LOGGER.info(String.format("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId()));
         this.collector = collector;
         workingFiles = Maps.newHashMap();
+
+        try {
+            registerJmxBean();
+        } catch (Exception ex) {
+            LOGGER.error("Could not register JMX bean", ex);
+        }
+    }
+
+    protected void registerJmxBean() throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
+        MBeanServer beanServer = ManagementFactory.getPlatformMBeanServer();
+        for (int suffix = 0; ; suffix++) {
+            ObjectName beanName = new ObjectName("com.altamiracorp.lumify.storm.spout:type=" + getClass().getName() + "-" + suffix);
+            if (beanServer.isRegistered(beanName)) {
+                continue;
+            }
+            beanServer.registerMBean(this, beanName);
+            break;
+        }
     }
 
     protected SpoutOutputCollector getCollector() {
@@ -71,5 +89,10 @@ public abstract class BaseFileSystemSpout extends BaseRichSpout {
 
         super.fail(msgId);
         emit(path); // TODO: should we retry or move the file in a failed directory.
+    }
+
+    @Override
+    public int getWorkingCount() {
+        return workingFiles.size();
     }
 }
