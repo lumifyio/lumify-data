@@ -176,7 +176,8 @@ define([
 
                 loading.before(added);
 
-                if (data.total === this.$node.find('.vertex-item').length) {
+                var total = data.total || this.attr.total || 0;
+                if (total === this.$node.find('.vertex-item').length) {
                     loading.remove();
                     this.attr.infiniteScrolling = false;
                 } else {

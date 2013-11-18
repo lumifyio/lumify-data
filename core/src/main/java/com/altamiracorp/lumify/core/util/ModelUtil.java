@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.core.util;
 import com.altamiracorp.bigtable.model.ModelSession;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnail;
+import com.altamiracorp.lumify.core.model.audit.Audit;
 import com.altamiracorp.lumify.core.model.dictionary.DictionaryEntry;
 import com.altamiracorp.lumify.core.model.geoNames.GeoName;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameAdmin1Code;
@@ -33,6 +34,7 @@ public class ModelUtil {
             GeoNameCountryInfo.TABLE_NAME,
             GeoNamePostalCode.TABLE_NAME,
             DictionaryEntry.TABLE_NAME,
+            Audit.TABLE_NAME,
             "atc_titan");// TODO refactor see com.altamiracorp.lumify.model.TitanGraphSession
 
     public static void initializeTables(ModelSession modelSession, User user) {

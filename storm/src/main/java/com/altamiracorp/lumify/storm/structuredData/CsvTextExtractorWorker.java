@@ -8,6 +8,8 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.io.CsvListWriter;
 import org.supercsv.prefs.CsvPreference;
@@ -23,8 +25,11 @@ public class CsvTextExtractorWorker
         extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData>
         implements StructuredDataExtractionWorker {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CsvTextExtractorWorker.class.getName());
+
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
+        LOGGER.debug("Extracting Text from CSV [CsvTextExtractorWorker]: " + data.getFileName());
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
 
         // Extract mapping json
@@ -48,7 +53,7 @@ public class CsvTextExtractorWorker
         }
         info.setMappingJson(mappingJson);
         info.setArtifactType(ArtifactType.DOCUMENT.toString());
-
+        LOGGER.debug("Finished [CsvTextExtractorWorker]: " + data.getFileName());
         return info;
     }
 

@@ -71,6 +71,8 @@ public class ContentTypeSorterBolt extends BaseLumifyBolt {
         } finally {
             in.close();
         }
+
+        LOGGER.debug("[ContentTypeSorterBolt]: finished with " + fileName);
     }
 
     private String calculateQueueName(String fileName, InputStream in) throws Exception {

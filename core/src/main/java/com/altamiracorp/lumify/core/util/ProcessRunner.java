@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 public class ProcessRunner {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessRunner.class);
@@ -42,27 +43,38 @@ public class ProcessRunner {
         StreamHelper errStreamHelper = new StreamHelper(proc.getErrorStream(), LOGGER, programName + "(stderr): ");
         errStreamHelper.start();
 
-        final IOException[] pipeException = new IOException[1];
+        final Exception[] pipeException = new Exception[1];
+        Pipe pipe = null;
         StreamHelper stdoutStreamHelper = null;
         if (out == null) {
             stdoutStreamHelper = new StreamHelper(proc.getInputStream(), LOGGER, programName + "(stdout): ");
             stdoutStreamHelper.start();
         } else {
-            Pipe.ExceptionHandler exceptionHandler = new Pipe.ExceptionHandler() {
+            Pipe.StatusHandler statusHandler = new Pipe.StatusHandler() {
                 @Override
-                public void handle(IOException e) {
+                public void handleException(Exception e) {
                     pipeException[0] = e;
                 }
+
             };
-            Pipe.pipe(proc.getInputStream(), out, exceptionHandler);
+            pipe = new Pipe().pipe(proc.getInputStream(), out, statusHandler);
         }
 
         proc.waitFor();
 
         errStreamHelper.join(10000);
+
         if (stdoutStreamHelper != null) {
             stdoutStreamHelper.join(10000);
         }
+
+        if (pipe != null) {
+            pipe.waitForCompletion(10000, TimeUnit.MILLISECONDS);
+        }
+
+        proc.getOutputStream().close(); // stdin
+        proc.getInputStream().close(); // stdout
+        proc.getErrorStream().close();
 
         LOGGER.info(programName + "(returncode): " + proc.exitValue());
 

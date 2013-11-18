@@ -23,7 +23,7 @@ public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<Artifa
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
-        LOGGER.info("Encoding (webm) " + data.getFileName());
+        LOGGER.info("Encoding (webm) [VideoWebMEncodingWorker] " + data.getFileName());
         HdfsLimitOutputStream out = new HdfsLimitOutputStream(data.getHdfsFileSystem(), 0);
         try {
             ProcessRunner.execute(
@@ -54,7 +54,7 @@ public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<Artifa
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
         info.setWebMHdfsFilePath(out.getHdfsPath().toString());
         info.setArtifactType(ArtifactType.VIDEO.toString());
-
+        LOGGER.debug("Finished [VideoWebMEncodingWorker]: " + data.getFileName());
         return info;
     }
 }

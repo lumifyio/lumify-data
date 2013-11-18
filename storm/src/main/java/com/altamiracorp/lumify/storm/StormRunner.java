@@ -136,7 +136,7 @@ public class StormRunner extends CommandLineBase {
         int fileCount = 0;
         for (File f : dataDirFile.listFiles()) {
             Path srcPath = new Path(f.getAbsolutePath());
-            if (srcPath.getName().startsWith(".")) {
+            if (srcPath.getName().startsWith(".") || f.length() == 0) {
                 continue;
             }
 

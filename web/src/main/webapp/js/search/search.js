@@ -387,8 +387,7 @@ define([
                         self.select('resultsSelector').find('.content'),
                         'addInfiniteVertices', 
                         { 
-                            vertices: results.vertices,
-                            total: results.verticesCount[data.verticesSubType]
+                            vertices: results.vertices
                         }
                     );
                 });

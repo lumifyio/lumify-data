@@ -25,7 +25,7 @@ public class VideoMp4EncodingWorker extends ThreadedTeeInputStreamWorker<Artifac
 
     @Override
     protected ArtifactExtractedInfo doWork(InputStream work, AdditionalArtifactWorkData data) throws Exception {
-        LOGGER.info("Encoding (mp4) " + data.getFileName());
+        LOGGER.info("Encoding (mp4) [VideoMp4EncodingWorker] " + data.getFileName());
         File mp4File = File.createTempFile("encode_mp4_", ".mp4");
         File mp4ReloactedFile = File.createTempFile("relocated_mp4_", ".mp4");
         try {
@@ -64,6 +64,7 @@ public class VideoMp4EncodingWorker extends ThreadedTeeInputStreamWorker<Artifac
 
             ArtifactExtractedInfo info = new ArtifactExtractedInfo();
             info.setMp4HdfsFilePath(copyDestPath.toString());
+            LOGGER.debug("Finished [VideoMp4EncodingWorker]: " + data.getFileName());
             return info;
         } finally {
             mp4File.delete();

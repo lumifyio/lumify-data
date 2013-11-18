@@ -11,6 +11,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.json.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -28,12 +30,14 @@ public class ImageObjectDetectionWorker extends BaseImageWorker {
     private static final String OPENCV_CLASSIFIER_CONCEPT_LIST = "objectdetection.classifierConcepts";
     private static final String OPENCV_CLASSIFIER_PATH_PREFIX = "objectdetection.classifier.";
     private static final String OPENCV_CLASSIFIER_PATH_SUFFIX = ".path";
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImageObjectDetectionWorker.class.getName());
 
     private OpenCVObjectDetector objectDetector;
     private Map<String, String> classifierFilePaths;
 
     @Override
     protected ArtifactExtractedInfo doWork(BufferedImage image, AdditionalArtifactWorkData data) throws Exception {
+        LOGGER.debug("Detecting Objects [ImageObjectDetectionWorker]: " + data.getFileName());
         JSONArray detectedObjectsJson = new JSONArray();
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
 
@@ -49,6 +53,7 @@ public class ImageObjectDetectionWorker extends BaseImageWorker {
         }
         info.setDetectedObjects(detectedObjectsJson.toString());
         info.setArtifactType(ArtifactType.IMAGE.toString());
+        LOGGER.debug("Finished [ImageObjectDetectionWorker]: " + data.getFileName());
         return info;
     }
 
@@ -62,7 +67,7 @@ public class ImageObjectDetectionWorker extends BaseImageWorker {
             fos = new FileOutputStream(tempFile);
             IOUtils.copy(in, fos);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Could not create local file", e);
         } finally {
             if (in != null) {
                 in.close();
