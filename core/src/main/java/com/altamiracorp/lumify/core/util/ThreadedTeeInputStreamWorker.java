@@ -32,8 +32,14 @@ public abstract class ThreadedTeeInputStreamWorker<TResult, TData> implements Ru
 
     protected void registerJmxBean() throws NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException, MalformedObjectNameException {
         MBeanServer beanServer = ManagementFactory.getPlatformMBeanServer();
-        ObjectName beanName = new ObjectName(getBaseJmxObjectName() + ":type=" + getClass().getName());
-        beanServer.registerMBean(this, beanName);
+        for (int suffix = 0; ; suffix++) {
+            ObjectName beanName = new ObjectName(getBaseJmxObjectName() + ":type=" + getClass().getName() + suffix);
+            if (beanServer.isRegistered(beanName)) {
+                continue;
+            }
+            beanServer.registerMBean(this, beanName);
+            break;
+        }
     }
 
     protected String getBaseJmxObjectName() {
