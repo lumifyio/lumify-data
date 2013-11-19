@@ -32,7 +32,7 @@ var require = {
     'sf': '../libs/sf/sf',
     'd3': '../libs/d3/d3',
     'three': '../libs/threejs/build/three.min',
-    'intercom': '../libs/intercom/intercom.amd'
+    'intercom': '../libs/intercom/intercom'
   },
   shim: {
     'ejs': { exports: 'ejs' },
@@ -40,6 +40,7 @@ var require = {
     'openlayers': { exports: 'OpenLayers', deps:['googlev3'] },
     'cytoscape': { exports: 'cytoscape', deps:['arbor'] },
     'colorjs': { init: function() { return this.net.brehaut.Color; } },
+    'intercom': { exports:'Intercom' },
     'videojs': { exports: 'videojs' },
 	'underscore': { exports: '_' },
     'd3': { exports: 'd3' }
