@@ -9,10 +9,10 @@ done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 # Check for grunt-cli installed: log `npm install -g grunt-cli`
-command -v grunt >/dev/null 2>&1 || { echo >&2 "Install grunt: npm install -g grunt-cli.  Aborting."; exit 1; }
+command -v grunt >/dev/null 2>&1 || { echo >&2 "[ERROR] grunt not found! install: npm install -g grunt-cli"; exit 1; }
 
 # Check for bower: log `npm install -g bower`
-command -v bower >/dev/null 2>&1 || { echo >&2 "Install bower: npm install -g bower.  Aborting."; exit 1; }
+command -v bower >/dev/null 2>&1 || { echo >&2 "[ERROR] bower not found! install: npm install -g bower"; exit 1; }
 
 # run `npm install` in src/main/webapp
 cd $DIR/../webapp >/dev/null 
