@@ -53,7 +53,7 @@ Object.keys(jQueryPlugins).forEach(function(plugin) {
 });
 
 cytoscapePlugins.forEach(function(plugin) {
-  require.paths[plugin] = '../libs/cytoscape.js/plugins/' + plugin;
+  require.paths[plugin] = '../libs/cytoscape.js/build/plugins/' + plugin;
   require.shim[plugin] = { exports: 'jQuery' };
   require.shim.cytoscape.deps = require.shim.cytoscape.deps || [];
   require.shim.cytoscape.deps.push(plugin);
