@@ -9,6 +9,11 @@ module.exports = function(grunt) {
               targetDir: './libs',
               copy: false
           }
+      },
+      prune: {
+          options: {
+              offline: true
+          }
       }
     },
 
@@ -29,6 +34,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-bower-task');
   grunt.loadNpmTasks('grunt-exec');
 
-  grunt.registerTask('deps', ['bower:install', 'exec']);
+  grunt.registerTask('deps', ['bower:prune', 'bower:install', 'exec']);
   grunt.registerTask('default', ['deps']);
 };
