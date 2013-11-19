@@ -1,4 +1,4 @@
-# Run Tests
-    
-    npm install
-    ./node_modules/.bin/karma start
+# To install dependencies
+
+    > npm install
+    > grunt
