@@ -3,7 +3,7 @@
 define([
     'flight/lib/component',
     'service/ontology',
-    '3djs',
+    './3djs/3djs',
     'util/previews'
 ], function(defineComponent, OntologyService, $3djs, previews) {
     'use strict';
