@@ -30,7 +30,7 @@ var require = {
     'underscore': '../libs/underscore/underscore',
     'colorjs': '../libs/color-js/color',
     'sf': '../libs/sf/sf',
-    'd3': '../libs/d3/d3.v3',
+    'd3': '../libs/d3/d3',
     'three': '../libs/threejs/build/three.min',
     'intercom': '../libs/intercom/intercom.amd'
   },
