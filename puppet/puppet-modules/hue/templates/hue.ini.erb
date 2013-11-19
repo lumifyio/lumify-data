@@ -173,12 +173,12 @@
     #
     # Note that for sqlite3, 'name', below is a filename;
     # for other backends, it is the database name.
-    ## engine=sqlite3
+    engine=sqlite3
     ## host=
     ## port=
     ## user=
     ## password=
-    ## name=desktop/desktop.db
+    name=/var/lib/hue/desktop.db
 
 
   # Configuration options for connecting to an external SMTP server
@@ -299,46 +299,6 @@
     # [[[ha]]]
       # Enter the host on which you are running the failover JobTracker
       # jobtracker_host=localhost-ha
-
-
-  # Configuration for YARN (MR2)
-  # ------------------------------------------------------------------------
-  [[yarn_clusters]]
-
-    [[[default]]]
-      # Enter the host on which you are running the ResourceManager
-      resourcemanager_host=localhost
-      # The port where the ResourceManager IPC listens on
-      resourcemanager_port=8032
-      # Whether to submit jobs to this cluster
-      ## submit_to=False
-
-      # Change this if your YARN cluster is Kerberos-secured
-      ## security_enabled=false
-
-      # Settings about this MR2 cluster. If you install MR2 in a
-      # different location, you need to set the following.
-
-      # Defaults to $HADOOP_MR2_HOME or /usr/lib/hadoop-mapreduce
-      ## hadoop_mapred_home=/usr/lib/hadoop-mapreduce
-
-      # Defaults to $HADOOP_BIN or /usr/bin/hadoop
-      ## hadoop_bin=/usr/bin/hadoop
-
-      # Defaults to $HADOOP_CONF_DIR or /etc/hadoop/conf
-      ## hadoop_conf_dir=/etc/hadoop/conf
-
-      # URL of the ResourceManager API
-      ## resourcemanager_api_url=http://localhost:8088
-
-      # URL of the ProxyServer API
-      ## proxy_api_url=http://localhost:8088
-
-      # URL of the HistoryServer API
-      history_server_api_url=http://localhost:19888
-
-      # URL of the NodeManager API
-      node_manager_api_url=http://localhost:8042
 
 
 ###########################################################################
