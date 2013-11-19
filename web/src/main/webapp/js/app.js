@@ -91,7 +91,7 @@ define([
             this.$node.html(content);
 
             // Activate Graph
-            this.trigger(document, 'menubarToggleDisplay', { name: graphPane.data(DATA_MENUBAR_NAME) });
+            this.trigger(document, 'menubarToggleDisplay', { name: dashboardPane.data(DATA_MENUBAR_NAME) });
 
             this.on(document, 'windowResize', this.triggerPaneResized);
             this.on(document, 'mapCenter', this.onMapAction);
