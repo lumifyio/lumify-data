@@ -38,29 +38,28 @@ import com.altamiracorp.lumify.storm.document.DocumentBolt;
 import com.altamiracorp.lumify.storm.image.ImageBolt;
 import com.altamiracorp.lumify.storm.structuredData.StructuredDataTextExtractorBolt;
 import com.altamiracorp.lumify.storm.term.extraction.TermExtractionBolt;
-import com.altamiracorp.lumify.storm.textHighlighting.ArtifactHighlightingBolt;
 import com.altamiracorp.lumify.storm.video.VideoBolt;
 import com.altamiracorp.lumify.storm.video.VideoPreviewBolt;
 
-public class StormRunner extends CommandLineBase {
+public class StormEnterpriseRunner extends CommandLineBase {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StormRunner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StormEnterpriseRunner.class);
 
     private static final String ROOT_DATA_DIR = "/lumify/data";
     private static final String UNKNOWN_DATA_DIR = "unknown";
 
     private static final String CMD_OPT_LOCAL = "local";
     private static final String CMD_OPT_DATADIR = "datadir";
-    private static final String TOPOLOGY_NAME = "lumify";
+    private static final String TOPOLOGY_NAME = "lumify-enterprise";
 
     public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(CachedConfiguration.getInstance(), new StormRunner(), args);
+        int res = ToolRunner.run(CachedConfiguration.getInstance(), new StormEnterpriseRunner(), args);
         if (res != 0) {
             System.exit(res);
         }
     }
 
-    public StormRunner() {
+    public StormEnterpriseRunner() {
         initFramework = true;
     }
 
@@ -155,7 +154,6 @@ public class StormRunner extends CommandLineBase {
         createImageTopology(builder);
         createDocumentTopology(builder);
         createTextTopology(builder);
-        createArtifactHighlightingTopology(builder);
         createProcessedVideoTopology(builder);
         createStructuredDataTextTopology(builder);
 
@@ -202,13 +200,6 @@ public class StormRunner extends CommandLineBase {
         builder.setSpout("text", new KafkaSpout(spoutConfig), 1);
         builder.setBolt("textTermExtractionBolt", new TermExtractionBolt(), 1)
                 .shuffleGrouping("text");
-    }
-
-    private void createArtifactHighlightingTopology(TopologyBuilder builder) {
-        SpoutConfig spoutConfig = createSpoutConfig(WorkQueueRepository.ARTIFACT_HIGHLIGHT_QUEUE_NAME, null);
-        builder.setSpout("artifactHighlightSpout", new KafkaSpout(spoutConfig), 1);
-        builder.setBolt("artifactHighlightBolt", new ArtifactHighlightingBolt(), 1)
-                .shuffleGrouping("artifactHighlightSpout");
     }
 
     private void createProcessedVideoTopology(TopologyBuilder builder) {
