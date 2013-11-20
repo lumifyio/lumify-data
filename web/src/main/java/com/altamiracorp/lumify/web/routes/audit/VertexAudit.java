@@ -1,9 +1,6 @@
 package com.altamiracorp.lumify.web.routes.audit;
 
-import com.altamiracorp.bigtable.model.Row;
-import com.altamiracorp.bigtable.model.accumulo.AccumuloSession;
 import com.altamiracorp.lumify.core.model.audit.Audit;
-import com.altamiracorp.lumify.core.model.audit.AuditData;
 import com.altamiracorp.lumify.core.model.audit.AuditRepository;
 import com.altamiracorp.lumify.web.BaseRequestHandler;
 import com.altamiracorp.miniweb.HandlerChain;
