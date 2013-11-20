@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.web;
 
 import com.altamiracorp.lumify.web.routes.admin.*;
 import com.altamiracorp.lumify.web.routes.artifact.*;
+import com.altamiracorp.lumify.web.routes.audit.VertexAudit;
 import com.altamiracorp.lumify.web.routes.entity.*;
 import com.altamiracorp.lumify.web.routes.graph.*;
 import com.altamiracorp.lumify.web.routes.map.MapInitHandler;
@@ -50,6 +51,8 @@ public class Router extends HttpServlet {
         app.get("/ontology/concept/", authenticator, ConceptList.class);
         app.get("/ontology/property/", authenticator, PropertyList.class);
         app.get("/ontology/relationship/", authenticator, RelationshipLabelList.class);
+
+        app.get("/audit/{graphVertexId}", authenticator, VertexAudit.class);
 
         app.get("/resource/{_rowKey}", authenticator, ResourceGet.class);
 
