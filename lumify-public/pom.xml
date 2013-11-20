@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.altamiracorp.lumify</groupId>
-    <artifactId>lumify-enterprise</artifactId>
+    <artifactId>lumify</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-
 
     <name>Lumify</name>
 
@@ -25,7 +24,6 @@
         <javadoc.stylesheetfile>conf/maven/javadoc/stylesheet.css</javadoc.stylesheetfile>
         <maven.build.timestamp.format>EEE MMM dd HH:mm z yyyy</maven.build.timestamp.format>
         <classpath-filename>${project.build.directory}/.classpath.${user.name}</classpath-filename>
-        <!--<internal.project.repo>http://nic-mvnproxy.nearinfinity.com:8080/artifactory</internal.project.repo>-->
         <internal.project.repo>http://63.141.238.205:8081/maven/</internal.project.repo>
         <cluster.dependency.scope>compile</cluster.dependency.scope>
     </properties>
@@ -86,11 +84,11 @@
                 <artifactId>accumulo-core</artifactId>
                 <version>${accumulo-version}</version>
             </dependency>
-	        <dependency>
-	            <groupId>storm</groupId>
-	            <artifactId>storm</artifactId>
-	            <version>${storm-version}</version>
-				<exclusions>
+            <dependency>
+                <groupId>storm</groupId>
+                <artifactId>storm</artifactId>
+                <version>${storm-version}</version>
+                <exclusions>
                     <exclusion>
                         <groupId>org.mortbay.jetty</groupId>
                         <artifactId>servlet-api</artifactId>
@@ -99,8 +97,8 @@
                         <groupId>javax.servlet</groupId>
                         <artifactId>servlet-api</artifactId>
                     </exclusion>
-				</exclusions>
-	        </dependency>
+                </exclusions>
+            </dependency>
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
                 <artifactId>hadoop-client</artifactId>
@@ -341,7 +339,14 @@
     </build>
 
     <modules>
-        <module>lumify-public</module>
-        <module>storm-lumify-enterprise</module>
+        <module>core</module>
+        <module>fs-hdfs</module>
+        <module>model-accumulo</module>
+        <module>model-titan</module>
+        <module>model-kafka</module>
+        <module>model-elasticSearch</module>
+        <module>analytics</module>
+        <module>web</module>
+        <module>storm-lumify</module>
     </modules>
 </project>
