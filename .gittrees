@@ -2,3 +2,7 @@
 	url = git@github.com:nearinfinity/puppet-modules.git
 	path = puppet/puppet-modules
 	branch = master
+[subtree "lumify-public"]
+	url = git@github.com:nearinfinity/lumify.git
+	path = lumify-public
+	branch = master
