@@ -84,6 +84,6 @@ class env::dev {
   file { '/etc/hosts' :
     source => 'puppet:///modules/env/dev/hosts',
     owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
+    mode => 'u=rwx,g=r,o=r',
   }
 }
