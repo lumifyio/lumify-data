@@ -1,11 +1,4 @@
 #!/bin/bash
-# group: server
-# require: 215_ArtifactFaceDetectionMR.sh
-# require: 215_VideoFrameFaceDetectionMR.sh
-# require: 300_VideoPreviewMR.sh
-# require: 600_ArtifactLocationExtractionMR.sh
-# require: 790_ArtifactHighlighting.sh
-# require: 800_ElasticSearchIndexBuilder.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -15,7 +8,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh web)
+classpath=$(${DIR}/classpath.sh lumify-public/web)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
@@ -26,6 +19,8 @@ if [ "${VIRTUALIZATION_DISABLED}" = 'true' ]; then
 else
   ip=192.168.33.10
 fi
+
+cd ${DIR}/../lumify-public
 
 java \
 -Dfile.encoding=UTF-8 \

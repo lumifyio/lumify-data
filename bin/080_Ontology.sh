@@ -1,5 +1,4 @@
 #!/bin/bash
-# require: 075_FormatUcd.sh
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -9,7 +8,7 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh analytics)
+classpath=$(${DIR}/classpath.sh lumify-public/analytics)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
