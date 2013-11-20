@@ -2,7 +2,7 @@
 
 function hadoop {
     echo "Starting hadoop..."
-    for service in /etc/init.d/hadoop-*
+    for service in /etc/init.d/hadoop*-namenode /etc/init.d/hadoop*-secondarynamenode /etc/init.d/hadoop*-datanode /etc/init.d/hadoop*-jobtracker /etc/init.d/hadoop*-tasktracker;
     do
         if sudo service `basename ${service}` status | grep -q -v "is running"; then
             sudo service `basename ${service}` start
