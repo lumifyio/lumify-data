@@ -1,6 +1,5 @@
 class jetty(
-  $major_version='8',
-  $version='8.1.13.v20130916'
+  $version='8.1.14.v20131031'
 ){
   require java
 
@@ -23,7 +22,7 @@ class jetty(
   }
 
   macro::download { 'jetty-download':
-    url  => "http://eclipse.org/downloads/download.php?file=/jetty/stable-${major_version}/dist/jetty-distribution-${version}.tar.gz&r=1",
+    url  => "http://eclipse.org/downloads/download.php?file=/jetty/${version}/dist/jetty-distribution-${version}.tar.gz&r=1",
     path => "/tmp/jetty-distribution-${version}.tar.gz",
   } -> macro::extract { 'jetty-extract':
     file    => "/tmp/jetty-distribution-${version}.tar.gz",
@@ -35,7 +34,7 @@ class jetty(
     ensure  => directory,
     owner   => 'jetty',
     group   => 'jetty',
-	recurse => true,
+    recurse => true,
     require => [ User['jetty'], Macro::Extract['jetty-extract'] ],
   }
 
