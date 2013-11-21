@@ -93,7 +93,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
             // regex filter for mentions
             GraphVertex conceptVertex = graphRepository.findVertex(handleConcept.getId(), getUser());
-            List<TermMention> termMentionList = TermRegexFinder.find(tweet.getId(), conceptVertex, text, "@(\\w+)");
+            List<TermMention> termMentionList = TermRegexFinder.find(tweet.getId(), conceptVertex, text, "(@(\\w+))");
             for (TermMention mention : termMentionList) {
                 termMentionRepository.save(mention, getUser().getModelUserContext());
                 String sign = mention.getMetadata().getSign();
@@ -112,7 +112,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             // regex filter for hashtags
             Concept hashtagConcept = ontologyRepository.getConceptByName("hashtag", getUser());
             conceptVertex = graphRepository.findVertex(hashtagConcept.getId(), getUser());
-            termMentionList = TermRegexFinder.find(tweet.getId(), conceptVertex, text, "#(\\w+)");
+            termMentionList = TermRegexFinder.find(tweet.getId(), conceptVertex, text, "(#(\\w+))");
             for (TermMention mention : termMentionList) {
                 termMentionRepository.save(mention, getUser().getModelUserContext());
                 String sign = mention.getMetadata().getSign();
