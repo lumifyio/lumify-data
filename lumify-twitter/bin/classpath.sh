@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
