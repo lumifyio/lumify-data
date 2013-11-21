@@ -54,6 +54,12 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.twitter</groupId>
+            <artifactId>hbc-core</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+
         <!-- Storm dependencies -->
         <dependency>
             <groupId>storm</groupId>
