@@ -181,11 +181,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4</version>
                 <configuration>
                     <descriptor>src/main/assembly/descriptor.xml</descriptor>
                     <archive>
                         <manifest>
-                            <mainClass>com.altamiracorp.lumify.storm.StormRunner</mainClass>
+                            <mainClass>com.altamiracorp.lumify.storm.twitter.StormRunner</mainClass>
                         </manifest>
                         <manifestEntries>
                             <Specification-Title>Java Advanced Imaging Image I/O Tools</Specification-Title>
