@@ -2,12 +2,17 @@ package com.altamiracorp.lumify.storm.twitter;
 
 import backtype.storm.tuple.Tuple;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.term.extraction.TermRegexFinder;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
+import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
+import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
+import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.google.inject.Inject;
 import org.json.JSONArray;
@@ -19,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 
 public class TwitterStreamingBolt extends BaseLumifyBolt {
@@ -31,10 +37,22 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         //if an actual tweet, process it
         if (json.has("text")) {
+            Concept handleConcept = ontologyRepository.getConceptByName("twitterHandle", getUser());
+            String text = json.getString("text");
+            String user = json.getJSONObject("user").getString("screen_name");
+            String title = "tweet from : " + user;
+            GraphVertex userVertex = graphRepository.findVertexByTitleAndType(user, VertexType.ENTITY, getUser());
+            if (userVertex == null) {
+                userVertex = new InMemoryGraphVertex();
+            }
+            userVertex.setProperty(PropertyName.TITLE, user);
+            userVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
+            userVertex.setProperty(PropertyName.SUBTYPE, handleConcept.getId());
+            graphRepository.save(userVertex, getUser());
+
             ArtifactRowKey build = ArtifactRowKey.build(json.toString().getBytes());
             String rowKey = build.toString();
 
-            String text = json.getString("text");
             ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
             artifactExtractedInfo.setText(text);
             artifactExtractedInfo.setRaw(json.toString().getBytes());
@@ -42,15 +60,13 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             artifactExtractedInfo.setMimeType("text/plain");
             artifactExtractedInfo.setRowKey(rowKey);
             artifactExtractedInfo.setArtifactType(ArtifactType.DOCUMENT.toString());
-            String user = json.getJSONObject("user").getString("screen_name");
-            String title = "tweet from : " + user;
             artifactExtractedInfo.setTitle(title);
 
             // Write to accumulo and create graph vertex for artifact
-            GraphVertex graphVertex = saveArtifact(artifactExtractedInfo);
-            LOGGER.info("Saving tweet to accumulo and as graph vertex: " + graphVertex.getId());
+            GraphVertex tweet = saveArtifact(artifactExtractedInfo);
+            LOGGER.info("Saving tweet to accumulo and as graph vertex: " + tweet.getId());
 
-            graphVertex.setProperty(PropertyName.TITLE, title);
+            tweet.setProperty(PropertyName.TITLE, title);
             if (json.has("created_at")) {
                 final String TWITTER = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
                 SimpleDateFormat sf = new SimpleDateFormat(TWITTER);
@@ -58,21 +74,59 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
                 Date date = sf.parse(json.getString("created_at"));
                 artifactExtractedInfo.setDate(date);
-                graphVertex.setProperty(PropertyName.PUBLISHED_DATE, date.getTime());
+                tweet.setProperty(PropertyName.PUBLISHED_DATE, date.getTime());
             } else {
-                graphVertex.setProperty(PropertyName.PUBLISHED_DATE, new Date().getTime());
+                tweet.setProperty(PropertyName.PUBLISHED_DATE, new Date().getTime());
             }
             if (json.has("coordinates") && !json.get("coordinates").equals(JSONObject.NULL)) {
                 JSONArray coordinates = json.getJSONObject("coordinates").getJSONArray("coordinates");
-                graphVertex.setProperty(PropertyName.GEO_LOCATION, new GraphGeoLocation(coordinates.getDouble(1), coordinates.getDouble(0)));
+                tweet.setProperty(PropertyName.GEO_LOCATION, new GraphGeoLocation(coordinates.getDouble(1), coordinates.getDouble(0)));
             }
-            graphVertex.setProperty(PropertyName.ROW_KEY, rowKey);
-            graphVertex.setProperty(PropertyName.SOURCE, json.getString("source"));
+            tweet.setProperty(PropertyName.ROW_KEY, rowKey);
+            tweet.setProperty(PropertyName.SOURCE, json.getString("source"));
             graphRepository.commit();
+            graphRepository.saveRelationship(userVertex.getId(), tweet.getId(), "tweetTweetedByHandle", getUser());
 
             // Indexing
             InputStream in = new ByteArrayInputStream(text.getBytes());
-            searchProvider.add(graphVertex, in);
+            searchProvider.add(tweet, in);
+
+            // regex filter for mentions
+            GraphVertex conceptVertex = graphRepository.findVertex(handleConcept.getId(), getUser());
+            List<TermMention> termMentionList = TermRegexFinder.find(tweet.getId(), conceptVertex, text, "@(\\w+)");
+            for (TermMention mention : termMentionList) {
+                termMentionRepository.save(mention, getUser().getModelUserContext());
+                String sign = mention.getMetadata().getSign();
+                GraphVertex twitterHandler = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, getUser());
+                if (twitterHandler == null) {
+                    twitterHandler = new InMemoryGraphVertex();
+                }
+                twitterHandler.setProperty(PropertyName.TITLE, mention.getMetadata().getSign());
+                twitterHandler.setProperty(PropertyName.ROW_KEY, mention.getRowKey().toString());
+                twitterHandler.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
+                twitterHandler.setProperty(PropertyName.SUBTYPE, handleConcept.getId());
+                graphRepository.save(twitterHandler, getUser());
+                graphRepository.saveRelationship(tweet.getId(), twitterHandler.getId(), "tweetMentionedHandle", getUser());
+            }
+
+            // regex filter for hashtags
+            Concept hashtagConcept = ontologyRepository.getConceptByName("hashtag", getUser());
+            conceptVertex = graphRepository.findVertex(hashtagConcept.getId(), getUser());
+            termMentionList = TermRegexFinder.find(tweet.getId(), conceptVertex, text, "#(\\w+)");
+            for (TermMention mention : termMentionList) {
+                termMentionRepository.save(mention, getUser().getModelUserContext());
+                String sign = mention.getMetadata().getSign();
+                GraphVertex hashtag = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, getUser());
+                if (hashtag == null) {
+                    hashtag = new InMemoryGraphVertex();
+                }
+                hashtag.setProperty(PropertyName.TITLE, mention.getMetadata().getSign());
+                hashtag.setProperty(PropertyName.ROW_KEY, mention.getRowKey().toString());
+                hashtag.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
+                hashtag.setProperty(PropertyName.SUBTYPE, hashtagConcept.getId());
+                graphRepository.save(hashtag, getUser());
+                graphRepository.saveRelationship(tweet.getId(), hashtag.getId(), "tweetHasHashtag", getUser());
+            }
         }
 
         getCollector().ack(tuple);
@@ -82,5 +136,4 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     public void setSearchProvider(SearchProvider searchProvider) {
         this.searchProvider = searchProvider;
     }
-
 }
