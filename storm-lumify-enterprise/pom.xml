@@ -13,7 +13,7 @@
     <artifactId>storm-lumify-enterprise</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>Storm</name>
+    <name>Storm Enterprise</name>
 
     <dependencies>
         <dependency>
