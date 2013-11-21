@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.regex.Matcher;
 
 
 public class TwitterStreamingBolt extends BaseArtifactProcessingBolt {
