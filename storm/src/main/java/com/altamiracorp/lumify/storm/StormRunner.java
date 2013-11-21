@@ -4,8 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Map;
 
+import com.altamiracorp.lumify.storm.twitterStream.TwitterStreamSpout;
+import com.altamiracorp.lumify.storm.twitterStream.TwitterStreamingBolt;
 import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
@@ -158,6 +159,7 @@ public class StormRunner extends CommandLineBase {
         createArtifactHighlightingTopology(builder);
         createProcessedVideoTopology(builder);
         createStructuredDataTextTopology(builder);
+        createTwitterStreamTopology(builder);
 
         return builder.createTopology();
     }
@@ -216,6 +218,13 @@ public class StormRunner extends CommandLineBase {
         builder.setSpout("processedVideoSpout", new KafkaSpout(spoutConfig), 1);
         builder.setBolt("processedVideoBolt", new VideoPreviewBolt(), 1)
                 .shuffleGrouping("processedVideoSpout");
+    }
+
+    private void createTwitterStreamTopology(TopologyBuilder builder) {
+        String spoutName = "twitterStreamSpout";
+        builder.setSpout(spoutName, new TwitterStreamSpout(/*"/tweets"*/), 1);
+        builder.setBolt(spoutName + "-bolt", new TwitterStreamingBolt(), 1)
+                .shuffleGrouping(spoutName); //.shuffleGrouping("twitterStreamSpout");
     }
 
     private SpoutConfig createSpoutConfig(String queueName, Scheme scheme) {
