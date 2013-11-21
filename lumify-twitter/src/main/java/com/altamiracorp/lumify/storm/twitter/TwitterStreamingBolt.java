@@ -13,6 +13,7 @@ import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.VertexType;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
+import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.google.inject.Inject;
 import org.json.JSONArray;
@@ -95,7 +96,6 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             GraphVertex conceptVertex = graphRepository.findVertex(handleConcept.getId(), getUser());
             List<TermMention> termMentionList = TermRegexFinder.find(tweet.getId(), conceptVertex, text, "(@(\\w+))");
             for (TermMention mention : termMentionList) {
-                termMentionRepository.save(mention, getUser().getModelUserContext());
                 String sign = mention.getMetadata().getSign();
                 GraphVertex twitterHandler = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, getUser());
                 if (twitterHandler == null) {
@@ -106,6 +106,8 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
                 twitterHandler.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
                 twitterHandler.setProperty(PropertyName.SUBTYPE, handleConcept.getId());
                 graphRepository.save(twitterHandler, getUser());
+                mention.getMetadata().setGraphVertexId(twitterHandler.getId());
+                termMentionRepository.save(mention, getUser().getModelUserContext());
                 graphRepository.saveRelationship(tweet.getId(), twitterHandler.getId(), "tweetMentionedHandle", getUser());
             }
 
@@ -114,7 +116,6 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             conceptVertex = graphRepository.findVertex(hashtagConcept.getId(), getUser());
             termMentionList = TermRegexFinder.find(tweet.getId(), conceptVertex, text, "(#(\\w+))");
             for (TermMention mention : termMentionList) {
-                termMentionRepository.save(mention, getUser().getModelUserContext());
                 String sign = mention.getMetadata().getSign();
                 GraphVertex hashtag = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, getUser());
                 if (hashtag == null) {
@@ -125,8 +126,28 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
                 hashtag.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
                 hashtag.setProperty(PropertyName.SUBTYPE, hashtagConcept.getId());
                 graphRepository.save(hashtag, getUser());
+                mention.getMetadata().setGraphVertexId(hashtag.getId());
+                termMentionRepository.save(mention, getUser().getModelUserContext());
                 graphRepository.saveRelationship(tweet.getId(), hashtag.getId(), "tweetHasHashtag", getUser());
             }
+
+            // Creating url entities
+            Concept urlConcept = ontologyRepository.getConceptByName("url", getUser());
+            termMentionList = TermRegexFinder.find(tweet.getId(), urlConcept, text, "((http://[^\\s]+))");
+            for (TermMention mention : termMentionList) {
+                GraphVertex urlVertex = graphRepository.findVertexByTitleAndType(user, VertexType.ENTITY, getUser());
+                if (urlVertex == null) {
+                    urlVertex = new InMemoryGraphVertex();
+                }
+                urlVertex.setProperty(PropertyName.TITLE, mention.getMetadata().getSign());
+                urlVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
+                urlVertex.setProperty(PropertyName.SUBTYPE, urlConcept.getId());
+                graphRepository.save(urlVertex, getUser());
+                mention.getMetadata().setGraphVertexId(urlVertex.getId());
+                termMentionRepository.save(mention, getUser().getModelUserContext());
+                graphRepository.saveRelationship(tweet.getId(), urlVertex.getId(), "tweetHasURL", getUser());
+            }
+            workQueueRepository.pushArtifactHighlight(tweet.getId());
         }
 
         getCollector().ack(tuple);
