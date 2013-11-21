@@ -1,13 +1,21 @@
 class env::dev {
-  include role::hadoop::pseudo
+  require buildtools
+  require java  
+  
+  include repo::cloudera::cdh4
+  
   include ::zookeeper
+  include role::hadoop::pseudo
   include role::accumulo::pseudo
+  include ::hue
+
   include role::elasticsearch::pseudo
+
   include ::ffmpeg
   include ::ccextractor
   include ::tesseract
   include ::opencv
-  include role::oozie::pseudo
+  
   include ::kafka
   include role::storm::master
   include role::storm::supervisor
@@ -48,23 +56,6 @@ class env::dev {
     mode => 'u=rwx,g=,o=',
   }
 
-  file { '/opt/setup_oozie.sh' :
-    source => 'puppet:///modules/env/dev/setup_oozie.sh',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
-  }
-
-  file { '/opt/run_oozie_workflow.sh' :
-    source => 'puppet:///modules/env/dev/run_oozie_workflow.sh',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
-  }
-
-  file { '/opt/run_oozie_coordinator.sh' :
-    source => 'puppet:///modules/env/dev/run_oozie_coordinator.sh',
-    owner => 'vagrant',
-    mode => 'u=rwx,g=,o=',
-  }
 
   file { '/opt/storm-kill.sh' :
     source => 'puppet:///modules/env/dev/storm-kill.sh',
@@ -82,5 +73,17 @@ class env::dev {
     source => 'puppet:///modules/env/dev/kafka-clear.sh',
     owner => 'vagrant',
     mode => 'u=rwx,g=,o=',
+  }
+
+  file { '/etc/sysctl.conf' :
+    source => 'puppet:///modules/env/dev/sysctl.conf',
+    owner => 'root',
+    mode => 'u=rw,g=r,o=r',
+  }
+
+  file { '/etc/hosts' :
+    source => 'puppet:///modules/env/dev/hosts',
+    owner => 'vagrant',
+    mode => 'u=rwx,g=r,o=r',
   }
 }

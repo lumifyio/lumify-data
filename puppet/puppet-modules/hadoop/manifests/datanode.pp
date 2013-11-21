@@ -1,6 +1,6 @@
 class hadoop::datanode inherits hadoop {
-  package { 'hadoop-0.20-datanode':
+  package { 'hadoop-hdfs-datanode':
     ensure  => installed,
-    require => Package['hadoop-0.20'],
+    require => Package['hadoop.x86_64'],
   }
 }

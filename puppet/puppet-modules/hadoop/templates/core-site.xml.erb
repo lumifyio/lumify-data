@@ -3,9 +3,8 @@
 
 <configuration>
   <property>
-    <name>fs.default.name</name>
-    <value>hdfs://<%= @namenode_ipaddress %>:8020</value>
-    <final>true</final>
+    <name>fs.defaultFS</name>
+    <value>hdfs://<%= @namenode_hostname %>:8020</value>
   </property>
 
   <property>
@@ -13,14 +12,14 @@
      <value><%= (@data_directories || '').split(',').map{|d| d + '/hadoop/tmp'}.join(',') %></value>
      <final>true</final>
   </property>
-
-  <!-- OOZIE proxy user setting -->
+  
+  <!-- Hue WebHDFS proxy user setting -->
   <property>
-    <name>hadoop.proxyuser.oozie.hosts</name>
+    <name>hadoop.proxyuser.hue.hosts</name>
     <value>*</value>
   </property>
   <property>
-    <name>hadoop.proxyuser.oozie.groups</name>
+    <name>hadoop.proxyuser.hue.groups</name>
     <value>*</value>
-  </property>
+  </property> 
 </configuration>

@@ -1,20 +1,23 @@
 class hadoop {
-  include repo::cloudera::cdh3
+  include repo::cloudera::cdh4
   require java
 
   $namenode_ipaddress = hiera("namenode_ipaddress")
+  $namenode_hostname = hiera("namenode_hostname")
   $hadoop_masters = hiera_array('hadoop_masters')
   $hadoop_slaves = hiera_array('hadoop_slaves')
 
-  package { 'hadoop-0.20':
+  package { 'hadoop.x86_64':
     ensure  => installed,
-    require => Class['java', 'repo::cloudera::cdh3'],
+    require => Class['java', 'repo::cloudera::cdh4'],
   }
 
+/*
   package { 'hadoop-0.20-native':
     ensure  => installed,
     require => Package['hadoop-0.20'],
   }
+*/
 
   file { "/etc/hadoop/conf/core-site.xml":
     ensure   => file,
@@ -22,7 +25,7 @@ class hadoop {
     owner    => "root",
     group    => "root",
     force    => true,
-    require  => [ Package['hadoop-0.20'], File['/data0/hadoop'] ],
+    require  => [ Package['hadoop.x86_64'], File['/data0/hadoop'] ],
   }
 
   file { "/etc/hadoop/conf/hdfs-site.xml":
@@ -31,7 +34,7 @@ class hadoop {
     owner    => "root",
     group    => "root",
     force    => true,
-    require  => [ Package['hadoop-0.20'], File['/data0/hdfs'] ],
+    require  => [ Package['hadoop.x86_64'], File['/data0/hdfs'] ],
   }
 
   file { "/etc/hadoop/conf/mapred-site.xml":
@@ -40,21 +43,21 @@ class hadoop {
     owner    => "root",
     group    => "root",
     force    => true,
-    require  => [ Package['hadoop-0.20'], File['/data0/mapred'] ],
+    require  => [ Package['hadoop.x86_64'], File['/data0/mapred'] ],
   }
 
   file { "hadoop-masters-config":
     path    => "/etc/hadoop/conf/masters",
     ensure  => file,
     content => template("hadoop/masters.erb"),
-    require => Package['hadoop-0.20'],
+    require => Package['hadoop.x86_64'],
   }
 
   file { "hadoop-slaves-config":
     path    => "/etc/hadoop/conf/slaves",
     ensure  => file,
     content => template("hadoop/slaves.erb"),
-    require => Package['hadoop-0.20'],
+    require => Package['hadoop.x86_64'],
   }
 
   file { "/usr/lib/hadoop/.ssh" :
@@ -62,7 +65,7 @@ class hadoop {
     owner   => 'hdfs',
     group   => 'hadoop',
     mode    => 'u=rwx,go=',
-    require => Package['hadoop-0.20'],
+    require => Package['hadoop.x86_64'],
   }
 
   macro::setup-passwordless-ssh { 'hdfs' :
@@ -80,7 +83,7 @@ class hadoop {
       owner   => 'hdfs',
       group   => 'hadoop',
       mode    => 'u=rwx,g=rwx,o=',
-      require =>  [ File["${name}"], Package['hadoop-0.20'] ],
+      require =>  [ File["${name}"], Package['hadoop.x86_64'] ],
     }
 
     file { [ "${name}/hdfs", "${name}/hdfs/name", "${name}/hdfs/data" ] :
@@ -88,7 +91,7 @@ class hadoop {
       owner   => 'hdfs',
       group   => 'hadoop',
       mode    => 'u=rwx,g=rx,o=',
-      require =>  [ File["${name}"], Package['hadoop-0.20'] ],
+      require =>  [ File["${name}"], Package['hadoop.x86_64'] ],
     }
 
     file { [ "${name}/mapred", "${name}/mapred/local" ] :
@@ -96,7 +99,7 @@ class hadoop {
       owner   => 'mapred',
       group   => 'hadoop',
       mode    => 'u=rwx,g=rx,o=',
-      require =>  [ File["${name}"], Package['hadoop-0.20'] ],
+      require =>  [ File["${name}"], Package['hadoop.x86_64'] ],
     }
   }
 

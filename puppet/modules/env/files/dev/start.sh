@@ -1,42 +1,65 @@
-#!/bin/bash 
+#!/bin/bash -e
 
 function hadoop {
     echo "Starting hadoop..."
-    for service in /etc/init.d/hadoop-0.20-*
+    for service in /etc/init.d/hadoop*-namenode /etc/init.d/hadoop*-secondarynamenode /etc/init.d/hadoop*-datanode /etc/init.d/hadoop*-jobtracker /etc/init.d/hadoop*-tasktracker;
     do
-        sudo ${service} status | grep -q running
-        if [ $? -eq 1 ]; then
-            sudo ${service} start
+        if sudo service `basename ${service}` status | grep -q -v "is running"; then
+            sudo service `basename ${service}` start
         else
-            echo "${service} already running"
-	fi
+            echo "`basename ${service}` already running"
+    	fi
     done
 }
 
 function zk {
     echo "Starting zookeeper..."
-    sudo service hadoop-zookeeper-server status | grep -q "is running"
-    if [ $? -eq 1 ]; then
-        sudo service hadoop-zookeeper-server start
+    if sudo service zookeeper-server status | grep -q -v "is running"; then
+        sudo service zookeeper-server start
     else
         echo "zookeeper already running"
     fi
 }
 
+function hue {
+    echo "Starting Hue..."
+    if sudo service hue status | grep -q -v "is running"; then
+        sudo service hue start
+    else
+        echo "Hue already running"
+    fi
+}
+
 function accumulo {
     echo "Starting accumulo..."
-    sudo initctl start accumulo-master
-    sudo initctl start accumulo-gc
-    sudo initctl start accumulo-logger
-    sudo initctl start accumulo-monitor
-    sudo initctl start accumulo-tracer
-    sudo initctl start accumulo-tserver
+    if sudo initctl status accumulo-master | grep -q stop; then
+        sudo initctl start accumulo-master
+    fi
+
+    if sudo initctl status accumulo-gc | grep -q stop; then
+        sudo initctl start accumulo-gc
+    fi
+
+    if sudo initctl status accumulo-logger | grep -q stop; then
+        sudo initctl start accumulo-logger
+    fi
+
+    if sudo initctl status accumulo-monitor | grep -q stop; then
+        sudo initctl start accumulo-monitor
+    fi
+
+    if sudo initctl status accumulo-tracer | grep -q stop; then
+        sudo initctl start accumulo-tracer
+    fi
+
+    if sudo initctl status accumulo-tserver | grep -q stop; then
+        sudo initctl start accumulo-tserver
+    fi
 }
 
 function elasticsearch {
     echo "Starting elasticsearch..."
-    sudo initctl status elasticsearch | grep -q running
-    if [ $? -eq 1 ]; then
+    if sudo initctl status elasticsearch | grep -q stop; then
         sudo initctl start elasticsearch
     else
         echo "elasticsearch already running"
@@ -45,8 +68,7 @@ function elasticsearch {
 
 function kafka {
     echo "Starting kafka..."
-    sudo initctl status kafka | grep -q running
-    if [ $? -eq 1 ]; then
+    if sudo initctl status kafka | grep -q stop; then
         sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh create /kafka null
         sudo initctl start kafka
     else
@@ -56,8 +78,7 @@ function kafka {
 
 function storm {
     echo "Starting storm..."
-    sudo initctl status storm-$1 | grep -q running
-    if [ $? -eq 1 ]; then
+    if sudo initctl status storm-$1 | grep -q stop; then
         sudo initctl start storm-$1
     else
         echo "storm-$1 already running"
@@ -71,6 +92,9 @@ case "$1" in
   zk)
     zk
     ;;
+  hue)
+    hue
+    ;;    
   accumulo)
     accumulo
     ;;
@@ -98,6 +122,7 @@ case "$1" in
     hadoop
     zk
     accumulo
+    hue
     elasticsearch
     kafka
     storm nimbus

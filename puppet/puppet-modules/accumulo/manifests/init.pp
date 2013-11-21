@@ -1,5 +1,5 @@
 class accumulo(
-  $version = "1.4.3",
+  $version = "1.5.0",
   $user = "accumulo",
   $group = "hadoop",
   $installdir = "/usr/lib",
@@ -14,12 +14,15 @@ class accumulo(
   $accumulo_slaves = hiera_array('accumulo_slaves')
   $accumulo_example_config = hiera('accumulo_example_config')
   $zookeeper_nodes = hiera_hash('zookeeper_nodes')
+  $namenode_ipaddress = hiera("namenode_ipaddress")
+  $namenode_hostname = hiera("namenode_hostname")
 
   $homedir = "${installdir}/accumulo-${version}"
   $homelink = "${installdir}/accumulo"
   $configdir = "/etc/accumulo-${version}"
   $configlink = "/etc/accumulo"
-  $downloadpath = "${tmpdir}/accumulo-${version}-dist.tar.gz"
+  $downloadfile = "accumulo-${version}-bin.tar.gz"
+  $downloadpath = "${tmpdir}/${downloadfile}"
 
   if $interfaces =~ /eth1/ {
     $accumulo_host_address = $ipaddress_eth1
@@ -33,10 +36,10 @@ class accumulo(
     ensure  => "present",
     gid     => $group,
     home    => $configlink,
-    require => Package["hadoop-0.20"],
+    require => Package["hadoop.x86_64"],
   }
 
-  macro::download { "https://s3.amazonaws.com/RedDawn/accumulo-${version}-dist.tar.gz":
+  macro::download { "http://apache.mirrors.tds.net/accumulo/${version}/${downloadfile}":
     path    => $downloadpath,
     require => User[$user],
   } -> macro::extract { $downloadpath:
@@ -150,13 +153,5 @@ class accumulo(
   macro::setup-passwordless-ssh { $user :
     sshdir  => "${configdir}/.ssh",
     require => File["${configdir}/.ssh"],
-  }
-
-  file { "$bindir/accumulo-init.sh":
-    ensure   => file,
-    source   => "puppet:///modules/accumulo/accumulo-init.sh",
-    owner    => "root",
-    group    => "root",
-    force    => true,
   }
 }

@@ -8,16 +8,10 @@ while [ -h "$SOURCE" ]; do
 done
 DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-classpath=$(${DIR}/classpath.sh storm)
+classpath=$(${DIR}/classpath.sh lumify-public/storm-lumify)
 if [ $? -ne 0 ]; then
   echo "${classpath}"
   exit
-fi
-
-if [ "$2" != '' ]; then
-  dir=$2
-else
-  dir=${DIR}/../data/import
 fi
 
 java \
@@ -26,5 +20,4 @@ java \
 -Djava.library.path=$LD_LIBRARY_PATH \
 -classpath ${classpath} \
 com.altamiracorp.lumify.storm.StormRunner \
---datadir=${dir} \
 --local

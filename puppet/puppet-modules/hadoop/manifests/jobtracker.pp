@@ -1,6 +1,6 @@
 class hadoop::jobtracker inherits hadoop {
-  package { 'hadoop-0.20-jobtracker':
+  package { 'hadoop-0.20-mapreduce-jobtracker':
     ensure  => installed,
-    require => Package['hadoop-0.20'],
+    require => Package['hadoop.x86_64'],
   }
 }

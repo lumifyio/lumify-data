@@ -4,14 +4,19 @@
 <configuration>
   <property>
     <name>mapred.job.tracker</name>
-    <value><%= @namenode_ipaddress %>:8021</value>
+    <value><%= @namenode_hostname %>:8021</value>
     <final>true</final>
   </property>
 
   <property>
-     <name>mapred.local.dir</name>
-     <value><%= (@data_directories || '').split(',').map{|d| d + '/mapred/local'}.join(',') %></value>
-     <final>true</final>
+    <name>mapred.system.dir</name>
+    <value>/mapred/system</value>
+  </property>
+
+  <property>
+    <name>mapred.local.dir</name>
+    <value><%= (@data_directories || '').split(',').map{|d| d + '/mapred/local'}.join(',') %></value>
+    <final>true</final>
   </property>
 
   <property>

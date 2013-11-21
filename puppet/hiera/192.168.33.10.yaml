@@ -13,6 +13,7 @@ zookeeper_port: 2181
 zookeeper_nodes:
   1: %{ipaddress_eth1}:2181
 namenode_ipaddress: %{ipaddress_eth1}
+namenode_hostname: lumify-vm.nearinfinity.com
 elasticsearch_locations:
   - %{ipaddress_eth1}:9300
 authenication_provider: com.altamiracorp.lumify.web.DevBasicAuthenticationProvider
@@ -21,3 +22,6 @@ storm_nimbus_host: %{ipaddress_eth1}
 storm_nimbus_thrift_port: 6627
 storm_supervisor_slots_ports: [6700, 6701, 6702, 6703]
 storm_ui_port: 8080
+hue_http_host: '0.0.0.0'
+hue_http_port: 8888
+hue_timezone: 'America/New York'

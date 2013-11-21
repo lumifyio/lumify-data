@@ -1,6 +1,7 @@
 #!/bin/bash
 
 /opt/stop.sh kafka
+/opt/start.sh zk
 
 sudo rm -rf /opt/kafka/logs/*
 
@@ -21,6 +22,11 @@ sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/text/
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/text"
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/artifactHighlight/192.168.33.10:9092:0"
 sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/artifactHighlight"
+
+echo "
+rmr /kafka/brokers/topics
+rmr /kafka/brokers/consumers
+" | sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh
 
 /opt/start.sh kafka
 

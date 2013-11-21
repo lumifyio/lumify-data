@@ -20,7 +20,8 @@ class java($tmpdir = '/tmp', $version = '6u45', $arch = 'amd64') {
 
   file { "/etc/profile.d/java_home.sh":
     ensure  => file,
-    content => "export JAVA_HOME=${java_home}",
+    content => "export JAVA_HOME=${java_home}
+                export PATH=\$PATH:\$JAVA_HOME/bin",
     require => Package['jdk'],
   }
 }

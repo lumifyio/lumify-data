@@ -1,31 +1,43 @@
 #!/bin/bash -eu
 
-sudo rm -rf /var/lib/hadoop-0.20/cache/*
-sudo rm -rf /var/zookeeper/version-2
+ZOOKEEPER_ID=`cat /var/lib/zookeeper/myid`
+ZOOKEEPER_DIR="/var/lib/zookeeper"
+
+/opt/stop.sh hadoop
+
+sudo rm -rf /var/lib/hadoop-hdfs/cache/*
 sudo rm -rf /data0/hdfs/name
 sudo rm -rf /data0/hdfs/data
-sudo -u hdfs /usr/lib/hadoop/bin/hadoop namenode -format
 
-for service in /etc/init.d/hadoop-0.20-*
-do
-    sudo $service start || echo "Already started, maybe"
-done
+sudo -u hdfs hdfs namenode -format
 
-sudo -u hdfs /usr/lib/hadoop/bin/hadoop dfsadmin -safemode wait
+/opt/stop.sh zk
 
-sudo /sbin/service hadoop-zookeeper-server start || echo "Already started, maybe"
-sudo -u accumulo /usr/lib/accumulo/bin/accumulo init
-sudo /sbin/service hadoop-zookeeper-server stop
+sudo rm -rf $ZOOKEEPER_DIR
+sudo mkdir -p $ZOOKEEPER_DIR
+sudo chown zookeeper:zookeeper $ZOOKEEPER_DIR
+sudo service zookeeper-server init --myid=${ZOOKEEPER_ID} --force
 
-for service in /etc/init.d/hadoop-0.20-*
-do
-    sudo $service stop
-done
+/opt/start.sh zk
+/opt/start.sh hadoop
 
-sudo initctl start elasticsearch
-until curl -XDELETE "http://localhost:9200/_all"
-do
+sudo -u hdfs hdfs dfsadmin -safemode wait
+
+sudo -u accumulo /usr/lib/accumulo/bin/accumulo init --instance-name lumify --password password --clear-instance-name
+
+sudo -u hdfs hadoop fs -mkdir /lumify/config/opennlp
+sudo -u hdfs hadoop fs -put /vagrant/conf/opennlp/* /lumify/config/opennlp
+sudo -u hdfs hadoop fs -mkdir /lumify/config/knownEntities
+sudo -u hdfs hadoop fs -put /vagrant/conf/knownEntities/* /lumify/config/knownEntities
+sudo -u hdfs hadoop fs -mkdir /lumify/config/opencv
+sudo -u hdfs hadoop fs -put /vagrant/conf/opencv/* /lumify/config/opencv
+
+/opt/start.sh elasticsearch
+until curl -XDELETE "http://localhost:9200/_all"; do
 	echo "Cannot connect to Elasticsearch, waiting 2 seconds before trying again"
 	sleep 2
 done
-sudo initctl stop elasticsearch
+
+/opt/kafka-clear.sh
+
+/opt/start.sh

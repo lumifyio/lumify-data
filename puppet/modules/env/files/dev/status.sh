@@ -3,7 +3,7 @@
 function hadoop {
     echo ""
     echo "Hadoop"
-    for service in /etc/init.d/hadoop-0.20-*
+    for service in /etc/init.d/hadoop-*
     do
         sudo ${service} status
     done
@@ -12,13 +12,18 @@ function hadoop {
 function accumulo {
     echo ""
     echo "Accumulo"
-    echo "Cannot get accumulo status"
+    sudo initctl status accumulo-master
+    sudo initctl status accumulo-gc
+    sudo initctl status accumulo-logger
+    sudo initctl status accumulo-monitor
+    sudo initctl status accumulo-tracer
+    sudo initctl status accumulo-tserver
 }
 
 function zk {
     echo ""
     echo "Zookeeper"
-    sudo service hadoop-zookeeper-server status
+    sudo service zookeeper-server status
 }
 
 function elasticsearch {
