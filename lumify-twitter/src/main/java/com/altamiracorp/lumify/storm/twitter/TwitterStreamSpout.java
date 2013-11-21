@@ -25,18 +25,13 @@ import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public class TwitterStreamSpout extends BaseRichSpout {
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitterStreamSpout.class);
-    public static final String DATADIR_CONFIG_NAME = "datadir";
-    //    private final String subDir;
     private SpoutOutputCollector collector;
-    private Map<String, String> workingFiles;
     private Client hbc;
     private BlockingQueue<String> tweetsToProcess = new LinkedBlockingQueue<String>();
-
-    public TwitterStreamSpout(/*String subDir*/) {
-//        this.subDir = subDir;
-    }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -45,12 +40,16 @@ public class TwitterStreamSpout extends BaseRichSpout {
 
     @Override
     public void open(Map stormConf, TopologyContext context, SpoutOutputCollector collector) {
+        checkNotNull(stormConf.get("consumerKey"), "'consumerKey' config not set");
+        checkNotNull(stormConf.get("consumerSecret"), "'consumerSecret' config not set");
+        checkNotNull(stormConf.get("token"), "'token' config not set");
+        checkNotNull(stormConf.get("tokenSecret"), "'tokenSecret' config not set");
+
         LOGGER.info(String.format("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId()));
         this.collector = collector;
 
         Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-//        List<String> terms = (List<String>) stormConf.get("terms");
         List<String> terms = Lists.newArrayList("twitter");
         endpoint.trackTerms(terms);
         Authentication hosebirdAuth = new OAuth1((String) stormConf.get("consumerKey"),
@@ -64,6 +63,7 @@ public class TwitterStreamSpout extends BaseRichSpout {
                 .endpoint(endpoint)
                 .authentication(hosebirdAuth)
                 .processor(new StringDelimitedProcessor(tweetsToProcess));
+
         hbc = builder.build();
         hbc.connect();
     }
@@ -71,7 +71,9 @@ public class TwitterStreamSpout extends BaseRichSpout {
     @Override
     public void nextTuple() {
         try {
-            collector.emit(new Values(tweetsToProcess.take()));
+            String tweet = tweetsToProcess.take();
+            LOGGER.debug("received tweet to process: " + tweet);
+            collector.emit(new Values(tweet));
         } catch (InterruptedException e) {
             collector.reportError(e);
         }

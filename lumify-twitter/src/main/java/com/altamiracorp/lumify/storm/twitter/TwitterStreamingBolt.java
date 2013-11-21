@@ -60,10 +60,8 @@ public class TwitterStreamingBolt extends BaseArtifactProcessingBolt {
 
     @Override
     public void safeExecute(Tuple tuple) throws Exception {
-        super.execute(tuple);
+        JSONObject json = getJsonFromTuple(tuple);
 
-        String tweet = tuple.getStringByField("tweet");
-        JSONObject json = new JSONObject(tweet);
         //if an actual tweet, process it
         if (json.has("text")) {
             //create an artifact for the tweet and write it to accumulo
@@ -86,11 +84,9 @@ public class TwitterStreamingBolt extends BaseArtifactProcessingBolt {
             graphVertex.setProperty(PropertyName.TEXT_HDFS_PATH, "/lumify/artifacts/text" + rowKey);
             //pass the artifact to the twitter bolt
             onAfterGraphVertexCreated(graphVertex);
-            getCollector().ack(tuple);
         }
 
-
-        collector.ack(tuple);
+        super.safeExecute(tuple);
     }
 
     @Override
