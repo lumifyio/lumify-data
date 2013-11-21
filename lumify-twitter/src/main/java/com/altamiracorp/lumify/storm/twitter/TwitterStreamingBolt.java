@@ -9,11 +9,14 @@ import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
+import com.google.inject.Inject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -28,7 +31,6 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         //if an actual tweet, process it
         if (json.has("text")) {
-            //create an artifact for the tweet and write it to accumulo
             ArtifactRowKey build = ArtifactRowKey.build(json.toString().getBytes());
             String rowKey = build.toString();
 
@@ -44,7 +46,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             String title = "tweet from : " + user;
             artifactExtractedInfo.setTitle(title);
 
-            //create the graph vertex for the artifact
+            // Write to accumulo and create graph vertex for artifact
             GraphVertex graphVertex = saveArtifact(artifactExtractedInfo);
             LOGGER.info("Saving tweet to accumulo and as graph vertex: " + graphVertex.getId());
 
@@ -56,19 +58,29 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
                 Date date = sf.parse(json.getString("created_at"));
                 artifactExtractedInfo.setDate(date);
-                graphVertex.setProperty(PropertyName.PUBLISHED_DATE, date);
+                graphVertex.setProperty(PropertyName.PUBLISHED_DATE, date.getTime());
             } else {
-                graphVertex.setProperty(PropertyName.PUBLISHED_DATE, new Date());
+                graphVertex.setProperty(PropertyName.PUBLISHED_DATE, new Date().getTime());
             }
             if (json.has("coordinates") && !json.get("coordinates").equals(JSONObject.NULL)) {
                 JSONArray coordinates = json.getJSONObject("coordinates").getJSONArray("coordinates");
                 graphVertex.setProperty(PropertyName.GEO_LOCATION, new GraphGeoLocation(coordinates.getDouble(1), coordinates.getDouble(0)));
             }
             graphVertex.setProperty(PropertyName.ROW_KEY, rowKey);
-            graphVertex.setProperty(PropertyName.TEXT_HDFS_PATH, "/lumify/artifacts/text" + rowKey);
+            graphVertex.setProperty(PropertyName.SOURCE, json.getString("source"));
             graphRepository.commit();
+
+            // Indexing
+            InputStream in = new ByteArrayInputStream(text.getBytes());
+            searchProvider.add(graphVertex, in);
         }
 
         getCollector().ack(tuple);
     }
+
+    @Inject
+    public void setSearchProvider(SearchProvider searchProvider) {
+        this.searchProvider = searchProvider;
+    }
+
 }
