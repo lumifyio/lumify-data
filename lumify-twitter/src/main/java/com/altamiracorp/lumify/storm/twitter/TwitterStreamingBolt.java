@@ -1,21 +1,17 @@
-package com.altamiracorp.lumify.storm.twitterStream;
+package com.altamiracorp.lumify.storm.twitter;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.storm.BaseArtifactProcessingBolt;
-import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.altamiracorp.lumify.storm.FieldNames;
 import com.altamiracorp.lumify.storm.StormBootstrap;
-import com.altamiracorp.lumify.storm.file.FileMetadata;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.json.JSONObject;
@@ -48,7 +44,7 @@ public class TwitterStreamingBolt extends BaseArtifactProcessingBolt {
     }
 
     @Override
-    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector){
+    public void prepare(Map stormConf, TopologyContext context, OutputCollector collector) {
         super.prepare(stormConf, context, collector);
         this.collector = collector;
         injector = Guice.createInjector(StormBootstrap.create(stormConf));
@@ -56,11 +52,12 @@ public class TwitterStreamingBolt extends BaseArtifactProcessingBolt {
 
         try {
             mkdir("/lumify/data/temp");
-        } catch (IOException e){
+        } catch (IOException e) {
             collector.reportError(e);
         }
 
     }
+
     @Override
     public void safeExecute(Tuple tuple) throws Exception {
         super.execute(tuple);

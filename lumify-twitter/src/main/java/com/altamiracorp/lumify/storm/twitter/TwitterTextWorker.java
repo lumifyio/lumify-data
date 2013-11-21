@@ -1,27 +1,20 @@
-package com.altamiracorp.lumify.storm.twitterStream;
+package com.altamiracorp.lumify.storm.twitter;
 
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.ingest.structuredData.StructuredDataExtractionWorker;
 import com.altamiracorp.lumify.core.ingest.term.extraction.TermExtractionResult;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
-import com.altamiracorp.lumify.storm.structuredData.MappingProperties;
-import com.altamiracorp.lumify.util.LineReader;
-import com.sun.xml.bind.v2.TODO;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.io.CsvListWriter;
-import org.supercsv.prefs.CsvPreference;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.List;
 
