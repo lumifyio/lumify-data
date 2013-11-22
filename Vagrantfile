@@ -1,6 +1,14 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+def configure_puppet(puppet, manifest_file)
+  puppet.manifests_path = 'puppet/manifests'
+  puppet.module_path    = [ 'puppet/modules', 'puppet/puppet-modules' ]
+  puppet.manifest_file  = manifest_file
+  puppet.facter         = { 'fqdn' => 'lumify-vm.nearinfinity.com' }
+  puppet.options        = '--hiera_config /vagrant/puppet/hiera-vm.yaml'
+end
+
 Vagrant.configure('2') do |config|
   config.vm.box = 'centos6.4'
   config.vm.box_url = 'http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-x86_64-v20130427.box'
@@ -42,11 +50,16 @@ Vagrant.configure('2') do |config|
 
   config.vm.provision :shell, inline: "mkdir -p /data0"
 
-  config.vm.provision :puppet do |puppet|
-    puppet.manifests_path = 'puppet/manifests'
-    puppet.module_path    = [ 'puppet/modules', 'puppet/puppet-modules' ]
-    puppet.manifest_file  = 'dev.pp'
-    puppet.facter         = { 'fqdn' => 'prevent.error.com' }
-    puppet.options        = '--hiera_config /vagrant/puppet/hiera-dev.yaml'
+  config.vm.define "demo" do |web|
+    config.vm.provision :puppet do |puppet|
+      configure_puppet(puppet, 'demo_vm.pp')
+    end
   end
+
+  config.vm.define "dev", primary: true do |web|
+    config.vm.provision :puppet do |puppet|
+      configure_puppet(puppet, 'dev_vm.pp')
+    end
+  end
+
 end

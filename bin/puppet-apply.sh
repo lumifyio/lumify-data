@@ -3,7 +3,7 @@
 module_dirs=$(mount | awk '/modules.*vboxsf/ {print $1}')
 manifests_dir=$(mount | awk '/manifests.*vboxsf/ {print $1}')
 
-manifest=${manifests_dir}/dev.pp
+manifest=${manifests_dir}/dev_vm.pp
 if [ $# -gt 0 ]; then
   echo "$1" | grep '\.pp$'
   if [ $? -eq 0 ]; then
@@ -14,6 +14,6 @@ fi
 
 module_path=$(echo ${module_dirs} | sed -e 's/ /:/g')
 
-cmd="sudo puppet apply --hiera_config /vagrant/puppet/hiera-dev.yaml --modulepath ${module_path} ${manifest} $*"
+cmd="sudo puppet apply --hiera_config /vagrant/puppet/hiera-vm.yaml --modulepath ${module_path} ${manifest} $*"
 echo ${cmd}
 ${cmd}
