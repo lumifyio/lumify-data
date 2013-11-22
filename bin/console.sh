@@ -20,7 +20,7 @@ case "$1" in
     open http://192.168.33.10:50060
     ;;
   storm | s)
-    open http://192.168.33.10:8080
+    open http://192.168.33.10:8081
     ;;
   *)
     echo 'you must specify a supported console, one of:'
