@@ -70,6 +70,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         text = json.getString("text");
         String createdAt = json.has("created_at") ? json.getString("created_at") : null;
         String tweeter = json.getJSONObject("user").getString("screen_name");
+        String source = json.getString("source");
         String title = "tweet from : " + tweeter;
         if (createdAt != null) {
             title = title + " " + createdAt;
@@ -89,6 +90,8 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         // Write to accumulo and create graph vertex for artifact
         tweet = saveArtifact(artifactExtractedInfo);
+        String tweetId = tweet.getId();
+        auditRepository.audit(tweetId, auditRepository.createEntityAuditMessage(), getUser());
 
         LOGGER.info("Saving tweet to accumulo and as graph vertex: " + tweet.getId());
 
@@ -104,19 +107,29 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
                 new RuntimeException("Cannot parse " + createdAt);
             }
             artifactExtractedInfo.setDate(date);
+
+            auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.PUBLISHED_DATE.toString(), date.getTime()), getUser());
             tweet.setProperty(PropertyName.PUBLISHED_DATE, date.getTime());
         } else {
+            Long time = new Date().getTime();
+            auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.PUBLISHED_DATE.toString(), time), getUser());
             tweet.setProperty(PropertyName.PUBLISHED_DATE, new Date().getTime());
         }
 
         if (json.has("coordinates") && !json.get("coordinates").equals(JSONObject.NULL)) {
             JSONArray coordinates = json.getJSONObject("coordinates").getJSONArray("coordinates");
+            auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.GEO_LOCATION.toString(), coordinates.toString()), getUser());
             tweet.setProperty(PropertyName.GEO_LOCATION, new GraphGeoLocation(coordinates.getDouble(1), coordinates.getDouble(0)));
         }
 
+        auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.TITLE.toString(), title), getUser());
         tweet.setProperty(PropertyName.TITLE, title);
+
+        auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.ROW_KEY.toString(), rowKey), getUser());
         tweet.setProperty(PropertyName.ROW_KEY, rowKey);
-        tweet.setProperty(PropertyName.SOURCE, json.getString("source"));
+
+        auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.SOURCE.toString(), source), getUser());
+        tweet.setProperty(PropertyName.SOURCE, source);
         graphRepository.commit();
 
         String tweeterId = createOrUpdateTweeterEntity(handleConcept, tweeter);
@@ -124,14 +137,29 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     }
 
     private String createOrUpdateTweeterEntity(Concept handleConcept, String tweeter) {
+        boolean newVertex = false;
         GraphVertex tweeterVertex = graphRepository.findVertexByTitleAndType(tweeter, VertexType.ENTITY, getUser());
         if (tweeterVertex == null) {
+            newVertex = true;
             tweeterVertex = new InMemoryGraphVertex();
+        }
+
+        if (!newVertex) {
+            String tweeterId = tweeterVertex.getId();
+            auditRepository.audit(tweeterId, auditRepository.vertexPropertyAuditMessage(tweeterVertex, PropertyName.TITLE.toString(), tweeter), getUser());
+            auditRepository.audit(tweeterId, auditRepository.vertexPropertyAuditMessage(tweeterVertex, PropertyName.TYPE.toString(), VertexType.ENTITY.toString()), getUser());
+            auditRepository.audit(tweeterId, auditRepository.vertexPropertyAuditMessage(tweeterVertex, PropertyName.SUBTYPE.toString(), handleConcept.getId()), getUser());
         }
         tweeterVertex.setProperty(PropertyName.TITLE, tweeter);
         tweeterVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
         tweeterVertex.setProperty(PropertyName.SUBTYPE, handleConcept.getId());
         graphRepository.save(tweeterVertex, getUser());
+
+        if (newVertex) {
+            auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TITLE.toString(), tweeter), getUser());
+            auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TYPE.toString(), VertexType.ENTITY.toString()), getUser());
+            auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.SUBTYPE.toString(), handleConcept.getId()), getUser());
+        }
         return tweeterVertex.getId();
     }
 
@@ -150,19 +178,41 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     }
 
     private void createEntities(Concept concept, String regex, String relationshipLabel) {
+        auditRepository.audit(tweet.getId(), auditRepository.createEntityAuditMessage(), getUser());
         GraphVertex conceptVertex = graphRepository.findVertex(concept.getId(), getUser());
         List<TermMention> termMentionList = TermRegexFinder.find(tweet.getId(), conceptVertex, text, regex);
         for (TermMention mention : termMentionList) {
             String sign = mention.getMetadata().getSign();
+            String rowKey = mention.getRowKey().toString();
+            String conceptId = concept.getId();
+
             GraphVertex vertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, getUser());
+
+            boolean newVertex = false;
             if (vertex == null) {
+                newVertex = true;
                 vertex = new InMemoryGraphVertex();
             }
+
+            if (!newVertex) {
+                String vertexId = vertex.getId();
+                auditRepository.audit(vertexId, auditRepository.vertexPropertyAuditMessage(vertex, PropertyName.TITLE.toString(), sign), getUser());
+                auditRepository.audit(vertexId, auditRepository.vertexPropertyAuditMessage(vertex, PropertyName.ROW_KEY.toString(), rowKey), getUser());
+                auditRepository.audit(vertexId, auditRepository.vertexPropertyAuditMessage(vertex, PropertyName.TYPE.toString(), VertexType.ENTITY.toString()), getUser());
+                auditRepository.audit(vertexId, auditRepository.vertexPropertyAuditMessage(vertex, PropertyName.SUBTYPE.toString(), conceptId), getUser());
+            }
             vertex.setProperty(PropertyName.TITLE, sign);
-            vertex.setProperty(PropertyName.ROW_KEY, mention.getRowKey().toString());
+            vertex.setProperty(PropertyName.ROW_KEY, rowKey);
             vertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
-            vertex.setProperty(PropertyName.SUBTYPE, concept.getId());
+            vertex.setProperty(PropertyName.SUBTYPE, conceptId);
             graphRepository.save(vertex, getUser());
+
+            if (newVertex) {
+                auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TITLE.toString(), sign), getUser());
+                auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.ROW_KEY.toString(), rowKey), getUser());
+                auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TYPE.toString(), VertexType.ENTITY.toString()), getUser());
+                auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.SUBTYPE.toString(), conceptId), getUser());
+            }
 
             mention.getMetadata().setGraphVertexId(vertex.getId());
             termMentionRepository.save(mention, getUser().getModelUserContext());
