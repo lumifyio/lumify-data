@@ -69,7 +69,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     private void saveToDatabase(JSONObject json, Concept handleConcept) {
         text = json.getString("text");
         String createdAt = json.has("created_at") ? json.getString("created_at") : null;
-        String tweeter = json.getJSONObject("user").getString("screen_name");
+        String tweeter = "@" + json.getJSONObject("user").getString("screen_name");
         String source = "Twitter";
 
         ArtifactRowKey build = ArtifactRowKey.build(json.toString().getBytes());
@@ -117,6 +117,9 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.GEO_LOCATION.toString(), coordinates.toString()), getUser());
             tweet.setProperty(PropertyName.GEO_LOCATION, new GraphGeoLocation(coordinates.getDouble(1), coordinates.getDouble(0)));
         }
+
+        auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.AUTHOR.toString(), tweeter), getUser());
+        tweet.setProperty(PropertyName.AUTHOR, tweeter);
 
         auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.TITLE.toString(), text), getUser());
         tweet.setProperty(PropertyName.TITLE, text);
