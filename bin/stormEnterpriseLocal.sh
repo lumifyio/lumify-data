@@ -22,6 +22,7 @@ fi
 
 java \
 -Xmx512m \
+-XX:MaxPermSize=128m \
 -Dfile.encoding=UTF-8 \
 -Djava.library.path=$LD_LIBRARY_PATH \
 -classpath ${classpath} \
