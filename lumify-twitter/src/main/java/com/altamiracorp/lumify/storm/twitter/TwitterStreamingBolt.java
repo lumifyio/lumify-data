@@ -71,10 +71,6 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         String createdAt = json.has("created_at") ? json.getString("created_at") : null;
         String tweeter = json.getJSONObject("user").getString("screen_name");
         String source = "Twitter";
-        String title = "tweeted by: " + tweeter;
-        if (createdAt != null) {
-            title = title + " on " + createdAt;
-        }
 
         ArtifactRowKey build = ArtifactRowKey.build(json.toString().getBytes());
         String rowKey = build.toString();
@@ -86,7 +82,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         artifactExtractedInfo.setMimeType("text/plain");
         artifactExtractedInfo.setRowKey(rowKey);
         artifactExtractedInfo.setArtifactType(ArtifactType.DOCUMENT.toString());
-        artifactExtractedInfo.setTitle(title);
+        artifactExtractedInfo.setTitle(text);
 
         // Write to accumulo and create graph vertex for artifact
         tweet = saveArtifact(artifactExtractedInfo);
@@ -122,8 +118,8 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             tweet.setProperty(PropertyName.GEO_LOCATION, new GraphGeoLocation(coordinates.getDouble(1), coordinates.getDouble(0)));
         }
 
-        auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.TITLE.toString(), title), getUser());
-        tweet.setProperty(PropertyName.TITLE, title);
+        auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.TITLE.toString(), text), getUser());
+        tweet.setProperty(PropertyName.TITLE, text);
 
         auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.ROW_KEY.toString(), rowKey), getUser());
         tweet.setProperty(PropertyName.ROW_KEY, rowKey);
