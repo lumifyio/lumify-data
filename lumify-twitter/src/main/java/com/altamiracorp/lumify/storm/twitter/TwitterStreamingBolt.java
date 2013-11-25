@@ -126,7 +126,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.SOURCE.toString(), source), getUser());
         tweet.setProperty(PropertyName.SOURCE, source);
-        graphRepository.commit();
+        graphRepository.save(tweet, getUser());
 
         String tweeterId = createOrUpdateTweeterEntity(handleConcept, tweeter);
         graphRepository.saveRelationship(tweeterId, tweet.getId(), TWEETED, getUser());
