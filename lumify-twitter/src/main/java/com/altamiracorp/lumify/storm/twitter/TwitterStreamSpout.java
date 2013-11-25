@@ -20,6 +20,7 @@ import com.twitter.hbc.httpclient.auth.OAuth1;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.String;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -32,6 +33,12 @@ public class TwitterStreamSpout extends BaseRichSpout {
     private SpoutOutputCollector collector;
     private Client hbc;
     private BlockingQueue<String> tweetsToProcess = new LinkedBlockingQueue<String>();
+    private static final String SEARCH_TERMS    = "twitter";
+    private static final List<String> TERMS     = Lists.newArrayList(SEARCH_TERMS);
+    private static final String CONSUMER_KEY    = "twitter.consumerKey";
+    private static final String CONSUMER_SECRET = "twitter.consumerSecret";
+    private static final String TOKEN           = "twitter.token";
+    private static final String TOKEN_SECRET    = "twitter.tokenSecret";
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -40,22 +47,21 @@ public class TwitterStreamSpout extends BaseRichSpout {
 
     @Override
     public void open(Map stormConf, TopologyContext context, SpoutOutputCollector collector) {
-        checkNotNull(stormConf.get("consumerKey"), "'consumerKey' config not set");
-        checkNotNull(stormConf.get("consumerSecret"), "'consumerSecret' config not set");
-        checkNotNull(stormConf.get("token"), "'token' config not set");
-        checkNotNull(stormConf.get("tokenSecret"), "'tokenSecret' config not set");
+        checkNotNull(stormConf.get(CONSUMER_KEY), "'consumerKey' config not set");
+        checkNotNull(stormConf.get(CONSUMER_SECRET), "'consumerSecret' config not set");
+        checkNotNull(stormConf.get(TOKEN), "'token' config not set");
+        checkNotNull(stormConf.get(TOKEN_SECRET), "'tokenSecret' config not set");
 
         LOGGER.info(String.format("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId()));
         this.collector = collector;
 
         Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-        List<String> terms = Lists.newArrayList("twitter");
-        endpoint.trackTerms(terms);
-        Authentication hosebirdAuth = new OAuth1((String) stormConf.get("consumerKey"),
-                (String) stormConf.get("consumerSecret"),
-                (String) stormConf.get("token"),
-                (String) stormConf.get("tokenSecret"));
+        endpoint.trackTerms(TERMS);
+        Authentication hosebirdAuth = new OAuth1((String) stormConf.get(CONSUMER_KEY),
+                (String) stormConf.get(CONSUMER_SECRET),
+                (String) stormConf.get(TOKEN),
+                (String) stormConf.get(TOKEN_SECRET));
 
         ClientBuilder builder = new ClientBuilder()
                 .name("twitter-spout")

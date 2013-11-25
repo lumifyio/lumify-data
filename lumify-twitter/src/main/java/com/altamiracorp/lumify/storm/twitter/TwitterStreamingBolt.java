@@ -31,7 +31,7 @@ import java.util.List;
 public class TwitterStreamingBolt extends BaseLumifyBolt {
     private static final Logger LOGGER = LoggerFactory.getLogger(TwitterStreamingBolt.class);
     private static final String TWITTER_HANDLE = "twitterHandle";
-    private static final String TWEETED_BY = "tweetTweetedByHandle";
+    private static final String TWEETED = "twitterHandleTweetedTweet";
     private static final String TWEET_MENTION = "tweetMentionedHandle";
     private static final String TWEET_HASHTAG = "tweetHasHashtag";
     private static final String TWEET_URL = "tweetHasURL";
@@ -133,7 +133,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         graphRepository.commit();
 
         String tweeterId = createOrUpdateTweeterEntity(handleConcept, tweeter);
-        graphRepository.saveRelationship(tweeterId, tweet.getId(), TWEETED_BY, getUser());
+        graphRepository.saveRelationship(tweeterId, tweet.getId(), TWEETED, getUser());
     }
 
     private String createOrUpdateTweeterEntity(Concept handleConcept, String tweeter) {
