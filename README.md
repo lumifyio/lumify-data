@@ -19,5 +19,8 @@ passwd makerpm
 ```bash
 su makerpm
 cd ~/
+git clone git@github.com:nearinfinity/lumify-rpms.git
 rpmdev-setuptree
 ```
+
+Run the clone scripts, then the build scripts, then the update-repo.sh script.
