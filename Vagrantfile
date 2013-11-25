@@ -1,6 +1,14 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+def configure_puppet(puppet, manifest_file)
+  puppet.manifests_path = 'puppet/manifests'
+  puppet.module_path    = [ 'puppet/modules', 'puppet/puppet-modules' ]
+  puppet.manifest_file  = manifest_file
+  puppet.facter         = { 'fqdn' => 'lumify-vm.nearinfinity.com' }
+  puppet.options        = '--hiera_config /vagrant/puppet/hiera-vm.yaml'
+end
+
 Vagrant.configure('2') do |config|
   config.vm.box = 'centos6.4'
   config.vm.box_url = 'http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-x86_64-v20130427.box'
@@ -10,12 +18,12 @@ Vagrant.configure('2') do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  config.vm.network :forwarded_port, guest: 8080, host: 8080
-  config.vm.network :forwarded_port, guest: 8443, host: 8443
+  config.vm.network :forwarded_port, :guest => 8080, :host => 8080
+  config.vm.network :forwarded_port, :guest => 8443, :host => 8443
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
-  config.vm.network :private_network, ip: '192.168.33.10'
+  config.vm.network :private_network, :ip => '192.168.33.10'
 
   # Create a public network, which generally matched to bridged network.
   # Bridged networks make the machine appear as another physical device on
@@ -40,13 +48,18 @@ Vagrant.configure('2') do |config|
   # View the documentation for the provider you're using for more
   # information on available options.
 
-  config.vm.provision :shell, inline: "mkdir -p /data0"
+  config.vm.provision :shell, :inline => "mkdir -p /data0"
 
-  config.vm.provision :puppet do |puppet|
-    puppet.manifests_path = 'puppet/manifests'
-    puppet.module_path    = [ 'puppet/modules', 'puppet/puppet-modules' ]
-    puppet.manifest_file  = 'dev.pp'
-    puppet.facter         = { 'fqdn' => 'prevent.error.com' }
-    puppet.options        = '--hiera_config /vagrant/puppet/hiera-dev.yaml'
+  config.vm.define "demo" do |demo|
+    demo.vm.provision :puppet do |puppet|
+      configure_puppet(puppet, 'demo_vm.pp')
+    end
   end
+
+  config.vm.define "dev", :primary => true do |dev|
+    dev.vm.provision :puppet do |puppet|
+      configure_puppet(puppet, 'dev_vm.pp')
+    end
+  end
+
 end

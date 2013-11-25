@@ -14,12 +14,6 @@ if [ $? -ne 0 ]; then
   exit
 fi
 
-if [ "${VIRTUALIZATION_DISABLED}" = 'true' ]; then
-  ip=$(ifconfig eth0 | awk -F ':| +' '/inet addr/ {print $4}')
-else
-  ip=192.168.33.10
-fi
-
 cd ${DIR}/../lumify-public
 
 java \
