@@ -70,7 +70,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         text = json.getString("text");
         String createdAt = json.has("created_at") ? json.getString("created_at") : null;
         String tweeter = json.getJSONObject("user").getString("screen_name");
-        String source = json.getString("source");
+        String source = "Twitter";
         String title = "tweeted by: " + tweeter;
         if (createdAt != null) {
             title = title + " on " + createdAt;
