@@ -22,7 +22,10 @@ function _download {
 
     case ${fname##*.} in
     zip)
-      unzip -od "${SOURCE_DIR}" "${SOURCE_DIR}/${fname}"
+      unzip -o ${SOURCE_DIR}/${fname} -d ${SOURCE_DIR}
+      ;;
+    gz)
+      (cd ${SOURCE_DIR} && tar xzf ${SOURCE_DIR}/${fname})
       ;;
     *)
       echo "ERROR: unhandled extension: ${fname##*.}"
