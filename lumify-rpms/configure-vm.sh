@@ -3,7 +3,7 @@
 rpm -q epel-release-6-8 > /dev/null \
   || rpm -ivH http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 
-yum -y install yasm fedora-packager
+yum -y install yasm libtool fedora-packager
 
 id -u makerpm > /dev/null \
   || useradd makerpm
