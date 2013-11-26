@@ -14,3 +14,7 @@
 	url = git@github.com:nearinfinity/lumify-twitter.git
 	path = lumify-twitter
 	branch = master
+[subtree "lumify-rpms"]
+	url = git@github.com:nearinfinity/lumify-rpms.git
+	path = lumify-rpms
+	branch = master
