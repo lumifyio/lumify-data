@@ -48,15 +48,19 @@ Vagrant.configure('2') do |config|
   # View the documentation for the provider you're using for more
   # information on available options.
 
-  config.vm.provision :shell, :inline => "mkdir -p /data0"
+  config.vm.define "rpm" do |rpm|
+    rpm.vm.provision :shell, :path => "lumify-rpms/configure-vm.sh"
+  end
 
   config.vm.define "demo" do |demo|
+    demo.vm.provision :shell, :inline => "mkdir -p /data0"
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_vm.pp')
     end
   end
 
   config.vm.define "dev", :primary => true do |dev|
+    dev.vm.provision :shell, :inline => "mkdir -p /data0"
     dev.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp')
     end
