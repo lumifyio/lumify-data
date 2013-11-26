@@ -19,6 +19,9 @@ rpmlint rpmbuild/SPECS/lumify-videolan-x264.spec
 
 rpmbuild -ba rpmbuild/SPECS/lumify-videolan-x264.spec
 
+mkdir -p repo/SRPMS/
+mkdir -p repo/RPMS/x86_64/
+mkdir -p repo/source/
 cp rpmbuild/SRPMS/lumify-videolan-x264-${VERSION}-${RELEASE}.src.rpm repo/SRPMS/
 cp rpmbuild/RPMS/x86_64/lumify-videolan-x264-${VERSION}-${RELEASE}.x86_64.rpm repo/RPMS/x86_64/
 cp /home/makerpm/rpmbuild/SOURCES/lumify-videolan-x264-${VERSION}.tar.gz repo/source/

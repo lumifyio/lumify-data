@@ -7,8 +7,8 @@ License:        LGPL
 URL:            http://www.ffmpeg.org/
 Source:         http://63.141.238.205:8081/redhat/source/%{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:	x264, fdkaac, lame, opus, ogg, vorbis, vpx, theora
-Requires:	x264, fdkaac, lame, opus, ogg, vorbis, vpx, theora
+BuildRequires:	lumify-videolan-x264, lumify-fdk-aac, lumify-lame, lumify-opus, lumify-ogg, lumify-vorbis, lumify-vpx, lumify-theora
+Requires:	lumify-videolan-x264, lumify-fdk-aac, lumify-lame, lumify-opus, lumify-ogg, lumify-vorbis, lumify-vpx, lumify-theora
 
 %description
 

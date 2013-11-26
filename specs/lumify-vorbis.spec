@@ -7,8 +7,8 @@ License:        BSD
 URL:            http://www.vorbis.com/
 Source:         http://63.141.238.205:8081/redhat/source/%{name}-%{version}.tar.gz
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:	ogg
-Requires:	ogg
+BuildRequires:	lumify-ogg
+Requires:	lumify-ogg
 
 %description
 

@@ -12,6 +12,9 @@ rpmlint rpmbuild/SPECS/lumify-lame.spec
 
 rpmbuild -ba rpmbuild/SPECS/lumify-lame.spec
 
+mkdir -p repo/SRPMS/
+mkdir -p repo/RPMS/x86_64/
+mkdir -p repo/source/
 cp rpmbuild/SRPMS/lumify-lame* repo/SRPMS/
 cp rpmbuild/RPMS/x86_64/lumify-lame* repo/RPMS/x86_64/
 cp /home/makerpm/rpmbuild/SOURCES/lumify-lame-3.99.5.tar.gz repo/source/

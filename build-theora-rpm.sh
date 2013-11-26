@@ -12,6 +12,9 @@ rpmlint rpmbuild/SPECS/lumify-theora.spec
 
 rpmbuild -ba rpmbuild/SPECS/lumify-theora.spec
 
+mkdir -p repo/SRPMS/
+mkdir -p repo/RPMS/x86_64/
+mkdir -p repo/source/
 cp rpmbuild/SRPMS/lumify-theora* repo/SRPMS/
 cp rpmbuild/RPMS/x86_64/lumify-theora* repo/RPMS/x86_64/
 cp /home/makerpm/rpmbuild/SOURCES/lumify-theora-1.1.1.tar.gz repo/source/
