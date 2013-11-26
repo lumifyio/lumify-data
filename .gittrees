@@ -2,6 +2,10 @@
 	url = git@github.com:nearinfinity/puppet-modules.git
 	path = puppet/puppet-modules
 	branch = master
+[subtree "deployment/aws"]
+	url = git@github.com:dsingley/aws.git
+	path = deployment/aws
+	branch = master
 [subtree "lumify-public"]
 	url = git@github.com:nearinfinity/lumify.git
 	path = lumify-public
