@@ -1,4 +1,4 @@
-Name:           ogg
+Name:           lumify-ogg
 Version:        1.3.1
 Release:        dist
 Summary:	Ogg Vorbis is a completely open, patent-free, professional audio encoding and streaming technology with all the benefits of Open Source.
