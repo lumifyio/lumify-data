@@ -1,27 +1,35 @@
 #!/bin/bash -e
 
-cd /home/makerpm/source/lumify-videolan-x264
-export VERSION=$(./version.sh | awk -F '"' '/X264_POINTVER/ {print $2}' | cut -d ' ' -f 1)
-export RELEASE=$(./version.sh | awk -F '"' '/X264_POINTVER/ {print $2}' | cut -d ' ' -f 2)
-cd -
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-rm /home/makerpm/rpmbuild/SOURCES/lumify-videolan-x264-${VERSION}.tar.gz || true
+source ${DIR}/setenv.sh
+source ${DIR}/functions.sh
 
-cd /home/makerpm/source
-tar -cvzf /home/makerpm/rpmbuild/SOURCES/lumify-videolan-x264-${VERSION}.tar.gz lumify-videolan-x264/*
-cd -
 
-echo Building ${VERSION}-${RELEASE}
-cp specs/lumify-videolan-x264.spec rpmbuild/SPECS/lumify-videolan-x264.spec
-sed -i -e "s/Version:.*/Version:\t${VERSION}/" -e "s/Release:.*/Release:\t${RELEASE}/" rpmbuild/SPECS/lumify-videolan-x264.spec
+_clone lumify-videolan-x264 http://git.videolan.org/git/x264.git stable
 
-rpmlint rpmbuild/SPECS/lumify-videolan-x264.spec
+cd ${SOURCE_DIR}/lumify-videolan-x264
+x264_version=$(./version.sh | awk -F '"' '/X264_POINTVER/ {print $2}' | cut -d ' ' -f 1)
+x264_release=$(./version.sh | awk -F '"' '/X264_POINTVER/ {print $2}' | cut -d ' ' -f 2)
 
-rpmbuild -ba rpmbuild/SPECS/lumify-videolan-x264.spec
+rm -f ${RPMBUILD_DIR}/SOURCES/lumify-videolan-x264-${x264_version}.tar.gz
 
-mkdir -p repo/SRPMS/
-mkdir -p repo/RPMS/x86_64/
-mkdir -p repo/source/
-cp rpmbuild/SRPMS/lumify-videolan-x264-${VERSION}-${RELEASE}.src.rpm repo/SRPMS/
-cp rpmbuild/RPMS/x86_64/lumify-videolan-x264-${VERSION}-${RELEASE}.x86_64.rpm repo/RPMS/x86_64/
-cp /home/makerpm/rpmbuild/SOURCES/lumify-videolan-x264-${VERSION}.tar.gz repo/source/
+cd ${SOURCE_DIR}
+tar czf ${RPMBUILD_DIR}/SOURCES/lumify-videolan-x264-${x264_version}.tar.gz lumify-videolan-x264/*
+
+cp ${DIR}/specs/lumify-videolan-x264.spec ${RPMBUILD_DIR}/SPECS/lumify-videolan-x264.spec
+sed -i -e "s/Version:.*/Version:\t${x264_version}/" -e "s/Release:.*/Release:\t${x264_release}/" ${RPMBUILD_DIR}/SPECS/lumify-videolan-x264.spec
+
+rpmlint ${RPMBUILD_DIR}/SPECS/lumify-videolan-x264.spec
+
+rpmbuild -ba ${RPMBUILD_DIR}/SPECS/lumify-videolan-x264.spec
+
+cp ${RPMBUILD_DIR}/SRPMS/lumify-videolan-x264-${x264_version}-${x264_release}.src.rpm ${LUMIFYREPO_DIR}/SRPMS
+cp ${RPMBUILD_DIR}/RPMS/x86_64/lumify-videolan-x264-${x264_version}-${x264_release}.x86_64.rpm ${LUMIFYREPO_DIR}/RPMS/x86_64
+cp ${RPMBUILD_DIR}/SOURCES/lumify-videolan-x264-${x264_version}.tar.gz ${LUMIFYREPO_DIR}/source
