@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.Integer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -129,6 +130,19 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.SOURCE.toString(), source), getUser());
         tweet.setProperty(PropertyName.SOURCE, source);
+
+        if (json.has("favorite_count") && ((Integer) json.get("favorite_count") > 0)) {
+            Integer favCount = (Integer) json.get("favorite_count");
+            auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.FAVORITE_COUNT.toString(), favCount), getUser());
+            tweet.setProperty(PropertyName.FAVORITE_COUNT, favCount);
+        }
+
+        if (json.has("retweet_count") && ((Integer) json.get("retweet_count") > 0)) {
+            Integer rtCount = (Integer) json.get("retweet_count");
+            auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.RETWEET_COUNT.toString(), rtCount), getUser());
+            tweet.setProperty(PropertyName.RETWEET_COUNT, rtCount);
+        }
+
         graphRepository.save(tweet, getUser());
 
         String tweeterId = createOrUpdateTweeterEntity(handleConcept, tweeter);
