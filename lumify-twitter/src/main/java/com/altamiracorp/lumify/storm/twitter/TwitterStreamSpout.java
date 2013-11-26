@@ -34,7 +34,7 @@ public class TwitterStreamSpout extends BaseRichSpout {
     private Client hbc;
     private BlockingQueue<String> tweetsToProcess = new LinkedBlockingQueue<String>();
     private static List<String> TERMS     = Lists.newArrayList();
-    private static final String SEARCH_TERMS    = "twitter.search";
+    private static final String QUERY    = "twitter.query";
 
     private static final String CONSUMER_KEY    = "twitter.consumerKey";
     private static final String CONSUMER_SECRET = "twitter.consumerSecret";
@@ -52,14 +52,14 @@ public class TwitterStreamSpout extends BaseRichSpout {
         checkNotNull(stormConf.get(CONSUMER_SECRET), "'consumerSecret' config not set");
         checkNotNull(stormConf.get(TOKEN), "'token' config not set");
         checkNotNull(stormConf.get(TOKEN_SECRET), "'tokenSecret' config not set");
-        checkNotNull(stormConf.get(SEARCH_TERMS), "'searchTerm' not set");
+        checkNotNull(stormConf.get(QUERY), "'query' not set");
 
         LOGGER.info(String.format("Configuring environment for spout: %s-%d", context.getThisComponentId(), context.getThisTaskId()));
         this.collector = collector;
 
         Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-        TERMS = Lists.newArrayList(SEARCH_TERMS);
+        TERMS = Lists.newArrayList((String) stormConf.get(QUERY));
         endpoint.trackTerms(TERMS);
         Authentication hosebirdAuth = new OAuth1((String) stormConf.get(CONSUMER_KEY),
                 (String) stormConf.get(CONSUMER_SECRET),
