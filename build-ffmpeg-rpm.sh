@@ -6,7 +6,7 @@ cd /home/makerpm/source
 tar -cvzf /home/makerpm/rpmbuild/SOURCES/lumify-ffmpeg-2.0.tar.gz lumify-ffmpeg/*
 cd -
 
-cp specs/ffmpeg.spec rpmbuild/SPECS/lumify-ffmpeg.spec
+cp specs/lumify-ffmpeg.spec rpmbuild/SPECS/lumify-ffmpeg.spec
 
 rpmlint rpmbuild/SPECS/lumify-ffmpeg.spec
 
