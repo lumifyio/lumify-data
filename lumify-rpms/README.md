@@ -54,7 +54,29 @@ git clone git@github.com:nearinfinity/lumify-rpms.git
 rpmdev-setuptree
 ```
 
+Create a reference to the local repo. Create a file /etc/yum.repos.d/lumify-local.repo
+
+```
+[lumify-local]
+name=Lumify
+baseurl=file:///home/makerpm/repo
+enabled=1
+gpgcheck=0
+```
+
 Run the clone scripts, then the build scripts, then the update-repo.sh script.
+
+```
+yum install lumify-videolan-x264
+yum install lumify-fdk-aac
+yum install lumify-lame
+yum install lumify-opus
+yum install lumify-ogg
+yum install lumify-vorbis
+yum install lumify-vpx
+yum install lumify-theora
+yum install lumify-ffmpeg
+```
 
 # Target machine
 
