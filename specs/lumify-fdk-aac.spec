@@ -1,4 +1,4 @@
-Name:           fdk-aac
+Name:           lumify-fdk-aac
 Version:        0.1.1
 Release:        dist
 Summary:        A standalone library of the Fraunhofer FDK AAC code from Android.

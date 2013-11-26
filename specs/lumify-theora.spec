@@ -1,4 +1,4 @@
-Name:           theora
+Name:           lumify-theora
 Version:        1.1.1
 Release:        dist
 Summary:	Theora is a free and open video compression format from the Xiph.org Foundation.
