@@ -70,7 +70,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     private void saveToDatabase(JSONObject json, Concept handleConcept) {
         text = json.getString("text");
         String createdAt = json.has("created_at") ? json.getString("created_at") : null;
-        String tweeter = "@" + json.getJSONObject("user").getString("screen_name");
+        String tweeter = json.getJSONObject("user").getString("screen_name");
         String source = "Twitter";
 
         ArtifactRowKey build = ArtifactRowKey.build(json.toString().getBytes());
@@ -119,7 +119,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             tweet.setProperty(PropertyName.GEO_LOCATION, new GraphGeoLocation(coordinates.getDouble(1), coordinates.getDouble(0)));
         }
 
-        auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.AUTHOR.toString(), tweeter), getUser());
+        auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.AUTHOR.toString(), "@" + tweeter), getUser());
         tweet.setProperty(PropertyName.AUTHOR, tweeter);
 
         auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.TITLE.toString(), text), getUser());
@@ -145,7 +145,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         graphRepository.save(tweet, getUser());
 
-        String tweeterId = createOrUpdateTweeterEntity(handleConcept, tweeter);
+        String tweeterId = createOrUpdateTweeterEntity(handleConcept, tweeter.toLowerCase());
         graphRepository.saveRelationship(tweeterId, tweet.getId(), TWEETED, getUser());
     }
 
@@ -159,7 +159,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         if (!newVertex) {
             String tweeterId = tweeterVertex.getId();
-            auditRepository.audit(tweeterId, auditRepository.vertexPropertyAuditMessage(tweeterVertex, PropertyName.TITLE.toString(), tweeter), getUser());
+            auditRepository.audit(tweeterId, auditRepository.vertexPropertyAuditMessage(tweeterVertex, PropertyName.TITLE.toString(), "@"+tweeter), getUser());
             auditRepository.audit(tweeterId, auditRepository.vertexPropertyAuditMessage(tweeterVertex, PropertyName.TYPE.toString(), VertexType.ENTITY.toString()), getUser());
             auditRepository.audit(tweeterId, auditRepository.vertexPropertyAuditMessage(tweeterVertex, PropertyName.SUBTYPE.toString(), handleConcept.getId()), getUser());
         }
@@ -169,7 +169,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         graphRepository.save(tweeterVertex, getUser());
 
         if (newVertex) {
-            auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TITLE.toString(), tweeter), getUser());
+            auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TITLE.toString(), "@"+tweeter), getUser());
             auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TYPE.toString(), VertexType.ENTITY.toString()), getUser());
             auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.SUBTYPE.toString(), handleConcept.getId()), getUser());
         }
@@ -195,12 +195,11 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         GraphVertex conceptVertex = graphRepository.findVertex(concept.getId(), getUser());
         List<TermMention> termMentionList = TermRegexFinder.find(tweet.getId(), conceptVertex, text, regex);
         for (TermMention mention : termMentionList) {
-            String sign = mention.getMetadata().getSign();
+            String sign = mention.getMetadata().getSign().toLowerCase();
             String rowKey = mention.getRowKey().toString();
             String conceptId = concept.getId();
 
-            String lcSign = sign.toLowerCase();
-            GraphVertex vertex = graphRepository.findVertexByTitleAndType(lcSign, VertexType.ENTITY, getUser());
+            GraphVertex vertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, getUser());
 
             boolean newVertex = false;
             if (vertex == null) {
@@ -210,19 +209,19 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
             if (!newVertex) {
                 String vertexId = vertex.getId();
-                auditRepository.audit(vertexId, auditRepository.vertexPropertyAuditMessage(vertex, PropertyName.TITLE.toString(), lcSign), getUser());
+                auditRepository.audit(vertexId, auditRepository.vertexPropertyAuditMessage(vertex, PropertyName.TITLE.toString(), sign), getUser());
                 auditRepository.audit(vertexId, auditRepository.vertexPropertyAuditMessage(vertex, PropertyName.ROW_KEY.toString(), rowKey), getUser());
                 auditRepository.audit(vertexId, auditRepository.vertexPropertyAuditMessage(vertex, PropertyName.TYPE.toString(), VertexType.ENTITY.toString()), getUser());
                 auditRepository.audit(vertexId, auditRepository.vertexPropertyAuditMessage(vertex, PropertyName.SUBTYPE.toString(), conceptId), getUser());
             }
-            vertex.setProperty(PropertyName.TITLE, lcSign);
+            vertex.setProperty(PropertyName.TITLE, sign);
             vertex.setProperty(PropertyName.ROW_KEY, rowKey);
             vertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
             vertex.setProperty(PropertyName.SUBTYPE, conceptId);
             graphRepository.save(vertex, getUser());
 
             if (newVertex) {
-                auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TITLE.toString(), lcSign), getUser());
+                auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TITLE.toString(), sign), getUser());
                 auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.ROW_KEY.toString(), rowKey), getUser());
                 auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TYPE.toString(), VertexType.ENTITY.toString()), getUser());
                 auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.SUBTYPE.toString(), conceptId), getUser());
