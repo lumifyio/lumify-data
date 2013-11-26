@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-rm /home/makerpm/rpmbuild/SOURCES/lame-3.99.5.tar.gz
+rm /home/makerpm/rpmbuild/SOURCES/lame-3.99.5.tar.gz || true
 
 cd /home/makerpm/source
 tar -cvzf /home/makerpm/rpmbuild/SOURCES/lame-3.99.5.tar.gz lame/*

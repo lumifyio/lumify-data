@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-rm /home/makerpm/rpmbuild/SOURCES/fdk-aac-0.1.1.tar.gz
+rm /home/makerpm/rpmbuild/SOURCES/fdk-aac-0.1.1.tar.gz || true
 
 cd /home/makerpm/source
 tar -cvzf /home/makerpm/rpmbuild/SOURCES/fdk-aac-0.1.1.tar.gz fdk-aac/*

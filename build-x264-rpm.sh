@@ -5,7 +5,7 @@ export VERSION=$(./version.sh | awk -F '"' '/X264_POINTVER/ {print $2}' | cut -d
 export RELEASE=$(./version.sh | awk -F '"' '/X264_POINTVER/ {print $2}' | cut -d ' ' -f 2)
 cd -
 
-rm /home/makerpm/rpmbuild/SOURCES/videolan-x264-${VERSION}.tar.gz
+rm /home/makerpm/rpmbuild/SOURCES/videolan-x264-${VERSION}.tar.gz || true
 
 cd /home/makerpm/source
 tar -cvzf /home/makerpm/rpmbuild/SOURCES/videolan-x264-${VERSION}.tar.gz videolan-x264/*
