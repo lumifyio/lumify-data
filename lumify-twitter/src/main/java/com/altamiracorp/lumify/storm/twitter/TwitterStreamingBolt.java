@@ -199,7 +199,8 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             String rowKey = mention.getRowKey().toString();
             String conceptId = concept.getId();
 
-            GraphVertex vertex = graphRepository.findVertexByTitleAndType(sign, VertexType.ENTITY, getUser());
+            String lcSign = sign.toLowerCase();
+            GraphVertex vertex = graphRepository.findVertexByTitleAndType(lcSign, VertexType.ENTITY, getUser());
 
             boolean newVertex = false;
             if (vertex == null) {
@@ -209,19 +210,19 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
             if (!newVertex) {
                 String vertexId = vertex.getId();
-                auditRepository.audit(vertexId, auditRepository.vertexPropertyAuditMessage(vertex, PropertyName.TITLE.toString(), sign), getUser());
+                auditRepository.audit(vertexId, auditRepository.vertexPropertyAuditMessage(vertex, PropertyName.TITLE.toString(), lcSign), getUser());
                 auditRepository.audit(vertexId, auditRepository.vertexPropertyAuditMessage(vertex, PropertyName.ROW_KEY.toString(), rowKey), getUser());
                 auditRepository.audit(vertexId, auditRepository.vertexPropertyAuditMessage(vertex, PropertyName.TYPE.toString(), VertexType.ENTITY.toString()), getUser());
                 auditRepository.audit(vertexId, auditRepository.vertexPropertyAuditMessage(vertex, PropertyName.SUBTYPE.toString(), conceptId), getUser());
             }
-            vertex.setProperty(PropertyName.TITLE, sign);
+            vertex.setProperty(PropertyName.TITLE, lcSign);
             vertex.setProperty(PropertyName.ROW_KEY, rowKey);
             vertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
             vertex.setProperty(PropertyName.SUBTYPE, conceptId);
             graphRepository.save(vertex, getUser());
 
             if (newVertex) {
-                auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TITLE.toString(), sign), getUser());
+                auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TITLE.toString(), lcSign), getUser());
                 auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.ROW_KEY.toString(), rowKey), getUser());
                 auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TYPE.toString(), VertexType.ENTITY.toString()), getUser());
                 auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.SUBTYPE.toString(), conceptId), getUser());
