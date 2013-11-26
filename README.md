@@ -10,6 +10,7 @@ lumify-rpms
 
 ### Next
 
+0. `sudo su - makerpm`
 1. run the clone scripts
 2. run the build scripts
 3. run the `update-repo.sh` script
