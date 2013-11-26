@@ -1,4 +1,4 @@
-Name:           vpx
+Name:           lumify-vpx
 Version:        1.2.0
 Release:        dist
 Summary:	vpx

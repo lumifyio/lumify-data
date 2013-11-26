@@ -1,4 +1,4 @@
-Name:           videolan-x264
+Name:           lumify-videolan-x264
 Version:        $VERSION
 Release:        $RELEASE
 Summary:        x264 is a free software library and application for encoding video streams into the H.264/MPEG-4 AVC compression format.
