@@ -11,6 +11,7 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 source ${DIR}/setenv.sh
 source ${DIR}/functions.sh
 
+
 name="lumify-vorbis"
 version="1.3.3"
 release="dist"
