@@ -16,11 +16,13 @@ Requires:	lumify-ogg
 %setup -q -n %{name}
 
 %build
+export QA_RPATHS=$[ 0x0001|0x0010 ]
 %configure --prefix='/usr/local' --with-ogg='/usr/local'
 make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
+export QA_RPATHS=$[ 0x0001|0x0010 ]
 make install DESTDIR=%{buildroot}
 
 %clean

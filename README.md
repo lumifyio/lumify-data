@@ -20,7 +20,3 @@ Pivotal Tracker
 ---------------
 * [Project](https://www.pivotaltracker.com/s/projects/833781)
 * [SCM Post-Commit Message Syntax](https://www.pivotaltracker.com/help/api#scm_post_commit)
-
-
-License
---------

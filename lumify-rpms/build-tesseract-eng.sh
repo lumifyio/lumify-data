@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -12,17 +12,17 @@ source ${DIR}/setenv.sh
 source ${DIR}/functions.sh
 
 
-name="lumify-vorbis"
-version="1.3.3"
+name="lumify-tesseract-eng"
+version="3.02"
 release="dist"
 
 _download \
     ${name} \
-    http://downloads.xiph.org/releases/vorbis/libvorbis-${version}.tar.gz \
-    libvorbis-${version}.tar.gz
+    https://tesseract-ocr.googlecode.com/files/tesseract-ocr-${version}.eng.tar.gz \
+    tesseract-${version}-eng.tar.gz
 
-if [ -d ${SOURCE_DIR}/libvorbis-${version} ]; then
-  mv ${SOURCE_DIR}/libvorbis-${version} ${SOURCE_DIR}/${name}
+if [ -d ${SOURCE_DIR}/tesseract-ocr ]; then
+  mv ${SOURCE_DIR}/tesseract-ocr ${SOURCE_DIR}/${name}
 fi
 
 _build ${name} ${version} ${release}

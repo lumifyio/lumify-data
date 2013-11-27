@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -12,17 +12,17 @@ source ${DIR}/setenv.sh
 source ${DIR}/functions.sh
 
 
-name="lumify-vorbis"
-version="1.3.3"
+name="lumify-leptonica"
+version="1.69"
 release="dist"
 
 _download \
     ${name} \
-    http://downloads.xiph.org/releases/vorbis/libvorbis-${version}.tar.gz \
-    libvorbis-${version}.tar.gz
+    http://www.leptonica.org/source/leptonica-${version}.tar.gz \
+    leptonica-${version}.tar.gz
 
-if [ -d ${SOURCE_DIR}/libvorbis-${version} ]; then
-  mv ${SOURCE_DIR}/libvorbis-${version} ${SOURCE_DIR}/${name}
+if [ -d ${SOURCE_DIR}/leptonica-${version} ]; then
+  mv ${SOURCE_DIR}/leptonica-${version} ${SOURCE_DIR}/${name}
 fi
 
 _build ${name} ${version} ${release}

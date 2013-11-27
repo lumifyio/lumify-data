@@ -10,22 +10,27 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 source ${DIR}/setenv.sh
 
+function _build_and_install {
+  local name=$1
 
-${DIR}/build-x264.sh
-${DIR}/build-fdk-aac.sh
-${DIR}/build-lame.sh
-${DIR}/build-opus.sh
-${DIR}/build-ogg.sh
+  ${DIR}/build-${name}.sh
+  sudo rpm -i ${LUMIFYREPO_DIR}/RPMS/x86_64/lumify-${name}-*.rpm
+}
 
-# sudo rpm -i ${LUMIFYREPO_DIR}/RPMS/x86_64/lumify-ogg-*.rpm
-${DIR}/build-vorbis.sh
+_build_and_install videolan-x264
+_build_and_install fdk-aac
+_build_and_install lame
+_build_and_install opus
+_build_and_install ogg
+_build_and_install vorbis
+_build_and_install vpx
+_build_and_install theora
+_build_and_install ffmpeg
 
-${DIR}/build-vpx.sh
-${DIR}/build-theora.sh
+_build_and_install ccextractor
 
-# for rpm in ${LUMIFYREPO_DIR}/RPMS/x86_64/*.rpm; do
-#  sudo rpm -i ${rpm}
-# done
-${DIR}/build-ffmpeg.sh
+_build_and_install opencv
 
-${DIR}/build-ccextractor.sh
+_build_and_install leptonica
+_build_and_install tesseract
+_build_and_install tesseract-eng
