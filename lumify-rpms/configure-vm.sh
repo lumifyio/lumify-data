@@ -36,6 +36,12 @@ id -Gn makerpm | grep -q mock \
 echo 'makerpm
 makerpm' | passwd makerpm 2> /dev/null
 
+# allow makerpm to install via rpm
+grep -q ^makerpm /etc/sudoers
+if [ $? -ne 0 ]; then
+  echo "makerpm ALL=/bin/rpm" >> /etc/sudoers
+fi
+
 su - makerpm -c "mkdir -p /home/makerpm/repo/RPMS/x86_64 /home/makerpm/repo/{SRPMS,source}"
 su - makerpm -c "createrepo /home/makerpm/repo"
 
