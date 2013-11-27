@@ -6,6 +6,7 @@ import com.altamiracorp.lumify.core.ingest.video.VideoTextExtractionWorker;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ProcessRunner;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import com.google.inject.Inject;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import java.util.Random;
 public class VideoMp4EncodingWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData> implements VideoTextExtractionWorker {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoMp4EncodingWorker.class);
     private static final Random random = new Random();
+    private ProcessRunner processRunner;
 
     @Override
     public void prepare(Map stormConf, User user) {
@@ -29,7 +31,7 @@ public class VideoMp4EncodingWorker extends ThreadedTeeInputStreamWorker<Artifac
         File mp4File = File.createTempFile("encode_mp4_", ".mp4");
         File mp4ReloactedFile = File.createTempFile("relocated_mp4_", ".mp4");
         try {
-            ProcessRunner.execute(
+            processRunner.execute(
                     "ffmpeg",
                     new String[]{
                             "-y", // overwrite output files
@@ -50,7 +52,7 @@ public class VideoMp4EncodingWorker extends ThreadedTeeInputStreamWorker<Artifac
                     null
             );
 
-            ProcessRunner.execute(
+            processRunner.execute(
                     "qt-faststart",
                     new String[]{
                             mp4File.getAbsolutePath(),
@@ -70,5 +72,10 @@ public class VideoMp4EncodingWorker extends ThreadedTeeInputStreamWorker<Artifac
             mp4File.delete();
             mp4ReloactedFile.delete();
         }
+    }
+
+    @Inject
+    public void setProcessRunner(ProcessRunner ffmpeg) {
+        this.processRunner = ffmpeg;
     }
 }

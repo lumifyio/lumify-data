@@ -7,6 +7,7 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.ProcessRunner;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,7 @@ import java.util.Map;
 
 public class VideoAudioExtractWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData> implements VideoTextExtractionWorker {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoAudioExtractWorker.class);
+    private ProcessRunner processRunner;
 
     @Override
     public void prepare(Map stormConf, User user) {
@@ -26,7 +28,7 @@ public class VideoAudioExtractWorker extends ThreadedTeeInputStreamWorker<Artifa
         LOGGER.info("Extracting audio from video " + additionalArtifactWorkData.getLocalFileName());
         HdfsLimitOutputStream out = new HdfsLimitOutputStream(additionalArtifactWorkData.getHdfsFileSystem(), 0);
         try {
-            ProcessRunner.execute(
+            processRunner.execute(
                     "ffmpeg",
                     new String[]{
                             "-i", additionalArtifactWorkData.getLocalFileName(),
@@ -46,5 +48,10 @@ public class VideoAudioExtractWorker extends ThreadedTeeInputStreamWorker<Artifa
         info.setAudioHdfsPath(out.getHdfsPath().toString());
         LOGGER.debug("Finished [VideoAudioExtractWorker]: " + additionalArtifactWorkData.getFileName());
         return info;
+    }
+
+    @Inject
+    public void setProcessRunner(ProcessRunner processRunner) {
+        this.processRunner = processRunner;
     }
 }

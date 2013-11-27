@@ -7,6 +7,7 @@ import com.altamiracorp.lumify.core.ingest.video.VideoTranscript;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ProcessRunner;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 
 public class CCExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData> implements VideoTextExtractionWorker {
     private static final Logger LOGGER = LoggerFactory.getLogger(CCExtractorWorker.class);
+    private ProcessRunner processRunner;
 
     @Override
     public void prepare(Map stormConf, User user) {
@@ -28,7 +30,7 @@ public class CCExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtr
         ccFile.delete();
         try {
             LOGGER.info("Extracting close captioning from: " + additionalArtifactWorkData.getLocalFileName());
-            ProcessRunner.execute(
+            processRunner.execute(
                     "ccextractor",
                     new String[]{
                             "-o", ccFile.getAbsolutePath(),
@@ -46,5 +48,10 @@ public class CCExtractorWorker extends ThreadedTeeInputStreamWorker<ArtifactExtr
         } finally {
             ccFile.delete();
         }
+    }
+
+    @Inject
+    public void setProcessRunner(ProcessRunner processRunner) {
+        this.processRunner = processRunner;
     }
 }

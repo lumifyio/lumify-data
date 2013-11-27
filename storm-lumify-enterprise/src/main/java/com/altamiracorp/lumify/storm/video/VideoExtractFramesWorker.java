@@ -26,6 +26,7 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
     private static final Random random = new Random();
 
     private VideoFrameTextExtractor videoFrameTextExtractor;
+    private ProcessRunner processRunner;
 
     @Override
     public void prepare(Map stormConf, User user) {
@@ -40,7 +41,7 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
         int framesPerSecondToExtract = 1;
 
         LOGGER.info("Extracting video frames from: " + additionalArtifactWorkData.getLocalFileName());
-        ProcessRunner.execute(
+        processRunner.execute(
                 "ffmpeg",
                 new String[]{
                         "-i", additionalArtifactWorkData.getLocalFileName(),
@@ -97,5 +98,10 @@ public class VideoExtractFramesWorker extends ThreadedTeeInputStreamWorker<Artif
     @Inject
     public void setVideoFrameTextExtractor(VideoFrameTextExtractor videoFrameTextExtractor) {
         this.videoFrameTextExtractor = videoFrameTextExtractor;
+    }
+
+    @Inject
+    public void setProcessRunner(ProcessRunner processRunner) {
+        this.processRunner = processRunner;
     }
 }

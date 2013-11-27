@@ -8,14 +8,18 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.ProcessRunner;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.Map;
 
+import static org.mockito.internal.util.Checks.checkNotNull;
+
 public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData> implements VideoTextExtractionWorker {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoWebMEncodingWorker.class);
+    private ProcessRunner processRunner;
 
     @Override
     public void prepare(Map stormConf, User user) {
@@ -26,7 +30,7 @@ public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<Artifa
         LOGGER.info("Encoding (webm) [VideoWebMEncodingWorker] " + data.getFileName());
         HdfsLimitOutputStream out = new HdfsLimitOutputStream(data.getHdfsFileSystem(), 0);
         try {
-            ProcessRunner.execute(
+            processRunner.execute(
                     "ffmpeg",
                     new String[]{
                             "-y", // overwrite output files
@@ -52,9 +56,15 @@ public class VideoWebMEncodingWorker extends ThreadedTeeInputStreamWorker<Artifa
         }
 
         ArtifactExtractedInfo info = new ArtifactExtractedInfo();
+        checkNotNull(out.getHdfsPath(), "hdfs path of output stream not correct");
         info.setWebMHdfsFilePath(out.getHdfsPath().toString());
         info.setArtifactType(ArtifactType.VIDEO.toString());
         LOGGER.debug("Finished [VideoWebMEncodingWorker]: " + data.getFileName());
         return info;
+    }
+
+    @Inject
+    public void setProcessRunner(ProcessRunner processRunner) {
+        this.processRunner = processRunner;
     }
 }

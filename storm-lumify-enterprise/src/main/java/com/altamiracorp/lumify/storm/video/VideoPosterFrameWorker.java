@@ -7,6 +7,7 @@ import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
 import com.altamiracorp.lumify.core.util.ProcessRunner;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
+import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 
 public class VideoPosterFrameWorker extends ThreadedTeeInputStreamWorker<ArtifactExtractedInfo, AdditionalArtifactWorkData> implements VideoTextExtractionWorker {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoPosterFrameWorker.class);
+    private ProcessRunner processRunner;
 
     @Override
     public void prepare(Map stormConf, User user) {
@@ -27,7 +29,7 @@ public class VideoPosterFrameWorker extends ThreadedTeeInputStreamWorker<Artifac
         LOGGER.info("Encoding (posterframe) [VideoPosterFrameWorker] " + inputFile.getAbsolutePath() + ", length: " + inputFile.length());
         HdfsLimitOutputStream out = new HdfsLimitOutputStream(additionalArtifactWorkData.getHdfsFileSystem(), 0);
         try {
-            ProcessRunner.execute(
+            processRunner.execute(
                     "ffmpeg",
                     new String[]{
                             "-itsoffset", "-4",
@@ -53,5 +55,10 @@ public class VideoPosterFrameWorker extends ThreadedTeeInputStreamWorker<Artifac
         info.setPosterFrameHdfsPath(out.getHdfsPath().toString());
         LOGGER.debug("Finished [VideoPosterFrameWorker]: " + additionalArtifactWorkData.getFileName());
         return info;
+    }
+
+    @Inject
+    public void setProcessRunner(ProcessRunner processRunner) {
+        this.processRunner = processRunner;
     }
 }
