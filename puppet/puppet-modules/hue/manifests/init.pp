@@ -8,7 +8,7 @@ class hue(
   $http_host  = hiera("hue_http_host")
   $http_port  = hiera("hue_http_port")
   $timezone   = hiera("hue_timezone")
-  $secret_key = undef
+  $secret_key = hiera("hue_secret_key")
   
   package { ['hue-common', 'hue-about', 'hue-help', 'hue-filebrowser', 'hue-jobbrowser', 'hue-useradmin']:
     ensure  => installed,
