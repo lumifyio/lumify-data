@@ -1,11 +1,11 @@
 Name:           lumify-ccextractor
-Version:        0.66
-Release:        dist
+Version:        $VERSION
+Release:        $RELEASE
 Summary:        A tool that analyzes video files and produces independent subtitle files from the closed captions data. CCExtractor is portable, small, and very fast. It works in Linux, Windows, and OSX.
 Group:          System Environment/Libraries
 License:        GNU GPL
 URL:            http://ccextractor.sourceforge.net/
-Source:         http://63.141.238.205:8081/redhat/source/%{name}-%{version}.tar.gz
+Source:         $SOURCE
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description

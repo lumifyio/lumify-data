@@ -1,11 +1,11 @@
 Name:           lumify-lame
-Version:        3.99.5
-Release:        dist
+Version:        $VERSION
+Release:        $RELEASE
 Summary:        LAME is a high quality MPEG Audio Layer III (MP3) encoder licensed under the LGPL.
 Group:          System Environment/Libraries
 License:        LGPL
 URL:            http://lame.sourceforge.net/
-Source:         http://63.141.238.205:8081/redhat/source/%{name}-%{version}.tar.gz
+Source:         $SOURCE
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description

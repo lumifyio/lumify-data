@@ -1,11 +1,11 @@
 Name:           lumify-opus
-Version:        1.0.3
-Release:        dist
+Version:        $VERSION
+Release:        $RELEASE
 Summary:	Opus is a totally open, royalty-free, highly versatile audio codec. 
 Group:          System Environment/Libraries
 License:        BSD
 URL:            http://www.opus-codec.org/
-Source:         http://63.141.238.205:8081/redhat/source/%{name}-%{version}.tar.gz
+Source:         $SOURCE
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description

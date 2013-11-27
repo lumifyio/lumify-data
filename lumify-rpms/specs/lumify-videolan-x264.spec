@@ -5,7 +5,7 @@ Summary:        x264 is a free software library and application for encoding vid
 Group:          System Environment/Libraries
 License:        GNU GPL
 URL:            http://www.videolan.org/developers/x264.html
-Source:         http://63.141.238.205:8081/redhat/source/%{name}-%{version}.tar.gz
+Source:         $SOURCE
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:	yasm
 

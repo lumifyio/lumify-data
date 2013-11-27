@@ -1,11 +1,11 @@
 Name:           lumify-vpx
-Version:        1.2.0
-Release:        dist
-Summary:	vpx
+Version:        $VERSION
+Release:        $RELEASE
+Summary:        vpx
 Group:          System Environment/Libraries
 License:        BSD
 URL:            http://www.webmproject.org/
-Source:         http://63.141.238.205:8081/redhat/source/%{name}-%{version}.tar.gz
+Source:         $SOURCE
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description

@@ -1,11 +1,11 @@
 Name:           lumify-ogg
-Version:        1.3.1
-Release:        dist
-Summary:	Ogg Vorbis is a completely open, patent-free, professional audio encoding and streaming technology with all the benefits of Open Source.
+Version:        $VERSION
+Release:        $RELEASE
+Summary:        Ogg Vorbis is a completely open, patent-free, professional audio encoding and streaming technology with all the benefits of Open Source.
 Group:          System Environment/Libraries
 License:        BSD
 URL:            http://www.vorbis.com/
-Source:         http://63.141.238.205:8081/redhat/source/%{name}-%{version}.tar.gz
+Source:         $SOURCE
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description

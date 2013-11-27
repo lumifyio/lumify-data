@@ -1,14 +1,14 @@
 Name:           lumify-theora
-Version:        1.1.1
-Release:        dist
-Summary:	Theora is a free and open video compression format from the Xiph.org Foundation.
+Version:        $VERSION
+Release:        $RELEASE
+Summary:        Theora is a free and open video compression format from the Xiph.org Foundation.
 Group:          System Environment/Libraries
 License:        BSD
 URL:            http://www.theora.org/
-Source:         http://63.141.238.205:8081/redhat/source/%{name}-%{version}.tar.gz
+Source:         $SOURCE
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:	lumify-ogg
-Requires:	lumify-ogg
+Requires:       lumify-ogg
 
 %description
 

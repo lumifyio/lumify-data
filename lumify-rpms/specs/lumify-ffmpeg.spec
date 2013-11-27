@@ -1,11 +1,11 @@
 Name:           lumify-ffmpeg
-Version:        2.0
-Release:        dist
+Version:        $VERSION
+Release:        $RELEASE
 Summary:	FFmpeg is a complete, cross-platform solution to record, convert and stream audio and video.
 Group:          System Environment/Libraries
 License:        LGPL
 URL:            http://www.ffmpeg.org/
-Source:         http://63.141.238.205:8081/redhat/source/%{name}-%{version}.tar.gz
+Source:         $SOURCE
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  lumify-videolan-x264, lumify-fdk-aac, lumify-lame, lumify-opus, lumify-ogg, lumify-vorbis, lumify-vpx, lumify-theora
 Requires:       lumify-videolan-x264, lumify-fdk-aac, lumify-lame, lumify-opus, lumify-ogg, lumify-vorbis, lumify-vpx, lumify-theora

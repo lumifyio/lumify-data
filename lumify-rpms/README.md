@@ -25,7 +25,7 @@ lumify-rpms
 ```
 [lumify]
 name=Lumify
-baseurl=http://63.141.238.205:8081/redhat/
+baseurl=http://bits.lumify.io/yum/
 enabled=1
 gpgcheck=0
 ```
