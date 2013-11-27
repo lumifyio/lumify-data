@@ -6,7 +6,7 @@ rpm -q epel-release-6-8 > /dev/null \
 yum -y install yasm libtool fedora-packager cmake
 
 # install ant
-if [ ! -d /opt/ant ]; then
+if [ ! -h /opt/ant ]; then
   mkdir -p /opt
   curl "http://www.poolsaboveground.com/apache//ant/binaries/apache-ant-1.9.2-bin.tar.gz" -s -L --fail -o /opt/apache-ant-1.9.2-bin.tar.gz
   $(cd /opt && tar xzf /opt/apache-ant-1.9.2-bin.tar.gz)
