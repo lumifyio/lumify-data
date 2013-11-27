@@ -11,7 +11,7 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 source ${DIR}/setenv.sh
 
 
-${DIR}/build-x264.sh
+${DIR}/build-videolan-x264.sh
 ${DIR}/build-fdk-aac.sh
 ${DIR}/build-lame.sh
 ${DIR}/build-opus.sh
@@ -29,3 +29,6 @@ ${DIR}/build-theora.sh
 ${DIR}/build-ffmpeg.sh
 
 ${DIR}/build-ccextractor.sh
+${DIR}/build-opencv.sh
+${DIR}/build-leptonica.sh
+${DIR}/build-tesseract.sh
