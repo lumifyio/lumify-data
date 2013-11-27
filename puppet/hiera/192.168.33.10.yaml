@@ -16,7 +16,6 @@ namenode_ipaddress: %{ipaddress_eth1}
 namenode_hostname: lumify-vm.nearinfinity.com
 elasticsearch_locations:
   - %{ipaddress_eth1}:9300
-authenication_provider: com.altamiracorp.lumify.web.DevBasicAuthenticationProvider
 kafka_host_ipaddress: %{ipaddress_eth1}
 storm_nimbus_host: %{ipaddress_eth1}
 storm_nimbus_thrift_port: 6627
@@ -25,3 +24,10 @@ storm_ui_port: 8081
 hue_http_host: '0.0.0.0'
 hue_http_port: 8888
 hue_timezone: 'America/New York'
+authentication_provider: com.altamiracorp.lumify.web.DevBasicAuthenticationProvider
+jetty_key_store_path: /opt/lumify/config/jetty.jks
+jetty_key_store_password: OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v
+jetty_trust_store_path: /opt/lumify/config/jetty.jks
+jetty_trust_store_password: OBF:1v2j1uum1xtv1zej1zer1xtn1uvk1v1v
+jetty_confidential_port: 443
+jetty_client_auth: false

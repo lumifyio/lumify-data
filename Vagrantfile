@@ -1,11 +1,13 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+HOSTNAME="lumify-vm.nearinfinity.com"
+
 def configure_puppet(puppet, manifest_file)
   puppet.manifests_path = 'puppet/manifests'
   puppet.module_path    = [ 'puppet/modules', 'puppet/puppet-modules' ]
   puppet.manifest_file  = manifest_file
-  puppet.facter         = { 'fqdn' => 'lumify-vm.nearinfinity.com' }
+  puppet.facter         = { 'fqdn' => HOSTNAME }
   puppet.options        = '--hiera_config /vagrant/puppet/hiera-vm.yaml'
 end
 
@@ -13,7 +15,7 @@ Vagrant.configure('2') do |config|
   config.vm.box = 'centos6.4'
   config.vm.box_url = 'http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-x86_64-v20130427.box'
 
-  config.vm.hostname = 'lumify-vm.nearinfinity.com'
+  config.vm.hostname = HOSTNAME
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
@@ -48,19 +50,12 @@ Vagrant.configure('2') do |config|
   # View the documentation for the provider you're using for more
   # information on available options.
 
+  # used to compile our dependencies
   config.vm.define "rpm" do |rpm|
     rpm.vm.provision :shell, :path => "lumify-rpms/configure-vm.sh"
   end
 
-  config.vm.define "demo" do |demo|
-    demo.vm.provision :shell, :inline => "mkdir -p /data0"
-    demo.vm.provision :puppet do |puppet|
-      configure_puppet(puppet, 'demo_vm.pp')
-    end
-    demo.vm.provision :shell, :inline => "mkdir -p /opt/lumify/config"
-    demo.vm.provision :shell, :inline => "cp /vagrant/conf/demo.configuration.properties /opt/lumify/config/configuration.properties"
-  end
-
+  # used for development including closed source enterprise features
   config.vm.define "dev", :primary => true do |dev|
     dev.vm.provision :shell, :inline => "mkdir -p /data0"
     dev.vm.provision :puppet do |puppet|
@@ -68,4 +63,12 @@ Vagrant.configure('2') do |config|
     end
   end
 
+  # used to create the downloadable open source demo VM
+  config.vm.define "demo" do |demo|
+    demo.vm.provision :shell, :inline => "mkdir -p /data0"
+    demo.vm.provision :puppet do |puppet|
+      configure_puppet(puppet, 'demo_vm.pp')
+    end
+    demo.vm.provision :shell, :path => "demo-vm/configure-vm.sh"
+  end
 end

@@ -32,7 +32,7 @@ class kafka(
     require => Group[$group],
   }
 
-  macro::download { "http://apache.claz.org/incubator/kafka/kafka-${version}-incubating/kafka-${version}-incubating-src.tgz":
+  macro::download { "http://archive.apache.org/dist/kafka/old_releases/kafka-${version}-incubating/kafka-${version}-incubating-src.tgz":
     path    => $downloadpath,
     require => User[$user],
   } -> macro::extract { $downloadpath:
