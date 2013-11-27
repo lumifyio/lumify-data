@@ -33,13 +33,9 @@ gpgcheck=0
 ### Installation
 
 ```
-yum install lumify-videolan-x264
-yum install lumify-fdk-aac
-yum install lumify-lame
-yum install lumify-opus
-yum install lumify-ogg
-yum install lumify-vorbis
-yum install lumify-vpx
-yum install lumify-theora
 yum install lumify-ffmpeg
+yum install lumify-ccextractor
+yum install lumify-tesseract
+yum install lumify-tesseract-eng
+yum install lumify-opencv
 ```
