@@ -57,6 +57,8 @@ Vagrant.configure('2') do |config|
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_vm.pp')
     end
+    demo.vm.provision :shell, :inline => "mkdir -p /opt/lumify/config"
+    demo.vm.provision :shell, :inline => "cp /vagrant/conf/demo.configuration.properties /opt/lumify/config/configuration.properties"
   end
 
   config.vm.define "dev", :primary => true do |dev|
