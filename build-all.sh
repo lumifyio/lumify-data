@@ -13,8 +13,15 @@ source ${DIR}/setenv.sh
 function _build_and_install {
   local name=$1
 
+  echo ""
+  echo "Building ${name}"
+  echo "--------------------------------------------------------------------------------"
   ${DIR}/build-${name}.sh
-  sudo rpm -i ${LUMIFYREPO_DIR}/RPMS/x86_64/lumify-${name}-*.rpm
+
+  echo ""
+  echo "Installing ${LUMIFYREPO_DIR}/RPMS/x86_64/lumify-${name}-[^debuginfo]*.rpm"
+  echo "--------------------------------------------------------------------------------"
+  sudo rpm -i ${LUMIFYREPO_DIR}/RPMS/x86_64/lumify-${name}-[^debuginfo]*.rpm
 }
 
 _build_and_install videolan-x264
