@@ -1,4 +1,4 @@
-Name:           fdk-aac
+Name:           lumify-fdk-aac
 Version:        0.1.1
 Release:        dist
 Summary:        A standalone library of the Fraunhofer FDK AAC code from Android.
@@ -15,7 +15,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %build
 /usr/bin/autoreconf -fiv
-%configure --prefix='/usr/local' 
+%configure --prefix='/usr/local' --disable-shared
 make %{?_smp_mflags}
 
 %install
@@ -35,9 +35,6 @@ rm -rf %{buildroot}
 /usr/include/fdk-aac/machine_type.h
 /usr/lib64/libfdk-aac.a
 /usr/lib64/libfdk-aac.la
-/usr/lib64/libfdk-aac.so
-/usr/lib64/libfdk-aac.so.0
-/usr/lib64/libfdk-aac.so.0.0.2
 /usr/lib64/pkgconfig/fdk-aac.pc
 
 %changelog

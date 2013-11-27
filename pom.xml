@@ -17,7 +17,7 @@
         <accumulo-version>1.5.0</accumulo-version>
         <hadoop-version>2.0.0-mr1-cdh4.4.0</hadoop-version>
         <zookeeper-version>3.4.5</zookeeper-version>
-        <jetty-version>8.1.11.v20130520</jetty-version>
+        <jetty-version>8.1.14.v20131031</jetty-version>
         <elasticsearch-version>0.90.0</elasticsearch-version>
         <titan-version>0.3.2.atc-SNAPSHOT</titan-version>
         <storm-version>0.8.2</storm-version>

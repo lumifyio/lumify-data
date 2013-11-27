@@ -1,4 +1,4 @@
-Name:           lame
+Name:           lumify-lame
 Version:        3.99.5
 Release:        dist
 Summary:        LAME is a high quality MPEG Audio Layer III (MP3) encoder licensed under the LGPL.

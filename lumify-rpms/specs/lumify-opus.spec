@@ -1,4 +1,4 @@
-Name:           opus
+Name:           lumify-opus
 Version:        1.0.3
 Release:        dist
 Summary:	Opus is a totally open, royalty-free, highly versatile audio codec. 
@@ -37,9 +37,7 @@ rm -rf %{buildroot}
 /usr/lib64/libopus.so.0
 /usr/lib64/libopus.so.0.4.0
 /usr/lib64/pkgconfig/opus.pc
-/usr/local/share/doc/opus/*
 /usr/share/aclocal/opus.m4
-/usr/share/man/man3/opus*
 
 %changelog
 
