@@ -25,6 +25,4 @@ if [ -d ${SOURCE_DIR}/libvorbis-${version} ]; then
   mv ${SOURCE_DIR}/libvorbis-${version} ${SOURCE_DIR}/${name}
 fi
 
-export QA_RPATHS=$[ 0x0001|0x0010 ]
-
 _build ${name} ${version} ${release}
