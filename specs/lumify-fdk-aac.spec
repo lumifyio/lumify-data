@@ -1,11 +1,11 @@
 Name:           lumify-fdk-aac
-Version:        0.1.1
-Release:        dist
+Version:        $VERSION
+Release:        $RELEASE
 Summary:        A standalone library of the Fraunhofer FDK AAC code from Android.
 Group:          System Environment/Libraries
 License:        GNU GPL
 URL:            https://github.com/mstorsjo/fdk-aac
-Source:         http://63.141.238.205:8081/redhat/source/%{name}-%{version}.tar.gz
+Source:         $SOURCE
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
