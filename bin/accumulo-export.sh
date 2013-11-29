@@ -34,3 +34,5 @@ for table in $($ACCUMULO_SHELL -e 'tables' | grep -v $(date +'%Y')); do
   fi 
 done
 
+hadoop fs -rmr /tmp/exportedTables 
+
