@@ -39,8 +39,7 @@ cp /vagrant/lumify-public/web/target/application-1.0-SNAPSHOT.war /opt/jetty/web
 # deploy the open source topology
 /opt/storm/bin/storm jar \
   /vagrant/lumify-public/storm-lumify/target/lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
-  com.altamiracorp.lumify.storm.StormRunner \
-  --datadir=/lumify/data
+  com.altamiracorp.lumify.storm.StormRunner
 
 # TODO: sample data
 # TODO: reset data
