@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [[ $# -eq 0 ]] ; then
+    echo 'Please specify local output directory'
+    exit 1
+fi
+
 LOCAL_OUTPUT_DIR=$1
 
 ACCUMULO_SHELL='sudo -u accumulo /usr/lib/accumulo/bin/accumulo shell -u root -p password'
