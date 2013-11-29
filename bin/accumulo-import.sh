@@ -10,6 +10,8 @@ EXPORTED_TABLE_DIR=$1
 ACCUMULO_SHELL='sudo -u accumulo /usr/lib/accumulo/bin/accumulo shell -u root -p password'
 
 for dir in $(find ${EXPORTED_TABLE_DIR} -name 'exportMetadata.zip' | xargs -L1 dirname | sed -e 's|.*/||'); do
+  $ACCUMULO_SHELL -e "deletetable -f ${dir}"
+
   echo "importing ${dir}..."
 
   hadoop fs -mkdir /tmp/importTables/${dir}
