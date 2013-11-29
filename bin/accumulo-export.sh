@@ -13,7 +13,7 @@ for table in $($ACCUMULO_SHELL -e 'tables' | grep -v $(date +'%Y')); do
   echo ${table}
 
   if [[ ${table} == atc_* ]]; then
-    hadoop fs -mkdir /tmp/exportedTables/$table
+    hadoop fs -mkdir /tmp/exportedTables/${table}
 
     table_cloned=${table}_cloned
 
