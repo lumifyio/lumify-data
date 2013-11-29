@@ -42,5 +42,12 @@ cp /vagrant/lumify-public/web/target/application-1.0-SNAPSHOT.war /opt/jetty/web
   com.altamiracorp.lumify.storm.StormRunner
 
 # TODO: sample data
+# accumulo-export.sh and more
+
 # TODO: reset data
+# /opt/format.sh
+
 # TODO: howto deploy twitter topology
+# /opt/storm/bin/storm jar \
+#   /vagrant/lumify-twitter/target/lumify-twitter-1.0-SNAPSHOT-jar-with-dependencies.jar \
+#   com.altamiracorp.lumify.storm.twitter.StormRunner
