@@ -51,7 +51,6 @@ class env::demo {
     mode => 'u=rwx,g=,o=',
   }
 
-
   file { '/opt/storm-kill.sh' :
     source => 'puppet:///modules/env/dev/storm-kill.sh',
     owner => 'vagrant',
@@ -80,5 +79,27 @@ class env::demo {
     source => 'puppet:///modules/env/dev/hosts',
     owner => 'vagrant',
     mode => 'u=rwx,g=r,o=r',
+  }
+
+  package { [ 'nodejs', 'npm', 'zip' ] :
+    ensure => present,
+  }
+
+  exec { 'npm-install-bower' :
+    command => '/usr/bin/npm install -g bower',
+    unless => '/usr/bin/npm list -g 2>/dev/null | /bin/grep bower@',
+    require => Package['npm'],
+  }
+
+  exec { 'npm-install-grunt' :
+    command => '/usr/bin/npm install -g grunt',
+    unless => '/usr/bin/npm list -g 2>/dev/null | /bin/grep grunt@',
+    require => Package['npm'],
+  }
+
+  exec { 'npm-install-grunt-cli' :
+    command => '/usr/bin/npm install -g grunt-cli',
+    unless => '/usr/bin/npm list -g 2>/dev/null | /bin/grep grunt-cli@',
+    require => Package['npm'],
   }
 }
