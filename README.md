@@ -1,6 +1,6 @@
 # Lumify
 
-![ScreenShot](https://github.com/nearinfinity/lumify-enterprise/tree/develop/docs/web/src/main/webapp/img/lumify-icon.png)
+![ScreenShot](https://github.com/nearinfinity/lumify-enterprise/blob/develop/lumify-public/web/src/main/webapp/img/lumify-logo.png)
 
 Lumify is an open source big data analytical tool and knowledge discovery. See the [project page] (http://lumify.io) for more details. Basically, it's a way to aggregate your data and extract useful insights.
 
