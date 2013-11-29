@@ -1,22 +1,28 @@
-LUMIFY
-========
+# Lumify
 
-Lumify allows the analyst to create a graph structure of information from both structured, semi-structured, and unstructured data.  It is an open source big data analysis and knowledge discovery platform with a web-based UI for exploring.  Lumify has the ability to customize the ontology for your data and visualize the information via geo-location and both 2D and 3D graph visualizations. 
+![ScreenShot](https://github.com/nearinfinity/lumify-enterprise/tree/develop/docs/web/src/main/webapp/img/lumify-icon.png)
 
-Development Instructions
-------------------------
-1. [Installation](https://github.com/nearinfinity/lumify/wiki/Development-Setup)
-2. [Set-Up Storm](https://github.com/nearinfinity/lumify/blob/storm/docs/lumify-storm-topology.md#vagrant-configuration)
+Lumify is an open source big data analytical tool and knowledge discovery. See the [project page] (http://lumify.io) for more details. Basically, it's a way to aggregate your data and extract useful insights.
 
-### Vagrant Help
-Setup and usage instructions are [in the wiki](https://github.com/nearinfinity/red-dawn/wiki/Vagrant).
+## System Requirements
 
-Production Installation
------------------------
-[Instructions]()
+The following system requirements must be installed and configured for Lumify execution:
+* More than 4G Ram
 
+## Getting Started
 
-Pivotal Tracker
----------------
-* [Project](https://www.pivotaltracker.com/s/projects/833781)
-* [SCM Post-Commit Message Syntax](https://www.pivotaltracker.com/help/api#scm_post_commit)
+Lumify supplies a pre-built virtual machine, however if you would like to build the project from source please see the corresponding section below.
+
+[Pre-built VM Instructions] (https://github.com/nearinfinity/lumify-enterprise/tree/develop/docs/PREBUILT_VM.md)
+[Build from source Instructions] (https://github.com/nearinfinity/lumify-enterprise/tree/develop/docs/BUILD_FROM_SOURCE.md)
+
+## Disclaimers
+* The following Titan property is required on every vertex:
+    * title
+    * _subType: concept id associated with concept
+    * type: type of concept (i.e Look at VertexType.java)
+* Accumulo must have a row structure with a SHA256 hash for the row key.
+
+## License
+
+Lumify is released under [Apache v2.0] (https://www.apache.org/licenses/LICENSE-2.0.html).
