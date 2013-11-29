@@ -39,4 +39,4 @@ for table in $($ACCUMULO_SHELL -e 'tables'); do
   fi
 done
 
-hadoop fs -rmr /tmp/exportedTables
+hadoop fs -rm -R /tmp/exportedTables

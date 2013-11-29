@@ -21,4 +21,4 @@ for dir in $(find ${EXPORTED_TABLE_DIR} -name 'exportMetadata.zip' | xargs -L1 d
   $ACCUMULO_SHELL -e "importtable ${dir} /tmp/importTables/${dir}"
 done
 
-hadoop fs -rmr /tmp/importTables
+hadoop fs -rm -R /tmp/importTables
