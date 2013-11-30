@@ -14,13 +14,14 @@ The following system requirements must be installed and configured for Lumify ex
 Lumify supplies a pre-built virtual machine, however if you would like to build the project from source please see the corresponding section below.
 
 [Pre-built VM Instructions] (https://github.com/nearinfinity/lumify-enterprise/tree/develop/docs/PREBUILT_VM.md)
+
 [Build from source Instructions] (https://github.com/nearinfinity/lumify-enterprise/tree/develop/docs/BUILD_FROM_SOURCE.md)
 
 ## Disclaimers
-* The following Titan property is required on every vertex:
-    * title
-    * _subType: concept id associated with concept
-    * type: type of concept (i.e Look at VertexType.java)
+* The following Titan properties are required on every vertex:
+    * ```title```
+    * ```_subType```: concept id
+    * ```type```: type of concept (i.e. Look at VertexType.java)
 * Accumulo must have a row structure with a SHA256 hash for the row key.
 
 ## License
