@@ -33,7 +33,7 @@ gpgcheck=0
 ### Installation
 
 ```
-yum install lumify-ffmpeg
+yum install lumify-ffmpeg # the codecs will be installed as dependencies
 yum install lumify-ccextractor
 yum install lumify-tesseract
 yum install lumify-tesseract-eng
