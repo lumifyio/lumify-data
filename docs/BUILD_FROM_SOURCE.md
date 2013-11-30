@@ -17,8 +17,8 @@ Lumify has several required dependencies to build from source. Please ensure tha
 
 ## Getting Started
 
-1. Clone the repository from github using either of the links from the [main page](https://github.com/nearinfinity/lumify)
-3. Copy [configuration.properties.sample](https://github.com/nearinfinity/lumify/blob/master/docs/configuration.properties.sample) file into ```/opt/lumify/config/``` and rename it to configuration.properties.
+1. Clone the repository from github using either of the links from the [main page](https://github.com/nearinfinity/lumify-enterprise)
+3. Copy [configuration.properties.sample](https://github.com/nearinfinity/lumify-enterprise/blob/develop/docs/configuration.properties.sample) file into ```/opt/lumify/config/``` and rename it to configuration.properties.
    * Fill in all empty fields
    * To generate a Google Map V3 api key, please refer to the [documentation](https://developers.google.com/maps/documentation/javascript/tutorial#api_key) provided by Google.
 2. From the top level project directory, run the command ```mvn clean compile```
