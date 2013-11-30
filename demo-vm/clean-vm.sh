@@ -11,4 +11,4 @@ sudo rm -f /opt/jetty/logs/*
 sudo rm -f /opt/kafka/logs/*
 sudo rm -f /opt/storm/logs/*
 
-sudo find /home -name '.bash_history' -exec rm -f {} \;
+sudo find /home /root -name '.bash_history' -exec rm -f {} \;
