@@ -7,7 +7,6 @@ import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactMetadata;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRowKey;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
-import com.altamiracorp.lumify.core.model.artifactThumbnails.ArtifactThumbnail;
 import com.altamiracorp.lumify.core.model.graph.GraphGeoLocation;
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.graph.InMemoryGraphVertex;
@@ -20,13 +19,13 @@ import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.google.inject.Inject;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import javax.imageio.ImageIO;
-import java.awt.*;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Integer;
@@ -50,6 +49,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     private SearchProvider searchProvider;
     private GraphVertex tweet;
     private String text;
+    Concept handleConcept;
 
     @Override
     public void safeExecute(Tuple tuple) throws Exception {
@@ -57,7 +57,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         //if an actual tweet, process it
         if (json.has("text")) {
-            Concept handleConcept = ontologyRepository.getConceptByName(TWITTER_HANDLE, getUser());
+            handleConcept = ontologyRepository.getConceptByName(TWITTER_HANDLE, getUser());
             saveToDatabase(json, handleConcept);
 
             // Indexing
@@ -171,6 +171,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             auditRepository.audit(tweeterId, auditRepository.vertexPropertyAuditMessage(tweeterVertex, PropertyName.TITLE.toString(), "@" + tweeter), getUser());
             auditRepository.audit(tweeterId, auditRepository.vertexPropertyAuditMessage(tweeterVertex, PropertyName.TYPE.toString(), VertexType.ENTITY.toString()), getUser());
             auditRepository.audit(tweeterId, auditRepository.vertexPropertyAuditMessage(tweeterVertex, PropertyName.SUBTYPE.toString(), handleConcept.getId()), getUser());
+            auditRepository.audit(tweeterId, auditRepository.vertexPropertyAuditMessage(tweeterVertex, PropertyName.DISPLAY_NAME.toString(), user.getString("name")), getUser());
         }
         tweeterVertex.setProperty(PropertyName.TITLE, tweeter);
         tweeterVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
@@ -183,54 +184,13 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TITLE.toString(), "@" + tweeter), getUser());
             auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TYPE.toString(), VertexType.ENTITY.toString()), getUser());
             auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.SUBTYPE.toString(), handleConcept.getId()), getUser());
+            auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.DISPLAY_NAME.toString(), user.getString("name")), getUser());
         }
-
-        if (user.has("coordinates") && !user.get("coordinates").equals(JSONObject.NULL)) {
-            JSONArray coordinates = user.getJSONObject("coordinates").getJSONArray("coordinates");
-            tweeterVertex.setProperty(PropertyName.GEO_LOCATION, new GraphGeoLocation(coordinates.getDouble(1), coordinates.getDouble(0)));
-            auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.GEO_LOCATION.toString(), coordinates.toString()), getUser());
-        }
-
-        if (user.has("statuses_count") && ((Integer) user.get("statuses_count") > 0)) {
-            String tweetCount = user.get("statuses_count").toString();
-            auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(tweeterVertex, "statusCount", tweetCount), getUser());
-            tweeterVertex.setProperty("statusCount", tweetCount);
-        }
-
-        if (user.has("followers_count") && ((Integer) user.get("followers_count") > 0)) {
-            String followersCount = user.get("followers_count").toString();
-            auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(tweeterVertex, "followerCount", followersCount), getUser());
-            tweeterVertex.setProperty("followerCount", followersCount);
-        }
-
-        if (user.has("friends_count") && ((Integer) user.get("friends_count") > 0)) {
-            String friendsCount = user.get("friends_count").toString();
-            auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(tweeterVertex, "followingCount", friendsCount), getUser());
-            tweeterVertex.setProperty("followingCount", friendsCount);
-        }
-
-        String createdAt = user.has("created_at") ? user.getString("created_at") : null;
-        if (createdAt != null) {
-            final String TWITTER = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
-            SimpleDateFormat sf = new SimpleDateFormat(TWITTER);
-            sf.setLenient(true);
-
-            Date date = null;
-            try {
-                date = sf.parse(createdAt);
-            } catch (ParseException e) {
-                new RuntimeException("Cannot parse " + createdAt);
-            }
-            auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(tweeterVertex, PropertyName.START_DATE.toString(), date.getTime()), getUser());
-            tweeterVertex.setProperty(PropertyName.START_DATE, date.getTime());
-        }
-
-        if (user.has("description") && !user.get("description").equals(JSONObject.NULL)) {
-            auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(tweeterVertex, "description", user.getString("description")), getUser());
-            tweeterVertex.setProperty("description", user.getString("description"));
-        }
+        addHandleProperties(user, tweeterVertex);
         graphRepository.save(tweeterVertex, getUser());
-
+        GraphVertex profilePic = createProfilePhotoArtifact(user, tweeterVertex);
+        graphRepository.commit();
+        LOGGER.info("Saving tweeter profile picture to accumulo and as graph vertex: " + profilePic.getId());
 
         return tweeterVertex.getId();
     }
@@ -292,6 +252,101 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             graphRepository.saveRelationship(tweet.getId(), vertex.getId(), relationshipLabel, getUser());
         }
 
+    }
+
+    public void addHandleProperties(JSONObject user, GraphVertex handleVertex) {
+        handleVertex.setProperty(PropertyName.DISPLAY_NAME, user.getString("name"));
+        if (user.has("coordinates") && !user.get("coordinates").equals(JSONObject.NULL)) {
+            JSONArray coordinates = user.getJSONObject("coordinates").getJSONArray("coordinates");
+            handleVertex.setProperty(PropertyName.GEO_LOCATION, new GraphGeoLocation(coordinates.getDouble(1), coordinates.getDouble(0)));
+            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.GEO_LOCATION.toString(), coordinates.toString()), getUser());
+        }
+
+        if (user.has("statuses_count") && ((Integer) user.get("statuses_count") > 0)) {
+            String tweetCount = user.get("statuses_count").toString();
+            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, "statusCount", tweetCount), getUser());
+            handleVertex.setProperty("statusCount", tweetCount);
+        }
+
+        if (user.has("followers_count") && ((Integer) user.get("followers_count") > 0)) {
+            String followersCount = user.get("followers_count").toString();
+            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, "followerCount", followersCount), getUser());
+            handleVertex.setProperty("followerCount", followersCount);
+        }
+
+        if (user.has("friends_count") && ((Integer) user.get("friends_count") > 0)) {
+            String friendsCount = user.get("friends_count").toString();
+            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, "followingCount", friendsCount), getUser());
+            handleVertex.setProperty("followingCount", friendsCount);
+        }
+
+        String createdAt = user.has("created_at") ? user.getString("created_at") : null;
+        if (createdAt != null) {
+            final String TWITTER = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
+            SimpleDateFormat sf = new SimpleDateFormat(TWITTER);
+            sf.setLenient(true);
+
+            Date date = null;
+            try {
+                date = sf.parse(createdAt);
+            } catch (ParseException e) {
+                new RuntimeException("Cannot parse " + createdAt);
+            }
+            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, PropertyName.START_DATE.toString(), date.getTime()), getUser());
+            handleVertex.setProperty(PropertyName.START_DATE, date.getTime());
+        }
+
+        if (user.has("description") && !user.get("description").equals(JSONObject.NULL)) {
+            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, "description", user.getString("description")), getUser());
+            handleVertex.setProperty("description", user.getString("description"));
+        }
+    }
+
+    public GraphVertex createProfilePhotoArtifact(JSONObject user, GraphVertex userVertex) {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        try {
+            URL url = new URL(user.get("profile_image_url").toString());
+            InputStream is = url.openStream();
+            IOUtils.copy(is, os);
+            byte[] raw = os.toByteArray();
+            ArtifactRowKey build = ArtifactRowKey.build(raw);
+            String rowKey = build.toString();
+            String fileName = user.getString("screen_name") + "ProfilePicture";
+            Artifact artifact = new Artifact(rowKey);
+
+            ArtifactExtractedInfo artifactExtractedInfo = new ArtifactExtractedInfo();
+            artifactExtractedInfo.setMimeType("image/png");
+            artifactExtractedInfo.setRowKey(rowKey);
+            artifactExtractedInfo.setArtifactType(ArtifactType.IMAGE.toString());
+            artifactExtractedInfo.setTitle(user.getString("screen_name") + " Twitter Profile Picture");
+            artifactExtractedInfo.setSource("Twitter profile picture");
+            artifactExtractedInfo.setRaw(raw);
+
+            ArtifactMetadata metadata = artifact.getMetadata();
+            metadata.setCreateDate(new Date());
+            metadata.setRaw(raw);
+            metadata.setFileName(fileName);
+            metadata.setFileExtension(FilenameUtils.getExtension(fileName));
+            metadata.setMimeType("image/png");
+
+            artifactRepository.save(artifact, getUser().getModelUserContext());
+            GraphVertex profile = saveArtifact(artifactExtractedInfo);
+            graphRepository.commit();
+
+            auditRepository.audit(userVertex.getId(), auditRepository.vertexPropertyAuditMessage(userVertex, PropertyName.GLYPH_ICON.toString(), profile.getId()), getUser());
+            userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + rowKey + "/raw"); //ArtifactThumbnailByRowKey.getUrl(build));
+            graphRepository.save(userVertex, getUser());
+            graphRepository.commit();
+
+            graphRepository.findOrAddRelationship(userVertex.getId(), profile.getId(), LabelName.HAS_IMAGE, getUser());
+            graphRepository.commit();
+
+            return profile;
+        } catch (IOException e) {
+            LOGGER.warn("Failed to create image for vertex: " + userVertex.getId());
+            new IOException(e);
+        }
+        return null;
     }
 
     @Inject
