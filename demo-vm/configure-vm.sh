@@ -37,17 +37,12 @@ cp /vagrant/deployment/application.xml /opt/jetty/contexts
 cp /vagrant/lumify-public/web/target/application-1.0-SNAPSHOT.war /opt/jetty/webapps/application.war
 
 # deploy the open source topology
+/opt/storm/bin/storm list \
+  | grep -q 'lumify\s*ACTIVE' && /opt/storm/bin/storm kill lumify
 /opt/storm/bin/storm jar \
   /vagrant/lumify-public/storm-lumify/target/lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
   com.altamiracorp.lumify.storm.StormRunner
 
-# TODO: sample data
-# accumulo-export.sh and more
-
-# TODO: reset data
-# /opt/format.sh
-
-# TODO: howto deploy twitter topology
-# /opt/storm/bin/storm jar \
-#   /vagrant/lumify-twitter/target/lumify-twitter-1.0-SNAPSHOT-jar-with-dependencies.jar \
-#   com.altamiracorp.lumify.storm.twitter.StormRunner
+# insert sample data
+/opt/format.sh
+/vagrant/bin/accumulo-import.sh /vagrant/demo-vm/sample-data.tgz
