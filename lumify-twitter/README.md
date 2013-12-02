@@ -29,9 +29,10 @@ Lumify-Twitter is an open source ingest example for the Lumify project. See the 
 ```
 
 Proceed if you are not using the Pre-built VM provided by [Lumify](https://lumify.io)
-8. Deploy lumify storm topology.
-9. Deploy lumify-twitter storm topology. 
-10. Deploy web war file.
+
+1. Deploy lumify storm topology.
+2. Deploy lumify-twitter storm topology. 
+3. Deploy web war file.
 
 ## Generating Twitter API Keys
 
