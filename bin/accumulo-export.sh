@@ -7,7 +7,6 @@ fi
 
 LOCAL_DIR=$1
 
-
 ACCUMULO_SHELL='/usr/lib/accumulo/bin/accumulo shell -u root -p password'
 
 for table in $($ACCUMULO_SHELL -e 'tables'); do
@@ -40,4 +39,4 @@ for table in $($ACCUMULO_SHELL -e 'tables'); do
 done
 
 hadoop fs -rm -R /tmp/exportedTables
-tar -cvzf exportedTables.tar.gz ${LOCAL_DIR}/
+tar -cvzf exportedTables.tar.gz -C ${LOCAL_DIR} .
