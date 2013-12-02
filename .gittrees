@@ -1,5 +1,5 @@
 [subtree "puppet/puppet-modules"]
-	url = git@github.com:nearinfinity/puppet-modules.git
+	url = git@github.com:altamiracorp/puppet-modules.git
 	path = puppet/puppet-modules
 	branch = master
 [subtree "deployment/aws"]
@@ -7,14 +7,14 @@
 	path = deployment/aws
 	branch = master
 [subtree "lumify-public"]
-	url = git@github.com:nearinfinity/lumify.git
+	url = git@github.com:altamiracorp/lumify.git
 	path = lumify-public
 	branch = master
 [subtree "lumify-twitter"]
-	url = git@github.com:nearinfinity/lumify-twitter.git
+	url = git@github.com:altamiracorp/lumify-twitter.git
 	path = lumify-twitter
 	branch = master
 [subtree "lumify-rpms"]
-	url = git@github.com:nearinfinity/lumify-rpms.git
+	url = git@github.com:altamiracorp/lumify-rpms.git
 	path = lumify-rpms
 	branch = master
