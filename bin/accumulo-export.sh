@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 
 if [[ $# -eq 0 ]] ; then
-  echo 'Please specify local filesystem path to export tabled to'
+  echo 'Please specify local filesystem path to export table to.'
   exit 1
 fi
 
@@ -40,3 +40,4 @@ for table in $($ACCUMULO_SHELL -e 'tables'); do
 done
 
 hadoop fs -rm -R /tmp/exportedTables
+tar -cvzf exportedTables.tar.gz ${LOCAL_DIR}/
