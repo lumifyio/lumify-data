@@ -73,4 +73,3 @@ From the lumify-twitter directory:
 2. Modify ```twitter.owl```, to customize different concepts (e.g. person, phone number), properties for each concept, relationships between concepts, and/or glyphIcons associated with concepts.
    * After modifications, ```cd lumify-twitter/bin/importOntology.sh```.
 3. Proceed from step 5 in [Integrating with Lumify](#step-5)
-
