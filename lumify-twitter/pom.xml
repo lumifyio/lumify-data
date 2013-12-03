@@ -9,6 +9,13 @@
 
     <name>Lumify Twitter</name>
 
+    <distributionManagement>
+        <repository>
+            <id>local</id>
+            <url>file:///var/www/maven/</url>
+        </repository>
+    </distributionManagement>
+
     <properties>
         <internal.project.repo>http://bits.lumify.io/m2/</internal.project.repo>
         <cluster.dependency.scope>compile</cluster.dependency.scope>
