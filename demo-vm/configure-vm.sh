@@ -44,5 +44,7 @@ cp /vagrant/lumify-public/web/target/application-1.0-SNAPSHOT.war /opt/jetty/web
   com.altamiracorp.lumify.storm.StormRunner
 
 # insert sample data
+cp /vagrant/bin/accumulo-import.sh /opt
+cp /vagrant/demo-vm/sample-data.tgz /opt
 /opt/format.sh
-/vagrant/bin/accumulo-import.sh /vagrant/demo-vm/sample-data.tgz
+/opt/accumulo-import.sh /opt/sample-data.tgz
