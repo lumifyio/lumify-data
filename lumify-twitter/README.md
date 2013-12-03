@@ -20,7 +20,7 @@ Lumify-Twitter is an open source ingest example for the Lumify project. See the 
 	```
 3. Clone the repository from github using either of the links from the [main page](https://github.com/nearinfinity/lumify-enterprise/tree/develop/lumify-twitter)
 4. cd into your ```lumify-twitter``` directory
-5. <a name="step-5"/> ```mvn clean package```
+5. <a name="step-5"/>```mvn clean package```
 6. ```cd target```
 7. Copy the jar file to location of where you are running your Storm Topology for Lumify.
    * In the [Lumify Pre-Built VM](https://github.com/nearinfinity/lumify-enterprise/tree/develop/docs/PREBUILT_VM.md), please run the following command ```/opt/storm/bin/storm jar
