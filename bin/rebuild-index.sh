@@ -1,20 +1,9 @@
 #!/bin/bash
 
-SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ]; do
-  DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
-  SOURCE="$(readlink "$SOURCE")"
-  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+classpath=/opt/lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar:/opt/storm/storm-0.8.1.jar
+for jar in /opt/storm/lib/*.jar; do
+  classpath=${classpath}:${jar}
 done
-DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
-
-classpath=$(${DIR}/classpath.sh lumify-public/storm-lumify)
-if [ $? -ne 0 ]; then
-  echo "${classpath}"
-  exit
-fi
-
-cd ${DIR}/../lumify-public
 
 java \
 -Dfile.encoding=UTF-8 \
