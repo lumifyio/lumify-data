@@ -35,6 +35,7 @@ rmr /kafka/brokers/consumers
 /opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka text
 /opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka term
 /opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka artifactHighlight
+/opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka searchIndex
 /opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka processedVideo
 /opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka structuredData
 /opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka twitterStream
