@@ -45,6 +45,8 @@ cp /vagrant/lumify-public/web/target/application-1.0-SNAPSHOT.war /opt/jetty/web
 
 # insert sample data
 cp /vagrant/bin/accumulo-import.sh /opt
+cp /vagrant/bin/rebuild-index.sh /opt
 cp /vagrant/demo-vm/sample-data.tgz /opt
 /opt/format.sh
 /opt/accumulo-import.sh /opt/sample-data.tgz
+/opt/rebuild-index.sh
