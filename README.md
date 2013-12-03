@@ -2,7 +2,7 @@ This is the closed source project with [git
 subtrees](https://github.com/git/git/blob/master/contrib/subtree/git-subtree.txt)
 of the open source componets including:
 
-- altamiracorp/lumify (lumify-pubic here)
+- altamiracorp/lumify (lumify-public here)
 - altamiracorp/lumify-twitter
 
 And some other shared componts:
