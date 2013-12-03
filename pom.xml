@@ -353,7 +353,6 @@
 
     <modules>
         <module>analytics</module>
-        <module>core</module>
         <module>lumify-public</module>
         <module>lumify-twitter</module>
         <module>storm-lumify-enterprise</module>
