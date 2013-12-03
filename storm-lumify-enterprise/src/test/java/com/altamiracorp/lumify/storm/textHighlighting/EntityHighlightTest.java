@@ -5,7 +5,6 @@ import com.altamiracorp.lumify.core.model.artifactHighlighting.OffsetItem;
 import com.altamiracorp.lumify.core.model.artifactHighlighting.TermMentionOffsetItem;
 import com.altamiracorp.lumify.core.model.graph.GraphRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
-import com.altamiracorp.lumify.core.model.termMention.TermMentionRepository;
 import com.altamiracorp.lumify.core.model.termMention.TermMentionRowKey;
 import com.altamiracorp.lumify.core.user.User;
 import edu.emory.mathcs.backport.java.util.Arrays;

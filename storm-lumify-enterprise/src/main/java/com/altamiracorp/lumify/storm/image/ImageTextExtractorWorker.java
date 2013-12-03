@@ -2,21 +2,14 @@ package com.altamiracorp.lumify.storm.image;
 
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.core.ingest.image.ImageTextExtractionWorker;
-import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.HdfsLimitOutputStream;
-import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
 import com.altamiracorp.lumify.textExtraction.ImageOcrTextExtractor;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;
 import com.google.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Map;
 
 public class ImageTextExtractorWorker extends BaseImageWorker {
 
