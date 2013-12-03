@@ -16,6 +16,7 @@ fi
 
 java \
 -Xmx512m \
+-Djava.awt.headless=true \
 -Dfile.encoding=UTF-8 \
 -Djava.library.path=$LD_LIBRARY_PATH \
 -classpath ${classpath} \
