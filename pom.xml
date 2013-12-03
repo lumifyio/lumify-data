@@ -10,7 +10,7 @@
     <name>Lumify Twitter</name>
 
     <properties>
-        <internal.project.repo>http://63.141.238.205:8081/maven/</internal.project.repo>
+        <internal.project.repo>http://bits.lumify.io/m2/</internal.project.repo>
         <cluster.dependency.scope>compile</cluster.dependency.scope>
         <classpath-filename>${project.build.directory}/.classpath.${user.name}</classpath-filename>
     </properties>
