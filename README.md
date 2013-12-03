@@ -2,17 +2,17 @@ This is the closed source project with [git
 subtrees](https://github.com/git/git/blob/master/contrib/subtree/git-subtree.txt)
 of the open source componets including:
 
-- altamiracorp/lumify (lumify-public here)
-- altamiracorp/lumify-twitter
+- [lumify-public](https://github.com/altamiracorp/lumify)
+- [lumify-twitter](https://github.com/altamiracorp/lumify-twitter)
 
 And some other shared componts:
 
-- altamiracorp/lumify-rpms
-- altimiacorp/puppt-modules (puppet/puppet-modules here)
-- dsingley/aws (deployment/aws here)
+- [lumify-rpms](https://github.com/altamiracorp/lumify-rpms)
+- [puppet/puppet-modules](https://github.com/altamiracorp/puppt-modules)
+- [deployment/aws](https://github.com/dsingley/aws)
 
-There are 3 Vagrant VMs:
+There are 3 [Vagrant](http://www.vagrantup.com/) VMs:
 
 - rpm
-- dev (you'll use this one most of the time)
+- dev - **you'll use this one most of the time**
 - demo
