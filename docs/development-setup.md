@@ -15,6 +15,7 @@ You'll be in the vagrant user's home directory upon ssh'ing into the Vagrant-con
  * we're installing our stuff in `/opt`
 
 `vagrant -h` will give you a list of all available commands.
+
 `vagrant halt` to gracefully shutdown the VM
 
 ## ffmpeg Installation on Mac OSX
