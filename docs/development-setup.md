@@ -172,8 +172,22 @@ Using HomeBrew, install tesseract, with all language packs:
 $ brew install tesseract --all-languages
 ```
 
-## Other necessary dependency installations
+## Download NodeJS Installation on Mac OSX
+
+```
+$ brew install node
+$ brew install npm
+```
+For other operating systems:
 * [NodeJS 0.10.21](http://blog.nodejs.org/2013/10/18/node-v0-10-21-stable/)
+
+## Download bower and grunt-cli Installation on Mac OSX with npm
+
+```
+$ npm install grunt-cli
+$ npm install bower
+```
+For other operating systems:
 * [Bower 1.2.7](https://npmjs.org/package/bower)
 * [Grunt-cli 0.1.11](https://npmjs.org/package/grunt-cli)
 
