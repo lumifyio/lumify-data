@@ -292,8 +292,8 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             } catch (ParseException e) {
                 new RuntimeException("Cannot parse " + createdAt);
             }
-            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, PropertyName.START_DATE.toString(), date.getTime()), getUser());
-            handleVertex.setProperty(PropertyName.START_DATE, date.getTime());
+            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, "creationDate", date.getTime()), getUser());
+            handleVertex.setProperty("creationDate", date.getTime());
         }
 
         if (user.has("description") && !user.get("description").equals(JSONObject.NULL)) {
