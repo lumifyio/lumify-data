@@ -18,6 +18,7 @@ cd ${DIR}/../lumify-public
 
 java \
 -Dfile.encoding=UTF-8 \
+-Djava.awt.headless=true \
 -Djava.security.krb5.realm= \
 -Djava.security.krb5.kdc= \
 -classpath ${classpath} \
