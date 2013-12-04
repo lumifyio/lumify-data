@@ -1,0 +1,57 @@
+# Map component
+map.provider=googlev3
+map.apiKey=AIzaSyCauz3KEz7k8zxOjPW4plTuVQv_CFGFMd4
+map.tileServer.hostName=localhost
+map.tileServer.port=9999
+
+# Providers
+model.provider=com.altamiracorp.bigtable.model.accumulo.AccumuloSession
+graph.provider=com.altamiracorp.lumify.model.TitanGraphSession
+search.provider=com.altamiracorp.lumify.search.ElasticSearchProvider
+authentication.provider=com.altamiracorp.lumify.web.DevBasicAuthenticationProvider
+
+# Application-wide
+hadoop.url=hdfs://192.168.33.10:8020
+zookeeper.serverNames=192.168.33.10
+fs.default.name=hdfs://192.168.33.10:8020
+
+# Accumulo specific
+bigtable.accumulo.instanceName=lumify
+bigtable.accumulo.zookeeperServerNames=192.168.33.10
+bigtable.accumulo.username=root
+bigtable.accumulo.password=password
+
+# Titan specific
+graph.titan.storage.backend=com.altamiracorp.titan.accumulo.AccumuloStorageManager
+graph.titan.storage.tablename=atc_titan
+graph.titan.storage.accumuloInstanceName=lumify
+graph.titan.storage.zookeeperServerName=192.168.33.10
+graph.titan.storage.username=root
+graph.titan.storage.password=password
+graph.titan.storage.index.search.backend=elasticsearch
+graph.titan.storage.index.search.hostname=192.168.33.10
+graph.titan.storage.index.search.port=9300
+graph.titan.storage.index.search.indexName=titan
+graph.titan.storage.index.search.client-only=true
+graph.titan.autotype=none
+
+# Titan-ES specific
+graph.titan.storage.index.search.providerUtilClass=com.altamiracorp.lumify.model.index.utils.TitanGraphElasticSearchUtil
+
+# Elastic search specific
+search.elasticsearch.locations=192.168.33.10:9300
+
+# Object-detection
+objectdetection.classifierConcepts=face
+objectdetection.classifier.face.path=hdfs:///lumify/config/opencv/haarcascade_frontalface_alt.xml
+
+# Term extraction
+termextraction.opennlp.pathPrefix=/lumify/config/opennlp/
+termextraction.knownEntities.pathPrefix=/lumify/config/knownEntities/
+
+# Twitter Specific (all of the keys are for the lumify twitter account)
+twitter.consumerKey= nzr1TkoPHupu7aSW9SjQ
+twitter.consumerSecret=nC3os0GA14tNj0HtrcNIpf8p1CHcJlLHQCpJU5YI
+twitter.token=1907920009-6wz8nqCa2B2D1E8d8DCHh0O6HNuEUgV6qiJGAwG
+twitter.tokenSecret=8W5AwEVuIYsGyS8kZcf7VHOacd4xYpYqgUiKMRjuFd3E3
+twitter.query=twitter
