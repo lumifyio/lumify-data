@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify;
 
+import com.altamiracorp.lumify.core.BootstrapBase;
 import org.apache.hadoop.mapreduce.TaskInputOutputContext;
 
 import static com.google.common.base.Preconditions.checkNotNull;

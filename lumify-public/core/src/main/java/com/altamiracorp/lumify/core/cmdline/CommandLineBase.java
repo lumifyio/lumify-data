@@ -1,24 +1,18 @@
-package com.altamiracorp.lumify.cmdline;
+package com.altamiracorp.lumify.core.cmdline;
 
 import com.altamiracorp.bigtable.model.user.ModelUserContext;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.Options;
-import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.util.Tool;
-
-import com.altamiracorp.lumify.CommandLineBootstrap;
-import com.altamiracorp.lumify.FrameworkUtils;
+import com.altamiracorp.lumify.core.FrameworkUtils;
 import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.lumify.core.user.SystemUser;
 import com.altamiracorp.lumify.core.user.User;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.apache.commons.cli.*;
+import org.apache.hadoop.fs.FileSystem;
 
-public abstract class CommandLineBase extends Configured implements Tool {
+import java.net.URI;
+
+public abstract class CommandLineBase {
     private String configLocation = "file:///opt/lumify/config/configuration.properties";
     private String credentialsLocation;
     private Configuration configuration;
@@ -26,7 +20,6 @@ public abstract class CommandLineBase extends Configured implements Tool {
     private boolean willExit = false;
     protected boolean initFramework = true;
 
-    @Override
     public int run(String[] args) throws Exception {
         final Thread mainThread = Thread.currentThread();
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -56,7 +49,7 @@ public abstract class CommandLineBase extends Configured implements Tool {
             return -1;
         }
 
-        if( initFramework ) {
+        if (initFramework) {
             final Injector injector = Guice.createInjector(CommandLineBootstrap.create(getConfiguration()));
             injector.injectMembers(this);
 
@@ -122,6 +115,12 @@ public abstract class CommandLineBase extends Configured implements Tool {
 
     public ModelUserContext getModelUserContext() {
         return getUser().getModelUserContext();
+    }
+
+    protected FileSystem getFileSystem() throws Exception {
+        String hdfsRootDir = getConfiguration().get(Configuration.HADOOP_URL);
+        org.apache.hadoop.conf.Configuration hadoopConfiguration = new org.apache.hadoop.conf.Configuration();
+        return FileSystem.get(new URI(hdfsRootDir), hadoopConfiguration, "hadoop");
     }
 
     protected Class loadClass(String className) {

@@ -28,7 +28,7 @@ import backtype.storm.spout.Scheme;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.utils.Utils;
 
-import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.config.ConfigurationHelper;
 import com.altamiracorp.lumify.core.model.workQueue.WorkQueueRepository;
 import com.altamiracorp.lumify.model.KafkaJsonEncoder;
@@ -52,7 +52,7 @@ public class StormEnterpriseRunner extends CommandLineBase {
     private static final String TOPOLOGY_NAME = "lumify-enterprise";
 
     public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(CachedConfiguration.getInstance(), new StormEnterpriseRunner(), args);
+        int res = new StormEnterpriseRunner().run(args);
         if (res != 0) {
             System.exit(res);
         }

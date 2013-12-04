@@ -1,5 +1,6 @@
 package com.altamiracorp.lumify.contentTypeExtraction;
 
+import com.altamiracorp.lumify.core.contentTypeExtraction.ContentTypeExtractor;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.tika.detect.DefaultDetector;
 import org.apache.tika.metadata.Metadata;
@@ -8,23 +9,11 @@ import org.apache.tika.mime.MediaType;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Properties;
 
 public class TikaContentTypeExtractor implements ContentTypeExtractor {
     private static final String PROPS_FILE = "tika-extractor.properties";
-
-    @Override
-    public void setup(Mapper.Context context) {
-        Properties tikaProperties = new Properties();
-        try {
-            InputStream propsIn = Thread.currentThread().getContextClassLoader().getResourceAsStream(PROPS_FILE);
-            if (propsIn != null) {
-                tikaProperties.load(propsIn);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public String extract(InputStream in, String fileExt) throws Exception {
@@ -37,6 +26,19 @@ public class TikaContentTypeExtractor implements ContentTypeExtractor {
             contentType = setContentTypeUsingFileExt(fileExt.toLowerCase());
         }
         return contentType;
+    }
+
+    @Override
+    public void init(Map map) {
+        Properties tikaProperties = new Properties();
+        try {
+            InputStream propsIn = Thread.currentThread().getContextClassLoader().getResourceAsStream(PROPS_FILE);
+            if (propsIn != null) {
+                tikaProperties.load(propsIn);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private String setContentTypeUsingFileExt(String fileExt) {
