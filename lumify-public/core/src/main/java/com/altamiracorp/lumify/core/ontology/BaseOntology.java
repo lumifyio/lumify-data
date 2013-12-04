@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.ontology;
+package com.altamiracorp.lumify.core.ontology;
 
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;

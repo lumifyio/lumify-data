@@ -1,5 +1,6 @@
-package com.altamiracorp.lumify;
+package com.altamiracorp.lumify.core.cmdline;
 
+import com.altamiracorp.lumify.core.BootstrapBase;
 import com.altamiracorp.lumify.core.config.Configuration;
 
 public class CommandLineBootstrap extends BootstrapBase {

@@ -1,21 +1,18 @@
 package com.altamiracorp.lumify.entityExtraction;
 
 import com.altamiracorp.bigtable.model.ModelSession;
-import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.model.dictionary.DictionaryEntryRepository;
 import com.altamiracorp.lumify.core.user.User;
 import com.google.inject.Inject;
-import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathFilter;
-import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +31,7 @@ public class DictionaryImporter extends CommandLineBase {
     private String extension;
 
     public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(CachedConfiguration.getInstance(), new DictionaryImporter(), args);
+        int res = new DictionaryImporter().run(args);
         if (res != 0) {
             System.exit(res);
         }
@@ -76,8 +73,7 @@ public class DictionaryImporter extends CommandLineBase {
     @Override
     protected int run(CommandLine cmd) throws Exception {
         User user = getUser();
-        Configuration conf = getConf();
-        FileSystem fs = FileSystem.get(conf);
+        FileSystem fs = getFileSystem();
 
         Path dictionaryPath = new Path(directory);
         FileStatus[] files = fs.listStatus(dictionaryPath, new DictionaryPathFilter(this.extension));
