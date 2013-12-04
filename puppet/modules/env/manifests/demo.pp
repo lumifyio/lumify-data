@@ -21,6 +21,12 @@ class env::demo {
     ensure => 'stopped',
   }
 
+  file { "/opt/lumify":
+    ensure => 'directory',
+    owner  => 'root',
+    mode   => 'u=rwx,g=rx,o=rx',
+  } 
+
   file { '/opt/lumify/start.sh' :
     source => 'puppet:///modules/env/dev/start.sh',
     owner => 'vagrant',
