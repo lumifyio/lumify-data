@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
 
 
-    <name>Lumify</name>
+    <name>Lumify Enterprise</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,8 +25,7 @@
         <javadoc.stylesheetfile>conf/maven/javadoc/stylesheet.css</javadoc.stylesheetfile>
         <maven.build.timestamp.format>EEE MMM dd HH:mm z yyyy</maven.build.timestamp.format>
         <classpath-filename>${project.build.directory}/.classpath.${user.name}</classpath-filename>
-        <!--<internal.project.repo>http://nic-mvnproxy.nearinfinity.com:8080/artifactory</internal.project.repo>-->
-        <internal.project.repo>http://63.141.238.205:8081/maven/</internal.project.repo>
+        <internal.project.repo>http://bits.lumify.io/m2/</internal.project.repo>
         <cluster.dependency.scope>compile</cluster.dependency.scope>
     </properties>
 
