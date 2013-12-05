@@ -12,7 +12,11 @@ if [ ! -h /opt/ant ]; then
   mkdir -p /opt
   curl "http://www.us.apache.org/dist/ant/binaries/apache-ant-1.9.2-bin.tar.gz" -s -L --fail -o /opt/apache-ant-1.9.2-bin.tar.gz
   (cd /opt && tar xzf /opt/apache-ant-1.9.2-bin.tar.gz)
-  ln -s /opt/apache-ant-1.9.3 /opt/ant
+  ln -s /opt/apache-ant-1.9.2 /opt/ant
+fi
+
+if [ ! -f /usr/bin/ant ]; then
+  ln -s /opt/ant/bin/ant /usr/bin/ant
 fi
 
 # download and install JDK
