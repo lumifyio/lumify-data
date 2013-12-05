@@ -1,5 +1,21 @@
 The development environment is configured and controlled by Vagrant. The Vagrantfile in the root of the project will install everything you need to get started and keep you in sync with other developers.
 
+## Virtual Machines
+
+The Lumify [Vagrant](http://www.vagrantup.com/) configuration defines three Virtual Machines. Only one of these may be running at any time. All three VMs are configured to use the IP address `192.168.33.10` on the host-only network `vboxnet0`. If you do not have this network configured, please refer to the [VirtualBox manual](https://www.virtualbox.org/manual) for instructions on adding a host-only network.
+
+- 	dev
+
+	Configures a development environment.  **You'll use this VM most of the time.**
+	
+- 	rpm
+
+	This VM is used to build the Lumify RPMs.
+	
+-	demo
+
+	This VM is used to build the Lumify demo VM.
+
 ## Vagrant Setup
 
 From the root of your project directory:
@@ -7,7 +23,7 @@ From the root of your project directory:
 1. install [VitualBox (v. 4.2.12)](https://www.virtualbox.org/wiki/Download_Old_Builds_4_2)
 1. install the [VirtualBox Extension Pack](https://www.virtualbox.org/wiki/Download_Old_Builds_4_2)
 1. install [Vagrant](http://docs.vagrantup.com/v2/installation/)
-1. `$ vagrant up`
+1. `$ vagrant up [dev|rpm|demo]`
 1. `$ vagrant ssh`
 You'll be in the vagrant user's home directory upon ssh'ing into the Vagrant-controlled VM. The files in the directory where you ran `vagrant up` will be available in `/vagrant` on the guest VM. Project-related packages are installed in `/opt`.
  * you'll be logged in as the `vagrant` user who has `sudo` privileges
@@ -16,7 +32,7 @@ You'll be in the vagrant user's home directory upon ssh'ing into the Vagrant-con
 
 `vagrant -h` will give you a list of all available commands.
 
-`vagrant halt` to gracefully shutdown the VM
+`vagrant halt [dev|rpm|demo]` to gracefully shutdown the VM
 
 ## ffmpeg Installation on Mac OSX
 
@@ -91,7 +107,7 @@ In order to run image recognition jobs locally on your Mac you'll need to instal
 
 ```
 $ brew tap homebrew/science
-$ brew install opencv --env=std
+$ brew install opencv
 ```
 
 ## OpenCV Installation on Linux
