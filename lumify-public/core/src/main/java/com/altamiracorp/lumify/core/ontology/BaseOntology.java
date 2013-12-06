@@ -1,4 +1,4 @@
-package com.altamiracorp.lumify.ontology;
+package com.altamiracorp.lumify.core.ontology;
 
 import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.PropertyName;
@@ -23,6 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
+
+import static org.mockito.internal.util.Checks.checkNotNull;
 
 public class BaseOntology {
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseOntology.class);
@@ -189,9 +191,11 @@ public class BaseOntology {
         ontologyRepository.addPropertyTo(artifact, geoLocationDescriptionProperty.getName(), "Geo-location Description", PropertyType.STRING, user);
         ontologyRepository.addPropertyTo(artifact, publishedDateProperty.getName(), "Published Date", PropertyType.DATE, user);
         ontologyRepository.addPropertyTo(artifact, sourceProperty.getName(), "Source", PropertyType.STRING, user);
+        ontologyRepository.addPropertyTo(artifact, authorProperty.getName(), "Author", PropertyType.STRING, user);
         graph.commit();
 
         InputStream artifactGlyphIconInputStream = this.getClass().getResourceAsStream("artifact.png");
+        checkNotNull(artifactGlyphIconInputStream, "artifact.png not found");
         String artifactGlyphIconRowKey = resourceRepository.importFile(artifactGlyphIconInputStream, "png", user);
         artifact.setProperty(PropertyName.GLYPH_ICON, artifactGlyphIconRowKey);
         graph.commit();

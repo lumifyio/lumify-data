@@ -22,7 +22,7 @@ import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.tuple.Tuple;
 
-import com.altamiracorp.lumify.contentTypeExtraction.ContentTypeExtractor;
+import com.altamiracorp.lumify.core.contentTypeExtraction.ContentTypeExtractor;
 import com.altamiracorp.lumify.core.ingest.ContentTypeSorter;
 import com.altamiracorp.lumify.storm.BaseFileSystemSpout;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;

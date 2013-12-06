@@ -41,3 +41,5 @@ _build_and_install opencv
 _build_and_install leptonica
 _build_and_install tesseract
 _build_and_install tesseract-eng
+
+_build_and_install kafka

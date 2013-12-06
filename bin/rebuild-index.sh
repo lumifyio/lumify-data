@@ -1,7 +1,7 @@
 #!/bin/bash
 
-classpath=/opt/lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar:/opt/storm/storm-0.8.1.jar
-for jar in /opt/storm/lib/*.jar; do
+classpath=/opt/storm/storm-0.8.1.jar
+for jar in $(find /opt/storm/lib /opt/lumify/lib -name '*.jar' 2>/dev/null); do
   classpath=${classpath}:${jar}
 done
 

@@ -21,49 +21,49 @@ class env::demo {
     ensure => 'stopped',
   }
 
-  file { '/opt/start.sh' :
+  file { '/opt/lumify/start.sh' :
     source => 'puppet:///modules/env/dev/start.sh',
     owner => 'vagrant',
     mode => 'u=rwx,g=,o=',
   }
 
-  file { '/opt/status.sh' :
+  file { '/opt/lumify/status.sh' :
     source => 'puppet:///modules/env/dev/status.sh',
     owner => 'vagrant',
     mode => 'u=rwx,g=,o=',
   }
 
-  file { '/opt/stop.sh' :
+  file { '/opt/lumify/stop.sh' :
     source => 'puppet:///modules/env/dev/stop.sh',
     owner => 'vagrant',
     mode => 'u=rwx,g=,o=',
   }
 
-  file { '/opt/format.sh' :
+  file { '/opt/lumify/format.sh' :
     source => 'puppet:///modules/env/dev/format.sh',
     owner => 'vagrant',
     mode => 'u=rwx,g=,o=',
   }
 
-  file { '/opt/shell.sh' :
+  file { '/opt/lumify/shell.sh' :
     source => 'puppet:///modules/env/dev/shell.sh',
     owner => 'vagrant',
     mode => 'u=rwx,g=,o=',
   }
 
-  file { '/opt/storm-kill.sh' :
+  file { '/opt/lumify/storm-kill.sh' :
     source => 'puppet:///modules/env/dev/storm-kill.sh',
     owner => 'vagrant',
     mode => 'u=rwx,g=,o=',
   }
 
-  file { '/opt/storm-run.sh' :
+  file { '/opt/lumify/storm-run.sh' :
     source => 'puppet:///modules/env/dev/storm-run.sh',
     owner => 'vagrant',
     mode => 'u=rwx,g=,o=',
   }
 
-  file { '/opt/kafka-clear.sh' :
+  file { '/opt/lumify/kafka-clear.sh' :
     source => 'puppet:///modules/env/dev/kafka-clear.sh',
     owner => 'vagrant',
     mode => 'u=rwx,g=,o=',

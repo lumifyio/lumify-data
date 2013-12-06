@@ -1,15 +1,13 @@
 package com.altamiracorp.lumify.cmdline;
 
 import com.altamiracorp.bigtable.model.ModelSession;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
+import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.model.ontology.*;
 import com.altamiracorp.lumify.core.util.ModelUtil;
 import com.google.inject.Inject;
-import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.hadoop.util.ToolRunner;
 import org.jdom.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +39,7 @@ public class OwlExport extends CommandLineBase {
     public static String NS_XML_URI = "http://www.w3.org/XML/1998/namespace";
 
     public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(CachedConfiguration.getInstance(), new OwlExport(), args);
+        int res = new OwlExport().run(args);
         if (res != 0) {
             System.exit(res);
         }

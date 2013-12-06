@@ -1,19 +1,17 @@
-package com.altamiracorp.lumify.cmdline;
+package com.altamiracorp.lumify.core.cmdline;
 
-import com.altamiracorp.lumify.core.model.graph.GraphVertex;
-import com.altamiracorp.lumify.core.model.ontology.PropertyName;
-import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.model.GraphSession;
+import com.altamiracorp.lumify.core.model.graph.GraphVertex;
 import com.altamiracorp.lumify.core.model.ontology.Concept;
 import com.altamiracorp.lumify.core.model.ontology.OntologyRepository;
+import com.altamiracorp.lumify.core.model.ontology.PropertyName;
 import com.altamiracorp.lumify.core.model.ontology.PropertyType;
 import com.altamiracorp.lumify.core.model.resources.ResourceRepository;
+import com.altamiracorp.lumify.core.user.User;
 import com.google.inject.Inject;
-import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -37,9 +35,10 @@ public class OwlImport extends CommandLineBase {
     private GraphSession graphSession;
     private String inFileName;
     private File inDir;
+    public static String NS_XML_URI = "http://www.w3.org/XML/1998/namespace";
 
     public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(CachedConfiguration.getInstance(), new OwlImport(), args);
+        int res = new OwlImport().run(args);
         if (res != 0) {
             System.exit(res);
         }
@@ -137,7 +136,7 @@ public class OwlImport extends CommandLineBase {
     private Element getEnglishLanguageLabel(Element elem) {
         List<Element> childElems = getChildElements(elem, "http://www.w3.org/2000/01/rdf-schema#", "label");
         for (Element childElem : childElems) {
-            String attr = childElem.getAttributeNS(OwlExport.NS_XML_URI, "lang");
+            String attr = childElem.getAttributeNS(NS_XML_URI, "lang");
             if (attr.equals("en")) {
                 return childElem;
             }

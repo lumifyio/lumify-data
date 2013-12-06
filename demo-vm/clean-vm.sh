@@ -1,6 +1,6 @@
 #!/bin/bash
 
-/opt/stop.sh
+/opt/lumify/stop.sh
 
 sudo rm -f /var/log/accumulo/*
 sudo rm -f /var/log/elasticsearch/*

@@ -3,8 +3,8 @@
 ## Vagrant Configuration
 1. ```$ vagrant up```
 2. ```$ vagrant ssh```
-3. ```$ /opt/format.sh``` (format every time you come from develop)
-4. ```$ /opt/start.sh```
+3. ```$ /opt/lumify/format.sh``` (format every time you come from develop)
+4. ```$ /opt/lumify/start.sh```
 5. make sure to update your ```/opt/lumify/config/configuration.properties``` on your local machine and Vagrant VM to contain the configurations under the [Application Configuration Wiki Page](https://github.com/nearinfinity/lumify/wiki/Application-Configuration)
 
 ### HDFS
@@ -33,7 +33,7 @@
 ### Kafka Queue
 
 1. Create and publish data to required queue topics:
-`$ /opt/kafka-clear.sh`
+`$ /opt/lumify/kafka-clear.sh`
 
 The required topics are: term, video, artifactHighlight, processedVideo, and structuredData
 
@@ -45,5 +45,5 @@ The required topics are: term, video, artifactHighlight, processedVideo, and str
 
 ### Cluster Topology Execution
 1. Generate the topology jar with: `$ storm/clusterbuild.sh`  (run on local machine)
-2. On the storm cluster, execute:`$ /opt/storm-run.sh`
+2. On the storm cluster, execute:`$ /opt/lumify/storm-run.sh`
 3. `$ hadoop fs -put /vagrant/data/import/* /lumify/data/unknown`

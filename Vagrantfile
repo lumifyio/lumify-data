@@ -65,7 +65,7 @@ Vagrant.configure('2') do |config|
 
   # used to create the downloadable open source demo VM
   config.vm.define "demo" do |demo|
-    demo.vm.provision :shell, :inline => "mkdir -p /data0"
+    demo.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify"
     demo.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'demo_vm.pp')
     end

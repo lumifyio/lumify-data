@@ -11,7 +11,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.util.Tool;
 
-import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.config.Configuration;
 import com.altamiracorp.bigtable.model.accumulo.AccumuloModelOutputFormat;
 import com.altamiracorp.lumify.core.model.artifact.Artifact;

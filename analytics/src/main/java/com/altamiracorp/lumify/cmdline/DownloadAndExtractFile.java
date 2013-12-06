@@ -1,21 +1,25 @@
 package com.altamiracorp.lumify.cmdline;
 
 
+import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
-import org.apache.accumulo.core.util.CachedConfiguration;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.*;
-//import java.lang.reflect.Proxy;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
+
+//import java.lang.reflect.Proxy;
 
 public class DownloadAndExtractFile extends CommandLineBase {
     private static final Logger LOGGER = LoggerFactory.getLogger(DownloadAndExtractFile.class.getName());
@@ -24,7 +28,7 @@ public class DownloadAndExtractFile extends CommandLineBase {
     private String storage;
 
     public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(CachedConfiguration.getInstance(), new DownloadAndExtractFile(), args);
+        int res = new DownloadAndExtractFile().run(args);
         if (res != 0) {
             System.exit(res);
         }
@@ -32,31 +36,31 @@ public class DownloadAndExtractFile extends CommandLineBase {
 
     @Override
     protected int run(CommandLine cmd) throws Exception {
-        if(zipfile == null ){
-           if (!directoryExists(getDirectory())) {
+        if (zipfile == null) {
+            if (!directoryExists(getDirectory())) {
                 File file = new File(getDirectory());
                 file.mkdirs();
-                zipfile =  getZipfileName(getDirectory())+ ".zip";
+                zipfile = getZipfileName(getDirectory()) + ".zip";
             } else {
                 return 0;
             }
-        } else if (!zipfile.contains(".zip")){
-            if(directory == null) {
+        } else if (!zipfile.contains(".zip")) {
+            if (directory == null) {
                 directory = "data/import/";
             }
-            if(zipfile.contains("/")){
-                zipfile =  getZipfileName(getDirectory());
+            if (zipfile.contains("/")) {
+                zipfile = getZipfileName(getDirectory());
             }
             zipfile += ".zip";
         }
         if (directory.charAt(directory.length() - 1) != '/') {
             directory += "/";
         }
-        if (directory.endsWith("import/")){
+        if (directory.endsWith("import/")) {
             storage = directory.substring(0, (directory.length() - 7));
         } else {
             storage = directory;
-            if(!directoryExists(storage)){
+            if (!directoryExists(storage)) {
                 File file = new File(getDirectory());
                 file.mkdirs();
             }
@@ -66,12 +70,14 @@ public class DownloadAndExtractFile extends CommandLineBase {
         extractDataset();
         return 0;
     }
+
     @Override
     protected void processOptions(CommandLine cmd) throws Exception {
         super.processOptions(cmd);
         this.directory = (String) cmd.getArgList().get(0);
         this.zipfile = (String) cmd.getArgList().get(1);
-        if (this.zipfile == null && this.directory == null) throw new RuntimeException("No dataset name provided to FileDownload");
+        if (this.zipfile == null && this.directory == null)
+            throw new RuntimeException("No dataset name provided to FileDownload");
     }
 
     @Override
@@ -100,6 +106,7 @@ public class DownloadAndExtractFile extends CommandLineBase {
     public String getDirectory() {
         return directory;
     }
+
     private Boolean directoryExists(String dir) {
         File file = new File(dir);
         return (file.exists() || (dir.equals("sample/directory")));
@@ -108,7 +115,7 @@ public class DownloadAndExtractFile extends CommandLineBase {
     private String getZipfileName(String dir) {
         int slash = dir.lastIndexOf('/', (dir.length() - 3));
         String set;
-        if (dir.charAt((dir.length()-1)) == '/') {
+        if (dir.charAt((dir.length() - 1)) == '/') {
             int last = dir.lastIndexOf('/');
             set = dir.substring(slash, last);
         } else {
@@ -123,20 +130,20 @@ public class DownloadAndExtractFile extends CommandLineBase {
             String amazon = "https://s3.amazonaws.com/RedDawn/DataSets/";
             URL aws = new URL(amazon + zipfile);
             URLConnection connect;
-            if(System.getenv("http_proxy") != null){
+            if (System.getenv("http_proxy") != null) {
                 String httpproxy = System.getenv("http_proxy");
-                String protocol  = httpproxy.substring(0, httpproxy.lastIndexOf("/"));
-                String ip        = httpproxy.substring((httpproxy.lastIndexOf("/")+1), httpproxy.lastIndexOf(":"));
-                String port      = httpproxy.substring(httpproxy.lastIndexOf(":")+1);
+                String protocol = httpproxy.substring(0, httpproxy.lastIndexOf("/"));
+                String ip = httpproxy.substring((httpproxy.lastIndexOf("/") + 1), httpproxy.lastIndexOf(":"));
+                String port = httpproxy.substring(httpproxy.lastIndexOf(":") + 1);
                 int portnumber = Integer.parseInt(port);
-                if(!protocol.contains("s")){
+                if (!protocol.contains("s")) {
                     Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(ip, portnumber));
                     connect = aws.openConnection(proxy);
                 } else {
                     connect = null;
                     LOGGER.info("Cannot create a secure proxy request.");
                 }
-            } else{
+            } else {
                 connect = aws.openConnection();
             }
             InputStream in = connect.getInputStream();
@@ -172,12 +179,12 @@ public class DownloadAndExtractFile extends CommandLineBase {
     }
 
     private void extractDataset() {
-       try {
-        ZipFile zipped = new ZipFile(storage + zipfile);
-        zipped.extractAll(directory);
-       } catch (ZipException e) {
+        try {
+            ZipFile zipped = new ZipFile(storage + zipfile);
+            zipped.extractAll(directory);
+        } catch (ZipException e) {
             LOGGER.info("Error in extracting data from zip file");
             e.printStackTrace();
-       }
+        }
     }
 }

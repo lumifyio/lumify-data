@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.altamiracorp.bigtable.model.ModelSession;
-import com.altamiracorp.lumify.cmdline.CommandLineBase;
+import com.altamiracorp.lumify.core.cmdline.CommandLineBase;
 import com.altamiracorp.lumify.core.model.geoNames.GeoName;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameAdmin1Code;
 import com.altamiracorp.lumify.core.model.geoNames.GeoNameAdmin1CodeRepository;
@@ -50,7 +50,7 @@ public class GeoNamesImporter extends CommandLineBase {
     private String postalCodesPath;
 
     public static void main(String[] args) throws Exception {
-        int res = ToolRunner.run(CachedConfiguration.getInstance(), new GeoNamesImporter(), args);
+        int res = new GeoNamesImporter().run(args);
         if (res != 0) {
             System.exit(res);
         }
@@ -116,7 +116,7 @@ public class GeoNamesImporter extends CommandLineBase {
     protected int run(CommandLine cmd) throws Exception {
         User user = getUser();
 
-        FileSystem fs = FileSystem.get(getConf());
+        FileSystem fs = getFileSystem();
 
         writePlaceNamesFile(fs.open(new Path(placeNamesPath)), user);
         writeAdmin1CodeFile(fs.open(new Path(admin1CodesPath)), user);

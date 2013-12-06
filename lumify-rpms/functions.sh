@@ -17,10 +17,12 @@ function _download {
   local url=$2
   local fname=$3
 
-  if [ ! -d ${SOURCE_DIR}/${name} ]; then
+  if [ ! -f ${SOURCE_DIR}/${fname} ]; then
     echo "Downloading ${url}"
     curl "${url}" -s -L --fail -o "${SOURCE_DIR}/${fname}"
+  fi
 
+  if [ ! -d ${SOURCE_DIR}/${name} ]; then
     echo "Extracting ${SOURCE_DIR}/${fname}"
     case ${fname##*.} in
     zip)

@@ -18,6 +18,7 @@ import com.altamiracorp.lumify.core.model.search.SearchProvider;
 import com.altamiracorp.lumify.core.model.termMention.TermMention;
 import com.altamiracorp.lumify.storm.BaseLumifyBolt;
 import com.google.inject.Inject;
+import com.thinkaurelius.titan.core.attribute.Geoshape;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -123,8 +124,10 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         if (json.has("coordinates") && !json.get("coordinates").equals(JSONObject.NULL)) {
             JSONArray coordinates = json.getJSONObject("coordinates").getJSONArray("coordinates");
+            Geoshape geo = Geoshape.point(coordinates.getDouble(1), coordinates.getDouble(0));
             auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.GEO_LOCATION.toString(), coordinates.toString()), getUser());
-            tweet.setProperty(PropertyName.GEO_LOCATION, new GraphGeoLocation(coordinates.getDouble(1), coordinates.getDouble(0)));
+            tweet.setProperty(PropertyName.GEO_LOCATION, geo);
+            artifactExtractedInfo.set(PropertyName.GEO_LOCATION.toString(), geo);
         }
 
         auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.AUTHOR.toString(), "@" + tweeter), getUser());
@@ -292,8 +295,8 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             } catch (ParseException e) {
                 new RuntimeException("Cannot parse " + createdAt);
             }
-            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, PropertyName.START_DATE.toString(), date.getTime()), getUser());
-            handleVertex.setProperty(PropertyName.START_DATE, date.getTime());
+            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, "creationDate", date.getTime()), getUser());
+            handleVertex.setProperty("creationDate", date.getTime());
         }
 
         if (user.has("description") && !user.get("description").equals(JSONObject.NULL)) {
