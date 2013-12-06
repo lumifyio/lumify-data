@@ -1,41 +1,64 @@
-#!/bin/bash
+#!/bin/bash -e
 
-/opt/lumify/stop.sh kafka
+function create_topic() {
+    local topicName=$1
+
+    echo "Creating topic ${topicName}"
+    /opt/kafka/bin/kafka-create-topic.sh --zookeeper localhost:2181/kafka --replica 1 --partition 1 --topic ${topicName} &> /tmp/create_topic.log
+}
+
+function create_topics() {
+    create_topic text
+    create_topic term
+    create_topic artifactHighlight
+    create_topic searchIndex
+    create_topic processedVideo
+    create_topic structuredData
+    create_topic twitterStream
+}
+
+function delete_topic() {
+    local topicName=$1
+
+    echo "Deleting topic ${topicName}"
+    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/${topicName}/0" &> /tmp/delete_topic.log
+    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/${topicName}" &> /tmp/delete_topic.log
+}
+
+function delete_topics() {
+    delete_topic text
+    delete_topic term
+    delete_topic artifactHighlight
+    delete_topic searchIndex
+    delete_topic processedVideo
+    delete_topic structuredData
+    delete_topic twitterStream
+
+    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics" &> /tmp/delete_topic.log
+    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/text/192.168.33.10:9092:0" &> /tmp/delete_topic.log
+    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/text" &> /tmp/delete_topic.log
+    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/artifactHighlight/192.168.33.10:9092:0" &> /tmp/delete_topic.log
+    sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/artifactHighlight" &> /tmp/delete_topic.log
+
+    echo "
+rmr /kafka/brokers/topics
+rmr /kafka/brokers/consumers
+    " | sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh &> /tmp/delete_topic.log
+}
+
+/opt/lumify/stop.sh kafka || 1
 /opt/lumify/start.sh zk
 
 sudo rm -rf /opt/kafka/logs/*
 
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/term/0"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/term"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/video/0"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/video"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/artifactHighlight/0"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/artifactHighlight"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/searchIndex/0"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/searchIndex"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/processedVideo/0"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/processedVideo"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/structuredData/0"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/structuredData"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/twitterStream/o"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics/twitterStream"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/brokers/topics"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/text/192.168.33.10:9092:0"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/text"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/artifactHighlight/192.168.33.10:9092:0"
-sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh "delete /kafka/consumers/artifactHighlight"
-
-echo "
-rmr /kafka/brokers/topics
-rmr /kafka/brokers/consumers
-" | sudo -u zookeeper /usr/lib/zookeeper/bin/zkCli.sh
+delete_topics
 
 /opt/lumify/start.sh kafka
 
-/opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka text
-/opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka term
-/opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka artifactHighlight
-/opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka searchIndex
-/opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka processedVideo
-/opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka structuredData
-/opt/kafka/bin/kafka-create-topic.sh localhost:2181/kafka twitterStream
+sleep 1  # kafka times a little bit of time to start
+
+create_topics
+
+echo ""
+echo "Topic List"
+/opt/kafka/bin/kafka-list-topic.sh --zookeeper localhost:2181/kafka

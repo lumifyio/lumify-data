@@ -136,4 +136,20 @@ class kafka(
     group    => "root",
     force    => true,
   }
+
+  file { "$bindir/kafka-create-topic-helper.sh":
+    ensure   => file,
+    source   => "puppet:///modules/kafka/kafka-create-topic-helper.sh",
+    owner    => "root",
+    group    => "root",
+    force    => true,
+  }
+
+  file { "$bindir/kafka-list-topic.sh":
+    ensure   => file,
+    source   => "puppet:///modules/kafka/kafka-list-topic.sh",
+    owner    => "root",
+    group    => "root",
+    force    => true,
+  }
 }
