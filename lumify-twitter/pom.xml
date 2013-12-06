@@ -226,28 +226,21 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <configuration>
-                    <siteDirectory>${basedir}/../${site.config.location}</siteDirectory>
-                </configuration>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
+                <executions>
+                    <execution>
+                        <id>build-classpath</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>build-classpath</goal>
+                        </goals>
+                        <configuration>
+                            <outputFile>${classpath-filename}</outputFile>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>2.8</version>
-                    <executions>
-                        <execution>
-                            <id>build-classpath</id>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>build-classpath</goal>
-                            </goals>
-                            <configuration>
-                                <outputFile>${classpath-filename}</outputFile>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

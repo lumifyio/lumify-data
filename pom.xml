@@ -21,8 +21,6 @@
         <elasticsearch-version>0.90.0</elasticsearch-version>
         <titan-version>0.3.2.atc-SNAPSHOT</titan-version>
         <storm-version>0.8.2</storm-version>
-        <site.config.location>conf/maven/site</site.config.location>
-        <javadoc.stylesheetfile>conf/maven/javadoc/stylesheet.css</javadoc.stylesheetfile>
         <maven.build.timestamp.format>EEE MMM dd HH:mm z yyyy</maven.build.timestamp.format>
         <classpath-filename>${project.build.directory}/.classpath.${user.name}</classpath-filename>
         <internal.project.repo>http://bits.lumify.io/m2/</internal.project.repo>
