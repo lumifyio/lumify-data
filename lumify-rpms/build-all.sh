@@ -21,7 +21,7 @@ function _build_and_install {
   echo ""
   echo "Installing ${LUMIFYREPO_DIR}/RPMS/x86_64/lumify-${name}-[^debuginfo]*.rpm"
   echo "--------------------------------------------------------------------------------"
-  sudo rpm -i ${LUMIFYREPO_DIR}/RPMS/x86_64/lumify-${name}-[^debuginfo]*.rpm
+  sudo rpm -U --force ${LUMIFYREPO_DIR}/RPMS/x86_64/lumify-${name}-[^debuginfo]*.rpm
 }
 
 _build_and_install videolan-x264
