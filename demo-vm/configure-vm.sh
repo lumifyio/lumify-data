@@ -16,11 +16,12 @@ cat <<-EOM > /etc/sudoers.d/${LUMIFY_USERNAME}
 ${LUMIFY_USERNAME} ALL=(ALL) NOPASSWD: ALL
 EOM
 
-cat <<-EOM > /etc/motd
+cat <<-EOM | tee /etc/motd | tee /etc/issue > /etc/issue.net
 
-Welcome to Lumify
-=================
-http://lumify.io
+Welcome to the Lumify Demonstration VM
+======================================
+For more information about Lumify, please visit http://lumify.io
+Built on $(date +'%Y-%m-%d')
 
 EOM
 
@@ -36,27 +37,21 @@ su - vagrant -c 'cd /vagrant && mvn package install -P storm-jar,web-war -DskipT
 cp /vagrant/deployment/application.xml /opt/jetty/contexts
 cp /vagrant/lumify-public/web/target/application-1.0-SNAPSHOT.war /opt/jetty/webapps/application.war
 
-# deploy the open source topology
-/opt/storm/bin/storm list \
-  | grep -q 'lumify\s*ACTIVE' && /opt/storm/bin/storm kill lumify
-/opt/storm/bin/storm jar \
-  /vagrant/lumify-public/storm-lumify/target/lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
-  com.altamiracorp.lumify.storm.StormRunner
-
-# insert sample data
+# restore sample data
 cp /vagrant/bin/accumulo-import.sh /opt/lumify
-cp /vagrant/bin/rebuild-index.sh /opt/lumify
 cp /vagrant/demo-vm/sample-data.tgz /opt/lumify
-mkdir -p /opt/lumify/lib
-cp /vagrant/lumify-public/storm-lumify/target/lumify-storm-*-with-dependencies.jar /opt/lumify/lib
 /opt/lumify/format.sh
 /opt/lumify/accumulo-import.sh /opt/lumify/sample-data.tgz
 
 # deploy the open source topology
-/opt/storm/bin/storm list \ 
- | grep -q 'lumify\s*ACTIVE' && /opt/storm/bin/storm kill lumify
+/opt/storm/bin/storm list \
+  | grep -q 'lumify\s*ACTIVE' && /opt/storm/bin/storm kill lumify
 /opt/storm/bin/storm jar \
  /vagrant/lumify-public/storm-lumify/target/lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
  com.altamiracorp.lumify.storm.StormRunner
 
+# reindex the restored sample data
+cp /vagrant/bin/rebuild-index.sh /opt/lumify
+mkdir -p /opt/lumify/lib
+cp /vagrant/lumify-public/storm-lumify/target/lumify-storm-*-with-dependencies.jar /opt/lumify/lib
 /opt/lumify/rebuild-index.sh
