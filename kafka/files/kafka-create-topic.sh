@@ -1,11 +1,39 @@
-#!/usr/bin/expect
+#!/bin/bash -e
 
-set zookeeper [lindex $argv 0]
-set topic [lindex $argv 1]
+function setArgs() {
+  while [ "$1" != "" ]; do
+    case $1 in
+      "--zookeeper")
+        shift
+        zookeeper=$1
+        ;;
+      "--partition")
+        shift
+        echo "'partition' not supported in v0.7.x"
+        ;;
+      "--replica")
+        shift
+        echo "'replica' not supported in v0.7.x"
+        ;;
+      "--topic")
+        shift
+        topic=$1
+        ;;
+    esac
+    shift
+  done
+}
 
-spawn /opt/kafka/bin/kafka-console-producer.sh --zookeeper $zookeeper --topic $topic
+setArgs $*
 
-expect "Creating async producer for broker id" { send "\n"; sleep 1 }
-expect "for producing" { sleep 1; send \003 }
+if [ "${zookeeper}" == "" ]; then
+    echo "zookeeper is required argument"
+    exit 1
+fi
 
-send_user "topic \"$topic\" created\n"
+if [ "${topic}" == "" ]; then
+    echo "topic is required argument"
+    exit 1
+fi
+
+/opt/kafka/bin/kafka-create-topic-helper.sh "${zookeeper}" "${topic}"
