@@ -46,6 +46,11 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
     private static final String TWEET_URL = "tweetHasURL";
     private static final String HASHTAG_CONCEPT = "hashtag";
     private static final String URL_CONCEPT = "url";
+    private static final String FAVORITE_COUNT = "favoriteCount";
+    private static final String RETWEET_COUNT = "retweetCount";
+    private static final String STATUS_COUNT = "statusCount";
+    private static final String FOLLOWER_COUNT = "followerCount";
+    private static final String FOLLOWING_COUNT = "followingCount";
 
     private SearchProvider searchProvider;
     private GraphVertex tweet;
@@ -142,16 +147,16 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.SOURCE.toString(), source), getUser());
         tweet.setProperty(PropertyName.SOURCE, source);
 
-        if (json.has("favorite_count") && ((Integer) json.get("favorite_count") > 0)) {
+        if (json.has("favorite_count") && ((Integer) json.get("favorite_count") >= 0)) {
             Integer favCount = (Integer) json.get("favorite_count");
-            auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.FAVORITE_COUNT.toString(), favCount), getUser());
-            tweet.setProperty(PropertyName.FAVORITE_COUNT, favCount);
+            auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, FAVORITE_COUNT, favCount), getUser());
+            tweet.setProperty(FAVORITE_COUNT, favCount);
         }
 
-        if (json.has("retweet_count") && ((Integer) json.get("retweet_count") > 0)) {
+        if (json.has("retweet_count") && ((Integer) json.get("retweet_count") >= 0)) {
             Integer rtCount = (Integer) json.get("retweet_count");
-            auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.RETWEET_COUNT.toString(), rtCount), getUser());
-            tweet.setProperty(PropertyName.RETWEET_COUNT, rtCount);
+            auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet,RETWEET_COUNT, rtCount), getUser());
+            tweet.setProperty(RETWEET_COUNT, rtCount);
         }
 
         graphRepository.save(tweet, getUser());
@@ -181,19 +186,17 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         tweeterVertex.setProperty(PropertyName.SUBTYPE, handleConcept.getId());
         tweeterVertex.setProperty(PropertyName.DISPLAY_NAME, user.getString("name"));
 
-        graphRepository.save(tweeterVertex, getUser());
-
         if (newVertex) {
             auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TITLE.toString(), "@" + tweeter), getUser());
             auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TYPE.toString(), VertexType.ENTITY.toString()), getUser());
             auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.SUBTYPE.toString(), handleConcept.getId()), getUser());
             auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.DISPLAY_NAME.toString(), user.getString("name")), getUser());
         }
+
         addHandleProperties(user, tweeterVertex);
         graphRepository.save(tweeterVertex, getUser());
-        GraphVertex profilePic = createProfilePhotoArtifact(user, tweeterVertex);
-        graphRepository.commit();
-        LOGGER.info("Saving tweeter profile picture to accumulo and as graph vertex: " + profilePic.getId());
+
+        createProfilePhotoArtifact(user, tweeterVertex);
 
         return tweeterVertex.getId();
     }
@@ -267,20 +270,20 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
         if (user.has("statuses_count") && ((Integer) user.get("statuses_count") > 0)) {
             String tweetCount = user.get("statuses_count").toString();
-            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, "statusCount", tweetCount), getUser());
-            handleVertex.setProperty("statusCount", tweetCount);
+            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, STATUS_COUNT, tweetCount), getUser());
+            handleVertex.setProperty(STATUS_COUNT, tweetCount);
         }
 
         if (user.has("followers_count") && ((Integer) user.get("followers_count") > 0)) {
             String followersCount = user.get("followers_count").toString();
-            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, "followerCount", followersCount), getUser());
-            handleVertex.setProperty("followerCount", followersCount);
+            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, FOLLOWER_COUNT, followersCount), getUser());
+            handleVertex.setProperty(FOLLOWER_COUNT, followersCount);
         }
 
         if (user.has("friends_count") && ((Integer) user.get("friends_count") > 0)) {
             String friendsCount = user.get("friends_count").toString();
-            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, "followingCount", friendsCount), getUser());
-            handleVertex.setProperty("followingCount", friendsCount);
+            auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, FOLLOWING_COUNT, friendsCount), getUser());
+            handleVertex.setProperty(FOLLOWING_COUNT, friendsCount);
         }
 
         String createdAt = user.has("created_at") ? user.getString("created_at") : null;
@@ -305,7 +308,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         }
     }
 
-    public GraphVertex createProfilePhotoArtifact(JSONObject user, GraphVertex userVertex) {
+    public void createProfilePhotoArtifact(JSONObject user, GraphVertex userVertex) {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
             URL url = new URL(user.get("profile_image_url").toString());
@@ -334,22 +337,18 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
             artifactRepository.save(artifact, getUser().getModelUserContext());
             GraphVertex profile = saveArtifact(artifactExtractedInfo);
-            graphRepository.commit();
 
             auditRepository.audit(userVertex.getId(), auditRepository.vertexPropertyAuditMessage(userVertex, PropertyName.GLYPH_ICON.toString(), profile.getId()), getUser());
-            userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + rowKey + "/raw"); //ArtifactThumbnailByRowKey.getUrl(build));
+            userVertex.setProperty(PropertyName.GLYPH_ICON.toString(), "/artifact/" + rowKey + "/raw");
             graphRepository.save(userVertex, getUser());
-            graphRepository.commit();
 
             graphRepository.findOrAddRelationship(userVertex.getId(), profile.getId(), LabelName.HAS_IMAGE, getUser());
-            graphRepository.commit();
 
-            return profile;
+            LOGGER.info("Saving tweeter profile picture to accumulo and as graph vertex: " + profile.getId());
         } catch (IOException e) {
             LOGGER.warn("Failed to create image for vertex: " + userVertex.getId());
             new IOException(e);
         }
-        return null;
     }
 
     @Inject
