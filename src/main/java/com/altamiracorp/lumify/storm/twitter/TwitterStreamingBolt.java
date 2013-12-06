@@ -185,6 +185,9 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         tweeterVertex.setProperty(PropertyName.TYPE, VertexType.ENTITY.toString());
         tweeterVertex.setProperty(PropertyName.SUBTYPE, handleConcept.getId());
         tweeterVertex.setProperty(PropertyName.DISPLAY_NAME, user.getString("name"));
+        graphRepository.save(tweeterVertex, getUser());
+
+        addHandleProperties(user, tweeterVertex);
 
         if (newVertex) {
             auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.TITLE.toString(), "@" + tweeter), getUser());
@@ -193,8 +196,6 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             auditRepository.audit(tweeterVertex.getId(), auditRepository.vertexPropertyAuditMessage(PropertyName.DISPLAY_NAME.toString(), user.getString("name")), getUser());
         }
 
-        addHandleProperties(user, tweeterVertex);
-        graphRepository.save(tweeterVertex, getUser());
 
         createProfilePhotoArtifact(user, tweeterVertex);
 
@@ -306,6 +307,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             auditRepository.audit(handleVertex.getId(), auditRepository.vertexPropertyAuditMessage(handleVertex, "description", user.getString("description")), getUser());
             handleVertex.setProperty("description", user.getString("description"));
         }
+        graphRepository.save(handleVertex, getUser());
     }
 
     public void createProfilePhotoArtifact(JSONObject user, GraphVertex userVertex) {
