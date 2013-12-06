@@ -28,7 +28,7 @@ mkdir -p /opt/lumify/config
 cp /vagrant/demo-vm/configuration.properties /opt/lumify/config/configuration.properties
 
 # run maven
-su - vagrant -c 'cd /vagrant && mvn package install -DskipTests' 2>&1 \
+su - vagrant -c 'cd /vagrant && mvn package install -P storm-jar,web-war -DskipTests' 2>&1 \
   | tee /vagrant/mvn.log \
   | grep '\[INFO\] Building'
 
