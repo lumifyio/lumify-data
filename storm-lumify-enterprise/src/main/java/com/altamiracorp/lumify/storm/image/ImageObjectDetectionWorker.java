@@ -5,6 +5,7 @@ import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactType;
 import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.objectDetection.ObjectDetector;
 import com.altamiracorp.lumify.objectDetection.OpenCVObjectDetector;
 import com.google.inject.Inject;
 import org.apache.commons.io.IOUtils;
@@ -32,7 +33,7 @@ public class ImageObjectDetectionWorker extends BaseImageWorker {
     private static final String OPENCV_CLASSIFIER_PATH_SUFFIX = ".path";
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageObjectDetectionWorker.class.getName());
 
-    private OpenCVObjectDetector objectDetector;
+    private ObjectDetector objectDetector;
     private Map<String, String> classifierFilePaths;
 
     @Override
@@ -91,7 +92,7 @@ public class ImageObjectDetectionWorker extends BaseImageWorker {
     }
 
     @Inject
-    public void setObjectDetector(OpenCVObjectDetector objectDetector) {
+    public void setObjectDetector(ObjectDetector objectDetector) {
         this.objectDetector = objectDetector;
     }
 }

@@ -3,7 +3,7 @@ package com.altamiracorp.lumify.storm.image;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.objectDetection.OpenCVObjectDetector;
+import com.altamiracorp.lumify.objectDetection.ObjectDetector;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.Before;
@@ -20,18 +20,21 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ImageObjectDetectionWorkerTest {
     private ImageObjectDetectionWorker worker;
+    private AdditionalArtifactWorkData data;
+    private FileSystem fs;
+    private List<ArtifactDetectedObject> detectedObjects;
+
     @Mock
     com.altamiracorp.lumify.core.user.User user;
-    AdditionalArtifactWorkData data;
-    FileSystem fs;
+
     @Mock
-    OpenCVObjectDetector detector;
-    List<ArtifactDetectedObject> detectedObjects;
+    ObjectDetector detector;
 
     @Before
     public void setup() throws Exception {
@@ -57,7 +60,7 @@ public class ImageObjectDetectionWorkerTest {
         ArtifactExtractedInfo result = worker.doWork(image, data);
         assertEquals("[{\"concept\":\"face\",\"y1\":\"\",\"y2\":\"\",\"x2\":\"\",\"x1\":\"\"}]",
                 result.getDetectedObjects());
-
+        verify(detector, times(1)).setup(anyString());
     }
 
     //todo add test for branch IOException
