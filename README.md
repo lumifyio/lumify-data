@@ -10,14 +10,17 @@ Lumify-Twitter is an open source ingest example for the Lumify project. See the 
 
 1. Generate Twitter API Keys. 
    * For instructions, please visit the [Twitter Developers site](https://dev.twitter.com/) or [Generating Twitter API Keys](#generating-twitter-api-keys) below. 
-2. Add the following properties names and corresponding Twitter API keys to your ```/opt/lumify/config/configuration.properties:
-	```
-	twitter.consumerKey=
-	twitter.consumerSecret=
-	twitter.token=
-	twitter.tokenSecret=
-	twitter.query= # Keywords to search Twitter for, e.g. twitter
-	```
+2. Add the following properties names and corresponding Twitter API keys to your ```/opt/lumify/config/configuration.properties:```
+
+```
+twitter.consumerKey= 
+twitter.consumerSecret=
+twitter.token=
+twitter.tokenSecret=
+twitter.query= # Keywords to search Twitter for, e.g. twitter
+# When searching for multiple phrases it must be a semi-colon separated list, e.g. twitter; face book; instagram
+```
+	
 3. Clone the repository from github using either of the links from the [main page](https://github.com/altamiracorp/lumify-twitter)
 4. cd into your ```lumify-twitter``` directory
 5. <a name="step-5"/>```mvn clean package```
