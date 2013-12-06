@@ -10,10 +10,10 @@ lumify-rpms
 
 ### Next
 
-0. `sudo su - makerpm`
-1. run the clone scripts
-2. run the build scripts
+1. `sudo su - makerpm`
+2. run the `build-all.sh` script
 3. run the `update-repo.sh` script
+4. publish `repo.tar.gz` to S3
 
 
 ## Use
@@ -33,7 +33,7 @@ gpgcheck=0
 ### Installation
 
 ```
-yum install lumify-ffmpeg
+yum install lumify-ffmpeg # the codecs will be installed as dependencies
 yum install lumify-ccextractor
 yum install lumify-tesseract
 yum install lumify-tesseract-eng
