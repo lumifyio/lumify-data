@@ -33,13 +33,13 @@ public class TwitterStreamSpout extends BaseRichSpout {
     private SpoutOutputCollector collector;
     private Client hbc;
     private BlockingQueue<String> tweetsToProcess = new LinkedBlockingQueue<String>();
-    private static List<String> TERMS     = Lists.newArrayList();
-    private static final String QUERY    = "twitter.query";
+    private static List<String> TERMS = Lists.newArrayList();
+    private static final String QUERY = "twitter.query";
 
-    private static final String CONSUMER_KEY    = "twitter.consumerKey";
+    private static final String CONSUMER_KEY = "twitter.consumerKey";
     private static final String CONSUMER_SECRET = "twitter.consumerSecret";
-    private static final String TOKEN           = "twitter.token";
-    private static final String TOKEN_SECRET    = "twitter.tokenSecret";
+    private static final String TOKEN = "twitter.token";
+    private static final String TOKEN_SECRET = "twitter.tokenSecret";
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
@@ -59,7 +59,11 @@ public class TwitterStreamSpout extends BaseRichSpout {
 
         Hosts hosebirdHosts = new HttpHosts(Constants.STREAM_HOST);
         StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint();
-        TERMS = Lists.newArrayList((String) stormConf.get(QUERY));
+        String query = stormConf.get(QUERY).toString();
+        if (query.contains("; ")) {
+            query = query.replace("; ", ",");
+        }
+        TERMS = Lists.newArrayList(query);
         endpoint.trackTerms(TERMS);
         Authentication hosebirdAuth = new OAuth1((String) stormConf.get(CONSUMER_KEY),
                 (String) stormConf.get(CONSUMER_SECRET),
