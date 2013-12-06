@@ -10,10 +10,4 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 source ${DIR}/setenv.sh
 
-
 s3cmd sync --exclude 'repodata/*' s3://bits.lumify.io/yum/ repo/
-
-rm -rf repo/repodata
-createrepo --baseurl=${LUMIFYREPO_URL} repo
-
-s3cmd sync --delete-removed repo/ s3://bits.lumify.io/yum/
