@@ -147,13 +147,13 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, PropertyName.SOURCE.toString(), source), getUser());
         tweet.setProperty(PropertyName.SOURCE, source);
 
-        if (json.has("favorite_count") && ((Integer) json.get("favorite_count") >= 0)) {
+        if (json.has("favorite_count") && ((Integer) json.get("favorite_count") > 0)) {
             Integer favCount = (Integer) json.get("favorite_count");
             auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet, FAVORITE_COUNT, favCount), getUser());
             tweet.setProperty(FAVORITE_COUNT, favCount);
         }
 
-        if (json.has("retweet_count") && ((Integer) json.get("retweet_count") >= 0)) {
+        if (json.has("retweet_count") && ((Integer) json.get("retweet_count") > 0)) {
             Integer rtCount = (Integer) json.get("retweet_count");
             auditRepository.audit(tweetId, auditRepository.vertexPropertyAuditMessage(tweet,RETWEET_COUNT, rtCount), getUser());
             tweet.setProperty(RETWEET_COUNT, rtCount);
