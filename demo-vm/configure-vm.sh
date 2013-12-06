@@ -51,4 +51,12 @@ mkdir -p /opt/lumify/lib
 cp /vagrant/lumify-public/storm-lumify/target/lumify-storm-*-with-dependencies.jar /opt/lumify/lib
 /opt/lumify/format.sh
 /opt/lumify/accumulo-import.sh /opt/lumify/sample-data.tgz
+
+# deploy the open source topology
+/opt/storm/bin/storm list \ 
+ | grep -q 'lumify\s*ACTIVE' && /opt/storm/bin/storm kill lumify
+/opt/storm/bin/storm jar \
+ /vagrant/lumify-public/storm-lumify/target/lumify-storm-1.0-SNAPSHOT-jar-with-dependencies.jar \
+ com.altamiracorp.lumify.storm.StormRunner
+
 /opt/lumify/rebuild-index.sh
