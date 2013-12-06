@@ -10,4 +10,4 @@ DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
 source ${DIR}/setenv.sh
 
-s3cmd sync --exclude 'repodata/*' s3://bits.lumify.io/yum/ repo/
+s3cmd sync --exclude 'repodata/*' s3://bits.lumify.io/yum/ ${HOME}/repo/
