@@ -57,7 +57,7 @@ Vagrant.configure('2') do |config|
 
   # used for development including closed source enterprise features
   config.vm.define "dev", :primary => true do |dev|
-    dev.vm.provision :shell, :inline => "mkdir -p /data0"
+    dev.vm.provision :shell, :inline => "mkdir -p /data0 /opt/lumify"
     dev.vm.provision :puppet do |puppet|
       configure_puppet(puppet, 'dev_vm.pp')
     end
