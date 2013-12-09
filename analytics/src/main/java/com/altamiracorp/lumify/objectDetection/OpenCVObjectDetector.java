@@ -1,8 +1,8 @@
 package com.altamiracorp.lumify.objectDetection;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
-import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.core.objectDetection.ObjectDetector;
 import com.altamiracorp.lumify.util.OpenCVUtils;
 import com.google.inject.Inject;
@@ -26,7 +26,12 @@ public class OpenCVObjectDetector extends ObjectDetector {
     private static final String MODEL = "opencv";
 
     static {
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        try {
+            System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        } catch (Exception ex) {
+            String javaLibraryPath = System.getProperty("java.library.path");
+            throw new RuntimeException("Could not find opencv library: " + Core.NATIVE_LIBRARY_NAME + " (java.library.path: " + javaLibraryPath + ")", ex);
+        }
     }
 
     private CascadeClassifier objectClassifier;
