@@ -5,7 +5,7 @@ class env::cluster::node {
 
   file { '/etc/yum.repos.d/lumify.repo' :
     source => 'puppet:///modules/env/dev/lumify.repo',
-    owner => 'vagrant',
+    owner => 'root',
     mode => 'u=rw,g=r,o=r',
   }
 

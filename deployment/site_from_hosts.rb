@@ -2,7 +2,7 @@
 
 MAP = {
   'puppet'         => ['include env::cluster::puppetmaster'],
-  /^namenode/      => ['include env::cluster::hadoop_master', 'include env::cluster::oozie_server'],
+  /^namenode/      => ['include env::cluster::hadoop_master'],
   'accumulomaster' => ['include env::cluster::hadoop_secondary', 'include env::cluster::accumulo_master'],
   /node\d{2}/      => ['include env::cluster::node'],
   /zk\d{2}/        => ['include env::cluster::zookeeper_server'],

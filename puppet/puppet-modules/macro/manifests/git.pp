@@ -1,4 +1,8 @@
 class macro::git {
+  package { 'git' :
+    ensure => present,
+  }
+
   $hiera_proxy_url = hiera('proxy_url', nil)
   if ($hiera_proxy_url != nil) {
     exec { "git configure http.proxy as ${hiera_proxy_url}" :
