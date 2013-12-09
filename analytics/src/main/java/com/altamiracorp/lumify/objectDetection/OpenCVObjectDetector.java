@@ -28,7 +28,7 @@ public class OpenCVObjectDetector extends ObjectDetector {
     static {
         try {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        } catch (Exception ex) {
+        } catch (UnsatisfiedLinkError ex) {
             String javaLibraryPath = System.getProperty("java.library.path");
             throw new RuntimeException("Could not find opencv library: " + Core.NATIVE_LIBRARY_NAME + " (java.library.path: " + javaLibraryPath + ")", ex);
         }
