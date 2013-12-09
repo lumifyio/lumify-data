@@ -3,7 +3,7 @@ package com.altamiracorp.lumify.storm.image;
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
-import com.altamiracorp.lumify.objectDetection.ObjectDetector;
+import com.altamiracorp.lumify.core.objectDetection.ObjectDetector;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.Before;

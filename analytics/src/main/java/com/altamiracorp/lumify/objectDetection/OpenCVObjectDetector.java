@@ -3,6 +3,7 @@ package com.altamiracorp.lumify.objectDetection;
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.objectDetection.ObjectDetector;
 import com.altamiracorp.lumify.util.OpenCVUtils;
 import com.google.inject.Inject;
 import org.opencv.core.Core;

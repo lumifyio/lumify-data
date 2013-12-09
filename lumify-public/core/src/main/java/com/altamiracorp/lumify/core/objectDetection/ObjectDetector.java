@@ -1,15 +1,16 @@
-package com.altamiracorp.lumify.objectDetection;
+package com.altamiracorp.lumify.core.objectDetection;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
-import com.altamiracorp.lumify.core.user.User;
+import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrame;
 import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.user.User;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 public abstract class ObjectDetector {
     private final ArtifactRepository artifactRepository;
@@ -33,5 +34,7 @@ public abstract class ObjectDetector {
 
     public abstract String getModelName();
 
+    public void init(Map map) {
 
+    }
 }
