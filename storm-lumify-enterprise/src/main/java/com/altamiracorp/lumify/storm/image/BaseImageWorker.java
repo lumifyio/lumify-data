@@ -2,6 +2,7 @@ package com.altamiracorp.lumify.storm.image;
 
 import com.altamiracorp.lumify.core.ingest.AdditionalArtifactWorkData;
 import com.altamiracorp.lumify.core.ingest.ArtifactExtractedInfo;
+import com.altamiracorp.lumify.core.ingest.TextExtractionWorkerPrepareData;
 import com.altamiracorp.lumify.core.ingest.image.ImageTextExtractionWorker;
 import com.altamiracorp.lumify.core.user.User;
 import com.altamiracorp.lumify.core.util.ThreadedTeeInputStreamWorker;
@@ -27,7 +28,7 @@ public abstract class BaseImageWorker extends ThreadedTeeInputStreamWorker<Artif
     protected abstract ArtifactExtractedInfo doWork (BufferedImage image, AdditionalArtifactWorkData data) throws Exception;
 
     @Override
-    public void prepare(Map stormConf, User user) {
+    public void prepare(TextExtractionWorkerPrepareData data) throws Exception {
         //no-op
     }
 }

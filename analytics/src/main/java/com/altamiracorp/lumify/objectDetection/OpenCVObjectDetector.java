@@ -1,11 +1,10 @@
 package com.altamiracorp.lumify.objectDetection;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
-import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
-import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
-import com.altamiracorp.lumify.core.objectDetection.ObjectDetector;
 import com.altamiracorp.lumify.util.OpenCVUtils;
-import com.google.inject.Inject;
+import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
@@ -15,15 +14,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class OpenCVObjectDetector extends ObjectDetector {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenCVObjectDetector.class);
+    public static final String OPENCV_CLASSIFIER_CONCEPT_LIST = "objectdetection.classifierConcepts";
+    public static final String OPENCV_CLASSIFIER_PATH_PREFIX = "objectdetection.classifier.";
+    public static final String OPENCV_CLASSIFIER_PATH_SUFFIX = ".path";
 
     private static final String MODEL = "opencv";
+
+    private List<CascadeClassifierHolder> objectClassifiers = new ArrayList<CascadeClassifierHolder>();
 
     static {
         try {
@@ -34,22 +44,24 @@ public class OpenCVObjectDetector extends ObjectDetector {
         }
     }
 
-    private CascadeClassifier objectClassifier;
+    @Override
+    public void init(Map stormConf, FileSystem fs) throws Exception {
+        super.init(stormConf, fs);
+        String conceptListString = (String) stormConf.get(OPENCV_CLASSIFIER_CONCEPT_LIST);
+        checkNotNull(conceptListString, OPENCV_CLASSIFIER_CONCEPT_LIST + " is a required configuration parameter");
+        String[] classifierConcepts = conceptListString.split(",");
+        for (String classifierConcept : classifierConcepts) {
+            String classifierFilePath = (String) stormConf.get(OPENCV_CLASSIFIER_PATH_PREFIX + classifierConcept + OPENCV_CLASSIFIER_PATH_SUFFIX);
 
-    @Inject
-    public OpenCVObjectDetector(ArtifactRepository artifactRepository, VideoFrameRepository videoFrameRepository) {
-        super(artifactRepository, videoFrameRepository);
+            File localFile = createLocalFile(classifierFilePath, fs);
+            CascadeClassifier objectClassifier = new CascadeClassifier(localFile.getPath());
+            addObjectClassifier(classifierConcept, objectClassifier);
+            localFile.delete();
+        }
     }
 
-    @Override
-    public void setup(String classifierPath, InputStream dictionary) {
-        LOGGER.warn("There is no dictionary needed for the standard OpenCV object detector, use OpenCVObjectDetector.setup(String) instead");
-        setup(classifierPath);
-    }
-
-    @Override
-    public void setup(String classifierPath) {
-        objectClassifier = new CascadeClassifier(classifierPath);
+    public void addObjectClassifier(String concept, CascadeClassifier objectClassifier) {
+        objectClassifiers.add(new CascadeClassifierHolder(concept, objectClassifier));
     }
 
     @Override
@@ -58,12 +70,18 @@ public class OpenCVObjectDetector extends ObjectDetector {
         Mat image = OpenCVUtils.bufferedImageToMat(bImage);
         if (image != null) {
             MatOfRect faceDetections = new MatOfRect();
-            objectClassifier.detectMultiScale(image, faceDetections);
+            for (CascadeClassifierHolder objectClassifier : objectClassifiers) {
+                objectClassifier.cascadeClassifier.detectMultiScale(image, faceDetections);
 
-            for (Rect rect : faceDetections.toArray()) {
-                ArtifactDetectedObject detectedObject = new ArtifactDetectedObject(Integer.toString(rect.x), Integer.toString(rect.y),
-                        Integer.toString(rect.x + rect.width), Integer.toString(rect.y + rect.height));
-                detectedObjectList.add(detectedObject);
+                for (Rect rect : faceDetections.toArray()) {
+                    ArtifactDetectedObject detectedObject = new ArtifactDetectedObject(
+                            Integer.toString(rect.x),
+                            Integer.toString(rect.y),
+                            Integer.toString(rect.x + rect.width),
+                            Integer.toString(rect.y + rect.height),
+                            objectClassifier.concept);
+                    detectedObjectList.add(detectedObject);
+                }
             }
         }
 
@@ -75,4 +93,34 @@ public class OpenCVObjectDetector extends ObjectDetector {
         return MODEL;
     }
 
+    private File createLocalFile(String classifierFilePath, FileSystem fs) throws IOException {
+        File tempFile = File.createTempFile("lumify", ".xml");
+        FileOutputStream fos = null;
+        InputStream in = null;
+        try {
+            in = fs.open(new Path(classifierFilePath));
+            fos = new FileOutputStream(tempFile);
+            IOUtils.copy(in, fos);
+        } catch (IOException e) {
+            LOGGER.error("Could not create local file", e);
+        } finally {
+            if (in != null) {
+                in.close();
+            }
+            if (fos != null) {
+                fos.close();
+            }
+        }
+        return tempFile;
+    }
+
+    private class CascadeClassifierHolder {
+        public final String concept;
+        public final CascadeClassifier cascadeClassifier;
+
+        public CascadeClassifierHolder(String concept, CascadeClassifier cascadeClassifier) {
+            this.concept = concept;
+            this.cascadeClassifier = cascadeClassifier;
+        }
+    }
 }

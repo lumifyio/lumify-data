@@ -1,17 +1,17 @@
 package com.altamiracorp.lumify.objectDetection;
 
 import com.altamiracorp.lumify.core.ingest.ArtifactDetectedObject;
-import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
 import com.altamiracorp.lumify.core.model.artifact.ArtifactRepository;
+import com.altamiracorp.lumify.core.model.videoFrames.VideoFrameRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
+import org.opencv.objdetect.CascadeClassifier;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -35,16 +35,18 @@ public class OpenCVObjectDetectorTest {
     }
 
     @Test
-    public void testObjectDetection() throws IOException {
-        OpenCVObjectDetector objectDetector = new OpenCVObjectDetector(artifactRepository, videoFrameRepository);
+    public void testObjectDetection() throws Exception {
+        OpenCVObjectDetector objectDetector = new OpenCVObjectDetector();
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
         BufferedImage bImage = ImageIO.read(cl.getResourceAsStream(TEST_IMAGE));
 
-        objectDetector.setup(cl.getResource(CLASSIFIER).getPath());
+        CascadeClassifier objectClassifier = new CascadeClassifier(cl.getResource(CLASSIFIER).getPath());
+        objectDetector.addObjectClassifier("face", objectClassifier);
         List<ArtifactDetectedObject> detectedObjectList = objectDetector.detectObjects(bImage);
         assertTrue("Incorrect number of objects found", detectedObjectList.size() == 1);
 
         ArtifactDetectedObject detectedObject = detectedObjectList.get(0);
+        assertEquals("face", detectedObject.getConcept());
         assertEquals("X1 incorrect", "434", detectedObject.getX1());
         assertEquals("Y1 incorrect", "117", detectedObject.getY1());
         assertEquals("X2 incorrect", "637", detectedObject.getX2());
