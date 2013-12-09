@@ -83,6 +83,7 @@ define([
                 });
                 this.on('endPan', function() {
                     this.$node.find('.draggable-wrapper').remove();
+                    map.featuresLayer.redraw();
                 });
 
                 this.on('pan', function(e, data) {
@@ -286,6 +287,7 @@ define([
             var dataExtent = map.featuresLayer.getDataExtent();
             if (dataExtent) {
                 map.zoomToExtent(dataExtent.scale(2)); 
+                map.featuresLayer.redraw();
             } else {
                 map.zoomToMaxExtent();
             }
