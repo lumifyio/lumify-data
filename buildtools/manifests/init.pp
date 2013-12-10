@@ -9,10 +9,6 @@ class buildtools($tmpdir="/usr/local/src") {
     require => Exec['epel'],
   }
 
-  package { 'git' :
-    ensure => present,
-  }
-
   package { 'autoconf':
     ensure => present,
   }
