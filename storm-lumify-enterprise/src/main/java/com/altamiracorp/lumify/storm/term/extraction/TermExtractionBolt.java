@@ -112,6 +112,7 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
 
     private List<TermMentionWithGraphVertex> saveTermExtractions(String artifactGraphVertexId, List<TermExtractionResult.TermMention> termMentions) {
         List<TermMentionWithGraphVertex> results = new ArrayList<TermMentionWithGraphVertex>();
+        Object artifactTitle = graphRepository.findVertex(artifactGraphVertexId, getUser()).getProperty(PropertyName.TITLE.toString());
         for (TermExtractionResult.TermMention termMention : termMentions) {
             LOGGER.info(String.format("Saving term mention '%s':%s (%d:%d)", termMention.getSign(), termMention.getOntologyClassUri(), termMention.getStart(), termMention.getEnd()));
             GraphVertex vertex = null;
@@ -145,10 +146,12 @@ public class TermExtractionBolt extends BaseTextProcessingBolt {
                 }
 
                 String resolvedEntityGraphVertexId = graphRepository.saveVertex(vertex, getUser());
-                graphRepository.commit();
 
                 graphRepository.saveRelationship(artifactGraphVertexId, resolvedEntityGraphVertexId, LabelName.HAS_ENTITY, getUser());
-                graphRepository.commit();
+
+                String labelDisplayName = ontologyRepository.getDisplayNameForLabel(LabelName.HAS_ENTITY.toString(), getUser());
+                auditRepository.audit(artifactGraphVertexId, auditRepository.relationshipAuditMessageOnSource(labelDisplayName, termMention.getSign()), getUser());
+                auditRepository.audit(resolvedEntityGraphVertexId, auditRepository.relationshipAuditMessageOnDest(labelDisplayName, artifactTitle), getUser());
 
                 termMentionModel.getMetadata().setGraphVertexId(resolvedEntityGraphVertexId);
             }
