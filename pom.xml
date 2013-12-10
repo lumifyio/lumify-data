@@ -252,6 +252,7 @@
         <module>analytics</module>
         <module>lumify-public</module>
         <module>lumify-twitter</module>
+        <module>lumify-facebook</module>
         <module>storm-lumify-enterprise</module>
     </modules>
 </project>
