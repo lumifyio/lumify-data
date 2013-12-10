@@ -57,7 +57,7 @@ public class FacebookSpout extends BaseRichSpout {
             facebookArray = postArray;
             for (int i = 0; i < postArray.length(); i++) {
                 JSONObject post = postArray.getJSONObject(i);
-                String userInfo = "birthday, contact_email, current_location, friend_count, first_name, last_name, middle_name, url, sex, username";
+                String userInfo = "birthday_date, contact_email, current_location, friend_count, name, pic, sex, username, uid";
                 String userQuery = "SELECT " + userInfo + "FROM user WHERE uid = ";
                 for (int j = 0; i < post.getJSONArray("tagged_uids").length(); j++) {
                     String taggedQuery = userQuery + post.getJSONArray("tagged_uids").getJSONObject(j).toString();
