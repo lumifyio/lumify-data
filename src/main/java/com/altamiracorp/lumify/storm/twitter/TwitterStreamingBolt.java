@@ -81,8 +81,6 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
 
             workQueueRepository.pushArtifactHighlight(tweet.getId());
         }
-
-        getCollector().ack(tuple);
     }
 
     private void saveToDatabase(JSONObject json, Concept handleConcept) {
