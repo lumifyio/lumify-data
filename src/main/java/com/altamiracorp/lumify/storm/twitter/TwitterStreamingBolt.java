@@ -156,7 +156,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
         graphRepository.save(tweeterVertex, getUser());
 
         if (newVertex) {
-            auditRepository.audit(tweet.getId(), auditRepository.resolvedEntityAuditArtifactMessage(tweeter), getUser());
+            auditRepository.audit(tweet.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(tweeter), getUser());
             auditRepository.audit(tweeterVertex.getId(), auditRepository.resolvedEntityAuditMessage(tweet.getProperty(PropertyName.TITLE.toString())), getUser());
         }
 
@@ -208,7 +208,7 @@ public class TwitterStreamingBolt extends BaseLumifyBolt {
             graphRepository.save(vertex, getUser());
 
             if (newVertex) {
-                auditRepository.audit(tweet.getId(), auditRepository.resolvedEntityAuditArtifactMessage(sign), getUser());
+                auditRepository.audit(tweet.getId(), auditRepository.resolvedEntityAuditMessageForArtifact(sign), getUser());
                 auditRepository.audit(vertex.getId(), auditRepository.resolvedEntityAuditMessage(tweet.getProperty(PropertyName.TITLE.toString())), getUser());
             }
             auditRepository.audit(vertex.getId(), auditRepository.vertexPropertyAuditMessages(vertex, modifiedProperties), getUser());
